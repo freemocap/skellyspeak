@@ -60,23 +60,33 @@ pub(in crate::application) async fn open_local_admin(app: tauri::AppHandle) -> R
             .redirect(reqwest::redirect::Policy::none())
             .timeout(std::time::Duration::from_secs(5))
             .build()
-            .map_err(|_| failure())?;
+            .map_err(|cause| {
+                crate::diagnostics::response::network_context(&cause, "local_admin_http", failure())
+            })?;
         let mut response = client
             .post("http://127.0.0.1:8765/admin/local/ticket")
             .bearer_auth(token.as_str())
             .send()
             .await
-            .map_err(|_| failure())?
+            .map_err(|cause| {
+                crate::diagnostics::response::network_context(&cause, "local_admin_http", failure())
+            })?
             .error_for_status()
-            .map_err(|_| failure())?;
+            .map_err(|cause| {
+                crate::diagnostics::response::network_context(&cause, "local_admin_http", failure())
+            })?;
         let mut bytes = Vec::new();
-        while let Some(chunk) = response.chunk().await.map_err(|_| failure())? {
+        while let Some(chunk) = response.chunk().await.map_err(|cause| {
+            crate::diagnostics::response::network_context(&cause, "local_admin_http", failure())
+        })? {
             if bytes.len() + chunk.len() > 1024 {
                 return Err(failure());
             }
             bytes.extend_from_slice(&chunk);
         }
-        let value: serde_json::Value = serde_json::from_slice(&bytes).map_err(|_| failure())?;
+        let value: serde_json::Value = serde_json::from_slice(&bytes).map_err(|cause| {
+            crate::diagnostics::response::json_context(&cause, "local_admin_json", failure())
+        })?;
         let ticket = value
             .get("ticket")
             .and_then(|v| v.as_str())
@@ -119,22 +129,30 @@ fn read_token(path: &std::path::Path) -> Result<Zeroizing<String>> {
     // accepted through IPC, and session.json (the signing key) is never opened.
     for ancestor in path.ancestors() {
         if std::fs::symlink_metadata(ancestor)
-            .map_err(|_| invalid())?
+            .map_err(|cause| {
+                crate::diagnostics::response::io_context(&cause, "local_token_read", invalid())
+            })?
             .is_symlink()
         {
             return Err(invalid());
         }
     }
-    let metadata = std::fs::metadata(path).map_err(|_| invalid())?;
+    let metadata = std::fs::metadata(path).map_err(|cause| {
+        crate::diagnostics::response::io_context(&cause, "local_token_read", invalid())
+    })?;
     if !metadata.is_file() || metadata.len() > 4096 {
         return Err(invalid());
     }
     let mut token = Zeroizing::new(String::new());
     std::fs::File::open(path)
-        .map_err(|_| invalid())?
+        .map_err(|cause| {
+            crate::diagnostics::response::io_context(&cause, "local_token_read", invalid())
+        })?
         .take(4097)
         .read_to_string(&mut token)
-        .map_err(|_| invalid())?;
+        .map_err(|cause| {
+            crate::diagnostics::response::io_context(&cause, "local_token_read", invalid())
+        })?;
     let trimmed = token.trim();
     if trimmed.len() > 4096
         || trimmed.split('.').count() != 3

@@ -4386,6 +4386,7 @@ dependencies = [
  "unicode-segmentation",
  "uuid",
  "zeroize",
+ "zip",
 ]
 
 [[package]]

@@ -1,3 +1,4 @@
+import { errorDetails } from '../../platform/diagnostics/error-details'
 /** Standalone hosted admin surface. All access decisions remain on the server. */
 type Row = Record<string, unknown>
 type Usage = { day: string; present: boolean; micros: number; tokens: number; requests: number; micros_credit: number }
@@ -247,6 +248,12 @@ async function renderLive() {
   }
   $('live-status').textContent = `Live · connected · updated ${new Date().toLocaleTimeString()}.`
 }
+function liveFailure(stage: string, error: unknown) {
+  const details = errorDetails(error)
+  $('error').textContent = `${stage}\n${JSON.stringify(details, null, 2)}`
+  $('error').hidden = false
+  stopLive(stage)
+}
 function startLive() {
   liveSocket?.close(); latestLive = undefined
   const url = new URL('/admin/live', location.href); url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
@@ -260,14 +267,14 @@ function startLive() {
       if (packet.type === 'heartbeat') return
       if (packet.type === 'error') { $('error').textContent = `${packet.detail}${packet.diagnostics ? '\n' + JSON.stringify(packet.diagnostics, null, 2) : ''}`; $('error').hidden = false; stopLive(`Live stopped: ${packet.detail}`); return }
       if (packet.type !== 'snapshot' || !packet.overview || !packet.timeline || !packet.logs) throw new Error('Invalid live update')
-      latestLive = packet; void renderLive().catch(() => stopLive('Live stopped: could not render the update.'))
-    } catch { stopLive('Live stopped: invalid server message.') }
+      latestLive = packet; void renderLive().catch(error => liveFailure('Live update rendering failed', error))
+    } catch (error) { liveFailure('Live message decoding failed', error) }
   }
   socket.onclose = () => { if (liveSocket === socket) stopLive('Live disconnected. Enable Live to reconnect.') }
   socket.onerror = () => { if (liveSocket === socket) stopLive('Live connection failed. Check the server and your admin session, then enable Live again.') }
 }
 $('live').onchange = () => { if ($<HTMLInputElement>('live').checked) startLive(); else stopLive() }
-document.addEventListener('visibilitychange', () => { void renderLive() })
+document.addEventListener('visibilitychange', () => { void renderLive().catch(error => liveFailure('Live update rendering failed', error)) })
 $('logs').addEventListener('toggle', () => { void renderLive() }, true)
 window.addEventListener('pagehide', () => stopLive())
 $('refresh').onclick = () => void run(loadOverview)

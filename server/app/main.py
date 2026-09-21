@@ -14,6 +14,7 @@ Design rules, matching the app:
 """
 
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError, DiagnosticRuntimeError
 
 from server.app.inference import decisions
 
@@ -564,20 +565,20 @@ def _usage_from(payload: dict[str, object]) -> tuple[int | None, int]:
     if usage is None:
         return None, 0
     if not isinstance(usage, dict):
-        raise ValueError("Provider usage must be an object.")
+        raise DiagnosticValueError("Provider usage must be an object.")
     tokens = usage.get("total_tokens", 0)
     if "total_tokens" not in usage and ("input_tokens" in usage or "output_tokens" in usage):
         counts = [usage.get("input_tokens", 0), usage.get("output_tokens", 0)]
         if any(type(n) is not int or n < 0 for n in counts):
-            raise ValueError("Provider token counts must be nonnegative integers.")
+            raise DiagnosticValueError("Provider token counts must be nonnegative integers.")
         tokens = sum(counts)
     cost = usage.get("cost")
     if type(tokens) is not int or tokens < 0:
-        raise ValueError("Provider token count must be a nonnegative integer.")
+        raise DiagnosticValueError("Provider token count must be a nonnegative integer.")
     if cost is None:
         return None, tokens
     if type(cost) not in (int, float) or not math.isfinite(cost) or cost < 0:
-        raise ValueError("Provider cost must be finite and nonnegative.")
+        raise DiagnosticValueError("Provider cost must be finite and nonnegative.")
     return quota.dollars_to_micros(cost), tokens
 
 
@@ -695,19 +696,23 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
                         tokens = max(tokens, chunk_tokens)
                         yield ("data: " + json.dumps(payload, ensure_ascii=False) + "\n\n").encode("utf-8")
             if not completed:
-                raise RuntimeError("AI provider stream ended without a completion marker.")
+                raise DiagnosticRuntimeError("AI provider stream ended without a completion marker.")
         except Exception as exc:
+            from server.app.diagnostics.exceptions import describe
+            private = tuple(provider_errors.request_strings(contract.payload)) + tuple(provider_errors.request_strings(headers))
+            failures = {"stage": "stream", "cause": describe(exc, private=private, include_message=isinstance(exc, httpx.HTTPError))}
             if not settled:
                 settled = True
                 try:
                     await _settle(reservation, cost=None, tokens=tokens, provider_id=provider_id)
                 except Exception as settlement_error:
-                    exc = RuntimeError(f"{exc}; {settlement_error}")
-            log.error("Chat stream failed for reservation %s (%s)", reservation.request_id, type(exc).__name__)
+                    failures["settlement_error"] = describe(settlement_error)
+            details = {"response": upstream_diagnostics, **failures}
+            runtime.emit("provider_failed", provider="OPENROUTER", diagnostics=details)
             error_payload: dict[str, object] = {"message": "Chat stream failed. The reservation remains charged unless usage was verified."}
             if upstream_status is not None:
                 error_payload["code"] = upstream_status
-            error_payload["diagnostics"] = upstream_diagnostics or {"stage": "stream", "exception_type": type(exc).__name__}
+            error_payload["diagnostics"] = details
             yield ("data: " + json.dumps({"error": error_payload}) + "\n\n").encode()
         finally:
             runtime.emit("provider_finished" if completed else "provider_failed", provider="OPENROUTER",
@@ -751,7 +756,7 @@ async def transcriptions(request: Request, who: quota.Principal = Depends(curren
             body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
             audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, body, content_type=content_type))
             if audio.cost_micros > reservation.micros:
-                raise RuntimeError("Decoded audio exceeds its reserved cost.")
+                raise DiagnosticRuntimeError("Decoded audio exceeds its reserved cost.")
             output = io.BytesIO()
             with wave.open(output, "wb") as wav:
                 wav.setnchannels(1)
@@ -810,9 +815,10 @@ async def stream_grouped_item(client: httpx.AsyncClient, url: str, outbound: dic
                         on_delta(added)
             except streaming.ResponseLimitExceeded as error:
                 raise StreamFailure("RESPONSE_LIMIT", accumulator.partial("response_limit")) from error
-            except (ValueError, UnicodeError, httpx.HTTPError):
-                # Framing broke; `end()` reports the stream as incomplete.
-                pass
+            except (ValueError, UnicodeError, httpx.HTTPError) as error:
+                from server.app.diagnostics.exceptions import describe
+                accumulator.framing_error = describe(error, private=tuple(provider_errors.request_strings(request)) + tuple(provider_errors.request_strings(headers)), include_message=isinstance(error, httpx.HTTPError))
+
     return accumulator
 
 

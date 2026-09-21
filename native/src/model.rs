@@ -481,13 +481,18 @@ impl std::fmt::Display for AppError {
 }
 impl std::error::Error for AppError {}
 impl From<rusqlite::Error> for AppError {
+    #[track_caller]
     fn from(error: rusqlite::Error) -> Self {
-        Self::new(ErrorCode::Storage, error.to_string())
+        crate::diagnostics::failures::sqlite(&error)
     }
 }
 impl From<serde_json::Error> for AppError {
     fn from(error: serde_json::Error) -> Self {
-        Self::new(ErrorCode::Storage, error.to_string())
+        crate::diagnostics::response::json_context(
+            &error,
+            "stored_json_decode",
+            Self::new(ErrorCode::Storage, "Stored JSON could not be decoded."),
+        )
     }
 }
 pub type Result<T> = std::result::Result<T, AppError>;
@@ -668,7 +673,12 @@ pub fn bindings() -> String {
         AppError::decl(&config),
     ];
     format!(
-        "// Generated from Rust contracts. Run npm run contracts.\n{}\n{}\n{}\n",
+        "// Generated from Rust contracts. Run npm run contracts.\n{}\n{}\n{}\n{}\n",
+        format_args!(
+            "export const diagnosticCommands = {} as const;",
+            serde_json::to_string(crate::diagnostics::DIAGNOSTIC_COMMAND_NAMES)
+                .expect("command names")
+        ),
         declarations.map(|line| format!("export {line}")).join("\n"),
         format_args!(
             "{}\nexport const SKILL_CATALOG_VERSION = {} as const",

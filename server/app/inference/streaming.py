@@ -8,6 +8,7 @@ metadata so a completed stream becomes an ordinary completion object.
 """
 
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError
 
 import json
 from collections.abc import AsyncIterable, AsyncIterator
@@ -27,7 +28,7 @@ async def frames(chunks: AsyncIterable[bytes]) -> AsyncIterator[dict[str, object
     event_size = 0
     async for chunk in chunks:
         if len(pending) + len(chunk) > MAX_EVENT_BYTES:
-            raise ValueError("Provider stream event exceeded its size limit.")
+            raise DiagnosticValueError("Provider stream event exceeded its size limit.")
         pending.extend(chunk)
         while (end := pending.find(b"\n")) >= 0:
             raw_line = bytes(pending[:end]).rstrip(b"\r")
@@ -36,7 +37,7 @@ async def frames(chunks: AsyncIterable[bytes]) -> AsyncIterator[dict[str, object
             if line.startswith("data:"):
                 event_size += len(raw_line)
                 if event_size > MAX_EVENT_BYTES:
-                    raise ValueError("Provider stream event exceeded its size limit.")
+                    raise DiagnosticValueError("Provider stream event exceeded its size limit.")
                 data.append(line[5:].removeprefix(" "))
             elif not line and data:
                 raw = "\n".join(data)
@@ -44,14 +45,14 @@ async def frames(chunks: AsyncIterable[bytes]) -> AsyncIterator[dict[str, object
                 event_size = 0
                 if raw == "[DONE]":
                     if pending.strip():
-                        raise ValueError("Provider sent data after completion.")
+                        raise DiagnosticValueError("Provider sent data after completion.")
                     yield None
                     return
                 payload = json.loads(raw)
                 if not isinstance(payload, dict):
-                    raise ValueError("Provider stream payload must be an object.")
+                    raise DiagnosticValueError("Provider stream payload must be an object.")
                 yield payload
-    raise ValueError("Provider stream ended without a completion marker.")
+    raise DiagnosticValueError("Provider stream ended without a completion marker.")
 
 
 async def events(chunks: AsyncIterable[bytes]) -> AsyncIterator[dict[str, object] | None]:
@@ -61,10 +62,10 @@ async def events(chunks: AsyncIterable[bytes]) -> AsyncIterator[dict[str, object
             yield None
             return
         if payload.get("error"):
-            raise ValueError("Provider reported a streaming error.")
+            raise DiagnosticValueError("Provider reported a streaming error.")
         for choice in payload.get("choices", []):
             if choice.get("finish_reason") in {"length", "content_filter", "error"}:
-                raise ValueError("Provider stopped before completing the response.")
+                raise DiagnosticValueError("Provider stopped before completing the response.")
         yield payload
 
 
@@ -88,6 +89,7 @@ class CompletionAccumulator:
         self.done = False
         self.private = private
         self.http: dict[str, object] | None = None
+        self.framing_error: dict | None = None
 
     def accept(self, payload: dict[str, object] | None) -> str:
         """Take one frame; return the text it added."""
@@ -146,4 +148,4 @@ class CompletionAccumulator:
         return provider_errors.sanitize({**self.top, "stage": "stream", "reason": reason,
                 "chars": len(self.text), "finish_reason": self.finish_reason,
                 "native_finish_reason": self.native_finish_reason, "usage": self.usage,
-                "error": self.error, "http": self.http}, private)
+                "error": self.error, "http": self.http, "framing_error": self.framing_error}, private)

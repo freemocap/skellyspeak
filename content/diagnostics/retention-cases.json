@@ -1,0 +1,94 @@
+[
+  {
+    "name": "credential inside actionable explanation",
+    "text": "Request failed: api_key=credential-canary; permission text_to_speech missing",
+    "private": [],
+    "kept": [
+      "Request failed",
+      "permission text_to_speech missing"
+    ],
+    "removed": [
+      "credential-canary"
+    ],
+    "tag": "[secret redacted]"
+  },
+  {
+    "name": "content between useful clauses",
+    "text": "Validation failed; transcript=\"content-canary phrase\"; expected exact source quote at cards[0].quote",
+    "private": [],
+    "kept": [
+      "Validation failed",
+      "expected exact source quote at cards[0].quote"
+    ],
+    "removed": [
+      "content-canary phrase"
+    ],
+    "tag": "[user content redacted]"
+  },
+  {
+    "name": "known unlabelled content",
+    "text": "Quote content-canary failed exact-source validation",
+    "private": [
+      "content-canary"
+    ],
+    "kept": [
+      "Quote",
+      "failed exact-source validation"
+    ],
+    "removed": [
+      "content-canary"
+    ],
+    "tag": "[user content redacted]"
+  },
+  {
+    "name": "provider permission is diagnostic",
+    "text": "Missing permission \"text_to_speech\" for model \"eleven_v3\".",
+    "private": [],
+    "kept": [
+      "text_to_speech",
+      "eleven_v3"
+    ],
+    "removed": []
+  },
+  {
+    "name": "url credential leaves network cause",
+    "text": "Connection refused to https://user:credential-canary@example.test/a?token=hidden; OS error 111",
+    "private": [],
+    "kept": [
+      "Connection refused",
+      "OS error 111"
+    ],
+    "removed": [
+      "credential-canary",
+      "example.test",
+      "hidden"
+    ],
+    "tag": "[secret redacted]"
+  },
+  {
+    "name": "auth header",
+    "text": "HTTP 401; Authorization: Bearer credential-canary; request failed",
+    "private": [],
+    "kept": [
+      "HTTP 401",
+      "request failed"
+    ],
+    "removed": [
+      "credential-canary"
+    ],
+    "tag": "[secret redacted]"
+  },
+  {
+    "name": "Android document URI retains IO reason",
+    "text": "Permission denied opening content://documents/private-canary; operation save_document failed",
+    "private": [],
+    "kept": [
+      "Permission denied",
+      "operation save_document failed"
+    ],
+    "removed": [
+      "documents/private-canary"
+    ],
+    "tag": "[secret redacted]"
+  }
+]

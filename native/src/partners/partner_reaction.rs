@@ -76,7 +76,7 @@ pub fn validate(output: &Completion) -> Result<Value> {
             return Err(reject(&format!("{field} exceeds 400 characters")));
         }
         crate::ai::transport::provider::validate_prose(text)
-            .map_err(|_| reject(&format!("{field} violates prose contract")))?;
+            .map_err(|cause| reject(&format!("{field} violates prose contract")).with_diagnostics(serde_json::json!({"stage":"partner_reaction_validation","path":field,"cause":crate::diagnostics::response::error_metadata(&cause,&[text])})))?;
     }
     Ok(serde_json::to_value(value)?)
 }

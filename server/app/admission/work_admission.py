@@ -4,6 +4,7 @@ Call only after authenticated infrastructure admission. No provider work belongs
 inside these transactions. This module does not reserve or settle money.
 """
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError, DiagnosticRuntimeError
 
 import re
 import secrets
@@ -40,7 +41,7 @@ class Claim:
 
 def identity(user_id: str, attempt_id: str, digest: str) -> int:
     if not user_id or len(user_id) > 128 or "/" in user_id:
-        raise ValueError("Invalid admission subject.")
+        raise DiagnosticValueError("Invalid admission subject.")
     if not re.fullmatch(r"[0-9]{10}-[0-9a-f]{32}", attempt_id):
         raise HTTPException(400, "Invalid attempt identity.")
     if not re.fullmatch(r"[0-9a-f]{64}", digest):
@@ -68,7 +69,7 @@ def claim(db: firestore.Client, *, user_id: str, attempt_id: str, digest: str) -
                 raise HTTPException(409, "Attempt identity was reused for different work.")
             state: State = previous["state"]
             if state not in {"running", "succeeded", "failed", "unknown"}:
-                raise RuntimeError("Invalid stored attempt state.")
+                raise DiagnosticRuntimeError("Invalid stored attempt state.")
             expires: float = float(previous["expires_at"])
             if state == "running" and expires <= now:
                 state = "unknown"
@@ -94,7 +95,7 @@ def claim(db: firestore.Client, *, user_id: str, attempt_id: str, digest: str) -
 
 def finish(db: firestore.Client, *, claim: Claim, state: Literal["succeeded", "failed", "unknown"]) -> None:
     if not claim.acquired or claim.owner is None or state not in {"succeeded", "failed", "unknown"}:
-        raise ValueError("Only the admitted owner can finish work.")
+        raise DiagnosticValueError("Only the admitted owner can finish work.")
     account: firestore.DocumentReference = db.collection(quota.USERS).document(claim.user_id)
     slots: firestore.DocumentReference = account.collection("work_control").document("slots")
     receipt: firestore.DocumentReference = account.collection("work_attempts").document(claim.attempt_id)
@@ -103,10 +104,10 @@ def finish(db: firestore.Client, *, claim: Claim, state: Literal["succeeded", "f
     def apply(transaction: firestore.Transaction) -> None:
         previous: dict = receipt.get(transaction=transaction).to_dict() or {}
         if previous.get("owner") != claim.owner:
-            raise RuntimeError("Attempt ownership is unavailable.")
+            raise DiagnosticRuntimeError("Attempt ownership is unavailable.")
         if previous["state"] != "running":
             if previous["state"] != state:
-                raise RuntimeError("Attempt already finished with a different outcome.")
+                raise DiagnosticRuntimeError("Attempt already finished with a different outcome.")
             return
         stored: dict = slots.get(transaction=transaction).to_dict() or {}
         active: dict[str, float] = stored.get("active", {})

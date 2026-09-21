@@ -7,6 +7,7 @@ use unicode_segmentation::UnicodeSegmentation;
 pub struct RejectedSpan {
     pub index: usize,
     pub code: &'static str,
+    pub diagnostics: serde_json::Value,
 }
 
 pub struct Recovered {
@@ -63,8 +64,7 @@ pub fn recover(
     struct Envelope {
         spans: Vec<UniqueRow>,
     }
-    let wire: Envelope =
-        serde_json::from_str(&completion.text).map_err(|_| AdapterError::InvalidJsonOrShape)?;
+    let wire: Envelope = serde_json::from_str(&completion.text).map_err(AdapterError::json)?;
     if wire.spans.len() > MAX_SPANS {
         return Err(AdapterError::InvalidCandidate(
             ValidationError::TooManySpans,
@@ -93,6 +93,7 @@ pub fn recover(
             Err(error) => rejected.push(RejectedSpan {
                 index,
                 code: error.diagnostic_code(),
+                diagnostics: error.diagnostics(),
             }),
         }
     }
@@ -112,6 +113,7 @@ pub fn recover(
             rejected.push(RejectedSpan {
                 index,
                 code: "gloss_overlap_or_unordered",
+                diagnostics: serde_json::json!({"stage":"word_gloss_validation","reason":"overlapping_annotations","index":index}),
             });
         } else {
             spans.push(item);

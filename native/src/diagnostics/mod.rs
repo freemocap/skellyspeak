@@ -1,6 +1,10 @@
 //! Durable, redacted diagnostics; the bounded ring is only a recent-read view.
 pub(crate) mod ai_graphs;
+#[cfg(any(not(target_os = "android"), test))]
+mod archive;
+pub(crate) mod failures;
 pub(crate) mod inference;
+mod policy;
 pub(crate) mod response;
 pub(crate) mod sharing;
 pub(crate) mod speech;
@@ -81,62 +85,8 @@ pub enum DiagnosticEvent {
     LanguageRegistryLoaded,
     Other,
 }
-#[derive(Debug, Clone, Deserialize, Serialize, ts_rs::TS)]
-#[serde(rename_all = "snake_case")]
-pub enum DiagnosticCommand {
-    BeginReading,
-    RunReading,
-    CancelReading,
-    GetReadingActivity,
-    ShareDiagnosticLogs,
-    ReadSpeechAudio,
-    GetUpdateChannel,
-    LatestGithubRelease,
-    MicStart,
-    MicWave,
-    MicCancel,
-    MicTranscribe,
-    FactoryReset,
-    GetStartupState,
-    BeginPersonaGeneration,
-    RunPersonaGeneration,
-    CancelPersonaGeneration,
-    GetPersonaGenerationActivity,
-    GetSnapshot,
-    ExecuteCommand,
-    GetAccessSettings,
-    SaveAccessSettings,
-    CheckAccess,
-    GetConnection,
-    SaveConnection,
-    SaveModels,
-    VerifyOpenrouterKey,
-    Disconnect,
-    WatchConversation,
-    HostedSignIn,
-    HostedAccount,
-    HostedDiagnostics,
-    HostedSignOut,
-    CancelSignIn,
-    SelectRoute,
-    GetProfile,
-    GetRewardSettings,
-    GetPlaybackRate,
-    SavePlaybackRate,
-    SaveRewardSettings,
-    GetSkillEvidence,
-    GetPracticeOverview,
-    SaveSkillProfile,
-    OpenAiWindow,
-    ListTurnHistory,
-    GetAttemptDetail,
-    ReadAttemptStreams,
-    AiWindowState,
-    DockAiWindow,
-    SetAiViewSelection,
-    GetAiViewSelection,
-    GetAiGraphDefinitions,
-}
+include!(concat!(env!("OUT_DIR"), "/diagnostic_commands.rs"));
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct FrontendDiagnostic {
@@ -202,14 +152,21 @@ impl Buffer {
 fn unavailable() -> AppError {
     AppError::new(ErrorCode::Internal, "Native diagnostics are unavailable.")
 }
-/// Startup diagnostics must never expose an app-private path or operating-system
-/// error to the UI. The stage is sufficient to make a device log actionable.
+/// Stage alone is useful for invariant failures; IO failures also retain OS identity.
 fn unavailable_at(stage: &'static str) -> AppError {
     eprintln!("Native diagnostics setup failed at {stage}.");
     AppError::new(
         ErrorCode::Internal,
         format!("Native diagnostics could not initialize ({stage})."),
     )
+}
+fn unavailable_io(stage: &'static str, cause: std::io::Error) -> AppError {
+    let error = response::io_context(&cause, stage, unavailable_at(stage));
+    eprintln!(
+        "Native diagnostics IO failure: {}",
+        error.diagnostics.as_ref().unwrap()
+    );
+    error
 }
 fn buffer() -> &'static Mutex<Buffer> {
     static BUFFER: OnceLock<Mutex<Buffer>> = OnceLock::new();
@@ -255,27 +212,30 @@ impl FileSink {
             }
         }
         crate::storage::store::prepare_private_directory(directory)
-            .map_err(|_| unavailable_at("directory"))?;
+            .map_err(|cause| unavailable_io("directory", cause))?;
         let frontend = private_file(&directory.join("diagnostics.jsonl"))
-            .map_err(|_| unavailable_at("frontend_file"))?;
+            .map_err(|cause| unavailable_io("frontend_file", cause))?;
         let native = private_file(&directory.join("native.jsonl"))
-            .map_err(|_| unavailable_at("native_file"))?;
+            .map_err(|cause| unavailable_io("native_file", cause))?;
         let mut manifest =
             private_file(&directory.join(format!("native-{}.manifest.json", std::process::id())))
-                .map_err(|_| unavailable_at("manifest_file"))?;
+                .map_err(|cause| unavailable_io("manifest_file", cause))?;
         serde_json::to_writer(
             &mut manifest,
             &serde_json::json!({
                 "version": 1, "pid": std::process::id(), "startedAtMs": timestamp()?,
                 "source": "native", "streams": ["diagnostics.jsonl", "native.jsonl"],
                 "retention": "no_automatic_deletion", "content": "structured_allowlisted_metadata",
+                "appVersion": env!("CARGO_PKG_VERSION"), "platform": std::env::consts::OS,
+                "architecture": std::env::consts::ARCH, "debugBuild": cfg!(debug_assertions),
+                "appImage": std::env::var_os("APPIMAGE").is_some(),
             }),
         )
-        .map_err(|_| unavailable_at("manifest_encoding"))?;
+        .map_err(|cause| response::json_context(&cause, "manifest_encoding", unavailable()))?;
         manifest
             .write_all(b"\n")
             .and_then(|_| manifest.flush())
-            .map_err(|_| unavailable_at("manifest_write"))?;
+            .map_err(|cause| unavailable_io("manifest_write", cause))?;
         Ok(Self {
             directory: directory.to_owned(),
             frontend,
@@ -287,7 +247,9 @@ impl FileSink {
             "recordedAtMs": timestamp()?, "run": self.directory.file_name().and_then(|n| n.to_str()),
             "pid": std::process::id(), "source": source, "event": event,
         });
-        let mut bytes = serde_json::to_vec(&record).map_err(|_| unavailable())?;
+        let mut bytes = serde_json::to_vec(&record).map_err(|cause| {
+            response::json_context(&cause, "log_record_encoding", unavailable())
+        })?;
         bytes.push(b'\n');
         let file = if source == "frontend" {
             &mut self.frontend
@@ -296,7 +258,7 @@ impl FileSink {
         };
         file.write_all(&bytes)
             .and_then(|_| file.flush())
-            .map_err(|_| unavailable())
+            .map_err(|cause| response::io_context(&cause, "diagnostic_append", unavailable()))
     }
 }
 static SINK: OnceLock<Mutex<FileSink>> = OnceLock::new();
@@ -336,7 +298,11 @@ pub(crate) fn configured_root(fallback_root: &Path) -> Result<PathBuf> {
 
 pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
     if let Some(sink) = SINK.get() {
-        return Ok(sink.lock().map_err(|_| unavailable())?.directory.clone());
+        return Ok(sink
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(unavailable()))?
+            .directory
+            .clone());
     }
     let custom = std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR");
     let root = configured_root(fallback_root)?;
@@ -346,17 +312,15 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
         root.join(format!("native-{}-{}", timestamp()?, std::process::id()))
     };
     let mut output = FileSink::open(&directory)?;
-    output
-        .append("native", &serde_json::json!({"code":"logging_initialized"}))
-        .map_err(|_| unavailable_at("initial_record"))?;
+    output.append("native", &serde_json::json!({"code":"logging_initialized"}))?;
     LOG_ROOT
         .set(root)
         .map_err(|_| unavailable_at("root_registration"))?;
     SINK.set(Mutex::new(output))
         .map_err(|_| unavailable_at("sink_registration"))?;
-    #[cfg(desktop)]
     {
-        log::set_logger(&NATIVE_LOGGER).map_err(|_| unavailable())?;
+        log::set_logger(&NATIVE_LOGGER)
+            .map_err(|_| unavailable_at("native_logger_already_installed"))?;
         log::set_max_level(log::LevelFilter::Trace);
     }
     // Panic messages explain the failure; redact sensitive spans before persistence.
@@ -371,17 +335,24 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
         let event = serde_json::json!({"code":"panic", "message":message, "line":info.location().map(|l| l.line()),
             "file":info.location().map(|l| l.file().rsplit("/src/").next().unwrap_or(l.file())),
             "contentRedacted":true});
-        if append_native(&event).is_err() {
-            eprintln!("Native panic diagnostic could not be saved.");
+        if let Err(error) = append_native(&event) {
+            fallback("panic_persistence", &event, &error);
         }
-        eprintln!("Native panic occurred; diagnostic payload redacted.");
+        eprintln!("{}", event);
     }));
     Ok(directory)
+}
+/// Nonrecursive emergency channel when the primary sink fails.
+fn fallback(stage: &str, event: &serde_json::Value, error: &AppError) {
+    eprintln!(
+        "{}",
+        serde_json::json!({"stage":stage,"event":response::metadata(event, &[]),"sink_error":response::error_metadata(error, &[])})
+    );
 }
 fn append_native(event: &serde_json::Value) -> Result<()> {
     sink()?
         .lock()
-        .map_err(|_| unavailable())?
+        .map_err(|_| crate::diagnostics::failures::poisoned(unavailable()))?
         .append("native", event)
 }
 
@@ -392,15 +363,12 @@ pub fn log_root() -> Result<PathBuf> {
 /// Authored diagnostic code with numerical metrics only; no arbitrary error body.
 pub fn native_event(code: &'static str, metrics: &[(&'static str, u64)]) {
     let event = serde_json::json!({"code":code, "metrics":metrics});
-    if append_native(&event).is_err() {
-        eprintln!("Native diagnostic file write failed (or logging is not initialized): {code}");
+    if let Err(error) = append_native(&event) {
+        fallback("native_event_persistence", &event, &error);
     }
 }
-#[cfg(desktop)]
 struct NativeLogger;
-#[cfg(desktop)]
 static NATIVE_LOGGER: NativeLogger = NativeLogger;
-#[cfg(desktop)]
 impl log::Log for NativeLogger {
     fn enabled(&self, _: &log::Metadata<'_>) -> bool {
         true
@@ -439,8 +407,8 @@ impl log::Log for NativeLogger {
                 event["wavBytes"] = serde_json::json!(bytes);
             }
         }
-        if append_native(&event).is_err() {
-            eprintln!("Native log record could not be saved.");
+        if let Err(error) = append_native(&event) {
+            fallback("native_log_persistence", &event, &error);
         }
     }
     fn flush(&self) {} // Each append is flushed before returning.
@@ -457,7 +425,9 @@ fn sanitize_frontend(event: &mut FrontendDiagnostic) {
 pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<DiagnosticReceipt> {
     sanitize_frontend(&mut event);
     let timestamp = timestamp()?;
-    let mut buffer = buffer().lock().map_err(|_| unavailable())?;
+    let mut buffer = buffer()
+        .lock()
+        .map_err(|_| crate::diagnostics::failures::poisoned(unavailable()))?;
     // Commit to the file before publishing to the recent-read ring or acknowledging.
     let sequence = buffer.sequence.checked_add(1).ok_or_else(unavailable)?;
     let record = DiagnosticRecord {
@@ -465,10 +435,14 @@ pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<Diagn
         recorded_at_ms: timestamp,
         event,
     };
-    let mut sink = sink()?.lock().map_err(|_| unavailable())?;
+    let mut sink = sink()?
+        .lock()
+        .map_err(|_| crate::diagnostics::failures::poisoned(unavailable()))?;
     sink.append(
         "frontend",
-        &serde_json::to_value(&record).map_err(|_| unavailable())?,
+        &serde_json::to_value(&record).map_err(|cause| {
+            response::json_context(&cause, "frontend_record_encoding", unavailable())
+        })?,
     )?;
     let record = buffer.push(record.event, timestamp)?;
     Ok(DiagnosticReceipt {
@@ -481,7 +455,7 @@ pub fn record_frontend_diagnostic(mut event: FrontendDiagnostic) -> Result<Diagn
 pub fn read_frontend_diagnostics(after_sequence: Option<u64>) -> Result<Vec<DiagnosticRecord>> {
     Ok(buffer()
         .lock()
-        .map_err(|_| unavailable())?
+        .map_err(|_| crate::diagnostics::failures::poisoned(unavailable()))?
         .after(after_sequence))
 }
 
@@ -646,9 +620,13 @@ mod tests {
         let mut sink = FileSink::open(&directory.join("run")).unwrap();
         // A read-only descriptor deterministically simulates failed disk writes.
         sink.frontend = File::open(directory.join("run/diagnostics.jsonl")).unwrap();
-        assert!(
-            sink.append("frontend", &serde_json::json!({"code":"ui_event"}))
-                .is_err()
-        );
+        let error = sink
+            .append("frontend", &serde_json::json!({"code":"ui_event"}))
+            .unwrap_err();
+        let details = error.diagnostics.unwrap();
+        assert_eq!(details["stage"], "diagnostic_append");
+        assert!(details["os_code"].is_number());
+        assert!(details["reason"].is_string());
+        assert!(!details.to_string().contains(directory.to_str().unwrap()));
     }
 }

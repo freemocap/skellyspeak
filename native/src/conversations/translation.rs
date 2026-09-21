@@ -62,14 +62,24 @@ pub(crate) fn validate(source: &str, output: &Completion) -> Result<String> {
         source: String,
         translation: Option<String>,
     }
-    let value: Value =
-        serde_json::from_str(&output.text).map_err(|_| fail("invalid structured response"))?;
+    let value: Value = serde_json::from_str(&output.text).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "translation_decode",
+            fail("invalid structured response"),
+        )
+    })?;
     // Option accepts absent keys in serde; the explicit null outcome is required.
     if value.get("translation").is_none() {
         return Err(fail("missing translation outcome"));
     }
-    let value: Translation =
-        serde_json::from_value(value).map_err(|_| fail("invalid structured response"))?;
+    let value: Translation = serde_json::from_value(value).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "translation_decode",
+            fail("invalid structured response"),
+        )
+    })?;
     if value.source != source {
         return Err(fail("result does not match the source message"));
     }

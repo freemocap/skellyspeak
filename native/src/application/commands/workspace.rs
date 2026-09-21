@@ -25,7 +25,9 @@ pub(in crate::application) async fn retry_credential_cleanup(
         state.recover_credential_cleanup_with(credentials::remove)
     })
     .await
-    .map_err(|_| internal())?
+    .map_err(|cause| {
+        crate::diagnostics::failures::join(&cause, "workspace.rs_worker", internal())
+    })?
 }
 
 #[tauri::command]
@@ -69,8 +71,12 @@ pub(in crate::application) fn get_profile(
 #[tauri::command]
 pub(in crate::application) async fn open_ai_window(app: tauri::AppHandle) -> Result<()> {
     if let Some(window) = app.get_webview_window("ai") {
-        window.show().map_err(|_| internal())?;
-        window.set_focus().map_err(|_| internal())?;
+        window.show().map_err(|cause| {
+            crate::diagnostics::failures::platform(&cause, "window_show", &[], internal())
+        })?;
+        window.set_focus().map_err(|cause| {
+            crate::diagnostics::failures::platform(&cause, "window_focus", &[], internal())
+        })?;
     } else {
         let window = tauri::WebviewWindowBuilder::new(
             &app,
@@ -81,7 +87,14 @@ pub(in crate::application) async fn open_ai_window(app: tauri::AppHandle) -> Res
         .inner_size(1000.0, 700.0)
         .min_inner_size(380.0, 400.0)
         .build()
-        .map_err(|_| AppError::new(ErrorCode::Internal, "Could not open the AI window."))?;
+        .map_err(|cause| {
+            crate::diagnostics::failures::platform(
+                &cause,
+                "window_open",
+                &[],
+                AppError::new(ErrorCode::Internal, "Could not open the AI window."),
+            )
+        })?;
         // The main window re-reads the window state on this hint; it never
         // trusts the event alone, so a missed event cannot leave it stale.
         let handle = app.clone();
@@ -119,9 +132,14 @@ pub(in crate::application) async fn dock_ai_window(app: tauri::AppHandle) -> Res
         )
     })?;
     if let Some(window) = app.get_webview_window("ai") {
-        window
-            .close()
-            .map_err(|_| AppError::new(ErrorCode::Internal, "Could not close the AI window."))?;
+        window.close().map_err(|cause| {
+            crate::diagnostics::failures::platform(
+                &cause,
+                "window_close",
+                &[],
+                AppError::new(ErrorCode::Internal, "Could not close the AI window."),
+            )
+        })?;
     }
     Ok(())
 }
@@ -131,7 +149,10 @@ pub(in crate::application) fn set_ai_view_selection(
     state: tauri::State<'_, Arc<Application>>,
     selection: Option<crate::model::AiViewSelection>,
 ) -> Result<()> {
-    *state.ai_view_selection.lock().map_err(|_| internal())? = selection;
+    *state
+        .ai_view_selection
+        .lock()
+        .map_err(|_| crate::diagnostics::failures::poisoned(internal()))? = selection;
     Ok(())
 }
 
@@ -142,7 +163,7 @@ pub(in crate::application) fn get_ai_view_selection(
     Ok(state
         .ai_view_selection
         .lock()
-        .map_err(|_| internal())?
+        .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?
         .clone())
 }
 
@@ -228,7 +249,7 @@ pub(in crate::application) fn preview_conversation_prompt(
 ) -> Result<crate::conversations::direction::PromptPreview> {
     let configuration=match (configuration,yaml) {
         (Some(value),None)=>value,
-        (None,Some(text)) if text.len()<=16000 => serde_yaml_ng::from_str(&text).map_err(|_|AppError::new(ErrorCode::Validation,"Invalid configuration YAML. Check required fields, values, duplicate keys and indentation."))?,
+        (None,Some(text)) if text.len()<=16000 => serde_yaml_ng::from_str(&text).map_err(|cause|crate::diagnostics::failures::yaml(&cause,"configuration_yaml",AppError::new(ErrorCode::Validation,"Invalid configuration YAML. Check required fields, values, duplicate keys and indentation.")))?,
         _=>return Err(AppError::new(ErrorCode::Validation,"Supply a configuration or at most 16 KB of YAML.")),
     };
     let store = state.lock()?;

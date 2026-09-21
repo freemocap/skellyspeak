@@ -221,7 +221,9 @@ pub(crate) fn prompt_for_exchange(
 fn prose(value: &str, max: usize, required: bool) -> Result<()> {
     if value.chars().count() > max || (required && value.trim().is_empty()) || value.contains('\0')
     {
-        return Err(rejected("invalid or oversized text field"));
+        return Err(rejected("invalid or oversized text field").with_diagnostics(json!({"stage":"conversation_support_text",
+            "reason":if value.contains('\0') {"nul_character"} else if required && value.trim().is_empty() {"required_text_empty"} else {"text_too_long"},
+            "actual_length":value.chars().count(),"maximum_length":max,"required":required})));
     }
     if !value.is_empty() {
         crate::ai::transport::provider::validate_prose(value)?;
@@ -251,11 +253,23 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
         ],
         |r| r.get(0),
     )?;
-    let value: Value = serde_json::from_str(&output.text).map_err(|_| rejected("invalid JSON"))?;
+    let value: Value = serde_json::from_str(&output.text).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "conversation_support_decode",
+            rejected("invalid JSON"),
+        )
+    })?;
     match kind {
         FEEDBACK => {
-            let v: ConversationFeedback = serde_json::from_value(value.clone())
-                .map_err(|_| rejected("invalid feedback fields"))?;
+            let v: ConversationFeedback =
+                serde_json::from_value(value.clone()).map_err(|cause| {
+                    crate::diagnostics::response::json_context(
+                        &cause,
+                        "conversation_support_decode",
+                        rejected("invalid feedback fields"),
+                    )
+                })?;
             prose(&v.remark, 900, true)?;
             if !(1..=5).contains(&v.grammar)
                 || !(1..=5).contains(&v.conversation)
@@ -285,13 +299,23 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
             }
         }
         BRIEF => {
-            let v: ReplyBrief = serde_json::from_value(value.clone())
-                .map_err(|_| rejected("invalid brief fields"))?;
+            let v: ReplyBrief = serde_json::from_value(value.clone()).map_err(|cause| {
+                crate::diagnostics::response::json_context(
+                    &cause,
+                    "conversation_support_decode",
+                    rejected("invalid brief fields"),
+                )
+            })?;
             prose(&v.explanation, 900, true)?;
         }
         ASSISTANCE => {
-            let v: ReplyAssistance = serde_json::from_value(value.clone())
-                .map_err(|_| rejected("invalid assistance fields"))?;
+            let v: ReplyAssistance = serde_json::from_value(value.clone()).map_err(|cause| {
+                crate::diagnostics::response::json_context(
+                    &cause,
+                    "conversation_support_decode",
+                    rejected("invalid assistance fields"),
+                )
+            })?;
 
             if v.replies.len() != 2
                 || v.frames.len() != 2
@@ -345,17 +369,28 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
             }
         }
         EXPLANATIONS => {
-            let v: ReplyExplanations = serde_json::from_value(value.clone())
-                .map_err(|_| rejected("invalid explanation fields"))?;
+            let v: ReplyExplanations = serde_json::from_value(value.clone()).map_err(|cause| {
+                crate::diagnostics::response::json_context(
+                    &cause,
+                    "conversation_support_decode",
+                    rejected("invalid explanation fields"),
+                )
+            })?;
             if v.cards.len() > 2 {
                 return Err(rejected("too many explanation cards"));
             }
-            for c in v.cards {
-                quoted(&source, &c.quote, 300)?;
-                prose(&c.title, 100, true)?;
-                prose(&c.body, 700, true)?;
-                prose(&c.example, 400, true)?;
-                prose(&c.contrast, 500, false)?;
+            for (index, c) in v.cards.iter().enumerate() {
+                let at = |field: &str, mut error: AppError| {
+                    error.diagnostics = Some(
+                        json!({"stage":"reply_explanations_validation", "path":format!("cards[{index}].{field}"), "cause":error.diagnostics}),
+                    );
+                    error
+                };
+                quoted(&source, &c.quote, 300).map_err(|e| at("quote", e))?;
+                prose(&c.title, 100, true).map_err(|e| at("title", e))?;
+                prose(&c.body, 700, true).map_err(|e| at("body", e))?;
+                prose(&c.example, 400, true).map_err(|e| at("example", e))?;
+                prose(&c.contrast, 500, false).map_err(|e| at("contrast", e))?;
             }
         }
         _ => return Err(rejected("unknown task")),

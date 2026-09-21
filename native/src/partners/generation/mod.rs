@@ -197,7 +197,7 @@ impl Registry {
         let mut requests = self
             .requests
             .lock()
-            .map_err(|_| crate::application::internal())?;
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         let expired: Vec<_> = requests
             .values()
             .filter(|r| !r.claimed.load(Ordering::SeqCst) && r.created.elapsed() >= PENDING_TTL)
@@ -212,7 +212,7 @@ impl Registry {
         let mut requests = self
             .requests
             .lock()
-            .map_err(|_| crate::application::internal())?;
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         if requests.len() >= CAPACITY {
             return Err(AppError::new(
                 ErrorCode::AdmissionHeld,
@@ -227,7 +227,7 @@ impl Registry {
         let requests = self
             .requests
             .lock()
-            .map_err(|_| crate::application::internal())?;
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         let request = requests.get(id).ok_or_else(|| {
             AppError::new(
                 ErrorCode::Conflict,
@@ -250,7 +250,7 @@ impl Registry {
         let mut requests = self
             .requests
             .lock()
-            .map_err(|_| crate::application::internal())?;
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         let Some(request) = requests.get(id).cloned() else {
             return Ok(None);
         };

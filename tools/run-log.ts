@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { chmodSync, closeSync, existsSync, lstatSync, mkdirSync, openSync, writeSync } from 'node:fs'
+import { chmodSync, closeSync, existsSync, lstatSync, mkdirSync, openSync, readFileSync, writeSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { StringDecoder } from 'node:string_decoder'
@@ -10,11 +10,20 @@ function privateDirectory(path: string): void {
   chmodSync(path, 0o700)
 }
 
+const privacy = JSON.parse(readFileSync(new URL('../content/diagnostics/policy.json', import.meta.url), 'utf8')) as {
+  secretTag: string; contentTag: string; rules: { pattern: string; flags: string; kind: string; prefix?: boolean }[]
+}
 export function redactLog(text: string, secrets: string[]): string {
   let result = text
-  for (const secret of secrets) if (secret.length >= 8) result = result.split(secret).join('[REDACTED]')
-  return result.replace(/\bBearer\s+[^\s"',}]+/gi, 'Bearer [REDACTED]')
-    .replace(/\b(?:sk-[A-Za-z0-9_-]{8,}|gsk_[A-Za-z0-9_-]{8,}|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)\b/g, '[REDACTED]')
+  for (const secret of [...secrets].filter(Boolean).sort((a, b) => b.length - a.length)) result = result.split(secret).join(privacy.secretTag)
+  for (const rule of privacy.rules) result = result.replace(new RegExp(rule.pattern, `${rule.flags}g`), `${rule.prefix ? '$1' : ''}${rule.kind === 'secret' ? privacy.secretTag : privacy.contentTag}`)
+  return result
+}
+
+/** Sink failures cannot report to their own failed sink. Keep OS identity on stderr. */
+function sinkError(stage: string, error: unknown): void {
+  const value = error as NodeJS.ErrnoException
+  console.error(JSON.stringify({ stage, name: value?.name, code: value?.code, errno: value?.errno, syscall: value?.syscall }))
 }
 
 /** Write complete lines synchronously; preserve an unterminated final line at close. */
@@ -26,14 +35,17 @@ export class LineLog {
   private fd: number
   private source: string
   private secrets: string[]
-  constructor(path: string, source: string, secrets: string[]) {
-    this.source = source; this.secrets = secrets
+  private mirror?: (message: string) => void
+  constructor(path: string, source: string, secrets: string[], mirror?: (message: string) => void) {
+    this.source = source; this.secrets = secrets; this.mirror = mirror
     this.fd = openSync(path, 'wx', 0o600)
   }
   private line(message: string): void {
-    const bytes = Buffer.from(JSON.stringify({ timestamp: new Date().toISOString(), sequence: ++this.sequence, source: this.source, message: redactLog(message, this.secrets) }) + '\n')
+    const clean = redactLog(message, this.secrets)
+    const bytes = Buffer.from(JSON.stringify({ timestamp: new Date().toISOString(), sequence: ++this.sequence, source: this.source, message: clean }) + '\n')
     let offset = 0
     while (offset < bytes.length) offset += writeSync(this.fd, bytes, offset, bytes.length - offset)
+    if (!message.startsWith('[partial write:')) this.mirror?.(clean)
   }
   write(chunk: Buffer): void {
     const parts = this.decoder.write(chunk).split('\n')
@@ -70,13 +82,13 @@ export async function runLogged(root: string, command: string, args: string[], k
   const runId = `${kind}-${new Date().toISOString().replaceAll(':', '-')}-${randomUUID()}`
   const directory = resolve(logs, runId); privateDirectory(directory)
   const secrets = Object.entries(process.env).filter(([name]) => /(?:KEY|TOKEN|SECRET|PASSWORD)/i.test(name)).map(([, value]) => value ?? '')
-  const out = new LineLog(resolve(directory, 'stdout.jsonl'), 'process.stdout', secrets)
-  const err = new LineLog(resolve(directory, 'stderr.jsonl'), 'process.stderr', secrets)
+  const out = new LineLog(resolve(directory, 'stdout.jsonl'), 'process.stdout', secrets, message => process.stdout.write(message + '\n'))
+  const err = new LineLog(resolve(directory, 'stderr.jsonl'), 'process.stderr', secrets, message => process.stderr.write(message + '\n'))
   const manifest = new LineLog(resolve(directory, 'launcher.jsonl'), 'launcher', secrets)
   let failure = false
   const note = (message: string) => {
     try { manifest.write(Buffer.from(message + '\n')) }
-    catch { failure = true; console.error('Launcher log write failed.') }
+    catch (error) { failure = true; sinkError('launcher_write', error) }
   }
   console.log(`Run logs: ${directory}`)
   note(`starting pid=${process.pid}; stdout/stderr are line records with credential redaction; no automatic retention deletion`)
@@ -85,9 +97,9 @@ export async function runLogged(root: string, command: string, args: string[], k
     return 1
   }
   const child = spawn(command, args, { cwd: root, env: { ...process.env, SKELLYSPEAK_LOG_RUN_DIR: directory }, stdio: ['inherit', 'pipe', 'pipe'] })
-  const sinkFailure = () => { failure = true; console.error('Log file write failed; stopping development process.'); child.kill('SIGTERM') }
-  child.stdout.on('data', (chunk: Buffer) => { try { out.write(chunk); process.stdout.write(chunk) } catch { sinkFailure() } })
-  child.stderr.on('data', (chunk: Buffer) => { try { err.write(chunk); process.stderr.write(chunk) } catch { sinkFailure() } })
+  const sinkFailure = (error: unknown) => { failure = true; sinkError('process_log_write', error); child.kill('SIGTERM') }
+  child.stdout.on('data', (chunk: Buffer) => { try { out.write(chunk) } catch (error) { sinkFailure(error) } })
+  child.stderr.on('data', (chunk: Buffer) => { try { err.write(chunk) } catch (error) { sinkFailure(error) } })
   const interrupt = () => child.kill('SIGINT')
   const terminate = () => child.kill('SIGTERM')
   process.once('SIGINT', interrupt); process.once('SIGTERM', terminate)
@@ -104,7 +116,7 @@ export async function runLogged(root: string, command: string, args: string[], k
   } finally {
     process.removeListener('SIGINT', interrupt); process.removeListener('SIGTERM', terminate)
     for (const sink of [out, err, manifest]) {
-      try { sink.close() } catch { failure = true; console.error('Log finalization failed.') }
+      try { sink.close() } catch (error) { failure = true; sinkError('log_finalize', error) }
     }
   }
   return failure ? 1 : status

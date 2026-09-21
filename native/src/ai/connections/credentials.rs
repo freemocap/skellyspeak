@@ -62,15 +62,73 @@ fn unavailable() -> AppError {
         "Secure credential storage is unavailable or access was denied. Check your system keychain.",
     )
 }
+fn credential_failure(error: &keyring::Error, stage: &str, private: &[&str]) -> AppError {
+    use keyring::Error;
+    let mut details = serde_json::json!({"stage":stage});
+    details["reason"] = serde_json::json!(match error {
+        Error::PlatformFailure(cause) | Error::NoStorageAccess(cause) => {
+            // Never Debug-format a credential object or its secret bytes.
+            details["cause"] = serde_json::json!({"message":crate::diagnostics::response::scrub(&cause.to_string(), private)});
+            if matches!(error, Error::NoStorageAccess(_)) {
+                "storage_access_denied"
+            } else {
+                "platform_failure"
+            }
+        }
+        Error::NoEntry => "credential_not_found",
+        Error::BadEncoding(bytes) => {
+            details["byte_count"] = serde_json::json!(bytes.len());
+            "invalid_secret_encoding"
+        }
+        Error::TooLong(field, limit) => {
+            details["path"] =
+                serde_json::json!(crate::diagnostics::response::scrub(field, private));
+            details["limit"] = serde_json::json!(limit);
+            "attribute_too_long"
+        }
+        Error::Invalid(field, reason) => {
+            details["path"] =
+                serde_json::json!(crate::diagnostics::response::scrub(field, private));
+            details["message"] =
+                serde_json::json!(crate::diagnostics::response::scrub(reason, private));
+            "invalid_attribute"
+        }
+        Error::Ambiguous(items) => {
+            details["count"] = serde_json::json!(items.len());
+            "ambiguous_credentials"
+        }
+        #[cfg(target_os = "android")]
+        Error::BadDataFormat(bytes, cause) => {
+            details["byte_count"] = serde_json::json!(bytes.len());
+            details["message"] = serde_json::json!(crate::diagnostics::response::scrub(
+                &cause.to_string(),
+                private
+            ));
+            "invalid_secret_format"
+        }
+        #[cfg(target_os = "android")]
+        Error::BadStoreFormat(reason) | Error::NotSupportedByStore(reason) => {
+            details["message"] =
+                serde_json::json!(crate::diagnostics::response::scrub(reason, private));
+            "store_format_or_capability"
+        }
+        #[cfg(target_os = "android")]
+        Error::NoDefaultStore => "no_default_store",
+        _ => "unrecognized_keyring_error_variant",
+    });
+    unavailable().with_diagnostics(details)
+}
 #[cfg(not(target_os = "android"))]
 fn entry(id: &str) -> Result<keyring::Entry> {
-    keyring::Entry::new("org.skellyspeak.practice.openrouter", id).map_err(|_| unavailable())
+    keyring::Entry::new("org.skellyspeak.practice.openrouter", id)
+        .map_err(|cause| credential_failure(&cause, "credential_entry", &[id]))
 }
 #[cfg(target_os = "android")]
 use keyring_core as keyring;
 #[cfg(target_os = "android")]
 fn entry(id: &str) -> Result<keyring_core::Entry> {
-    keyring_core::Entry::new("com.freemocap.skellyspeak", id).map_err(|_| unavailable())
+    keyring_core::Entry::new("com.freemocap.skellyspeak", id)
+        .map_err(|cause| credential_failure(&cause, "credential_entry", &[id]))
 }
 #[cfg(target_os = "android")]
 #[unsafe(no_mangle)]
@@ -83,11 +141,15 @@ pub extern "system" fn Java_com_freemocap_skellyspeak_MainActivity_initializeCre
     if CONTEXT.get().is_some() {
         return;
     }
-    let result = (|| -> std::result::Result<(), ()> {
-        let reference = env.new_global_ref(context).map_err(|_| ())?;
-        let vm = env.get_java_vm().map_err(|_| ())?;
+    let result = (|| -> Result<()> {
+        let reference = env.new_global_ref(context).map_err(|e| {
+            crate::diagnostics::failures::platform(&e, "credential_jni_context", &[], unavailable())
+        })?;
+        let vm = env.get_java_vm().map_err(|e| {
+            crate::diagnostics::failures::platform(&e, "credential_jni_vm", &[], unavailable())
+        })?;
         let pointer = reference.as_obj().as_raw();
-        CONTEXT.set(reference).map_err(|_| ())?;
+        CONTEXT.set(reference).map_err(|_| unavailable().with_diagnostics(serde_json::json!({"stage":"credential_jni_registration","reason":"already_initialized"})))?;
         // The global reference retains the application context for the process lifetime.
         unsafe {
             ndk_context::initialize_android_context(
@@ -98,14 +160,15 @@ pub extern "system" fn Java_com_freemocap_skellyspeak_MainActivity_initializeCre
         let store = android_native_keyring_store::Store::new_with_configuration(
             &std::collections::HashMap::new(),
         )
-        .map_err(|_| ())?;
+        .map_err(|e| credential_failure(&e, "credential_store_initialize", &[]))?;
         keyring_core::set_default_store(store);
         Ok(())
     })();
-    if result.is_err() {
+    if let Err(error) = result {
+        crate::diagnostics::failures::report("credential_initialize", &error);
         env.throw_new(
             "java/lang/IllegalStateException",
-            "Secure credential initialization failed",
+            crate::diagnostics::response::error_metadata(&error, &[]).to_string(),
         )
         .expect("could not report credential initialization failure");
     }
@@ -129,7 +192,9 @@ fn save_uncached(id: &str, secret: &str) -> Result<()> {
         target_os = "android"
     ))]
     {
-        entry(id)?.set_password(secret).map_err(|_| unavailable())
+        entry(id)?
+            .set_password(secret)
+            .map_err(|cause| credential_failure(&cause, "credential_write", &[id, secret]))
     }
     #[cfg(not(any(
         target_os = "macos",
@@ -165,7 +230,7 @@ fn read_uncached(id: &str) -> Result<Zeroizing<String>> {
         entry(id)?
             .get_password()
             .map(Zeroizing::new)
-            .map_err(|_| unavailable())
+            .map_err(|cause| credential_failure(&cause, "credential_read", &[id]))
     }
     #[cfg(not(any(
         target_os = "macos",
@@ -200,7 +265,7 @@ fn remove_uncached(id: &str) -> Result<()> {
     {
         match entry(id)?.delete_credential() {
             Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
-            Err(_) => Err(unavailable()),
+            Err(cause) => Err(credential_failure(&cause, "credential_delete", &[id])),
         }
     }
     #[cfg(not(any(

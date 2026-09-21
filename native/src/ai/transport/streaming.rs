@@ -65,7 +65,13 @@ impl SseFramer {
                 }
                 return Err(broken("data_after_done"));
             }
-            let line = String::from_utf8(line).map_err(|_| broken("invalid_utf8"))?;
+            let line = String::from_utf8(line).map_err(|cause| {
+                crate::diagnostics::failures::utf8(
+                    &cause.utf8_error(),
+                    "stream_utf8",
+                    broken("invalid_utf8"),
+                )
+            })?;
             if let Some(data) = line.strip_prefix("data:") {
                 self.event_bytes += data.len();
                 if self.event_bytes > MAX_EVENT_BYTES {
@@ -81,8 +87,13 @@ impl SseFramer {
                     self.done = true;
                     on_event(SseEvent::Done)?;
                 } else {
-                    let value: Value =
-                        serde_json::from_str(&raw).map_err(|_| broken("invalid_event_json"))?;
+                    let value: Value = serde_json::from_str(&raw).map_err(|cause| {
+                        crate::diagnostics::response::json_context(
+                            &cause,
+                            "streaming_decode",
+                            broken("invalid_event_json"),
+                        )
+                    })?;
                     if !value.is_object() {
                         return Err(broken("event_not_object"));
                     }

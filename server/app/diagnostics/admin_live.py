@@ -8,6 +8,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, ConfigDict, Field
 from server.app.identity import admin_auth
 from server.app.diagnostics import admin_events, admin_reports
+from server.app.diagnostics.exceptions import describe
 from server.app.admission.admission import Ingress
 
 
@@ -104,12 +105,12 @@ def register(router, database, configuration):
             pass
         except (HTTPException, ValueError) as error:
             if socket in connections:
-                await socket.send_json({'type': 'error', 'detail': error.detail if isinstance(error, HTTPException) else 'Invalid live subscription.'})
+                await socket.send_json({'type': 'error', 'detail': error.detail if isinstance(error, HTTPException) else 'Invalid live subscription.', 'diagnostics': describe(error)})
             await socket.close(code=1008)
         except Exception as error:
             if socket in connections:
                 await socket.send_json({'type': 'error', 'detail': 'Live stream failed.',
-                                        'diagnostics': {'stage': 'admin_live', 'exception_type': type(error).__name__}})
+                                        'diagnostics': describe(error)})
             await socket.close(code=1011, reason='Live stream failed; reconnect explicitly.')
         finally:
             if unsubscribe:

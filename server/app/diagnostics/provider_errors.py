@@ -6,10 +6,13 @@ import json
 import re
 
 import httpx
+from server.app.diagnostics.policy import POLICY
 
 LIMIT = 16_384
-SAFE_TEXT = {"type", "code", "status", "param", "id", "request_id", "requestId", "model", "model_id", "requested_model", "actual_model", "provider", "provider_name", "finish_reason", "native_finish_reason", "detected_language", "language_code", "format", "cost_basis", "allowance_basis", "stage", "reason", "path", "expected", "exception_type", "name", "source_file", "function"}
-CONTENT = {"answers", "questions", "state", "content", "text", "transcript", "prompt", "messages", "input", "output", "audio", "audio_base64", "data", "arguments", "reasoning", "reasoning_details", "file", "request", "body", "url", "user_id", "organization_id", "email", "headers", "authorization", "api_key", "key", "token", "password", "secret"}
+SAFE_TEXT = set(POLICY['publicFields'])
+CONTENT = set(POLICY['contentFields']) | set(POLICY['secretFields'])
+def secret_field(key):
+    return key.lower() in POLICY['secretFields'] or any(part in key.lower() for part in POLICY['secretFieldFragments'])
 TEXT_FIELDS = {"message", "detail", "error"}
 HEADER_FIELDS = {"request-id", "x-request-id", "retry-after", "content-type", "processing-ms", "openai-processing-ms"}
 
@@ -30,33 +33,26 @@ def request_strings(value):
 
 
 def scrub(text: str, private=()) -> str:
+    for rule in POLICY['rules']:
+        if rule['kind'] == 'secret':
+            text = re.sub(rule['pattern'], lambda m: (m[1] if rule.get('prefix') else '') + POLICY['secretTag'], text, flags=re.I if 'i' in rule['flags'] else 0)
     for value in sorted(set(private), key=len, reverse=True):
-        text = re.sub(r"(?<!\w)" + re.escape(value) + r"(?!\w)", "[redacted]", text) if len(value) < 8 else text.replace(value, "[redacted]")
-    patterns = [
-        r"(?i)\bBearer\s+[^\s,;<>]+",
-        r"\b(?:sk-|gsk_)[A-Za-z0-9_-]+",
-        r"\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+",
-        r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}",
-        r"https?://[^\s<>\"']+",
-        r"\b(?:\d{1,3}\.){3}\d{1,3}\b",
-        r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b",
-        r"\b[A-Za-z0-9_-]{40,}\b",
-        r'''(?i)\b(?:api[_ -]?key|token|password|secret|authorization|user[_ -]?id|org(?:anization)?[_ -]?id)\s*[:=]\s*["']?[^\s,"'<>}]+''',
-    ]
-    for pattern in patterns:
-        text = re.sub(pattern, "[redacted]", text)
-    text = re.sub(r'''["'`]([^"'`\n]*)["'`]''',
-                  lambda m: m.group(0) if re.fullmatch(r"[a-zA-Z0-9]+(?:[_/.-][a-zA-Z0-9]+)+", m[1]) else "[redacted]", text)
-    text = " ".join(text.split())
-    return text if len(text) <= 2048 else text[:2048] + "[truncated: string limit]"
+        if value:
+            text = text.replace(value, POLICY['contentTag'])
+    for rule in POLICY['rules']:
+        if rule['kind'] != 'secret':
+            text = re.sub(rule['pattern'], lambda m: (m[1] if rule.get('prefix') else '') + POLICY['contentTag'], text, flags=re.I if 'i' in rule['flags'] else 0)
+    text = ''.join(c for c in text if ord(c) >= 32 or c in '\n\t')
+    limit = POLICY['limits']['string']
+    return text if len(text) <= limit else text[:limit] + '[truncated: string limit]'
 
 
 def sanitize(value, private=(), depth=0, field="", budget=None):
     """Retain metadata; unknown strings and content get explicit redaction markers."""
     if budget is None:
-        budget = [512]
+        budget = [POLICY['limits']['nodes']]
     budget[0] -= 1
-    if depth > 8 or budget[0] < 0:
+    if depth > POLICY['limits']['depth'] or budget[0] < 0:
         return "[truncated: metadata limit]"
     if isinstance(value, dict):
         result = {}
@@ -65,9 +61,9 @@ def sanitize(value, private=(), depth=0, field="", budget=None):
                 result["truncated_fields"] = len(value) - index
                 break
             if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.-]{0,63}", key) or key in private:
-                result[f"redacted_field_{index}"] = "[redacted: field name]"
-            elif key.lower() in CONTENT or any(part in key.lower() for part in ("secret", "password", "authorization", "api_key", "access_token")):
-                result[key] = "[redacted: content or credential]"
+                result[f"redacted_field_{index}"] = POLICY['contentTag']
+            elif key.lower() in CONTENT or secret_field(key):
+                result[key] = POLICY['secretTag'] if secret_field(key) else POLICY['contentTag']
             else:
                 result[key] = sanitize(item, private, depth + 1, key, budget)
         return result
@@ -81,13 +77,13 @@ def sanitize(value, private=(), depth=0, field="", budget=None):
             return value[:128]
         if field in SAFE_TEXT or field in {"request_id", "x_request_id", "retry_after", "content_type", "processing_ms", "openai_processing_ms"} or field.startswith(("x_ratelimit_", "ratelimit_")):
             if value in private:
-                return "[redacted: request value]"
+                return POLICY['contentTag']
             if field in {"id", "request_id", "x_request_id", "requestId"} and re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", value) and not value.startswith(("sk-", "gsk_", "eyJ")):
                 return value
             return scrub(value, private)
         if field in TEXT_FIELDS:
             return scrub(value, private)
-        return "[redacted: unclassified string]"
+        return POLICY['contentTag']
     if value is None or type(value) in (int, bool, float):
         return value
     return "[redacted: unsupported value]"
@@ -122,6 +118,8 @@ async def capture(response: httpx.Response, provider: str, request=None):
     """Read errors only; failure to read diagnostics must preserve the HTTP refusal."""
     body = bytearray()
     truncated = unreadable = False
+    read_error = None
+    private = tuple(request_strings(request))
     try:
         async with asyncio.timeout(5):
             async for chunk in response.aiter_bytes():
@@ -130,8 +128,10 @@ async def capture(response: httpx.Response, provider: str, request=None):
                 if len(chunk) > remaining:
                     truncated = True
                     break
-    except (httpx.HTTPError, TimeoutError):
+    except (httpx.HTTPError, TimeoutError) as error:
         unreadable = True
+        from server.app.diagnostics.exceptions import describe
+        read_error = describe(error, private=private, include_message=True)
     if truncated or unreadable:
         # Partial JSON cannot be field-filtered safely.
         value = "[response body exceeded limit or could not be fully read]"
@@ -146,5 +146,7 @@ async def capture(response: httpx.Response, provider: str, request=None):
         cleaned = {"reason": "non_json_error_body", "body": "[redacted: unstructured content]"}
     cleaned["http"] = {"status": response.status_code, "response_headers": response_headers(response),
                        "truncated": truncated, "unreadable": unreadable}
+    if read_error is not None:
+        cleaned["read_error"] = read_error
     record(provider, response.status_code, cleaned, truncated=truncated, unreadable=unreadable)
     return cleaned

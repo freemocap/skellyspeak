@@ -5,9 +5,18 @@
 use super::{Application, Arc, Emitter};
 use crate::ai::transport::provider::Completion;
 use crate::conversations::execution::Dispatch;
+use crate::diagnostics::failures::{platform, poisoned, report};
 use crate::model::{AttemptStreamRead, AttemptStreamUpdate, Result};
 use std::collections::HashMap;
 use tauri::AppHandle;
+fn emit_update(app: &AppHandle, update: AttemptStreamUpdate) {
+    if let Err(error) = app.emit("ai-attempt-stream", update) {
+        report(
+            "stream_delivery",
+            &platform(&error, "stream_delivery", &[], super::internal()),
+        );
+    }
+}
 
 struct Entry {
     update: AttemptStreamUpdate,
@@ -186,9 +195,13 @@ impl Application {
             .lock()
             .and_then(|store| store.attempt_scope(&dispatch.attempt));
         let Ok(mut streams) = self.streams.lock() else {
+            report("stream_registration", &poisoned(super::internal()));
             return 0;
         };
         let generation = streams.generation();
+        if let Err(error) = &scope {
+            report("stream_registration_scope", error);
+        }
         if let Ok(Some((conversation, turn, operation, kind))) = scope {
             streams.register(
                 generation,
@@ -205,6 +218,8 @@ impl Application {
     pub(super) fn stream_delta(&self, generation: u32, attempt: &str, text: &str) {
         if let Ok(mut streams) = self.streams.lock() {
             streams.delta(generation, attempt, text);
+        } else {
+            report("stream_delta_lock", &poisoned(super::internal()));
         }
     }
 
@@ -222,8 +237,8 @@ impl Application {
         let streamed = self
             .streams
             .lock()
-            .ok()
-            .and_then(|streams| streams.text(&dispatch.attempt));
+            .map_err(|_| poisoned(super::internal()))?
+            .text(&dispatch.attempt);
         let ended = {
             let mut store = self.lock()?;
             store.finish_retaining(dispatch, outcome, streamed.as_deref())?;
@@ -235,7 +250,7 @@ impl Application {
                 &dispatch.attempt,
                 ended.as_deref().unwrap_or("unknown"),
             ) {
-                let _ = app.emit("ai-attempt-stream", update);
+                emit_update(app, update);
             }
             streams.remove(&dispatch.attempt);
         }
@@ -282,7 +297,10 @@ impl Application {
                 }
                 supported
             }
-            Err(_) => false,
+            Err(error) => {
+                report("stream_capability_probe", &error);
+                false
+            }
         }
     }
 
@@ -304,7 +322,10 @@ pub(super) async fn stream_pump(state: Arc<Application>, app: AppHandle) {
         if tick.is_multiple_of(ACTIVITY_TICKS) {
             let (generation, running) = match state.streams.lock() {
                 Ok(streams) => (streams.generation(), streams.running()),
-                Err(_) => continue,
+                Err(_) => {
+                    report("stream_pump_lock", &poisoned(super::internal()));
+                    continue;
+                }
             };
             let ended: Vec<(String, String)> = match state.lock() {
                 Ok(store) => running
@@ -312,15 +333,22 @@ pub(super) async fn stream_pump(state: Arc<Application>, app: AppHandle) {
                     .filter_map(|attempt| match store.attempt_state(&attempt) {
                         Ok(Some(value)) if value != "running" => Some((attempt, value)),
                         Ok(None) => Some((attempt, "invalidated".to_owned())),
+                        Err(error) => {
+                            report("stream_attempt_state", &error);
+                            None
+                        }
                         _ => None,
                     })
                     .collect(),
-                Err(_) => Vec::new(),
+                Err(error) => {
+                    report("stream_pump_store", &error);
+                    Vec::new()
+                }
             };
             if let Ok(mut streams) = state.streams.lock() {
                 for (attempt, value) in ended {
                     if let Some(update) = streams.terminal(generation, &attempt, &value) {
-                        let _ = app.emit("ai-attempt-stream", update);
+                        emit_update(&app, update);
                     }
                 }
             }
@@ -331,7 +359,7 @@ pub(super) async fn stream_pump(state: Arc<Application>, app: AppHandle) {
             .map(|mut streams| streams.pending())
             .unwrap_or_default();
         for update in pending {
-            let _ = app.emit("ai-attempt-stream", update);
+            emit_update(&app, update);
         }
         if tick.is_multiple_of(SAVE_TICKS) {
             let unsaved = state
@@ -341,8 +369,9 @@ pub(super) async fn stream_pump(state: Arc<Application>, app: AppHandle) {
                 .unwrap_or_default();
             if !unsaved.is_empty()
                 && let Ok(mut store) = state.lock()
+                && let Err(error) = store.save_previews(&unsaved)
             {
-                let _ = store.save_previews(&unsaved);
+                report("stream_preview_save", &error);
             }
         }
     }

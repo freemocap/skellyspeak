@@ -1,5 +1,6 @@
 """Content-free runtime events shared by hosted and local diagnostics."""
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError
 
 import asyncio
 from contextlib import asynccontextmanager
@@ -46,6 +47,9 @@ def sanitize(data: dict) -> dict:
     value = data.get("request_id")
     if isinstance(value, str) and len(value) == 32 and all(c in "0123456789abcdef" for c in value):
         result["request_id"] = value
+    if data.get("diagnostics") is not None:
+        from server.app.diagnostics.provider_errors import sanitize
+        result["diagnostics"] = sanitize(data["diagnostics"])
     if data["event"] in {"provider_error_response", "provider_retry_scheduled"}:
         from server.app.diagnostics.provider_errors import sanitize
         result["response_body"] = sanitize(data.get("response_body"))
@@ -58,7 +62,7 @@ def sanitize(data: dict) -> dict:
 def emit(event: str, **fields) -> None:
     data = sanitize({"event": event, "request_id": request_id.get(), **fields})
     if not data:
-        raise ValueError("Unknown runtime log event")
+        raise DiagnosticValueError("Unknown runtime log event")
     level = logging.ERROR if event.endswith("failed") else logging.INFO
     log.log(level, json.dumps(data))
 
@@ -71,7 +75,8 @@ async def phase(name: str, **fields):
         yield
     except BaseException as error:
         suffix = "cancelled" if name == "provider" and isinstance(error, asyncio.CancelledError) else "failed"
-        emit(f"{name}_{suffix}", duration_ms=round((time.monotonic() - started) * 1000), **fields)
+        from server.app.diagnostics.exceptions import describe
+        emit(f"{name}_{suffix}", diagnostics=describe(error), duration_ms=round((time.monotonic() - started) * 1000), **fields)
         raise
     else:
         emit(f"{name}_finished", duration_ms=round((time.monotonic() - started) * 1000), **fields)
@@ -122,6 +127,7 @@ class RequestActivity:
                     last_progress = time.monotonic()
 
         outcome = "request_finished"
+        failure = None
         try:
             await self.app(scope, observed_receive, observed_send)
             if not complete:
@@ -129,12 +135,14 @@ class RequestActivity:
         except asyncio.CancelledError:
             outcome = "request_cancelled"
             raise
-        except BaseException:
+        except BaseException as error:
+            from server.app.diagnostics.exceptions import describe
+            failure = describe(error)
             outcome = "request_failed"
             raise
         finally:
             try:
-                emit(outcome, status=status, bytes=size, chunks=chunks,
+                emit(outcome, diagnostics=failure, status=status, bytes=size, chunks=chunks,
                      duration_ms=round((time.monotonic() - started) * 1000), **fields)
             finally:
                 request_id.reset(token)

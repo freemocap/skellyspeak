@@ -24,6 +24,11 @@ pub enum AdapterError {
     PayloadTooLarge,
     PromptTooLarge,
     InvalidJsonOrShape,
+    JsonDecode {
+        category: String,
+        line: usize,
+        column: usize,
+    },
     InvalidTermination,
     UnsupportedTargetLanguage,
     UnsupportedExplanationLanguage,
@@ -43,12 +48,34 @@ pub enum AdapterError {
 }
 
 impl AdapterError {
+    pub fn json(error: serde_json::Error) -> Self {
+        Self::JsonDecode {
+            category: format!("{:?}", error.classify()),
+            line: error.line(),
+            column: error.column(),
+        }
+    }
+    pub fn diagnostics(&self) -> serde_json::Value {
+        let mut value = serde_json::json!({"stage":"word_gloss_validation","reason":self.diagnostic_code(),"index":self.span_index()});
+        if let Self::JsonDecode {
+            category,
+            line,
+            column,
+        } = self
+        {
+            value["category"] = serde_json::json!(category);
+            value["line"] = serde_json::json!(line);
+            value["column"] = serde_json::json!(column);
+        }
+        value
+    }
+
     /// Stable, allowlisted diagnostic; never formats provider/parser/source data.
     pub fn diagnostic_code(&self) -> &'static str {
         match self {
             Self::PayloadTooLarge => "gloss_payload_too_large",
             Self::PromptTooLarge => "gloss_prompt_too_large",
-            Self::InvalidJsonOrShape => "gloss_invalid_json_or_shape",
+            Self::InvalidJsonOrShape | Self::JsonDecode { .. } => "gloss_invalid_json_or_shape",
             Self::InvalidTermination => "gloss_invalid_termination",
             Self::UnsupportedTargetLanguage => "gloss_unsupported_target_language",
             Self::UnsupportedExplanationLanguage => "gloss_unsupported_explanation_language",
@@ -264,11 +291,8 @@ fn decode_word_gloss_context(
     }
     let map = source_map(identity, source, context)?;
     let mut decoder = serde_json::Deserializer::from_str(raw);
-    let wire =
-        WireResponse::deserialize(&mut decoder).map_err(|_| AdapterError::InvalidJsonOrShape)?;
-    decoder
-        .end()
-        .map_err(|_| AdapterError::InvalidJsonOrShape)?;
+    let wire = WireResponse::deserialize(&mut decoder).map_err(AdapterError::json)?;
+    decoder.end().map_err(AdapterError::json)?;
     let rows = grapheme_rows(&map);
     let romanization_allowed = supports_romanization(identity, context)?;
     let mut spans = Vec::with_capacity(wire.spans.0.len());

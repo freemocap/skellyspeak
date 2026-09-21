@@ -53,9 +53,9 @@ export function reportFault(context: string, e: unknown): void {
   const message = describe(e)
   const id = nextId++
   useFaultStore.getState().publish({ id, context, message, diagnostics: errorDetails(e) })
-  void Promise.resolve(logDiagnostic(context, e, id)).catch(() => {
+  void Promise.resolve(logDiagnostic(context, e, id)).catch((error: unknown) => {
     // The sink cannot report its own failure through the sink.
-    reportDiagnosticBridgeFailure()
+    reportDiagnosticBridgeFailure(new CustomEvent('diagnostic-bridge-failed', { detail: errorDetails(error) }))
   })
 }
 
@@ -70,6 +70,6 @@ export function reportUnhandledError(event: Event): void {
 }
 
 /** Sink failures cannot be sent through the failing sink again. */
-export function reportDiagnosticBridgeFailure(): void {
-  useFaultStore.getState().publish({ id: nextId++, context: 'Diagnostics', message: 'Durable frontend logging failed. Some events were not persisted.' })
+export function reportDiagnosticBridgeFailure(event?: Event): void {
+  useFaultStore.getState().publish({ id: nextId++, context: 'Diagnostics', message: 'Durable frontend logging failed. Some events were not persisted.', diagnostics: event instanceof CustomEvent ? event.detail : undefined })
 }

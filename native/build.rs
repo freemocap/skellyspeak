@@ -22,7 +22,10 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
         {
             continue;
         }
-        if path.file_name().is_some_and(|name| name == "schemas") {
+        if path
+            .file_name()
+            .is_some_and(|name| name == "schemas" || name == "diagnostics")
+        {
             continue;
         }
         if kind.is_dir() {
@@ -42,6 +45,48 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
     }
 }
 
+/// The command registration list is also the diagnostic command authority.
+fn diagnostic_commands(manifest: &Path) {
+    let path = manifest.join("src/application/startup.rs");
+    println!("cargo:rerun-if-changed={}", path.display());
+    let source = fs::read_to_string(path).expect("read registered commands");
+    let block = source
+        .split_once("tauri::generate_handler![")
+        .expect("command registry")
+        .1
+        .split_once(']')
+        .expect("command registry end")
+        .0;
+    let names: Vec<_> = block
+        .split(',')
+        .map(str::trim)
+        .filter(|v| !v.is_empty())
+        .map(|v| v.rsplit("::").next().unwrap())
+        .collect();
+    assert!(names.len() > 20);
+    let mut output = String::from(
+        "#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, ts_rs::TS)]\n#[serde(rename_all = \"snake_case\")]\npub enum DiagnosticCommand {\n",
+    );
+    for name in &names {
+        assert!(name.bytes().all(|b| b.is_ascii_lowercase() || b == b'_'));
+        let variant: String = name
+            .split('_')
+            .map(|word| format!("{}{}", word[..1].to_ascii_uppercase(), &word[1..]))
+            .collect();
+        output.push_str(&format!("{variant},\n"));
+    }
+    output.push_str("}\npub const DIAGNOSTIC_COMMAND_NAMES: &[&str] = &[");
+    for name in names {
+        output.push_str(&format!("{name:?},"));
+    }
+    output.push_str("];\n");
+    fs::write(
+        PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("diagnostic_commands.rs"),
+        output,
+    )
+    .expect("generate diagnostic commands");
+}
+
 fn main() {
     if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
         // NDK r27 needs explicit ELF alignment for Android's 16 KB page sizes.
@@ -50,6 +95,7 @@ fn main() {
         println!("cargo:rustc-link-arg-cdylib=-Wl,-z,common-page-size=16384");
     }
     let manifest = PathBuf::from(env::var_os("CARGO_MANIFEST_DIR").unwrap());
+    diagnostic_commands(&manifest);
     let root = manifest.join("../content");
     let mut files = Vec::new();
     collect(&root, &root, &mut files);

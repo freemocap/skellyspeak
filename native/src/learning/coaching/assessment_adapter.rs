@@ -20,8 +20,13 @@ pub fn version(adapter: AssessmentAdapter) -> &'static str {
     }
 }
 pub fn selected(captured: &Value) -> Result<AssessmentAdapter> {
-    serde_json::from_value(captured["assessmentAdapter"].clone())
-        .map_err(|_| fail("Missing captured assessment adapter"))
+    serde_json::from_value(captured["assessmentAdapter"].clone()).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "assessment_adapter_decode",
+            fail("Missing captured assessment adapter"),
+        )
+    })
 }
 fn fail(message: &str) -> AppError {
     AppError::new(ErrorCode::Validation, message)
@@ -105,8 +110,13 @@ fn validate_choices(output: &Completion, criteria: &[Value]) -> Result<Value> {
     {
         return Err(fail("Incomplete, unexpected-model or oversized Jev output"));
     }
-    let answers: Value =
-        serde_json::from_str(&output.text).map_err(|_| fail("Invalid Jev answers JSON"))?;
+    let answers: Value = serde_json::from_str(&output.text).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "assessment_adapter_decode",
+            fail("Invalid Jev answers JSON"),
+        )
+    })?;
     let answers = answers
         .as_object()
         .ok_or_else(|| fail("Expected Jev answers object"))?;

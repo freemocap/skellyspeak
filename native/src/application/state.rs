@@ -72,27 +72,46 @@ impl Application {
             delta_support: Mutex::new(std::collections::HashMap::new()),
         })
     }
+    fn snapshot_error(slot: &Mutex<Option<AppError>>) -> Option<AppError> {
+        match slot.lock() {
+            Ok(value) => value.clone(),
+            Err(_) => {
+                let error = crate::diagnostics::failures::poisoned(internal());
+                crate::diagnostics::failures::report("startup_state", &error);
+                Some(error)
+            }
+        }
+    }
     pub(super) fn refusal(&self) -> Option<AppError> {
-        self.refusal.lock().ok().and_then(|value| value.clone())
+        Self::snapshot_error(&self.refusal)
     }
     pub(super) fn startup_state(&self) -> StartupState {
         StartupState {
             refusal: self.refusal(),
-            cleanup: self.cleanup.lock().ok().and_then(|value| value.clone()),
-            credential_cleanup: self
-                .credential_cleanup
-                .lock()
-                .ok()
-                .and_then(|value| value.clone()),
+            cleanup: Self::snapshot_error(&self.cleanup),
+            credential_cleanup: Self::snapshot_error(&self.credential_cleanup),
         }
     }
     pub(crate) fn lock(&self) -> Result<StoreGuard<'_>> {
-        if let Some(error) = self.fatal.lock().map_err(|_| internal())?.as_ref() {
+        if let Some(error) = self
+            .fatal
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?
+            .as_ref()
+        {
             return Err(error.clone());
         }
-        let store = self.store.lock().map_err(|_| internal())?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?;
         if store.is_none() {
-            if let Some(error) = self.refusal.lock().map_err(|_| internal())?.as_ref() {
+            if let Some(error) = self
+                .refusal
+                .lock()
+                .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?
+                .as_ref()
+            {
                 return Err(error.clone());
             }
             return Err(internal());
@@ -100,7 +119,9 @@ impl Application {
         Ok(StoreGuard(store))
     }
     pub(crate) fn credential_operation(&self) -> Result<MutexGuard<'_, ()>> {
-        self.credential_operations.lock().map_err(|_| internal())
+        self.credential_operations
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(internal()))
     }
     fn clean_credentials_with(&self, remove: impl Fn(&str) -> Result<()>) -> Result<()> {
         loop {
@@ -128,7 +149,10 @@ impl Application {
             Err(error) if error.code == ErrorCode::Credential => Some(error),
             Err(error) => return Err(error),
         };
-        *self.credential_cleanup.lock().map_err(|_| internal())? = error;
+        *self
+            .credential_cleanup
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(internal()))? = error;
         Ok(self.startup_state())
     }
     pub(crate) fn write_credential_with<T>(
@@ -158,6 +182,7 @@ impl Application {
         result
     }
     pub(crate) fn stop(&self, error: AppError) {
+        crate::diagnostics::failures::report("scheduler_stopped", &error);
         *self.fatal.lock().expect("execution fault mutex") = Some(error);
     }
 }

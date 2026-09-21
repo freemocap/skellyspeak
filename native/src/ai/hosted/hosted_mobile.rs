@@ -42,10 +42,9 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
     });
     let proof = Proof::create()?;
     let (sender, receiver) = tokio::sync::oneshot::channel();
-    *pending()
-        .lock()
-        .map_err(|_| fault("Sign-in state unavailable."))? =
-        Some((proof.challenge.clone(), sender));
+    *pending().lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(fault("Sign-in state unavailable."))
+    })? = Some((proof.challenge.clone(), sender));
     // Removes the pending sender on timeout, cancellation, or browser failure.
     let _attempt = Attempt(proof.challenge.clone());
     app.opener()

@@ -12,7 +12,7 @@ test('captures split UTF8 and credentials across chunks, including final untermi
     const data = Buffer.from('hola é private-test-secret\nlast line')
     log.write(data.subarray(0, 6)); log.write(data.subarray(6, 17)); log.write(data.subarray(17)); log.close()
     const records = readFileSync(file, 'utf8').trim().split('\n').map(line => JSON.parse(line))
-    assert.deepEqual(records.map(r => r.message).filter(message => !message.startsWith('[partial write:')), ['hola é [REDACTED]', 'last line'])
+    assert.deepEqual(records.map(r => r.message).filter(message => !message.startsWith('[partial write:')), ['hola é [secret redacted]', 'last line'])
     // POSIX mode bits do not describe Windows ACLs.
     if (process.platform !== 'win32') assert.equal(statSync(file).mode & 0o777, 0o600)
   } finally { rmSync(dir, { recursive: true }) }
@@ -53,5 +53,17 @@ test('records a missing executable without leaving the launcher pending', async 
     const logs = join(dir, '.local/logs')
     const run = join(logs, readdirSync(logs)[0])
     assert.match(readFileSync(join(run, 'launcher.jsonl'), 'utf8'), /spawn failed/)
+  } finally { rmSync(dir, { recursive: true }) }
+})
+
+test('console mirroring uses the same redaction after a split secret is complete', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'run-logs-'))
+  try {
+    const messages: string[] = []
+    const sink = new LineLog(join(dir, 'out.jsonl'), 'stderr', ['private-canary'], message => messages.push(message))
+    sink.write(Buffer.from('Connection refused; private-'))
+    assert.equal(messages.length, 0)
+    sink.write(Buffer.from('canary; OS error 111\n')); sink.close()
+    assert.deepEqual(messages, ['Connection refused; [secret redacted]; OS error 111'])
   } finally { rmSync(dir, { recursive: true }) }
 })

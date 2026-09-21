@@ -1,5 +1,6 @@
 """Bounded read-only Cloud Logging queries with explicit omissions and coverage."""
 from __future__ import annotations
+from server.app.diagnostics.exceptions import describe
 import asyncio
 from datetime import datetime, timedelta, timezone
 import os
@@ -57,7 +58,7 @@ async def read(*, hours, errors=False, request_id='', page_token='', since=''):
         token, project = await asyncio.wait_for(asyncio.to_thread(credentials), timeout=15)
     except Exception as error:
         failure = HTTPException(503, 'Cloud Logging credentials are unavailable.')
-        failure.diagnostics = {'stage': 'logging_auth', 'exception_type': type(error).__name__}
+        failure.diagnostics = {'stage': 'logging_auth', 'cause': describe(error)}
         raise failure from None
     if not project or not re.fullmatch('[a-zA-Z0-9_-]+', project) or not re.fullmatch('[a-zA-Z0-9_-]+', service):
         raise HTTPException(503, 'Cloud Logging project or service is not configured.')
@@ -102,7 +103,7 @@ async def read(*, hours, errors=False, request_id='', page_token='', since=''):
                     raise failure
     except (httpx.HTTPError, ValueError) as error:
         failure = HTTPException(502, 'Cloud Logging response could not be read.')
-        failure.diagnostics = {'stage': 'logging_response', 'exception_type': type(error).__name__, 'upstream_status': response_status, 'http': headers, 'body_unreadable': True}
+        failure.diagnostics = {'stage': 'logging_response', 'cause': describe(error), 'upstream_status': response_status, 'http': headers, 'body_unreadable': True}
         raise failure from None
     if not isinstance(data, dict) or not isinstance(data.get('entries', []), list):
         raise HTTPException(502, 'Unexpected Cloud Logging response shape.')

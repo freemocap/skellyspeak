@@ -9,6 +9,38 @@ from server.tests.accounting.test_budget import ledger
 
 
 @pytest.mark.asyncio
+async def test_probe_retains_transport_explanation_and_os_cause_without_credentials():
+    def respond(request):
+        try:
+            raise ConnectionRefusedError(111, 'Connection refused')
+        except ConnectionRefusedError as cause:
+            raise httpx.ConnectError('Connection failed at https://private.invalid/path with key private-key', request=request) from cause
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        result = await provider_health.probe(client, 'GROQ', 'https://private.invalid', 'private-key')
+    assert result['state'] == 'unreachable'
+    details = result['diagnostics']
+    assert details['causes'][0]['exception_type'] == 'ConnectError'
+    assert 'Connection failed' in details['causes'][0]['message']
+    assert details['causes'][1]['errno'] == 111
+    assert 'Connection refused' in details['causes'][1]['message']
+    saved = json.dumps(result)
+    assert 'private-key' not in saved and 'private.invalid' not in saved
+    persisted = provider_health.runtime.sanitize({'event': 'provider_credential_checked', 'diagnostics': details})
+    assert 'Connection refused' in json.dumps(persisted)
+    assert 'private-key' not in json.dumps(persisted)
+
+
+@pytest.mark.asyncio
+async def test_probe_retains_json_failure_location_without_rejected_content():
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(200, content=b'{\nprivate-content'))) as client:
+        result = await provider_health.probe(client, 'GROQ', 'https://private.invalid', 'private-key')
+    assert result['state'] == 'invalid_response'
+    assert result['diagnostics']['line'] == 2
+    assert result['diagnostics']['column'] == 1
+    assert 'private-content' not in json.dumps(result)
+
+
+@pytest.mark.asyncio
 async def test_elevenlabs_probe_uses_key_header_and_array_model_catalog():
     def respond(request):
         assert request.url.path == '/v1/models'

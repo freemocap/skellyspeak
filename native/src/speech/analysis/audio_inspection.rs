@@ -119,8 +119,13 @@ pub(crate) fn inspect_wav(
     if bytes.len() < 44 || bytes.len() > MAX_BYTES {
         return Err(invalid("WAV must contain audio and be at most 25 MB."));
     }
-    let mut reader = hound::WavReader::new(std::io::Cursor::new(bytes))
-        .map_err(|_| invalid("Invalid WAV encoding."))?;
+    let mut reader = hound::WavReader::new(std::io::Cursor::new(bytes)).map_err(|cause| {
+        crate::diagnostics::failures::wav(
+            &cause,
+            "audio_inspection",
+            invalid("Invalid WAV encoding."),
+        )
+    })?;
     let spec = reader.spec();
     if spec.channels != 1
         || spec.bits_per_sample != 16
@@ -136,7 +141,13 @@ pub(crate) fn inspect_wav(
     let samples = reader
         .samples::<i16>()
         .collect::<std::result::Result<Vec<_>, _>>()
-        .map_err(|_| invalid("Truncated or invalid PCM samples."))?;
+        .map_err(|cause| {
+            crate::diagnostics::failures::wav(
+                &cause,
+                "audio_inspection",
+                invalid("Truncated or invalid PCM samples."),
+            )
+        })?;
     let local = fluency::analyze_pcm16(&samples, spec.sample_rate)?;
     let width = samples.len().div_ceil(1200).max(1);
     let min = samples

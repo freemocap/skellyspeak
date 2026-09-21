@@ -11,10 +11,14 @@ pub fn client() -> Result<reqwest::Client> {
         .timeout(Duration::from_secs(90))
         .connect_timeout(Duration::from_secs(15))
         .build()
-        .map_err(|_| {
-            AppError::new(
-                ErrorCode::Provider,
-                "Could not initialize the secure HTTP client.",
+        .map_err(|cause| {
+            crate::diagnostics::response::network_context(
+                &cause,
+                "http_client",
+                AppError::new(
+                    ErrorCode::Provider,
+                    "Could not initialize the secure HTTP client.",
+                ),
             )
         })
 }
@@ -150,7 +154,15 @@ pub(super) async fn request_payload_decoded(
     }
     let http = crate::diagnostics::response::headers(&response);
     let mut bytes = Vec::new();
-    while let Some(chunk) = response.chunk().await.map_err(|_| malformed())? {
+    while let Some(chunk) = response.chunk().await.map_err(|cause| {
+        let mut result = Err(crate::diagnostics::response::network_context(
+            &cause,
+            "chat_response_body",
+            malformed(),
+        ));
+        attach_http(&mut result, http.clone(), &private);
+        result.unwrap_err()
+    })? {
         if bytes.len() + chunk.len() > 262144 {
             return Err(malformed());
         }

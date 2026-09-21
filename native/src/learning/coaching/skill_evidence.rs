@@ -69,8 +69,13 @@ fn validate_source(source: &str, captured: &Value, output: &Completion) -> Resul
     if output.finish_reason != "stop" || output.text.len() > 32000 {
         return Err(fail("incomplete or oversized output"));
     }
-    let parsed: Evidence =
-        serde_json::from_str(&output.text).map_err(|_| fail("invalid fields"))?;
+    let parsed: Evidence = serde_json::from_str(&output.text).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "skill_evidence_decode",
+            fail("invalid fields"),
+        )
+    })?;
     let expected = implicated(captured)?;
     if parsed.items.len() != expected.len() {
         return Err(fail("skill coverage mismatch"));

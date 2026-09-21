@@ -278,7 +278,7 @@ pub async fn save_access_settings(
             state.clean_credentials()?;
             result
         }
-    }).await.map_err(|_| error("Saving AI access settings stopped unexpectedly."))?
+    }).await.map_err(|cause| crate::diagnostics::failures::join(&cause, "access.rs", error("Saving AI access settings stopped unexpectedly.")))?
 }
 
 fn validate_save_input(
@@ -312,11 +312,13 @@ pub async fn response_bytes(
         return Err(crate::diagnostics::response::http_error(response, label, &[]).await);
     }
     let mut body = Vec::new();
-    while let Some(chunk) = response
-        .chunk()
-        .await
-        .map_err(|_| error(format!("{label}: response interrupted.")))?
-    {
+    while let Some(chunk) = response.chunk().await.map_err(|cause| {
+        crate::diagnostics::response::network_context(
+            &cause,
+            "access_response_body",
+            error(format!("{label}: response interrupted.")),
+        )
+    })? {
         if body.len() + chunk.len() > limit {
             return Err(error(format!("{label}: response exceeds the size limit.")));
         }
@@ -380,10 +382,13 @@ pub async fn check_access(
     } else {
         request.bearer_auth(key.as_str())
     };
-    let response = request
-        .send()
-        .await
-        .map_err(|_| error("Connection check failed. Check the endpoint and network."))?;
+    let response = request.send().await.map_err(|cause| {
+        crate::diagnostics::response::network_context(
+            &cause,
+            "connection_check",
+            error("Connection check failed. Check the endpoint and network."),
+        )
+    })?;
     if !response.status().is_success() {
         return Err(crate::diagnostics::response::http_error(
             response,
@@ -405,7 +410,13 @@ pub async fn check_access(
         )
         .await?,
     )
-    .map_err(|_| error("Endpoint returned invalid JSON."))?;
+    .map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "connection_check_json",
+            error("Endpoint returned invalid JSON."),
+        )
+    })?;
     if custom {
         if value["protocol"] != "skellyspeak"
             || value["version"].as_u64() != Some(1)
@@ -422,8 +433,14 @@ pub async fn check_access(
         // Capability model lists are recommendations, not availability gates.
         // The selected provider validates the configured model during inference.
         let providers: Vec<ProviderCredentialCheck> =
-            serde_json::from_value(value["providers"].clone()).map_err(|_| {
-                error("Update the custom server to support internal provider credential checks.")
+            serde_json::from_value(value["providers"].clone()).map_err(|cause| {
+                crate::diagnostics::response::json_context(
+                    &cause,
+                    "access.rs_decode",
+                    error(
+                        "Update the custom server to support internal provider credential checks.",
+                    ),
+                )
             })?;
         if !(2..=3).contains(&providers.len())
             || providers

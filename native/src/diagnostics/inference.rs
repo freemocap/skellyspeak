@@ -62,8 +62,8 @@ pub(super) fn base(dispatch: &Dispatch, operation_kind: &str) -> Value {
         "messageCount":dispatch.messages.len()})
 }
 pub(super) fn emit(event: &Value) {
-    if super::append_native(event).is_err() {
-        eprintln!("Native inference diagnostic could not be saved.");
+    if let Err(error) = super::append_native(event) {
+        super::fallback("inference_persistence", event, &error);
     }
 }
 pub(crate) fn prepared(
@@ -128,6 +128,7 @@ fn completion_event(
     result: &Result<Completion>,
     validation: &Result<()>,
 ) -> Value {
+    let private = private_values(dispatch, result.as_ref().ok().map(|c| c.text.as_str()));
     let mut event = base(dispatch, operation_kind);
     event["validationAccepted"] = json!(validation.is_ok());
     event["stage"] = json!(if result.is_ok() {
@@ -142,6 +143,7 @@ fn completion_event(
             .ok()
             .and_then(|c| c.diagnostics.as_ref())
             .or_else(|| result.as_ref().err().and_then(|e| e.diagnostics.as_ref()))
+            .map(|v| super::response::metadata(v, &private))
     );
     if let Ok(output) = result {
         event["finishReason"] = json!(match output.finish_reason.as_str() {
@@ -159,60 +161,31 @@ fn completion_event(
             event["structure"] = super::structured::inspect(&output.text, schema);
         }
     }
-    // Only fixed, authored reasons can cross the sink. JSON diagnostics above
-    // provide field paths without copying serde's provider-controlled error text.
-    if let Err(error) = validation {
-        let reason = error
-            .message
-            .strip_prefix("Coach observation rejected: ")
-            .or_else(|| error.message.strip_prefix("Partner reaction rejected: "))
-            .and_then(|s| s.strip_suffix('.'));
-        event["domainReason"] = json!(
-            reason
-                .filter(|reason| matches!(
-                    *reason,
-                    "more than one coaching suggestion"
-                        | "unused coaching cue must be empty"
-                        | "non-normal completion"
-                        | "output exceeds 32768 bytes"
-                        | "output exceeds 8192 bytes"
-                        | "item count"
-                        | "missing candidates"
-                        | "unknown or duplicate construct"
-                        | "quote not in exact learner source"
-                        | "outcome conflicts with error"
-                        | "invalid error category"
-                        | "graduated cue reveals the answer"
-                        | "missing retry provenance"
-                        | "retry source replaced or missing"
-                        | "missing retry construct"
-                        | "repair flag contradicts target evidence"
-                        | "self-repair construct missing from registry"
-                        | "missing retry target"
-                        | "missing repaired item"
-                        | "interpretation is empty"
-                        | "explanation is empty"
-                        | "interpretation exceeds 400 characters"
-                        | "explanation exceeds 400 characters"
-                        | "interpretation violates prose contract"
-                        | "explanation violates prose contract"
-                        | "quote is empty"
-                        | "rationale is empty"
-                        | "target_hypothesis is empty"
-                        | "hint is empty"
-                        | "elicitation is empty"
-                        | "metalinguistic is empty"
-                        | "quote exceeds 160 characters"
-                        | "rationale exceeds 160 characters"
-                        | "target_hypothesis exceeds 160 characters"
-                        | "hint exceeds 160 characters"
-                        | "elicitation exceeds 160 characters"
-                        | "metalinguistic exceeds 160 characters"
-                ))
-                .unwrap_or("see_structure_or_error_code")
-        );
+    // The receipt and validation failure are independent evidence. Never select
+    // one in preference to the other, or narrow authored errors to an allowlist.
+
+    if let Some(error) = validation.as_ref().err() {
+        event["error"] = super::response::error_metadata(error, &private);
+        event["domainReason"] = json!(super::response::scrub(&error.message, &private));
+    }
+    if let Some(error) = result.as_ref().err() {
+        event["transportError"] = super::response::error_metadata(error, &private);
     }
     event
+}
+
+/// Supply known request/response values before errors reach any durable sink.
+pub(super) fn private_values<'a>(dispatch: &'a Dispatch, output: Option<&'a str>) -> Vec<&'a str> {
+    let mut private = vec![
+        dispatch.credential.as_str(),
+        dispatch.target.url.as_str(),
+        dispatch.install_id.as_str(),
+    ];
+    private.extend(dispatch.target.credential.as_deref());
+    private.extend(dispatch.messages.iter().map(|m| m.content.as_str()));
+    private.extend(dispatch.speech_source.as_ref().map(|s| s.text.as_str()));
+    private.extend(output);
+    private
 }
 
 /// Content-free warning; original response and provider metadata remain in the attempt.
@@ -277,7 +250,14 @@ mod tests {
         assert_eq!(event["outputAtTokenLimit"], true);
         assert_eq!(event["validationAccepted"], false);
         assert_eq!(event["structure"]["path"], "$.kind");
-        assert_eq!(event["domainReason"], "non-normal completion");
+        assert_eq!(
+            event["domainReason"],
+            "Coach observation rejected: non-normal completion."
+        );
+        assert_eq!(
+            event["error"]["message"],
+            "Coach observation rejected: non-normal completion."
+        );
         assert!(!event.to_string().contains("SECRET"));
         let temp = tempfile::tempdir().unwrap();
         let dir = temp.path().canonicalize().unwrap().join("run");
@@ -286,6 +266,48 @@ mod tests {
         let stored = std::fs::read_to_string(dir.join("native.jsonl")).unwrap();
         assert!(stored.contains(&dispatch.attempt));
         assert!(!stored.contains("SECRET"));
+        let output = Completion {
+            diagnostics: Some(
+                json!({"request_id":"req-preserved", "usage":{"tokens":352}, "api_key":"SECRET", "content":"private-answer"}),
+            ),
+            text: r#"{"kind":"understood"}"#.into(),
+            finish_reason: "stop".into(),
+            actual_model: "fixture".into(),
+            provider_id: "request".into(),
+            input_tokens: Some(705),
+            output_tokens: Some(352),
+        };
+        let rejection = Err(AppError::new(ErrorCode::Validation,"Conversation support: quote is not in its source message")
+            .with_diagnostics(json!({"stage":"reply_explanations_validation","path":"cards[0].quote","expected":"exact source quote"})));
+        let event = completion_event(&dispatch, "reply_explanations", &Ok(output), &rejection);
+        assert_eq!(
+            event["structure"]["reason"],
+            "no_structural_mismatch_detected"
+        );
+        assert_eq!(event["diagnostics"]["request_id"], "req-preserved");
+        assert_eq!(event["error"]["diagnostics"]["path"], "cards[0].quote");
+        let run = temp.path().join("native-1-2");
+        let mut sink = super::super::FileSink::open(&run).unwrap();
+        sink.append("native", &event).unwrap();
+        let path = super::super::archive::save(temp.path(), temp.path()).unwrap();
+        let mut zip = zip::ZipArchive::new(std::fs::File::open(path).unwrap()).unwrap();
+        let mut stored = String::new();
+        std::io::Read::read_to_string(
+            &mut zip.by_name("logs/native-1-2/native.jsonl").unwrap(),
+            &mut stored,
+        )
+        .unwrap();
+        for retained in [
+            "quote is not in its source message",
+            "cards[0].quote",
+            "req-preserved",
+            "352",
+        ] {
+            assert!(stored.contains(retained));
+        }
+        for private in ["SECRET", "private-answer"] {
+            assert!(!stored.contains(private));
+        }
         let failure = Err(AppError::new(ErrorCode::Provider, "SECRET"));
         let event = completion_event(
             &dispatch,

@@ -1,6 +1,7 @@
 """Atomic admission and exactly-once settlement of provider requests."""
 
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError, DiagnosticRuntimeError
 
 from server.app.accounting import usage_limits
 
@@ -31,7 +32,7 @@ def reserve(
     db: firestore.Client, *, user_id: str, micros: int, user_limit: int, global_limit: int
 ) -> Reservation:
     if micros <= 0 or user_limit < 0 or global_limit < 0:
-        raise ValueError("Reservation must be positive and limits nonnegative.")
+        raise DiagnosticValueError("Reservation must be positive and limits nonnegative.")
     reservation = Reservation(user_id, secrets.token_urlsafe(24), quota.utc_day(), micros)
     stamp = int(datetime.now(timezone.utc).timestamp())
     buckets = [f"m{stamp // 60 * 60}", f"h{stamp // 3600 * 3600}"]
@@ -94,9 +95,9 @@ def settle(
         <= date.fromisoformat(quota.utc_day())
     )
     if actual_micros < 0 or tokens < 0:
-        raise ValueError("Usage cannot be negative.")
+        raise DiagnosticValueError("Usage cannot be negative.")
     if status == "unknown" and actual_micros != reservation.micros:
-        raise ValueError("Unknown usage must retain the complete reservation.")
+        raise DiagnosticValueError("Unknown usage must retain the complete reservation.")
     user = db.collection(quota.USERS).document(reservation.user_id)
     record = user.collection(RESERVATIONS).document(reservation.request_id)
     usage = user.collection(quota.USAGE).document(reservation.day)
@@ -108,20 +109,20 @@ def settle(
         personal = usage.get(transaction=transaction).to_dict()
         global_usage = shared.get(transaction=transaction).to_dict()
         if stored is None:
-            raise RuntimeError("Reservation is missing; refusing an untracked charge.")
+            raise DiagnosticRuntimeError("Reservation is missing; refusing an untracked charge.")
         if stored["day"] != reservation.day or stored["reserved_micros"] != reservation.micros:
-            raise RuntimeError("Reservation identity does not match its ledger record.")
+            raise DiagnosticRuntimeError("Reservation identity does not match its ledger record.")
         if stored["status"] == "settled":
             if (stored["actual_micros"], stored["tokens"], stored["provider_id"], stored.get("cost_basis", "reported")) != (
                 actual_micros, tokens, provider_id, cost_basis
             ):
-                raise RuntimeError("Conflicting settlement for a completed request.")
+                raise DiagnosticRuntimeError("Conflicting settlement for a completed request.")
             return
         if stored["status"] == "unknown" and status == "unknown":
             return
         missing_ledgers = personal is None or global_usage is None
         if missing_ledgers and not historical:
-            raise RuntimeError("Daily ledger is missing; refusing to create a negative settlement balance.")
+            raise DiagnosticRuntimeError("Daily ledger is missing; refusing to create a negative settlement balance.")
         timeline_refs = [db.collection("usage_timeline").document(bucket)
                          for bucket in stored.get("timeline_buckets", [])] if not historical else []
         retained_timeline = [ref for ref in timeline_refs if ref.get(transaction=transaction).exists]
@@ -136,7 +137,7 @@ def settle(
         for reference, data in ((usage, personal), (shared, global_usage)):
             if data is not None:
                 if int(data["micros"]) + actual_micros - reservation.micros < 0:
-                    raise RuntimeError("Settlement would make a daily balance negative.")
+                    raise DiagnosticRuntimeError("Settlement would make a daily balance negative.")
                 transaction.set(reference, correction, merge=True)
         # Reservations are estimates, not provider price ceilings. Record the
         # actual charge; later admissions use the corrected daily balances.

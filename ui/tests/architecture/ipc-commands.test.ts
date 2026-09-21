@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { expect, it } from 'vitest'
+import { diagnosticCommands } from '../../src/generated/contracts'
 import { buildGraph, isTestFile, isTestInfrastructure } from '../../../tools/import-graph'
 
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url))
@@ -33,4 +34,8 @@ it('every command the frontend invokes is registered natively', () => {
   expect(known.size, 'application/startup.rs registered no commands').toBeGreaterThan(20)
   const missing = [...invoked].flatMap(([module, names]) => names.filter((name) => !known.has(name)).map((name) => `${module}: ${name}`))
   expect(missing.sort(), 'the frontend invokes a command the native side does not register').toEqual([])
+})
+
+it('every registered IPC command retains its diagnostic identity', () => {
+  expect([...diagnosticCommands].sort()).toEqual([...registeredCommands()].sort())
 })

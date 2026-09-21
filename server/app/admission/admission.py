@@ -1,6 +1,7 @@
 """Bound cheap ingress locally and admitted database work across all instances."""
 
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError
 
 from server.app.accounting import usage_limits
 
@@ -60,7 +61,7 @@ class AuthenticatedIngress:
 
     def take(self, subject: str, *, lane: IngressLane) -> None:
         if lane not in SUBJECT_LIMITS or not subject:
-            raise ValueError("Invalid authenticated ingress lane or subject.")
+            raise DiagnosticValueError("Invalid authenticated ingress lane or subject.")
         now: float = time.monotonic()
         with self._lock:
             for key, (_, touched) in list(self._subjects.items()):
@@ -82,7 +83,7 @@ class AuthenticatedIngress:
 def take(db: firestore.Client, *, lane: Literal["auth", "account", "diagnostics"], subject: str) -> None:
     """Count attempts, including later failures; never refund infrastructure work."""
     if lane not in {"auth", "account", "diagnostics"} or not subject or "/" in subject:
-        raise ValueError("Invalid admission identity.")
+        raise DiagnosticValueError("Invalid admission identity.")
     day: str = quota.utc_day()
     shared: firestore.DocumentReference = db.collection(ADMISSION).document(day)
     personal: firestore.DocumentReference = db.collection(quota.USERS).document(subject).collection(ADMISSION).document(day)

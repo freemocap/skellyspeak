@@ -25,7 +25,13 @@ fn invalid(message: &str) -> AppError {
     AppError::new(ErrorCode::Validation, message)
 }
 fn movement(value: &str) -> Result<CoachMove> {
-    serde_json::from_value(json!(value)).map_err(|_| invalid("Unknown configured coach move."))
+    serde_json::from_value(json!(value)).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "coach_policy_decode",
+            invalid("Unknown configured coach move."),
+        )
+    })
 }
 fn summary(item: &ObservedItem) -> ObservedItemSummary {
     ObservedItemSummary {
@@ -234,7 +240,13 @@ pub(crate) fn control(
         AppError::new(ErrorCode::NotFound, "Current coaching turn is unavailable.")
     })?)?;
     let mut decision: CoachDecision = serde_json::from_value(context["coachDecision"].clone())
-        .map_err(|_| invalid("No coaching decision is available."))?;
+        .map_err(|cause| {
+            crate::diagnostics::response::json_context(
+                &cause,
+                "coach_policy_decode",
+                invalid("No coaching decision is available."),
+            )
+        })?;
     match control {
         CoachControl::OpenCard => {
             if decision.kept_going {

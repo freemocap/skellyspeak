@@ -34,8 +34,14 @@ pub(crate) fn publish(db: &Connection, turn: &str, attempt: &str) -> Result<()> 
     if captured.get("rewardEvents").is_some() {
         return Ok(());
     }
-    let policy: GamePolicy = serde_json::from_value(captured["gamePolicy"].clone())
-        .map_err(|_| fail("This exchange has no captured reward policy. Start a new exchange."))?;
+    let policy: GamePolicy =
+        serde_json::from_value(captured["gamePolicy"].clone()).map_err(|cause| {
+            crate::diagnostics::response::json_context(
+                &cause,
+                "reward_policy_decode",
+                fail("This exchange has no captured reward policy. Start a new exchange."),
+            )
+        })?;
     let policy_hash = captured["gamePolicyHash"]
         .as_str()
         .ok_or_else(|| fail("Missing reward policy identity."))?;

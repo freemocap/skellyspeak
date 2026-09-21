@@ -231,9 +231,8 @@ fn json_shape_is_strict_without_duplicate_key_collapse() {
         r#"{"spans":[{"first":"g0000","last":"g0001"}]}"#,
     ] {
         assert_eq!(
-            decode("x", raw),
-            Err(AdapterError::InvalidJsonOrShape),
-            "{raw}"
+            decode("x", raw).unwrap_err().diagnostic_code(),
+            "gloss_invalid_json_or_shape"
         );
     }
 }
@@ -250,10 +249,16 @@ fn malformed_fenced_trailing_and_nested_content_is_not_repaired() {
         "{\"spans\":[],}",
         "// comment\n{\"spans\":[]}",
     ] {
-        assert_eq!(decode("x", raw), Err(AdapterError::InvalidJsonOrShape));
+        assert_eq!(
+            decode("x", raw).unwrap_err().diagnostic_code(),
+            "gloss_invalid_json_or_shape"
+        );
     }
     let nested = format!("{{\"spans\":[{}0{}]}}", "[".repeat(200), "]".repeat(200));
-    assert_eq!(decode("x", &nested), Err(AdapterError::InvalidJsonOrShape));
+    assert_eq!(
+        decode("x", &nested).unwrap_err().diagnostic_code(),
+        "gloss_invalid_json_or_shape"
+    );
     assert!(decode("x", " \n{\"spans\":[]}\t").is_ok());
 }
 
@@ -272,8 +277,10 @@ fn response_byte_and_item_limits_are_enforced_at_exact_edges() {
     let mut excess = allowed;
     excess.push(literal(MAX_SPANS, MAX_SPANS + 1));
     assert_eq!(
-        decode(&text, &candidate(excess)),
-        Err(AdapterError::InvalidJsonOrShape)
+        decode(&text, &candidate(excess))
+            .unwrap_err()
+            .diagnostic_code(),
+        "gloss_invalid_json_or_shape"
     );
 }
 
@@ -619,8 +626,10 @@ fn stopped_duplicate_key_failure_retains_metadata_and_unknown_usage() {
     let mut output = completion(raw.into(), "stop");
     output.output_tokens = None;
     assert_eq!(
-        validate_word_gloss_completion(&identity(), "x", &output),
-        Err(AdapterError::InvalidJsonOrShape)
+        validate_word_gloss_completion(&identity(), "x", &output)
+            .unwrap_err()
+            .diagnostic_code(),
+        "gloss_invalid_json_or_shape"
     );
     assert_eq!(output.text, raw);
     assert_eq!(output.finish_reason, "stop");
@@ -702,8 +711,10 @@ fn provider_structural_schema_retains_strict_native_acceptance() {
         let mut span = gloss(0, 4, "hello");
         span["kind"] = kind;
         assert_eq!(
-            decode("Hola.", &candidate(vec![span])),
-            Err(AdapterError::InvalidJsonOrShape)
+            decode("Hola.", &candidate(vec![span]))
+                .unwrap_err()
+                .diagnostic_code(),
+            "gloss_invalid_json_or_shape"
         );
     }
 }
@@ -733,8 +744,10 @@ fn historical_v1_live_fixture_is_not_reinterpreted_as_v2() {
         "stop",
     );
     assert_eq!(
-        validate_word_gloss_completion(&identity(), "Hola.", &output),
-        Err(AdapterError::InvalidJsonOrShape)
+        validate_word_gloss_completion(&identity(), "Hola.", &output)
+            .unwrap_err()
+            .diagnostic_code(),
+        "gloss_invalid_json_or_shape"
     );
     // The payload above is an authentic output shape from the earlier contract,
     // kept so the decoder is proven to refuse it rather than accept it silently.
@@ -770,4 +783,13 @@ fn latin_gloss_requests_skip_romanization_and_reject_copied_words() {
         serde_json::json!({"first":"g0000","last":"g0000","kind":"gloss","gloss":"you","romanization":"nǐ"}),
     ]);
     assert!(decode_word_gloss(&id, "你", &raw).is_ok());
+}
+
+#[test]
+fn malformed_gloss_retains_parser_position_without_rejected_content() {
+    let error = decode("x", "{\nprivate-canary").unwrap_err();
+    let details = error.diagnostics();
+    assert_eq!(details["category"], "Syntax");
+    assert_eq!(details["line"], 2);
+    assert!(!details.to_string().contains("private-canary"));
 }

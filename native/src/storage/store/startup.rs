@@ -18,10 +18,14 @@ impl Store {
                     .open(path)?;
                 file.set_permissions(std::fs::Permissions::from_mode(0o600))
             };
-            private_file().map_err(|_| {
-                AppError::new(
-                    ErrorCode::Storage,
-                    "Could not restrict database access to this user.",
+            private_file().map_err(|cause| {
+                crate::diagnostics::response::io_context(
+                    &cause,
+                    "workspace_file_permissions",
+                    AppError::new(
+                        ErrorCode::Storage,
+                        "Could not restrict database access to this user.",
+                    ),
                 )
             })?;
         }

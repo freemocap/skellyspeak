@@ -1,4 +1,6 @@
-/** Keep browser failure identity without source URLs or device/content strings. */
+import { errorDetails } from '../diagnostics/error-details'
+
+/** Preserve the browser explanation and cause through the shared redactor. */
 export function mediaError(error: unknown, context: string): Error {
   const candidate = error as { name?: unknown; code?: unknown } | null
   const name = typeof candidate?.name === 'string' && /^[A-Za-z]{1,64}$/.test(candidate.name) ? candidate.name : 'MediaError'
@@ -9,7 +11,8 @@ export function mediaError(error: unknown, context: string): Error {
     AbortError: 'The media operation was interrupted.',
   }
   const mediaReasons: Record<number, string> = { 1: 'Playback was aborted.', 2: 'Media loading failed.', 3: 'Audio decoding failed.', 4: 'The audio source or format is unsupported.' }
-  const result = new Error(`${context}: ${name}${code === undefined ? '' : ` (${code})`}. ${reasons[name] ?? (code === undefined ? '' : mediaReasons[code] ?? '')}`)
+  const details = errorDetails(error)
+  const result = new Error(`${context}: ${name}${code === undefined ? '' : ` (${code})`}. ${reasons[name] ?? (code === undefined ? '' : mediaReasons[code] ?? '')}`, { cause: details })
   result.name = name
-  return Object.assign(result, { diagnostics: { stage: 'browser_media', name, code, reason: reasons[name] ?? (code === undefined ? undefined : mediaReasons[code]), contentRedacted: true } })
+  return Object.assign(result, { diagnostics: { stage: 'browser_media', name, code, reason: reasons[name] ?? (code === undefined ? undefined : mediaReasons[code]), ...details } })
 }

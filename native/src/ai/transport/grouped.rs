@@ -146,7 +146,9 @@ impl Decoder {
                 self.line.push(*byte);
                 continue;
             }
-            let event: Event = serde_json::from_slice(&self.line).map_err(|_| unknown())?;
+            let event: Event = serde_json::from_slice(&self.line).map_err(|cause| {
+                crate::diagnostics::response::json_context(&cause, "grouped_decode", unknown())
+            })?;
             self.line.clear();
             let (operation, attempt, result) = match event {
                 Event::Delta {

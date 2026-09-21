@@ -32,8 +32,17 @@ pub async fn complete(
     .await
 }
 fn decode_decisions(bytes: &[u8]) -> Result<Completion> {
-    let mut value: Value = serde_json::from_slice(bytes).map_err(|_| {
-        crate::diagnostics::response::invalid("decisions_json", "$", "JSON object", &Value::Null)
+    let mut value: Value = serde_json::from_slice(bytes).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "decisions.rs_decode",
+            crate::diagnostics::response::invalid(
+                "decisions_json",
+                "$",
+                "JSON object",
+                &Value::Null,
+            ),
+        )
     })?;
     let answers = value
         .get("answers")

@@ -69,7 +69,9 @@ pub(in crate::application) async fn save_connection(
         }
     })
     .await
-    .map_err(|_| internal())?
+    .map_err(|cause| {
+        crate::diagnostics::failures::join(&cause, "connections.rs_worker", internal())
+    })?
 }
 
 #[tauri::command]
@@ -143,7 +145,9 @@ pub(in crate::application) async fn disconnect(
         result
     })
     .await
-    .map_err(|_| internal())?
+    .map_err(|cause| {
+        crate::diagnostics::failures::join(&cause, "connections.rs_worker", internal())
+    })?
 }
 
 #[tauri::command]

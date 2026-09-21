@@ -2,23 +2,18 @@
  * Callers must label/structure echoed content; arbitrary unlabelled prose cannot
  * reliably be distinguished from an error explanation by a generic scrubber.
  */
-const sensitive = /secret|password|authorization|api[_-]?key|access[_-]?token|refresh[_-]?token|cookie|^(?:token|key|content|text|transcript|prompt|messages|input|output|audio|data|arguments|reasoning|request|body|url|email)$/i
-const publicField = /^(?:name|message|detail|error|code|type|status|reason|stage|path|expected|function|source_file|id|x_request_id|request_?id|operation_?id|attempt_?id|model|model_id|requested_?model|actual_?model|provider_?id|provider|provider_name|finish_reason|native_finish_reason|cost_basis|allowance_basis|retry_?after|retry_?at|param|format|content_type|exception_type|redaction|stack|componentStack)$/i
-
+import { diagnosticPolicy as policy } from '../../generated/diagnostic-policy'
+const isSecret = (key: string) => (policy.secretFields as readonly string[]).includes(key.toLowerCase()) || policy.secretFieldFragments.some(part => key.toLowerCase().includes(part))
+const sensitive = { test: (key: string) => isSecret(key) || (policy.contentFields as readonly string[]).includes(key.toLowerCase()) }
+const publicField = { test: (key: string) => policy.publicFields.some(field => field.toLowerCase() === key.toLowerCase()) }
+const rules = policy.rules.map(rule => ({ ...rule, regex: new RegExp(rule.pattern, `${rule.flags}g`) }))
 export function scrubErrorText(value: string, privateValues: string[] = []): string {
   let text = value
-  for (const secret of [...privateValues].filter(Boolean).sort((a, b) => b.length - a.length)) text = text.split(secret).join('[redacted]')
-  text = text
-    .replace(/-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?(?:-----END [^-]*PRIVATE KEY-----|$)/g, '[redacted: private key]')
-    .replace(/\b(?:authorization|api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|token|cookie)["']?\s*[=:]\s*(?:(?:Bearer|Basic)\s+)?(?:"[^"]*"|'[^']*'|[^\s,;]+)/gi, match => `${match.split(/[=:]/, 1)[0]}=[redacted]`)
-    .replace(/\bBearer\s+[^\s,;<>]+/gi, 'Bearer [redacted]')
-    .replace(/\b(?:sk-|gsk_)[A-Za-z0-9_-]+|\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, '[redacted]')
-    .replace(/https?:\/\/[^\s<>"')]+/g, '[redacted: URL]')
-    .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b[A-Za-z0-9_-]{48,}\b/g, '[redacted]')
-    .replace(/\b(prompt|transcript|content|request body|response body|input|output)["']?\s*[=:]\s*[^\n]*/gi, '$1=[redacted: content]')
-    .replace(/\(reading (["'])([A-Za-z_$][\w$]*)\1\)/g, '(reading property $2)')
-    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '')
-  return text.length > 4096 ? `${text.slice(0, 4096)}[truncated: string limit]` : text
+  for (const rule of rules.filter(rule => rule.kind === 'secret')) text = text.replace(rule.regex, ('prefix' in rule && rule.prefix ? '$1' : '') + policy.secretTag)
+  for (const content of [...privateValues].filter(Boolean).sort((a, b) => b.length - a.length)) text = text.split(content).join(policy.contentTag)
+  for (const rule of rules.filter(rule => rule.kind !== 'secret')) text = text.replace(rule.regex, ('prefix' in rule && rule.prefix ? '$1' : '') + policy.contentTag)
+  text = text.replace(/\(reading (["'])([A-Za-z_$][\w$]*)\1\)/g, '(reading property $2)').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '')
+  return text.length > policy.limits.string ? `${text.slice(0, policy.limits.string)}[truncated: string limit]` : text
 }
 
 function keys(value: object): string[] {
@@ -47,7 +42,7 @@ export function errorDetails(error: unknown, extra: unknown = undefined): Record
   const seen = new WeakSet<object>()
   let collectionBudget = 256
   function collect(value: unknown, depth = 0) {
-    if (!value || typeof value !== 'object' || seen.has(value) || depth > 6 || collectionBudget-- <= 0) return
+    if (!value || typeof value !== 'object' || seen.has(value) || depth > policy.limits.depth || collectionBudget-- <= 0) return
     seen.add(value)
     for (const key of keys(value).slice(0, 64)) {
       const item = field(value, key)
@@ -57,19 +52,26 @@ export function errorDetails(error: unknown, extra: unknown = undefined): Record
   }
   collect(error); collect(extra)
   const visited = new WeakSet<object>()
-  let budget = 256
+  let budget = policy.limits.nodes as number
   function metadata(value: unknown, key = '', depth = 0): unknown {
-    if (depth > 6 || budget-- <= 0) return '[truncated: metadata limit]'
-    if (typeof value === 'string') return publicField.test(key) ? scrubErrorText(value, privateValues) : '[redacted: unclassified string]'
+    if (depth > policy.limits.depth || budget-- <= 0) return '[truncated: metadata limit]'
+    if (typeof value === 'string') return publicField.test(key) ? scrubErrorText(value, privateValues) : policy.contentTag
     if (value == null || typeof value === 'number' || typeof value === 'boolean') return value
     if (typeof value !== 'object') return '[omitted: unsupported value]'
     if (visited.has(value)) return '[omitted: circular reference]'
     visited.add(value)
-    if (Array.isArray(value)) return value.slice(0, 32).map(item => metadata(item, key, depth + 1))
-    return Object.fromEntries(keys(value).slice(0, 64).map((name, index) => {
-      if (!/^[\w.-]{1,64}$/.test(name) || privateValues.includes(name)) return [`redacted_field_${index}`, '[redacted: field name]']
-      return [name, sensitive.test(name) ? '[redacted: content or credential]' : metadata(field(value, name), name, depth + 1)]
+    if (Array.isArray(value)) {
+      const items = value.slice(0, policy.limits.array).map(item => metadata(item, key, depth + 1))
+      if (value.length > policy.limits.array) items.push({ truncated_items: value.length - policy.limits.array })
+      return items
+    }
+    const names = keys(value).sort((a, b) => Number(!['error', 'message', 'code', 'reason', 'stage', 'diagnostics', 'cause'].includes(a)) - Number(!['error', 'message', 'code', 'reason', 'stage', 'diagnostics', 'cause'].includes(b)))
+    const result = Object.fromEntries(names.slice(0, policy.limits.fields).map((name, index) => {
+      if (!/^[\w.-]{1,64}$/.test(name) || privateValues.includes(name)) return [`redacted_field_${index}`, policy.contentTag]
+      return [name, sensitive.test(name) ? (isSecret(name) ? policy.secretTag : policy.contentTag) : metadata(field(value, name), name, depth + 1)]
     }))
+    if (names.length > policy.limits.fields) result.truncated_fields = names.length - policy.limits.fields
+    return result
   }
   const causes = new WeakSet<object>()
   function describe(value: unknown, depth = 0): Record<string, unknown> {

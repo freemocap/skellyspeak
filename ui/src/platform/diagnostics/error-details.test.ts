@@ -8,22 +8,22 @@ it('retains the actual runtime explanation and source frames without URL secrets
   expect(details.message).toBe(error.message)
   expect(details.stack).toContain('LanguagePickers.tsx:51:9')
   expect(details.stack).toContain('app.js:27:3')
-  for (const secret of ['user:pass', 'localhost', '?', 'secret']) expect(JSON.stringify(details)).not.toContain(secret)
+  for (const secret of ['user:pass', 'localhost', '?', 'secret']) expect(JSON.stringify(details).replaceAll('[secret redacted]', '')).not.toContain(secret)
 })
 it('removes credentials and echoed content while preserving the failure explanation', () => {
   const message = 'Selection failed: invalid credentials; api_key=short-key; Bearer abc123; https://example.com/?key=other; transcript=private words'
   const clean = scrubErrorText(message)
   expect(clean).toContain('Selection failed: invalid credentials')
   for (const secret of ['short-key', 'abc123', 'example.com', 'private words']) expect(clean).not.toContain(secret)
-  expect(scrubErrorText('Parse failed near "private sentence"', ['private sentence'])).toBe('Parse failed near "[redacted]"' )
+  expect(scrubErrorText('Parse failed near "private sentence"', ['private sentence'])).toBe('Parse failed near "[user content redacted]"' )
 })
 it('removes known private values echoed in a message and preserves nested diagnostic metadata', () => {
   const details = errorDetails({ message: 'Rejected short-secret at validation', diagnostics: {
     api_key: 'short-secret', content: 'private text', request_id: 'req-123', stage: 'decode', usage: { tokens: 12 }, unknown: 'unreviewed',
   } })
-  expect(details.message).toBe('Rejected [redacted] at validation')
+  expect(details.message).toBe('Rejected [user content redacted] at validation')
   expect(details.metadata).toMatchObject({ request_id: 'req-123', stage: 'decode', usage: { tokens: 12 } })
-  for (const secret of ['short-secret', 'private text', 'unreviewed']) expect(JSON.stringify(details)).not.toContain(secret)
+  for (const secret of ['short-secret', 'private text', 'unreviewed']) expect(JSON.stringify(details).replaceAll('[secret redacted]', '')).not.toContain(secret)
 })
 it('retains nested causes, bounds long messages and handles cyclic values and throwing accessors', () => {
   const cause = new Error('Permission denied')

@@ -65,7 +65,7 @@ async def test_broken_error_body_does_not_replace_http_refusal(caplog):
     class Broken(httpx.AsyncByteStream):
         async def __aiter__(self):
             yield b'{"error":"private partial'
-            raise httpx.ReadError('private network detail')
+            raise httpx.ReadError('Connection reset; Bearer private-network-secret')
     async def respond(request):
         return httpx.Response(403, stream=Broken())
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
@@ -75,6 +75,9 @@ async def test_broken_error_body_does_not_replace_http_refusal(caplog):
     assert 'private' not in caplog.text
     event = next(json.loads(r.message) for r in caplog.records if 'provider_error_response' in r.message)
     assert event['body_unreadable']
+    # Retain the actionable transport failure as well as the original refusal.
+    assert event['response_body']['read_error']['causes'][0]['exception_type'] == 'ReadError'
+    assert 'Connection reset' in event['response_body']['read_error']['causes'][0]['message']
 
 
 def test_metadata_retention_keeps_public_identifiers_and_marks_unclassified_values():
@@ -90,7 +93,7 @@ def test_metadata_retention_keeps_public_identifiers_and_marks_unclassified_valu
     assert value['extra']['latency_ms'] == 42
     assert 'text_to_speech' in value['error']['message']
     assert 'eleven_v3' in value['error']['message']
-    assert 'unclassified' in value['extra']['unknown_text']
+    assert value['extra']['unknown_text'] == '[user content redacted]'
     for private in ('private learner sentence', 'real-api-secret', 'private bytes', 'private unknown content'):
         assert private not in json.dumps(value)
 

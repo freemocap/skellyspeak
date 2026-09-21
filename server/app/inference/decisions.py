@@ -1,4 +1,5 @@
 """Bounded Jev Choice requests carried by the existing grouped work contract."""
+from server.app.diagnostics.exceptions import DiagnosticValueError
 import json
 import math
 from urllib.parse import urlsplit, urlunsplit
@@ -51,7 +52,7 @@ def request(payload: dict) -> ChatRequest:
 def endpoint(base: str) -> str:
     parts = urlsplit(base)
     if not parts.path.rstrip('/').endswith('/v1'):
-        raise ValueError("Decisions require an OpenRouter API base ending in /v1")
+        raise DiagnosticValueError("Decisions require an OpenRouter API base ending in /v1")
     return urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip('/')[:-3] + '/alpha/decisions', '', ''))
 
 def completion(payload: dict) -> dict:

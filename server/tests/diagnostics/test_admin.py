@@ -95,7 +95,7 @@ def test_log_metadata_survives_and_content_credentials_are_redacted():
     assert row['diagnostics']['usage']['tokens'] == 9
     assert row['additional_metadata']['billing']['amount'] == 20
     assert 'private-' not in str(row)
-    assert '[redacted' in str(row)
+    assert '[secret redacted]' in str(row) and '[user content redacted]' in str(row)
 
 
 @pytest.mark.asyncio

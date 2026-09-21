@@ -1,6 +1,40 @@
 use super::super::{client, fixtures::server};
 use super::*;
 
+#[tokio::test]
+async fn failed_key_connection_retains_transport_cause_without_url_or_key() {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    drop(listener);
+    let url = format!("http://{address}/private-path?token=private-value");
+    let failure = verify_key_at(&client().unwrap(), "test-credential", &url)
+        .await
+        .unwrap_err();
+    assert!(matches!(failure.code, ErrorCode::Provider));
+    let details = failure.diagnostics.unwrap();
+    assert_eq!(details["stage"], "key_verification");
+    assert_eq!(details["reason"], "connection_failed");
+    assert!(!details["causes"].as_array().unwrap().is_empty());
+    let saved = details.to_string();
+    for secret in ["private-path", "private-value", "test-credential"] {
+        assert!(!saved.contains(secret), "{saved}");
+    }
+}
+
+#[tokio::test]
+async fn malformed_key_response_retains_parser_location_without_body() {
+    let (url, worker) = server("200 OK", "{\nprivate-response", "");
+    let failure = verify_key_at(&client().unwrap(), "test-credential", &url)
+        .await
+        .unwrap_err();
+    let details = failure.diagnostics.unwrap();
+    assert_eq!(details["stage"], "key_verification_json");
+    assert_eq!(details["line"], 2);
+    assert_eq!(details["reason"], "Syntax");
+    assert!(!details.to_string().contains("private-response"));
+    worker.join().unwrap();
+}
+
 #[test]
 fn validate_key_messages_distinguish_whitespace() {
     assert_eq!(

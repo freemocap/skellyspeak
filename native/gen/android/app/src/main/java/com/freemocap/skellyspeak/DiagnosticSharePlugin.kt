@@ -7,6 +7,8 @@ import android.os.Build
 import android.os.Process
 import android.webkit.WebView
 import androidx.core.content.FileProvider
+import app.tauri.annotation.ActivityCallback
+import androidx.activity.result.ActivityResult
 import app.tauri.annotation.Command
 import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
@@ -30,9 +32,17 @@ class DiagnosticShareArgs {
 @TauriPlugin
 class DiagnosticSharePlugin(private val activity: Activity) : Plugin(activity) {
     private val busy = AtomicBoolean(false)
+    private val privacy by lazy { DiagnosticPrivacy(activity) }
+
+    private var pendingArchive: File? = null
 
     @Command
-    fun share(invoke: Invoke) {
+    fun save(invoke: Invoke) = prepare(invoke, true)
+
+    @Command
+    fun share(invoke: Invoke) = prepare(invoke, false)
+
+    private fun prepare(invoke: Invoke, save: Boolean) {
         if (!busy.compareAndSet(false, true)) {
             invoke.reject("Log sharing is already in progress.", "busy")
             return
@@ -73,29 +83,79 @@ class DiagnosticSharePlugin(private val activity: Activity) : Plugin(activity) {
                     zip.closeEntry()
                     DiagnosticArchive.copyLogs(root, logs, zip)
                 }
-                stage = "create_share_uri"
-                val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", archive)
+                val ready = archive
                 activity.runOnUiThread {
                     try {
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/zip"
-                            putExtra(Intent.EXTRA_STREAM, uri)
-                            clipData = ClipData.newRawUri("SkellySpeak logs", uri)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        if (save) {
+                            pendingArchive = ready
+                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                                addCategory(Intent.CATEGORY_OPENABLE)
+                                type = "application/zip"
+                                putExtra(Intent.EXTRA_TITLE, ready.name)
+                            }
+                            startActivityForResult(invoke, intent, "saveResult")
+                        } else {
+                            val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", ready)
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/zip"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                clipData = ClipData.newRawUri("SkellySpeak logs", uri)
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            activity.startActivity(Intent.createChooser(intent, "Share SkellySpeak logs"))
+                            busy.set(false)
+                            invoke.resolve()
                         }
-                        activity.startActivity(Intent.createChooser(intent, "Share SkellySpeak logs"))
-                        // This means the sheet opened, not that the user sent the attachment.
-                        invoke.resolve()
-                    } catch (_: Exception) {
-                        invoke.reject("Could not open the Android share sheet.", "open_share_sheet")
-                    } finally { busy.set(false) }
+                    } catch (error: Exception) {
+                        if (save) { pendingArchive = null; ready.delete() }
+                        busy.set(false)
+                        reject(invoke, "open_export_destination", error)
+                    }
                 }
-            } catch (_: Exception) {
+            } catch (error: Exception) {
                 archive?.delete()
                 busy.set(false)
-                invoke.reject("Could not prepare diagnostic logs ($stage).", stage)
+                reject(invoke, stage, error)
             }
         }.start()
+    }
+
+    @ActivityCallback
+    fun saveResult(invoke: Invoke, result: ActivityResult) {
+        val archive = pendingArchive
+        pendingArchive = null
+        if (result.resultCode != Activity.RESULT_OK) {
+            archive?.delete()
+            busy.set(false)
+            invoke.resolve() // Cancellation is not a saved file.
+            return
+        }
+        Thread {
+            try {
+                checkNotNull(archive) { "Prepared archive unavailable" }
+                val uri = checkNotNull(result.data?.data) { "Document destination unavailable" }
+                val output = checkNotNull(activity.contentResolver.openOutputStream(uri, "wt")) { "Document output unavailable" }
+                output.use { destination -> archive.inputStream().use { source -> source.copyTo(destination) } }
+                invoke.resolveObject(archive.name)
+            } catch (error: Exception) {
+                reject(invoke, "save_document", error)
+            } finally {
+                archive?.delete()
+                busy.set(false)
+            }
+        }.start()
+    }
+
+    /** Redact sensitive spans while retaining explanations, types, stages and OS causes. */
+    private fun failureDetails(error: Exception): String {
+        val causes = generateSequence(error as Throwable?) { it.cause }.take(8).map { cause ->
+            val errno = (cause as? android.system.ErrnoException)?.errno
+            "${cause.javaClass.simpleName}${if (errno != null) " errno=$errno" else ""}: ${privacy.scrub(cause.message ?: "No exception message")}"
+        }.toList()
+        return causes.joinToString(" caused by ")
+    }
+    private fun reject(invoke: Invoke, stage: String, error: Exception) {
+        invoke.reject("Diagnostic export failed at $stage: ${failureDetails(error)}", stage)
     }
 
     private fun graphicsSnapshot(): JSONObject {
@@ -131,9 +191,9 @@ class DiagnosticSharePlugin(private val activity: Activity) : Plugin(activity) {
             }
             check(exitCode == 0)
             result.put("status", "captured")
-        } catch (_: Exception) {
+        } catch (error: Exception) {
             // App logs remain shareable; the manifest explicitly marks this additional source unavailable.
-            result.put("status", "unavailable").put("reason", "System buffer inaccessible, timed out or command failed")
+            result.put("status", "unavailable").put("reason", failureDetails(error))
         } finally {
             process?.destroy()
             executor.shutdownNow()

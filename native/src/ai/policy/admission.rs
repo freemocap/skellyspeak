@@ -36,7 +36,13 @@ impl CredentialReads {
             read()
         })
         .await
-        .map_err(|_| AppError::new(ErrorCode::Internal, "Credential access failed."))?
+        .map_err(|cause| {
+            crate::diagnostics::failures::join(
+                &cause,
+                "credential_read_worker",
+                AppError::new(ErrorCode::Internal, "Credential access failed."),
+            )
+        })?
     }
 }
 

@@ -189,7 +189,10 @@ impl Request {
 pub struct Registry(Mutex<HashMap<String, Arc<Request>>>);
 impl Registry {
     pub fn begin(&self, store: &Store, input: ReadingInput) -> Result<String> {
-        let mut entries = self.0.lock().map_err(|_| crate::application::internal())?;
+        let mut entries = self
+            .0
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         let expired: Vec<_> = entries
             .values()
             .filter(|r| !r.claimed.load(Ordering::SeqCst) && r.created.elapsed().as_secs() >= 30)
@@ -212,7 +215,10 @@ impl Registry {
         Ok(id)
     }
     pub fn claim(&self, id: &str) -> Result<Arc<Request>> {
-        let entries = self.0.lock().map_err(|_| crate::application::internal())?;
+        let entries = self
+            .0
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         let request = entries.get(id).ok_or_else(|| {
             AppError::new(
                 ErrorCode::Conflict,
@@ -228,7 +234,10 @@ impl Registry {
         Ok(request.clone())
     }
     pub fn cancel(&self, store: &Store, id: &str) -> Result<()> {
-        let mut entries = self.0.lock().map_err(|_| crate::application::internal())?;
+        let mut entries = self
+            .0
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?;
         if let Some(request) = entries.get(id) {
             request.cancelled.store(true, Ordering::SeqCst);
             receipts::cancel(store, id)?;
@@ -241,7 +250,7 @@ impl Registry {
     pub fn remove(&self, id: &str) -> Result<()> {
         self.0
             .lock()
-            .map_err(|_| crate::application::internal())?
+            .map_err(|_| crate::diagnostics::failures::poisoned(crate::application::internal()))?
             .remove(id);
         Ok(())
     }

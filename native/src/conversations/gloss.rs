@@ -154,6 +154,7 @@ fn gloss_error(error: adapter::AdapterError, completion: &Completion) -> AppErro
             location
         ),
     )
+    .with_diagnostics(error.diagnostics())
 }
 fn project(
     source: &Source,

@@ -168,6 +168,11 @@ jobs:
             libxdo-dev \
             libssl-dev \
             libasound2-dev \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-bad \
+            gstreamer1.0-libav \
+            gstreamer1.0-tools \
             build-essential curl wget file patchelf
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
@@ -296,6 +301,10 @@ jobs:
           echo "signed updater artifacts:"
           echo "$sigs"
           cargo run --locked --manifest-path tools/verify-updater/Cargo.toml -- native/tauri.conf.json native/target
+
+      - name: Verify AppImage audio runtime
+        if: matrix.name == 'Linux x64'
+        run: node tools/check-appimage.ts native/target
 
   android:
     # Runs alongside the desktop matrix, not after it: the release already

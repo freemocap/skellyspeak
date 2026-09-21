@@ -66,7 +66,7 @@ _feed = Feed()
 
 
 def install():
-    for name in ('skellyspeak.runtime', 'skellyspeak.requests'):
+    for name in ('skellyspeak.runtime', 'skellyspeak.requests', 'skellyspeak.operations'):
         logger = logging.getLogger(name)
         if _feed not in logger.handlers:
             logger.addHandler(_feed)

@@ -26,13 +26,18 @@ pub async fn mic_start(
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || start_capture(&state, conversation_id))
         .await
-        .map_err(|_| fault("Microphone startup stopped unexpectedly."))?
+        .map_err(|cause| {
+            crate::diagnostics::failures::join(
+                &cause,
+                "voice.rs",
+                fault("Microphone startup stopped unexpectedly."),
+            )
+        })?
 }
 fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<RecordingStarted> {
-    let mut slot = state
-        .capture
-        .lock()
-        .map_err(|_| fault("Microphone state unavailable."))?;
+    let mut slot = state.capture.lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+    })?;
     if slot.is_some() {
         return Err(fault("A recording is already running."));
     }
@@ -93,10 +98,9 @@ pub fn mic_wave(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
 ) -> Result<Vec<f32>> {
-    let slot = state
-        .capture
-        .lock()
-        .map_err(|_| fault("Microphone state unavailable."))?;
+    let slot = state.capture.lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+    })?;
     let recording = slot
         .as_ref()
         .filter(|r| r.id == recording_id)
@@ -113,10 +117,9 @@ pub fn mic_wave(
 }
 #[tauri::command]
 pub fn mic_cancel(state: tauri::State<'_, Arc<Application>>, recording_id: String) -> Result<()> {
-    let mut slot = state
-        .capture
-        .lock()
-        .map_err(|_| fault("Microphone state unavailable."))?;
+    let mut slot = state.capture.lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+    })?;
     if slot.as_ref().is_some_and(|r| r.id == recording_id) {
         slot.take();
     }
@@ -129,10 +132,9 @@ pub async fn mic_transcribe(
     audio_base64: Option<String>,
 ) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
     let recording = {
-        let mut slot = state
-            .capture
-            .lock()
-            .map_err(|_| fault("Microphone state unavailable."))?;
+        let mut slot = state.capture.lock().map_err(|_| {
+            crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+        })?;
         if slot.as_ref().is_none_or(|r| r.id != recording_id) {
             return Err(fault("Recording is no longer active."));
         }
@@ -158,7 +160,13 @@ pub async fn mic_transcribe(
     #[cfg(desktop)]
     let wav = tauri::async_runtime::spawn_blocking(move || recording.capture.finish())
         .await
-        .map_err(|_| fault("Audio processing stopped unexpectedly."))?
+        .map_err(|cause| {
+            crate::diagnostics::failures::join(
+                &cause,
+                "voice.rs",
+                fault("Audio processing stopped unexpectedly."),
+            )
+        })?
         .map_err(fault)?;
     #[cfg(mobile)]
     let wav = {
@@ -169,7 +177,13 @@ pub async fn mic_transcribe(
         }
         let bytes = base64::engine::general_purpose::STANDARD
             .decode(encoded)
-            .map_err(|_| fault("Invalid recording encoding."))?;
+            .map_err(|cause| {
+                crate::diagnostics::failures::base64(
+                    &cause,
+                    "voice.rs_base64",
+                    fault("Invalid recording encoding."),
+                )
+            })?;
         if bytes.len() < 44 || &bytes[..4] != b"RIFF" || &bytes[8..12] != b"WAVE" {
             return Err(fault("Recording must be WAV audio."));
         }
@@ -186,7 +200,13 @@ pub async fn mic_transcribe(
         Ok::<_, AppError>((wav, inspection))
     })
     .await
-    .map_err(|_| fault("Audio inspection stopped unexpectedly."))??;
+    .map_err(|cause| {
+        crate::diagnostics::failures::join(
+            &cause,
+            "voice.rs",
+            fault("Audio inspection stopped unexpectedly."),
+        )
+    })??;
     let validate = || {
         let store = state.lock()?;
         if crate::conversations::execution::config(&store.connection)?.paused {

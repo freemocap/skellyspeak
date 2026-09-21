@@ -263,10 +263,9 @@ pub fn export_workspace(
     app: AppHandle,
     state: tauri::State<'_, std::sync::Arc<Application>>,
 ) -> Result<String> {
-    let writes = state
-        .store
-        .lock()
-        .map_err(|_| storage_error("Local data is unavailable."))?;
+    let writes = state.store.lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(storage_error("Local data is unavailable."))
+    })?;
     let data = app
         .path()
         .app_data_dir()
@@ -304,10 +303,9 @@ pub fn factory_reset(
         .app_data_dir()
         .map_err(|error| storage_error(format!("Could not locate local data: {error}")))?;
     let _credential_operation = state.credential_operation()?;
-    let mut stores = state
-        .store
-        .lock()
-        .map_err(|_| storage_error("Local data is unavailable."))?;
+    let mut stores = state.store.lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(storage_error("Local data is unavailable."))
+    })?;
     let ownership = match stores.as_ref() {
         Some(store) => store.ownership(),
         None => WorkspaceOwnership::acquire(&data.join(WORKSPACE_FILE))?,

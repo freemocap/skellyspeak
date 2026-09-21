@@ -41,6 +41,18 @@ class Synth {
 beforeEach(() => { vi.resetModules(); voices.length = 0; vi.stubGlobal('AudioContext', Synth); document.documentElement.style.setProperty('--interaction-ink', '#f4d780') })
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); document.body.innerHTML = '' })
 
+it('reports audio construction failures with their original explanation', async () => {
+  vi.stubGlobal('AudioContext', class { constructor() { throw new DOMException('Failed to start the audio device', 'InvalidStateError') } })
+  const sound = await import('./reward-sounds')
+  const { useFaultStore } = await import('../diagnostics/faults')
+  sound.configureRewardSounds('yes', false)
+  expect(() => sound.unlockRewardAudio()).not.toThrow()
+  const fault = useFaultStore.getState().faults.at(-1)!
+  expect(fault.context).toBe('Enabling reward sounds')
+  expect(fault.message).toContain('Creating reward audio context')
+  expect(JSON.stringify(fault.diagnostics)).toContain('Failed to start the audio device')
+})
+
 it('synchronizes a visible flash with sound and cancels all scheduled notes when backgrounded', async () => {
   const sound = await import('./reward-sounds')
   const target = document.createElement('button')

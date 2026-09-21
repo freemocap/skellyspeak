@@ -416,8 +416,13 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
         return Err(rejected("output_too_large"));
     }
     if kind == SUGGESTIONS {
-        let value: SuggestionsOutput =
-            serde_json::from_str(&output.text).map_err(|_| rejected("suggestions_schema"))?;
+        let value: SuggestionsOutput = serde_json::from_str(&output.text).map_err(|cause| {
+            crate::diagnostics::response::json_context(
+                &cause,
+                "mod_decode",
+                rejected("suggestions_schema"),
+            )
+        })?;
         if value.replies.is_empty() || value.replies.len() > 2 {
             return Err(rejected("suggestion_count"));
         }

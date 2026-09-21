@@ -152,7 +152,8 @@ fn collect_files(root: &Path, relative: &Path, files: &mut BTreeMap<String, Stri
         if kind.is_symlink() {
             return Err(error(&name, "symlink", "Content symlinks are not allowed."));
         }
-        if name == "schemas"
+        if name == "diagnostics"
+            || name == "schemas"
             || entry.file_name().to_string_lossy().starts_with('.')
             || name.ends_with(".md")
         {

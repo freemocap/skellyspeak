@@ -694,3 +694,17 @@ The September 14 workspace redesign and its verification limits are recorded in
 “Save a copy of my data” in Settings and schema-refusal recovery copies the database,
 SQLite sidecars to Downloads. App-owned teaching content is not workspace data.
 Copy failures leave no published partial backup.
+
+### Diagnostic log export and privacy
+
+Use **Save logs** in More or an error surface to save the structured diagnostic ZIP.
+Desktop saves to Downloads; Android opens a file destination picker. Android also
+has **Share logs**. The ZIP excludes conversations, recordings and credentials.
+
+Privacy rules live in `content/diagnostics/policy.json`; run
+`npm run diagnostics:policy` after editing and `npm run diagnostics:check` to check
+all generated runtime copies. Redaction uses `[secret redacted]` and
+`[user content redacted]`, preserving surrounding explanations. Error receipts and
+provider receipts remain separate so successful HTTP responses cannot hide later
+validation failures. See the [audit and verification report](docs/notes/centralized-diagnostics-audit-2026-09-21.md)
+for coverage and platform limits.

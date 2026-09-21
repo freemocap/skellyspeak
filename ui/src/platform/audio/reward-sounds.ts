@@ -1,6 +1,7 @@
 import { reportFault } from '../diagnostics/faults'
 import { visibleRewardRect } from '../../domain/rewards/reward-anchors'
 import { cssToken } from '../appearance/css-token'
+import { mediaError } from './media-error'
 export type RewardSoundMode = 'yes' | 'no' | 'follow_tts'
 export type SoundCue = { kind: 'xp'; xp: number } | { kind: 'milestone' } | { kind: 'confused' } | { kind: 'understood' } | { kind: 'pop' }
 export interface Beep { frequency: number; at: number; duration: number }
@@ -53,13 +54,18 @@ export function setRewardPlaybackAllowed(value: boolean): void {
 export function unlockRewardAudio(): void {
   if (!enabled || !allowed || document.visibilityState === 'hidden') return
   if (!context) {
-    context = new AudioContext()
-    output = context.createGain()
-    output.gain.value = volume
-    output.connect(context.destination)
+    try {
+      context = new AudioContext()
+      output = context.createGain()
+      output.gain.value = volume
+      output.connect(context.destination)
+    } catch (error) {
+      reportFault('Enabling reward sounds', mediaError(error, 'Creating reward audio context'))
+      return
+    }
   }
   // WebKit also pauses contexts as interrupted after native audio or app suspension.
-  if (context.state !== 'running' && context.state !== 'closed') void context.resume().catch(error => reportFault('Enabling reward sounds', error))
+  if (context.state !== 'running' && context.state !== 'closed') void context.resume().catch(error => reportFault('Enabling reward sounds', mediaError(error, 'Resuming reward audio context')))
 }
 
 /** No historical replay, no background queue, and no sound without a visible cause. */

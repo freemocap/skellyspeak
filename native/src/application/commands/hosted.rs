@@ -52,7 +52,9 @@ pub(in crate::application) async fn hosted_sign_in(
         )
     })
     .await
-    .map_err(|_| internal())??;
+    .map_err(|cause| {
+        crate::diagnostics::failures::join(&cause, "hosted.rs_worker", internal())
+    })??;
     Ok(account)
 }
 
@@ -132,5 +134,5 @@ pub(in crate::application) async fn hosted_sign_out(
         result
     })
     .await
-    .map_err(|_| internal())?
+    .map_err(|cause| crate::diagnostics::failures::join(&cause, "hosted.rs_worker", internal()))?
 }

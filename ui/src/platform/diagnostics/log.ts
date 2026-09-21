@@ -1,6 +1,6 @@
 import { errorDetails } from './error-details'
 import { invoke } from '@tauri-apps/api/core'
-import type { DiagnosticCommand } from '../../generated/contracts'
+import { diagnosticCommands } from '../../generated/contracts'
 import { isTauri } from '../ipc/tauri'
 
 type Level = 'debug' | 'info' | 'warn' | 'error'
@@ -18,7 +18,7 @@ type DiagnosticCode = 'ui_fault' | 'native_command_failed' | 'unhandled_error' |
 type Cause = 'custom_transcription_unconfigured' | 'playback_denied' | 'playback_failed' | 'network_failure' | 'resize_observer_loop' | 'resource_load_failed' | 'type_error' | 'reference_error' | 'syntax_error' | 'abort_error' | 'unknown'
 type EventName = 'console' | 'ipc_started' | 'ipc_succeeded' | 'ipc_failed' | 'settings_opened' | 'settings_loaded' | 'settings_saving' | 'microphone_autosend' | 'microphone_empty' | 'application_mounted' | 'language_registry_loaded' | 'other'
 const nativeCodes = new Set(['validation', 'conflict', 'not_found', 'session_expired', 'storage', 'provider', 'admission_held', 'unknown_outcome', 'credential', 'internal'])
-const commands = new Set<string>(['share_diagnostic_logs', 'get_update_channel', 'latest_github_release', 'read_speech_audio', 'mic_start', 'mic_wave', 'mic_cancel', 'mic_transcribe', 'factory_reset', 'get_startup_state', 'begin_persona_generation', 'run_persona_generation', 'cancel_persona_generation', 'get_persona_generation_activity', 'get_snapshot', 'execute_command', 'get_access_settings', 'save_access_settings', 'check_access', 'get_connection', 'save_connection', 'save_models', 'verify_openrouter_key', 'disconnect', 'watch_conversation', 'hosted_sign_in', 'hosted_account', 'hosted_diagnostics', 'hosted_sign_out', 'cancel_sign_in', 'select_route', 'get_profile', 'get_reward_settings', 'get_playback_rate', 'save_playback_rate', 'save_reward_settings', 'get_skill_evidence', 'get_practice_overview', 'save_skill_profile', 'open_ai_window', 'list_turn_history', 'ai_window_state', 'dock_ai_window', 'set_ai_view_selection', 'get_ai_view_selection', 'get_ai_graph_definitions'] satisfies DiagnosticCommand[])
+const commands = new Set<string>(diagnosticCommands)
 let bridgeFailureReported = false
 let deliveryFailures = 0
 let pendingDeliveries = 0
@@ -80,7 +80,7 @@ export async function logDiagnostic(context: string, error: unknown, faultId?: n
     try { console.error(message) } finally { consoleBypass = false }
     if (!bridgeFailureReported) {
       bridgeFailureReported = true
-      window.dispatchEvent(new Event('diagnostic-bridge-failed'))
+      window.dispatchEvent(new CustomEvent('diagnostic-bridge-failed', { detail: errorDetails(error) }))
     }
     return false
   } finally { pendingDeliveries-- }

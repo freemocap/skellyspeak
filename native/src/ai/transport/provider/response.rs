@@ -112,10 +112,14 @@ pub fn decode(bytes: &[u8]) -> Result<Completion> {
                 "chars": value.pointer("/choices/0/message/content").and_then(|v| v.as_str()).map_or(0, |s| s.chars().count()),
             })));
     }
-    let response: Response = serde_json::from_value(value.clone()).map_err(|_| {
-        invalid(
-            "$",
-            "id, model, choices with finish_reason and message, optional numeric usage",
+    let response: Response = serde_json::from_value(value.clone()).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "response.rs_decode",
+            invalid(
+                "$",
+                "id, model, choices with finish_reason and message, optional numeric usage",
+            ),
         )
     })?;
     if response.choices.len() != 1 {

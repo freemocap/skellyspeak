@@ -33,28 +33,52 @@ pub async fn latest_github_release() -> Result<LatestRelease> {
         .redirect(reqwest::redirect::Policy::none())
         .user_agent("SkellySpeak-update-check")
         .build()
-        .map_err(|_| failure("Could not initialize release discovery."))?;
+        .map_err(|cause| {
+            crate::diagnostics::response::network_context(
+                &cause,
+                "release_http_client",
+                failure("Could not initialize release discovery."),
+            )
+        })?;
     let mut response = client
         .get("https://api.github.com/repos/freemocap/skellyspeak/releases/latest")
         .send()
         .await
-        .map_err(|_| failure("Could not reach GitHub releases."))?;
+        .map_err(|cause| {
+            crate::diagnostics::response::network_context(
+                &cause,
+                "release_discovery",
+                failure("Could not reach GitHub releases."),
+            )
+        })?;
     if !response.status().is_success() {
-        return Err(failure("GitHub release discovery failed. Try again later."));
+        return Err(crate::diagnostics::response::http_error(
+            response,
+            "GitHub release discovery",
+            &[],
+        )
+        .await);
     }
     let mut bytes = Vec::new();
-    while let Some(chunk) = response
-        .chunk()
-        .await
-        .map_err(|_| failure("Could not read the release response."))?
-    {
+    while let Some(chunk) = response.chunk().await.map_err(|cause| {
+        crate::diagnostics::response::network_context(
+            &cause,
+            "release_response_body",
+            failure("Could not read the release response."),
+        )
+    })? {
         if bytes.len() + chunk.len() > 512 * 1024 {
             return Err(failure("Release response exceeds the size limit."));
         }
         bytes.extend_from_slice(&chunk);
     }
-    let value: serde_json::Value =
-        serde_json::from_slice(&bytes).map_err(|_| failure("Invalid release response."))?;
+    let value: serde_json::Value = serde_json::from_slice(&bytes).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "release_response_json",
+            failure("Invalid release response."),
+        )
+    })?;
     let tag = value["tag_name"]
         .as_str()
         .ok_or_else(|| failure("Release version is missing."))?;

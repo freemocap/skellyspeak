@@ -8,13 +8,19 @@ pub(crate) fn completed(dispatch: &Dispatch, outcome: &SpeechOutcome) {
 }
 fn event(dispatch: &Dispatch, outcome: &SpeechOutcome) -> Value {
     let mut event = super::inference::base(dispatch, "persona_speech");
-    event["diagnostics"] = serde_json::json!(outcome.diagnostics.as_ref().or_else(|| {
+    let private = super::inference::private_values(dispatch, None);
+    event["diagnostics"] = json!(
         outcome
-            .audio
+            .diagnostics
             .as_ref()
-            .err()
-            .and_then(|e| e.diagnostics.as_ref())
-    }));
+            .map(|v| super::response::metadata(v, &private))
+    );
+    if let Err(error) = &outcome.audio {
+        event["error"] = super::response::error_metadata(
+            error,
+            &super::inference::private_values(dispatch, None),
+        );
+    }
     event["code"] = json!("speech_validation");
     event["stage"] = json!("decoder_outcome");
     event["contentRedacted"] = json!(true);

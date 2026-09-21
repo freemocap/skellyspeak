@@ -26,6 +26,8 @@ uuid = { version = "1", features = ["v4"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart"] }
 tokio = { version = "1", features = ["sync", "time", "macros", "net", "io-util"] }
 regex = "1"
+log = "0.4"
+zip = { version = "4.6.1", default-features = false }
 unicode-segmentation = "=1.13.3"
 zeroize = "1"
 sha2 = "0.10"
@@ -54,7 +56,6 @@ libc = "0.2"
 tauri-plugin-updater = "2"
 tauri-plugin-process = "2"
 cpal = "0.15"
-log = "0.4"
 
 [target.'cfg(target_os = "android")'.dependencies]
 keyring-core = "1"

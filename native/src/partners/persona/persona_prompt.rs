@@ -40,12 +40,12 @@ pub fn messages(language_name: &str, brief: Option<&str>) -> Vec<PromptMessage> 
 }
 
 pub fn parse(text: &str) -> Result<PersonaDetails> {
-    serde_json::from_str(text).map_err(|_| {
-        AppError::new(
+    serde_json::from_str(text).map_err(|cause| {
+crate::diagnostics::response::json_context(&cause, "persona_prompt.rs_decode", AppError::new(
             ErrorCode::Provider,
             "The generated persona did not match the required shape. Nothing was saved; try again.",
-        )
-    })
+        ))
+})
 }
 
 #[cfg(test)]

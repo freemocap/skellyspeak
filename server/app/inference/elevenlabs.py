@@ -5,6 +5,7 @@ The owner supplies an authenticated provider profile and an HTTP client. Request
 and result types are shared with future audio adapters. No model-name routing.
 """
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError
 
 import asyncio
 import io
@@ -63,14 +64,14 @@ def synthesis_text(request: SynthesisRequest) -> str:
     if (request.model != "eleven_v3" or not isinstance(variety, str)
             or not variety.strip() or len(variety.encode("utf-8")) > 256
             or any(ord(c) < 32 or 127 <= ord(c) <= 159 or c in "[]" for c in variety)):
-        raise ValueError("Speech requires a valid language variety and an accent-capable model.")
+        raise DiagnosticValueError("Speech requires a valid language variety and an accent-capable model.")
     return f"[{variety} accent]\n{request.text}"
 
 
 class ElevenLabs:
     def __init__(self, client: httpx.AsyncClient, *, api_key: str):
         if not api_key or not api_key.isascii() or any(ord(c) < 33 or ord(c) == 127 for c in api_key):
-            raise ValueError("Invalid ElevenLabs credential format.")
+            raise DiagnosticValueError("Invalid ElevenLabs credential format.")
         self._client = client
         self._key = api_key
 
@@ -125,8 +126,9 @@ class ElevenLabs:
                 finally:
                     await response.aclose()
         except (httpx.HTTPError, TimeoutError) as error:
-            # Drop exception context: HTTP errors can contain URLs or credentials.
-            raise AudioFailure("AUDIO_TRANSPORT_UNKNOWN", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transport", "exception_type":type(error).__name__, "response":receipt.diagnostics}) from None
+            from server.app.diagnostics.exceptions import describe
+            details = describe(error, private=tuple(provider_errors.request_strings({"key": self._key, "request": kwargs, "private": private})), include_message=True)
+            raise AudioFailure("AUDIO_TRANSPORT_UNKNOWN", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transport", "exception_type":type(error).__name__, "causes":details["causes"], "response":receipt.diagnostics}) from None
 
     async def synthesize(self, request: SynthesisRequest) -> SynthesisResult:
         receipt = AudioReceipt("elevenlabs", request.model)

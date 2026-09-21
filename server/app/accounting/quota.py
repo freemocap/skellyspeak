@@ -24,6 +24,7 @@ and both decide there is room.
 """
 
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError
 
 import logging
 
@@ -240,7 +241,7 @@ def record_device(
         return
     try:
         if str(UUID(install_id)) != install_id:
-            raise ValueError("Noncanonical UUID")
+            raise DiagnosticValueError("Noncanonical UUID")
     except ValueError as error:
         raise HTTPException(status_code=400, detail="Installation ID must be a canonical UUID.") from error
     ref = db.collection(USERS).document(user_id).collection(DEVICES).document(install_id)

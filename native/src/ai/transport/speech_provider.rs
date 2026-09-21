@@ -153,7 +153,13 @@ impl Decoder {
             if *byte == b'\n' {
                 let line = std::mem::take(&mut self.pending);
                 let line = std::str::from_utf8(&line)
-                    .map_err(|_| fault("Speech stream is not UTF-8."))?
+                    .map_err(|cause| {
+                        crate::diagnostics::failures::utf8(
+                            &cause,
+                            "speech_stream_utf8",
+                            fault("Speech stream is not UTF-8."),
+                        )
+                    })?
                     .trim_end_matches('\r');
                 if line.is_empty() {
                     self.event();
@@ -356,7 +362,13 @@ impl Decoder {
         } else {
             STANDARD
                 .decode(&self.audio)
-                .map_err(|_| fault("Speech contains invalid base64 audio."))
+                .map_err(|cause| {
+                    crate::diagnostics::failures::base64(
+                        &cause,
+                        "speech_provider.rs_base64",
+                        fault("Speech contains invalid base64 audio."),
+                    )
+                })
                 .and_then(wav)
         };
         self.outcome

@@ -90,8 +90,13 @@ pub fn validate(db: &Connection, turn: &str, output: &Completion) -> Result<Valu
     if output.finish_reason != "stop" || output.text.len() > 8000 {
         return Err(fail("incomplete or oversized output"));
     }
-    let v: Assessment =
-        serde_json::from_str(&output.text).map_err(|_| fail("invalid JSON fields"))?;
+    let v: Assessment = serde_json::from_str(&output.text).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "skill_assessment_decode",
+            fail("invalid JSON fields"),
+        )
+    })?;
     if v.items.len() > 4 {
         return Err(fail("too many judgments"));
     }

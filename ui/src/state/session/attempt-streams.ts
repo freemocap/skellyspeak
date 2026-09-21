@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import type { AttemptStreamRead, AttemptStreamUpdate, TurnView } from '../../generated/contracts'
 import { isProseReply } from '../../domain/conversation/reply-state'
 import { onAttemptStream, readAttemptStreams } from '../../platform/ipc/attempt-streams'
+import { reportFault } from '../../platform/diagnostics/faults'
 
 /// Streamed text of running attempts, reconciled from native events and reads.
 ///
@@ -64,7 +65,7 @@ export function useAttemptStreamSync(conversationId: string | null) {
     let stop: (() => void) | null = null
     const read = () => readAttemptStreams(conversationId)
       .then(result => { if (!disposed) useAttemptStreams.getState().adoptRead(result) })
-      .catch(() => {})
+      .catch(error => reportFault('Reading conversation stream', error))
     onAttemptStream(update => {
       if (disposed || update.conversationId !== conversationId) return
       if (useAttemptStreams.getState().apply(update)) void read()
@@ -72,7 +73,7 @@ export function useAttemptStreamSync(conversationId: string | null) {
       if (disposed) { unlisten(); return }
       stop = unlisten
       void read()
-    }).catch(() => {})
+    }).catch(error => reportFault('Subscribing to conversation stream', error))
     return () => { disposed = true; stop?.() }
   }, [conversationId])
 }

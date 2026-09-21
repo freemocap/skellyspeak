@@ -37,10 +37,11 @@ pub async fn body_with_private(
             .and_then(|value| value.to_str().ok())
             .and_then(|value| value.parse::<u32>().ok());
         let mut bytes = Vec::new();
-        while let Some(chunk) = response.chunk().await.map_err(|_| {
-            fault("Could not read hosted limit response.").with_refusal(
-                crate::ai::policy::refusal::classify(None, retry_after, None),
-            )
+        while let Some(chunk) = response.chunk().await.map_err(|cause| {
+            let read = crate::diagnostics::response::network(&cause, "hosted_limit_body");
+            fault("Could not read hosted limit response.")
+                .with_refusal(crate::ai::policy::refusal::classify(None, retry_after, None))
+                .with_diagnostics(serde_json::json!({"stage":"hosted_limit_body","http":http,"bytes_read":bytes.len(),"cause":read.diagnostics}))
         })? {
             if bytes.len() + chunk.len() > 65536 {
                 return Err(
@@ -51,8 +52,16 @@ pub async fn body_with_private(
             }
             bytes.extend_from_slice(&chunk);
         }
-        let mut value: serde_json::Value =
-            serde_json::from_slice(&bytes).unwrap_or(serde_json::Value::Null);
+        let parsed = serde_json::from_slice::<serde_json::Value>(&bytes);
+        let parse_error = parsed.as_ref().err().map(|cause| {
+            crate::diagnostics::response::json_context(
+                cause,
+                "hosted_limit_json",
+                fault("Invalid limit response JSON."),
+            )
+            .diagnostics
+        });
+        let mut value = parsed.unwrap_or(serde_json::Value::Null);
         sanitize_service_body(&mut value);
         let response = crate::diagnostics::response::metadata(&value, private);
         let mut error = limit_error(&bytes, retry_after);
@@ -63,7 +72,9 @@ pub async fn body_with_private(
             error.message =
                 format!("Service HTTP 429: {reason}{delay} No automatic retry was made.");
         }
-        return Err(error.with_diagnostics(serde_json::json!({"http":http,"response":response})));
+        return Err(error.with_diagnostics(
+            serde_json::json!({"http":http,"response":response,"parse_error":parse_error}),
+        ));
     }
     if !response.status().is_success() {
         let status = response.status().as_u16();
@@ -89,11 +100,13 @@ pub async fn body_with_private(
         return Err(error);
     }
     let mut bytes = Vec::new();
-    while let Some(chunk) = response
-        .chunk()
-        .await
-        .map_err(|_| fault("Could not read the hosted response."))?
-    {
+    while let Some(chunk) = response.chunk().await.map_err(|cause| {
+        crate::diagnostics::response::network_context(
+            &cause,
+            "hosted_response_body",
+            fault("Could not read the hosted response."),
+        )
+    })? {
         if bytes.len() + chunk.len() > 65536 {
             return Err(fault("The hosted response exceeds its size limit."));
         }
@@ -333,12 +346,23 @@ pub async fn account(token: &str, install: &str) -> Result<HostedAccount> {
     .timeout(Duration::from_secs(30))
     .send()
     .await
-    .map_err(|_| fault("Could not reach the hosted account service."))?;
+    .map_err(|cause| {
+        crate::diagnostics::response::network_context(
+            &cause,
+            "hosted_account",
+            fault("Could not reach the hosted account service."),
+        )
+    })?;
     decode_account(&body(response).await?)
 }
 pub fn decode_account(bytes: &[u8]) -> Result<HostedAccount> {
-    let account: HostedAccount = serde_json::from_slice(bytes)
-        .map_err(|_| fault("The hosted account response is malformed."))?;
+    let account: HostedAccount = serde_json::from_slice(bytes).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "hosted_account_json",
+            fault("The hosted account response is malformed."),
+        )
+    })?;
     if [account.used_usd, account.limit_usd, account.remaining_usd]
         .iter()
         .any(|n| !n.is_finite() || *n < 0.0)
@@ -406,33 +430,56 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
-        .map_err(|_| fault("Could not open the local sign-in callback port."))?;
+        .map_err(|cause| {
+            crate::diagnostics::response::io_context(
+                &cause,
+                "hosted_sign_in",
+                fault("Could not open the local sign-in callback port."),
+            )
+        })?;
     let port = listener
         .local_addr()
-        .map_err(|_| fault("Could not read the callback address."))?
+        .map_err(|cause| {
+            crate::diagnostics::response::io_context(
+                &cause,
+                "hosted_sign_in",
+                fault("Could not read the callback address."),
+            )
+        })?
         .port();
     let proof = Proof::create()?;
     let url = start_url(
         &format!("http://127.0.0.1:{port}/callback"),
         &proof.challenge,
     )?;
-    app.opener()
-        .open_url(&url, None::<&str>)
-        .map_err(|_| fault("Could not open your system browser."))?;
+    app.opener().open_url(&url, None::<&str>).map_err(|cause| {
+        crate::diagnostics::failures::platform(
+            &cause,
+            "sign_in_browser",
+            &[&url],
+            fault("Could not open your system browser."),
+        )
+    })?;
     let receive = async {
         loop {
-            let (mut stream, _) = listener
-                .accept()
-                .await
-                .map_err(|_| fault("The sign-in listener failed."))?;
+            let (mut stream, _) = listener.accept().await.map_err(|cause| {
+                crate::diagnostics::response::io_context(
+                    &cause,
+                    "hosted_sign_in",
+                    fault("The sign-in listener failed."),
+                )
+            })?;
             let mut request = Vec::new();
             let mut chunk = [0u8; 1024];
             tokio::time::timeout(Duration::from_secs(5), async {
                 loop {
-                    let count = stream
-                        .read(&mut chunk)
-                        .await
-                        .map_err(|_| fault("Could not read the sign-in callback."))?;
+                    let count = stream.read(&mut chunk).await.map_err(|cause| {
+                        crate::diagnostics::response::io_context(
+                            &cause,
+                            "hosted_sign_in",
+                            fault("Could not read the sign-in callback."),
+                        )
+                    })?;
                     if count == 0 {
                         return Err(fault("The sign-in callback ended unexpectedly."));
                     }
@@ -447,8 +494,13 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
             })
             .await
             .map_err(|_| fault("The sign-in callback timed out."))??;
-            let request =
-                std::str::from_utf8(&request).map_err(|_| fault("Invalid callback encoding."))?;
+            let request = std::str::from_utf8(&request).map_err(|cause| {
+                crate::diagnostics::failures::utf8(
+                    &cause,
+                    "sign_in_callback_utf8",
+                    fault("Invalid callback encoding."),
+                )
+            })?;
             let mut parts = request
                 .lines()
                 .next()
@@ -464,7 +516,13 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
                         b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
                     )
                     .await
-                    .map_err(|_| fault("Could not respond to the browser."))?;
+                    .map_err(|cause| {
+                        crate::diagnostics::response::io_context(
+                            &cause,
+                            "sign_in_response",
+                            fault("Could not respond to the browser."),
+                        )
+                    })?;
                 continue;
             }
             let code = callback_code(target, &proof.challenge);
@@ -476,7 +534,7 @@ pub async fn sign_in(app: &tauri::AppHandle) -> Result<Zeroizing<String>> {
             let page = format!(
                 "<!doctype html><meta charset=utf-8><title>SkellySpeak</title><p>{text}</p>"
             );
-            stream.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{page}",page.len()).as_bytes()).await.map_err(|_|fault("Could not acknowledge sign-in to the browser."))?;
+            stream.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{page}",page.len()).as_bytes()).await.map_err(|cause| crate::diagnostics::response::io_context(&cause, "sign_in_response", fault("Could not acknowledge sign-in to the browser.")))?;
             return code;
         }
     };
@@ -495,14 +553,25 @@ async fn exchange(code: &str, verifier: &str) -> Result<Zeroizing<String>> {
         .json(&serde_json::json!({"code":code,"code_verifier":verifier}))
         .send()
         .await
-        .map_err(|_| fault("Could not exchange the sign-in code."))?;
+        .map_err(|cause| {
+            crate::diagnostics::response::network_context(
+                &cause,
+                "hosted_exchange",
+                fault("Could not exchange the sign-in code."),
+            )
+        })?;
     #[derive(serde::Deserialize)]
     struct Session {
         token: String,
     }
     let bytes = Zeroizing::new(body(response).await?);
-    let session: Session =
-        serde_json::from_slice(&bytes).map_err(|_| fault("Invalid hosted session response."))?;
+    let session: Session = serde_json::from_slice(&bytes).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "hosted_session_json",
+            fault("Invalid hosted session response."),
+        )
+    })?;
     let token = Zeroizing::new(session.token);
     if token.len() < 20 || token.len() > 8192 || !token.bytes().all(|b| b.is_ascii_graphic()) {
         return Err(fault("The hosted service returned an invalid session."));
@@ -667,14 +736,25 @@ pub async fn diagnostics(token: &str) -> Result<String> {
         .timeout(Duration::from_secs(15))
         .send()
         .await
-        .map_err(|_| fault("Could not reach hosted diagnostics."))?;
+        .map_err(|cause| {
+            crate::diagnostics::response::network_context(
+                &cause,
+                "hosted_diagnostics",
+                fault("Could not reach hosted diagnostics."),
+            )
+        })?;
     let bytes = body(response).await?;
     diagnostic_report(&bytes)
 }
 
 fn diagnostic_report(bytes: &[u8]) -> Result<String> {
-    let v: serde_json::Value =
-        serde_json::from_slice(bytes).map_err(|_| fault("Malformed service diagnostics."))?;
+    let v: serde_json::Value = serde_json::from_slice(bytes).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "hosted_diagnostics_json",
+            fault("Malformed service diagnostics."),
+        )
+    })?;
     let number = |path: &str| {
         v.pointer(path)
             .and_then(serde_json::Value::as_u64)

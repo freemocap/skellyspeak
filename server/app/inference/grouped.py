@@ -1,5 +1,6 @@
 """Bounded grouped chat transport; each item owns admission and settlement."""
 from __future__ import annotations
+from server.app.diagnostics.exceptions import DiagnosticValueError
 
 from server.app.inference import decisions
 
@@ -119,7 +120,7 @@ async def results(items: list[Item], *, db: firestore.Client, who: quota.Princip
                   execute: Callable[..., Awaitable[dict[str, object]]]) -> AsyncIterator[bytes]:
     request_id = request_id or uuid.uuid4().hex
     if not re.fullmatch(r"[0-9a-f]{32}", request_id):
-        raise ValueError("Invalid server request ID.")
+        raise DiagnosticValueError("Invalid server request ID.")
     if any(item.deltas for item in items):
         async for line in _ordered_results(items, db=db, who=who, request_id=request_id, execute=execute):
             yield line

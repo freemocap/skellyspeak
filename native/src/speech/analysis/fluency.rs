@@ -208,8 +208,13 @@ pub fn parse_verbose_json(raw: &str) -> Result<VerboseTranscript> {
     if raw.len() > 1_048_576 {
         return Err(invalid("verbose response is too large."));
     }
-    let value: VerboseTranscript =
-        serde_json::from_str(raw).map_err(|_| invalid("invalid verbose transcription schema."))?;
+    let value: VerboseTranscript = serde_json::from_str(raw).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "fluency_decode",
+            invalid("invalid verbose transcription schema."),
+        )
+    })?;
     validate_transcript(&value)?;
     Ok(value)
 }

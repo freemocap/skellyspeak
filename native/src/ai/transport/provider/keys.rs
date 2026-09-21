@@ -21,9 +21,9 @@ pub async fn verify_key(client: &reqwest::Client, key: &str) -> Result<()> {
 async fn verify_key_at(client: &reqwest::Client, key: &str, url: &str) -> Result<()> {
     validate_key_format(key)?;
     let mut response = client.get(url).bearer_auth(key)
-        .timeout(Duration::from_secs(15)).send().await.map_err(|_| AppError::new(
+        .timeout(Duration::from_secs(15)).send().await.map_err(|cause| crate::diagnostics::response::network_context(&cause, "key_verification", AppError::new(
             ErrorCode::Provider, "Could not reach OpenRouter to verify the key. Check your connection and try again.",
-        ))?;
+        )))?;
     if response.status().as_u16() != 200 {
         return Err(crate::diagnostics::response::http_error(
             response,
@@ -33,14 +33,25 @@ async fn verify_key_at(client: &reqwest::Client, key: &str, url: &str) -> Result
         .await);
     }
     let mut bytes = Vec::new();
-    while let Some(chunk) = response.chunk().await.map_err(|_| key_response_error())? {
+    while let Some(chunk) = response.chunk().await.map_err(|cause| {
+        crate::diagnostics::response::network_context(
+            &cause,
+            "key_verification_body",
+            key_response_error(),
+        )
+    })? {
         if bytes.len() + chunk.len() > 65536 {
             return Err(key_response_error());
         }
         bytes.extend_from_slice(&chunk);
     }
-    let value: serde_json::Value =
-        serde_json::from_slice(&bytes).map_err(|_| key_response_error())?;
+    let value: serde_json::Value = serde_json::from_slice(&bytes).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "key_verification_json",
+            key_response_error(),
+        )
+    })?;
     if !value.get("data").is_some_and(|data| data.is_object()) {
         return Err(key_response_error());
     }

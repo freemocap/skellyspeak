@@ -66,3 +66,5 @@ app/diagnostics/admin_assets/*
 !app/accounting/usage_limits.py
 !app/inference/retry.py
 !app/inference/decisions.py
+
+!app/diagnostics/policy.py

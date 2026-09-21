@@ -57,9 +57,11 @@ fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionRe
         )
     };
     let (text, verbose) = if verbose {
-        let raw = std::str::from_utf8(bytes).map_err(|_| unknown())?;
+        let raw = std::str::from_utf8(bytes).map_err(|cause| {
+            crate::diagnostics::failures::utf8(&cause, "transcription_utf8", unknown())
+        })?;
         let parsed =
-            crate::speech::analysis::fluency::parse_verbose_json(raw).map_err(|_| unknown())?;
+            crate::speech::analysis::fluency::parse_verbose_json(raw).map_err(|cause| unknown().with_diagnostics(serde_json::json!({"stage":"transcription_timing", "cause":crate::diagnostics::response::error_metadata(&cause, &[raw])})))?;
         (parsed.text.clone(), Some(parsed))
     } else {
         #[derive(Deserialize)]
@@ -67,12 +69,16 @@ fn transcription_response(bytes: &[u8], verbose: bool) -> Result<TranscriptionRe
             text: String,
             timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
         }
-        let parsed: Transcript = serde_json::from_slice(bytes).map_err(|_| {
-            crate::diagnostics::response::invalid(
-                "transcription",
-                "$",
-                "text and optional timing object",
-                &value,
+        let parsed: Transcript = serde_json::from_slice(bytes).map_err(|cause| {
+            crate::diagnostics::response::json_context(
+                &cause,
+                "transcription_provider.rs_decode",
+                crate::diagnostics::response::invalid(
+                    "transcription",
+                    "$",
+                    "text and optional timing object",
+                    &value,
+                ),
             )
         })?;
         if let Some(timing) = parsed.timing {

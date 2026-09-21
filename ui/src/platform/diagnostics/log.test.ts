@@ -5,9 +5,18 @@ vi.mock('../ipc/tauri', () => ({ isTauri: true }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
 import { clearLogs, getLogs, logDiagnostic, installDiagnosticCapture, logInfo, diagnosticDeliveryState } from './log'
 import { reportUnhandledError, useFaultStore } from './faults'
+import { mediaError } from '../audio/media-error'
 let dispose: (() => void) | undefined
 beforeEach(() => { invoke.mockReset(); invoke.mockResolvedValue({}); clearLogs() })
 afterEach(() => { dispose?.(); dispose = undefined; vi.restoreAllMocks() })
+it('delivers browser audio explanations and causes through the diagnostic bridge', async () => {
+  const error = mediaError(new Error('Failed to start the audio device', { cause: new Error('Missing autoaudiosink; token=PRIVATE') }), 'Creating reward audio context')
+  await logDiagnostic('Enabling reward sounds', error)
+  const saved = JSON.stringify(invoke.mock.calls[0][1])
+  expect(saved).toContain('Failed to start the audio device')
+  expect(saved).toContain('Missing autoaudiosink')
+  expect(saved).not.toContain('PRIVATE')
+})
 it('persists precise safe causes and vetted commands without private bodies', async () => {
   await logDiagnostic('Microphone', { code: 'validation', message: 'This custom endpoint is configured for chat only. Enable transcription and set its model in AI access settings.' }, 7, 'native_command_failed', 'error', { command: 'mic_start' })
   expect(invoke.mock.calls[0][1].event).toMatchObject({ context: 'microphone', nativeCode: 'validation', command: 'mic_start', cause: 'custom_transcription_unconfigured', faultId: 7 })
@@ -83,5 +92,5 @@ it('retains browser filename and line when ErrorEvent has no Error object', asyn
   expect(invoke.mock.calls[0][1].event.diagnostics).toMatchObject({
     message: 'Language picker failed', stack: 'at browser (src/LanguagePickers.tsx:51:9)',
   })
-  expect(JSON.stringify(invoke.mock.calls)).not.toContain('secret')
+  expect(JSON.stringify(invoke.mock.calls).replaceAll('[secret redacted]', '')).not.toContain('secret')
 })

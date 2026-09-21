@@ -59,12 +59,16 @@ fn decode(bytes: &[u8], target: &ResolvedTarget, outcome: &mut SpeechOutcome) ->
             &raw,
         )
     };
-    let value: Response = serde_json::from_value(raw.clone()).map_err(|_| {
-        crate::diagnostics::response::invalid(
-            "speech",
-            "$",
-            "version, format, audio_base64 and usage receipt",
-            &raw,
+    let value: Response = serde_json::from_value(raw.clone()).map_err(|cause| {
+        crate::diagnostics::response::json_context(
+            &cause,
+            "service_audio.rs_decode",
+            crate::diagnostics::response::invalid(
+                "speech",
+                "$",
+                "version, format, audio_base64 and usage receipt",
+                &raw,
+            ),
         )
     })?;
     if value.version != 1
@@ -83,11 +87,15 @@ fn decode(bytes: &[u8], target: &ResolvedTarget, outcome: &mut SpeechOutcome) ->
     outcome.actual_model = value.usage.actual_model;
     outcome.provider_id = value.usage.request_id;
     outcome.cost_micros = value.usage.cost_micros;
-    let wav = STANDARD.decode(value.audio_base64).map_err(|_| invalid())?;
+    let wav = STANDARD.decode(value.audio_base64).map_err(|cause| {
+        crate::diagnostics::failures::base64(&cause, "speech_base64", invalid())
+    })?;
     if wav.len() > crate::speech::cache::AUDIO_LIMIT {
         return Err(invalid());
     }
-    let reader = hound::WavReader::new(std::io::Cursor::new(&wav)).map_err(|_| invalid())?;
+    let reader = hound::WavReader::new(std::io::Cursor::new(&wav)).map_err(|cause| {
+        crate::diagnostics::failures::wav(&cause, "speech_wav_header", invalid())
+    })?;
     let spec = reader.spec();
     if spec.channels != 1
         || spec.sample_rate != 24_000
@@ -95,11 +103,16 @@ fn decode(bytes: &[u8], target: &ResolvedTarget, outcome: &mut SpeechOutcome) ->
         || spec.sample_format != hound::SampleFormat::Int
         || reader.duration() == 0
     {
-        return Err(invalid());
+        return Err(invalid().with_diagnostics(serde_json::json!({"stage":"speech_wav_spec",
+            "expected":"nonempty mono 24000 Hz 16-bit integer PCM", "channels":spec.channels,
+            "sample_rate":spec.sample_rate,"bits_per_sample":spec.bits_per_sample,"duration_samples":reader.duration(),
+            "format":format!("{:?}",spec.sample_format)})));
     }
     // Fully consume samples so truncated PCM is not published.
     for sample in reader.into_samples::<i16>() {
-        sample.map_err(|_| invalid())?;
+        sample.map_err(|cause| {
+            crate::diagnostics::failures::wav(&cause, "speech_wav_samples", invalid())
+        })?;
     }
     outcome.finish_reason = Some("stop".into());
     Ok(wav)

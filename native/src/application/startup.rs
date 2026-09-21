@@ -115,6 +115,7 @@ pub fn run() {
             commands::workspace::read_speech_audio,
             diagnostics::record_frontend_diagnostic,
             diagnostics::sharing::share_diagnostic_logs,
+            diagnostics::sharing::save_diagnostic_logs,
             diagnostics::read_frontend_diagnostics,
             voice::mic_start,
             voice::mic_wave,

@@ -1,5 +1,11 @@
 # Error and response information loss audit — September 18, 2026
 
+Superseded for current logging status by the [centralized diagnostics audit](centralized-diagnostics-audit-2026-09-21.md). Historical findings below are retained as incident evidence.
+
+Follow-up: the [September 21 Linux incident and expanded audit](linux-appimage-audio-and-error-retention-2026-09-21.md)
+records additional confirmed losses, repairs and remaining findings. The prior
+repair did not eliminate every category-only error path.
+
 Status: the findings below record the original audit. The repair described in
 [response observability implementation](response-observability-implementation.md)
 is now implemented in source and locally verified. No live provider requests,
