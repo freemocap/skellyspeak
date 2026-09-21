@@ -21,10 +21,12 @@ fn coach_is_durable_and_excluded_from_persona_context() {
     assert_eq!(snapshot.messages.len(), 0);
     assert_eq!(snapshot.coach_messages.len(), 2);
     let persona = begin(&mut store, &conversation);
-    assert!(!persona
-        .messages
-        .iter()
-        .any(|m| m.content.contains("Private coach")));
+    assert!(
+        !persona
+            .messages
+            .iter()
+            .any(|m| m.content.contains("Private coach"))
+    );
     store.finish(&persona, Ok(reply("Hola."))).unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 2);
@@ -122,8 +124,7 @@ fn conversation_support_is_source_bound_independent_and_persisted_without_skill_
     assert!(view.messages[1].reply_explanations.is_some());
     assert!(view.messages[2].conversation_feedback.is_none());
     assert_eq!(
-        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
-            ["xp"],
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         0
     );
     let first = request_suggestions(&store.connection, &view.messages[1].id).unwrap();
@@ -161,50 +162,60 @@ fn support_validation_rejects_wrong_sources_truncation_and_unbounded_output() {
     let turn = support_turn(&mut store, &conversation, "Ayer yo go al parque.");
     let mut wrong = feedback();
     wrong["corrections"][0]["said"] = serde_json::json!("fuiste");
-    assert!(support::validate(
-        &store.connection,
-        &turn,
-        support::FEEDBACK,
-        &reply(&wrong.to_string())
-    )
-    .is_err());
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::FEEDBACK,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
+    );
     wrong = feedback();
     wrong["grammar"] = serde_json::json!(6);
-    assert!(support::validate(
-        &store.connection,
-        &turn,
-        support::FEEDBACK,
-        &reply(&wrong.to_string())
-    )
-    .is_err());
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::FEEDBACK,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
+    );
     wrong = feedback();
     wrong["remark"] = serde_json::json!("x".repeat(901));
-    assert!(support::validate(
-        &store.connection,
-        &turn,
-        support::FEEDBACK,
-        &reply(&wrong.to_string())
-    )
-    .is_err());
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::FEEDBACK,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
+    );
     wrong = assistance();
     wrong["frames"][0] = serde_json::json!("No blank");
-    assert!(support::validate(
-        &store.connection,
-        &turn,
-        support::ASSISTANCE,
-        &reply(&wrong.to_string())
-    )
-    .is_err());
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::ASSISTANCE,
+            &reply(&wrong.to_string())
+        )
+        .is_err()
+    );
     let mut output = reply(&feedback().to_string());
     output.finish_reason = "length".into();
     assert!(support::validate(&store.connection, &turn, support::FEEDBACK, &output).is_err());
-    assert!(support::validate(
-        &store.connection,
-        &turn,
-        support::EXPLANATIONS,
-        &reply(r#"{"cards":[]}"#)
-    )
-    .is_ok());
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::EXPLANATIONS,
+            &reply(r#"{"cards":[]}"#)
+        )
+        .is_ok()
+    );
     let coach = store.dispatch().unwrap().unwrap();
     store.finish(&coach, Ok(reply("not JSON"))).unwrap();
     let view = store.conversation_snapshot(&conversation, None).unwrap();
@@ -250,16 +261,20 @@ fn assistance_rejects_swapped_target_and_explanation_fields() {
     swapped["replies"][0]["text"] = serde_json::json!("I like to eat mansaf.");
     swapped["replies"][0]["translation"] = serde_json::json!("أنا بحب آكل المنسف.");
     swapped["replies"][0]["romanization"] = serde_json::json!("أنا بحب آكل المنسف.");
-    assert!(check(&swapped)
-        .unwrap_err()
-        .to_string()
-        .contains("not in the target script"));
+    assert!(
+        check(&swapped)
+            .unwrap_err()
+            .to_string()
+            .contains("not in the target script")
+    );
     let mut romanized = valid.clone();
     romanized["replies"][1]["romanization"] = serde_json::json!("بحب الفلافل.");
-    assert!(check(&romanized)
-        .unwrap_err()
-        .to_string()
-        .contains("not in Latin script"));
+    assert!(
+        check(&romanized)
+            .unwrap_err()
+            .to_string()
+            .contains("not in Latin script")
+    );
     romanized["replies"][1]["romanization"] = serde_json::json!("Nǐ 喜欢");
     let error = check(&romanized).unwrap_err().to_string();
     assert!(error.contains("replies[1].romanization"));
@@ -273,12 +288,14 @@ fn correct_message_has_useful_remark_without_manufactured_correction() {
     let coach = store.dispatch().unwrap().unwrap();
     store.finish(&coach,Ok(reply(r#"{"remark":"Fui correctly expresses a completed trip yesterday.","usedTarget":["fui"],"usedNative":[],"corrections":[],"grammar":5,"conversation":5}"#))).unwrap();
     let view = store.conversation_snapshot(&conversation, None).unwrap();
-    assert!(view.messages[0]
-        .conversation_feedback
-        .as_ref()
-        .unwrap()
-        .corrections
-        .is_empty());
+    assert!(
+        view.messages[0]
+            .conversation_feedback
+            .as_ref()
+            .unwrap()
+            .corrections
+            .is_empty()
+    );
     // Private coach sees saved context; persona does not receive it.
     let revision = store.snapshot().unwrap().conversations[0].revision;
     apply(
@@ -291,12 +308,16 @@ fn correct_message_has_useful_remark_without_manufactured_correction() {
     );
     store.dispatch().unwrap();
     let coach = store.dispatch().unwrap().unwrap();
-    assert!(coach.messages[0]
-        .content
-        .contains("Fui correctly expresses"));
-    assert!(coach.messages[0]
-        .content
-        .contains("not translate the marker"));
+    assert!(
+        coach.messages[0]
+            .content
+            .contains("Fui correctly expresses")
+    );
+    assert!(
+        coach.messages[0]
+            .content
+            .contains("not translate the marker")
+    );
 }
 
 #[test]
@@ -318,15 +339,17 @@ fn latin_assistance_constrains_and_rejects_romanization() {
     );
     let mut value = assistance();
     value["replies"][0]["romanization"] = serde_json::json!("Fui con mi hermana.");
-    assert!(support::validate(
-        &store.connection,
-        &turn,
-        support::ASSISTANCE,
-        &reply(&value.to_string())
-    )
-    .unwrap_err()
-    .to_string()
-    .contains("not applicable"));
+    assert!(
+        support::validate(
+            &store.connection,
+            &turn,
+            support::ASSISTANCE,
+            &reply(&value.to_string())
+        )
+        .unwrap_err()
+        .to_string()
+        .contains("not applicable")
+    );
 }
 
 #[test]
@@ -445,10 +468,10 @@ fn cherokee_assistance_uses_captured_scheme_and_rejects_copied_syllabary() {
         .unwrap();
     let captured: serde_json::Value = serde_json::from_str(&captured).unwrap();
     let schema = support::schema_for_context(support::ASSISTANCE, &captured);
-    let description = schema["properties"]["replies"]["items"]["properties"]["romanization"]
-        ["description"]
-        .as_str()
-        .unwrap();
+    let description =
+        schema["properties"]["replies"]["items"]["properties"]["romanization"]["description"]
+            .as_str()
+            .unwrap();
     assert!(description.contains("cherokee:traditional-syllabary"));
     assert!(description.contains("ᎣᏏᏲ → osiyo"));
     assert!(description.contains("RIGHT of the arrow"));

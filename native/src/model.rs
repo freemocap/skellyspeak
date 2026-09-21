@@ -701,9 +701,17 @@ pub struct AudioSettings {
 /// Assessment strategy, independent of the access route and chat model selection.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
 #[serde(rename_all = "snake_case")]
-pub enum AssessmentAdapter { JevChoice, ChatModel }
+pub enum AssessmentAdapter {
+    JevChoice,
+    ChatModel,
+}
 impl AssessmentAdapter {
-    pub fn label(self) -> &'static str { match self { Self::JevChoice => "jev_choice", Self::ChatModel => "chat_model" } }
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::JevChoice => "jev_choice",
+            Self::ChatModel => "chat_model",
+        }
+    }
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]

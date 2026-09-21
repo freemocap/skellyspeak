@@ -268,9 +268,13 @@ impl Decoder {
                             serde_json::json!({"stage":"grouped_operation", "request_id":request_id, "status":status, "code":code}),
                         );
                     }
-                    if let Some(history) = error.diagnostics.as_ref()
+                    if let Some(history) = error
+                        .diagnostics
+                        .as_ref()
                         .and_then(|d| d.pointer("/response/automatic_retries"))
-                        .and_then(serde_json::Value::as_array).cloned() {
+                        .and_then(serde_json::Value::as_array)
+                        .cloned()
+                    {
                         crate::ai::policy::retry::annotate(&mut error, &history);
                     }
                     (operation_id, attempt_id, Err(error))
@@ -343,7 +347,10 @@ pub async fn request_streaming(
         let mut item = serde_json::json!({"operation_id":operation,"attempt_id":dispatch.attempt,
             "request":provider::dispatch_payload(dispatch, *output)?});
         // Structured output stays whole until structured deltas are verified.
-        if deltas && dispatch.decisions.is_none() && matches!(output, provider::RequestOutput::Prose) {
+        if deltas
+            && dispatch.decisions.is_none()
+            && matches!(output, provider::RequestOutput::Prose)
+        {
             item["deltas"] = serde_json::json!(true);
         }
         items.push(item);
@@ -854,13 +861,18 @@ mod tests {
         let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
         let event = serde_json::json!({"type":"error", "operation_id":"one", "attempt_id":"a", "code":"OPENROUTER_HTTP_429", "status":502,
             "diagnostics":{"automatic_retries":[{"number":1,"delay_ms":1000}], "http":{"status":429}}});
-        decoder.push(format!("{event}\n").as_bytes(), |_, result| {
-            let error = result.unwrap_err();
-            assert!(error.message.contains("retries scheduled: 1"));
-            assert!(!error.message.contains("no automatic retry"));
-            assert_eq!(error.diagnostics.unwrap()["automatic_retries"][0]["delay_ms"], 1000);
-            Ok(())
-        }).unwrap();
+        decoder
+            .push(format!("{event}\n").as_bytes(), |_, result| {
+                let error = result.unwrap_err();
+                assert!(error.message.contains("retries scheduled: 1"));
+                assert!(!error.message.contains("no automatic retry"));
+                assert_eq!(
+                    error.diagnostics.unwrap()["automatic_retries"][0]["delay_ms"],
+                    1000
+                );
+                Ok(())
+            })
+            .unwrap();
     }
 
     #[test]

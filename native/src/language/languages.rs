@@ -99,7 +99,9 @@ mod tests {
             if let Some(scheme) = romanization(&language.id).unwrap() {
                 let text = romanization_guidance(&language.id).unwrap().unwrap();
                 assert!(text.contains(&scheme.label));
-                assert!(scheme.examples.len() >= 5);
+                // Match the content validator's minimum; schemes need not all
+                // carry the same number of examples.
+                assert!(scheme.examples.len() >= 3, "{}", language.id);
                 for (a, b) in &scheme.examples {
                     assert!(text.contains(&format!("{a} → {b}")));
                 }

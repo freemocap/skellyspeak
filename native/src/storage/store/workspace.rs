@@ -122,7 +122,11 @@ mod tests {
             std::io::ErrorKind::Unsupported,
         )));
         assert!(matches!(error.code, ErrorCode::Storage));
-        assert!(error.message.contains("Could not acquire the workspace lock"));
+        assert!(
+            error
+                .message
+                .contains("Could not acquire the workspace lock")
+        );
         let details = error.diagnostics.unwrap();
         assert_eq!(details["stage"], "workspace_lock");
         assert_eq!(details["kind"], "Unsupported");

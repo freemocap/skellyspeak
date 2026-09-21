@@ -91,12 +91,16 @@ async fn request_payload(
     install: &str,
     payload: serde_json::Value,
 ) -> Result<Completion> {
-    request_payload_decoded(client,url,key,route,install,payload,decode).await
+    request_payload_decoded(client, url, key, route, install, payload, decode).await
 }
 pub(super) async fn request_payload_decoded(
-    client: &reqwest::Client, url: &str, key: &str, route: ConnectionRoute,
-    install: &str, payload: serde_json::Value,
-    decoder: fn(&[u8])->Result<Completion>,
+    client: &reqwest::Client,
+    url: &str,
+    key: &str,
+    route: ConnectionRoute,
+    install: &str,
+    payload: serde_json::Value,
+    decoder: fn(&[u8]) -> Result<Completion>,
 ) -> Result<Completion> {
     let request = client.post(url).json(&payload);
     let request = if key.is_empty() {
@@ -114,8 +118,21 @@ pub(super) async fn request_payload_decoded(
         .into_iter()
         .flatten()
         .filter_map(|m| m["content"].as_str())
-        .chain(payload.get("state").and_then(|v|v.get("currentLearnerMessage")).and_then(|v|v.as_str()))
-        .chain(payload.get("state").and_then(|v|v.get("precedingExchange")).and_then(|v|v.as_array()).into_iter().flatten().filter_map(|m|m["content"].as_str()))
+        .chain(
+            payload
+                .get("state")
+                .and_then(|v| v.get("currentLearnerMessage"))
+                .and_then(|v| v.as_str()),
+        )
+        .chain(
+            payload
+                .get("state")
+                .and_then(|v| v.get("precedingExchange"))
+                .and_then(|v| v.as_array())
+                .into_iter()
+                .flatten()
+                .filter_map(|m| m["content"].as_str()),
+        )
         .chain(std::iter::once(key))
         .collect();
     let mut response = request

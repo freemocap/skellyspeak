@@ -1,5 +1,5 @@
-use crate::model::AssessmentAdapter;
 use super::*;
+use crate::model::AssessmentAdapter;
 use crate::model::AudioSettings;
 
 #[tauri::command]
@@ -160,7 +160,10 @@ pub(in crate::application) fn select_route(
 // Experimental adapters remain testable internally but are not selectable by the app.
 fn available_assessment(adapter: AssessmentAdapter) -> Result<()> {
     if adapter == AssessmentAdapter::JevChoice {
-        return Err(AppError::new(ErrorCode::Validation, "Jev assessment is disabled. Use Chat model assessment."));
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Jev assessment is disabled. Use Chat model assessment.",
+        ));
     }
     Ok(())
 }

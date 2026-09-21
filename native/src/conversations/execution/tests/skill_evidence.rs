@@ -4,8 +4,17 @@ use serde_json::json;
 #[test]
 fn failed_localization_retries_only_fast_node_and_publishes_jev_credit_once() {
     let (_dir, mut store, conversation) = setup();
-    store.connection.execute("UPDATE ai_config SET assessment_adapter='jev_choice',fast_model='test/selected-fast'", []).unwrap();
-    let turn = store.execute(send(&store, &conversation)).unwrap().entity_id;
+    store
+        .connection
+        .execute(
+            "UPDATE ai_config SET assessment_adapter='jev_choice',fast_model='test/selected-fast'",
+            [],
+        )
+        .unwrap();
+    let turn = store
+        .execute(send(&store, &conversation))
+        .unwrap()
+        .entity_id;
     store.connection.execute("DELETE FROM operations WHERE kind NOT IN ('persona_context','persona_reply','skill_assessment','skill_evidence')", []).unwrap();
     assert!(store.dispatch().unwrap().is_none());
     let persona = store.dispatch().unwrap().unwrap();
@@ -35,12 +44,22 @@ fn failed_localization_retries_only_fast_node_and_publishes_jev_credit_once() {
     let failed = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(failed["profile"]["xp"], 0);
     assert_eq!(failed["records"][0]["status"], "failed");
-    let (state, tokens, diagnostics): (String, i32, String) = store.connection.query_row("SELECT state,input_tokens,diagnostics FROM attempts WHERE id=?1", [&evidence.attempt], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?))).unwrap();
+    let (state, tokens, diagnostics): (String, i32, String) = store
+        .connection
+        .query_row(
+            "SELECT state,input_tokens,diagnostics FROM attempts WHERE id=?1",
+            [&evidence.attempt],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
     assert_eq!(state, "failed");
     assert_eq!(tokens, 21);
     assert!(diagnostics.contains("skill_evidence"));
     // Current Fast selection is captured by the existing explicit retry machinery.
-    store.connection.execute("UPDATE ai_config SET fast_model='test/retry-fast'", []).unwrap();
+    store
+        .connection
+        .execute("UPDATE ai_config SET fast_model='test/retry-fast'", [])
+        .unwrap();
     control_turn(&store.connection, &turn, TurnControl::Retry).unwrap();
     let retried = store.dispatch().unwrap().unwrap();
     assert_eq!(retried.operation, evidence.operation);
@@ -51,10 +70,18 @@ fn failed_localization_retries_only_fast_node_and_publishes_jev_credit_once() {
     assert!(done["profile"]["xp"].as_u64().unwrap() > 0);
     assert_eq!(done["records"][0]["attempt_id"], assessment.attempt);
     assert_eq!(done["records"][0]["assessment_adapter"], "jev_choice");
-    let question = done["records"][0]["assessment"]["judgments"].as_array().unwrap().iter().find(|j| j["skill_id"] == "question").unwrap();
+    let question = done["records"][0]["assessment"]["judgments"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|j| j["skill_id"] == "question")
+        .unwrap();
     assert_eq!(question["quotes"], json!(["¿cómo estás?"]));
     assert_eq!(question["evidence_kind"], "quoted");
     store.finish(&retried, Ok(output)).unwrap();
-    assert_eq!(crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"], done["profile"]["xp"]);
+    assert_eq!(
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
+        done["profile"]["xp"]
+    );
     assert!(store.dispatch().unwrap().is_none());
 }

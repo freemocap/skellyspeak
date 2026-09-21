@@ -105,9 +105,18 @@ impl crate::storage::store::Store {
         self.finish_transcription_with_diagnostics(id, conversation, target, result, None)
     }
     pub(crate) fn record_transcription_retry(&mut self, id: &str, error: &AppError) -> Result<()> {
-        if self.connection.execute("UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND state='running'",
-            params![id, crate::diagnostics::response::retained(None, Some(error))])? != 1 {
-            return Err(AppError::new(ErrorCode::Conflict, "Transcription ended before retry."));
+        if self.connection.execute(
+            "UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND state='running'",
+            params![
+                id,
+                crate::diagnostics::response::retained(None, Some(error))
+            ],
+        )? != 1
+        {
+            return Err(AppError::new(
+                ErrorCode::Conflict,
+                "Transcription ended before retry.",
+            ));
         }
         Ok(())
     }

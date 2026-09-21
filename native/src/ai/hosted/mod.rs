@@ -57,8 +57,11 @@ pub async fn body_with_private(
         let response = crate::diagnostics::response::metadata(&value, private);
         let mut error = limit_error(&bytes, retry_after);
         if let Some(reason) = crate::diagnostics::response::reason(&response) {
-            let delay = retry_after.map(|seconds| format!(" Retry-After: {seconds} seconds.")).unwrap_or_default();
-            error.message = format!("Service HTTP 429: {reason}{delay} No automatic retry was made.");
+            let delay = retry_after
+                .map(|seconds| format!(" Retry-After: {seconds} seconds."))
+                .unwrap_or_default();
+            error.message =
+                format!("Service HTTP 429: {reason}{delay} No automatic retry was made.");
         }
         return Err(error.with_diagnostics(serde_json::json!({"http":http,"response":response})));
     }
@@ -103,17 +106,16 @@ fn valid_service_id(id: &str) -> bool {
     id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit())
 }
 fn sanitize_service_body(body: &mut serde_json::Value) {
-    if let Some(object) = body.as_object_mut() {
-        if object
+    if let Some(object) = body.as_object_mut()
+        && object
             .get("request_id")
             .and_then(|v| v.as_str())
             .is_some_and(|id| !valid_service_id(id))
-        {
-            object.insert(
-                "request_id".into(),
-                serde_json::json!("[redacted: invalid service request ID]"),
-            );
-        }
+    {
+        object.insert(
+            "request_id".into(),
+            serde_json::json!("[redacted: invalid service request ID]"),
+        );
     }
 }
 fn sanitize_service_metadata(metadata: &mut serde_json::Value) {

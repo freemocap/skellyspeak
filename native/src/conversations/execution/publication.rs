@@ -177,7 +177,8 @@ impl Store {
                 let safe = output.diagnostics.as_ref().map(|details| {
                     crate::diagnostics::response::metadata(&details["choices"][0]["error"], &[])
                 });
-                let reason = safe.as_ref()
+                let reason = safe
+                    .as_ref()
                     .and_then(crate::diagnostics::response::reason)
                     .unwrap_or("The provider ended the response with an error.");
                 Err(AppError::new(ErrorCode::Provider, format!("AI provider error: {reason}"))
@@ -201,7 +202,8 @@ impl Store {
                 Ok(())
             })(),
             Ok(output) if kind == "skill_evidence" => {
-                crate::learning::coaching::skill_evidence::validate(&tx, &turn, output).map(|v| coaching = Some(v))
+                crate::learning::coaching::skill_evidence::validate(&tx, &turn, output)
+                    .map(|v| coaching = Some(v))
             }
             Ok(output) if kind == "skill_assessment" => {
                 crate::learning::coaching::assessment_adapter::validate(
@@ -226,7 +228,8 @@ impl Store {
                     })
             }
             Ok(output)
-                if kind == "skill_assessment" || kind == "skill_evidence"
+                if kind == "skill_assessment"
+                    || kind == "skill_evidence"
                     || crate::learning::coaching::conversation_support::owns(&kind)
                     || kind == "coach_feedback"
                     || kind == "coach_retry_check"
@@ -333,7 +336,8 @@ impl Store {
                 params![turn, error, gloss_error_path(&kind)],
             )?;
         }
-        if kind == "skill_assessment" || kind == "skill_evidence"
+        if kind == "skill_assessment"
+            || kind == "skill_evidence"
             || crate::learning::coaching::conversation_support::owns(&kind)
             || kind == "coach_feedback"
             || kind == "coach_retry_check"
@@ -357,7 +361,12 @@ impl Store {
                 if kind == "skill_evidence" {
                     crate::learning::coaching::skill_evidence::publish(&tx, &turn, &value)?;
                 } else if kind == "skill_assessment" && value["adapter"] == "jev_choice" {
-                    crate::learning::coaching::skill_evidence::retain_decisions(&tx, &turn, &value, &dispatch.attempt)?;
+                    crate::learning::coaching::skill_evidence::retain_decisions(
+                        &tx,
+                        &turn,
+                        &value,
+                        &dispatch.attempt,
+                    )?;
                 } else if kind == "skill_assessment" {
                     crate::learning::coaching::skill_assessment::publish(
                         &tx,

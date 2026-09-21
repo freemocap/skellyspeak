@@ -477,7 +477,10 @@ mod tests {
             assert!(!result.to_string().contains(private));
         }
         assert!(!scrub("Invalid token: Bearer abc123", &[]).contains("abc123"));
-        assert!(!scrub("Parse failed near \"private text\"", &["private text"]).contains("private text"));
+        assert!(
+            !scrub("Parse failed near \"private text\"", &["private text"])
+                .contains("private text")
+        );
     }
     #[test]
     fn keeps_identifiers_usage_and_extra_numbers_but_removes_content_and_keys() {

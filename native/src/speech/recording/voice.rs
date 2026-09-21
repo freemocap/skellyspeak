@@ -190,7 +190,10 @@ pub async fn mic_transcribe(
     let validate = || {
         let store = state.lock()?;
         if crate::conversations::execution::config(&store.connection)?.paused {
-            return Err(AppError::new(ErrorCode::AdmissionHeld, "Transcription stopped: AI execution is paused."));
+            return Err(AppError::new(
+                ErrorCode::AdmissionHeld,
+                "Transcription stopped: AI execution is paused.",
+            ));
         }
         crate::ai::policy::holds::check(&store.connection, &recording.target)?;
         crate::speech::recording::transcription::permitted(
@@ -214,14 +217,31 @@ pub async fn mic_transcribe(
     let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
     let mut segments = Vec::new();
     let input = crate::ai::audio::TranscriptionInput {
-        wav, language: recording.language.clone(), variety_hint: recording.variety_hint.clone(),
+        wav,
+        language: recording.language.clone(),
+        variety_hint: recording.variety_hint.clone(),
     };
     let result = crate::ai::policy::retry::run(
-        || crate::ai::audio::transcribe(&client, &recording.target, &token, input.clone(), &install),
+        || {
+            crate::ai::audio::transcribe(
+                &client,
+                &recording.target,
+                &token,
+                input.clone(),
+                &install,
+            )
+        },
         validate,
-        |error| state.lock()?.record_transcription_retry(&recording_id, error),
-    ).await;
-    if let Err(error) = &result { state.lock()?.note_refusal(&recording.target, error)?; }
+        |error| {
+            state
+                .lock()?
+                .record_transcription_retry(&recording_id, error)
+        },
+    )
+    .await;
+    if let Err(error) = &result {
+        state.lock()?.note_refusal(&recording.target, error)?;
+    }
     let diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
     let result = result.map(|response| {
         crate::speech::analysis::audio_inspection::attach_words(

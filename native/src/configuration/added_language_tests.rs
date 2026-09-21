@@ -43,14 +43,18 @@ fn added_languages_resolve_through_the_standard_registry() {
         let target = serde_json::to_value(&context).unwrap();
         let explanation =
             serde_json::to_value(registry.resolve("english", None, id).unwrap()).unwrap();
-        assert!(!target["guidance"]["target_writing"]
-            .as_array()
-            .unwrap()
-            .is_empty());
-        assert!(!explanation["guidance"]["explanation_writing"]
-            .as_array()
-            .unwrap()
-            .is_empty());
+        assert!(
+            !target["guidance"]["target_writing"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
+        assert!(
+            !explanation["guidance"]["explanation_writing"]
+                .as_array()
+                .unwrap()
+                .is_empty()
+        );
     }
 }
 
@@ -79,7 +83,7 @@ fn courtesy_hints_preserve_unicode_and_language_specific_case() {
             },
         ] {
             let candidates = registry
-                .candidates(&context, "A1", &[], &[], &[spelling.clone()])
+                .candidates(&context, "A1", &[], &[], std::slice::from_ref(&spelling))
                 .unwrap();
             assert!(
                 candidates.iter().any(|c| c.id == "courtesy"),

@@ -78,10 +78,20 @@ impl Store {
         if kind == "skill_evidence" {
             let captured: serde_json::Value = serde_json::from_str(&context)?;
             let chat = captured["skillAssessment"]["adapter"] == "chat_model";
-            if chat || crate::learning::coaching::skill_evidence::implicated(&captured)?.is_empty() {
-                if !chat { crate::learning::coaching::skill_evidence::publish(&tx, &turn, &captured["skillDecisions"])?; }
+            if chat || crate::learning::coaching::skill_evidence::implicated(&captured)?.is_empty()
+            {
+                if !chat {
+                    crate::learning::coaching::skill_evidence::publish(
+                        &tx,
+                        &turn,
+                        &captured["skillDecisions"],
+                    )?;
+                }
                 tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) VALUES(?1,?2,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now'))", params![attempt,operation])?;
-                tx.execute("UPDATE operations SET state='succeeded',permit=0 WHERE id=?1", [&operation])?;
+                tx.execute(
+                    "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",
+                    [&operation],
+                )?;
                 super::graph::release_dependents(&tx, &turn)?;
                 refresh_turn(&tx, &turn)?;
                 bump(&tx)?;
@@ -137,7 +147,9 @@ impl Store {
         if let Some(retry) = captured["retryTargets"].get(&operation).cloned() {
             captured["target"] = retry["target"].clone();
             captured["fastModel"] = retry["fastModel"].clone();
-            if kind == "skill_assessment" { captured["assessmentAdapter"] = retry["assessmentAdapter"].clone(); }
+            if kind == "skill_assessment" {
+                captured["assessmentAdapter"] = retry["assessmentAdapter"].clone();
+            }
         }
         let prepared = (|| -> Result<_> {
             let model = captured["target"]["model"]
@@ -145,9 +157,13 @@ impl Store {
                 .ok_or_else(|| fail("Captured model is missing."))?;
             let mut gloss_source = None;
             let mut gloss_schema = None;
-            let jev = kind == "skill_assessment" && crate::learning::coaching::assessment_adapter::selected(&captured)? == AssessmentAdapter::JevChoice;
+            let jev = kind == "skill_assessment"
+                && crate::learning::coaching::assessment_adapter::selected(&captured)?
+                    == AssessmentAdapter::JevChoice;
             let coaching_schema = if kind == "skill_evidence" {
-                Some(crate::learning::coaching::skill_evidence::schema(&captured)?)
+                Some(crate::learning::coaching::skill_evidence::schema(
+                    &captured,
+                )?)
             } else if kind == "skill_assessment" && !jev {
                 Some(crate::learning::coaching::skill_assessment::schema(
                     &captured,
@@ -293,9 +309,15 @@ impl Store {
             };
             let decisions = if jev {
                 target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
-                if target.route == ConnectionRoute::Openrouter { target.url = crate::ai::transport::provider::decisions::URL.into(); }
-                Some(crate::learning::coaching::assessment_adapter::request(&messages, &captured)?)
-            } else { None };
+                if target.route == ConnectionRoute::Openrouter {
+                    target.url = crate::ai::transport::provider::decisions::URL.into();
+                }
+                Some(crate::learning::coaching::assessment_adapter::request(
+                    &messages, &captured,
+                )?)
+            } else {
+                None
+            };
             Ok((
                 decisions,
                 gloss_source,
@@ -305,38 +327,39 @@ impl Store {
                 target,
             ))
         })();
-        let (decisions, gloss_source, gloss_schema, coaching_schema, messages, target) = match prepared {
-            Ok(prepared) => prepared,
-            Err(error) => {
-                if matches!(
-                    error.code,
-                    ErrorCode::Storage | ErrorCode::Internal | ErrorCode::ConfigLoad
-                ) {
-                    return Err(error);
+        let (decisions, gloss_source, gloss_schema, coaching_schema, messages, target) =
+            match prepared {
+                Ok(prepared) => prepared,
+                Err(error) => {
+                    if matches!(
+                        error.code,
+                        ErrorCode::Storage | ErrorCode::Internal | ErrorCode::ConfigLoad
+                    ) {
+                        return Err(error);
+                    }
+                    // No provider request was made. Retain a local preparation receipt
+                    // so every operation's failure is inspectable and explicitly retryable.
+                    tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,error,finished_at) VALUES(?1,?2,'failed','local',?3,strftime('%Y-%m-%dT%H:%M:%fZ','now'))",params![id(),operation,error.message])?;
+                    tx.execute(
+                        "UPDATE operations SET state='failed',permit=0 WHERE id=?1",
+                        [&operation],
+                    )?;
+                    let error_path =
+                        if matches!(kind.as_str(), "persona_word_gloss" | "user_word_gloss") {
+                            gloss_error_path(&kind).to_owned()
+                        } else {
+                            format!("$.{kind}Error")
+                        };
+                    tx.execute(
+                        "UPDATE turns SET context=json_set(context,?2,?3) WHERE id=?1",
+                        params![turn, error_path, error.message],
+                    )?;
+                    refresh_turn(&tx, &turn)?;
+                    bump(&tx)?;
+                    tx.commit()?;
+                    return Ok(None);
                 }
-                // No provider request was made. Retain a local preparation receipt
-                // so every operation's failure is inspectable and explicitly retryable.
-                tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,error,finished_at) VALUES(?1,?2,'failed','local',?3,strftime('%Y-%m-%dT%H:%M:%fZ','now'))",params![id(),operation,error.message])?;
-                tx.execute(
-                    "UPDATE operations SET state='failed',permit=0 WHERE id=?1",
-                    [&operation],
-                )?;
-                let error_path =
-                    if matches!(kind.as_str(), "persona_word_gloss" | "user_word_gloss") {
-                        gloss_error_path(&kind).to_owned()
-                    } else {
-                        format!("$.{kind}Error")
-                    };
-                tx.execute(
-                    "UPDATE turns SET context=json_set(context,?2,?3) WHERE id=?1",
-                    params![turn, error_path, error.message],
-                )?;
-                refresh_turn(&tx, &turn)?;
-                bump(&tx)?;
-                tx.commit()?;
-                return Ok(None);
-            }
-        };
+            };
         let model = target.model.clone();
         let attempt = new_attempt_id();
         if matches!(kind.as_str(), "persona_word_gloss" | "user_word_gloss") {

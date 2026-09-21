@@ -21,11 +21,31 @@ fn start(store: &mut Store, conversation: &str) -> (String, Dispatch, Dispatch) 
 }
 fn finish_evidence(store: &mut Store) {
     if let Some(evidence) = store.dispatch().unwrap() {
-        assert_eq!(store.connection.query_row("SELECT kind FROM operations WHERE id=?1", [&evidence.operation], |r| r.get::<_, String>(0)).unwrap(), "skill_evidence");
+        assert_eq!(
+            store
+                .connection
+                .query_row(
+                    "SELECT kind FROM operations WHERE id=?1",
+                    [&evidence.operation],
+                    |r| r.get::<_, String>(0)
+                )
+                .unwrap(),
+            "skill_evidence"
+        );
         assert!(evidence.decisions.is_none());
         let input: serde_json::Value = serde_json::from_str(&evidence.messages[1].content).unwrap();
-        let items: Vec<_> = input["criteria"].as_array().unwrap().iter().map(|c| serde_json::json!({"construct":c["id"],"quote":"¿cómo estás?"})).collect();
-        store.finish(&evidence, Ok(reply(&serde_json::json!({"items":items}).to_string()))).unwrap();
+        let items: Vec<_> = input["criteria"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|c| serde_json::json!({"construct":c["id"],"quote":"¿cómo estás?"}))
+            .collect();
+        store
+            .finish(
+                &evidence,
+                Ok(reply(&serde_json::json!({"items":items}).to_string())),
+            )
+            .unwrap();
     }
 }
 fn judgment(quote: &str) -> Completion {
@@ -200,7 +220,8 @@ fn chat_default_and_experimental_adapter_switch_preserve_captured_work_and_local
             .as_array()
             .unwrap()
             .iter()
-            .filter(|i| i["outcome"] == "demonstrated").all(|i| i["quote"] == "¿cómo estás?")
+            .filter(|i| i["outcome"] == "demonstrated")
+            .all(|i| i["quote"] == "¿cómo estás?")
     );
     let snapshot = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert!(snapshot["profile"]["xp"].as_u64().unwrap() > 0);
@@ -215,7 +236,8 @@ fn chat_default_and_experimental_adapter_switch_preserve_captured_work_and_local
             .as_array()
             .unwrap()
             .iter()
-            .filter(|j| j["outcome"] == "demonstrated").all(|j| j["quotes"] == serde_json::json!(["¿cómo estás?"]))
+            .filter(|j| j["outcome"] == "demonstrated")
+            .all(|j| j["quotes"] == serde_json::json!(["¿cómo estás?"]))
     );
     // Saved selection survives reopening without changing previously published provenance.
     drop(store);
@@ -333,7 +355,9 @@ fn jev_speech_and_text_publish_positive_xp_once_and_never_credit_absence_or_inva
                 completion.text = "{}".into();
             }
             store.finish(&assessment, Ok(completion)).unwrap();
-            if outcome != "invalid" { finish_evidence(&mut store); }
+            if outcome != "invalid" {
+                finish_evidence(&mut store);
+            }
             let snapshot =
                 crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
             let xp = snapshot["profile"]["xp"].as_u64().unwrap();
@@ -480,35 +504,82 @@ fn replay_live_jev_speech_receipt_through_xp() {
 fn reopening_shelved_jev_preserves_receipts_and_retries_with_chat_quotes_and_xp() {
     let (dir, mut store, conversation) = setup();
     let p = store.connection_config().unwrap();
-    store.set_models(p.revision, &p.standard_model, &p.fast_model, &p.audio, AssessmentAdapter::JevChoice).unwrap();
+    store
+        .set_models(
+            p.revision,
+            &p.standard_model,
+            &p.fast_model,
+            &p.audio,
+            AssessmentAdapter::JevChoice,
+        )
+        .unwrap();
     let (turn, persona, assessment) = start(&mut store, &conversation);
     store.finish(&persona, Ok(reply("Bien, gracias."))).unwrap();
     let attempt = assessment.attempt.clone();
     drop(store);
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
-    assert_eq!(store.connection_config().unwrap().assessment_adapter, AssessmentAdapter::ChatModel);
-    assert!(store.attempt_detail(&attempt).unwrap().decision_request.is_some());
-    assert_eq!(store.connection.query_row("SELECT state FROM operations WHERE id=?1", [&assessment.operation], |r| r.get::<_,String>(0)).unwrap(), "failed");
+    assert_eq!(
+        store.connection_config().unwrap().assessment_adapter,
+        AssessmentAdapter::ChatModel
+    );
+    assert!(
+        store
+            .attempt_detail(&attempt)
+            .unwrap()
+            .decision_request
+            .is_some()
+    );
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT state FROM operations WHERE id=?1",
+                [&assessment.operation],
+                |r| r.get::<_, String>(0)
+            )
+            .unwrap(),
+        "failed"
+    );
     control_turn(&store.connection, &turn, TurnControl::Retry).unwrap();
     let retry = store.dispatch().unwrap().unwrap();
     assert_eq!(retry.operation, assessment.operation);
     assert!(retry.decisions.is_none());
     assert_eq!(retry.model, p.fast_model);
     store.finish(&retry, Ok(judgment("¿cómo estás?"))).unwrap();
-    let xp = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"].as_u64().unwrap();
+    let xp = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
+        ["xp"]
+        .as_u64()
+        .unwrap();
     assert!(xp > 0);
     assert!(store.dispatch().unwrap().is_none());
     drop(store);
     let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
-    assert_eq!(crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"], xp);
-    assert!(store.attempt_detail(&attempt).unwrap().decision_request.is_some());
+    assert_eq!(
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
+        xp
+    );
+    assert!(
+        store
+            .attempt_detail(&attempt)
+            .unwrap()
+            .decision_request
+            .is_some()
+    );
 }
 
 #[test]
 fn reopening_after_failed_jev_quotes_reassesses_before_publishing_chat_xp() {
     let (dir, mut store, conversation) = setup();
     let p = store.connection_config().unwrap();
-    store.set_models(p.revision, &p.standard_model, &p.fast_model, &p.audio, AssessmentAdapter::JevChoice).unwrap();
+    store
+        .set_models(
+            p.revision,
+            &p.standard_model,
+            &p.fast_model,
+            &p.audio,
+            AssessmentAdapter::JevChoice,
+        )
+        .unwrap();
     let (turn, persona, assessment) = start(&mut store, &conversation);
     store.finish(&persona, Ok(reply("Bien, gracias."))).unwrap();
     let answers: serde_json::Map<String,serde_json::Value> = assessment.decisions.as_ref().unwrap()["questions"].as_object().unwrap().keys().map(|id| {
@@ -519,7 +590,12 @@ fn reopening_after_failed_jev_quotes_reassesses_before_publishing_chat_xp() {
     output.actual_model = "typesafe/jev-1.13".into();
     store.finish(&assessment, Ok(output)).unwrap();
     let evidence = store.dispatch().unwrap().unwrap();
-    store.finish(&evidence, Ok(reply(r#"{"items":[{"construct":"question","quote":""}]}"#))).unwrap();
+    store
+        .finish(
+            &evidence,
+            Ok(reply(r#"{"items":[{"construct":"question","quote":""}]}"#)),
+        )
+        .unwrap();
     drop(store);
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
     control_turn(&store.connection, &turn, TurnControl::Retry).unwrap();
@@ -528,10 +604,30 @@ fn reopening_after_failed_jev_quotes_reassesses_before_publishing_chat_xp() {
     assert!(retry.decisions.is_none());
     store.finish(&retry, Ok(judgment("¿cómo estás?"))).unwrap();
     assert!(store.dispatch().unwrap().is_none());
-    let context: String = store.connection.query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| r.get(0)).unwrap();
+    let context: String = store
+        .connection
+        .query_row("SELECT context FROM turns WHERE id=?1", [&turn], |r| {
+            r.get(0)
+        })
+        .unwrap();
     let context: serde_json::Value = serde_json::from_str(&context).unwrap();
     assert_eq!(context["skillAssessment"]["adapter"], "chat_model");
-    assert_eq!(context["skillAssessment"]["items"][0]["quote"], "¿cómo estás?");
-    assert!(store.attempt_detail(&assessment.attempt).unwrap().decision_request.is_some());
-    assert!(store.attempt_detail(&evidence.attempt).unwrap().response_text.is_some());
+    assert_eq!(
+        context["skillAssessment"]["items"][0]["quote"],
+        "¿cómo estás?"
+    );
+    assert!(
+        store
+            .attempt_detail(&assessment.attempt)
+            .unwrap()
+            .decision_request
+            .is_some()
+    );
+    assert!(
+        store
+            .attempt_detail(&evidence.attempt)
+            .unwrap()
+            .response_text
+            .is_some()
+    );
 }

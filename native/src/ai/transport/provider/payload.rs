@@ -164,7 +164,9 @@ pub fn dispatch_payload(
     dispatch: &crate::conversations::execution::Dispatch,
     output: RequestOutput<'_>,
 ) -> Result<serde_json::Value> {
-    if let Some(decisions) = &dispatch.decisions { return Ok(decisions.clone()); }
+    if let Some(decisions) = &dispatch.decisions {
+        return Ok(decisions.clone());
+    }
     let mut body =
         payload_with_output(&dispatch.model, &dispatch.messages, dispatch.route, output)?;
     if !dispatch.temperature.is_finite() || !(0.0..=2.0).contains(&dispatch.temperature) {

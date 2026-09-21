@@ -13,7 +13,16 @@ async fn http_failure_retains_reason_and_request_id_without_private_content() {
     let server = tokio::spawn(async move {
         let (mut stream, _) = listener.accept().await.unwrap();
         let mut buffer = [0u8; 4096];
-        stream.read(&mut buffer).await.unwrap();
+        let mut received = Vec::new();
+        while !received.windows(4).any(|bytes| bytes == b"\r\n\r\n") {
+            let count = stream.read(&mut buffer).await.unwrap();
+            assert!(count > 0, "request ended before its headers");
+            received.extend_from_slice(&buffer[..count]);
+            assert!(
+                received.len() <= 16_384,
+                "request headers exceed fixture limit"
+            );
+        }
         let response = format!(
             "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nX-Request-ID: {id}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
             body.len()

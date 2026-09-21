@@ -56,13 +56,25 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
     invalid.speech.model = "bad model".into();
     assert!(
         store
-            .set_models(config.revision, "standard", "fast", &invalid, AssessmentAdapter::ChatModel)
+            .set_models(
+                config.revision,
+                "standard",
+                "fast",
+                &invalid,
+                AssessmentAdapter::ChatModel
+            )
             .is_err()
     );
     assert_eq!(store.connection_config().unwrap().revision, config.revision);
     assert!(
         store
-            .set_models(config.revision - 1, "standard", "fast", &config.audio, AssessmentAdapter::ChatModel)
+            .set_models(
+                config.revision - 1,
+                "standard",
+                "fast",
+                &config.audio,
+                AssessmentAdapter::ChatModel
+            )
             .is_err()
     );
     drop(store);

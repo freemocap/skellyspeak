@@ -119,11 +119,22 @@ pub(in crate::application) async fn run_persona_generation(
         }
         provider_outcome = Some(
             retry::run(
-                || provider::complete_with_output(&client, &key, &dispatch,
-                    provider::RequestOutput::JsonSchema { max_output_tokens: 2048, name: persona_prompt::SCHEMA_NAME, schema: &schema }),
+                || {
+                    provider::complete_with_output(
+                        &client,
+                        &key,
+                        &dispatch,
+                        provider::RequestOutput::JsonSchema {
+                            max_output_tokens: 2048,
+                            name: persona_prompt::SCHEMA_NAME,
+                            schema: &schema,
+                        },
+                    )
+                },
                 validate,
                 |error| generation_receipts::record_retry(&*state.lock()?, request, error),
-            ).await,
+            )
+            .await,
         );
         drop(permit);
         let completed = provider_outcome

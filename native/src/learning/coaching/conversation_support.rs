@@ -5,8 +5,8 @@ use crate::language::script_text::{
     is_romanization_letter, matches_reply_script, requires_romanization,
 };
 use crate::model::*;
-use rusqlite::{params, Connection, OptionalExtension};
-use serde_json::{json, Value};
+use rusqlite::{Connection, OptionalExtension, params};
+use serde_json::{Value, json};
 pub(crate) mod types;
 pub use types::*;
 
@@ -82,9 +82,11 @@ pub fn schema_for_context(kind: &str, captured: &Value) -> Value {
                     .join("\n")
             })
             .unwrap_or_default();
-        schema["properties"]["replies"]["items"]["properties"]["romanization"]["description"] = json!(format!(
-            "Transliterate replies[].text into LATIN letters using this scheme: {guidance} In every source → reading example, return the reading on the RIGHT of the arrow. Never return the source on the left. Do not put the target script here, even if its characters resemble Latin letters. This field must contain the transliteration even when pronunciation is also supplied."
-        ));
+        schema["properties"]["replies"]["items"]["properties"]["romanization"]["description"] = json!(
+            format!(
+                "Transliterate replies[].text into LATIN letters using this scheme: {guidance} In every source → reading example, return the reading on the RIGHT of the arrow. Never return the source on the left. Do not put the target script here, even if its characters resemble Latin letters. This field must contain the transliteration even when pronunciation is also supplied."
+            )
+        );
     }
     schema
 }

@@ -11,7 +11,11 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
     let route = ConnectionRoute::parse(&route)?;
     let access = crate::ai::connections::access::settings(db)?;
     Ok(ConnectionConfig {
-        assessment_adapter: serde_json::from_value(serde_json::Value::String(db.query_row("SELECT assessment_adapter FROM ai_config", [], |r| r.get(0))?))?,
+        assessment_adapter: serde_json::from_value(serde_json::Value::String(db.query_row(
+            "SELECT assessment_adapter FROM ai_config",
+            [],
+            |r| r.get(0),
+        )?))?,
         revision,
         configured: if route == ConnectionRoute::Hosted {
             hosted
@@ -211,11 +215,14 @@ impl Store {
             ));
         }
         let previous = config(&tx)?;
-        let routing_changed = previous.standard_model != standard || previous.fast_model != fast
+        let routing_changed = previous.standard_model != standard
+            || previous.fast_model != fast
             || serde_json::to_value(&previous.audio)? != serde_json::to_value(audio)?;
         tx.execute("UPDATE ai_config SET revision=revision+1,standard_model=?1,fast_model=?2,audio_settings=?3,assessment_adapter=?4", params![standard,fast,serde_json::to_string(audio)?,assessment_adapter.label()])?;
         // Adapter-only changes apply to future work; captured operations keep their strategy.
-        if routing_changed { invalidate(&tx, None)?; }
+        if routing_changed {
+            invalidate(&tx, None)?;
+        }
         bump(&tx)?;
         tx.commit()?;
         Ok(())

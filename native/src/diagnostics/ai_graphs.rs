@@ -183,8 +183,14 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
             node.description = "After Jev, locate exact learner quotes for implicated skills using the captured Fast model. Preserve Jev outcomes and probabilities. Native validation rejects missing, duplicate, invented or ambiguous quotes before publishing credit. Chat model assessments already contain quotes; they and empty Jev assessments complete this node locally without a provider call.".into();
             let mut input = captured.clone();
             input["skillCriteria"] = json!([{"id":"question","criterion":"Request information"}]);
-            input["skillDecisions"] = json!({"items":[{"construct":"question","outcome":"demonstrated"}]});
-            node.templates = messages(crate::learning::coaching::skill_evidence::prompt_for_source("{{currentLearnerMessage}}".into(), &input)?);
+            input["skillDecisions"] =
+                json!({"items":[{"construct":"question","outcome":"demonstrated"}]});
+            node.templates = messages(
+                crate::learning::coaching::skill_evidence::prompt_for_source(
+                    "{{currentLearnerMessage}}".into(),
+                    &input,
+                )?,
+            );
             node.output_schema = Some(crate::learning::coaching::skill_evidence::schema(&input)?);
         }
         "skill_assessment" => {

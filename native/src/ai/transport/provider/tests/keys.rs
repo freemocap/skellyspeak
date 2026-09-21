@@ -35,7 +35,9 @@ async fn key_verification_reports_rejection_without_echoing_response() {
             .await
             .unwrap_err();
         assert!(!error.message.contains(body));
-        if status.starts_with("401") { assert!(error.message.contains("Invalid API key")); }
+        if status.starts_with("401") {
+            assert!(error.message.contains("Invalid API key"));
+        }
         assert!(!error.message.contains("test-credential"));
         worker.join().unwrap();
     }

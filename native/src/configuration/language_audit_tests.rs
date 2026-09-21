@@ -160,10 +160,12 @@ fn browser_reports_keep_language_and_variety_together_for_every_context() {
     let registry = Registry::bundled().unwrap();
     for target in &registry.languages {
         let projection = registry.language(&target.id).unwrap();
-        assert!(projection
-            .varieties
-            .iter()
-            .any(|v| v.id == projection.default_variety));
+        assert!(
+            projection
+                .varieties
+                .iter()
+                .any(|v| v.id == projection.default_variety)
+        );
         for explanation in &registry.languages {
             let default = registry
                 .inspect_language(&target.id, None, &explanation.id, None)
@@ -187,11 +189,13 @@ fn browser_reports_keep_language_and_variety_together_for_every_context() {
                         });
                     assert_eq!(report.language.id, target.id);
                     assert_eq!(report.variety_id, variety.id);
-                    assert!(report
-                        .language
-                        .varieties
-                        .iter()
-                        .any(|v| v.id == report.variety_id));
+                    assert!(
+                        report
+                            .language
+                            .varieties
+                            .iter()
+                            .any(|v| v.id == report.variety_id)
+                    );
                     assert_eq!(report.fingerprint, registry.hash());
                 }
             }
