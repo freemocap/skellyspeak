@@ -93,3 +93,26 @@ it('replaces the source without retaining old samples or leaking frames/listener
   expect(nextRead).toHaveBeenCalledTimes(reads)
   expect(context.setTransform).toHaveBeenCalledTimes(transforms)
 })
+
+it.each([44, 80])('fills the %ipx strip with quiet speech and rescales for louder incoming speech', height => {
+  let samples = [0.02, -0.01]
+  render(<WaveformStrip source={{ samplesPerSecond: 4, read: () => samples }} height={height} timelineSeconds={1} />)
+  expect(context.moveTo).toHaveBeenCalledWith(295, expect.closeTo(height * 0.05))
+  expect(context.lineTo).toHaveBeenCalledWith(442.5, expect.closeTo(height * 0.725))
+
+  context.moveTo.mockClear()
+  context.lineTo.mockClear()
+  samples = [0.1, -0.1]
+  advance(16)
+  expect(context.moveTo).toHaveBeenCalledWith(0, expect.closeTo(height * 0.41))
+  const ys = context.lineTo.mock.calls.slice(1, -1).map(([, y]) => y)
+  expect(Math.min(...ys)).toBeCloseTo(height * 0.05)
+  expect(Math.max(...ys)).toBeCloseTo(height * 0.95)
+})
+
+it.each([0, 0.0001])('keeps silence and very low noise near the center (%f)', level => {
+  render(<WaveformStrip source={{ samplesPerSecond: 2, read: () => [level, -level] }} timelineSeconds={1} />)
+  const waveY = context.lineTo.mock.calls[1]![1]
+  expect(waveY).toBeGreaterThanOrEqual(22)
+  expect(waveY).toBeLessThan(22.2)
+})

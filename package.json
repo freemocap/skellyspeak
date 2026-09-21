@@ -45,7 +45,7 @@
     "size:report": "node tools/size-report.ts",
     "localization:audit": "node ui/tools/localization/usage.ts",
     "localization:test": "npm run localization:check && node --test ui/tools/localization/*.test.ts",
-    "localization:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions ui/tools/localization/*.ts"
+    "localization:check": "tsc -p ui/tools/localization/tsconfig.json"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [

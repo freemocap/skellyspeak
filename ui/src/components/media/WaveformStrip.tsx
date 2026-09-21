@@ -102,9 +102,14 @@ export function WaveformStrip({
         ctx2d.lineWidth = 1.5
         ctx2d.beginPath()
         const points = waveformEnvelope(history, maxSamples, width)
+        // Fit the visible peaks to the strip, preserving relative loudness within
+        // the window. Cap display gain at 100× so near-silence stays small.
+        // This affects drawing only; recorded audio retains its original level.
+        const peak = points.reduce((largest, [, sample]) => Math.max(largest, Math.abs(sample)), 0.01)
+        const amplitudeScale = height * 0.45 / peak
         for (let i = 0; i < points.length; i++) {
           const [x, sample] = points[i]!
-          const y = height / 2 - sample * height * 0.45
+          const y = height / 2 - sample * amplitudeScale
           if (i === 0) ctx2d.moveTo(x, y)
           else ctx2d.lineTo(x, y)
         }

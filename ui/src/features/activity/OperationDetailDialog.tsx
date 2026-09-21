@@ -6,6 +6,7 @@ import { useI18n } from '../../components/localization/i18n'
 import { attemptDuration } from './graph-layout'
 import { InspectionDiagnostics, OperationFacts, OperationHistory, operationRuns } from './OperationInspector'
 import { AttemptBodies } from './AttemptBodies'
+import { AttemptFailure } from './AttemptFailure'
 
 /// Latency of this operation across loaded exchanges, oldest to newest.
 function Sparkline({ values }: { values: number[] }) {
@@ -25,6 +26,7 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
   const [picked, setPicked] = useState<string | null>(null)
   const attempt = attempts.find(item => item.id === picked) ?? attempts.at(-1) ?? null
   const runs = operationRuns(turns, operation.kind)
+  const failed = !!attempt?.error || attempt?.state === 'failed'
   const durations = runs.map(run => attemptDuration(run.attempt, now)).filter((value): value is number => value !== null).reverse()
   return <DetailDialog title={humanizeKind(operation.kind)} size="wide" onClose={onClose}>
     <div className="ai-detail">
@@ -35,8 +37,9 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
         </div>}
       </header>
       <section className="ai-detail-facts">
+        <AttemptFailure attempt={attempt} />
+        {failed && <InspectionDiagnostics value={attempt?.diagnostics} />}
         <OperationFacts turn={turn} operation={operation} attempt={attempt} now={now} />
-        {attempt?.error && <p className="ai-error" role="alert">{attempt.error}</p>}
       </section>
       <section className="ai-detail-bodies">
         {attempt ? <AttemptBodies attempt={attempt} /> : <p className="ai-muted">{tr('This operation has not started.')}</p>}
@@ -45,7 +48,7 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
         <h3 className="ai-section-title">{tr('History of this operation')}</h3>
         <Sparkline values={durations} />
         <OperationHistory runs={runs} current={turn.id} onPickTurn={onPickTurn} now={now} />
-        <InspectionDiagnostics value={attempt?.diagnostics} />
+        {!failed && <InspectionDiagnostics value={attempt?.diagnostics} />}
       </section>
     </div>
   </DetailDialog>

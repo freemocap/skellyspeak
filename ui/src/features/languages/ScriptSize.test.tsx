@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { useLayoutEffect } from 'react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ScriptSize } from './ScriptSize'
 import { useSettingsStore } from '../../state/settings/settings'
@@ -21,6 +22,18 @@ it('accepts arbitrary decimal scalars without rounding on slider focus', async (
   await waitFor(() => expect(save).toHaveBeenCalledWith('arabic',1.375))
   fireEvent.blur(screen.getByRole('slider'))
   expect(save).toHaveBeenCalledTimes(1)
+})
+it('preserves an edit made before passive mount effects run', async () => {
+  function EarlyEdit() {
+    useLayoutEffect(() => {
+      fireEvent.change(screen.getByRole('spinbutton'), {target:{value:'1.37'}})
+    }, [])
+    return <ScriptSize language="arabic" defaultScale={1.5} />
+  }
+  render(<EarlyEdit />)
+  expect(screen.getByRole('spinbutton')).toHaveValue(1.37)
+  fireEvent.blur(screen.getByRole('spinbutton'))
+  await waitFor(() => expect(save).toHaveBeenCalledExactlyOnceWith('arabic',1.37))
 })
 it('saves fine slider adjustments on release instead of saving every drag event', async () => {
   render(<ScriptSize language="arabic" defaultScale={1.5} />)

@@ -1,8 +1,8 @@
 //! Internal audio boundary. Callers supply captured targets and credentials;
 //! adapters alone build provider payloads and decode responses. These are not IPC types.
 use crate::ai::connections::access::ResolvedTarget;
-use crate::language::text_diagnostics::TranscriptDiagnostics;
 use crate::ai::transport::{speech_provider, transcription_provider};
+use crate::language::text_diagnostics::TranscriptDiagnostics;
 use crate::model::{ConnectionRoute, Result};
 
 pub struct SpeechInput {

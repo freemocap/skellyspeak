@@ -60,3 +60,36 @@ metadata is separately labeled, with an explanation of its redaction boundary.
   wrapping, original Source toggle, keyboard divider resize (40 to 44 percent).
   Fixture uses production components with synthetic data; this is not a live
   provider request or a verification of the native application window.
+
+## Failed-node inspection follow-up — 2026-09-20
+
+Observed in the local workspace through read-only SQLite queries:
+
+- At 20:00:24 America/New_York (2026-09-21 00:00:24 UTC), user word gloss
+  received a provider choice error with code 429: Google Gemini 2.5 Flash was
+  temporarily rate-limited upstream. The saved summary was
+  `gloss_invalid_termination`; the more useful provider reason survived in
+  redacted response diagnostics.
+- The simultaneous skill assessment used Gemini 2.5 Flash Lite and returned
+  quotes absent from the current learner message. Native source binding rejected
+  the assessment. An earlier assessment at 19:57:47 failed because one duplicate
+  judgment changed the capitalization of its quote. Validation checks every item
+  before duplicate consolidation, so the invalid duplicate still fails the result.
+  Neither case justifies weakening evidence validation.
+- The UI rendered attempt errors after request/response bodies and retained the
+  previous node's scroll offset. Long prompts could therefore hide the explanation
+  when a failed node was selected.
+
+Implemented: shared failure presentation at the beginning of both the selected
+operation inspector and full detail dialog, with recognized provider error
+messages/codes from already-redacted metadata. Failure diagnostics are expandable
+before facts and bodies. Selecting another operation/attempt or changing attempt
+state resets the docked inspector scroll. Full diagnostic records remain available.
+No provider calls, retries, assessment-policy changes or application-data writes
+were made during this investigation.
+
+Verification: 38 activity/graph architecture tests passed, including selecting a
+failed node after scrolling, showing its retained 429 reason before a long request,
+and displaying the same reason in full view. TypeScript and the frontend production
+build passed; the existing bundle-size warning remains. This verifies source and
+automated behavior, not a visual check in the running native application.

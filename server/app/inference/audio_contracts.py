@@ -16,6 +16,7 @@ class SynthesisRequest:
     voice_id: str
     text: str = field(repr=False)
     language_code: str | None = None
+    language_variety: str | None = None
 
 
 @dataclass(frozen=True)

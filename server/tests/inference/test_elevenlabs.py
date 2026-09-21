@@ -226,3 +226,28 @@ async def test_provider_error_message_is_bounded_and_code_is_preserved():
             await ElevenLabs(client, api_key=KEY).synthesize(SPEECH)
     assert error.value.provider_error["code"] == "quota_exceeded"
     assert len(error.value.provider_error["message"]) == 1024
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("variety", ["Spanish — Mexico", "Spanish — Spain", "English — United Kingdom"])
+async def test_variety_reaches_provider_without_changing_source(variety):
+    source = replace(SPEECH, text="Gracias.", language_code="es", language_variety=variety)
+    def respond(request):
+        body = json.loads(request.content)
+        assert body["text"] == f"[{variety} accent]\nGracias."
+        assert body["language_code"] == "es"
+        return httpx.Response(200, content=b"\0\0", headers={"content-type": "audio/pcm"})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        await ElevenLabs(client, api_key=KEY).synthesize(source)
+    assert source.text == "Gracias."
+
+
+@pytest.mark.asyncio
+async def test_variety_is_not_silently_dropped_for_unsupported_model():
+    def respond(request):
+        pytest.fail("Unsupported accent request reached provider")
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        with pytest.raises(AudioFailure) as failure:
+            await ElevenLabs(client, api_key=KEY).synthesize(
+                replace(SPEECH, model="eleven_multilingual_v2", language_variety="Spanish — Mexico"))
+    assert failure.value.code == "AUDIO_INPUT_INVALID"

@@ -505,8 +505,14 @@ retain the sanitized error body for investigation.
 
 ## Dedicated ElevenLabs audio routes (September 18, 2026)
 
-The native service client uses `POST /v1/audio/speech` with exactly `model` and
-`text`; the server supplies its configured voice profile. The response contains
+The native service client uses `POST /v1/audio/speech` with exactly `model`,
+`text` and `language` (the captured language and variety, such as `Spanish — Mexico`).
+The server supplies its configured voice profile and prefixes an Eleven v3 accent
+cue to the provider input; stored message text stays unchanged. The cue is included
+in the character-based allowance estimate. Missing/invalid variety, unsupported
+models and oversized tagged input fail before reservation. This wire change requires
+matching native and server versions. Accent tags guide pronunciation but still need
+listening verification with the configured voice. [@elevenlabs_accent_tags_20260920] The response contains
 version 1, base64 mono 24 kHz WAV, and a usage receipt. Existing OpenRouter chat
 routes are unchanged. Direct native API-key routes still use OpenRouter/Groq.
 

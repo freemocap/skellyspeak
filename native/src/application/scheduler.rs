@@ -161,24 +161,18 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     } else if first.route == ConnectionRoute::Openrouter {
                         // Prose streams; structured requests stay whole until
                         // structured deltas are verified (plan D4).
-                        let request = async {
+                        let request = || async {
                             if matches!(outputs[0], provider::RequestOutput::Prose) {
                                 provider::complete_streaming(&client, &key, first, |text| state.stream_delta(generations[0], &first.attempt, text)).await
                             } else {
                                 provider::complete_with_output(&client, &key, first, outputs[0]).await
                             }
                         };
-                        tokio::pin!(request);
-                        let outcome = loop {
-                            tokio::select! {
-                                result = &mut request => break result,
-                                _ = tokio::time::sleep(Duration::from_millis(100)) => {
-                                    if !state.lock()?.attempt_active(&first.attempt)? {
-                                        return Err(AppError::new(ErrorCode::UnknownOutcome, "Request cancelled locally; provider billing may continue."));
-                                    }
-                                }
-                            }
-                        };
+                        let outcome = rate_limit_retry::run(
+                            request,
+                            || state.check_dispatches(std::slice::from_ref(first)),
+                            |error| state.lock()?.record_retry(first, error),
+                        ).await;
                         state.finish_attempt(&app, generations[0], first, outcome)?;
                         finished[0] = true;
                         permits[0].take();

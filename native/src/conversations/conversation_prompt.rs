@@ -238,12 +238,18 @@ mod tests {
             let persona = r.starter_persona(language).unwrap();
             let mut settings = r.defaults(language, "english").unwrap();
             settings.direction.use_persona_details = false;
-            for level in [Difficulty::AbsoluteZero, Difficulty::Beginner, Difficulty::Intermediate] {
+            for level in [
+                Difficulty::AbsoluteZero,
+                Difficulty::Beginner,
+                Difficulty::Intermediate,
+            ] {
                 settings.difficulty = level;
                 for opening in [true, false] {
                     let prompt = system(&r, &ctx, &settings, &persona, opening, "test").unwrap();
                     assert!(prompt.contains("Imagine a conversation by messages with an adult learning the indicated language."));
-                    assert!(prompt.contains(&format!("{} ({})", ctx.target_name, ctx.variety_name)));
+                    assert!(
+                        prompt.contains(&format!("{} ({})", ctx.target_name, ctx.variety_name))
+                    );
                     assert!(prompt.contains(variety));
                     for scope in ["target_writing", "pragmatics"] {
                         for guidance in ctx.guidance(scope) {

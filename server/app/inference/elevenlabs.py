@@ -51,6 +51,22 @@ def _wav(pcm: bytes, sample_rate: int) -> bytes:
     return output.getvalue()
 
 
+def synthesis_text(request: SynthesisRequest) -> str:
+    """Provider-only cue; source records remain unchanged.
+
+    [@elevenlabs_accent_tags_20260920] Tags guide rather than guarantee accent.
+    Unsupported models fail explicitly instead of silently dropping variety.
+    """
+    variety = request.language_variety
+    if variety is None:
+        return request.text
+    if (request.model != "eleven_v3" or not isinstance(variety, str)
+            or not variety.strip() or len(variety.encode("utf-8")) > 256
+            or any(ord(c) < 32 or 127 <= ord(c) <= 159 or c in "[]" for c in variety)):
+        raise ValueError("Speech requires a valid language variety and an accent-capable model.")
+    return f"[{variety} accent]\n{request.text}"
+
+
 class ElevenLabs:
     def __init__(self, client: httpx.AsyncClient, *, api_key: str):
         if not api_key or not api_key.isascii() or any(ord(c) < 33 or ord(c) == 127 for c in api_key):
@@ -59,7 +75,7 @@ class ElevenLabs:
         self._key = api_key
 
     async def _post(self, path: str, receipt: AudioReceipt, *, limit: int,
-                    content_types: set[str], **kwargs: object) -> tuple[bytes, AudioReceipt]:
+                    content_types: set[str], private: tuple[str, ...] = (), **kwargs: object) -> tuple[bytes, AudioReceipt]:
         # Fixed origin prevents callers sending this key to a custom endpoint.
         # The whole read has a deadline, including a slowly trickling response.
         try:
@@ -84,7 +100,7 @@ class ElevenLabs:
                                            diagnostics={"status": response.status_code, "response_headers": provider_errors.response_headers(response)})
                     if not response.is_success:
                         cleaned = await provider_errors.capture(
-                            response, "ELEVENLABS", {"key": self._key, "request": kwargs},
+                            response, "ELEVENLABS", {"key": self._key, "request": kwargs, "private": private},
                         )
                         detail = cleaned.get("detail") if isinstance(cleaned, dict) else None
                         provider_error = None
@@ -118,14 +134,20 @@ class ElevenLabs:
                 or not request.text.strip() or len(request.text.encode("utf-8")) > 16_384
                 or "\0" in request.text or not _language(request.language_code, synthesis=True)):
             raise AudioFailure("AUDIO_INPUT_INVALID", receipt=receipt, unknown_outcome=False)
-        payload = {"model_id": request.model, "text": request.text,
+        try:
+            text = synthesis_text(request)
+        except (ValueError, UnicodeError):
+            raise AudioFailure("AUDIO_INPUT_INVALID", receipt=receipt, unknown_outcome=False) from None
+        if len(text.encode("utf-8")) > 16_384 or (request.model == "eleven_v3" and len(text) > 5_000):
+            raise AudioFailure("AUDIO_INPUT_INVALID", receipt=receipt, unknown_outcome=False)
+        payload = {"model_id": request.model, "text": text,
                    "apply_text_normalization": "off"}
         if request.language_code is not None:
             payload["language_code"] = request.language_code
         pcm, receipt = await self._post(
             f"text-to-speech/{request.voice_id}", receipt, limit=MAX_PCM_BYTES,
             content_types={"audio/pcm", "audio/x-pcm", "application/octet-stream"},
-            params={"output_format": "pcm_24000"}, json=payload,
+            params={"output_format": "pcm_24000"}, json=payload, private=(request.text,),
         )
         if not pcm or len(pcm) % 2:
             raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True)

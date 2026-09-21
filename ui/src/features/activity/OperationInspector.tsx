@@ -1,4 +1,6 @@
+import { useLayoutEffect, useRef } from 'react'
 import type { AttemptView, OperationView, TurnView } from '../../generated/contracts'
+import { AttemptFailure } from './AttemptFailure'
 import { humanizeKind, latestAttempt, operationPhase } from '../../domain/conversation/activity-summary'
 import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
@@ -65,7 +67,12 @@ export function OperationInspector({ turn, operation, turns, now, onPickTurn, on
 }) {
   const tr = useI18n()
   const attempt = latestAttempt(turn, operation.id)
-  return <aside className="ai-inspector" aria-label={tr('Selected operation')}>
+  const inspector = useRef<HTMLElement>(null)
+  useLayoutEffect(() => {
+    if (inspector.current) inspector.current.scrollTop = 0
+  }, [operation.id, attempt?.id, attempt?.state])
+  const failed = !!attempt?.error || attempt?.state === 'failed'
+  return <aside ref={inspector} className="ai-inspector" aria-label={tr('Selected operation')}>
     <header className="ai-inspector-head" data-phase={operationPhase(operation.state) ?? undefined}>
       <span className="ai-node-dot" aria-hidden="true" />
       <h3>{humanizeKind(operation.kind)}</h3>
@@ -74,10 +81,11 @@ export function OperationInspector({ turn, operation, turns, now, onPickTurn, on
       </button>
     </header>
     <div className="ai-inspector-body">
+      <AttemptFailure attempt={attempt} />
+      {failed && <InspectionDiagnostics value={attempt?.diagnostics} />}
       <OperationFacts turn={turn} operation={operation} attempt={attempt} now={now} />
       {children}
-      {attempt?.error && <p className="ai-error" role="alert">{attempt.error}</p>}
-      <InspectionDiagnostics value={attempt?.diagnostics} />
+      {!failed && <InspectionDiagnostics value={attempt?.diagnostics} />}
       <h4 className="ai-section-title">{tr('History of this operation')}</h4>
       <OperationHistory runs={operationRuns(turns, operation.kind)} current={turn.id} onPickTurn={onPickTurn} now={now} />
     </div>

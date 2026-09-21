@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 
 from server.app.inference import audio_input
 from server.app.inference.audio_contracts import AudioFailure, SynthesisRequest, TranscriptionRequest
-from server.app.inference.elevenlabs import ElevenLabs
+from server.app.inference.elevenlabs import ElevenLabs, synthesis_text
 from server.app.diagnostics import runtime, observability
 
 _slots = asyncio.Semaphore(8)
@@ -92,8 +92,8 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
             value = json.loads(raw)
         except (ValueError, UnicodeError):
             raise HTTPException(400, "Invalid speech request JSON.") from None
-        if not isinstance(value, dict) or set(value) != {"model", "text"}:
-            raise HTTPException(400, "Speech requires model and text.")
+        if not isinstance(value, dict) or set(value) != {"model", "text", "language"}:
+            raise HTTPException(400, "Speech requires model, text and language variety.")
         _model(value["model"], cfg.tts_model)
         text = value["text"]
         try:
@@ -103,8 +103,17 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
         if not valid:
             raise HTTPException(400, "Invalid speech source text.")
         # [@elevenlabs_pricing_20260918] Explicit service rate, not actual billing.
-        amount = len(text) * cfg.tts_micros_per_character
-        source = SynthesisRequest(cfg.tts_model, cfg.elevenlabs_voice_id, text)
+        source = SynthesisRequest(cfg.tts_model, cfg.elevenlabs_voice_id, text,
+                                  language_variety=value["language"])
+        if source.language_variety is None:
+            raise HTTPException(400, "Speech requires a language variety.")
+        try:
+            provider_text = synthesis_text(source)
+            if len(provider_text.encode("utf-8")) > 16_384 or len(provider_text) > 5_000:
+                raise ValueError()
+        except (ValueError, UnicodeError):
+            raise HTTPException(400, "Invalid speech language variety, model or input limit.") from None
+        amount = len(provider_text) * cfg.tts_micros_per_character
         result = await _execute(who, cfg, reserve, settle, amount, lambda adapter: adapter.synthesize(source))
         return JSONResponse({"version": 1, "audio_base64": base64.b64encode(result.wav).decode(),
                              "format": "wav", "usage": _usage(result, amount)})

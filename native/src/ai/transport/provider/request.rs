@@ -137,6 +137,9 @@ async fn request_payload(
 
 /// Record the HTTP facts on a result, then redact its diagnostics.
 fn attach_http(result: &mut Result<Completion>, http: serde_json::Value, private: &[&str]) {
+    if let Err(error) = result {
+        error.message = crate::diagnostics::response::scrub(&error.message, private);
+    }
     let diagnostics = match result {
         Ok(value) => &mut value.diagnostics,
         Err(error) => &mut error.diagnostics,

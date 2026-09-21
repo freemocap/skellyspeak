@@ -29,7 +29,9 @@ impl Store {
             return Ok(None);
         };
         if !super::graph::dependencies_succeeded(&tx, &turn, &kind)? {
-            return Err(fail("Ready operation has unsatisfied declared dependencies."));
+            return Err(fail(
+                "Ready operation has unsatisfied declared dependencies.",
+            ));
         }
         let attempt = id();
         if kind == "persona_context" || kind == "coach_context" {

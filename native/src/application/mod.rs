@@ -40,6 +40,7 @@ use tauri::{Emitter, Manager};
 use zeroize::Zeroizing;
 
 mod commands;
+mod rate_limit_retry;
 mod scheduler;
 mod startup;
 mod state;

@@ -15,10 +15,10 @@ const TRANSCRIPT_LIMIT: usize = 32 * 1024;
 #[cfg(test)]
 const MODEL: &str = "fixture-speech-model";
 
+use crate::ai::audio::{SpeechInput, SpeechOutcome};
 use crate::language::text_diagnostics::TranscriptDiagnostics;
 #[cfg(test)]
 use crate::language::text_diagnostics::{TranscriptDifference, transcript_difference};
-use crate::ai::audio::{SpeechInput, SpeechOutcome};
 fn fault(message: &str) -> AppError {
     AppError::new(ErrorCode::Provider, message)
 }
@@ -70,7 +70,7 @@ pub fn payload(target: &ResolvedTarget, input: &SpeechInput) -> Result<Value> {
         ));
     }
     let instruction = format!(
-        "You are a text-to-speech engine. Read the user's text aloud EXACTLY as written: verbatim, no additions, replies or commentary. Requested language and variety (data): {}. Keep the source wording unchanged. A voice selection does not change the requested variety.",
+        "You are a text-to-speech engine. Read the user's text aloud EXACTLY as written: verbatim, no additions, replies or commentary. Requested language and variety (data): {}. Use the native regional accent, pronunciation and intonation of that variety throughout. Keep the source wording unchanged. A voice selection does not change the requested variety.",
         serde_json::to_string(&input.language)?
     );
     let mut value = json!({"model": target.model, "messages": [
@@ -783,13 +783,13 @@ mod tests {
     fn speech_request_instruction_is_separate_from_validated_source() {
         let source = "Hola.\n¿Qué tal?";
         let mut i = input(source);
-        i.language = "English — United Kingdom".into();
+        i.language = "Spanish — Mexico".into();
         let p = payload(&target(), &i).unwrap();
         assert!(
             p["messages"][0]["content"]
                 .as_str()
                 .unwrap()
-                .contains("English — United Kingdom")
+                .contains("Spanish — Mexico")
         );
         assert_eq!(
             p["messages"][1]["content"],

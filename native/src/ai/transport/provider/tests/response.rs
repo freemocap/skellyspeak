@@ -53,3 +53,29 @@ fn strips_complete_emoji_sequences_without_damaging_language_text() {
     assert!(validate_prose(&strip_prose_emojis("Hello\0🎻").0).is_err());
     assert!(validate_prose(&strip_prose_emojis(&"a".repeat(12001)).0).is_err());
 }
+
+#[test]
+fn embedded_rate_limit_preserves_provider_metadata_without_content() {
+    let raw = serde_json::json!({"id":"request-429","model":"actual","choices":[{"finish_reason":"error","error":{"code":429,"message":"temporarily rate limited"},"message":{"content":"","reasoning":"private reasoning"}}],"usage":{"prompt_tokens":0,"completion_tokens":0,"cost":0}});
+    let error = decode(&serde_json::to_vec(&raw).unwrap()).unwrap_err();
+    assert!(error.message.contains("temporarily rate limited"));
+    let details = error.diagnostics.unwrap();
+    assert_eq!(details["chars"], 0);
+    assert_eq!(details["response"]["id"], "request-429");
+    assert_eq!(details["response"]["choices"][0]["error"]["code"], 429);
+    assert_eq!(details["response"]["usage"]["cost"], 0);
+    assert!(!details.to_string().contains("private reasoning"));
+}
+
+#[test]
+fn error_after_partial_content_keeps_text_for_inspection_without_retry_classification() {
+    let raw = serde_json::json!({"id":"partial","model":"actual","choices":[{"finish_reason":"error","error":{"code":429,"message":"limited"},"message":{"content":"Partial response"}}],"usage":{"prompt_tokens":10,"completion_tokens":2}});
+    let completion = decode(&serde_json::to_vec(&raw).unwrap()).unwrap();
+    assert_eq!(completion.text, "Partial response");
+    assert_eq!(completion.finish_reason, "error");
+    assert_eq!(completion.output_tokens, Some(2));
+    assert_eq!(
+        completion.diagnostics.unwrap()["choices"][0]["error"]["code"],
+        429
+    );
+}

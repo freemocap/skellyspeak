@@ -1,5 +1,5 @@
 import { nativeError } from '../../platform/ipc/workspace'
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { useSettingsStore } from '../../state/settings/settings'
 
@@ -12,7 +12,8 @@ export function ScriptSize({ language, defaultScale }: { language: string; defau
   const [error, setError] = useState('')
   const saving = useRef(false)
   const sliderChanged = useRef(false)
-  useEffect(() => { setDraft(String(scale ?? defaultScale)) }, [scale, defaultScale, language])
+  // Synchronize before interaction: a deferred mount effect can overwrite an early edit.
+  useLayoutEffect(() => { setDraft(String(scale ?? defaultScale)) }, [scale, defaultScale, language])
 
   async function save(next: number | null) {
     if (saving.current || busy || (next === null ? scale === undefined : next === (scale ?? defaultScale))) return

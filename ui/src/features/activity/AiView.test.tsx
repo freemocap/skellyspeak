@@ -19,6 +19,8 @@ vi.mock('@xyflow/react', () => ({
 }))
 beforeEach(() => {
   vi.resetAllMocks()
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  HTMLDialogElement.prototype.close = function () { this.open = false }
   useNavigationStore.setState({ aiInspection: null })
   windowApi.getAiViewSelection.mockResolvedValue(null)
   windowApi.setAiViewSelection.mockResolvedValue(undefined)
@@ -285,4 +287,34 @@ it('accepts an error link while already open and pins its operation in an older 
   expect(screen.getByTestId('graph')).toHaveTextContent('old-help')
   expect(useNavigationStore.getState().aiInspection).toBeNull()
   await waitFor(() => expect(windowApi.setAiViewSelection).toHaveBeenLastCalledWith({conversationId:'chat',turnId:'older',operationKind:'reply_assistance'}))
+})
+
+it('puts failed-node errors and provider reasons before long bodies and resets inspection scroll', async () => {
+  api.readWorkspace.mockResolvedValue({ selected: 'chat' })
+  api.readAttemptDetail.mockResolvedValue({ requestMessages: [{ role: 'user', content: 'Long recorded request '.repeat(100) }], responseText: null, previewText: null })
+  api.watchConversation.mockResolvedValueOnce(snapshot('chat', 1, [turn('turn', [
+    { id: 'assessment', kind: 'skill_assessment', state: 'failed', dependencies: [] },
+    { id: 'gloss', kind: 'user_word_gloss', state: 'failed', dependencies: [] },
+  ], [
+    attempt('assessment', { state: 'failed', error: 'Skill assessment: quote does not bind to learner source' }),
+    attempt('gloss', { state: 'failed', error: 'Word meanings rejected: gloss_invalid_termination.', diagnostics: {
+      response: { id: 'provider-request', choices: [{ finish_reason: 'error', error: { code: 429, message: 'Model is temporarily rate-limited upstream.' } }] },
+    } }),
+  ])])).mockImplementation(() => new Promise(() => {}))
+  render(<AiView mode="docked" actions={null} />)
+  const gloss = await screen.findByTestId('node-gloss')
+  const inspector = screen.getByRole('complementary', { name: 'Selected operation' })
+  inspector.scrollTop = 900
+  fireEvent.click(gloss)
+  expect(inspector.scrollTop).toBe(0)
+  const error = within(inspector).getByRole('alert')
+  expect(error).toHaveTextContent('gloss_invalid_termination')
+  expect(error).toHaveTextContent('429: Model is temporarily rate-limited upstream.')
+  const request = await within(inspector).findByRole('heading', { name: 'Request' })
+  expect(error.compareDocumentPosition(request) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(within(inspector).getByText('Response details').compareDocumentPosition(request) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  fireEvent.click(within(inspector).getByRole('button', { name: 'Open user word gloss in full view' }))
+  const dialog = screen.getByRole('dialog')
+  expect(within(dialog).getByRole('alert')).toHaveTextContent('429: Model is temporarily rate-limited upstream.')
+  expect(within(dialog).getByRole('alert').compareDocumentPosition(within(dialog).getByRole('heading', { name: 'Request' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 })

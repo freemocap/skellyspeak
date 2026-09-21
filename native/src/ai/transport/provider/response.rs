@@ -91,6 +91,27 @@ pub fn decode(bytes: &[u8]) -> Result<Completion> {
     let invalid = |path: &str, expected: &str| {
         crate::diagnostics::response::invalid("completion", path, expected, &value)
     };
+    // OpenRouter can report an upstream refusal inside an HTTP 200 completion.
+    // Keep it a provider failure, rather than a downstream gloss/schema failure.
+    if let Some(error) = value.pointer("/choices/0/error").filter(|v| !v.is_null())
+        && value["choices"]
+            .as_array()
+            .is_some_and(|choices| choices.len() == 1)
+        && value["choices"][0]["finish_reason"] == "error"
+        && value
+            .pointer("/choices/0/message/content")
+            .and_then(|v| v.as_str())
+            .is_none_or(str::is_empty)
+    {
+        let safe = crate::diagnostics::response::metadata(error, &[]);
+        let reason = crate::diagnostics::response::reason(&safe)
+            .unwrap_or("No readable provider reason was supplied.");
+        return Err(AppError::new(ErrorCode::Provider, format!("AI provider error: {reason}"))
+            .with_diagnostics(serde_json::json!({
+                "stage": "provider_completion", "response": crate::diagnostics::response::metadata(&value, &[]),
+                "chars": value.pointer("/choices/0/message/content").and_then(|v| v.as_str()).map_or(0, |s| s.chars().count()),
+            })));
+    }
     let response: Response = serde_json::from_value(value.clone()).map_err(|_| {
         invalid(
             "$",

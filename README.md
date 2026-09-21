@@ -310,8 +310,14 @@ The native execution controls are implemented; their UI wiring is pending.
 At the command layer, Pause all prevents new starts; it does not revoke running work. Pause a turn and
 Step to admit one operation while keeping that turn paused. The app-wide gate must
 be resumed to Step. Cancel revokes publication and drops the local HTTP request;
-remote execution and billing may continue. Retry is explicit and may incur another
-charge. Restarted in-flight requests show unknown outcomes and never auto-retry.
+remote execution and billing may continue. Direct OpenRouter text operations retry
+explicit 429 rate-limit failures up to three times, with roughly 1, 2 and 4 second
+delays plus jitter. Provider `Retry-After` is respected within a 30-second total
+wait budget; longer waits require an explicit retry. Each refusal is retained in
+the operation's diagnostic metadata. Responses that already produced text,
+validation failures and ambiguous network outcomes are not automatically retried.
+Other retries are explicit and may incur another charge. Restarted in-flight
+requests show unknown outcomes and never auto-retry.
 
 AI configuration changes invalidate affected pending work; it is never automatically
 resent. Accepted messages and conversation preferences remain independently owned.

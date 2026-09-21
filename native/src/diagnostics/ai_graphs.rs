@@ -291,7 +291,9 @@ pub fn definitions() -> Result<Vec<AiGraphDefinition>> {
                 let mut node = operation(d.kind, &registry)?;
                 node.dependencies = d.dependencies.iter().map(|s| (*s).into()).collect();
                 if d.activation == turn_plan::Activation::Explicit {
-                    node.description.push_str(" Created only by an explicit action; not automatically scheduled.");
+                    node.description.push_str(
+                        " Created only by an explicit action; not automatically scheduled.",
+                    );
                 }
                 node.role = d.role.into();
                 node.contract_version = Some(d.contract_version);
@@ -331,10 +333,7 @@ mod tests {
             turn_plan::OPENING_PLAN,
             turn_plan::COACH_PLAN,
         ]) {
-            assert_eq!(
-                graph.operations.len(),
-                plan.len()
-            );
+            assert_eq!(graph.operations.len(), plan.len());
             for node in &graph.operations {
                 assert!(
                     node.dependencies

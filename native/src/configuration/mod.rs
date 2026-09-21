@@ -203,8 +203,7 @@ impl Registry {
                             format!("{path}.labels.{}", language.id),
                             "missing_label",
                             "Every language needs this topic's name; it is shown as both the target label and its translation.",
-                        )
-                        );
+                        ));
                     }
                 }
             }
@@ -216,8 +215,7 @@ impl Registry {
                             format!("{path}.romanizations.{key}"),
                             "missing_romanization",
                             format!("Variety {variety} romanizes with {key}."),
-                        )
-                        );
+                        ));
                     }
                 }
             }
@@ -231,7 +229,11 @@ impl Registry {
                 .greeting;
             let path = format!("languages/{}.yaml#conversation.greeting", language.id);
             if greeting.text.trim().is_empty() {
-                return Err(error(&path, "missing_greeting", "Give the language a greeting."));
+                return Err(error(
+                    &path,
+                    "missing_greeting",
+                    "Give the language a greeting.",
+                ));
             }
             for variety in &language.varieties {
                 let Some(key) = Self::variety_romanization(language, variety) else {
@@ -244,8 +246,7 @@ impl Registry {
                             format!("{path}.romanizations.{key}"),
                             "missing_romanization",
                             format!("Variety {} romanizes with {key}.", variety.id),
-                        )
-                        );
+                        ));
                     }
                 }
             }
@@ -396,8 +397,12 @@ impl Registry {
             for (language, scale) in scales {
                 self.language(language)?;
                 if !scale.is_finite() || !(0.5..=3.0).contains(scale) {
-                    return Err(error("preferences.script_scales", "invalid_scale",
-                        "Script size must be between 0.5 and 3.0.").into());
+                    return Err(error(
+                        "preferences.script_scales",
+                        "invalid_scale",
+                        "Script size must be between 0.5 and 3.0.",
+                    )
+                    .into());
                 }
             }
         }

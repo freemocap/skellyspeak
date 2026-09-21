@@ -4,7 +4,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let registry =
         Registry::load(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../content"))?;
-    if args.first().map(String::as_str) == Some("--check") {
+    if args.as_slice() == ["--catalog"] {
+        println!("{}", serde_json::to_string_pretty(&registry.catalog())?);
+    } else if args.first().map(String::as_str) == Some("--check") {
         if args.len() != 1 {
             return Err("Usage: inspect-content --check".into());
         }

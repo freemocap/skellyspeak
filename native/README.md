@@ -134,6 +134,17 @@ Transport tests use local loopback servers; allow localhost binding when running
 inside a sandbox. They do not need live AI providers. The UI registration check
 reads `src/application/startup.rs`, where the `generate_handler!` list lives.
 
+`application/rate_limit_retry.rs` coordinates the scheduler's direct OpenRouter
+text retries: explicit HTTP/embedded/empty-stream 429 failures only, three retries,
+exponential delay with jitter, and a 30-second cumulative wait budget. It respects
+numeric and HTTP-date `Retry-After`, checks operation/connection authority before
+each submission and during waits, and persists refusals before sleeping through
+`conversations/execution/retry_diagnostics.rs`. HTTP rounds remain inside the
+original durable attempt; `automatic_retries` retains each scheduled retry's
+refusal, redacted metadata, timestamp and delay on success, failure or cancellation.
+The admission permit remains held during backoff. Hosted/grouped, audio and
+standalone reading/generation requests retain their existing retry behavior.
+
 The root Tauri launcher selects this directory explicitly. Moving the native
 project root can invalidate cached build-script paths;
 `cargo clean --manifest-path native/Cargo.toml` clears build output without touching

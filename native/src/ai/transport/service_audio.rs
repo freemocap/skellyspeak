@@ -7,10 +7,19 @@ use base64::{Engine, engine::general_purpose::STANDARD};
 use serde::Deserialize;
 
 pub(in crate::ai) fn validate(input: &SpeechInput) -> Result<()> {
-    if input.text.trim().is_empty() || input.text.len() > 16_384 || input.text.contains('\0') {
+    if input.text.trim().is_empty()
+        || input.text.len() > 16_384
+        || input.text.contains('\0')
+        || input.language.trim().is_empty()
+        || input.language.len() > 256
+        || input
+            .language
+            .chars()
+            .any(|c| c.is_control() || matches!(c, '[' | ']'))
+    {
         return Err(AppError::new(
             ErrorCode::Validation,
-            "Speech requires source text within the audio input limit.",
+            "Speech requires bounded source text and a valid language variety.",
         ));
     }
     Ok(())
@@ -108,7 +117,7 @@ pub(in crate::ai) async fn synthesize(
         validate(input)?;
         let mut request = client
             .post(&target.url)
-            .json(&serde_json::json!({"model": target.model, "text": input.text}));
+            .json(&serde_json::json!({"model": target.model, "text": input.text, "language": input.language}));
         if !key.is_empty() {
             request = request.bearer_auth(key);
         }
@@ -272,7 +281,7 @@ mod tests {
                 serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
             assert_eq!(
                 value,
-                serde_json::json!({"model":"eleven_v3","text":"നന്ദി"})
+                serde_json::json!({"model":"eleven_v3","text":"Gracias.","language":"Spanish — Mexico"})
             );
             write!(
                 socket,
@@ -287,9 +296,9 @@ mod tests {
             &target,
             "server-token",
             &SpeechInput {
-                text: "നന്ദി".into(),
+                text: "Gracias.".into(),
                 voice: "alloy".into(),
-                language: "Malayalam".into(),
+                language: "Spanish — Mexico".into(),
             },
             "install",
         )
