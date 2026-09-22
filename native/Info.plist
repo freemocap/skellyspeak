@@ -1,3 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict><key>NSMicrophoneUsageDescription</key><string>SkellySpeak records your voice so you can speak your message and have it transcribed.</string><key>UIFileSharingEnabled</key><true/><key>LSSupportsOpeningDocumentsInPlace</key><true/></dict></plist>
+<plist version="1.0">
+<dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>SkellySpeak records your voice so you can speak your message and have it transcribed.</string>
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.freemocap.skellyspeak.auth</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>skellyspeak</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
