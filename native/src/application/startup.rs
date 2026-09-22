@@ -5,8 +5,10 @@ pub fn run() {
     let builder = tauri::Builder::default().plugin(tauri_plugin_opener::init());
     #[cfg(target_os = "android")]
     let builder = builder.plugin(diagnostics::sharing::plugin());
-    #[cfg(mobile)]
+    #[cfg(target_os = "android")]
     let builder = builder.plugin(tauri_plugin_deep_link::init());
+    #[cfg(target_os = "ios")]
+    let builder = builder.plugin(crate::ai::hosted::ios_callback_plugin());
     #[cfg(desktop)]
     let builder = builder
         .plugin(tauri_plugin_updater::Builder::new().build())

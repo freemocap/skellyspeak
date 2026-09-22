@@ -1158,5 +1158,7 @@
   "Message XP": "Nachrichten-XP",
   "Evidence details": "Belegdetails",
   "Automatically dismiss new XP cards": "Neue XP-Karten automatisch schließen",
-  "Show XP cards, progress bars and reward sounds": "XP-Karten, Fortschrittsbalken und Belohnungstöne anzeigen"
+  "Show XP cards, progress bars and reward sounds": "XP-Karten, Fortschrittsbalken und Belohnungstöne anzeigen",
+  "Waiting for sign-in to finish…": "Warten auf den Abschluss der Anmeldung…",
+  "Cancel sign-in": "Anmeldung abbrechen"
 }

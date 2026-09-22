@@ -1158,5 +1158,7 @@
   "Message XP": "消息经验值",
   "Evidence details": "证据详情",
   "Automatically dismiss new XP cards": "自动关闭新的经验值卡片",
-  "Show XP cards, progress bars and reward sounds": "显示经验值卡片、进度条和奖励音效"
+  "Show XP cards, progress bars and reward sounds": "显示经验值卡片、进度条和奖励音效",
+  "Waiting for sign-in to finish…": "正在等待登录完成…",
+  "Cancel sign-in": "取消登录"
 }

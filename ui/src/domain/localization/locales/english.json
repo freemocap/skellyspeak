@@ -1158,5 +1158,7 @@
   "Message XP": "Message XP",
   "Evidence details": "Evidence details",
   "Automatically dismiss new XP cards": "Automatically dismiss new XP cards",
-  "Show XP cards, progress bars and reward sounds": "Show XP cards, progress bars and reward sounds"
+  "Show XP cards, progress bars and reward sounds": "Show XP cards, progress bars and reward sounds",
+  "Waiting for sign-in to finish…": "Waiting for sign-in to finish…",
+  "Cancel sign-in": "Cancel sign-in"
 }

@@ -1158,5 +1158,7 @@
   "Message XP": "XP del mensaje",
   "Evidence details": "Detalles de la evidencia",
   "Automatically dismiss new XP cards": "Cerrar automáticamente las nuevas tarjetas de XP",
-  "Show XP cards, progress bars and reward sounds": "Mostrar tarjetas de XP, barras de progreso y sonidos de recompensa"
+  "Show XP cards, progress bars and reward sounds": "Mostrar tarjetas de XP, barras de progreso y sonidos de recompensa",
+  "Waiting for sign-in to finish…": "Esperando a que termine el inicio de sesión…",
+  "Cancel sign-in": "Cancelar inicio de sesión"
 }

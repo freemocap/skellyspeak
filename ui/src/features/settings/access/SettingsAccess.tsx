@@ -29,6 +29,9 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'elevenlabs' | 'custom' | null>(null)
   const [editingField, setEditingField] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [signingIn, setSigningIn] = useState(false)
+  const [cancellingSignIn, setCancellingSignIn] = useState(false)
+  const pendingSignIn = useRef(false)
   const [localAvailable, setLocalAvailable] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
@@ -37,6 +40,21 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [removing, setRemoving] = useState<'openrouter' | 'groq' | 'elevenlabs' | 'custom' | null>(null)
   const writing = useRef(false)
   const savedDraft = useRef<{ endpoint: CustomEndpoint } | null>(null)
+
+  useEffect(() => () => {
+    if (pendingSignIn.current) {
+      // The IPC adapter records cancellation failures even after this view closes.
+      void invoke('cancel_sign_in').catch(() => {})
+    }
+  }, [])
+
+  async function cancelSignIn() {
+    setCancellingSignIn(true)
+    try { await invoke('cancel_sign_in') }
+    catch (error) { setError(message(error)) }
+    finally { setCancellingSignIn(false) }
+    // Keep the form locked until hosted_sign_in settles and releases its permit.
+  }
 
   async function read() {
     const [nextConnection, nextAccess, local] = await Promise.all([
@@ -207,9 +225,17 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
       <label>{tr("SkellySpeak account")}</label><p>{connection.signedIn ? connection.email : tr("Not signed in")}</p>
       <button className="btn" disabled={locked} onClick={() => void run(async () => {
         if (connection.signedIn) { await invoke('hosted_sign_out', { expectedRevision: connection.revision }); setAccount(null) }
-        else setAccount(await invoke<HostedAccount>('hosted_sign_in'))
+        else {
+          pendingSignIn.current = true; setSigningIn(true)
+          try { setAccount(await invoke<HostedAccount>('hosted_sign_in')) }
+          finally { pendingSignIn.current = false; setSigningIn(false) }
+        }
         await read(); await onChanged()
       })}>{connection.signedIn ? tr("Sign out") : tr("Sign in with Google")}</button>
+      {signingIn && <>
+        <p role="status">{tr("Waiting for sign-in to finish…")}</p>
+        <button type="button" className="btn" disabled={cancellingSignIn} onClick={() => void cancelSignIn()}>{tr("Cancel sign-in")}</button>
+      </>}
       {connection.signedIn && <button className="btn" disabled={locked} onClick={() => void run(async () => setAccount(await invoke<HostedAccount>('hosted_account')))}>{tr("Refresh account")}</button>}
       {account && <p>{tr.number(account.usedUsd, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / {tr.number(account.limitUsd, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tr(" USD · ")}{tr.number(account.tokensToday)} {tr(" tokens · ")}{tr.number(account.requestsToday)} {tr(" requests")}</p>}
     </div>}

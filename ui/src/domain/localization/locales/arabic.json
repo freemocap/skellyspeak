@@ -1158,5 +1158,7 @@
   "Message XP": "نقاط خبرة الرسالة",
   "Evidence details": "تفاصيل الأدلة",
   "Automatically dismiss new XP cards": "إغلاق بطاقات نقاط الخبرة الجديدة تلقائيًا",
-  "Show XP cards, progress bars and reward sounds": "عرض بطاقات نقاط الخبرة وأشرطة التقدم وأصوات المكافآت"
+  "Show XP cards, progress bars and reward sounds": "عرض بطاقات نقاط الخبرة وأشرطة التقدم وأصوات المكافآت",
+  "Waiting for sign-in to finish…": "في انتظار اكتمال تسجيل الدخول…",
+  "Cancel sign-in": "إلغاء تسجيل الدخول"
 }
