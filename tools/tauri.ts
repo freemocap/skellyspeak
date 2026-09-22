@@ -1,5 +1,7 @@
 // Run Tauri from its native project, independent of the caller's directory.
-import { spawn } from 'node:child_process'
+import { spawn, execFileSync } from 'node:child_process'
+import { cpSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -19,6 +21,17 @@ const args = process.argv.slice(2).map((argument, index, all) => {
 if (needsLinuxSetup(process.platform, args)) {
   ensureLinuxDependencies()
   installLinuxDevDesktop(root)
+}
+// ios init scaffolds Tauri's default icon. Apply our source artwork for local
+// builds too, not only in the distribution workflow.
+if (process.platform === 'darwin' && args[0] === 'ios' && ['build', 'dev'].includes(args[1] ?? '')) {
+  const output = mkdtempSync(resolve(tmpdir(), 'skellyspeak-icons-'))
+  try {
+    execFileSync(process.execPath, [require.resolve('@tauri-apps/cli/tauri.js'), 'icon', resolve(root, 'ui/public/skellyspeak-logo.png'), '--output', output, '--ios-color', '#f3f1ea'], { cwd: resolve(root, 'native'), stdio: 'inherit' })
+    const catalog = resolve(root, 'native/gen/apple/Assets.xcassets/AppIcon.appiconset')
+    cpSync(resolve(output, 'ios'), catalog, { recursive: true })
+    execFileSync('swift', [resolve(root, 'tools/ios-icons.swift'), catalog], { stdio: 'inherit' })
+  } finally { rmSync(output, { recursive: true, force: true }) }
 }
 const child = spawn(process.execPath, [require.resolve('@tauri-apps/cli/tauri.js'), ...args], {
   cwd: resolve(root, 'native'),

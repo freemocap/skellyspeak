@@ -1,4 +1,4 @@
-import { mediaError } from './media-error'
+import recordingWorkletUrl from './recording-worklet.ts?worker&url'
 import type { WaveSource } from '../../domain/audio/waveform'
 
 export interface BrowserRecording {
@@ -27,52 +27,74 @@ export function encodeRecording(buffer: AudioBuffer): Uint8Array {
 
 export async function startBrowserRecording(onError: (error: Error) => void): Promise<BrowserRecording> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-  let context: AudioContext | undefined
-  let recorder: MediaRecorder | undefined
-  let rejectFinish: ((error: Error) => void) | undefined
+  let context: AudioContext
+  try { context = new AudioContext() }
+  catch (error) { stream.getTracks().forEach(track => track.stop()); throw error }
+  let processor: AudioWorkletNode | undefined
+  let source: MediaStreamAudioSourceNode | undefined
   let timer: ReturnType<typeof setTimeout> | undefined
-  const cleanup = () => { clearTimeout(timer); stream.getTracks().forEach(track => track.stop()); if (context && context.state !== 'closed') void context.close().catch(onError) }
-  const cancel = () => { if (recorder) { recorder.onstop = null; if (recorder.state !== 'inactive') recorder.stop() }; cleanup() }
+  let stopped = false
+  let finishing = false
+  let complete: (() => void) | undefined
+  let rejectFinish: ((error: Error) => void) | undefined
+  const chunks: Float32Array[] = []
+  let length = 0
+  const cleanup = () => {
+    if (stopped) return
+    stopped = true
+    clearTimeout(timer)
+    stream.getTracks().forEach(track => track.stop())
+    source?.disconnect()
+    if (processor) { processor.port.onmessage = null; processor.port.close(); processor.disconnect() }
+    void context.close().catch(onError)
+  }
+  const fail = (error: Error) => { cleanup(); rejectFinish?.(error); onError(error) }
+  const cancel = () => { cleanup(); rejectFinish?.(new Error('Recording was cancelled.')) }
   try {
-    context = new AudioContext()
+    await context.audioWorklet.addModule(recordingWorkletUrl)
     await context.resume()
     const analyser = context.createAnalyser(); analyser.fftSize = 2048
-    context.createMediaStreamSource(stream).connect(analyser)
     const frame = new Float32Array(analyser.fftSize)
-    recorder = new MediaRecorder(stream)
-    const chunks: Blob[] = []
-    let size = 0
-    recorder.ondataavailable = event => {
-      size += event.data.size
-      if (size > 16 * 1024 * 1024) { const error = new Error('Recording exceeds its size limit.'); cancel(); rejectFinish?.(error); onError(error); return }
-      chunks.push(event.data)
+    source = context.createMediaStreamSource(stream)
+    source.connect(analyser)
+    processor = new AudioWorkletNode(context, 'skellyspeak-recording')
+    // The processor emits silence; connection keeps capture running without
+    // monitoring the microphone through the speaker.
+    source.connect(processor); processor.connect(context.destination)
+    processor.onprocessorerror = () => fail(new Error('Microphone sample processing failed.'))
+    processor.port.onmessage = (event: MessageEvent<Float32Array | 'finished'>) => {
+      if (stopped) return
+      if (event.data === 'finished') { complete?.(); return }
+      const samples = event.data
+      if (!(samples instanceof Float32Array)) { fail(new Error('Invalid microphone samples.')); return }
+      length += samples.length
+      if (length > context.sampleRate * 120) { fail(new Error('Recording exceeded two minutes.')); return }
+      chunks.push(samples)
     }
-    recorder.onerror = event => { const error = mediaError((event as Event & { error?: unknown }).error, 'Microphone capture'); cancel(); rejectFinish?.(error); onError(error) }
-    recorder.start(1000)
-    timer = setTimeout(() => { cancel(); onError(new Error('Recording exceeded two minutes. Please record a shorter message.')) }, 120000)
-    const capture = recorder
-    const audioContext = context
+    timer = setTimeout(() => fail(new Error('Recording exceeded two minutes. Please record a shorter message.')), 120000)
     return {
       cancel,
       wave: { samplesPerSecond: 60 * analyser.fftSize / 10, read: () => { analyser.getFloatTimeDomainData(frame); return Array.from(frame).filter((_, i) => i % 10 === 0) } },
       finish: () => new Promise<string>((resolve, reject) => {
+        if (stopped || finishing) { reject(new Error('Recording is no longer active.')); return }
+        finishing = true
         rejectFinish = reject
-        if (capture.state === 'inactive') { cleanup(); reject(new Error('Recording is no longer active.')); return }
         clearTimeout(timer)
-        capture.onerror = event => { const error = mediaError((event as Event & { error?: unknown }).error, 'Microphone capture'); cleanup(); reject(error) }
-        capture.onstop = () => {
-          stream.getTracks().forEach(track => track.stop())
-          void new Blob(chunks, { type: capture.mimeType }).arrayBuffer()
-            .then(data => audioContext.decodeAudioData(data))
-            .then(buffer => {
-              const bytes = encodeRecording(buffer)
-              let binary = ''
-              for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192))
-              resolve(btoa(binary))
-            }).catch(reject).finally(cleanup)
+        timer = setTimeout(() => fail(new Error('Microphone did not finish delivering samples.')), 5000)
+        complete = () => {
+          try {
+            if (length === 0) throw new Error('The microphone captured no audio samples.')
+            const buffer = context.createBuffer(1, length, context.sampleRate)
+            let offset = 0
+            for (const chunk of chunks) { buffer.getChannelData(0).set(chunk, offset); offset += chunk.length }
+            const bytes = encodeRecording(buffer)
+            let binary = ''
+            for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192))
+            resolve(btoa(binary))
+          } catch (error) { reject(error) } finally { cleanup() }
         }
-        capture.stop()
+        processor!.port.postMessage('finish')
       }),
     }
-  } catch (error) { cancel(); throw error }
+  } catch (error) { cleanup(); throw error }
 }

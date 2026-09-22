@@ -84,7 +84,7 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
         if (result.text.trim()) callback.current(result.text)
       } else {
         if (!conversationId) throw new Error('Open a conversation before recording.')
-        const { recordingId, samplesPerSecond } = await invoke<RecordingStarted>('mic_start', { conversationId })
+        const { recordingId, samplesPerSecond, browserCapture } = await invoke<RecordingStarted>('mic_start', { conversationId })
         if (generation.current !== scope) {
           await invoke('mic_cancel', { recordingId })
           return
@@ -93,7 +93,7 @@ export function useMicRecorder({ conversationId, onTranscribe }: MicRecorderOpti
           await invoke('mic_cancel', { recordingId })
           throw new Error('Native recording returned an invalid waveform sample rate.')
         }
-        if (/Android|iPhone|iPad/.test(navigator.userAgent)) {
+        if (browserCapture) {
           try {
             const capture = await startBrowserRecording(error => { reportFault('Microphone', error); cancel() })
             if (generation.current !== scope) { capture.cancel(); await invoke('mic_cancel', { recordingId }); return }

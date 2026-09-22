@@ -28,6 +28,13 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
   }
   const onFocus = (): void => focus(true)
   const onBlur = (): void => focus(false)
+  // A real interaction with a visible webview proves focus even when WebKit
+  // omitted its focus event after returning from an external sign-in browser.
+  // Keep visibility, page and native-suspension blockers independent.
+  const activate = (event: Event): void => {
+    if (event.isTrusted && document.visibilityState === 'visible') focus(true)
+    unlockRewardAudio()
+  }
   const visibility = (): void => setBlocked('visibility', document.visibilityState === 'hidden')
   const pageHide = (): void => setBlocked('page', true)
   const close = (): void => setBlocked('closing', true)
@@ -40,10 +47,10 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
   focus(document.hasFocus())
   visibility()
   // Touch activation occurs on release; pointerdown only activates mouse input.
-  window.addEventListener('pointerdown', unlockRewardAudio, true)
-  window.addEventListener('pointerup', unlockRewardAudio, true)
-  window.addEventListener('touchend', unlockRewardAudio, true)
-  window.addEventListener('keydown', unlockRewardAudio, true)
+  window.addEventListener('pointerdown', activate, true)
+  window.addEventListener('pointerup', activate, true)
+  window.addEventListener('touchend', activate, true)
+  window.addEventListener('keydown', activate, true)
   window.addEventListener('focus', onFocus)
   window.addEventListener('blur', onBlur)
   window.addEventListener('pagehide', pageHide)
@@ -56,10 +63,10 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
     resume: () => setBlocked('suspended', false),
     close,
     dispose: () => {
-      window.removeEventListener('pointerdown', unlockRewardAudio, true)
-      window.removeEventListener('pointerup', unlockRewardAudio, true)
-      window.removeEventListener('touchend', unlockRewardAudio, true)
-      window.removeEventListener('keydown', unlockRewardAudio, true)
+      window.removeEventListener('pointerdown', activate, true)
+      window.removeEventListener('pointerup', activate, true)
+      window.removeEventListener('touchend', activate, true)
+      window.removeEventListener('keydown', activate, true)
       window.removeEventListener('focus', onFocus)
       window.removeEventListener('blur', onBlur)
       window.removeEventListener('pagehide', pageHide)
