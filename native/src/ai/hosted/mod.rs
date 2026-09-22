@@ -578,9 +578,11 @@ async fn exchange(code: &str, verifier: &str) -> Result<Zeroizing<String>> {
     }
     Ok(token)
 }
-#[cfg(any(target_os = "android", target_os = "ios"))]
+#[cfg(any(target_os = "android", target_os = "ios", test))]
 #[path = "hosted_mobile.rs"]
 mod mobile;
+#[cfg(target_os = "ios")]
+pub use mobile::ios_callback_plugin;
 #[cfg(any(target_os = "android", target_os = "ios"))]
 pub use mobile::sign_in;
 
