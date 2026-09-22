@@ -5,7 +5,6 @@
 import asyncio
 import io
 import json
-import math
 import re
 import wave
 
@@ -13,7 +12,8 @@ import httpx
 
 from server.app.diagnostics import provider_errors
 from server.app.diagnostics.exceptions import describe
-from server.app.inference.audio_contracts import AudioFailure, AudioReceipt, TranscriptionRequest, TranscriptionResult, WordTiming
+from server.app.inference.transcription_timing import decode_words
+from server.app.inference.audio_contracts import AudioFailure, AudioReceipt, TranscriptionRequest, TranscriptionResult
 
 
 class GroqTranscription:
@@ -56,9 +56,6 @@ class GroqTranscription:
                         detail = await provider_errors.capture(response, 'GROQ', {'key': self.key, 'request': fields})
                         raise AudioFailure('AUDIO_PROVIDER_HTTP', receipt=receipt, status=response.status_code,
                             unknown_outcome=response.status_code >= 500, diagnostics=detail)
-                    if response.headers.get('content-type', '').split(';')[0].strip() != 'application/json':
-                        raise AudioFailure('AUDIO_RESPONSE_TYPE', receipt=receipt, unknown_outcome=True,
-                            diagnostics={'stage': 'response_headers', 'expected': 'application/json', 'http': receipt.diagnostics})
                     body = bytearray()
                     async for chunk in response.aiter_bytes():
                         if len(body) + len(chunk) > 1_048_576:
@@ -88,28 +85,13 @@ def decode(body, duration, receipt):
         path = 'text'
         text = value['text']
         if not isinstance(text, str) or len(text) > 20000 or '\0' in text: raise ValueError()
-        if not text.strip():
-            raise AudioFailure('AUDIO_NO_SPEECH', receipt=receipt, unknown_outcome=False,
-                diagnostics={'response': provider_errors.sanitize(value), 'http': receipt.diagnostics})
-        path = 'words'
-        raw_words = value.get('words')
-        if raw_words is not None and (not isinstance(raw_words, list) or len(raw_words) > 20000): raise ValueError()
-        words, previous = [], 0
-        for i, word in enumerate(raw_words or []):
-            path = f'words[{i}]'
-            start, end, token = word['start'], word['end'], word['word']
-            if (any(type(x) not in (int, float) or not math.isfinite(x) for x in (start, end))
-                    or not previous <= start <= end <= duration
-                    or not isinstance(token, str) or not token.strip() or '\0' in token): raise ValueError()
-            words.append(WordTiming(token, start, end)); previous = start
-        # Groq returns a language name, not necessarily an ISO code. Preserve as detected metadata.
-        path = 'language'
-        language = value.get('language')
-        if language is not None and (not isinstance(language, str) or len(language) > 80 or not language.isalpha()): raise ValueError()
+        words, timing = decode_words(value.get('words'), duration, 'groq')
+        # Detected language/confidence are provider metadata, not text validity.
         receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
-            {'http': receipt.diagnostics, 'response': provider_errors.sanitize(value)})
-        return TranscriptionResult(text, duration, tuple(words) if raw_words is not None else None, receipt)
+            {'http': receipt.diagnostics, 'response': provider_errors.sanitize(value),
+             'timing': timing})
+        return TranscriptionResult(text, duration, words, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
         raise AudioFailure('AUDIO_RESPONSE_INVALID', receipt=receipt, unknown_outcome=True,
-            diagnostics={'stage': 'transcription_validation', 'path': path, 'expected': 'text and ordered word timings within input duration',
+            diagnostics={'stage': 'transcription_validation', 'path': path, 'expected': 'string transcript text, at most 20000 characters, without NUL',
                 'response': provider_errors.sanitize(value), 'http': receipt.diagnostics}) from None

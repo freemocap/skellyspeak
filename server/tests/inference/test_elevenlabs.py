@@ -122,25 +122,30 @@ async def test_invalid_audio_retains_receipt_and_unknown_cost(body, media, code)
     {"words": [{"type": "word", "text": "a", "start": True, "end": 0.2}]},
     {"language_probability": float("nan")}, {"language_code": "malayalam"},
 ])
-async def test_malformed_transcripts_are_not_published(change):
+async def test_unusable_text_fails_but_optional_metadata_does_not(change):
     body = json.dumps(transcript() | change).encode()
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
             200, content=body, headers={"content-type": "application/json"}))) as client:
-        with pytest.raises(AudioFailure) as error:
-            await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
-    assert error.value.code == "AUDIO_RESPONSE_INVALID"
-    assert error.value.unknown_outcome
+        if "text" in change:
+            with pytest.raises(AudioFailure) as error:
+                await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
+            assert error.value.code == "AUDIO_RESPONSE_INVALID"
+        else:
+            result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
+            assert result.text == transcript()["text"]
+            if "words" in change:
+                assert result.words is None
+                assert result.receipt.diagnostics["timing"]["status"] == "unavailable"
 
 
 @pytest.mark.asyncio
 async def test_silence_is_explicit_and_not_an_invented_transcript_or_zero_charge():
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
             200, json={"text": "", "words": []}))) as client:
-        with pytest.raises(AudioFailure) as error:
-            await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
-    assert error.value.code == "AUDIO_NO_SPEECH"
-    assert not error.value.unknown_outcome
-    assert error.value.receipt.cost_micros is None
+        result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
+    assert result.text == ""
+    assert result.words == ()
+    assert result.receipt.cost_micros is None
 
 
 @pytest.mark.asyncio

@@ -111,114 +111,135 @@ impl Adapter {
                 &value,
             )
         };
-        let result = match self {
-            Self::Groq if value.get("words").is_none_or(Value::is_null) => TranscriptionResult {
-                text: value["text"].as_str().ok_or_else(failure)?.to_owned(),
-                timing: None,
-            },
-            Self::Groq => {
-                let raw = std::str::from_utf8(bytes).map_err(|_| failure())?;
-                let parsed =
-                    super::whisper_transcript::parse_verbose_json(raw).map_err(|_| failure())?;
-                // Numeric evidence only: transcript text and token IDs are content.
-                diagnostics["segment_evidence"] = json!(parsed.segments.iter().take(2000).map(|s| json!({
-                    "start":s.start,"end":s.end,"avg_logprob":s.avg_logprob,"no_speech_prob":s.no_speech_prob,
-                    "temperature":s.temperature,"compression_ratio":s.compression_ratio
-                })).collect::<Vec<_>>());
-                TranscriptionResult {
-                    text: parsed.text.clone(),
-                    timing: Some(TranscriptTiming {
-                        text: parsed.text,
-                        duration: parsed.duration,
-                        words: parsed.words,
-                    }),
-                }
-            }
-            Self::Service => {
-                #[derive(Deserialize)]
-                struct Wire {
-                    text: String,
-                    timing: Option<TranscriptTiming>,
-                }
-                let wire: Wire = serde_json::from_value(value.clone()).map_err(|_| failure())?;
-                if let Some(timing) = &wire.timing {
-                    if timing.text != wire.text {
-                        return Err(failure());
-                    }
-                    crate::speech::analysis::fluency::validate_timing(
-                        &timing.text,
-                        timing.duration,
-                        &timing.words,
-                    )
-                    .map_err(|_| failure())?;
-                    if timing.words.iter().any(|word| word.end > timing.duration) {
-                        return Err(failure());
+        // The transcript is the result. Word/segment metadata is optional and
+        // must not turn usable text into a failed recording.
+        let text = value["text"].as_str().ok_or_else(failure)?.to_owned();
+        let parsed: Result<TranscriptionResult> = (|| {
+            Ok(match self {
+                Self::Groq if value.get("words").is_none_or(Value::is_null) => {
+                    TranscriptionResult {
+                        text: value["text"].as_str().ok_or_else(failure)?.to_owned(),
+                        timing: None,
                     }
                 }
-                TranscriptionResult {
-                    text: wire.text,
-                    timing: wire.timing,
+                Self::Groq => {
+                    // Confidence and segment metadata must not gate word timing.
+                    let words: Vec<Word> =
+                        serde_json::from_value(value["words"].clone()).map_err(|_| failure())?;
+                    let measured = duration
+                        .or_else(|| value["duration"].as_f64())
+                        .ok_or_else(failure)?;
+                    crate::speech::analysis::fluency::validate_timing(&text, measured, &words)
+                        .map_err(|_| failure())?;
+                    if words.iter().any(|word| word.end > measured) {
+                        return Err(failure());
+                    }
+                    diagnostics["segment_evidence"] = json!(value["segments"].as_array().into_iter().flatten().take(2000).map(|s| json!({
+                        "start":s["start"].as_f64(),"end":s["end"].as_f64(),"avg_logprob":s["avg_logprob"].as_f64(),
+                        "no_speech_prob":s["no_speech_prob"].as_f64(),"temperature":s["temperature"].as_f64(),
+                        "compression_ratio":s["compression_ratio"].as_f64()
+                    })).collect::<Vec<_>>());
+                    TranscriptionResult {
+                        text: text.clone(),
+                        timing: Some(TranscriptTiming {
+                            text: text.clone(),
+                            duration: measured,
+                            words,
+                        }),
+                    }
                 }
-            }
-            Self::ElevenLabs => {
-                let text = value["text"].as_str().ok_or_else(failure)?.to_owned();
-                let timing = match value.get("words") {
-                    None | Some(Value::Null) => None,
-                    Some(raw) => {
-                        let raw = raw
-                            .as_array()
-                            .filter(|v| v.len() <= 20000)
-                            .ok_or_else(failure)?;
-                        let mut words = Vec::new();
-                        let mut previous = 0.0;
-                        for item in raw {
-                            match item["type"].as_str() {
-                                Some("spacing" | "audio_event") => continue,
-                                Some("word") => {}
-                                _ => return Err(failure()),
-                            }
-                            let (start, end) = (
-                                item["start"].as_f64().ok_or_else(failure)?,
-                                item["end"].as_f64().ok_or_else(failure)?,
-                            );
-                            let word = item["text"]
-                                .as_str()
-                                .filter(|s| !s.trim().is_empty() && !s.contains('\0'))
-                                .ok_or_else(failure)?;
-                            if !start.is_finite()
-                                || !end.is_finite()
-                                || start < previous
-                                || end <= start
-                                || end > 120.0
-                            {
-                                return Err(failure());
-                            }
-                            previous = start;
-                            words.push(Word {
-                                word: word.into(),
-                                start,
-                                end,
-                            });
-                        }
-                        let duration = duration
-                            .filter(|d| d.is_finite() && *d > 0.0 && *d <= 120.0)
-                            .ok_or_else(failure)?;
-                        if words.iter().any(|word| word.end > duration) {
+                Self::Service => {
+                    #[derive(Deserialize)]
+                    struct Wire {
+                        text: String,
+                        timing: Option<TranscriptTiming>,
+                    }
+                    let wire: Wire =
+                        serde_json::from_value(value.clone()).map_err(|_| failure())?;
+                    if let Some(timing) = &wire.timing {
+                        if timing.text != wire.text {
                             return Err(failure());
                         }
-                        Some(TranscriptTiming {
-                            text: text.clone(),
-                            duration,
-                            words,
-                        })
+                        crate::speech::analysis::fluency::validate_timing(
+                            &timing.text,
+                            timing.duration,
+                            &timing.words,
+                        )
+                        .map_err(|_| failure())?;
+                        if timing.words.iter().any(|word| word.end > timing.duration) {
+                            return Err(failure());
+                        }
                     }
-                };
-                TranscriptionResult { text, timing }
+                    TranscriptionResult {
+                        text: wire.text,
+                        timing: wire.timing,
+                    }
+                }
+                Self::ElevenLabs => {
+                    let text = value["text"].as_str().ok_or_else(failure)?.to_owned();
+                    let timing = match value.get("words") {
+                        None | Some(Value::Null) => None,
+                        Some(raw) => {
+                            let raw = raw
+                                .as_array()
+                                .filter(|v| v.len() <= 20000)
+                                .ok_or_else(failure)?;
+                            let mut words = Vec::new();
+                            let mut previous = 0.0;
+                            for item in raw {
+                                match item["type"].as_str() {
+                                    Some("spacing" | "audio_event") => continue,
+                                    Some("word") => {}
+                                    _ => return Err(failure()),
+                                }
+                                let (start, end) = (
+                                    item["start"].as_f64().ok_or_else(failure)?,
+                                    item["end"].as_f64().ok_or_else(failure)?,
+                                );
+                                let word = item["text"]
+                                    .as_str()
+                                    .filter(|s| !s.trim().is_empty() && !s.contains('\0'))
+                                    .ok_or_else(failure)?;
+                                if !start.is_finite()
+                                    || !end.is_finite()
+                                    || start < previous
+                                    || end <= start
+                                    || end > 120.0
+                                {
+                                    return Err(failure());
+                                }
+                                previous = start;
+                                words.push(Word {
+                                    word: word.into(),
+                                    start,
+                                    end,
+                                });
+                            }
+                            let duration = duration
+                                .filter(|d| d.is_finite() && *d > 0.0 && *d <= 120.0)
+                                .ok_or_else(failure)?;
+                            if words.iter().any(|word| word.end > duration) {
+                                return Err(failure());
+                            }
+                            Some(TranscriptTiming {
+                                text: text.clone(),
+                                duration,
+                                words,
+                            })
+                        }
+                    };
+                    TranscriptionResult { text, timing }
+                }
+            })
+        })();
+        let result = match parsed {
+            Ok(result) => result,
+            Err(error) => {
+                diagnostics["timing"] = json!({"status":"unavailable", "stage":"transcription_timing",
+                    "reason":"invalid_provider_timing", "validation":error.diagnostics});
+                TranscriptionResult { text, timing: None }
             }
         };
-        if result.text.trim().is_empty() {
-            return Err(invalid("No speech was recognized. Try another recording."));
-        }
         if result.text.chars().count() > 20000 || result.text.contains('\0') {
             return Err(failure());
         }
@@ -286,13 +307,16 @@ mod tests {
         }
     }
     #[test]
-    fn invalid_scribe_timing_never_becomes_a_successful_text_only_result() {
+    fn invalid_scribe_timing_preserves_text_and_reports_missing_timing() {
         for end in [json!(-1), json!("1"), json!(130), Value::Null] {
             let raw = json!({"text":"private transcript","request_id":"req-1","words":[{"type":"word","text":"private","start":0.1,"end":end}]});
-            let error = Adapter::ElevenLabs
+            let outcome = Adapter::ElevenLabs
                 .decode(&serde_json::to_vec(&raw).unwrap(), Some(1.0))
-                .unwrap_err();
-            let diagnostic = serde_json::to_string(&error.diagnostics).unwrap();
+                .unwrap();
+            assert_eq!(outcome.result.text, "private transcript");
+            assert!(outcome.result.timing.is_none());
+            let diagnostic = serde_json::to_string(&outcome.diagnostics).unwrap();
+            assert!(diagnostic.contains("unavailable"));
             assert!(!diagnostic.contains("private transcript"));
             assert!(diagnostic.contains("req-1"));
         }

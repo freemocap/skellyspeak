@@ -72,3 +72,4 @@ app/diagnostics/admin_assets/*
 !app/inference/groq_transcription.py
 
 !app/inference/transcription_profiles.py
+!app/inference/transcription_timing.py

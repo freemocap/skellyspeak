@@ -198,7 +198,7 @@ pub(crate) fn inspect_wav(
             word_timing: InspectionWordTiming {
                 status: InspectionTimingStatus::Unavailable,
                 reason: Some(
-                    "This transcription route returns text without word timestamps.".into(),
+                    "Word timestamps are unavailable for this recording. Provider details are retained in diagnostics.".into(),
                 ),
                 words: vec![],
                 unsupported: vec![],

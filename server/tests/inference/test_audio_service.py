@@ -185,3 +185,30 @@ async def test_provider_busy_reason_is_in_primary_error_without_retry(proxy, led
     assert len(calls) == 1
     row, = records(ledger)
     assert row["status"] == "unknown"  # HTTP status alone does not prove zero billing.
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('model', ['whisper-large-v3', 'scribe_v2'])
+async def test_invalid_optional_timing_does_not_discard_transcript(proxy, ledger, monkeypatch, model):
+    def respond(_request):
+        word = {'start': .5, 'end': 1.06}
+        word.update({'word': 'fixture'} if model == 'whisper-large-v3' else {'type': 'word', 'text': 'fixture'})
+        return httpx.Response(200, json={'text': 'fixture', 'words': [word]},
+                              headers={'request-id': 'bounded-timing'})
+    output = io.BytesIO()
+    with wave.open(output, 'wb') as writer:
+        writer.setnchannels(1); writer.setsampwidth(2); writer.setframerate(16000)
+        writer.writeframes(bytes(32000))
+    upstream(monkeypatch, respond)
+    response = await proxy.post('/v1/audio/transcriptions',
+        data={'model': model, 'language': 'en', 'response_format': 'verbose_json'},
+        files={'file': ('audio.wav', output.getvalue(), 'audio/wav')})
+    assert response.status_code == 200, response.text
+    result = response.json()
+    assert result['text'] == 'fixture'
+    assert result['timing'] is None
+    assert result['usage']['diagnostics']['timing']['status'] == 'unavailable'
+    assert result['usage']['diagnostics']['response']['words'][0]['end'] == 1.06
+    row, = records(ledger)
+    assert row['status'] == 'settled'
+    assert row['provider_id'] == 'bounded-timing'

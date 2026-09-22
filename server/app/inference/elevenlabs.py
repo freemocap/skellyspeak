@@ -18,9 +18,10 @@ import httpx
 
 from server.app.diagnostics import provider_errors
 
+from server.app.inference.transcription_timing import decode_words
 from server.app.inference.audio_contracts import (
     AudioFailure, AudioReceipt, SynthesisRequest, SynthesisResult,
-    TranscriptionRequest, TranscriptionResult, WordTiming,
+    TranscriptionRequest, TranscriptionResult,
 )
 
 INPUT_RATE = 16_000
@@ -115,7 +116,7 @@ class ElevenLabs:
                                            unknown_outcome=response.status_code >= 500,
                                            status=response.status_code, provider_error=provider_error, diagnostics=cleaned)
                     content_type = response.headers.get("content-type", "").split(";")[0].strip().lower()
-                    if content_type not in content_types:
+                    if content_types != {"application/json"} and content_type not in content_types:
                         raise AudioFailure("AUDIO_RESPONSE_TYPE", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"response_headers", "path":"content_type", "expected":sorted(content_types), "response":receipt.diagnostics})
                     chunks = bytearray()
                     async for chunk in response.aiter_bytes():
@@ -192,36 +193,12 @@ def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> Transcri
         text = value["text"]
         if not isinstance(text, str) or len(text) > 20_000 or "\0" in text:
             raise ValueError()
-        path = "language_code/language_probability"
-        language = value.get("language_code")
-        probability = value.get("language_probability")
-        if not _language(language, synthesis=False):
-            raise ValueError()
-        if probability is not None and (not _number(probability) or not 0 <= probability <= 1):
-            raise ValueError()
-        path = "words"
-        raw_words = value.get("words")
-        if raw_words is not None and (not isinstance(raw_words, list) or len(raw_words) > 20_000):
-            raise ValueError()
-        words = []
-        previous = 0.0
-        for index, word in enumerate(raw_words or []):
-            path = f"words[{index}]"
-            if not isinstance(word, dict) or word.get("type") not in {"word", "spacing", "audio_event"}:
-                raise ValueError()
-            if word["type"] != "word":
-                continue
-            start, end, token = word["start"], word["end"], word["text"]
-            if (not _number(start) or not _number(end) or not previous <= start <= end <= duration
-                    or not isinstance(token, str) or not token.strip() or "\0" in token):
-                raise ValueError()
-            words.append(WordTiming(token, start, end))
-            previous = start
-        if not text.strip():
-            raise AudioFailure("AUDIO_NO_SPEECH", receipt=receipt, unknown_outcome=False)
+        words, timing = decode_words(value.get('words'), duration, 'elevenlabs')
+        # Language/confidence metadata cannot invalidate usable transcript text.
         # Preserve script and learner wording; do not rewrite low-confidence text.
         receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
-                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value), "no_verbatim": False})
-        return TranscriptionResult(text, duration, tuple(words) if raw_words is not None else None, receipt)
+                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value), "no_verbatim": False,
+                                "timing": timing})
+        return TranscriptionResult(text, duration, words, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
-        raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transcription_validation", "path":path, "expected":"valid transcript fields and ordered timing within recording duration", "response":provider_errors.sanitize(value), "http":receipt.diagnostics}) from None
+        raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transcription_validation", "path":path, "expected":"string transcript text, at most 20000 characters, without NUL", "response":provider_errors.sanitize(value), "http":receipt.diagnostics}) from None

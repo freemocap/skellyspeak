@@ -351,7 +351,13 @@ mod tests {
             transcription_response("{\"text\":\"അത് നല്ലതാണ്.\"}".as_bytes(), false).unwrap();
         assert_eq!(response.result.text, "അത് നല്ലതാണ്.");
         assert!(response.result.timing.is_none());
-        assert!(transcription_response(br#"{"text":" "}"#, false).is_err());
+        assert_eq!(
+            transcription_response(br#"{"text":" "}"#, false)
+                .unwrap()
+                .result
+                .text,
+            " "
+        );
         assert!(transcription_response(br#"{"error":"failure"}"#, false).is_err());
     }
 }
@@ -366,10 +372,14 @@ mod service_timing_tests {
         let result = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
         assert_eq!(result.result.timing.unwrap().words.len(), 1);
         value["timing"]["words"][0]["end"] = serde_json::json!(2.0);
-        assert!(transcription_response(&serde_json::to_vec(&value).unwrap(), false).is_err());
+        let out = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
+        assert_eq!(out.result.text, "നമസ്കാരം");
+        assert!(out.result.timing.is_none());
         value["timing"]["words"] = serde_json::json!([]);
         value["timing"]["text"] = serde_json::json!("different text");
-        assert!(transcription_response(&serde_json::to_vec(&value).unwrap(), false).is_err());
+        let out = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
+        assert_eq!(out.result.text, "നമസ്കാരം");
+        assert!(out.result.timing.is_none());
     }
 }
 
