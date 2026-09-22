@@ -502,6 +502,7 @@ pub type Result<T> = std::result::Result<T, AppError>;
 pub struct RecordingStarted {
     pub recording_id: String,
     pub samples_per_second: f64,
+    pub browser_capture: bool,
 }
 
 /// What the window needs before it can mount: whether the workspace opened, and

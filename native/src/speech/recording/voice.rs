@@ -82,6 +82,7 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
     };
     let started = RecordingStarted {
         recording_id: recording.id.clone(),
+        browser_capture: cfg!(mobile),
         #[cfg(desktop)]
         samples_per_second: recording.capture.wave_samples_per_second(),
         #[cfg(mobile)]

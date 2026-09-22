@@ -13,10 +13,12 @@ const transcript: TranscriptionInspectionResult = {
 }
 const invoke = vi.hoisted(() => vi.fn())
 const fault = vi.hoisted(() => vi.fn())
+const browserStart = vi.hoisted(() => vi.fn())
+vi.mock('../../../platform/audio/browser-recording', () => ({ startBrowserRecording: browserStart }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
 vi.mock('../../../platform/diagnostics/faults', () => ({ reportFault: fault }))
 beforeEach(() => {
-  invoke.mockReset(); fault.mockReset()
+  invoke.mockReset(); fault.mockReset(); browserStart.mockReset()
   invoke.mockImplementation(async (command: string) => {
     if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 689 }
     if (command === 'mic_wave') return []
@@ -24,6 +26,21 @@ beforeEach(() => {
     if (command === 'mic_cancel') return
     throw new Error(`Unexpected native command: ${command}`)
   })
+})
+it('uses browser capture when native requires it even with a desktop user agent', async () => {
+  const capture = { wave: { samplesPerSecond: 60, read: () => [] }, cancel: vi.fn(), finish: vi.fn().mockResolvedValue('wav-base64') }
+  browserStart.mockResolvedValue(capture)
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 750, browserCapture: true }
+    if (command === 'mic_transcribe') return transcript
+    throw new Error(`Unexpected native command: ${command}`)
+  })
+  const { result } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  expect(browserStart).toHaveBeenCalledOnce()
+  expect(result.current.waveSource).toBe(capture.wave)
+  await act(async () => { await result.current.toggleMic() })
+  expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording', audioBase64: 'wav-base64' })
 })
 function setup() {
   const onTranscribe = vi.fn()
