@@ -588,28 +588,52 @@ pub use mobile::sign_in;
 
 #[cfg(any(target_os = "android", target_os = "ios", test))]
 fn mobile_callback(url: &reqwest::Url, challenge: &str) -> Option<Result<String>> {
-    if url.scheme() != "skellyspeak"
-        || url.host_str() != Some("auth")
-        || !matches!(url.path(), "" | "/")
-        || !url.username().is_empty()
-        || url.password().is_some()
-        || url.port().is_some()
-        || url.fragment().is_some()
-        || url.as_str().len() > 4096
-    {
-        return None;
-    }
-    let states: Vec<_> = url
-        .query_pairs()
-        .filter(|(key, _)| key == "state")
-        .collect();
-    if states.len() != 1 || states[0].1 != challenge {
+    if mobile_callback_rejection(url, challenge).is_some() {
         return None;
     }
     Some(callback_code(
         &format!("/callback?{}", url.query().unwrap_or("")),
         challenge,
     ))
+}
+
+/// Authored rejection categories only; never include callback URLs or state/code values.
+#[cfg(any(target_os = "android", target_os = "ios", test))]
+fn mobile_callback_rejection(url: &reqwest::Url, challenge: &str) -> Option<&'static str> {
+    if url.scheme() != "skellyspeak" {
+        return Some("hosted_callback_wrong_scheme");
+    }
+    if url.host_str() != Some("auth") {
+        return Some("hosted_callback_wrong_host");
+    }
+    if !matches!(url.path(), "" | "/") {
+        return Some("hosted_callback_wrong_path");
+    }
+    if !url.username().is_empty() || url.password().is_some() {
+        return Some("hosted_callback_userinfo");
+    }
+    if url.port().is_some() {
+        return Some("hosted_callback_port");
+    }
+    // Browser redirects can carry a fragment back to iOS. Authentication reads
+    // only query parameters; never treat fragment fields as a code or state.
+    if url.as_str().len() > 4096 {
+        return Some("hosted_callback_too_long");
+    }
+    let states: Vec<_> = url
+        .query_pairs()
+        .filter(|(key, _)| key == "state")
+        .collect();
+    if states.is_empty() {
+        return Some("hosted_callback_state_missing");
+    }
+    if states.len() != 1 {
+        return Some("hosted_callback_state_duplicate");
+    }
+    if states[0].1 != challenge {
+        return Some("hosted_callback_state_mismatch");
+    }
+    None
 }
 
 #[cfg(test)]

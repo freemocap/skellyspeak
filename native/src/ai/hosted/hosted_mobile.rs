@@ -81,6 +81,13 @@ fn receive_urls(urls: &[reqwest::Url]) {
                 ("pending", u64::from(slot.is_some())),
             ],
         );
+        if let Some((state, _)) = slot.as_ref() {
+            for url in urls {
+                if let Some(reason) = super::mobile_callback_rejection(url, state) {
+                    crate::diagnostics::native_event(reason, &[]);
+                }
+            }
+        }
         take_callback(&mut slot, urls)
     };
     if let Some((sender, result)) = callback {

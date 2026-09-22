@@ -1,5 +1,33 @@
 use super::*;
 
+#[test]
+fn rejection_diagnostics_distinguish_missing_state_from_mismatch_without_values() {
+    for (value, expected) in [
+        (
+            "skellyspeak://auth?code=private-code",
+            "hosted_callback_state_missing",
+        ),
+        (
+            "skellyspeak://auth?state=private-state&code=private-code",
+            "hosted_callback_state_mismatch",
+        ),
+        (
+            "skellyspeak://auth?state=expected&state=other",
+            "hosted_callback_state_duplicate",
+        ),
+        (
+            "skellyspeak://auth/other?state=expected",
+            "hosted_callback_wrong_path",
+        ),
+    ] {
+        assert_eq!(
+            super::super::mobile_callback_rejection(&url(value), "expected"),
+            Some(expected)
+        );
+        assert!(super::super::mobile_callback(&url(value), "expected").is_none());
+    }
+}
+
 // macOS exposes the same Opened event, so exercise the iOS plugin callback with
 // Tauri's mock runtime without requiring an iOS device or a real webview.
 #[cfg(target_os = "macos")]
@@ -34,6 +62,36 @@ fn native_open_event_delivers_without_a_webview_or_deep_link_broadcast() {
 
 fn url(value: &str) -> reqwest::Url {
     reqwest::Url::parse(value).unwrap()
+}
+
+#[test]
+fn browser_fragments_do_not_block_valid_query_callbacks_or_supply_credentials() {
+    for fragment in ["", "_=_", "state=wrong&code=fragment-code"] {
+        let (sender, mut receiver) = tokio::sync::oneshot::channel();
+        let mut slot = Some(("expected".to_owned(), sender));
+        let callback = url(&format!(
+            "skellyspeak://auth?state=expected&code=query-code#{fragment}"
+        ));
+        let (sender, result) = take_callback(&mut slot, &[callback]).unwrap();
+        sender.send(result).unwrap();
+        assert_eq!(receiver.try_recv().unwrap().unwrap(), "query-code");
+        assert!(slot.is_none());
+    }
+    for value in [
+        "skellyspeak://auth?code=query-code#state=expected",
+        "skellyspeak://auth?state=wrong&code=query-code#state=expected",
+        "skellyspeak://auth?state=expected&state=other#state=expected",
+    ] {
+        assert!(mobile_callback(&url(value), "expected").is_none());
+    }
+    assert!(
+        mobile_callback(
+            &url("skellyspeak://auth?state=expected#code=fragment-code"),
+            "expected"
+        )
+        .unwrap()
+        .is_err()
+    );
 }
 
 #[test]

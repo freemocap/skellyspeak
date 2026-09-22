@@ -62,9 +62,16 @@ Debug archive at `native/gen/apple/build/skellyspeak_iOS.xcarchive`.
 The initial CLI archive used its default bundle version; rebuild with an explicit
 version from `native/Cargo.toml` when signing the installable build.
 
-No build has been installed: the local keychain reports zero valid signing
-identities. The user was asked to add their SkellySpeak Apple account/team and
-create an Apple Development certificate in Xcode. Neither the compile check nor
+No build has been installed. Follow-up signing setup created a Personal Team
+Apple Development identity. Its missing Apple WWDR G3 intermediate was downloaded
+from Apple's official PKI endpoint, verified, and added to the login keychain
+without trust overrides; the signing identity now validates.
+
+A signed development build with explicit version 2.2.4 and Personal Team
+`N2Q2VACXFB` failed at Apple's registration/provisioning step: the existing
+`com.freemocap.skellyspeak` identifier is unavailable to this team. The release
+workflow uses team `U8LBJLBYPR`; access to that team is needed to sign the existing
+identifier. No release or signing-profile workaround was applied. Neither the compile check nor
 the mock runtime tests establish UIKit callback delivery, successful Google
 sign-in, or credential persistence on the device.
 
@@ -77,3 +84,75 @@ settings during an attempt. If completion still fails, retrieve the new native
 diagnostic events to distinguish callback delivery from validation/exchange.
 
 Changes are uncommitted. No release, server deployment or app-data reset was done.
+
+## Follow-up device investigation, September 22
+
+The correct FreeMoCap Foundation Apple Development identity is now available
+(team U8LBJLBYPR). Registered the paired iPad with that team using Xcode's
+explicit device destination and provisioning-device registration. The native
+build reached codesign with an iOS Team Provisioning Profile for the existing
+app identifier, and is waiting for signing-key access. No local installation
+has completed yet.
+
+Retrieved the device's release 2.2.5 structured logs through devicectl. They
+show hosted_waiting_for_callback followed by hosted_callback_received with
+url_count=1 and pending=1, then hosted_callback_ignored and the five-minute
+timeout. Thus the new lifecycle hook did receive this callback; validation
+rejected it. The earlier relay-failure hypothesis does not explain this captured
+attempt.
+
+Added authored rejection categories for the individual URL/state checks while
+preserving validation behavior. These log no actual URLs, state values or
+codes. Five callback tests pass, including the new rejection-category test.
+The local diagnostic build must be installed and the login repeated to identify
+the specific rejected field before a further behavioral fix.
+
+## Local installation completed
+
+The signed diagnostic v2.2.5 archive passed codesign verification and was installed
+on the paired iPad using devicectl. Launch succeeded. The user was asked to repeat
+Google sign-in so the authored rejection category can identify the failing check.
+This is a development installation, not a release or server deployment.
+
+### Safari invalid-address error: local bundle registration
+
+The user reported Safari could not open the return address. Inspection of both
+local generated and archived app Info.plist files found no CFBundleURLTypes.
+The diagnostic build therefore could not register `skellyspeak://` with iOS.
+Added the scheme explicitly to the application-owned `native/Info.plist`;
+the rebuilt archive now contains the expected CFBundleURLTypes entry, and its
+signature passes `codesign --verify --deep --strict`. This is a confirmed
+packaging defect in the local build. It does not establish why the earlier
+release received a callback and rejected it. End-to-end sign-in remains pending
+an actual account login with the corrected diagnostic build.
+
+### Confirmed callback rejection after URL registration repair
+
+The next real iPad login (debug process 810) recorded, in order:
+`hosted_waiting_for_callback`, `hosted_callback_received` with pending=1,
+`hosted_callback_fragment`, and `hosted_callback_ignored`. Native iOS event
+delivery works; the callback validator rejects the URL fragment and leaves the
+attempt waiting. The fragment's content was not logged or inspected.
+
+Removed the blanket fragment rejection. The callback continues to validate the
+scheme, authority, path, total URL size and exactly one matching query state.
+Only query parameters supply the login code, which is exchanged using PKCE;
+fragment fields cannot supply or override credentials. Browser fragment inheritance
+across redirects is specified in RFC 9110 section 10.2.2:
+https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.2
+This explains a possible source of the fragment, not its observed provenance.
+
+All six mobile callback tests pass, including empty/nonempty fragments, misleading
+fragment credentials, missing/mismatched/duplicate query state, and missing query
+code. Real iPad account exchange remains unverified until the updated build is
+installed and the user completes a fresh login.
+
+### User verification
+
+After installing the fragment-handling fix, the user confirmed: “ok that worked!”
+This verifies the reported iPad sign-in flow through user observation. Desktop
+uses a loopback HTTP callback; HTTP request targets exclude URL fragments, whereas
+the iOS native URL event delivered a fragment and hit the former rejection guard.
+Android shares the mobile validator and benefits from this fix, but no Android
+callback capture establishes whether its browser supplied a fragment. Changes
+remain uncommitted and no release or server deployment was performed.
