@@ -229,9 +229,5 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-statistics-header { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
 
-.detail-dialog:has(.practice-overview) {
-  width: min(1000px, calc(100vw - 24px));
-  height: 85dvh;
-  padding: var(--space-10) var(--space-12);
-  font-size: var(--type-ui);
-}
+.xp-evidence-report h2 { font-size: var(--type-title); margin: 0; }
+.xp-evidence-report details { font-size: var(--type-meta); overflow-wrap: anywhere; }

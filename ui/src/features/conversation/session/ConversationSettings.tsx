@@ -1,11 +1,12 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { messageKey } from '../../../domain/localization'
 import { useI18n } from '../../../components/localization/i18n'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 import { useIsMobile } from '../../../components/layout/useIsMobile'
 import type { Settings } from '../../../types'
 
-type QuickSetting = 'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode'
+type QuickSetting = 'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode' | 'xp_effects'
 type Toggle = [QuickSetting, string, string]
 
 /// The conversation's own settings: one labelled button in the chat header opens
@@ -73,7 +74,8 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
       ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
     ]],
     ['Rewards', [
-      ['fast_mode', 'Fast mode', 'Automatically dismiss new XP cards; point icons reopen them'],
+      ['xp_effects', messageKey('XP effects'), messageKey('Show XP cards, progress bars and reward sounds')],
+      ['fast_mode', 'Fast mode', messageKey('Automatically dismiss new XP cards')],
     ]],
   ]
 
@@ -98,7 +100,7 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
           <h3>{tr(heading)}</h3>
           {toggles.map(([key, label, description]) => <label key={key} className="conversation-setting">
             <span><strong>{tr(label)}</strong><small>{tr(description)}</small></span>
-            <input type="checkbox" role="switch" checked={settings?.[key] ?? false} disabled={!settings || saving}
+            <input type="checkbox" role="switch" checked={key === 'xp_effects' ? settings?.xp_effects !== false : settings?.[key] ?? false} disabled={!settings || saving}
               onChange={() => void onToggle(key)} />
           </label>)}
           {heading === 'Speech' && <label className="conversation-settings-field">

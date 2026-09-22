@@ -1,6 +1,5 @@
-/* Reward card base and presentation variants. The dock inspection card compacts
-the same badge; .floating-reward adds transient overlay layout. Keep motion,
-color meaning and reduced-motion behavior unchanged until the reward explorer review. */
+/* Explicit evidence inspection uses floating cards. Automatic rewards occupy
+   a compact row outside message text, with bounded motion and progress. */
 
 .skill-reward-status { position: absolute; width: 0; height: 0; }
 
@@ -72,36 +71,34 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 .floating-reward .reward-badge blockquote { font-size: var(--type-ui); margin-block: var(--space-2); }
 
 .reward-progress-toast {
-  position: fixed;
-  z-index: var(--z-reward-toast);
-  pointer-events: none;
-  inset-inline: max(16px, env(safe-area-inset-left));
-  top: calc(env(safe-area-inset-top) + 76px);
-  max-width: 360px;
-  margin-inline: auto;
-  padding: var(--space-8);
+  position: static;
+  flex: 1 0 100%;
+  order: -1;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
   border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-sm);
   background: var(--chrome);
   color: var(--ink);
-  box-shadow: var(--shadow-floating);
+  font: var(--type-meta)/var(--leading-snug) var(--font-sans);
   display: grid;
-  gap: var(--space-6);
-  animation: reward-receipt var(--dur-loop-slow) ease both;
+  gap: var(--space-2);
 }
 
 .reward-progress-heading {
   display: flex;
   justify-content: space-between;
-  gap: var(--space-6);
-  font-size: var(--type-ui);
+  gap: var(--space-2);
+  font-size: var(--type-meta);
 }
 
 .reward-progress-track {
-  height: 8px;
+  cursor: pointer;
+  height: 3px;
   background: var(--field);
   border-radius: var(--radius-md);
-  margin-top: var(--space-3);
+  margin-top: var(--space-1);
   overflow: hidden;
 }
 
@@ -172,4 +169,65 @@ color meaning and reduced-motion behavior unchanged until the reward explorer re
 .floating-reward .reward-inspection-card .detail-action { font-size: var(--type-meta); }
 @media (pointer: coarse) {
   .reward-inspection-close { min-width: 44px; min-height: 44px; }
+}
+
+/* Automatic effects occupy a bounded row below the header, outside message
+   text. Full evidence remains available through explicit inspection. */
+.reward-effects-rail {
+  display: flex;
+  flex-wrap: wrap;
+  flex: none;
+  align-items: center;
+  gap: var(--space-3);
+  overflow: hidden;
+  max-height: 80px;
+  overflow-y: auto;
+}
+.reward-effects-rail:empty { display: none; }
+.reward-summary {
+  position: static;
+  flex: 1 1 140px;
+  min-width: 0;
+  max-height: 64px;
+  overflow: hidden;
+  box-shadow: none;
+  border-radius: var(--radius-sm);
+}
+.reward-summary-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-inline-start: var(--space-4);
+  font: var(--type-ui)/var(--leading-snug) var(--font-sans);
+}
+.reward-summary-content > span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.reward-summary-content strong { flex-shrink: 0; }
+.reward-summary-content button { flex-shrink: 0; }
+.reward-summary .reward-milestone { margin: 0; font-size: var(--type-meta); }
+.reward-progress-skills { display: flex; gap: var(--space-4); overflow: hidden; }
+.reward-progress-skills > div { flex: 1; min-width: 0; }
+.reward-progress-heading span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (pointer: coarse) {
+  .reward-summary-content button { min-width: 44px; min-height: 44px; }
+  .reward-effects-rail { max-height: 96px; }
+}
+
+/* Temporary receipts expose the same saved evidence as persistent skill bars. */
+.reward-progress-heading button {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: start;
+}
+@media (pointer: coarse) {
+  .reward-progress-heading button { min-height: 44px; }
 }

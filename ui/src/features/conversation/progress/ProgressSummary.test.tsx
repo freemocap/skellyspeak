@@ -1,6 +1,6 @@
 import { SKILL_CATALOG_VERSION } from '../../../generated/contracts'
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { ProgressSummary } from './ProgressSummary'
 import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
@@ -28,6 +28,10 @@ it('separates global activity from language tabs and keeps an unused language em
   const domain = skillDemo.catalog.find(node => node.kind === 'domain')!
   fireEvent.click(document.querySelector(`[data-reward-skill="${skill.skill_id}"]`)!)
   expect(screen.getByRole('heading', { name: `${domain.label} · skill evidence` })).toBeVisible()
+  const report = screen.getByRole('dialog', { name: 'Identify a referent' })
+  expect(within(report).getByText('Esa taza.')).toBeVisible()
+  expect(within(report).getByText('Identifies the cup.')).toBeVisible()
+  fireEvent.click(within(report).getByRole('button', { name: 'Close Identify a referent' }))
   fireEvent.click(screen.getByRole('tab', { name: 'Arabic 0 XP' }))
   expect(screen.getByText('We don’t have any experience for this language yet.')).toBeVisible()
   expect(screen.queryByRole('heading', { name: 'Spanish progress' })).toBeNull()

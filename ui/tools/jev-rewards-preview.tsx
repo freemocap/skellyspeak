@@ -1,3 +1,4 @@
+import { ConversationProgress } from '../src/features/conversation/progress/ConversationProgress'
 /** Production chat/reward components; synthetic session-only credits, no AI calls. */
 import { mockIPC } from '@tauri-apps/api/mocks'
 import { createRoot } from 'react-dom/client'
@@ -9,7 +10,7 @@ import { SkillEvidenceContext } from '../src/state/learning/useSkillEvidence'
 import { PracticeContext } from '../src/features/conversation/session/PracticeContext'
 import { skillDemo } from '../src/domain/learning/catalog/skillDemo'
 import { unreportedInput } from '../src/domain/learning/evidence/skills'
-import { configureRewardSounds, unlockRewardAudio } from '../src/platform/audio/reward-sounds'
+import { configureRewardSounds, unlockRewardAudio, setRewardVolume } from '../src/platform/audio/reward-sounds'
 import '../src/styles/index.css'
 mockIPC((command, args) => {
   if (command === 'claim_reward_events') return (args as { ids: string[] }).ids.map(id => ({ id }))
@@ -18,10 +19,11 @@ mockIPC((command, args) => {
 function Preview() {
   const workspace = useRef<HTMLDivElement>(null)
   const [fast, setFast] = useState(false)
+  const [enabled, setEnabled] = useState(true)
   const [snapshot, setSnapshot] = useState(() => { const s = structuredClone(skillDemo); s.profile.rules_version = 2; return s })
   const source = 'Hola, ¿cómo estás?'
   const earn = () => {
-    configureRewardSounds('yes', false); unlockRewardAudio()
+    configureRewardSounds(enabled ? 'yes' : 'no', false); setRewardVolume(.2); unlockRewardAudio()
     setSnapshot(previous => {
       const next = structuredClone(previous)
       const skills = next.catalog.filter(item => ['greeting', 'question'].includes(item.id))
@@ -37,11 +39,12 @@ function Preview() {
     <p>Jev reward flow · synthetic preview · no saved data or AI calls</p>
     <button className="btn" onClick={earn}>Receive 20 XP</button>
     <label><input type="checkbox" checked={fast} onChange={e => setFast(e.target.checked)} />Fast mode</label>
+    <label><input type="checkbox" checked={enabled} onChange={e => { setEnabled(e.target.checked); configureRewardSounds(e.target.checked ? 'yes' : 'no', false) }} />XP effects</label>
     <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'preview', selectionVersion: 0, selected: null, select: noop }}>
-      <RewardPresentationProvider workspace={workspace} chatId="preview" active fastMode={fast}>
-        <div ref={workspace} style={{ position: 'relative', minHeight: 480 }}><div className="stream" style={{ minHeight: 400 }}>
-          <TurnView turn={{ id: 1, user: source, pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} revealed={new Set()} showRomanization={false} alwaysRomanize={false} alwaysPronunciation={false} autoTranslate={false} rtl={false} onReveal={noop} onBubbleTap={noop} onSpeak={noop} onPopup={noop} onInspect={noop} onToggleReveal={noop} onAskCoach={noop} />
-        </div><SkillRewards chatId="preview" active /></div>
+      <RewardPresentationProvider enabled={enabled} workspace={workspace} chatId="preview" active fastMode={fast}>
+        <div ref={workspace} style={{ position: 'relative', minHeight: 480 }}><div className="reward-effects-rail" data-reward-surface /><div className="stream" style={{ minHeight: 400 }}>
+          <TurnView turn={{ id: 1, user: source, pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} revealed={new Set()} showRomanization={false} alwaysRomanize={false} alwaysPronunciation={false} autoTranslate={false} rtl={false} onEditUser={noop} onReveal={noop} onBubbleTap={noop} onSpeak={noop} onPopup={noop} onInspect={noop} onToggleReveal={noop} onAskCoach={noop} />
+        </div><SkillRewards chatId="preview" active /><aside className="break" style={{ height: 320 }}><ConversationProgress chatId="preview" /></aside></div>
       </RewardPresentationProvider>
     </PracticeContext></SkillEvidenceContext>
   </main>

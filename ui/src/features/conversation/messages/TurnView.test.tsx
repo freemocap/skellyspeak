@@ -247,14 +247,15 @@ it('shows a failed learner translation on the learner message without invented t
 })
 
 
-it('keeps corner edit and playback actions isolated from token reveal and honors their availability', () => {
+it('keeps message edit and playback actions isolated from token reveal and honors their availability', () => {
   const input = props()
   const edit = vi.fn()
   const view = render(<TurnView {...input} onEditUser={edit} rtl />)
   const pencil = screen.getByRole('button', { name: 'Edit message' })
   const speaker = screen.getByRole('button', { name: 'Speak reply' })
   expect(pencil).toHaveTextContent('✏️')
-  expect(pencil.closest('.msg.me')).toHaveClass('with-corner-control', 'rtl')
+  expect(pencil.closest('.msg.me')).toHaveClass('rtl')
+  expect(pencil.parentElement).toHaveClass('message-xp-actions')
   expect(speaker.closest('.msg.bot')).toHaveClass('with-corner-control', 'rtl')
   fireEvent.click(pencil)
   fireEvent.doubleClick(pencil)
@@ -457,7 +458,7 @@ it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveal
   expect(input.onToggleReveal).not.toHaveBeenCalled()
 })
 
-it('attaches localized Jev XP to the exact source span without a separate badge row', async () => {
+it('preserves source text and reading controls without inline XP tags', async () => {
   const { SkillEvidenceContext } = await import('../../../state/learning/useSkillEvidence')
   const { PracticeContext } = await import('../session/PracticeContext')
   const { RewardInspectionContext } = await import('../progress/RewardInspectionContext')
@@ -470,8 +471,10 @@ it('attaches localized Jev XP to the exact source span without a separate badge 
   const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ open, arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
   expect(view.container.querySelector('.message-evidence')).toHaveTextContent('Hola')
   expect(view.container.querySelector('.message-credit-badges')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Inspect 10 XP · Identify a referent' }))
+  expect(screen.queryByRole('button', { name: /Inspect .* XP/ })).toBeNull()
+  expect(view.container.querySelector('.inline-xp-badge')).toBeNull()
+  fireEvent.click(screen.getAllByRole('button', { name: 'Hola' })[0])
   expect(view.container.querySelector('.message-credit-badges')).toBeNull()
   expect(view.container.querySelector('.whole-message-credit-source')).toBeNull()
-  expect(open).toHaveBeenCalledWith([expect.objectContaining({ id: 'jev:referent', quote: 'Hola', xp: 10 })], 1, 'Hola')
+  expect(open).not.toHaveBeenCalled()
 })

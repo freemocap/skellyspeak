@@ -69,9 +69,18 @@ it('waits for a durable claim and suppresses events another window already consu
   earned.records=[{attempt_id:'partial',session_id:'s',turn_id:1,message_id:1,replaces_message_id:null,construct_registry_hash:'fixture-registry',mapping_error:null,support_step:null,chat_id:'chat',learner_id:earned.learner_id,target:earned.target,native:'english',source:'Ese café.',input:unreportedInput(),at_secs:1,model:'fixture',provider_mode:'hosted',catalog_version:SKILL_CATALOG_VERSION,prompt_version:'fixture',status:'complete',error:null,assessment:{judgments:[{skill_id:'referent',outcome:'partial',quotes:['Ese café'],rationale:'Reference is partly clear.'}]}}]
   earned.profile.credits=[{attempt_id:'partial',skill_id:'referent',xp:12}]
   earned.profile.skills.find(s=>s.skill_id==='referent')!.xp=12
-  const ui=(snapshot:SkillSnapshot)=><SkillEvidenceContext value={{snapshot,error:null}}><RewardInspectionContext value={{arrive,open:vi.fn()}}><SkillRewards chatId="chat" active /></RewardInspectionContext></SkillEvidenceContext>
+  const ui=(snapshot:SkillSnapshot, enabled = true)=><SkillEvidenceContext value={{snapshot,error:null}}><RewardInspectionContext value={{enabled,arrive,open:vi.fn()}}><SkillRewards chatId="chat" active /></RewardInspectionContext></SkillEvidenceContext>
   const view=render(ui(baseline))
   await act(async()=>view.rerender(ui(earned)))
   expect(claim).toHaveBeenCalledWith(earned.target,['partial:referent'])
   expect(arrive).not.toHaveBeenCalled()
+  // A successful durable claim is still consumed while effects are disabled.
+  claim.mockResolvedValue([{ id: 'partial:referent' } as Awaited<ReturnType<typeof claimRewardEvents>>[number]])
+  view.rerender(ui(baseline, false))
+  await act(async () => view.rerender(ui(earned, false)))
+  expect(arrive).not.toHaveBeenCalled()
+  expect(screen.getByRole('status')).toBeEmptyDOMElement()
+  view.rerender(ui(earned, true))
+  expect(arrive).not.toHaveBeenCalled()
+  expect(screen.getByRole('status')).toBeEmptyDOMElement()
 })

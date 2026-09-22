@@ -63,8 +63,7 @@ it.each(['new review', 'late credit', 'Jev whole-message', 'Jev reduced motion']
   const view = render(<Fixture snapshot={initial} />)
   try {
     await act(async () => view.rerender(<Fixture snapshot={earned} />))
-    if (source === 'Jev whole-message') expect(screen.getByRole('dialog', { name: 'XP details' })).toHaveAttribute('inert')
-    else expect(screen.queryByRole('dialog', { name: 'XP details' })).toBeNull()
+    expect(screen.queryByRole('dialog', { name: 'XP details' })).toBeNull()
     expect(screen.getByRole('status', { name: 'XP saved' })).toBeVisible()
     for (let step = 0; step < 6; step++) act(() => vi.advanceTimersByTime(600))
     expect(screen.queryByRole('dialog', { name: 'XP details' })).toBeNull()
