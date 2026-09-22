@@ -1,5 +1,10 @@
 # Audio provider credentials and rollout
 
+The transcription configuration below is a historical September 18 checkpoint.
+The [September 21 implementation](transcription-provider-independence-2026-09-21.md)
+supersedes `STT_PROVIDER`, fixed Scribe selection, and the direct-key limitation.
+Read-aloud configuration remains unchanged.
+
 Status, September 18, 2026: **ElevenLabs is connected to the local/hosted server
 routes in source and tested. GCP has not been deployed.** The native client uses
 `/v1/audio/speech` for Hosted and Custom URL read-aloud; transcription uses

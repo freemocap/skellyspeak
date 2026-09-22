@@ -37,12 +37,13 @@ fn conflict() -> AppError {
     )
 }
 pub fn settings(db: &Connection) -> Result<AccessSettings> {
-    let (revision,groq,custom,config): (i32,bool,bool,String) = db.query_row("SELECT revision,groq_credential_id IS NOT NULL,custom_credential_id IS NOT NULL,custom_config FROM ai_config",[],|r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?)))?;
+    let (revision,groq,elevenlabs,custom,config): (i32,bool,bool,bool,String) = db.query_row("SELECT revision,groq_credential_id IS NOT NULL,elevenlabs_credential_id IS NOT NULL,custom_credential_id IS NOT NULL,custom_config FROM ai_config",[],|r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?)))?;
     Ok(AccessSettings {
         credential_previews: None,
         custom_url_is_unsaved_default: false,
         revision,
         groq_key_configured: groq,
+        elevenlabs_key_configured: elevenlabs,
         custom_key_configured: custom,
         custom: serde_json::from_str(&config)?,
     })
@@ -125,9 +126,17 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
             "credential_id",
         ),
         (ConnectionRoute::Openrouter, Capability::Transcription) => (
-            "https://api.groq.com/openai/v1".into(),
+            if config.audio.transcription.model == "scribe_v2" {
+                "https://api.elevenlabs.io/v1".into()
+            } else {
+                "https://api.groq.com/openai/v1".into()
+            },
             config.audio.transcription.model.clone(),
-            "groq_credential_id",
+            if config.audio.transcription.model == "scribe_v2" {
+                "elevenlabs_credential_id"
+            } else {
+                "groq_credential_id"
+            },
         ),
         (ConnectionRoute::Custom, _) => {
             validate_custom(&access.custom)?;
@@ -151,7 +160,11 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
             error(match (route, capability) {
                 (ConnectionRoute::Hosted, _) => "Sign in with Google in AI access settings.",
                 (ConnectionRoute::Openrouter, Capability::Transcription) => {
-                    "Add a Groq API key in AI access settings to transcribe recordings."
+                    if model == "scribe_v2" {
+                        "Add an ElevenLabs API key in AI access settings to transcribe recordings."
+                    } else {
+                        "Add a Groq API key in AI access settings to transcribe recordings."
+                    }
                 }
                 (ConnectionRoute::Openrouter, _) => {
                     "Add an OpenRouter API key in AI access settings."
@@ -168,6 +181,11 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         Capability::Chat if route != ConnectionRoute::Openrouter => "operations",
         Capability::Speech if route != ConnectionRoute::Openrouter => "audio/speech",
         Capability::Chat | Capability::Speech => "chat/completions",
+        Capability::Transcription
+            if route == ConnectionRoute::Openrouter && model == "scribe_v2" =>
+        {
+            "speech-to-text"
+        }
         Capability::Transcription => "audio/transcriptions",
     };
     Ok(ResolvedTarget {
@@ -185,15 +203,18 @@ pub async fn get_access_settings(
     let (mut settings, ids) = {
         let store = state.lock()?;
         let settings = settings_for_editing(&store.connection)?;
-        let ids: [Option<String>; 3] = store.connection.query_row(
-            "SELECT credential_id,groq_credential_id,custom_credential_id FROM ai_config",
+        let ids: [Option<String>; 4] = store.connection.query_row(
+            "SELECT credential_id,groq_credential_id,elevenlabs_credential_id,custom_credential_id FROM ai_config",
             [],
-            |row| Ok([row.get(0)?, row.get(1)?, row.get(2)?]),
+            |row| Ok([row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?]),
         )?;
         (settings, ids)
     };
     let mut previews = std::collections::BTreeMap::new();
-    for (provider, id) in ["openrouter", "groq", "custom"].into_iter().zip(ids) {
+    for (provider, id) in ["openrouter", "groq", "elevenlabs", "custom"]
+        .into_iter()
+        .zip(ids)
+    {
         if let Some(id) = id {
             let secret = crate::application::read_secret(id).await?;
             previews.insert(provider.into(), credentials::preview(&secret));
@@ -224,7 +245,15 @@ pub async fn save_access_settings(
     custom: Option<CustomEndpoint>,
     api_key: Option<String>,
     remove_key: bool,
+    provider: Option<String>,
 ) -> Result<AccessSettings> {
+    if provider
+        .as_deref()
+        .is_some_and(|p| !matches!(p, "groq" | "elevenlabs"))
+        || (custom.is_some() && provider.is_some())
+    {
+        return Err(error("Invalid credential destination."));
+    }
     let key = api_key.map(|s| Zeroizing::new(s.trim().to_owned()));
     validate_save_input(
         custom.as_ref(),
@@ -251,7 +280,7 @@ pub async fn save_access_settings(
                 crate::diagnostics::native_event("access_save_revision_conflict", &[]);
                 return Err(conflict());
             }
-            let column = if custom.is_some() { "custom_credential_id" } else { "groq_credential_id" };
+            let column = if custom.is_some() { "custom_credential_id" } else if provider.as_deref() == Some("elevenlabs") { "elevenlabs_credential_id" } else { "groq_credential_id" };
             if id.is_some() || remove_key {
                 tx.execute(&format!("INSERT OR IGNORE INTO credential_cleanup SELECT {column} FROM ai_config WHERE {column} IS NOT NULL"),[])?;
                 tx.execute(&format!("UPDATE ai_config SET {column}=?1"),[id])?;
@@ -331,7 +360,16 @@ pub async fn check_access(
     state: tauri::State<'_, Arc<Application>>,
     expected_revision: i32,
     custom: bool,
+    provider: Option<String>,
 ) -> Result<AccessCheck> {
+    if provider
+        .as_deref()
+        .is_some_and(|p| !matches!(p, "groq" | "elevenlabs"))
+        || (custom && provider.is_some())
+    {
+        return Err(error("Invalid credential destination."));
+    }
+    let elevenlabs = provider.as_deref() == Some("elevenlabs");
     let (url, credential) = {
         let store = state.lock()?;
         let access = settings(&store.connection)?;
@@ -343,6 +381,8 @@ pub async fn check_access(
         }
         let column = if custom {
             "custom_credential_id"
+        } else if elevenlabs {
+            "elevenlabs_credential_id"
         } else {
             "groq_credential_id"
         };
@@ -361,6 +401,8 @@ pub async fn check_access(
                     "{}/protocol?verify_providers=true",
                     access.custom.base_url.trim_end_matches('/')
                 )
+            } else if elevenlabs {
+                "https://api.elevenlabs.io/v1/models".into()
             } else {
                 "https://api.groq.com/openai/v1/models".into()
             },
@@ -379,6 +421,8 @@ pub async fn check_access(
         .timeout(Duration::from_secs(15));
     let request = if key.is_empty() {
         request
+    } else if elevenlabs {
+        request.header("xi-api-key", key.as_str())
     } else {
         request.bearer_auth(key.as_str())
     };
@@ -467,11 +511,12 @@ pub async fn check_access(
         }
         return Ok(AccessCheck { providers });
     }
-    let models = value["data"].as_array().ok_or_else(||error("Endpoint did not return an OpenAI-compatible model list. This check does not establish inference support."))?;
-    if !models
-        .iter()
-        .all(|m| m["id"].as_str().is_some_and(|id| !id.is_empty()))
-    {
+    let models = (if elevenlabs { &value } else { &value["data"] }).as_array().ok_or_else(||error("Endpoint did not return an OpenAI-compatible model list. This check does not establish inference support."))?;
+    if !models.iter().all(|m| {
+        m[if elevenlabs { "model_id" } else { "id" }]
+            .as_str()
+            .is_some_and(|id| !id.is_empty())
+    }) {
         return Err(error("Endpoint returned an invalid model list."));
     }
     if state.lock()?.connection_config()?.revision != expected_revision {
@@ -480,7 +525,7 @@ pub async fn check_access(
     Ok(AccessCheck {
         providers: vec![ProviderCredentialCheck {
             diagnostics: None,
-            provider: "GROQ".into(),
+            provider: if elevenlabs { "ELEVENLABS" } else { "GROQ" }.into(),
             state: "accepted".into(),
             status: Some(200),
             duration_ms: 0,
@@ -532,7 +577,7 @@ mod tests {
         let models = execution::config(&database).unwrap();
         assert_eq!(models.standard_model, "google/gemini-2.5-flash");
         assert_eq!(models.fast_model, "google/gemini-2.5-flash-lite");
-        assert_eq!(models.audio.transcription.model, "scribe_v2");
+        assert_eq!(models.audio.transcription.model, "whisper-large-v3");
         assert!(endpoint.bearer_auth);
         assert_eq!(endpoint.base_url, DEFAULT_CUSTOM_BASE_URL);
         validate_custom(&endpoint).unwrap();
@@ -695,6 +740,46 @@ mod tests {
     }
 
     #[test]
+    fn transcription_model_and_access_route_are_independent() {
+        let db = db();
+        custom(&db, true);
+        db.execute("UPDATE ai_config SET groq_credential_id='groq',elevenlabs_credential_id='eleven',hosted_credential_id='hosted',custom_credential_id='custom'", []).unwrap();
+        for model in ["whisper-large-v3", "scribe_v2", "future-custom-model"] {
+            db.execute("UPDATE ai_config SET audio_settings=json_set(audio_settings,'$.transcription.model',?1)", [model]).unwrap();
+            for route in ["hosted", "custom", "openrouter"] {
+                db.execute("UPDATE ai_config SET route=?1", [route])
+                    .unwrap();
+                let target = resolve(&db, Capability::Transcription).unwrap();
+                assert_eq!(target.model, model);
+                assert_eq!(target.route.label(), route);
+                if route == "openrouter" {
+                    let (key, host) = if model == "scribe_v2" {
+                        ("eleven", "https://api.elevenlabs.io/v1/speech-to-text")
+                    } else {
+                        (
+                            "groq",
+                            "https://api.groq.com/openai/v1/audio/transcriptions",
+                        )
+                    };
+                    assert_eq!(target.credential.as_deref(), Some(key));
+                    assert_eq!(target.url, host);
+                }
+            }
+        }
+        db.execute("UPDATE ai_config SET audio_settings=json_set(audio_settings,'$.transcription.model','scribe_v2'),elevenlabs_credential_id=NULL", []).unwrap();
+        assert!(
+            resolve(&db, Capability::Transcription)
+                .unwrap_err()
+                .message
+                .contains("ElevenLabs")
+        );
+        assert_eq!(
+            execution::config(&db).unwrap().audio.transcription.model,
+            "scribe_v2"
+        );
+    }
+
+    #[test]
     fn direct_capabilities_use_distinct_credentials_and_never_require_hosted_auth() {
         let db = db();
         db.execute("UPDATE ai_config SET route='openrouter',credential_id='chat-key',groq_credential_id='voice-key'",[]).unwrap();
@@ -779,11 +864,11 @@ mod tests {
         assert_eq!(chat.model, "google/gemini-2.5-flash");
         assert_eq!(
             resolve(&db, Capability::Transcription).unwrap().model,
-            "scribe_v2"
+            "whisper-large-v3"
         );
         custom(&db, true);
         let audio = resolve(&db, Capability::Transcription).unwrap();
-        assert_eq!(audio.model, "scribe_v2");
+        assert_eq!(audio.model, "whisper-large-v3");
         assert_eq!(audio.credential.as_deref(), Some("unused-secret"));
         db.execute("UPDATE ai_config SET custom_credential_id=NULL", [])
             .unwrap();

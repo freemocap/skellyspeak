@@ -155,24 +155,30 @@ class ElevenLabs:
             raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True)
         return SynthesisResult(_wav(pcm, OUTPUT_RATE), len(pcm) / (OUTPUT_RATE * 2), receipt)
 
-    async def transcribe(self, request: TranscriptionRequest) -> TranscriptionResult:
-        receipt = AudioReceipt("elevenlabs", request.model)
+    async def transcribe(self, request: TranscriptionRequest, *, model: str = "scribe_v2") -> TranscriptionResult:
+        receipt = AudioReceipt("elevenlabs", model)
         duration = len(request.pcm) / (INPUT_RATE * 2)
-        if (not _identifier(request.model) or len(request.pcm) % 2 or not 0.1 <= duration <= MAX_SECONDS
-                or not _language(request.language_code, synthesis=False)):
+        language = transcription_language(request.language_tag)
+        if (not _identifier(model) or len(request.pcm) % 2 or not 0.1 <= duration <= MAX_SECONDS
+                or language is None):
             raise AudioFailure("AUDIO_INPUT_INVALID", receipt=receipt, unknown_outcome=False)
-        # Scribe omits fillers and false starts; no corrective prompt or keyterms are supplied.
+        # Preserve learner wording; no corrective prompt or keyterms are supplied.
         # [@elevenlabs_non_verbatim]
-        fields = {"model_id": request.model, "timestamps_granularity": "word",
-                  "tag_audio_events": "false", "diarize": "false", "no_verbatim": "true"}
-        if request.language_code is not None:
-            fields["language_code"] = request.language_code
+        fields = {"model_id": model, "timestamps_granularity": "word",
+                  "tag_audio_events": "false", "diarize": "false", "no_verbatim": "false"}
+        fields["language_code"] = language
         body, receipt = await self._post(
             "speech-to-text", receipt, limit=MAX_TRANSCRIPT_BYTES,
             content_types={"application/json"}, data=fields,
             files={"file": ("audio.wav", _wav(request.pcm, INPUT_RATE), "audio/wav")},
         )
         return _transcript(body, duration, receipt)
+
+
+def transcription_language(tag):
+    if not isinstance(tag, str) or len(tag) > 80 or not re.fullmatch(r"[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*", tag):
+        return None
+    return tag.split("-")[0]
 
 
 def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> TranscriptionResult:
@@ -194,12 +200,12 @@ def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> Transcri
         if probability is not None and (not _number(probability) or not 0 <= probability <= 1):
             raise ValueError()
         path = "words"
-        raw_words = value["words"]
-        if not isinstance(raw_words, list) or len(raw_words) > 20_000:
+        raw_words = value.get("words")
+        if raw_words is not None and (not isinstance(raw_words, list) or len(raw_words) > 20_000):
             raise ValueError()
         words = []
         previous = 0.0
-        for index, word in enumerate(raw_words):
+        for index, word in enumerate(raw_words or []):
             path = f"words[{index}]"
             if not isinstance(word, dict) or word.get("type") not in {"word", "spacing", "audio_event"}:
                 raise ValueError()
@@ -215,7 +221,7 @@ def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> Transcri
             raise AudioFailure("AUDIO_NO_SPEECH", receipt=receipt, unknown_outcome=False)
         # Preserve script and learner wording; do not rewrite low-confidence text.
         receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
-                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value), "no_verbatim": True})
-        return TranscriptionResult(text, duration, tuple(words), language, probability, receipt)
+                               {"http":receipt.diagnostics, "response":provider_errors.sanitize(value), "no_verbatim": False})
+        return TranscriptionResult(text, duration, tuple(words) if raw_words is not None else None, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
         raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transcription_validation", "path":path, "expected":"valid transcript fields and ordered timing within recording duration", "response":provider_errors.sanitize(value), "http":receipt.diagnostics}) from None

@@ -59,10 +59,14 @@ async fn wrapped_busy_transcription_reuses_recording_and_keeps_provider_reason()
             socket.write_all(format!("HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
         }
     });
-    let input = audio::TranscriptionInput {
+    let input = audio::TranscriptionRequest {
         wav: b"recording-content".to_vec(),
-        language: None,
-        variety_hint: String::new(),
+        language: crate::ai::audio::TranscriptionLanguage {
+            language_id: "es".into(),
+            variety_id: "default".into(),
+            language_tag: "es".into(),
+        },
+        context: Some(String::new()),
     };
     let client = crate::ai::transport::provider::client().unwrap();
     let saved = RefCell::new(Vec::new());
@@ -85,7 +89,7 @@ async fn wrapped_busy_transcription_reuses_recording_and_keeps_provider_reason()
     .await
     .unwrap();
     server.await.unwrap();
-    assert_eq!(result.text, "Hello");
+    assert_eq!(result.result.text, "Hello");
     assert_eq!(saved.borrow().len(), 1);
     let metadata = result.diagnostics.unwrap().to_string();
     assert!(metadata.contains("eleven-busy"));

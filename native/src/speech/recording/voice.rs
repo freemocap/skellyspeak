@@ -10,8 +10,8 @@ pub struct Recording {
     id: String,
     conversation: String,
     target: access::ResolvedTarget,
-    language: Option<String>,
-    variety_hint: String,
+    language: crate::ai::audio::TranscriptionLanguage,
+    context: Option<String>,
     #[cfg(desktop)]
     capture: audio::Capture,
 }
@@ -56,30 +56,27 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
         &conversation.settings.explanation_language,
         Some(&conversation.settings.explanation_variety_id),
     )?;
-    let language = if target.route == ConnectionRoute::Openrouter {
-        context.external_tags.get("transcription").cloned()
-    } else {
-        context
+    let language = crate::ai::audio::TranscriptionLanguage {
+        language_id: conversation.language_id.clone(),
+        variety_id: conversation.settings.variety_id.clone(),
+        language_tag: context
             .external_tags
             .get("language_tag")
-            .map(|tag| tag.split('-').next().unwrap_or(tag).to_owned())
+            .cloned()
+            .ok_or_else(|| fault("The selected language has no language tag."))?,
     };
-    let native_name = store
-        .config
-        .language(&conversation.language_id)?
-        .native_name;
+    crate::ai::audio::validate_transcription_language(&target, &language)?;
     let previous: Option<String> = store.connection.query_row(
         "SELECT m.text FROM messages m JOIN turns t ON t.id=m.turn_id WHERE m.conversation_id=?1 AND m.role='assistant' AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=t.id AND o.kind IN ('persona_reply','persona_opening') AND o.state='succeeded') ORDER BY m.sequence DESC LIMIT 1",
         [&conversation_id], |row| row.get(0),
     ).optional()?;
-    let variety_hint = super::transcription_context::prompt(&native_name, previous.as_deref());
     drop(store);
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),
         conversation: conversation_id,
         target,
         language,
-        variety_hint,
+        context: previous,
         #[cfg(desktop)]
         capture: audio::start(None).map_err(fault)?,
     };
@@ -235,11 +232,11 @@ pub async fn mic_transcribe(
         .begin_transcription(&recording_id, &recording.conversation, &recording.target)?;
     use base64::Engine;
     let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
-    let mut segments = Vec::new();
-    let input = crate::ai::audio::TranscriptionInput {
+
+    let input = crate::ai::audio::TranscriptionRequest {
         wav,
         language: recording.language.clone(),
-        variety_hint: recording.variety_hint.clone(),
+        context: recording.context.clone(),
     };
     let result = crate::ai::policy::retry::run(
         || {
@@ -266,10 +263,9 @@ pub async fn mic_transcribe(
     let result = result.map(|response| {
         crate::speech::analysis::audio_inspection::attach_words(
             &mut inspection,
-            response.timing.as_ref(),
+            response.result.timing.as_ref(),
         );
-        segments = response.whisper_segments.unwrap_or_default();
-        response.text
+        response.result.text
     });
     let text = state.lock()?.finish_transcription_with_diagnostics(
         &recording_id,
@@ -283,7 +279,7 @@ pub async fn mic_transcribe(
             text,
             inspection,
             audio_base64,
-            segments,
+            diagnostics,
         },
     )
 }

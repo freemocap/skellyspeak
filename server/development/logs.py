@@ -199,6 +199,8 @@ AUTHORED_MESSAGES = {
     "server/.env is valid. Provider credentials have not been verified.": "local_configuration_valid",
     "Create server/.env from server/development/.env.sample and add the provider keys.": "provider_key_file_missing",
     "OPENROUTER_API_KEY and GROQ_API_KEY must be set in server/.env.": "provider_key_missing",
+    "Invalid ELEVENLABS_API_KEY format.": "elevenlabs_key_invalid",
+    "Set ELEVENLABS_VOICE_ID to a voice ID in server/.env.": "elevenlabs_voice_id_invalid",
     "Local token directory cannot be a symlink.": "token_directory_symlink",
     "Local session credentials are invalid. Run with --reset-session-token to replace them.": "local_session_invalid",
     "Local session files cannot be symlinks.": "local_session_symlink",

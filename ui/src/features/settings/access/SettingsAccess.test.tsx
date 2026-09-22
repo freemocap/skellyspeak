@@ -10,7 +10,7 @@ vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
   configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
 const verified = { providers: ['OPENROUTER', 'GROQ'].map(provider => ({ provider, state: 'accepted', status: 200, durationMs: 10 })) }
-const access = { customUrlIsUnsavedDefault: false, revision: 7, groqKeyConfigured: true, customKeyConfigured: true,
+const access = { customUrlIsUnsavedDefault: false, revision: 7, groqKeyConfigured: true, elevenlabsKeyConfigured: true, customKeyConfigured: true,
   custom: { baseUrl: 'https://fixture.example/v1', bearerAuth: true } }
 beforeEach(() => {
   useConnectionHealth.setState({ routes: {} })
@@ -271,6 +271,7 @@ it('saves an unsaved URL default once before checking the returned revision', as
 it.each([
   ['openrouter', 'openrouter', 'OpenRouter API key'],
   ['openrouter', 'groq', 'Groq API key'],
+  ['openrouter', 'elevenlabs', 'ElevenLabs API key'],
   ['custom', 'custom', 'Server session token'],
 ] as const)('shows masked saved and replacement credentials for %s/%s', async (route, provider, label) => {
   native.mockImplementation(async (command: string) => {

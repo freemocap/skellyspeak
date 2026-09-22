@@ -17,6 +17,7 @@ from fastapi.responses import JSONResponse
 from server.app.inference import audio_input
 from server.app.inference.audio_contracts import AudioFailure, SynthesisRequest, TranscriptionRequest
 from server.app.inference.elevenlabs import ElevenLabs, synthesis_text
+from server.app.inference.transcription_profiles import bind, MAX_MICROS_PER_HOUR
 from server.app.diagnostics import runtime, observability
 
 _slots = asyncio.Semaphore(8)
@@ -41,22 +42,24 @@ def _model(value, expected):
         raise AudioRejection(400, "AUDIO_MODEL_MISMATCH", f"Select {expected} for this server's audio route.")
 
 
-async def _execute(who, cfg, reserve, settle, amount, invoke):
-    reservation = None
+async def _execute(who, reserve, settle, amount, invoke, *, provider, label, create,
+                   reservation=None, raise_cancelled_unknown=False):
     cost = 0
-    provider_id = "elevenlabs"
+    cancelled = False
+    provider_id = provider
     try:
-        with anyio.CancelScope(shield=True):
-            reservation = await anyio.to_thread.run_sync(partial(reserve, who, amount))
+        if reservation is None:
+            with anyio.CancelScope(shield=True):
+                reservation = await anyio.to_thread.run_sync(partial(reserve, who, amount))
         await anyio.lowlevel.checkpoint()
         async with httpx.AsyncClient(timeout=60) as client:
             cost = None
-            async with runtime.phase("provider", provider="ELEVENLABS"):
+            async with runtime.phase("provider", provider=provider.upper()):
                 try:
-                    result = await invoke(ElevenLabs(client, api_key=cfg.elevenlabs_key))
+                    result = await invoke(create(client))
                 except AudioFailure as error:
                     provider_id = error.receipt.request_id or provider_id
-                    runtime.emit("provider_headers", provider="ELEVENLABS", status=error.status)
+                    runtime.emit("provider_headers", provider=provider.upper(), status=error.status)
                     if error.code == "AUDIO_INPUT_INVALID":
                         cost = 0  # Adapter refused before HTTP submission.
                     if error.code == "AUDIO_NO_SPEECH":
@@ -64,21 +67,30 @@ async def _execute(who, cfg, reserve, settle, amount, invoke):
                     status = 422 if error.code in {"AUDIO_INPUT_INVALID", "AUDIO_NO_SPEECH"} else 502
                     # Preserve the redacted provider reason alongside the fixed HTTP code.
                     suffix = f" (provider HTTP {error.status})" if error.status else ""
-                    code = f"ELEVENLABS_HTTP_{error.status}" if error.status else error.code
+                    code = f"{provider.upper()}_HTTP_{error.status}" if error.status else error.code
                     reason = (error.provider_error or {}).get("message")
                     provider_code = (error.provider_error or {}).get("code", error.code)
-                    detail = f"ElevenLabs {provider_code}{suffix}"
+                    detail = f"{label} {provider_code}{suffix}"
                     if reason:
                         detail += f": {reason}"
                     raise AudioRejection(status, code, detail,
-                                         provider_error=error.provider_error, diagnostics=error.diagnostics) from None
+                                         provider_error=error.provider_error, diagnostics={
+                                             "provider": error.receipt.provider,
+                                             "requested_model": error.receipt.requested_model,
+                                             "request_id": error.receipt.request_id,
+                                             "receipt": error.receipt.diagnostics,
+                                             **(error.diagnostics or {}),
+                                         }) from None
             provider_id = result.receipt.request_id or provider_id
             cost = amount
             return result
+    except asyncio.CancelledError:
+        cancelled = True
+        raise
     finally:
         if reservation is not None:
             await settle(reservation, cost=cost, tokens=0, provider_id=provider_id,
-                         cost_basis="estimate", raise_unknown=False)
+                         cost_basis="estimate", raise_unknown=cancelled and raise_cancelled_unknown)
 
 
 def _usage(result, allowance):
@@ -119,29 +131,46 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
         except (ValueError, UnicodeError):
             raise HTTPException(400, "Invalid speech language variety, model or input limit.") from None
         amount = len(provider_text) * cfg.tts_micros_per_character
-        result = await _execute(who, cfg, reserve, settle, amount, lambda adapter: adapter.synthesize(source))
+        result = await _execute(who, reserve, settle, amount, lambda adapter: adapter.synthesize(source),
+                                provider="elevenlabs", label="ElevenLabs",
+                                create=lambda client: ElevenLabs(client, api_key=cfg.elevenlabs_key))
         return JSONResponse({"version": 1, "audio_base64": base64.b64encode(result.wav).decode(),
                              "format": "wav", "usage": _usage(result, amount)})
 
 
 async def transcribe(request, who, cfg, reserve, settle, read_body):
-    _configured(cfg)
     if _slots.locked():
         raise observability.Rejection("TRANSCRIPTION_BUSY", "Audio is busy. Try again shortly.", retry=5)
     async with _slots:
         content_type = request.headers.get("content-type", "")
         if not content_type.startswith("multipart/form-data"):
             raise HTTPException(400, "Audio must be multipart/form-data.")
-        raw = await read_body(request, 8 * 1024 * 1024, "Recording")
-        audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, raw,
-            content_type=content_type, language_code_width=3))
-        _model(audio.fields["model"], cfg.stt_model)
-        duration = len(audio.pcm) / (2 * audio_input.SAMPLE_RATE)
-        amount = math.ceil(max(10, math.ceil(duration)) * cfg.stt_micros_per_hour / 3600)
-        source = TranscriptionRequest(cfg.stt_model, audio.pcm, audio.fields.get("language"))
-        result = await _execute(who, cfg, reserve, settle, amount, lambda adapter: adapter.transcribe(source))
-        return JSONResponse({"version": 1, "text": result.text,
-            "timing": {"text": result.text, "duration": result.duration_seconds,
-                       "words": [{"word": w.text, "start": w.start, "end": w.end} for w in result.words]},
-            "detected_language": result.detected_language, "language_probability": result.language_probability,
-            "usage": _usage(result, amount)})
+        # Spending admission precedes decoding. A conservative reservation covers either adapter.
+        reservation, transferred = None, False
+        try:
+            maximum = math.ceil(audio_input.MAX_SECONDS * MAX_MICROS_PER_HOUR / 3600)
+            with anyio.CancelScope(shield=True):
+                reservation = await anyio.to_thread.run_sync(partial(reserve, who, maximum))
+            await anyio.lowlevel.checkpoint()
+            raw = await read_body(request, 8 * 1024 * 1024, "Recording")
+            audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, raw,
+                content_type=content_type, language_code_width=3))
+            binding = bind(audio.fields["model"], cfg)
+            language = audio.fields.get("language")
+            if binding.language_code(language) is None:
+                raise AudioRejection(400, "AUDIO_LANGUAGE_REQUIRED", "The selected model requires an explicit supported language tag.")
+            if not binding.configured:
+                raise AudioRejection(503, "AUDIO_NOT_CONFIGURED", f"{binding.label} transcription is not configured on this server.")
+            duration = len(audio.pcm) / (2 * audio_input.SAMPLE_RATE)
+            amount = math.ceil(max(10, math.ceil(duration)) * binding.micros_per_hour / 3600)
+            source = TranscriptionRequest(audio.pcm, language, audio.fields.get("prompt", ""))
+            transferred = True
+            result = await _execute(who, reserve, settle, amount, lambda transcribe: transcribe(source),
+                                    provider=binding.provider, label=binding.label, create=binding.create, reservation=reservation, raise_cancelled_unknown=True)
+            return JSONResponse({"version": 1, "text": result.text,
+                "timing": {"text": result.text, "duration": result.duration_seconds,
+                           "words": [{"word": w.text, "start": w.start, "end": w.end} for w in result.words]} if result.words is not None else None,
+                "usage": _usage(result, amount)})
+        finally:
+            if reservation is not None and not transferred:
+                await settle(reservation, cost=0, tokens=0, provider_id="", cost_basis="estimate", raise_unknown=False)

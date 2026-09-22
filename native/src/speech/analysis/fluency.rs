@@ -1,7 +1,7 @@
 //! Offline timing foundation; not connected to recording receipts or messages.
 //! Local energy regions cross-check provider timing, not linguistic correctness.
 //! Silence-triggered transcription artifacts motivate separate unsupported-word
-//! reporting [@koenecke2024]. Wire fields follow [@groq_transcription_api].
+//! reporting [@koenecke2024]. This module consumes only normalized timing.
 //! No transcript is rewritten by this module.
 use crate::model::AppError;
 use crate::model::ErrorCode;
@@ -21,20 +21,6 @@ pub struct Word {
     pub start: f64,
     pub end: f64,
 }
-#[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
-#[serde(deny_unknown_fields)]
-pub struct Segment {
-    pub id: u32,
-    pub start: f64,
-    pub end: f64,
-    pub text: String,
-    pub avg_logprob: f64,
-    pub no_speech_prob: f64,
-    pub seek: Option<u32>,
-    pub tokens: Option<Vec<u32>>,
-    pub temperature: Option<f64>,
-    pub compression_ratio: Option<f64>,
-}
 /// Provider-independent timing evidence. Confidence diagnostics are separate.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -42,16 +28,6 @@ pub struct TranscriptTiming {
     pub text: String,
     pub duration: f64,
     pub words: Vec<Word>,
-}
-#[derive(Debug, Clone, Serialize, Deserialize)]
-// Provider envelope metadata is ignored; timing objects remain strict.
-pub struct VerboseTranscript {
-    pub text: String,
-    pub duration: f64,
-    pub words: Vec<Word>,
-    pub segments: Vec<Segment>,
-    pub language: Option<String>,
-    pub task: Option<String>,
 }
 #[derive(Debug, Clone, Serialize)]
 pub struct Region {
@@ -113,7 +89,6 @@ pub struct FluencyAnalysis {
     pub original_text: String,
     pub transcript_rewritten: bool,
     pub provider_duration: f64,
-    pub provider_segments: Vec<Segment>,
     pub local: LocalTiming,
     pub words: Vec<AlignedWord>,
     /// Removed from aligned timing only, never removed from original_text.
@@ -129,7 +104,7 @@ fn interval(start: f64, end: f64, limit: f64) -> Result<()> {
     }
     Ok(())
 }
-fn validate_timing(text: &str, duration: f64, words: &[Word]) -> Result<()> {
+pub(crate) fn validate_timing(text: &str, duration: f64, words: &[Word]) -> Result<()> {
     if !duration.is_finite() || duration <= 0.0 || duration > MAX_SECONDS {
         return Err(invalid("recording duration must be in (0,120] seconds."));
     }
@@ -151,74 +126,6 @@ fn validate_timing(text: &str, duration: f64, words: &[Word]) -> Result<()> {
     }
     Ok(())
 }
-fn validate_transcript(value: &VerboseTranscript) -> Result<()> {
-    validate_timing(&value.text, value.duration, &value.words)?;
-    if value.segments.len() > 2_000 {
-        return Err(invalid("transcription exceeds its limits."));
-    }
-    if value
-        .task
-        .as_deref()
-        .is_some_and(|task| task != "transcribe")
-    {
-        return Err(invalid("timings require transcription, not translation."));
-    }
-    if value
-        .language
-        .as_ref()
-        .is_some_and(|s| s.is_empty() || s.len() > 80 || s.contains('\0'))
-    {
-        return Err(invalid("invalid language label."));
-    }
-    let limit = value.duration + ENDPOINT_SPILL_SECONDS;
-    let mut previous_start = 0.0;
-    let mut previous_id = None;
-    for segment in &value.segments {
-        interval(segment.start, segment.end, limit)?;
-        if segment.start < previous_start
-            || previous_id.is_some_and(|id| segment.id <= id)
-            || segment.text.len() > 200_000
-            || segment.text.contains('\0')
-        {
-            return Err(invalid("invalid segment order or text."));
-        }
-        if !segment.avg_logprob.is_finite()
-            || segment.avg_logprob > 0.0
-            || !segment.no_speech_prob.is_finite()
-            || !(0.0..=1.0).contains(&segment.no_speech_prob)
-            || segment
-                .temperature
-                .is_some_and(|v| !v.is_finite() || !(0.0..=2.0).contains(&v))
-            || segment
-                .compression_ratio
-                .is_some_and(|v| !v.is_finite() || v < 0.0)
-            || segment.tokens.as_ref().is_some_and(|v| v.len() > 10_000)
-        {
-            return Err(invalid("invalid segment confidence metadata."));
-        }
-        previous_start = segment.start;
-        previous_id = Some(segment.id);
-    }
-    Ok(())
-}
-/// Explicit verbose contract. Unsupported provider shapes fail; no text-only
-/// fallback can accidentally manufacture timestamp availability. Overlapping word
-/// ends are allowed because clipping those artifacts is part of alignment.
-pub fn parse_verbose_json(raw: &str) -> Result<VerboseTranscript> {
-    if raw.len() > 1_048_576 {
-        return Err(invalid("verbose response is too large."));
-    }
-    let value: VerboseTranscript = serde_json::from_str(raw).map_err(|cause| {
-        crate::diagnostics::response::json_context(
-            &cause,
-            "fluency_decode",
-            invalid("invalid verbose transcription schema."),
-        )
-    })?;
-    validate_transcript(&value)?;
-    Ok(value)
-}
-
 /// Pure PCM16 mono analysis. RMS activity is a noise-adaptive heuristic; regions
 /// are candidates for speech and cannot identify voices or distinguish loud noise.
 pub fn analyze_pcm16(samples: &[i16], sample_rate: u32) -> Result<LocalTiming> {
@@ -301,23 +208,6 @@ pub fn analyze_pcm16(samples: &[i16], sample_rate: u32) -> Result<LocalTiming> {
         ],
     })
 }
-/// Keep provider wording and segment confidence intact. Assign a word to the
-/// first overlapping region and cap it at the next strictly later word start,
-/// preventing a stretched provider endpoint from spanning a locally measured pause.
-pub fn align(transcript: &VerboseTranscript, local: &LocalTiming) -> Result<FluencyAnalysis> {
-    validate_transcript(transcript)?;
-    let mut result = align_timing(
-        &TranscriptTiming {
-            text: transcript.text.clone(),
-            duration: transcript.duration,
-            words: transcript.words.clone(),
-        },
-        local,
-    )?;
-    result.provider_segments = transcript.segments.clone();
-    Ok(result)
-}
-
 pub fn align_timing(transcript: &TranscriptTiming, local: &LocalTiming) -> Result<FluencyAnalysis> {
     validate_timing(&transcript.text, transcript.duration, &transcript.words)?;
     if !local.duration.is_finite() || local.duration <= 0.0 || local.duration > MAX_SECONDS {
@@ -419,7 +309,6 @@ pub fn align_timing(transcript: &TranscriptTiming, local: &LocalTiming) -> Resul
         original_text: transcript.text.clone(),
         transcript_rewritten: false,
         provider_duration: transcript.duration,
-        provider_segments: Vec::new(),
         local: local.clone(),
         words,
         unsupported_words,
@@ -442,8 +331,8 @@ mod tests {
         }
         samples
     }
-    fn transcript(text: &str) -> VerboseTranscript {
-        parse_verbose_json(&json!({"text":text,"duration":3.0,"language":"spanish","task":"transcribe","words":[{"word":text,"start":0.5,"end":1.8},{"word":"second","start":1.5,"end":2.2},{"word":"unsupported","start":3.1,"end":3.3}],"segments":[{"id":0,"start":0.5,"end":3.3,"text":text,"avg_logprob":-0.57,"no_speech_prob":0.75}]}).to_string()).unwrap()
+    fn transcript(text: &str) -> TranscriptTiming {
+        serde_json::from_value(json!({"text":text,"duration":3.0,"words":[{"word":text,"start":0.5,"end":1.8},{"word":"second","start":1.5,"end":2.2},{"word":"unsupported","start":3.1,"end":3.3}]})).unwrap()
     }
     #[test]
     fn silence_noise_and_isolated_clicks_do_not_create_speech_regions() {
@@ -489,7 +378,7 @@ mod tests {
     fn stretched_words_are_clipped_and_unsupported_words_reported_without_rewrite() {
         let timing = analyze_pcm16(&recording(), RATE).unwrap();
         let original = transcript("¿Qué tú haces hoy?");
-        let result = align(&original, &timing).unwrap();
+        let result = align_timing(&original, &timing).unwrap();
         assert_eq!(result.original_text, original.text);
         assert!(!result.transcript_rewritten);
         assert_eq!(result.words.len(), 2);
@@ -502,8 +391,6 @@ mod tests {
         assert_eq!(result.pauses[0].preceding_word, Some(0));
         assert_eq!(result.pauses[0].following_word, Some(1));
         assert_eq!(result.pauses[0].duration, timing.pauses[0].duration);
-        assert_eq!(result.provider_segments[0].avg_logprob, -0.57);
-        assert_eq!(result.provider_segments[0].no_speech_prob, 0.75);
     }
     #[test]
     fn multilingual_wording_and_spacing_are_preserved_character_for_character() {
@@ -513,60 +400,33 @@ mod tests {
             "你好，你在做什么？",
         ] {
             let original = transcript(text);
-            let result = align(&original, &analyze_pcm16(&recording(), RATE).unwrap()).unwrap();
+            let result =
+                align_timing(&original, &analyze_pcm16(&recording(), RATE).unwrap()).unwrap();
             assert_eq!(result.original_text, text);
             assert_eq!(result.words[0].word, text);
-            assert_eq!(result.provider_segments[0].text, text);
         }
     }
     #[test]
-    fn malformed_or_unavailable_provider_timings_fail_explicitly() {
-        let original = serde_json::to_value(transcript("hola")).unwrap();
-        for (path, value) in [
-            ("negative", json!(-0.1)),
-            ("reversed", json!(0.2)),
-            ("excess", json!(8.0)),
-            ("probability", json!(1.1)),
-            ("logprob", json!(0.1)),
-            ("order", json!(0.1)),
-        ] {
-            let mut raw = original.clone();
-            match path {
-                "negative" => raw["words"][0]["start"] = value,
-                "reversed" | "excess" => raw["words"][0]["end"] = value,
-                "probability" => raw["segments"][0]["no_speech_prob"] = value,
-                "logprob" => raw["segments"][0]["avg_logprob"] = value,
-                _ => raw["words"][1]["start"] = value,
-            }
-            assert!(
-                parse_verbose_json(&raw.to_string()).is_err(),
-                "accepted {path}"
-            );
+    fn malformed_timings_fail_explicitly() {
+        for end in [-1.0, 0.2, 8.0, f64::NAN] {
+            let mut value = transcript("hola");
+            value.words[0].end = end;
+            assert!(align_timing(&value, &analyze_pcm16(&recording(), RATE).unwrap()).is_err());
         }
-        assert!(parse_verbose_json(r#"{"text":"text only"}"#).is_err());
-        assert!(parse_verbose_json(&original.to_string().replace("0.5", "1e999")).is_err());
-        let mut raw = original.clone();
-        raw["x_groq"] = json!({"id":"provider-metadata"});
-        assert!(parse_verbose_json(&raw.to_string()).is_ok());
-        raw["words"][0]["unexpected"] = json!(true);
-        assert!(parse_verbose_json(&raw.to_string()).is_err());
-        let mut typed = transcript("hola");
-        typed.words[0].start = f64::NAN;
-        assert!(align(&typed, &analyze_pcm16(&recording(), RATE).unwrap()).is_err());
     }
     #[test]
     fn words_inside_silence_are_unsupported_and_zero_speech_remains_explicit() {
         let timing = analyze_pcm16(&vec![0; RATE as usize * 3], RATE).unwrap();
-        let result = align(&transcript("hola"), &timing).unwrap();
+        let result = align_timing(&transcript("hola"), &timing).unwrap();
         assert!(result.words.is_empty());
         assert_eq!(result.unsupported_words.len(), 3);
         assert_eq!(result.original_text, "hola");
         assert!(result.pauses.is_empty());
         let mut mismatched = transcript("hola");
         mismatched.duration = 10.0;
-        assert!(align(&mismatched, &timing).is_err());
+        assert!(align_timing(&mismatched, &timing).is_err());
         let mut corrupt = timing;
         corrupt.noise_floor_dbfs = f64::NAN;
-        assert!(align(&transcript("hola"), &corrupt).is_err());
+        assert!(align_timing(&transcript("hola"), &corrupt).is_err());
     }
 }

@@ -21,22 +21,29 @@ pub struct SpeechOutcome {
     pub cost_micros: Option<u64>,
     pub finish_reason: Option<String>,
 }
-/// Captured recording input. None leaves language selection to the provider;
-/// it must not disable recording or be replaced with an unrelated language code.
+/// Captured recording input. Language is explicit; adapters never auto-detect silently.
 #[derive(Clone)]
-pub struct TranscriptionInput {
+pub struct TranscriptionRequest {
     pub wav: Vec<u8>,
-    pub language: Option<String>,
-    pub variety_hint: String,
+    pub language: TranscriptionLanguage,
+    pub context: Option<String>,
 }
 
+#[derive(Clone)]
+pub struct TranscriptionLanguage {
+    pub language_id: String,
+    pub variety_id: String,
+    pub language_tag: String,
+}
 #[derive(Debug)]
-pub struct TranscriptionResponse {
+pub struct TranscriptionOutcome {
+    pub result: TranscriptionResult,
     pub diagnostics: Option<serde_json::Value>,
+}
+#[derive(Debug)]
+pub struct TranscriptionResult {
     pub text: String,
     pub timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
-    /// Optional provider-specific evidence for the diagnostic inspector only.
-    pub whisper_segments: Option<Vec<crate::speech::analysis::fluency::Segment>>,
 }
 /// Run the adapter's request validation before admitting a paid attempt.
 /// Provider JSON remains inside the transport boundary.
@@ -66,8 +73,15 @@ pub async fn transcribe(
     client: &reqwest::Client,
     target: &ResolvedTarget,
     key: &str,
-    input: TranscriptionInput,
+    input: TranscriptionRequest,
     install: &str,
-) -> Result<TranscriptionResponse> {
+) -> Result<TranscriptionOutcome> {
     transcription_provider::transcribe(client, target, key, input, install).await
+}
+
+pub fn validate_transcription_language(
+    target: &ResolvedTarget,
+    language: &TranscriptionLanguage,
+) -> Result<()> {
+    transcription_provider::validate_language(target, language).map(|_| ())
 }

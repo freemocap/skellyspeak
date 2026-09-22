@@ -51,7 +51,7 @@ async def probe(client, provider, base_url, key):
 async def check(config):
     async with httpx.AsyncClient(timeout=10) as client:
         checks = [probe(client, 'OPENROUTER', config.openrouter_base_url, config.openrouter_key)]
-        if config.stt_provider == 'groq':
+        if config.groq_key:
             checks.append(probe(client, 'GROQ', config.groq_base_url, config.groq_key))
         if config.elevenlabs_key:
             checks.append(probe(client, 'ELEVENLABS', 'https://api.elevenlabs.io/v1', config.elevenlabs_key))

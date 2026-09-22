@@ -73,6 +73,53 @@ def test_symlink_and_write_failures_are_explicit(tmp_path: Path):
     logs.close()
 
 
+@pytest.mark.parametrize(("setting", "value", "code", "message"), [
+    ("ELEVENLABS_API_KEY", "private short", "elevenlabs_key_invalid",
+     "Invalid ELEVENLABS_API_KEY format."),
+    ("ELEVENLABS_VOICE_ID", "private invalid voice", "elevenlabs_voice_id_invalid",
+     "Set ELEVENLABS_VOICE_ID to a voice ID in server/.env."),
+])
+def test_launcher_configuration_errors_reach_terminal_and_disk(tmp_path, setting, value, code, message):
+    import os
+    import subprocess
+    import sys
+
+    # Exercise SystemExit through the installed stream, using synthetic settings.
+    env_file = tmp_path / ".env"
+    env_file.write_text("")
+    directory = tmp_path.resolve() / "run"
+    environment = os.environ | {
+        "OPENROUTER_API_KEY": "private-test-openrouter-key",
+        "GROQ_API_KEY": "private-test-groq-key",
+        "ELEVENLABS_API_KEY": "private-test-elevenlabs-key",
+        "ELEVENLABS_VOICE_ID": "testVoiceId",
+        "SKELLYSPEAK_LOG_RUN_DIR": str(directory),
+        setting: value,
+    }
+    script = '''
+import sys
+from pathlib import Path
+from server.development import launcher
+launcher.ROOT = Path(sys.argv[1])
+sys.argv = ['launcher', '--check']
+launcher.run()
+'''
+    result = subprocess.run([sys.executable, "-c", script, str(tmp_path)],
+                            cwd=Path(__file__).resolve().parents[3], env=environment,
+                            capture_output=True, text=True, timeout=10)
+    assert result.returncode == 1
+    assert message in result.stderr
+    entries = [json.loads(line)["event"] for line in
+               (directory / "server-stderr.jsonl").read_text().splitlines()]
+    assert any(event.get("code") == code and event.get("message") == message
+               and event.get("contentRedacted") is False for event in entries)
+    assert "private-test" not in result.stdout + result.stderr
+    assert value not in result.stdout + result.stderr
+    for path in directory.glob("*.jsonl"):
+        assert "private-test" not in path.read_text()
+        assert value not in path.read_text()
+
+
 def test_actual_refusal_and_grouped_failure_reasons_survive_redaction():
     for code in ("SHARED_AUTH_DAILY_LIMIT", "SHARED_ACCOUNT_DAILY_LIMIT",
                  "PERSONAL_ACCOUNT_DAILY_LIMIT", "SHARED_DIAGNOSTICS_DAILY_LIMIT",

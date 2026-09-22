@@ -21,10 +21,10 @@ class SynthesisRequest:
 
 @dataclass(frozen=True)
 class TranscriptionRequest:
-    model: str
     # Already decoded by the admission layer: mono signed 16-bit PCM, 16 kHz.
     pcm: bytes = field(repr=False)
-    language_code: str | None = None
+    language_tag: str
+    context: str = field(default="", repr=False)
 
 
 @dataclass(frozen=True)
@@ -55,9 +55,7 @@ class WordTiming:
 class TranscriptionResult:
     text: str = field(repr=False)
     duration_seconds: float
-    words: tuple[WordTiming, ...]
-    detected_language: str | None
-    language_probability: float | None
+    words: tuple[WordTiming, ...] | None
     receipt: AudioReceipt
 
 

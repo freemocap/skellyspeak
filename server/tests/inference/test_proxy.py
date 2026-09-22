@@ -155,7 +155,9 @@ async def test_audio_timestamps_survive_upstream_multipart_and_response(proxy, m
     upload = timing_upload()
     response = await proxy.post("/v1/audio/transcriptions", content=upload.read(), headers={"Content-Type": upload.headers["content-type"]})
     assert response.status_code == 200
-    assert response.json() == payload
+    assert response.json()["text"] == payload["text"]
+    assert response.json()["timing"]["words"] == payload["words"]
+    assert "segments" not in response.json()
 
 
 @pytest.mark.asyncio

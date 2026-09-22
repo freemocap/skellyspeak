@@ -31,7 +31,7 @@ beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
   connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'configured-model', fastModel: 'fast-model', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
-  access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
+  access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, elevenlabsKeyConfigured: false, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
   backend.invoke.mockImplementation(async (name: string, args?: { command: Command }) => {
     if (name === 'get_snapshot') return workspace
     if (name === 'get_connection') return connection

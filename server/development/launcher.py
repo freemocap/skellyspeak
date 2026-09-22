@@ -33,9 +33,6 @@ def load_keys(path: Path) -> dict[str, str]:
         voice = os.environ.get("ELEVENLABS_VOICE_ID", "").strip()
         if not voice or not voice.isascii() or not voice.isalnum():
             raise RuntimeError("Set ELEVENLABS_VOICE_ID to a voice ID in server/.env.")
-    selected = os.environ.get("STT_PROVIDER", "groq")
-    if selected not in {"groq", "elevenlabs"} or (selected == "elevenlabs" and not extra):
-        raise RuntimeError("STT_PROVIDER requires a configured groq or elevenlabs provider.")
     return values
 
 

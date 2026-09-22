@@ -10,7 +10,8 @@ pub struct TranscriptionInspectionResult {
     pub text: String,
     pub inspection: AudioInspection,
     pub audio_base64: String,
-    pub segments: Vec<fluency::Segment>,
+    #[ts(type = "unknown | null")]
+    pub diagnostics: Option<serde_json::Value>,
 }
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]

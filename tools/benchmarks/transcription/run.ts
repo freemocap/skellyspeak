@@ -1,0 +1,18 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
+import { studyDirectory, prepareStudy } from './storage.ts';
+import { createWorkbench } from './server.ts';
+import { keyNames } from './providers.ts';
+import type { Provider } from './experiment.ts';
+const root = fileURLToPath(new URL('.', import.meta.url));
+const port = Number(process.env.TRANSCRIPTION_LAB_PORT ?? 8771);
+if (!Number.isInteger(port) || port < 1024 || port > 65535) throw Error('Invalid TRANSCRIPTION_LAB_PORT');
+const bundle = await build({ entryPoints: [resolve(root, 'client.ts')], bundle: true, write: false, format: 'iife', target: 'es2022' });
+const keys = Object.fromEntries(Object.entries(keyNames).map(([provider, name]) => [provider, process.env[name] ?? ''])) as Record<Provider, string>;
+const directory = studyDirectory();
+prepareStudy(directory);
+const server = createWorkbench(directory, readFileSync(resolve(root, 'view.html'), 'utf8'), bundle.outputFiles[0].text, readFileSync(resolve(root, 'style.css'), 'utf8'), keys, { openrouterKey: process.env.OPENROUTER_API_KEY, elevenlabsVoiceId: process.env.ELEVENLABS_VOICE_ID });
+server.on('error', error => { console.error(`Workbench could not start: ${error.message}`); process.exitCode = 1; });
+server.listen(port, '127.0.0.1', () => console.log(`Transcription workbench: http://127.0.0.1:${port}\nPrivate recordings: ${directory}\nProvider keys stay in process memory. Provider calls occur on explicit read-aloud or comparison requests.`));

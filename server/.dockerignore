@@ -68,3 +68,7 @@ app/diagnostics/admin_assets/*
 !app/inference/decisions.py
 
 !app/diagnostics/policy.py
+
+!app/inference/groq_transcription.py
+
+!app/inference/transcription_profiles.py

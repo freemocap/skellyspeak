@@ -1155,5 +1155,8 @@
   "Uses the selected Fast model to generate structured observations, including exact learner quotes and explanations. The app validates those quotes before accepting evidence.": "使用所选的快速模型生成结构化观察结果，包括学习者的原文引述和解释。应用会先验证这些引文，再接受相关证据。",
   "Both can make incorrect judgments. Probabilities describe assessment outcomes, not learner proficiency. Switching affects future assessments; saved evidence keeps its original source and method.": "两种方法都可能判断错误。概率描述的是评估结果，而非学习者的熟练程度。切换仅影响未来的评估；已保存的证据保留其原始来源和方法。",
   " later conversation turns. Your edited message replaces the original; private coach history is kept.": " 条后续对话。编辑后的消息替换原消息；私人辅导历史记录会保留。",
-  "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "Jev 评估技能问题并返回各类别的概率。随后，所选的快速模型会在你的消息中找出支持判断的原文。应用验证这些引用后才会发放经验值。"
+  "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "Jev 评估技能问题并返回各类别的概率。随后，所选的快速模型会在你的消息中找出支持判断的原文。应用验证这些引用后才会发放经验值。",
+  "ElevenLabs API key": "ElevenLabs API 密钥",
+  "Whisper Large v3 · Groq": "Whisper Large v3 · Groq",
+  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs"
 }

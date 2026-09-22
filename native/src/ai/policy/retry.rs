@@ -1,5 +1,5 @@
 //! Shared bounded retries for explicit provider rate limits, never ambiguous outcomes.
-use crate::ai::audio::{SpeechOutcome, TranscriptionResponse};
+use crate::ai::audio::{SpeechOutcome, TranscriptionOutcome};
 use crate::ai::transport::provider::Completion;
 use crate::model::{AppError, ErrorCode, Result};
 use serde_json::{Value, json};
@@ -86,7 +86,7 @@ impl Metadata for Completion {
         &mut self.diagnostics
     }
 }
-impl Metadata for TranscriptionResponse {
+impl Metadata for TranscriptionOutcome {
     fn diagnostics(&mut self) -> &mut Option<Value> {
         &mut self.diagnostics
     }

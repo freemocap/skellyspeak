@@ -80,3 +80,12 @@ Resume the saved prompt study (offline viewer):
 The [experiment README](benchmarks/conversation-prompts/README.md) records the
 selected Relationship prompt at temperature 1.1, runtime ownership, saved results,
 and how to design and run the next round.
+
+## Transcription experiments
+
+`npm run transcription:lab` opens a local recording/comparison workbench for
+English, Spanish, Levantine Arabic and Mandarin. It preserves recordings and
+compares identical audio across Scribe, Whisper and OpenAI transcription conditions.
+Run `npm run transcription:check` for offline checks. See the
+[workbench guide](benchmarks/transcription/README.md) for keys, pronunciation
+references, recording privacy, experiment controls and current limitations.

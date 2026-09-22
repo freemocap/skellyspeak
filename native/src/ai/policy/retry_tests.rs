@@ -334,18 +334,19 @@ fn recognizes_wrapped_provider_limits_but_not_quota_or_group_replays() {
 #[tokio::test]
 async fn transcription_and_speech_share_the_runner_and_retain_history() {
     let calls = Cell::new(0);
-    let result: Result<TranscriptionResponse> = run(
+    let result: Result<TranscriptionOutcome> = run(
         || {
             calls.set(calls.get() + 1);
             async {
                 if calls.get() == 1 {
                     Err(busy_audio())
                 } else {
-                    Ok(TranscriptionResponse {
+                    Ok(TranscriptionOutcome {
                         diagnostics: Some(json!({"request_id":"success"})),
-                        text: "hello".into(),
-                        timing: None,
-                        whisper_segments: None,
+                        result: crate::ai::audio::TranscriptionResult {
+                            text: "hello".into(),
+                            timing: None,
+                        },
                     })
                 }
             }
@@ -356,7 +357,7 @@ async fn transcription_and_speech_share_the_runner_and_retain_history() {
     .await;
     let result = result.unwrap();
     assert_eq!(calls.get(), 2);
-    assert_eq!(result.text, "hello");
+    assert_eq!(result.result.text, "hello");
     let history = result.diagnostics.unwrap();
     assert_eq!(
         history["automatic_retries"][0]["error"]["diagnostics"]["response"]["diagnostics"]["detail"]

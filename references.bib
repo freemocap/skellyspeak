@@ -981,3 +981,48 @@
   review = {reviewed},
   claim = {Scribe accepts ISO 639-1 or ISO 639-3 language codes. The service forwards the selected language identity as its language_code without a Whisper allowlist.}
 }
+
+@misc{transcription_workbench_apis_20260921,
+  author = {OpenAI},
+  title = {File transcription guide},
+  url = {https://developers.openai.com/api/docs/guides/speech-to-text},
+  review = {reviewed},
+  note = {reviewed 2026-09-21},
+  claim = {Transcription supports Whisper and GPT-4o transcription models, language hints and prompts; the workbench omits answer prompts and compares explicit versus automatic language.}
+}
+
+@misc{qwen_asr_candidate_20260921,
+  author = {Qwen Team},
+  title = {Qwen3 ASR model documentation},
+  url = {https://huggingface.co/docs/transformers/main/model_doc/qwen3_asr},
+  review = {reviewed},
+  note = {reviewed 2026-09-21; candidate only, not locally evaluated},
+  claim = {Qwen3-ASR lists Arabic, Chinese, English and Spanish among supported languages, with additional Chinese dialect coverage. Coverage claims do not establish accuracy on this learner.}
+}
+
+@misc{whisper_finetuning_candidate_20260921,
+  author = {Hugging Face},
+  title = {Fine-Tune Whisper For Multilingual ASR with Transformers},
+  url = {https://huggingface.co/blog/fine-tune-whisper},
+  review = {reviewed},
+  note = {reviewed 2026-09-21; feasibility reference, not an implemented training plan},
+  claim = {Open Whisper models can be fine-tuned on paired multilingual speech/transcript datasets. A small personal evaluation set does not establish a sufficient training corpus.}
+}
+
+@misc{workbench_provider_speech_20260921,
+  author = {OpenRouter},
+  title = {Audio output},
+  url = {https://openrouter.ai/docs/guides/overview/multimodal/audio},
+  review = {reviewed},
+  note = {reviewed 2026-09-21},
+  claim = {Chat audio output uses streaming audio deltas with selected voice and format; the workbench uses the app's PCM16 read-aloud request and validates completion before playback.}
+}
+
+@misc{levantine_sound_drills_20260921,
+  author = {Chris Hitchcock},
+  title = {Brief Introduction to the Sounds of Levantine Arabic},
+  url = {https://www.livingarabic.com/brief-introduction-to-the-sounds-of-levantine-arabic},
+  review = {reviewed},
+  note = {reviewed 2026-09-21; authored exercise set has not been native-speaker validated},
+  claim = {Levantine emphatic and guttural consonants require distinct pronunciation targets; realizations of qaf and interdental consonants vary by word and register. Workbench drills distinguish urban Levantine phrases from explicit formal Arabic drills.}
+}

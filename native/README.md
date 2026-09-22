@@ -190,3 +190,19 @@ validator and speech transport, validate captured connection/workspace authority
 and create no learning credit. Source text and audio remain volatile;
 `reading_attempts` retains content-free diagnostic receipts. Development schema
 25 requires explicit reset of older workspaces.
+
+### Transcription boundary
+
+`ai/audio.rs` owns the provider-neutral request, language identity, result and
+outcome. Recording captures conversation language, previous-message context and
+execution settings once. `ai/transport/` owns language conversion, prompting,
+provider HTTP formats and response decoding. Fluency analysis consumes normalized
+timing only; inspection shows bounded redacted diagnostic metadata separately.
+
+Model selection remains independent of Hosted, Custom URL and API-key access.
+Whisper Large v3 is the new-workspace default. Direct access resolves Groq or
+ElevenLabs credentials from the selected transcription model; service access
+forwards that model unchanged. There is no model or route fallback.
+The ElevenLabs credential slot requires development schema 28. Older workspaces
+are refused without modification and require an explicit reset, per the repository
+policy. No reset is performed by this source change.

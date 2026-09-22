@@ -81,7 +81,7 @@ async def test_cancel_during_reservation_keeps_cleanup_owner(
     assert records(ledger)[0]["status"] == "settled"
     assert records(ledger)[0]["actual_micros"] == 0
     assert quota.read_balance(ledger, "learner", limit=500_000).used == 0
-    assert not main._audio_slots.locked()
+    assert not main.audio_service._slots.locked()
 
 
 @pytest.mark.asyncio
@@ -143,7 +143,7 @@ async def test_cancel_after_submission_keeps_unknown_reservation(
         **kwargs, transport=httpx.MockTransport(upstream)))
     monkeypatch.setattr(main, "_settle", counted)
     monkeypatch.setattr(main.audio_input, "decode_upload", lambda *args, **kwargs:
-                        SimpleNamespace(cost_micros=1, pcm=b"\0\0", fields={"model": "whisper-large-v3"}))
+                        SimpleNamespace(cost_micros=1, pcm=b"\0\0" * 16000, fields={"model": "whisper-large-v3", "language":"en"}))
     who = quota.Principal(user_id="learner", daily_limit=500_000, overridden=False)
     scopes = []
 

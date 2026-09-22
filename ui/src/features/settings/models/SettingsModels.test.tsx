@@ -89,3 +89,21 @@ it('disables Jev selection and explains the retained adapters', async () => {
   Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
   Reflect.deleteProperty(HTMLElement.prototype, 'hidePopover')
 })
+
+it.each(['hosted', 'custom', 'openrouter'])('switches both transcription methods without changing %s access', async route => {
+  let saved = { ...connection, route, audio: { ...connection.audio, transcription: { model: 'whisper-large-v3' } } }
+  native.mockImplementation(async (command, args) => {
+    if (command === 'get_connection') return saved
+    if (command === 'save_models') { saved = { ...saved, ...args, revision: saved.revision + 1 }; return saved }
+    throw new Error(command)
+  })
+  render(<SettingsModels onBusyChange={vi.fn()} onChanged={vi.fn()} />)
+  const select = await screen.findByRole('combobox', { name: 'Model' })
+  expect(screen.getByRole('option', { name: 'Scribe v2 · ElevenLabs' })).toBeEnabled()
+  for (const model of ['scribe_v2', 'whisper-large-v3']) {
+    fireEvent.change(select, { target: { value: model } })
+    await waitFor(() => expect(saved.audio.transcription.model).toBe(model))
+    expect(saved.route).toBe(route)
+  }
+  expect(native.mock.calls.every(([command]) => ['get_connection', 'save_models'].includes(command))).toBe(true)
+})

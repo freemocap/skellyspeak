@@ -4,7 +4,7 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import type { TranscriptionInspectionResult } from '../../../generated/contracts'
 import { useMicRecorder } from './useMicRecorder'
 const transcript: TranscriptionInspectionResult = {
-  text: 'fixture transcript', audioBase64: '', segments: [],
+  text: 'fixture transcript', audioBase64: '', diagnostics: null,
   inspection: { recordingId: 'fixture-recording', conversationId: 'fixture-conversation', duration: 1, sampleRate: 16000,
     waveform: { binSeconds: 0.5, min: [-0.4, -0.2], max: [0.4, 0.2] },
     spectrogram: { frameSeconds: 0.5, frameStartSeconds: [0, 0.5], windowSeconds: 0.025, fftSize: 512, frequencyBinHz: 100, maxFrequencyHz: 200, dbMin: -80, dbMax: 0, bins: [[-60, -30], [-70, -20]] },

@@ -47,7 +47,9 @@
     "localization:test": "npm run localization:check && node --test ui/tools/localization/*.test.ts",
     "localization:check": "tsc -p ui/tools/localization/tsconfig.json",
     "diagnostics:policy": "node tools/diagnostic-policy.ts",
-    "diagnostics:check": "node tools/diagnostic-policy.ts --check"
+    "diagnostics:check": "node tools/diagnostic-policy.ts --check",
+    "transcription:lab": "node --env-file-if-exists=server/local.env tools/benchmarks/transcription/run.ts",
+    "transcription:check": "tsc -p tools/benchmarks/transcription/tsconfig.json && node --test tools/benchmarks/transcription/*.test.ts tools/benchmarks/transcription/dashboard/*.test.ts"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [

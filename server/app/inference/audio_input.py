@@ -45,7 +45,7 @@ def decode_upload(body: bytes, *, content_type: str, language_code_width: int = 
         value = part.get_payload(decode=True)
         if not isinstance(value, bytes) or part.defects or part.is_multipart():
             raise HTTPException(status_code=400, detail="Malformed audio field.")
-        if name != "file" and len(value) > 4096:
+        if name != "file" and len(value) > (80_000 if name == "prompt" else 4096):
             raise HTTPException(status_code=400, detail="Audio metadata is too long.")
         if name == "timestamp_granularities[]":
             if value not in {b"word", b"segment"} or value.decode() in granularities:
@@ -66,7 +66,7 @@ def decode_upload(body: bytes, *, content_type: str, language_code_width: int = 
     # [@groq_transcription_api] Repeated multipart fields carry both granularities.
     if granularities and fields.get("response_format") != "verbose_json":
         raise HTTPException(status_code=400, detail="Timestamp granularities require verbose_json.")
-    if "language" in fields and not re.fullmatch(r"[a-z]{2," + str(language_code_width) + "}", fields["language"]):
+    if "language" in fields and not re.fullmatch(r"[a-z]{2," + str(language_code_width) + "}(?:-[A-Za-z0-9]{1,8})*", fields["language"]):
         raise HTTPException(status_code=400, detail="Audio language code is invalid for the selected provider.")
     if audio.startswith(b"RIFF") and audio[8:12] == b"WAVE":
         container = "wav"

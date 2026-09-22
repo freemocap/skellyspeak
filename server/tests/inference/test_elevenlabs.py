@@ -13,7 +13,7 @@ from server.app.inference.elevenlabs import ElevenLabs, MAX_PCM_BYTES
 
 KEY = "test-elevenlabs-secret"
 SPEECH = SynthesisRequest("eleven_v3", "fixtureVoiceId", "നന്ദി", "ml")
-RECORDING = TranscriptionRequest("scribe_v2", b"\0\0" * 16_000, "ml")
+RECORDING = TranscriptionRequest(b"\0\0" * 16_000, "ml")
 
 
 def transcript():
@@ -51,13 +51,13 @@ async def test_speech_sends_verbatim_source_and_returns_standard_wav():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("language", ["ml", "hi", "ga", "gle", "gd", "ko", "ja", "vi", "id", "tr", "ru", "uk", "chr", None])
+@pytest.mark.parametrize("language", ["ml", "hi", "ga", "gle", "gd", "ko", "ja", "vi", "id", "tr", "ru", "uk", "chr"])
 async def test_transcription_language_is_not_limited_by_whisper(language):
     async def respond(request):
         body = await request.aread()
         assert request.url.path == "/v1/speech-to-text"
         assert b'name="model_id"\r\n\r\nscribe_v2' in body
-        for name, value in [("no_verbatim", "true"), ("tag_audio_events", "false"),
+        for name, value in [("no_verbatim", "false"), ("tag_audio_events", "false"),
                             ("diarize", "false"), ("timestamps_granularity", "word")]:
             assert f'name="{name}"\r\n\r\n{value}'.encode() in body
         assert b'name="prompt"' not in body
@@ -69,14 +69,14 @@ async def test_transcription_language_is_not_limited_by_whisper(language):
             assert f'name="language_code"\r\n\r\n{language}'.encode() in body
         return httpx.Response(200, json=transcript())
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ElevenLabs(client, api_key=KEY).transcribe(replace(RECORDING, language_code=language))
+        result = await ElevenLabs(client, api_key=KEY).transcribe(replace(RECORDING, language_tag=language))
     assert result.text == transcript()["text"]
     assert result.duration_seconds == 1
     assert [word.text for word in result.words] == ["അത്", "നല്ലതാണ്."]
-    assert result.language_probability == 0.87
+    assert result.receipt.diagnostics["response"]["language_probability"] == 0.87
     assert result.receipt.provider == "elevenlabs"
     assert result.receipt.cost_micros is None
-    assert result.receipt.diagnostics["no_verbatim"] is True
+    assert result.receipt.diagnostics["no_verbatim"] is False
 
 
 @pytest.mark.asyncio
@@ -117,7 +117,7 @@ async def test_invalid_audio_retains_receipt_and_unknown_cost(body, media, code)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("change", [
-    {"text": 12}, {"words": None}, {"words": [{"type": "word", "text": "a", "start": 0, "end": 2}]},
+    {"text": 12}, {"words": "invalid"}, {"words": [{"type": "word", "text": "a", "start": 0, "end": 2}]},
     {"words": [{"type": "word", "text": "a", "start": -1, "end": 0.2}]},
     {"words": [{"type": "word", "text": "a", "start": True, "end": 0.2}]},
     {"language_probability": float("nan")}, {"language_code": "malayalam"},
@@ -146,7 +146,7 @@ async def test_silence_is_explicit_and_not_an_invented_transcript_or_zero_charge
 @pytest.mark.asyncio
 @pytest.mark.parametrize("audio_request", [replace(SPEECH, voice_id="../other"), replace(SPEECH, text=" "),
     replace(SPEECH, language_code="mal"), replace(RECORDING, pcm=b"x"),
-    replace(RECORDING, language_code="ml-IN")])
+    replace(RECORDING, language_tag="invalid_language")])
 async def test_input_validation_happens_before_network(audio_request):
     def unexpected(_):
         pytest.fail("Invalid input reached the provider")
@@ -204,7 +204,7 @@ async def test_latin_recognition_is_preserved_as_evidence_not_retranslated():
         result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
     assert result.text == value["text"]
     assert result.words == ()
-    assert result.language_probability == 0.2
+    assert result.receipt.diagnostics["response"]["language_probability"] == 0.2
 
 
 @pytest.mark.asyncio

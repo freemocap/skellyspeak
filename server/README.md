@@ -518,22 +518,28 @@ listening verification with the configured voice. [@elevenlabs_accent_tags_20260
 version 1, base64 mono 24 kHz WAV, and a usage receipt. Existing OpenRouter chat
 routes are unchanged. Direct native API-key routes still use OpenRouter/Groq.
 
-`STT_PROVIDER=elevenlabs` selects Scribe for `/v1/audio/transcriptions` explicitly.
-The default when this setting is absent remains Groq. The ElevenLabs branch
-accepts ISO 639-1/639-3 hints, drops conversational prompting, and returns
-provider-neutral timing without fabricated Whisper segments. It does not silently
-rewrite a low-confidence transcript or retry another provider.
-Scribe uses `no_verbatim=true` to omit fillers and false starts. Receipts record this
-mode; transcript-derived metrics cannot count the omitted disfluencies. [@elevenlabs_non_verbatim]
+Transcription selects its adapter from each request's model, independently of the
+client access route. `whisper-large-v3` is the recommended default; `scribe_v2`
+uses ElevenLabs. Other model identifiers retain the Groq forwarding behavior.
+`STT_PROVIDER`, `STT_MODEL` and `STT_MICROS_PER_HOUR` no longer select or override
+transcription. Existing private environment files do not need to be rewritten.
+
+Every transcription request requires an explicit language tag. Adapters convert
+it to their provider's language field; neither selects automatic detection.
+Both return `{version, text, timing, usage}` with normalized optional word timing.
+Provider metadata remains in the redacted usage receipt. Scribe uses verbatim
+output (`no_verbatim=false`) to preserve learner disfluencies. [@elevenlabs_non_verbatim]
+No automatic provider fallback is performed.
 
 Set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` in the private local environment.
 The public sample uses George (`JBFqnCBsd6RMkjVDRZzb`). Synthesis currently binds
-`eleven_v3`; recognition binds `scribe_v2`. Wrong model selections fail before
-provider submission. The service-wide voice is explicit; it does not map persona
-OpenAI voice names onto invented ElevenLabs equivalents. The model/language/voice
-catalog and direct ElevenLabs credential controls remain later work.
+`eleven_v3`; transcription uses the requested model. Missing provider credentials
+fail before provider submission. The service-wide voice is explicit; it does not map persona
+OpenAI voice names onto invented ElevenLabs equivalents. Direct desktop transcription has separate Groq and ElevenLabs credential controls.
+The voice catalog remains later work.
 
-Audio allowance rates are estimates: 220,000 microdollars/hour of transcription
+Audio allowance rates are estimates: 111,000 microdollars/hour for Whisper Large v3,
+40,000 for Whisper Large v3 Turbo and 220,000 for Scribe transcription
 (with a ten-second minimum) and 100 microdollars per Unicode code point of synthesis
 source. Successful audio ledger rows mark `cost_basis=estimate`; response
 `cost_micros` stays null when no actual charge is reported. This is not an invoice

@@ -655,7 +655,6 @@ pub fn bindings() -> String {
         StarterGreeting::decl(&config),
         LanguagePartner::decl(&config),
         TranscriptionAttempt::decl(&config),
-        crate::speech::analysis::fluency::Segment::decl(&config),
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult::decl(&config),
         crate::speech::analysis::audio_inspection::AudioInspection::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionWaveform::decl(&config),
@@ -1127,6 +1126,7 @@ pub struct AccessSettings {
     pub custom_url_is_unsaved_default: bool,
     pub revision: i32,
     pub groq_key_configured: bool,
+    pub elevenlabs_key_configured: bool,
     pub custom_key_configured: bool,
     pub custom: CustomEndpoint,
 }

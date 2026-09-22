@@ -132,7 +132,7 @@
   /* ── Typography ───────────────────────────────────────────────────────── */
   /* Script faces are range-limited: mixed-language text gets the same fonts in
      every surface without replacing Latin glyphs or depending on the UI locale. */
-  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC';
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
   --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
   --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
   --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
@@ -532,6 +532,49 @@
   font-display: swap;
   src: url(/fonts/skelly-arabic-reading-700.woff2) format('woff2');
   unicode-range: U+0020-0040, U+0600-06FF, U+0750-077F, U+0870-089F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+10EC0-10EFF, U+1EE00-1EEFF;
+}
+
+@font-face {
+  font-family: 'Noto Sans JP';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-jp.woff2) format('woff2');
+  unicode-range: U+2E80-30FF, U+31F0-31FF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF, U+1AFF0-1B16F, U+20000-323AF;
+}
+
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-kr.woff2) format('woff2');
+  unicode-range: U+1100-11FF, U+2E80-303F, U+3130-318F, U+3400-4DBF, U+4E00-9FFF, U+A960-A97F, U+AC00-D7FF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF, U+20000-323AF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Cherokee';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-cherokee.woff2) format('woff2');
+  unicode-range: U+13A0-13FF, U+AB70-ABBF;
+}
+
+/* Han glyph forms follow the language of this text, independently of the chat.
+   Reset at each explicit boundary so a nested Chinese quotation does not inherit
+   a Japanese or Korean face. Latin roles keep their existing owners. */
+:where([lang]) {
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+  --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
+  --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
+}
+:where([lang|="ja"]) {
+  --font-scripts: 'Noto Sans JP', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+}
+:where([lang|="ko"]) {
+  --font-scripts: 'Noto Sans KR', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
 }
 
 /* Standalone server-admin document. Scoped to its body so the learner shell is unaffected. */

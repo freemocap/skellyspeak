@@ -117,7 +117,7 @@ async def test_unauthenticated_requests_cannot_probe_provider_keys(monkeypatch):
 @pytest.mark.parametrize(('stt', 'elevenlabs', 'expected'), [
     ('groq', '', ['OPENROUTER', 'GROQ']),
     ('groq', 'test-key', ['OPENROUTER', 'GROQ', 'ELEVENLABS']),
-    ('elevenlabs', 'test-key', ['OPENROUTER', 'ELEVENLABS']),
+    ('elevenlabs', 'test-key', ['OPENROUTER', 'GROQ', 'ELEVENLABS']),
 ])
 async def test_checks_every_required_provider(stt, elevenlabs, expected, monkeypatch):
     from types import SimpleNamespace

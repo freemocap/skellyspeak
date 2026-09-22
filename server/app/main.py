@@ -31,9 +31,7 @@ if __name__ == "__main__":
     raise SystemExit
 
 import asyncio
-import io
 import math
-import wave
 from collections.abc import AsyncIterator
 from collections.abc import Awaitable, Callable
 import json
@@ -733,58 +731,9 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
     return ReservedStreamResponse(relay(), media_type="text/event-stream")
 
 
-_audio_slots = asyncio.Semaphore(8)
-
-
 @app.post("/v1/audio/transcriptions")
 async def transcriptions(request: Request, who: quota.Principal = Depends(current_user)) -> Response:
-    if CFG.stt_provider == "elevenlabs":
-        return await audio_service.transcribe(request, who, CFG, _reserve, _settle, read_capped_body)
-    if _audio_slots.locked():
-        raise observability.Rejection("TRANSCRIPTION_BUSY", "Transcription is busy. Try again shortly.", retry=5)
-    async with _audio_slots:
-        content_type = request.headers.get("content-type", "")
-        if not content_type.startswith("multipart/form-data"):
-            raise HTTPException(status_code=400, detail="Audio must be multipart/form-data.")
-        reservation: budget.Reservation | None = None
-        cost: int | None = 0
-        execution_error: BaseException | None = None
-        try:
-            with anyio.CancelScope(shield=True):
-                reservation = await anyio.to_thread.run_sync(partial(_reserve, who, audio_input.MAX_COST_MICROS))
-            await anyio.lowlevel.checkpoint()
-            body = await read_capped_body(request, MAX_AUDIO_BYTES, "Recording")
-            audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, body, content_type=content_type))
-            if audio.cost_micros > reservation.micros:
-                raise DiagnosticRuntimeError("Decoded audio exceeds its reserved cost.")
-            output = io.BytesIO()
-            with wave.open(output, "wb") as wav:
-                wav.setnchannels(1)
-                wav.setsampwidth(2)
-                wav.setframerate(audio_input.SAMPLE_RATE)
-                wav.writeframes(audio.pcm)
-            cost = None
-            async with asyncio.timeout(60), httpx.AsyncClient(timeout=60) as client:
-                payload = await provider_json(client,
-                    f"{CFG.groq_base_url}/audio/transcriptions", limit=262144, provider="GROQ",
-                    headers={"Authorization": f"Bearer {CFG.groq_key}"}, data=audio.fields,
-                    files={"file": ("audio.wav", output.getvalue(), "audio/wav")},
-                )
-            cost = audio.cost_micros
-            if not isinstance(payload, dict) or not isinstance(payload.get("text"), str):
-                raise HTTPException(status_code=502, detail="Transcription provider returned invalid text.")
-            return JSONResponse(content=payload)
-        except BaseException as error:
-            execution_error = error
-            raise
-        finally:
-            if reservation is not None:
-                try:
-                    await _settle(reservation, cost=cost, tokens=0, provider_id="groq", cost_basis="estimate")
-                except UsageUnknown:
-                    if not isinstance(execution_error, UpstreamHTTPError):
-                        raise
-
+    return await audio_service.transcribe(request, who, CFG, _reserve, _settle, read_capped_body)
 
 
 class StreamFailure(HTTPException):
@@ -949,8 +898,9 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
             "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
             "accepts_other_text_models": True,
             "decisions": {"version": 1, "models": [decisions.MODEL]},
-            "transcription_model": CFG.stt_model if CFG.stt_provider == "elevenlabs" else "whisper-large-v3",
-            "audio": {"version": 1, "transcription_provider": CFG.stt_provider,
+            "transcription_model": "whisper-large-v3",
+            "audio": {"version": 1, "transcription_provider": "groq",
+                      "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"] + (["scribe_v2"] if CFG.elevenlabs_key else []),
                       "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,
                       "speech_ready": bool(CFG.elevenlabs_key and CFG.elevenlabs_voice_id)}}
     if verify_providers:

@@ -25,8 +25,8 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [connection, setConnection] = useState<ConnectionConfig | null>(null)
   const [access, setAccess] = useState<AccessSettings | null>(null)
   const [endpoint, setEndpoint] = useState<CustomEndpoint | null>(null)
-  const [keys, setKeys] = useState({ openrouter: '', groq: '', custom: '' })
-  const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'custom' | null>(null)
+  const [keys, setKeys] = useState({ openrouter: '', groq: '', elevenlabs: '', custom: '' })
+  const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'elevenlabs' | 'custom' | null>(null)
   const [editingField, setEditingField] = useState(false)
   const [busy, setBusy] = useState(false)
   const [localAvailable, setLocalAvailable] = useState(false)
@@ -34,7 +34,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [status, setStatus] = useState('')
   const [checks, setChecks] = useState<Record<string, 'valid' | 'invalid' | 'checking'>>({})
   const [account, setAccount] = useState<HostedAccount | null>(null)
-  const [removing, setRemoving] = useState<'openrouter' | 'groq' | 'custom' | null>(null)
+  const [removing, setRemoving] = useState<'openrouter' | 'groq' | 'elevenlabs' | 'custom' | null>(null)
   const writing = useRef(false)
   const savedDraft = useRef<{ endpoint: CustomEndpoint } | null>(null)
 
@@ -64,7 +64,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     const saved = savedDraft.current
     if (busy || !saved) return
     setEndpoint(saved.endpoint)
-    setKeys({ openrouter: '', groq: '', custom: '' })
+    setKeys({ openrouter: '', groq: '', elevenlabs: '', custom: '' })
     setDirty(null); setError(null); setStatus('Changes discarded'); setEditingField(false)
   }
 
@@ -75,7 +75,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     catch (error) { setError(message(error)) }
     finally { writing.current = false; setBusy(false) }
   }
-  async function save(provider: 'openrouter' | 'groq' | 'custom', removeKey = false) {
+  async function save(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom', removeKey = false) {
     if (!connection || !access || !endpoint) throw new Error('AI access has not loaded.')
     if (provider === 'openrouter') {
       if (removeKey) await invoke('disconnect', { expectedRevision: connection.revision })
@@ -86,6 +86,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
       await invoke('save_access_settings', {
         expectedRevision: access.revision, custom: provider === 'custom' ? endpoint : null,
         apiKey: removeKey ? null : keys[provider].trim() || null, removeKey,
+        ...(provider === 'elevenlabs' ? { provider } : {}),
       })
     }
     setKeys(current => ({ ...current, [provider]: '' }))
@@ -98,11 +99,11 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     return () => clearTimeout(timer)
   }, [dirty, keys, endpoint, editingField, busy, error])
 
-  function edit(provider: 'openrouter' | 'groq' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
-  async function check(provider: 'openrouter' | 'groq' | 'custom') {
+  function edit(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
+  async function check(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom') {
     if (!connection || !access) throw new Error('AI access has not loaded.')
     let checkedRevision = provider === 'openrouter' ? connection.revision : access.revision
-    if (provider !== 'groq') useConnectionHealth.getState().begin(provider, checkedRevision)
+    if (provider === 'openrouter' || provider === 'custom') useConnectionHealth.getState().begin(provider, checkedRevision)
     setChecks(current => ({ ...current, [provider]: 'checking' }))
     try {
       if (provider === 'openrouter') {
@@ -118,13 +119,13 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
           await onChanged()
         }
         checkedRevision = current.revision
-        const result = await invoke<AccessCheck>('check_access', { expectedRevision: current.revision, custom: provider === 'custom' })
+        const result = await invoke<AccessCheck>('check_access', { expectedRevision: current.revision, custom: provider === 'custom', ...(provider === 'elevenlabs' ? { provider } : {}) })
         if (provider === 'custom') useConnectionHealth.getState().record('custom', current.revision, undefined, result)
       }
       if (provider === 'openrouter') useConnectionHealth.getState().record('openrouter', connection.revision)
       setChecks(current => ({ ...current, [provider]: provider === 'custom' && useConnectionHealth.getState().routes.custom?.status !== 'connected' ? 'invalid' : 'valid' }))
     } catch (error) {
-      if (provider !== 'groq') useConnectionHealth.getState().record(provider, checkedRevision, error)
+      if (provider === 'openrouter' || provider === 'custom') useConnectionHealth.getState().record(provider, checkedRevision, error)
       setChecks(current => ({ ...current, [provider]: 'invalid' }))
       throw error
     }
@@ -145,7 +146,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     }
   }
 
-  function credential(provider: 'openrouter' | 'groq' | 'custom', label: string, configured: boolean) {
+  function credential(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom', label: string, configured: boolean) {
     return <div className="form-row">
       <label htmlFor={`access-${provider}`}>{label}</label>
       <div className="key-row">
@@ -215,6 +216,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     {connection.route === 'openrouter' && <>
       {credential('openrouter', tr('OpenRouter API key'), connection.ownKeyConfigured)}
       {credential('groq', tr('Groq API key'), access.groqKeyConfigured)}
+      {credential('elevenlabs', tr('ElevenLabs API key'), access.elevenlabsKeyConfigured)}
     </>}
     {connection.route === 'custom' && <>
       {localAvailable && <button type="button" className="btn primary access-local-connect" disabled={locked}

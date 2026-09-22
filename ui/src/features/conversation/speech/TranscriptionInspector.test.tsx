@@ -5,7 +5,7 @@ import type { TranscriptionInspectionResult } from '../../../generated/contracts
 import { I18nProvider } from '../../../components/localization/i18n'
 import { TranscriptionInspector } from './TranscriptionInspector'
 const transcript: TranscriptionInspectionResult = {
-  text: 'fixture transcript', audioBase64: '', segments: [],
+  text: 'fixture transcript', audioBase64: '', diagnostics: null,
   inspection: { recordingId: 'fixture-recording', conversationId: 'fixture-conversation', duration: 1, sampleRate: 16000,
     waveform: { binSeconds: 0.5, min: [-0.4, -0.2], max: [0.4, 0.2] },
     spectrogram: { frameSeconds: 0.5, frameStartSeconds: [0, 0.5], windowSeconds: 0.025, fftSize: 512, frequencyBinHz: 100, maxFrequencyHz: 200, dbMin: -80, dbMax: 0, bins: [[-60, -30], [-70, -20]] },
@@ -51,7 +51,7 @@ it('closes through the same explicit dialog action', () => {
 it('seeks the recording from words and scrubber, and exposes segment rather than word confidence', () => {
   const result = structuredClone(transcript)
   result.audioBase64 = 'UklGRg=='
-  result.segments = [{ id: 0, start: 0, end: 1, text: 'Hola', avg_logprob: -0.42, no_speech_prob: 0.01, tokens: [123, 456], seek: null, temperature: null, compression_ratio: null }]
+  result.diagnostics = { segment_evidence: [{ start: 0, end: 1, avg_logprob: -0.42, no_speech_prob: 0.01 }] }
   result.inspection.wordTiming = { status: 'available', reason: null, words: [{ index: 0, word: 'Hola', providerStart: 0.2, providerEnd: 0.8, start: 0.2, end: 0.8, clipped: false }], unsupported: [] }
   const create = vi.fn(() => 'blob:inspection')
   const revoke = vi.fn()
@@ -62,9 +62,9 @@ it('seeks the recording from words and scrubber, and exposes segment rather than
   expect(audio.src).toBe('blob:inspection')
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   expect(audio.currentTime).toBe(0.2)
-  expect(screen.getByText('Segment confidence')).toBeInTheDocument()
-  expect(screen.getByText('-0.420')).toBeInTheDocument()
-  expect(screen.getByText('123, 456')).toBeInTheDocument()
+  expect(screen.getByText('Diagnostics')).toBeInTheDocument()
+  expect(document.querySelector('pre')).toHaveTextContent('avg_logprob')
+  expect(document.querySelector('pre')).toHaveTextContent('-0.42')
   fireEvent.change(screen.getByRole('slider', { name: 'Playback position' }), { target: { value: '0.6' } })
   expect(audio.currentTime).toBe(0.6)
   fireEvent.change(screen.getByRole('slider', { name: 'Zoom' }), { target: { value: '4' } })

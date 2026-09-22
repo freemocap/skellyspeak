@@ -15,7 +15,7 @@ from server.tests.accounting.test_budget import ledger
 
 @pytest.fixture(autouse=True)
 def configured(monkeypatch):
-    monkeypatch.setattr(main, "CFG", replace(main.CFG, stt_provider="elevenlabs",
+    monkeypatch.setattr(main, "CFG", replace(main.CFG,
         elevenlabs_key="test-elevenlabs-key", elevenlabs_voice_id="fixtureVoice"))
 
 

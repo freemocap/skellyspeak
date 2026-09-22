@@ -22,6 +22,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [saved, setSaved] = useState<ConnectionConfig | null>(null)
   const [draft, setDraft] = useState<Models | null>(null)
   const [editing, setEditing] = useState(false)
+  const [customTranscription, setCustomTranscription] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
@@ -76,13 +77,28 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
     </div>)}
     {(['transcription', 'speech'] as const).map(kind => <fieldset key={kind}>
       <legend>{tr(kind === 'transcription' ? 'Transcription model' : 'Read aloud')}</legend>
-      <div className="form-row">
+      {kind === 'transcription' && <div className="form-row">
+        <label htmlFor="transcription-preset">{tr('Model')}</label>
+        <select id="transcription-preset" className="field" disabled={busy}
+          value={!customTranscription && ['whisper-large-v3', 'scribe_v2'].includes(draft.audio.transcription.model) ? draft.audio.transcription.model : 'custom'}
+          onChange={event => {
+            if (event.target.value === 'custom') { setCustomTranscription(true); return }
+            setCustomTranscription(false)
+            setDraft({ ...draft, audio: { ...draft.audio, transcription: { model: event.target.value } } })
+            setEditing(false); setError(null); setStatus('')
+          }}>
+          <option value="whisper-large-v3">{tr('Whisper Large v3 · Groq')}</option>
+          <option value="scribe_v2">{tr('Scribe v2 · ElevenLabs')}</option>
+          <option value="custom">{tr('Customize…')}</option>
+        </select>
+      </div>}
+      {(kind !== 'transcription' || customTranscription || !['whisper-large-v3', 'scribe_v2'].includes(draft.audio.transcription.model)) && <div className="form-row">
         <label htmlFor={`audio-model-${kind}`}>{tr(kind === 'transcription' ? 'Transcription model' : 'Read-aloud model')}</label>
         <input id={`audio-model-${kind}`} className="field" value={draft.audio[kind].model} disabled={busy}
           onFocus={() => setEditing(true)}
           onBlur={() => { setDraft(current => current && ({ ...current, audio: { ...current.audio, [kind]: { ...current.audio[kind], model: current.audio[kind].model.trim() } } })); setEditing(false) }}
           onChange={event => { setDraft({ ...draft, audio: { ...draft.audio, [kind]: { ...draft.audio[kind], model: event.target.value } } }); setError(null); setStatus('') }} />
-      </div>
+      </div>}
     </fieldset>)}
     {dirty && <div className="form-row"><span role="status">{busy ? tr('Saving…') : editing ? tr('Editing — saves when you leave the field') : tr('Unsaved changes')}</span>
       <button className="btn" disabled={busy} onClick={() => { setDraft(saved); setError(null); setEditing(false); setStatus('Changes discarded') }}>{tr('Discard changes')}</button></div>}

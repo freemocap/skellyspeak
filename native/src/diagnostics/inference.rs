@@ -286,7 +286,7 @@ mod tests {
         );
         assert_eq!(event["diagnostics"]["request_id"], "req-preserved");
         assert_eq!(event["error"]["diagnostics"]["path"], "cards[0].quote");
-        let run = temp.path().join("native-1-2");
+        let run = temp.path().canonicalize().unwrap().join("native-1-2");
         let mut sink = super::super::FileSink::open(&run).unwrap();
         sink.append("native", &event).unwrap();
         let path = super::super::archive::save(temp.path(), temp.path()).unwrap();
