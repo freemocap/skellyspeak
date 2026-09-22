@@ -7,12 +7,10 @@ use serde_json::{Value, json};
 
 pub const VERSION: &str = "skill-assessment-2";
 #[derive(Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct Assessment {
     items: Vec<Judgment>,
 }
 #[derive(Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct Judgment {
     construct: String,
     quote: String,
@@ -87,7 +85,7 @@ pub(crate) fn prompt_for_source(source: String, captured: &Value) -> Result<Vec<
     ])
 }
 pub fn validate(db: &Connection, turn: &str, output: &Completion) -> Result<Value> {
-    if output.finish_reason != "stop" || output.text.len() > 8000 {
+    if output.finish_reason == "error" || output.text.len() > 8000 {
         return Err(fail("incomplete or oversized output"));
     }
     let v: Assessment = serde_json::from_str(&output.text).map_err(|cause| {
@@ -97,9 +95,6 @@ pub fn validate(db: &Connection, turn: &str, output: &Completion) -> Result<Valu
             fail("invalid JSON fields"),
         )
     })?;
-    if v.items.len() > 4 {
-        return Err(fail("too many judgments"));
-    }
     let (source,raw):(String,String)=db.query_row("SELECT m.text,t.context FROM messages m JOIN turns t ON t.id=m.turn_id WHERE t.id=?1 AND m.role='user'",[turn],|r|Ok((r.get(0)?,r.get(1)?)))?;
     let captured: Value = serde_json::from_str(&raw)?;
     let criteria = captured["skillCriteria"]
@@ -109,15 +104,11 @@ pub fn validate(db: &Connection, turn: &str, output: &Completion) -> Result<Valu
         if !criteria.iter().any(|c| c["id"] == item.construct) {
             return Err(fail("unknown skill"));
         }
-        if item.quote.trim().is_empty()
-            || item.quote.chars().count() > 300
-            || !source.contains(&item.quote)
-        {
+        if item.quote.trim().is_empty() || !source.contains(&item.quote) {
             return Err(fail("quote does not bind to learner source"));
         }
         if !matches!(item.outcome.as_str(), "demonstrated" | "partial")
             || item.rationale.trim().is_empty()
-            || item.rationale.chars().count() > 300
         {
             return Err(fail("invalid judgment"));
         }

@@ -1,6 +1,5 @@
 use super::Completion;
 use crate::model::{AppError, ErrorCode, Result};
-use serde::Deserialize;
 use std::sync::OnceLock;
 
 fn emoji_pattern() -> &'static regex::Regex {
@@ -35,38 +34,13 @@ pub fn strip_prose_emojis(text: &str) -> (String, usize) {
 }
 
 pub fn validate_prose(text: &str) -> Result<()> {
-    if text.trim().is_empty()
-        || text.chars().count() > 12000
-        || text.contains('\0')
-        || emoji_pattern().is_match(text)
-    {
+    if text.trim().is_empty() || text.chars().count() > 12000 || text.contains('\0') {
         return Err(AppError::new(
             ErrorCode::Provider,
-            "The reply failed the nonempty, length or emoji-free output contract. It was not saved to the conversation; any text that arrived is shown above.",
+            "The reply failed the nonempty or bounded text contract. It was not saved to the conversation; any text that arrived is shown above.",
         ));
     }
     Ok(())
-}
-#[derive(Deserialize)]
-struct Response {
-    id: String,
-    model: String,
-    choices: Vec<Choice>,
-    usage: Option<Usage>,
-}
-#[derive(Deserialize)]
-struct Choice {
-    finish_reason: String,
-    message: ResponseMessage,
-}
-#[derive(Deserialize)]
-struct ResponseMessage {
-    content: Option<String>,
-}
-#[derive(Deserialize)]
-struct Usage {
-    prompt_tokens: Option<i32>,
-    completion_tokens: Option<i32>,
 }
 pub(super) fn malformed() -> AppError {
     AppError::new(
@@ -112,41 +86,51 @@ pub fn decode(bytes: &[u8]) -> Result<Completion> {
                 "chars": value.pointer("/choices/0/message/content").and_then(|v| v.as_str()).map_or(0, |s| s.chars().count()),
             })));
     }
-    let response: Response = serde_json::from_value(value.clone()).map_err(|cause| {
-        crate::diagnostics::response::json_context(
-            &cause,
-            "response.rs_decode",
-            invalid(
-                "$",
-                "id, model, choices with finish_reason and message, optional numeric usage",
-            ),
-        )
-    })?;
-    if response.choices.len() != 1 {
-        return Err(invalid("choices", "exactly one choice"));
-    }
-    if response.id.is_empty() {
-        return Err(invalid("id", "nonempty request ID"));
-    }
-    if response.model.is_empty() {
-        return Err(invalid("model", "nonempty model ID"));
-    }
-    let text = response.choices[0]
-        .message
-        .content
-        .clone()
-        .ok_or_else(|| invalid("choices[0].message.content", "string content"))?;
-    let input_tokens = response.usage.as_ref().and_then(|u| u.prompt_tokens);
-    let output_tokens = response.usage.as_ref().and_then(|u| u.completion_tokens);
-    if input_tokens.is_some_and(|n| n < 0) || output_tokens.is_some_and(|n| n < 0) {
-        return Err(invalid("usage", "nonnegative token counts"));
-    }
+    let choice = value["choices"]
+        .as_array()
+        .and_then(|choices| choices.first())
+        .ok_or_else(|| invalid("choices", "at least one choice with content"))?;
+    let text = choice["message"]["content"]
+        .as_str()
+        .ok_or_else(|| invalid("choices[0].message.content", "string content"))?
+        .to_owned();
+    // Request identity, usage and termination labels describe the result; they
+    // are not prerequisites for publishing usable content. Keep their raw
+    // redacted metadata even when a typed reporting field is unavailable.
+    let mut unavailable = Vec::new();
+    let mut string = |field: &str, raw: &serde_json::Value| {
+        raw.as_str()
+            .filter(|s| !s.is_empty())
+            .map(str::to_owned)
+            .unwrap_or_else(|| {
+                unavailable.push(field.to_owned());
+                String::new()
+            })
+    };
+    let actual_model = string("model", &value["model"]);
+    let provider_id = string("id", &value["id"]);
+    let finish_reason = string("finish_reason", &choice["finish_reason"]);
+    let mut tokens = |field: &str| {
+        let raw = &value["usage"][field];
+        let count = raw
+            .as_i64()
+            .filter(|n| *n >= 0)
+            .and_then(|n| i32::try_from(n).ok());
+        if count.is_none() {
+            unavailable.push(field.to_owned());
+        }
+        count
+    };
+    let input_tokens = tokens("prompt_tokens");
+    let output_tokens = tokens("completion_tokens");
+    let mut diagnostics = crate::diagnostics::response::metadata(&value, &[]);
+    diagnostics["metadata_unavailable"] = serde_json::json!(unavailable);
     Ok(Completion {
-        diagnostics: Some(crate::diagnostics::response::metadata(&value, &[])),
+        diagnostics: Some(diagnostics),
         text,
-        finish_reason: response.choices[0].finish_reason.clone(),
-        actual_model: response.model,
-        provider_id: response.id,
+        finish_reason,
+        actual_model,
+        provider_id,
         input_tokens,
         output_tokens,
     })

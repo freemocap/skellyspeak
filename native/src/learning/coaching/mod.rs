@@ -10,7 +10,6 @@ use crate::model::*;
 use rusqlite::{Connection, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::collections::HashSet;
 use ts_rs::TS;
 /// Candidate observations: uncertain and not_observed do not update the later
 /// estimator; not_demonstrated is negative evidence. Only demonstrated earns XP.
@@ -77,7 +76,6 @@ pub enum ErrorSource {
     Unknown,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ErrorTag {
     pub op: ErrorOp,
     pub category: String,
@@ -89,7 +87,6 @@ pub struct ErrorTag {
     pub metalinguistic: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ObservedItem {
     pub construct: String,
     pub quote: String,
@@ -98,7 +95,6 @@ pub struct ObservedItem {
     pub rationale: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct CoachObservation {
     pub meaning_recovered: MeaningLevel,
     pub items: Vec<ObservedItem>,
@@ -165,7 +161,6 @@ pub enum CoachControl {
     KeepGoing,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct RetryCheck {
     pub repaired: bool,
     pub meaning_recovered: MeaningLevel,
@@ -174,7 +169,6 @@ pub struct RetryCheck {
 
 /// One word chunk of a suggested reply, exactly as the model returned it.
 #[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub struct ReplyToken {
     pub text: String,
     pub gloss: String,
@@ -182,14 +176,12 @@ pub struct ReplyToken {
     pub pronunciation: Option<String>,
 }
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct ReplyOutput {
     text: String,
 }
 /// Tokens are one flat list tagged with their reply's index: providers reject
 /// strict schemas that nest an array inside an array item.
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct TokenOutput {
     reply: usize,
     text: String,
@@ -198,7 +190,6 @@ struct TokenOutput {
     pronunciation: Option<String>,
 }
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 struct SuggestionsOutput {
     replies: Vec<ReplyOutput>,
     tokens: Vec<TokenOutput>,
@@ -389,10 +380,7 @@ fn reply_segments(reply: &str, tokens: &[ReplyToken]) -> Result<Vec<GlossSegment
     }
     Ok(segments)
 }
-fn prose(text: &str, limit: usize, empty: bool) -> Result<()> {
-    if text.chars().count() > limit {
-        return Err(rejected("field_too_long"));
-    }
+fn prose(text: &str, _limit: usize, empty: bool) -> Result<()> {
     if !empty && text.trim().is_empty() {
         return Err(rejected("empty_field"));
     }
@@ -409,7 +397,7 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
         r.get(0)
     })?;
     validate_sources(db, turn, &serde_json::from_str(&captured)?)?;
-    if output.finish_reason != "stop" {
+    if output.finish_reason == "error" {
         return Err(rejected("incomplete_output"));
     }
     if output.text.len() > 32768 {
@@ -423,7 +411,7 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                 rejected("suggestions_schema"),
             )
         })?;
-        if value.replies.is_empty() || value.replies.len() > 2 {
+        if value.replies.is_empty() {
             return Err(rejected("suggestion_count"));
         }
         let mut grouped: Vec<Vec<ReplyToken>> = value.replies.iter().map(|_| Vec::new()).collect();
@@ -440,13 +428,9 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                 pronunciation: token.pronunciation,
             });
         }
-        let mut seen = HashSet::new();
         let mut replies = Vec::with_capacity(value.replies.len());
         for (reply, tokens) in value.replies.into_iter().zip(grouped) {
             prose(&reply.text, 256, false)?;
-            if !seen.insert(reply.text.clone()) {
-                return Err(rejected("duplicate_suggestion"));
-            }
             let segments = reply_segments(&reply.text, &tokens)?;
             replies.push(SuggestedReply {
                 text: reply.text,

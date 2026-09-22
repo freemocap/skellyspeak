@@ -156,7 +156,7 @@ fn cancellation_and_deletion_revoke_late_publication() {
 fn invalid_prose_keeps_usage_and_retry_does_not_duplicate_user_message() {
     let (_dir, mut store, conversation) = setup();
     let dispatch = begin(&mut store, &conversation);
-    store.finish(&dispatch, Ok(reply("🌊"))).unwrap();
+    store.finish(&dispatch, Ok(reply(""))).unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 1);
     assert_eq!(snapshot.turns[0].state, "failed");
@@ -182,15 +182,16 @@ fn invalid_prose_keeps_usage_and_retry_does_not_duplicate_user_message() {
 }
 
 #[test]
-fn truncated_reply_is_not_published_but_usage_is_retained() {
+fn length_limited_reply_is_published_with_usage_and_finish_reason() {
     let (_dir, mut store, conversation) = setup();
     let dispatch = begin(&mut store, &conversation);
     let mut completion = reply("Incomplete sentence");
     completion.finish_reason = "length".into();
     store.finish(&dispatch, Ok(completion)).unwrap();
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
-    assert_eq!(snapshot.messages.len(), 1);
-    assert_eq!(snapshot.turns[0].state, "failed");
+    assert_eq!(snapshot.messages.len(), 2);
+    assert_ne!(snapshot.turns[0].state, "failed");
+    assert_eq!(snapshot.messages[1].text, "Incomplete sentence");
     assert_eq!(snapshot.turns[0].attempts[1].input_tokens, Some(21));
 }
 

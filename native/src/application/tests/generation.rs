@@ -127,7 +127,7 @@ fn rejected_proposals_keep_usage_metadata_and_failed_terminal_writes_do_not_adop
 }
 
 #[test]
-fn non_stop_completion_cannot_publish_a_valid_proposal_but_retains_usage() {
+fn valid_proposal_publishes_independent_of_finish_label_with_usage() {
     for finish in ["length", "content_filter", "tool_calls", ""] {
         let (_directory, app) = generation_app();
         let id = reserve_persona_generation(&app, "spanish".into(), None).unwrap();
@@ -151,11 +151,9 @@ fn non_stop_completion_cannot_publish_a_valid_proposal_but_retains_usage() {
         let outcome =
             generation::accept_completion(&mut app.lock().unwrap(), &run.request, &completed)
                 .map(|_| proposed);
-        let error = finish_persona_generation(&app, &run.request, completed.as_ref().ok(), outcome)
-            .unwrap_err();
-        assert_eq!(error.code, ErrorCode::Provider);
+        finish_persona_generation(&app, &run.request, completed.as_ref().ok(), outcome).unwrap();
         let view = generation_receipts::activity(&app.lock().unwrap().connection).unwrap();
-        assert_eq!(view.attempts[0].state, "failed");
+        assert_eq!(view.attempts[0].state, "succeeded");
         assert_eq!(view.usage.input_tokens, 9);
         assert_eq!(view.usage.output_tokens, 14);
         assert_eq!(view.usage.unknown_usage, 0);

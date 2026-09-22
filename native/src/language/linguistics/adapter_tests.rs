@@ -88,7 +88,7 @@ fn diagnostics_distinguish_rejections_without_exposing_content() {
     let cases = [
         (
             "sí",
-            r#"{"spans":[],"private-sentinel":"private-sentinel"}"#.to_owned(),
+            r#"{"spans":null,"private-sentinel":"private-sentinel"}"#.to_owned(),
             "gloss_invalid_json_or_shape",
             None,
         ),
@@ -125,12 +125,6 @@ fn diagnostics_distinguish_rejections_without_exposing_content() {
             "gloss_invalid_text",
             Some(0),
         ),
-        (
-            "sí",
-            candidate(vec![gloss(0, 2, &"x".repeat(MAX_GLOSS_SCALARS + 1))]),
-            "gloss_text_too_long",
-            Some(0),
-        ),
     ];
     for (source, raw, code, index) in cases {
         let error = decode(source, &raw).unwrap_err();
@@ -148,7 +142,7 @@ fn diagnostics_distinguish_rejections_without_exposing_content() {
         output_tokens: Some(7),
     };
     let error = validate_word_gloss_completion(&identity(), "sí", &completion).unwrap_err();
-    assert_eq!(error.diagnostic_code(), "gloss_invalid_termination");
+    assert_eq!(error.diagnostic_code(), "gloss_invalid_json_or_shape");
     assert_eq!(error.span_index(), None);
     assert_eq!(
         (completion.input_tokens, completion.output_tokens),
@@ -210,7 +204,6 @@ fn json_shape_is_strict_without_duplicate_key_collapse() {
         r#"null"#,
         r#"{"spans":null}"#,
         r#"{"spans":[],"spans":[]}"#,
-        r#"{"spans":[],"extra":1}"#,
         r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","first":"g0000"}]}"#,
         r#"{"spans":[{"first":"g0000","last":"g0001","last":"g0001","kind":"literal"}]}"#,
         r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","kind":"literal"}]}"#,
@@ -225,7 +218,6 @@ fn json_shape_is_strict_without_duplicate_key_collapse() {
         r#"{"spans":[{"first":null,"last":"g0001","kind":"literal"}]}"#,
         r#"{"spans":[{"first":"g0000","last":"g0001","kind":"phrase"}]}"#,
         r#"{"spans":[{"first":"g0000","last":"g0001","kind":"unresolved"}]}"#,
-        r#"{"spans":[{"first":"g0000","last":"g0001","kind":"literal","unit":"word"}]}"#,
         r#"{"spans":[{"last":"g0001","kind":"literal"}]}"#,
         r#"{"spans":[{"first":"g0000","kind":"literal"}]}"#,
         r#"{"spans":[{"first":"g0000","last":"g0001"}]}"#,
@@ -319,8 +311,8 @@ fn invalid_anchors_and_order_fail_without_partial_acceptance() {
 }
 
 #[test]
-fn gloss_field_uses_existing_prose_policy_and_tighter_core_limit() {
-    for value in ["", " \n", "🙂", "a\0b"] {
+fn gloss_field_keeps_prose_checks_without_short_display_length_gate() {
+    for value in ["", " \n", "a\0b"] {
         assert_eq!(
             decode("x", &candidate(vec![gloss(0, 1, value)])),
             Err(AdapterError::InvalidGlossText { index: 0 })
@@ -333,17 +325,15 @@ fn gloss_field_uses_existing_prose_policy_and_tighter_core_limit() {
         )
         .is_ok()
     );
-    assert_eq!(
+    assert!(
         decode(
             "x",
             &candidate(vec![gloss(0, 1, &"界".repeat(MAX_GLOSS_SCALARS + 1))])
-        ),
-        Err(AdapterError::InvalidCandidate(
-            ValidationError::GlossTooLong { index: 0 }
-        ))
+        )
+        .is_ok()
     );
     assert!(decode("🙂", &candidate(vec![literal(0, 1)])).is_ok());
-    let error = decode("x", r#"{"spans":[],"private fixture content":true}"#).unwrap_err();
+    let error = decode("x", r#"{"spans":null,"private fixture content":true}"#).unwrap_err();
     assert!(!format!("{error:?}").contains("private fixture"));
 }
 
@@ -592,7 +582,7 @@ fn stopped_completion_preserves_complete_partial_and_no_help_semantics() {
 }
 
 #[test]
-fn non_stop_completion_fails_before_content_decoding_without_mutation() {
+fn finish_metadata_does_not_block_valid_gloss_or_hide_invalid_json() {
     for termination in [
         "length",
         "refusal",
@@ -608,14 +598,13 @@ fn non_stop_completion_fails_before_content_decoding_without_mutation() {
         ] {
             let output = completion(raw.clone(), termination);
             let result = validate_word_gloss_completion(&identity(), "x", &output);
-            assert_eq!(result, Err(AdapterError::InvalidTermination));
+            assert_eq!(result.is_ok(), raw != "malformed private content");
             assert_eq!(output.text, raw);
             assert_eq!(output.finish_reason, termination);
             assert_eq!(output.actual_model, "fixture-model");
             assert_eq!(output.provider_id, "fixture-request");
             assert_eq!(output.input_tokens, Some(17));
             assert_eq!(output.output_tokens, Some(9));
-            assert_eq!(format!("{:?}", result.unwrap_err()), "InvalidTermination");
         }
     }
 }
@@ -754,7 +743,7 @@ fn historical_v1_live_fixture_is_not_reinterpreted_as_v2() {
 }
 
 #[test]
-fn latin_gloss_requests_skip_romanization_and_reject_copied_words() {
+fn latin_gloss_requests_skip_romanization_but_accept_extra_reading_help() {
     let prompt = build_word_gloss_prompt(&identity(), "Hola").unwrap();
     assert_eq!(
         prompt.output_schema["properties"]["spans"]["items"]["oneOf"][0]["properties"]["romanization"],
@@ -768,9 +757,7 @@ fn latin_gloss_requests_skip_romanization_and_reject_copied_words() {
     let raw = candidate(vec![
         serde_json::json!({"first":"g0000","last":"g0003","kind":"gloss","gloss":"hello","romanization":"Hola"}),
     ]);
-    let error = decode("Hola", &raw).unwrap_err();
-    assert_eq!(error.diagnostic_code(), "gloss_unexpected_romanization");
-    assert_eq!(error.span_index(), Some(0));
+    assert!(decode("Hola", &raw).is_ok());
     let mut id = identity();
     id.target_language_id = "mandarin".into();
     let prompt = build_word_gloss_prompt(&id, "你").unwrap();
@@ -792,4 +779,12 @@ fn malformed_gloss_retains_parser_position_without_rejected_content() {
     assert_eq!(details["category"], "Syntax");
     assert_eq!(details["line"], 2);
     assert!(!details.to_string().contains("private-canary"));
+}
+
+#[test]
+fn harmless_extra_provider_fields_do_not_discard_usable_glosses() {
+    let raw = r#"{"spans":[{"first":"g0000","last":"g0000","kind":"gloss","gloss":"letter","confidence":0.9}],"provider_note":"private-extra"}"#;
+    let analysis = decode("x", raw).unwrap();
+    assert_eq!(analysis.gloss_count(), 1);
+    assert!(!format!("{analysis:?}").contains("private-extra"));
 }

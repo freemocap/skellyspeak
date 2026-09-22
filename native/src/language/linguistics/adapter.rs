@@ -41,9 +41,6 @@ pub enum AdapterError {
     InvalidGlossText {
         index: usize,
     },
-    UnexpectedRomanization {
-        index: usize,
-    },
     Serialization,
 }
 
@@ -80,7 +77,6 @@ impl AdapterError {
             Self::UnsupportedTargetLanguage => "gloss_unsupported_target_language",
             Self::UnsupportedExplanationLanguage => "gloss_unsupported_explanation_language",
             Self::InvalidGlossText { .. } => "gloss_invalid_text",
-            Self::UnexpectedRomanization { .. } => "gloss_unexpected_romanization",
             Self::Serialization => "gloss_serialization",
             Self::InvalidSource(reason)
             | Self::InvalidBoundary { reason, .. }
@@ -103,7 +99,6 @@ impl AdapterError {
                     super::SpanError::UnsafeGraphemeBoundary => "gloss_unsafe_grapheme_boundary",
                 },
                 ValidationError::BlankGloss { .. } => "gloss_blank_text",
-                ValidationError::GlossTooLong { .. } => "gloss_text_too_long",
                 ValidationError::WhitespaceGloss { .. } => "gloss_whitespace_target",
             },
         }
@@ -112,15 +107,12 @@ impl AdapterError {
     /// Zero-based supplied span index when known; never a source offset.
     pub fn span_index(&self) -> Option<usize> {
         match self {
-            Self::UnexpectedRomanization { index }
-            | Self::InvalidBoundary { index, .. }
-            | Self::InvalidGlossText { index } => Some(*index),
+            Self::InvalidBoundary { index, .. } | Self::InvalidGlossText { index } => Some(*index),
             Self::InvalidSource(reason) | Self::InvalidCandidate(reason) => match reason {
                 ValidationError::PhraseRequiresSeparateLayer { index }
                 | ValidationError::OverlapOrUnordered { index }
                 | ValidationError::InvalidSpan { index, .. }
                 | ValidationError::BlankGloss { index }
-                | ValidationError::GlossTooLong { index }
                 | ValidationError::WhitespaceGloss { index } => Some(*index),
                 _ => None,
             },
@@ -139,7 +131,6 @@ pub struct GlossPrompt {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 struct WireResponse {
     spans: BoundedSpans,
 }
@@ -152,7 +143,6 @@ enum Kind {
 }
 
 #[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
 struct WireSpan {
     #[serde(default)]
     romanization: Option<String>,
@@ -243,13 +233,13 @@ pub fn validate_word_gloss_completion(
     source: &str,
     completion: &provider::Completion,
 ) -> Result<ValidatedAnalysis, AdapterError> {
-    if completion.finish_reason != "stop" {
+    if completion.finish_reason == "error" {
         return Err(AdapterError::InvalidTermination);
     }
     decode_word_gloss(identity, source, &completion.text)
 }
 
-/// Decode raw completion content only. Execution must verify stop termination and
+/// Decode raw completion content only. Execution must check provider errors and
 /// captured operation/source authority before calling, and again at publication.
 pub fn decode_word_gloss(
     identity: &SourceIdentity,
@@ -274,7 +264,7 @@ pub fn validate_word_gloss_completion_with_context(
     completion: &provider::Completion,
     context: &crate::configuration::LanguageContext,
 ) -> Result<ValidatedAnalysis, AdapterError> {
-    if completion.finish_reason != "stop" {
+    if completion.finish_reason == "error" {
         return Err(AdapterError::InvalidTermination);
     }
     decode_word_gloss_with_context(identity, source, &completion.text, context)
@@ -294,19 +284,12 @@ fn decode_word_gloss_context(
     let wire = WireResponse::deserialize(&mut decoder).map_err(AdapterError::json)?;
     decoder.end().map_err(AdapterError::json)?;
     let rows = grapheme_rows(&map);
-    let romanization_allowed = supports_romanization(identity, context)?;
     let mut spans = Vec::with_capacity(wire.spans.0.len());
     for (index, item) in wire.spans.0.into_iter().enumerate() {
-        if !romanization_allowed && item.romanization.is_some() {
-            return Err(AdapterError::UnexpectedRomanization { index });
-        }
         for reading in [&item.romanization, &item.pronunciation]
             .into_iter()
             .flatten()
         {
-            if reading.chars().count() > MAX_GLOSS_SCALARS {
-                return Err(AdapterError::InvalidGlossText { index });
-            }
             provider::validate_prose(reading)
                 .map_err(|_| AdapterError::InvalidGlossText { index })?;
         }

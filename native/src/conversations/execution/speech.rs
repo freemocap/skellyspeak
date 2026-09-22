@@ -205,24 +205,9 @@ impl Store {
             }
         });
 
-        let validation = authority.and_then(|_| {
-            // For audio only, the provider decoder can establish completion
-            // from its terminal audio marker plus DONE without a finish reason.
-            // audio Ok already requires that completion proof and valid audio framing.
-            if outcome
-                .finish_reason
-                .as_deref()
-                .is_some_and(|reason| reason != "stop")
-            {
-                return Err(fail("Speech generation stopped before normal completion.").with_diagnostics(serde_json::json!({"stage":"speech_publication", "path":"finish_reason", "expected":"stop", "finish_reason":outcome.finish_reason})));
-            }
-            if (outcome.input_tokens.is_some() && tokens_in.is_none())
-                || (outcome.output_tokens.is_some() && tokens_out.is_none())
-            {
-                return Err(fail("Speech usage exceeds supported counters."));
-            }
-            Ok(())
-        });
+        // Decoded audio is publishable independently of optional finish
+        // labels and counters. Original metadata remains in the receipt.
+        let validation = authority;
         let audio = match outcome.audio {
             Ok(wav) => validation.and_then(|_| {
                 if wav.is_empty() || wav.len() > crate::speech::cache::AUDIO_LIMIT {

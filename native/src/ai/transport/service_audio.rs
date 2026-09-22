@@ -26,22 +26,13 @@ pub(in crate::ai) fn validate(input: &SpeechInput) -> Result<()> {
 }
 
 #[derive(Deserialize)]
-struct Usage {
-    requested_model: String,
-    actual_model: Option<String>,
-    provider: String,
-    request_id: Option<String>,
-    cost_micros: Option<u64>,
-}
-#[derive(Deserialize)]
 struct Response {
     version: u32,
     audio_base64: String,
     format: String,
-    usage: Usage,
 }
 
-fn decode(bytes: &[u8], target: &ResolvedTarget, outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
+fn decode(bytes: &[u8], _target: &ResolvedTarget, outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
     let raw: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
         crate::diagnostics::response::invalid(
             "speech_json",
@@ -66,27 +57,27 @@ fn decode(bytes: &[u8], target: &ResolvedTarget, outcome: &mut SpeechOutcome) ->
             crate::diagnostics::response::invalid(
                 "speech",
                 "$",
-                "version, format, audio_base64 and usage receipt",
+                "version, format and audio_base64",
                 &raw,
             ),
         )
     })?;
-    if value.version != 1
-        || value.format != "wav"
-        || value.usage.requested_model != target.model
-        || value.usage.provider.is_empty()
-        || value.usage.provider.len() > 64
-    {
+    if value.version != 1 || value.format != "wav" {
         return Err(crate::diagnostics::response::invalid(
             "speech",
-            "version/format/usage",
-            "version 1, wav, matching model and provider",
+            "version/format",
+            "version 1, wav",
             &raw,
         ));
     }
-    outcome.actual_model = value.usage.actual_model;
-    outcome.provider_id = value.usage.request_id;
-    outcome.cost_micros = value.usage.cost_micros;
+    // Usage is observability, not an audio decoder prerequisite.
+    outcome.actual_model = raw["usage"]["actual_model"].as_str().map(str::to_owned);
+    outcome.provider_id = raw["usage"]["request_id"].as_str().map(str::to_owned);
+    outcome.cost_micros = raw["usage"]["cost_micros"].as_u64();
+    outcome.diagnostics.as_mut().unwrap()["metadata_unavailable"] = serde_json::json!({
+        "actual_model": outcome.actual_model.is_none(), "request_id":outcome.provider_id.is_none(),
+        "cost_micros":outcome.cost_micros.is_none()
+    });
     let wav = STANDARD.decode(value.audio_base64).map_err(|cause| {
         crate::diagnostics::failures::base64(&cause, "speech_base64", invalid())
     })?;
@@ -247,8 +238,33 @@ mod tests {
                 &target(),
                 &mut outcome
             )
-            .is_err()
+            .is_ok()
         );
+    }
+    #[test]
+    fn playable_audio_does_not_require_a_complete_usage_receipt() {
+        for usage in [
+            serde_json::Value::Null,
+            serde_json::json!("unavailable"),
+            serde_json::json!({"requested_model":"different-model","cost_micros":"unknown"}),
+        ] {
+            let mut value = body();
+            value["usage"] = usage;
+            let mut outcome = SpeechOutcome::empty();
+            assert!(
+                decode(
+                    &serde_json::to_vec(&value).unwrap(),
+                    &target(),
+                    &mut outcome
+                )
+                .is_ok()
+            );
+            assert_eq!(outcome.cost_micros, None);
+            assert_eq!(
+                outcome.diagnostics.as_ref().unwrap()["metadata_unavailable"]["cost_micros"],
+                true
+            );
+        }
     }
     #[tokio::test]
     async fn sends_only_internal_request_with_server_token() {

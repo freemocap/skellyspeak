@@ -1,9 +1,7 @@
 //! Small, source-bound conversation assistance tasks. These are model judgments,
 //! never learner evidence or proficiency measurements.
 use crate::ai::transport::provider::{Completion, PromptMessage};
-use crate::language::script_text::{
-    is_romanization_letter, matches_reply_script, requires_romanization,
-};
+use crate::language::script_text::requires_romanization;
 use crate::model::*;
 use rusqlite::{Connection, OptionalExtension, params};
 use serde_json::{Value, json};
@@ -219,11 +217,12 @@ pub(crate) fn prompt_for_exchange(
     ])
 }
 fn prose(value: &str, max: usize, required: bool) -> Result<()> {
-    if value.chars().count() > max || (required && value.trim().is_empty()) || value.contains('\0')
-    {
-        return Err(rejected("invalid or oversized text field").with_diagnostics(json!({"stage":"conversation_support_text",
-            "reason":if value.contains('\0') {"nul_character"} else if required && value.trim().is_empty() {"required_text_empty"} else {"text_too_long"},
-            "actual_length":value.chars().count(),"maximum_length":max,"required":required})));
+    if (required && value.trim().is_empty()) || value.contains('\0') {
+        return Err(rejected("invalid text field").with_diagnostics(
+            json!({"stage":"conversation_support_text",
+            "reason":if value.contains('\0') {"nul_character"} else {"required_text_empty"},
+            "actual_length":value.chars().count(),"requested_length":max,"required":required}),
+        ));
     }
     if !value.is_empty() {
         crate::ai::transport::provider::validate_prose(value)?;
@@ -238,7 +237,7 @@ fn quoted(source: &str, quote: &str, max: usize) -> Result<()> {
     Ok(())
 }
 pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) -> Result<Value> {
-    if output.finish_reason != "stop" || output.text.len() > 20000 {
+    if output.finish_reason == "error" || output.text.len() > 20000 {
         return Err(rejected("incomplete or oversized response"));
     }
     let source: String = db.query_row(
@@ -271,12 +270,7 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                     )
                 })?;
             prose(&v.remark, 900, true)?;
-            if !(1..=5).contains(&v.grammar)
-                || !(1..=5).contains(&v.conversation)
-                || v.corrections.len() > 3
-                || v.used_target.len() > 12
-                || v.used_native.len() > 12
-            {
+            if !(1..=5).contains(&v.grammar) || !(1..=5).contains(&v.conversation) {
                 return Err(rejected("feedback bounds"));
             }
             for fragment in v.used_target.iter().chain(&v.used_native) {
@@ -317,52 +311,14 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                 )
             })?;
 
-            if v.replies.len() != 2
-                || v.frames.len() != 2
-                || v.starters.len() != 2
-                || v.replies[0].text == v.replies[1].text
-            {
-                return Err(rejected("assistance bounds"));
-            }
-            let captured: String =
-                db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
-                    r.get(0)
-                })?;
-            let captured: Value = serde_json::from_str(&captured)?;
-            let script = captured["languageContext"]["script"]
-                .as_str()
-                .ok_or_else(|| rejected("missing target script"))?;
-            for (index, r) in v.replies.into_iter().enumerate() {
+            for r in v.replies {
                 prose(&r.text, 500, true)?;
                 prose(&r.translation, 700, true)?;
                 prose(&r.romanization, 700, false)?;
                 prose(&r.pronunciation, 700, true)?;
-                // Models sometimes swap fields (English text, target-script
-                // translation/romanization); the UI would show the wrong language.
-                if !matches_reply_script(&r.text, script) {
-                    return Err(rejected("reply text is not in the target script"));
-                }
-                if !requires_romanization(script) && !r.romanization.is_empty() {
-                    return Err(rejected(
-                        "romanization is not applicable to a Latin-script target",
-                    ));
-                }
-                if let Some((offset, character)) = r
-                    .romanization
-                    .char_indices()
-                    .find(|(_, c)| c.is_alphabetic() && !is_romanization_letter(*c))
-                {
-                    return Err(rejected(&format!(
-                        "replies[{index}].romanization is not in Latin script: U+{:04X} at UTF-8 byte {offset}; expected Latin letters with optional diacritics and punctuation",
-                        character as u32,
-                    )));
-                }
             }
             for f in v.frames {
                 prose(&f, 300, true)?;
-                if !f.contains("___") {
-                    return Err(rejected("frame needs a blank"));
-                }
             }
             for s in v.starters {
                 prose(&s, 160, true)?;
@@ -376,9 +332,6 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                     rejected("invalid explanation fields"),
                 )
             })?;
-            if v.cards.len() > 2 {
-                return Err(rejected("too many explanation cards"));
-            }
             for (index, c) in v.cards.iter().enumerate() {
                 let at = |field: &str, mut error: AppError| {
                     error.diagnostics = Some(

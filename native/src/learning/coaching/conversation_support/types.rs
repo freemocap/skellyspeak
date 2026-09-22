@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct ConversationFeedback {
     pub remark: String,
     pub used_target: Vec<String>,
@@ -12,7 +12,6 @@ pub struct ConversationFeedback {
     pub conversation: u8,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ConversationCorrection {
     pub said: String,
     pub corrected: String,
@@ -20,7 +19,6 @@ pub struct ConversationCorrection {
     pub kind: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct AssistedReply {
     pub text: String,
     pub translation: String,
@@ -28,19 +26,16 @@ pub struct AssistedReply {
     pub pronunciation: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ReplyBrief {
     pub explanation: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ReplyAssistance {
     pub replies: Vec<AssistedReply>,
     pub frames: Vec<String>,
     pub starters: Vec<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ReplyExplanation {
     pub quote: String,
     pub title: String,
@@ -49,7 +44,6 @@ pub struct ReplyExplanation {
     pub contrast: String,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(deny_unknown_fields)]
 pub struct ReplyExplanations {
     pub cards: Vec<ReplyExplanation>,
 }

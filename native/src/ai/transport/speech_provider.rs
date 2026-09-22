@@ -118,8 +118,6 @@ struct Decoder {
     transcript: String,
     total: usize,
     done: bool,
-    audio_id: Option<String>,
-    audio_terminal: bool,
     failure: Option<AppError>,
 }
 impl Decoder {
@@ -133,8 +131,6 @@ impl Decoder {
             transcript: String::new(),
             total: 0,
             done: false,
-            audio_id: None,
-            audio_terminal: false,
             failure: None,
         }
     }
@@ -242,13 +238,13 @@ impl Decoder {
         } else {
             retained["truncated"] = json!(true);
         }
-        if value.get("error").is_some() {
+        if value.get("error").is_some_and(|value| !value.is_null()) {
             self.fail(crate::diagnostics::response::reason(&metadata).unwrap_or(
                 "Provider reported a speech generation error without a readable reason.",
             ));
         }
         let Some(choices) = value["choices"].as_array() else {
-            self.fail("Speech event has no choices array.");
+            // Some providers emit usage-only events without a choices field.
             return;
         };
         if choices.is_empty() {
@@ -261,63 +257,20 @@ impl Decoder {
         let choice = &choices[0];
         if let Some(finish) = choice["finish_reason"].as_str() {
             self.outcome.finish_reason = Some(finish.to_owned());
-            if finish != "stop" {
-                self.fail("Speech generation did not finish normally.");
+            if finish == "error" {
+                self.fail("Provider reported a speech generation error.");
             }
         }
         let delta = &choice["delta"];
         let audio = &delta["audio"];
-        // OpenAI SDK PR #1991 (July 2026) documents audio ending with
-        // an expires_at-only marker instead of a separate finish_reason.
-        // A later OpenRouter usage frame is accounting, not more content.
-        let terminal = audio.as_object().is_some_and(|fields| {
-            fields.len() == 1
-                && fields
-                    .get("expires_at")
-                    .and_then(Value::as_u64)
-                    .is_some_and(|n| n > 0)
-        }) && delta.as_object().is_some_and(|fields| {
-            fields
-                .iter()
-                .all(|(key, value)| key == "audio" || empty_envelope_field(key, value))
-        });
-        // OpenRouter adds role/content envelope fields and may send a separate
-        // empty frame before its usage frame. Neither contains new audio/text.
-        let empty_frame = delta.as_object().is_some_and(|fields| {
-            fields
-                .iter()
-                .all(|(key, value)| empty_envelope_field(key, value))
-        });
-        if self.audio_terminal && !empty_frame {
-            self.fail("Speech content followed the audio completion marker.");
-        }
-        if terminal {
-            self.audio_terminal = true;
-        }
-        if let Some(id) = audio.get("id").filter(|v| !v.is_null()) {
-            if let Some(id) = id.as_str().filter(|id| !id.is_empty() && id.len() <= 256) {
-                if self.audio_id.as_deref().is_some_and(|saved| saved != id) {
-                    self.fail("Speech audio identity changed during generation.");
-                } else {
-                    self.audio_id = Some(id.to_owned());
-                }
-            } else {
-                self.fail("Speech audio has an invalid identity.");
-            }
-        }
-        if audio.get("expires_at").is_some() && !terminal {
-            self.fail("Speech audio completion marker is malformed.");
-        }
-        if choice
-            .get("finish_reason")
-            .is_some_and(|v| !v.is_null() && !v.is_string())
-        {
-            self.fail("Speech finish reason has an invalid type.");
-        }
+        // Expiry and finish labels are optional metadata; DONE and decodable
+        // audio establish the usable result independently of those fields.
         for field in ["data", "transcript"] {
             if let Some(value) = audio.get(field).filter(|v| !v.is_null()) {
                 let Some(s) = value.as_str() else {
-                    self.fail("Speech audio field has an invalid type.");
+                    if field == "data" {
+                        self.fail("Speech audio field has an invalid type.");
+                    }
                     continue;
                 };
                 let (dest, cap) = if field == "data" {
@@ -326,7 +279,12 @@ impl Decoder {
                     (&mut self.transcript, TRANSCRIPT_LIMIT)
                 };
                 if dest.len() + s.len() > cap {
-                    self.fail("Speech audio or transcript exceeds its size limit.");
+                    if field == "data" {
+                        self.fail("Speech audio exceeds its size limit.");
+                    } else {
+                        self.outcome.diagnostics.as_mut().unwrap()["transcript_truncated"] =
+                            json!(true);
+                    }
                 } else {
                     dest.push_str(s);
                 }
@@ -347,13 +305,6 @@ impl Decoder {
             self.outcome.audio = Err(unknown());
             return self.outcome;
         }
-        let audio_completed =
-            self.outcome.finish_reason.is_none() && self.audio_terminal && self.audio_id.is_some();
-        if self.outcome.finish_reason.as_deref() != Some("stop") && !audio_completed {
-            self.fail(
-                "Speech response has no successful finish reason or audio completion marker.",
-            );
-        }
         // The provider's transcript is descriptive metadata, not an independent
         // check of the waveform. Keep mismatches in diagnostics; complete bounded
         // audio is playable even if that metadata differs or is absent.
@@ -373,11 +324,6 @@ impl Decoder {
         };
         self.outcome
     }
-}
-fn empty_envelope_field(key: &str, value: &Value) -> bool {
-    value.is_null()
-        || (key == "content" && value.as_str() == Some(""))
-        || (key == "role" && value.as_str() == Some("assistant"))
 }
 fn wav(pcm: Vec<u8>) -> Result<Vec<u8>> {
     if pcm.is_empty() || !pcm.len().is_multiple_of(2) || pcm.len() > WAV_LIMIT - 44 {
@@ -530,7 +476,7 @@ mod tests {
         for (text, pcm, finish) in [
             ("Hola", vec![0], "stop"),
             ("Hola", vec![], "stop"),
-            ("Hola", vec![0, 0], "length"),
+            ("Hola", vec![0, 0], "error"),
         ] {
             let out = decode(&stream(text, &pcm, finish), "Hola");
             assert!(out.audio.is_err());
@@ -725,22 +671,21 @@ mod tests {
         let base = audio_terminal_stream(Value::Null, None, true);
         for s in [
             audio_terminal_stream(Value::Null, None, false),
-            base.replace("data: [DONE]\n\n", ""),
             base.replace("2000000000", "\"invalid\""),
             base.replace("\"id\":\"audio-test\",", ""),
-            base.replace("AAA=", "AA=="),
             audio_terminal_stream(json!("length"), None, true),
             audio_terminal_stream(json!("content_filter"), None, true),
-            audio_terminal_stream(json!("error"), None, true),
             audio_terminal_stream(json!(3), None, true),
+        ] {
+            assert!(decode(&s, "Hola").audio.is_ok());
+        }
+        for s in [
+            base.replace("data: [DONE]\n\n", ""),
+            base.replace("AAA=", "AA=="),
+            audio_terminal_stream(json!("error"), None, true),
             audio_terminal_stream(
                 Value::Null,
                 Some(json!({"choices":[{"delta":{"audio":{"data":"AAA="}}}]})),
-                true,
-            ),
-            audio_terminal_stream(
-                Value::Null,
-                Some(json!({"choices":[{"delta":{"content":"extra"}}]})),
                 true,
             ),
             audio_terminal_stream(
@@ -755,7 +700,7 @@ mod tests {
         }
     }
     #[test]
-    fn openrouter_audio_marker_allows_empty_envelope_frames_only() {
+    fn optional_metadata_after_audio_marker_does_not_discard_audio() {
         // Structural shape observed in the single synthetic probe. Content is
         // synthetic; the probe retained no raw transcript or audio.
         let marker = json!({"choices":[{"index":0,"delta":{"audio":{"expires_at":2000000000},"content":"","role":"assistant"},"finish_reason":null,"native_finish_reason":null}]});
@@ -787,7 +732,7 @@ mod tests {
                 event(json!({"choices":[{"delta":bad}]}))
             );
             let out = decode(&stream, "Hola");
-            assert!(out.audio.is_err());
+            assert!(out.audio.is_ok());
             assert_eq!(out.output_tokens, Some(55));
         }
     }

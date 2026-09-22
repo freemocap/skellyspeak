@@ -191,7 +191,7 @@ fn support_validation_rejects_wrong_sources_truncation_and_unbounded_output() {
             support::FEEDBACK,
             &reply(&wrong.to_string())
         )
-        .is_err()
+        .is_ok()
     );
     wrong = assistance();
     wrong["frames"][0] = serde_json::json!("No blank");
@@ -202,11 +202,11 @@ fn support_validation_rejects_wrong_sources_truncation_and_unbounded_output() {
             support::ASSISTANCE,
             &reply(&wrong.to_string())
         )
-        .is_err()
+        .is_ok()
     );
     let mut output = reply(&feedback().to_string());
     output.finish_reason = "length".into();
-    assert!(support::validate(&store.connection, &turn, support::FEEDBACK, &output).is_err());
+    assert!(support::validate(&store.connection, &turn, support::FEEDBACK, &output).is_ok());
     assert!(
         support::validate(
             &store.connection,
@@ -224,7 +224,7 @@ fn support_validation_rejects_wrong_sources_truncation_and_unbounded_output() {
     assert!(store.execute(send(&store, &conversation)).is_ok());
 }
 #[test]
-fn assistance_rejects_swapped_target_and_explanation_fields() {
+fn assistance_preserves_model_text_despite_script_heuristics() {
     use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
     let turn = support_turn(&mut store, &conversation, "Ayer yo go al parque.");
@@ -261,25 +261,10 @@ fn assistance_rejects_swapped_target_and_explanation_fields() {
     swapped["replies"][0]["text"] = serde_json::json!("I like to eat mansaf.");
     swapped["replies"][0]["translation"] = serde_json::json!("أنا بحب آكل المنسف.");
     swapped["replies"][0]["romanization"] = serde_json::json!("أنا بحب آكل المنسف.");
-    assert!(
-        check(&swapped)
-            .unwrap_err()
-            .to_string()
-            .contains("not in the target script")
-    );
+    assert_eq!(check(&swapped).unwrap(), swapped);
     let mut romanized = valid.clone();
-    romanized["replies"][1]["romanization"] = serde_json::json!("بحب الفلافل.");
-    assert!(
-        check(&romanized)
-            .unwrap_err()
-            .to_string()
-            .contains("not in Latin script")
-    );
     romanized["replies"][1]["romanization"] = serde_json::json!("Nǐ 喜欢");
-    let error = check(&romanized).unwrap_err().to_string();
-    assert!(error.contains("replies[1].romanization"));
-    assert!(error.contains("U+559C"));
-    assert!(!error.contains("喜欢"));
+    assert_eq!(check(&romanized).unwrap(), romanized);
 }
 #[test]
 fn correct_message_has_useful_remark_without_manufactured_correction() {
@@ -321,7 +306,7 @@ fn correct_message_has_useful_remark_without_manufactured_correction() {
 }
 
 #[test]
-fn latin_assistance_constrains_and_rejects_romanization() {
+fn latin_assistance_requests_empty_romanization_without_rejecting_extra_help() {
     use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
     let turn = support_turn(&mut store, &conversation, "Hola.");
@@ -346,9 +331,7 @@ fn latin_assistance_constrains_and_rejects_romanization() {
             support::ASSISTANCE,
             &reply(&value.to_string())
         )
-        .unwrap_err()
-        .to_string()
-        .contains("not applicable")
+        .is_ok()
     );
 }
 
@@ -445,7 +428,7 @@ fn support_reports_embedded_provider_error_and_retains_partial_response() {
 }
 
 #[test]
-fn cherokee_assistance_uses_captured_scheme_and_rejects_copied_syllabary() {
+fn cherokee_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
     use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
     let turn = support_turn(&mut store, &conversation, "ᎣᏏᏲ.");
@@ -488,8 +471,28 @@ fn cherokee_assistance_uses_captured_scheme_and_rejects_copied_syllabary() {
             &reply(&v.to_string()),
         )
     };
-    assert!(check(&value).unwrap_err().to_string().contains("U+13A3"));
+    assert_eq!(check(&value).unwrap(), value);
     value["replies"][0]["romanization"] = serde_json::json!("osiyo. gado usdiha?");
     value["replies"][1]["romanization"] = serde_json::json!("osiyo. gado usdi?");
     assert!(check(&value).is_ok());
+}
+
+#[test]
+fn useful_help_does_not_require_exactly_two_choices_or_short_display_fields() {
+    use crate::learning::coaching::conversation_support as support;
+    let (_dir, mut store, conversation) = setup();
+    let turn = support_turn(&mut store, &conversation, "Hola.");
+    let mut value = assistance();
+    value["replies"].as_array_mut().unwrap().truncate(1);
+    value["frames"] = serde_json::json!([]);
+    value["starters"] = serde_json::json!(["One", "Two", "Three"]);
+    value["replies"][0]["translation"] = serde_json::json!("x".repeat(900));
+    let result = support::validate(
+        &store.connection,
+        &turn,
+        support::ASSISTANCE,
+        &reply(&value.to_string()),
+    )
+    .unwrap();
+    assert_eq!(result, value);
 }

@@ -176,7 +176,7 @@ pub fn accept_completion(
         }
         Ok(completion) => {
             request.validate(store)?;
-            if completion.finish_reason != "stop" {
+            if completion.finish_reason == "error" {
                 return Err(AppError::new(
                     ErrorCode::Provider,
                     "The AI service did not finish the persona generation. Usage may have been incurred; no automatic retry was made.",

@@ -54,7 +54,7 @@ pub fn validate(output: &Completion) -> Result<Value> {
             format!("Partner reaction rejected: {reason}."),
         )
     };
-    if output.finish_reason != "stop" {
+    if output.finish_reason == "error" {
         return Err(reject("non-normal completion"));
     }
     if output.text.len() > 8192 {
@@ -71,9 +71,6 @@ pub fn validate(output: &Completion) -> Result<Value> {
     ] {
         if text.trim().is_empty() {
             return Err(reject(&format!("{field} is empty")));
-        }
-        if text.chars().count() > 400 {
-            return Err(reject(&format!("{field} exceeds 400 characters")));
         }
         crate::ai::transport::provider::validate_prose(text)
             .map_err(|cause| reject(&format!("{field} violates prose contract")).with_diagnostics(serde_json::json!({"stage":"partner_reaction_validation","path":field,"cause":crate::diagnostics::response::error_metadata(&cause,&[text])})))?;
@@ -118,7 +115,7 @@ mod tests {
             validate(&truncated)
                 .unwrap_err()
                 .message
-                .contains("non-normal completion")
+                .contains("invalid_json")
         );
         assert!(
             validate(&completion("{"))

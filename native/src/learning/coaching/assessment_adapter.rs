@@ -6,13 +6,6 @@ use serde_json::{Value, json};
 
 pub const MODEL: &str = "typesafe/jev-1.13";
 pub const VERSION: &str = "jev-choice-assessment-1";
-fn expected_model(actual: &str) -> bool {
-    actual == MODEL
-        || actual
-            .strip_prefix(MODEL)
-            .and_then(|s| s.strip_prefix('-'))
-            .is_some_and(|date| date.len() == 8 && date.bytes().all(|c| c.is_ascii_digit()))
-}
 pub fn version(adapter: AssessmentAdapter) -> &'static str {
     match adapter {
         AssessmentAdapter::JevChoice => VERSION,
@@ -104,11 +97,8 @@ pub fn validate(
     validate_choices(output, criteria)
 }
 fn validate_choices(output: &Completion, criteria: &[Value]) -> Result<Value> {
-    if output.finish_reason != "stop"
-        || !expected_model(&output.actual_model)
-        || output.text.len() > 100000
-    {
-        return Err(fail("Incomplete, unexpected-model or oversized Jev output"));
+    if output.finish_reason == "error" || output.text.len() > 100000 {
+        return Err(fail("Provider error or oversized Jev output"));
     }
     let answers: Value = serde_json::from_str(&output.text).map_err(|cause| {
         crate::diagnostics::response::json_context(

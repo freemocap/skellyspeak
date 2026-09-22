@@ -142,7 +142,6 @@ pub enum ValidationError {
     OverlapOrUnordered { index: usize },
     InvalidSpan { index: usize, reason: SpanError },
     BlankGloss { index: usize },
-    GlossTooLong { index: usize },
     WhitespaceGloss { index: usize },
 }
 
@@ -334,9 +333,6 @@ pub fn validate(
             }
             if gloss.trim().is_empty() {
                 return Err(ValidationError::BlankGloss { index });
-            }
-            if gloss.chars().take(MAX_GLOSS_SCALARS + 1).count() > MAX_GLOSS_SCALARS {
-                return Err(ValidationError::GlossTooLong { index });
             }
             if source_slice.trim().is_empty() {
                 return Err(ValidationError::WhitespaceGloss { index });

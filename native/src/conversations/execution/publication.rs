@@ -156,7 +156,7 @@ impl Store {
         ) && let Ok(output) = &mut result
         {
             let (clean, removed) = crate::ai::transport::provider::strip_prose_emojis(&output.text);
-            if removed > 0 {
+            if removed > 0 && !clean.is_empty() {
                 output.text = clean;
                 let diagnostics = output
                     .diagnostics
@@ -300,7 +300,7 @@ impl Store {
                 Err(fail("Speech requires its media publication validator."))
             }
             Ok(_) if dispatch.gloss_source.is_some() => Err(fail("Unexpected word gloss source.")),
-            Ok(output) if output.finish_reason != "stop" => Err(AppError::new(
+            Ok(output) if output.finish_reason == "error" => Err(AppError::new(
                 ErrorCode::Provider,
                 "Provider did not finish the reply normally. The reply was not saved to the conversation; the text that arrived is shown above.",
             )),

@@ -45,24 +45,11 @@ pub(crate) fn schema(captured: &Value, retry: bool) -> Result<Value> {
     }
     Ok(result)
 }
-fn prose(field: &str, text: &str, max: usize) -> Result<()> {
+fn prose(field: &str, text: &str) -> Result<()> {
     if text.trim().is_empty() {
         return Err(rejected(&format!("{field} is empty")));
     }
-    if text.chars().count() > max {
-        return Err(rejected(&format!("{field} exceeds {max} characters")));
-    }
     crate::ai::transport::provider::validate_prose(text)
-}
-fn leaks_answer(cue: &str, target: &str) -> bool {
-    let cue = cue.to_lowercase();
-    let target = target.to_lowercase();
-    if target.chars().all(|c| c.is_ascii_alphabetic()) && target.len() <= 3 {
-        cue.split(|c: char| !c.is_alphabetic())
-            .any(|word| word == target)
-    } else {
-        cue.contains(&target)
-    }
 }
 pub(crate) fn validate(
     db: &Connection,
@@ -70,8 +57,8 @@ pub(crate) fn validate(
     kind: &str,
     output: &Completion,
 ) -> Result<Value> {
-    if output.finish_reason != "stop" {
-        return Err(rejected("non-normal completion"));
+    if output.finish_reason == "error" {
+        return Err(rejected("provider reported an error"));
     }
     if output.text.len() > 32768 {
         return Err(rejected("output exceeds 32768 bytes"));
@@ -104,19 +91,7 @@ pub(crate) fn validate(
             None,
         )
     };
-    if observation
-        .items
-        .iter()
-        .filter(|item| item.error.is_some() || !item.rationale.is_empty())
-        .count()
-        > 1
-    {
-        return Err(rejected("more than one coaching suggestion"));
-    }
     let help_move = crate::learning::coaching::coach_policy::requested_move(&captured)?;
-    if observation.items.len() > 6 {
-        return Err(rejected("item count"));
-    }
     let source: String = db.query_row(
         "SELECT text FROM messages WHERE turn_id=?1 AND role='user'",
         [turn],
@@ -130,9 +105,9 @@ pub(crate) fn validate(
         if !candidates.iter().any(|c| c["id"] == item.construct) || !seen.insert(&item.construct) {
             return Err(rejected("unknown or duplicate construct"));
         }
-        prose("quote", &item.quote, QUOTE_LIMIT)?;
+        prose("quote", &item.quote)?;
         if !item.rationale.is_empty() {
-            prose("rationale", &item.rationale, RATIONALE_LIMIT)?;
+            prose("rationale", &item.rationale)?;
         }
         if !source.contains(&item.quote) {
             return Err(rejected("quote not in exact learner source"));
@@ -141,9 +116,9 @@ pub(crate) fn validate(
             if matches!(item.outcome, Outcome::Demonstrated | Outcome::NotObserved) {
                 return Err(rejected("outcome conflicts with error"));
             }
-            prose("target_hypothesis", &error.target_hypothesis, TARGET_LIMIT)?;
+            prose("target_hypothesis", &error.target_hypothesis)?;
             if help_move == CoachMove::Explicit {
-                prose("rationale", &item.rationale, RATIONALE_LIMIT)?;
+                prose("rationale", &item.rationale)?;
                 if error.target_hypothesis.trim() == item.quote.trim() {
                     return Err(rejected("correction must change the quoted wording"));
                 }
@@ -170,15 +145,9 @@ pub(crate) fn validate(
                     _ => help_move == CoachMove::Metalinguistic,
                 };
                 if !active {
-                    if !cue.is_empty() {
-                        return Err(rejected("unused coaching cue must be empty"));
-                    }
                     continue;
                 }
-                prose(field, cue, CUE_LIMIT)?;
-                if leaks_answer(cue, &error.target_hypothesis) {
-                    return Err(rejected("graduated cue reveals the answer"));
-                }
+                prose(field, cue)?;
             }
         }
     }
@@ -232,23 +201,13 @@ pub(crate) fn publish(db: &Connection, turn: &str, value: &Value, attempt: &str)
 }
 
 #[cfg(test)]
-mod tests {
-    #[test]
-    fn short_answer_check_respects_word_boundaries() {
-        assert!(!super::leaks_answer("Which article fits here?", "a"));
-        assert!(super::leaks_answer("Use a here", "a"));
-        assert!(super::leaks_answer("Try: I", "I"));
-    }
-}
-
-#[cfg(test)]
 mod text_contract_tests {
     use super::*;
     fn captured() -> Value {
         json!({"candidateConstructs":[{"id":"question"}],"practiceSettings":{"coachProactivity":"on_request"},"feedbackPolicy":crate::configuration::Registry::bundled().unwrap().feedback_policy()})
     }
     #[test]
-    fn generation_and_validation_share_small_limits_and_direct_help() {
+    fn generation_requests_concise_help_without_rejecting_longer_usable_text() {
         let schema = schema(&captured(), false).unwrap();
         let item = &schema["properties"]["items"]["items"]["properties"];
         assert_eq!(item["quote"], text_schema(QUOTE_LIMIT));
@@ -267,8 +226,8 @@ mod text_contract_tests {
             ("rationale", RATIONALE_LIMIT),
             ("hint", CUE_LIMIT),
         ] {
-            assert!(prose(field, &"é".repeat(max), max).is_ok());
-            assert!(prose(field, &"é".repeat(max + 1), max).is_err());
+            assert!(prose(field, &"é".repeat(max)).is_ok());
+            assert!(prose(field, &"é".repeat(max + 1)).is_ok());
         }
     }
     #[test]

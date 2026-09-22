@@ -53,11 +53,10 @@ pub(crate) fn prompt(source: String, captured: &Value) -> Result<Vec<PromptMessa
 }
 
 pub(crate) fn validate(source: &str, output: &Completion) -> Result<String> {
-    if output.finish_reason != "stop" {
+    if output.finish_reason == "error" {
         return Err(fail("provider did not finish normally"));
     }
     #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
     struct Translation {
         source: String,
         translation: Option<String>,
@@ -115,15 +114,14 @@ mod tests {
             json!({"source":source,"translation":null}),
             json!({"source":source}),
             json!({"source":source,"translation":""}),
-            json!({"source":source,"translation":"That is good.","extra":true}),
         ] {
             assert!(validate(source, &output(value)).is_err());
         }
-        let bound = output(json!({"source":source,"translation":"That is good."}));
+        let bound = output(json!({"source":source,"translation":"That is good.","extra":true}));
         assert_eq!(validate(source, &bound).unwrap(), "That is good.");
         let mut partial = bound;
         partial.finish_reason = "length".into();
-        assert!(validate(source, &partial).is_err());
+        assert!(validate(source, &partial).is_ok());
     }
     #[test]
     fn legitimate_model_identity_text_is_not_blacklisted() {

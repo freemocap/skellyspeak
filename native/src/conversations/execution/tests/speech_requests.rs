@@ -339,12 +339,12 @@ fn speech_archive_revokes_dispatch_and_releases_durable_running_slot() {
 }
 
 #[test]
-fn speech_validated_terminal_audio_preserves_absent_finish_and_rejects_bad_finish() {
+fn speech_validated_audio_is_independent_of_finish_metadata() {
     for (finish, audio_valid, published) in [
         (None, true, true),
         (None, false, false),
-        (Some("length"), true, false),
-        (Some("content_filter"), true, false),
+        (Some("length"), true, true),
+        (Some("content_filter"), true, true),
     ] {
         let (_dir, mut store, conversation) = setup();
         let (speech, _) = speech_children(&mut store, &conversation);
@@ -354,6 +354,7 @@ fn speech_validated_terminal_audio_preserves_absent_finish_and_rejects_bad_finis
             Err(fail("Missing terminal audio proof."))
         });
         outcome.finish_reason = finish.map(str::to_owned);
+        outcome.input_tokens = Some(i32::MAX as u64 + 1);
         assert_eq!(
             store.finish_speech(&speech, outcome).unwrap().is_some(),
             published
@@ -377,6 +378,10 @@ fn speech_validated_terminal_audio_preserves_absent_finish_and_rejects_bad_finis
             )
             .unwrap();
         let context: serde_json::Value = serde_json::from_str(&context).unwrap();
+        assert_eq!(
+            context["speechUsageByAttempt"][&speech.attempt]["inputTokens"],
+            serde_json::json!(i32::MAX as u64 + 1)
+        );
         assert_eq!(
             context["speechUsageByAttempt"][&speech.attempt]["finishReason"],
             serde_json::json!(finish)

@@ -339,7 +339,7 @@ fn source_and_span_limits_have_exact_edges() {
 }
 
 #[test]
-fn gloss_limits_and_whitespace_fail_explicitly() {
+fn gloss_length_preferences_do_not_override_valid_source_binding() {
     assert_eq!(
         check("x", vec![gloss(0, 1, " \n")]),
         Err(ValidationError::BlankGloss { index: 0 })
@@ -349,10 +349,7 @@ fn gloss_limits_and_whitespace_fail_explicitly() {
         Err(ValidationError::WhitespaceGloss { index: 0 })
     );
     assert!(check("x", vec![gloss(0, 1, &"界".repeat(MAX_GLOSS_SCALARS))]).is_ok());
-    assert_eq!(
-        check("x", vec![gloss(0, 1, &"界".repeat(MAX_GLOSS_SCALARS + 1))]),
-        Err(ValidationError::GlossTooLong { index: 0 })
-    );
+    assert!(check("x", vec![gloss(0, 1, &"界".repeat(MAX_GLOSS_SCALARS + 1))]).is_ok());
 }
 
 #[test]

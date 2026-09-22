@@ -1,11 +1,15 @@
 use super::*;
 
 #[test]
-fn rejects_emoji_without_stripping_and_accepts_multilingual_text() {
-    for text in ["Hola ☀", "Hello 👨‍👩‍👧", "🇫🇷", "1️⃣", "", " "] {
+fn accepts_readable_prose_independent_of_emoji_preferences() {
+    for text in ["", " "] {
         assert!(validate_prose(text).is_err(), "{text}");
     }
     for text in [
+        "Hola ☀",
+        "Hello 👨‍👩‍👧",
+        "🇫🇷",
+        "1️⃣",
         "¡Hola! ¿Cómo estás?",
         "مرحبا بك",
         "你好，今天怎么样？",
@@ -78,4 +82,34 @@ fn error_after_partial_content_keeps_text_for_inspection_without_retry_classific
         completion.diagnostics.unwrap()["choices"][0]["error"]["code"],
         429
     );
+}
+
+#[test]
+fn usable_text_survives_missing_or_unusable_reporting_metadata() {
+    for usage in [
+        serde_json::Value::Null,
+        serde_json::json!("unknown"),
+        serde_json::json!({"prompt_tokens":-1,"completion_tokens":9_000_000_000u64}),
+    ] {
+        let value =
+            serde_json::json!({"choices":[{"message":{"content":"Usable reply"}}],"usage":usage});
+        let result = decode(&serde_json::to_vec(&value).unwrap()).unwrap();
+        assert_eq!(result.text, "Usable reply");
+        assert_eq!(result.input_tokens, None);
+        assert_eq!(result.output_tokens, None);
+        assert!(result.actual_model.is_empty());
+        assert!(result.provider_id.is_empty());
+        assert!(result.finish_reason.is_empty());
+        let details = result.diagnostics.unwrap();
+        assert!(
+            details["metadata_unavailable"]
+                .as_array()
+                .unwrap()
+                .contains(&serde_json::json!("model"))
+        );
+        assert!(!details.to_string().contains("Usable reply"));
+        if usage.is_object() {
+            assert_eq!(details["usage"]["completion_tokens"], 9_000_000_000u64);
+        }
+    }
 }

@@ -52,7 +52,7 @@ pub fn recover(
     completion: &provider::Completion,
     context: &crate::configuration::LanguageContext,
 ) -> Result<Recovered, AdapterError> {
-    if completion.finish_reason != "stop" {
+    if completion.finish_reason == "error" {
         return Err(AdapterError::InvalidTermination);
     }
     if completion.text.len() > MAX_RESPONSE_BYTES {
@@ -60,7 +60,6 @@ pub fn recover(
     }
     source_map(identity, source, Some(context))?;
     #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
     struct Envelope {
         spans: Vec<UniqueRow>,
     }

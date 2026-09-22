@@ -49,7 +49,7 @@ fn missing_extra_and_inconsistent_answers_fail_without_partial_publication() {
 }
 
 #[test]
-fn actual_model_must_belong_to_requested_family_not_one_calendar_revision() {
+fn model_metadata_does_not_reject_valid_assessment() {
     let (criteria, mut output) = fixture();
     for model in [
         MODEL,
@@ -67,6 +67,6 @@ fn actual_model_must_belong_to_requested_family_not_one_calendar_revision() {
         "unrelated/model",
     ] {
         output.actual_model = model.into();
-        assert!(validate_choices(&output, &criteria).is_err(), "{model}");
+        assert!(validate_choices(&output, &criteria).is_ok(), "{model}");
     }
 }

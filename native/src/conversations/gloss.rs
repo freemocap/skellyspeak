@@ -270,13 +270,12 @@ mod tests {
         assert_eq!(output.output_tokens, Some(4));
     }
     #[test]
-    fn truncated_gloss_explains_the_limit_and_preserves_usage() {
+    fn invalid_gloss_json_preserves_usage_independent_of_finish_label() {
         let mut output = completion();
         output.finish_reason = "length".into();
         output.text = "private incomplete response".into();
         let error = validate(&source(), &output, "operation", "attempt").unwrap_err();
-        assert!(error.message.contains("provider's output limit"));
-        assert!(error.message.contains("gloss_invalid_termination"));
+        assert!(error.message.contains("gloss_invalid_json_or_shape"));
         assert!(!error.message.contains("private"));
         assert_eq!(output.input_tokens, Some(10));
         assert_eq!(output.output_tokens, Some(4));
