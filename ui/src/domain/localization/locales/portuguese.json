@@ -485,7 +485,6 @@
   "Auto-send": "Envio automático",
   "Auto-send transcriptions": "Enviar transcrições automaticamente",
   "Auto-speak tutor replies": "Ler respostas do tutor automaticamente",
-  "Automatically dismiss new XP cards; point icons reopen them": "Dispensar novos cartões de XP automaticamente; os ícones de pontos os reabrem",
   "Beginner": "Iniciante",
   "Custom URL": "URL personalizada",
   "Delete my data": "Excluir meus dados",
@@ -1158,5 +1157,10 @@
   "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "O Jev avalia questões de competências e devolve probabilidades por categoria. O modelo rápido selecionado localiza depois citações de apoio na sua mensagem. A aplicação valida essas citações antes de atribuir XP.",
   "ElevenLabs API key": "Chave de API do ElevenLabs",
   "Whisper Large v3 · Groq": "Whisper Large v3 · Groq",
-  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs"
+  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs",
+  "XP effects": "Efeitos de XP",
+  "Message XP": "XP da mensagem",
+  "Evidence details": "Detalhes das evidências",
+  "Automatically dismiss new XP cards": "Fechar automaticamente os novos cartões de XP",
+  "Show XP cards, progress bars and reward sounds": "Mostrar cartões de XP, barras de progresso e sons de recompensa"
 }

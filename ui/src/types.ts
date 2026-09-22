@@ -43,6 +43,7 @@ export interface Settings {
   text_size: number
   text_spacing: number
   always_pronunciation: boolean
+  xp_effects?: boolean
   fast_mode: boolean
   reward_sounds: import('./platform/audio/reward-sounds').RewardSoundMode
   master_volume: number

@@ -485,7 +485,6 @@
   "Auto-send": "自动发送",
   "Auto-send transcriptions": "自动发送转写",
   "Auto-speak tutor replies": "自动朗读导师回复",
-  "Automatically dismiss new XP cards; point icons reopen them": "自动关闭新经验值卡片；点击分数图标可重新打开",
   "Beginner": "初级",
   "Custom URL": "自定义 URL",
   "Delete my data": "删除我的数据",
@@ -1158,5 +1157,10 @@
   "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "Jev 评估技能问题并返回各类别的概率。随后，所选的快速模型会在你的消息中找出支持判断的原文。应用验证这些引用后才会发放经验值。",
   "ElevenLabs API key": "ElevenLabs API 密钥",
   "Whisper Large v3 · Groq": "Whisper Large v3 · Groq",
-  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs"
+  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs",
+  "XP effects": "经验值效果",
+  "Message XP": "消息经验值",
+  "Evidence details": "证据详情",
+  "Automatically dismiss new XP cards": "自动关闭新的经验值卡片",
+  "Show XP cards, progress bars and reward sounds": "显示经验值卡片、进度条和奖励音效"
 }

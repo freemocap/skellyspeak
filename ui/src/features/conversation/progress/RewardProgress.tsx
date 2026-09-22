@@ -5,7 +5,7 @@ import { domainColors } from '../../../domain/learning/catalog/skill-domains'
 import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
 import type { SkillSnapshot } from '../../../domain/learning/evidence/skills'
 
-export function RewardProgress({ evidence, snapshot, onClose, arrivedIds }: { arrivedIds: string[]; evidence: MessageEvidence[]; snapshot: SkillSnapshot; onClose: () => void }) {
+export function RewardProgress({ evidence, snapshot, onClose, arrivedIds, container, onInspectSkill }: { onInspectSkill?: (skillId: string) => void; container?: Element; arrivedIds: string[]; evidence: MessageEvidence[]; snapshot: SkillSnapshot; onClose: () => void }) {
   const tr = useI18n()
   const rewards = [...new Map(evidence.map(item => [item.id, item])).values()]
   const total = rewards.reduce((sum, item) => sum + item.xp, 0)
@@ -18,16 +18,16 @@ export function RewardProgress({ evidence, snapshot, onClose, arrivedIds }: { ar
   })
   useEffect(() => {
     if (rewards.some(item => !arrivedIds.includes(item.id))) return
-    const close = window.setTimeout(onClose, 2400)
+    const close = window.setTimeout(onClose, 1600)
     return () => window.clearTimeout(close)
   }, [onClose, arrivedIds, evidence])
   return createPortal(<aside className="reward-progress-toast" role="status" aria-label={tr("XP saved")}>
     <strong>+{tr.number(total)} {tr(" XP · ")}{tr.number(snapshot.profile.xp)} {tr(" XP total")}</strong>
-    {skills.map(skill => <div key={skill.skillId} data-mobile-reward-skill={skill.skillId} style={{ color: domainColors(skill.domainId).bright }}>
-      <div className="reward-progress-heading"><span>{tr(skill.label)}</span><span>{tr.number(skill.xp)} {tr(" XP")}</span></div>
-      <div className="reward-progress-track" role="progressbar" aria-label={tr("{value0} practice XP", { value0: tr(skill.label) })} aria-valuemin={0} aria-valuemax={50} aria-valuenow={skill.xp % 50} aria-valuetext={tr('{value0} XP; next milestone {value1}', { value0: skill.xp, value1: (Math.floor(skill.xp / 50) + 1) * 50 })}>
+    <div className="reward-progress-skills">{skills.map(skill => <div key={skill.skillId} data-mobile-reward-skill={skill.skillId} style={{ color: domainColors(skill.domainId).bright }}>
+      <div className="reward-progress-heading">{onInspectSkill ? <button type="button" aria-haspopup="dialog" onClick={() => onInspectSkill(skill.skillId)}>{tr(skill.label)}</button> : <span>{tr(skill.label)}</span>}<span>{tr.number(skill.xp)} {tr(" XP")}</span></div>
+      <div className="reward-progress-track" onClick={onInspectSkill ? () => onInspectSkill(skill.skillId) : undefined} role="progressbar" aria-label={tr("{value0} practice XP", { value0: tr(skill.label) })} aria-valuemin={0} aria-valuemax={50} aria-valuenow={skill.xp % 50} aria-valuetext={tr('{value0} XP; next milestone {value1}', { value0: skill.xp, value1: (Math.floor(skill.xp / 50) + 1) * 50 })}>
         <span style={{ width: `${(Math.max(0, skill.xp - skill.pending) % 50) / 50 * 100}%` }} />
       </div>
-    </div>)}
-  </aside>, document.body)
+    </div>)}</div>
+  </aside>, container ?? document.body)
 }

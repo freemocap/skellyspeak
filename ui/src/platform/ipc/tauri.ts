@@ -111,7 +111,7 @@ export async function getSettings(): Promise<Settings> {
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
     theme: preferences.theme ?? 'light', appearance: preferences.appearance, auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
     // Unsupported controls are disabled. These presentation values confer no runtime capability.
-    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode,
+    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode, xp_effects: rewards.effectsEnabled,
     reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
     tts_rate: playbackRate, shortcuts: { ...SHORTCUT_DEFAULTS },
   }
@@ -161,7 +161,7 @@ async function writeSettings(settings: Settings): Promise<void> {
   if (conversation.settingsRevision !== scope.settingsRevision) throw new Error('Settings changed. Reload before saving.')
   if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
   if (settings.microphone_device_id !== null || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
-  const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
+  const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, effectsEnabled: settings.xp_effects !== false, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
   const currentRewards = await invoke<RewardSettings>('get_reward_settings')
   if (JSON.stringify(rewards) !== JSON.stringify(currentRewards)) await invoke('save_reward_settings', { settings: rewards })
   const currentRate = await invoke<number>('get_playback_rate')

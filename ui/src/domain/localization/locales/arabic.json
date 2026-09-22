@@ -485,7 +485,6 @@
   "Auto-send": "إرسال تلقائي",
   "Auto-send transcriptions": "إرسال النصوص المفرغة تلقائياً",
   "Auto-speak tutor replies": "قراءة ردود المعلم تلقائياً",
-  "Automatically dismiss new XP cards; point icons reopen them": "إخفاء بطاقات الخبرة الجديدة تلقائياً؛ تعيد رموز النقاط فتحها",
   "Beginner": "مبتدئ",
   "Custom URL": "رابط مخصص",
   "Delete my data": "حذف بياناتي",
@@ -1158,5 +1157,10 @@
   "Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.": "يقيّم Jev أسئلة المهارات ويعيد احتمالات الفئات. ثم يحدد النموذج السريع المختار اقتباسات داعمة في رسالتك. يتحقق التطبيق من هذه الاقتباسات قبل إضافة نقاط الخبرة.",
   "ElevenLabs API key": "مفتاح API لـ ElevenLabs",
   "Whisper Large v3 · Groq": "Whisper Large v3 · Groq",
-  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs"
+  "Scribe v2 · ElevenLabs": "Scribe v2 · ElevenLabs",
+  "XP effects": "تأثيرات نقاط الخبرة",
+  "Message XP": "نقاط خبرة الرسالة",
+  "Evidence details": "تفاصيل الأدلة",
+  "Automatically dismiss new XP cards": "إغلاق بطاقات نقاط الخبرة الجديدة تلقائيًا",
+  "Show XP cards, progress bars and reward sounds": "عرض بطاقات نقاط الخبرة وأشرطة التقدم وأصوات المكافآت"
 }

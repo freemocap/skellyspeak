@@ -225,3 +225,13 @@ it('offers an enabled onboarding restart in language settings', async () => {
   await waitFor(() => expect(restart).toHaveBeenCalledOnce())
   await waitFor(() => expect(close).toHaveBeenCalledOnce())
 })
+
+it('saves the XP effects switch without changing the sound preference or voice volume', async () => {
+  render(<SettingsModal onClose={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'XP effects' } })
+  const toggle = screen.getByRole('checkbox', { name: 'XP effects' })
+  expect(toggle).toBeEnabled()
+  expect(toggle).toBeChecked()
+  fireEvent.click(toggle)
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ xp_effects: false, reward_sounds: 'follow_tts', voice_volume: 100 }), expect.any(Object)))
+})

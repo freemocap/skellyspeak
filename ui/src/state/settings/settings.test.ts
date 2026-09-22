@@ -142,3 +142,13 @@ it('a store reset invalidates pending reads', async () => {
   await old
   expect(useSettingsStore.getState().settings).toBeNull()
 })
+
+
+it.each([true, false, undefined])('toggles saved XP effects from %s through the shared preference writer', async initial => {
+  const current = record({ xp_effects: initial })
+  const saved = record({ xp_effects: initial === false })
+  native.get.mockResolvedValueOnce(current).mockResolvedValue(saved)
+  await useSettingsStore.getState().setPreference('xp_effects')
+  expect(native.save).toHaveBeenCalledWith({ ...current, xp_effects: initial === false }, current)
+  expect(useSettingsStore.getState().settings).toEqual(saved)
+})

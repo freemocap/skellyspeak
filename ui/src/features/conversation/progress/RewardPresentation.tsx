@@ -1,3 +1,4 @@
+import { XpEvidenceReport } from './XpEvidenceReport'
 import { useI18n } from '../../../components/localization/i18n'
 import { playRewardSound } from '../../../platform/audio/reward-sounds'
 import { animateRewardTrails } from '../../../domain/rewards/reward-trails'
@@ -14,8 +15,9 @@ import { pulseRewardDomain } from '../../../domain/rewards/reward-pulse'
 
 type Presentation = { milestone?: number; key: number; ids: string[]; messageId: number; source: string; phase: 'waiting' | 'opening' | 'hovering' | 'departing'; origin: DOMRect | null; automatic: boolean; startAt: number; gains: Record<string, number> }
 
-export function RewardPresentationProvider({ children, workspace, chatId, active, fastMode }: { fastMode: boolean; children: ReactNode; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; active: boolean }) {
+export function RewardPresentationProvider({ children, workspace, chatId, active, fastMode, enabled = true }: { enabled?: boolean; fastMode: boolean; children: ReactNode; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; active: boolean }) {
   const isMobile = useIsMobile()
+  const [inspectedSkill, setInspectedSkill] = useState<string | null>(null)
   const [receipt, setReceipt] = useState<{ key: number; evidence: MessageEvidence[]; arrivedIds: string[] } | null>(null)
   const presented = useRef(new Set<string>())
   const closeReceipt = useCallback(() => setReceipt(null), [])
@@ -25,10 +27,12 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
   const sequence = useRef(0)
   const nextArrival = useRef(0)
   const { snapshot } = useContext(SkillEvidenceContext)
-  useEffect(() => { setCards([]); setReceipt(null); presented.current.clear(); nextArrival.current = 0 }, [chatId, active, snapshot?.target])
+  useEffect(() => { setCards([]); setReceipt(null); presented.current.clear(); nextArrival.current = 0 }, [chatId, active, enabled, snapshot?.target])
+  useEffect(() => setInspectedSkill(null), [chatId, active, snapshot?.target])
   const current = useRef({ cards, isMobile, snapshot, chatId })
   current.current = { cards, isMobile, snapshot, chatId }
   const present = useCallback((evidence: MessageEvidence[], messageId: number, source: string, automatic: boolean) => {
+    if (!enabled) return
     if (!evidence.length || !workspace.current) throw new Error('XP presentation needs evidence and a mounted workspace')
     const origin = rewardAnchor(workspace.current, 'evidence', evidence[0].id)
     const now = performance.now()
@@ -36,7 +40,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
     if (automatic) nextArrival.current = startAt + 460 + Math.random() * 100
     const next: Presentation = { milestone: evidence.find(item => item.milestone)?.milestone, key: ++sequence.current, ids: [...new Set(evidence.map(item => item.id))], messageId, source, phase: startAt > now ? 'waiting' : 'opening', origin, automatic, startAt, gains: Object.fromEntries(evidence.map(item => [item.id, item.xp])) }
     setCards(previous => automatic ? [...previous.filter(card => card.automatic && !card.ids.every(id => next.ids.includes(id))), next] : [next])
-  }, [workspace])
+  }, [workspace, enabled])
   const arrive = useCallback((evidence: MessageEvidence[], messageId: number, source: string) => present(evidence, messageId, source, true), [present])
   const dismiss = useCallback((key: number) => {
     const { cards, isMobile, snapshot, chatId } = current.current
@@ -59,7 +63,7 @@ export function RewardPresentationProvider({ children, workspace, chatId, active
   const begin = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'waiting' ? { ...card, phase: 'opening' } : card)), [])
   const settled = useCallback((key: number) => setCards(previous => previous.map(card => card.key === key && card.phase === 'opening' ? { ...card, phase: 'hovering' } : card)), [])
   const remove = useCallback((key: number) => setCards(previous => previous.filter(card => card.key !== key)), [])
-  return <RewardInspectionContext value={{ open, arrive, beginClaim, presenting: cards.length > 0 || pendingClaims > 0 }}>{children}{active && receipt && snapshot && <RewardProgress key={receipt.key} arrivedIds={receipt.arrivedIds} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && cards.map((card, index) => <FloatingReward mobile={isMobile} landed={landed} depth={card.automatic ? Math.min(index, 5) : 0} fast={fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
+  return <RewardInspectionContext value={{ enabled, open, arrive, beginClaim, presenting: enabled && (cards.length > 0 || pendingClaims > 0) }}>{children}{active && snapshot && inspectedSkill && <XpEvidenceReport snapshot={snapshot} skillId={inspectedSkill} onClose={() => setInspectedSkill(null)} />}{active && enabled && receipt && snapshot && <RewardProgress onInspectSkill={setInspectedSkill} container={workspace.current?.querySelector('[data-reward-surface]') ?? undefined} key={receipt.key} arrivedIds={receipt.arrivedIds} evidence={receipt.evidence} snapshot={snapshot} onClose={closeReceipt} />}{active && enabled && cards.map((card, index) => <FloatingReward mobile={isMobile} landed={landed} depth={card.automatic ? Math.min(index, 5) : 0} fast={fastMode} key={card.key} card={card} workspace={workspace} chatId={chatId} dismiss={dismiss} begin={begin} settled={settled} remove={remove} />)}</RewardInspectionContext>
 }
 
 function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, settled, remove, depth, fast, begin }: { mobile: boolean; landed: (ids: string[]) => void; begin: (key: number) => void; depth: number; fast: boolean; card: Presentation; workspace: RefObject<HTMLDivElement | null>; chatId: string | null; dismiss: (key: number) => void; settled: (key: number) => void; remove: (key: number) => void }) {
@@ -97,7 +101,7 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
   }, [fast, card.automatic, card.phase, card.key, dismiss, hovered, focused])
   useEffect(() => { if (!first) remove(card.key) }, [first, card.key, remove])
   useLayoutEffect(() => {
-    if (!first || !host.current || !workspace.current) return
+    if (!first || !host.current || !workspace.current || card.automatic) return
     const element = host.current
     const scope = workspace.current
     const place = () => {
@@ -138,9 +142,9 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
       const rect = element.getBoundingClientRect()
       const x = card.origin ? card.origin.left + card.origin.width / 2 - rect.left - rect.width / 2 : 0
       const y = card.origin ? card.origin.top - rect.top : 12
-      const frames: Keyframe[] = [{ transform: `translate(${x}px, ${y}px) scale(.18)`, opacity: 0 }, { transform: 'translate(0, -4px) scale(1.03)', opacity: 1, offset: .8 }, { transform: 'none', opacity: 1 }]
+      const frames: Keyframe[] = card.automatic ? [{ opacity: 0 }, { opacity: 1 }] : [{ transform: `translate(${x}px, ${y}px) scale(.18)`, opacity: 0 }, { transform: 'translate(0, -4px) scale(1.03)', opacity: 1, offset: .8 }, { transform: 'none', opacity: 1 }]
       const timing = { duration: 440, easing: 'cubic-bezier(.2,.8,.2,1)' }
-      animateRewardTrails(element, frames, timing, trailCleanups.current)
+      if (!card.automatic) animateRewardTrails(element, frames, timing, trailCleanups.current)
       animation.current = element.animate(frames, timing)
       animation.current.onfinish = () => settled(card.key)
     } else {
@@ -161,9 +165,9 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
       const x = target ? target.left + target.width / 2 - rect.left - rect.width / 2 : 0
       const y = target ? target.top + target.height / 2 - rect.top - rect.height / 2 : -20
       const bendY = mobile ? Math.max(-rect.top + 8, y * .45 - 20) : y - 30
-      const frames: Keyframe[] = [{ transform: 'none', opacity: 1 }, { transform: `translate(${x * .45}px, ${bendY}px) scale(.65)`, opacity: .95, offset: .55 }, { transform: `translate(${x}px, ${y}px) scale(.03)`, opacity: 0 }]
+      const frames: Keyframe[] = card.automatic ? [{ opacity: 1 }, { opacity: 0 }] : [{ transform: 'none', opacity: 1 }, { transform: `translate(${x * .45}px, ${bendY}px) scale(.65)`, opacity: .95, offset: .55 }, { transform: `translate(${x}px, ${y}px) scale(.03)`, opacity: 0 }]
       const timing: KeyframeAnimationOptions = { duration: mobile ? 340 : 560, easing: mobile ? 'cubic-bezier(.2,.7,.3,1)' : 'cubic-bezier(.42,0,.75,.35)', fill: 'forwards' }
-      animateRewardTrails(element, frames, timing, trailCleanups.current)
+      if (!card.automatic) animateRewardTrails(element, frames, timing, trailCleanups.current)
       animation.current = element.animate(frames, timing)
       animation.current.onfinish = () => {
         landed(card.ids)
@@ -179,6 +183,6 @@ function FloatingReward({ mobile, landed, card, workspace, chatId, dismiss, sett
   }, [card.phase, card.key, domainId, workspace, settled, remove, mobile, fast, dismiss, landed])
   if (!first || card.phase === 'waiting') return null
   return createPortal(<>
-    <div ref={host} className={`floating-reward ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><>{card.milestone && <p className="reward-milestone" role="status">{tr("{value0} XP milestone", { value0: card.milestone })}</p>}<RewardDetail automatic={card.automatic} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} /></></div>
-  </>, document.body)
+    <div ref={host} className={`floating-reward ${card.automatic ? 'reward-summary' : ''} ${card.phase}`} onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}><>{card.milestone && <p className="reward-milestone" role="status">{tr("{value0} XP milestone", { value0: card.milestone })}</p>}{card.automatic ? <div className="reward-summary-content" role="status"><span title={tr(first.label)}>{tr(first.label)}</span><strong>+{tr.number(Object.values(card.gains).reduce((sum, value) => sum + value, 0))} {tr(' XP')}</strong><button aria-label={tr('Close XP details')} onClick={() => dismiss(card.key)}>×</button></div> : <RewardDetail automatic={false} evidence={evidence} onClose={() => dismiss(card.key)} interactive={card.phase !== 'departing'} />}</></div>
+  </>, card.automatic ? workspace.current?.querySelector('[data-reward-surface]') ?? document.body : document.body)
 }

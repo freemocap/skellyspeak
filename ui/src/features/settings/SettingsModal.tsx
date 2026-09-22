@@ -164,7 +164,7 @@ export function SettingsModal({
 }) {
   const tr = useI18n()
   const [settings, setSettings] = useState<Settings | null>(null)
-  useEffect(() => { if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak) }, [settings?.reward_sounds, settings?.auto_speak])
+  useEffect(() => { if (settings) configureRewardSounds(settings.xp_effects === false ? 'no' : settings.reward_sounds, settings.auto_speak) }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak])
   const [loadError, setLoadError] = useState<string | null>(null)
   useEffect(() => {
     if (!settings) return
@@ -493,6 +493,14 @@ export function SettingsModal({
         </div>
       ),
     },
+    xp_effects: {
+      section: 'reading', label: tr('XP effects'), kw: 'xp rewards cards bars animation sound off',
+      node: <div className="form-row check-row"><label className="check-label">
+        <input type="checkbox" checked={settings.xp_effects !== false}
+          onChange={event => setSettings({ ...settings, xp_effects: event.target.checked })} />
+        <span>{tr('XP effects')}</span>
+      </label></div>,
+    },
     fast_mode: {
       section: 'reading',
       label: tr('Fast mode'),
@@ -568,7 +576,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['conversation_help', 'models', 'appearance', 'app_updates', 'tts_rate', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['conversation_help', 'models', 'appearance', 'app_updates', 'tts_rate', 'xp_effects', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && id !== 'models' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

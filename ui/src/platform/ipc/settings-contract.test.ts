@@ -230,3 +230,11 @@ it('saves appearance on the learner without changing conversation settings', asy
     preferences: { ...workspace.learner.preferences, appearance },
   })
 })
+
+it('persists the XP effects switch through the native reward settings contract', async () => {
+  const settings = await getSettings()
+  await saveSettings({ ...settings, xp_effects: false }, settings)
+  expect(backend.invoke).toHaveBeenCalledWith('save_reward_settings', {
+    settings: expect.objectContaining({ effectsEnabled: false, effectsVolume: 100, voiceVolume: 100 }),
+  })
+})

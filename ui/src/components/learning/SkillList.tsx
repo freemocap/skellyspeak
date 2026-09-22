@@ -21,13 +21,16 @@ export function SkillList({ snapshot, selected, onSelect, presenting = false }: 
     const timer = window.setTimeout(() => setDisplayed(rows), 250)
     return () => window.clearTimeout(timer)
   }, [rows, presenting])
+  // Freeze ordering during celebrations, not the current XP values.
+  const currentRows = new Map(rows.map(row => [row.node.id, row]))
+  const visibleRows = displayed.map(row => currentRows.get(row.node.id) ?? row)
   return <section aria-label={tr('Skills')}>
     <label>{tr('Category')} <select value={category} onChange={e => setCategory(e.target.value)}>
       <option value="">{tr('All categories')}</option>
       {snapshot.catalog.filter(n => n.kind === 'domain').map(n => <option key={n.id} value={n.id}>{tr(n.label)}</option>)}
     </select></label>
-    <ol className="skill-list">{displayed.filter(r => !category || r.domain.id === category).map(({ node, xp, domain }) => <li key={node.id}>
-      <button type="button" className="skill-list-row" data-reward-skill={node.id} aria-pressed={selected === node.id} onClick={() => onSelect(node.id)} style={{ color: domainColors(domain.id).ink }}>
+    <ol className="skill-list">{visibleRows.filter(r => !category || r.domain.id === category).map(({ node, xp, domain }) => <li key={node.id}>
+      <button type="button" className="skill-list-row" data-reward-skill={node.id} aria-haspopup="dialog" aria-pressed={selected === node.id} onClick={() => onSelect(node.id)} style={{ color: domainColors(domain.id).ink }}>
         <strong>{tr(node.label)}</strong><span>{tr.number(xp)} XP</span><small>{tr(domain.label)}</small>
         <progress aria-label={tr('{value0} practice XP', {value0:tr(node.label)})} value={xp % 50} max={50} aria-valuetext={tr('{value0} XP; next milestone {value1}', {value0:xp,value1:(Math.floor(xp / 50) + 1) * 50})} />
         <small>{tr('Next milestone: {value0} XP', {value0:(Math.floor(xp / 50) + 1) * 50})}</small>

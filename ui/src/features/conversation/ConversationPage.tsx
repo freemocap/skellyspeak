@@ -119,9 +119,9 @@ export default function ConversationPage({
   // record without bumping it: a different scope is not a settings change.
   const settingsVersion = useSettingsStore((state) => state.revision)
   useEffect(() => {
-    if (settings) configureRewardSounds(settings.reward_sounds, settings.auto_speak)
+    if (settings) configureRewardSounds(settings.xp_effects === false ? 'no' : settings.reward_sounds, settings.auto_speak)
     if (!active) stopRewardSounds()
-  }, [settings?.reward_sounds, settings?.auto_speak, active])
+  }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
   const [panelTab, setPanelTab] = useState<'coaching' | 'evidence'>('coaching')
   const [coachDraft, setCoachDraft] = useState('')
@@ -515,7 +515,7 @@ export default function ConversationPage({
   )
 
   return (
-    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
+    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider enabled={settings?.xp_effects !== false} fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
     <div className="guided-workspace">
     <div
       ref={workspace}
@@ -547,6 +547,7 @@ export default function ConversationPage({
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
+        <div className="reward-effects-rail" data-reward-surface />
         <div className="stream" ref={streamRef} onScroll={onStreamScroll}>
           {readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
           {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}

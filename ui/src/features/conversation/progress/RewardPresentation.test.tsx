@@ -14,9 +14,9 @@ function Triggers() {
   const controller = useContext(RewardInspectionContext)!
   return <><button onClick={() => controller.open(items as MessageEvidence[], 1, 'this cup')}>Score</button><button onClick={() => controller.open([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Other score</button><button onClick={() => controller.arrive(items as MessageEvidence[], 1, 'this cup')}>Arrive</button><button onClick={() => controller.arrive([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Another arrival</button></>
 }
-function Fixture({ fastMode }: { fastMode: boolean }) {
+function Fixture({ fastMode, enabled = true }: { fastMode: boolean; enabled?: boolean }) {
   const workspace = useRef<HTMLDivElement>(null)
-  return <RewardPresentationProvider fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="stream"><Triggers /></div><div data-reward-skill="referent" /></div></RewardPresentationProvider>
+  return <RewardPresentationProvider enabled={enabled} fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="reward-effects-rail" data-reward-surface /><div className="stream"><Triggers /></div><div data-reward-skill="referent" /></div></RewardPresentationProvider>
 }
 it('grows, holds, and departs on dismissal before flashing the destination', () => {
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
@@ -111,7 +111,8 @@ it('stacks persistent arrivals without pausing incoming rewards and drains them 
     const cards = Array.from(document.querySelectorAll<HTMLElement>('.floating-reward'))
     expect(cards).toHaveLength(2)
     expect(cards.every(card => card.classList.contains('hovering'))).toBe(true)
-    expect(cards[0].style.top).not.toBe(cards[1].style.top)
+    expect(cards.every(card => card.parentElement?.hasAttribute('data-reward-surface'))).toBe(true)
+    expect(screen.queryByRole('dialog')).toBeNull()
     fireEvent.pointerDown(document.body)
     expect(document.querySelectorAll('.floating-reward.hovering')).toHaveLength(2)
     view.rerender(<Fixture fastMode />)
@@ -224,4 +225,22 @@ it('shows a temporary desktop meter when the skill destination is hidden and fil
     act(() => animations[1].onfinish!())
     expect(parseFloat(fill.style.width)).toBeCloseTo(40)
   } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
+})
+
+
+it('clears active effects when disabled and does not replay arrivals on re-enable', () => {
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+  const view = render(<Fixture fastMode={false} />)
+  try {
+    fireEvent.click(screen.getByText('Arrive'))
+    expect(document.querySelector('.reward-summary')).not.toBeNull()
+    view.rerender(<Fixture fastMode={false} enabled={false} />)
+    expect(document.querySelector('.floating-reward')).toBeNull()
+    fireEvent.click(screen.getByText('Arrive'))
+    fireEvent.click(screen.getByText('Score'))
+    expect(document.querySelector('.floating-reward')).toBeNull()
+    expect(document.querySelector('.reward-progress-toast')).toBeNull()
+    view.rerender(<Fixture fastMode={false} />)
+    expect(document.querySelector('.floating-reward')).toBeNull()
+  } finally { view.unmount(); media.mockRestore() }
 })

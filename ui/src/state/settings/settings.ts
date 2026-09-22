@@ -14,7 +14,7 @@ import type { Settings } from '../../types'
 
 export type PreferenceKey =
   | 'auto_speak' | 'auto_send' | 'always_romanize' | 'auto_translate'
-  | 'always_pronunciation' | 'fast_mode' | 'tts_rate'
+  | 'always_pronunciation' | 'fast_mode' | 'xp_effects' | 'tts_rate'
 
 export type LanguageField = 'target_language' | 'native_language'
 
@@ -172,7 +172,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
       if (get().savingPreference) return
       set({ savingPreference: true })
       try {
-        await get().update(current => ({ ...current, [key]: value ?? !current[key] }), 'Saving reading preference')
+        await get().update(current => ({ ...current, [key]: value ?? (key === 'xp_effects' ? current.xp_effects === false : !current[key]) }), 'Saving reading preference')
       } finally {
         set({ savingPreference: false })
       }

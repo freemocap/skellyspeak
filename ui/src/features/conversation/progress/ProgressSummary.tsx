@@ -108,7 +108,7 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
   const conversations = snapshots.reduce((total, item) => total + item.conversation_count, 0)
   const records = snapshots.flatMap(item => item.records)
   const practiceDates = new Set(records.map(record => new Date(record.at_secs * 1000).toISOString().slice(0, 10)))
-  return <DetailDialog title={tr("Practice progress")} onClose={onClose}>
+  return <DetailDialog size="wide" title={tr("Practice progress")} onClose={onClose}>
     <div className="practice-overview">
       <header className="practice-statistics-header"><h2>{tr("App activity")}</h2>{onLearning && <button onClick={() => onLearning(selected)}>{tr("Your learning evidence")}</button>}</header>
       {loaded.status === 'loading' && <p role="status">{tr("Loading language profiles…")}</p>}

@@ -13,13 +13,15 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
   const { snapshot, error } = useContext(SkillEvidenceContext)
   const inspection = useContext(RewardInspectionContext)
   if (!inspection) throw new Error('XP arrivals require their presentation provider')
+  const enabled = inspection.enabled !== false
   const arrive = inspection.arrive
   const beginClaim = inspection.beginClaim
-  const visible = useRef({chatId,active})
-  visible.current = {chatId,active}
+  const visible = useRef({chatId,active,enabled})
+  visible.current = {chatId,active,enabled}
   const [claimError,setClaimError] = useState<string|null>(null)
   const previous = useRef<{ snapshot: SkillSnapshot; chatId: string } | null>(null)
   const [queue, setQueue] = useState<SkillReward[]>([])
+  useEffect(() => { if (!enabled) setQueue([]) }, [enabled])
   useEffect(() => {
     if (!snapshot || !chatId || error) { previous.current = null; setQueue([]); return }
     const baseline = previous.current
@@ -36,7 +38,7 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
       return [reward.id, { record, evidence }] as const
     }))
     const present = (accepted: SkillReward[]) => {
-      if (!visible.current.active || visible.current.chatId !== chatId) return
+      if (!visible.current.active || !visible.current.enabled || visible.current.chatId !== chatId) return
     const totals = new Map(baseline.snapshot.profile.skills.map(skill => [skill.skill_id, skill.xp]))
     for (const reward of accepted) {
       const before = totals.get(reward.skillId) ?? 0
@@ -65,5 +67,5 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     return () => window.clearTimeout(timer)
   }, [reward])
   if (claimError) return <span role="alert">{tr("Reward display failed: ")}{claimError}</span>
-  return <span className="skill-reward-status" role="status" aria-live="polite">{active && reward && <><span className="sr-only">{tr.number(reward.xp)} {tr(" XP for ")}{tr(reward.label)}: {reward.quote}</span></>}</span>
+  return <span className="skill-reward-status" role="status" aria-live="polite">{active && enabled && reward && <><span className="sr-only">{tr.number(reward.xp)} {tr(" XP for ")}{tr(reward.label)}: {reward.quote}</span></>}</span>
 }
