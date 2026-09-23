@@ -132,3 +132,14 @@ it('reports the real media clock, clamps seeking and releases the observer on st
   onTime.mockClear(); tick(0)
   expect(onTime).not.toHaveBeenCalled()
 })
+
+it('changes speed on existing audio without losing pitch preservation or replaying it', () => {
+  const { media } = stubAudio()
+  const player = playSpeechAudio(audio0, vi.fn(), vi.fn())
+  player.setRate(0.65)
+  expect(media[0]).toMatchObject({ playbackRate: 0.65, preservesPitch: true })
+  expect(media[0].play).not.toHaveBeenCalled()
+  expect(() => player.setRate(0)).toThrow('Invalid voice playback speed')
+  expect(media[0].playbackRate).toBe(0.65)
+  player.stop()
+})

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useEffect, useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { DRILL_RECORDING_MAX_MB, type DrillStorageView } from '../../generated/contracts'
@@ -67,8 +68,8 @@ export function DrillStorage({ active, onChanged }: { active: boolean; onChanged
       {storage && <p role="status">{tr('Recordings {value0} MB · references {value1} MB', {
         value0: megabytes(storage.recordingBytes), value1: megabytes(storage.referenceBytes),
       })}</p>}
-      {failure != null && <p role="alert">{errorMessage(failure)} <button type="button" className="btn" disabled={busy}
-        onClick={() => storage === null ? setRetry(value => value + 1) : void save()}>{tr('Try again')}</button></p>}
+      {failure != null && <ErrorNotice as="p" error={failure}>{errorMessage(failure)} <button type="button" className="btn" disabled={busy}
+        onClick={() => storage === null ? setRetry(value => value + 1) : void save()}>{tr('Try again')}</button></ErrorNotice>}
     </div>
   </details>
 }

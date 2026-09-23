@@ -35,33 +35,94 @@ fn an_exact_repeat_measures_no_error_and_says_what_it_normalized() {
 }
 
 #[test]
-fn diacritics_are_compared_not_folded_away() {
-    // A match must never claim a distinction it did not measure.
-    let dropped = compare("café", "cafe");
-    assert_eq!(dropped.edits, 1);
-    assert_eq!(dropped.character_error_rate, Some(0.25));
+fn unicode_marks_are_ignored_in_every_script_and_encoding() {
+    for (target, transcript) in [
+        ("café", "cafe"),
+        ("cafe\u{301}", "café"),
+        ("Tiếng Việt", "Tieng Viet"),
+        ("Ελληνικά", "Ελληνικα"),
+        ("שָׁלוֹם", "שלום"),
+        ("किताब", "कतब"),
+        ("กิ", "ก"),
+        ("അം", "അ"),
+        ("أَنَا", "انا"),
+        ("a\u{20dd}", "a"),
+    ] {
+        let result = compare(target, transcript);
+        assert_eq!(result.match_ratio, Some(1.0), "{target} / {transcript}");
+        assert_eq!(result.edits, 0);
+        assert_eq!(result.normalized_target, result.normalized_transcript);
+        assert!(
+            result
+                .words
+                .iter()
+                .all(|word| word.kind == WordOutcome::Same)
+        );
+        assert!(
+            result
+                .normalizations
+                .contains(&"strip_unicode_marks".into())
+        );
+        assert_eq!(result.target, target);
+        assert_eq!(result.transcript, transcript);
+        assert_eq!(compare(transcript, target).match_ratio, Some(1.0));
+    }
+}
+
+#[test]
+fn reported_marked_and_unmarked_phrase_matches_exactly() {
+    let target = "أَنَا مَبْسُوط. وَأَنْتَ؟";
+    let transcript = " أنا مبسوط وأنت؟";
+    let result = compare(target, transcript);
+    assert_eq!(result.match_ratio, Some(1.0));
+    assert_eq!(result.edits, 0);
+    assert_eq!(result.normalized_target, "انا مبسوط وانت");
+    assert_eq!(result.normalized_target, result.normalized_transcript);
     assert!(
-        !dropped
-            .normalizations
+        result
+            .words
             .iter()
-            .any(|step| step.contains("diacritic"))
+            .all(|word| word.kind == WordOutcome::Same)
     );
-    // Decomposed and composed spellings of the same word are the same word.
-    let decomposed = compare("café", "cafe\u{301}");
-    assert_eq!(decomposed.edits, 0);
     assert!(
-        decomposed
+        result
             .normalizations
-            .contains(&"unicode_nfc".to_string())
+            .contains(&"strip_unicode_marks".into())
     );
+    assert_eq!(result.target, target);
+    assert_eq!(result.transcript, transcript);
+    // Apply the same rule whichever side includes optional vocalization.
+    assert_eq!(compare(transcript, target).match_ratio, Some(1.0));
+    assert_eq!(compare("مُحَمَّدٌ هٰذَا", "محمد هذا").match_ratio, Some(1.0));
+}
+
+#[test]
+fn removing_marks_keeps_base_letter_differences_and_unmarked_scripts() {
+    for (target, transcript) in [
+        ("أَنْتَ", "أنا"),
+        ("café", "case"),
+        ("北京", "南京"),
+        ("한글", "한국"),
+        ("ø", "o"),
+    ] {
+        assert!(compare(target, transcript).match_ratio.unwrap() < 1.0);
+    }
+    let syllables = compare("한글", "한글");
+    assert_eq!(syllables.normalized_target, "한글");
+    assert_eq!(syllables.reference_graphemes, 2);
+    assert_eq!(syllables.match_ratio, Some(1.0));
+    assert!(syllables.normalizations.is_empty());
+    // Marks alone have no base text and must never manufacture a perfect score.
+    assert_eq!(compare("\u{301}\u{20dd}", "").match_ratio, None);
+    assert_eq!(compare("word", "\u{301}").match_ratio, Some(0.0));
 }
 
 #[test]
 fn a_grapheme_is_counted_the_way_a_reader_counts_it() {
-    // Three graphemes, not the six scalars Devanagari needs to write them.
+    // Count the derived base-text graphemes after mark removal.
     let comparison = compare("नमस्ते", "नमस्ते");
     assert_eq!(comparison.edits, 0);
-    assert_eq!(comparison.reference_graphemes, 3);
+    assert_eq!(comparison.reference_graphemes, 4);
     let flag = compare("🇪🇸", "🇫🇷");
     assert_eq!(flag.reference_graphemes, 1);
     assert_eq!(flag.edits, 1);
@@ -79,8 +140,8 @@ fn every_word_outcome_is_named_and_a_near_miss_stays_one_word() {
         vec![
             (WordOutcome::Same, Some("quiero"), Some("quiero")),
             (WordOutcome::Substituted, Some("un"), Some("dos")),
-            (WordOutcome::Same, Some("café"), Some("café")),
-            (WordOutcome::Extra, None, Some("rápido")),
+            (WordOutcome::Same, Some("cafe"), Some("cafe")),
+            (WordOutcome::Extra, None, Some("rapido")),
             (WordOutcome::Same, Some("con"), Some("con")),
             (WordOutcome::Same, Some("leche"), Some("leche")),
         ]
@@ -92,11 +153,11 @@ fn every_word_outcome_is_named_and_a_near_miss_stays_one_word() {
         vec![
             (WordOutcome::Same, Some("quiero"), Some("quiero")),
             (WordOutcome::Missing, Some("un"), None),
-            (WordOutcome::Same, Some("café"), Some("café")),
+            (WordOutcome::Same, Some("cafe"), Some("cafe")),
         ]
     );
     // A near miss reads as one changed word, with how close it was.
-    let near = compare("hablo español", "hablo espanol");
+    let near = compare("hablo español", "hablo espanola");
     assert_eq!(near.words[1].kind, WordOutcome::Substituted);
     let similarity = near.words[1].similarity.unwrap();
     assert!(similarity > 0.8 && similarity < 1.0, "{similarity}");
@@ -108,7 +169,7 @@ fn right_to_left_and_cjk_texts_align_by_their_own_words() {
     assert_eq!(
         kinds(&arabic),
         vec![
-            (WordOutcome::Same, Some("أحب"), Some("أحب")),
+            (WordOutcome::Same, Some("احب"), Some("احب")),
             (WordOutcome::Same, Some("القراءة"), Some("القراءة")),
             (WordOutcome::Missing, Some("كثيرا"), None),
         ]

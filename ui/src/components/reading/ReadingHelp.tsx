@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../feedback/ErrorNotice'
 import { errorMessage as message, errorDetails as details } from '../../platform/diagnostics/error-details'
 import { readingRequests } from './reading-requests'
 import { readingWords } from '../../domain/reading/word-boundaries'
@@ -107,7 +108,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} services={services} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
     {(speechError != null || speechReceipt != null || speaking != null) && <div ref={audioStatus} popover="manual" className="reading-audio-status" data-reading-tools>
       {speaking && <><span role="status">{tr(loadingAudio ? 'Loading speech…' : 'Reading aloud…')}</span><button className="btn" onClick={stop}>{tr('Stop reading')}</button></>}
-      {speechError != null && <><p role="alert">{message(speechError)}</p><ResponseDetails value={details(speechError)} /></>}
+      {speechError != null && <ErrorNotice error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
       {speechReceipt != null && <ResponseDetails value={speechReceipt} />}
       {!speaking && <button className="btn" onClick={() => { setSpeechError(null); setSpeechReceipt(null) }}>{tr('Close')}</button>}
     </div>}
@@ -157,7 +158,7 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
       <p dir="auto" lang={language?.languageTag}><SavedGlossText text={selection.text} segments={result?.gloss?.segments ?? []} /></p>
     </ReadingLanguageScope></ReadingScopeContext>
     {pending && <p role="status">{tr('Finding word meanings…')}</p>}
-    {failure != null && <><p role="alert">{message(failure)}</p><ResponseDetails value={details(failure)} /></>}
+    {failure != null && <ErrorNotice error={failure}>{message(failure)}<ResponseDetails value={details(failure)} /></ErrorNotice>}
     {(failure != null || result?.gloss?.coverage === 'partial') && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr('Retry word meanings')}</button>}
     <AskCoachButton question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${scope.language} passage: “${selection.text}”.`} onClose={onClose} />
     <ResponseDetails value={result?.receipt} />

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { ReadingActivity } from './ReadingActivity'
 import { AiSplit } from './AiSplit'
@@ -143,7 +144,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
 
   return <section className="ai-view" data-mode={mode} aria-label={tr('AI activity')}>
     {!definition && renderHeader()}
-    {(!definition && activity.error || selectionError) && <p className="ai-error" role="alert">{selectionError || activity.error}</p>}
+    {(!definition && activity.error || selectionError) && <ErrorNotice as="p" className="ai-error" error={selectionError || activity.error}>{selectionError || activity.error}</ErrorNotice>}
     {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} renderHeader={renderHeader} /> : <>
     <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => setDetailOpen(true)}>
         {selectedAttempt && <AttemptBodies attempt={selectedAttempt} />}

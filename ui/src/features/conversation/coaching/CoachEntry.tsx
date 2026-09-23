@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useI18n } from '../../../components/localization/i18n'
 import { TargetText } from '../../../components/reading/TargetText'
 import type { CoachDecision, CoachObservationView } from '../../../generated/contracts'
@@ -11,7 +12,7 @@ export function CoachEntry({ decision, feedback, source, error }: {
   const explanation = !shown && !decision?.fixed && !decision?.keptGoing ? feedback?.items.find(item => item.rationale.trim() && item.outcome !== 'not_observed') : undefined
   return <div className="coach-entry">
     {source && <p className="coach-entry-said"><TargetText text={source} /></p>}
-    {error && <p className="turn-errors" role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error} className="turn-errors">{error}</ErrorNotice>}
     {decision?.repairStatus === 'uncertain' && <p role="status">{tr("The coach could not confirm this revision yet.")}</p>}
     {decision?.fixed && <p className="coach-fixed" role="status"><span dir="auto">{decision.fixed}</span></p>}
     {shown && <section className="coach-card coach-card-help" aria-label={tr("Coaching suggestion")}>

@@ -46,6 +46,8 @@ export interface TargetMessageProps {
   lookupWords: boolean
   /// Owner-supplied progress and failures for this message's aids.
   status: ReactNode
+  /// Optional actions supplied by the owning surface, without feature coupling.
+  extraActions?: ReactNode
   /// Owner-supplied content shown directly under the text.
   annotation: ReactNode
   speech: TargetMessageSpeech | null
@@ -59,7 +61,7 @@ export interface TargetMessageProps {
  *  consumer supplies its own data and actions; the tools behave identically. */
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
-  segmentsPending, lookupWords, status, annotation, speech, analysis, focused, rtl,
+  segmentsPending, lookupWords, status, annotation, speech, analysis, focused, rtl, extraActions,
 }: TargetMessageProps) {
   const tr = useI18n()
   const uiDirection = useUiDirection()
@@ -143,6 +145,7 @@ export function TargetMessage({
     {(shownTranslation || canLookup) && <button type="button" className={translating.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={translating.pending} aria-label={translateLabel ?? undefined} aria-expanded={translationShown} aria-pressed={translationShown} onKeyDown={stop} onClick={event => { stop(event); void toggleTranslation() }}>{tr("Translate")}</button>}
     <button type="button" className={segmentsPending || words.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={words.pending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
     {analysis && <button type="button" className={analysis.pending ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={event => { stop(event); analysis.onOpen() }}>{tr("Analysis")}</button>}
+    {extraActions}
   </div>
   const failure = <>
     {words.error != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}

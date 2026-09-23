@@ -1690,21 +1690,31 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-ui); }
 
-.error-details > summary { position: relative; padding-inline-end: var(--space-11); cursor: pointer; }
+.error-details > summary { position: relative; padding-inline-end: var(--touch-target); min-height: 32px; cursor: pointer; }
+
+/* Reserve only a corner for dismissal, never an action row. Logical positioning
+   keeps the control on the trailing side in both LTR and RTL interfaces. */
+[role="alert"].error-notice { position: relative; padding-inline-end: var(--touch-target); min-height: 32px; overflow-wrap: anywhere; }
 
 .error-dismiss {
   position: absolute;
   inset-inline-end: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  top: 0;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   background: transparent;
   color: inherit;
   font: var(--type-reading)/1 var(--font-sans);
   cursor: pointer;
+}
+
+.error-dismiss:hover { background: var(--danger-tint); }
+.error-dismiss:focus-visible { outline: var(--border-width) solid var(--focus-ring); }
+@media (pointer: coarse) {
+  .error-dismiss { width: var(--touch-target); height: var(--touch-target); }
+  [role="alert"].error-notice, .error-details > summary { min-height: var(--touch-target); }
 }
 
 .error-details-body { padding-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -1759,6 +1769,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .update-bar b { color: var(--interaction-ink); }
 
 .fault-panel {
+  position: relative;
   flex: none; min-height: 80px; max-height: 85dvh; min-width: 0;
   display: flex; flex-direction: column; overflow: hidden;
 }
@@ -1770,18 +1781,16 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   overflow: auto; overscroll-behavior: contain; overflow-wrap: anywhere;
 }
 
-.fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
+.fault-panel .fault-bar { padding-inline-end: calc(var(--touch-target) * 2); }
+.fault-export { position: absolute; inset-inline-end: var(--touch-target); top: 0; z-index: var(--z-raised); }
+.fault-export > .error-notice { position: fixed; inset-inline: var(--space-5); top: var(--space-12); background: var(--sheet); color: var(--danger-ink); }
+.log-export-compact { display: grid; place-items: center; width: var(--touch-target); height: var(--touch-target); padding: 0; border: 0; color: inherit; background: transparent; cursor: pointer; }
+.log-export-compact:disabled { opacity: 0.5; cursor: wait; }
+.fault-dismiss-all { z-index: var(--z-raised); color: var(--fault-bar-ink); background: var(--fault-bar-bg); }
 
-.fault-bar .fault { margin: 0; padding-inline-end: var(--space-10); position: relative; width: 100%; }
+.fault-bar .fault { margin: 0; padding-inline-end: var(--touch-target); min-height: var(--touch-target); position: relative; width: 100%; }
 
 .fault-bar .fault b { color: var(--fault-bar-strong); }
-
-.fault-dismiss {
-  position: absolute; top: -2px; right: 0; border: none; background: none;
-  color: var(--fault-bar-ink); cursor: pointer; font-size: var(--type-ui); line-height: var(--leading-none); padding: var(--space-1) var(--space-2);
-}
-
-.fault-dismiss:hover { color: var(--ink-on-fill); }
 
 .update-controls { display: flex; align-items: center; gap: var(--space-4); }
 
@@ -1791,7 +1800,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .fault-resize { flex: none; height: 16px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; background: var(--fault-bar-bg); }
 .fault-resize > span { width: 48px; height: 3px; border-radius: var(--radius-sm); background: var(--fault-bar-line); }
 .fault-resize:hover > span, .fault-resize:focus-visible > span { background: var(--fault-bar-strong); }
-@media (pointer: coarse) { .fault-resize { height: 44px; } }
+@media (pointer: coarse) { .fault-resize { height: var(--touch-target); } }
 
 
 /* Feature surfaces, in the order the learner meets them. */
@@ -2115,6 +2124,11 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 @media (pointer: coarse) {
   .message-xp-actions > button { min-height: 44px; min-width: 44px; }
 }
+
+/* Quiet bubble action, with a full touch target despite its small glyph. */
+.message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+.message-add-drill > span { font-size: var(--type-title); }
+@media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }
 
 /* ── features/conversation/composer.css ── */
 /* Composer layout and recording controls.
@@ -5091,11 +5105,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-dock-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
 .drill-dock-detail { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 
-.drill-dock-settings { flex: none; }
-.drill-dock-settings summary { display: flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); color: var(--ink-2); list-style: none; cursor: pointer; border-radius: var(--radius-md); }
-.drill-dock-settings summary::-webkit-details-marker { display: none; }
-.drill-dock-settings summary:hover, .drill-dock-settings[open] summary { background: var(--sheet); color: var(--interaction-ink); }
-.drill-dock-panel { position: absolute; inset-inline-end: 0; bottom: calc(100% + var(--space-2)); z-index: var(--z-popover); display: grid; gap: var(--space-4); width: min(26rem, 100%); padding: var(--space-5); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-floating); }
+/* Native dialog supplies the scrim, elevation and inert background. */
+.drill-dock-settings { flex: none; display: grid; place-items: center; min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; }
+.drill-dock-panel { display: grid; gap: var(--space-4); }
+.drill-dock-panel h2 { margin: 0; font-size: var(--type-title); }
+
 .drill-choice { display: grid; gap: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
 .drill-choice .drill-segmented { justify-self: start; }
 .drill-choice .drill-segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
@@ -5230,7 +5244,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* Desktop retains its resizable columns; only the central stage scrolls. */
 .drill-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .drill-workspace > .drill-stage { flex: 1 1 auto; }
-.drill-stage > [role="alert"] { margin: 0; padding: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
+.drill-stage > [role="alert"] { margin: 0; padding-block: var(--space-3); padding-inline-start: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
 .drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }
 
 /* Phone navigation and reports are disclosures, leaving the recording dock
@@ -5243,11 +5257,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
   .drill-phrase-bar > :not(:first-child) { font-size: var(--type-title); }
   [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
-  .drill-mobile-content { min-height: 0; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); }
-  /* Flatten composition wrappers so the reference sticks to the shared mobile
-     scrollport through the take feedback and history, not just the spectra. */
+  .drill-mobile-content { overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); }
+  /* All practice content scrolls above the dock. A pinned reference can cover
+     most of a short viewport and make lower reports impossible to inspect. */
   .drill-stage:not(.drill-stage-alone), .drill-comparison-panel { display: contents; }
-  .drill-reference { position: sticky; top: 0; z-index: var(--z-raised); flex: none; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-surface); }
+  .drill-reference { position: relative; flex: none; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-surface); }
   .drill-stage { overflow: visible; flex: none; }
   .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
   .drill-comparison-panel { min-height: 0; overflow: visible; padding: var(--space-2); }
@@ -5273,8 +5287,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
   .drill-dock-discard { grid-row: 2; grid-column: 3; }
-  .drill-dock-panel { box-sizing: border-box; max-height: 55dvh; overflow-y: auto; }
-  .drill-dock-settings summary, .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
+  .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
   .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
   .drill-peek-open { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--touch-target); padding: 0; margin-bottom: var(--space-2); background: transparent; border: 0; color: var(--ink); text-align: start; }
   .drill-peek-open > :last-child { margin-inline-start: auto; color: var(--interaction-ink); }
@@ -5320,6 +5333,21 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-recent-takes button { flex: 1 0 auto; display: grid; align-content: center; gap: var(--space-1); min-height: var(--touch-target); min-width: var(--touch-target); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); color: var(--ink); background: var(--field); font-size: var(--type-meta); }
 .drill-recent-takes button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--interaction-tint); }
 .drill-recent-takes button > span { color: var(--ink-3); }
+
+/* Recording modes remain distinct controls even when none is hovered. */
+.drill-dock-row > .drill-segmented { gap: var(--space-2); background: transparent; }
+.drill-dock-row > .drill-segmented button { min-width: var(--touch-target); border: var(--border-width) solid var(--line); background: var(--sheet); }
+.drill-dock-row > .drill-segmented button[aria-checked="true"] { background: var(--interaction-fill); color: var(--ink-on-fill); border-color: var(--interaction-fill); }
+.drill-playback-speed { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-meta); }
+.drill-playback-speed select { padding-inline: var(--space-3); min-height: var(--touch-target); width: auto; font-size: var(--type-ui); }
+
+@media (max-width: 860px) {
+  .drill-reference > .drill-media { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; }
+  .drill-reference > .drill-media .drill-media-time { grid-column: 1 / -1; }
+  .drill-reference > .drill-media .drill-media-options { grid-column: 4; grid-row: 1; }
+  .drill-reference > .drill-media .drill-seek { width: 100%; min-width: 0; }
+  .drill-playback-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
 
 /* ── features/skills/skills.css ── */
 /* Skills page frame, toolbar, navigation and list view. Graph and inspector variants have separate owners. */

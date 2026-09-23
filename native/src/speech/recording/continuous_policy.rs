@@ -7,6 +7,8 @@ pub struct ContinuousRecordingPolicy {
     pub version: u32,
     pub pause_options_ms: [u32; 5],
     pub default_pause_ms: u32,
+    pub silence_timeout_options_ms: [u32; 5],
+    pub default_silence_timeout_ms: u32,
     /// How far above the measured room noise a frame must be to count as speech.
     pub min_threshold_offset_db: f64,
     pub max_threshold_offset_db: f64,
@@ -20,9 +22,11 @@ pub struct ContinuousRecordingPolicy {
     pub max_takes: u32,
 }
 pub const POLICY: ContinuousRecordingPolicy = ContinuousRecordingPolicy {
-    version: 2,
+    version: 3,
     pause_options_ms: [600, 1000, 1500, 2000, 2500],
     default_pause_ms: 1000,
+    silence_timeout_options_ms: [5000, 10000, 15000, 30000, 60000],
+    default_silence_timeout_ms: 10000,
     min_threshold_offset_db: 4.0,
     max_threshold_offset_db: 30.0,
     default_threshold_offset_db: 16.0,
@@ -40,6 +44,7 @@ pub const POLICY: ContinuousRecordingPolicy = ContinuousRecordingPolicy {
 #[serde(rename_all = "camelCase")]
 pub struct ListeningSettings {
     pub pause_ms: u32,
+    pub silence_timeout_ms: u32,
     pub threshold_offset_db: f64,
     pub min_take_ms: u32,
 }
@@ -58,6 +63,11 @@ impl ListeningSettings {
             .contains(&self.min_take_ms)
         {
             return Err("Choose a shortest take between 160 and 1000 milliseconds.".into());
+        }
+        if !(POLICY.silence_timeout_options_ms[0]..=POLICY.silence_timeout_options_ms[4])
+            .contains(&self.silence_timeout_ms)
+        {
+            return Err("Choose a silence timeout between 5 and 60 seconds.".into());
         }
         Ok(())
     }

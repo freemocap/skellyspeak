@@ -1026,3 +1026,18 @@
   note = {reviewed 2026-09-21; authored exercise set has not been native-speaker validated},
   claim = {Levantine emphatic and guttural consonants require distinct pronunciation targets; realizations of qaf and interdental consonants vary by word and register. Workbench drills distinguish urban Levantine phrases from explicit formal Arabic drills.}
 }
+
+@misc{groq_transcription_confidence,
+  author = {{Groq}}, title = {Speech to Text: Understanding Metadata Fields},
+  url = {https://console.groq.com/docs/speech-to-text},
+  review = {reviewed},
+  review-notes = {Provider documentation reviewed 2026-09-23; no live provider validation.},
+  claim = {Verbose transcription exposes segment avg_logprob and no_speech_prob. More negative log probabilities indicate less confident recognition; high no-speech probability signals possible silence. These do not establish calibrated correctness probabilities.}
+}
+@misc{elevenlabs_transcription_confidence,
+  author = {{ElevenLabs}}, title = {Create transcript API reference: word logprob},
+  url = {https://elevenlabs.io/docs/api-reference/speech-to-text/convert},
+  review = {reviewed},
+  review-notes = {Provider documentation reviewed 2026-09-23; no live provider validation.},
+  claim = {Word entries expose logprob; language_probability describes detected language, not the correctness of the transcript.}
+}

@@ -7,5 +7,5 @@ it('blocks startup with the native file error and explains process restart witho
   expect(screen.getByRole('alert')).toHaveTextContent('config/languages/ar.yaml: unknown trait abjab')
   expect(screen.queryByRole('button', { name: /reset/i })).toBeNull()
   expect(screen.getByText('Fix the named configuration file, then quit and reopen SkellySpeak.')).toBeVisible()
-  expect(screen.queryByRole('button')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Dismiss error' })).toBeVisible()
 })

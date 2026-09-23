@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
@@ -110,7 +111,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
 
           <div className="drill-add-results">
             {offer.running && <p role="status">{tr("Asking for phrases…")}</p>}
-            {offer.failure != null && <p role="alert">{errorMessage(offer.failure)}</p>}
+            {offer.failure != null && <ErrorNotice as="p" error={offer.failure}>{errorMessage(offer.failure)}</ErrorNotice>}
             {offer.shortfall !== null && <p role="status">{tr("Asked for {value0}, got {value1}: {value2}", {
               value0: String(offer.shortfall.requested), value1: String(offer.shortfall.produced), value2: offer.shortfall.reason,
             })}</p>}

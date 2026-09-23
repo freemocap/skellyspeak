@@ -57,8 +57,10 @@ fn an_attempt_keeps_its_transcript_comparison_and_audio_for_replay() {
     assert_eq!(first.audio_bytes, Some(wav.len() as i64));
     assert!(first.audio_pruned_at.is_none());
     assert_eq!(first.comparison["policy"], comparison::POLICY);
-    // The diacritic that was not said is measured, not forgiven.
-    assert_eq!(first.comparison["edits"], 1);
+    // Stored comparisons use the shared mark-insensitive matching policy.
+    assert_eq!(first.comparison["edits"], 0);
+    assert_eq!(first.comparison["matchRatio"], 1.0);
+    assert_eq!(first.comparison["target"], "Quisiera un café.");
     assert_eq!(store.drill_attempt_audio(&first.id).unwrap(), wav);
 
     // A second attempt follows the first, and the newest is listed first.
@@ -492,4 +494,53 @@ fn takes_can_be_deleted_one_at_a_time_or_cleared_from_a_point_on() {
     assert_eq!(ids(&store, &other.id), vec![kept.id]);
     assert_eq!(store.drill_items("spanish").unwrap().len(), 2);
     assert!(store.clear_drill_attempts("missing", None).is_err());
+}
+
+#[test]
+fn unreliable_publication_preserves_text_but_never_improves_best_match() {
+    let (_dir, mut store) = setup();
+    store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:12345/v1','$.bearerAuth',json('false'))", []).unwrap();
+    let item = store.create_drill_item(phrase("Hola")).unwrap();
+    let owner = RecordingOwner::DrillItem(item.id.clone());
+    let target = crate::ai::connections::access::resolve(
+        &store.connection,
+        crate::ai::connections::access::Capability::Transcription,
+    )
+    .unwrap();
+    store
+        .begin_transcription("uncertain", &owner, &target)
+        .unwrap();
+    let evidence = reliability::DrillReliability {
+        policy: 1,
+        accepted: false,
+        confidence: Some(0.2),
+        minimum_confidence: 0.6,
+        speech_seconds: 0.8,
+        no_speech_probability: None,
+        source: "word_logprobs".into(),
+        reason: "low_confidence".into(),
+    };
+    let diagnostics = serde_json::json!({"drill_reliability":evidence, "request_id":"receipt-1"});
+    store
+        .publish_transcription(
+            "uncertain",
+            &owner,
+            &target,
+            Ok("Hola".into()),
+            Some(&diagnostics),
+            Some(b"fixture wav"),
+        )
+        .unwrap();
+    let saved = store.drill_items("spanish").unwrap().remove(0);
+    assert_eq!(saved.best_match_ratio, None);
+    let take = &saved.attempts[0];
+    assert_eq!(take.transcript, "Hola");
+    assert!(take.comparison["matchRatio"].is_null());
+    assert_eq!(take.comparison["characterErrorRate"], 0.0);
+    assert_eq!(take.comparison["reliability"]["confidence"], 0.2);
+    let receipts =
+        crate::speech::recording::transcription::views(&store.connection, &owner).unwrap();
+    let retained = serde_json::to_string(&receipts).unwrap();
+    assert!(retained.contains("receipt-1"));
+    assert!(!retained.contains("Hola"));
 }

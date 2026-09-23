@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../feedback/ErrorNotice'
 import { useI18n } from '../localization/i18n'
 import { useState } from 'react'
 import { invoke } from '../../platform/ipc/tauri'
@@ -26,6 +27,6 @@ export function SaveDataCopy() {
     </button>
     <p>{tr("Copies the database, its supporting files and editable configuration to Downloads.")}</p>
     {savedTo && <p role="status">{tr("Saved to ")}{savedTo}</p>}
-    {failure && <p role="alert">{failure}</p>}
+    {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
   </div>
 }

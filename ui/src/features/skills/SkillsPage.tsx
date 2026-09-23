@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { useI18n } from '../../components/localization/i18n'
 import { EvidenceMappingNotice } from '../../components/learning/EvidenceMappingNotice'
@@ -15,7 +16,7 @@ import type { ProfileChoices, SkillSnapshot } from '../../domain/learning/eviden
 export default function SkillsPage({ onPractice }: { onPractice: () => void }) {
   const tr = useI18n()
   const evidence = useSkillEvidence()
-  if (isTauri && evidence.error) return <div role="alert">{evidence.error}<button onClick={evidence.reload}>{tr('Retry')}</button></div>
+  if (isTauri && evidence.error) return <ErrorNotice as="div" error={evidence.error}>{evidence.error}<button onClick={evidence.reload}>{tr('Retry')}</button></ErrorNotice>
   if (isTauri && !evidence.snapshot) return <p role="status">{tr('Loading your language profile…')}</p>
   return <SkillListView languageTag={isTauri && evidence.snapshot ? languageFor(evidence.snapshot.target)?.languageTag : undefined} snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.reload} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
 }
@@ -38,7 +39,7 @@ export function SkillListView({ languageTag, snapshot, demonstration, refresh, s
     <header className="tree-header"><h1>{tr('Skills')} · {snapshot.target}</h1><strong>{tr.number(snapshot.profile.xp)} XP</strong><button onClick={refresh}>{tr('Refresh')}</button></header>
     {demonstration && <p>{tr('DEMO · SAMPLE DATA')}</p>}
     <EvidenceMappingNotice snapshot={snapshot} />
-    {error && <p role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     <SkillList key={snapshot.target} snapshot={snapshot} selected={selected} onSelect={inspect} />
     <ProgressRules />
     {open && node && <DetailDialog title={tr(node.label)} onClose={() => setOpen(false)}>

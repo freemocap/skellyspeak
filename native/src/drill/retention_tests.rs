@@ -36,9 +36,8 @@ fn oldest_audio_is_pruned_across_pending_and_file_storage_without_losing_attempt
     let attempts = store.drill_items("spanish").unwrap().remove(0).attempts;
     assert_eq!(attempts.len(), 3);
     assert!(
-        attempts
-            .iter()
-            .all(|a| !a.transcript.is_empty() && a.comparison["policy"] == "drill-comparison-v1")
+        attempts.iter().all(|a| !a.transcript.is_empty()
+            && a.comparison["policy"] == crate::drill::comparison::POLICY)
     );
 }
 #[test]

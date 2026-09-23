@@ -8,15 +8,15 @@ import type { DrillAttemptView, DrillItemView } from '../../generated/contracts'
 import { ReadingScopeContext } from '../../components/reading/ReadingContext'
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
 import { WordPairs } from './WordPairs'
-import { match } from './AttemptLog'
+import { facts, match } from './AttemptLog'
 
 /** A responsive arrangement of the same practice/report components. Opening a
  * report does not suspend listening; phrase changes remain locked during capture. */
 export function DrillLayout({ items, selectedId, locked, onSelect, attempt, rtl, rail, dock, report,
-  children, progress, railResize, reportResize, dockResize }: {
+  children, queue, progress, railResize, reportResize, dockResize }: {
   items: DrillItemView[]; selectedId: string | null; locked: boolean; onSelect: (id: string) => void
   attempt: DrillAttemptView | null; rtl: boolean; rail: ReactNode; dock: ReactNode; report: ReactNode
-  children: ReactNode; progress?: ReactNode; railResize?: ReactNode; reportResize?: ReactNode; dockResize?: ReactNode
+  children: ReactNode; queue?: ReactNode; progress?: ReactNode; railResize?: ReactNode; reportResize?: ReactNode; dockResize?: ReactNode
 }) {
   const mobile = useIsMobile()
   const tr = useI18n()
@@ -36,13 +36,15 @@ export function DrillLayout({ items, selectedId, locked, onSelect, attempt, rtl,
     </nav>
     <div className="drill-mobile-content">
       {children}
+      {queue}
       {attempt && <section className="drill-peek" aria-label={tr('Take {value0}', { value0: String(attempt.sequence) })}>
         <button type="button" className="drill-peek-open" aria-haspopup="dialog" onClick={() => setSheet('report')}>
           <strong>{tr('Take {value0}', { value0: String(attempt.sequence) })}</strong>
           <span className="drill-inspection-score">{match(attempt.comparison, tr)}</span>
           <span>{tr('Full report')}</span>
         </button>
-        <WordPairs words={attempt.comparison.words} rtl={rtl} />
+        {facts(attempt.comparison, tr).map(fact => <span key={fact.label} className="drill-chip" data-tone={fact.tone}>{fact.label}</span>)}
+        {attempt.comparison.reliability?.accepted === false ? <bdi>{attempt.transcript}</bdi> : <WordPairs words={attempt.comparison.words} rtl={rtl} />}
       </section>}
       {progress}
       {!attempt && report && <button className="btn" type="button" onClick={() => setSheet('report')}>{tr('Attempts')}</button>}

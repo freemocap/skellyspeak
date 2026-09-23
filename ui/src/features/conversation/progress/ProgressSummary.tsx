@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { ReadingLanguageScope } from '../../../components/reading/ReadingLanguageScope'
 import { TargetText } from '../../../components/reading/TargetText'
@@ -112,7 +113,7 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
     <div className="practice-overview">
       <header className="practice-statistics-header"><h2>{tr("App activity")}</h2>{onLearning && <button onClick={() => onLearning(selected)}>{tr("Your learning evidence")}</button>}</header>
       {loaded.status === 'loading' && <p role="status">{tr("Loading language profiles…")}</p>}
-      {loaded.status === 'error' && <div role="alert"><p>{loaded.error}</p><button className="detail-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></div>}
+      {loaded.status === 'error' && <ErrorNotice as="div" error={loaded.error}><p>{loaded.error}</p><button className="detail-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></ErrorNotice>}
       {overview && <>
         <dl className="practice-metrics">
           <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>

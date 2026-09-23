@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { ShowHelp } from './onboarding/ShowHelp'
 import { UI_LOCALE_METADATA } from '../../domain/localization'
@@ -41,8 +42,8 @@ function SaveStatus({ state }: { state: SaveState }) {
   const tr = useI18n()
   if (state === 'error')
     return (
-      <span className="save-status error" role="alert">
-        {tr("Not saved — check the logs")}</span>
+      <ErrorNotice as="span" error={state} className="save-status error">
+        {tr("Not saved — check the logs")}</ErrorNotice>
     )
   if (state === 'saving' || state === 'pending')
     return <span className="save-status">{tr("Saving…")}</span>
@@ -278,7 +279,7 @@ export function SettingsModal({
     return (
       <SettingsDialog onClose={onClose} title={tr("Settings")}>
         <div className="settings-modal">
-          {loadError ? <><p role="alert">{loadError}</p><button type="button" className="btn" onClick={onClose}>{tr("Close")}</button></> : <p className="center-note">{tr("Loading…")}</p>}
+          {loadError ? <><ErrorNotice as="p" error={loadError}>{loadError}</ErrorNotice><button type="button" className="btn" onClick={onClose}>{tr("Close")}</button></> : <p className="center-note">{tr("Loading…")}</p>}
         </div>
       </SettingsDialog>
     )

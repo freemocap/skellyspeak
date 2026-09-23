@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
 import { useI18n } from '../../../components/localization/i18n'
 import type { ConnectionHealth } from '../../../state/session/connection-health'
@@ -35,7 +36,7 @@ export function ConnectionHealthPanel({ health, bearerAuth, disabled, onCheck }:
       </li>)}
     </ul>
     {health?.providers?.map(provider => <ResponseDetails key={provider.provider} value={provider.diagnostics} />)}
-    {health?.error && <p role="alert">{health.error}</p>}
+    {health?.error && <ErrorNotice as="p" error={health.error}>{health.error}</ErrorNotice>}
     {health?.checkedAt && <small>{tr('Last checked')}: {tr.dateTime(health.checkedAt)}</small>}
   </section>
 }

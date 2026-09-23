@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useI18n } from '../../../components/localization/i18n'
 import { claimRewardEvents } from '../../../platform/ipc/rewards'
 import { nativeError } from '../../../platform/ipc/workspace'
@@ -66,6 +67,6 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     const timer = window.setTimeout(() => setQueue(items => items.slice(1)), 3000)
     return () => window.clearTimeout(timer)
   }, [reward])
-  if (claimError) return <span role="alert">{tr("Reward display failed: ")}{claimError}</span>
+  if (claimError) return <ErrorNotice as="span" error={claimError}>{tr("Reward display failed: ")}{claimError}</ErrorNotice>
   return <span className="skill-reward-status" role="status" aria-live="polite">{active && enabled && reward && <><span className="sr-only">{tr.number(reward.xp)} {tr(" XP for ")}{tr(reward.label)}: {reward.quote}</span></>}</span>
 }

@@ -1,8 +1,8 @@
-import { ResponseDetails } from '../../components/feedback/ResponseDetails'
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
-import type { DrillAttemptView, DrillComparison, ListeningTake } from '../../generated/contracts'
+import type { DrillAttemptView, DrillComparison } from '../../generated/contracts'
 
 /** Every other attempt at the selected phrase, newest first, a page at a time.
  * The selected attempt is reported in full above the log, so it is not repeated
@@ -17,7 +17,7 @@ export function AttemptLog({ rtl, onDelete, deleting, attempts, loading, hasMore
   /** Delete one take; `deleting` holds every delete control while one runs. */
   onDelete: (attempt: DrillAttemptView) => void
   deleting: boolean
-  liveTakes: ListeningTake[]
+  liveTakes: { recordingId: string }[]
   attempts: DrillAttemptView[]
   loading: boolean
   hasMore: boolean
@@ -31,28 +31,14 @@ export function AttemptLog({ rtl, onDelete, deleting, attempts, loading, hasMore
   const linked = new Set(liveTakes.map(take => take.recordingId))
   const history = attempts.filter(attempt => attempt.id !== selectedId
     && (!attempt.transcriptionAttemptId || !linked.has(attempt.transcriptionAttemptId)))
-  const failureNotice = failure != null && <p role="alert">{errorMessage(failure)}
-    <button type="button" className="btn" onClick={onRetry}>{tr("Try again")}</button></p>
+  const failureNotice = failure != null && <ErrorNotice as="p" error={failure}>{errorMessage(failure)}
+    <button type="button" className="btn" onClick={onRetry}>{tr("Try again")}</button></ErrorNotice>
   if (!attempts.length && !liveTakes.length) return <>{failureNotice}{failure == null && (loading
     ? <p role="status">{tr("Loading…")}</p>
     : <p className="center-note">{tr("No attempts yet. Record one to compare.")}</p>)}</>
   return <section className="drill-history" aria-label={tr("Earlier takes")}>{failureNotice}
     <h3 className="drill-history-head">{tr("Earlier takes")}</h3>
     <ol className="drill-attempts">
-      {[...liveTakes].reverse().map(take => {
-        const attempt = attempts.find(item => item.transcriptionAttemptId === take.recordingId)
-        if (attempt && attempt.id === selectedId) return null
-        return <li key={take.recordingId} className="drill-take-arrival" data-recording-id={take.recordingId}>
-          {attempt ? <AttemptResult attempt={attempt} rtl={rtl} onSelect={onSelect} onDelete={onDelete} deleting={deleting} /> :
-            <article className="drill-take-pending" data-state={take.state} aria-busy={take.state === 'queued' || take.state === 'processing'}>
-              <div className="drill-attempt-head"><strong>{tr('Take {value0}', { value0: take.number })}</strong>
-                <span className="drill-chip">{tr('{value0} seconds', { value0: tr.number(take.endSeconds - take.startSeconds, { maximumFractionDigits: 1 }) })}</span></div>
-              <p role="status">{take.state === 'queued' ? tr('Queued') : take.state === 'processing' ? tr('Transcribing…') : take.state === 'failed' ? tr('Take failed') : tr('Loading result…')}</p>
-              {(take.state === 'queued' || take.state === 'processing') && <div className="drill-take-progress" aria-hidden="true"><span /></div>}
-              {take.failure && <><p>{errorMessage(take.failure)}</p><ResponseDetails value={take.failure} /></>}
-            </article>}
-        </li>
-      })}
       {history.map(attempt => <li key={attempt.id}><AttemptResult attempt={attempt} rtl={rtl} onSelect={onSelect} onDelete={onDelete} deleting={deleting} /></li>)}
     </ol>
     {hasMore && <button type="button" className="btn drill-more" disabled={loading} onClick={onLoadMore}>
@@ -60,7 +46,7 @@ export function AttemptLog({ rtl, onDelete, deleting, attempts, loading, hasMore
     </button>}
   </section>
 }
-function AttemptResult({ attempt, rtl, onSelect, onDelete, deleting }: {
+export function AttemptResult({ attempt, rtl, onSelect, onDelete, deleting }: {
   attempt: DrillAttemptView; rtl: boolean; onSelect: (id: string) => void; onDelete: (attempt: DrillAttemptView) => void; deleting: boolean
 }) {
   const tr = useI18n()
@@ -71,7 +57,7 @@ function AttemptResult({ attempt, rtl, onSelect, onDelete, deleting }: {
         <span className="drill-attempt-number">{tr("#{value0}", { value0: String(attempt.sequence) })}</span>
         {/* One mark per target word, in reading order: the word grid's colours, at a glance. */}
         <span className="drill-attempt-words" dir={rtl ? 'rtl' : 'ltr'} aria-hidden="true">
-          {attempt.comparison.words.filter(word => word.kind !== 'extra').map((word, index) =>
+          {(attempt.comparison.reliability?.accepted === false ? [] : attempt.comparison.words).filter(word => word.kind !== 'extra').map((word, index) =>
             <span key={index} data-outcome={word.kind} title={`${word.target ?? ''}: ${outcome[word.kind]}`} />)}
         </span>
         {facts(attempt.comparison, tr).map(fact => (
@@ -92,6 +78,7 @@ function AttemptResult({ attempt, rtl, onSelect, onDelete, deleting }: {
 /// The measured match as a percentage, or a statement that it could not be
 /// measured — never a made-up number.
 export function match(comparison: DrillComparison, tr: ReturnType<typeof useI18n>) {
+  if (comparison.reliability?.accepted === false) return tr("Not scored")
   return comparison.matchRatio === null
     ? tr("Not measurable")
     : tr("{value0}%", { value0: String(Math.round(comparison.matchRatio * 100)) })
@@ -101,6 +88,15 @@ export function match(comparison: DrillComparison, tr: ReturnType<typeof useI18n
 /// the advisory script note native already computed.
 export function facts(comparison: DrillComparison, tr: ReturnType<typeof useI18n>) {
   const chips: { label: string; tone: string }[] = []
+  const reliability = comparison.reliability
+  if (reliability) {
+    chips.push({ label: reliability.confidence === null ? tr("Confidence unavailable")
+      : tr("Recognition confidence: {value0}", { value0: tr.number(reliability.confidence, { style: 'percent', maximumFractionDigits: 0 }) }),
+      tone: reliability.confidence === null ? 'neutral' : reliability.confidence >= reliability.minimumConfidence ? 'success' : 'danger' })
+    if (!reliability.accepted) chips.push({ label: reliability.reason === 'no_speech'
+      ? tr("No speech detected — not scored") : reliability.reason === 'low_confidence'
+        ? tr("Low confidence — not scored") : tr("Confidence unavailable — not scored"), tone: reliability.reason === 'confidence_unavailable' ? 'neutral' : 'danger' })
+  }
   if (Number(comparison.edits) === 0 && comparison.matchRatio !== null) chips.push({ label: tr("Exact"), tone: 'success' })
   if (comparison.scriptNote === 'mismatch') chips.push({ label: tr("Different script"), tone: 'warning' })
   return chips

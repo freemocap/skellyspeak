@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { nativeError } from '../../platform/ipc/workspace'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
@@ -55,6 +56,6 @@ export function ScriptSize({ language, defaultScale }: { language: string; defau
       onPointerDown={event => event.preventDefault()} onClick={() => void save(null)}>
       {tr('Default')} ({tr.number(defaultScale)}×)
     </button>
-    {error && <p role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
   </div>
 }

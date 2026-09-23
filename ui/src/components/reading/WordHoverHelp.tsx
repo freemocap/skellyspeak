@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../feedback/ErrorNotice'
 import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { errorMessage, errorDetails } from '../../platform/diagnostics/error-details'
 import { useSavedReading } from './SavedReadingProvider'
@@ -84,8 +85,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     <span className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span>
     {!parts.length && !result && !failure && <span role="status">{tr('Finding word meanings…')}</span>}
     <GlossHelpParts text={selection.text} parts={parts} showRomanization={supportsRomanization} />
-    {failure != null && <><span role="alert">{errorMessage(failure)}</span>
-      <ResponseDetails value={errorDetails(failure)} /></>}
+    {failure != null && <ErrorNotice error={failure}>{errorMessage(failure)}<ResponseDetails value={errorDetails(failure)} /></ErrorNotice>}
     {(failure != null || result && !parts.length) && <button className="reading-help-action" onClick={() => setAttempt(value => value + 1)}>{tr('Retry word meanings')}</button>}
     <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr('Word help')}</button>
   </span>, layer.host)

@@ -1,5 +1,7 @@
 import recordingWorkletUrl from './recording-worklet.ts?worker&url'
 import type { WaveSource } from '../../domain/audio/waveform'
+import { PcmDelivery } from './pcm-delivery'
+import { WaveBuffer } from './wave-buffer'
 
 export interface BrowserRecording {
   wave: WaveSource
@@ -39,12 +41,12 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
   let rejectFinish: ((error: Error) => void) | undefined
   const chunks: Float32Array[] = []
   let length = 0
-  let sequence = 0
-  let pendingSamples = 0
-  let delivery: Promise<void> = Promise.resolve()
+  const wave = new WaveBuffer(context.sampleRate)
+  let delivery: PcmDelivery | undefined
   const cleanup = () => {
     if (stopped) return
     stopped = true
+    delivery?.cancel()
     clearTimeout(timer)
     stream.getTracks().forEach(track => track.stop())
     source?.disconnect()
@@ -52,14 +54,12 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
     void context.close().catch(onError)
   }
   const fail = (error: unknown) => { if (stopped) return; cleanup(); rejectFinish?.(error as Error); onError(error) }
+  if (push) delivery = new PcmDelivery(context.sampleRate, push, fail)
   const cancel = () => { cleanup(); rejectFinish?.(new Error('Recording was cancelled.')) }
   try {
     await context.audioWorklet.addModule(recordingWorkletUrl)
     await context.resume()
-    const analyser = context.createAnalyser(); analyser.fftSize = 2048
-    const frame = new Float32Array(analyser.fftSize)
     source = context.createMediaStreamSource(stream)
-    source.connect(analyser)
     processor = new AudioWorkletNode(context, 'skellyspeak-recording')
     // The processor emits silence; connection keeps capture running without
     // monitoring the microphone through the speaker.
@@ -70,16 +70,9 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
       if (event.data === 'finished') { complete?.(); return }
       const samples = event.data
       if (!(samples instanceof Float32Array)) { fail(new Error('Invalid microphone samples.')); return }
+      wave.append(samples)
       if (push) {
-        pendingSamples += samples.length
-        if (pendingSamples > context.sampleRate * 2) { fail(new Error('Microphone audio delivery fell behind. Listening stopped.')); return }
-        const current = sequence++
-        delivery = delivery.then(async () => {
-          if (stopped) return
-          await push(Array.from(samples), context.sampleRate, current)
-          pendingSamples -= samples.length
-        })
-        void delivery.catch(fail)
+        delivery!.enqueue(samples)
         return
       }
       length += samples.length
@@ -89,7 +82,7 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
     if (!push) timer = setTimeout(() => fail(new Error('Recording exceeded two minutes. Please record a shorter message.')), 120000)
     return {
       cancel,
-      wave: { samplesPerSecond: 60 * analyser.fftSize / 10, read: () => { analyser.getFloatTimeDomainData(frame); return Array.from(frame).filter((_, i) => i % 10 === 0) } },
+      wave,
       finish: () => new Promise<string>((resolve, reject) => {
         if (stopped || finishing) { reject(new Error('Recording is no longer active.')); return }
         finishing = true
@@ -98,7 +91,7 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
         timer = setTimeout(() => fail(new Error('Microphone did not finish delivering samples.')), 5000)
         complete = () => {
           if (push) {
-            void delivery.then(() => { cleanup(); resolve('') }, error => { cleanup(); reject(error) })
+            void delivery!.finish().then(() => { cleanup(); resolve('') }, error => { cleanup(); reject(error) })
             return
           }
           try {

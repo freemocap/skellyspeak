@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../feedback/ErrorNotice'
 import { useI18n } from '../localization/i18n'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { DetailDialog } from '../dialogs/DetailDialog'
@@ -46,7 +47,7 @@ export function YamlExport({ title, scope, view, save, children, onClose }: {
     </div>
     <p>{tr("Each action reads the latest saved data. Files are saved to Downloads.")}</p>
     {saved && <p role="status">{tr("Saved to ")}{saved}</p>}
-    {error && <p role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     {yaml !== null && <pre className="yaml-viewer" dir="ltr" tabIndex={0} aria-label={tr("{value0} content", { value0: String(title) })}>{yaml}</pre>}
   </DetailDialog>
 }

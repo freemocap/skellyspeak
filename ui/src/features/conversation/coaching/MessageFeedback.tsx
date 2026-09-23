@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { AskCoachButton, AskCoachContext } from '../../../components/learning/AskCoachButton'
 import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import type { ConversationFeedback } from '../../../generated/contracts'
@@ -54,7 +55,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
     </button>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
     <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>{children}<button type="button" className="message-translate" aria-label={tr("Analyze your message")} aria-haspopup="dialog" disabled={busy} onClick={() => void openCard()}>{tr("Analysis")}</button></div>
-    {!open && failure && <p role="alert">{failure}</p>}
+    {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     {open && <AskCoachContext value={askCoach}><DetailDialog title={tr("Feedback on your message")} onClose={close}>
       {analysis}
       {conversationFeedback ? <ConversationFeedbackCard feedback={conversationFeedback} onAsk={askCoach} /> : <CoachEntry feedback={feedback} decision={decision} source={analysis ? null : text} error={error} />}
@@ -67,7 +68,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
         {onControl && decision && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('keep_going')}>{tr("Keep going")}</button>}
         <AskCoachButton question={`Help me understand the feedback on my message: “${text}”. Saved feedback: ${JSON.stringify(conversationFeedback ?? feedback)}`} />
       </div>
-      {failure && <p role="alert">{failure}</p>}
+      {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     </DetailDialog></AskCoachContext>}
   </>
 }

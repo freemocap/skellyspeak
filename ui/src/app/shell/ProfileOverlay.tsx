@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useI18n } from '../../components/localization/i18n'
 import { useState } from 'react'
 import { LearnerModel } from '../../features/skills/learner/LearnerModel'
@@ -19,7 +20,7 @@ export function ProfileOverlay() {
   const open = useNavigationStore((state) => state.overlay === 'profile')
   const closeOverlay = useNavigationStore((state) => state.closeOverlay)
   return <>
-    {error && <div role="alert">{error}<button onClick={reload}>{tr("Retry profile")}</button></div>}
+    {error && <ErrorNotice as="div" error={error}>{error}<button onClick={reload}>{tr("Retry profile")}</button></ErrorNotice>}
     {open && !snapshot && <DetailDialog title={tr("Language profile")} onClose={closeOverlay}><p>{tr("Language evidence is not connected.")}</p></DetailDialog>}
     {open && snapshot && (learningTarget ? <LearnerModel key={learningTarget} target={learningTarget} onClose={() => setLearningTarget(null)} /> : <ProgressSummary key={snapshot.target} snapshot={snapshot} onClose={closeOverlay} onLearning={setLearningTarget} />)}
   </>

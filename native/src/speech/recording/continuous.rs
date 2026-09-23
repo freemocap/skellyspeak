@@ -164,7 +164,7 @@ fn session(state: &Application, id: &str) -> Result<Arc<Session>> {
 }
 /// Each request is acknowledged before the browser sends its next PCM chunk.
 #[tauri::command]
-pub fn mic_listen_push(
+pub async fn mic_listen_push(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
     sequence: u32,
@@ -429,6 +429,11 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
                 break;
             }
         };
+        if detector.silence_expired() {
+            let _ = session
+                .stop
+                .compare_exchange(0, 1, Ordering::SeqCst, Ordering::SeqCst);
+        }
         let stopping = session.stop.load(Ordering::SeqCst) == 1;
         if stopping && let Some(clip) = detector.finish_on_stop() {
             clips.push(clip);

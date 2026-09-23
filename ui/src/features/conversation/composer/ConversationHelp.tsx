@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { useOnboardingStore } from '../../../state/settings/onboarding'
@@ -18,6 +19,6 @@ export function ConversationHelp({ hasReply, hasLearnerTurn }: { hasReply: boole
       setError('')
       void useOnboardingStore.getState().showHelp(false).catch(reason => setError(nativeError(reason)))
     }}>{tr('Dismiss help')}</button>
-    {error && <p role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
   </aside>
 }

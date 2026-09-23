@@ -84,13 +84,15 @@ const attempts: DrillAttemptView[] = outcomes.map((kinds, index) => ({
 
 function Preview() {
   const [mode, setMode] = useState<RecordMode>('auto')
-  const [direction, setDirection] = useState<TimeDirection>('rtl')
+  const [direction, setDirection] = useState<TimeDirection>('ltr')
+  const [speed, setSpeed] = useState(1)
   const [timeScale, setTimeScale] = useState<TimeScale>('fit')
   const [selected, setSelected] = useState<string | null>(null)
   const [settings, setSettings] = useState<ListeningSettings>({
     pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,
     thresholdOffsetDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdOffsetDb,
     minTakeMs: CONTINUOUS_RECORDING_POLICY.defaultMinTakeMs,
+    silenceTimeoutMs: CONTINUOUS_RECORDING_POLICY.defaultSilenceTimeoutMs,
   })
   const [time, setTime] = useState(0)
   const [level, setLevel] = useState(-50)
@@ -140,6 +142,7 @@ function Preview() {
       <main className="drill-stage">
         <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
             <div className="message-actions"><button type="button" className="message-translate">Translate</button><button type="button" className="message-translate">Word by word</button><button type="button" className="message-translate">Analysis</button></div></div>}
+          playbackSpeed={<label className="drill-playback-speed"><span>Voice speed</span><select className="field" aria-label="Voice speed" value={speed} onChange={event => setSpeed(Number(event.target.value))}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></label>}
           onPlayReference={() => {}} playingReference={false} referenceNote="Fixture"
           reference={firstVisit ? null : timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={firstVisit ? null : timed(spoken)}
           attemptLabel={firstVisit ? null : `Attempt ${attempt.sequence}`} attemptFailure={null} onRetryAttempt={() => {}} attemptUnavailable={null}

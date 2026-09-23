@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { errorMessage as errorText } from '../../platform/diagnostics/error-details'
 import { languageBadgeSample } from '../../domain/language/script-text'
 import { InspectText } from '../../components/reading/InspectText'
@@ -89,7 +90,7 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
           {matches.length === 0 && <p>{tr('No matching languages')}</p>}
           {saving && <p role="status">{tr('Saving…')}</p>}
           {notice && <p role="status">{notice === 'added' ? tr('Language added. Your current conversation is unchanged.') : tr('Language removed from My languages.')}</p>}
-          {actionError && <p role="alert">{actionError}</p>}
+          {actionError && <ErrorNotice as="p" error={actionError}>{actionError}</ErrorNotice>}
         </nav>
         <section className="language-browser-detail" aria-label={selected.name}>
           <div className="language-browser-overview">
@@ -101,7 +102,7 @@ export function LanguageBrowser({ onClose, initialLanguage }: { onClose: () => v
             {selected.varieties.map(item => <option key={item.id} value={item.id}>{translatedName(tr.locale, item.label)}</option>)}
           </select></label>
           </div>
-          {error && <div role="alert"><p>{error}</p><button type="button" className="btn" onClick={() => setAttempt(value => value + 1)}>{tr('Retry')}</button></div>}
+          {error && <ErrorNotice as="div" error={error}><p>{error}</p><button type="button" className="btn" onClick={() => setAttempt(value => value + 1)}>{tr('Retry')}</button></ErrorNotice>}
           {!report && !error && <p role="status">{tr('Loading…')}</p>}
           {report && <LanguageDetails report={report} key={inspectionKey} />}
         </section>

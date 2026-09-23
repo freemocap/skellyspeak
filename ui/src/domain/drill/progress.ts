@@ -21,7 +21,7 @@ export interface PhraseProgress {
   recentAverage: number | null
   exact: number
   words: WordHistory[]
-  /** Takes left out of the word grid because their comparison split the target differently. */
+  /** Takes left out of the word grid because recognition was unreliable or their comparison split the target differently. */
   excluded: number
   /** The word missed most often, when it was missed more than once. */
   trouble: WordHistory | null
@@ -50,7 +50,7 @@ export function phraseProgress(attempts: DrillAttemptView[], limit: number): Phr
   // split of the target cannot share its rows.
   const target = targetWords(takes[takes.length - 1])
   const key = target.join('\u0000')
-  const aligned = takes.filter(take => targetWords(take).join('\u0000') === key)
+  const aligned = takes.filter(take => take.comparison.reliability?.accepted !== false && targetWords(take).join('\u0000') === key)
   const words = target.map((word, index) => {
     const outcomes = aligned.map(take => {
       const kind = take.comparison.words.filter(entry => entry.kind !== 'extra')[index].kind

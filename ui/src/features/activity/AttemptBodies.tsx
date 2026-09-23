@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useEffect, useState } from 'react'
 import type { AttemptDetail, AttemptView } from '../../generated/contracts'
 import { useI18n } from '../../components/localization/i18n'
@@ -45,7 +46,7 @@ export function AttemptBodies({ attempt }: { attempt: AttemptView }) {
   const [mode, setMode] = useState<InspectionMode>('readable')
   return <>
     <InspectionModeControl mode={mode} onChange={setMode} />
-    {error && <p className="ai-error" role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error} className="ai-error">{error}</ErrorNotice>}
     <h4 className="ai-section-title">{tr('Request')}</h4>
     {detail?.decisionRequest ? <div className="ai-message"><div className="ai-message-role">{tr('Jev Choice')}</div><InspectionContent text={JSON.stringify(detail.decisionRequest, null, 2)} mode={mode} /></div> : detail?.requestMessages?.length ? detail.requestMessages.map((message, index) => <div key={index} className="ai-message">
       <div className="ai-message-role">{message.role}</div>

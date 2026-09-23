@@ -49,7 +49,7 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
         <h2>{tr("Attempt {value0}", { value0: String(attempt.sequence) })}</h2>
         <time className="drill-attempt-when" dateTime={attempt.createdAt} title={tr.dateTime(new Date(attempt.createdAt))}>{tr.date(new Date(attempt.createdAt), { timeStyle: 'short' })}</time>
         {facts(comparison, tr).map(fact => <span key={fact.label} className="drill-chip" data-tone={fact.tone}>{fact.label}</span>)}
-        <span className="drill-inspection-words">{tr("{value0}/{value1} words exact", { value0: String(exact), value1: String(counted) })}</span>
+        {comparison.reliability?.accepted !== false && <span className="drill-inspection-words">{tr("{value0}/{value1} words exact", { value0: String(exact), value1: String(counted) })}</span>}
         <span className="drill-inspection-words">{recording.value}</span>
         <span className="drill-inspection-spacer" />
         <span className="drill-inspection-score">{match(comparison, tr)}</span>
@@ -60,7 +60,10 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
       </div>
       {recording.note && <p className="drill-inspection-note">{recording.note}</p>}
 
-      <WordPairs words={words} rtl={rtl} />
+      {comparison.reliability?.accepted === false ? <bdi>{attempt.transcript}</bdi> : <WordPairs words={words} rtl={rtl} />}
+      {comparison.reliability && <p className="drill-inspection-note">{tr("Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.", {
+        value0: tr.number(comparison.reliability.minimumConfidence, { style: 'percent', maximumFractionDigits: 0 }),
+      })}</p>}
       {comparison.scriptNote === 'mismatch' && <p role="note">{tr("The transcript is in a different script from the phrase. This does not change the measurement.")}</p>}
 
       <table className="drill-measures" title={tr("Speaking time, pace and pauses come from detected sound, not from recognised words.")}>

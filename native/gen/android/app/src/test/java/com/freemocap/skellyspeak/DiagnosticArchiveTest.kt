@@ -11,7 +11,7 @@ class DiagnosticArchiveTest {
     @Test fun archiveIncludesPreviousRunsAndExcludesContent() {
         val root = Files.createTempDirectory("diagnostics-test").toFile()
         try {
-            for (name in listOf("native-1-2", "native-3-4")) {
+            for (name in listOf("native-0c33be7e-3663-4e75-b4a7-079d6a186064", "native-d6d8e4d5-f4a5-4fab-befc-688d2b5bf763")) {
                 val run = File(root, name).apply { mkdir() }
                 File(run, "diagnostics.jsonl").writeText("{\"code\":\"microphone_failed\"}\n")
                 File(run, "native.jsonl").writeText("{\"requestId\":\"safe-request-id\"}\n")

@@ -84,6 +84,7 @@ fn fixture(
         "continuous-fixture".into(),
         ListeningSettings {
             pause_ms: 1000,
+            silence_timeout_ms: 10000,
             threshold_offset_db: 10.0,
             min_take_ms: 160,
         },
@@ -231,10 +232,20 @@ async fn browser_pcm_uses_the_same_detector_receipts_and_publication() {
     let (_dir, app, session, item) = fixture(Vec::new(), &url);
     session.stop.store(0, Ordering::SeqCst);
     *session.browser.lock().unwrap() = Some(Default::default());
-    let worker = tokio::spawn(listen(app.clone(), session.clone(), "continuous-fixture".into()));
+    let worker = tokio::spawn(listen(
+        app.clone(),
+        session.clone(),
+        "continuous-fixture".into(),
+    ));
     for (sequence, chunk) in takes(1).chunks(2048).enumerate() {
-        session.browser.lock().unwrap().as_mut().unwrap()
-            .push(sequence as u32, 8000, chunk.to_vec()).unwrap();
+        session
+            .browser
+            .lock()
+            .unwrap()
+            .as_mut()
+            .unwrap()
+            .push(sequence as u32, 8000, chunk.to_vec())
+            .unwrap();
         tokio::time::sleep(std::time::Duration::from_millis(55)).await;
     }
     session.stop.store(1, Ordering::SeqCst);
@@ -248,4 +259,40 @@ async fn browser_pcm_uses_the_same_detector_receipts_and_publication() {
     assert_eq!(page.attempts.len(), 1);
     assert_eq!(page.attempts[0].transcript, "Hola");
     assert_eq!(store.profile().unwrap().global.attempts, 1);
+}
+
+#[tokio::test]
+async fn silence_timeout_releases_capture_and_finishes_already_queued_takes() {
+    let (url, server, gate) = server(1);
+    gate.store(false, Ordering::SeqCst);
+    let mut pcm = takes(1);
+    pcm.extend(vec![0.0; 8000 * 10]);
+    let (_dir, app, session, item) = fixture(pcm, &url);
+    session.stop.store(0, Ordering::SeqCst);
+    let worker = tokio::spawn(listen(
+        app.clone(),
+        session.clone(),
+        "continuous-fixture".into(),
+    ));
+    tokio::time::timeout(std::time::Duration::from_secs(5), async {
+        while session.status.lock().unwrap().listening {
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+    })
+    .await
+    .unwrap();
+    assert!(app.capture.lock().unwrap().is_none());
+    assert!(session.status.lock().unwrap().failure.is_none());
+    gate.store(true, Ordering::SeqCst);
+    worker.await.unwrap();
+    server.join().unwrap();
+    assert_eq!(
+        app.lock()
+            .unwrap()
+            .drill_attempts(&item, None, 10)
+            .unwrap()
+            .attempts
+            .len(),
+        1
+    );
 }

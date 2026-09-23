@@ -14,6 +14,29 @@ behavior, verification results and unresolved questions distinct.
 Discuss ownership and user behavior before choosing storage,
 frameworks, IPC or provider contracts. Do not present plans as working features.
 
+## Language-independent behavior
+
+This rule applies throughout the app: UI, native code, server, prompts, matching,
+analysis, tests and tooling. Solve language behavior at the highest shared level
+that expresses the product requirement. Prefer Unicode properties, shared
+algorithms and declared capabilities over language names, script block ranges,
+locale checks, per-language branches or hand-maintained character lists.
+
+Do not fix a cross-language problem with a language-specific patch. Establish a
+single general policy and test representative scripts, canonical encodings and
+meaningful counterexamples. Preserve source text and diagnostics; lossy matching
+views must disclose what they ignore and must not be presented as pronunciation
+or spelling evidence. Do not apply matching normalization to displayed content,
+quotes, identifiers or unrelated operations.
+
+Language/variety overrides in `content/languages/` are an absolute last resort:
+first demonstrate why the shared policy or a general capability cannot express
+the requirement, then document the specific exception and its evidence in
+`docs/notes/`. Keep any justified override declarative in language configuration;
+do not scatter language conditionals through application code. No override is
+needed for Drill mark-insensitive matching. Existing exceptions are not precedent
+for new ones; review them when their owning behavior is changed.
+
 ## UI organization
 
 Follow the folder map in [ui/README.md](ui/README.md). Keep application code under

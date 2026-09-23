@@ -5,17 +5,22 @@
 //! produced it has its own errors. The policy version travels with each result
 //! so an old attempt is never silently re-interpreted under new rules.
 use crate::model::*;
+use regex::Regex;
 use serde::Serialize;
+use std::sync::LazyLock;
 use ts_rs::TS;
-use unicode_normalization::UnicodeNormalization;
+use unicode_normalization::{UnicodeNormalization, char::is_combining_mark};
 use unicode_segmentation::UnicodeSegmentation;
 
-pub const POLICY: &str = "drill-comparison-v1";
+pub const POLICY: &str = "drill-comparison-v2";
 
 #[derive(Debug, Clone, Serialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct DrillComparison {
     pub policy: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub reliability: Option<super::reliability::DrillReliability>,
     // The texts exactly as they were, before any normalization.
     pub target: String,
     pub transcript: String,
@@ -31,7 +36,7 @@ pub struct DrillComparison {
     // Character error rate: edits / reference_graphemes, or null when the
     // target has no graphemes to measure against.
     pub character_error_rate: Option<f64>,
-    // 1 - CER, floored at zero, for reading as a score. Null with the rate.
+    // 1 - CER, floored at zero. Null when unmeasurable or recognition is unreliable.
     pub match_ratio: Option<f64>,
     pub words: Vec<WordComparison>,
     // Whether the transcript's script matches the target's. Advisory only: it
@@ -67,17 +72,23 @@ pub enum ScriptNote {
     Unknown,
 }
 
-/// Composition, case and punctuation only. Diacritics are preserved: a match
-/// must not claim a distinction was spoken when it was never compared.
-/// Punctuation is dropped because a recognizer does not report it reliably —
-/// a missing full stop is not something the learner failed to say.
+/// Base-text matching is intentionally insensitive to Unicode marks in every
+/// script. Canonical decomposition exposes marks in precomposed characters;
+/// recomposition keeps unmarked graphemes (including syllables) intact.
+/// This lossy comparison is not a spelling or pronunciation assessment. Original
+/// text remains in the result; only the derived matching view is normalized.
 fn normalize(text: &str) -> (String, Vec<&'static str>) {
+    static PUNCTUATION: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"[\p{P}[:punct:]]").expect("valid Unicode punctuation pattern")
+    });
     let composed: String = text.nfc().collect();
     let folded = composed.to_lowercase();
-    let stripped: String = folded
-        .chars()
-        .filter(|letter| !letter.is_ascii_punctuation() && !is_unicode_punctuation(*letter))
+    let unmarked: String = folded
+        .nfd()
+        .filter(|c| !is_combining_mark(*c))
+        .nfc()
         .collect();
+    let stripped = PUNCTUATION.replace_all(&unmarked, "");
     let collapsed = stripped.split_whitespace().collect::<Vec<_>>().join(" ");
     let mut applied = Vec::new();
     if composed != text {
@@ -86,24 +97,16 @@ fn normalize(text: &str) -> (String, Vec<&'static str>) {
     if folded != composed {
         applied.push("lowercase");
     }
-    if stripped != folded {
+    if unmarked != folded {
+        applied.push("strip_unicode_marks");
+    }
+    if stripped != unmarked {
         applied.push("strip_punctuation");
     }
     if collapsed != stripped {
         applied.push("collapse_whitespace");
     }
     (collapsed, applied)
-}
-
-/// Punctuation outside ASCII: the marks target-language text actually uses,
-/// such as ¿ ¡ « » — and the CJK and Arabic stops.
-fn is_unicode_punctuation(letter: char) -> bool {
-    matches!(letter as u32,
-        0x00A1 | 0x00BF | 0x00AB | 0x00BB
-        | 0x2010..=0x2027 | 0x2030..=0x205E
-        | 0x3001..=0x3003 | 0x300C..=0x300F | 0x3008..=0x3011
-        | 0xFF01 | 0xFF0C | 0xFF0E | 0xFF1A | 0xFF1B | 0xFF1F
-        | 0x060C | 0x061B | 0x061F | 0x06D4)
 }
 
 fn graphemes(text: &str) -> Vec<&str> {
@@ -270,6 +273,7 @@ pub fn compare(target: &str, transcript: &str) -> DrillComparison {
     let rate = (!want.is_empty()).then(|| edits as f64 / want.len() as f64);
     DrillComparison {
         policy: POLICY.into(),
+        reliability: None,
         target: target.into(),
         transcript: transcript.into(),
         normalizations: steps.into_iter().map(String::from).collect(),

@@ -3,6 +3,7 @@ package com.freemocap.skellyspeak
 import android.app.Activity
 import android.content.ClipData
 import android.content.Intent
+import android.content.pm.LabeledIntent
 import android.os.Build
 import android.os.Process
 import android.webkit.WebView
@@ -102,7 +103,16 @@ class DiagnosticSharePlugin(private val activity: Activity) : Plugin(activity) {
                                 clipData = ClipData.newRawUri("SkellySpeak logs", uri)
                                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
-                            activity.startActivity(Intent.createChooser(intent, "Share SkellySpeak logs"))
+                            val saveIntent = Intent(activity, DiagnosticSaveActivity::class.java).apply {
+                                data = uri
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            }
+                            val chooser = Intent.createChooser(intent, "Share SkellySpeak logs").apply {
+                                putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(
+                                    LabeledIntent(saveIntent, activity.packageName, "Save logs", android.R.drawable.ic_menu_save)
+                                ))
+                            }
+                            activity.startActivity(chooser)
                             busy.set(false)
                             invoke.resolve()
                         }

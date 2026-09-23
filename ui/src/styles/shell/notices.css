@@ -16,6 +16,7 @@
 .update-bar b { color: var(--interaction-ink); }
 
 .fault-panel {
+  position: relative;
   flex: none; min-height: 80px; max-height: 85dvh; min-width: 0;
   display: flex; flex-direction: column; overflow: hidden;
 }
@@ -27,18 +28,16 @@
   overflow: auto; overscroll-behavior: contain; overflow-wrap: anywhere;
 }
 
-.fault-bar > .btn { position: sticky; top: 0; z-index: var(--z-raised); flex: none; align-self: flex-end; }
+.fault-panel .fault-bar { padding-inline-end: calc(var(--touch-target) * 2); }
+.fault-export { position: absolute; inset-inline-end: var(--touch-target); top: 0; z-index: var(--z-raised); }
+.fault-export > .error-notice { position: fixed; inset-inline: var(--space-5); top: var(--space-12); background: var(--sheet); color: var(--danger-ink); }
+.log-export-compact { display: grid; place-items: center; width: var(--touch-target); height: var(--touch-target); padding: 0; border: 0; color: inherit; background: transparent; cursor: pointer; }
+.log-export-compact:disabled { opacity: 0.5; cursor: wait; }
+.fault-dismiss-all { z-index: var(--z-raised); color: var(--fault-bar-ink); background: var(--fault-bar-bg); }
 
-.fault-bar .fault { margin: 0; padding-inline-end: var(--space-10); position: relative; width: 100%; }
+.fault-bar .fault { margin: 0; padding-inline-end: var(--touch-target); min-height: var(--touch-target); position: relative; width: 100%; }
 
 .fault-bar .fault b { color: var(--fault-bar-strong); }
-
-.fault-dismiss {
-  position: absolute; top: -2px; right: 0; border: none; background: none;
-  color: var(--fault-bar-ink); cursor: pointer; font-size: var(--type-ui); line-height: var(--leading-none); padding: var(--space-1) var(--space-2);
-}
-
-.fault-dismiss:hover { color: var(--ink-on-fill); }
 
 .update-controls { display: flex; align-items: center; gap: var(--space-4); }
 
@@ -48,4 +47,4 @@
 .fault-resize { flex: none; height: 16px; display: grid; place-items: center; cursor: ns-resize; touch-action: none; background: var(--fault-bar-bg); }
 .fault-resize > span { width: 48px; height: 3px; border-radius: var(--radius-sm); background: var(--fault-bar-line); }
 .fault-resize:hover > span, .fault-resize:focus-visible > span { background: var(--fault-bar-strong); }
-@media (pointer: coarse) { .fault-resize { height: 44px; } }
+@media (pointer: coarse) { .fault-resize { height: var(--touch-target); } }

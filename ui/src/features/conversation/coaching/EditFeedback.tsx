@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import type { ConversationFeedback } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
@@ -25,7 +26,7 @@ export function EditFeedback({ conversationFeedback, decision, feedback, error, 
       {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy || !onControl} onClick={() => void help('open_card')}>{tr("Show help")}</button>}
       {conversationFeedback ? <ConversationFeedbackCard feedback={conversationFeedback} /> : decision || error ? <CoachEntry feedback={feedback} decision={decision} source={null} error={error} /> : <p>{reviewing ? tr("The coach is still reviewing this attempt.") : tr("No feedback was saved for this attempt.")}</p>}
       {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" disabled={busy || !onControl} onClick={() => void help('show_answer')}>{tr("Show answer")}</button>}
-      {failure && <p role="alert">{failure}</p>}
+      {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     </div>
   </section>
 }

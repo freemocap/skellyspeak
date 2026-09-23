@@ -1727,6 +1727,20 @@ else. Recording, transcription, receipts, usage accounting, reading aids,
 speech, audio inspection and the spectrogram are the same implementations Chat
 uses, reached by naming a `RecordingOwner::DrillItem`.
 
+**2026-09-23 implemented correction:** new comparisons use `drill-comparison-v2`.
+Matching uses canonical decomposition, removal of all Unicode Mark-category
+characters, and canonical recomposition, for every language. The normalization
+receipt records `strip_unicode_marks`; punctuation uses Unicode properties rather
+than script-specific ranges. Original target/transcript text remains unchanged.
+This deliberately lossy base-text score does not assess spelling or pronunciation;
+marks carrying phonemic meaning are ignored too. Base-letter differences remain.
+No language identifiers, mark ranges or configuration overrides drive this rule.
+The reported marked/unmarked phrase now scores 100% in the regression test.
+Previously saved comparisons retain their recorded score; no attempts are rewritten.
+
+The following describes the historical first slice; its diacritic and punctuation
+rules are superseded by the shared correction above.
+
 `drill/comparison.rs` measures one attempt against its target, policy
 `drill-comparison-v1`:
 

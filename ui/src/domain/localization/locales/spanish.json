@@ -1,4 +1,6 @@
 {
+  "Add to Drill": "Añadir a práctica",
+  "Added to Drill": "Añadido a práctica",
   "Help with this reply": "Ayuda con esta respuesta",
   "Hide reply help": "Ocultar la ayuda",
   "Explain grammar": "Explicar la gramática",
@@ -1358,5 +1360,14 @@
   "Previous phrase": "Frase anterior",
   "Next phrase": "Frase siguiente",
   "Full report": "Informe completo",
-  "Comparison settings": "Ajustes de comparación"
+  "Comparison settings": "Ajustes de comparación",
+  "Stop listening after silence of": "Dejar de escuchar tras un silencio de",
+  "Not scored": "Sin puntuación",
+  "Confidence unavailable": "Confianza no disponible",
+  "Recognition confidence: {value0}": "Confianza del reconocimiento: {value0}",
+  "No speech detected — not scored": "No se detectó voz — sin puntuación",
+  "Low confidence — not scored": "Confianza baja — sin puntuación",
+  "Confidence unavailable — not scored": "Confianza no disponible — sin puntuación",
+  "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Confianza mínima del reconocimiento: {value0}. La verosimilitud del modelo no es una probabilidad calibrada de corrección.",
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} tomas carecen de reconocimiento fiable o usan otra división de la frase y se excluyen de la tabla de palabras."
 }

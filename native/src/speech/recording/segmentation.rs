@@ -38,6 +38,9 @@ pub(super) struct Segmenter {
     clip: Vec<f32>,
     voiced: usize,
     quiet: usize,
+    silent_frames: usize,
+    silence_timeout_frames: usize,
+    silence_expired: bool,
     onset: usize,
 }
 impl Segmenter {
@@ -66,6 +69,9 @@ impl Segmenter {
             clip: vec![],
             voiced: 0,
             quiet: 0,
+            silent_frames: 0,
+            silence_timeout_frames: settings.silence_timeout_ms.div_ceil(20) as usize,
+            silence_expired: false,
             onset: 0,
         })
     }
@@ -75,6 +81,7 @@ impl Segmenter {
     /// Apply new boundary choices from the next frame on; a take in progress keeps going.
     pub fn tune(&mut self, settings: ListeningSettings) -> Result<(), String> {
         settings.validate()?;
+        self.silence_timeout_frames = settings.silence_timeout_ms.div_ceil(20) as usize;
         self.pause_frames = settings.pause_ms.div_ceil(20) as usize;
         self.threshold_offset_db = settings.threshold_offset_db;
         self.min_voiced_frames = settings.min_take_ms.div_ceil(20) as usize;
@@ -89,6 +96,9 @@ impl Segmenter {
     pub fn ignored(&self) -> u32 {
         self.ignored
     }
+    pub fn silence_expired(&self) -> bool {
+        self.silence_expired
+    }
     pub fn speaking(&self) -> bool {
         !self.clip.is_empty()
     }
@@ -102,6 +112,9 @@ impl Segmenter {
         let mut completed = vec![];
         let mut peak = f64::NEG_INFINITY;
         for frame in frames.chunks_exact(self.width) {
+            if self.silence_expired {
+                break;
+            }
             self.cursor += self.width;
             let energy = frame_energy_db(frame.iter().map(|s| f64::from(*s)));
             let mut floor: Vec<_> = self.noise.iter().copied().collect();
@@ -116,6 +129,11 @@ impl Segmenter {
             self.levels.noise_floor_db = noise_floor_db;
             self.levels.threshold_db = threshold;
             let active = energy > threshold;
+            self.silent_frames = if active { 0 } else { self.silent_frames + 1 };
+            if self.silent_frames >= self.silence_timeout_frames {
+                self.silence_expired = true;
+                break;
+            }
             if self.clip.is_empty() {
                 self.preroll.push_back(frame.to_vec());
                 if self.preroll.len() > 10 {
@@ -207,12 +225,43 @@ mod tests {
     fn settings(pause_ms: u32) -> ListeningSettings {
         ListeningSettings {
             pause_ms,
+            silence_timeout_ms: 10000,
             threshold_offset_db: 10.0,
             min_take_ms: 160,
         }
     }
     fn block(s: &mut Segmenter, seconds: f32, level: f32) -> Vec<Clip> {
         s.push(&vec![level; (8000.0 * seconds) as usize]).unwrap()
+    }
+    #[test]
+    fn silence_timeout_counts_from_start_resets_on_sound_and_obeys_tuning() {
+        let mut s = Segmenter::new(8000, settings(1000)).unwrap();
+        block(&mut s, 9.98, 0.0);
+        assert!(!s.silence_expired());
+        block(&mut s, 0.02, 0.0);
+        assert!(s.silence_expired());
+        // Sound later in the same buffered upload cannot restart a timed-out run.
+        assert!(block(&mut s, 1.0, 0.1).is_empty());
+        let mut s = Segmenter::new(8000, settings(1000)).unwrap();
+        block(&mut s, 9.0, 0.0);
+        block(&mut s, 0.5, 0.1);
+        assert_eq!(block(&mut s, 1.0, 0.0).len(), 1);
+        assert!(!s.silence_expired());
+        s.tune(ListeningSettings {
+            silence_timeout_ms: 5000,
+            ..settings(1000)
+        })
+        .unwrap();
+        block(&mut s, 4.0, 0.0);
+        assert!(s.silence_expired());
+        assert!(
+            ListeningSettings {
+                silence_timeout_ms: 0,
+                ..settings(1000)
+            }
+            .validate()
+            .is_err()
+        );
     }
     #[test]
     fn three_repetitions_split_and_short_hesitation_does_not() {
@@ -229,7 +278,14 @@ mod tests {
     }
     #[test]
     fn silence_clicks_partial_frames_and_stop_are_bounded() {
-        let mut s = Segmenter::new(8000, settings(600)).unwrap();
+        let mut s = Segmenter::new(
+            8000,
+            ListeningSettings {
+                silence_timeout_ms: 15000,
+                ..settings(600)
+            },
+        )
+        .unwrap();
         assert!(block(&mut s, 10.0, 0.0).is_empty());
         assert!(block(&mut s, 0.04, 0.5).is_empty());
         assert!(block(&mut s, 1.0, 0.0).is_empty());

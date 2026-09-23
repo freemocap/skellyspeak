@@ -18,15 +18,15 @@ export function FaultBar() {
   if (faults.length === 0) return null
   return (
     <div className="fault-panel" ref={panel} style={height === null ? undefined : { height }}>
+    <button type="button" className="error-dismiss fault-dismiss-all" aria-label={tr("Dismiss all")} title={tr("Dismiss all")} onClick={dismissAll}>×</button>
     <div id={id} className="fault-bar" role="alert">
-      <ShareLogsButton />
-      <button type="button" className="btn tiny" onClick={dismissAll}>{tr("Dismiss all")}</button>
+      <div className="fault-export"><ShareLogsButton compact /></div>
       {faults.map((f) => (
         <div key={f.id} className="fault">
           <b>{f.context}:</b> {f.message}
           <button
             type="button"
-            className="fault-dismiss"
+            className="error-dismiss"
             aria-label={tr("Dismiss")}
             onClick={() => dismiss(f.id)}
           >

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useI18n } from '../../../components/localization/i18n'
 import { useImperativeHandle, useState, type Ref } from 'react'
 import type { PersonaDetails } from '../../../generated/contracts'
@@ -117,7 +118,7 @@ export function PersonaForm({ draft, romanized, onChange, onCommit, disabled, re
           onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); addVibe() } }}
           onBlur={() => { if (vibeDraft.trim()) addVibe() }} />
       </label>
-      {vibeError && <p className="persona-inline-error" role="alert">{vibeError}</p>}
+      {vibeError && <ErrorNotice as="p" error={vibeError} className="persona-inline-error">{vibeError}</ErrorNotice>}
     </fieldset>
   </div>
 }

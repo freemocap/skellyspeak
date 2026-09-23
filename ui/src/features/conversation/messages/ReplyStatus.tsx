@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useRef, useState } from 'react'
 import type { ReplyState } from '../../../domain/conversation/reply-state'
 import { nativeError } from '../../../platform/ipc/workspace'
@@ -39,6 +40,6 @@ export function ReplyStatus({ reply, activity, stream, retainedText, rtl, onCont
       void onControl(reply.control!).catch(reason => setError(nativeError(reason))).finally(() => { locked.current = false; setPending(false) })
     }}>{reply.control === 'retry' ? tr('Retry exchange') : tr('Resume exchange')}</button>}
     {onActivity && <button type="button" onClick={onActivity}>{tr('Open AI activity')}</button>}
-    {error && <p role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
   </div>
 }

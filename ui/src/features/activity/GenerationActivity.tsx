@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { useEffect, useState } from 'react'
@@ -31,7 +32,7 @@ export function GenerationActivity() {
 
   return <details className="generation-activity" open>
     <summary>{tr("Persona generation · Global")}</summary>
-    {error && <p role="alert">{error} <button type="button" className="btn" onClick={() => setRefresh(value => value + 1)}>{tr("Retry generation activity")}</button></p>}
+    {error && <ErrorNotice as="p" error={error}>{error} <button type="button" className="btn" onClick={() => setRefresh(value => value + 1)}>{tr("Retry generation activity")}</button></ErrorNotice>}
     {!snapshot && !error && <p role="status">{tr("Loading generation activity…")}</p>}
     {snapshot && <>
       <table><caption>{tr("All retained dispatched attempts")}</caption><tbody>

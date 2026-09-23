@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { SavedGlossText } from '../../../components/reading/SavedGlossText'
 import type { WordGlossView } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
@@ -52,7 +53,7 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit, userG
           <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto">{userGloss ? <SavedGlossText text={message} segments={userGloss.segments} /> : <TargetText text={message} />}</div></div>
           <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto">{replyGloss ? <SavedGlossText text={reply} segments={replyGloss.segments} /> : <TargetText text={reply} />}</div></div>
         </section>
-        {error ? <p role="alert">{error}</p> : <>
+        {error ? <ErrorNotice as="p" error={error}>{error}</ErrorNotice> : <>
           <h3>{tr("How your message came across")}</h3><p dir="auto">{reaction!.interpretation}</p>
           <h3>{reaction!.kind === 'confused' ? tr("What was unclear") : tr("Why this reaction")}</h3><p dir="auto">{reaction!.explanation}</p>
         </>}

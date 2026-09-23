@@ -5,6 +5,7 @@ pub mod direction;
 pub mod execution;
 pub mod gloss;
 pub(crate) mod openers;
+mod persona_projection;
 pub(crate) mod revision;
 pub(crate) mod saved_topics;
 pub(crate) mod translation;

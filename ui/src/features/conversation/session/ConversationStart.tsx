@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { TargetText } from '../../../components/reading/TargetText'
 import { PersonaAvatar } from '../../../components/media/PersonaAvatar'
 import { useI18n } from '../../../components/localization/i18n'
@@ -79,7 +80,7 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
           {recording ? tr('Stop') : tr('Say {greeting}', { greeting: greeting.text })}
         </button>
       </div>
-      {error && <p className="start-error" role="alert">{error}</p>}
+      {error && <ErrorNotice as="p" error={error} className="start-error">{error}</ErrorNotice>}
     </div>
     <ConversationChoices value={value} topics={topics} disabled={disabled} targetTag={targetTag} targetDir={targetDir} onChange={onChange} topicsDisabled={disabled || !canPartnerStart} onChooseTopic={configuration => { onChange(configuration); void start(configuration) }} onCustom={() => setCustom(true)} />
     <div className="prompt-actions">

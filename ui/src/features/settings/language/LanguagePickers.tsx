@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { translatedName } from '../../../domain/localization'
 import { useI18n } from '../../../components/localization/i18n'
@@ -149,7 +150,7 @@ export function LearningPicker() {
         <button type="button" className="language-dropdown-add" disabled={disabled} onMouseEnter={() => setExpanded(null)} onClick={() => {
           setOpen(false); useNavigationStore.getState().showOverlay('languages')
         }}>{tr('Add language…')}</button>
-        {error && <p role="alert">{error}</p>}
+        {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
       </div>}
     </div>
     {saving && <span role="status" className="learning-saving">{tr('Saving…')}</span>}

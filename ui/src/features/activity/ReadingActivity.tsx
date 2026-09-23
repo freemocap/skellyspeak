@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { ResponseDetails } from '../../components/feedback/ResponseDetails'
@@ -16,6 +17,6 @@ export function ReadingActivity() {
   }
   return <details><summary>{tr('Reading request history')}</summary>
     <button className="btn" disabled={pending} onClick={() => void refresh()}>{tr('Refresh')}</button>
-    {error && <p role="alert">{error}</p>}<ResponseDetails value={receipts} />
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}<ResponseDetails value={receipts} />
   </details>
 }

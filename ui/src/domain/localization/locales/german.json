@@ -1,4 +1,6 @@
 {
+  "Add to Drill": "Zur Übung hinzufügen",
+  "Added to Drill": "Zur Übung hinzugefügt",
   "Help with this reply": "Hilfe zu dieser Antwort",
   "Hide reply help": "Hilfe ausblenden",
   "Explain grammar": "Grammatik erklären",
@@ -1358,5 +1360,14 @@
   "Previous phrase": "Vorheriger Satz",
   "Next phrase": "Nächster Satz",
   "Full report": "Vollständiger Bericht",
-  "Comparison settings": "Vergleichseinstellungen"
+  "Comparison settings": "Vergleichseinstellungen",
+  "Stop listening after silence of": "Zuhören beenden nach einer Stille von",
+  "Not scored": "Nicht bewertet",
+  "Confidence unavailable": "Konfidenz nicht verfügbar",
+  "Recognition confidence: {value0}": "Erkennungskonfidenz: {value0}",
+  "No speech detected — not scored": "Keine Sprache erkannt — nicht bewertet",
+  "Low confidence — not scored": "Niedrige Konfidenz — nicht bewertet",
+  "Confidence unavailable — not scored": "Konfidenz nicht verfügbar — nicht bewertet",
+  "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Mindestkonfidenz der Erkennung: {value0}. Die Modellwahrscheinlichkeit ist keine kalibrierte Wahrscheinlichkeit für Richtigkeit.",
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} Aufnahmen haben keine zuverlässige Erkennung oder eine andere Satzaufteilung und werden aus dem Wortraster ausgeschlossen."
 }

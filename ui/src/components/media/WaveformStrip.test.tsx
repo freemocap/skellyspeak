@@ -64,6 +64,15 @@ it('repaints after resize even without incoming samples or a new elapsed second'
   expect(context.setTransform).toHaveBeenCalledTimes(2)
 })
 
+it('keeps delayed display history visible on the capture clock after a minute', () => {
+  render(<WaveformStrip source={{ samplesPerSecond: 750, read: () => Array(9000).fill(0.25), endSeconds: () => 60 }}
+    timelineSeconds={12} endSeconds={60} />)
+  expect(context.moveTo).toHaveBeenCalledWith(0, expect.closeTo(44 * 0.05))
+  const waveX = context.lineTo.mock.calls.slice(1, -1).map(([x]) => x)
+  expect(Math.min(...waveX)).toBeGreaterThanOrEqual(0)
+  expect(Math.max(...waveX)).toBeLessThanOrEqual(590)
+})
+
 it('retains only the visible history and preserves a one-sample peak', () => {
   const samples = Array(15000).fill(0)
   samples[samples.length - 2] = 1

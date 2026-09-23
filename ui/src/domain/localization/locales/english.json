@@ -1,4 +1,6 @@
 {
+  "Add to Drill": "Add to Drill",
+  "Added to Drill": "Added to Drill",
   "Help with this reply": "Help with this reply",
   "Hide reply help": "Hide reply help",
   "Explain grammar": "Explain grammar",
@@ -1358,5 +1360,14 @@
   "Previous phrase": "Previous phrase",
   "Next phrase": "Next phrase",
   "Full report": "Full report",
-  "Comparison settings": "Comparison settings"
+  "Comparison settings": "Comparison settings",
+  "Stop listening after silence of": "Stop listening after silence of",
+  "Not scored": "Not scored",
+  "Confidence unavailable": "Confidence unavailable",
+  "Recognition confidence: {value0}": "Recognition confidence: {value0}",
+  "No speech detected — not scored": "No speech detected — not scored",
+  "Low confidence — not scored": "Low confidence — not scored",
+  "Confidence unavailable — not scored": "Confidence unavailable — not scored",
+  "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.",
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid."
 }

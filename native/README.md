@@ -4,6 +4,15 @@ The application code running on the user's device: persistence, credentials,
 AI execution, recording, and native integration. This is separate from the
 remote [Python server](../server/).
 
+## Shared language behavior
+
+Follow the repository's [language-independent behavior rule](../AGENTS.md#language-independent-behavior).
+Implement one general policy using Unicode properties and shared capabilities;
+do not add language-specific code paths or character lists to solve a general
+problem. Declarative language-config overrides are a documented last resort,
+only after the shared approach has been shown insufficient. Preserve original
+text; normalization belongs only to the operation that requires it.
+
 ## Source folder map
 
 | Folder | Responsibility |

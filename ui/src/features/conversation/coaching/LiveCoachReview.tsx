@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import { useI18n } from '../../../components/localization/i18n'
 import { useEffect, useRef, useState } from 'react'
@@ -31,7 +32,7 @@ export function LiveCoachReview({ turn, visible, onControl, onAsk }: {
   return <section ref={review} className="live-coach-review" aria-label={tr("Conversation coaching")}>
     <h3>{tr("On your message")}</h3>
     {turn.conversationFeedback ? <ConversationFeedbackCard feedback={turn.conversationFeedback} onAsk={onAsk} /> : <CoachEntry source={null} decision={decision} feedback={turn.coach} error={turn.coachError} />}
-    {error && <p role="alert">{error}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" className="detail-action" onClick={() => { void onControl('show_answer').catch(reason => setError(nativeError(reason))) }}>{tr("Show answer")}</button>}
   </section>
 }

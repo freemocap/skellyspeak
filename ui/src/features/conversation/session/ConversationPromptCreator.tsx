@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useEffect, useRef, useState } from 'react'
 import type { ConversationStartConfig, Language, PersonaDetails, PromptPreview, SavedTopic, TopicCard } from '../../../generated/contracts'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
@@ -44,8 +45,8 @@ export function ConversationPromptCreator({ conversationId, initial, topics, sav
   return <DetailDialog title={tr('Conversation Prompt Creator')} size="wide" onClose={() => { if (!saving) onClose() }}><div className="prompt-creator">
     <h2>{tr('Conversation Prompt Creator')}</h2>
     <div className="prompt-tabs" role="tablist" aria-label={tr('Creator views')}>{(['form', 'yaml', 'preview'] as const).map(tab => <button className="btn" type="button" role="tab" id={`creator-${tab}`} aria-controls={`creator-panel-${tab}`} aria-selected={view === tab} key={tab} disabled={saving || (view === 'yaml' && (pending || !!error)) || (tab === 'yaml' && !preview)} onClick={() => setView(tab)}>{tr({ form: 'Form', yaml: 'YAML', preview: 'Prompt preview' }[tab])}</button>)}</div>
-    {error && <p role="alert">{error}</p>}
-    {saveError && <p role="alert">{saveError}</p>}
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
+    {saveError && <ErrorNotice as="p" error={saveError}>{saveError}</ErrorNotice>}
     <section role="tabpanel" id="creator-panel-form" aria-labelledby="creator-form" hidden={view !== 'form'}>
       <label>{tr('Variety')}<select className="field" value={draft.varietyId} disabled={saving} onChange={event => change({ ...draft, varietyId: event.target.value })}>{language.varieties.map(variety => <option value={variety.id} key={variety.id}>{variety.name}</option>)}</select></label>
       <ConversationChoices value={draft} topics={topics} disabled={saving} onChange={change} onCustom={() => setCustom(true)} />

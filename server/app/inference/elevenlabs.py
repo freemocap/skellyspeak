@@ -5,6 +5,7 @@ The owner supplies an authenticated provider profile and an HTTP client. Request
 and result types are shared with future audio adapters. No model-name routing.
 """
 from __future__ import annotations
+from server.app.inference.transcription_confidence import summarize
 from server.app.diagnostics.exceptions import DiagnosticValueError
 
 import asyncio
@@ -198,7 +199,7 @@ def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> Transcri
         # Preserve script and learner wording; do not rewrite low-confidence text.
         receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
                                {"http":receipt.diagnostics, "response":provider_errors.sanitize(value), "no_verbatim": False,
-                                "timing": timing})
+                                "timing": timing, "transcription_confidence": summarize(value, "elevenlabs")})
         return TranscriptionResult(text, duration, words, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
         raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transcription_validation", "path":path, "expected":"string transcript text, at most 20000 characters, without NUL", "response":provider_errors.sanitize(value), "http":receipt.diagnostics}) from None

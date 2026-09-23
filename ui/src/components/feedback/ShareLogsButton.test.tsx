@@ -1,9 +1,25 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { expect, it, vi } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { ShareLogsButton } from './ShareLogsButton'
 import { saveDiagnosticLogs, shareDiagnosticLogs, supportsLogSaving, supportsLogSharing } from '../../platform/ipc/diagnostic-sharing'
 vi.mock('../../platform/ipc/diagnostic-sharing', () => ({ supportsLogSharing: vi.fn(() => true), supportsLogSaving: vi.fn(() => false), shareDiagnosticLogs: vi.fn(), saveDiagnosticLogs: vi.fn() }))
+beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(supportsLogSharing).mockReturnValue(true)
+  vi.mocked(supportsLogSaving).mockReturnValue(true)
+})
+it('offers one compact share control when the device supports both saving and sharing', async () => {
+  vi.mocked(shareDiagnosticLogs).mockResolvedValueOnce(undefined)
+  render(<ShareLogsButton compact />)
+  expect(screen.getAllByRole('button')).toHaveLength(1)
+  const button = screen.getByRole('button', { name: 'Share logs' })
+  expect(button.textContent).toBe('')
+  fireEvent.click(button)
+  await waitFor(() => expect(button).toBeEnabled())
+  expect(shareDiagnosticLogs).toHaveBeenCalledOnce()
+  expect(saveDiagnosticLogs).not.toHaveBeenCalled()
+})
 it('opens the share sheet once, then makes an unsuccessful export retryable', async () => {
   let reject!: (error: Error) => void
   vi.mocked(shareDiagnosticLogs).mockImplementationOnce(() => new Promise((_, fail) => { reject = fail }))

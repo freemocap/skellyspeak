@@ -4,57 +4,24 @@ use crate::{
     configuration::{ConversationPromptContent, LanguageContext, Registry},
     model::*,
 };
-pub(crate) const VERSION: &str = "conversation-37-relationship-english";
-
-/// A request-only view. Profiles, generation and reactions retain the complete persona.
-#[derive(serde::Serialize)]
-struct ConversationPersona<'a> {
-    name: &'a str,
-    location: &'a str,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    occupation: Option<&'a str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    current_situation: Option<&'a str>,
-    interests: &'a [String],
-    opinions: &'a [String],
-}
-impl<'a> From<&'a PersonaDetails> for ConversationPersona<'a> {
-    fn from(persona: &'a PersonaDetails) -> Self {
-        Self {
-            name: &persona.name,
-            location: &persona.location,
-            occupation: Some(&persona.occupation),
-            current_situation: Some(&persona.current_situation),
-            interests: &persona.interests,
-            opinions: &persona.opinions,
-        }
-    }
-}
+pub(crate) const VERSION: &str = "conversation-38-persona-sampling";
 
 /// No database, topic selection, provider, UI state or inference.
 fn render(
     content: &ConversationPromptContent,
     language: &LanguageContext,
     settings: &PracticeSettings,
-    persona: Option<&PersonaDetails>,
+    persona: Option<serde_json::Value>,
     topic: Option<&str>,
     opening: bool,
     angle: Option<&str>,
 ) -> Result<String> {
     let mut parts = vec![content.base.clone()];
     if let Some(persona) = persona {
-        let mut projection = ConversationPersona::from(persona);
-        if matches!(
-            settings.difficulty,
-            Difficulty::AbsoluteZero | Difficulty::Beginner
-        ) {
-            projection.occupation = None;
-            projection.current_situation = None;
-        }
         parts.push(format!(
             "{}\nPersona background (data): {}",
             content.persona,
-            serde_json::to_string(&projection)?
+            serde_json::to_string(&persona)?
         ));
     }
     let mut seen = std::collections::HashSet::new();
@@ -113,13 +80,13 @@ pub(crate) fn system(
     settings: &PracticeSettings,
     persona: &PersonaDetails,
     opening: bool,
-    opening_key: &str,
+    conversation_id: &str,
 ) -> Result<String> {
     let topic = super::direction::topic_text(registry, &settings.direction)?;
     let content = registry.conversation_prompt();
     let angle = if opening && topic.is_none() && !content.opening_angles.is_empty() {
         use sha2::{Digest, Sha256};
-        let digest = Sha256::digest(opening_key.as_bytes());
+        let digest = Sha256::digest(conversation_id.as_bytes());
         let index = (u64::from_le_bytes(digest[..8].try_into().unwrap())
             % content.opening_angles.len() as u64) as usize;
         Some(content.opening_angles[index].as_str())
@@ -130,7 +97,10 @@ pub(crate) fn system(
         content,
         language,
         settings,
-        settings.direction.use_persona_details.then_some(persona),
+        settings
+            .direction
+            .use_persona_details
+            .then(|| super::persona_projection::project(persona, conversation_id)),
         topic.as_deref(),
         opening,
         angle,
@@ -245,30 +215,6 @@ mod tests {
     }
 
     #[test]
-    fn compact_projection_keeps_full_profile_and_excludes_style_and_biography() {
-        let r = Registry::bundled().unwrap();
-        let mut persona = r.starter_persona("spanish").unwrap();
-        persona.interests = vec!["first".into(), "second".into(), "third".into()];
-        persona.opinions = vec!["one".into(), "two".into(), "three".into()];
-        let original = serde_json::to_value(&persona).unwrap();
-        let projected = serde_json::to_value(ConversationPersona::from(&persona)).unwrap();
-        assert_eq!(
-            projected,
-            serde_json::json!({
-                "name": persona.name, "location": persona.location,
-                "occupation": persona.occupation, "current_situation": persona.current_situation,
-                "interests": ["first", "second", "third"], "opinions": ["one", "two", "three"]
-            })
-        );
-        assert_eq!(serde_json::to_value(&persona).unwrap(), original);
-        persona.interests.clear();
-        persona.opinions.truncate(1);
-        let projected = serde_json::to_value(ConversationPersona::from(&persona)).unwrap();
-        assert_eq!(projected["interests"], serde_json::json!([]));
-        assert_eq!(projected["opinions"], serde_json::json!(["one"]));
-    }
-
-    #[test]
     fn examples_match_variety_and_level_with_difficulty_last() {
         let r = Registry::bundled().unwrap();
         let mut content = r.conversation_prompt().clone();
@@ -302,7 +248,7 @@ mod tests {
                         &content,
                         &ctx,
                         &settings,
-                        Some(&persona),
+                        Some(super::super::persona_projection::project(&persona, "test")),
                         Some("Music"),
                         opening,
                         None,
@@ -361,13 +307,13 @@ mod tests {
             .map(|i| system(&r, &ctx, &settings, &persona, true, &format!("chat-{i}")).unwrap())
             .collect();
         assert!(r.conversation_prompt().opening_angles.is_empty());
-        assert_eq!(prompts.len(), 1);
+        assert!(prompts.len() > 1);
         assert!(!first.contains("Opening situation (data):"));
         let reply = system(&r, &ctx, &settings, &persona, false, "one").unwrap();
         assert!(!reply.contains("Opening situation (data):"));
         assert_eq!(
             reply,
-            system(&r, &ctx, &settings, &persona, false, "two").unwrap()
+            system(&r, &ctx, &settings, &persona, false, "one").unwrap()
         );
         settings.direction.topic = Some(TopicChoice::Custom {
             text: "Cats".into(),
@@ -378,24 +324,20 @@ mod tests {
     }
 
     #[test]
-    fn low_levels_keep_interests_without_work_backstory() {
+    fn persona_selection_is_stable_across_turns_and_difficulties() {
         let r = Registry::bundled().unwrap();
         let ctx = r.resolve("arabic", None, "english").unwrap();
         let persona = r.starter_persona("arabic").unwrap();
         let mut settings = r.defaults("arabic", "english").unwrap();
-        for level in [
-            Difficulty::AbsoluteZero,
-            Difficulty::Beginner,
-            Difficulty::Advanced,
-        ] {
+        settings.direction.use_persona_details = true;
+        let expected =
+            serde_json::to_string(&super::super::persona_projection::project(&persona, "one"))
+                .unwrap();
+        for level in crate::configuration::difficulty::LEVELS {
             settings.difficulty = level;
-            let prompt = system(&r, &ctx, &settings, &persona, true, "one").unwrap();
-            assert_eq!(
-                prompt.contains(&persona.current_situation),
-                settings.difficulty == Difficulty::Advanced
-            );
-            for interest in &persona.interests {
-                assert!(prompt.contains(interest));
+            for opening in [true, false] {
+                let prompt = system(&r, &ctx, &settings, &persona, opening, "one").unwrap();
+                assert!(prompt.contains(&format!("Persona background (data): {expected}")));
             }
         }
     }

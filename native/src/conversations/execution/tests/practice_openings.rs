@@ -215,49 +215,54 @@ fn configuration(
 
 #[test]
 fn preview_matches_captured_opening_and_does_not_admit_work() {
-    let (_dir, mut store, conversation) = setup();
-    let mut config = configuration(&store, &conversation);
-    config.difficulty = Difficulty::AbsoluteZero;
-    config.direction.use_persona_details = false;
-    config.direction.time_reference = crate::conversations::direction::TimeReference::Future;
-    config.direction.topic =
-        Some(crate::conversations::direction::TopicChoice::Builtin { id: "food".into() });
-    let before = store.snapshot().unwrap();
-    let preview = crate::conversations::conversation_prompt::preview(
-        &store.config,
-        &before,
-        &conversation,
-        &config,
-    )
-    .unwrap();
-    assert_eq!(store.snapshot().unwrap().revision, before.revision);
-    assert_eq!(
-        store
-            .connection
-            .query_row("SELECT count(*) FROM turns", [], |r| r.get::<_, i32>(0))
-            .unwrap(),
-        0
-    );
-    assert_eq!(preview.difficulty_prompts.len(), 5);
-    assert!(preview.system_prompt.contains("Absolute zero difficulty"));
-    assert!(!preview.system_prompt.contains("Persona background"));
-    let turn = apply(
-        &mut store,
-        Action::StartConversation {
-            conversation_id: conversation.clone(),
-            configuration: config,
-            message: None,
-            input: None,
-            expected_revision: before.revision,
-        },
-    )
-    .entity_id;
-    let captured = wave2_context(&store, &turn);
-    assert_eq!(
-        captured["messages"],
-        serde_json::json!([{ "role": "system", "content": preview.system_prompt }])
-    );
-    assert!(captured["sourceIds"].as_array().unwrap().is_empty());
+    for use_persona_details in [false, true] {
+        let (_dir, mut store, conversation) = setup();
+        let mut config = configuration(&store, &conversation);
+        config.difficulty = Difficulty::AbsoluteZero;
+        config.direction.use_persona_details = use_persona_details;
+        config.direction.time_reference = crate::conversations::direction::TimeReference::Future;
+        config.direction.topic =
+            Some(crate::conversations::direction::TopicChoice::Builtin { id: "food".into() });
+        let before = store.snapshot().unwrap();
+        let preview = crate::conversations::conversation_prompt::preview(
+            &store.config,
+            &before,
+            &conversation,
+            &config,
+        )
+        .unwrap();
+        assert_eq!(store.snapshot().unwrap().revision, before.revision);
+        assert_eq!(
+            store
+                .connection
+                .query_row("SELECT count(*) FROM turns", [], |r| r.get::<_, i32>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(preview.difficulty_prompts.len(), 5);
+        assert!(preview.system_prompt.contains("Absolute zero difficulty"));
+        assert_eq!(
+            preview.system_prompt.contains("Persona background"),
+            use_persona_details
+        );
+        let turn = apply(
+            &mut store,
+            Action::StartConversation {
+                conversation_id: conversation.clone(),
+                configuration: config,
+                message: None,
+                input: None,
+                expected_revision: before.revision,
+            },
+        )
+        .entity_id;
+        let captured = wave2_context(&store, &turn);
+        assert_eq!(
+            captured["messages"],
+            serde_json::json!([{ "role": "system", "content": preview.system_prompt }])
+        );
+        assert!(captured["sourceIds"].as_array().unwrap().is_empty());
+    }
 }
 
 #[test]

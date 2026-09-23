@@ -52,6 +52,11 @@
             <!-- DEEP LINK PLUGIN. AUTO-GENERATED. DO NOT REMOVE. -->
         </activity>
 
+        <!-- Only our share chooser can open this destination. It never exports
+             files until the learner selects a document location. -->
+        <activity android:name=".DiagnosticSaveActivity" android:exported="false"
+            android:label="Save logs" />
+
         <provider
           android:name="androidx.core.content.FileProvider"
           android:authorities="${applicationId}.fileprovider"

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { lensLabelKey } from '../../../domain/learning/catalog/evidence-labels'
 import { useI18n } from '../../../components/localization/i18n'
 import { YamlExport } from '../../../components/persistence/YamlExport'
@@ -72,7 +73,7 @@ export function LearnerModel({ target, onClose }: { target: string; onClose: () 
     <section className="learner-model">
       <h2>{tr("Your learning evidence")}</h2>
       <p>{tr("Estimates describe your recorded practice, separately from XP. They are experimental, not a proficiency certification.")}</p>
-      {error && <div role="alert">{error}<button className="inspection-action" disabled={saving} onClick={() => refresh(value => value + 1)}>{tr("Reload evidence")}</button></div>}
+      {error && <ErrorNotice as="div" error={error}>{error}<button className="inspection-action" disabled={saving} onClick={() => refresh(value => value + 1)}>{tr("Reload evidence")}</button></ErrorNotice>}
       {!data && !error && <p role="status">{tr("Loading your evidence…")}</p>}
       <div className="learner-model-controls"><label>{tr("Partner ")}<select value={personaId ?? ''} disabled={saving} onChange={event => setPartnerSelection({ target, id: event.target.value || null })}><option value="">{tr("All partners")}</option>{(partnerOptions.target === target ? partnerOptions.items : []).map(partner => <option key={partner.personaId} value={partner.personaId}>{partner.name}{partner.archived ? tr(" (archived)") : ''}</option>)}</select></label>
         {data && <><label>{tr("Variety ")}<select value={variety} onChange={event => { setVariety(event.target.value); select(null) }}><option value="*">{tr("All varieties")}</option>{[...new Set([...data.model.constructs.map(item => item.varietyId), ...data.evidence.records.map(record => record.variety ?? '')])].sort().map(id => <option key={id} value={id}>{id || tr("Unspecified variety")}</option>)}</select></label><span>{data.evidence.profile.xp} {tr(" language-wide practice XP")}</span><span className="learner-model-export-actions"><button className="inspection-action" disabled={exporting || saving} onClick={() => setYamlOpen(true)}>{tr("View YAML")}</button><button className="inspection-action" disabled={exporting || saving} onClick={() => void exportEvidence()}>{exporting ? tr("Saving evidence…") : tr("Save YAML")}</button></span></>}

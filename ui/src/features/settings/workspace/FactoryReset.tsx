@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { useI18n } from '../../../components/localization/i18n'
 import { useRef, useState } from 'react'
@@ -31,7 +32,7 @@ export function FactoryReset() {
       <SaveDataCopy />
       <label htmlFor="factory-reset-confirmation">{tr("Type ")}<strong>{tr("DELETE")}</strong> {tr(" to confirm")}</label>
       <input id="factory-reset-confirmation" autoComplete="off" spellCheck={false} value={confirmation} disabled={busy} onChange={(event) => setConfirmation(event.target.value)} />
-      {error && <p role="alert">{error}</p>}
+      {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
       <div className="modal-actions">
         <button type="button" className="btn" autoFocus disabled={busy} onClick={() => dialog.current!.close()}>{tr("Cancel")}</button>
         <button type="button" className="btn danger" disabled={confirmation !== 'DELETE' || busy} onClick={() => void erase()}>{busy ? tr("Closing…") : tr("Delete all data and close")}</button>

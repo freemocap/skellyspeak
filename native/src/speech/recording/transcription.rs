@@ -184,7 +184,18 @@ impl crate::storage::store::Store {
         )?;
         let result = finish(&tx, id, owner, target, result)?;
         if let (RecordingOwner::DrillItem(item), Ok(text), Some(wav)) = (owner, &result, wav) {
-            crate::drill::stage_attempt(&tx, item, Some(id), text, Some(wav))?;
+            let reliability = diagnostics
+                .and_then(|value| value.get("drill_reliability"))
+                .map(|value| serde_json::from_value(value.clone()))
+                .transpose()?;
+            crate::drill::stage_attempt_with_reliability(
+                &tx,
+                item,
+                Some(id),
+                text,
+                Some(wav),
+                reliability,
+            )?;
         }
         if result.is_ok() && matches!(owner, RecordingOwner::DrillItem(_)) {
             crate::drill::retention::mark(&tx)?;

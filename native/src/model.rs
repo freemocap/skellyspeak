@@ -684,6 +684,7 @@ pub fn bindings() -> String {
         crate::drill::history::DrillAttemptPage::decl(&config),
         crate::drill::DrillAttemptView::decl(&config),
         crate::drill::comparison::DrillComparison::decl(&config),
+        crate::drill::reliability::DrillReliability::decl(&config),
         crate::drill::comparison::WordComparison::decl(&config),
         crate::drill::comparison::WordOutcome::decl(&config),
         crate::drill::comparison::ScriptNote::decl(&config),
@@ -710,7 +711,15 @@ pub fn bindings() -> String {
             serde_json::to_string(crate::diagnostics::DIAGNOSTIC_COMMAND_NAMES)
                 .expect("command names")
         ),
-        declarations.map(|line| format!("export {line}")).join("\n"),
+        declarations
+            .map(|line| format!(
+                "export {}",
+                line.lines()
+                    .map(str::trim_end)
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            ))
+            .join("\n"),
         format_args!(
             "{}\nexport const SKILL_CATALOG_VERSION = {} as const",
             persona_limits(),

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { useI18n } from '../../components/localization/i18n'
@@ -27,9 +28,10 @@ function tickStep(span: number) {
  * beside its own timeline, the way a media player does. */
 export function DrillComparison({ target, reference, referenceTime, onSeekReference, onPlayReference, playingReference, referenceNote,
   attempt, attemptLabel, attemptFailure, onRetryAttempt, attemptUnavailable, direction, onDirection, timeScale, onTimeScale,
-  holding, playingAttempt, onPlayAttempt }: {
+  holding, playingAttempt, onPlayAttempt, playbackSpeed }: {
   /** The phrase itself, in its reading bubble. */
   target: ReactNode
+  playbackSpeed?: ReactNode
   reference: AudioInspection | null
   referenceTime: number
   onSeekReference: (seconds: number) => void
@@ -96,9 +98,10 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       <div className="drill-target-card">{target}</div>
 
       <div className="drill-media">
-        <button type="button" className="btn drill-play" disabled={playingReference || holding} onClick={onPlayReference} title={referenceNote}>
-          <ToolbarIcon name="play" size={14} />{tr(playingReference ? "Playing…" : "Hear it")}
+        <button type="button" className="btn drill-play" disabled={holding} onClick={onPlayReference} title={referenceNote}>
+          <ToolbarIcon name={playingReference ? "stop" : "play"} size={14} />{tr(playingReference ? "Stop" : "Hear it")}
         </button>
+        {playbackSpeed}
         {reference
           ? <input className="drill-seek" type="range" dir={direction} aria-label={tr('Seek reference audio')} min={0} max={reference.duration} step={0.01}
             value={Math.min(referenceTime, reference.duration)} disabled={holding} onChange={event => onSeekReference(Number(event.target.value))} />
@@ -130,8 +133,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
         style={{ '--drill-plot-height': plotHeight === null ? undefined : `${Math.round(plotHeight)}px` } as CSSProperties}>
         {attemptLabel && <>
           <div className="drill-media drill-media-take">
-            <button type="button" className="btn drill-play" disabled={!attempt || playingAttempt || holding} onClick={onPlayAttempt}>
-              <ToolbarIcon name="play" size={14} />{tr(playingAttempt ? "Playing…" : "Play yours")}
+            <button type="button" className="btn drill-play" disabled={!attempt || holding} onClick={onPlayAttempt}>
+              <ToolbarIcon name={playingAttempt ? "stop" : "play"} size={14} />{tr(playingAttempt ? "Stop" : "Play yours")}
             </button>
             <span className="drill-media-time">{attempt ? `${tr("You")} · ${attemptLabel} · ${seconds(attempt.duration)}${attempt.activity.regions.length > 1
               ? tr(" · {value0} speech segments", { value0: String(attempt.activity.regions.length) }) : ''}` : `${tr("You")} · ${attemptLabel}`}</span>
@@ -155,8 +158,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
         </div>}
       </div>
 
-      {attemptFailure != null && <p role="alert">{errorMessage(attemptFailure)}
-        <button type="button" className="btn" onClick={onRetryAttempt}>{tr("Try again")}</button></p>}
+      {attemptFailure != null && <ErrorNotice as="p" error={attemptFailure}>{errorMessage(attemptFailure)}
+        <button type="button" className="btn" onClick={onRetryAttempt}>{tr("Try again")}</button></ErrorNotice>}
       {attemptLabel && !reference && <p role="status" className="drill-timeline-empty">{tr("Play the reference to compare it with this attempt.")}</p>}
       {attempt && <div className="drill-comparison-foot">
         {!mobile && <WordTimingNote wordTiming={attempt.wordTiming} />}

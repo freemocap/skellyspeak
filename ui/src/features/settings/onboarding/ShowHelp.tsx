@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { useOnboardingStore } from '../../../state/settings/onboarding'
@@ -15,5 +16,5 @@ export function ShowHelp({ onShown }: { onShown: () => void }) {
       setError('')
       void useOnboardingStore.getState().reviewSetup().then(onShown).catch(reason => setError(nativeError(reason)))
     }}>{tr('Restart onboarding')}</button>
-    {error && <p role="alert">{error}</p>}</div>
+    {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}</div>
 }

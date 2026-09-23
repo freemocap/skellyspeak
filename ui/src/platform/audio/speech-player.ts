@@ -9,6 +9,7 @@ export interface PlaybackHandle {
   play: () => Promise<void>
   suspend: () => void
   setVolume: (volume: number) => void
+  setRate: (rate: number) => void
 }
 
 export interface PlaybackObserver { onTime?: (seconds: number, duration: number) => void; onReady?: (player: PlaybackHandle | null) => void; startSeconds?: number }
@@ -56,6 +57,10 @@ export function playSpeechAudio(state: Extract<SpeechAudioState, { status: 'read
     },
     /// Suspension is an end, not a pause: the caller clears its speaking state.
     suspend: () => { if (released) return; handle.stop(); onEnd() },
+    setRate: (value: number) => {
+      if (!Number.isFinite(value) || value < 0.5 || value > 1.5) throw new Error('Invalid voice playback speed.')
+      if (!released) audio.playbackRate = value
+    },
     setVolume: (value: number) => { if (!released) audio.volume = value },
   }
   audio.onloadedmetadata = () => { if (observer?.startSeconds) handle.seek(observer.startSeconds) }

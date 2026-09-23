@@ -7,6 +7,13 @@ import { beginCapture, endCapture } from './speech'
 import type { LiveSpectrogram, ListeningSettings, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
 
+/** A stopped manual clip exists before capture delivery or transcription returns. */
+export interface PendingRecording {
+  recordingId: string
+  state: 'processing' | 'completed' | 'failed'
+  failure: unknown
+}
+
 interface MicRecorderOptions {
   /** What this recording belongs to: a conversation, a drill item, or nothing yet. */
   owner: RecordingOwner | null
@@ -25,8 +32,8 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
   const [lastTranscription, setLastTranscription] = useState<TranscriptionInspectionResult | null>(null)
   const [liveSpectrum, setLiveSpectrum] = useState<LiveSpectrogram | null>(null)
   const spectrumSnapshot = useRef<LiveSpectrogram | null>(null)
-  const lastSpectrumPoll = useRef(0)
   const [listeningStatus, setListeningStatus] = useState<ListeningStatus | null>(null)
+  const [pendingRecordings, setPendingRecordings] = useState<PendingRecording[]>([])
   const [failure, setFailure] = useState<unknown>(null)
   const continuous = useRef(false)
   const publications = useRef(0)
@@ -69,7 +76,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
     else if (!working.current) release()
   }, [release, stopNative])
   useEffect(() => () => cancel(), [ownerKey, cancel])
-  useEffect(() => { setRecording(false); setTranscribing(false); setWaveSource(null); setLastTranscription(null); setListeningStatus(null); setLiveSpectrum(null); spectrumSnapshot.current = null; setFailure(null) }, [ownerKey])
+  useEffect(() => { setRecording(false); setTranscribing(false); setWaveSource(null); setLastTranscription(null); setListeningStatus(null); setPendingRecordings([]); setLiveSpectrum(null); spectrumSnapshot.current = null; setFailure(null) }, [ownerKey])
 
 
   // Drain native samples once into the copied time-axis renderer.
@@ -86,20 +93,6 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
           if (active.current !== recordingId) return
           if (status.recordingId !== recordingId) throw new Error('Listening status belongs to another recording.')
           setListeningStatus(status)
-          if (Date.now() - lastSpectrumPoll.current >= 200) {
-            lastSpectrumPoll.current = Date.now()
-            const spectrum = await invoke<LiveSpectrogram | null>('mic_listen_spectrogram', { recordingId, afterSeconds: spectrumSnapshot.current?.data.frameStartSeconds.at(-1) ?? null })
-            if (active.current !== recordingId) return
-            if (spectrum) {
-              const previous = spectrumSnapshot.current
-              const times = [...(previous?.data.frameStartSeconds ?? []), ...spectrum.data.frameStartSeconds]
-              const bins = [...(previous?.data.bins ?? []), ...spectrum.data.bins]
-              const first = times.findIndex(time => time + spectrum.data.windowSeconds >= spectrum.endSeconds - 12)
-              const merged = { ...spectrum, data: { ...spectrum.data, frameStartSeconds: times.slice(Math.max(0, first)), bins: bins.slice(Math.max(0, first)) } }
-              spectrumSnapshot.current = merged
-              setLiveSpectrum(merged)
-            }
-          }
           if (status.completed !== publications.current) {
             publications.current = status.completed
             const owner = current.current
@@ -133,10 +126,39 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
     return () => clearInterval(timer)
   }, [recording, transcribing, cancel, release])
 
+  // Spectrogram computation can be slow. Never let it hold up take receipts.
+  useEffect(() => {
+    if (!recording || !continuous.current) return
+    let polling = false
+    const timer = setInterval(() => {
+      const recordingId = active.current
+      if (!recordingId || polling) return
+      polling = true
+      void (async () => {
+        const spectrum = await invoke<LiveSpectrogram | null>('mic_listen_spectrogram', { recordingId, afterSeconds: spectrumSnapshot.current?.data.frameStartSeconds.at(-1) ?? null })
+        if (active.current !== recordingId) return
+        if (spectrum) {
+          const previous = spectrumSnapshot.current
+          const times = [...(previous?.data.frameStartSeconds ?? []), ...spectrum.data.frameStartSeconds]
+          const bins = [...(previous?.data.bins ?? []), ...spectrum.data.bins]
+          const first = times.findIndex(time => time + spectrum.data.windowSeconds >= spectrum.endSeconds - 12)
+          const merged = { ...spectrum, data: { ...spectrum.data, frameStartSeconds: times.slice(Math.max(0, first)), bins: bins.slice(Math.max(0, first)) } }
+          spectrumSnapshot.current = merged
+          setLiveSpectrum(merged)
+        }
+      })().catch(error => {
+        if (active.current !== recordingId) return
+        setFailure(error); reportFault('Microphone spectrum', error); cancel()
+      }).finally(() => { polling = false })
+    }, 200)
+    return () => clearInterval(timer)
+  }, [recording, cancel])
+
   const toggleMic = useCallback(async () => {
     if (working.current) return
     const scope = generation.current
     working.current = true
+    let stoppedRecordingId: string | null = null
     try {
       const recordingId = active.current
       if (recordingId && continuous.current) {
@@ -148,6 +170,8 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
         return
       }
       if (recordingId) {
+        stoppedRecordingId = recordingId
+        if (owner?.kind === 'drillItem') setPendingRecordings(takes => [...takes, { recordingId, state: 'processing', failure: null }])
         active.current = null; setRecording(false); setWaveSource(null); setTranscribing(true)
         // Keep exclusion until native acknowledges the stop/transcription call.
         // Cancelling or changing owner must not release while hardware is live.
@@ -167,6 +191,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
         if (result.inspection.recordingId !== recordingId || `${result.inspection.owner.kind}:${result.inspection.owner.id}` !== ownerKey) {
           throw new Error('Recording inspection belongs to a different recording or owner.')
         }
+        setPendingRecordings(takes => takes.map(take => take.recordingId === recordingId ? { ...take, state: 'completed' } : take))
         setLastTranscription(result)
         if (result.text.trim()) callback.current(result.text)
       } else {
@@ -207,7 +232,10 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
       }
     } catch (error) {
       release()
-      if (generation.current === scope) { setFailure(error); reportFault('Microphone', error) }
+      if (generation.current === scope) {
+        if (stoppedRecordingId) setPendingRecordings(takes => takes.map(take => take.recordingId === stoppedRecordingId ? { ...take, state: 'failed', failure: error } : take))
+        setFailure(error); reportFault('Microphone', error)
+      }
     }
     finally {
       working.current = false
@@ -230,5 +258,5 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
     void invoke('mic_listen_tune', { recordingId, settings }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
   }, [])
 
-  return { tune, liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, cancel }
+  return { pendingRecordings, tune, liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, cancel }
 }

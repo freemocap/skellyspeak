@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { AiSplit } from './AiSplit'
 import { InspectionContent, InspectionModeControl, type InspectionMode } from './InspectionContent'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -70,7 +71,7 @@ export function GraphDefinitions({ selection, onSelect, renderHeader }: { select
     </div>
   return <>
     {renderHeader(controls)}
-    {error && <p className="ai-error" role="alert">{error} <button type="button" className="btn" onClick={() => setRequest(value => value + 1)}>{tr('Retry')}</button></p>}
+    {error && <ErrorNotice as="p" error={error} className="ai-error">{error} <button type="button" className="btn" onClick={() => setRequest(value => value + 1)}>{tr('Retry')}</button></ErrorNotice>}
     {!graph && graphs && <p className="ai-error" role="alert">{tr('Choose a graph')}</p>}
     {graph && <AiSplit inspector={node && <aside className="ai-inspector" aria-label={tr('Selected operation')}>
         <header className="ai-inspector-head"><h3>{humanizeKind(node.kind)}</h3><button type="button" className="ai-chip" onClick={() => setExpanded(true)}>{tr('Expand')}</button></header>

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage, errorDetails } from '../../platform/diagnostics/error-details'
@@ -53,11 +54,11 @@ export function DrillAnalysis({ item, scope, nativeLanguageName, children }: {
     {open && <DetailDialog title={tr("Message analysis")} onClose={() => setOpen(false)}>
       <h2>{tr("Message analysis")}</h2>
       {pending && <p role="status">{tr("⟳ Analyzing grammar…")}</p>}
-      {failure != null && <>
-        <p role="alert">{errorMessage(failure)}</p>
+      {failure != null && <ErrorNotice error={failure}>
+        <p>{errorMessage(failure)}</p>
         <ResponseDetails value={errorDetails(failure)} />
         <button type="button" className="btn" onClick={ask}>{tr("Try again")}</button>
-      </>}
+      </ErrorNotice>}
       {cards?.itemId === item.id && (cards.value.cards.length
         ? <ExplanationCards cards={cards.value.cards} nativeLanguageName={nativeLanguageName} />
         : <p>{tr("Nothing to flag in this reply.")}</p>)}

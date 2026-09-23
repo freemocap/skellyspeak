@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../src/components/feedback/ErrorNotice'
 /** Design-system previews: real shared components rendered to static markup with
  *  sample data. build.ts bundles this file, calls render(), and writes each entry
  *  to docs/design-system/components/<name>/preview.html. No native calls or state. */
@@ -20,6 +21,7 @@ export type Preview = { name: string; group: string; height: number; element: Re
 const noop = () => {}
 
 export const previews: Preview[] = [
+  { name: 'ErrorNotice', group: 'Feedback', height: 120, element: <ErrorNotice error="sample"><strong>Microphone</strong><p>Listening stopped because the app was suspended or another view opened. Start again to continue.</p></ErrorNotice> },
   {name:'ReplyHelp',group:'Conversation',height:600,element:<div className="ds-stack">
     <ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={noop} />
     <ReplyHelp {...replyHelpFixture} opened={['grammar']} busy={false} errors={[]} onUse={noop} />

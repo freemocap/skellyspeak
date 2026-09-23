@@ -292,3 +292,94 @@ the existing partner surface tint and border with its accent edge. This replaces
 the preceding shared-reading-size decision. Browser inspection at 390×844
 confirmed 21 px / weight 400 and no horizontal overflow; style validation passed
 and the design-system bundle was regenerated.
+
+### Recording modes, playback speed and audio direction
+
+Auto is now Drill's initial recording mode (supersedes the earlier Tap default).
+Tap/Hold/Auto have separate bordered surfaces, gaps, 44 px minimum widths, and a
+filled selected state. The reference playback row now exposes Voice speed using
+the existing saved tts_rate preference and shared settings writer. The existing
+reference player accepts rate changes while playing, preserving pitch and position;
+a reference still loading adopts the current rate when ready. Future take playback
+also reads the same preference. No new speed persistence or speech generation path.
+
+Audio time defaults to left-to-right regardless of language script. The manual
+Time direction control remains; target text still uses its proper script direction.
+
+Verification: 61 Drill/audio tests passed, including defaults, speed preference,
+manual RTL selection and in-place player speed changes. Full UI and preview type
+checks and style validation passed; design-system artifacts regenerated. Browser
+preview at 360×740 showed no horizontal overflow, all three mode buttons measured
+44 px wide, and Arabic reference audio used left-to-right time. Speed selection
+was exercised at 390×844. No native device or live microphone test was run.
+
+### Recording settings use shared native modality
+
+Replaced the dock's inline details popover with the shared DetailDialog, preserving
+ongoing capture explicitly so silence settings can still be tuned while listening.
+The shared dialog supplies raised surface/shadow, dimmed backdrop, native inert
+background, focus containment, outside-click dismissal, Escape and close control.
+Removed the obsolete absolute-positioned popover styling.
+
+55 Drill/dialog tests passed, including backdrop vs inside clicks and preserving
+capture when opening settings. Preview type-check and style validation passed;
+design-system bundle regenerated. At 390×844 the browser showed the raised modal
+and scrim, confirmed :modal and focus inside, and Escape closed it. No native
+microphone run was performed.
+
+
+## 2026-09-23: browser PCM backlog and compact log export
+
+Observed on the Pixel: the browser worklet message handler raised “Microphone
+audio delivery fell behind” after successful takes. This was the frontend queue
+limit, not Android microphone permission denial. Each 2048-sample worklet frame
+previously required a separate acknowledged IPC round trip; delayed replies could
+leave the queue permanently catching up.
+
+Implemented: coalesce waiting frames into ordered batches of at most 8192 samples
+(the native transport limit), keep one request in flight, and flush all acknowledged
+audio before stopping. The two-second safety bound remains; no samples are silently
+dropped. Queue failures include stage, sample rate, pending sample count/duration
+and submitted batch count without audio content. Native push commands are async
+so dispatch does not execute on the WebView UI thread.
+
+Implemented: one log export action per platform. The fault panel uses a corner
+icon without a button row; Android offers a Save logs destination inside the
+share chooser. The destination is a non-exported activity and saves only after
+the learner selects a file location. Desktop saving remains available.
+
+Verification: simulated 48kHz streaming across 500 worklet frames with 90ms
+acknowledgements preserves every sample and sequence; cancellation/backlog and
+rejected-delivery tests enforce bounded failure instead of silent loss. Physical
+microphone endurance is a separate device check.
+
+Device verification also exposed an export bug: Android accepted obsolete numeric
+run directory names while the native sink writes UUID run directories. The archive
+allowlist and archive regression fixtures now use the current UUID format; file
+name restrictions and linked-file rejection remain in force.
+
+Final device verification: installed the updated debug APK on the Pixel, opened
+the Android share sheet, selected its Save logs destination, and saved a ZIP to
+Downloads through the system document picker. The exported ZIP passed archive
+integrity verification. Android JVM tests passed, along with 64 selected UI/audio
+tests and 26 native recording tests. Sustained physical microphone use remains
+unverified; the audio regression test exercises delayed IPC acknowledgements.
+
+## 2026-09-23: reachable mobile results and waveform clock
+
+The mobile reference previously remained sticky over the results, consuming much
+of the available scrollport. It now scrolls with practice content; the recorder
+stays in its own grid row, with bottom spacing after the stats.
+
+Browser waveform samples previously came from analyser snapshots under an assumed
+60fps read rate. Delayed screen updates accumulated a mismatch against the native
+audio clock and could shift the waveform outside its visible plot. WaveBuffer now
+derives bounded display peaks from captured PCM, retains twelve seconds, and
+reports its actual capture position independently of rendering frequency. Audio
+delivery and transcription still receive the complete PCM.
+
+Verification: 68 targeted tests passed, followed by 10 waveform tests including
+the new one-minute delayed-history regression. Style and Android build checks
+passed. Installed on the Pixel; a touch swipe reached the complete stats and
+recent-take row above the recorder. Observed the waveform drawing during a live
+capture. Extended on-device waveform endurance was not measured.

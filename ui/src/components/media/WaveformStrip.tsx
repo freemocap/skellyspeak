@@ -117,7 +117,7 @@ export function WaveformStrip({
         const amplitudeScale = height * 0.45 / peak
         for (let i = 0; i < points.length; i++) {
           const [position, sample] = points[i]!
-          const x = position + (clock.current === undefined ? 0 : (totalSamples / source.samplesPerSecond - clock.current) / timelineSeconds * width)
+          const x = position + (clock.current === undefined ? 0 : ((source.endSeconds?.() ?? totalSamples / source.samplesPerSecond) - clock.current) / timelineSeconds * width)
           const y = height / 2 - sample * amplitudeScale
           if (i === 0) ctx2d.moveTo(x, y)
           else ctx2d.lineTo(x, y)

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { errorMessage as message } from '../../../platform/diagnostics/error-details'
 import { useI18n } from '../../../components/localization/i18n'
 import { ConnectionHealthPanel } from './ConnectionHealthPanel'
@@ -168,7 +169,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     </div>
   }
   if (!connection || !access || !endpoint) return <div role="status">
-    {error ? <><p role="alert">{error}</p><button className="btn" onClick={() => void run(read)}>{tr("Retry AI access")}</button></> : tr("Loading AI access…")}
+    {error ? <><ErrorNotice as="p" error={error}>{error}</ErrorNotice><button className="btn" onClick={() => void run(read)}>{tr("Retry AI access")}</button></> : tr("Loading AI access…")}
   </div>
   const locked = busy || dirty !== null
   const health = customHealth?.revision === access.revision && !dirty ? customHealth : undefined
@@ -233,7 +234,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     </>}
     </div>
     {dirty && <div className="access-pending"><span role="status">{busy ? tr("Saving…") : editingField ? tr("Editing — saves when you leave the field") : tr("Unsaved changes")}</span><button type="button" className="btn" disabled={busy} title={tr("Discard unsaved edits; saved credentials are kept")} onClick={discard}>{tr("Discard changes")}</button></div>}
-    {error && <div role="alert">{error}{dirty && <button className="btn" disabled={busy} onClick={() => void run(() => save(dirty))}>{tr("Retry save")}</button>}</div>}
+    {error && <ErrorNotice as="div" error={error}>{error}{dirty && <button className="btn" disabled={busy} onClick={() => void run(() => save(dirty))}>{tr("Retry save")}</button>}</ErrorNotice>}
     {status && <p role="status">{tr(status)}</p>}
   </section>
 }

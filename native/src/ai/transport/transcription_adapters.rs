@@ -103,9 +103,78 @@ impl Adapter {
         if result.text.chars().count() > 20000 || result.text.contains('\0') {
             return Err(failure());
         }
+        let mut diagnostics = crate::diagnostics::response::metadata(&diagnostics, &[]);
+        // Keep the bounded confidence summary even if verbose provider metadata
+        // exhausts the general diagnostic budget. Only declared scalar fields survive.
+        if let Some(summary) = super::transcription_confidence::summary(&value) {
+            diagnostics["transcription_confidence"] = summary;
+        }
         Ok(TranscriptionOutcome {
             result,
-            diagnostics: Some(crate::diagnostics::response::metadata(&diagnostics, &[])),
+            diagnostics: Some(diagnostics),
         })
+    }
+}
+
+#[cfg(test)]
+mod confidence_tests {
+    use super::*;
+
+    #[test]
+    fn existing_service_evidence_reaches_the_drill_gate() {
+        let value = json!({"text":"fixture", "usage":{"diagnostics":{"response":{"segments":[
+            {"avg_logprob":-0.05339829,"no_speech_prob":0.0012197495}
+        ]}}}});
+        let outcome = Adapter::decode(&serde_json::to_vec(&value).unwrap()).unwrap();
+        let mut wav = std::io::Cursor::new(Vec::new());
+        let spec = hound::WavSpec {
+            channels: 1,
+            sample_rate: 8000,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+        let mut writer = hound::WavWriter::new(&mut wav, spec).unwrap();
+        for sample in 0..8000 {
+            writer
+                .write_sample(if (1600..4800).contains(&sample) {
+                    3000i16
+                } else {
+                    0
+                })
+                .unwrap();
+        }
+        writer.finalize().unwrap();
+        let (inspection, _) = crate::speech::analysis::audio_inspection::inspect_wav(
+            &wav.into_inner(),
+            "r",
+            &crate::speech::recording::owner::RecordingOwner::DrillItem("i".into()),
+        )
+        .unwrap();
+        let reliability =
+            crate::drill::reliability::assess(&inspection, outcome.diagnostics.as_ref());
+        assert!(reliability.accepted);
+        assert_eq!(reliability.source, "segment_logprobs");
+        assert!((reliability.confidence.unwrap() - 0.9480023574202364).abs() < 1e-8);
+    }
+
+    #[test]
+    fn confidence_survives_verbose_metadata_limits_without_content() {
+        let summary = json!({"score":0.8,"complete":true,"count":100,"no_speech_probability":0.1,"source":"word_logprobs","private_extra":"private transcript"});
+        let value = json!({"text":"private transcript", "transcription_confidence":summary,
+            "usage":{"diagnostics":{"response":{"segments":vec![json!({"text":"private transcript","logprob":-0.2}); 2000]}}}});
+        let outcome = Adapter::decode(&serde_json::to_vec(&value).unwrap()).unwrap();
+        assert_eq!(outcome.result.text, "private transcript");
+        let metadata = outcome.diagnostics.unwrap();
+        assert_eq!(metadata["transcription_confidence"]["score"], 0.8);
+        assert_eq!(
+            metadata["transcription_confidence"]["source"],
+            "word_logprobs"
+        );
+        assert!(
+            metadata["transcription_confidence"]
+                .get("private_extra")
+                .is_none()
+        );
+        assert!(!metadata.to_string().contains("private transcript"));
     }
 }

@@ -54,6 +54,6 @@ it('handles native config_load refusal without offering data deletion or ineffec
   render(<StartupRefusal error={{ code: 'config_load', message: '/workspace/config/policy/feedback.yaml: invalid ladder.', refusal: null }} />)
   expect(screen.getByRole('alert')).toHaveTextContent('/workspace/config/policy/feedback.yaml: invalid ladder.')
   expect(screen.getByText('Fix the named configuration file, then quit and reopen SkellySpeak.')).toBeVisible()
-  expect(screen.queryByRole('button')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Dismiss error' })).toBeVisible()
   expect(backend.invoke).not.toHaveBeenCalled()
 })

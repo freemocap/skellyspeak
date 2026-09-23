@@ -6,7 +6,7 @@ import java.util.zip.ZipOutputStream
 
 /** Only files authored by the structured diagnostic sink may leave app storage. */
 internal object DiagnosticArchive {
-    private val runName = Regex("native-[0-9]+-[0-9]+")
+    private val runName = Regex("native-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
     private val manifestName = Regex("native-[0-9]+\\.manifest\\.json")
     fun isLog(name: String) = name == "diagnostics.jsonl" || name == "native.jsonl" || manifestName.matches(name)
 

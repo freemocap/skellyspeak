@@ -324,7 +324,12 @@ pub(super) async fn transcribe(
     if let Err(error) = &result {
         state.lock()?.note_refusal(&recording.target, error)?;
     }
-    let diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
+    let mut diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
+    if result.is_ok() && matches!(recording.owner, RecordingOwner::DrillItem(_)) {
+        let reliability = crate::drill::reliability::assess(&inspection, diagnostics.as_ref());
+        diagnostics.get_or_insert_with(|| serde_json::json!({}))["drill_reliability"] =
+            serde_json::to_value(reliability)?;
+    }
     let result = result.map(|response| {
         crate::speech::analysis::audio_inspection::attach_words(
             &mut inspection,

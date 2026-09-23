@@ -9,6 +9,7 @@ pub mod generation;
 pub mod history;
 pub mod previews;
 pub(crate) mod reference;
+pub mod reliability;
 pub mod retention;
 pub mod sessions;
 
@@ -406,12 +407,24 @@ impl Store {
 
 /// Called only from native transcription publication (or native fixtures).
 /// Receipt completion and this insert must share the caller's transaction.
+#[cfg(test)]
 pub(crate) fn stage_attempt(
     db: &Connection,
     item_id: &str,
     receipt: Option<&str>,
     transcript: &str,
     wav: Option<&[u8]>,
+) -> Result<String> {
+    stage_attempt_with_reliability(db, item_id, receipt, transcript, wav, None)
+}
+
+pub(crate) fn stage_attempt_with_reliability(
+    db: &Connection,
+    item_id: &str,
+    receipt: Option<&str>,
+    transcript: &str,
+    wav: Option<&[u8]>,
+    reliability: Option<reliability::DrillReliability>,
 ) -> Result<String> {
     let target: String = db.query_row(
         "SELECT text FROM drill_items WHERE id=?1 AND archived=0",
@@ -448,7 +461,11 @@ pub(crate) fn stage_attempt(
         wav
     };
     let id = uuid::Uuid::new_v4().to_string();
-    let comparison = comparison::record(&comparison::compare(&target, transcript))?;
+    let mut comparison = comparison::compare(&target, transcript);
+    if let Some(reliability) = reliability {
+        self::reliability::qualify(&mut comparison, reliability);
+    }
+    let comparison = comparison::record(&comparison)?;
     db.execute("INSERT INTO drill_attempts(id,drill_item_id,transcription_attempt_id,visit_id,sequence,transcript,comparison,pending_audio) VALUES(?1,?2,?3,(SELECT drill_visit_id FROM transcription_attempts WHERE id=?3),(SELECT COALESCE(MAX(sequence),0)+1 FROM drill_attempts WHERE drill_item_id=?2),?4,?5,?6)", params![id,item_id,receipt,transcript,comparison,wav])?;
     db.execute("UPDATE metadata SET revision=revision+1", [])?;
     Ok(id)

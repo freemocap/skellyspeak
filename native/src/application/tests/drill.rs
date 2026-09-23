@@ -24,8 +24,8 @@ fn a_drill_item_records_replays_and_deletes_through_its_commands() {
         .unwrap()
         .save_drill_attempt(&item.id, None, "quisiera un cafe", Some(wav.clone()))
         .unwrap();
-    assert_eq!(attempt.comparison["edits"], 1);
-    assert_eq!(attempt.comparison["words"][2]["kind"], "substituted");
+    assert_eq!(attempt.comparison["edits"], 0);
+    assert_eq!(attempt.comparison["words"][2]["kind"], "same");
     assert_eq!(
         state
             .lock()

@@ -1,4 +1,6 @@
 {
+  "Add to Drill": "إضافة إلى التدريب",
+  "Added to Drill": "أُضيف إلى التدريب",
   "Help with this reply": "مساعدة في هذا الرد",
   "Hide reply help": "إخفاء مساعدة الرد",
   "Explain grammar": "شرح القواعد",
@@ -1358,5 +1360,14 @@
   "Previous phrase": "العبارة السابقة",
   "Next phrase": "العبارة التالية",
   "Full report": "التقرير الكامل",
-  "Comparison settings": "إعدادات المقارنة"
+  "Comparison settings": "إعدادات المقارنة",
+  "Stop listening after silence of": "إيقاف الاستماع بعد صمت لمدة",
+  "Not scored": "بلا تقييم",
+  "Confidence unavailable": "الثقة غير متاحة",
+  "Recognition confidence: {value0}": "ثقة التعرف: {value0}",
+  "No speech detected — not scored": "لم يُكتشف كلام — بلا تقييم",
+  "Low confidence — not scored": "ثقة منخفضة — بلا تقييم",
+  "Confidence unavailable — not scored": "الثقة غير متاحة — بلا تقييم",
+  "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "الحد الأدنى لثقة التعرف: {value0}. ترجيح النموذج ليس احتمالًا معايرًا للصحة.",
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "تم استبعاد {value0} تسجيلات من جدول الكلمات لعدم موثوقية التعرف أو لاختلاف تقسيم العبارة."
 }

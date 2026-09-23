@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { CoachChatLayout, type CoachChatLayoutHandle } from './CoachChatLayout'
 import { CoachPanelTabs } from './CoachPanelTabs'
 import { useI18n } from '../../../components/localization/i18n'
@@ -84,7 +85,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
       {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
     </div>}
-    notices={<>{readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
+    notices={<>{readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
     {(error || executionError) && <ErrorDetails label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}</>}
     composer={<form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
       <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {

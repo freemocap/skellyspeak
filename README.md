@@ -3,6 +3,15 @@
 A convivial tool for learning languages through welcoming conversations,
 useful assistance and understandable progress.
 
+## Shared language behavior
+
+Follow the repository's [language-independent behavior rule](AGENTS.md#language-independent-behavior).
+Implement one general policy using Unicode properties and shared capabilities;
+do not add language-specific code paths or character lists to solve a general
+problem. Declarative language-config overrides are a documented last resort,
+only after the shared approach has been shown insufficient. Preserve original
+text; normalization belongs only to the operation that requires it.
+
 ## Repository layout
 
 | Folder | Responsibility |
@@ -680,9 +689,14 @@ same native composer; editable prose lives under `content/prompts/conversation/`
 
 The active prompt source is
 [`content/prompts/conversation/instructions.yaml`](content/prompts/conversation/instructions.yaml).
-The native composer sends the partner's name, location, interests and opinions;
-Intermediate and higher also receive occupation and current situation. The full
-profile remains intact. Canned dialogue examples are currently disabled. The
+When persona background is enabled, the native composer keeps name, location,
+occupation and age (when provided), then samples 1–3 secondary details from
+background, current situation, manner, interests, opinions, interesting facts,
+favorite books/movies and quirks. Each list entry is one candidate; blank details
+are skipped. The random conversation ID seeds the selection, keeping it consistent
+across previews, replies and retries for an unchanged profile. New chats can select
+different details; repeats are possible. The full saved profile remains intact.
+Romanized names and vibe emoji remain display metadata. Canned dialogue examples are currently disabled. The
 selected difficulty is the final constraint after the opening/reply task. Openings combine a
 small concrete contribution with an answerable question. For fresh conversations
 without a selected topic, a stable hash of the conversation ID chooses an editable
@@ -716,9 +730,11 @@ Copy failures leave no published partial backup.
 
 ### Diagnostic log export and privacy
 
-Use **Save logs** in More or an error surface to save the structured diagnostic ZIP.
-Desktop saves to Downloads; Android opens a file destination picker. Android also
-has **Share logs**. The ZIP excludes conversations, recordings and credentials.
+Use the single log-export control in More or an error surface. On Android,
+**Share logs** opens the system chooser, whose **Save logs** destination opens a
+file picker. Error panels use a compact export icon beside the dismiss control.
+Desktop uses **Save logs** and saves to Downloads. The ZIP excludes conversations,
+recordings and credentials.
 
 Privacy rules live in `content/diagnostics/policy.json`; run
 `npm run diagnostics:policy` after editing and `npm run diagnostics:check` to check

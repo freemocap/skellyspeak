@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import type { AttemptView } from '../../generated/contracts'
 import { useI18n } from '../../components/localization/i18n'
 
@@ -24,8 +25,8 @@ export function AttemptFailure({ attempt }: { attempt: AttemptView | null }) {
   const tr = useI18n()
   if (!attempt || (!attempt.error && attempt.state !== 'failed')) return null
   const messages = providerErrors(attempt.diagnostics).filter(message => message !== attempt.error)
-  return <div className="ai-error" role="alert">
+  return <ErrorNotice className="ai-error" error={`${attempt.id}:${attempt.error}:${messages.join(";")}`}>
     <p>{attempt.error || tr('Request failed')}</p>
     {messages.map(message => <p key={message}>{message}</p>)}
-  </div>
+  </ErrorNotice>
 }

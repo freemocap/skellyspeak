@@ -1,29 +1,29 @@
 // Generated from Rust contracts. Run npm run contracts.
 export const diagnosticCommands = ["start_drill_session","end_drill_session","enter_drill_visit","leave_drill_visit","get_drill_sessions","get_drill_storage","set_drill_storage","conversation_drill_candidates","get_drill_generation_activity","begin_drill_preview","cancel_drill_preview","preview_drill_items","get_drill_preview","accept_drill_items","discard_drill_preview","create_drill_item","get_drill_items","drill_attempts","delete_drill_item","delete_drill_attempt","clear_drill_attempts","get_drill_attempt_audio","inspect_drill_audio","begin_reading","run_reading","cancel_reading","get_reading_activity","get_update_channel","latest_github_release","read_speech_audio","record_frontend_diagnostic","share_diagnostic_logs","save_diagnostic_logs","read_frontend_diagnostics","mic_start","mic_listen_start","mic_listen_push","mic_listen_status","mic_listen_spectrogram","mic_listen_stop","mic_listen_discard","mic_listen_tune","mic_wave","mic_cancel","mic_transcribe","factory_reset","export_workspace","get_startup_state","retry_credential_cleanup","get_snapshot","preferred_languages","preview_conversation_prompt","inspect_language","execute_command","get_access_settings","save_access_settings","check_access","local_server_available","connect_local_server","open_local_admin","get_connection","save_models","watch_conversation","begin_persona_generation","run_persona_generation","cancel_persona_generation","hosted_sign_in","hosted_account","hosted_diagnostics","hosted_sign_out","cancel_sign_in","select_route","get_profile","get_persona_generation_activity","get_skill_evidence","get_learner_state","get_learner_profile","claim_reward_events","export_learner_state","save_learner_state","view_conversation_yaml","save_conversation_yaml","get_reward_settings","get_playback_rate","save_playback_rate","save_reward_settings","save_skill_profile","get_practice_overview","open_ai_window","list_turn_history","get_attempt_detail","read_attempt_streams","ai_window_state","dock_ai_window","set_ai_view_selection","get_ai_view_selection","get_ai_graph_definitions"] as const;
 export type RecordingStarted = { recordingId: string, samplesPerSecond: number, browserCapture: boolean, };
-export type ContinuousRecordingPolicy = { version: number, pauseOptionsMs: [number, number, number, number, number], defaultPauseMs: number, 
+export type ContinuousRecordingPolicy = { version: number, pauseOptionsMs: [number, number, number, number, number], defaultPauseMs: number, silenceTimeoutOptionsMs: [number, number, number, number, number], defaultSilenceTimeoutMs: number,
 /**
  * How far above the measured room noise a frame must be to count as speech.
  */
-minThresholdOffsetDb: number, maxThresholdOffsetDb: number, defaultThresholdOffsetDb: number, 
+minThresholdOffsetDb: number, maxThresholdOffsetDb: number, defaultThresholdOffsetDb: number,
 /**
  * Voiced time a take needs before it is kept; shorter bursts are ignored.
  */
 minTakeOptionsMs: [number, number, number, number], defaultMinTakeMs: number, maxPendingTakes: number, maxTakeSeconds: number, maxSessionSeconds: number, maxTakes: number, };
-export type ListeningSettings = { pauseMs: number, thresholdOffsetDb: number, minTakeMs: number, };
-export type ListeningStatus = { recordingId: string, listening: boolean, speaking: boolean, queued: number, processing: boolean, completed: number, takes: Array<ListeningTake>, failure: AppError | null, 
+export type ListeningSettings = { pauseMs: number, silenceTimeoutMs: number, thresholdOffsetDb: number, minTakeMs: number, };
+export type ListeningStatus = { recordingId: string, listening: boolean, speaking: boolean, queued: number, processing: boolean, completed: number, takes: Array<ListeningTake>, failure: AppError | null,
 /**
  * The boundary choices in force now.
  */
-settings: ListeningSettings, 
+settings: ListeningSettings,
 /**
  * Loudest analysed frame in the latest drain, in dBFS.
  */
-levelDb: number, 
+levelDb: number,
 /**
  * The measured room noise and the level a frame must exceed to count as speech.
  */
-noiseFloorDb: number, thresholdDb: number, 
+noiseFloorDb: number, thresholdDb: number,
 /**
  * Bursts that opened a take but ended shorter than the shortest take allowed.
  */
@@ -82,20 +82,20 @@ export type PartnerReaction = { kind: ReactionKind, interpretation: string, expl
 export type ReactionKind = "happy" | "sad" | "angry" | "understood" | "confused" | "curious" | "surprised" | "concerned";
 export type RepairStatus = "repaired" | "not_repaired" | "uncertain";
 export type Opening = { "kind": "learner" } | { "kind": "partner" };
-export type TopicCard = { id: string, 
+export type TopicCard = { id: string,
 /**
  * Decorative; the labels carry the meaning.
  */
-glyph: string, 
+glyph: string,
 /**
  * The scene name in the conversation's target language.
  */
-target: string, 
+target: string,
 /**
  * The target name transliterated, when the conversation's variety resolves
  * to a romanization scheme. `None` for Latin-script languages.
  */
-romanized: string | null, 
+romanized: string | null,
 /**
  * The same scene name in the conversation's explanation language. Equal to
  * `target` when the two languages match; the surface decides whether to
@@ -120,7 +120,7 @@ export type ReplyExplanation = { quote: string, title: string, body: string, exa
 export type ReplyExplanations = { cards: Array<ReplyExplanation>, };
 export type ChatMessage = { conversationFeedback?: ConversationFeedback, replyBrief?: ReplyBrief, briefState?: string, briefError?: string, readingScope?: ReadingScope, replyAssistance?: ReplyAssistance, replyExplanations?: ReplyExplanations, explanationsState?: string, explanationsError?: string, reaction?: PartnerReaction, reactionError?: string, coachDecision: CoachDecision | null, turnId: string, replacesTurnId: string | null, replacedBy: string | null, feedback?: CoachObservationView, feedbackState?: string, feedbackError?: string, suggestedReplies?: Array<SuggestedReply>, suggestionsState?: string, suggestionsError?: string, wordGloss: WordGlossView | null, glossState: string | null, glossError: string | null, glossOperationId: string | null, translationState: string | null, translation: string | null, id: string, sequence: number, role: string, text: string, createdAt: string, };
 export type OperationView = { replyHelpKind?: ReplyHelpKind, sourceMessageId: string | null, id: string, kind: string, contractVersion: number, dependencies: Array<string>, role: string, state: string, };
-export type AttemptView = { diagnostics?: unknown, id: string, operationId: string, state: string, requestedModel: string, actualModel: string | null, providerId: string | null, startedAt: string, finishedAt: string | null, inputTokens: number | null, outputTokens: number | null, error: string | null, 
+export type AttemptView = { diagnostics?: unknown, id: string, operationId: string, state: string, requestedModel: string, actualModel: string | null, providerId: string | null, startedAt: string, finishedAt: string | null, inputTokens: number | null, outputTokens: number | null, error: string | null,
 /**
  * Text a prose reply received but did not publish as a message.
  */
@@ -137,7 +137,7 @@ export type AiGraphDefinition = { id: string, description: string, operations: A
 export type AiOperationDefinition = { kind: string, dependencies: Array<string>, role: string, contractVersion: number | null, description: string, source: string, templates: Array<AiPromptTemplate>, outputSchema: unknown, };
 export type AiPromptTemplate = { label: string, text: string, };
 export type AiWindowState = { supported: boolean, open: boolean, };
-export type ConversationSnapshot = { topicChoices: Array<TopicCard>, 
+export type ConversationSnapshot = { topicChoices: Array<TopicCard>,
 /**
  * The greeting the start surface offers as a first thing to say, resolved
  * for this conversation's target language and variety.
@@ -153,12 +153,12 @@ export type OnboardingStatus = "not_started" | "in_progress" | "skipped" | "comp
 export type Preferences = { theme: Theme, appearance: AppearancePreferences, explanationLanguage: string, explanationVarietyId: string, interfaceLocale: string, targetVarieties: { [key in string]: string }, scriptScales?: { [key in string]: number }, myLanguages: Array<string>, textSize: number, textSpacing: number, highContrast: boolean, onboarding: OnboardingStatus, onboardingRequired: boolean, onboardingLanguage: string | null, onboardingHelp: boolean, };
 export type Learner = { id: string, name: string, revision: number, preferences: Preferences, };
 export type LanguageProfile = { id: string, learnerId: string, languageId: string, };
-export type PersonaDetails = { name: string, 
+export type PersonaDetails = { name: string,
 /**
  * The name in Latin letters, present exactly when the persona's language has
  * a romanization system.
  */
-romanizedName: string | null, 
+romanizedName: string | null,
 /**
  * Left blank until someone chooses one.
  */
@@ -167,12 +167,12 @@ export type Persona = { id: string, learnerId: string, languageId: string, revis
 export type Contact = { id: string, learnerId: string, personaId: string, archived: boolean, revision: number, };
 export type Conversation = { id: string, contactId: string, languageId: string, title: string, archived: boolean, revision: number, settingsRevision: number, settings: PracticeSettings, createdAt: string, lastUsed: number, };
 export type Variety = { transcriptionLanguage: string | null, direction: string, fontScale: number, romanization: string | null, id: string, name: string, description: string, };
-export type Language = { transcriptionLanguage: string | null, languageTag: string | null, fontScale: number, direction: string, romanization: string | null, id: string, name: string, nativeName: string, varieties: Array<Variety>, defaultVariety: string, 
+export type Language = { transcriptionLanguage: string | null, languageTag: string | null, fontScale: number, direction: string, romanization: string | null, id: string, name: string, nativeName: string, varieties: Array<Variety>, defaultVariety: string,
 /**
  * The authored greeting, at this language's default variety. Carried on the
  * catalog so choosing a language can show what saying it sounds like.
  */
-greeting: StarterGreeting, 
+greeting: StarterGreeting,
 /**
  * Who the learner meets first in this language. Enough of the bundled
  * starter persona to introduce them, not the whole profile.
@@ -184,11 +184,11 @@ export type ContentRule = { scope: string, text: string, source: string, };
 export type ContentValue = { field: string, value: string, source: string, };
 export type SchemeInspection = { id: string, label: string, instructions: string, examples: Array<[string, string]>, sources: Array<string>, review: string, source: string, selected: boolean, usedBy: Array<string>, };
 export type Snapshot = { sessionId: string, revision: number, learner: Learner, languages: Array<Language>, languageProfiles: Array<LanguageProfile>, personas: Array<Persona>, contacts: Array<Contact>, conversations: Array<Conversation>, savedTopics: Array<SavedTopic>, };
-export type StartupState = { 
+export type StartupState = {
 /**
  * Set when the workspace could not be opened, so the shell cannot mount.
  */
-refusal: AppError | null, 
+refusal: AppError | null,
 /**
  * Set when directories a previous reset recorded still could not be cleared.
  * The app is usable; that leftover data is not cleared.
@@ -224,7 +224,8 @@ export type DrillVisitView = { id: string, itemId: string, enteredAt: string, le
 export type DrillItemView = { source: DrillSource, id: string, text: string, language: string, variety: string, explanation: string, explanationVariety: string, createdAt: string, attemptCount: number, bestMatchRatio: number | null, lastAttemptAt: string | null, attempts: Array<DrillAttemptView>, };
 export type DrillAttemptPage = { attempts: Array<DrillAttemptView>, nextCursor: string | null, };
 export type DrillAttemptView = { id: string, sequence: bigint, visitId: string | null, transcript: string, comparison: DrillComparison, audioBytes: bigint | null, audioPrunedAt: string | null, transcriptionAttemptId: string | null, createdAt: string, };
-export type DrillComparison = { policy: string, target: string, transcript: string, normalizations: Array<string>, normalizedTarget: string, normalizedTranscript: string, edits: number, referenceGraphemes: number, characterErrorRate: number | null, matchRatio: number | null, words: Array<WordComparison>, scriptNote: ScriptNote, };
+export type DrillComparison = { policy: string, reliability?: DrillReliability, target: string, transcript: string, normalizations: Array<string>, normalizedTarget: string, normalizedTranscript: string, edits: number, referenceGraphemes: number, characterErrorRate: number | null, matchRatio: number | null, words: Array<WordComparison>, scriptNote: ScriptNote, };
+export type DrillReliability = { policy: number, accepted: boolean, confidence: number | null, minimumConfidence: number, speechSeconds: number, noSpeechProbability: number | null, source: string, reason: string, };
 export type WordComparison = { kind: WordOutcome, target: string | null, transcript: string | null, similarity: number | null, };
 export type WordOutcome = "same" | "substituted" | "missing" | "extra";
 export type ScriptNote = "matches" | "mismatch" | "unknown";
@@ -250,4 +251,4 @@ export const DEFAULT_APPEARANCE: AppearancePreferences = {"palette":"cool","cont
 export const DIFFICULTY_LEVELS: readonly Difficulty[] = ["absolute_zero","beginner","intermediate","advanced","fluent"] as const
 export const DRILL_RECORDING_MAX_MB = 100000 as const
 export const DRILL_LENGTHS: readonly DrillLength[] = ["word","shortPhrase","sentence","severalSentences"] as const
-export const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {"version":2,"pauseOptionsMs":[600,1000,1500,2000,2500],"defaultPauseMs":1000,"minThresholdOffsetDb":4.0,"maxThresholdOffsetDb":30.0,"defaultThresholdOffsetDb":16.0,"minTakeOptionsMs":[160,300,600,1000],"defaultMinTakeMs":300,"maxPendingTakes":3,"maxTakeSeconds":30,"maxSessionSeconds":600,"maxTakes":100} as const
+export const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {"version":3,"pauseOptionsMs":[600,1000,1500,2000,2500],"defaultPauseMs":1000,"silenceTimeoutOptionsMs":[5000,10000,15000,30000,60000],"defaultSilenceTimeoutMs":10000,"minThresholdOffsetDb":4.0,"maxThresholdOffsetDb":30.0,"defaultThresholdOffsetDb":16.0,"minTakeOptionsMs":[160,300,600,1000],"defaultMinTakeMs":300,"maxPendingTakes":3,"maxTakeSeconds":30,"maxSessionSeconds":600,"maxTakes":100} as const

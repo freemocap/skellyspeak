@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { AssessmentInfo } from './AssessmentInfo'
 import { errorMessage as message } from '../../../platform/diagnostics/error-details'
 import { useEffect, useRef, useState } from 'react'
@@ -57,7 +58,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
     return () => clearTimeout(timer)
   }, [draft, dirty, busy, editing, error])
 
-  if (!draft) return <div role="status">{error ? <><p role="alert">{error}</p><button className="btn" onClick={() => void read().catch(error => setError(message(error)))}>{tr('Retry save')}</button></> : tr('Models')}</div>
+  if (!draft) return <div role="status">{error ? <><ErrorNotice as="p" error={error}>{error}</ErrorNotice><button className="btn" onClick={() => void read().catch(error => setError(message(error)))}>{tr('Retry save')}</button></> : tr('Models')}</div>
   return <section aria-label={tr('Models')}>
     <div className="form-row">
       <span className="assessment-label"><label htmlFor="assessment-adapter">{tr('Skill assessment')}</label><AssessmentInfo /></span>
@@ -102,7 +103,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
     </fieldset>)}
     {dirty && <div className="form-row"><span role="status">{busy ? tr('Saving…') : editing ? tr('Editing — saves when you leave the field') : tr('Unsaved changes')}</span>
       <button className="btn" disabled={busy} onClick={() => { setDraft(saved); setError(null); setEditing(false); setStatus('Changes discarded') }}>{tr('Discard changes')}</button></div>}
-    {error && <div role="alert">{error}<button className="btn" disabled={busy} onClick={() => void save()}>{tr('Retry save')}</button></div>}
+    {error && <ErrorNotice as="div" error={error}>{error}<button className="btn" disabled={busy} onClick={() => void save()}>{tr('Retry save')}</button></ErrorNotice>}
     {status && <p role="status">{tr(status)}</p>}
   </section>
 }

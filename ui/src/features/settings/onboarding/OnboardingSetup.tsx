@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { useOnboardingStore } from '../../../state/settings/onboarding'
@@ -53,7 +54,7 @@ export function OnboardingSetup() {
           <button className="btn" disabled={busy} onClick={() => void run(() => useOnboardingStore.getState().finish(true))}>{tr('Set up later')}</button>
         </div>
       </> : <LanguageSetup preferences={preferences} busy={busy} onSave={(...values) => void run(() => useOnboardingStore.getState().saveLanguages(...values))} />}
-      {error && <p role="alert">{error}</p>}
+      {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     </section>
   </main>
 }

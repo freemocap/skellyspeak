@@ -9,21 +9,31 @@
 
 .error-details { padding: var(--space-2) var(--space-4); font-size: var(--type-ui); }
 
-.error-details > summary { position: relative; padding-inline-end: var(--space-11); cursor: pointer; }
+.error-details > summary { position: relative; padding-inline-end: var(--touch-target); min-height: 32px; cursor: pointer; }
+
+/* Reserve only a corner for dismissal, never an action row. Logical positioning
+   keeps the control on the trailing side in both LTR and RTL interfaces. */
+[role="alert"].error-notice { position: relative; padding-inline-end: var(--touch-target); min-height: 32px; overflow-wrap: anywhere; }
 
 .error-dismiss {
   position: absolute;
   inset-inline-end: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  top: 0;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   background: transparent;
   color: inherit;
   font: var(--type-reading)/1 var(--font-sans);
   cursor: pointer;
+}
+
+.error-dismiss:hover { background: var(--danger-tint); }
+.error-dismiss:focus-visible { outline: var(--border-width) solid var(--focus-ring); }
+@media (pointer: coarse) {
+  .error-dismiss { width: var(--touch-target); height: var(--touch-target); }
+  [role="alert"].error-notice, .error-details > summary { min-height: var(--touch-target); }
 }
 
 .error-details-body { padding-top: var(--space-2); white-space: pre-wrap; overflow-wrap: anywhere; }

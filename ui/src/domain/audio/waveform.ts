@@ -11,4 +11,6 @@ export interface WaveSource {
   /// rate, so this is reported rather than assumed — guessing puts a visible
   /// drift in the time axis on anything that is not running at 48kHz.
   samplesPerSecond: number
+  /// Capture time at the end of the latest read, including evicted display history.
+  endSeconds?: () => number
 }

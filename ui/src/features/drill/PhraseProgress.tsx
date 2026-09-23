@@ -78,7 +78,7 @@ export function PhraseProgress({ attempts, compact = false, selectedId, onSelect
       {progress.trouble && <p className="drill-trouble">{tr("Most often different: {value0}, in {value1} of {value2} takes.", {
         value0: progress.trouble.word, value1: String(progress.trouble.misses), value2: String(progress.trouble.outcomes.length),
       })}</p>}
-      {progress.excluded > 0 && <p className="drill-progress-note">{tr("{value0} older takes were compared against a different split of the phrase and are left out of the word grid.", { value0: String(progress.excluded) })}</p>}
+      {progress.excluded > 0 && <p className="drill-progress-note">{tr("{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.", { value0: String(progress.excluded) })}</p>}
       </>}
     </section>
   )

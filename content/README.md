@@ -4,6 +4,15 @@ These are app-owned teaching definitions bundled into each build. They are not
 learner preferences, API keys or workspace data. Editing this directory and
 rebuilding updates the app's content; no workspace configuration copy is created.
 
+## Shared language behavior
+
+Follow the repository's [language-independent behavior rule](../AGENTS.md#language-independent-behavior).
+Implement one general policy using Unicode properties and shared capabilities;
+do not add language-specific code paths or character lists to solve a general
+problem. Declarative language-config overrides are a documented last resort,
+only after the shared approach has been shown insufficient. Preserve original
+text; normalization belongs only to the operation that requires it.
+
 ## Ownership
 
 | Document | Owns |

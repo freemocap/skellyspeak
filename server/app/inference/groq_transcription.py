@@ -10,6 +10,7 @@ import wave
 
 import httpx
 
+from server.app.inference.transcription_confidence import summarize
 from server.app.diagnostics import provider_errors
 from server.app.diagnostics.exceptions import describe
 from server.app.inference.transcription_timing import decode_words
@@ -89,7 +90,7 @@ def decode(body, duration, receipt):
         # Detected language/confidence are provider metadata, not text validity.
         receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
             {'http': receipt.diagnostics, 'response': provider_errors.sanitize(value),
-             'timing': timing})
+             'timing': timing, 'transcription_confidence': summarize(value, 'groq')})
         return TranscriptionResult(text, duration, words, receipt)
     except (ValueError, TypeError, KeyError, UnicodeError, OverflowError):
         raise AudioFailure('AUDIO_RESPONSE_INVALID', receipt=receipt, unknown_outcome=True,

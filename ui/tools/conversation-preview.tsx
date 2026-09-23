@@ -32,7 +32,7 @@ import '../src/styles/index.css'
 // Production controls may expose native-only actions (for example Customize).
 // Keep those explicit and isolated instead of reaching a workspace from a fixture.
 // The language registry is read through IPC before the first render, so the
-// preview answers that one read with sample languages and refuses every other
+// preview answers that read and simulates the add-to-Drill receipt; it refuses other
 // native action. Without it the whole surface throws and renders blank.
 const previewLanguages = [
   { transcriptionLanguage:'zh',languageTag:'zh-CN',fontScale:1,id:'mandarin',name:'Mandarin',nativeName:'中文',direction:'ltr',romanization:'pinyin',defaultVariety:'mandarin-mainland',varieties:[{transcriptionLanguage:'zh',id:'mandarin-mainland',name:'Mainland',description:'Mainland',direction:'ltr',fontScale:1,romanization:'pinyin'}]},
@@ -42,6 +42,7 @@ const previewLanguages = [
     varieties: [{ transcriptionLanguage: 'en', id: 'english-united-states', name: 'United States', description: 'United States', direction: 'ltr', fontScale: 1, romanization: null }] },
 ]
 mockIPC((command) => {
+  if (command === 'create_drill_item') return { id: 'preview-drill-copy' }
   if (command === 'get_snapshot') return { languages: previewLanguages } as unknown
   throw new Error('This layout preview does not support native actions. Use the running app for this control.')
 })
@@ -96,7 +97,7 @@ function Preview() {
         </ConversationHeader>
         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} greeting={{ text: 'hola', romanized: null }} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onRecord={() => setRecording(!recording)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
           {/* Existing TurnView.test.tsx reply fixture, without generated feedback. */}
-          <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} />
+          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} /></MessageReadingScope>
           <div style={{ '--script-scale': 1.5 } as React.CSSProperties}><ReadingPreferencesContext value={{ autoTranslate: quick.auto_translate, alwaysRomanize: quick.always_romanize, alwaysPronunciation: quick.always_pronunciation, supportsRomanization: true }}>
             <TurnView turn={{ id: 2, user: arabicText, assistant: null, pendingText: '', userSavedGloss: {
               sourceMessageId: 'preview-arabic-user', targetLanguageId: 'arabic', explanationLanguageId: 'english',

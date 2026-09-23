@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { reportFault } from '../../../platform/diagnostics/faults'
 import { mediaError } from '../../../platform/audio/media-error'
 import { useI18n } from '../../../components/localization/i18n'
@@ -86,7 +87,7 @@ export function TranscriptionInspector({ result, onClose }: { result: Transcript
         <label><input type="checkbox" checked={follow} onChange={event => setFollow(event.target.checked)} />{tr("Follow playback")}</label>
       </div>
       {audioUrl && <audio ref={audio} src={audioUrl} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); setTime(duration) }} onTimeUpdate={event => setTime(event.currentTarget.currentTime)} onError={() => setPlaybackError(true)} />}
-      {playbackError && <p role="alert">{tr("Audio playback failed.")}</p>}
+      {playbackError && <ErrorNotice as="p" error={playbackError}>{tr("Audio playback failed.")}</ErrorNotice>}
       {!result.audioBase64 && <p role="status">{tr("Recording audio unavailable.")}</p>}
       <input className="inspection-scrubber" aria-label={tr("Playback position")} type="range" min="0" max={duration} step="0.01" value={time} onChange={event => seek(Number(event.target.value))} />
       <div className="inspection-track-labels"><span>{tr("Waveform")}</span><span>{tr("Spectrogram")} · {Math.round(spectrogram.minFrequencyHz)}–{Math.round(spectrogram.maxFrequencyHz)}{tr(" Hz")}</span><span>{tr("Timed words")}</span></div>

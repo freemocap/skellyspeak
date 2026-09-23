@@ -1,4 +1,6 @@
 {
+  "Add to Drill": "添加到练习",
+  "Added to Drill": "已添加到练习",
   "Help with this reply": "回复帮助",
   "Hide reply help": "隐藏回复帮助",
   "Explain grammar": "讲解语法",
@@ -1358,5 +1360,14 @@
   "Previous phrase": "上一句",
   "Next phrase": "下一句",
   "Full report": "完整报告",
-  "Comparison settings": "比较设置"
+  "Comparison settings": "比较设置",
+  "Stop listening after silence of": "连续静音多久后停止聆听",
+  "Not scored": "不计分",
+  "Confidence unavailable": "置信度不可用",
+  "Recognition confidence: {value0}": "识别置信度：{value0}",
+  "No speech detected — not scored": "未检测到语音 — 不计分",
+  "Low confidence — not scored": "置信度低 — 不计分",
+  "Confidence unavailable — not scored": "置信度不可用 — 不计分",
+  "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "最低识别置信度：{value0}。模型似然并非经过校准的正确率。",
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} 次录音的识别不可靠或短语分词方式不同，已从单词表中排除。"
 }

@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useI18n } from '../../components/localization/i18n'
 import { useState } from 'react'
 import type { AppError } from '../../generated/contracts'
@@ -24,13 +25,13 @@ export function StartupRefusal({ error }: { error: AppError }) {
   }
   if (error.code === 'config_load') return <ConfigurationRefusal message={error.message} />
   return <main className="startup-refusal">
-    <p role="alert">{error.message}</p>
+    <ErrorNotice as="p" error={error}>{error.message}</ErrorNotice>
     {!ownedElsewhere && <SaveDataCopy />}
     <button type="button" className="btn danger" disabled={busy || ownedElsewhere}
       title={tr("Deletes all local data, including conversations, editable configuration files and saved keys, then closes the app.")}
       onClick={() => { void reset() }}>
       {busy ? tr("Resetting…") : tr("Factory Reset")}
     </button>
-    {failure && <p role="alert">{failure}</p>}
+    {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
   </main>
 }

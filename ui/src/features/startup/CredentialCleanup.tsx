@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { create } from 'zustand'
 import { useState } from 'react'
 import type { AppError, StartupState } from '../../generated/contracts'
@@ -23,9 +24,9 @@ export function CredentialCleanup() {
       setRetryError(nativeError(error))
     } finally { setBusy(false) }
   }
-  return <div className="fault-bar" role="alert">
+  return <ErrorNotice className="fault-bar" error={retryError ?? error}>
     <p>{tr('Saved credential cleanup failed.')}: {error.message}</p>
     {retryError && <p>{retryError}</p>}
     <button type="button" className="btn" disabled={busy} onClick={() => void retry()}>{tr('Retry credential cleanup')}</button>
-  </div>
+  </ErrorNotice>
 }

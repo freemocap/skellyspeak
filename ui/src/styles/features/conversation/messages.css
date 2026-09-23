@@ -246,3 +246,8 @@
 @media (pointer: coarse) {
   .message-xp-actions > button { min-height: 44px; min-width: 44px; }
 }
+
+/* Quiet bubble action, with a full touch target despite its small glyph. */
+.message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+.message-add-drill > span { font-size: var(--type-title); }
+@media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }

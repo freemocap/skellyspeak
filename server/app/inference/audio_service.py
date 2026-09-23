@@ -168,6 +168,7 @@ async def transcribe(request, who, cfg, reserve, settle, read_body):
             result = await _execute(who, reserve, settle, amount, lambda transcribe: transcribe(source),
                                     provider=binding.provider, label=binding.label, create=binding.create, reservation=reservation, raise_cancelled_unknown=True)
             return JSONResponse({"version": 1, "text": result.text,
+                "transcription_confidence": (result.receipt.diagnostics or {}).get("transcription_confidence"),
                 "timing": {"text": result.text, "duration": result.duration_seconds,
                            "words": [{"word": w.text, "start": w.start, "end": w.end} for w in result.words]} if result.words is not None else None,
                 "usage": _usage(result, amount)})

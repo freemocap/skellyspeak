@@ -1,3 +1,4 @@
+import { AddToDrillButton } from './AddToDrillButton'
 import { MessageXpButton } from '../progress/MessageXpButton'
 import { useUiDirection } from '../../../components/localization/useUiDirection'
 import { useI18n } from '../../../components/localization/i18n'
@@ -173,6 +174,7 @@ export const TurnView = memo(function TurnView({
           <TargetMessage
             layout="bubble"
             text={assistant.reply}
+            extraActions={<AddToDrillButton key={assistant.reply} text={assistant.reply} />}
             segments={assistant.savedGloss?.segments ?? anchoredTokenGlosses(assistant.reply, assistant.tokens)}
             segmentsKey={assistant.savedGloss ? `${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}` : 'tokens'}
             segmentsPending={assistant.glossState === 'running'}

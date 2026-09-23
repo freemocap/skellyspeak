@@ -9,6 +9,7 @@ import type { DrillAttemptView, DrillItemView, TranscriptionInspectionResult } f
 const invoke = vi.hoisted(() => vi.fn())
 const speak = vi.hoisted(() => vi.fn())
 const play = vi.hoisted(() => vi.fn())
+const setPreference = vi.hoisted(() => vi.fn())
 const script = vi.hoisted(() => ({ direction: 'ltr' as 'ltr' | 'rtl' }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
@@ -25,6 +26,7 @@ vi.mock('../../platform/ipc/tauri', async () => ({
 }))
 vi.mock('../../state/settings/settings', () => ({
   useSettingsStore: (select: (state: unknown) => unknown) => select({
+    setPreference, savingPreference: false,
     settings: { target_language: 'spanish', target_variety: 'spanish-spain', native_language: 'english', native_variety: 'english-us', tts_rate: 0.85, master_volume: 30, voice_volume: 50 },
   }),
 }))
@@ -141,6 +143,7 @@ it('takes a typed phrase, records an attempt against it, and scores what was sai
   expect(screen.getByRole('button', { name: 'Hear it' })).toBeVisible()
 
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_start', { owner: { kind: 'drillItem', id: 'item-1' } }))
   fireEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
@@ -226,6 +229,7 @@ it('refuses playback while the microphone is recording, and lets it go again aft
   app()
   await screen.findByRole('button', { name: 'Start recording' })
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Stop recording' })).toBeVisible())
   // The speakers would be recorded: neither the reference nor a replay runs.
@@ -329,9 +333,10 @@ it('names what the microphone is doing, and offers Discard only while recording'
   expect(await screen.findByText('Preparing the session')).toBeVisible()
   expect(screen.getByRole('button', { name: 'Start recording' })).toBeDisabled()
   await act(async () => { openVisit('visit-item-1') })
-  expect(await screen.findByText('Ready to record')).toBeVisible()
+  expect(await screen.findByText('Ready to listen')).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Discard' })).not.toBeInTheDocument()
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   expect(await screen.findByText('Recording')).toBeVisible()
   expect(screen.getByRole('button', { name: 'Discard' })).toBeVisible()
@@ -442,8 +447,9 @@ it('announces what the microphone is doing without the learner looking', async (
   const dock = await screen.findByRole('region', { name: 'Record an attempt' })
   const live = within(dock).getByRole('status')
   expect(live).toHaveAttribute('aria-live', 'polite')
-  await waitFor(() => expect(live).toHaveTextContent('Ready to record'))
+  await waitFor(() => expect(live).toHaveTextContent('Ready to listen'))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(live).toHaveTextContent('Recording'))
 })
@@ -453,7 +459,7 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   const native = invoke.getMockImplementation()!
   const take = { recordingId: 'take-1', number: 1, startSeconds: 0, endSeconds: 1, cutSeconds: 1.6, state: 'processing', failure: null }
   const status = { recordingId: 'listening-1', listening: true, speaking: false, queued: 0, processing: true, completed: 0, failure: null, takes: [take],
-    settings: { pauseMs: 600, thresholdOffsetDb: 16, minTakeMs: 300 }, levelDb: -35, noiseFloorDb: -55, thresholdDb: -45, ignoredTakes: 2 }
+    settings: { pauseMs: 600, thresholdOffsetDb: 16, minTakeMs: 300, silenceTimeoutMs: 10000 }, levelDb: -35, noiseFloorDb: -55, thresholdDb: -45, ignoredTakes: 2 }
   invoke.mockImplementation(async (command, args) => {
     if (command === 'mic_listen_start') return { recordingId: 'listening-1', samplesPerSecond: 689, browserCapture: false }
     if (command === 'mic_listen_status') return status
@@ -467,11 +473,11 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   fireEvent.click(await screen.findByRole('radio', { name: 'Auto-detect' }))
   fireEvent.click(screen.getByLabelText('Recording settings'))
   fireEvent.click(within(screen.getByRole('radiogroup', { name: 'End a take after silence of' })).getByRole('radio', { name: '0.6 s' }))
-  fireEvent.click(screen.getByLabelText('Recording settings'))
+  fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_start', {
-    owner: { kind: 'drillItem', id: 'item-1' }, settings: { pauseMs: 600, thresholdOffsetDb: 16, minTakeMs: 300 },
+    owner: { kind: 'drillItem', id: 'item-1' }, settings: { pauseMs: 600, thresholdOffsetDb: 16, minTakeMs: 300, silenceTimeoutMs: 10000 },
   }))
   expect(await screen.findByText('Take 1 clipped →')).toBeVisible()
   expect(await screen.findByText('Transcribing…')).toBeVisible()
@@ -483,13 +489,16 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   expect(screen.getByText('Take 1 · 1 queued · 2 ignored')).toBeVisible()
   // Tuning is tucked into a panel so the dock stays one row.
   fireEvent.click(screen.getByLabelText('Recording settings'))
+  expect(screen.getByRole('dialog', { name: 'Recording settings' })).toBeVisible()
+  expect(invoke).not.toHaveBeenCalledWith('mic_listen_stop', expect.anything())
+  fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   // The threshold marker on the meter is itself the control.
   const marker = screen.getByRole('slider', { name: 'Start a take this far above the room noise' })
   expect(marker).toHaveAttribute('aria-valuenow', '16')
   fireEvent.keyDown(marker, { key: 'ArrowRight' })
-  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdOffsetDb: 17, minTakeMs: 300 } })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdOffsetDb: 17, minTakeMs: 300, silenceTimeoutMs: 10000 } })
   fireEvent.keyDown(marker, { key: 'End' })
-  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdOffsetDb: 30, minTakeMs: 300 } })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdOffsetDb: 30, minTakeMs: 300, silenceTimeoutMs: 10000 } })
   expect(screen.getByRole('button', { name: 'Hear it' })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: 'Discard current take' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_discard', { recordingId: 'listening-1' }))
@@ -508,7 +517,7 @@ it('shows reference audio before an attempt and seeks the actual player clock', 
   const seek = vi.fn()
   speak.mockImplementation(async (...args) => {
     await args[5].onAudio({ audioBase64: 'cmVmZXJlbmNl', receipt: null })
-    args[5].onReady({ seek })
+    args[5].onReady({ seek, setRate: vi.fn() })
     args[5].onTime(0.25, 1)
     await new Promise<void>(resolve => args[1].addEventListener('abort', () => resolve(), { once: true }))
   })
@@ -547,15 +556,15 @@ it('records while held, and throws away a press shorter than the shortest take',
   clock.mockRestore()
 })
 
-it('runs time right to left for a right-to-left phrase, and lets the learner turn it back', async () => {
+it('defaults audio time to left-to-right for an RTL phrase, while keeping the direction switch', async () => {
   script.direction = 'rtl'
   items = [item({ attempts: [attempt()] })]
   app()
   const toLeft = await screen.findByRole('radio', { name: '← Time' })
-  expect(toLeft).toHaveAttribute('aria-checked', 'true')
-  expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'rtl')
-  fireEvent.click(screen.getByRole('radio', { name: 'Time →' }))
+  expect(toLeft).toHaveAttribute('aria-checked', 'false')
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'ltr')
+  fireEvent.click(toLeft)
+  expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'rtl')
 })
 
 it('summarises the phrase across takes and names the word that keeps changing', async () => {
@@ -609,8 +618,118 @@ it('keeps mobile practice focused and exposes the shared phrases and report on d
   fireEvent.click(within(picker).getByRole('button', { name: /^Hasta luego/ }))
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await screen.findByRole('button', { name: 'Stop recording' })
   expect(screen.getByRole('button', { name: 'Previous phrase' })).toBeDisabled()
+  view.unmount()
+})
+
+it('dismisses a microphone error and its expanded diagnostics without hiding the recorder', async () => {
+  items = [item()]
+  const implementation = invoke.getMockImplementation()!
+  invoke.mockImplementation(async (command, args) => {
+    if (command === 'mic_start') throw new Error('Microphone test failure')
+    return implementation(command, args)
+  })
+  app()
+  const start = await screen.findByRole('button', { name: 'Start recording' })
+  await waitFor(() => expect(start).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
+  fireEvent.click(start)
+  const alert = await screen.findByRole('alert')
+  expect(within(alert).getByText('Microphone test failure')).toBeVisible()
+  fireEvent.click(within(alert).getByText('Response details'))
+  fireEvent.click(within(alert).getByRole('button', { name: 'Dismiss error' }))
+  expect(screen.queryByRole('alert')).toBeNull()
+  expect(screen.queryByText('Response details')).toBeNull()
+  expect(start).toBeEnabled()
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
+  fireEvent.click(start)
+  expect(await screen.findByRole('alert')).toHaveTextContent('Microphone test failure')
+})
+
+it('defaults to Auto and exposes the shared voice speed preference without opening settings', async () => {
+  items = [item()]
+  app()
+  expect(await screen.findByRole('radio', { name: 'Auto-detect' })).toHaveAttribute('aria-checked', 'true')
+  fireEvent.change(screen.getByRole('combobox', { name: 'Voice speed' }), { target: { value: '0.65' } })
+  expect(setPreference).toHaveBeenLastCalledWith('tts_rate', 0.65)
+})
+
+it('dismisses recording settings on the backdrop but keeps inside clicks open', async () => {
+  items = [item()]
+  app()
+  fireEvent.click(await screen.findByRole('button', { name: 'Recording settings' }))
+  const dialog = screen.getByRole('dialog', { name: 'Recording settings' })
+  fireEvent.click(within(dialog).getByRole('heading', { name: 'Recording settings' }))
+  expect(dialog).toBeInTheDocument()
+  fireEvent.click(dialog, { clientX: -1, clientY: -1 })
+  expect(screen.queryByRole('dialog', { name: 'Recording settings' })).toBeNull()
+})
+
+it.each([false, true])('shows a stopped clip before transcription resolves and hydrates its row (mobile=%s)', async mobile => {
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: mobile, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+  items = [item()]
+  const native = invoke.getMockImplementation()!
+  let finish!: () => void
+  invoke.mockImplementation((command, args) => command === 'mic_transcribe'
+    ? new Promise(resolve => { finish = () => { items = [item({ attempts: [attempt()] })]; resolve(transcription) } })
+    : native(command, args))
+  const view = app()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Stop recording' }))
+  expect(screen.getByText('Transcribing…')).toBeVisible()
+  const receipt = document.querySelector('[data-recording-id="recording-1"]')
+  expect(receipt).not.toBeNull()
+  expect(screen.queryByRole('dialog')).toBeNull()
+  await waitFor(() => expect(finish).toBeDefined())
+  await act(async () => { finish() })
+  await waitFor(() => expect(within(receipt as HTMLElement).getByText('94%')).toBeVisible())
+  expect(document.querySelector('[data-recording-id="recording-1"]')).toBe(receipt)
+  expect(screen.queryByText('Transcribing…')).toBeNull()
+  view.unmount(); media.mockRestore()
+})
+
+it('lets the learner stop reference and recorded playback', async () => {
+  items = [item({ attempts: [attempt()] })]
+  let referenceSignal!: AbortSignal
+  speak.mockImplementation((_input, signal) => {
+    referenceSignal = signal
+    return new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Stopped', 'AbortError'))))
+  })
+  const stop = vi.fn()
+  play.mockReturnValue({ play: () => new Promise(() => {}), stop })
+  app()
+  await screen.findByRole('button', { name: 'Hear it' })
+  fireEvent.click(screen.getByRole('button', { name: 'Hear it' }))
+  const referenceStop = await screen.findByRole('button', { name: 'Stop' })
+  expect(referenceStop).toBeEnabled()
+  fireEvent.click(referenceStop)
+  expect(referenceSignal.aborted).toBe(true)
+  await screen.findByRole('button', { name: 'Hear it' })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Play yours' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Stop' }))
+  expect(stop).toHaveBeenCalledOnce()
+  expect(await screen.findByRole('button', { name: 'Play yours' })).toBeEnabled()
+})
+
+it('offers the shared ten-second Auto silence timeout and applies changes to capture', async () => {
+  items = [item()]
+  const native = invoke.getMockImplementation()!
+  invoke.mockImplementation((command, args) => command === 'mic_listen_start'
+    ? Promise.resolve({ recordingId: 'listening', samplesPerSecond: 689, browserCapture: false }) : native(command, args))
+  const view = app()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByLabelText('Recording settings'))
+  const timeout = screen.getByRole('radiogroup', { name: 'Stop listening after silence of' })
+  expect(within(timeout).getByRole('radio', { name: '10 s' })).toHaveAttribute('aria-checked', 'true')
+  fireEvent.click(within(timeout).getByRole('radio', { name: '15 s' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_start', expect.objectContaining({ settings: expect.objectContaining({ silenceTimeoutMs: 15000 }) })))
   view.unmount()
 })

@@ -61,3 +61,16 @@ describe('phraseProgress', () => {
     expect(() => phraseProgress([], 0)).toThrow()
   })
 })
+
+it('excludes unreliable recognition from word evidence and aggregate scores', () => {
+  const reliable = take(1, [same('hola')], 1, 0)
+  const rejected = take(2, [same('hola')], null, 0)
+  rejected.comparison.reliability = { policy: 1, accepted: false, confidence: .2, minimumConfidence: .6,
+    speechSeconds: 1, noSpeechProbability: null, source: 'word_logprobs', reason: 'low_confidence' }
+  const progress = phraseProgress([rejected, reliable], 12)!
+  expect(progress.best).toBe(1)
+  expect(progress.latest).toBeNull()
+  expect(progress.exact).toBe(1)
+  expect(progress.words[0].outcomes).toEqual(['same'])
+  expect(progress.excluded).toBe(1)
+})

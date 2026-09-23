@@ -1,4 +1,5 @@
-import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
+import { DetailDialog } from '../../components/dialogs/DetailDialog'
+import { useState, useRef, type KeyboardEvent, type PointerEvent } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { LiveRecording } from '../../components/media/LiveRecording'
@@ -47,6 +48,7 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
   onHoldEnd: () => void
 }) {
   const tr = useI18n()
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const seconds = (ms: number) => tr('{value0} s', { value0: tr.number(ms / 1000, { maximumFractionDigits: 1 }) })
   const decibels = (db: number) => tr('{value0} dB', { value0: tr.number(db, { maximumFractionDigits: 0 }) })
   const auto = mode === 'auto'
@@ -124,11 +126,15 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
             </button>
           })}
         </div>
-        {mode !== 'tap' && <details className="drill-dock-settings">
-          <summary aria-label={tr("Recording settings")} title={tr("Recording settings")}><ToolbarIcon name="settings" size={17} /></summary>
+        {mode !== 'tap' && <button type="button" className="btn drill-dock-settings" aria-label={tr("Recording settings")}
+          title={tr("Recording settings")} aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}><ToolbarIcon name="settings" size={17} /></button>}
+        {settingsOpen && <DetailDialog title={tr("Recording settings")} capture="preserve" onClose={() => setSettingsOpen(false)}>
           <div className="drill-dock-panel">
+            <h2>{tr("Recording settings")}</h2>
             <p className="drill-dock-detail">{copy.detail}</p>
             {auto && <>
+              <Choice label={tr("Stop listening after silence of")} value={settings.silenceTimeoutMs} options={CONTINUOUS_RECORDING_POLICY.silenceTimeoutOptionsMs}
+                format={seconds} onChange={silenceTimeoutMs => onSettings({ ...settings, silenceTimeoutMs })} />
               <p className="drill-dock-detail">{listeningStatus
                 ? tr("Room noise {value0} · takes start above {value1}", { value0: decibels(listeningStatus.noiseFloorDb), value1: decibels(listeningStatus.thresholdDb) })
                 : tr("The room noise is measured once listening starts; the threshold sits above it.")}</p>
@@ -138,7 +144,7 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
             <Choice label={tr("Ignore sounds shorter than")} value={settings.minTakeMs} options={CONTINUOUS_RECORDING_POLICY.minTakeOptionsMs}
               format={seconds} onChange={minTakeMs => onSettings({ ...settings, minTakeMs })} />
           </div>
-        </details>}
+        </DetailDialog>}
       </div>
 
       {auto && (waveSource || liveSpectrum)

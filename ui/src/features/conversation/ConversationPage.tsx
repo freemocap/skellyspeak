@@ -1,3 +1,4 @@
+import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
 import { interruptSpeech } from '../../platform/audio/speech'
@@ -538,9 +539,9 @@ export default function ConversationPage({
         <SkillRewards chatId={currentChatId} active={active} />
         <div className="reward-effects-rail" data-reward-surface />
         <div className="stream" ref={streamRef} onScroll={onStreamScroll}>
-          {readError && <div role="alert"><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></div>}
+          {readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
           {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}
-          {olderError && <p role="alert">{olderError}</p>}
+          {olderError && <ErrorNotice as="p" error={olderError}>{olderError}</ErrorNotice>}
           {turns.length === 0 && !error && !sending && connection?.configured === false ? (
             <div className="access-start">
               <p>{tr("Choose how to connect to AI.")}</p>
@@ -583,7 +584,8 @@ export default function ConversationPage({
                 setInput(selected.user ?? '')
                 setError(null)
                 inputEvidence.current = unreportedInput()
-                composer.current?.querySelector('textarea')?.focus()
+                // On phones, leave the microphone visible until the learner taps to type.
+                if (!isMobile) composer.current?.querySelector('textarea')?.focus()
               } : undefined}
             />
             </ConversationErrorScope>
