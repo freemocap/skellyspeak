@@ -51,7 +51,8 @@
     "diagnostics:check": "node tools/diagnostic-policy.ts --check",
     "transcription:lab": "node --env-file-if-exists=server/local.env tools/benchmarks/transcription/run.ts",
     "transcription:check": "tsc -p tools/benchmarks/transcription/tsconfig.json && node --test tools/benchmarks/transcription/*.test.ts tools/benchmarks/transcription/dashboard/*.test.ts",
-    "macos:dev:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/macos-dev.ts"
+    "macos:dev:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/macos-dev.ts tools/macos-dev-runner.ts tools/macos-dev-runner.test.ts tools/tauri.ts",
+    "macos:dev:test": "node --test tools/macos-dev-runner.test.ts"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [

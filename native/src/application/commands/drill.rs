@@ -26,6 +26,27 @@ pub(in crate::application) fn delete_drill_item(
     state.lock()?.delete_drill_item(&item_id)
 }
 
+/// Delete one take and its audio.
+#[tauri::command]
+pub(in crate::application) fn delete_drill_attempt(
+    state: tauri::State<'_, Arc<Application>>,
+    attempt_id: String,
+) -> Result<()> {
+    state.lock()?.delete_drill_attempt(&attempt_id)
+}
+
+/// Delete a phrase's takes from `since` on, or all of them; returns how many.
+#[tauri::command]
+pub(in crate::application) fn clear_drill_attempts(
+    state: tauri::State<'_, Arc<Application>>,
+    item_id: String,
+    since: Option<String>,
+) -> Result<usize> {
+    state
+        .lock()?
+        .clear_drill_attempts(&item_id, since.as_deref())
+}
+
 /// One attempt's retained audio, for replay.
 #[tauri::command]
 pub(in crate::application) fn get_drill_attempt_audio(

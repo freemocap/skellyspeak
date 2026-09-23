@@ -70,26 +70,38 @@ The repository's `.nvmrc` selects Node 24. Run `nvm use` when opening a new
 terminal here. If a launcher reports `ERR_UNKNOWN_FILE_EXTENSION` for a `.ts`
 file, check `node --version`: an older system Node may be taking precedence.
 
-On macOS, `npm run macos:dev` runs standard **Tauri dev**, with terminal log
-capture. Tauri starts Vite through `beforeDevCommand`, watches native inputs and
-rebuilds/restarts Rust. Vite handles frontend HMR. Native restarts end active
-recordings; page refreshes and frontend HMR do not restart Rust.
+On macOS, `npm run macos:dev` runs **Tauri dev**, with terminal log capture.
+Tauri starts Vite, watches native inputs and rebuilds/restarts Rust; Vite handles
+frontend HMR. Before Cargo executes each macOS build, our executable runner signs
+and verifies it using the existing **SkellySpeak Local Development** certificate.
+The designated identity is the app identifier plus that certificate, so changed
+binary hashes do not make every rebuild a new app to Keychain. Automatic AI
+connection checks remain enabled. Native restarts still end active recordings.
 
-For an explicit signed-bundle permissions test, use `npm run macos:dev-signed`.
-It builds **SkellySpeak Dev.app**, signs and verifies it with the existing
-**SkellySpeak Local Development** certificate, and starts Vite. It has no native
-watcher: restart that command after Rust changes. This separate route can help
-test Keychain/microphone permissions under a stable signed app identity. Standard
-Tauri dev does not use that certificate-signing wrapper, so Keychain prompts may
-still differ between these workflows.
+Restart an already-running dev launcher once to pick up this runner. macOS may ask
+once to authorize the certificate-signed identity for an existing credential;
+“Always Allow” can then match subsequent builds signed with the same certificate.
+The runner fails if signing or verification fails; it never silently launches an
+ad-hoc executable. It uses Cargo's executable runner and replaces its own process,
+so Tauri retains native watcher, shutdown and restart ownership.
 
 The signing identity must already exist in Keychain Access → My Certificates,
 including its private key. To use another certificate, run
-`SKELLYSPEAK_SIGNING_IDENTITY="certificate name or SHA-1 fingerprint" npm run macos:dev-signed`.
-Self-signed local certificates are supported; no certificate trust settings are
-changed. Unchanged signed bundles are verified and reused.
-`npm run macos:dev-bundle` and `npm run macos:dev-sign` are also available
-separately after `cargo build --manifest-path native/Cargo.toml --bin skellyspeak`.
+`SKELLYSPEAK_SIGNING_IDENTITY="certificate name or SHA-1 fingerprint" npm run macos:dev`.
+Self-signed local certificates are supported; no certificate trust or credential
+access controls are changed. A different certificate is a different identity.
+
+For a separate signed-bundle permissions test, use `npm run macos:dev-signed`.
+It builds **SkellySpeak Dev.app** using the same identifier and signing requirement.
+That standalone bundle route has no native watcher; restart it after Rust changes.
+`npm run macos:dev-bundle` and `npm run macos:dev-sign` remain available separately
+after `cargo build --manifest-path native/Cargo.toml --bin skellyspeak`.
+
+`npm run macos:dev:check` checks launcher types; `npm run macos:dev:test` tests
+argument forwarding. On macOS, `SKELLYSPEAK_TEST_SIGNING=1 npm run macos:dev:test`
+also signs and runs two disposable Cargo builds, verifies identical designated
+requirements despite different code hashes, and checks signature reuse. This
+opt-in test uses the local signing key but does not access app credentials.
 
 On macOS, successful credential reads are reused in native process memory, so
 frontend reloads do not repeatedly read the same Keychain entry. Concurrent reads

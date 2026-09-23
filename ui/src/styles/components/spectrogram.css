@@ -11,7 +11,4 @@
   .inspection-spectrogram { height: 120px; }
 }
 
-.audio-spectrum-player { display: grid; gap: var(--space-3); min-width: 0; }
-.audio-spectrum-player input { width: 100%; accent-color: var(--interaction-ink); }
-.audio-spectrum-player p { margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
 .audio-spectrum-cursor { position: absolute; inset-block: 0; width: var(--border-width-thick); background: var(--ink-on-fill); pointer-events: none; z-index: var(--z-raised); }

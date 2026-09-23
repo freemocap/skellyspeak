@@ -541,6 +541,7 @@ pub fn bindings() -> String {
     let declarations = [
         RecordingStarted::decl(&config),
         crate::speech::recording::continuous_policy::ContinuousRecordingPolicy::decl(&config),
+        crate::speech::recording::continuous_policy::ListeningSettings::decl(&config),
         crate::speech::recording::continuous::ListeningStatus::decl(&config),
         crate::speech::recording::continuous::ListeningTake::decl(&config),
         crate::speech::analysis::spectrogram::LiveSpectrogram::decl(&config),

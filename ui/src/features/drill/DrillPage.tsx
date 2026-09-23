@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { errorMessage } from '../../platform/diagnostics/error-details'
@@ -6,25 +6,28 @@ import { onRecordingPublished } from '../../platform/audio/recording-events'
 import { useMicRecorder } from '../../platform/audio/useMicRecorder'
 import { replaySelectionAudio, speakSelection } from '../../platform/audio/reading-speech'
 import type { PlaybackHandle, PlaybackObserver } from '../../platform/audio/speech-player'
-import { AudioSpectrumPlayer } from '../../components/media/AudioSpectrumPlayer'
 import { CONTINUOUS_RECORDING_POLICY } from '../../generated/contracts'
-import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { TargetMessage } from '../../components/reading/TargetMessage'
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
 import { ReadingScopeContext } from '../../components/reading/ReadingContext'
+import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
 import { languageFor } from '../../platform/ipc/tauri'
 import { useSettingsStore } from '../../state/settings/settings'
-import { createDrillItem, deleteDrillItem, drillItems, inspectDrillAudio } from '../../platform/ipc/drill'
-import type { AudioInspection, DrillItemView } from '../../generated/contracts'
+import { clearDrillAttempts, createDrillItem, deleteDrillAttempt, deleteDrillItem, drillItems, inspectDrillAudio } from '../../platform/ipc/drill'
+import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSettings } from '../../generated/contracts'
 import { useDrillVisit } from './useDrillVisit'
 import { useDrillAttempts } from './useDrillAttempts'
 import { AttemptLog } from './AttemptLog'
 import { AttemptInspection } from './AttemptInspection'
+import { DrillComparison, type TimeDirection, type TimeScale } from './DrillComparison'
+import { PhraseProgress } from './PhraseProgress'
+import { ClearTakes } from './ClearTakes'
+import { useAttemptAudio } from './useAttemptAudio'
 import { DrillStorage } from './DrillStorage'
 import { DrillAnalysis } from './DrillAnalysis'
 import { PhraseRail } from './PhraseRail'
 import { AddPhrases } from './AddPhrases'
-import { RecordDock, dockPhase } from './RecordDock'
+import { RecordDock, dockPhase, type RecordMode } from './RecordDock'
 
 /** The reference reading of one phrase: its audio and that audio's analysis. */
 interface Reference { itemId: string; audioBase64: string; inspection: AudioInspection }
@@ -57,8 +60,36 @@ export function DrillPage({ active }: { active: boolean }) {
   const [chosenAttemptId, setChosenAttemptId] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
   const [speaking, setSpeaking] = useState(false)
-  const [continuous, setContinuous] = useState(false)
-  const [pauseMs, setPauseMs] = useState<number>(CONTINUOUS_RECORDING_POLICY.defaultPauseMs)
+  const [mode, setMode] = useState<RecordMode>('tap')
+  const [listening, setListening] = useState<ListeningSettings>({
+    pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,
+    thresholdOffsetDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdOffsetDb,
+    minTakeMs: CONTINUOUS_RECORDING_POLICY.defaultMinTakeMs,
+  })
+  // Null follows the phrase's script; a choice the learner makes is kept.
+  const [chosenDirection, setChosenDirection] = useState<TimeDirection | null>(null)
+  const [timeScale, setTimeScale] = useState<TimeScale>('fit')
+  const [playingAttempt, setPlayingAttempt] = useState(false)
+  // Every split on the page can be dragged; each size is kept for next time.
+  const [railWidth, setRailWidth] = useStoredSize('drill-rail')
+  const [reportWidth, setReportWidth] = useStoredSize('drill-report')
+  const [dockHeight, setDockHeight] = useStoredSize('drill-dock')
+  const [progressHeight, setProgressHeight] = useStoredSize('drill-progress')
+  const [inspectionHeight, setInspectionHeight] = useStoredSize('drill-inspection')
+  const page = useRef<HTMLElement>(null)
+  const panes = useRef<Record<'dock' | 'progress' | 'inspection' | 'report', HTMLElement | null>>({ dock: null, progress: null, inspection: null, report: null })
+  const measure = (name: keyof typeof panes.current) => () => {
+    const element = panes.current[name]
+    if (!element) throw new Error(`The ${name} pane is not on the page.`)
+    return name === 'report' ? element.getBoundingClientRect().width : element.getBoundingClientRect().height
+  }
+  const measureRail = () => {
+    const rail = page.current?.querySelector('.drill-rail')
+    if (!rail) throw new Error('The phrase rail is not on the page.')
+    return rail.getBoundingClientRect().width
+  }
+  const px = (size: number | null) => size === null ? undefined : `${Math.round(size)}px`
+  const attemptPlayback = useRef<AbortController | null>(null)
   const [referenceTime, setReferenceTime] = useState(0)
   const referencePlayer = useRef<PlaybackHandle | null>(null)
   const selected = items.find(item => item.id === selectedId) ?? null
@@ -104,11 +135,37 @@ export function DrillPage({ active }: { active: boolean }) {
   const history = useDrillAttempts(selected?.id ?? null, active)
   const visit = useDrillVisit(active, creating?.language ?? null, selected?.id ?? null)
   const owner = useMemo(() => active && visit.visitId && selected ? { kind: 'drillItem' as const, id: selected.id } : null, [active, selected?.id, visit.visitId])
-  const mic = useMicRecorder({ owner, onTranscribe: () => {}, pauseMs: continuous ? pauseMs : undefined })
+  const mic = useMicRecorder({ owner, onTranscribe: () => {}, listening: mode === 'auto' ? listening : undefined })
   const phase = dockPhase({ ready: visit.visitId !== null, recording: mic.recording, transcribing: mic.transcribing })
   // The microphone and the speakers share one authority, so neither reference
   // playback nor replay runs while an attempt is being captured or stored.
   const holdingAudio = mic.recording || mic.transcribing
+
+  const changeListening = (next: ListeningSettings) => {
+    setListening(next)
+    if (mode === 'auto' && mic.recording && mic.listeningStatus?.listening) mic.tune(next)
+  }
+
+  // Hold to talk: a press starts a take and letting go ends it. A press shorter
+  // than the shortest take is thrown away rather than transcribed.
+  const pressedAt = useRef<number | null>(null)
+  const holdStart = () => {
+    if (pressedAt.current !== null || phase !== 'ready') return
+    pressedAt.current = Date.now()
+    void mic.toggleMic()
+  }
+  const holdEnd = () => {
+    const pressed = pressedAt.current
+    if (pressed === null) return
+    pressedAt.current = null
+    if (!mic.recording) return
+    if (Date.now() - pressed < listening.minTakeMs) mic.cancel()
+    else void mic.toggleMic()
+  }
+  // Released before the microphone finished starting: nothing was said on purpose.
+  useEffect(() => {
+    if (mode === 'hold' && mic.recording && pressedAt.current === null) mic.cancel()
+  }, [mode, mic.recording, mic.cancel])
 
   const add = async (text: string) => {
     if (!creating) return
@@ -117,6 +174,20 @@ export function DrillPage({ active }: { active: boolean }) {
       const item = await createDrillItem({ text, ...creating })
       await reload(item.id)
     } catch (error) { setFailure(error) } finally { setBusy(false) }
+  }
+
+  // Deleting takes changes the item's counts and its history, so both are read again.
+  const [deletingTakes, setDeletingTakes] = useState(false)
+  const removeTakes = async (run: () => Promise<unknown>) => {
+    setDeletingTakes(true); setFailure(null)
+    try { await run(); setChosenAttemptId(null); history.retry(); await reload(selected?.id) }
+    catch (error) { setFailure(error) } finally { setDeletingTakes(false) }
+  }
+  const deleteTake = (take: DrillAttemptView) => void removeTakes(() => deleteDrillAttempt(take.id))
+  const clearTakes = (since: Date | null) => {
+    if (!selected) throw new Error('Clearing takes needs a selected phrase.')
+    const item = selected.id
+    void removeTakes(() => clearDrillAttempts(item, since?.toISOString() ?? null))
   }
 
   const remove = async (item: DrillItemView) => {
@@ -181,15 +252,37 @@ export function DrillPage({ active }: { active: boolean }) {
   const itemShowing = useRef<string | null>(null)
   itemShowing.current = selected?.id ?? null
 
+  // Pages arrive newest first, so the head of the list is the latest attempt.
+  const attempt = history.attempts.find(entry => entry.id === chosenAttemptId) ?? history.attempts[0] ?? null
+  const attemptAudio = useAttemptAudio(selected?.id ?? null, attempt)
+  useEffect(() => () => { attemptPlayback.current?.abort(); attemptPlayback.current = null }, [attempt?.id])
+  const playAttempt = async (base64: string) => {
+    if (holdingAudio) return
+    attemptPlayback.current?.abort()
+    const controller = new AbortController()
+    attemptPlayback.current = controller
+    setPlayingAttempt(true)
+    try {
+      await replaySelectionAudio(base64, controller.signal, () => {}, settings?.tts_rate ?? 1,
+        (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
+    } catch (error) {
+      if (attemptPlayback.current === controller && !controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) setFailure(error)
+    } finally { if (attemptPlayback.current === controller) setPlayingAttempt(false) }
+  }
+
   if (!creating) return <p role="status">{tr("Loading…")}</p>
   const locale = scope ? languageFor(scope.language, scope.variety) : languageFor(creating.language, creating.variety)
   const shown = reference?.itemId === selected?.id ? reference : null
-  // Pages arrive newest first, so the head of the list is the latest attempt.
-  const attempt = history.attempts.find(entry => entry.id === chosenAttemptId) ?? history.attempts[0] ?? null
+  const rtl = locale?.direction === 'rtl'
+  const direction = chosenDirection ?? (rtl ? 'rtl' : 'ltr')
+  const attemptUnavailable = !attempt ? null
+    : attempt.audioPrunedAt !== null ? tr("This take's recording was removed by the storage limit.")
+    : attempt.audioBytes === null ? tr("This take's recording was not kept.")
+    : null
 
   const practice = selected && scope && (
     <ReadingScopeContext value={scope}><ReadingLanguageScope language={scope.language} variety={scope.variety}>
-      <main className="drill-stage">
+      <main className="drill-stage" data-first-take={history.attempts.length === 0 && !mic.recording && !mic.transcribing}>
         {loadFailure != null && <p role="alert">{errorMessage(loadFailure)}
           <button type="button" className="btn" onClick={() => refresh()}>{tr("Try again")}</button></p>}
         {visit.failure != null && <p role="alert">{errorMessage(visit.failure)}
@@ -197,62 +290,73 @@ export function DrillPage({ active }: { active: boolean }) {
         {failure != null && <p role="alert">{errorMessage(failure)}</p>}
         {mic.failure != null && <p role="alert">{errorMessage(mic.failure)}</p>}
 
-        <div className="drill-target">
-          <DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
+        <DrillComparison target={<DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
             {analysis => (
-              <TargetMessage layout="passage" text={selected.text} segments={[]} segmentsKey={selected.id}
+              <TargetMessage layout="bubble" text={selected.text} segments={[]} segmentsKey={selected.id}
                 translation={null} romanization={null} pronunciation={null} translateLabel={tr("Translate")}
                 segmentsPending={false} lookupWords status={null} annotation={null} analysis={analysis}
                 speech={null} focused={false} rtl={locale?.direction === 'rtl'} />
             )}
-          </DrillAnalysis>
-          <div className="drill-actions">
-            <button type="button" className="btn" disabled={speaking || holdingAudio} onClick={() => void playReference(selected)}>
-              <ToolbarIcon name="play" size={15} />{tr(speaking ? "Playing…" : "Hear it")}
-            </button>
-            <span className="drill-actions-note">{holdingAudio
-              ? tr("Playback waits until the attempt is stored.")
-              : tr("Replays reuse the saved reference; no new request is made.")}</span>
-          </div>
-        </div>
+          </DrillAnalysis>}
+          onPlayReference={() => void playReference(selected)} playingReference={speaking}
+          referenceNote={holdingAudio ? tr("Playback waits until the attempt is stored.") : tr("Replays reuse the saved reference; no new request is made.")}
+          reference={shown?.inspection ?? null} referenceTime={referenceTime} onSeekReference={seekReference}
+          attempt={attemptAudio.audio?.inspection ?? null}
+          attemptLabel={attempt ? tr("Attempt {value0}", { value0: String(attempt.sequence) }) : null}
+          attemptFailure={attemptAudio.failure} onRetryAttempt={attemptAudio.retry} attemptUnavailable={attemptUnavailable}
+          direction={direction} onDirection={setChosenDirection} timeScale={timeScale} onTimeScale={setTimeScale} holding={holdingAudio}
+          playingAttempt={playingAttempt} onPlayAttempt={() => { if (attemptAudio.audio) void playAttempt(attemptAudio.audio.base64) }} />
 
-        {shown && <AudioSpectrumPlayer inspection={shown.inspection} currentTime={referenceTime} onSeek={seekReference} disabled={holdingAudio} />}
-        <div className="drill-actions">
-          <label className="check-label"><input type="checkbox" checked={continuous} disabled={holdingAudio}
-            onChange={event => setContinuous(event.target.checked)} />{tr('Repeat with pauses (desktop)')}</label>
-          {continuous && <label>{tr('Pause between takes')}
-            <select value={pauseMs} disabled={holdingAudio} onChange={event => setPauseMs(Number(event.target.value))}>
-              {CONTINUOUS_RECORDING_POLICY.pauseOptionsMs.map(value => <option key={value} value={value}>
-                {tr('{value0} seconds', { value0: tr.number(value / 1000) })}
-              </option>)}
-            </select>
-          </label>}
+        <ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={dockHeight} min={56} max={640}
+          measure={measure('dock')} onResize={setDockHeight} />
+        <div className="drill-pane drill-dock-pane" ref={element => { panes.current.dock = element }}>
+          <RecordDock phase={phase} mode={mode} onMode={setMode} settings={listening} onSettings={changeListening}
+            listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} liveSpectrum={mic.liveSpectrum}
+            onToggle={() => void mic.toggleMic()} onCancel={mode === 'auto' ? mic.discardCurrent : mic.cancel}
+            onHoldStart={holdStart} onHoldEnd={holdEnd} />
         </div>
-        <RecordDock phase={phase} waveSource={mic.waveSource} continuous={continuous}
-          listeningStatus={mic.listeningStatus} liveSpectrum={mic.liveSpectrum}
-          onToggle={() => void mic.toggleMic()} onCancel={continuous ? mic.discardCurrent : mic.cancel} />
-
-        {attempt && <AttemptInspection key={attempt.id} item={selected} attempt={attempt}
-          reference={shown?.inspection ?? null} holding={holdingAudio} />}
       </main>
 
-      <aside className="drill-log" aria-label={tr("Attempts")}>
-        <AttemptLog liveTakes={mic.listeningStatus?.takes ?? []} attempts={history.attempts} loading={history.loading} hasMore={history.hasMore}
-          failure={history.failure} selectedId={attempt?.id ?? null} onSelect={setChosenAttemptId}
-          onLoadMore={history.loadMore} onRetry={history.retry} />
+      <ResizeHandle label={tr("Resize the report column")} axis="x" grow={-1} size={reportWidth} min={220} max={900}
+        measure={measure('report')} onResize={setReportWidth} />
+      <aside className="drill-log" aria-label={tr("Attempts")} ref={element => { panes.current.report = element }}>
+        {history.attempts.length > 0 && <ClearTakes disabled={deletingTakes || holdingAudio} onClear={clearTakes} />}
+        <div className="drill-pane drill-progress-pane" ref={element => { panes.current.progress = element }}>
+          <PhraseProgress attempts={history.attempts} />
+        </div>
+        {history.attempts.length > 0 && <ResizeHandle label={tr("Resize the phrase summary")} axis="y" grow={1} size={progressHeight} min={48} max={900}
+          measure={measure('progress')} onResize={setProgressHeight} />}
+        {attempt && <>
+          <div className="drill-pane drill-inspection-pane" ref={element => { panes.current.inspection = element }}>
+            <AttemptInspection key={attempt.id} attempt={attempt} audio={attemptAudio.audio?.inspection ?? null}
+              reference={shown?.inspection ?? null} rtl={rtl} onDelete={() => deleteTake(attempt)} deleting={deletingTakes || holdingAudio} />
+          </div>
+          <ResizeHandle label={tr("Resize the selected take")} axis="y" grow={1} size={inspectionHeight} min={48} max={1200}
+            measure={measure('inspection')} onResize={setInspectionHeight} />
+        </>}
+        <div className="drill-pane drill-history-pane">
+          <AttemptLog rtl={rtl} onDelete={deleteTake} deleting={deletingTakes || holdingAudio} liveTakes={mic.listeningStatus?.takes ?? []} attempts={history.attempts} loading={history.loading} hasMore={history.hasMore}
+            failure={history.failure} selectedId={attempt?.id ?? null} onSelect={setChosenAttemptId}
+            onLoadMore={history.loadMore} onRetry={history.retry} />
+        </div>
       </aside>
     </ReadingLanguageScope></ReadingScopeContext>
   )
 
   return (
-    <section className="drill-page" aria-label={tr("Drill")}>
+    <section className="drill-page" aria-label={tr("Drill")} ref={page} style={{
+      '--drill-rail-width': px(railWidth), '--drill-report-width': px(reportWidth), '--drill-dock-height': px(dockHeight),
+      '--drill-progress-height': px(progressHeight), '--drill-inspection-height': px(inspectionHeight),
+    } as CSSProperties}>
       <PhraseRail items={items} selectedId={selectedId} languageTag={locale?.languageTag} busy={busy} locked={holdingAudio}
         onAdd={add} onSelect={id => { selectionGeneration.current++; setChosenAttemptId(null); setSelectedId(id) }} onDelete={remove}
         onAskForMore={() => setAsking(true)}>
         <DrillStorage active={active} onChanged={reload} />
       </PhraseRail>
+      <ResizeHandle label={tr("Resize the phrase list")} axis="x" grow={1} size={railWidth} min={160} max={640}
+        measure={measureRail} onResize={setRailWidth} />
 
-      {practice ?? <main className="drill-stage">
+      {practice ?? <main className="drill-stage drill-stage-alone">
         {failure != null && <p role="alert">{errorMessage(failure)}</p>}
         {loadFailure != null
           ? <p role="alert">{errorMessage(loadFailure)}

@@ -462,13 +462,12 @@ function usageTable(rows) {
 }
 function review(action, target, revision, values, before, effect) {
   command = { operation_id: crypto.randomUUID(), expected_revision: revision, action, target, values };
-  const account = overview?.users.find((user) => user.id === target);
   const labels = { user_limit: "Change daily allowance", reset_diagnostics: "Restore account checks", reset_requests: "Restore inference requests", reset_allowance: "Restore spending allowance", revoke_sessions: "Revoke sessions", policy: "Change service limits" };
   const display = (key, value) => value === null || value === void 0 ? "Use service default" : key.endsWith("_micros") ? money(Number(value)) : String(value);
   const previous = before && typeof before === "object" ? before : {};
   const changes = Object.entries(values).map(([key, value]) => `${policyLabels[key] ?? (key === "daily_limit_micros" ? "Daily allowance" : key)}: ${display(key, previous[key])} \u2192 ${display(key, value)}`);
   $("change-preview").textContent = `${labels[action] ?? action}
-${account?.email ?? target}${changes.length ? "\n\n" + changes.join("\n") : ""}`;
+${target}${changes.length ? "\n\n" + changes.join("\n") : ""}`;
   $("change-effect").textContent = effect;
   $("confirm").showModal();
 }
@@ -504,11 +503,12 @@ async function loadOverview(live = false, pushed, pushedTimeline) {
     return card;
   }));
   await loadTimeline(pushedTimeline);
-  $("users").replaceChildren(table(["Account", "Limit source", "Daily allowance", "Used today", "Account checks / credit", "Sessions version", "Inspect"], data.users.map((user) => [
-    user.email || user.id,
+  $("users").replaceChildren(table(["Account", "Limit source", "Daily allowance", "Used today", "Used \xB7 90 days", "Account checks / credit", "Sessions version", "Inspect"], data.users.map((user) => [
+    user.id,
     user.daily_limit_micros == null ? "Default" : "Custom exception",
     limited ? money(user.effective_limit_micros) : "Disabled",
     money(user.usage.micros),
+    money(user.usage_90_days_micros),
     `${user.admission.diagnostics_requests} / ${user.admission.diagnostics_requests_credit}`,
     user.token_version,
     button("Inspect account", () => void run(() => inspectUser(user)))
@@ -540,9 +540,12 @@ async function inspectUser(user) {
   user = result.user;
   const pane = $("user-detail");
   pane.hidden = false;
-  pane.replaceChildren(el("h3", user.email || user.id), button("Close account details", () => {
+  pane.replaceChildren(el("h3", user.id), button("Close account details", () => {
     pane.hidden = true;
   }));
+  const identity = el("details");
+  identity.append(el("summary", "Identity details"), table(["User ID", "Email", "Name"], [[user.id, result.identity.email, result.identity.name]]));
+  pane.append(identity);
   const chart = el("div");
   usageView(chart, result.usage);
   pane.append(chart);
@@ -588,7 +591,7 @@ async function inspectUser(user) {
     el("h4", "Registered installations"),
     table(["Platform", "App version", "First seen", "Last seen"], result.devices.map((row) => ["platform", "app_version", "first_seen", "last_seen"].map((key) => row[key]))),
     el("h4", `Latest reservations${result.reservations_truncated ? " \xB7 limited to 100" : ""}`),
-    table(["Day", "State", "Reserved", "Recorded", "Basis", "Provider receipt"], result.reservations.map((row) => [row.day, row.status, money(Number(row.reserved_micros)), row.actual_micros == null ? "Unknown" : money(Number(row.actual_micros)), row.cost_basis ?? "Pending / unknown", row.provider_id]))
+    table(["Created at", "State", "Reserved", "Recorded", "Basis", "Provider receipt"], result.reservations.map((row) => [row.created_at, row.status, money(Number(row.reserved_micros)), row.actual_micros == null ? "Unknown" : money(Number(row.actual_micros)), row.cost_basis ?? "Pending / unknown", row.provider_id]))
   );
   pane.scrollIntoView({ block: "start", behavior: "smooth" });
 }

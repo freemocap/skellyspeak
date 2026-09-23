@@ -4,18 +4,19 @@ import { reportFault } from '../diagnostics/faults'
 import { startBrowserRecording, type BrowserRecording } from './browser-recording'
 import { recordingPublished } from './recording-events'
 import { beginCapture, endCapture } from './speech'
-import type { LiveSpectrogram, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
+import type { LiveSpectrogram, ListeningSettings, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
 
 interface MicRecorderOptions {
   /** What this recording belongs to: a conversation, a drill item, or nothing yet. */
   owner: RecordingOwner | null
-  pauseMs?: number
+  /** Present for hands-free takes cut at silence; absent for one take per Start/Stop. */
+  listening?: ListeningSettings
   onTranscribe: (text: string) => void
 }
 
 /** Recording is native-owned and bound to its owner. Only explicit Stop transcribes. */
-export function useMicRecorder({ owner, onTranscribe, pauseMs }: MicRecorderOptions) {
+export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOptions) {
   // The owner identity drives every effect; the value itself is read when a
   // recording actually starts, so a caller need not memoize the object.
   const ownerKey = owner ? `${owner.kind}:${owner.id}` : null
@@ -39,6 +40,9 @@ export function useMicRecorder({ owner, onTranscribe, pauseMs }: MicRecorderOpti
   const generation = useRef(0)
   const callback = useRef(onTranscribe)
   callback.current = onTranscribe
+  // Read when listening starts; later changes go to native through `tune`.
+  const listeningSettings = useRef(listening)
+  listeningSettings.current = listening
 
   // The microphone and the speakers are one authority: a recording stops
   // playback and holds it off until the recording ends, whatever owns it.
@@ -163,7 +167,8 @@ export function useMicRecorder({ owner, onTranscribe, pauseMs }: MicRecorderOpti
         const owner = current.current
         if (!owner) throw new Error('Open a conversation or a drill item before recording.')
         setFailure(null); setListeningStatus(null); setLiveSpectrum(null); spectrumSnapshot.current = null; publications.current = 0
-        continuous.current = pauseMs !== undefined
+        const settings = listeningSettings.current
+        continuous.current = settings !== undefined
         capture.current = beginCapture(() => {
           if (!continuous.current) return
           setFailure(new Error('Listening stopped because the app was suspended or another view opened. Start again to continue.'))
@@ -171,7 +176,7 @@ export function useMicRecorder({ owner, onTranscribe, pauseMs }: MicRecorderOpti
           if (id) void invoke('mic_cancel', { recordingId: id }).catch(error => { setFailure(error); reportFault('Stopping listening', error) })
           else cancel()
         })
-        const { recordingId, samplesPerSecond, browserCapture } = await invoke<RecordingStarted>(continuous.current ? 'mic_listen_start' : 'mic_start', continuous.current ? { owner, pauseMs } : { owner })
+        const { recordingId, samplesPerSecond, browserCapture } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings } : { owner })
         if (generation.current !== scope) {
           await stopNative(recordingId)
           return
@@ -201,7 +206,7 @@ export function useMicRecorder({ owner, onTranscribe, pauseMs }: MicRecorderOpti
       if (!active.current) release()
       if (!continuous.current) setTranscribing(false)
     }
-  }, [ownerKey, pauseMs, cancel, release, stopNative])
+  }, [ownerKey, cancel, release, stopNative])
 
   const discardCurrent = useCallback(() => {
     const recordingId = active.current
@@ -210,5 +215,12 @@ export function useMicRecorder({ owner, onTranscribe, pauseMs }: MicRecorderOpti
     } else cancel()
   }, [cancel])
 
-  return { liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, cancel }
+  /** Move the pause, threshold or shortest take of the run in progress. */
+  const tune = useCallback((settings: ListeningSettings) => {
+    const recordingId = active.current
+    if (!recordingId || !continuous.current) throw new Error('Listening settings can only be tuned while listening.')
+    void invoke('mic_listen_tune', { recordingId, settings }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
+  }, [])
+
+  return { tune, liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, cancel }
 }

@@ -10,15 +10,14 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { createServer } from "node:net";
 import { createHash } from "node:crypto";
+import { developmentIdentifier, signingIdentity, ensureDevelopmentSignature } from "./macos-signing.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const app = resolve(
   root,
   "native/target/debug/bundle/macos/SkellySpeak Dev.app",
 );
-const identifier = "org.skellyspeak.practice";
-const identity =
-  process.env.SKELLYSPEAK_SIGNING_IDENTITY ?? "SkellySpeak Local Development";
+const identifier = developmentIdentifier;
 
 function run(command: string, args: string[], capture = false): string {
   const result = spawnSync(command, args, {
@@ -30,30 +29,6 @@ function run(command: string, args: string[], capture = false): string {
   if (result.status !== 0)
     throw new Error(`${command} failed (${result.signal ?? result.status}).`);
   return result.stdout ?? "";
-}
-
-function signingIdentity(): string {
-  if (identity === "-")
-    throw new Error(
-      "Ad-hoc signing cannot preserve Keychain access across rebuilds. Select a certificate identity.",
-    );
-  // Self-signed local identities may be listed as untrusted; codesign and its
-  // verification are authoritative. Never alter the user's certificate trust.
-  const identities = run(
-    "/usr/bin/security",
-    ["find-identity", "-p", "codesigning"],
-    true,
-  );
-  const matches = [
-    ...identities.matchAll(/\) ([A-F0-9]{40}) "([^"]+)"/g),
-  ].filter((match) => match[1] === identity || match[2] === identity);
-  const fingerprints = [...new Set(matches.map((match) => match[1]!))];
-  if (fingerprints.length !== 1) {
-    throw new Error(
-      `Expected one signing identity for "${identity}"; found ${fingerprints.length}. Check Keychain Access → My Certificates or set SKELLYSPEAK_SIGNING_IDENTITY to its SHA-1 fingerprint. No unsigned app will be launched.`,
-    );
-  }
-  return fingerprints[0]!;
 }
 
 function bundle(fingerprint?: string): boolean {
@@ -133,23 +108,7 @@ function bundle(fingerprint?: string): boolean {
 }
 
 function sign(fingerprint = signingIdentity()) {
-  run("/usr/bin/codesign", [
-    "--force",
-    "--sign",
-    fingerprint,
-    "--identifier",
-    identifier,
-    "--timestamp=none",
-    app,
-  ]);
-  run("/usr/bin/codesign", [
-    "--verify",
-    "--deep",
-    "--strict",
-    "--verbose=2",
-    app,
-  ]);
-  run("/usr/bin/codesign", ["--display", "--requirements", "-", app]);
+  ensureDevelopmentSignature(app, fingerprint);
 }
 
 function completion(child: ChildProcess): Promise<void> {
@@ -219,7 +178,7 @@ async function launch() {
       throw new Error("Vite did not become ready after 60 attempts.");
     };
     await Promise.race([ready(), viteStopped]);
-    // Explicit signed permission smoke test. Normal development uses tauri dev;
+    // Standalone bundle permission test. Normal development uses signed tauri dev;
     // do not maintain a second native file watcher/restart implementation here.
     build = spawn("cargo", ["build", "--manifest-path", "native/Cargo.toml", "--bin", "skellyspeak"], {
       cwd: root, stdio: "inherit",

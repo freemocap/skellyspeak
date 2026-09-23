@@ -7,14 +7,14 @@ use crate::model::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
 
+const RESPONSE_TEXT_LIMIT: usize = 262_144;
 const LINE_LIMIT: usize = 4 * 1024 * 1024 + 4096;
 pub(crate) const MAX_ITEMS: usize = 8;
 const STREAM_LIMIT: usize = MAX_ITEMS * LINE_LIMIT + 1024;
 /// Protocol version 2 adds each item's deltas: at most the response text
 /// limit, JSON-escaped (six bytes per character at worst), plus framing for a
 /// bounded number of events.
-const DELTA_ALLOWANCE: usize =
-    crate::ai::transport::streaming::RESPONSE_TEXT_LIMIT * 6 + 20 * 180 * 256;
+const DELTA_ALLOWANCE: usize = RESPONSE_TEXT_LIMIT * 6 + 20 * 180 * 256;
 
 fn unknown() -> AppError {
     AppError::new(
@@ -163,10 +163,7 @@ impl Decoder {
                         return Err(unknown());
                     }
                     let (accumulated, scalars) = texts.entry(operation_id.clone()).or_default();
-                    if offset != *scalars
-                        || accumulated.len() + text.len()
-                            > crate::ai::transport::streaming::RESPONSE_TEXT_LIMIT
-                    {
+                    if offset != *scalars || accumulated.len() + text.len() > RESPONSE_TEXT_LIMIT {
                         return Err(unknown());
                     }
                     accumulated.push_str(&text);
@@ -996,10 +993,7 @@ mod delta_tests {
             line(
                 serde_json::json!({"type":"delta","operation_id":"one","attempt_id":"other","offset":0,"text":"x"}),
             ),
-            delta(
-                0,
-                &"a".repeat(crate::ai::transport::streaming::RESPONSE_TEXT_LIMIT + 1),
-            ),
+            delta(0, &"a".repeat(RESPONSE_TEXT_LIMIT + 1)),
         ] {
             let mut decoder = Decoder::with_deltas([("one".into(), "a".into())]).unwrap();
             let (mut texts, mut published) = (Vec::new(), Vec::new());

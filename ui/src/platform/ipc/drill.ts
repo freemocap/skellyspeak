@@ -12,6 +12,14 @@ export function drillItems(language: string): Promise<DrillItemView[]> {
 export function deleteDrillItem(itemId: string): Promise<void> {
   return invoke<void>('delete_drill_item', { itemId })
 }
+/** Delete one take and its audio; the phrase and its other takes stay. */
+export function deleteDrillAttempt(attemptId: string): Promise<void> {
+  return invoke<void>('delete_drill_attempt', { attemptId })
+}
+/** Delete a phrase's takes recorded at or after `since` (UTC, stored form), or all of them. */
+export function clearDrillAttempts(itemId: string, since: string | null): Promise<number> {
+  return invoke<number>('clear_drill_attempts', { itemId, since })
+}
 /** The audio kept for one attempt, for replay. Rejects once it has been pruned. */
 export function drillAttemptAudio(attemptId: string): Promise<string> {
   return invoke<string>('get_drill_attempt_audio', { attemptId })

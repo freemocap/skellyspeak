@@ -5,12 +5,14 @@ import { tmpdir } from 'node:os'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { signedDevArgs } from './macos-dev-runner.ts'
+import { signingIdentity } from './macos-signing.ts'
 import { installLinuxDevDesktop } from './linux-desktop.ts'
 import { ensureLinuxDependencies, needsLinuxSetup } from './linux-dependencies.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const require = createRequire(new URL('../ui/package.json', import.meta.url))
-const args = process.argv.slice(2).map((argument, index, all) => {
+let args = process.argv.slice(2).map((argument, index, all) => {
   // Root commands and workflows name config files relative to the repository.
   if (all[index - 1] === '--config' && !argument.trimStart().startsWith('{')) {
     return resolve(root, argument)
@@ -18,6 +20,12 @@ const args = process.argv.slice(2).map((argument, index, all) => {
   if (all[0] === 'icon' && index === 1 && !argument.startsWith('-')) return resolve(root, argument)
   return argument
 })
+if (process.platform === 'darwin' && args[0] === 'dev' && !args.some(arg => ['--help', '-h', '--version', '-V'].includes(arg))) {
+  // Resolve once before starting Vite. Every Cargo run (including native reloads)
+  // signs with this same identity immediately before executing the new binary.
+  process.env.SKELLYSPEAK_SIGNING_IDENTITY = signingIdentity()
+  args = signedDevArgs(args, process.execPath, resolve(root, 'tools/macos-dev-runner.ts'))
+}
 if (needsLinuxSetup(process.platform, args)) {
   ensureLinuxDependencies()
   installLinuxDevDesktop(root)

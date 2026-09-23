@@ -237,8 +237,9 @@ fn audio_refusal_blocks_new_chat_before_acceptance_and_survives_source_deletion(
 }
 
 #[test]
-fn service_refusal_spans_hosted_targets_but_not_direct_keys() {
+fn service_refusal_spans_hosted_targets_but_not_custom_servers() {
     let (_dir, mut store, first) = setup();
+    store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl','https://custom.example/v1','$.bearerAuth',json('false'))", []).unwrap();
     let dispatch = begin(&mut store, &first);
     let contact_id = store.snapshot().unwrap().contacts[0].id.clone();
     let hosted = apply(

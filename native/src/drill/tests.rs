@@ -416,3 +416,80 @@ fn partial_deletion_keeps_recoverable_rows_and_marks_removed_audio() {
     store.delete_drill_item(&item.id).unwrap();
     assert!(store.drill_items("spanish").unwrap().is_empty());
 }
+
+#[test]
+fn takes_can_be_deleted_one_at_a_time_or_cleared_from_a_point_on() {
+    let (_dir, mut store) = setup();
+    let item = store.create_drill_item(phrase("Hasta luego.")).unwrap();
+    let other = store.create_drill_item(phrase("Buenos días.")).unwrap();
+    let wav = Some(b"RIFFfixture".to_vec());
+    let first = store
+        .save_drill_attempt(&item.id, None, "hasta luego", wav.clone())
+        .unwrap();
+    let second = store
+        .save_drill_attempt(&item.id, None, "asta luego", wav.clone())
+        .unwrap();
+    let third = store
+        .save_drill_attempt(&item.id, None, "hasta", wav.clone())
+        .unwrap();
+    let kept = store
+        .save_drill_attempt(&other.id, None, "buenos días", None)
+        .unwrap();
+    let folder = store.drill_audio.clone();
+    let audio = |id: &str| folder.join(format!("{id}.wav"));
+    assert!(audio(&second.id).exists());
+
+    store.delete_drill_attempt(&second.id).unwrap();
+    assert!(!audio(&second.id).exists());
+    assert_eq!(
+        store.delete_drill_attempt(&second.id).unwrap_err().code,
+        ErrorCode::NotFound
+    );
+    let ids = |store: &Store, id: &str| {
+        store
+            .drill_attempts(id, None, 20)
+            .unwrap()
+            .attempts
+            .into_iter()
+            .map(|a| a.id)
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        ids(&store, &item.id),
+        vec![third.id.clone(), first.id.clone()]
+    );
+
+    // Only takes at or after the point are cleared; other phrases are untouched.
+    store
+        .connection
+        .execute(
+            "UPDATE drill_attempts SET created_at='2026-09-23T10:00:00.000Z' WHERE id=?1",
+            [&first.id],
+        )
+        .unwrap();
+    store
+        .connection
+        .execute(
+            "UPDATE drill_attempts SET created_at='2026-09-23T11:00:00.000Z' WHERE id=?1",
+            [&third.id],
+        )
+        .unwrap();
+    assert!(
+        store
+            .clear_drill_attempts(&item.id, Some("yesterday"))
+            .is_err()
+    );
+    assert_eq!(
+        store
+            .clear_drill_attempts(&item.id, Some("2026-09-23T10:30:00.000Z"))
+            .unwrap(),
+        1
+    );
+    assert_eq!(ids(&store, &item.id), vec![first.id.clone()]);
+    assert_eq!(store.clear_drill_attempts(&item.id, None).unwrap(), 1);
+    assert!(ids(&store, &item.id).is_empty());
+    assert!(!audio(&first.id).exists());
+    assert_eq!(ids(&store, &other.id), vec![kept.id]);
+    assert_eq!(store.drill_items("spanish").unwrap().len(), 2);
+    assert!(store.clear_drill_attempts("missing", None).is_err());
+}

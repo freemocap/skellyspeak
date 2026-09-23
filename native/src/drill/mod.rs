@@ -223,6 +223,68 @@ impl Store {
         Ok(())
     }
 
+    /// Delete one take, with its audio. The phrase and its other takes stay.
+    pub fn delete_drill_attempt(&mut self, attempt_id: &str) -> Result<()> {
+        let exists: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM drill_attempts WHERE id=?1)",
+            [attempt_id],
+            |r| r.get(0),
+        )?;
+        if !exists {
+            return Err(AppError::new(
+                ErrorCode::NotFound,
+                "This take no longer exists.",
+            ));
+        }
+        self.remove_drill_attempts(&[attempt_id.to_string()])
+    }
+
+    /// Delete a phrase's takes recorded at or after `since`, or all of them.
+    /// `since` is a UTC timestamp in the stored form, `2026-09-23T14:05:00.000Z`,
+    /// so the comparison is exact. Returns how many takes were deleted.
+    pub fn clear_drill_attempts(&mut self, item_id: &str, since: Option<&str>) -> Result<usize> {
+        if let Some(since) = since
+            && !stored_timestamp(since)
+        {
+            return Err(AppError::new(
+                ErrorCode::Validation,
+                "Give the start of the takes to clear as a UTC timestamp like 2026-09-23T14:05:00.000Z.",
+            ));
+        }
+        let exists: bool = self.connection.query_row(
+            "SELECT EXISTS(SELECT 1 FROM drill_items WHERE id=?1)",
+            [item_id],
+            |r| r.get(0),
+        )?;
+        if !exists {
+            return Err(AppError::new(
+                ErrorCode::NotFound,
+                "This drill item no longer exists.",
+            ));
+        }
+        let attempts: Vec<String> = self
+            .connection
+            .prepare("SELECT id FROM drill_attempts WHERE drill_item_id=?1 AND (?2 IS NULL OR created_at>=?2)")?
+            .query_map(params![item_id, since], |r| r.get(0))?
+            .collect::<rusqlite::Result<_>>()?;
+        self.remove_drill_attempts(&attempts)?;
+        Ok(attempts.len())
+    }
+
+    /// Audio first, then rows: a file that cannot be removed leaves its row, so
+    /// nothing stays on disk that nothing identifies.
+    fn remove_drill_attempts(&mut self, attempts: &[String]) -> Result<()> {
+        for attempt in attempts {
+            self.remove_drill_audio(attempt)?;
+            self.connection
+                .execute("DELETE FROM drill_attempts WHERE id=?1", [attempt])?;
+        }
+        self.reclaim_drill_audio_pages()?;
+        self.connection
+            .execute("UPDATE metadata SET revision=revision+1", [])?;
+        Ok(())
+    }
+
     /// Remove one attempt's audio file, if it has one. A file that cannot be
     /// removed is an error: the caller keeps the rows that identify it.
     fn remove_drill_audio(&self, attempt_id: &str) -> Result<()> {
@@ -479,3 +541,17 @@ pub fn owner(item_id: &str) -> RecordingOwner {
 #[cfg(test)]
 #[path = "tests.rs"]
 mod tests;
+
+/// `YYYY-MM-DDTHH:MM:SS.sssZ`, the form `created_at` is stored in.
+fn stored_timestamp(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    bytes.len() == 24
+        && bytes.iter().enumerate().all(|(index, byte)| match index {
+            4 | 7 => *byte == b'-',
+            10 => *byte == b'T',
+            13 | 16 => *byte == b':',
+            19 => *byte == b'.',
+            23 => *byte == b'Z',
+            _ => byte.is_ascii_digit(),
+        })
+}

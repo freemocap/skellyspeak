@@ -137,22 +137,29 @@ pub fn mic_wave(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
 ) -> Result<Vec<f32>> {
-    let slot = state.capture.lock().map_err(|_| {
-        crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
-    })?;
-    let recording = slot
-        .as_ref()
-        .filter(|r| r.id == recording_id)
-        .ok_or_else(|| fault("Recording is no longer active."))?;
-    #[cfg(desktop)]
     {
-        recording.capture.take_wave().map_err(fault)
+        let slot = state.capture.lock().map_err(|_| {
+            crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+        })?;
+        if let Some(recording) = slot.as_ref().filter(|r| r.id == recording_id) {
+            #[cfg(desktop)]
+            {
+                return recording.capture.take_wave().map_err(fault);
+            }
+            #[cfg(mobile)]
+            {
+                let _ = recording;
+                return Ok(Vec::new());
+            }
+        }
     }
-    #[cfg(mobile)]
-    {
-        let _ = recording;
-        Ok(Vec::new())
+    // A listening run releases the microphone before it reports that it has
+    // stopped; between the two, its waveform is simply finished. The capture lock
+    // is released first: starting a run takes the listening lock, then capture.
+    if super::continuous::is_listening_run(&state, &recording_id) {
+        return Ok(Vec::new());
     }
+    Err(fault("Recording is no longer active."))
 }
 #[tauri::command]
 pub fn mic_cancel(state: tauri::State<'_, Arc<Application>>, recording_id: String) -> Result<()> {

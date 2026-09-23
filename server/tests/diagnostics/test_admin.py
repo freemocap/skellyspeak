@@ -1,5 +1,5 @@
 """Owner reporting, mutations and log metadata remain bounded and authenticated."""
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 import httpx
 import pytest
@@ -39,6 +39,26 @@ def test_reports_paginate_and_expose_exceptions_without_unknown_fields(database)
     assert custom['effective_limit_micros'] == 2000000
     assert 'private-secret' not in str(first)
     assert len(first['global_usage']) == 7 and not first['global_usage'][0]['present']
+
+
+def test_account_overview_totals_retained_90_days_and_separates_identity(database):
+    ref = database.collection('users').document('google:test01')
+    today = datetime.now(timezone.utc).date()
+    for age, micros in ((0, 100), (6, 200), (89, 300), (90, 9000)):
+        ref.collection('usage').document((today - timedelta(days=age)).isoformat()).set({
+            'micros': micros, 'micros_credit': 50})
+    report = admin_reports.overview(database, main.CFG, days=7)
+    user = next(row for row in report['users'] if row['id'] == 'google:test01')
+    assert user['usage']['micros'] == 100
+    assert user['usage_90_days_micros'] == 600
+    assert all('email' not in row and 'name' not in row for row in report['users'])
+    empty = next(row for row in report['users'] if row['id'] == 'google:test02')
+    assert empty['usage_90_days_micros'] == 0
+    detail = admin_reports.user_detail(database, main.CFG, 'google:test01', 7)
+    assert detail['user']['id'] == 'google:test01'
+    assert detail['identity']['email'] == 'user1@example.invalid'
+    assert 'email' not in detail['user']
+    assert ref.get().to_dict()['email'] == 'user1@example.invalid'
 
 
 @pytest.mark.asyncio

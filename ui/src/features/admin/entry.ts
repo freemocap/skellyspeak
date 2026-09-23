@@ -2,7 +2,7 @@ import { errorDetails } from '../../platform/diagnostics/error-details'
 /** Standalone hosted admin surface. All access decisions remain on the server. */
 type Row = Record<string, unknown>
 type Usage = { day: string; present: boolean; micros: number; tokens: number; requests: number; micros_credit: number }
-type User = { id: string; email: string; name: string; effective_limit_micros: number; daily_limit_micros: number | null; admin_revision: number; token_version: number; usage: Usage; admission: Record<string, number> }
+type User = { id: string; effective_limit_micros: number; daily_limit_micros: number | null; admin_revision: number; token_version: number; usage: Usage; usage_90_days_micros: number; admission: Record<string, number> }
 type Overview = { usage_limits_enforced?: boolean; environment: string; administrator: string; generated_at: string; revision: string; policy: Record<string, number>; environment_defaults: Record<string, number>; spending_paused: boolean; account_count: number; global_admission: Record<string, number>; users: User[]; next_cursor: string | null; global_usage: Usage[]; scope: string }
 type Logs = { entries: Row[]; next_page_token?: string; scope: string; since: string }
 type Command = { operation_id: string; expected_revision: number; action: string; target: string; values: Row }
@@ -114,12 +114,11 @@ function moneyInput(input: HTMLInputElement) {
 function usageTable(rows: Usage[]) { return table(['UTC day', 'Record', 'Allowance used', 'Tokens', 'Requests', 'Restored allowance'], rows.map(row => [row.day, row.present ? 'Present' : 'Missing', money(row.micros), row.tokens, row.requests, money(row.micros_credit)])) }
 function review(action: string, target: string, revision: number, values: Row, before: unknown, effect: string) {
   command = { operation_id: crypto.randomUUID(), expected_revision: revision, action, target, values }
-  const account = overview?.users.find(user => user.id === target)
   const labels: Record<string, string> = { user_limit: 'Change daily allowance', reset_diagnostics: 'Restore account checks', reset_requests: 'Restore inference requests', reset_allowance: 'Restore spending allowance', revoke_sessions: 'Revoke sessions', policy: 'Change service limits' }
   const display = (key: string, value: unknown) => value === null || value === undefined ? 'Use service default' : key.endsWith('_micros') ? money(Number(value)) : String(value)
   const previous = (before && typeof before === 'object' ? before : {}) as Row
   const changes = Object.entries(values).map(([key, value]) => `${policyLabels[key] ?? (key === 'daily_limit_micros' ? 'Daily allowance' : key)}: ${display(key, previous[key])} → ${display(key, value)}`)
-  $('change-preview').textContent = `${labels[action] ?? action}\n${account?.email ?? target}${changes.length ? '\n\n' + changes.join('\n') : ''}`
+  $('change-preview').textContent = `${labels[action] ?? action}\n${target}${changes.length ? '\n\n' + changes.join('\n') : ''}`
   $('change-effect').textContent = effect
   $<HTMLDialogElement>('confirm').showModal()
 }
@@ -150,8 +149,8 @@ async function loadOverview(live = false, pushed?: Overview, pushedTimeline?: Ti
     ['Account checks', limited ? `${data.global_admission.diagnostics_requests} / ${data.policy.global_diagnostics}` : String(data.global_admission.diagnostics_requests)],
   ].map(([label, value]) => { const card = el('div'); card.append(el('span', label), el('strong', value)); return card }))
   await loadTimeline(pushedTimeline)
-  $('users').replaceChildren(table(['Account', 'Limit source', 'Daily allowance', 'Used today', 'Account checks / credit', 'Sessions version', 'Inspect'], data.users.map(user => [
-    user.email || user.id, user.daily_limit_micros == null ? 'Default' : 'Custom exception', limited ? money(user.effective_limit_micros) : 'Disabled', money(user.usage.micros),
+  $('users').replaceChildren(table(['Account', 'Limit source', 'Daily allowance', 'Used today', 'Used · 90 days', 'Account checks / credit', 'Sessions version', 'Inspect'], data.users.map(user => [
+    user.id, user.daily_limit_micros == null ? 'Default' : 'Custom exception', limited ? money(user.effective_limit_micros) : 'Disabled', money(user.usage.micros), money(user.usage_90_days_micros),
     `${user.admission.diagnostics_requests} / ${user.admission.diagnostics_requests_credit}`, user.token_version,
     button('Inspect account', () => void run(() => inspectUser(user))),
   ])))
@@ -171,9 +170,10 @@ async function loadOverview(live = false, pushed?: Overview, pushedTimeline?: Ti
   }
 }
 async function inspectUser(user: User) {
-  const result = await api<{ user: User; usage: Usage[]; devices: Row[]; reservations: Row[]; devices_truncated: boolean; reservations_truncated: boolean }>(`/admin/api/users/${encodeURIComponent(user.id)}?days=${$<HTMLSelectElement>('days').value}`)
+  const result = await api<{ user: User; identity: { email: string | null; name: string | null }; usage: Usage[]; devices: Row[]; reservations: Row[]; devices_truncated: boolean; reservations_truncated: boolean }>(`/admin/api/users/${encodeURIComponent(user.id)}?days=${$<HTMLSelectElement>('days').value}`)
   user = result.user
-  const pane = $('user-detail'); pane.hidden = false; pane.replaceChildren(el('h3', user.email || user.id), button('Close account details', () => { pane.hidden = true }))
+  const pane = $('user-detail'); pane.hidden = false; pane.replaceChildren(el('h3', user.id), button('Close account details', () => { pane.hidden = true }))
+  const identity = el('details'); identity.append(el('summary', 'Identity details'), table(['User ID', 'Email', 'Name'], [[user.id, result.identity.email, result.identity.name]])); pane.append(identity)
   const chart = el('div'); usageView(chart, result.usage); pane.append(chart)
   const history = el('details'); history.append(el('summary', 'Daily numeric table'), usageTable(result.usage)); pane.append(history)
   const controls = el('div'); controls.className = 'filters'
@@ -191,7 +191,7 @@ async function inspectUser(user: User) {
   ]) resets.append(button(label, () => review(action, user.id, user.admin_revision, {}, { token_version: user.token_version, today: result.usage.at(-1) }, effect)))
   pane.append(resets, el('h4', 'Registered installations'), table(['Platform', 'App version', 'First seen', 'Last seen'], result.devices.map(row => ['platform', 'app_version', 'first_seen', 'last_seen'].map(key => row[key]))),
     el('h4', `Latest reservations${result.reservations_truncated ? ' · limited to 100' : ''}`),
-    table(['Day', 'State', 'Reserved', 'Recorded', 'Basis', 'Provider receipt'], result.reservations.map(row => [row.day, row.status, money(Number(row.reserved_micros)), row.actual_micros == null ? 'Unknown' : money(Number(row.actual_micros)), row.cost_basis ?? 'Pending / unknown', row.provider_id])))
+    table(['Created at', 'State', 'Reserved', 'Recorded', 'Basis', 'Provider receipt'], result.reservations.map(row => [row.created_at, row.status, money(Number(row.reserved_micros)), row.actual_micros == null ? 'Unknown' : money(Number(row.actual_micros)), row.cost_basis ?? 'Pending / unknown', row.provider_id])))
   pane.scrollIntoView({ block: 'start', behavior: 'smooth' })
 }
 function renderLogs() {

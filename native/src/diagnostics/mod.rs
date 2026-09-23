@@ -197,6 +197,12 @@ fn private_file(path: &Path) -> std::io::Result<File> {
     options.open(path)
 }
 impl FileSink {
+    fn open_run(root: &Path) -> Result<Self> {
+        // A launcher session can restart the native process repeatedly. Its
+        // inherited log root is shared, but each process owns fresh stream files.
+        Self::open(&root.join(format!("native-{}", uuid::Uuid::new_v4())))
+    }
+
     fn open(directory: &Path) -> Result<Self> {
         // Desktop paths must not traverse user-controlled symlinks. Android's
         // app-private path is supplied by the OS but conventionally includes the
@@ -304,14 +310,9 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
             .directory
             .clone());
     }
-    let custom = std::env::var_os("SKELLYSPEAK_LOG_RUN_DIR");
     let root = configured_root(fallback_root)?;
-    let directory = if custom.is_some() {
-        root.clone()
-    } else {
-        root.join(format!("native-{}-{}", timestamp()?, std::process::id()))
-    };
-    let mut output = FileSink::open(&directory)?;
+    let mut output = FileSink::open_run(&root)?;
+    let directory = output.directory.clone();
     output.append("native", &serde_json::json!({"code":"logging_initialized"}))?;
     LOG_ROOT
         .set(root)
@@ -504,6 +505,38 @@ mod tests {
         assert!(line.contains("\"nativeCode\":\"provider\""));
         assert!(!line.contains("private fixture"));
     }
+    #[test]
+    fn repeated_native_launches_share_a_root_without_colliding_or_losing_logs() {
+        let temp = tempfile::tempdir().unwrap();
+        let root = temp.path().canonicalize().unwrap();
+        let mut first = FileSink::open_run(&root).unwrap();
+        first
+            .append("native", &serde_json::json!({"code":"first_launch"}))
+            .unwrap();
+        let first_directory = first.directory.clone();
+        drop(first);
+        let mut second = FileSink::open_run(&root).unwrap();
+        second
+            .append("native", &serde_json::json!({"code":"second_launch"}))
+            .unwrap();
+        assert_ne!(first_directory, second.directory);
+        assert!(
+            std::fs::read_to_string(first_directory.join("native.jsonl"))
+                .unwrap()
+                .contains("first_launch")
+        );
+        assert!(
+            std::fs::read_to_string(second.directory.join("native.jsonl"))
+                .unwrap()
+                .contains("second_launch")
+        );
+        let exported = archive::save(&root, &root).unwrap();
+        let zip = zip::ZipArchive::new(File::open(exported).unwrap()).unwrap();
+        assert_eq!(zip.len(), 7); // Export manifest plus three files per launch.
+        // Exclusive creation still protects existing files; never truncate/reopen.
+        assert!(FileSink::open(&first_directory).is_err());
+    }
+
     #[test]
     fn frontend_errors_survive_sanitization_and_durable_storage() {
         let temp = tempfile::tempdir().unwrap();

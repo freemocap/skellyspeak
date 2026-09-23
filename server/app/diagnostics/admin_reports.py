@@ -24,7 +24,7 @@ def usage(ref, days):
 def profile(doc, policy):
     data = doc.to_dict() or {}
     override = data.get(quota.LIMIT_FIELD)
-    return {'id': doc.id, **{k: data.get(k) for k in ('email', 'name', 'created_at', 'last_seen')},
+    return {'id': doc.id, **{k: data.get(k) for k in ('created_at', 'last_seen')},
             'daily_limit_micros': override, 'effective_limit_micros': policy['free_daily_micros'] if override is None else override,
             'admin_revision': int(data.get('admin_revision', 0)), 'token_version': int(data.get('token_version', 0))}
 
@@ -41,6 +41,10 @@ def overview(db, cfg, *, days=30, after=''):
         row = profile(doc, policy)
         ref = collection.document(doc.id)
         row['usage'] = usage(ref.collection(quota.USAGE), 1)[0]
+        # Batch reads of existing UTC day records; never create an aggregate
+        # or count expired history as lifetime usage.
+        history = db.get_all([ref.collection(quota.USAGE).document(day) for day in window(90)])
+        row['usage_90_days_micros'] = sum(int((doc.to_dict() or {}).get('micros', 0)) for doc in history)
         admission = ref.collection('admission').document(quota.utc_day()).get().to_dict() or {}
         row['admission'] = {k: int(admission.get(k, 0)) for k in
                             ('requests', 'requests_credit', 'diagnostics_requests', 'diagnostics_requests_credit')}
@@ -67,7 +71,9 @@ def user_detail(db, cfg, user_id, days):
                for item in ref.collection(quota.DEVICES).limit(101).stream()]
     reservations = list(ref.collection('reservations').order_by('created_at', direction=firestore.Query.DESCENDING).limit(101).stream())
     fields = ('day', 'status', 'reserved_micros', 'actual_micros', 'tokens', 'cost_basis', 'created_at', 'updated_at', 'provider_id')
-    return {'user': profile(doc, admin_controls.effective(db, cfg)), 'usage': usage(ref.collection(quota.USAGE), days),
+    identity = {key: (doc.to_dict() or {}).get(key) for key in ('email', 'name')}
+    return {'user': profile(doc, admin_controls.effective(db, cfg)), 'identity': identity,
+            'usage': usage(ref.collection(quota.USAGE), days),
             'devices': devices[:100], 'devices_truncated': len(devices) > 100,
             'reservations': [{'id': item.id, **{k: (item.to_dict() or {}).get(k) for k in fields}} for item in reservations[:100]],
             'reservations_truncated': len(reservations) > 100}
