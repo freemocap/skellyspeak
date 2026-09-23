@@ -2745,3 +2745,54 @@ pressing Add twice; explicit regeneration; switching language mid-generation; an
 a language without spaces between words, such as Japanese. Fake-provider tests
 establish wiring and bounds only — the linguistic quality of what comes back
 still needs a real look.
+
+### UX-CP5 — the Add phrases panel, and a dead-CSS report that can be trusted (2026-09-23)
+
+**The add flow was a click-maze and is now two presses plus one per phrase.**
+The learner's words: "15 different goddamn modals". There was one dialog, but
+the path through it was ask → wait → tick boxes → press Add N → press Discard →
+close. It is now: the rail's `Add phrases…` opens a panel **in the stage column,
+not over the page**; Generate asks; each candidate carries its own **Keep**
+button that adopts it immediately; **Keep all N** takes the rest. There is no
+checkbox, no confirm step and nothing to dismiss — **Done** gives back whatever
+was not kept, which is the same `discardDrillPreview` the old Discard did.
+
+Nothing about the contract changed: acceptance is still by native candidate id
+against the owning request, repeat acceptance is still native-idempotent, a kept
+row still reports itself and cannot be kept twice, a duplicate is still marked
+and has no Keep control at all, and no request is made until Generate is pressed.
+
+**The dead-CSS report was lying, so it got fixed before anything was deleted.**
+`prune-styles` scanned only `ui/src`, which is not where several live consumers
+are: the preview harnesses under `ui/tools`, and — for every class in
+`features/admin.css` — the server admin panel's own `index.html` and `admin.js`.
+Fourteen of the nineteen reported classes were live, including the admin panel
+the learner is actively working on. Running `styles:prune --write` against that
+report would have deleted working admin styling.
+
+- `SOURCE_ROOTS` now lists `ui/src`, `ui/tools` and
+  `server/app/diagnostics/admin_assets`, and the walk reads `.html` and `.js` as
+  well as `.ts`/`.tsx`. `prune` uses the same roots as the report, so a write can
+  never delete a class the report would have called live.
+- `dynamicPrefixes` now accepts a fragment that follows another class inside a
+  string (`heat heat-${level}`), not only one that opens the string. That alone
+  moved five `heat-*` classes from "dead" to "composed at runtime".
+
+**Nine classes were genuinely dead and are gone**: `bar-fill`,
+`conversation-map-toggle`, `inspection-confidence`, `saved-word-part`,
+`saved-word-part-source`, `saved-word-parts`, `study-credit-badges`, `tok`,
+`trans-d`, along with `popup-roman`, `popup-card`, `popup-x`, `popup-actions`
+and the `rtl-line` selector parts the prune found with them. Each was confirmed
+to have no consumer anywhere in the repository before the write. The report now
+reads **0 unused**.
+
+**Verification (automated).** 1,152 UI tests across 169 files; the Add phrases
+suite gained a one-press-per-phrase regression, a Keep all regression and a
+close-gives-back-the-rest regression, and the pruner's own architecture tests
+still pass against the new roots. TypeScript, build, styles check, dead-style
+report, previews, languages (1,230 × 7), graph check and diff-check pass. No
+native change in this slice.
+
+**Still open.** The wider Drill UX pass the learner asked for is not this slice:
+this fixed the add flow and the CSS report only. Generation quality still needs a
+real-provider look, and schema 37 still needs a development reset on rebuild.

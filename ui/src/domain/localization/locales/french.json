@@ -211,7 +211,7 @@
   "Install & restart": "Installer et redémarrer",
   "Intensity": "Intensité",
   "Interests, opinions and favorites": "Intérêts, opinions et préférences",
-  "Keep": "Conserver",
+  "Keep": "Garder",
   "Keep a copy first if you might want your conversations and progress later:": "Gardez d’abord une copie si vous souhaitez conserver vos conversations et votre progression :",
   "Keep going": "Continuer",
   "Language evidence is not connected.": "Les preuves linguistiques ne sont pas connectées.",
@@ -1281,13 +1281,15 @@
   "Nothing came back. Ask again, or change the request.": "Rien n’est revenu. Redemandez ou modifiez la demande.",
   "No lines found in your chats for this language yet.": "Aucune phrase trouvée dans vos conversations pour cette langue.",
   "Show more": "Afficher plus",
-  "Add {value0} to practice": "Ajouter {value0} à l’entraînement",
-  "Discard the rest": "Abandonner le reste",
   "Added": "Ajoutée",
   "Already in your phrases": "Déjà dans vos phrases",
   "Model says {value0}": "Le modèle indique {value0}",
   "Taken from your chats, exactly as written there.": "Tirées de vos conversations, exactement telles qu’écrites.",
   "Asked for {value0} × {value1} at {value2}.": "{value0} × {value1} demandées en {value2}.",
   "Asked for {value0} × {value1} at {value2}, on “{value3}”.": "{value0} × {value1} demandées en {value2}, sur « {value3} ».",
-  "Nothing to practise yet. Type a line you want to be able to say, or ask for some.": "Rien à travailler pour l’instant. Saisissez une phrase que vous voulez savoir dire, ou demandez-en."
+  "Nothing to practise yet. Type a line you want to be able to say, or ask for some.": "Rien à travailler pour l’instant. Saisissez une phrase que vous voulez savoir dire, ou demandez-en.",
+  "Done": "Terminé",
+  "Keep “{value0}”": "Garder « {value0} »",
+  "Keep all {value0}": "Garder les {value0}",
+  "{value0} added to your phrases.": "{value0} ajoutées à vos phrases."
 }

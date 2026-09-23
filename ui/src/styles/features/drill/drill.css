@@ -31,26 +31,33 @@
 
 .drill-ask-more { justify-self: start; }
 
-/* Asking for phrases: where they come from, what to ask for, and what came
-   back. Nothing is generated or added without an explicit press. */
+/* Asking for phrases happens in the page, not over it: one press asks, one
+   press per phrase keeps it. There is no confirm step and nothing to dismiss. */
+.drill-add { display: grid; align-content: start; gap: var(--space-3); padding: var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-add-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.drill-add-head h2 { margin: 0; font-size: var(--type-title); }
+.drill-add-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+
 .drill-sources { display: inline-flex; gap: var(--space-1); padding: var(--space-1); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .drill-sources button { padding: var(--space-2) var(--space-4); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-xs); font-size: var(--type-ui); }
 .drill-sources button[aria-checked="true"] { background: var(--sheet); color: var(--ink); font-weight: var(--weight-semibold); }
 
-.drill-ask { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); margin-block: var(--space-3); }
+.drill-ask { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
 .drill-ask label { display: grid; gap: var(--space-1); color: var(--ink-2); font-size: var(--type-meta); }
 .drill-ask .field { width: 100%; }
 .drill-ask #drill-topic { min-width: 14rem; }
 .drill-ask #drill-count { width: 5rem; }
 .drill-ask p { margin: 0; }
+.drill-generate { background: var(--interaction-fill); color: var(--ink-on-fill); border-color: transparent; }
 
 .drill-candidates { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
-.drill-candidate { display: flex; align-items: start; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
-.drill-candidate-body { display: grid; gap: var(--space-1); min-width: 0; }
+.drill-candidate { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); background: var(--bg); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-candidate[data-kept="true"] { border-color: var(--success-line); }
+.drill-candidate-body { display: grid; gap: var(--space-1); min-width: 0; flex: 1 1 auto; }
 .drill-candidate-text { font-size: var(--type-reading); overflow-wrap: anywhere; }
 .drill-candidate-translation { color: var(--ink-2); font-size: var(--type-ui); }
 .drill-candidate-notes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.drill-candidates-note { margin: var(--space-2) 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-candidates-note { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 
 /* The stage: what to say, then the one control that records it. */
 .drill-stage { display: grid; align-content: start; gap: var(--space-4); }

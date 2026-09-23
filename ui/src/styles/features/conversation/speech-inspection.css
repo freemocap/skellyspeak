@@ -39,4 +39,3 @@
 .inspection-viewport { overflow-x: auto; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); overscroll-behavior-x: contain; }
 .inspection-timeline { position: relative; cursor: crosshair; }
 .inspection-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--spectrogram-high); box-shadow: 0 0 0 1px var(--spectrogram-low); z-index: var(--z-raised); pointer-events: none; }
-.inspection-confidence { padding: var(--space-4) var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); overflow-wrap: anywhere; font-size: var(--type-ui); }

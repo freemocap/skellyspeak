@@ -211,7 +211,7 @@
   "Install & restart": "تثبيت وإعادة التشغيل",
   "Intensity": "الشدة",
   "Interests, opinions and favorites": "الاهتمامات والآراء والمفضلات",
-  "Keep": "احتفاظ",
+  "Keep": "احتفظ",
   "Keep a copy first if you might want your conversations and progress later:": "احفظ نسخة أولاً إذا كنت تريد الاحتفاظ بمحادثاتك وتقدمك لاحقاً:",
   "Keep going": "متابعة",
   "Language evidence is not connected.": "أدلة اللغة غير متصلة.",
@@ -1281,13 +1281,15 @@
   "Nothing came back. Ask again, or change the request.": "لم يصل شيء. أعد الطلب أو غيّره.",
   "No lines found in your chats for this language yet.": "لا توجد عبارات في محادثاتك بهذه اللغة بعد.",
   "Show more": "عرض المزيد",
-  "Add {value0} to practice": "إضافة {value0} إلى التدريب",
-  "Discard the rest": "تجاهل الباقي",
   "Added": "أُضيفت",
   "Already in your phrases": "موجودة في عباراتك",
   "Model says {value0}": "النموذج يقول {value0}",
   "Taken from your chats, exactly as written there.": "مأخوذة من محادثاتك كما كُتبت تمامًا.",
   "Asked for {value0} × {value1} at {value2}.": "طُلب {value0} × {value1} في {value2}.",
   "Asked for {value0} × {value1} at {value2}, on “{value3}”.": "طُلب {value0} × {value1} في {value2}، حول «{value3}».",
-  "Nothing to practise yet. Type a line you want to be able to say, or ask for some.": "لا يوجد ما تتدرب عليه بعد. اكتب عبارة تريد أن تتقن قولها، أو اطلب بعضها."
+  "Nothing to practise yet. Type a line you want to be able to say, or ask for some.": "لا يوجد ما تتدرب عليه بعد. اكتب عبارة تريد أن تتقن قولها، أو اطلب بعضها.",
+  "Done": "تم",
+  "Keep “{value0}”": "الاحتفاظ بـ «{value0}»",
+  "Keep all {value0}": "الاحتفاظ بالـ {value0} جميعها",
+  "{value0} added to your phrases.": "أُضيفت {value0} إلى عباراتك."
 }

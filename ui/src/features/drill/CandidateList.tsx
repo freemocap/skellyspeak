@@ -17,43 +17,42 @@ export function lengthLabel(value: DrillLength): string {
   return LENGTHS[value]
 }
 
-/** What was offered, and which of it the learner wants to practise.
+/** What was offered, and one press to keep each of it.
  *
  * Three kinds of claim are kept apart: what was asked for, what the model said
  * about its own output, and what was checked here. Only the last is stated as
  * fact; a model calling its own line "beginner" is reported, not verified. */
-export function CandidateList({ offered, selected, added, disabled, onToggle }: {
+export function CandidateList({ offered, added, adding, onKeep }: {
   offered: OfferedCandidate[]
-  selected: string[]
   added: string[]
-  disabled: boolean
-  onToggle: (candidateId: string) => void
+  adding: boolean
+  onKeep: (entry: OfferedCandidate) => void
 }) {
   const tr = useI18n()
   return (
     <ul className="drill-candidates">
-      {offered.map(({ candidate }) => {
+      {offered.map(entry => {
+        const { candidate } = entry
         const isAdded = added.includes(candidate.candidateId)
-        const blocked = isAdded || candidate.verified.duplicate
         return (
-          <li key={candidate.candidateId}>
-            <label className="drill-candidate">
-              <input type="checkbox" checked={selected.includes(candidate.candidateId)} disabled={disabled || blocked}
-                onChange={() => onToggle(candidate.candidateId)} />
-              <span className="drill-candidate-body">
-                <bdi className="drill-candidate-text">{candidate.text}</bdi>
-                {candidate.translation !== null && <span className="drill-candidate-translation">{candidate.translation}</span>}
-                <span className="drill-candidate-notes">
-                  {isAdded && <span className="drill-chip" data-tone="success">{tr("Added")}</span>}
-                  {!isAdded && candidate.verified.duplicate && <span className="drill-chip">{tr("Already in your phrases")}</span>}
-                  {candidate.source.kind === 'conversation'
-                    && <span className="drill-chip">{tr("From your chats")}</span>}
-                  {candidate.reported.difficulty !== null
-                    && <span className="drill-chip">{tr("Model says {value0}", { value0: candidate.reported.difficulty })}</span>}
-                  {candidate.reported.tags.map(tag => <span key={tag} className="drill-chip">{tr("Model says {value0}", { value0: tag })}</span>)}
-                </span>
+          <li key={candidate.candidateId} className="drill-candidate" data-kept={isAdded}>
+            <span className="drill-candidate-body">
+              <bdi className="drill-candidate-text">{candidate.text}</bdi>
+              {candidate.translation !== null && <span className="drill-candidate-translation">{candidate.translation}</span>}
+              <span className="drill-candidate-notes">
+                {candidate.source.kind === 'conversation'
+                  && <span className="drill-chip">{tr("From your chats")}</span>}
+                {candidate.reported.difficulty !== null
+                  && <span className="drill-chip">{tr("Model says {value0}", { value0: candidate.reported.difficulty })}</span>}
+                {candidate.reported.tags.map(tag => <span key={tag} className="drill-chip">{tr("Model says {value0}", { value0: tag })}</span>)}
               </span>
-            </label>
+            </span>
+            {isAdded
+              ? <span className="drill-chip" data-tone="success">{tr("Added")}</span>
+              : candidate.verified.duplicate
+                ? <span className="drill-chip">{tr("Already in your phrases")}</span>
+                : <button type="button" className="btn" disabled={adding} onClick={() => onKeep(entry)}
+                  aria-label={tr("Keep “{value0}”", { value0: candidate.text })}>{tr("Keep")}</button>}
           </li>
         )
       })}

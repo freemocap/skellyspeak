@@ -18,6 +18,13 @@ import { join } from 'node:path'
 /// included, not only `react-flow__`: the skill map scopes the container itself.
 const LIBRARY_PREFIXES = ['react-flow']
 
+/// Everywhere a class in these sheets can legitimately be used. The application
+/// is not the only consumer: the preview harnesses under `ui/tools` render real
+/// components, and `features/admin.css` is built for the server admin panel,
+/// whose markup and script live with the server. A root missing from this list
+/// makes live styles look dead, which is how a prune deletes working styling.
+const SOURCE_ROOTS = ['ui/src', 'ui/tools', 'server/app/diagnostics/admin_assets']
+
 /// Every stylesheet in the stylesheet root, so a new sheet is analysed without
 /// being listed here; `npm run styles:check` fails if the manifest misses one.
 function sheetFiles(repositoryRoot: string, stylesheet: string): string[] {
@@ -28,23 +35,27 @@ function sheetFiles(repositoryRoot: string, stylesheet: string): string[] {
       : entry.name.endsWith('.css') ? [join(target, entry.name)] : [])
 }
 
-function sourceText(repositoryRoot: string, scan: string): string {
+function sourceText(repositoryRoot: string, roots: string[]): string {
   const parts: string[] = []
   const walk = (dir: string): void => {
     for (const entry of readdirSync(join(repositoryRoot, dir), { withFileTypes: true })) {
       if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue
       const next = `${dir}/${entry.name}`
       if (entry.isDirectory()) walk(next)
-      else if (/\.(ts|tsx)$/.test(entry.name)) parts.push(readFileSync(join(repositoryRoot, next), 'utf8'))
+      else if (/\.(ts|tsx|html|js)$/.test(entry.name)) parts.push(readFileSync(join(repositoryRoot, next), 'utf8'))
     }
   }
-  walk(scan)
+  for (const root of roots) {
+    try { walk(root) } catch { /* A consumer that is not checked out here cannot be scanned. */ }
+  }
   return parts.join('\n')
 }
 
-/// Fragments the source builds a class name from at runtime.
+/// Fragments the source builds a class name from at runtime. The fragment can
+/// open the string or follow another class inside it (`heat heat-${level}`), so
+/// whitespace counts as a start just as a quote does.
 function dynamicPrefixes(haystack: string): string[] {
-  return [...haystack.matchAll(/[\'`"]([a-zA-Z][\w-]*-)\$\{/g)].map(m => m[1])
+  return [...haystack.matchAll(/(?:[\'`"]|\s)([a-zA-Z][\w-]*-)\$\{/g)].map(m => m[1])
 }
 
 /// Whole-identifier test, so a short class such as `lg` is not "found" inside
@@ -76,7 +87,7 @@ export interface DeadCss {
   dynamic: string[]
 }
 
-export function analyseStyles(repositoryRoot: string, scan = 'ui/src', stylesheet = 'ui/src/styles'): DeadCss {
+export function analyseStyles(repositoryRoot: string, scan: string[] = SOURCE_ROOTS, stylesheet = 'ui/src/styles'): DeadCss {
   const names = new Set<string>()
   for (const file of sheetFiles(repositoryRoot, stylesheet)) {
     postcss.parse(readFileSync(file, 'utf8')).walkRules(rule => {
@@ -102,7 +113,9 @@ export function analyseStyles(repositoryRoot: string, scan = 'ui/src', styleshee
 /// Nothing is written until every sheet has been processed, so a refusal leaves
 /// the stylesheets untouched.
 export async function prune(repositoryRoot: string, stylesheet = 'ui/src/styles'): Promise<string> {
-  const haystack = sourceText(repositoryRoot, 'ui/src')
+  // The same roots the report uses: a prune must never delete a class the
+  // report would have called live.
+  const haystack = sourceText(repositoryRoot, SOURCE_ROOTS)
   const prefixes = dynamicPrefixes(haystack)
   const cache = new Map<string, RegExp>()
   const dead = (name: string): boolean =>

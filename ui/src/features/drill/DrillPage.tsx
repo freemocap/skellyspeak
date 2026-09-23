@@ -205,8 +205,12 @@ export function DrillPage({ active }: { active: boolean }) {
         onAskForMore={() => setAsking(true)}>
         <DrillStorage active={active} onChanged={reload} />
       </PhraseRail>
-      {asking && <AddPhrases scope={creating} onAdded={async () => refresh()} onClose={() => setAsking(false)} />}
-      {practice ?? <main className="drill-stage">
+
+      {asking
+        ? <main className="drill-stage">
+          <AddPhrases scope={creating} onAdded={async () => refresh()} onClose={() => setAsking(false)} />
+        </main>
+        : practice ?? <main className="drill-stage">
         {failure != null && <p role="alert">{errorMessage(failure)}</p>}
         {loadFailure != null
           ? <p role="alert">{errorMessage(loadFailure)}

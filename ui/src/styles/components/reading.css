@@ -67,13 +67,6 @@
 
 .w.holding { background: var(--interaction-tint); }
 
-.trans-d {
-  font-size: var(--type-ui);
-  color: var(--ink-2);
-  font-style: italic;
-  margin-bottom: var(--space-7);
-}
-
 @media (pointer: coarse) {
   .w[role=button] { display: inline-block; padding-block: var(--space-1); }
 }
@@ -150,16 +143,14 @@
   .saved-word-help .wroman, .saved-word-help .wpronunciation { font-size: var(--type-body); }
 }
 .saved-word-details { overflow-wrap: anywhere; }
-.saved-word-details h2, .saved-word-part-source {
+.saved-word-details h2 {
   font: calc(var(--type-title) * var(--script-scale)) / 1.4 var(--font-serif);
 }
-.saved-word-details > span, .saved-word-part > span { display: block; }
+.saved-word-details > span { display: block; }
 .saved-word-details .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-details .wroman, .saved-word-details .wpronunciation {
   font: var(--type-ui) var(--font-reading-aid); color: var(--ink-2);
 }
-.saved-word-parts { margin-top: var(--space-6); }
-.saved-word-part { padding-block: var(--space-4); border-top: var(--border-width) solid var(--line-soft); }
 
 /* Romanization under a word may be wider than the word; it widens the column
    rather than breaking mid-word. */

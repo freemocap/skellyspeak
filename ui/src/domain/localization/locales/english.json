@@ -1281,13 +1281,15 @@
   "Nothing came back. Ask again, or change the request.": "Nothing came back. Ask again, or change the request.",
   "No lines found in your chats for this language yet.": "No lines found in your chats for this language yet.",
   "Show more": "Show more",
-  "Add {value0} to practice": "Add {value0} to practice",
-  "Discard the rest": "Discard the rest",
   "Added": "Added",
   "Already in your phrases": "Already in your phrases",
   "Model says {value0}": "Model says {value0}",
   "Taken from your chats, exactly as written there.": "Taken from your chats, exactly as written there.",
   "Asked for {value0} × {value1} at {value2}.": "Asked for {value0} × {value1} at {value2}.",
   "Asked for {value0} × {value1} at {value2}, on “{value3}”.": "Asked for {value0} × {value1} at {value2}, on “{value3}”.",
-  "Nothing to practise yet. Type a line you want to be able to say, or ask for some.": "Nothing to practise yet. Type a line you want to be able to say, or ask for some."
+  "Nothing to practise yet. Type a line you want to be able to say, or ask for some.": "Nothing to practise yet. Type a line you want to be able to say, or ask for some.",
+  "Done": "Done",
+  "Keep “{value0}”": "Keep “{value0}”",
+  "Keep all {value0}": "Keep all {value0}",
+  "{value0} added to your phrases.": "{value0} added to your phrases."
 }
