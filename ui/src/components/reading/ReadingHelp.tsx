@@ -12,7 +12,7 @@ import { TokenAudio } from './TokenAudio'
 import { DetailDialog } from '../dialogs/DetailDialog'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
-import type { ReadingResult } from '../../generated/contracts'
+import type { ReadingInput, ReadingResult } from '../../generated/contracts'
 
 export interface ReadingLanguage { code: string; name: string; languageTag?: string; defaultVariety: string; varieties: { id: string; label: string }[] }
 
@@ -38,11 +38,15 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   useEffect(() => { const current = requests.current; return () => current.clear() }, [])
   const cache = useRef(new Map<string, ReadingResult>())
   const [cacheRevision, setCacheRevision] = useState(0)
-  const peek = useCallback((input: import('../../generated/contracts').ReadingInput): ReadingResult | null => {
-    const { text, speech: _speech, ...scope } = input
-    const exact = cache.current.get(JSON.stringify([glossScopeKey(scope), text]))
+  // One cache and one request-sharing map for every aid, keyed by aid, scope and text.
+  const cacheKey = (input: ReadingInput) => { const { text, aid, ...scope } = input; return JSON.stringify([aid, glossScopeKey(scope), text]) }
+  const peek = useCallback((input: ReadingInput): ReadingResult | null => {
+    const exact = cache.current.get(cacheKey(input))
+    if (input.aid !== 'word_gloss') return exact ?? null
+    const { text, aid: _aid, ...scope } = input
     const sources = [...cache.current].flatMap(([key, result]) => {
-      const [scopeKey, savedText] = JSON.parse(key)
+      const [aid, scopeKey, savedText] = JSON.parse(key)
+      if (aid !== 'word_gloss') return []
       const [language, variety, explanation, explanationVariety] = JSON.parse(scopeKey)
       return result.gloss ? [{scope:{language,variety,explanation,explanationVariety}, text:savedText, segments:result.gloss.segments}] : []
     })
@@ -55,14 +59,15 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
       for (const part of segments) if (part.kind === 'gloss' && part.start <= end && part.end > end) end = part.end
       return end >= word.end
     })
-    return {gloss: {...exact?.gloss, segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, receipt:exact?.receipt ?? null} as ReadingResult
+    return {gloss: {...exact?.gloss, segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, translation:null, explanations:null, receipt:exact?.receipt ?? null} as ReadingResult
   }, [savedIndex, cacheRevision])
   const lookup = useCallback<ReadingServices['read']>(async (input, signal) => {
     signal.throwIfAborted()
+    if (input.aid === 'speech') throw new Error('Read-aloud is requested through reading actions, not lookup.')
     const saved = peek(input)
-    if (saved?.gloss?.coverage === 'complete') return saved
-    const { text, speech: _speech, ...scope } = input
-    const key = JSON.stringify([glossScopeKey(scope), text])
+    const complete = { word_gloss: saved?.gloss?.coverage === 'complete', translation: saved?.translation != null, explanations: saved?.explanations != null }[input.aid]
+    if (complete) return saved!
+    const key = cacheKey(input)
     return requests.current.run(key, signal, async owned => {
       const result = await services.read(input, owned)
       owned.throwIfAborted()
@@ -83,7 +88,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     stop(); setSpeechError(null); setSpeechReceipt(null); setLoadingAudio(true)
     const controller = new AbortController(); speech.current = controller
     setSpeaking(speechKey(next))
-    void services.speak({ ...next.scope, text: next.text.slice(next.start, next.end), speech: true }, controller.signal, () => { if (!controller.signal.aborted) setLoadingAudio(false) })
+    void services.speak({ ...next.scope, text: next.text.slice(next.start, next.end), aid:'speech' }, controller.signal, () => { if (!controller.signal.aborted) setLoadingAudio(false) })
       .then(receipt => { if (!controller.signal.aborted) setSpeechReceipt(receipt) })
       .catch(error => { if (!controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) setSpeechError(error) })
       .finally(() => { if (speech.current === controller) { speech.current = null; setSpeaking(null) } })
@@ -122,12 +127,12 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   const lastRequest = useRef<string | null>(null)
   useEffect(() => {
     const requestKey = JSON.stringify([scope, selection.text, attempt])
-    const saved = peek({...scope, text:selection.text, speech:false})
+    const saved = peek({...scope, text:selection.text, aid:'word_gloss'})
     if (saved && (attempt === 0 || lastRequest.current === requestKey)) { setResult(saved); setFailure(null); setPending(false); return }
     const controller = new AbortController()
     setResult(null); setFailure(null); setPending(true)
     lastRequest.current = requestKey
-    void lookup({ ...scope, text: selection.text, speech: false }, controller.signal)
+    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal)
       .then(value => { if (!controller.signal.aborted) {
         setResult(value)
       } })

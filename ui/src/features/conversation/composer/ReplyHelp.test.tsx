@@ -187,7 +187,7 @@ it('splits saved mixed-script grammar examples into source and separate reading 
   expect(passages[1].textContent).toBe('مَاذَا تَأْكُلُ؟')
   fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
   expect(screen.getByText('What are you eating?')).toHaveAttribute('dir', 'auto')
-  expect(passages[1].querySelector('.w')?.textContent).not.toContain('mādhā')
+  expect(passages[1].querySelector('.target-text')?.textContent).not.toContain('mādhā')
   fireEvent.click(screen.getByRole('button', { name: 'Pronunciation' }))
   expect(screen.getByText('mādhā ta’kulu?')).toHaveAttribute('dir', 'auto')
 })

@@ -1,8 +1,18 @@
 use super::*;
+use crate::application::test_server::{structured_server, translation_server};
 use std::io::{Read, Write};
 
 #[tokio::test]
 async fn selected_word_reaches_speech_and_receipt_survives_without_source_content() {
+    speech_request(false).await;
+}
+
+#[tokio::test]
+async fn drill_reference_survives_restart_and_replay_does_not_dispatch_or_charge() {
+    speech_request(true).await;
+}
+
+async fn speech_request(reference: bool) {
     let directory = tempfile::tempdir().unwrap();
     let state = Application::start(&directory.path().join("reading.sqlite3"), None);
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
@@ -68,17 +78,36 @@ async fn selected_word_reaches_speech_and_receipt_survives_without_source_conten
         )
         .unwrap();
     });
+    let item = if reference {
+        Some(
+            state
+                .lock()
+                .unwrap()
+                .create_drill_item(crate::drill::DrillItemInput {
+                    text: "كتاب".into(),
+                    language: "arabic".into(),
+                    variety: None,
+                    explanation: "english".into(),
+                    explanation_variety: None,
+                })
+                .unwrap()
+                .id,
+        )
+    } else {
+        None
+    };
     let id = state
         .reading
         .begin(
             &state.lock().unwrap(),
             reading::ReadingInput {
+                reference_item: item.clone(),
                 text: "كتاب".into(),
                 language: "arabic".into(),
                 variety: None,
                 explanation: "english".into(),
                 explanation_variety: None,
-                speech: true,
+                aid: crate::language::reading::ReadingAid::Speech,
             },
         )
         .unwrap();
@@ -90,7 +119,291 @@ async fn selected_word_reaches_speech_and_receipt_survives_without_source_conten
     assert_eq!(receipts[0]["state"], "succeeded");
     assert_eq!(receipts[0]["response"]["providerId"], "speech-receipt");
     assert!(receipts[0]["response"]["costMicros"].is_null());
+    // The receipt keeps the same content-free speech projection persona speech
+    // retains. This route reports no transcript comparison, so the field is
+    // explicitly null rather than dropped; the shared projection's own test
+    // covers retention when a provider does send one.
+    let response = &receipts[0]["response"];
+    assert_eq!(response["audioAccepted"], true);
+    assert!(response.get("finishReason").is_some());
+    assert!(
+        response
+            .get("transcriptComparison")
+            .is_some_and(serde_json::Value::is_null)
+    );
     assert!(!receipts[0].to_string().contains("كتاب"));
     assert!(!receipts[0].to_string().contains(&encoded_audio));
     assert!(state.reading.claim(&id).is_err());
+    if let Some(item) = item {
+        drop(state);
+        let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+        let before: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
+        let input = reading::ReadingInput {
+            reference_item: Some(item),
+            text: "كتاب".into(),
+            language: "arabic".into(),
+            variety: None,
+            explanation: "english".into(),
+            explanation_variety: None,
+            aid: reading::ReadingAid::Speech,
+        };
+        let cached_id = state
+            .reading
+            .begin(&state.lock().unwrap(), input.clone())
+            .unwrap();
+        assert!(state.reading.begin(&state.lock().unwrap(), input).is_err());
+        // The only server has shut down: any second provider call fails this test.
+        let cached = run_owned_reading(&state, &cached_id).await.unwrap();
+        assert_eq!(cached.audio_base64, result.audio_base64);
+        assert_eq!(cached.receipt["response"]["cacheHit"], true);
+        assert_eq!(cached.receipt["response"]["sourceReceiptId"], id);
+        assert!(cached.receipt.get("dispatchedAt").is_none());
+        let after: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
+        assert_eq!(before, after);
+    }
+}
+
+#[tokio::test]
+async fn translation_runs_the_conversation_translation_contract_and_is_counted() {
+    let directory = tempfile::tempdir().unwrap();
+    let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+    let (base, worker) = translation_server(serde_json::json!("The book."));
+    let (fast, expected_messages) = {
+        let store = state.lock().unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
+        let context = store
+            .config
+            .resolve_pair("arabic", None, "english", None)
+            .unwrap();
+        let captured = serde_json::json!({"targetLanguage":"arabic","translationLanguage":"english","languageContext":context});
+        (
+            execution::config(&store.connection).unwrap().fast_model,
+            crate::conversations::translation::prompt("كتاب".into(), &captured).unwrap(),
+        )
+    };
+    let before = state.lock().unwrap().profile().unwrap();
+    let id = state
+        .reading
+        .begin(
+            &state.lock().unwrap(),
+            reading::ReadingInput {
+                reference_item: None,
+                text: "كتاب".into(),
+                language: "arabic".into(),
+                variety: None,
+                explanation: "english".into(),
+                explanation_variety: None,
+                aid: reading::ReadingAid::Translation,
+            },
+        )
+        .unwrap();
+    let result = run_owned_reading(&state, &id).await.unwrap();
+    let payload = worker.join().unwrap();
+    assert_eq!(result.translation.as_deref(), Some("The book."));
+    assert!(result.gloss.is_none() && result.audio_base64.is_none());
+    // The request is the translation turn contract: prompt, schema, role, temperature.
+    let request = &payload["items"][0]["request"];
+    assert_eq!(
+        request["messages"],
+        serde_json::to_value(&expected_messages).unwrap()
+    );
+    assert_eq!(request["model"], fast);
+    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["response_format"]["json_schema"]["schema"],
+        crate::conversations::translation::schema()
+    );
+    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
+    assert_eq!(receipts[0]["kind"], "reading_translation");
+    assert_eq!(receipts[0]["state"], "succeeded");
+    assert_eq!(receipts[0]["requestedModel"], fast);
+    assert_eq!(receipts[0]["response"]["providerId"], "structured-receipt");
+    assert!(!receipts[0].to_string().contains("كتاب"));
+    assert!(!receipts[0].to_string().contains("The book."));
+    // Usage is counted globally and for the language, never for a partner.
+    let after = state.lock().unwrap().profile().unwrap();
+    assert_eq!(after.global.attempts, before.global.attempts + 1);
+    assert_eq!(after.global.input_tokens, before.global.input_tokens + 21);
+    assert_eq!(after.global.output_tokens, before.global.output_tokens + 4);
+    let language = |profile: &model::ProfileSnapshot| {
+        profile
+            .languages
+            .iter()
+            .find(|l| l.id == "arabic")
+            .map(|l| l.attempts)
+    };
+    assert_eq!(language(&after), language(&before).map(|n| n + 1));
+    assert_eq!(
+        after
+            .personas
+            .iter()
+            .map(|p| p.attempts)
+            .collect::<Vec<_>>(),
+        before
+            .personas
+            .iter()
+            .map(|p| p.attempts)
+            .collect::<Vec<_>>()
+    );
+}
+
+#[tokio::test]
+async fn unclear_translation_fails_with_a_receipt_and_still_counts_usage() {
+    let directory = tempfile::tempdir().unwrap();
+    let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+    let (base, worker) = translation_server(serde_json::Value::Null);
+    state.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
+    let before = state.lock().unwrap().profile().unwrap().global.attempts;
+    let id = state
+        .reading
+        .begin(
+            &state.lock().unwrap(),
+            reading::ReadingInput {
+                reference_item: None,
+                text: "كتاب".into(),
+                language: "arabic".into(),
+                variety: None,
+                explanation: "english".into(),
+                explanation_variety: None,
+                aid: reading::ReadingAid::Translation,
+            },
+        )
+        .unwrap();
+    let Err(error) = run_owned_reading(&state, &id).await else {
+        panic!("an unclear translation must fail")
+    };
+    worker.join().unwrap();
+    assert_eq!(
+        error.message,
+        "Translation: source meaning is unclear; no translation was published"
+    );
+    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
+    assert_eq!(receipts[0]["state"], "failed");
+    assert_eq!(receipts[0]["response"]["providerId"], "structured-receipt");
+    assert_eq!(
+        state.lock().unwrap().profile().unwrap().global.attempts,
+        before + 1
+    );
+}
+
+#[tokio::test]
+async fn word_gloss_runs_the_conversation_gloss_contract_and_keeps_partial_meanings() {
+    let directory = tempfile::tempdir().unwrap();
+    let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+    // No span is valid, so recovery keeps the whole source unresolved.
+    let (base, worker) = structured_server(|_| r#"{"spans":[]}"#.into());
+    let (model, expected) = {
+        let store = state.lock().unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
+        let target = access::resolve(&store.connection, access::Capability::Chat).unwrap();
+        let context = store
+            .config
+            .resolve_pair("arabic", None, "english", None)
+            .unwrap();
+        let identity = crate::language::linguistics::SourceIdentity {
+            message_id: "unused".into(),
+            target_language_id: "arabic".into(),
+            explanation_language_id: "english".into(),
+            analysis_version: crate::language::linguistics::ANALYSIS_VERSION.into(),
+        };
+        let prompt = crate::language::linguistics::adapter::build_word_gloss_prompt_with_context(
+            &identity, "كتاب", &context,
+        )
+        .unwrap();
+        (
+            crate::ai::connections::model_routing::target(
+                &target,
+                crate::conversations::gloss::ROLE,
+                &execution::config(&store.connection).unwrap().fast_model,
+            )
+            .model,
+            prompt,
+        )
+    };
+    let before = state.lock().unwrap().profile().unwrap();
+    let id = state
+        .reading
+        .begin(
+            &state.lock().unwrap(),
+            reading::ReadingInput {
+                reference_item: None,
+                text: "كتاب".into(),
+                language: "arabic".into(),
+                variety: None,
+                explanation: "english".into(),
+                explanation_variety: None,
+                aid: reading::ReadingAid::WordGloss,
+            },
+        )
+        .unwrap();
+    let result = run_owned_reading(&state, &id).await.unwrap();
+    let payload = worker.join().unwrap();
+    let gloss = result.gloss.unwrap();
+    assert_eq!(gloss.coverage, model::GlossCoverage::Partial);
+    assert!(result.translation.is_none() && result.audio_base64.is_none());
+    let request = &payload["items"][0]["request"];
+    assert_eq!(
+        request["messages"],
+        serde_json::to_value(&expected.messages).unwrap()
+    );
+    assert_eq!(request["model"], model);
+    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["response_format"]["json_schema"]["schema"],
+        expected.output_schema
+    );
+    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
+    assert_eq!(receipts[0]["kind"], "reading_gloss");
+    assert_eq!(receipts[0]["state"], "succeeded");
+    assert_eq!(receipts[0]["requestedModel"], model);
+    assert_eq!(
+        receipts[0]["response"]["wordGlossValidation"]["policy"],
+        "word-gloss-recovery-v1"
+    );
+    assert!(!receipts[0].to_string().contains("كتاب"));
+    let after = state.lock().unwrap().profile().unwrap();
+    assert_eq!(after.global.attempts, before.global.attempts + 1);
+}
+
+#[tokio::test]
+async fn explanations_run_the_conversation_support_contract_against_the_source() {
+    let directory = tempfile::tempdir().unwrap();
+    let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+    let (base, worker) = structured_server(|_| {
+        serde_json::json!({"cards":[{"quote":"كتاب","title":"Noun","body":"A book.","example":"هذا كتاب","contrast":""}]}).to_string()
+    });
+    state.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
+    let before = state.lock().unwrap().profile().unwrap();
+    let id = state
+        .reading
+        .begin(
+            &state.lock().unwrap(),
+            reading::ReadingInput {
+                reference_item: None,
+                text: "كتاب جديد".into(),
+                language: "arabic".into(),
+                variety: None,
+                explanation: "english".into(),
+                explanation_variety: None,
+                aid: reading::ReadingAid::Explanations,
+            },
+        )
+        .unwrap();
+    let result = run_owned_reading(&state, &id).await.unwrap();
+    let payload = worker.join().unwrap();
+    let cards = result.explanations.unwrap().cards;
+    assert_eq!(cards.len(), 1);
+    assert_eq!(cards[0].quote, "كتاب");
+    let request = &payload["items"][0]["request"];
+    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["response_format"]["json_schema"]["schema"],
+        crate::learning::coaching::conversation_support::schema("reply_explanations")
+    );
+    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
+    assert_eq!(receipts[0]["kind"], "reading_explanations");
+    assert_eq!(receipts[0]["state"], "succeeded");
+    assert!(!receipts[0].to_string().contains("كتاب"));
+    let after = state.lock().unwrap().profile().unwrap();
+    assert_eq!(after.global.attempts, before.global.attempts + 1);
 }

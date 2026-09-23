@@ -67,12 +67,6 @@ const arabicSegments = [
 ]
 function Preview() {
   const [input, setInput] = useState('')
-  const [revealed, setRevealed] = useState(new Set<string>())
-  const toggleWords = (keys: string[]) => setRevealed(current => {
-    const next = new Set(current)
-    for (const key of keys) { if (next.has(key)) next.delete(key); else next.add(key) }
-    return next
-  })
   const [opening, setOpening] = useState(false)
   const [startConfig, setStartConfig] = useState(initialStart)
   const [recording, setRecording] = useState(false)
@@ -102,14 +96,14 @@ function Preview() {
         </ConversationHeader>
         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} greeting={{ text: 'hola', romanized: null }} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onRecord={() => setRecording(!recording)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
           {/* Existing TurnView.test.tsx reply fixture, without generated feedback. */}
-          <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
+          <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} />
           <div style={{ '--script-scale': 1.5 } as React.CSSProperties}><ReadingPreferencesContext value={{ autoTranslate: quick.auto_translate, alwaysRomanize: quick.always_romanize, alwaysPronunciation: quick.always_pronunciation, supportsRomanization: true }}>
             <TurnView turn={{ id: 2, user: arabicText, assistant: null, pendingText: '', userSavedGloss: {
               sourceMessageId: 'preview-arabic-user', targetLanguageId: 'arabic', explanationLanguageId: 'english',
               formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
-            } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} revealed={revealed} showRomanization alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
+            } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} rtl onBubbleTap={() => setNotice('Message analysis')} />
           </ReadingPreferencesContext></div>
-          <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
+          <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} />
         </>}</div>
         <div className="composer">
           {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}

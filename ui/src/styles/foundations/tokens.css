@@ -107,6 +107,8 @@
   --spectrogram-low: #171b36;
   --spectrogram-mid: #8056b5;
   --spectrogram-high: #ffe071;
+  /* A band the recording could not carry: unavailable, not measured silence. */
+  --spectrogram-unavailable: #4a4636;
 
   /* ══ Depth ═══════════════════════════════════════════════════════════════
      The depth preference (flat, default, raised, recessed) overrides the

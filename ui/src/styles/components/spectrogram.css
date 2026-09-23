@@ -1,0 +1,12 @@
+/* The spectrogram canvas and its mel frequency axis: shared by the Chat
+   recording inspector and by paired Drill comparisons. Geometry that belongs to
+   one surface (timeline rows, playhead, legend) stays with that surface. */
+
+.inspection-plot { position: relative; min-width: 0; background: var(--spectrogram-low); overflow: hidden; }
+.inspection-spectrogram { display: block; width: 100%; height: 160px; image-rendering: pixelated; }
+/* The mel frequency axis, over the canvas's trailing edge: highest band on top. */
+.inspection-frequency-scale { position: absolute; inset-block: var(--space-2); inset-inline-end: var(--space-2); z-index: var(--z-raised); display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; pointer-events: none; font-family: var(--font-mono); font-size: var(--type-meta); }
+.inspection-frequency-scale span { padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); }
+@media (max-width: 600px) {
+  .inspection-spectrogram { height: 120px; }
+}

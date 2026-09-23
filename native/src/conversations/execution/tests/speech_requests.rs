@@ -388,3 +388,48 @@ fn speech_validated_audio_is_independent_of_finish_metadata() {
         );
     }
 }
+
+#[test]
+fn explicit_reading_speech_sends_the_same_request_as_persona_speech() {
+    let (_dir, mut store, conversation) = setup();
+    let (speech, _helpers) = speech_children(&mut store, &conversation);
+    assert_eq!(speech.route, ConnectionRoute::Openrouter);
+    let (variety, explanation, explanation_variety): (String, String, String) = store
+        .connection
+        .query_row(
+            "SELECT json_extract(settings,'$.varietyId'),json_extract(settings,'$.explanationLanguage'),json_extract(settings,'$.explanationVarietyId') FROM conversation_settings WHERE conversation_id=?1",
+            [&conversation],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    let input = |text: &str| crate::language::reading::ReadingInput {
+        reference_item: None,
+        text: text.into(),
+        language: "spanish".into(),
+        variety: Some(variety.clone()),
+        explanation: explanation.clone(),
+        explanation_variety: Some(explanation_variety.clone()),
+        aid: crate::language::reading::ReadingAid::Speech,
+    };
+    let request = crate::language::reading::Request::capture(&store, input("Hola.")).unwrap();
+    let reading = request.speech_input().unwrap();
+    let persona = speech.speech_source.as_ref().unwrap();
+    assert_eq!(
+        (&reading.text, &reading.voice, &reading.language),
+        (&persona.text, &persona.voice, &persona.language)
+    );
+    assert_eq!(request.model, speech.model);
+    assert_eq!(
+        (
+            request.target.route,
+            &request.target.url,
+            &request.target.credential
+        ),
+        (speech.route, &speech.target.url, &speech.target.credential)
+    );
+    // A whole sentence is read aloud, not only a token.
+    let sentence = "Hola, ¿cómo estás? ".repeat(20);
+    assert!(sentence.encode_utf16().count() > 256);
+    let long = crate::language::reading::Request::capture(&store, input(&sentence)).unwrap();
+    assert_eq!(long.speech_input().unwrap().text, sentence);
+}

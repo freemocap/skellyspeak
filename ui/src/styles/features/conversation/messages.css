@@ -30,14 +30,14 @@
 
 .msg.me .wg { color: var(--ink-3); }
 
-.msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text {
+.msg.rtl .w, .msg.rtl .target-text {
   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
   line-height: var(--leading-vocalized);
 }
 
-.msg.rtl .wg, .line.rtl-line .wg { font-size: var(--type-meta); }
+.msg.rtl .wg { font-size: var(--type-meta); }
 
-.msg.rtl .wroman, .line.rtl-line .wroman { font-size: var(--type-meta); }
+.msg.rtl .wroman { font-size: var(--type-meta); }
 
 .msg.me.rtl { align-self: flex-end; }
 
@@ -104,8 +104,6 @@
 }
 
 .msg .line { display: inline; }
-
-.msg .line.rtl-line { direction: rtl; unicode-bidi: embed; }
 
 .msg .line .wu { vertical-align: top; margin-block-end: var(--space-hairline); margin-inline-end: var(--word-spacing); }
 

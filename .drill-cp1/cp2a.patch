@@ -1,0 +1,1124 @@
+--- a/native/src/ai/transport/provider/mod.rs
++++ b/native/src/ai/transport/provider/mod.rs
+@@ -6,7 +6,7 @@
+ pub use keys::{validate_key_format, verify_key};
+ pub use payload::{
+     GLOSS_OUTPUT_TOKENS, MAX_OUTPUT_TOKENS, RequestOutput, dispatch_payload, payload,
+-    payload_with_output,
++    payload_with_output, structured_output,
+ };
+ pub use request::{client, complete, complete_streaming, complete_with_output};
+ pub use response::{decode, strip_prose_emojis, validate_prose};
+--- a/native/src/ai/transport/provider/payload.rs
++++ b/native/src/ai/transport/provider/payload.rs
+@@ -26,6 +26,16 @@
+     },
+ }
+ 
++/// The structured output contract for task schemas (translation, coaching and
++/// other JSON tasks), shared by every engine that sends them.
++pub fn structured_output(schema: &serde_json::Value) -> RequestOutput<'_> {
++    RequestOutput::JsonSchema {
++        max_output_tokens: 2048,
++        name: "coaching",
++        schema,
++    }
++}
++
+ const STRUCTURED_INPUT_LIMIT: usize = 100_000;
+ const SERVER_INPUT_OVERHEAD: usize = 1024;
+ 
+--- a/native/src/application/commands/reading.rs
++++ b/native/src/application/commands/reading.rs
+@@ -1,4 +1,5 @@
+ use super::*;
++use crate::conversations::translation;
+ use crate::language::{linguistics::adapter, reading};
+ use base64::{Engine, engine::general_purpose::STANDARD};
+ 
+@@ -30,11 +31,23 @@
+     run_owned_reading(&state, &id).await
+ }
+ 
++/// What one explicit reading request produced.
++enum Aid {
++    Gloss(model::WordGlossView),
++    Audio(String),
++    Translation(String),
++}
++
++fn completion_metadata(completed: &provider::Completion) -> serde_json::Value {
++    serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
++        "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"diagnostics":completed.diagnostics})
++}
++
+ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::ReadingResult> {
+     let request = state.reading.claim(id)?;
+     let validate = || request.validate(&*state.lock()?);
+     let mut metadata = serde_json::json!({});
+-    let outcome: Result<(Option<model::WordGlossView>, Option<String>)> = async {
++    let outcome: Result<Aid> = async {
+         validate()?;
+         let _permit = state.admission.try_chat().ok_or_else(|| AppError::new(ErrorCode::AdmissionHeld, "AI work is at capacity. Try reading help again when pending work finishes."))?;
+         let client = provider::client()?;
+@@ -42,30 +55,40 @@
+             match request.target.credential.clone() { Some(id) => read_secret(id).await, None => Ok(Zeroizing::new(String::new())) }
+         }, validate).await??;
+         let source = request.source();
+-        if request.input.speech {
+-            let input = audio::SpeechInput { text: request.input.text.clone(), voice: "alloy".into(), language: format!("{} — {}", request.context.target_name, request.context.variety_name) };
+-            audio::validate_speech(&request.target, &input)?;
+-            request.submitted(&*state.lock()?)?;
+-            let completed = retry::run(|| audio::synthesize(&client, &request.target, &key, &input, &request.install), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await;
+-            metadata = serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
+-                "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,"diagnostics":completed.diagnostics});
+-            let bytes = completed.audio?;
+-            validate()?;
+-            Ok((None, Some(STANDARD.encode(bytes))))
+-        } else {
+-            let prompt = adapter::build_word_gloss_prompt_with_context(&source.identity, &source.text, &request.context)
+-                .map_err(|_| AppError::new(ErrorCode::Validation, "This selection cannot be analyzed. Select a shorter passage."))?;
+-            let dispatch = execution::Dispatch { decisions: None, temperature: 0.0, target: request.target.clone(), attempt: request.attempt.clone(), operation: request.operation.clone(),
+-                credential: request.target.credential.clone().unwrap_or_default(), model: request.target.model.clone(), route: request.target.route,
+-                install_id: request.install.clone(), messages: prompt.messages, gloss_schema: Some(prompt.output_schema.clone()), coaching_schema: None,
+-                gloss_source: Some(source.clone()), speech_source: None };
+-            request.submitted(&*state.lock()?)?;
+-            let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(&source), &prompt.output_schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
+-            metadata = serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
+-                "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"diagnostics":completed.diagnostics});
+-            let gloss = gloss::validate_with_context(&source, &completed, &request.operation, &request.attempt, &request.context)?;
+-            validate()?;
+-            Ok((Some(gloss), None))
++        match request.input.aid {
++            reading::ReadingAid::Speech => {
++                let input = audio::SpeechInput { text: request.input.text.clone(), voice: "alloy".into(), language: format!("{} — {}", request.context.target_name, request.context.variety_name) };
++                audio::validate_speech(&request.target, &input)?;
++                request.submitted(&*state.lock()?)?;
++                let completed = retry::run(|| audio::synthesize(&client, &request.target, &key, &input, &request.install), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await;
++                metadata = serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
++                    "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,"diagnostics":completed.diagnostics});
++                let bytes = completed.audio?;
++                validate()?;
++                Ok(Aid::Audio(STANDARD.encode(bytes)))
++            }
++            reading::ReadingAid::WordGloss => {
++                let prompt = adapter::build_word_gloss_prompt_with_context(&source.identity, &source.text, &request.context)
++                    .map_err(|_| AppError::new(ErrorCode::Validation, "This selection cannot be analyzed. Select a shorter passage."))?;
++                let dispatch = request.dispatch(0.0, prompt.messages, Some(prompt.output_schema.clone()), None, Some(source.clone()));
++                request.submitted(&*state.lock()?)?;
++                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(&source), &prompt.output_schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
++                metadata = completion_metadata(&completed);
++                let gloss = gloss::validate_with_context(&source, &completed, &request.operation, &request.attempt, &request.context)?;
++                validate()?;
++                Ok(Aid::Gloss(gloss))
++            }
++            reading::ReadingAid::Translation => {
++                // The translation contract conversation turns use: the same
++                // prompt, output schema, validation and model role.
++                let (dispatch, schema) = request.translation_dispatch()?;
++                request.submitted(&*state.lock()?)?;
++                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, provider::structured_output(&schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
++                metadata = completion_metadata(&completed);
++                let translated = translation::validate(&request.input.text, &completed)?;
++                validate()?;
++                Ok(Aid::Translation(translated))
++            }
+         }
+     }.await;
+     // Always release volatile ownership, even when persisting a receipt fails.
+@@ -80,10 +103,25 @@
+         }
+         let receipt = reading::finish(&store, &request, metadata, outcome.as_ref().err())?;
+         match outcome {
+-            Ok((gloss, audio_base64)) => Ok(reading::ReadingResult {
+-                gloss,
+-                audio_base64,
+-                receipt,
++            Ok(aid) => Ok(match aid {
++                Aid::Gloss(gloss) => reading::ReadingResult {
++                    gloss: Some(gloss),
++                    audio_base64: None,
++                    translation: None,
++                    receipt,
++                },
++                Aid::Audio(audio) => reading::ReadingResult {
++                    gloss: None,
++                    audio_base64: Some(audio),
++                    translation: None,
++                    receipt,
++                },
++                Aid::Translation(text) => reading::ReadingResult {
++                    gloss: None,
++                    audio_base64: None,
++                    translation: Some(text),
++                    receipt,
++                },
+             }),
+             Err(mut error) => {
+                 error.diagnostics = Some(receipt);
+--- a/native/src/application/scheduler.rs
++++ b/native/src/application/scheduler.rs
+@@ -133,7 +133,7 @@
+                     state.check_dispatches(&dispatches)?;
+                     let outputs: Vec<_> = dispatches.iter().map(|dispatch| {
+                         if let Some(schema) = dispatch.coaching_schema.as_ref() {
+-                            Ok(provider::RequestOutput::JsonSchema { max_output_tokens: 2048, name: "coaching", schema })
++                            Ok(provider::structured_output(schema))
+                         } else if dispatch.gloss_source.is_some() {
+                             let schema = dispatch.gloss_schema.as_ref().ok_or_else(gloss::validation_error)?;
+                             Ok(gloss::request_output(dispatch.gloss_source.as_ref(), schema))
+--- a/native/src/application/tests/reading.rs
++++ b/native/src/application/tests/reading.rs
+@@ -78,7 +78,7 @@
+                 variety: None,
+                 explanation: "english".into(),
+                 explanation_variety: None,
+-                speech: true,
++                aid: crate::language::reading::ReadingAid::Speech,
+             },
+         )
+         .unwrap();
+@@ -94,3 +94,175 @@
+     assert!(!receipts[0].to_string().contains(&encoded_audio));
+     assert!(state.reading.claim(&id).is_err());
+ }
++
++/// Serve one grouped structured request on the custom route and return the
++/// submitted payload. The reply echoes the source into the translation contract.
++fn translation_server(
++    translation: serde_json::Value,
++) -> (String, std::thread::JoinHandle<serde_json::Value>) {
++    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
++    let base = format!("http://{}/v1", listener.local_addr().unwrap());
++    let worker = std::thread::spawn(move || {
++        let (mut socket, _) = listener.accept().unwrap();
++        socket
++            .set_read_timeout(Some(Duration::from_secs(5)))
++            .unwrap();
++        let mut received = Vec::new();
++        let (start, length) = loop {
++            let mut buffer = [0; 4096];
++            let count = socket.read(&mut buffer).unwrap();
++            assert!(count > 0);
++            received.extend_from_slice(&buffer[..count]);
++            if let Some(start) = received.windows(4).position(|w| w == b"\r\n\r\n") {
++                let headers = String::from_utf8_lossy(&received[..start]).to_string();
++                assert!(headers.starts_with("POST /v1/operations "));
++                let length: usize = headers
++                    .lines()
++                    .find_map(|line| {
++                        line.to_lowercase()
++                            .strip_prefix("content-length: ")
++                            .and_then(|n| n.parse().ok())
++                    })
++                    .unwrap();
++                if received.len() >= start + 4 + length {
++                    break (start + 4, length);
++                }
++            }
++        };
++        let payload: serde_json::Value =
++            serde_json::from_slice(&received[start..start + length]).unwrap();
++        let item = &payload["items"][0];
++        let source = item["request"]["messages"][1]["content"].as_str().unwrap();
++        let content = serde_json::json!({"source":source,"translation":translation}).to_string();
++        let mut body = serde_json::to_vec(&serde_json::json!({"type":"result","operation_id":item["operation_id"],"attempt_id":item["attempt_id"],
++            "response":{"id":"translation-receipt","model":"actual-fast","choices":[{"finish_reason":"stop","message":{"content":content}}],"usage":{"prompt_tokens":21,"completion_tokens":4}}})).unwrap();
++        body.push(b'\n');
++        body.extend(serde_json::to_vec(&serde_json::json!({"type":"complete","count":1})).unwrap());
++        body.push(b'\n');
++        write!(socket, "HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", body.len()).unwrap();
++        socket.write_all(&body).unwrap();
++        payload
++    });
++    (base, worker)
++}
++
++#[tokio::test]
++async fn translation_runs_the_conversation_translation_contract_and_is_counted() {
++    let directory = tempfile::tempdir().unwrap();
++    let state = Application::start(&directory.path().join("reading.sqlite3"), None);
++    let (base, worker) = translation_server(serde_json::json!("The book."));
++    let (fast, expected_messages) = {
++        let store = state.lock().unwrap();
++        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
++        let context = store
++            .config
++            .resolve_pair("arabic", None, "english", None)
++            .unwrap();
++        let captured = serde_json::json!({"targetLanguage":"arabic","translationLanguage":"english","languageContext":context});
++        (
++            execution::config(&store.connection).unwrap().fast_model,
++            crate::conversations::translation::prompt("كتاب".into(), &captured).unwrap(),
++        )
++    };
++    let before = state.lock().unwrap().profile().unwrap();
++    let id = state
++        .reading
++        .begin(
++            &state.lock().unwrap(),
++            reading::ReadingInput {
++                text: "كتاب".into(),
++                language: "arabic".into(),
++                variety: None,
++                explanation: "english".into(),
++                explanation_variety: None,
++                aid: reading::ReadingAid::Translation,
++            },
++        )
++        .unwrap();
++    let result = run_owned_reading(&state, &id).await.unwrap();
++    let payload = worker.join().unwrap();
++    assert_eq!(result.translation.as_deref(), Some("The book."));
++    assert!(result.gloss.is_none() && result.audio_base64.is_none());
++    // The request is the translation turn contract: prompt, schema, role, temperature.
++    let request = &payload["items"][0]["request"];
++    assert_eq!(
++        request["messages"],
++        serde_json::to_value(&expected_messages).unwrap()
++    );
++    assert_eq!(request["model"], fast);
++    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
++    assert_eq!(
++        request["response_format"]["json_schema"]["schema"],
++        crate::conversations::translation::schema()
++    );
++    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
++    assert_eq!(receipts[0]["kind"], "reading_translation");
++    assert_eq!(receipts[0]["state"], "succeeded");
++    assert_eq!(receipts[0]["requestedModel"], fast);
++    assert_eq!(receipts[0]["response"]["providerId"], "translation-receipt");
++    assert!(!receipts[0].to_string().contains("كتاب"));
++    assert!(!receipts[0].to_string().contains("The book."));
++    // Usage is counted globally and for the language, never for a partner.
++    let after = state.lock().unwrap().profile().unwrap();
++    assert_eq!(after.global.attempts, before.global.attempts + 1);
++    assert_eq!(after.global.input_tokens, before.global.input_tokens + 21);
++    assert_eq!(after.global.output_tokens, before.global.output_tokens + 4);
++    let language = |profile: &model::ProfileSnapshot| {
++        profile
++            .languages
++            .iter()
++            .find(|l| l.id == "arabic")
++            .map(|l| l.attempts)
++    };
++    assert_eq!(language(&after), language(&before).map(|n| n + 1));
++    assert_eq!(
++        after
++            .personas
++            .iter()
++            .map(|p| p.attempts)
++            .collect::<Vec<_>>(),
++        before
++            .personas
++            .iter()
++            .map(|p| p.attempts)
++            .collect::<Vec<_>>()
++    );
++}
++
++#[tokio::test]
++async fn unclear_translation_fails_with_a_receipt_and_still_counts_usage() {
++    let directory = tempfile::tempdir().unwrap();
++    let state = Application::start(&directory.path().join("reading.sqlite3"), None);
++    let (base, worker) = translation_server(serde_json::Value::Null);
++    state.lock().unwrap().connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
++    let before = state.lock().unwrap().profile().unwrap().global.attempts;
++    let id = state
++        .reading
++        .begin(
++            &state.lock().unwrap(),
++            reading::ReadingInput {
++                text: "كتاب".into(),
++                language: "arabic".into(),
++                variety: None,
++                explanation: "english".into(),
++                explanation_variety: None,
++                aid: reading::ReadingAid::Translation,
++            },
++        )
++        .unwrap();
++    let Err(error) = run_owned_reading(&state, &id).await else {
++        panic!("an unclear translation must fail")
++    };
++    worker.join().unwrap();
++    assert_eq!(
++        error.message,
++        "Translation: source meaning is unclear; no translation was published"
++    );
++    let receipts = reading::activity(&state.lock().unwrap()).unwrap();
++    assert_eq!(receipts[0]["state"], "failed");
++    assert_eq!(receipts[0]["response"]["providerId"], "translation-receipt");
++    assert_eq!(
++        state.lock().unwrap().profile().unwrap().global.attempts,
++        before + 1
++    );
++}
+--- a/native/src/conversations/execution/dispatch.rs
++++ b/native/src/conversations/execution/dispatch.rs
+@@ -382,7 +382,7 @@
+             temperature: if matches!(kind.as_str(), "persona_opening" | "persona_reply") {
+                 1.1
+             } else {
+-                0.7
++                TASK_TEMPERATURE
+             },
+             credential: target.credential.clone().unwrap_or_default(),
+             route: target.route,
+--- a/native/src/conversations/execution/mod.rs
++++ b/native/src/conversations/execution/mod.rs
+@@ -55,6 +55,10 @@
+ pub use turns::accept_send;
+ pub use turns::control_turn;
+ 
++/// Sampling temperature for task requests (translation, gloss, coaching and
++/// other structured work); persona replies use their own.
++pub const TASK_TEMPERATURE: f64 = 0.7;
++
+ pub struct Dispatch {
+     pub decisions: Option<serde_json::Value>,
+     pub temperature: f64,
+--- a/native/src/conversations/execution/speech.rs
++++ b/native/src/conversations/execution/speech.rs
+@@ -65,7 +65,7 @@
+         [turn],
+     )?;
+     Ok(Dispatch {
+-        temperature: 0.7,
++        temperature: super::TASK_TEMPERATURE,
+         credential: target.credential.clone().unwrap_or_default(),
+         model: target.model.clone(),
+         route: target.route,
+--- a/native/src/conversations/execution/tests/translation.rs
++++ b/native/src/conversations/execution/tests/translation.rs
+@@ -483,3 +483,51 @@
+         assert!(!error.contains(&invalid));
+     }
+ }
++
++#[test]
++fn explicit_reading_translation_sends_the_same_request_as_a_translation_turn() {
++    let (_dir, mut store, conversation) = setup();
++    let first = begin(&mut store, &conversation);
++    store.finish(&first, Ok(reply("Hola."))).unwrap();
++    let turn = store.dispatch().unwrap().unwrap();
++    let (variety, explanation, explanation_variety): (String, String, String) = store
++        .connection
++        .query_row(
++            "SELECT json_extract(settings,'$.varietyId'),json_extract(settings,'$.explanationLanguage'),json_extract(settings,'$.explanationVarietyId') FROM conversation_settings WHERE conversation_id=?1",
++            [&conversation],
++            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
++        )
++        .unwrap();
++    let request = crate::language::reading::Request::capture(
++        &store,
++        crate::language::reading::ReadingInput {
++            text: "Hola.".into(),
++            language: "spanish".into(),
++            variety: Some(variety),
++            explanation,
++            explanation_variety: Some(explanation_variety),
++            aid: crate::language::reading::ReadingAid::Translation,
++        },
++    )
++    .unwrap();
++    let (reading, schema) = request.translation_dispatch().unwrap();
++    assert_eq!(
++        serde_json::to_value(&reading.messages).unwrap(),
++        serde_json::to_value(&turn.messages).unwrap()
++    );
++    assert_eq!(reading.coaching_schema, turn.coaching_schema);
++    assert_eq!(Some(schema), turn.coaching_schema);
++    assert_eq!(reading.model, turn.model);
++    assert_eq!(reading.model, "google/gemini-2.5-flash-lite");
++    assert_eq!(reading.temperature, turn.temperature);
++    assert_eq!(
++        (reading.route, &reading.target.url, &reading.credential),
++        (turn.route, &turn.target.url, &turn.credential)
++    );
++    // Both engines validate a reply with the same contract.
++    let completion = translation_reply(&turn, "Hello.");
++    assert_eq!(
++        crate::conversations::translation::validate("Hola.", &completion).unwrap(),
++        "Hello."
++    );
++}
+--- a/native/src/conversations/translation.rs
++++ b/native/src/conversations/translation.rs
+@@ -4,6 +4,9 @@
+ use serde::Deserialize;
+ use serde_json::{Value, json};
+ 
++/// The model role every translation runs on, whichever engine sends it.
++pub(crate) const ROLE: &str = "fast";
++
+ pub(crate) fn owns(kind: &str) -> bool {
+     matches!(kind, "user_translation" | "reply_translation")
+ }
+--- a/native/src/conversations/turn_plan.rs
++++ b/native/src/conversations/turn_plan.rs
+@@ -99,7 +99,7 @@
+         kind: "reply_translation",
+         activation: Activation::Automatic,
+         dependencies: &["persona_reply"],
+-        role: "fast",
++        role: crate::conversations::translation::ROLE,
+         contract_version: 1,
+     },
+     Declaration {
+@@ -113,7 +113,7 @@
+         kind: "user_translation",
+         activation: Activation::Automatic,
+         dependencies: &["persona_context"],
+-        role: "fast",
++        role: crate::conversations::translation::ROLE,
+         contract_version: 1,
+     },
+ ];
+@@ -189,7 +189,7 @@
+         kind: "reply_translation",
+         activation: Activation::Automatic,
+         dependencies: &["persona_opening"],
+-        role: "fast",
++        role: crate::conversations::translation::ROLE,
+         contract_version: 1,
+     },
+ ];
+--- a/native/src/language/reading/mod.rs
++++ b/native/src/language/reading/mod.rs
+@@ -28,6 +28,37 @@
+     pub explanation: String,
+     pub explanation_variety: Option<String>,
+ }
++/// Which reading aid an explicit request asks for. Each aid runs the same
++/// capability contract that conversation turns use for it.
++#[derive(Clone, Copy, Debug, Deserialize, Serialize, TS, PartialEq, Eq)]
++#[serde(rename_all = "snake_case")]
++pub enum ReadingAid {
++    WordGloss,
++    Speech,
++    Translation,
++}
++impl ReadingAid {
++    /// The receipt kind recorded for this aid.
++    pub fn receipt_kind(self) -> &'static str {
++        match self {
++            ReadingAid::WordGloss => "reading_gloss",
++            ReadingAid::Speech => "token_speech",
++            ReadingAid::Translation => "reading_translation",
++        }
++    }
++    fn text_limit(self) -> usize {
++        match self {
++            ReadingAid::Speech => 256,
++            ReadingAid::WordGloss | ReadingAid::Translation => 2048,
++        }
++    }
++    fn capability(self) -> access::Capability {
++        match self {
++            ReadingAid::Speech => access::Capability::Speech,
++            ReadingAid::WordGloss | ReadingAid::Translation => access::Capability::Chat,
++        }
++    }
++}
+ #[derive(Clone, Debug, Deserialize, Serialize, TS)]
+ #[serde(rename_all = "camelCase", deny_unknown_fields)]
+ pub struct ReadingInput {
+@@ -36,13 +67,14 @@
+     pub variety: Option<String>,
+     pub explanation: String,
+     pub explanation_variety: Option<String>,
+-    pub speech: bool,
++    pub aid: ReadingAid,
+ }
+ #[derive(Serialize, TS)]
+ #[serde(rename_all = "camelCase")]
+ pub struct ReadingResult {
+     pub gloss: Option<WordGlossView>,
+     pub audio_base64: Option<String>,
++    pub translation: Option<String>,
+     #[ts(type = "unknown")]
+     pub receipt: serde_json::Value,
+ }
+@@ -52,6 +84,8 @@
+     pub input: ReadingInput,
+     pub context: crate::configuration::LanguageContext,
+     pub target: access::ResolvedTarget,
++    /// The model this aid runs on, selected by its task role.
++    pub model: String,
+     pub install: String,
+     pub attempt: String,
+     pub operation: String,
+@@ -63,7 +97,7 @@
+ }
+ impl Request {
+     pub fn capture(store: &Store, input: ReadingInput) -> Result<Self> {
+-        let limit = if input.speech { 256 } else { 2048 };
++        let limit = input.aid.text_limit();
+         if input.text.trim().is_empty()
+             || input.text.encode_utf16().count() > limit
+             || input.text.contains('\0')
+@@ -79,15 +113,21 @@
+             &input.explanation,
+             input.explanation_variety.as_deref(),
+         )?;
+-        let target = access::resolve(
+-            &store.connection,
+-            if input.speech {
+-                access::Capability::Speech
+-            } else {
+-                access::Capability::Chat
+-            },
+-        )?;
+-        if input.speech && target.route == ConnectionRoute::Openrouter {
++        let target = access::resolve(&store.connection, input.aid.capability())?;
++        // The model a request runs on follows the same task roles as conversation
++        // turns; access validation still compares against the resolved target.
++        let model = match input.aid {
++            ReadingAid::Translation => {
++                crate::ai::connections::model_routing::target(
++                    &target,
++                    crate::conversations::translation::ROLE,
++                    &execution::config(&store.connection)?.fast_model,
++                )
++                .model
++            }
++            ReadingAid::WordGloss | ReadingAid::Speech => target.model.clone(),
++        };
++        if input.aid == ReadingAid::Speech && target.route == ConnectionRoute::Openrouter {
+             return Err(AppError::new(
+                 ErrorCode::Validation,
+                 "Token read-aloud requires the ElevenLabs speech route through hosted or custom AI access.",
+@@ -98,6 +138,7 @@
+             input,
+             context,
+             target,
++            model,
+             install: store.snapshot()?.learner.id,
+             attempt: execution::new_attempt_id(),
+             operation: uuid::Uuid::new_v4().simple().to_string(),
+@@ -121,21 +162,14 @@
+         {
+             return Err(self.stopped());
+         }
+-        let current = access::resolve(
+-            &store.connection,
+-            if self.input.speech {
+-                access::Capability::Speech
+-            } else {
+-                access::Capability::Chat
+-            },
+-        )
+-        .map_err(|error| {
+-            if self.submitted.load(Ordering::SeqCst) {
+-                self.stopped()
+-            } else {
+-                error
+-            }
+-        })?;
++        let current =
++            access::resolve(&store.connection, self.input.aid.capability()).map_err(|error| {
++                if self.submitted.load(Ordering::SeqCst) {
++                    self.stopped()
++                } else {
++                    error
++                }
++            })?;
+         if self.cancelled.load(Ordering::SeqCst)
+             || config.paused
+             || self.config_hash != store.config.hash()
+@@ -178,6 +212,57 @@
+             text: self.input.text.clone(),
+         }
+     }
++    /// The provider request for this aid, on the aid's routed model.
++    pub(crate) fn dispatch(
++        &self,
++        temperature: f64,
++        messages: Vec<crate::ai::transport::provider::PromptMessage>,
++        gloss_schema: Option<serde_json::Value>,
++        coaching_schema: Option<serde_json::Value>,
++        gloss_source: Option<gloss::Source>,
++    ) -> execution::Dispatch {
++        let mut target = self.target.clone();
++        target.model = self.model.clone();
++        execution::Dispatch {
++            decisions: None,
++            temperature,
++            credential: self.target.credential.clone().unwrap_or_default(),
++            model: self.model.clone(),
++            route: self.target.route,
++            target,
++            attempt: self.attempt.clone(),
++            operation: self.operation.clone(),
++            install_id: self.install.clone(),
++            messages,
++            gloss_schema,
++            coaching_schema,
++            gloss_source,
++            speech_source: None,
++        }
++    }
++    /// A translation request through the conversation translation contract:
++    /// the same prompt, output schema, task temperature and model role that
++    /// translation turns send. Returns the dispatch and its output schema.
++    pub(crate) fn translation_dispatch(&self) -> Result<(execution::Dispatch, serde_json::Value)> {
++        let captured = serde_json::json!({
++            "targetLanguage": self.input.language,
++            "translationLanguage": self.input.explanation,
++            "languageContext": self.context,
++        });
++        let schema = crate::conversations::translation::schema();
++        let messages =
++            crate::conversations::translation::prompt(self.input.text.clone(), &captured)?;
++        Ok((
++            self.dispatch(
++                execution::TASK_TEMPERATURE,
++                messages,
++                None,
++                Some(schema.clone()),
++                None,
++            ),
++            schema,
++        ))
++    }
+     pub fn submitted(&self, store: &Store) -> Result<()> {
+         self.validate(store)?;
+         receipts::dispatch(store, &self.id)?;
+--- a/native/src/language/reading/receipts.rs
++++ b/native/src/language/reading/receipts.rs
+@@ -4,8 +4,8 @@
+ pub fn begin(store: &Store, request: &Request) -> Result<()> {
+     store.connection.execute("INSERT INTO reading_attempts(id,receipt) VALUES(?1,json_set(?2,'$.createdAt',strftime('%Y-%m-%dT%H:%M:%fZ','now')))", params![request.id, serde_json::json!({
+         "id":request.id,"attemptId":request.attempt,"operationId":request.operation,"language":request.input.language,
+-        "kind":if request.input.speech {"token_speech"} else {"reading_gloss"},"route":request.target.route.label(),
+-        "requestedModel":request.target.model,"state":"pending"
++        "kind":request.input.aid.receipt_kind(),"route":request.target.route.label(),
++        "requestedModel":request.model,"state":"pending"
+     }).to_string()])?;
+     Ok(())
+ }
+--- a/native/src/language/reading/tests.rs
++++ b/native/src/language/reading/tests.rs
+@@ -12,7 +12,7 @@
+         variety: None,
+         explanation: "english".into(),
+         explanation_variety: None,
+-        speech: false,
++        aid: ReadingAid::WordGloss,
+     }
+ }
+ #[test]
+--- a/native/src/model.rs
++++ b/native/src/model.rs
+@@ -668,6 +668,7 @@
+         crate::speech::analysis::audio_inspection::InspectionUnsupportedWord::decl(&config),
+         crate::speech::analysis::audio_inspection::InspectionTimingStatus::decl(&config),
+         RefusalReason::decl(&config),
++        crate::language::reading::ReadingAid::decl(&config),
+         crate::language::reading::ReadingInput::decl(&config),
+         crate::language::reading::ReadingResult::decl(&config),
+         AppError::decl(&config),
+--- a/native/src/statistics/mod.rs
++++ b/native/src/statistics/mod.rs
+@@ -19,16 +19,24 @@
+     } else {
+         PersonaGenerationUsage::default()
+     };
++    // Explicit reading requests (word meanings, read-aloud, translation) belong
++    // to a language, not a partner. Only submitted requests can incur usage.
++    let (reading_attempts, reading_input, reading_output, reading_unknown): (i32, i32, i32, i32) =
++        if persona.is_none() {
++            db.query_row("SELECT count(*),COALESCE(SUM(json_extract(receipt,'$.response.inputTokens')),0),COALESCE(SUM(json_extract(receipt,'$.response.outputTokens')),0),COALESCE(SUM(json_extract(receipt,'$.response.inputTokens') IS NULL OR json_extract(receipt,'$.response.outputTokens') IS NULL),0) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL AND (?1 IS NULL OR json_extract(receipt,'$.language')=?1)", params![language], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))?
++        } else {
++            (0, 0, 0, 0)
++        };
+     Ok(UsageSummary {
+         id: id.into(),
+         label: label.into(),
+         conversations,
+         learner_messages,
+         persona_messages,
+-        attempts: attempts + audio + generation.attempts,
+-        input_tokens: input_tokens + generation.input_tokens,
+-        output_tokens: output_tokens + generation.output_tokens,
+-        unknown_usage: unknown_usage + audio + generation.unknown_usage,
++        attempts: attempts + audio + generation.attempts + reading_attempts,
++        input_tokens: input_tokens + generation.input_tokens + reading_input,
++        output_tokens: output_tokens + generation.output_tokens + reading_output,
++        unknown_usage: unknown_usage + audio + generation.unknown_usage + reading_unknown,
+     })
+ }
+ impl Store {
+--- a/ui/src/components/reading/ReadingContext.ts
++++ b/ui/src/components/reading/ReadingContext.ts
+@@ -1,6 +1,6 @@
+ import { createContext, useContext } from 'react'
+ import type { ReadingInput, ReadingResult } from '../../generated/contracts'
+-export type ReadingScope = Omit<ReadingInput, 'text' | 'speech'>
++export type ReadingScope = Omit<ReadingInput, 'text' | 'aid'>
+ export interface ReadingSelection { text: string; start: number; end: number; scope: ReadingScope }
+ export interface ReadingServices {
+   read: (input: ReadingInput, signal: AbortSignal) => Promise<ReadingResult>
+--- a/ui/src/components/reading/ReadingHelp.test.tsx
++++ b/ui/src/components/reading/ReadingHelp.test.tsx
+@@ -30,7 +30,7 @@
+   expect(services.read).not.toHaveBeenCalled()
+   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
+-  expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola', speech: false }, expect.any(AbortSignal))
++  expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola', aid:'word_gloss' }, expect.any(AbortSignal))
+   await waitFor(() => expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello'))
+   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+   fireEvent.keyDown(screen.getByRole('button', { name: 'Hola' }), { key: 'Enter' })
+@@ -43,7 +43,7 @@
+   app(<div onClick={parent}><SavedGlossText text="sí, sí" segments={[{start:0,end:2,kind:'gloss',gloss:'yes'}, {start:4,end:6,kind:'gloss',gloss:'indeed'}]} /></div>)
+   fireEvent.click(screen.getAllByRole('button', { name: 'sí' })[1])
+   fireEvent.click(screen.getByRole('button', { name: 'Read aloud: sí' }))
+-  await waitFor(() => expect(services.speak).toHaveBeenCalledWith({ ...scope, text: 'sí', speech: true }, expect.any(AbortSignal), expect.any(Function)))
++  await waitFor(() => expect(services.speak).toHaveBeenCalledWith({ ...scope, text: 'sí', aid:'speech' }, expect.any(AbortSignal), expect.any(Function)))
+   expect(services.read).not.toHaveBeenCalled(); expect(parent).not.toHaveBeenCalled()
+ })
+ 
+@@ -172,3 +172,22 @@
+   expect(within(screen.getByRole('group', {name:'Word help'})).getByText('beach')).toBeVisible()
+   expect(services.read).not.toHaveBeenCalled()
+ })
++
++it('caches translations separately from word meanings for the same source and scope', async () => {
++  const { useReadingLookup, useReadingPeek } = await import('./ReadingContext')
++  let lookup: ReturnType<typeof useReadingLookup> = null
++  let peek: ReturnType<typeof useReadingPeek> | null = null
++  function Probe() { lookup = useReadingLookup(); peek = useReadingPeek(); return null }
++  vi.mocked(services.read).mockImplementation(async input => input.aid === 'translation'
++    ? { gloss: null, audioBase64: null, translation: 'Hello', receipt: { providerId: 'translation-1' } } as ReadingResult
++    : result)
++  app(<Probe />)
++  const words = await lookup!({ ...scope, text: 'Hola', aid: 'word_gloss' }, new AbortController().signal)
++  expect(words.gloss?.segments[0].gloss).toBe('hello')
++  expect(peek!({ ...scope, text: 'Hola', aid: 'translation' })).toBeNull()
++  const translated = await lookup!({ ...scope, text: 'Hola', aid: 'translation' }, new AbortController().signal)
++  expect(translated.translation).toBe('Hello')
++  await lookup!({ ...scope, text: 'Hola', aid: 'translation' }, new AbortController().signal)
++  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
++  await expect(lookup!({ ...scope, text: 'Hola', aid: 'speech' }, new AbortController().signal)).rejects.toThrow('Read-aloud is requested through reading actions')
++})
+--- a/ui/src/components/reading/ReadingHelp.tsx
++++ b/ui/src/components/reading/ReadingHelp.tsx
+@@ -12,7 +12,7 @@
+ import { DetailDialog } from '../dialogs/DetailDialog'
+ import { ResponseDetails } from '../feedback/ResponseDetails'
+ import { useI18n } from '../localization/i18n'
+-import type { ReadingResult } from '../../generated/contracts'
++import type { ReadingInput, ReadingResult } from '../../generated/contracts'
+ 
+ export interface ReadingLanguage { code: string; name: string; languageTag?: string; defaultVariety: string; varieties: { id: string; label: string }[] }
+ 
+@@ -38,11 +38,15 @@
+   useEffect(() => { const current = requests.current; return () => current.clear() }, [])
+   const cache = useRef(new Map<string, ReadingResult>())
+   const [cacheRevision, setCacheRevision] = useState(0)
+-  const peek = useCallback((input: import('../../generated/contracts').ReadingInput): ReadingResult | null => {
+-    const { text, speech: _speech, ...scope } = input
+-    const exact = cache.current.get(JSON.stringify([glossScopeKey(scope), text]))
++  // One cache and one request-sharing map for every aid, keyed by aid, scope and text.
++  const cacheKey = (input: ReadingInput) => { const { text, aid, ...scope } = input; return JSON.stringify([aid, glossScopeKey(scope), text]) }
++  const peek = useCallback((input: ReadingInput): ReadingResult | null => {
++    const exact = cache.current.get(cacheKey(input))
++    if (input.aid !== 'word_gloss') return exact ?? null
++    const { text, aid: _aid, ...scope } = input
+     const sources = [...cache.current].flatMap(([key, result]) => {
+-      const [scopeKey, savedText] = JSON.parse(key)
++      const [aid, scopeKey, savedText] = JSON.parse(key)
++      if (aid !== 'word_gloss') return []
+       const [language, variety, explanation, explanationVariety] = JSON.parse(scopeKey)
+       return result.gloss ? [{scope:{language,variety,explanation,explanationVariety}, text:savedText, segments:result.gloss.segments}] : []
+     })
+@@ -55,14 +59,14 @@
+       for (const part of segments) if (part.kind === 'gloss' && part.start <= end && part.end > end) end = part.end
+       return end >= word.end
+     })
+-    return {gloss: {...exact?.gloss, segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, receipt:exact?.receipt ?? null} as ReadingResult
++    return {gloss: {...exact?.gloss, segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, translation:null, receipt:exact?.receipt ?? null} as ReadingResult
+   }, [savedIndex, cacheRevision])
+   const lookup = useCallback<ReadingServices['read']>(async (input, signal) => {
+     signal.throwIfAborted()
++    if (input.aid === 'speech') throw new Error('Read-aloud is requested through reading actions, not lookup.')
+     const saved = peek(input)
+-    if (saved?.gloss?.coverage === 'complete') return saved
+-    const { text, speech: _speech, ...scope } = input
+-    const key = JSON.stringify([glossScopeKey(scope), text])
++    if (input.aid === 'word_gloss' ? saved?.gloss?.coverage === 'complete' : saved?.translation != null) return saved!
++    const key = cacheKey(input)
+     return requests.current.run(key, signal, async owned => {
+       const result = await services.read(input, owned)
+       owned.throwIfAborted()
+@@ -83,7 +87,7 @@
+     stop(); setSpeechError(null); setSpeechReceipt(null); setLoadingAudio(true)
+     const controller = new AbortController(); speech.current = controller
+     setSpeaking(speechKey(next))
+-    void services.speak({ ...next.scope, text: next.text.slice(next.start, next.end), speech: true }, controller.signal, () => { if (!controller.signal.aborted) setLoadingAudio(false) })
++    void services.speak({ ...next.scope, text: next.text.slice(next.start, next.end), aid:'speech' }, controller.signal, () => { if (!controller.signal.aborted) setLoadingAudio(false) })
+       .then(receipt => { if (!controller.signal.aborted) setSpeechReceipt(receipt) })
+       .catch(error => { if (!controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) setSpeechError(error) })
+       .finally(() => { if (speech.current === controller) { speech.current = null; setSpeaking(null) } })
+@@ -122,12 +126,12 @@
+   const lastRequest = useRef<string | null>(null)
+   useEffect(() => {
+     const requestKey = JSON.stringify([scope, selection.text, attempt])
+-    const saved = peek({...scope, text:selection.text, speech:false})
++    const saved = peek({...scope, text:selection.text, aid:'word_gloss'})
+     if (saved && (attempt === 0 || lastRequest.current === requestKey)) { setResult(saved); setFailure(null); setPending(false); return }
+     const controller = new AbortController()
+     setResult(null); setFailure(null); setPending(true)
+     lastRequest.current = requestKey
+-    void lookup({ ...scope, text: selection.text, speech: false }, controller.signal)
++    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal)
+       .then(value => { if (!controller.signal.aborted) {
+         setResult(value)
+       } })
+--- a/ui/src/components/reading/TargetMessage.test.tsx
++++ b/ui/src/components/reading/TargetMessage.test.tsx
+@@ -217,3 +217,44 @@
+   await Promise.resolve()
+   expect(screen.queryByText('hello (Mexico)')).toBeNull()
+ })
++
++it('translates a non-conversation source on request through the reading lookup, once', async () => {
++  const read = vi.fn<ReadingServicesRead>().mockResolvedValue({gloss:null,audioBase64:null,translation:'Can you speak slowly?',receipt:null} as ReadingResult)
++  render(lookupSource(read, spain, passage({text:'¿Puedes hablar despacio?'})))
++  const translate = screen.getByRole('button',{name:'Translate'})
++  expect(translate).toHaveAttribute('aria-pressed','false')
++  fireEvent.click(translate)
++  await waitFor(() => expect(screen.getByText('Can you speak slowly?')).toBeVisible())
++  expect(read).toHaveBeenCalledOnce()
++  expect(read.mock.calls[0][0]).toMatchObject({aid:'translation', text:'¿Puedes hablar despacio?', variety:'spain'})
++  fireEvent.click(translate)
++  expect(screen.queryByText('Can you speak slowly?')).toBeNull()
++  fireEvent.click(translate)
++  expect(screen.getByText('Can you speak slowly?')).toBeVisible()
++  expect(read).toHaveBeenCalledOnce()
++})
++
++it('never offers a lookup translation to an owner that does not allow lookup', () => {
++  const read = vi.fn<ReadingServicesRead>()
++  render(lookupSource(read, spain, passage({text:'Hola', layout:'bubble', lookupWords:false})))
++  expect(screen.queryByRole('button',{name:'Translate'})).toBeNull()
++  expect(read).not.toHaveBeenCalled()
++})
++
++it('shows a failed translation request and drops a late translation for an earlier source', async () => {
++  const first = deferred()
++  const read = vi.fn<ReadingServicesRead>()
++    .mockImplementationOnce(() => first.promise)
++    .mockRejectedValueOnce(new Error('Translation refused'))
++  const view = render(lookupSource(read, spain, passage({text:'Hola', segmentsKey:'a'})))
++  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
++  await waitFor(() => expect(read).toHaveBeenCalledOnce())
++  expect(screen.getByRole('button',{name:'Translate'})).toHaveClass('is-hydrating')
++  view.rerender(lookupSource(read, spain, passage({text:'Adiós', segmentsKey:'b'})))
++  first.resolve({gloss:null,audioBase64:null,translation:'Hello',receipt:null} as ReadingResult)
++  await Promise.resolve()
++  expect(screen.queryByText('Hello')).toBeNull()
++  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
++  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
++  await waitFor(() => expect(view.container).toHaveTextContent('Translation refused'))
++})
+--- a/ui/src/components/reading/TargetMessage.tsx
++++ b/ui/src/components/reading/TargetMessage.tsx
+@@ -42,7 +42,7 @@
+   translateLabel: string | null
+   /// Saved meanings for this message are still being produced.
+   segmentsPending: boolean
+-  /// Word by word may request whole-passage meanings through the reading lookup.
++  /// Word by word and Translate may request aids through the reading lookup.
+   lookupWords: boolean
+   /// Owner-supplied progress and failures for this message's aids.
+   status: ReactNode
+@@ -73,7 +73,7 @@
+   // Every lookup belongs to one source: this text in this reading scope.
+   const sourceKey = readingScope ? JSON.stringify([readingScope, text]) : null
+   const local = segments.length ? segments : readingScope ? saved(text, readingScope).filter(part => part.kind === 'gloss') : []
+-  const cachedResult = readingScope ? peek({ ...readingScope, text, speech: false }) : null
++  const cachedResult = readingScope ? peek({ ...readingScope, text, aid:'word_gloss' }) : null
+   const cached = cachedResult?.gloss?.segments ?? []
+   const [fetchedResult, setFetchedResult] = useState<{ source: string; segments: GlossSegment[] } | null>(null)
+   const fetched = fetchedResult !== null && fetchedResult.source === sourceKey ? fetchedResult.segments : []
+@@ -94,26 +94,29 @@
+   const soundOpen = soundOverride ?? (preferences.supportsRomanization && romanization ? preferences.alwaysRomanize : preferences.alwaysPronunciation)
+   useEffect(() => { setWordsOverride(null) }, [preferences.autoTranslate, preferences.alwaysRomanize, preferences.alwaysPronunciation])
+ 
+-  const [lookupPending, setLookupPending] = useState(false)
+-  const [lookupError, setLookupError] = useState<unknown>(null)
+-  const request = useRef<AbortController | null>(null)
+-  // A different source cancels the previous source's request; its result,
+-  // progress and failure never reach the new source.
+-  useEffect(() => {
+-    setLookupPending(false); setLookupError(null)
+-    return () => { request.current?.abort(); request.current = null }
+-  }, [sourceKey])
++  const words = useSourceRequest(sourceKey)
+   async function toggleWords() {
+     setWordsOverride(!wordsOpen)
+-    if (wordsOpen || lookedUp || lookupPending || readingScope === null || lookup === null || sourceKey === null) return
++    if (wordsOpen || lookedUp || words.pending || readingScope === null || lookup === null || sourceKey === null) return
+     const source = sourceKey
+-    const controller = new AbortController(); request.current = controller
+-    setLookupPending(true); setLookupError(null)
+-    try {
+-      const result = await lookup({ ...readingScope, text, speech: false }, controller.signal)
+-      if (!controller.signal.aborted) setFetchedResult({ source, segments: result.gloss?.segments ?? [] })
+-    } catch (failure) { if (!controller.signal.aborted) setLookupError(failure) }
+-    finally { if (!controller.signal.aborted) setLookupPending(false) }
++    await words.run(signal => lookup({ ...readingScope, text, aid: 'word_gloss' }, signal),
++      result => setFetchedResult({ source, segments: result.gloss?.segments ?? [] }))
++  }
++
++  // A supplied translation wins; otherwise the reading lookup may translate
++  // this source on request, through the same translation contract as Chat.
++  const cachedTranslation = readingScope ? peek({ ...readingScope, text, aid: 'translation' })?.translation ?? null : null
++  const [fetchedTranslation, setFetchedTranslation] = useState<{ source: string; text: string } | null>(null)
++  const shownTranslation = translation ?? cachedTranslation ?? (fetchedTranslation !== null && fetchedTranslation.source === sourceKey ? fetchedTranslation.text : null)
++  const translating = useSourceRequest(sourceKey)
++  async function toggleTranslation() {
++    setTranslationOverride(!translationOpen)
++    if (translationOpen || shownTranslation !== null || translating.pending || readingScope === null || lookup === null || sourceKey === null) return
++    const source = sourceKey
++    await translating.run(signal => lookup({ ...readingScope, text, aid: 'translation' }, signal), result => {
++      if (result.translation === null) throw new Error('The reading service returned no translation.')
++      setFetchedTranslation({ source, text: result.translation })
++    })
+   }
+ 
+   const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
+@@ -122,7 +125,7 @@
+       ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} />
+       : <TargetText text={text} />}
+     {annotation}
+-    {translationOpen && translation && <div className="trans" dir="auto">{translation}</div>}
++    {translationOpen && shownTranslation && <div className="trans" dir="auto">{shownTranslation}</div>}
+     {soundOpen && sound && !(wordsOpen && known.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
+     {status}
+     {speech && <button type="button" className="bubble-corner-control speak-btn" title={speech.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speech.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); speech.onToggle() }}><span aria-hidden="true">{speech.speaking ? '⏹' : '🔊'}</span></button>}
+@@ -130,11 +133,14 @@
+   </>
+   const actions = <div className="message-actions" dir={layout === 'bubble' ? uiDirection : undefined} onDoubleClick={stop}>
+     {sound && <button type="button" className="message-translate" aria-expanded={soundOpen} aria-pressed={soundOpen} onClick={event => { stop(event); setSoundOverride(!soundOpen) }}>{tr('Pronunciation')}</button>}
+-    {translation && <button type="button" className="message-translate" aria-label={translateLabel ?? undefined} aria-expanded={translationOpen} aria-pressed={translationOpen} onKeyDown={stop} onClick={event => { stop(event); setTranslationOverride(!translationOpen) }}>{tr("Translate")}</button>}
+-    <button type="button" className={segmentsPending || lookupPending ? 'message-translate is-hydrating' : 'message-translate'} disabled={lookupPending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
++    {(shownTranslation || canLookup) && <button type="button" className={translating.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={translating.pending} aria-label={translateLabel ?? undefined} aria-expanded={translationOpen && shownTranslation !== null} aria-pressed={translationOpen} onKeyDown={stop} onClick={event => { stop(event); void toggleTranslation() }}>{tr("Translate")}</button>}
++    <button type="button" className={segmentsPending || words.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={words.pending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
+     {analysis && <button type="button" className={analysis.pending ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={event => { stop(event); analysis.onOpen() }}>{tr("Analysis")}</button>}
+   </div>
+-  const failure = lookupError != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(lookupError)} explanation={errorMessage(lookupError)}><ResponseDetails value={errorDetails(lookupError)} /></ErrorDetails>
++  const failure = <>
++    {words.error != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
++    {translating.error != null && <ErrorDetails label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
++  </>
+ 
+   if (layout === 'bubble') return <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${speech ? ' with-corner-control' : ''}`}>
+     {body}{actions}{failure}
+@@ -144,3 +150,25 @@
+     {actions}{failure}
+   </div>
+ }
++
++/// One explicit reading request at a time for one source. A different source
++/// aborts the request; its result, progress and failure never reach the new one.
++function useSourceRequest(source: string | null) {
++  const [pending, setPending] = useState(false)
++  const [error, setError] = useState<unknown>(null)
++  const controller = useRef<AbortController | null>(null)
++  useEffect(() => {
++    setPending(false); setError(null)
++    return () => { controller.current?.abort(); controller.current = null }
++  }, [source])
++  async function run<T>(request: (signal: AbortSignal) => Promise<T>, publish: (value: T) => void) {
++    const current = new AbortController(); controller.current = current
++    setPending(true); setError(null)
++    try {
++      const value = await request(current.signal)
++      if (!current.signal.aborted) publish(value)
++    } catch (failure) { if (!current.signal.aborted) setError(failure) }
++    finally { if (!current.signal.aborted) setPending(false) }
++  }
++  return { pending, error, run }
++}
+--- a/ui/src/components/reading/WordHoverHelp.tsx
++++ b/ui/src/components/reading/WordHoverHelp.tsx
+@@ -22,7 +22,7 @@
+   const saved = useSavedReading()
+   const localParts = useMemo(() => {
+     const source = saved(selection.text, selection.scope)
+-    const cached = peek({...selection.scope, text:selection.text, speech:false})?.gloss?.segments ?? []
++    const cached = peek({...selection.scope, text:selection.text, aid:'word_gloss'})?.gloss?.segments ?? []
+     return [...source, ...cached.filter(part => !source.some(item => item.start < part.end && item.end > part.start))]
+       .filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss')
+   }, [saved, peek, selection])
+@@ -37,7 +37,7 @@
+     if (!lookup || localParts.length) return
+     const controller = new AbortController()
+     setResult(null); setFailure(null)
+-    void lookup({ ...selection.scope, text: selection.text, speech: false }, controller.signal)
++    void lookup({ ...selection.scope, text: selection.text, aid:'word_gloss' }, controller.signal)
+       .then(value => { if (!controller.signal.aborted) setResult(value) })
+       .catch(error => { if (!controller.signal.aborted) setFailure(error) })
+     return () => controller.abort()
+--- a/ui/src/domain/reading/saved-gloss-index.ts
++++ b/ui/src/domain/reading/saved-gloss-index.ts
+@@ -2,7 +2,7 @@
+ import { glossDisplayGroups } from './gloss-display'
+ import { readingWords } from './word-boundaries'
+ 
+-export type GlossScope = Omit<ReadingInput, 'text' | 'speech'>
++export type GlossScope = Omit<ReadingInput, 'text' | 'aid'>
+ export type SavedGlossSource = { text: string; segments: GlossSegment[]; scope: GlossScope }
+ export const glossScopeKey = (scope: GlossScope) => JSON.stringify([scope.language, scope.variety ?? null, scope.explanation, scope.explanationVariety ?? null])
+ 
+--- a/ui/src/generated/contracts.ts
++++ b/ui/src/generated/contracts.ts
+@@ -185,8 +185,9 @@
+ export type InspectionUnsupportedWord = { index: number, word: string, providerStart: number, providerEnd: number, reason: string, };
+ export type InspectionTimingStatus = "available" | "unavailable";
+ export type RefusalReason = "rate_limit" | "daily_limit" | "spending_paused" | "unknown";
+-export type ReadingInput = { text: string, language: string, variety: string | null, explanation: string, explanationVariety: string | null, speech: boolean, };
+-export type ReadingResult = { gloss: WordGlossView | null, audioBase64: string | null, receipt: unknown, };
++export type ReadingAid = "word_gloss" | "speech" | "translation";
++export type ReadingInput = { text: string, language: string, variety: string | null, explanation: string, explanationVariety: string | null, aid: ReadingAid, };
++export type ReadingResult = { gloss: WordGlossView | null, audioBase64: string | null, translation: string | null, receipt: unknown, };
+ export type AppError = { diagnostics?: unknown, code: ErrorCode, message: string, refusal: Refusal | null, };
+ export const PERSONA_LIMITS = { nameMax: 80, ageMin: 18, ageMax: 100, locationMax: 120, occupationMax: 120, backgroundMax: 2000, currentSituationMax: 600, mannerMax: 600, itemMax: 120, interestsMax: 12, opinionsMax: 12, factsMax: 12, booksMax: 8, moviesMax: 8, quirksMax: 8, vibeMin: 2, vibeMax: 4, briefMax: 200 } as const
+ export const SKILL_CATALOG_VERSION = 2393616038 as const
+--- a/ui/src/platform/audio/reading-speech.test.ts
++++ b/ui/src/platform/audio/reading-speech.test.ts
+@@ -8,7 +8,7 @@
+ it('revokes a pending token request when another utterance starts and never plays late audio',async()=>{
+   let complete!:(result:unknown)=>void
+   api.read.mockImplementation(()=>new Promise(resolve=>{complete=resolve}))
+-  const result=speakSelection({text:'sí',language:'spanish',variety:null,explanation:'english',explanationVariety:null,speech:true},new AbortController().signal,vi.fn(),1,1)
++  const result=speakSelection({text:'sí',language:'spanish',variety:null,explanation:'english',explanationVariety:null,aid:'speech'},new AbortController().signal,vi.fn(),1,1)
+   const sourceSignal=api.read.mock.calls[0][1] as AbortSignal
+   interruptSpeech()
+   expect(sourceSignal.aborted).toBe(true)
+--- a/ui/src/platform/ipc/reading.test.ts
++++ b/ui/src/platform/ipc/reading.test.ts
+@@ -7,7 +7,7 @@
+   let release!:(id:string)=>void
+   native.invoke.mockImplementation((command:string)=>command==='begin_reading'?new Promise(resolve=>{release=resolve}):Promise.resolve())
+   const controller=new AbortController()
+-  const request=readSelection({text:'Hola',language:'spanish',variety:null,explanation:'english',explanationVariety:null,speech:false},controller.signal)
++  const request=readSelection({text:'Hola',language:'spanish',variety:null,explanation:'english',explanationVariety:null,aid:'word_gloss'},controller.signal)
+   controller.abort(); release('request-1')
+   await expect(request).rejects.toThrow()
+   expect(native.invoke).toHaveBeenCalledWith('cancel_reading',{id:'request-1'})
+--- a/ui/tools/reading-preview.tsx
++++ b/ui/tools/reading-preview.tsx
+@@ -28,7 +28,7 @@
+ await loadLanguages()
+ const segments = [{start:0,end:4,kind:'gloss' as const,gloss:'hello',pronunciation:'oh-la'},{start:6,end:11,kind:'gloss' as const,gloss:'world'}]
+ const services: ReadingServices = {
+-  read: async input => ({gloss:{segments: input.text==='Hola, mundo.'?segments:[...input.text.matchAll(/[\p{L}\p{M}]+/gu)].map(match => ({start:match.index,end:match.index+match[0].length,kind:'gloss',gloss:match[0].includes('قديم')?'old':match[0].includes('بيوت')?'houses':'fixture meaning',romanization:match[0].includes('قديم')?'qadīme':undefined})),coverage:'complete'},audioBase64:null,receipt:{fixture:true}} as ReadingResult),
++  read: async input => input.aid === 'translation' ? {gloss:null,audioBase64:null,translation:`Fixture translation of “${input.text}” (no request sent).`,receipt:{fixture:true}} as ReadingResult : ({gloss:{segments: input.text==='Hola, mundo.'?segments:[...input.text.matchAll(/[\p{L}\p{M}]+/gu)].map(match => ({start:match.index,end:match.index+match[0].length,kind:'gloss',gloss:match[0].includes('قديم')?'old':match[0].includes('بيوت')?'houses':'fixture meaning',romanization:match[0].includes('قديم')?'qadīme':undefined})),coverage:'complete'},audioBase64:null,receipt:{fixture:true}} as ReadingResult),
+   speak: async () => { throw new Error('Offline preview: no speech request was sent.') },
+   activity: async () => [{fixture:true}],
+ }

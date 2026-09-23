@@ -33,7 +33,13 @@ def test_only_verified_exact_owner_can_finish(ledger):
         assert error.value.status_code == 403
     response = admin_auth.finish(identity(), main.CFG, ledger)
     assert 'HttpOnly' in response.headers['set-cookie'] and 'Secure' in response.headers['set-cookie']
-    assert response.headers['location'] == '/admin'
+    assert response.status_code == 200 and 'location' not in response.headers
+    assert b'http-equiv="refresh" content="0;url=/admin"' in response.body
+    assert b'href="/admin"' in response.body
+    assert 'SameSite=strict' in response.headers['set-cookie']
+    assert response.headers['cache-control'] == 'no-store'
+    assert response.headers['referrer-policy'] == 'no-referrer'
+    assert admin_auth.require(request(token(ledger)), main.CFG, ledger) == 'google:owner'
 
 
 def test_app_tokens_cannot_be_used_as_admin_and_vice_versa(ledger):

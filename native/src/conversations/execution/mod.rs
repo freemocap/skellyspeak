@@ -48,12 +48,19 @@ pub use speech::cancel_speech;
 use speech::prepare_speech;
 pub use speech::request_speech;
 use speech::speech_binding;
+pub(crate) use speech::speech_input;
 use speech::speech_owner;
 pub use turns::accept_coach;
 pub(crate) use turns::accept_opening;
 pub(crate) use turns::accept_revision_send;
 pub use turns::accept_send;
 pub use turns::control_turn;
+
+/// Sampling temperature for task requests (translation, gloss, coaching and
+/// other structured work); persona replies use their own.
+pub const TASK_TEMPERATURE: f64 = 0.7;
+/// Model role for synthesized speech of target-language text.
+pub(crate) const SPEECH_ROLE: &str = "speech";
 
 pub struct Dispatch {
     pub decisions: Option<serde_json::Value>,

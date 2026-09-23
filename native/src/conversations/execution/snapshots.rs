@@ -260,7 +260,7 @@ impl Store {
             )?,
             transcription_attempts: crate::speech::recording::transcription::views(
                 db,
-                conversation,
+                &crate::speech::recording::owner::RecordingOwner::Conversation(conversation.into()),
             )?,
             holds: crate::ai::policy::holds::views(db)?,
             coach_messages,

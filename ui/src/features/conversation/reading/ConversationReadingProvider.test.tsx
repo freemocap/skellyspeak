@@ -57,7 +57,7 @@ it('the actual analysis modal reuses pinned-turn words and exposes example trans
   const text = 'مَسكَنتِكَ'
   const turn = {id:1,user:null,analysisState:'done',assistant:{reply:text,tokens:[],user_tokens:[],translation:'Your residence',savedGloss:{segments:[{start:0,end:text.length,kind:'gloss',gloss:'your residence',romanization:'maskantik'}]},errors:[],mechanics:[{title:'Your home',quote:text,body:'',example:`${text} (maskantik) - Your home.`,contrast:''}]}} as unknown as AnalysedTurn
   render(<ReadingScopeContext value={{...scope,language:'arabic',variety:'arabic-levantine'}}><ReadingHelp services={{read,speak:vi.fn(),activity:vi.fn()}} languages={[]}>
-    <DetailDialog title="Message analysis" onClose={()=>{}}><AnalysisContent turn={turn} inspect={null} nativeLanguageName="English" showRomanization rtl /></DetailDialog>
+    <DetailDialog title="Message analysis" onClose={()=>{}}><AnalysisContent turn={turn} nativeLanguageName="English" showRomanization rtl /></DetailDialog>
   </ReadingHelp></ReadingScopeContext>)
   for (const button of screen.getAllByRole('button',{name:text})) {
     fireEvent.click(button)

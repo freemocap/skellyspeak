@@ -2,6 +2,8 @@
 use crate::ai::audio;
 use crate::ai::connections::access;
 use crate::ai::connections::credentials;
+use crate::ai::generation;
+use crate::ai::generation::generation_receipts;
 use crate::ai::policy::admission;
 use crate::ai::policy::holds;
 use crate::ai::transport::grouped;
@@ -17,8 +19,6 @@ use crate::learning::learner::progression;
 use crate::learning::rewards;
 use crate::learning::rewards::reward_settings;
 use crate::model;
-use crate::partners::generation;
-use crate::partners::generation::generation_receipts;
 use crate::partners::persona;
 use crate::partners::persona::persona_prompt;
 use crate::speech::recording::voice;
@@ -60,3 +60,7 @@ pub(crate) async fn read_secret(id: String) -> Result<Zeroizing<String>> {
         std::sync::LazyLock::new(admission::CredentialReads::new);
     READS.read(move || credentials::read(&id)).await
 }
+
+#[cfg(test)]
+#[path = "tests/structured_server.rs"]
+mod test_server;

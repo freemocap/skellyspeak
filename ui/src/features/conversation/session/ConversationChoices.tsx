@@ -1,6 +1,6 @@
 import type { ConversationStartConfig, TopicCard } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
-import { DifficultySelect } from './DifficultySelect'
+import { DifficultySelect } from '../../../components/controls/DifficultySelect'
 
 /// The optional choices on an empty conversation: which scene to open in, and
 /// the two settings that shape the opening.

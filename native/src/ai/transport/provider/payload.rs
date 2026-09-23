@@ -26,6 +26,16 @@ pub enum RequestOutput<'a> {
     },
 }
 
+/// The structured output contract for task schemas (translation, coaching and
+/// other JSON tasks), shared by every engine that sends them.
+pub fn structured_output(schema: &serde_json::Value) -> RequestOutput<'_> {
+    RequestOutput::JsonSchema {
+        max_output_tokens: 2048,
+        name: "coaching",
+        schema,
+    }
+}
+
 const STRUCTURED_INPUT_LIMIT: usize = 100_000;
 const SERVER_INPUT_OVERHEAD: usize = 1024;
 

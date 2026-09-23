@@ -622,18 +622,11 @@ impl Registry {
             }
             nonempty("conversation prompt examples", &[examples])?;
         }
-        let expected = [
-            "absolute_zero",
-            "beginner",
-            "intermediate",
-            "advanced",
-            "fluent",
-        ];
-        if prompt.difficulty.len() != expected.len()
-            || expected.iter().any(|key| {
+        if prompt.difficulty.len() != super::difficulty::LEVELS.len()
+            || super::difficulty::LEVELS.iter().any(|level| {
                 prompt
                     .difficulty
-                    .get(*key)
+                    .get(super::difficulty::key(level))
                     .is_none_or(|s| s.trim().is_empty())
             })
         {

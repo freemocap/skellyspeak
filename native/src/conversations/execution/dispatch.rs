@@ -382,7 +382,7 @@ impl Store {
             temperature: if matches!(kind.as_str(), "persona_opening" | "persona_reply") {
                 1.1
             } else {
-                0.7
+                TASK_TEMPERATURE
             },
             credential: target.credential.clone().unwrap_or_default(),
             route: target.route,

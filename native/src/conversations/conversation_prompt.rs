@@ -31,23 +31,6 @@ impl<'a> From<&'a PersonaDetails> for ConversationPersona<'a> {
     }
 }
 
-pub(crate) fn difficulty(
-    content: &ConversationPromptContent,
-    language: &str,
-    level: &Difficulty,
-) -> String {
-    let (key, label) = match level {
-        Difficulty::AbsoluteZero => ("absolute_zero", "Absolute zero"),
-        Difficulty::Beginner => ("beginner", "Beginner"),
-        Difficulty::Intermediate => ("intermediate", "Intermediate"),
-        Difficulty::Advanced => ("advanced", "Advanced"),
-        Difficulty::Fluent => ("fluent", "Fluent"),
-    };
-    format!(
-        "{language}. {label} difficulty level: {}\n\n{}",
-        content.difficulty[key], content.ceiling
-    )
-}
 /// No database, topic selection, provider, UI state or inference.
 fn render(
     content: &ConversationPromptContent,
@@ -117,7 +100,7 @@ fn render(
         content.response.clone()
     });
     // Language difficulty is the final constraint on the requested conversational move.
-    parts.push(difficulty(
+    parts.push(crate::configuration::difficulty::instruction(
         content,
         &format!("{} ({})", language.target_name, language.variety_name),
         &settings.difficulty,
@@ -182,13 +165,6 @@ pub(crate) fn preview(
         &settings.explanation_language,
         Some(&settings.explanation_variety_id),
     )?;
-    let levels = [
-        Difficulty::AbsoluteZero,
-        Difficulty::Beginner,
-        Difficulty::Intermediate,
-        Difficulty::Advanced,
-        Difficulty::Fluent,
-    ];
     Ok(PromptPreview {
         configuration: configuration.clone(),
         yaml: serde_yaml_ng::to_string(configuration).map_err(|_| {
@@ -205,10 +181,10 @@ pub(crate) fn preview(
             true,
             conversation,
         )?,
-        difficulty_prompts: levels
+        difficulty_prompts: crate::configuration::difficulty::LEVELS
             .into_iter()
             .map(|level| {
-                let text = difficulty(
+                let text = crate::configuration::difficulty::instruction(
                     registry.conversation_prompt(),
                     &format!("{} ({})", ctx.target_name, ctx.variety_name),
                     &level,
@@ -319,13 +295,7 @@ mod tests {
             settings.direction.topic = Some(TopicChoice::Custom {
                 text: "Music".into(),
             });
-            for level in [
-                Difficulty::AbsoluteZero,
-                Difficulty::Beginner,
-                Difficulty::Intermediate,
-                Difficulty::Advanced,
-                Difficulty::Fluent,
-            ] {
+            for level in crate::configuration::difficulty::LEVELS {
                 settings.difficulty = level;
                 for opening in [true, false] {
                     let prompt = render(
@@ -338,7 +308,7 @@ mod tests {
                         None,
                     )
                     .unwrap();
-                    let final_block = difficulty(
+                    let final_block = crate::configuration::difficulty::instruction(
                         &content,
                         &format!("{} ({})", ctx.target_name, ctx.variety_name),
                         &settings.difficulty,

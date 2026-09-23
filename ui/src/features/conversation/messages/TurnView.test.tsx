@@ -5,8 +5,12 @@ import { TurnView as SharedTurnView, type TurnViewProps } from './TurnView'
 
 import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
 
-function TurnView(input: TurnViewProps) {
-  return <ReadingPreferencesContext value={{autoTranslate:input.autoTranslate, alwaysRomanize:input.alwaysRomanize, alwaysPronunciation:input.alwaysPronunciation, supportsRomanization:input.showRomanization}}><SharedTurnView {...input} /></ReadingPreferencesContext>
+/// The reading preferences the conversation page provides through context.
+interface Reading { autoTranslate: boolean; alwaysRomanize: boolean; alwaysPronunciation: boolean; showRomanization: boolean }
+type Props = TurnViewProps & Reading
+
+function TurnView({ autoTranslate, alwaysRomanize, alwaysPronunciation, showRomanization, ...input }: Props) {
+  return <ReadingPreferencesContext value={{autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization:showRomanization}}><SharedTurnView {...input} /></ReadingPreferencesContext>
 }
 
 beforeEach(() => {
@@ -14,9 +18,9 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.open = false }
 })
 
-function props(): TurnViewProps {
+function props(): Props {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
-  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
+  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onBubbleTap: vi.fn(), onSpeak: vi.fn(), onAskCoach: vi.fn() }
 }
 it('places the persona reaction on the reply', () => {
   const input = props()
@@ -39,7 +43,7 @@ it('keeps an explicit message translation override when the default changes', ()
   expect(screen.queryByText('Persona translation')).toBeNull()
 })
 
-it('honors pronunciation even when token information is revealed', () => {
+it('honors pronunciation when word meanings are shown', () => {
   const input = props()
   input.autoTranslate = true
   input.turn.assistant!.reply = 'Soy Elia.'
@@ -48,12 +52,9 @@ it('honors pronunciation even when token information is revealed', () => {
     { text: 'Elia.', gloss: 'Elia', pronunciation: 'Eh-lee-ah', romanization: null, pos: null, notable: false },
   ]
   const view = render(<TurnView {...input} />)
-  const soy = screen.getByRole('button', { name: 'Soy' })
-  fireEvent.click(soy)
-  expect(input.onToggleReveal).toHaveBeenCalledWith(['1:bot:0'])
-  view.rerender(<TurnView {...input} revealed={new Set(['1:bot:0'])} />)
+  const soy = within(view.container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Soy' })
   expect(soy.closest('.wu')).toHaveTextContent('I am')
-  expect(view.container.querySelector('.wpronunciation')).toBeNull()
+  expect(view.container.querySelector('.msg.bot .wpronunciation')).toBeNull()
   expect(screen.queryByText('Eh-lee-ah')).toBeNull()
   expect(view.container.querySelector('.phrase-pronunciation')).toBeNull()
   view.rerender(<TurnView {...input} alwaysPronunciation={true} />)
@@ -65,8 +66,8 @@ it('renders source punctuation once and anchors feedback below the learner bubbl
   const input = props()
   input.turn.assistant!.reply = '¡Hola! ¿Te gusta el sol?'
   input.turn.assistant!.tokens = ['¡', '¡Hola!', '!', '¿', '¿Te', 'gusta', 'el', 'sol?', '?'].map(text => ({text,gloss:null,pronunciation:null,romanization:null,pos:null,notable:false}))
-  const view = render(<TurnView {...input} revealed={new Set()} autoTranslate={false} />)
-  expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
+  const view = render(<TurnView {...input} autoTranslate={false} />)
+  expect(view.container.querySelector('.msg.bot .w')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
   expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.message-feedback')).not.toBeNull()
 })
 
@@ -131,9 +132,6 @@ it.each([null, 'running', 'failed', 'unknown'])('keeps reply words passive witho
   fireEvent.contextMenu(text)
   fireEvent.keyDown(text, {key:'Enter'})
   expect(screen.queryByRole('dialog')).toBeNull()
-  expect(input.onHold).not.toHaveBeenCalled()
-  expect(input.onPopup).not.toHaveBeenCalled()
-  expect(input.onInspect).not.toHaveBeenCalled()
   expect(input.onBubbleTap).not.toHaveBeenCalled()
 })
 
@@ -156,7 +154,6 @@ it.each([
   view.rerender(<TurnView {...input} autoTranslate={false} />)
   expect(input.onRetryGloss).not.toHaveBeenCalled()
   expect(input.onSpeak).not.toHaveBeenCalled()
-  expect(input.onReveal).not.toHaveBeenCalled()
 })
 it('distinguishes no requested translation from failure and clears progress when translation arrives', () => {
   const input = props()
@@ -231,7 +228,6 @@ it('reveals saved word meanings without starting inference or changing whole-mes
   fireEvent.click(words)
   expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
   expect(screen.queryByText('Persona translation')).toBeNull()
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
   fireEvent.click(words)
   expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
 })
@@ -263,7 +259,6 @@ it('keeps message edit and playback actions isolated from token reveal and honor
   fireEvent.doubleClick(speaker)
   expect(edit).toHaveBeenCalledExactlyOnceWith(input.turn)
   expect(input.onSpeak).toHaveBeenCalledExactlyOnceWith('Hola', 1)
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
   view.rerender(<TurnView {...input} onEditUser={edit} editDisabled speaking />)
   expect(screen.getByRole('button', { name: 'Edit message' })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: 'Stop playback' }))
@@ -274,7 +269,7 @@ it('keeps message edit and playback actions isolated from token reveal and honor
 })
 
 
-it('attaches both assistance rows to their source bubble and toggles only learner token keys', () => {
+it('attaches both assistance rows to their source bubble and toggles only the learner bubble', () => {
   const input = props()
   input.autoTranslate = true
   const view = render(<TurnView {...input} />)
@@ -287,14 +282,11 @@ it('attaches both assistance rows to their source bubble and toggles only learne
   const words = within(learner).getByRole('button', { name: 'Word by word' })
   expect(words).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(words)
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
   expect(within(partner).getByRole('button', { name: 'Word by word' })).toHaveAttribute('aria-pressed', 'true')
-  input.onToggleReveal = vi.fn()
-  view.rerender(<TurnView {...input} revealed={new Set()} />)
+  view.rerender(<TurnView {...input} />)
   expect(words).toHaveAttribute('aria-pressed', 'false')
   for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
   for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
   fireEvent.click(within(learner).getByRole('button', { name: 'Analyze your message' }))
   const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(dialog.parentElement).toBe(document.body)
@@ -326,7 +318,6 @@ it('toggles saved learner meanings independently before a reply without requesti
   expect(screen.queryByText('Hello there')).toBeNull()
   fireEvent.click(words)
   expect(view.container.querySelector('.msg.me .wg')).toBeNull()
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
   expect(input.onRetryGloss).not.toHaveBeenCalled()
   expect(input.onAskCoach).not.toHaveBeenCalled()
 })
@@ -343,7 +334,6 @@ it('keeps word actions disabled without annotations and allows them when saved m
     expect(words).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(words)
   }
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
   view.rerender(<TurnView {...input} turn={{ ...input.turn, assistant: { ...input.turn.assistant!, user_tokens: [token] } }} />)
   expect(within(view.container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Word by word' })).toBeEnabled()
@@ -367,7 +357,6 @@ it('reveals Arabic token meanings through the shaping-safe renderer on either si
   expect(partner.querySelector('.wg')).toBeNull()
   fireEvent.click(within(partner).getByRole('button', { name: 'Word by word' }))
   expect(partner.querySelector('.wg')).toHaveTextContent('houses')
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
 })
 
 
@@ -391,7 +380,6 @@ it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both m
   input.turn.assistant!.reply = text
   input.turn.assistant!.tokens = [token]
   input.turn.assistant!.user_tokens = [token]
-  input.revealed = new Set()
   if (path === 'saved') {
     input.turn.userSavedGloss = input.turn.assistant!.savedGloss = {
       sourceMessageId:'message', targetLanguageId:'language', explanationLanguageId:'english',
@@ -419,7 +407,6 @@ it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both m
 
 it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveals and hides each side with all defaults off (%s)', path => {
   const input = props()
-  input.revealed = new Set()
   input.showRomanization = true
   const text = path === 'joining' ? 'بيوت باب' : 'Hola casa'
   const words = text.split(' ')
@@ -455,7 +442,6 @@ it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveal
     expect(bubble.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
   }
   expect(input.onAskCoach).not.toHaveBeenCalled()
-  expect(input.onToggleReveal).not.toHaveBeenCalled()
 })
 
 it('preserves source text and reading controls without inline XP tags', async () => {

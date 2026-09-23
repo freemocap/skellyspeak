@@ -11,6 +11,7 @@ import { NotTauriNotice } from './NotTauriNotice'
 import { PageBoundary } from './PageBoundary'
 
 const SkillsPage = lazy(() => import('../../features/skills/SkillsPage'))
+const DrillPage = lazy(() => import('../../features/drill/DrillPage'))
 
 /// Which surface is on screen, and how it is mounted.
 ///
@@ -29,6 +30,10 @@ export function SurfaceHost() {
   const showOverlay = useNavigationStore((state) => state.showOverlay)
   const openPractice = useNavigationStore((state) => state.openPractice)
   const registerNewChat = useNavigationStore((state) => state.registerNewChat)
+  const practiceView = useNavigationStore((state) => state.practiceView)
+  // Drill replaces the conversation rather than sitting beside it, and is
+  // mounted only once it has been asked for.
+  const drilling = page === 'guided' && practiceView === 'drill'
 
   // Swiping between the halves is only meaningful with nothing over them.
   const swipe = usePracticeSwipe(
@@ -45,15 +50,17 @@ export function SurfaceHost() {
         <NotTauriNotice />
       ) : (
         <div className={`page-holder ${page === 'guided' ? '' : 'hidden'}`} aria-hidden={page !== 'guided'}>
-          <PageBoundary>
-            <ActiveSurfaceContext value={page === 'guided'}><SkillEvidenceContext value={evidence}><ConversationPage active={page === 'guided'} mobileSurface={mobileSurface}
+          {drilling ? <PageBoundary>
+            <Suspense fallback={<p role="status">{tr("Loading drill…")}</p>}><DrillPage active /></Suspense>
+          </PageBoundary> : <PageBoundary>
+            <ActiveSurfaceContext value={page === 'guided' && !drilling}><SkillEvidenceContext value={evidence}><ConversationPage active={page === 'guided' && !drilling} mobileSurface={mobileSurface}
               nativePicker={<NativePicker />}
               historyOpen={historyOpen}
               onHistoryOpenChange={setHistoryOpen}
               onOpenSettings={() => showOverlay('settings')}
               onNewChatReady={registerNewChat}
             /></SkillEvidenceContext></ActiveSurfaceContext>
-          </PageBoundary>
+          </PageBoundary>}
         </div>
       )}
     </div>

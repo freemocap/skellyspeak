@@ -4,6 +4,9 @@ use crate::model::{AppError, ErrorCode, Result};
 use serde::Deserialize;
 use serde_json::{Value, json};
 
+/// The model role every translation runs on, whichever engine sends it.
+pub(crate) const ROLE: &str = "fast";
+
 pub(crate) fn owns(kind: &str) -> bool {
     matches!(kind, "user_translation" | "reply_translation")
 }

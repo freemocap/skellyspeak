@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { I18nProvider, useI18n } from '../../../components/localization/i18n'
-import { DifficultySelect } from '../session/DifficultySelect'
+import { DifficultySelect } from '../../../components/controls/DifficultySelect'
 import { languageLabel } from '../../../domain/language/language-label'
 
 function Editor() {

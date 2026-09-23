@@ -159,7 +159,8 @@ export const diagnosticPolicy = {
     {
       "pattern": "(?:https?://|content://|blob:|file:///)[^\\s<>\"')]+",
       "flags": "",
-      "kind": "secret"
+      "kind": "secret",
+      "terminal": false
     },
     {
       "pattern": "[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}",
@@ -175,7 +176,8 @@ export const diagnosticPolicy = {
     {
       "pattern": "\\b[A-Za-z0-9_-]{48,}\\b",
       "flags": "",
-      "kind": "secret"
+      "kind": "secret",
+      "terminal": false
     }
   ]
 } as const

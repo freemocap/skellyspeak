@@ -2,7 +2,7 @@ import type { GlossSegment, ReadingInput } from '../../generated/contracts'
 import { glossDisplayGroups } from './gloss-display'
 import { readingWords } from './word-boundaries'
 
-export type GlossScope = Omit<ReadingInput, 'text' | 'speech'>
+export type GlossScope = Omit<ReadingInput, 'text' | 'aid'>
 export type SavedGlossSource = { text: string; segments: GlossSegment[]; scope: GlossScope }
 export const glossScopeKey = (scope: GlossScope) => JSON.stringify([scope.language, scope.variety ?? null, scope.explanation, scope.explanationVariety ?? null])
 

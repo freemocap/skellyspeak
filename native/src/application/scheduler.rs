@@ -133,7 +133,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     state.check_dispatches(&dispatches)?;
                     let outputs: Vec<_> = dispatches.iter().map(|dispatch| {
                         if let Some(schema) = dispatch.coaching_schema.as_ref() {
-                            Ok(provider::RequestOutput::JsonSchema { max_output_tokens: 2048, name: "coaching", schema })
+                            Ok(provider::structured_output(schema))
                         } else if dispatch.gloss_source.is_some() {
                             let schema = dispatch.gloss_schema.as_ref().ok_or_else(gloss::validation_error)?;
                             Ok(gloss::request_output(dispatch.gloss_source.as_ref(), schema))

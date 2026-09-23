@@ -3,6 +3,7 @@ pub(crate) mod application;
 pub mod configuration;
 pub mod conversations;
 pub mod diagnostics;
+pub mod drill;
 pub mod language;
 pub mod learning;
 pub mod model;

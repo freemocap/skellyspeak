@@ -1,7 +1,8 @@
 -- Generation receipt DDL composed into fresh v18 workspaces.
 -- Request/proposal text and credentials never belong in these inference receipts.
-CREATE TABLE persona_generation_attempts (
+CREATE TABLE generation_attempts (
     id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL DEFAULT 'persona' CHECK(kind IN ('persona','drill')),
     attempt_id TEXT NOT NULL UNIQUE,
     operation_id TEXT NOT NULL UNIQUE,
     language_id TEXT NOT NULL,
@@ -14,6 +15,7 @@ CREATE TABLE persona_generation_attempts (
     finished_at TEXT,
     actual_model TEXT,
     provider_id TEXT,
+    finish_reason TEXT,
     input_tokens INTEGER CHECK(input_tokens IS NULL OR input_tokens >= 0),
     output_tokens INTEGER CHECK(output_tokens IS NULL OR output_tokens >= 0),
     error TEXT,

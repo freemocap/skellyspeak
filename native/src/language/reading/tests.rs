@@ -7,12 +7,13 @@ fn fixture() -> (tempfile::TempDir, Store) {
 }
 fn input() -> ReadingInput {
     ReadingInput {
+        reference_item: None,
         text: "Hola".into(),
         language: "spanish".into(),
         variety: None,
         explanation: "english".into(),
         explanation_variety: None,
-        speech: false,
+        aid: ReadingAid::WordGloss,
     }
 }
 #[test]

@@ -1,0 +1,3067 @@
+diff --git a/docs/notes/drill-mode-plan-2026-09-22.md b/docs/notes/drill-mode-plan-2026-09-22.md
+new file mode 100644
+index 0000000..9d740ba
+--- /dev/null
++++ b/docs/notes/drill-mode-plan-2026-09-22.md
+@@ -0,0 +1,722 @@
++# Drill mode — implementation plan (2026-09-22)
++
++Status: **proposal**. Nothing here is implemented. Decisions marked **Agreed** were
++made by the learner in design review on 2026-09-22; everything else is a
++recommendation awaiting review. The visual design is the "SkellySpeak Drill"
++Design canvas (desktop session, set setup, phone session, phone attempt detail,
++phone settings sheet).
++
++Revision history:
++
++1. First draft.
++2. The learner's revised plan: mandatory reuse gate plus readiness review (§9).
++3. This revision:
++   - adds the traced reuse map (§3);
++   - replaces the earlier parallel Drill stack in §5 with extractions (§4) and a
++     minimal Drill-owned remainder;
++   - reorders the work (§7).
++
++4. Follow-up review: proceed in bounded implementation slices with the review
++   checkpoints in §10. Correct accounting/playback assumptions and constrain E2.
++
++The earlier "Design details" and "Phases" sections are **superseded** by §4–§7.
++This file incorporates the supplied follow-up proposal and the current review.
++The reuse and shared-spectrogram requirements are agreed; implementation choices
++below remain recommendations unless explicitly identified otherwise. No application
++implementation or device verification is claimed by this revision.
++
++**Controlling requirement (agreed with the learner, 2026-09-22):**
++
++- Drill is another composition of the existing app capabilities.
++- Existing functionality must use the same implementation in Chat and Drill.
++- When conversation coupling prevents reuse, fix that boundary and move Chat onto
++  the shared implementation before adding Drill.
++- Do not build parallel implementations, approximate substitutes or a separate
++  Drill backend stack.
++- This requirement supersedes earlier sketches and review recommendations
++  wherever they conflict.
++
++## 1. What drill mode is
++
++A second practice surface beside the chat. The app offers a word, phrase or
++sentence in the target language, and the learner says it repeatedly. Every
++utterance becomes an attempt that is transcribed, compared with the target and
++listed. The learner can record another attempt while earlier attempts are still
++being processed.
++
++### Agreed decisions
++
++| Topic | Decision |
++| --- | --- |
++| Placement | A Chat / Drill switch on the conversation page replaces the whole chat view. Desktop and phone layouts are both first-class. |
++| Target display | The **same** partner-message presentation and tools as Chat: glosses per word, romanization, translation, Analysis, Listen and slow playback. |
++| Capture modes | Three learner-selectable modes: hands-free loop (a pause ends an attempt), tap-to-start with automatic end, and tap-to-start with tap-to-stop. |
++| Pause length | Learner setting, used by the two automatic modes. |
++| Auto-advance | "Next item after N matches". N is a learner setting; 0 means off. Nothing is hard-coded. |
++| Play reference first | Learner setting. |
++| Settings persistence | All drill settings persist across sessions. |
++| Item sources | Checkboxes in any combination: generated at level, the learner's conversations, the skill map, the learner's own phrase. |
++| Difficulty | The same difficulty definitions, defaults, controls and prompt rules as Chat. Below / at / above selects existing levels. There is no Drill-specific difficulty policy or length table. |
++| Recognizer | The same transcription route and language forcing as Chat. |
++| Target hint | Sending the target text to the recognizer is a setting, **off by default**. Attempts are labelled hinted only when a hint actually reached the recognizer. |
++| Scores | Text comparison is the primary result. Recognizer metadata, duration and spectra are shown as separate measurements, not as grades. |
++| Spectrograms | **Agreed (D4):** improve the shared spectrogram analysis and renderer for Chat and Drill. Drill composes two instances on a shared time axis. |
++| Phone attempt detail | Tapping an attempt opens its detail screen. |
++| Evidence | Drill results become a **separate evidence type** on the skill map. |
++| Storage | Scores, transcripts and audio are kept. A setting caps or clears stored audio. |
++
++### Consequences to record
++
++- **Stored audio and transcripts are new.** `speech/recording/transcription.rs`
++  says: "Metadata-only receipts for volatile audio. No replayable audio or
++  transcript store."
++  - Drill departs from this for drill attempts only, and Chat recording behaviour
++    is unchanged.
++  - That module comment, the native README and the privacy text in Settings must
++    all say so.
++- **Recording and transcription stop being conversation-bound.** The shared
++  capture and transcription path gains an explicit owner (§4, extraction E3), and
++  Chat moves onto it.
++
++## 2. Shared architecture requirement and reuse gate
++
++This is a product requirement, not an optimization to attempt if convenient.
++"Reused" means the same code path and behavior. Similar markup, duplicated
++algorithms, matching names or separately maintained copies of configuration do
++not count.
++
++Before implementing each capability:
++
++1. **Trace the current Chat path end to end.** Cover UI/actions, state, language
++   context, native services, persistence, diagnostics and tests, and record the
++   existing owner. §3 is the first pass of this trace.
++2. **Use that path directly where possible.** Where it is coupled to a
++   conversation, extract the existing capability into its shared owner with
++   explicit inputs and results. Conversation scheduling, turn ownership and
++   rewards stay with Chat.
++3. **Switch Chat to the shared implementation in the same extraction change** and
++   verify existing behavior. Drill then supplies its own source and session context.
++4. **Add only behavior that existing capabilities cannot express.** State what is
++   new and why, and test it with its owner. Shared capability tests live once with
++   that owner; mode integration tests check wiring and lifecycle.
++
++Limits on the extraction:
++
++- No generic plugin framework, universal practice engine, parallel scheduler or
++  speculative abstraction.
++- Extract the smallest coherent capability needed by the two actual consumers.
++- Separate context adapters are appropriate; duplicated capability
++  implementations are not.
++- Different durable ownership or retention policies do not justify duplicating
++  capture, provider execution or rendering.
++
++## 3. Reuse map (source traced 2026-09-22)
++
++The trace covered source reading only. Nothing was run or changed.
++
++| # | Capability | Chat path today | Coupling found | Resolution |
++| --- | --- | --- | --- | --- |
++| C1 | Partner-message presentation and tools | `TurnView.tsx` (384 lines) renders the assistant bubble inline: token spans, `SavedGlossText`, `TranslationStatus`, Translate / Word by word / Analysis buttons, the speak control, `GlossPopup`, `AnalysisSentence`. Chat-only parts (`MessageXpButton`, `PersonaReaction`, evidence styling from `SkillEvidenceContext`, `PracticeContext`) are mixed in. `ReadingPassage.tsx` is a second, smaller renderer used by `AnalysisContent`, `AnalysisSentence`, `ReadingExample` and `ReplyHelp`. | The bubble takes `GuidedTurnResult` and turn fields directly. There are two renderers for the same concept. | **E1** |
++| C2 | Aids execution: translation, word gloss, analysis, speech | Turn operations in `conversations/execution/` (`reply_translation`, gloss, `reply_explanations` via `assistance::request_explanations`, `persona_speech` via `execution/speech.rs`). They go through `dispatch.rs` / `publication.rs` / `attempts`, with receipts, retries, diagnostics and the AI activity view. `operations.turn_id` is `NOT NULL` and dispatch joins `turns`. A second path already exists: `language/reading` (`begin_reading` / `run_reading`) does ephemeral gloss (reusing `conversations::gloss`) and token speech. That speech is limited to 256 UTF-16 units and refuses the OpenRouter route; it has no translation or analysis. | Chat aids are bound to turns. The context-free path is partial and its speech is route-limited. | **E2**, decision **D10** |
++| C3 | Microphone capture | `speech/recording/voice.rs::mic_start(conversation_id)`: one `Application.capture` slot, language resolved from the conversation, the previous partner message used as context. Desktop uses cpal (`audio.rs`); phone uses `browser-recording.ts` (AudioWorklet, Float32 at the context rate, 2-minute cap). `useMicRecorder.ts` drives it. | The conversation ID is required throughout. | **E3** |
++| C4 | Transcription execution and receipts | `mic_transcribe`, then admission (`state.admission.audio`), holds, pause, `ai::policy::retry`, `ai::audio::transcribe`, adapters. Receipts are in `transcription_attempts(conversation_id NOT NULL)`, and `permitted()` checks the conversation and contact. Usage statistics read this table. | Conversation-owned receipts. | **E3** |
++| C5 | Recording inspection and spectrogram | `inspect_wav(wav, recording, conversation)` produces `AudioInspection{conversation_id, …}` with a linear dB STFT spectrogram (0–8 kHz, about 129 bins). `TranscriptionInspector.tsx` owns the `Spectrogram` canvas. | Conversation ID in the contract; the spectrogram quality is poor. | **E4** (agreed D4) |
++| C6 | Playback | `platform/audio/speech.ts` (exclusive permit, `interruptSpeech`, `onSpeechInterrupted`), `speech-player.ts`, `playback-lifecycle.ts`, `useMessageSpeech.ts`, `reading-speech.ts`. | Playback authority is reusable, but `onSpeechInterrupted` is not a complete start/stop notification API. | Reuse and extend the shared lifecycle for playback/capture coordination (§5.3), covering every playback caller. |
++| C7 | Difficulty | The `Difficulty` contract and `DifficultySelect.tsx`. `conversation_prompt::difficulty(language, label, key…)` renders `content/prompts/conversation/instructions.yaml → difficulty.<level>` plus the ceiling. Validation requires all five levels. | The level text is written as instructions for a *partner's utterance* at that level. | **E5** |
++| C8 | Target-language item shape (text, translation, romanization, pronunciation) | `learning/coaching/conversation_support.rs` reply suggestions already generate target-language items at the selected difficulty, with their schema and validation. | Bound to the reply-help turn context. | **E6** |
++| C9 | Preferences | `model.rs::Preferences` saved through `Action::UpdateLearner` (the command transaction). The appearance pattern (`configuration/appearance.rs`) owns defaults, validation and contract export. | None. | Add `Preferences.drill` using the appearance pattern. No new command. |
++| C10 | Conversation sentences and coach corrections | The `messages` table and `conversations/revision.rs::coach_edits`. | None (read-only source). | Reuse directly. |
++| C11 | Skill catalog and evidence presentation | `learning/learner/learner_state.rs::fold`, `features/skills/`, `components/learning/`. | The fold consumes assessment judgments only. | Drill evidence is a separate record rendered with the existing skill components (D1). |
++| C12 | Diagnostics and AI activity | `ResponseDetails`, `ErrorDetails`, `diagnostics::response::retained`, `features/activity/`. | Some activity projections may assume turn ownership. | Reuse existing diagnostics and activity UI; audit and test source-neutral activity queries/projections during E2. Shared tables alone do not guarantee visibility. |
++
++Findings to fix in their own right, recorded but not part of Drill:
++
++- **Wrong prompt argument.** `transcription_context::prompt(native_name, …)`
++  documents a native language name, but the Groq adapter passes `language_tag`
++  (`transcription_adapters.rs:82–84`).
++- **Context not sent everywhere.** The ElevenLabs adapter sends no prompt/context
++  and fixes `no_verbatim=false`. The Service adapter passes context raw.
++
++Hint support is therefore per-route and must be inventoried (Phase 0) before the
++hint setting is offered (§5.4).
++
++## 4. Extractions (bounded reviewable slices; Chat migrates with each shared capability)
++
++- **E1 — shared target-message component.**
++  - Extract the assistant-bubble presentation and actions from `TurnView.tsx` into
++    one component (proposed: `components/reading/TargetMessage.tsx`).
++  - It takes a source-neutral view model: text, tokens/gloss, translation,
++    romanization/pronunciation, aid states and errors, speech state. Actions are
++    callbacks supplied by an adapter.
++  - Chat-only elements (XP button, persona reaction, evidence styling) are slots
++    supplied by `TurnView`. `TurnView` then composes `TargetMessage`.
++  - `ReadingPassage`'s overlapping responsibilities are consolidated into it (a
++    compact variant). Its four consumers move over, and the separate renderer is
++    removed.
++  - Shared components must not import feature state, so the adapter lives in each
++    feature.
++  - Tests: move the existing `TurnView` and `ReadingPassage` presentation tests to
++    the component. Add a test that renders it with a non-conversation source.
++- **E2 — source-scoped aid operations (per D10).**
++  - Generalize the owner of operations from "turn" to an explicit source
++    (`turn | drill_item`), so translation, gloss, analysis and speech run through
++    the **same** dispatch, attempts, receipts, retry, diagnostics and publication
++    code.
++  - Turn scheduling and turn state stay in Chat. A source adapter supplies text
++    and the explicit language / variety / explanation scope.
++  - Extract only the common aid preparation/execution/result-validation machinery
++    and durable operation lifecycle needed by the two consumers. Chat adapters
++    retain turn graph dependencies, scheduling decisions, turn publication and
++    reward ownership. Drill adapters publish to drill items. Do not spread owner
++    switches through unrelated conversation operations.
++  - Start with one aid end to end, then extend the proven boundary to the others.
++    Shared execution/receipt logic must remain single-owner code; adapters may
++    differ in scheduling and publication destination, not duplicate that logic.
++  - Preserve Chat's durable/prefetched aids. Tests must preserve behavioral
++    assertions, not merely pass after expected results are weakened. Owner-related
++    setup changes are expected; add cancellation/recovery/publication tests.
++  - Review the first extraction at checkpoint CP2 before propagating its owner
++    model through the remaining aid types. D10 does not require asking the learner
++    to choose a database or scheduler design in advance.
++- **E3 — owner-neutral recording and transcription.**
++  - `mic_start` / `mic_transcribe` take `RecordingOwner = Conversation{id} | DrillItem{id}`
++    with language and optional context resolved and validated natively from that
++    owner. IPC must not trust caller-supplied language or owner authority. Shared
++    internal execution receives the captured, validated scope.
++  - The Chat adapter resolves these from the conversation exactly as today.
++  - `transcription_attempts` gets owner columns with exactly one owner set.
++    `permitted()` validates each owner kind.
++  - Usage statistics reuse the same accounting implementation, but their queries
++    must change: current `statistics/mod.rs` joins transcription receipts through
++    conversations and contacts (confirmed at `statistics/mod.rs:15`). Include
++    Drill in global and language totals, preserve unknown usage and distinguish
++    learner attempts from reference checks. Partner-scoped reports must not
++    attribute Drill to an arbitrary conversation partner. Audit aid usage and
++    activity projections too.
++  - The same `Application.capture` slot enforces one active recording across
++    Chat and Drill.
++- **E4 — shared log-mel inspection and renderer.**
++  - Add a mel filterbank over the existing STFT in `speech/analysis/`, replacing
++    the linear bins.
++  - Make `AudioInspection` owner-neutral.
++  - Extract the `Spectrogram` canvas to `components/media/`. The Chat inspector
++    uses it, and Drill composes two instances on a shared axis.
++  - Specify sample-rate handling, window/hop, filter normalization, dB reference,
++    colour scale, Nyquist behaviour below 16 kHz, and tolerances rather than
++    identical results across rates.
++- **E5 — difficulty policy.**
++  - Extract the reusable difficulty resolver to its existing appropriate shared
++    domain/configuration owner if needed; both the conversation composer and Drill
++    call it. Merely exposing a conversation implementation to other features is
++    not the intended lasting dependency. Preserve existing policy text/behavior.
++  - Drill's generation task asks for "things a conversation partner would say at
++    this level", which is exactly what the existing level text describes. This
++    reuses the rules honestly instead of reinterpreting them.
++  - Move `DifficultySelect` and its shared labels to a shared UI owner and update
++    Chat callers in the same slice; preserve control behavior. The canvas's chip
++    control is updated to match it. Do not add old-path re-export aliases.
++- **E6 — target-language item schema.**
++  - Extract the item shape and validation from reply suggestions
++    (`conversation_support.rs`) into a shared definition used by reply help and by
++    drill generation.
++  - Extract only the common item fields, language-dependent schema rules and
++    validation. Keep reply-help envelope/cardinality and Drill set metadata with
++    their task owners. Reply help's prompt and behavior remain unchanged.
++- **E7 — capture streaming and segmentation (new shared speech behaviour).**
++  - Add streaming delivery and utterance segmentation to the E3 capture owner:
++    - desktop: the cpal callback feeds a bounded worker, with no FFT, file or
++      database work in the callback;
++    - phone: the worklet streams sequenced PCM chunks with sample rate and format,
++      discontinuity detection and backpressure.
++  - Tap-to-start/stop is the existing Chat behaviour. Overflow is an explicit
++    capture failure.
++
++## 5. What Drill newly owns (the minimal remainder)
++
++`native/src/drill/` owns only:
++
++- sets, items, sessions and item visits;
++- source selection;
++- the generation *task* prompt;
++- progression and auto-advance;
++- attempt-to-target comparison;
++- drill attempt result rows;
++- drill evidence aggregation;
++- drill audio retention.
++
++Commands exist only for these. Recording, transcription, aids, playback,
++inspection and preferences use the extracted commands above.
++
++### 5.1 Data model sketch (clean schema; final SQL follows D12)
++
++- **`drill_sets`**: language, variety, difficulty, sources, mix, focus, revision,
++  archived.
++- **`drill_items`**: set, position, text, source, `source_ref` (with revision),
++  requested focus vs validated tags, and a reference for the aid operations (E2).
++- **`drill_sessions`**: set, started, ended, end reason.
++- **`drill_visits`**: session, item, entered and left, and a match counter scope
++  per D12.
++- **`drill_attempts`** (the Drill-owned result only):
++  - `transcription_attempt_id` (E3 receipt: route, model, state, diagnostics);
++  - visit, sequence, capture mode, hinted (effective);
++  - audio file, bytes, pruned-at;
++  - original transcript, normalized forms, alignment with offsets;
++  - scoring policy version, reference identity.
++
++No receipt state machine is duplicated. Provider outcome and usage live in the E3
++receipt; local inspection, scoring and publication failures are recorded
++separately so a paid request is never shown as an unbilled local failure.
++
++### 5.2 Scoring (per the readiness review; replaces the earlier rules)
++
++- **Text match.** Grapheme-cluster CER with an explicit reference denominator and
++  rules for an empty target or empty transcript. Original texts and offsets are
++  kept.
++- **Normalization.** Declared per language in `content/languages/*.yaml`, and the
++  transformations applied are recorded. A normalized match does not claim that
++  diacritic-level distinctions were spoken.
++- **Alignment.** Deterministic, with explicit `same`, `substituted{similarity}`,
++  `missing` and `extra`. RTL and mixed-script fixtures are required. Character
++  alignment is used where the language data says there are no word spaces.
++- **No script-derived `other_language` verdict.** At most an advisory "script
++  mismatch", with an unknown case. It never overrides the measured score.
++- **Recognizer metadata.** Stored and shown with provider, model, field name and
++  aggregation (for example Whisper `avg_logprob` as a log probability, not "mean
++  token probability"). When absent, the reason is shown.
++- **Duration and spectra.** Shown as measurements, with their method. They are
++  never scores.
++- **Thresholds.** The verdict thresholds, including the match rule used by
++  auto-advance, are data with a policy version.
++
++### 5.3 Capture lifecycle (resolves readiness review items 3–5; defaults for review)
++
++- **App playback.** Reference audio and replays are never attempts. Segmentation
++  suspends through the shared playback authority, clears affected pre-roll and
++  re-arms explicitly afterwards. Extend that authority with the required lifecycle:
++  current interruption callbacks do not establish playback start, natural end or
++  every error path. Cover reference, attempt replay, token speech and Chat playback;
++  fence stale completions so they cannot re-arm a stopped/new recording. Apply
++  capture exclusion to manual recording as well as automatic segmentation.
++  Test on speakers, not only headphones.
++- **Leaving Drill.** Leaving Drill, or a language change, backgrounding, locking,
++  a disconnect or loss of permission, **stops** capture with a stated reason.
++  Opening detail or settings **suspends** it visibly. Accepted attempts finish
++  processing.
++- **Stop controls.** Stop, discard current utterance, cancel pending and end
++  session are distinct commands.
++- **Time bounds.** Tap-auto has a no-speech timeout. Tap-manual keeps the existing
++  2-minute bound. A hands-free utterance is cut at the policy maximum and marked
++  as cut off.
++- **Suspension.** Queue saturation (D9), sustained failures or an admission
++  refusal suspend capture until an explicit Resume. The listening, queued and
++  processing counts are shown separately. Session limits (requests, bytes,
++  minutes) are policy data.
++- **Auto-advance.** It is native. The audio is bound to the item visit when the
++  utterance **starts**. A match arriving mid-utterance advances once at the next
++  capture boundary. Late results never advance a newer visit. Poll duplicates
++  never double-count.
++
++### 5.4 Hint
++
++The setting is offered per route only where Phase 0 shows the hint reaches the
++recognizer. Elsewhere it is disabled, and the reason is stated. An attempt stores
++the effective hint, not the requested one.
++
++### 5.5 Sets and sources
++
++- **Mix across levels.** The mix uses existing adjacent levels: at the first or
++  last level, "below" or "above" is unavailable and is shown as such.
++- **Size and ordering.** Total size, per-source allocation, deduplication and
++  stable order are defined.
++- **Shortages.** A shortfall in any source is shown in the preview with any
++  proposed generated replacement. Nothing is invented silently.
++- **Conversation source.** Sentences come from the messages and `coach_edits` of
++  this language and variety, with exact provenance. Their level is unclassified
++  unless the source carries one.
++- **Own phrase.** Uses the selected difficulty context, with no inferred level.
++- **Generated.** One structured completion. It uses the E5 difficulty text and the
++  E6 item schema, and adds only the drill task text (in
++  `content/prompts/drill/instructions.yaml`). Mechanically checkable constraints
++  are validated. A failure shows a Regenerate button, with no automatic retry.
++
++### 5.6 Reference audio (D5)
++
++- **Source.** The item's speech aid through E2, which is the same speech path as
++  Chat's persona speech, not the route-limited reading speech.
++- **Consistency check.** The optional ASR consistency check is an E3
++  transcription with `owner = DrillItem`, stored as unchecked, checking,
++  consistent, inconsistent or check-failed. Its cache key is text, language and
++  variety, voice and model, audio identity and policy.
++- **Counting.** Reference checks are counted separately from learner attempts.
++
++### 5.7 Retention and workspace (moves into the first audio slice)
++
++- **Setting.** The cap setting (D8) states whether it covers references.
++- **Files.** Queued or in-use files are protected. Orphans are reconciled after
++  interruptions. Disk-full is an explicit failure.
++- **Keep none.** Means temporary processing files are cleaned on success, on
++  failure and on restart.
++- **Reset and export.** Factory reset and workspace export are covered.
++- **Deletion.** Explicit deletion of transcripts and scores is separate from
++  archiving.
++- **Size limits.** Stored inspection JSON is bounded, and attempt and set lists
++  are paginated.
++
++### 5.8 UI composition
++
++- **Navigation.** `navigation.ts` gains `practiceView: 'chat' | 'drill'`.
++  `SurfaceHost` keeps the page mounted but capture follows §5.3.
++- **Folders.** `features/drill/` holds only composition and Drill-owned views:
++  set rail, setup, attempt log, attempt card, word alignment, the paired
++  inspection layout, the mic dock and the phone screens.
++- **Shared parts.** The target card is E1 `TargetMessage` with a drill adapter.
++  Spectrograms use the E4 component. The recorder hook is the E3/E7 hook with a
++  drill owner. The difficulty control is `DifficultySelect`. Settings go through
++  the existing learner update.
++
++## 6. Decisions
++
++| # | Question | Recommendation | Status |
++| --- | --- | --- | --- |
++| D1 | Drill evidence on the skill map | Per construct: items drilled, attempts, exact matches, sessions, last drilled, and hinted vs unhinted. Shown separately from demonstrated competence; it does not feed `learner_state::fold`. Requested focus is distinguished from validated tags. | Proposal |
++| D2 | Drill XP | None in v1. | Proposal |
++| D3 | Where segmentation runs | Native, one implementation on the E3 capture owner (E7). | Proposal, pending Phase 0 |
++| D4 | Shared spectrogram improvement | One analysis, contract and renderer for Chat and Drill. | **Agreed** |
++| D5 | Reference consistency check | Yes, as specified in §5.6. Whether an inconsistent reference still permits practice without reference audio is open. | Proposal |
++| D6 | Phone navigation in drill | Bottom nav hidden; the header switch returns to Chat; the mic dock sits at the bottom edge. | Proposal |
++| D7 | Drill language | The active practice language and variety, not a conversation. | Proposal |
++| D8 | Audio retention default | 500 MB, oldest first; options 100 MB / 500 MB / 2 GB / keep none. | Proposal |
++| D9 | Queue | One in flight, 5 waiting; saturation suspends capture (§5.3). | Proposal |
++| **D10** | How aids run for drill items | Recommended working direction: E2, preserving durable/prefetched Chat behavior and sharing capability execution/receipts through explicit source adapters. Do not replace Chat aids with ephemeral/on-demand behavior, or create hidden turns. This is not a forced choice between the two entire existing pipelines; inspect the smallest common boundary. | Engineering direction reviewed against code at CP2; does not block E1 |
++| D11 | Generated item schema | Reuse the reply-suggestion item shape (E6). | Proposal |
++| **D12** | Session and visit semantics | A session starts when Drill opens with a set and ends on leaving or on explicit End. Returning to an item starts a new visit, and its match counter resets. Auto-advance counts matches within the visit (not necessarily consecutive). | Working default for implementation; review with the first usable slice at CP3, before calling the behavior settled |
++| D13 | Existing `language/reading` duplication | Inventory overlapping work during E2. Reuse common capability execution and validation in all affected paths; an ephemeral request and a durable aid may retain different lifecycle adapters. Do not extend duplicate capability implementations. Any residual duplication must have a named owner and explicit checkpoint disposition. | Review at CP2 |
++
++## 7. Order of work
++
++Phase 0 spikes run alongside Milestone A. They are:
++
++- a bounded 10-minute streaming harness on iPad and Android, with a resampling
++  decision;
++- a per-route inventory of hint and confidence behaviour, using fixtures, with
++  live calls only with approval;
++- exploratory reference consistency on a few clips.
++
++Device access is a prerequisite. The ten clips are exploratory, not validation.
++
++**Milestone A — extractions.** Start with E1 and E5 to establish visible reuse
++(CP1); then E4/E3 and the first end-to-end E2 aid (CP2). E6 can wait until generated
++items need it. This is a dependency-based order, not a mandate to refactor every
++candidate before trying the first working Drill slice. Each extraction is bounded;
++large ones may require multiple cohesive reviewable diffs:
++
++- Chat is migrated in the same change.
++- Chat's existing behavioral tests pass; preserve assertions while updating setup/contracts as needed.
++- Shared capability tests live with the new owner.
++- There is a non-conversation source test.
++
++Only E4 intentionally changes Chat's visible behavior (the agreed spectrogram
++improvement). Use D10's working engineering direction and inspect the first E2
++slice at CP2. The numbered checkpoints below are the review handoffs.
++
++**Milestone B — first vertical slice.** This covers:
++
++- own phrase with `TargetMessage`;
++- tap-to-start/stop capture with a `DrillItem` owner;
++- reference playback;
++- a durable attempt with transcript comparison;
++- replay;
++- the paired spectrogram;
++- bounded retention and deletion, and failure recovery;
++- the narrow-screen layout.
++
++**Milestone C — automatic capture.** E7 segmentation, hands-free and tap-auto
++modes, the §5.3 lifecycle, the queue, native auto-advance with race tests, and
++real-device checks.
++
++**Milestone D — sets and evidence.** Generated, conversation and focus sources,
++the D5 check, and drill evidence (D1).
++
++**Tests required across the milestones:**
++
++- interruption;
++- duplicate notification;
++- a late result after a reset or item change;
++- speaker self-capture;
++- queue saturation;
++- an unsupported hint;
++- disk full;
++- crash recovery.
++
++**Checks.** Run the relevant ones for each change, and the full suite at each
++milestone:
++
++- `npm run build`
++- `npm run contracts:check`
++- `npm run styles:check`
++- `npm test`
++- `cargo fmt --manifest-path native/Cargo.toml -- --check`
++- `cargo clippy --manifest-path native/Cargo.toml --lib --tests -- -D warnings`
++- `cargo test --manifest-path native/Cargo.toml --lib`
++
++Keep compilation, automated verification and real-device verification distinct.
++No commits without an explicit instruction.
++
++## 8. Risks and out of scope
++
++| Risk | Mitigation |
++| --- | --- |
++| E2 touches the turn execution core (dispatch, publication, recovery) | Bounded first-aid extraction reviewed at CP2; preserve behavioral assertions and verify transaction, cancellation and recovery boundaries. No intentional behavior change for Chat. |
++| Hosted route cost and quota under continuous use | Session limits, the visible counts and queue suspension (§5.3). |
++| Phone background or lock kills the stream | Phase 0; capture stops with a stated reason; no silent resume. |
++| Reference speech differs from the text | The D5 check with explicit states. |
++| Recognizer normalizes the learner's speech | Hint off by default; route and effective hint shown per attempt. |
++| Scores read as a pronunciation grade | Fixed copy: "Scores compare the transcript with the target. They are not a pronunciation grade." D1 counts, not levels. |
++
++Out of scope for v1:
++
++- phonetic or forced-alignment scoring;
++- per-phoneme feedback;
++- native-speaker validation;
++- automatic provider fallback;
++- cross-device sync;
++- drill XP (D2).
++
++## 9. Implementation-readiness review (2026-09-22, incorporated)
++
++The learner's revised plan included an external readiness review. Its
++requirements are incorporated as follows:
++
++- session and visit identity → D12 and §5.1;
++- native auto-advance and races → §5.3;
++- playback/capture exclusion → §5.3;
++- leaving and stopping → §5.3;
++- bounded continuous use → §5.3 and D9;
++- score semantics → §5.2;
++- reading speech limits and route refusal → C2 and D10;
++- per-route hint behaviour → §3 findings and §5.4;
++- browser PCM format and streaming → E7;
++- owner-neutral inspection and no work in the cpal callback → E3, E4 and E7;
++- reference check states and caching → §5.6;
++- segmentation test cases → Milestone C;
++- mel and sample-rate specification → E4;
++- sets, provenance and shortages → §5.5;
++- retention, deletion and recovery → §5.7;
++- the review's implementation order → §7.
++
++The requirements above summarize the previous review; historical conversation
++text is not an additional implementation dependency. Where earlier recommendations
++conflict with the reuse requirement, the reuse requirement governs.
++
++## 10. Review checkpoints — agreed working process, 2026-09-22
++
++The learner requests concrete check-in points and an ongoing assessment of staged
++work, with their help inspecting the result. Proceed with bounded implementation
++using the working defaults above; do not prolong design review with exhaustive
++advance questions. “Staged work” here means the current reviewable changes, whether
++Git-staged or unstaged. A checkpoint is not commit authorization.
++
++At each checkpoint, leave a coherent diff and a short handoff **in this file**,
++then return for review before moving into the next checkpoint's scope. The reviewer
++and learner will assess actual code and, where available, the running UI. Routine
++implementation choices and checks within a checkpoint do not need further approval.
++If evidence exposes a fundamental problem, report that concrete finding rather
++than expanding into a broad rewrite. Do not mark a checkpoint passed merely because
++its code compiles or its author says it is complete.
++
++**Working environment.** Implementation runs in a clean clone of `main` at
++`7ebf53d5` in the agent's Linux workspace, where the Rust and Node toolchains and
++Linux Tauri system libraries are installed. The learner's checkout has no Rust
++toolchain in the agent's shell and macOS-only `node_modules`. At each checkpoint
++the changed files, plus a patch, are copied into the learner's checkout (unstaged,
++uncommitted), and the handoff lists them. Linux automated checks do not replace a
++run of the macOS app; the handoff says which was done.
++
++### CP1 — the same message tools and difficulty in both contexts
++
++Deliver E1/E5 with Chat migrated, overlapping `ReadingPassage` rendering consolidated,
++and a non-conversation fixture/harness demonstrating the shared message tools.
++Exercise translation, token glosses, romanization, analysis and playback actions,
++including loading/errors and reading preferences. A stub-only fixture proves
++presentation wiring, not working native aid execution; state that limitation.
++
++Review: Does Chat still behave correctly? Is there one implementation per
++capability? Are feature adapters thin, and are shared components free of Chat
++state imports? Did we remove the overlapping old implementation? The learner
++checks the visible controls and reading behavior. E1 may be split internally;
++complete this coherent checkpoint before expanding native execution.
++
++### CP2 — shared native execution, capture and improved spectrogram
++
++Deliver E3/E4 and one working aid through the proposed E2 boundary, with Chat and
++a non-conversation source consuming the same capability. Show the improved Chat
++spectrogram. Finish remaining shared aids only after this first boundary is reviewed;
++record their subsequent verification in the same checkpoint before CP3.
++
++Review: Is E2 a bounded extraction rather than a scheduler rewrite? Preserve turn
++transactions, dependency/reward ownership, cancellation, pause/holds, stale-source
++rejection, recovery and useful redacted receipts. Verify global/language accounting
++includes the new owner and no partner attribution is invented. Show real playback
++lifecycle coordination and one capture authority. Verify source-neutral activity
++visibility instead of assuming it. Inspect the spectrogram visually as well as
++checking numerical fixtures. If only the first aid is done, label the checkpoint
++partial and identify the remaining aids.
++
++### CP3 — first usable Drill slice
++
++Deliver Milestone B: own phrase, the exact shared message tools, manual recording,
++reference playback, durable transcript comparison, replay/paired inspection,
++retention/deletion and recovery, with narrow-screen layout. Include the session and
++visit working defaults (D12). Playback exclusion applies even in manual mode.
++
++Review: The learner tries the complete workflow and confirms/corrects session/visit
++behavior. Check that actual translation, analysis and speech use the shared services,
++not mocked functionality or a reduced renderer. Test leaving/re-entering, changing
++language, failures, deletion and unavailable audio. Record whether testing used a
++running app, browser harness or only automated fixtures. Resolve lifecycle problems
++before hands-free operation multiplies them.
++
++### CP4 — continuous recording and progression
++
++Deliver Milestone C with streaming/segmentation, queue control, native auto-advance,
++all three capture modes and device verification where devices are available.
++
++Review: Speaker playback cannot become attempts; delayed results and duplicate
++notifications cannot advance the wrong visit; bounded queues remain bounded; Stop,
++Resume, backgrounding and permission loss behave visibly and predictably. Try short
++words, quiet speech, noisy input and speech spanning a cutoff. Report unavailable
++devices as unverified, not passing. Device-dependent readiness remains open until
++those checks can actually run; unaffected work may continue after review.
++
++### CP5 — full sources, evidence and final regression review
++
++Deliver Milestone D, including E6 where needed, generation/source selection, shared
++difficulty rules, reference checks and separate drill evidence. Review D1/D2/D5/D8
++against the concrete implemented UI and defaults; keep unconfirmed defaults labelled.
++
++Review: Item sources and shortages are honest; hints record actual provider behavior;
++practice counts do not masquerade as proficiency; all provider usage is accounted for.
++Verify retention/reset/export across both recorded and reference audio. Run required
++integration checks and inspect Chat for regressions. Do a final duplication audit:
++shared capabilities have one implementation, retired paths are removed where replaced,
++and any remaining overlap is explicitly justified. No automatic commit or deployment.
++
++### Handoff template for every checkpoint
++
++- **Status:** ready for review / partial / blocked, with the exact scope.
++- **Changes:** short explanation and concrete file/symbol links for the shared
++  owner, both consumers, and removed/replaced code. Include current Git status and
++  identify unrelated changes excluded from the review.
++- **Reuse/complexity:** what was reused, extracted, removed and newly necessary;
++  explain new owner variants or abstractions. File/line counts are context, not a
++  success metric; inspect the number of independent implementations and boundaries.
++- **Verification:** commands and outcomes, preserved behavioral assertions, actual
++  app/device checks and explicit unverified cases. Do not weaken tests to hide a
++  changed Chat behavior.
++- **Inspect:** exact steps and the currently available artifact/app to review.
++- **Decisions/issues:** only concrete product choices or findings exposed by this
++  slice; distinguish bugs from optional improvements.
++- **Review outcome:** pending until reviewed, then record corrections and the
++  agreed next scope. Review completion does not authorize a commit.
++
++Current checkpoint status: **CP1 ready for review** (2026-09-22).
++
++### CP1 handoff (2026-09-22)
++
++- **Status:** ready for review. Scope: E5 (difficulty) and E1 (target-message
++  tools) with Chat migrated. No Drill UI, native aid execution or capture work.
++- **Changes.**
++  - E5 native: new single owner `native/src/configuration/difficulty.rs`
++    (`LEVELS`, `key`, `prompt_label`, `instruction`). It replaces four separate
++    level lists and the formatter in `conversations/conversation_prompt.rs`
++    (`difficulty()` removed), `diagnostics/ai_graphs.rs` and
++    `configuration/validation.rs`. Prompt text and output are unchanged.
++    `model.rs` exports the level order as the generated
++    `DIFFICULTY_LEVELS` contract.
++  - E5 UI: `DifficultySelect` and `difficultyLabel` moved from
++    `features/conversation/session/` to `components/controls/DifficultySelect.tsx`
++    and read `DIFFICULTY_LEVELS`. Chat callers (`ConversationPage`,
++    `ConversationChoices`, `ConversationPromptCreator`) were updated; there is no
++    alias at the old path. An unknown value now throws instead of being ignored.
++  - E1: new `components/reading/TargetMessage.tsx`, one target-language message
++    with word meanings, translation, whole-message romanization/pronunciation,
++    read-aloud and analysis, laid out as `bubble`, `passage` or `compact`. The
++    owner supplies data, status, annotation and actions; it imports no feature
++    or app state.
++    - `TurnView` composes it for the partner bubble (persona reaction as
++      `annotation`; translation and gloss status as `status`).
++    - Reading preferences come from `ReadingPreferencesContext`, not duplicated
++      props.
++    - `ReadingPassage.tsx` is removed. Its four consumers (`AnalysisSentence`,
++      `ReadingExample`, `AnalysisContent`, `ReplyHelp`) and `tools/reading-preview`
++      use `TargetMessage`.
++  - Legacy token path removed (learner-approved). Production always had
++    `tokens: []` (`domain/conversation/conversation-view.ts:34`), so the
++    per-token renderer could not be reached. Fixture tokens are converted by the
++    existing `anchoredTokenGlosses` and rendered by `SavedGlossText`. Removed:
++    - files: `components/reading/TokenSpan.tsx`,
++      `features/conversation/reading/GlossPopup.tsx`,
++      `features/conversation/reading/useWordInspection.ts`,
++      `domain/reading/sentences.ts` with its test, and the unused re-export
++      `features/conversation/reading/SavedGlossText.tsx`;
++    - `TurnView` props `revealed`, `onReveal`, `onToggleReveal`, `onPopup`,
++      `onInspect`, `onHold`, `showRomanization`, `alwaysRomanize`,
++      `alwaysPronunciation` and `autoTranslate`;
++    - the unused `inspect` prop of `AnalysisContent` and `CoachAnalysisPanel`;
++    - the `.popup-card/-roman/-x/-actions` and `.rtl-line` style rules left
++      unused. `styles:dead` is back to its baseline 18 classes.
++- **Reuse/complexity.** One message renderer instead of three: the TurnView
++  bubble, `ReadingPassage` and `TokenSpan`. One difficulty definition instead of
++  five: four native lists plus the UI list. `TurnView` went from 384 to 201
++  lines; `TargetMessage` is 133. Across `src`: 477 lines added, 879 deleted.
++  Newly necessary: the `layout` variant, because thread bubbles keep their
++  actions inside the bubble and passages keep them beneath.
++- **Behavior differences, all intentional and small:**
++  1. When there are no meanings at all, passages render through `TargetText`
++     (Chat's existing empty rendering) instead of an empty `SavedGlossText`.
++  2. In passages, an explicit translation choice now survives a
++     reading-preference change, as the Chat bubble already did.
++  3. With aids on but no meanings yet, the bubble's Word by word shows as not
++     pressed; before, it showed pressed with nothing to show.
++  4. Word by word is disabled when there are no meanings and no lookup, as in
++     the bubble.
++  5. Toggle buttons carry both `aria-pressed` and `aria-expanded`, which keeps
++     both earlier assertion styles.
++- **Verification** (Linux clone at `7ebf53d5`):
++  - `npm test`: 161 files, 1,079 passed. The baseline was 162 files and 1,086:
++    the 10 `sentences` tests were removed and 3 `TargetMessage` tests added.
++  - `tsc` clean. `npm run build`, `styles:check` and `contracts:check` pass.
++  - `cargo fmt --check` passes; `cargo clippy --lib --tests -D warnings` passes.
++  - `cargo test --lib`: 530 passed. The baseline was 528, plus the 2 difficulty
++    tests.
++  - Test edits:
++    - 12 negative assertions on the removed callbacks were deleted from
++      `TurnView.test.tsx` (`expect(input.onHold/onPopup/onInspect/onReveal/
++      onToggleReveal).not.toHaveBeenCalled()`).
++    - Two token-path tests were ported to the saved-gloss renderer with the same
++      checks (pronunciation shown only with the preference; punctuation kept
++      once).
++    - `ReadingPreferences.display.test.tsx` no longer renders `TokenSpan` or
++      `GlossPopup`. Its counts dropped by those components' share, and the
++      popup assertions were removed.
++    - One `ReplyHelp` selector changed from `.w` to `.target-text` (difference 1
++      above).
++  - Browser harness: `tools/reading-preview.html` gained a "Same message tools,
++    non-conversation source (drill item)" section. It was driven headlessly:
++    Translate, Word by word, Pronunciation and Speak all work, with no console
++    errors. `tools/conversation-preview.html` Chat bubble renders and translates.
++  - **Not verified:** the macOS app has not been run. The harness uses stub
++    speech and analysis actions, so it proves presentation wiring and the shared
++    reading lookup, **not** native aid execution; that is CP2 (E2).
++- **Inspect:** in your checkout, `npm run dev`, then open
++  `/tools/reading-preview.html` (scroll to "Same message tools…") and
++  `/tools/conversation-preview.html`. In the app, check that the chat bubble's
++  Translate, Word by word, Analysis and read-aloud work, and that reply-help
++  cards and the Analysis dialog show passages as before.
++- **Decisions/issues:**
++  - Pre-existing, not changed: `CoachAnalysisPanel` still declares unused props
++    `pinnedTurn`, `nativeLanguageName`, `showRomanization` and `rtl`.
++  - The `.line` / `.w.holding` rules may be dead; `styles:dead` does not flag
++    them, so they were left alone.
++- **Review outcome:** pending.
++
+diff --git a/native/src/configuration/difficulty.rs b/native/src/configuration/difficulty.rs
+new file mode 100644
+index 0000000..d5e7655
+--- /dev/null
++++ b/native/src/configuration/difficulty.rs
+@@ -0,0 +1,90 @@
++//! The one owner of difficulty levels and their prompt instructions.
++//!
++//! Level order, content keys, prompt labels and the rendered instruction are
++//! defined here once. Conversation prompts, prompt previews, AI graph templates
++//! and content validation all read them from this module.
++use super::ConversationPromptContent;
++use crate::model::Difficulty;
++
++/// Every level, easiest first.
++pub const LEVELS: [Difficulty; 5] = [
++    Difficulty::AbsoluteZero,
++    Difficulty::Beginner,
++    Difficulty::Intermediate,
++    Difficulty::Advanced,
++    Difficulty::Fluent,
++];
++
++/// The level's key in `content/prompts/conversation/instructions.yaml → difficulty`.
++pub fn key(level: &Difficulty) -> &'static str {
++    match level {
++        Difficulty::AbsoluteZero => "absolute_zero",
++        Difficulty::Beginner => "beginner",
++        Difficulty::Intermediate => "intermediate",
++        Difficulty::Advanced => "advanced",
++        Difficulty::Fluent => "fluent",
++    }
++}
++
++/// The level's English name as it appears inside prompts.
++pub fn prompt_label(level: &Difficulty) -> &'static str {
++    match level {
++        Difficulty::AbsoluteZero => "Absolute zero",
++        Difficulty::Beginner => "Beginner",
++        Difficulty::Intermediate => "Intermediate",
++        Difficulty::Advanced => "Advanced",
++        Difficulty::Fluent => "Fluent",
++    }
++}
++
++/// The instruction describing what is said at `level` in `language`, followed by
++/// the shared ceiling. Content validation guarantees every level has text.
++pub fn instruction(
++    content: &ConversationPromptContent,
++    language: &str,
++    level: &Difficulty,
++) -> String {
++    format!(
++        "{language}. {} difficulty level: {}\n\n{}",
++        prompt_label(level),
++        content.difficulty[key(level)],
++        content.ceiling
++    )
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    #[test]
++    fn levels_are_ordered_and_keys_are_unique() {
++        let keys: Vec<_> = LEVELS.iter().map(key).collect();
++        assert_eq!(
++            keys,
++            [
++                "absolute_zero",
++                "beginner",
++                "intermediate",
++                "advanced",
++                "fluent"
++            ]
++        );
++        let labels: std::collections::BTreeSet<_> = LEVELS.iter().map(prompt_label).collect();
++        assert_eq!(labels.len(), LEVELS.len());
++    }
++
++    #[test]
++    fn every_level_renders_its_own_instruction_and_the_ceiling() {
++        let registry = crate::configuration::Registry::bundled().unwrap();
++        let content = registry.conversation_prompt();
++        for level in &LEVELS {
++            let text = instruction(content, "Spanish (Mexico)", level);
++            assert!(text.starts_with(&format!(
++                "Spanish (Mexico). {} difficulty level: ",
++                prompt_label(level)
++            )));
++            assert!(text.contains(&content.difficulty[key(level)]));
++            assert!(text.ends_with(&content.ceiling));
++        }
++    }
++}
+diff --git a/native/src/configuration/mod.rs b/native/src/configuration/mod.rs
+index 5ae413c..fd54818 100644
+--- a/native/src/configuration/mod.rs
++++ b/native/src/configuration/mod.rs
+@@ -2,6 +2,7 @@
+ //! Invalid bundled content blocks startup with ConfigLoadError.
+ pub mod appearance;
+ mod citations;
++pub mod difficulty;
+ mod documents;
+ pub(crate) use documents::ConversationPromptContent;
+ mod identity;
+diff --git a/native/src/configuration/validation.rs b/native/src/configuration/validation.rs
+index 15f330c..d9fe0d3 100644
+--- a/native/src/configuration/validation.rs
++++ b/native/src/configuration/validation.rs
+@@ -622,18 +622,11 @@ impl Registry {
+             }
+             nonempty("conversation prompt examples", &[examples])?;
+         }
+-        let expected = [
+-            "absolute_zero",
+-            "beginner",
+-            "intermediate",
+-            "advanced",
+-            "fluent",
+-        ];
+-        if prompt.difficulty.len() != expected.len()
+-            || expected.iter().any(|key| {
++        if prompt.difficulty.len() != super::difficulty::LEVELS.len()
++            || super::difficulty::LEVELS.iter().any(|level| {
+                 prompt
+                     .difficulty
+-                    .get(*key)
++                    .get(super::difficulty::key(level))
+                     .is_none_or(|s| s.trim().is_empty())
+             })
+         {
+diff --git a/native/src/conversations/conversation_prompt.rs b/native/src/conversations/conversation_prompt.rs
+index 5f44bba..573e9d0 100644
+--- a/native/src/conversations/conversation_prompt.rs
++++ b/native/src/conversations/conversation_prompt.rs
+@@ -31,23 +31,6 @@ impl<'a> From<&'a PersonaDetails> for ConversationPersona<'a> {
+     }
+ }
+ 
+-pub(crate) fn difficulty(
+-    content: &ConversationPromptContent,
+-    language: &str,
+-    level: &Difficulty,
+-) -> String {
+-    let (key, label) = match level {
+-        Difficulty::AbsoluteZero => ("absolute_zero", "Absolute zero"),
+-        Difficulty::Beginner => ("beginner", "Beginner"),
+-        Difficulty::Intermediate => ("intermediate", "Intermediate"),
+-        Difficulty::Advanced => ("advanced", "Advanced"),
+-        Difficulty::Fluent => ("fluent", "Fluent"),
+-    };
+-    format!(
+-        "{language}. {label} difficulty level: {}\n\n{}",
+-        content.difficulty[key], content.ceiling
+-    )
+-}
+ /// No database, topic selection, provider, UI state or inference.
+ fn render(
+     content: &ConversationPromptContent,
+@@ -117,7 +100,7 @@ fn render(
+         content.response.clone()
+     });
+     // Language difficulty is the final constraint on the requested conversational move.
+-    parts.push(difficulty(
++    parts.push(crate::configuration::difficulty::instruction(
+         content,
+         &format!("{} ({})", language.target_name, language.variety_name),
+         &settings.difficulty,
+@@ -182,13 +165,6 @@ pub(crate) fn preview(
+         &settings.explanation_language,
+         Some(&settings.explanation_variety_id),
+     )?;
+-    let levels = [
+-        Difficulty::AbsoluteZero,
+-        Difficulty::Beginner,
+-        Difficulty::Intermediate,
+-        Difficulty::Advanced,
+-        Difficulty::Fluent,
+-    ];
+     Ok(PromptPreview {
+         configuration: configuration.clone(),
+         yaml: serde_yaml_ng::to_string(configuration).map_err(|_| {
+@@ -205,10 +181,10 @@ pub(crate) fn preview(
+             true,
+             conversation,
+         )?,
+-        difficulty_prompts: levels
++        difficulty_prompts: crate::configuration::difficulty::LEVELS
+             .into_iter()
+             .map(|level| {
+-                let text = difficulty(
++                let text = crate::configuration::difficulty::instruction(
+                     registry.conversation_prompt(),
+                     &format!("{} ({})", ctx.target_name, ctx.variety_name),
+                     &level,
+@@ -319,13 +295,7 @@ mod tests {
+             settings.direction.topic = Some(TopicChoice::Custom {
+                 text: "Music".into(),
+             });
+-            for level in [
+-                Difficulty::AbsoluteZero,
+-                Difficulty::Beginner,
+-                Difficulty::Intermediate,
+-                Difficulty::Advanced,
+-                Difficulty::Fluent,
+-            ] {
++            for level in crate::configuration::difficulty::LEVELS {
+                 settings.difficulty = level;
+                 for opening in [true, false] {
+                     let prompt = render(
+@@ -338,7 +308,7 @@ mod tests {
+                         None,
+                     )
+                     .unwrap();
+-                    let final_block = difficulty(
++                    let final_block = crate::configuration::difficulty::instruction(
+                         &content,
+                         &format!("{} ({})", ctx.target_name, ctx.variety_name),
+                         &settings.difficulty,
+diff --git a/native/src/diagnostics/ai_graphs.rs b/native/src/diagnostics/ai_graphs.rs
+index e0640de..d41363d 100644
+--- a/native/src/diagnostics/ai_graphs.rs
++++ b/native/src/diagnostics/ai_graphs.rs
+@@ -5,7 +5,7 @@ use crate::{
+     configuration::{LanguageContext, Registry},
+     conversations::{coach_prompt, conversation_prompt, translation, turn_plan},
+     learning::coaching::{self, conversation_support, skill_assessment},
+-    model::{AppError, Difficulty, ErrorCode, Result},
++    model::{AppError, ErrorCode, Result},
+     partners::persona::{self, persona_prompt},
+ };
+ use serde::Serialize;
+@@ -105,7 +105,7 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
+                 "{}: ordered system-prompt fragments. Optional fragments depend on conversation settings. Prior messages and the current learner input (or opening brief) follow as separate messages.",
+                 conversation_prompt::VERSION
+             );
+-            node.source = "content/prompts/conversation/instructions.yaml; native/src/conversations/conversation_prompt.rs".into();
++            node.source = "content/prompts/conversation/instructions.yaml; native/src/conversations/conversation_prompt.rs; native/src/configuration/difficulty.rs".into();
+             node.templates = vec![
+                 section("system · base", c.base.clone()),
+                 section(
+@@ -120,16 +120,13 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
+                     "Target-language writing: {{languageGuidance.target_writing}}\n\n{{languageGuidance.pragmatics}}",
+                 ),
+             ];
+-            for (label, level) in [
+-                ("absolute zero", Difficulty::AbsoluteZero),
+-                ("beginner", Difficulty::Beginner),
+-                ("intermediate", Difficulty::Intermediate),
+-                ("advanced", Difficulty::Advanced),
+-                ("fluent", Difficulty::Fluent),
+-            ] {
++            for level in crate::configuration::difficulty::LEVELS {
+                 node.templates.push(section(
+-                    &format!("system · difficulty option: {label}"),
+-                    conversation_prompt::difficulty(
++                    &format!(
++                        "system · difficulty option: {}",
++                        crate::configuration::difficulty::prompt_label(&level).to_lowercase()
++                    ),
++                    crate::configuration::difficulty::instruction(
+                         c,
+                         "{{targetLanguage}} ({{targetVariety}})",
+                         &level,
+diff --git a/native/src/model.rs b/native/src/model.rs
+index 6fc8563..8b97f5b 100644
+--- a/native/src/model.rs
++++ b/native/src/model.rs
+@@ -686,12 +686,14 @@ pub fn bindings() -> String {
+             crate::learning::coaching::catalog_version()
+         ),
+         format_args!(
+-            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}",
++            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}\nexport const DIFFICULTY_LEVELS: readonly Difficulty[] = {} as const",
+             text_size_limits(),
+             serde_json::to_string(
+                 &crate::configuration::appearance::AppearancePreferences::default()
+             )
+-            .expect("appearance defaults serialize")
++            .expect("appearance defaults serialize"),
++            serde_json::to_string(&crate::configuration::difficulty::LEVELS)
++                .expect("difficulty levels serialize")
+         )
+     )
+ }
+diff --git a/ui/src/components/controls/DifficultySelect.test.tsx b/ui/src/components/controls/DifficultySelect.test.tsx
+new file mode 100644
+index 0000000..1872173
+--- /dev/null
++++ b/ui/src/components/controls/DifficultySelect.test.tsx
+@@ -0,0 +1,26 @@
++// @vitest-environment jsdom
++import { fireEvent, render, screen } from '@testing-library/react'
++import userEvent from '@testing-library/user-event'
++import { expect, it, vi } from 'vitest'
++import { DifficultySelect } from './DifficultySelect'
++
++it('reuses the language select and makes no request on render/focus/reopen', () => {
++  const change = vi.fn().mockResolvedValue(undefined)
++  const view = render(<DifficultySelect value="beginner" saving={false} onChange={change} />)
++  const select = screen.getByRole('combobox', { name: 'Difficulty' })
++  expect(select).toHaveClass('chat-language-picker')
++  expect(screen.getAllByRole('option')).toHaveLength(5)
++  fireEvent.focus(select); fireEvent.mouseOver(select)
++  view.rerender(<DifficultySelect value="fluent" saving={false} onChange={change} />)
++  expect(change).not.toHaveBeenCalled()
++  expect(screen.queryByRole('slider')).toBeNull()
++})
++it('saves one deliberate selection and disables while saving', async () => {
++  const change = vi.fn().mockResolvedValue(undefined)
++  const view = render(<DifficultySelect value="beginner" saving={false} onChange={change} />)
++  await userEvent.setup().selectOptions(screen.getByRole('combobox'), 'absolute_zero')
++  expect(change).toHaveBeenCalledExactlyOnceWith('absolute_zero')
++  view.rerender(<DifficultySelect value="absolute_zero" saving onChange={change} />)
++  expect(screen.getByRole('combobox')).toBeDisabled()
++  expect(screen.getByRole('combobox')).toHaveAttribute('aria-busy', 'true')
++})
+diff --git a/ui/src/components/controls/DifficultySelect.tsx b/ui/src/components/controls/DifficultySelect.tsx
+new file mode 100644
+index 0000000..d97fa7a
+--- /dev/null
++++ b/ui/src/components/controls/DifficultySelect.tsx
+@@ -0,0 +1,32 @@
++import { messageKey } from '../../domain/localization'
++import { useI18n } from '../localization/i18n'
++import { DIFFICULTY_LEVELS, type Difficulty } from '../../generated/contracts'
++
++/// Interface labels for the native difficulty levels. The levels and their
++/// order come from the generated contract; only their display names live here.
++const LABELS = {
++  absolute_zero: messageKey('Absolute zero'),
++  beginner: messageKey('Beginner'),
++  intermediate: messageKey('Intermediate'),
++  advanced: messageKey('Advanced'),
++  fluent: messageKey('Fluent'),
++} as const satisfies Record<Difficulty, string>
++
++export function difficultyLabel(value: Difficulty): string {
++  return LABELS[value]
++}
++
++/** An explicit selection saves settings; the caller owns persistence and errors. */
++export function DifficultySelect({ value, saving, onChange }: {
++  value: Difficulty; saving: boolean; onChange: (value: Difficulty) => Promise<void>
++}) {
++  const tr = useI18n()
++  return <select className="chat-language-picker" aria-label={tr("Difficulty")} title={saving ? tr("Saving difficulty…") : tr("Conversation difficulty")} aria-busy={saving} value={value} disabled={saving}
++    onChange={event => {
++      const selected = DIFFICULTY_LEVELS.find(level => level === event.target.value)
++      if (selected === undefined) throw new Error(`Unknown difficulty level: ${event.target.value}`)
++      if (selected !== value) void onChange(selected).catch(() => { /* The owner presents save errors. */ })
++    }}>
++    {DIFFICULTY_LEVELS.map(level => <option key={level} value={level}>{tr(LABELS[level])}</option>)}
++  </select>
++}
+diff --git a/ui/src/components/reading/TargetMessage.test.tsx b/ui/src/components/reading/TargetMessage.test.tsx
+new file mode 100644
+index 0000000..7bb9dcd
+--- /dev/null
++++ b/ui/src/components/reading/TargetMessage.test.tsx
+@@ -0,0 +1,126 @@
++// @vitest-environment jsdom
++import { fireEvent, render, screen, waitFor } from '@testing-library/react'
++import { expect, it, vi } from 'vitest'
++import { TargetMessage, type TargetMessageProps } from './TargetMessage'
++import { ReadingPreferencesContext } from './ReadingPreferences'
++import { ReadingLookupContext, ReadingScopeContext } from './ReadingContext'
++import type { ReadingResult } from '../../generated/contracts'
++
++vi.mock('../../platform/ipc/tauri', () => ({languageFor: () => ({languageTag:'es'})}))
++
++/// A standalone passage: no saved meanings, lookup allowed, no owner actions.
++function passage(overrides: Partial<TargetMessageProps> & Pick<TargetMessageProps, 'text'>): TargetMessageProps {
++  return { segments: [], segmentsKey: overrides.text, translation: null, romanization: null, pronunciation: null, layout: 'passage', translateLabel: null,
++    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false, ...overrides }
++}
++
++it('shows requested missing word help on the first click with always-visible aids off', async () => {
++  const read = vi.fn().mockResolvedValue({gloss:{segments:[{start:0,end:4,kind:'gloss',gloss:'hello',romanization:'roman',pronunciation:'redundant'}]}} as ReadingResult)
++  const source = (enabled:boolean) => <ReadingPreferencesContext value={{autoTranslate:enabled,alwaysRomanize:enabled,alwaysPronunciation:enabled}}>
++    <ReadingScopeContext value={{language:'spanish',variety:'spain',explanation:'english',explanationVariety:'american'}}>
++      <ReadingLookupContext value={read}><TargetMessage {...passage({text:"Hola", romanization:"sentence roman"})} /></ReadingLookupContext>
++    </ReadingScopeContext>
++  </ReadingPreferencesContext>
++  const view = render(source(false))
++  expect(read).not.toHaveBeenCalled()
++  fireEvent.click(screen.getByRole('button',{name:'Word by word'}))
++  await waitFor(() => expect(read).toHaveBeenCalledTimes(1))
++  await waitFor(() => expect(screen.getByRole('button',{name:'Word by word'})).toBeEnabled())
++  expect(view.container.querySelector('.wg')).toHaveTextContent('hello')
++  expect(view.container.querySelector('.wroman')).toHaveTextContent('roman')
++  fireEvent.click(screen.getByRole('button',{name:'Word by word'}))
++  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
++  view.rerender(source(true))
++  expect(screen.getByText('hello')).toBeVisible()
++  expect(screen.getByText('roman')).toBeVisible()
++  expect(screen.queryByText('sentence roman')).toBeNull()
++  expect(screen.queryByText('redundant')).toBeNull()
++  expect(read).toHaveBeenCalledTimes(1)
++})
++
++it('reveals saved word aids on the first click with all defaults off', () => {
++  const view = render(<ReadingPreferencesContext value={{autoTranslate:false,alwaysRomanize:false,alwaysPronunciation:false}}>
++    <TargetMessage {...passage({text:"Hola casa", segments:[
++      {start:0,end:4,kind:'gloss',gloss:'hello',romanization:'roman',pronunciation:'redundant'},
++      {start:5,end:9,kind:'gloss',gloss:'house',pronunciation:'fallback'},
++    ]})} />
++  </ReadingPreferencesContext>)
++  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
++  const button = screen.getByRole('button',{name:'Word by word'})
++  fireEvent.click(button)
++  expect(button).toHaveAttribute('aria-expanded','true')
++  expect(screen.getByText('hello')).toBeVisible()
++  expect(screen.getByText('roman')).toBeVisible()
++  expect(screen.getByText('fallback')).toBeVisible()
++  expect(screen.queryByText('redundant')).toBeNull()
++  fireEvent.click(button)
++  expect(button).toHaveAttribute('aria-expanded','false')
++  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
++})
++
++/// A source that is not a conversation turn: the same tools, supplied by a
++/// different owner. This proves presentation wiring and the shared reading
++/// lookup; it does not exercise native aid execution.
++const item = 'ممكن تحكي شوي شوي؟'
++const itemSegments = [
++  {start:0,end:4,kind:'gloss' as const,gloss:'can',romanization:'mumkin'},
++  {start:5,end:9,kind:'gloss' as const,gloss:'you speak',romanization:'tiḥki'},
++]
++
++it('gives a non-conversation source every message tool with its own actions', () => {
++  const onToggle = vi.fn(), onOpen = vi.fn()
++  const view = render(<ReadingPreferencesContext value={{autoTranslate:false,alwaysRomanize:false,alwaysPronunciation:false,supportsRomanization:true}}>
++    <TargetMessage {...passage({text:item, layout:'bubble', segments:itemSegments, translation:'Can you speak slowly?', romanization:'mumkin tiḥki shwayy shwayy?',
++      status:<p role="status">Owner status</p>, speech:{speaking:false, onToggle, error:null}, analysis:{pending:false, onOpen}, rtl:true, lookupWords:false})} />
++  </ReadingPreferencesContext>)
++  const bubble = view.container.querySelector('.msg.chat-message.bot.with-actions.rtl.with-corner-control')
++  expect(bubble).not.toBeNull()
++  expect(screen.getByRole('status')).toHaveTextContent('Owner status')
++  expect(screen.queryByText('Can you speak slowly?')).toBeNull()
++  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
++  expect(screen.getByText('Can you speak slowly?')).toBeVisible()
++  expect(view.container.querySelector('.wg')).toBeNull()
++  fireEvent.click(screen.getByRole('button',{name:'Word by word'}))
++  expect(screen.getByText('you speak')).toBeVisible()
++  expect(screen.getByText('tiḥki')).toBeVisible()
++  fireEvent.click(screen.getByRole('button',{name:'Word by word'}))
++  fireEvent.click(screen.getByRole('button',{name:'Pronunciation'}))
++  expect(screen.getByText('mumkin tiḥki shwayy shwayy?')).toBeVisible()
++  fireEvent.click(screen.getByRole('button',{name:'Speak reply'}))
++  expect(onToggle).toHaveBeenCalledOnce()
++  fireEvent.click(screen.getByRole('button',{name:'Analysis'}))
++  expect(onOpen).toHaveBeenCalledOnce()
++})
++
++it('shows owner progress, playback state and failures without owner-specific state', async () => {
++  const read = vi.fn().mockRejectedValue(new Error('Lookup refused'))
++  const props = passage({text:item, layout:'bubble', segmentsPending:true, translation:'Can you speak slowly?',
++    speech:{speaking:true, onToggle:vi.fn(), error:{text:'Speech failed', details:{code:'x'}}}, analysis:{pending:true, onOpen:vi.fn()}})
++  const view = render(<ReadingPreferencesContext value={{autoTranslate:true,alwaysRomanize:false,alwaysPronunciation:false}}>
++    <ReadingScopeContext value={{language:'arabic',variety:'arabic-levantine',explanation:'english',explanationVariety:'american'}}>
++      <ReadingLookupContext value={read}><TargetMessage {...props} /></ReadingLookupContext>
++    </ReadingScopeContext>
++  </ReadingPreferencesContext>)
++  expect(screen.getByText('Can you speak slowly?')).toBeVisible()
++  expect(screen.getByRole('button',{name:'Stop playback'})).toBeVisible()
++  expect(screen.getByText('Speech failed')).toBeVisible()
++  expect(screen.getByRole('button',{name:'Analysis'})).toHaveClass('is-hydrating')
++  const words = screen.getByRole('button',{name:'Word by word'})
++  expect(words).toHaveClass('is-hydrating')
++  fireEvent.click(words)
++  await waitFor(() => expect(read).toHaveBeenCalledOnce())
++  await waitFor(() => expect(view.container).toHaveTextContent('Lookup refused'))
++})
++
++it('keeps an explicit translation choice when the reading preference changes', () => {
++  const source = (autoTranslate: boolean) => <ReadingPreferencesContext value={{autoTranslate,alwaysRomanize:false,alwaysPronunciation:false}}>
++    <TargetMessage {...passage({text:item, translation:'Can you speak slowly?', lookupWords:false})} />
++  </ReadingPreferencesContext>
++  const view = render(source(false))
++  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
++  view.rerender(source(true))
++  expect(screen.getByText('Can you speak slowly?')).toBeVisible()
++  fireEvent.click(screen.getByRole('button',{name:'Translate'}))
++  expect(screen.queryByText('Can you speak slowly?')).toBeNull()
++  expect(screen.getByRole('button',{name:'Word by word'})).toBeDisabled()
++})
+diff --git a/ui/src/components/reading/TargetMessage.tsx b/ui/src/components/reading/TargetMessage.tsx
+new file mode 100644
+index 0000000..a7157b9
+--- /dev/null
++++ b/ui/src/components/reading/TargetMessage.tsx
+@@ -0,0 +1,133 @@
++import { useEffect, useRef, useState, type ReactNode } from 'react'
++import type { GlossSegment } from '../../generated/contracts'
++import { errorDetails, errorMessage } from '../../platform/diagnostics/error-details'
++import { ErrorDetails } from '../feedback/ErrorDetails'
++import { ResponseDetails } from '../feedback/ResponseDetails'
++import { useI18n } from '../localization/i18n'
++import { useUiDirection } from '../localization/useUiDirection'
++import { useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
++import { useReadingPreferences } from './ReadingPreferences'
++import { SavedGlossText } from './SavedGlossText'
++import { TargetText } from './TargetText'
++import { useSavedReading } from './SavedReadingProvider'
++
++/// Where the message sits. `bubble` is a message in a thread with its actions
++/// inside the bubble; `passage` is a standalone bubble with actions beneath it;
++/// `compact` is inline text with actions beneath it.
++export type TargetMessageLayout = 'bubble' | 'passage' | 'compact'
++
++export interface TargetMessageSpeech {
++  speaking: boolean
++  onToggle: () => void
++  error: { text: string; details: unknown } | null
++}
++
++export interface TargetMessageAnalysis {
++  pending: boolean
++  onOpen: () => void
++}
++
++export interface TargetMessageProps {
++  text: string
++  /// Word meanings already known for `text`, anchored by UTF-16 offsets.
++  segments: GlossSegment[]
++  /// Changes when a different set of saved meanings replaces the current one.
++  segmentsKey: string
++  translation: string | null
++  /// Whole-message reading aids, shown when no word-level aid covers them.
++  romanization: string | null
++  pronunciation: string | null
++  layout: TargetMessageLayout
++  /// Accessible name of the translate toggle; `null` uses its visible label.
++  translateLabel: string | null
++  /// Saved meanings for this message are still being produced.
++  segmentsPending: boolean
++  /// With no known meanings, Word by word may request them through the reading lookup.
++  lookupWords: boolean
++  /// Owner-supplied progress and failures for this message's aids.
++  status: ReactNode
++  /// Owner-supplied content shown directly under the text.
++  annotation: ReactNode
++  speech: TargetMessageSpeech | null
++  analysis: TargetMessageAnalysis | null
++  focused: boolean
++  rtl: boolean
++}
++
++/** One target-language message with its reading tools: word meanings,
++ *  translation, whole-message reading aid, read-aloud and analysis. Every
++ *  consumer supplies its own data and actions; the tools behave identically. */
++export function TargetMessage({
++  text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
++  segmentsPending, lookupWords, status, annotation, speech, analysis, focused, rtl,
++}: TargetMessageProps) {
++  const tr = useI18n()
++  const uiDirection = useUiDirection()
++  const preferences = useReadingPreferences()
++  const scope = useReadingScope(), saved = useSavedReading(), peek = useReadingPeek(), lookup = useReadingLookup()
++  // Saved, cached and requested meanings come from the reading services only
++  // when the owner allows lookup and a reading scope is present.
++  const readingScope = lookupWords ? scope : null
++  const canLookup = readingScope !== null && lookup !== null
++
++  const local = segments.length ? segments : readingScope ? saved(text, readingScope).filter(part => part.kind === 'gloss') : []
++  const cached = readingScope ? peek({ ...readingScope, text, speech: false })?.gloss?.segments ?? [] : []
++  const [fetched, setFetched] = useState<GlossSegment[]>([])
++  const resolved = [...local, ...[...cached, ...fetched].filter(part => !local.some(item => item.start < part.end && item.end > part.start))]
++  // Prefer one complete cached/fetched result over duplicating equivalent anchors.
++  const known = resolved.filter((part, index) => !resolved.slice(0, index).some(item => item.start < part.end && item.end > part.start))
++
++  const aidsEnabled = preferences.autoTranslate || preferences.alwaysRomanize || preferences.alwaysPronunciation
++  const [wordsOverride, setWordsOverride] = useState<boolean | null>(null)
++  const wordsOpen = wordsOverride ?? (aidsEnabled && known.length > 0)
++  const [translationOverride, setTranslationOverride] = useState<boolean | null>(null)
++  const translationOpen = translationOverride ?? preferences.autoTranslate
++  const sound = preferences.supportsRomanization && romanization ? romanization : pronunciation
++  const [soundOverride, setSoundOverride] = useState<boolean | null>(null)
++  const soundOpen = soundOverride ?? (preferences.supportsRomanization && romanization ? preferences.alwaysRomanize : preferences.alwaysPronunciation)
++  useEffect(() => { setWordsOverride(null) }, [preferences.autoTranslate, preferences.alwaysRomanize, preferences.alwaysPronunciation])
++
++  const [lookupPending, setLookupPending] = useState(false)
++  const [lookupError, setLookupError] = useState<unknown>(null)
++  const request = useRef<AbortController | null>(null)
++  useEffect(() => () => request.current?.abort(), [])
++  async function toggleWords() {
++    setWordsOverride(!wordsOpen)
++    if (wordsOpen || known.length > 0 || lookupPending || readingScope === null || lookup === null) return
++    const controller = new AbortController(); request.current = controller
++    setLookupPending(true); setLookupError(null)
++    try {
++      const result = await lookup({ ...readingScope, text, speech: false }, controller.signal)
++      if (!controller.signal.aborted) setFetched(result.gloss?.segments ?? [])
++    } catch (failure) { if (!controller.signal.aborted) setLookupError(failure) }
++    finally { if (!controller.signal.aborted) setLookupPending(false) }
++  }
++
++  const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
++  const body = <>
++    {known.length > 0
++      ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} />
++      : <TargetText text={text} />}
++    {annotation}
++    {translationOpen && translation && <div className="trans" dir="auto">{translation}</div>}
++    {soundOpen && sound && !(wordsOpen && known.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
++    {status}
++    {speech && <button type="button" className="bubble-corner-control speak-btn" title={speech.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speech.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); speech.onToggle() }}><span aria-hidden="true">{speech.speaking ? '⏹' : '🔊'}</span></button>}
++    {speech?.error && <ErrorDetails label={tr("Speech")} errorKey={speech.error.text} explanation={speech.error.text}><ResponseDetails value={speech.error.details} /></ErrorDetails>}
++  </>
++  const actions = <div className="message-actions" dir={layout === 'bubble' ? uiDirection : undefined} onDoubleClick={stop}>
++    {sound && <button type="button" className="message-translate" aria-expanded={soundOpen} aria-pressed={soundOpen} onClick={event => { stop(event); setSoundOverride(!soundOpen) }}>{tr('Pronunciation')}</button>}
++    {translation && <button type="button" className="message-translate" aria-label={translateLabel ?? undefined} aria-expanded={translationOpen} aria-pressed={translationOpen} onKeyDown={stop} onClick={event => { stop(event); setTranslationOverride(!translationOpen) }}>{tr("Translate")}</button>}
++    <button type="button" className={segmentsPending || lookupPending ? 'message-translate is-hydrating' : 'message-translate'} disabled={lookupPending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
++    {analysis && <button type="button" className={analysis.pending ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={event => { stop(event); analysis.onOpen() }}>{tr("Analysis")}</button>}
++  </div>
++  const failure = lookupError != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(lookupError)} explanation={errorMessage(lookupError)}><ResponseDetails value={errorDetails(lookupError)} /></ErrorDetails>
++
++  if (layout === 'bubble') return <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${speech ? ' with-corner-control' : ''}`}>
++    {body}{actions}{failure}
++  </div>
++  return <div className={`reading-passage${layout === 'compact' ? ' reading-passage-compact' : ''}`}>
++    <div className={layout === 'compact' ? 'reading-passage-text' : 'msg chat-message bot'} dir="auto">{body}</div>
++    {actions}{failure}
++  </div>
++}
+diff --git a/ui/src/components/reading/TokenSpan.tsx b/ui/src/components/reading/TokenSpan.tsx
+deleted file mode 100644
+index 47ee60f..0000000
+--- a/ui/src/components/reading/TokenSpan.tsx
++++ /dev/null
+@@ -1,126 +0,0 @@
+-import { useReadingActions, useReadingScope } from './ReadingContext'
+-import { readingPassage } from '../../domain/reading/word-boundaries'
+-import { InspectText } from './InspectText'
+-import { TokenAudio } from './TokenAudio'
+-import { useEffect, useRef, useState } from 'react'
+-import type { GuidedToken } from '../../types'
+-
+-interface TokenSpanProps {
+-  sourceText?: string
+-  sourceStart?: number
+-  textStyle?: React.CSSProperties
+-  interactive?: boolean
+-  tok: GuidedToken
+-  revealed: boolean
+-  hasTranslation: boolean
+-  showTranslation: boolean
+-  showAids: boolean
+-  showRomanization: boolean
+-  alwaysRomanize: boolean
+-  alwaysPronunciation: boolean
+-  onTap: (e: React.MouseEvent<HTMLSpanElement>) => void
+-  onDragStart: () => void
+-  onDragOver: () => void
+-  onInspect?: (e: React.MouseEvent<HTMLSpanElement>) => void
+-  onHold?: () => void
+-}
+-
+-export function TokenSpan({
+-  tok,
+-  sourceText = tok.text,
+-  sourceStart = 0,
+-  textStyle,
+-  interactive = true,
+-  revealed,
+-  hasTranslation,
+-  showTranslation,
+-  showAids,
+-  showRomanization,
+-  alwaysRomanize,
+-  alwaysPronunciation,
+-  onTap,
+-  onDragStart,
+-  onDragOver,
+-  onInspect,
+-  onHold,
+-}: TokenSpanProps) {
+-  const readingActions = useReadingActions()
+-  const scope = useReadingScope()
+-  const tappable = interactive && (!!(tok.gloss || tok.pronunciation || tok.romanization) || hasTranslation || (readingActions && scope && /[\p{L}\p{N}]/u.test(tok.text)))
+-  // Press-and-hold (450ms, near-stationary) opens the deep word-insight
+-  // modal. Works for mouse + touch; a plain click never fires it, and
+-  // dragging cancels it.
+-  const holdTimer = useRef<number | null>(null)
+-  useEffect(() => () => {
+-    if (holdTimer.current !== null) window.clearTimeout(holdTimer.current)
+-  }, [])
+-  const heldRef = useRef(false)
+-  const pressPos = useRef<{ x: number; y: number } | null>(null)
+-  const [holding, setHolding] = useState(false)
+-  const startHold = (e: React.PointerEvent<HTMLSpanElement>) => {
+-    if (e.pointerType === 'mouse' && e.button !== 0) return
+-    heldRef.current = false
+-    pressPos.current = { x: e.clientX, y: e.clientY }
+-    holdTimer.current = window.setTimeout(() => {
+-      holdTimer.current = null
+-      heldRef.current = true
+-      setHolding(true)
+-      onHold?.()
+-    }, 450)
+-  }
+-  const cancelHold = () => {
+-    if (holdTimer.current !== null) {
+-      window.clearTimeout(holdTimer.current)
+-      holdTimer.current = null
+-    }
+-    setHolding(false)
+-  }
+-  const trackHoldMove = (e: React.PointerEvent<HTMLSpanElement>) => {
+-    if (holdTimer.current === null) return
+-    const p = pressPos.current
+-    if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 8) cancelHold()
+-  }
+-  const clickTap = (e: React.MouseEvent<HTMLSpanElement>) => {
+-    if (heldRef.current) {
+-      heldRef.current = false // the long-press just fired — suppress the click
+-      return
+-    }
+-    if (!tok.gloss && !tok.pronunciation && !tok.romanization && readingActions && scope && /[\p{L}\p{N}]/u.test(tok.text)) {
+-      e.stopPropagation(); readingActions.inspect({ ...readingPassage(sourceText, sourceStart, sourceStart + tok.text.length), scope }); return
+-    }
+-    onTap(e)
+-  }
+-  return (
+-    <span className="wu" onClick={interactive ? (e) => e.stopPropagation() : undefined}>
+-      <span
+-        className={`w ${tok.notable ? 'notice' : ''}${tappable ? ' tap' : ''}${
+-          revealed ? ' revealed' : ''
+-        }${holding ? ' holding' : ''}`}
+-        style={textStyle}
+-        role={tappable ? 'button' : undefined}
+-        tabIndex={tappable ? 0 : undefined}
+-        onKeyDown={event => { if (tappable && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); event.stopPropagation(); event.currentTarget.click() } }}
+-        data-gloss-trigger={tappable || undefined}
+-        onClick={tappable ? clickTap : undefined}
+-        onPointerDown={interactive && onHold ? startHold : undefined}
+-        onPointerMove={trackHoldMove}
+-        onPointerUp={cancelHold}
+-        onPointerLeave={cancelHold}
+-        onPointerCancel={cancelHold}
+-        onMouseDown={onDragStart}
+-        onMouseEnter={onDragOver}
+-        onContextMenu={interactive ? onInspect : undefined}
+-      >
+-        {tok.text}
+-      </span>
+-      {(revealed || showAids) && showTranslation && tok.gloss && <span className="wg">{tok.gloss}</span>}
+-      {revealed && interactive && <span><TokenAudio text={sourceText} start={sourceStart} end={sourceStart + tok.text.length} /><InspectText text={sourceText} start={sourceStart} end={sourceStart + tok.text.length} /></span>}
+-      {(revealed || showAids) && alwaysPronunciation && !tok.romanization && tok.pronunciation && <span className="wpronunciation" dir="auto">{tok.pronunciation}</span>}
+-      {/* Always-visible romanization does not depend on revealing the gloss. */}
+-      {(revealed || showAids) && alwaysRomanize && showRomanization && tok.romanization && (
+-        <span className="wroman">{tok.romanization}</span>
+-      )}
+-    </span>
+-  )
+-}
+-
+diff --git a/ui/src/domain/reading/sentences.test.ts b/ui/src/domain/reading/sentences.test.ts
+deleted file mode 100644
+index 7e07179..0000000
+--- a/ui/src/domain/reading/sentences.test.ts
++++ /dev/null
+@@ -1,72 +0,0 @@
+-import { describe, expect, it } from 'vitest'
+-import type { GuidedToken } from '../../types'
+-import { groupSentences, splitSentences } from './sentences'
+-
+-const t = (text: string): GuidedToken => ({
+-  text,
+-  gloss: null,
+-  pos: null,
+-  notable: false,
+-  romanization: null, pronunciation: null,
+-})
+-
+-describe('groupSentences', () => {
+-  it('splits on terminal punctuation, keeping punct-only tokens', () => {
+-    const tokens = ['¡Hola', 'Juan', '?', '¿Cómo', 'estás', '?'].map(t)
+-    const s = groupSentences(tokens)
+-    expect(s).toHaveLength(2)
+-    expect(s[0].map((x) => x.text)).toEqual(['¡Hola', 'Juan', '?'])
+-    expect(s[1].map((x) => x.text)).toEqual(['¿Cómo', 'estás', '?'])
+-  })
+-
+-  it('attached punctuation closes the sentence ("¡Hola!")', () => {
+-    const s = groupSentences(['¡Hola!', '¿Cómo', 'estás', '?'].map(t))
+-    expect(s).toHaveLength(2)
+-    expect(s[0].map((x) => x.text)).toEqual(['¡Hola!'])
+-  })
+-
+-  it('handles attached punctuation ("hoy?")', () => {
+-    const s = groupSentences(['¿Y', 'tú?'].map(t))
+-    expect(s).toHaveLength(1)
+-    expect(s[0].map((x) => x.text)).toEqual(['¿Y', 'tú?'])
+-  })
+-
+-  it('returns empty for no tokens', () => {
+-    expect(groupSentences([])).toEqual([])
+-  })
+-
+-  it('keeps a trailing fragment without terminal punctuation', () => {
+-    const s = groupSentences(['Hola', 'mundo'].map(t))
+-    expect(s).toHaveLength(1)
+-  })
+-
+-  it('splits on CJK terminators (。！？)', () => {
+-    const s = groupSentences(['你好', '吗？', '我', '很好。'].map(t))
+-    expect(s).toHaveLength(2)
+-    expect(s[0].map((x) => x.text)).toEqual(['你好', '吗？'])
+-    expect(s[1].map((x) => x.text)).toEqual(['我', '很好。'])
+-  })
+-})
+-
+-describe('splitSentences', () => {
+-  it('mirrors groupSentences counts for aligned text', () => {
+-    expect(splitSentences('¡Hola! ¿Cómo estás?')).toHaveLength(2)
+-  })
+-
+-  it('handles ellipses and no trailing punctuation', () => {
+-    expect(splitSentences('Bueno…')).toEqual(['Bueno…'])
+-    expect(splitSentences('Hola mundo')).toEqual(['Hola mundo'])
+-    expect(splitSentences('')).toEqual([])
+-  })
+-
+-  it('splits CJK text on 。！？', () => {
+-    expect(splitSentences('你好吗？我很好。')).toEqual(['你好吗？', '我很好。'])
+-  })
+-})
+-
+- it('splits Arabic questions in both tokens and translation text', () => {
+-  expect(groupSentences(['كيف', 'حالك؟', 'أنا', 'بخير.'].map(t)).map((s) => s.map((t) => t.text)))
+-    .toEqual([['كيف', 'حالك؟'], ['أنا', 'بخير.']])
+-  expect(groupSentences(['كيف', 'حالك', '؟', 'بخير'].map(t))).toHaveLength(2)
+-  expect(splitSentences('كيف حالك؟ أنا بخير.')).toEqual(['كيف حالك؟', 'أنا بخير.'])
+-})
+diff --git a/ui/src/domain/reading/sentences.ts b/ui/src/domain/reading/sentences.ts
+deleted file mode 100644
+index 2809253..0000000
+--- a/ui/src/domain/reading/sentences.ts
++++ /dev/null
+@@ -1,24 +0,0 @@
+-import type { GuidedToken } from '../../types'
+-
+-// Tokens carry their trailing punctuation ("hoy?"), so a token ending in
+-// terminal punctuation closes its sentence. Halfwidth (Latin) and fullwidth
+-// (CJK) terminators both count — Chinese uses 。！？.
+-const TERMINAL_PUNCT = /[.!?…。！？؟]$/
+-
+-export function groupSentences(tokens: GuidedToken[]): GuidedToken[][] {
+-  const sentences: GuidedToken[][] = [[]]
+-  for (const tok of tokens) {
+-    sentences[sentences.length - 1].push(tok)
+-    if (TERMINAL_PUNCT.test(tok.text)) sentences.push([])
+-  }
+-  if (sentences[sentences.length - 1].length === 0) sentences.pop()
+-  return sentences
+-}
+-
+-// Split a translation into sentences the same way, so index i of the
+-// translation aligns with sentence i of the token stream. Models do not
+-// guarantee matching sentence counts, so callers must handle an index with
+-// no counterpart; TurnView shows the whole translation in that case.
+-export function splitSentences(text: string): string[] {
+-  return (text.match(/[^.!?…。！？؟]+[.!?…。！？؟]*/g) ?? []).map((s) => s.trim()).filter(Boolean)
+-}
+diff --git a/ui/src/features/conversation/ConversationPage.tsx b/ui/src/features/conversation/ConversationPage.tsx
+index 4369d24..46508f2 100644
+--- a/ui/src/features/conversation/ConversationPage.tsx
++++ b/ui/src/features/conversation/ConversationPage.tsx
+@@ -15,7 +15,7 @@ import { OpeningStatus } from './session/OpeningStatus'
+ import { useNavigationStore } from '../../state/navigation/navigation'
+ import { ConversationStart } from './session/ConversationStart'
+ import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
+-import { DifficultySelect, difficultyLabel } from './session/DifficultySelect'
++import { DifficultySelect, difficultyLabel } from '../../components/controls/DifficultySelect'
+ import { ConversationHeader } from './session/ConversationHeader'
+ import { ConversationSettings } from './session/ConversationSettings'
+ import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
+@@ -37,7 +37,6 @@ import type { PersonaDetails } from '../../generated/contracts'
+ import { unreportedInput, type InputEvidence } from '../../domain/learning/evidence/skills'
+ import { PracticeContext } from './session/PracticeContext'
+ import { SkillRewards } from './progress/SkillRewards'
+-import { GlossPopup } from './reading/GlossPopup'
+ import { isTauri, languageFor } from '../../platform/ipc/tauri'
+ import { languageLabel } from '../../domain/language/language-label'
+ import { personaName } from './partners/personaLimits'
+@@ -59,7 +58,6 @@ import { ChatHistory } from './session/ChatHistory'
+ import { latestAnswered } from '../../domain/conversation/turns'
+ import { useConversation } from './session/useConversation'
+ import { useConversationScroll } from './messages/useConversationScroll'
+-import { useWordInspection } from './reading/useWordInspection'
+ import { useMicRecorder } from './speech/useMicRecorder'
+ import { usePersistentToggle } from '../../components/persistence/usePersistentToggle'
+ import { useIsMobile } from '../../components/layout/useIsMobile'
+@@ -130,7 +128,6 @@ export default function ConversationPage({
+   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
+   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
+   const [settingsOpen, setSettingsOpen] = useState(false)
+-  const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
+   // Panel reload counter: bumped when the coach thread is reset externally.
+   const [threadReload, setThreadReload] = useState(0)
+ 
+@@ -155,7 +152,6 @@ export default function ConversationPage({
+     setPinnedId(null)
+     setCoachDraft('')
+     setReviewing(new Set())
+-    clearWordsRef.current()
+     setError(null)
+     setSending(false)
+     setEditingTurnId(null)
+@@ -165,8 +161,6 @@ export default function ConversationPage({
+     setThreadReload((v) => v + 1)
+   }, [])
+ 
+-  // resetView is declared before the conversation controller.
+-  const clearWordsRef = useRef<() => void>(() => {})
+   const {
+     turns,
+     chats,
+@@ -427,13 +421,10 @@ export default function ConversationPage({
+   const showRomanization =
+     settings != null && languageFor(settings.target_language, settings.target_variety)?.romanization != null
+ 
+-  // RTL targets render token lines right-to-left.
++  // RTL targets render message lines right-to-left.
+   const rtl =
+     settings != null && languageFor(settings.target_language, settings.target_variety)?.direction === 'rtl'
+ 
+-  // Romanization visibility: "always" setting OR a revealed token.
+-  const alwaysRomanize = settings?.always_romanize ?? false
+-
+   useEffect(() => {
+     onNewChatReady?.(settings && !sending ? () => { void startNewConversation() } : null)
+     return () => onNewChatReady?.(null)
+@@ -449,7 +440,6 @@ export default function ConversationPage({
+   const romanized = Boolean(targetLanguage?.romanization)
+   const pinnedTurn = activeTurns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
+ 
+-  clearWordsRef.current = words.clear
+ 
+   const mic = useMicRecorder({
+     conversationId: active ? currentChatId : null,
+@@ -472,7 +462,6 @@ export default function ConversationPage({
+ 
+   const aiBusy = replyActive
+ 
+-  useEffect(() => { if (words.inspect) setAnalysisOpen(true) }, [words.inspect])
+ 
+   useEffect(() => {
+     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
+@@ -579,18 +568,9 @@ export default function ConversationPage({
+               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
+               speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
+               onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
+-              revealed={words.revealed}
+-              showRomanization={showRomanization}
+-              alwaysRomanize={alwaysRomanize}
+-              alwaysPronunciation={settings?.always_pronunciation ?? false}
+-              autoTranslate={settings?.auto_translate ?? false}
+               rtl={rtl}
+-              onReveal={words.reveal}
+               onBubbleTap={onBubbleTap}
+               onOpenCoach={openCoach}
+-              onPopup={words.setPopup}
+-              onInspect={words.inspectWord}
+-              onToggleReveal={words.toggleReveal}
+               onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
+               onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
+                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
+@@ -651,7 +631,6 @@ export default function ConversationPage({
+           draftQuestion={coachDraft}
+           onDraftConsumed={consumeCoachDraft}
+           pinnedTurn={pinnedTurn}
+-          inspect={words.inspect}
+           nativeLanguageName={nativeLanguageName}
+           showRomanization={showRomanization}
+           rtl={rtl}
+@@ -676,9 +655,8 @@ export default function ConversationPage({
+       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
+       {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
+         <h2>{tr("Message analysis")}</h2>
+-        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent key={pinnedTurn.turnId} conversationId={snapshot?.conversationId} onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
++        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent key={pinnedTurn.turnId} conversationId={snapshot?.conversationId} onAsk={askCoach} turn={pinnedTurn} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
+       </DetailDialog>}
+-      {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
+ 
+     </div>
+     </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider></AskCoachContext></ConversationReadingProvider>
+diff --git a/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx b/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx
+index 2d1f5a6..d4e4525 100644
+--- a/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx
++++ b/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx
+@@ -11,7 +11,7 @@ vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
+ vi.mock('../progress/ConversationMap', () => ({ ConversationMap: () => null }))
+ const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [], messages: [], hasOlder: false } as unknown as ConversationSnapshot
+ function panel(chatId = 'chat-1', draftQuestion = '', autoSendDraft = false, conversationBusy = false) {
+-  return <CoachAnalysisPanel autoSendDraft={autoSendDraft} chatId={chatId} conversationBusy={conversationBusy} tab="coaching" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} inspect={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
++  return <CoachAnalysisPanel autoSendDraft={autoSendDraft} chatId={chatId} conversationBusy={conversationBusy} tab="coaching" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
+ }
+ beforeEach(() => {
+   vi.resetAllMocks()
+diff --git a/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx b/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx
+index 974a7a6..a769423 100644
+--- a/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx
++++ b/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx
+@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
+ import { isTauri } from '../../../platform/ipc/tauri'
+ import { executeAction, nativeError, readWorkspace } from '../../../platform/ipc/workspace'
+ import { useConversationSnapshot } from '../session/useConversationSnapshot'
+-import { type AnalysedTurn, type InspectTarget } from '../reading/AnalysisContent'
++import { type AnalysedTurn } from '../reading/AnalysisContent'
+ import { Markdown } from '../../../components/reading/Markdown'
+ 
+ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, autoSendDraft = false, coachingContent, onCollapse }: {
+@@ -17,7 +17,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
+   coachingContent?: ReactNode
+   conversationBusy: boolean; chatId: string; tab: 'coaching' | 'evidence'; onTab: (tab: 'coaching' | 'evidence') => void
+   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
+-  inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
++  nativeLanguageName: string; showRomanization: boolean; rtl: boolean
+ }) {
+   const tr = useI18n()
+   const { snapshot, readError, retryRead } = useConversationSnapshot(isTauri ? chatId : null)
+diff --git a/ui/src/features/conversation/composer/ReplyHelp.test.tsx b/ui/src/features/conversation/composer/ReplyHelp.test.tsx
+index f2b1a04..aed5b15 100644
+--- a/ui/src/features/conversation/composer/ReplyHelp.test.tsx
++++ b/ui/src/features/conversation/composer/ReplyHelp.test.tsx
+@@ -187,7 +187,7 @@ it('splits saved mixed-script grammar examples into source and separate reading
+   expect(passages[1].textContent).toBe('مَاذَا تَأْكُلُ؟')
+   fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
+   expect(screen.getByText('What are you eating?')).toHaveAttribute('dir', 'auto')
+-  expect(passages[1].querySelector('.w')?.textContent).not.toContain('mādhā')
++  expect(passages[1].querySelector('.target-text')?.textContent).not.toContain('mādhā')
+   fireEvent.click(screen.getByRole('button', { name: 'Pronunciation' }))
+   expect(screen.getByText('mādhā ta’kulu?')).toHaveAttribute('dir', 'auto')
+ })
+diff --git a/ui/src/features/conversation/composer/ReplyHelp.tsx b/ui/src/features/conversation/composer/ReplyHelp.tsx
+index 35c3dc1..80d523a 100644
+--- a/ui/src/features/conversation/composer/ReplyHelp.tsx
++++ b/ui/src/features/conversation/composer/ReplyHelp.tsx
+@@ -2,7 +2,7 @@ import { useId, useState } from 'react'
+ import type { ReplyExplanation, AssistedReply, ReplyHelpKind } from '../../../generated/contracts'
+ import { Markdown } from '../../../components/reading/Markdown'
+ import { TargetText } from '../../../components/reading/TargetText'
+-import { ReadingPassage } from '../reading/ReadingPassage'
++import { TargetMessage } from '../../../components/reading/TargetMessage'
+ import { ReadingExample } from '../reading/ReadingExample'
+ import { MixedText } from '../../../components/reading/MixedText'
+ import type { HelpLane } from '../../../domain/conversation/reply-help'
+@@ -73,7 +73,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
+       {status('grammar', explain, grammarLane, tr('Working out the grammar…'))}
+       {grammar?.map(card => <article className="grammar-card" key={card.title}>
+         <h4 className="grammar-title"><MixedText text={card.title} /></h4>
+-        {card.quote && <ReadingPassage text={card.quote} compact />}
++        {card.quote && <TargetMessage layout="compact" text={card.quote} segments={[]} segmentsKey={card.quote} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
+         <Markdown text={card.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this conversation.`) : undefined} />
+         {card.example && <ReadingExample text={card.example} compact />}
+         {card.contrast && <p className="grammar-contrast"><MixedText text={card.contrast} /></p>}
+@@ -85,7 +85,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
+       {status('replies', suggest, repliesLane, tr('Writing reply ideas…'))}
+       {replies && replies.length > 0 && <ul className="help-replies" aria-label={tr("Suggested replies")}>
+         {replies.map(reply => <li className="help-reply" key={reply.text}>
+-          <div className="help-reply-text"><ReadingPassage {...reply} compact /></div>
++          <div className="help-reply-text"><TargetMessage layout="compact" text={reply.text} segments={[]} segmentsKey={reply.text} translation={reply.translation} romanization={reply.romanization} pronunciation={reply.pronunciation} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} /></div>
+           <button type="button" className="help-insert" disabled={busy} title={tr("Insert reply")}
+             aria-label={tr("Insert reply: {value0}", { value0: reply.text })}
+             onClick={() => onUse(reply.text, 'suggestion')}><span aria-hidden="true">↗</span></button>
+diff --git a/ui/src/features/conversation/messages/TurnView.test.tsx b/ui/src/features/conversation/messages/TurnView.test.tsx
+index 039cd03..32bd69c 100644
+--- a/ui/src/features/conversation/messages/TurnView.test.tsx
++++ b/ui/src/features/conversation/messages/TurnView.test.tsx
+@@ -5,8 +5,12 @@ import { TurnView as SharedTurnView, type TurnViewProps } from './TurnView'
+ 
+ import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
+ 
+-function TurnView(input: TurnViewProps) {
+-  return <ReadingPreferencesContext value={{autoTranslate:input.autoTranslate, alwaysRomanize:input.alwaysRomanize, alwaysPronunciation:input.alwaysPronunciation, supportsRomanization:input.showRomanization}}><SharedTurnView {...input} /></ReadingPreferencesContext>
++/// The reading preferences the conversation page provides through context.
++interface Reading { autoTranslate: boolean; alwaysRomanize: boolean; alwaysPronunciation: boolean; showRomanization: boolean }
++type Props = TurnViewProps & Reading
++
++function TurnView({ autoTranslate, alwaysRomanize, alwaysPronunciation, showRomanization, ...input }: Props) {
++  return <ReadingPreferencesContext value={{autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization:showRomanization}}><SharedTurnView {...input} /></ReadingPreferencesContext>
+ }
+ 
+ beforeEach(() => {
+@@ -14,9 +18,9 @@ beforeEach(() => {
+   HTMLDialogElement.prototype.close = function () { this.open = false }
+ })
+ 
+-function props(): TurnViewProps {
++function props(): Props {
+   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
+-  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, revealed: new Set(['1:me:0']), showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onReveal: vi.fn(), onBubbleTap: vi.fn(), onSpeak: vi.fn(), onPopup: vi.fn(), onInspect: vi.fn(), onHold: vi.fn(), onToggleReveal: vi.fn(), onAskCoach: vi.fn() }
++  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onBubbleTap: vi.fn(), onSpeak: vi.fn(), onAskCoach: vi.fn() }
+ }
+ it('places the persona reaction on the reply', () => {
+   const input = props()
+@@ -39,7 +43,7 @@ it('keeps an explicit message translation override when the default changes', ()
+   expect(screen.queryByText('Persona translation')).toBeNull()
+ })
+ 
+-it('honors pronunciation even when token information is revealed', () => {
++it('honors pronunciation when word meanings are shown', () => {
+   const input = props()
+   input.autoTranslate = true
+   input.turn.assistant!.reply = 'Soy Elia.'
+@@ -48,12 +52,9 @@ it('honors pronunciation even when token information is revealed', () => {
+     { text: 'Elia.', gloss: 'Elia', pronunciation: 'Eh-lee-ah', romanization: null, pos: null, notable: false },
+   ]
+   const view = render(<TurnView {...input} />)
+-  const soy = screen.getByRole('button', { name: 'Soy' })
+-  fireEvent.click(soy)
+-  expect(input.onToggleReveal).toHaveBeenCalledWith(['1:bot:0'])
+-  view.rerender(<TurnView {...input} revealed={new Set(['1:bot:0'])} />)
++  const soy = within(view.container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Soy' })
+   expect(soy.closest('.wu')).toHaveTextContent('I am')
+-  expect(view.container.querySelector('.wpronunciation')).toBeNull()
++  expect(view.container.querySelector('.msg.bot .wpronunciation')).toBeNull()
+   expect(screen.queryByText('Eh-lee-ah')).toBeNull()
+   expect(view.container.querySelector('.phrase-pronunciation')).toBeNull()
+   view.rerender(<TurnView {...input} alwaysPronunciation={true} />)
+@@ -65,8 +66,8 @@ it('renders source punctuation once and anchors feedback below the learner bubbl
+   const input = props()
+   input.turn.assistant!.reply = '¡Hola! ¿Te gusta el sol?'
+   input.turn.assistant!.tokens = ['¡', '¡Hola!', '!', '¿', '¿Te', 'gusta', 'el', 'sol?', '?'].map(text => ({text,gloss:null,pronunciation:null,romanization:null,pos:null,notable:false}))
+-  const view = render(<TurnView {...input} revealed={new Set()} autoTranslate={false} />)
+-  expect(view.container.querySelector('.msg.bot .line')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
++  const view = render(<TurnView {...input} autoTranslate={false} />)
++  expect(view.container.querySelector('.msg.bot .w')!.textContent).toBe('¡Hola! ¿Te gusta el sol?')
+   expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.message-feedback')).not.toBeNull()
+ })
+ 
+@@ -131,9 +132,6 @@ it.each([null, 'running', 'failed', 'unknown'])('keeps reply words passive witho
+   fireEvent.contextMenu(text)
+   fireEvent.keyDown(text, {key:'Enter'})
+   expect(screen.queryByRole('dialog')).toBeNull()
+-  expect(input.onHold).not.toHaveBeenCalled()
+-  expect(input.onPopup).not.toHaveBeenCalled()
+-  expect(input.onInspect).not.toHaveBeenCalled()
+   expect(input.onBubbleTap).not.toHaveBeenCalled()
+ })
+ 
+@@ -156,7 +154,6 @@ it.each([
+   view.rerender(<TurnView {...input} autoTranslate={false} />)
+   expect(input.onRetryGloss).not.toHaveBeenCalled()
+   expect(input.onSpeak).not.toHaveBeenCalled()
+-  expect(input.onReveal).not.toHaveBeenCalled()
+ })
+ it('distinguishes no requested translation from failure and clears progress when translation arrives', () => {
+   const input = props()
+@@ -231,7 +228,6 @@ it('reveals saved word meanings without starting inference or changing whole-mes
+   fireEvent.click(words)
+   expect(view.container.querySelector('.msg.bot .wg')).toHaveTextContent('Hello')
+   expect(screen.queryByText('Persona translation')).toBeNull()
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+   fireEvent.click(words)
+   expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
+ })
+@@ -263,7 +259,6 @@ it('keeps message edit and playback actions isolated from token reveal and honor
+   fireEvent.doubleClick(speaker)
+   expect(edit).toHaveBeenCalledExactlyOnceWith(input.turn)
+   expect(input.onSpeak).toHaveBeenCalledExactlyOnceWith('Hola', 1)
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+   view.rerender(<TurnView {...input} onEditUser={edit} editDisabled speaking />)
+   expect(screen.getByRole('button', { name: 'Edit message' })).toBeDisabled()
+   fireEvent.click(screen.getByRole('button', { name: 'Stop playback' }))
+@@ -274,7 +269,7 @@ it('keeps message edit and playback actions isolated from token reveal and honor
+ })
+ 
+ 
+-it('attaches both assistance rows to their source bubble and toggles only learner token keys', () => {
++it('attaches both assistance rows to their source bubble and toggles only the learner bubble', () => {
+   const input = props()
+   input.autoTranslate = true
+   const view = render(<TurnView {...input} />)
+@@ -287,14 +282,11 @@ it('attaches both assistance rows to their source bubble and toggles only learne
+   const words = within(learner).getByRole('button', { name: 'Word by word' })
+   expect(words).toHaveAttribute('aria-pressed', 'true')
+   fireEvent.click(words)
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+   expect(within(partner).getByRole('button', { name: 'Word by word' })).toHaveAttribute('aria-pressed', 'true')
+-  input.onToggleReveal = vi.fn()
+-  view.rerender(<TurnView {...input} revealed={new Set()} />)
++  view.rerender(<TurnView {...input} />)
+   expect(words).toHaveAttribute('aria-pressed', 'false')
+   for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
+   for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+   fireEvent.click(within(learner).getByRole('button', { name: 'Analyze your message' }))
+   const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
+   expect(dialog.parentElement).toBe(document.body)
+@@ -326,7 +318,6 @@ it('toggles saved learner meanings independently before a reply without requesti
+   expect(screen.queryByText('Hello there')).toBeNull()
+   fireEvent.click(words)
+   expect(view.container.querySelector('.msg.me .wg')).toBeNull()
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+   expect(input.onRetryGloss).not.toHaveBeenCalled()
+   expect(input.onAskCoach).not.toHaveBeenCalled()
+ })
+@@ -343,7 +334,6 @@ it('keeps word actions disabled without annotations and allows them when saved m
+     expect(words).toHaveAttribute('aria-pressed', 'false')
+     fireEvent.click(words)
+   }
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
+   view.rerender(<TurnView {...input} turn={{ ...input.turn, assistant: { ...input.turn.assistant!, user_tokens: [token] } }} />)
+   expect(within(view.container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Word by word' })).toBeEnabled()
+@@ -367,7 +357,6 @@ it('reveals Arabic token meanings through the shaping-safe renderer on either si
+   expect(partner.querySelector('.wg')).toBeNull()
+   fireEvent.click(within(partner).getByRole('button', { name: 'Word by word' }))
+   expect(partner.querySelector('.wg')).toHaveTextContent('houses')
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+ })
+ 
+ 
+@@ -391,7 +380,6 @@ it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both m
+   input.turn.assistant!.reply = text
+   input.turn.assistant!.tokens = [token]
+   input.turn.assistant!.user_tokens = [token]
+-  input.revealed = new Set()
+   if (path === 'saved') {
+     input.turn.userSavedGloss = input.turn.assistant!.savedGloss = {
+       sourceMessageId:'message', targetLanguageId:'language', explanationLanguageId:'english',
+@@ -419,7 +407,6 @@ it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both m
+ 
+ it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveals and hides each side with all defaults off (%s)', path => {
+   const input = props()
+-  input.revealed = new Set()
+   input.showRomanization = true
+   const text = path === 'joining' ? 'بيوت باب' : 'Hola casa'
+   const words = text.split(' ')
+@@ -455,7 +442,6 @@ it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveal
+     expect(bubble.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+   }
+   expect(input.onAskCoach).not.toHaveBeenCalled()
+-  expect(input.onToggleReveal).not.toHaveBeenCalled()
+ })
+ 
+ it('preserves source text and reading controls without inline XP tags', async () => {
+diff --git a/ui/src/features/conversation/messages/TurnView.tsx b/ui/src/features/conversation/messages/TurnView.tsx
+index 43bba6f..15874d6 100644
+--- a/ui/src/features/conversation/messages/TurnView.tsx
++++ b/ui/src/features/conversation/messages/TurnView.tsx
+@@ -1,16 +1,14 @@
+ import { MessageXpButton } from '../progress/MessageXpButton'
+-import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
+-import { requiresWholeWordShaping } from '../../../domain/language/script-text'
+ import { useUiDirection } from '../../../components/localization/useUiDirection'
+ import { useI18n } from '../../../components/localization/i18n'
+ import { AnalysisSentence } from '../reading/AnalysisSentence'
+ import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
+ import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMappingNotice'
+-import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
+ import { GlossAssistance } from '../reading/GlossAssistance'
+-import { SavedGlossText } from '../reading/SavedGlossText'
++import { SavedGlossText } from '../../../components/reading/SavedGlossText'
++import { TargetMessage } from '../../../components/reading/TargetMessage'
++import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
+ import { TargetText } from '../../../components/reading/TargetText'
+-import { TokenSpan } from '../../../components/reading/TokenSpan'
+ import { ReplyStatus } from './ReplyStatus'
+ import { TurnActivityLine } from './TurnActivityLine'
+ import { retainedReplyText, turnActivity } from '../../../domain/conversation/activity-summary'
+@@ -19,14 +17,11 @@ import { TranslationStatus } from './TranslationStatus'
+ import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
+ import { PracticeContext } from '../session/PracticeContext'
+ import { createMessageEvidenceSelector, evidenceStyle } from '../../../domain/learning/evidence/message-evidence'
+-import { Fragment, memo, useContext, useEffect, useMemo, useRef, useState } from 'react'
++import { memo, useContext, useEffect, useMemo, useState } from 'react'
+ import { MessageFeedback } from '../coaching/MessageFeedback'
+ import { PersonaReaction } from '../partners/PersonaReaction'
+-import type { GuidedToken, GuidedTurnResult } from '../../../types'
++import type { GuidedTurnResult } from '../../../types'
+ import type { CoachControl, CoachDecision, CoachObservationView } from '../../../generated/contracts'
+-import { popupAnchor, type PopupState } from '../reading/GlossPopup'
+-import { groupSentences, splitSentences } from '../../../domain/reading/sentences'
+-import { sourceToken } from '../../../domain/reading/source-token'
+ 
+ export interface TurnShape {
+   replyState?: import('../../../domain/conversation/reply-state').ReplyState
+@@ -52,19 +47,6 @@ export interface TurnShape {
+   reactionError?: string
+ }
+ 
+-/// One token entry: the token plus which sentence it belongs to (for
+-/// punctuation-tap sentence reveal).
+-interface TokenEntry {
+-  tok: GuidedToken
+-  si: number
+-}
+-
+-function tokenEntries(tokens: GuidedToken[]): TokenEntry[] {
+-  return groupSentences(tokens).flatMap((sentence, si) =>
+-    sentence.map((tok) => ({ tok, si }))
+-  )
+-}
+-
+ export interface TurnViewProps {
+   turn: TurnShape
+   reviewing: boolean
+@@ -74,19 +56,9 @@ export interface TurnViewProps {
+   ttsReady: boolean
+   speaking: boolean
+   speechError?: { text: string; details: unknown }
+-  revealed: Set<string>
+-  showRomanization: boolean
+-  alwaysRomanize: boolean
+-  alwaysPronunciation: boolean
+-  autoTranslate: boolean
+   rtl: boolean
+-  onReveal: (keys: string[]) => void
+   onBubbleTap: (id: number) => void
+   onSpeak?: (text: string, turnId: number) => void
+-  onPopup: React.Dispatch<React.SetStateAction<PopupState | null>>
+-  onInspect: (turnId: number, side: 'me' | 'bot', index: number) => void
+-  onHold?: (word: string, sentence: string) => void
+-  onToggleReveal: (keys: string[]) => void
+   /// Edit this turn's message and try again — the tutor (and coach) regenerate
+   /// their response from the edited text. Omitted while a turn is in flight.
+   onReplyControl?: (control: 'retry' | 'resume') => Promise<void>
+@@ -111,19 +83,9 @@ export const TurnView = memo(function TurnView({
+   ttsReady,
+   speaking,
+   speechError,
+-  revealed,
+-  showRomanization,
+-  alwaysRomanize,
+-  autoTranslate,
+-  alwaysPronunciation,
+   rtl,
+-  onReveal,
+   onBubbleTap,
+   onSpeak,
+-  onPopup,
+-  onInspect,
+-  onHold,
+-  onToggleReveal,
+   onEditUser,
+   onCoachControl,
+   editDisabled,
+@@ -137,20 +99,17 @@ export const TurnView = memo(function TurnView({
+   const uiDirection = useUiDirection()
+   const replyStream = useReplyStream(turn.execution)
+   const activity = useMemo(() => turn.execution ? turnActivity(turn.execution, replyStream?.text ?? null) : null, [turn.execution, replyStream])
+-  const [savedWordsOverride, setSavedWordsOverride] = useState<boolean | null>(null)
+-  const aidsEnabled = autoTranslate || alwaysRomanize && showRomanization || alwaysPronunciation
+-  const savedWordsOpen = savedWordsOverride ?? aidsEnabled
++  const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
++  const aidsEnabled = autoTranslate || alwaysRomanize || alwaysPronunciation
+   const [userWordsOverride, setUserWordsOverride] = useState<boolean | null>(null)
+   const userWordsOpen = userWordsOverride ?? aidsEnabled
+-  useEffect(() => { setSavedWordsOverride(null); setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation, showRomanization])
++  useEffect(() => { setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation])
+   const { snapshot } = useContext(SkillEvidenceContext)
+   const practice = useContext(PracticeContext)
+   const selectEvidence = useMemo(createMessageEvidenceSelector, [])
+   const evidence = selectEvidence(snapshot, practice?.chatId ?? null, turn.id, turn.user ?? '')
+   const [userTranslationOverride, setShowUserTranslation] = useState<boolean | null>(null)
+   const showUserTranslation = userTranslationOverride ?? autoTranslate
+-  const [personaTranslationOverride, setShowPersonaTranslation] = useState<boolean | null>(null)
+-  const showPersonaTranslation = personaTranslationOverride ?? autoTranslate
+   const source = turn.user ?? ''
+   const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
+   const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
+@@ -162,129 +121,10 @@ export const TurnView = memo(function TurnView({
+   const assistant = turn.assistant
+   const userTranslation = turn.userTranslation ?? assistant?.user_translation
+ 
+-  const dragRef = useRef({ active: false, start: -1, last: -1, moved: false, side: null as 'me' | 'bot' | null, turnId: null as number | null })
+-
+-  const replyEntries = useMemo(
+-    () => (assistant && assistant.tokens.length > 0 ? tokenEntries(assistant.tokens) : []),
+-    [assistant]
+-  )
+-  const userEntries = useMemo(
+-    () =>
+-      assistant && assistant.user_tokens && assistant.user_tokens.length > 0
+-        ? tokenEntries(assistant.user_tokens)
+-        : [],
+-    [assistant]
+-  )
+-
+-  const beginDrag = (turnId: number, side: 'me' | 'bot', gi: number) => {
+-    dragRef.current = { active: true, start: gi, last: gi, moved: false, side, turnId }
+-    const up = () => {
+-      // Drag ending: the drag-start word gets its gloss revealed too.
+-      const d = dragRef.current
+-      if (d.moved && d.start >= 0) onReveal([`${turnId}:${side}:${d.start}`])
+-      d.active = false
+-      window.removeEventListener('mouseup', up)
+-    }
+-    window.addEventListener('mouseup', up)
+-  }
+-  const dragOver = (turnId: number, side: 'me' | 'bot', gi: number) => {
+-    const d = dragRef.current
+-    if (!d.active || d.side !== side || d.turnId !== turnId || gi === d.last) return
+-    d.last = gi
+-    d.moved = true
+-    onReveal([`${turnId}:${side}:${gi}`])
+-  }
+-
+-  const tokenTap = (
+-    tok: GuidedToken,
+-    si: number,
+-    translation: string | null,
+-    e: React.MouseEvent<HTMLSpanElement>,
+-    actions: PopupState['actions']
+-  ) => {
+-    if (dragRef.current.moved) return // drag ended on this span — no popup
+-    const pos = popupAnchor(e.currentTarget)
+-    const show = (text: string) =>
+-      onPopup((prev) =>
+-        prev && prev.text === text ? null : { text, romanization: tok.romanization, actions, ...pos }
+-      )
+-    if (tok.gloss) {
+-      show(tok.gloss)
+-      return
+-    }
+-    // Punctuation token: reveal that sentence's translation.
+-    if (!translation) return
+-    const parts = splitSentences(translation)
+-    show(parts[si] ?? translation)
+-  }
+-  const bubbleTap = () => onBubbleTap(turn.id)
+-
+-  const renderTokens = (
+-    entries: TokenEntry[],
+-    turnId: number,
+-    side: 'me' | 'bot',
+-    translation: string | null,
+-    rawText: string
+-  ) => {
+-    if (requiresWholeWordShaping(rawText)) return <SavedGlossText revealAids={(side === 'me' ? userWordsOverride : savedWordsOverride) === true} showAids={side === 'me' ? userWordsOpen : savedWordsOpen} text={rawText} segments={anchoredTokenGlosses(rawText, entries.map(entry => entry.tok))}
+-      decorateSegment={(node, start, end) => {
+-        const matches = side === 'me' ? evidence.filter(item => item.start < end && item.end > start) : []
+-        return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
+-      }} />
+-    let cursor = 0
+-    return (
+-    <span className={rtl ? 'line rtl-line' : 'line'}>
+-      {entries.map(({ tok: annotation, si }, gi) => {
+-        const match = sourceToken(rawText, annotation.text, cursor)
+-        if (!match) return null
+-        const { start, end } = match
+-        const prefix = rawText.slice(cursor, start)
+-        const tok = { ...annotation, text: match.text }
+-        cursor = end
+-        const matches = side === 'me' && start >= 0 ? evidence.filter(item => item.start < cursor && item.end > start) : []
+-        const key = `${turnId}:${side}:${gi}`
+-        const isRevealed = revealed.has(key)
+-        return (
+-          <Fragment key={`${side}-${gi}`}>
+-            <TargetText text={prefix} />
+-          <span className={matches.length ? 'message-evidence token-evidence' : undefined} data-reward-evidence={matches.length ? JSON.stringify([...new Set(matches.map(item => item.id))]) : undefined}>
+-          <TokenSpan
+-            key={`${side}-${gi}`}
+-            tok={tok} sourceText={rawText} sourceStart={start}
+-            textStyle={evidenceStyle(matches)}
+-            revealed={isRevealed}
+-            hasTranslation={!!translation}
+-            showAids={side === 'me' ? userWordsOpen : savedWordsOpen}
+-            showTranslation={autoTranslate || (side === 'me' ? userWordsOverride : savedWordsOverride) === true}
+-            showRomanization={showRomanization}
+-            alwaysRomanize={alwaysRomanize || (side === 'me' ? userWordsOverride : savedWordsOverride) === true}
+-            alwaysPronunciation={alwaysPronunciation || (side === 'me' ? userWordsOverride : savedWordsOverride) === true}
+-            onTap={(e) => {
+-              e.stopPropagation()
+-              if (dragRef.current.moved) return
+-              if (tok.gloss || tok.pronunciation || tok.romanization) {
+-                onPopup(null)
+-                onToggleReveal([key])
+-              } else tokenTap(tok, si, translation, e, [])
+-            }}
+-            onDragStart={() => beginDrag(turnId, side, gi)}
+-            onDragOver={() => dragOver(turnId, side, gi)}
+-            onInspect={(e) => {
+-              e.preventDefault()
+-              onInspect(turnId, side, gi)
+-            }}
+-            onHold={onHold ? () => {
+-              const sents = splitSentences(rawText)
+-              onHold(tok.text, sents[si] ?? rawText)
+-            } : undefined}
+-          />
+-          </span>
+-          </Fragment>
+-        )
+-      })}
+-      <TargetText text={rawText.slice(cursor)} />
+-    </span>
+-  )
++  const userSegments = turn.userSavedGloss?.segments ?? (turn.user && assistant ? anchoredTokenGlosses(turn.user, assistant.user_tokens) : [])
++  const decorateEvidence = (node: React.ReactNode, start: number, end: number) => {
++    const matches = evidence.filter(item => item.start < end && item.end > start)
++    return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
+   }
+ 
+   return (
+@@ -292,18 +132,10 @@ export const TurnView = memo(function TurnView({
+       {turn.user && (
+         <div
+           data-reward-message={turn.id}
+-          className={`msg chat-message me${userEntries.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${turn.conversationFeedback ? ' with-scores' : ''} with-actions`}
+-          onDoubleClick={() =>
+-            assistant && onToggleReveal(assistant.user_tokens.map((_, i) => `${turn.id}:me:${i}`))
+-          }
++          className={`msg chat-message me${userSegments.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${turn.conversationFeedback ? ' with-scores' : ''} with-actions`}
+         >
+-          {turn.userSavedGloss
+-            ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss.attemptId} text={turn.user} segments={turn.userSavedGloss.segments} decorateSegment={(node, start, end) => {
+-                const matches = evidence.filter(item => item.start < end && item.end > start)
+-                return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
+-              }} />
+-            : userEntries.length > 0
+-            ? renderTokens(userEntries, turn.id, 'me', assistant?.user_translation ?? null, turn.user ?? '')
++          {userSegments.length > 0
++            ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user} segments={userSegments} decorateSegment={decorateEvidence} />
+             : plainEvidence}
+           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
+           <TranslationStatus state={turn.userTranslationState} />
+@@ -331,46 +163,31 @@ export const TurnView = memo(function TurnView({
+         <div dir={uiDirection} className={`message-feedback${turn.conversationFeedback ? ' has-scores' : ''}`} onDoubleClick={event => event.stopPropagation()}>
+           <MessageFeedback conversationFeedback={turn.conversationFeedback} onOpenCoach={onOpenCoach ? () => onOpenCoach(turn.id) : undefined} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+             {userTranslation && <button type="button" className="message-translate" aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
+-            <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!turn.userSavedGloss && !userEntries.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
++            <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!userSegments.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
+           </MessageFeedback>
+         </div>
+         </div>
+       )}
+       {assistant && (
+         <div className="partner-turn">
+-        <div
+-          onDoubleClick={() =>
+-            assistant && onToggleReveal(assistant.tokens.map((_, i) => `${turn.id}:bot:${i}`))
+-          }
+-          className={`msg chat-message bot with-actions ${focused ? 'focused' : ''}${rtl ? ' rtl' : ''}${ttsReady && onSpeak ? ' with-corner-control' : ''}`}
+-        >
+-          {assistant.savedGloss ? (
+-            <SavedGlossText revealAids={savedWordsOverride === true} showAids={savedWordsOpen} key={`${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}`} text={assistant.reply} segments={assistant.savedGloss.segments} />
+-          ) : assistant.tokens.length > 0 ? (
+-            renderTokens(
+-              replyEntries,
+-              turn.id,
+-              'bot',
+-              assistant.translation,
+-              assistant.reply
+-            )
+-          ) : (
+-            <TargetText text={assistant.reply} />
+-          )}
+-          {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
+-          {(showPersonaTranslation) && assistant.translation && (
+-            <div className="trans" dir="auto">{assistant.translation}</div>
+-          )}
+-          <TranslationStatus state={assistant.translationState} />
+-          <GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />
+-          {ttsReady && onSpeak && <button type="button" className="bubble-corner-control speak-btn" title={speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={e => e.stopPropagation()} onClick={e => { e.stopPropagation(); onSpeak(assistant.reply, turn.id) }}><span aria-hidden="true">{speaking ? '⏹' : '🔊'}</span></button>}
+-          {speechError && <ErrorDetails label={tr("Speech")} errorKey={speechError.text} explanation={speechError.text}><ResponseDetails value={speechError.details} /></ErrorDetails>}
+-          <div className="message-actions" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
+-          {assistant.translation && <button type="button" className="message-translate" aria-label={tr("Translate persona message")} aria-expanded={showPersonaTranslation} aria-pressed={showPersonaTranslation} onKeyDown={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setShowPersonaTranslation(!(showPersonaTranslation)) }}>{tr("Translate")}</button>}
+-          <button type="button" className={assistant.glossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!assistant.savedGloss && !assistant.tokens.length} aria-pressed={savedWordsOpen} onClick={() => setSavedWordsOverride(!savedWordsOpen)}>{tr("Word by word")}</button>
+-          <button type="button" className={assistant.explanationsState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={bubbleTap}>{tr("Analysis")}</button>
+-          </div>
+-        </div>
++          <TargetMessage
++            layout="bubble"
++            text={assistant.reply}
++            segments={assistant.savedGloss?.segments ?? anchoredTokenGlosses(assistant.reply, assistant.tokens)}
++            segmentsKey={assistant.savedGloss ? `${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}` : 'tokens'}
++            segmentsPending={assistant.glossState === 'running'}
++            lookupWords={false}
++            translation={assistant.translation}
++            translateLabel={tr("Translate persona message")}
++            romanization={null}
++            pronunciation={null}
++            annotation={turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
++            status={<><TranslationStatus state={assistant.translationState} /><GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} /></>}
++            speech={ttsReady && onSpeak ? { speaking, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
++            analysis={{ pending: assistant.explanationsState === 'running', onOpen: () => onBubbleTap(turn.id) }}
++            focused={focused}
++            rtl={rtl}
++          />
+         </div>
+       )}
+       {assistant === null && (
+diff --git a/ui/src/features/conversation/reading/AnalysisContent.tsx b/ui/src/features/conversation/reading/AnalysisContent.tsx
+index 0692d03..7d4c77c 100644
+--- a/ui/src/features/conversation/reading/AnalysisContent.tsx
++++ b/ui/src/features/conversation/reading/AnalysisContent.tsx
+@@ -3,7 +3,7 @@ import { MixedText } from '../../../components/reading/MixedText'
+ import { Markdown } from '../../../components/reading/Markdown'
+ import { useI18n } from '../../../components/localization/i18n'
+ import { AnalysisSentence } from './AnalysisSentence'
+-import { ReadingPassage } from './ReadingPassage'
++import { TargetMessage } from '../../../components/reading/TargetMessage'
+ import { ReadingExample } from './ReadingExample'
+ import { SavedReadingProvider } from '../../../components/reading/SavedReadingProvider'
+ import { useReadingScope } from '../../../components/reading/ReadingContext'
+@@ -15,12 +15,6 @@ import { MessageReadingScope } from './MessageReadingScope'
+ import { useNavigationStore } from '../../../state/navigation/navigation'
+ import type { StoredTurn } from '../../../types'
+ 
+-export interface InspectTarget {
+-  turn: number
+-  side: 'me' | 'bot'
+-  index: number
+-}
+-
+ /// Just the parts of a turn this pane renders. Deriving from `StoredTurn` keeps
+ /// this view synchronized with the canonical shape.
+ export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation' | 'turnId'>
+@@ -29,7 +23,6 @@ interface AnalysisContentProps {
+   conversationId?: string
+   onAsk?: (question: string) => void
+   turn: AnalysedTurn
+-  inspect: InspectTarget | null
+   nativeLanguageName: string
+   showRomanization: boolean
+   rtl: boolean
+@@ -41,7 +34,6 @@ export const AnalysisContent = memo(function AnalysisContent({
+   turn,
+   conversationId,
+   onAsk,
+-  inspect: _inspect,
+   nativeLanguageName,
+   showRomanization: _showRomanization,
+   rtl: _rtl,
+@@ -96,7 +88,7 @@ export const AnalysisContent = memo(function AnalysisContent({
+                 <span className="exp-title">{mech.title}</span>
+                 {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
+               </div>
+-              {mech.quote && <ReadingPassage key={mech.quote} text={mech.quote} />}
++              {mech.quote && <TargetMessage key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
+               <Markdown text={mech.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(mech)}`) : undefined} />
+               {mech.example && <ReadingExample text={mech.example} />}
+               {mech.contrast && (
+diff --git a/ui/src/features/conversation/reading/AnalysisSentence.tsx b/ui/src/features/conversation/reading/AnalysisSentence.tsx
+index 48109c0..01019c7 100644
+--- a/ui/src/features/conversation/reading/AnalysisSentence.tsx
++++ b/ui/src/features/conversation/reading/AnalysisSentence.tsx
+@@ -1,7 +1,7 @@
+ import type { GuidedToken } from '../../../types'
+ import type { WordGlossView } from '../../../generated/contracts'
+ import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
+-import { ReadingPassage } from './ReadingPassage'
++import { TargetMessage } from '../../../components/reading/TargetMessage'
+ 
+ /** The same saved, interactive words as the conversation, kept in sentence order. */
+ export function AnalysisSentence({ text, translation, gloss, tokens = [], label, side = 'me' }: {
+@@ -9,6 +9,6 @@ export function AnalysisSentence({ text, translation, gloss, tokens = [], label,
+ }) {
+   return <section className={`analysis-sentence analysis-sentence-${side}`} aria-label={label}>
+     <h4>{label}</h4>
+-    <ReadingPassage key={text} text={text} translation={translation} segments={gloss?.segments ?? anchoredTokenGlosses(text,tokens)} />
++    <TargetMessage key={text} layout="passage" text={text} segments={gloss?.segments ?? anchoredTokenGlosses(text,tokens)} segmentsKey={text} translation={translation ?? null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />
+   </section>
+ }
+diff --git a/ui/src/features/conversation/reading/ConversationReadingProvider.test.tsx b/ui/src/features/conversation/reading/ConversationReadingProvider.test.tsx
+index ae45550..8cd0b09 100644
+--- a/ui/src/features/conversation/reading/ConversationReadingProvider.test.tsx
++++ b/ui/src/features/conversation/reading/ConversationReadingProvider.test.tsx
+@@ -57,7 +57,7 @@ it('the actual analysis modal reuses pinned-turn words and exposes example trans
+   const text = 'مَسكَنتِكَ'
+   const turn = {id:1,user:null,analysisState:'done',assistant:{reply:text,tokens:[],user_tokens:[],translation:'Your residence',savedGloss:{segments:[{start:0,end:text.length,kind:'gloss',gloss:'your residence',romanization:'maskantik'}]},errors:[],mechanics:[{title:'Your home',quote:text,body:'',example:`${text} (maskantik) - Your home.`,contrast:''}]}} as unknown as AnalysedTurn
+   render(<ReadingScopeContext value={{...scope,language:'arabic',variety:'arabic-levantine'}}><ReadingHelp services={{read,speak:vi.fn(),activity:vi.fn()}} languages={[]}>
+-    <DetailDialog title="Message analysis" onClose={()=>{}}><AnalysisContent turn={turn} inspect={null} nativeLanguageName="English" showRomanization rtl /></DetailDialog>
++    <DetailDialog title="Message analysis" onClose={()=>{}}><AnalysisContent turn={turn} nativeLanguageName="English" showRomanization rtl /></DetailDialog>
+   </ReadingHelp></ReadingScopeContext>)
+   for (const button of screen.getAllByRole('button',{name:text})) {
+     fireEvent.click(button)
+diff --git a/ui/src/features/conversation/reading/GlossPopup.tsx b/ui/src/features/conversation/reading/GlossPopup.tsx
+deleted file mode 100644
+index 946bda5..0000000
+--- a/ui/src/features/conversation/reading/GlossPopup.tsx
++++ /dev/null
+@@ -1,46 +0,0 @@
+-import { useI18n } from '../../../components/localization/i18n'
+-import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
+-import { useRef } from 'react'
+-import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
+-
+-export interface PopupState {
+-  actions: { label: string; run: () => void }[]
+-  text: string
+-  /// Romanized form of the word, when the target uses a non-Latin script.
+-  romanization?: string | null
+-  x: number
+-  y: number
+-}
+-
+-/// Anchor a popup above `el`, clamped so the card never clips the viewport
+-/// edges on narrow screens.
+-export function popupAnchor(el: Element): { x: number; y: number } {
+-  const rect = el.getBoundingClientRect()
+-  const half = Math.min(170, window.innerWidth / 2 - 8)
+-  const x = Math.min(Math.max(rect.left + rect.width / 2, half), window.innerWidth - half)
+-  return { x, y: Math.max(rect.top - 8, 56) }
+-}
+-
+-export function GlossPopup({ popup, onClose }: { popup: PopupState; onClose: () => void }) {
+-  const tr = useI18n()
+-  const { supportsRomanization } = useReadingPreferences()
+-  const host = useRef<HTMLDivElement>(null)
+-  useOverlayLayer(host, onClose, true)
+-
+-  return (
+-    <div ref={host} role="dialog" aria-label={tr("Word help")} data-gloss-popup="1" className="popup" style={{ left: popup.x, top: popup.y }}>
+-      <div className="popup-card">
+-        <span>
+-          {popup.text}
+-          {supportsRomanization && popup.romanization && (
+-            <span className="popup-roman"> · {popup.romanization}</span>
+-          )}
+-        </span>
+-        <button type="button" className="popup-x" onClick={onClose} aria-label={tr("Close")}>
+-          ✕
+-        </button>
+-      </div>
+-      <div className="popup-actions">{popup.actions.map(action => <button className="detail-action" key={action.label} onClick={() => { onClose(); action.run() }}>{action.label}</button>)}</div>
+-    </div>
+-  )
+-}
+diff --git a/ui/src/features/conversation/reading/LanguageLocalization.test.tsx b/ui/src/features/conversation/reading/LanguageLocalization.test.tsx
+index 8fbabd7..2849165 100644
+--- a/ui/src/features/conversation/reading/LanguageLocalization.test.tsx
++++ b/ui/src/features/conversation/reading/LanguageLocalization.test.tsx
+@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
+ import { render, screen } from '@testing-library/react'
+ import userEvent from '@testing-library/user-event'
+ import { I18nProvider, useI18n } from '../../../components/localization/i18n'
+-import { DifficultySelect } from '../session/DifficultySelect'
++import { DifficultySelect } from '../../../components/controls/DifficultySelect'
+ import { languageLabel } from '../../../domain/language/language-label'
+ 
+ function Editor() {
+diff --git a/ui/src/features/conversation/reading/ReadingExample.tsx b/ui/src/features/conversation/reading/ReadingExample.tsx
+index 50834db..cc78f14 100644
+--- a/ui/src/features/conversation/reading/ReadingExample.tsx
++++ b/ui/src/features/conversation/reading/ReadingExample.tsx
+@@ -1,11 +1,11 @@
+ import { MixedText } from '../../../components/reading/MixedText'
+-import { ReadingPassage } from './ReadingPassage'
++import { TargetMessage } from '../../../components/reading/TargetMessage'
+ 
+ /** Saved grammar examples may combine source, reading aid and meaning in one field. */
+ export function ReadingExample({ text, compact = false }: { text: string; compact?: boolean }) {
+   const parts = /^(.+?)\s*\(([^()]*)\)\s*[-–—]\s*(.+)$/su.exec(text)
+   // Unstructured prose must not acquire the direction and scale of its first word.
+   if (!parts) return <p dir="auto"><MixedText text={text} /></p>
+-  return <ReadingPassage key={text} compact={compact} text={parts[1].trim()}
+-    romanization={parts[2]} translation={parts[3]} />
++  const source = parts[1].trim()
++  return <TargetMessage key={text} layout={compact ? 'compact' : 'passage'} text={source} segments={[]} segmentsKey={source} translation={parts[3]} romanization={parts[2]} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />
+ }
+diff --git a/ui/src/features/conversation/reading/ReadingPassage.test.tsx b/ui/src/features/conversation/reading/ReadingPassage.test.tsx
+deleted file mode 100644
+index 5a5aa49..0000000
+--- a/ui/src/features/conversation/reading/ReadingPassage.test.tsx
++++ /dev/null
+@@ -1,53 +0,0 @@
+-// @vitest-environment jsdom
+-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+-import { expect, it, vi } from 'vitest'
+-import { ReadingPassage } from './ReadingPassage'
+-import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
+-import { ReadingLookupContext, ReadingScopeContext } from '../../../components/reading/ReadingContext'
+-import type { ReadingResult } from '../../../generated/contracts'
+-
+-vi.mock('../../../platform/ipc/tauri', () => ({languageFor: () => ({languageTag:'es'})}))
+-
+-it('shows requested missing word help on the first click with always-visible aids off', async () => {
+-  const read = vi.fn().mockResolvedValue({gloss:{segments:[{start:0,end:4,kind:'gloss',gloss:'hello',romanization:'roman',pronunciation:'redundant'}]}} as ReadingResult)
+-  const source = (enabled:boolean) => <ReadingPreferencesContext value={{autoTranslate:enabled,alwaysRomanize:enabled,alwaysPronunciation:enabled}}>
+-    <ReadingScopeContext value={{language:'spanish',variety:'spain',explanation:'english',explanationVariety:'american'}}>
+-      <ReadingLookupContext value={read}><ReadingPassage text="Hola" romanization="sentence roman" /></ReadingLookupContext>
+-    </ReadingScopeContext>
+-  </ReadingPreferencesContext>
+-  const view = render(source(false))
+-  expect(read).not.toHaveBeenCalled()
+-  fireEvent.click(screen.getByRole('button',{name:'Word by word'}))
+-  await waitFor(() => expect(read).toHaveBeenCalledTimes(1))
+-  await waitFor(() => expect(screen.getByRole('button',{name:'Word by word'})).toBeEnabled())
+-  expect(view.container.querySelector('.wg')).toHaveTextContent('hello')
+-  expect(view.container.querySelector('.wroman')).toHaveTextContent('roman')
+-  fireEvent.click(screen.getByRole('button',{name:'Word by word'}))
+-  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+-  view.rerender(source(true))
+-  expect(screen.getByText('hello')).toBeVisible()
+-  expect(screen.getByText('roman')).toBeVisible()
+-  expect(screen.queryByText('sentence roman')).toBeNull()
+-  expect(screen.queryByText('redundant')).toBeNull()
+-  expect(read).toHaveBeenCalledTimes(1)
+-})
+-
+-it('reveals saved word aids on the first click with all defaults off', () => {
+-  const view = render(<ReadingPreferencesContext value={{autoTranslate:false,alwaysRomanize:false,alwaysPronunciation:false}}>
+-    <ReadingPassage text="Hola casa" segments={[
+-      {start:0,end:4,kind:'gloss',gloss:'hello',romanization:'roman',pronunciation:'redundant'},
+-      {start:5,end:9,kind:'gloss',gloss:'house',pronunciation:'fallback'},
+-    ]} />
+-  </ReadingPreferencesContext>)
+-  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+-  const button = screen.getByRole('button',{name:'Word by word'})
+-  fireEvent.click(button)
+-  expect(button).toHaveAttribute('aria-expanded','true')
+-  expect(screen.getByText('hello')).toBeVisible()
+-  expect(screen.getByText('roman')).toBeVisible()
+-  expect(screen.getByText('fallback')).toBeVisible()
+-  expect(screen.queryByText('redundant')).toBeNull()
+-  fireEvent.click(button)
+-  expect(button).toHaveAttribute('aria-expanded','false')
+-  expect(view.container.querySelector('.wg,.wroman,.wpronunciation')).toBeNull()
+-})
+diff --git a/ui/src/features/conversation/reading/ReadingPassage.tsx b/ui/src/features/conversation/reading/ReadingPassage.tsx
+deleted file mode 100644
+index 0d8f3c2..0000000
+--- a/ui/src/features/conversation/reading/ReadingPassage.tsx
++++ /dev/null
+@@ -1,56 +0,0 @@
+-import { errorMessage, errorDetails } from '../../../platform/diagnostics/error-details'
+-import { useEffect, useRef, useState } from 'react'
+-import type { GlossSegment } from '../../../generated/contracts'
+-import { useI18n } from '../../../components/localization/i18n'
+-import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
+-import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
+-import { SavedGlossText } from '../../../components/reading/SavedGlossText'
+-import { useSavedReading } from '../../../components/reading/SavedReadingProvider'
+-import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
+-import { useReadingLookup, useReadingPeek, useReadingScope } from '../../../components/reading/ReadingContext'
+-
+-/** Analysis uses the chat bubble and the same saved-word renderer and lookup. */
+-export function ReadingPassage({ text, translation, romanization, pronunciation, compact = false, segments = [] }: {
+-  text: string; translation?: string | null; romanization?: string; pronunciation?: string; compact?: boolean; segments?: GlossSegment[]
+-}) {
+-  const tr = useI18n(), scope = useReadingScope(), saved = useSavedReading(), peek = useReadingPeek(), lookup = useReadingLookup()
+-  const preferences = useReadingPreferences()
+-  const [soundOverride, setSound] = useState<boolean | null>(null)
+-  const sound = preferences.supportsRomanization && romanization ? romanization : pronunciation
+-  const soundShown = soundOverride ?? (preferences.supportsRomanization && romanization ? preferences.alwaysRomanize : preferences.alwaysPronunciation)
+-  const aidsEnabled = preferences.autoTranslate || preferences.alwaysRomanize || preferences.alwaysPronunciation
+-  const [wordsOverride, setWords] = useState<boolean | null>(null), [translated, setTranslated] = useState(preferences.autoTranslate)
+-  const [fetched, setFetched] = useState<GlossSegment[]>([]), [pending, setPending] = useState(false), [error, setError] = useState<unknown>(null)
+-  const local = (segments.length ? segments : scope ? saved(text, scope) : []).filter(part => part.kind === 'gloss')
+-  const cached = scope ? peek({...scope, text, speech:false})?.gloss?.segments ?? [] : []
+-  const resolved = [...local, ...[...cached, ...fetched].filter(part => !local.some(item => item.start < part.end && item.end > part.start))]
+-  // Prefer one complete cached/fetched result over duplicating equivalent anchors.
+-  const unique = resolved.filter((part, index) => !resolved.slice(0,index).some(item => item.start < part.end && item.end > part.start))
+-  const words = wordsOverride ?? (aidsEnabled && unique.length > 0)
+-  const request = useRef<AbortController | null>(null)
+-  useEffect(() => () => request.current?.abort(), [])
+-  useEffect(() => { setWords(null) }, [preferences.autoTranslate, preferences.alwaysRomanize, preferences.alwaysPronunciation])
+-  useEffect(() => setTranslated(preferences.autoTranslate), [preferences.autoTranslate])
+-  async function toggleWords() {
+-    setWords(!words)
+-    if (words || pending || !lookup || !scope) return
+-    const controller = new AbortController(); request.current = controller
+-    setPending(true); setError(null)
+-    try { const result = await lookup({...scope, text, speech:false}, controller.signal); if (!controller.signal.aborted) setFetched(result.gloss?.segments ?? []) }
+-    catch (failure) { if (!controller.signal.aborted) setError(failure) }
+-    finally { if (!controller.signal.aborted) setPending(false) }
+-  }
+-  return <div className={`reading-passage${compact ? ' reading-passage-compact' : ''}`}>
+-    <div className={compact ? "reading-passage-text" : "msg chat-message bot"} dir="auto">
+-      <SavedGlossText text={text} segments={unique} showAids={words} revealAids={wordsOverride === true} />
+-      {translated && translation && <div className="trans" dir="auto">{translation}</div>}
+-      {soundShown && sound && !(words && unique.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
+-    </div>
+-    <div className="message-actions">
+-      {sound && <button type="button" className="message-translate" aria-expanded={Boolean(soundShown)} onClick={() => setSound(!soundShown)}>{tr('Pronunciation')}</button>}
+-      {translation && <button type="button" className="message-translate" aria-expanded={translated} onClick={() => setTranslated(!translated)}>{tr('Translate')}</button>}
+-      <button type="button" className="message-translate" aria-expanded={words} disabled={pending} onClick={() => void toggleWords()}>{tr('Word by word')}</button>
+-    </div>
+-    {error != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(error)} explanation={errorMessage(error)}><ResponseDetails value={errorDetails(error)} /></ErrorDetails>}
+-  </div>
+-}
+diff --git a/ui/src/features/conversation/reading/SavedGlossText.test.tsx b/ui/src/features/conversation/reading/SavedGlossText.test.tsx
+index 360bb43..6feb5eb 100644
+--- a/ui/src/features/conversation/reading/SavedGlossText.test.tsx
++++ b/ui/src/features/conversation/reading/SavedGlossText.test.tsx
+@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest'
+ import { invoke } from '@tauri-apps/api/core'
+ import type { WordGlossView } from '../../../generated/contracts'
+ import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
+-import { SavedGlossText as SharedSavedGlossText } from './SavedGlossText'
++import { SavedGlossText as SharedSavedGlossText } from '../../../components/reading/SavedGlossText'
+ vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
+ const enabled = { autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: true }
+ function render(node: React.ReactNode) {
+diff --git a/ui/src/features/conversation/reading/SavedGlossText.tsx b/ui/src/features/conversation/reading/SavedGlossText.tsx
+deleted file mode 100644
+index f40d2cc..0000000
+--- a/ui/src/features/conversation/reading/SavedGlossText.tsx
++++ /dev/null
+@@ -1 +0,0 @@
+-export { SavedGlossText } from '../../../components/reading/SavedGlossText'
+diff --git a/ui/src/features/conversation/reading/useWordInspection.ts b/ui/src/features/conversation/reading/useWordInspection.ts
+deleted file mode 100644
+index dd91516..0000000
+--- a/ui/src/features/conversation/reading/useWordInspection.ts
++++ /dev/null
+@@ -1,90 +0,0 @@
+-import { useCallback, useEffect, useState } from 'react'
+-import type { PopupState } from './GlossPopup'
+-
+-/// Which token in which bubble the breakdown is highlighting.
+-export interface InspectTarget {
+-  turn: number
+-  side: 'me' | 'bot'
+-  index: number
+-}
+-
+-interface Options {
+-  /// Pin a turn so the breakdown pane shows it.
+-  pinTurn: (turnId: number) => void
+-  /// Whether the breakdown pane is open, and how to open it.
+-  breakOpen: boolean
+-  toggleBreak: () => void
+-}
+-
+-/// Saved-word reveal and analysis selection state.
+-export function useWordInspection({ pinTurn, breakOpen, toggleBreak }: Options) {
+-  // Tap: the small gloss bubble anchored to the word.
+-  const [popup, setPopup] = useState<PopupState | null>(null)
+-  const closePopup = useCallback(() => setPopup(null), [])
+-
+-  // Which tokens are showing their gloss.
+-  const [revealed, setRevealed] = useState<Set<string>>(() => new Set())
+-
+-  // Right-click: highlight the token in the breakdown's word lists.
+-  const [inspect, setInspect] = useState<InspectTarget | null>(null)
+-
+-  /// Drag across words adds them.
+-  const reveal = useCallback((keys: string[]) => {
+-    setRevealed((prev) => {
+-      const next = new Set(prev)
+-      for (const k of keys) next.add(k)
+-      return next
+-    })
+-  }, [])
+-
+-  /// Double-click toggles a whole bubble: reveal-all ⇄ hide-all.
+-  const toggleReveal = useCallback((keys: string[]) => {
+-    setRevealed((prev) => {
+-      const next = new Set(prev)
+-      const allOn = keys.every((k) => prev.has(k))
+-      for (const k of keys) {
+-        if (allOn) next.delete(k)
+-        else next.add(k)
+-      }
+-      return next
+-    })
+-  }, [])
+-
+-  const inspectWord = useCallback(
+-    (turnId: number, side: 'me' | 'bot', index: number) => {
+-      pinTurn(turnId)
+-      setInspect({ turn: turnId, side, index })
+-      if (!breakOpen) toggleBreak()
+-    },
+-    [pinTurn, breakOpen, toggleBreak]
+-  )
+-
+-  // Scroll the highlighted token into view in the breakdown.
+-  useEffect(() => {
+-    if (!inspect) return
+-    document.querySelector('.tok.inspected')?.scrollIntoView({
+-      block: 'nearest',
+-      behavior: 'smooth',
+-    })
+-  }, [inspect])
+-
+-  /// Called when a different conversation takes the screen: none of this
+-  /// refers to anything still on it.
+-  const clear = useCallback(() => {
+-    setRevealed(new Set())
+-    setInspect(null)
+-    setPopup(null)
+-  }, [])
+-
+-  return {
+-    popup,
+-    setPopup,
+-    closePopup,
+-    revealed,
+-    reveal,
+-    toggleReveal,
+-    inspect,
+-    inspectWord,
+-    clear,
+-  }
+-}
+diff --git a/ui/src/features/conversation/session/ConversationChoices.tsx b/ui/src/features/conversation/session/ConversationChoices.tsx
+index c6e1a88..6fc2827 100644
+--- a/ui/src/features/conversation/session/ConversationChoices.tsx
++++ b/ui/src/features/conversation/session/ConversationChoices.tsx
+@@ -1,6 +1,6 @@
+ import type { ConversationStartConfig, TopicCard } from '../../../generated/contracts'
+ import { useI18n } from '../../../components/localization/i18n'
+-import { DifficultySelect } from './DifficultySelect'
++import { DifficultySelect } from '../../../components/controls/DifficultySelect'
+ 
+ /// The optional choices on an empty conversation: which scene to open in, and
+ /// the two settings that shape the opening.
+diff --git a/ui/src/features/conversation/session/ConversationPromptCreator.tsx b/ui/src/features/conversation/session/ConversationPromptCreator.tsx
+index 5c8e91e..b343a1b 100644
+--- a/ui/src/features/conversation/session/ConversationPromptCreator.tsx
++++ b/ui/src/features/conversation/session/ConversationPromptCreator.tsx
+@@ -6,7 +6,7 @@ import { invoke } from '../../../platform/ipc/native'
+ import { nativeError } from '../../../platform/ipc/workspace'
+ import { ConversationChoices } from './ConversationChoices'
+ import { CustomTopicDialog } from './CustomTopicDialog'
+-import { difficultyLabel } from './DifficultySelect'
++import { difficultyLabel } from '../../../components/controls/DifficultySelect'
+ 
+ export function ConversationPromptCreator({ conversationId, initial, topics, savedTopics, language, persona, onApply, onClose }: {
+   conversationId: string; initial: ConversationStartConfig; topics: TopicCard[]; savedTopics: SavedTopic[]; language: Language; persona: PersonaDetails
+diff --git a/ui/src/features/conversation/session/DifficultySelect.test.tsx b/ui/src/features/conversation/session/DifficultySelect.test.tsx
+deleted file mode 100644
+index 1872173..0000000
+--- a/ui/src/features/conversation/session/DifficultySelect.test.tsx
++++ /dev/null
+@@ -1,26 +0,0 @@
+-// @vitest-environment jsdom
+-import { fireEvent, render, screen } from '@testing-library/react'
+-import userEvent from '@testing-library/user-event'
+-import { expect, it, vi } from 'vitest'
+-import { DifficultySelect } from './DifficultySelect'
+-
+-it('reuses the language select and makes no request on render/focus/reopen', () => {
+-  const change = vi.fn().mockResolvedValue(undefined)
+-  const view = render(<DifficultySelect value="beginner" saving={false} onChange={change} />)
+-  const select = screen.getByRole('combobox', { name: 'Difficulty' })
+-  expect(select).toHaveClass('chat-language-picker')
+-  expect(screen.getAllByRole('option')).toHaveLength(5)
+-  fireEvent.focus(select); fireEvent.mouseOver(select)
+-  view.rerender(<DifficultySelect value="fluent" saving={false} onChange={change} />)
+-  expect(change).not.toHaveBeenCalled()
+-  expect(screen.queryByRole('slider')).toBeNull()
+-})
+-it('saves one deliberate selection and disables while saving', async () => {
+-  const change = vi.fn().mockResolvedValue(undefined)
+-  const view = render(<DifficultySelect value="beginner" saving={false} onChange={change} />)
+-  await userEvent.setup().selectOptions(screen.getByRole('combobox'), 'absolute_zero')
+-  expect(change).toHaveBeenCalledExactlyOnceWith('absolute_zero')
+-  view.rerender(<DifficultySelect value="absolute_zero" saving onChange={change} />)
+-  expect(screen.getByRole('combobox')).toBeDisabled()
+-  expect(screen.getByRole('combobox')).toHaveAttribute('aria-busy', 'true')
+-})
+diff --git a/ui/src/features/conversation/session/DifficultySelect.tsx b/ui/src/features/conversation/session/DifficultySelect.tsx
+deleted file mode 100644
+index a6ce7d7..0000000
+--- a/ui/src/features/conversation/session/DifficultySelect.tsx
++++ /dev/null
+@@ -1,29 +0,0 @@
+-import { messageKey } from '../../../domain/localization'
+-import { useI18n } from '../../../components/localization/i18n'
+-import type { Difficulty } from '../../../generated/contracts'
+-
+-const DIFFICULTIES = [
+-  { value: 'absolute_zero', label: messageKey('Absolute zero') },
+-  { value: 'beginner', label: messageKey('Beginner') },
+-  { value: 'intermediate', label: messageKey('Intermediate') },
+-  { value: 'advanced', label: messageKey('Advanced') },
+-  { value: 'fluent', label: messageKey('Fluent') },
+-] as const satisfies ReadonlyArray<{ value: Difficulty; label: string }>
+-
+-export function difficultyLabel(value: Difficulty): string {
+-  return DIFFICULTIES.find(item => item.value === value)!.label
+-}
+-
+-/** An explicit selection saves settings; the caller owns persistence and errors. */
+-export function DifficultySelect({ value, saving, onChange }: {
+-  value: Difficulty; saving: boolean; onChange: (value: Difficulty) => Promise<void>
+-}) {
+-  const tr = useI18n()
+-  return <select className="chat-language-picker" aria-label={tr("Difficulty")} title={saving ? tr("Saving difficulty…") : tr("Conversation difficulty")} aria-busy={saving} value={value} disabled={saving}
+-    onChange={event => {
+-      const selected = DIFFICULTIES.find(item => item.value === event.target.value)
+-      if (selected && selected.value !== value) void onChange(selected.value).catch(() => { /* The owner presents save errors. */ })
+-    }}>
+-    {DIFFICULTIES.map(item => <option key={item.value} value={item.value}>{tr(item.label)}</option>)}
+-  </select>
+-}
+diff --git a/ui/src/generated/contracts.ts b/ui/src/generated/contracts.ts
+index 6092db7..654b6e5 100644
+--- a/ui/src/generated/contracts.ts
++++ b/ui/src/generated/contracts.ts
+@@ -192,3 +192,4 @@ export const PERSONA_LIMITS = { nameMax: 80, ageMin: 18, ageMax: 100, locationMa
+ export const SKILL_CATALOG_VERSION = 2393616038 as const
+ export const TEXT_SIZE = { default: 85, min: 75, max: 160, step: 5 } as const
+ export const DEFAULT_APPEARANCE: AppearancePreferences = {"palette":"cool","controlDensity":"standard","layoutSpacing":"tight","depth":"subtle","glowEnabled":false,"glowColor":"#7c5cff","glowStrength":30}
++export const DIFFICULTY_LEVELS: readonly Difficulty[] = ["absolute_zero","beginner","intermediate","advanced","fluent"] as const
+diff --git a/ui/src/styles/components/popovers.css b/ui/src/styles/components/popovers.css
+index 2d7f4e1..ef26e61 100644
+--- a/ui/src/styles/components/popovers.css
++++ b/ui/src/styles/components/popovers.css
+@@ -1,5 +1,3 @@
+-.popup-roman { color: var(--interaction-ink); font-family: var(--font-mono); font-style: normal; }
+-
+ .popup {
+   position: fixed;
+   z-index: var(--z-popover);
+@@ -15,19 +13,6 @@
+   box-shadow: var(--shadow-floating), var(--appearance-glow);
+ }
+ 
+-.popup-card {
+-  display: flex; align-items: center; gap: var(--space-4);
+-  max-width: min(340px, 90vw);
+-  background: var(--sheet); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-lg);
+-  padding: var(--space-4) var(--space-6); box-shadow: var(--shadow-floating);
+-  font-family: var(--font-serif); font-style: italic; font-size: var(--type-body); color: var(--interaction-ink);
+-  line-height: var(--leading-normal);
+-}
+-
+-.popup-x { background: none; border: none; color: var(--ink-3); cursor: pointer; font-size: var(--type-ui); }
+-
+-.popup-x:hover { color: var(--ink); }
+-
+ .info-tip { display: inline-block; position: relative; margin-inline: var(--space-2); vertical-align: middle; }
+ 
+ .info-tip > button {
+@@ -55,8 +40,6 @@
+   box-shadow: var(--shadow-floating), var(--appearance-glow);
+ }
+ 
+-.popup-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block: var(--space-5); }
+-
+ @media (pointer: coarse) {
+   .info-tip > button { min-width: 44px; min-height: 44px; }
+ }
+diff --git a/ui/src/styles/components/reading.css b/ui/src/styles/components/reading.css
+index f5b55bc..6523c82 100644
+--- a/ui/src/styles/components/reading.css
++++ b/ui/src/styles/components/reading.css
+@@ -67,10 +67,6 @@
+ 
+ .w.holding { background: var(--interaction-tint); }
+ 
+-.line.rtl-line { flex-direction: row-reverse; }
+-
+-.line.rtl-line .wu { direction: rtl; }
+-
+ .trans-d {
+   font-size: var(--type-ui);
+   color: var(--ink-2);
+diff --git a/ui/src/styles/features/conversation/messages.css b/ui/src/styles/features/conversation/messages.css
+index d1db72b..7cac675 100644
+--- a/ui/src/styles/features/conversation/messages.css
++++ b/ui/src/styles/features/conversation/messages.css
+@@ -30,14 +30,14 @@
+ 
+ .msg.me .wg { color: var(--ink-3); }
+ 
+-.msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text {
++.msg.rtl .w, .msg.rtl .target-text {
+   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
+   line-height: var(--leading-vocalized);
+ }
+ 
+-.msg.rtl .wg, .line.rtl-line .wg { font-size: var(--type-meta); }
++.msg.rtl .wg { font-size: var(--type-meta); }
+ 
+-.msg.rtl .wroman, .line.rtl-line .wroman { font-size: var(--type-meta); }
++.msg.rtl .wroman { font-size: var(--type-meta); }
+ 
+ .msg.me.rtl { align-self: flex-end; }
+ 
+@@ -105,8 +105,6 @@
+ 
+ .msg .line { display: inline; }
+ 
+-.msg .line.rtl-line { direction: rtl; unicode-bidi: embed; }
+-
+ .msg .line .wu { vertical-align: top; margin-block-end: var(--space-hairline); margin-inline-end: var(--word-spacing); }
+ 
+ .msg .activity-indicator { display: flex; }
+diff --git a/ui/tests/reading/ReadingPreferences.display.test.tsx b/ui/tests/reading/ReadingPreferences.display.test.tsx
+index c923742..dba087d 100644
+--- a/ui/tests/reading/ReadingPreferences.display.test.tsx
++++ b/ui/tests/reading/ReadingPreferences.display.test.tsx
+@@ -1,10 +1,8 @@
+ // @vitest-environment jsdom
+ import { fireEvent, render, screen, within } from '@testing-library/react'
+-import { expect, it, vi } from 'vitest'
++import { expect, it } from 'vitest'
+ import { SavedGlossText } from '../../src/components/reading/SavedGlossText'
+-import { TokenSpan } from '../../src/components/reading/TokenSpan'
+ import { ReadingPreferencesContext } from '../../src/components/reading/ReadingPreferences'
+-import { GlossPopup } from '../../src/features/conversation/reading/GlossPopup'
+ 
+ const combinations = [false, true].flatMap(autoTranslate => [false, true].flatMap(alwaysRomanize =>
+   [false, true].map(alwaysPronunciation => ({autoTranslate, alwaysRomanize, alwaysPronunciation}))))
+@@ -12,20 +10,16 @@ const parts = [
+   {start:0, end:1, kind:'gloss' as const, gloss:'meaning', romanization:'roman', pronunciation:'redundant'},
+   {start:2, end:3, kind:'gloss' as const, gloss:'other', pronunciation:'fallback'},
+ ]
+-const token = {text:'a', gloss:'meaning', romanization:'roman', pronunciation:'redundant', notable:false, pos:null}
+ 
+ it.each(combinations)('uses %j for inline aids while keeping requested word help available', preferences => {
+   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open','') }
+   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') }
+   const source = (showAids: boolean) => <ReadingPreferencesContext value={preferences}>
+     <SavedGlossText text="a b" segments={parts} showAids={showAids} />
+-    <TokenSpan tok={token} revealed={false} showAids showTranslation={preferences.autoTranslate} hasTranslation showRomanization
+-      alwaysRomanize={preferences.alwaysRomanize} alwaysPronunciation={preferences.alwaysPronunciation}
+-      onTap={vi.fn()} onDragStart={vi.fn()} onDragOver={vi.fn()} />
+   </ReadingPreferencesContext>
+   const view = render(source(true))
+-  expect(view.container.querySelectorAll('.wg')).toHaveLength(preferences.autoTranslate ? 3 : 0)
+-  expect(view.container.querySelectorAll('.wroman')).toHaveLength(preferences.alwaysRomanize ? 2 : 0)
++  expect(view.container.querySelectorAll('.wg')).toHaveLength(preferences.autoTranslate ? 2 : 0)
++  expect(view.container.querySelectorAll('.wroman')).toHaveLength(preferences.alwaysRomanize ? 1 : 0)
+   expect(view.container.querySelectorAll('.wpronunciation')).toHaveLength(preferences.alwaysPronunciation ? 1 : 0)
+   expect(screen.queryByText('redundant')).toBeNull()
+   view.rerender(source(false))
+@@ -42,22 +36,18 @@ it.each(combinations)('uses %j for inline aids while keeping requested word help
+   expect(dialog).not.toHaveTextContent(/Romanization|Pronunciation/)
+ })
+ 
+-it('keeps requested detail and popup content when always-visible preferences change', () => {
++it('keeps requested detail content when always-visible preferences change', () => {
+   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open','') }
+   const source = (enabled: boolean) => <ReadingPreferencesContext value={{autoTranslate:enabled, alwaysRomanize:enabled, alwaysPronunciation:true}}>
+     <SavedGlossText text="a" segments={[parts[0]]} />
+-    <GlossPopup popup={{text:'popup meaning', romanization:'popup roman', actions:[], x:0, y:0}} onClose={vi.fn()} />
+   </ReadingPreferencesContext>
+   const view = render(source(true))
+   fireEvent.click(screen.getByRole('button', {name:'a'}))
+   fireEvent.click(screen.getByRole('button', {name:'Word help'}))
+-  expect(screen.getByText('popup meaning')).toBeVisible()
+   view.rerender(source(false))
+   expect(view.container.querySelector('.wg')).toBeNull()
+-  expect(within(screen.getAllByRole('dialog', {name:'Word help'})[1]).getByText('roman')).toBeVisible()
++  expect(within(screen.getByRole('dialog', {name:'Word help'})).getByText('roman')).toBeVisible()
+   expect(screen.queryByText('redundant')).toBeNull()
+-  expect(screen.getByText('popup meaning')).toBeVisible()
+-  expect(screen.getByText(/popup roman/)).toBeVisible()
+ })
+ 
+ it.each([true, false])('shows actual hover help with always-visible aids off (romanization available=%s)', romanized => {
+diff --git a/ui/tools/conversation-preview.tsx b/ui/tools/conversation-preview.tsx
+index f08bd6c..b1fa6c3 100644
+--- a/ui/tools/conversation-preview.tsx
++++ b/ui/tools/conversation-preview.tsx
+@@ -67,12 +67,6 @@ const arabicSegments = [
+ ]
+ function Preview() {
+   const [input, setInput] = useState('')
+-  const [revealed, setRevealed] = useState(new Set<string>())
+-  const toggleWords = (keys: string[]) => setRevealed(current => {
+-    const next = new Set(current)
+-    for (const key of keys) { if (next.has(key)) next.delete(key); else next.add(key) }
+-    return next
+-  })
+   const [opening, setOpening] = useState(false)
+   const [startConfig, setStartConfig] = useState(initialStart)
+   const [recording, setRecording] = useState(false)
+@@ -102,14 +96,14 @@ function Preview() {
+         </ConversationHeader>
+         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} greeting={{ text: 'hola', romanized: null }} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onRecord={() => setRecording(!recording)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
+           {/* Existing TurnView.test.tsx reply fixture, without generated feedback. */}
+-          <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
++          <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} />
+           <div style={{ '--script-scale': 1.5 } as React.CSSProperties}><ReadingPreferencesContext value={{ autoTranslate: quick.auto_translate, alwaysRomanize: quick.always_romanize, alwaysPronunciation: quick.always_pronunciation, supportsRomanization: true }}>
+             <TurnView turn={{ id: 2, user: arabicText, assistant: null, pendingText: '', userSavedGloss: {
+               sourceMessageId: 'preview-arabic-user', targetLanguageId: 'arabic', explanationLanguageId: 'english',
+               formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
+-            } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} revealed={revealed} showRomanization alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
++            } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} rtl onBubbleTap={() => setNotice('Message analysis')} />
+           </ReadingPreferencesContext></div>
+-          <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} revealed={revealed} showRomanization={false} alwaysRomanize={quick.always_romanize} alwaysPronunciation={quick.always_pronunciation} autoTranslate={quick.auto_translate} rtl={false} onReveal={() => {}} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} onPopup={() => {}} onInspect={() => {}} onToggleReveal={toggleWords} />
++          <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} />
+         </>}</div>
+         <div className="composer">
+           {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
+diff --git a/ui/tools/reading-preview.tsx b/ui/tools/reading-preview.tsx
+index dbcfaa8..8344c3b 100644
+--- a/ui/tools/reading-preview.tsx
++++ b/ui/tools/reading-preview.tsx
+@@ -1,5 +1,6 @@
+ import { ReadingAnalysisFixture } from './reading-analysis-fixture'
+-import { ReadingPassage } from '../src/features/conversation/reading/ReadingPassage'
++import { TargetMessage, type TargetMessageProps } from '../src/components/reading/TargetMessage'
++import { useState } from 'react'
+ import { SavedReadingProvider } from '../src/components/reading/SavedReadingProvider'
+ /** Offline fixture: production reading controls, deterministic glosses, no AI/audio. */
+ import { createRoot } from 'react-dom/client'
+@@ -31,6 +32,32 @@ const services: ReadingServices = {
+   speak: async () => { throw new Error('Offline preview: no speech request was sent.') },
+   activity: async () => [{fixture:true}],
+ }
++
++/// A standalone passage: lookup allowed, no owner actions.
++function passage(text: string, romanization: string, translation: string): TargetMessageProps {
++  return { text, segments: [], segmentsKey: text, translation, romanization, pronunciation: null, layout: 'passage', translateLabel: null,
++    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
++}
++
++/// The shared message tools with a source that is not a conversation turn:
++/// the drill item from the design canvas. Actions are local stubs; nothing is
++/// sent to native code or a provider.
++function DrillItemFixture() {
++  const [speaking, setSpeaking] = useState(false)
++  const [notice, setNotice] = useState('Nothing clicked yet.')
++  const text = 'ممكن تحكي شوي شوي؟'
++  return <section aria-label="Non-conversation source">
++    <h2>Same message tools, non-conversation source (drill item)</h2>
++    <TargetMessage layout="bubble" text={text} segmentsKey="drill-item"
++      segments={[{start:0,end:4,kind:'gloss',gloss:'can',romanization:'mumkin'},{start:5,end:9,kind:'gloss',gloss:'you speak',romanization:'tiḥki'},{start:10,end:13,kind:'gloss',gloss:'a little',romanization:'shwayy'},{start:14,end:17,kind:'gloss',gloss:'a little',romanization:'shwayy'}]}
++      translation="Can you speak slowly?" romanization="mumkin tiḥki shwayy shwayy?" pronunciation={null} translateLabel={null}
++      segmentsPending={false} lookupWords={false} status={null} annotation={null} focused={false} rtl
++      speech={{speaking, onToggle: () => { setSpeaking(!speaking); setNotice(speaking ? 'Stop playback (stub).' : 'Speak (stub, no audio).') }, error: null}}
++      analysis={{pending:false, onOpen: () => setNotice('Analysis opened (stub).')}} />
++    <p role="status">{notice}</p>
++  </section>
++}
++
+ createRoot(document.getElementById('root')!).render(<I18nProvider locale="english"><ReadingProvider settings={{...PREVIEW_SETTINGS,target_language:'spanish',target_variety:'spanish-spain',native_language:'english',native_variety:'english-united-states'}}><ReadingHelp services={services} languages={languages()}>
+   <SavedReadingProvider sources={[
+     {scope:{language:'spanish',variety:'spanish-spain',explanation:'english',explanationVariety:'english-united-states'},text:'La playa.',segments:[{start:3,end:8,kind:'gloss',gloss:'beach',pronunciation:'pla-ya'}]},
+@@ -40,8 +67,9 @@ createRoot(document.getElementById('root')!).render(<I18nProvider locale="englis
+     <ReadingLanguageScope language="arabic" variety="arabic-levantine"><section style={{'--script-scale':1.5} as React.CSSProperties}>
+       <p className="msg chat-message bot"><SavedGlossText text="مَسْكَنُك، هَل تُحِبُّ المَسالِكَ الجَدِيدَة؟" segments={[{start:11,end:14,kind:'gloss',gloss:'question'},{start:15,end:22,kind:'gloss',gloss:'like',romanization:'tuḥibbu'}]} /></p>
+       <ReadingAnalysisFixture />
+-      <ReadingPassage text="بَدّي أزور مَسْكَنَك بَكّير." romanization="Baddī azūr maskanak bakīr." translation="I want to visit your place early." />
+-      <ReadingLanguageScope language="mandarin" variety="mandarin-mainland"><ReadingPassage text="你喜欢科幻小说吗？" romanization="Nǐ xǐhuān kēhuàn xiǎoshuō ma?" translation="Do you like science fiction?" /></ReadingLanguageScope>
++      <DrillItemFixture />
++      <TargetMessage {...passage("بَدّي أزور مَسْكَنَك بَكّير.", "Baddī azūr maskanak bakīr.", "I want to visit your place early.")} />
++      <ReadingLanguageScope language="mandarin" variety="mandarin-mainland"><TargetMessage {...passage("你喜欢科幻小说吗？", "Nǐ xǐhuān kēhuàn xiǎoshuō ma?", "Do you like science fiction?")} /></ReadingLanguageScope>
+       <p className="msg chat-message bot"><SavedGlossText text="أَنَا بِحِبّ أَمْشِي نَفْس التَلّة كُلّ جُمْعَة. أَنْتَ بِتْمَشّى كُلّ يَوْم؟" segments={[{start:0,end:5,kind:'gloss',gloss:'I'},{start:6,end:12,kind:'gloss',gloss:'like'},{start:13,end:20,kind:'gloss',gloss:'walk'}]} /></p>
+       <p className="msg chat-message bot"><span className="w" dir="auto">أَنَا بِحِبّ أَمْشِي نَفْس التَلّة كُلّ جُمْعَة. أَنْتَ بِتْمَشّى كُلّ يَوْم؟</span></p>
+       <h2>Reported grammar example: source and reading aids</h2>

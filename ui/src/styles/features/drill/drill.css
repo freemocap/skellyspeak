@@ -1,0 +1,145 @@
+/* Drill: the phrase rail, the practice stage and the attempt log. The target
+   card, spectrogram and waveform bring their own styles from shared components. */
+
+.drill-page { display: grid; grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr) minmax(17rem, 21rem); align-items: stretch; gap: var(--space-4); padding: var(--space-4); height: 100%; min-height: 0; }
+.drill-rail, .drill-stage, .drill-log { min-height: 0; overflow-y: auto; }
+
+/* The rail: add a phrase, pick one, and the storage control kept out of the way. */
+.drill-rail { display: grid; grid-template-rows: auto auto 1fr auto; gap: var(--space-4); padding: var(--space-4); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-entry { display: grid; gap: var(--space-2); }
+.drill-entry label { color: var(--ink-2); font-size: var(--type-meta); }
+.drill-entry-row { display: flex; gap: var(--space-2); }
+.drill-entry-row .field { flex: 1 1 auto; min-width: 0; }
+.drill-rail-empty { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
+
+.drill-items { display: grid; align-content: start; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.drill-items li { display: flex; align-items: stretch; gap: var(--space-2); }
+.drill-item { flex: 1 1 auto; min-width: 0; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); text-align: start; background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-item[aria-current="true"] { border-color: var(--interaction-ink); border-width: var(--border-width-thick); }
+.drill-item-text { font-size: var(--type-body); overflow-wrap: anywhere; }
+.drill-item-meta { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-remove { align-self: center; padding: var(--space-2); }
+
+.drill-rail-foot { border-top: var(--border-width) solid var(--line-soft); padding-top: var(--space-3); }
+.drill-storage { font-size: var(--type-ui); }
+.drill-storage summary { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; }
+.drill-storage-total { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-storage-body { display: grid; gap: var(--space-2); padding-top: var(--space-3); }
+.drill-storage-body p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-storage-limit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.drill-storage-limit .field { width: 6rem; font-family: var(--font-mono); }
+
+.drill-ask-more { justify-self: start; }
+
+/* Asking for phrases: where they come from, what to ask for, and what came
+   back. Nothing is generated or added without an explicit press. */
+.drill-sources { display: inline-flex; gap: var(--space-1); padding: var(--space-1); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-sources button { padding: var(--space-2) var(--space-4); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-xs); font-size: var(--type-ui); }
+.drill-sources button[aria-checked="true"] { background: var(--sheet); color: var(--ink); font-weight: var(--weight-semibold); }
+
+.drill-ask { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); margin-block: var(--space-3); }
+.drill-ask label { display: grid; gap: var(--space-1); color: var(--ink-2); font-size: var(--type-meta); }
+.drill-ask .field { width: 100%; }
+.drill-ask #drill-topic { min-width: 14rem; }
+.drill-ask #drill-count { width: 5rem; }
+.drill-ask p { margin: 0; }
+
+.drill-candidates { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.drill-candidate { display: flex; align-items: start; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-candidate-body { display: grid; gap: var(--space-1); min-width: 0; }
+.drill-candidate-text { font-size: var(--type-reading); overflow-wrap: anywhere; }
+.drill-candidate-translation { color: var(--ink-2); font-size: var(--type-ui); }
+.drill-candidate-notes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.drill-candidates-note { margin: var(--space-2) 0; color: var(--ink-2); font-size: var(--type-meta); }
+
+/* The stage: what to say, then the one control that records it. */
+.drill-stage { display: grid; align-content: start; gap: var(--space-4); }
+.drill-target { display: grid; gap: var(--space-3); }
+.drill-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.drill-actions .btn { display: inline-flex; align-items: center; gap: var(--space-2); }
+.drill-actions-note { color: var(--ink-3); font-size: var(--type-meta); }
+.drill-empty { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
+
+/* The dock states differ in what the control does, so each says so in words;
+   colour repeats the sentence rather than carrying it alone. */
+.drill-dock { display: grid; gap: var(--space-3); padding: var(--space-4); background: var(--interaction-tint); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-dock[data-phase="recording"] { background: var(--danger-tint); border-color: var(--danger-line); }
+.drill-dock[data-phase="working"] { background: var(--chrome); }
+.drill-dock-row { display: flex; align-items: center; gap: var(--space-4); }
+.drill-dock-button { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: var(--control-height-lg); height: var(--control-height-lg); background: var(--interaction-fill); color: var(--ink-on-fill); border: 0; border-radius: var(--radius-circle); }
+.drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); }
+.drill-dock[data-phase="recording"] .drill-dock-button:hover { background: var(--danger-fill-hover); }
+.drill-dock-copy { flex: 1 1 auto; min-width: 0; display: grid; gap: var(--space-1); }
+.drill-dock-headline { margin: 0; font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.drill-dock-detail { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+
+/* The log: every attempt at the selected phrase, newest first. */
+.drill-log { padding: var(--space-4); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-attempts { display: grid; align-content: start; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.drill-attempt { display: grid; gap: var(--space-2); width: 100%; padding: var(--space-3) var(--space-4); text-align: start; background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-attempt[aria-current="true"] { border-color: var(--interaction-ink); border-width: var(--border-width-thick); }
+.drill-attempt-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.drill-attempt-number { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-attempt-when { color: var(--ink-3); font-size: var(--type-meta); }
+.drill-attempt-score { margin-inline-start: auto; font-family: var(--font-mono); font-size: var(--type-title); }
+.drill-attempt-transcript { overflow-wrap: anywhere; font-size: var(--type-body); }
+.drill-attempt-meta { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-more { width: 100%; margin-top: var(--space-3); }
+
+/* A chip states something the comparison established mechanically. There is no
+   graded verdict here: the thresholds for one are policy data we do not have. */
+.drill-chip { padding: 0 var(--space-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); border-radius: var(--radius-pill); background: var(--chip); color: var(--ink-2); }
+.drill-chip[data-tone="success"] { background: var(--success-tint); color: var(--success-ink); }
+.drill-chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning-ink); }
+
+/* The panel: what was measured, word by word, and the two recordings. */
+.drill-inspection { display: grid; gap: var(--space-4); padding: var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-inspection-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3); }
+.drill-inspection-head h2 { margin: 0; font-size: var(--type-title); }
+.drill-inspection-head .btn { display: inline-flex; align-items: center; gap: var(--space-2); }
+.drill-inspection-spacer { flex: 1 1 auto; }
+
+.drill-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-3); margin: 0; }
+.drill-tile { display: grid; gap: var(--space-1); padding: var(--space-3); background: var(--bg); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-tile dt { color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.drill-tile dd { margin: 0; font-family: var(--font-mono); font-size: var(--type-title); }
+.drill-tile p { margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
+
+.drill-alignment { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: center; }
+.drill-alignment-labels { display: grid; gap: var(--space-1); color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.drill-words { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.drill-words li { display: grid; gap: var(--space-1); justify-items: center; padding: var(--space-2) var(--space-3); background: var(--chip); border-radius: var(--radius-xs); }
+.drill-words li span { color: var(--ink-2); font-size: var(--type-meta); }
+/* The four outcomes are named in text; the colour repeats what the words say. */
+.drill-words li[data-outcome="substituted"] { border: var(--border-width) solid var(--warning-line); }
+.drill-words li[data-outcome="missing"] { border: var(--border-width) solid var(--danger-ink); }
+.drill-words li[data-outcome="extra"] { border: var(--border-width) dashed var(--ink-3); }
+
+.drill-comparison { font-size: var(--type-ui); }
+.drill-comparison dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
+.drill-comparison dd { margin: 0; font-family: var(--font-mono); }
+
+.drill-panels { display: grid; gap: var(--space-4); }
+.drill-panels figure { display: grid; gap: var(--space-2); margin: 0; }
+.drill-panels figcaption { color: var(--ink-2); font-size: var(--type-meta); }
+
+/* One narrow column: the rail, the stage and the log stack in reading order,
+   and the control that records stays reachable while the panel scrolls. */
+@media (max-width: 860px) {
+  .drill-page { grid-template-columns: minmax(0, 1fr); height: auto; overflow-y: auto; }
+  .drill-rail, .drill-stage, .drill-log { overflow-y: visible; }
+  .drill-rail { grid-template-rows: none; }
+  .drill-dock { position: sticky; bottom: 0; z-index: var(--z-sticky); box-shadow: var(--shadow-surface); }
+}
+
+/* Touch keeps every control at the minimum target, including the icon-only
+   delete and the cards that carry selection. */
+@media (pointer: coarse) {
+  .drill-remove, .drill-item, .drill-attempt, .drill-more { min-height: var(--touch-target); }
+}
+
+/* The Chat/Drill switch in the top bar: one surface replaces the other. */
+.practice-switch { display: inline-flex; gap: var(--space-1); padding: var(--space-1); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.practice-switch button { padding: var(--space-2) var(--space-4); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-xs); font-size: var(--type-ui); }
+.practice-switch button[aria-pressed="true"] { background: var(--sheet); color: var(--ink); }

@@ -45,6 +45,9 @@ impl Store {
                     "Unrecognized database. No data was changed. Use Factory Reset to start a new workspace.",
                 ));
             }
+            // Pending audio is stored transactionally in SQLite. Reclaim its
+            // freed pages after pruning rather than retaining peak disk usage.
+            connection.pragma_update(None, "auto_vacuum", "INCREMENTAL")?;
             let tx = connection.transaction()?;
             tx.execute_batch(include_str!("../schemas/schema.sql"))?;
             tx.execute_batch(GENERATION_SCHEMA)?;
@@ -94,13 +97,18 @@ impl Store {
             speech_cache: crate::speech::cache::Cache::default(),
             credential_writes: std::collections::HashSet::new(),
             credential_index: path.with_file_name("credentials.index"),
+            drill_audio: path.with_file_name("drill-audio"),
             ownership,
         };
         store.snapshot()?;
         store.reconcile_execution()?;
+        crate::drill::sessions::recover(&store.connection)?;
         store.shelve_jev_assessment()?;
-        crate::partners::generation::generation_receipts::recover(&store.connection)?;
+        crate::ai::generation::generation_receipts::recover(&store.connection)?;
         crate::language::reading::recover(&store.connection)?;
+        // Audio an interrupted save or deletion left with no attempt to claim it.
+        store.reconcile_drill_audio()?;
+        store.prune_drill_audio()?;
         store.connection.execute("DELETE FROM receipts", [])?;
         Ok(store)
     }

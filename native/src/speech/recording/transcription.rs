@@ -1,10 +1,11 @@
 //! Metadata-only receipts for volatile audio. No replayable audio or transcript store.
 use crate::ai::connections::access::ResolvedTarget;
 use crate::model::*;
+use crate::speech::recording::owner::RecordingOwner;
 use rusqlite::{Connection, params};
 
-pub fn permitted(db: &Connection, conversation: &str, target: &ResolvedTarget) -> Result<()> {
-    let valid: bool = db.query_row("SELECT EXISTS(SELECT 1 FROM conversations c JOIN contacts r ON r.id=c.contact_id WHERE c.id=?1 AND c.archived=0 AND r.archived=0)", [conversation], |r| r.get(0))?;
+pub fn permitted(db: &Connection, owner: &RecordingOwner, target: &ResolvedTarget) -> Result<()> {
+    let valid = owner.available(db)?;
     let current = crate::ai::connections::access::resolve(
         db,
         crate::ai::connections::access::Capability::Transcription,
@@ -22,14 +23,19 @@ pub fn permitted(db: &Connection, conversation: &str, target: &ResolvedTarget) -
     {
         return Err(AppError::new(
             ErrorCode::Conflict,
-            "The recording destination, credentials, or conversation are no longer available.",
+            "The recording destination, credentials, or its owner are no longer available.",
         ));
     }
     Ok(())
 }
 
-pub fn begin(db: &Connection, id: &str, conversation: &str, target: &ResolvedTarget) -> Result<()> {
-    permitted(db, conversation, target)?;
+pub fn begin(
+    db: &Connection,
+    id: &str,
+    owner: &RecordingOwner,
+    target: &ResolvedTarget,
+) -> Result<()> {
+    permitted(db, owner, target)?;
     crate::ai::policy::holds::check(db, target)?;
     if crate::conversations::execution::config(db)?.paused {
         return Err(AppError::new(
@@ -38,8 +44,9 @@ pub fn begin(db: &Connection, id: &str, conversation: &str, target: &ResolvedTar
         ));
     }
     // Duplicate invocation cannot authorize another network request.
-    db.execute("INSERT INTO transcription_attempts(id,conversation_id,route,model,profile_revision,state) VALUES(?1,?2,?3,?4,?5,'running')",
-        params![id, conversation, target.route.label(), target.model, target.revision])?;
+    let (conversation, drill_item) = owner.columns();
+    db.execute("INSERT INTO transcription_attempts(id,conversation_id,drill_item_id,route,model,profile_revision,state) VALUES(?1,?2,?3,?4,?5,?6,'running')",
+        params![id, conversation, drill_item, target.route.label(), target.model, target.revision])?;
     db.execute("UPDATE metadata SET revision=revision+1", [])?;
     Ok(())
 }
@@ -47,15 +54,15 @@ pub fn begin(db: &Connection, id: &str, conversation: &str, target: &ResolvedTar
 pub fn finish(
     db: &Connection,
     id: &str,
-    conversation: &str,
+    owner: &RecordingOwner,
     target: &ResolvedTarget,
     result: Result<String>,
 ) -> Result<Result<String>> {
-    let result = match permitted(db, conversation, target) {
+    let result = match permitted(db, owner, target) {
         Ok(()) => result,
         Err(error) if error.code == ErrorCode::Conflict => Err(AppError::new(
             ErrorCode::UnknownOutcome,
-            "Transcription stopped because its connection or conversation changed. Provider processing and cost may continue; no transcript was inserted.",
+            "Transcription stopped because its connection or its owner changed. Provider processing and cost may continue; no transcript was inserted.",
         )),
         Err(error) => return Err(error),
     };
@@ -70,8 +77,9 @@ pub fn finish(
             Some(error.message.as_str()),
         ),
     };
-    let changed = db.execute("UPDATE transcription_attempts SET state=?2,error=?3,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1 AND conversation_id=?4 AND state='running'",
-        params![id, state, error, conversation])?;
+    let (conversation, drill_item) = owner.columns();
+    let changed = db.execute("UPDATE transcription_attempts SET state=?2,error=?3,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1 AND conversation_id IS ?4 AND drill_item_id IS ?5 AND state='running'",
+        params![id, state, error, conversation, drill_item])?;
     if changed != 1 {
         return Err(AppError::new(
             ErrorCode::Conflict,
@@ -86,11 +94,38 @@ impl crate::storage::store::Store {
     pub fn begin_transcription(
         &mut self,
         id: &str,
-        conversation: &str,
+        owner: &RecordingOwner,
         target: &ResolvedTarget,
     ) -> Result<()> {
+        self.begin_transcription_in_visit(id, owner, target, None)
+    }
+    pub(crate) fn begin_transcription_in_visit(
+        &mut self,
+        id: &str,
+        owner: &RecordingOwner,
+        target: &ResolvedTarget,
+        visit: Option<&str>,
+    ) -> Result<()> {
         let tx = self.connection.transaction()?;
-        begin(&tx, id, conversation, target)?;
+        begin(&tx, id, owner, target)?;
+        if let Some(visit) = visit {
+            let valid = matches!(owner, RecordingOwner::DrillItem(_))
+                && tx.query_row(
+                    "SELECT EXISTS(SELECT 1 FROM drill_visits WHERE id=?1 AND drill_item_id=?2)",
+                    params![visit, owner.id()],
+                    |r| r.get::<_, bool>(0),
+                )?;
+            if !valid {
+                return Err(AppError::new(
+                    ErrorCode::Conflict,
+                    "Recording visit does not belong to its item.",
+                ));
+            }
+            tx.execute(
+                "UPDATE transcription_attempts SET drill_visit_id=?2 WHERE id=?1",
+                params![id, visit],
+            )?;
+        }
         tx.commit()?;
         Ok(())
     }
@@ -98,11 +133,11 @@ impl crate::storage::store::Store {
     pub fn finish_transcription(
         &mut self,
         id: &str,
-        conversation: &str,
+        owner: &RecordingOwner,
         target: &ResolvedTarget,
         result: Result<String>,
     ) -> Result<String> {
-        self.finish_transcription_with_diagnostics(id, conversation, target, result, None)
+        self.finish_transcription_with_diagnostics(id, owner, target, result, None)
     }
     pub(crate) fn record_transcription_retry(&mut self, id: &str, error: &AppError) -> Result<()> {
         if self.connection.execute(
@@ -123,26 +158,50 @@ impl crate::storage::store::Store {
     pub fn finish_transcription_with_diagnostics(
         &mut self,
         id: &str,
-        conversation: &str,
+        owner: &RecordingOwner,
         target: &ResolvedTarget,
         result: Result<String>,
         diagnostics: Option<&serde_json::Value>,
     ) -> Result<String> {
+        self.publish_transcription(id, owner, target, result, diagnostics, None)
+    }
+
+    pub(crate) fn publish_transcription(
+        &mut self,
+        id: &str,
+        owner: &RecordingOwner,
+        target: &ResolvedTarget,
+        result: Result<String>,
+        diagnostics: Option<&serde_json::Value>,
+        wav: Option<&[u8]>,
+    ) -> Result<String> {
         let tx = self.connection.transaction()?;
         let diagnostic = crate::diagnostics::response::retained(diagnostics, result.as_ref().err());
+        let (conversation, drill_item) = owner.columns();
         tx.execute(
-            "UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND conversation_id=?3",
-            params![id, diagnostic, conversation],
+            "UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND conversation_id IS ?3 AND drill_item_id IS ?4",
+            params![id, diagnostic, conversation, drill_item],
         )?;
-        let result = finish(&tx, id, conversation, target, result)?;
+        let result = finish(&tx, id, owner, target, result)?;
+        if let (RecordingOwner::DrillItem(item), Ok(text), Some(wav)) = (owner, &result, wav) {
+            crate::drill::stage_attempt(&tx, item, Some(id), text, Some(wav))?;
+        }
+        if result.is_ok() && matches!(owner, RecordingOwner::DrillItem(_)) {
+            crate::drill::retention::mark(&tx)?;
+        }
         tx.commit()?;
+        if result.is_ok() && matches!(owner, RecordingOwner::DrillItem(_)) {
+            self.prune_drill_audio()?;
+        }
         result
     }
 }
 
-pub fn views(db: &Connection, conversation: &str) -> Result<Vec<TranscriptionAttempt>> {
-    let rows = db.prepare("SELECT id,route,model,state,started_at,finished_at,error,diagnostics FROM transcription_attempts WHERE conversation_id=?1 ORDER BY rowid DESC LIMIT 50")?
-        .query_map([conversation], |r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,Option<String>>(5)?,r.get::<_,Option<String>>(6)?,crate::diagnostics::response::column(r,7)?)))?
+/// One owner's recording receipts, newest first.
+pub fn views(db: &Connection, owner: &RecordingOwner) -> Result<Vec<TranscriptionAttempt>> {
+    let (conversation, drill_item) = owner.columns();
+    let rows = db.prepare("SELECT id,route,model,state,started_at,finished_at,error,diagnostics FROM transcription_attempts WHERE conversation_id IS ?1 AND drill_item_id IS ?2 ORDER BY rowid DESC LIMIT 50")?
+        .query_map(params![conversation, drill_item], |r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,Option<String>>(5)?,r.get::<_,Option<String>>(6)?,crate::diagnostics::response::column(r,7)?)))?
         .collect::<rusqlite::Result<Vec<_>>>()?;
     rows.into_iter()
         .map(
@@ -166,7 +225,7 @@ pub fn views(db: &Connection, conversation: &str) -> Result<Vec<TranscriptionAtt
 mod tests {
     use super::*;
     use crate::storage::store::Store;
-    fn setup() -> (tempfile::TempDir, Store, String, ResolvedTarget) {
+    fn setup() -> (tempfile::TempDir, Store, RecordingOwner, ResolvedTarget) {
         let dir = tempfile::tempdir().unwrap();
         let mut store = Store::open(&dir.path().join("audio.sqlite3")).unwrap();
         store.prepare_chat().unwrap();
@@ -184,42 +243,38 @@ mod tests {
                 [],
             )
             .unwrap();
-        let conversation = store.snapshot().unwrap().conversations[0].id.clone();
+        let owner =
+            RecordingOwner::Conversation(store.snapshot().unwrap().conversations[0].id.clone());
         let target = crate::ai::connections::access::resolve(
             &store.connection,
             crate::ai::connections::access::Capability::Transcription,
         )
         .unwrap();
-        (dir, store, conversation, target)
+        (dir, store, owner, target)
     }
     #[test]
     fn receipt_is_single_use_usage_is_unknown_and_text_is_not_retained() {
-        let (_dir, mut store, conversation, target) = setup();
+        let (_dir, mut store, owner, target) = setup();
         store
-            .begin_transcription("recording", &conversation, &target)
+            .begin_transcription("recording", &owner, &target)
             .unwrap();
         assert!(
             store
-                .begin_transcription("recording", &conversation, &target)
+                .begin_transcription("recording", &owner, &target)
                 .is_err()
         );
         assert_eq!(
             store
-                .finish_transcription(
-                    "recording",
-                    &conversation,
-                    &target,
-                    Ok("Private speech".into())
-                )
+                .finish_transcription("recording", &owner, &target, Ok("Private speech".into()))
                 .unwrap(),
             "Private speech"
         );
         assert!(
             store
-                .finish_transcription("recording", &conversation, &target, Ok("Duplicate".into()))
+                .finish_transcription("recording", &owner, &target, Ok("Duplicate".into()))
                 .is_err()
         );
-        let records = views(&store.connection, &conversation).unwrap();
+        let records = views(&store.connection, &owner).unwrap();
         assert_eq!(records.len(), 1);
         assert_eq!(records[0].state, "succeeded");
         assert!(
@@ -229,7 +284,7 @@ mod tests {
         );
         assert!(
             store
-                .conversation_snapshot(&conversation, None)
+                .conversation_snapshot(owner.id(), None)
                 .unwrap()
                 .messages
                 .is_empty()
@@ -239,6 +294,7 @@ mod tests {
         assert_eq!(stats.global.unknown_usage, 1);
         assert_eq!(stats.global.input_tokens, 0);
         let revision = store.snapshot().unwrap().conversations[0].revision;
+        let conversation = owner.id().to_owned();
         store
             .execute(Command {
                 session_id: store.session_id.clone(),
@@ -253,9 +309,9 @@ mod tests {
     }
     #[test]
     fn archived_owner_or_deleted_source_cannot_publish_or_recreate_receipts() {
-        let (_dir, mut store, conversation, target) = setup();
+        let (_dir, mut store, owner, target) = setup();
         store
-            .begin_transcription("archived", &conversation, &target)
+            .begin_transcription("archived", &owner, &target)
             .unwrap();
         store
             .connection
@@ -263,11 +319,11 @@ mod tests {
             .unwrap();
         assert!(
             store
-                .finish_transcription("archived", &conversation, &target, Ok("Late speech".into()))
+                .finish_transcription("archived", &owner, &target, Ok("Late speech".into()))
                 .is_err()
         );
         assert_eq!(
-            views(&store.connection, &conversation).unwrap()[0].state,
+            views(&store.connection, &owner).unwrap()[0].state,
             "unknown"
         );
         store
@@ -275,9 +331,10 @@ mod tests {
             .execute("UPDATE contacts SET archived=0", [])
             .unwrap();
         store
-            .begin_transcription("deleted", &conversation, &target)
+            .begin_transcription("deleted", &owner, &target)
             .unwrap();
         let revision = store.snapshot().unwrap().conversations[0].revision;
+        let conversation = owner.id().to_owned();
         store
             .execute(Command {
                 session_id: store.session_id.clone(),
@@ -290,22 +347,22 @@ mod tests {
             .unwrap();
         assert!(
             store
-                .finish_transcription("deleted", &conversation, &target, Ok("Late speech".into()))
+                .finish_transcription("deleted", &owner, &target, Ok("Late speech".into()))
                 .is_err()
         );
-        assert!(views(&store.connection, &conversation).unwrap().is_empty());
+        assert!(views(&store.connection, &owner).unwrap().is_empty());
     }
 
     #[test]
     fn interrupted_audio_stays_unknown_across_restarts_without_replay() {
-        let (dir, mut store, conversation, target) = setup();
+        let (dir, mut store, owner, target) = setup();
         store
-            .begin_transcription("recording", &conversation, &target)
+            .begin_transcription("recording", &owner, &target)
             .unwrap();
         drop(store);
         for _ in 0..2 {
             let store = Store::open(&dir.path().join("audio.sqlite3")).unwrap();
-            let records = views(&store.connection, &conversation).unwrap();
+            let records = views(&store.connection, &owner).unwrap();
             assert_eq!(records.len(), 1);
             assert_eq!(records[0].state, "unknown");
             assert!(records[0].finished_at.is_some());
@@ -313,23 +370,23 @@ mod tests {
     }
     #[test]
     fn changed_target_defeats_publication_and_pause_prevents_dispatch() {
-        let (_dir, mut store, conversation, target) = setup();
+        let (_dir, mut store, owner, target) = setup();
         store
             .connection
             .execute("UPDATE ai_config SET paused=1", [])
             .unwrap();
         assert!(
             store
-                .begin_transcription("paused", &conversation, &target)
+                .begin_transcription("paused", &owner, &target)
                 .is_err()
         );
-        assert!(views(&store.connection, &conversation).unwrap().is_empty());
+        assert!(views(&store.connection, &owner).unwrap().is_empty());
         store
             .connection
             .execute("UPDATE ai_config SET paused=0", [])
             .unwrap();
         store
-            .begin_transcription("recording", &conversation, &target)
+            .begin_transcription("recording", &owner, &target)
             .unwrap();
         store
             .connection
@@ -340,24 +397,19 @@ mod tests {
             .unwrap();
         assert_eq!(
             store
-                .finish_transcription(
-                    "recording",
-                    &conversation,
-                    &target,
-                    Ok("Late speech".into())
-                )
+                .finish_transcription("recording", &owner, &target, Ok("Late speech".into()))
                 .unwrap_err()
                 .code,
             ErrorCode::UnknownOutcome
         );
         assert_eq!(
-            views(&store.connection, &conversation).unwrap()[0].state,
+            views(&store.connection, &owner).unwrap()[0].state,
             "unknown"
         );
     }
     #[test]
     fn unrelated_settings_revision_does_not_discard_recorded_words() {
-        let (_dir, mut store, conversation, target) = setup();
+        let (_dir, mut store, owner, target) = setup();
         store
             .connection
             .execute(
@@ -366,7 +418,7 @@ mod tests {
             )
             .unwrap();
         store
-            .begin_transcription("recording", &conversation, &target)
+            .begin_transcription("recording", &owner, &target)
             .unwrap();
         store
             .connection
@@ -374,12 +426,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             store
-                .finish_transcription(
-                    "recording",
-                    &conversation,
-                    &target,
-                    Ok("Recorded words".into())
-                )
+                .finish_transcription("recording", &owner, &target, Ok("Recorded words".into()))
                 .unwrap(),
             "Recorded words"
         );

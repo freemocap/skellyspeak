@@ -5,7 +5,7 @@ use crate::{
     configuration::{LanguageContext, Registry},
     conversations::{coach_prompt, conversation_prompt, translation, turn_plan},
     learning::coaching::{self, conversation_support, skill_assessment},
-    model::{AppError, Difficulty, ErrorCode, Result},
+    model::{AppError, ErrorCode, Result},
     partners::persona::{self, persona_prompt},
 };
 use serde::Serialize;
@@ -105,7 +105,7 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 "{}: ordered system-prompt fragments. Optional fragments depend on conversation settings. Prior messages and the current learner input (or opening brief) follow as separate messages.",
                 conversation_prompt::VERSION
             );
-            node.source = "content/prompts/conversation/instructions.yaml; native/src/conversations/conversation_prompt.rs".into();
+            node.source = "content/prompts/conversation/instructions.yaml; native/src/conversations/conversation_prompt.rs; native/src/configuration/difficulty.rs".into();
             node.templates = vec![
                 section("system · base", c.base.clone()),
                 section(
@@ -120,16 +120,13 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                     "Target-language writing: {{languageGuidance.target_writing}}\n\n{{languageGuidance.pragmatics}}",
                 ),
             ];
-            for (label, level) in [
-                ("absolute zero", Difficulty::AbsoluteZero),
-                ("beginner", Difficulty::Beginner),
-                ("intermediate", Difficulty::Intermediate),
-                ("advanced", Difficulty::Advanced),
-                ("fluent", Difficulty::Fluent),
-            ] {
+            for level in crate::configuration::difficulty::LEVELS {
                 node.templates.push(section(
-                    &format!("system · difficulty option: {label}"),
-                    conversation_prompt::difficulty(
+                    &format!(
+                        "system · difficulty option: {}",
+                        crate::configuration::difficulty::prompt_label(&level).to_lowercase()
+                    ),
+                    crate::configuration::difficulty::instruction(
                         c,
                         "{{targetLanguage}} ({{targetVariety}})",
                         &level,

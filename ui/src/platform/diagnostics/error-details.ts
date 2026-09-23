@@ -90,7 +90,11 @@ export function errorDetails(error: unknown, extra: unknown = undefined): Record
       ...(cause !== undefined ? { cause: describe(cause, depth + 1) } : {}),
     }
   }
-  const envelope = metadata(error)
+  // Tauri argument-validation failures arrive as plain strings. They are error
+  // explanations, just like an object's `message`, not unclassified content.
+  // Apply the same span scrubber in both representations instead of retaining
+  // the headline while replacing its duplicate in `fields` with a content tag.
+  const envelope = metadata(typeof error === 'string' ? { message: error } : error)
   const diagnosticMetadata = field(envelope, 'diagnostics')
   return { ...describe(error), metadata: diagnosticMetadata, fields: envelope, ...(extra !== undefined ? { context: metadata(extra) } : {}), redaction: 'sensitive spans and unclassified fields removed' }
 }

@@ -483,3 +483,52 @@ fn unclear_and_unbound_translation_fail_without_publishing_and_keep_usage() {
         assert!(!error.contains(&invalid));
     }
 }
+
+#[test]
+fn explicit_reading_translation_sends_the_same_request_as_a_translation_turn() {
+    let (_dir, mut store, conversation) = setup();
+    let first = begin(&mut store, &conversation);
+    store.finish(&first, Ok(reply("Hola."))).unwrap();
+    let turn = store.dispatch().unwrap().unwrap();
+    let (variety, explanation, explanation_variety): (String, String, String) = store
+        .connection
+        .query_row(
+            "SELECT json_extract(settings,'$.varietyId'),json_extract(settings,'$.explanationLanguage'),json_extract(settings,'$.explanationVarietyId') FROM conversation_settings WHERE conversation_id=?1",
+            [&conversation],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    let request = crate::language::reading::Request::capture(
+        &store,
+        crate::language::reading::ReadingInput {
+            reference_item: None,
+            text: "Hola.".into(),
+            language: "spanish".into(),
+            variety: Some(variety),
+            explanation,
+            explanation_variety: Some(explanation_variety),
+            aid: crate::language::reading::ReadingAid::Translation,
+        },
+    )
+    .unwrap();
+    let (reading, schema) = request.translation_dispatch().unwrap();
+    assert_eq!(
+        serde_json::to_value(&reading.messages).unwrap(),
+        serde_json::to_value(&turn.messages).unwrap()
+    );
+    assert_eq!(reading.coaching_schema, turn.coaching_schema);
+    assert_eq!(Some(schema), turn.coaching_schema);
+    assert_eq!(reading.model, turn.model);
+    assert_eq!(reading.model, "google/gemini-2.5-flash-lite");
+    assert_eq!(reading.temperature, turn.temperature);
+    assert_eq!(
+        (reading.route, &reading.target.url, &reading.credential),
+        (turn.route, &turn.target.url, &turn.credential)
+    );
+    // Both engines validate a reply with the same contract.
+    let completion = translation_reply(&turn, "Hello.");
+    assert_eq!(
+        crate::conversations::translation::validate("Hola.", &completion).unwrap(),
+        "Hello."
+    );
+}

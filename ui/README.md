@@ -31,6 +31,7 @@ infrastructure.
 | --- | --- |
 | `app/` | `shell/`, `windows/`, `navigation/`, `shortcuts/`; startup and composition remain at the root |
 | `features/conversation/` | `session/`, `messages/`, `composer/`, `reading/`, `coaching/`, `partners/`, `progress/`, `speech/`; composed by `ConversationPage.tsx` |
+| `features/drill/` | Manual phrase/attempt composition, session/visit lifecycle and recording storage controls; uses shared reading components and `platform/audio/` |
 | `features/skills/` | `overview/`, `evidence/`, `learner/`; composed by `SkillsPage.tsx` |
 | `features/settings/` | `access/`, `appearance/`, `language/`, `workspace/`; composed by the settings dialog/modal |
 | `features/languages/` | In-app language browser and source/model inspection |

@@ -63,11 +63,20 @@ impl Registry {
             game: policy.game,
             topics,
             conversation_prompt: parse(&files, "prompts/conversation/instructions.yaml")?,
+            drill_instruction: parse(&files, "prompts/drill/instructions.yaml")?,
             hash: String::new(),
             documents: BTreeMap::new(),
             source_files: files.clone(),
             goal_material: BTreeMap::new(),
         };
+        if registry.drill_instruction.trim().is_empty() || registry.drill_instruction.len() > 16000
+        {
+            return Err(error(
+                "prompts/drill/instructions.yaml",
+                "instruction",
+                "Drill instructions must be nonempty and bounded.",
+            ));
+        }
         registry.add_definitions(
             "shared",
             &foundations.orthographies,
@@ -92,6 +101,7 @@ impl Registry {
                 "shared/teaching-policy.yaml",
                 "shared/conversation-topics.yaml",
                 "prompts/conversation/instructions.yaml",
+                "prompts/drill/instructions.yaml",
                 "references.bib",
             ]
             .contains(&name.as_str())

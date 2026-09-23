@@ -306,3 +306,79 @@ fn held_requests_wait_and_invalid_brief_keeps_attempt_metadata() {
     assert!(request_suggestions(&store.connection, &message).is_err());
     assert!(retry_reply_help(&store.connection, &message, ReplyHelpKind::Brief).is_err());
 }
+
+#[test]
+fn explicit_reading_explanations_use_the_explanation_turn_contract() {
+    let (_dir, mut store, conversation) = setup();
+    let (_turn, message, brief) = partner(&mut store, &conversation, false);
+    store
+        .finish(
+            &brief,
+            Ok(reply(r#"{"explanation":"They ask who went with you."}"#)),
+        )
+        .unwrap();
+    request_explanations(&store.connection, &message).unwrap();
+    let turn = store.dispatch().unwrap().unwrap();
+    let (variety, explanation, explanation_variety): (String, String, String) = store
+        .connection
+        .query_row(
+            "SELECT json_extract(settings,'$.varietyId'),json_extract(settings,'$.explanationLanguage'),json_extract(settings,'$.explanationVarietyId') FROM conversation_settings WHERE conversation_id=?1",
+            [&conversation],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    let request = crate::language::reading::Request::capture(
+        &store,
+        crate::language::reading::ReadingInput {
+            reference_item: None,
+            text: "¿Con quién fuiste?".into(),
+            language: "spanish".into(),
+            variety: Some(variety),
+            explanation,
+            explanation_variety: Some(explanation_variety),
+            aid: crate::language::reading::ReadingAid::Explanations,
+        },
+    )
+    .unwrap();
+    let reading = request.explanations_dispatch().unwrap();
+    // The same instruction; the explained text is the partner reply, without
+    // the conversation's surrounding exchange.
+    assert_eq!(reading.messages[0].role, turn.messages[0].role);
+    assert_eq!(reading.messages[0].content, turn.messages[0].content);
+    let data: serde_json::Value = serde_json::from_str(&reading.messages[1].content).unwrap();
+    let turn_data: serde_json::Value = serde_json::from_str(&turn.messages[1].content).unwrap();
+    assert_eq!(data["actualPartnerReply"], turn_data["actualPartnerReply"]);
+    assert_eq!(data["precedingExchange"], serde_json::json!([]));
+    assert!(data["latestLearnerInput"].is_null());
+    assert_eq!(reading.coaching_schema, turn.coaching_schema);
+    assert_eq!(
+        reading.coaching_schema.as_ref().unwrap(),
+        &support::schema(support::EXPLANATIONS)
+    );
+    assert_eq!(reading.model, turn.model);
+    assert_eq!(reading.temperature, turn.temperature);
+    assert_eq!(
+        (reading.route, &reading.target.url, &reading.credential),
+        (turn.route, &turn.target.url, &turn.credential)
+    );
+    // Both validate quotes against the explained text.
+    let card = |quote: &str| {
+        reply(&serde_json::json!({"cards":[{"quote":quote,"title":"Question word","body":"Asks who.","example":"¿Con quién vas?","contrast":""}]}).to_string())
+    };
+    assert!(
+        support::validate_source(
+            "¿Con quién fuiste?",
+            support::EXPLANATIONS,
+            &card("Con quién")
+        )
+        .is_ok()
+    );
+    assert!(
+        support::validate_source("¿Con quién fuiste?", support::EXPLANATIONS, &card("Dónde"))
+            .is_err()
+    );
+    store.finish(&turn, Ok(card("Dónde"))).unwrap();
+    let saved = store.conversation_snapshot(&conversation, None).unwrap();
+    let saved = saved.messages.iter().find(|m| m.id == message).unwrap();
+    assert!(saved.reply_explanations.is_none());
+}

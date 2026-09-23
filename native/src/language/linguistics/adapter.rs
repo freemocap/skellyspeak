@@ -258,18 +258,6 @@ pub fn decode_word_gloss_with_context(
     decode_word_gloss_context(identity, source, raw, Some(context))
 }
 
-pub fn validate_word_gloss_completion_with_context(
-    identity: &SourceIdentity,
-    source: &str,
-    completion: &provider::Completion,
-    context: &crate::configuration::LanguageContext,
-) -> Result<ValidatedAnalysis, AdapterError> {
-    if completion.finish_reason == "error" {
-        return Err(AdapterError::InvalidTermination);
-    }
-    decode_word_gloss_with_context(identity, source, &completion.text, context)
-}
-
 fn decode_word_gloss_context(
     identity: &SourceIdentity,
     source: &str,

@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../../platform/ipc/tauri'
 import { executeAction, nativeError, readWorkspace } from '../../../platform/ipc/workspace'
 import { useConversationSnapshot } from '../session/useConversationSnapshot'
-import { type AnalysedTurn, type InspectTarget } from '../reading/AnalysisContent'
+import { type AnalysedTurn } from '../reading/AnalysisContent'
 import { Markdown } from '../../../components/reading/Markdown'
 
 export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, autoSendDraft = false, coachingContent, onCollapse }: {
@@ -17,7 +17,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   coachingContent?: ReactNode
   conversationBusy: boolean; chatId: string; tab: 'coaching' | 'evidence'; onTab: (tab: 'coaching' | 'evidence') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
-  inspect: InspectTarget | null; nativeLanguageName: string; showRomanization: boolean; rtl: boolean
+  nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
   const tr = useI18n()
   const { snapshot, readError, retryRead } = useConversationSnapshot(isTauri ? chatId : null)

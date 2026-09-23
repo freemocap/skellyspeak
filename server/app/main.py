@@ -293,7 +293,7 @@ def auth_start(
 
 
 @app.get("/auth/callback/google")
-async def auth_callback_google(request: Request, code: str = "", state: str = "", error: str = "") -> RedirectResponse:
+async def auth_callback_google(request: Request, code: str = "", state: str = "", error: str = "") -> Response:
     """Where Google returns. Exchanges the code, then hands the app a one-time
     code through its own redirect — never the session token itself."""
     if error:

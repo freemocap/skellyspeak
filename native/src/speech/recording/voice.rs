@@ -3,12 +3,13 @@ use crate::application::Application;
 use crate::model::*;
 #[cfg(desktop)]
 use crate::speech::recording::audio;
-use rusqlite::OptionalExtension;
+use crate::speech::recording::owner::RecordingOwner;
 use std::sync::Arc;
 
 pub struct Recording {
     id: String,
-    conversation: String,
+    owner: RecordingOwner,
+    visit: Option<String>,
     target: access::ResolvedTarget,
     language: crate::ai::audio::TranscriptionLanguage,
     context: Option<String>,
@@ -21,10 +22,10 @@ fn fault(message: impl Into<String>) -> AppError {
 #[tauri::command]
 pub async fn mic_start(
     state: tauri::State<'_, Arc<Application>>,
-    conversation_id: String,
+    owner: RecordingOwner,
 ) -> Result<RecordingStarted> {
     let state = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || start_capture(&state, conversation_id))
+    tauri::async_runtime::spawn_blocking(move || start_capture(&state, owner))
         .await
         .map_err(|cause| {
             crate::diagnostics::failures::join(
@@ -34,7 +35,11 @@ pub async fn mic_start(
             )
         })?
 }
-fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<RecordingStarted> {
+/// One capture at a time, whatever owns it: Chat and Drill share this slot.
+pub(crate) fn start_capture(
+    state: &Arc<Application>,
+    owner: RecordingOwner,
+) -> Result<RecordingStarted> {
     let mut slot = state.capture.lock().map_err(|_| {
         crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
     })?;
@@ -44,39 +49,24 @@ fn start_capture(state: &Arc<Application>, conversation_id: String) -> Result<Re
     let store = state.lock()?;
     let target = access::resolve(&store.connection, access::Capability::Transcription)?;
     crate::ai::policy::holds::check(&store.connection, &target)?;
-    let snapshot = store.snapshot()?;
-    let conversation = snapshot
-        .conversations
-        .iter()
-        .find(|c| c.id == conversation_id && !c.archived)
-        .ok_or_else(|| fault("Conversation is unavailable."))?;
-    let context = store.config.resolve_pair(
-        &conversation.language_id,
-        Some(&conversation.settings.variety_id),
-        &conversation.settings.explanation_language,
-        Some(&conversation.settings.explanation_variety_id),
-    )?;
-    let language = crate::ai::audio::TranscriptionLanguage {
-        language_id: conversation.language_id.clone(),
-        variety_id: conversation.settings.variety_id.clone(),
-        language_tag: context
-            .external_tags
-            .get("language_tag")
-            .cloned()
-            .ok_or_else(|| fault("The selected language has no language tag."))?,
+    // Language, variety and recognizer context come from the owner's record.
+    let scope = owner.scope(&store)?;
+    let visit = match &owner {
+        RecordingOwner::Conversation(_) => None,
+        RecordingOwner::DrillItem(item) => Some(crate::drill::sessions::active_visit(
+            &store.connection,
+            item,
+        )?),
     };
-    crate::ai::audio::validate_transcription_language(&target, &language)?;
-    let previous: Option<String> = store.connection.query_row(
-        "SELECT m.text FROM messages m JOIN turns t ON t.id=m.turn_id WHERE m.conversation_id=?1 AND m.role='assistant' AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=t.id AND o.kind IN ('persona_reply','persona_opening') AND o.state='succeeded') ORDER BY m.sequence DESC LIMIT 1",
-        [&conversation_id], |row| row.get(0),
-    ).optional()?;
+    crate::ai::audio::validate_transcription_language(&target, &scope.language)?;
     drop(store);
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),
-        conversation: conversation_id,
+        owner,
+        visit,
         target,
-        language,
-        context: previous,
+        language: scope.language,
+        context: scope.context,
         #[cfg(desktop)]
         capture: audio::start(None).map_err(fault)?,
     };
@@ -143,7 +133,7 @@ pub async fn mic_transcribe(
         let store = state.lock()?;
         crate::speech::recording::transcription::permitted(
             &store.connection,
-            &recording.conversation,
+            &recording.owner,
             &recording.target,
         )?;
         (
@@ -188,12 +178,12 @@ pub async fn mic_transcribe(
         bytes
     };
     let inspection_recording = recording.id.clone();
-    let inspection_conversation = recording.conversation.clone();
+    let inspection_owner = recording.owner.clone();
     let (wav, mut inspection) = tauri::async_runtime::spawn_blocking(move || {
         let (inspection, _) = crate::speech::analysis::audio_inspection::inspect_wav(
             &wav,
             &inspection_recording,
-            &inspection_conversation,
+            &inspection_owner,
         )?;
         Ok::<_, AppError>((wav, inspection))
     })
@@ -216,7 +206,7 @@ pub async fn mic_transcribe(
         crate::ai::policy::holds::check(&store.connection, &recording.target)?;
         crate::speech::recording::transcription::permitted(
             &store.connection,
-            &recording.conversation,
+            &recording.owner,
             &recording.target,
         )?;
         Ok(())
@@ -228,9 +218,12 @@ pub async fn mic_transcribe(
     };
     validate()?;
     let client = crate::ai::transport::provider::client()?;
-    state
-        .lock()?
-        .begin_transcription(&recording_id, &recording.conversation, &recording.target)?;
+    state.lock()?.begin_transcription_in_visit(
+        &recording_id,
+        &recording.owner,
+        &recording.target,
+        recording.visit.as_deref(),
+    )?;
     use base64::Engine;
     let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
 
@@ -268,12 +261,13 @@ pub async fn mic_transcribe(
         );
         response.result.text
     });
-    let text = state.lock()?.finish_transcription_with_diagnostics(
+    let text = state.lock()?.publish_transcription(
         &recording_id,
-        &recording.conversation,
+        &recording.owner,
         &recording.target,
         result,
         diagnostics.as_ref(),
+        Some(&input.wav),
     )?;
     Ok(
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult {

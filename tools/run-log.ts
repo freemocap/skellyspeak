@@ -11,7 +11,19 @@ function privateDirectory(path: string): void {
 }
 
 const privacy = JSON.parse(readFileSync(new URL('../content/diagnostics/policy.json', import.meta.url), 'utf8')) as {
-  secretTag: string; contentTag: string; rules: { pattern: string; flags: string; kind: string; prefix?: boolean }[]
+  secretTag: string; contentTag: string; rules: { pattern: string; flags: string; kind: string; prefix?: boolean; terminal?: boolean }[]
+}
+/** Interactive output is not a diagnostic export. Keep useful content and locations. */
+export function redactTerminal(text: string, secrets: string[]): string {
+  // Keep the endpoint usable, but never echo URL credentials or query/fragment values.
+  let result = text.replace(/https?:\/\/[^\s<>"')\u001b]+/gi, url => url
+    .replace(/^(https?:\/\/)[^/?#]*@/i, `$1${privacy.secretTag}@`)
+    .replace(/[?#].*$/, privacy.secretTag))
+  for (const secret of [...secrets].filter(Boolean).sort((a, b) => b.length - a.length)) result = result.split(secret).join(privacy.secretTag)
+  for (const rule of privacy.rules.filter(rule => rule.kind === 'secret' && rule.terminal !== false)) {
+    result = result.replace(new RegExp(rule.pattern, `${rule.flags}g`), `${rule.prefix ? '$1' : ''}${privacy.secretTag}`)
+  }
+  return result
 }
 export function redactLog(text: string, secrets: string[]): string {
   let result = text
@@ -32,6 +44,7 @@ export class LineLog {
   private pending = ''
   private sequence = 0
   private oversized = false
+  private privateKey = false
   private fd: number
   private source: string
   private secrets: string[]
@@ -41,11 +54,18 @@ export class LineLog {
     this.fd = openSync(path, 'wx', 0o600)
   }
   private line(message: string): void {
+    // PEM credentials span lines; redact their continuation before either sink.
+    if (!message.startsWith('[partial write:')) {
+      const wasPrivateKey = this.privateKey
+      if (/-----BEGIN [^-]*PRIVATE KEY-----/.test(message)) this.privateKey = true
+      if (/-----END [^-]*PRIVATE KEY-----/.test(message)) this.privateKey = false
+      if (wasPrivateKey) message = privacy.secretTag
+    }
     const clean = redactLog(message, this.secrets)
     const bytes = Buffer.from(JSON.stringify({ timestamp: new Date().toISOString(), sequence: ++this.sequence, source: this.source, message: clean }) + '\n')
     let offset = 0
     while (offset < bytes.length) offset += writeSync(this.fd, bytes, offset, bytes.length - offset)
-    if (!message.startsWith('[partial write:')) this.mirror?.(clean)
+    if (!message.startsWith('[partial write:')) this.mirror?.(redactTerminal(message, this.secrets))
   }
   write(chunk: Buffer): void {
     const parts = this.decoder.write(chunk).split('\n')

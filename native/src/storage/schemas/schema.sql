@@ -27,9 +27,34 @@ CREATE TABLE messages(id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFEREN
 CREATE TABLE operations(id TEXT PRIMARY KEY, turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE, kind TEXT NOT NULL, state TEXT NOT NULL, permit INTEGER NOT NULL DEFAULT 0, UNIQUE(turn_id,kind));
 CREATE TABLE attempts(id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES operations(id) ON DELETE CASCADE, state TEXT NOT NULL, requested_model TEXT NOT NULL, actual_model TEXT, provider_id TEXT, started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), finished_at TEXT, input_tokens INTEGER, output_tokens INTEGER, error TEXT, diagnostics TEXT CHECK(diagnostics IS NULL OR json_valid(diagnostics)), request_messages TEXT CHECK(request_messages IS NULL OR json_valid(request_messages)), response_text TEXT CHECK(response_text IS NULL OR length(CAST(response_text AS BLOB))<=262144), preview_text TEXT CHECK(preview_text IS NULL OR length(CAST(preview_text AS BLOB))<=262144));
 CREATE TABLE inference_holds(id TEXT PRIMARY KEY, generation TEXT NOT NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), error TEXT NOT NULL CHECK(json_valid(error)));
-CREATE TABLE transcription_attempts(id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), model TEXT NOT NULL, profile_revision INTEGER NOT NULL, state TEXT NOT NULL CHECK(state IN ('running','succeeded','failed','unknown')), started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), finished_at TEXT, error TEXT, diagnostics TEXT CHECK(diagnostics IS NULL OR json_valid(diagnostics)));
+-- One drill item is a target-language line the learner practises saying. Sets,
+-- sessions and visits arrive with Drill itself; an item is what a recording can
+-- belong to today.
+CREATE TABLE drill_items(id TEXT PRIMARY KEY, source TEXT NOT NULL DEFAULT '{"kind":"own"}' CHECK(json_valid(source)), language_id TEXT NOT NULL, variety_id TEXT NOT NULL, explanation_language TEXT NOT NULL, explanation_variety_id TEXT NOT NULL, text TEXT NOT NULL, archived INTEGER NOT NULL DEFAULT 0 CHECK(archived IN (0,1)), created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')));
+-- Manual Drill sessions are scoped to a practice language until sets exist.
+CREATE TABLE drill_sessions(id TEXT PRIMARY KEY, language_id TEXT NOT NULL, started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), ended_at TEXT, end_reason TEXT CHECK(end_reason IS NULL OR end_reason IN ('left','replaced','interrupted')));
+CREATE UNIQUE INDEX drill_session_active ON drill_sessions((1)) WHERE ended_at IS NULL;
+CREATE TABLE drill_visits(id TEXT PRIMARY KEY, session_id TEXT NOT NULL REFERENCES drill_sessions(id) ON DELETE CASCADE, drill_item_id TEXT NOT NULL REFERENCES drill_items(id) ON DELETE CASCADE, entered_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), left_at TEXT);
+CREATE UNIQUE INDEX drill_visit_active ON drill_visits(session_id) WHERE left_at IS NULL;
+-- A recording belongs to exactly one owner: a conversation or a drill item.
+CREATE TABLE transcription_attempts(id TEXT PRIMARY KEY, conversation_id TEXT REFERENCES conversations(id) ON DELETE CASCADE, drill_item_id TEXT REFERENCES drill_items(id) ON DELETE CASCADE, drill_visit_id TEXT REFERENCES drill_visits(id) ON DELETE SET NULL, route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')), model TEXT NOT NULL, profile_revision INTEGER NOT NULL, state TEXT NOT NULL CHECK(state IN ('running','succeeded','failed','unknown')), started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), finished_at TEXT, error TEXT, diagnostics TEXT CHECK(diagnostics IS NULL OR json_valid(diagnostics)), CHECK((conversation_id IS NULL)!=(drill_item_id IS NULL)));
 CREATE INDEX transcription_conversation ON transcription_attempts(conversation_id);
-PRAGMA user_version=28;
+CREATE INDEX transcription_drill_item ON transcription_attempts(drill_item_id);
+-- One recorded attempt at a drill item. The provider receipt lives in
+-- transcription_attempts; this row holds what Drill itself owns: the transcript
+-- it compared, the comparison result, and where the audio is until it is pruned.
+CREATE TABLE drill_attempts(id TEXT PRIMARY KEY, drill_item_id TEXT NOT NULL REFERENCES drill_items(id) ON DELETE CASCADE, transcription_attempt_id TEXT REFERENCES transcription_attempts(id) ON DELETE SET NULL, visit_id TEXT REFERENCES drill_visits(id) ON DELETE SET NULL, sequence INTEGER NOT NULL, transcript TEXT NOT NULL, comparison TEXT NOT NULL CHECK(json_valid(comparison)), audio_bytes INTEGER, pending_audio BLOB, audio_pruned_at TEXT, created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), UNIQUE(drill_item_id,sequence));
+CREATE INDEX drill_attempts_visit ON drill_attempts(visit_id);
+CREATE INDEX drill_attempts_item ON drill_attempts(drill_item_id,sequence);
+-- One attempt per recording: a retried save cannot store the same utterance twice.
+CREATE UNIQUE INDEX drill_attempts_recording ON drill_attempts(transcription_attempt_id) WHERE transcription_attempt_id IS NOT NULL;
+-- Regenerable reference audio, bounded separately from learner recordings.
+CREATE TABLE drill_references(drill_item_id TEXT PRIMARY KEY REFERENCES drill_items(id) ON DELETE CASCADE, cache_key TEXT NOT NULL, audio BLOB NOT NULL, receipt_id TEXT NOT NULL REFERENCES reading_attempts(id), last_used INTEGER NOT NULL);
+CREATE TABLE drill_storage(id INTEGER PRIMARY KEY CHECK(id=1), limit_mb INTEGER NOT NULL CHECK(limit_mb BETWEEN 0 AND 100000));
+INSERT INTO drill_storage(id,limit_mb) VALUES(1,500);
+CREATE TABLE drill_previews(id TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('generated','conversation')), input TEXT NOT NULL CHECK(json_valid(input)), receipt_id TEXT REFERENCES generation_attempts(id), ready INTEGER NOT NULL DEFAULT 0, expires_at TEXT NOT NULL DEFAULT(datetime('now','+1 day')));
+CREATE TABLE drill_candidates(id TEXT PRIMARY KEY, preview_id TEXT NOT NULL REFERENCES drill_previews(id) ON DELETE CASCADE, ordinal INTEGER NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)), accepted_item_id TEXT, UNIQUE(preview_id,ordinal));
+PRAGMA user_version=37;
 
 CREATE TRIGGER revision_link_insert BEFORE INSERT ON turns WHEN NEW.replaces_turn_id IS NOT NULL AND (NEW.replaces_turn_id=NEW.id OR NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id)) BEGIN SELECT RAISE(ABORT,'Invalid revision ownership'); END;
 CREATE TRIGGER revision_link_update BEFORE UPDATE OF replaces_turn_id ON turns WHEN OLD.replaces_turn_id IS NOT NULL OR NEW.replaces_turn_id=NEW.id OR (NEW.replaces_turn_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id AND rowid<OLD.rowid)) BEGIN SELECT RAISE(ABORT,'Invalid revision chain'); END;

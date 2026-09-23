@@ -580,13 +580,26 @@ existing sessions but permits signing in again. Effective service overrides surv
 redeployment in `service_controls/limits`; missing overrides use environment/code
 defaults. The extended allowance is a preset copied into individual account limits.
 
+For hosted access, open `<PUBLIC_BASE_URL>/admin` in a browser and choose **Sign in
+with Google**, using `info@freemocap.org`. The panel is served by the same Cloud Run
+service as the API; it does not require a separate admin deployment. This requires
+a deployed revision containing the admin routes and the existing Google OAuth
+callback configuration. Local admin launch tokens do not grant hosted access.
+
+**Maximum registered accounts** controls new learner registrations, not concurrent
+sessions or the number of sign-in attempts. The Cloud Build default `_MAX_USERS`
+is 12 and supplies the runtime `MAX_USERS` environment variable. To change a live
+service with the panel deployed, edit that field and review/apply the change.
+The stored admin override takes precedence over `MAX_USERS`, including after a
+redeployment. Existing accounts can still sign in when the ceiling is reached.
+
 UI source is `ui/src/features/admin/entry.ts`, with the shared-token stylesheet at
 `ui/src/styles/features/admin.css` and HTML source in `ui/tools/admin.html`.
 Generated browser assets are explicitly included in the runtime image:
 
 ```sh
 node ui/tools/admin-build.ts
-node_modules/.bin/tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext ui/src/features/admin/entry.ts ui/tools/admin-build.ts
+node_modules/.bin/tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler ui/src/features/admin/entry.ts ui/tools/admin-build.ts
 node ui/tools/admin-build.ts --check
 ```
 

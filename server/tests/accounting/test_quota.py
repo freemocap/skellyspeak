@@ -166,32 +166,35 @@ def check_allowed(db: FakeDb, user_id: str, *, user_limit: int, global_limit: in
 
 
 class TestAccountCeiling:
-    def test_accounts_up_to_the_ceiling_are_created(self, db):
-        for n in range(6):
-            signup(db, n, max_users=6)
-        assert counted(db) == 6
+    @pytest.mark.parametrize("ceiling", [6, 12])
+    def test_accounts_up_to_the_ceiling_are_created(self, db, ceiling):
+        for n in range(ceiling):
+            signup(db, n, max_users=ceiling)
+        assert counted(db) == ceiling
         assert db.store["users/google:0"]["email"] == "user0@example.com"
 
-    def test_the_next_account_is_refused_with_a_readable_message(self, db):
-        for n in range(6):
-            signup(db, n, max_users=6)
+    @pytest.mark.parametrize("ceiling", [6, 12])
+    def test_the_next_account_is_refused_with_a_readable_message(self, db, ceiling):
+        for n in range(ceiling):
+            signup(db, n, max_users=ceiling)
         with pytest.raises(quota.SignupClosed) as caught:
-            signup(db, 6, max_users=6)
+            signup(db, ceiling, max_users=ceiling)
         # The message reaches the user's screen verbatim, so it must point
         # somewhere useful rather than just saying no.
         assert "closed testing" in str(caught.value)
         assert "Settings" in str(caught.value)
         # And nothing was written for the refused account.
-        assert counted(db) == 6
-        assert "users/google:6" not in db.store
+        assert counted(db) == ceiling
+        assert f"users/google:{ceiling}" not in db.store
 
-    def test_an_existing_user_is_never_blocked_or_double_counted(self, db):
-        for n in range(6):
-            signup(db, n, max_users=6)
+    @pytest.mark.parametrize("ceiling", [6, 12])
+    def test_an_existing_user_is_never_blocked_or_double_counted(self, db, ceiling):
+        for n in range(ceiling):
+            signup(db, n, max_users=ceiling)
         # Full — but someone who already has an account signs in as usual.
-        signup(db, 3, max_users=6)
-        signup(db, 3, max_users=6)
-        assert counted(db) == 6
+        signup(db, 3, max_users=ceiling)
+        signup(db, 3, max_users=ceiling)
+        assert counted(db) == ceiling
 
     def test_signing_in_again_refreshes_the_profile(self, db):
         signup(db, 1, max_users=6)

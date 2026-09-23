@@ -6,7 +6,7 @@ mod response;
 pub use keys::{validate_key_format, verify_key};
 pub use payload::{
     GLOSS_OUTPUT_TOKENS, MAX_OUTPUT_TOKENS, RequestOutput, dispatch_payload, payload,
-    payload_with_output,
+    payload_with_output, structured_output,
 };
 pub use request::{client, complete, complete_streaming, complete_with_output};
 pub use response::{decode, strip_prose_emojis, validate_prose};

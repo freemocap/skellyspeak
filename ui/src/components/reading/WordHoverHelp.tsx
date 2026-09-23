@@ -22,7 +22,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   const saved = useSavedReading()
   const localParts = useMemo(() => {
     const source = saved(selection.text, selection.scope)
-    const cached = peek({...selection.scope, text:selection.text, speech:false})?.gloss?.segments ?? []
+    const cached = peek({...selection.scope, text:selection.text, aid:'word_gloss'})?.gloss?.segments ?? []
     return [...source, ...cached.filter(part => !source.some(item => item.start < part.end && item.end > part.start))]
       .filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss')
   }, [saved, peek, selection])
@@ -33,15 +33,30 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   const [result, setResult] = useState<ReadingResult | null>(null)
   const [failure, setFailure] = useState<unknown>(null)
   const [attempt, setAttempt] = useState(0)
+  // One request per opening and per explicit retry. Saved and cached meanings
+  // are read at that moment only: a later cache update, including a result that
+  // leaves this word unresolved, never asks again on its own. A new source text
+  // or language scope is a different question: it cancels whatever is pending
+  // and clears its state, so a result only ever reaches the source that asked.
+  const known = useRef(localParts)
+  known.current = localParts
+  const request = useRef<AbortController | null>(null)
+  const requested = useRef<string | null>(null)
+  const requestKey = JSON.stringify([selection.scope, selection.text, attempt])
+  useEffect(() => () => request.current?.abort(), [])
   useEffect(() => {
-    if (!lookup || localParts.length) return
-    const controller = new AbortController()
+    if (!lookup || requested.current === requestKey) return
+    requested.current = requestKey
+    request.current?.abort()
+    request.current = null
     setResult(null); setFailure(null)
-    void lookup({ ...selection.scope, text: selection.text, speech: false }, controller.signal)
-      .then(value => { if (!controller.signal.aborted) setResult(value) })
-      .catch(error => { if (!controller.signal.aborted) setFailure(error) })
-    return () => controller.abort()
-  }, [lookup, selection, attempt, localParts])
+    if (known.current.length) return
+    const controller = new AbortController()
+    request.current = controller
+    void lookup({ ...selection.scope, text: selection.text, aid:'word_gloss' }, controller.signal)
+      .then(value => { if (request.current === controller) setResult(value) })
+      .catch(error => { if (request.current === controller) setFailure(error) })
+  }, [lookup, requestKey, selection.scope, selection.text])
   useLayoutEffect(() => {
     const card = helper.current, word = anchor.current
     if (!card || !word) return

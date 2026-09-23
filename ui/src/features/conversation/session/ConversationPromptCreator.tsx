@@ -6,7 +6,7 @@ import { invoke } from '../../../platform/ipc/native'
 import { nativeError } from '../../../platform/ipc/workspace'
 import { ConversationChoices } from './ConversationChoices'
 import { CustomTopicDialog } from './CustomTopicDialog'
-import { difficultyLabel } from './DifficultySelect'
+import { difficultyLabel } from '../../../components/controls/DifficultySelect'
 
 export function ConversationPromptCreator({ conversationId, initial, topics, savedTopics, language, persona, onApply, onClose }: {
   conversationId: string; initial: ConversationStartConfig; topics: TopicCard[]; savedTopics: SavedTopic[]; language: Language; persona: PersonaDetails

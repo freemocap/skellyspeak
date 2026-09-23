@@ -17,7 +17,7 @@ pub struct TranscriptionInspectionResult {
 #[serde(rename_all = "camelCase")]
 pub struct AudioInspection {
     pub recording_id: String,
-    pub conversation_id: String,
+    pub owner: crate::speech::recording::owner::RecordingOwner,
     pub duration: f64,
     pub sample_rate: u32,
     pub waveform: InspectionWaveform,
@@ -39,13 +39,38 @@ pub struct InspectionSpectrogram {
     pub frame_start_seconds: Vec<f64>,
     pub window_seconds: f64,
     pub fft_size: usize,
-    pub frequency_bin_hz: f64,
+    // The mel bands these rows describe, low to high, with their edges in Hz.
+    // The same grid for every recording, whatever its sample rate, so two
+    // panels can be compared row by row.
+    pub bands: Vec<InspectionMelBand>,
+    pub min_frequency_hz: f64,
     pub max_frequency_hz: f64,
+    // The highest frequency this recording could carry: the grid ceiling, or
+    // Nyquist when the sample rate is lower. Bands above it are unavailable,
+    // which is not the same as measured silence.
+    pub measured_max_frequency_hz: f64,
+    // How a frequency in Hz maps to a mel band, for anyone reading the numbers.
+    pub mel_scale: String,
+    // How each triangular filter is scaled before its power is summed.
+    pub normalization: String,
+    // What 0 dB means here.
+    pub db_reference: String,
     pub db_min: f32,
     pub db_max: f32,
-    // Time-major rows, frequency buckets ascending. One-sided Hann-window FFT
-    // power, normalized by squared window sum and summed within each bucket.
-    pub bins: Vec<Vec<f32>>,
+    // Time-major rows, mel bands ascending. One-sided Hann-window FFT power,
+    // normalized by the squared window sum, passed through the mel filterbank
+    // and expressed in dB relative to full-scale power. A band the recording
+    // cannot carry is null: unmeasurable, not silent.
+    pub bins: Vec<Vec<Option<f32>>>,
+}
+// One triangular mel filter: it rises from `low_hz` to `center_hz` and falls
+// to `high_hz`.
+#[derive(Debug, Clone, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct InspectionMelBand {
+    pub low_hz: f64,
+    pub center_hz: f64,
+    pub high_hz: f64,
 }
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
@@ -115,7 +140,7 @@ fn invalid(message: &str) -> AppError {
 pub(crate) fn inspect_wav(
     bytes: &[u8],
     recording_id: &str,
-    conversation_id: &str,
+    owner: &crate::speech::recording::owner::RecordingOwner,
 ) -> Result<(AudioInspection, fluency::LocalTiming)> {
     if bytes.len() < 44 || bytes.len() > MAX_BYTES {
         return Err(invalid("WAV must contain audio and be at most 25 MB."));
@@ -185,7 +210,7 @@ pub(crate) fn inspect_wav(
     Ok((
         AudioInspection {
             recording_id: recording_id.into(),
-            conversation_id: conversation_id.into(),
+            owner: owner.clone(),
             duration: local.duration,
             sample_rate: spec.sample_rate,
             waveform: InspectionWaveform {
@@ -245,15 +270,79 @@ fn fft(real: &mut [f64], imag: &mut [f64]) {
         length *= 2;
     }
 }
+/// Analysis parameters, stated once and reported with every result.
+/// Mel bands, not linear FFT bins: speech detail sits in the lowest couple of
+/// kHz, and a mel axis spends its rows there instead of on 6 kHz of hiss.
+const MEL_BANDS: usize = 64;
+const MEL_MIN_HZ: f64 = 50.0;
+const MEL_MAX_HZ: f64 = 8000.0;
+const MEL_SCALE: &str = "htk: mel = 2595 * log10(1 + hz / 700)";
+const MEL_NORMALIZATION: &str = "unit-peak triangular filters";
+const DB_REFERENCE: &str = "0 dB = full-scale power (1.0)";
+
+fn to_mel(hz: f64) -> f64 {
+    2595.0 * (1.0 + hz / 700.0).log10()
+}
+fn from_mel(mel: f64) -> f64 {
+    700.0 * (10.0_f64.powf(mel / 2595.0) - 1.0)
+}
+
+/// Triangular filter edges, evenly spaced on the mel scale between `low` and
+/// `high`. Adjacent filters overlap by half a band, so every frequency in range
+/// is covered.
+fn mel_bands(low: f64, high: f64) -> Vec<InspectionMelBand> {
+    let (low_mel, high_mel) = (to_mel(low), to_mel(high));
+    let step = (high_mel - low_mel) / (MEL_BANDS + 1) as f64;
+    (0..MEL_BANDS)
+        .map(|band| InspectionMelBand {
+            low_hz: from_mel(low_mel + step * band as f64),
+            center_hz: from_mel(low_mel + step * (band + 1) as f64),
+            high_hz: from_mel(low_mel + step * (band + 2) as f64),
+        })
+        .collect()
+}
+
 fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
     let n = ((rate as usize * 25 / 1000).max(256))
         .next_power_of_two()
         .min(8192);
     let hop = (n / 2).max(samples.len().div_ceil(400));
     let resolution = rate as f64 / n as f64;
-    let last_bin = (8000.0 / resolution).floor() as usize;
+    // Every recording gets the same band grid, so row N means the same
+    // frequency in every panel. A recording below 16 kHz simply cannot measure
+    // the top of it: those bands are reported as unavailable, never as silence.
+    let nyquist = rate as f64 / 2.0;
+    let measured = MEL_MAX_HZ.min(nyquist);
+    let bands = mel_bands(MEL_MIN_HZ, MEL_MAX_HZ);
+    // A band is measured only when its whole triangle is below Nyquist;
+    // a half-covered filter would understate its own energy.
+    // The tolerance absorbs the mel round trip: a band whose edge lands on
+    // Nyquist to within a millionth of a hertz is still measurable.
+    let measurable: Vec<bool> = bands
+        .iter()
+        .map(|band| band.high_hz <= nyquist + 1e-6)
+        .collect();
+    let last_bin = (measured / resolution).floor() as usize;
     let count = last_bin.min(n / 2) + 1;
-    let group = count.div_ceil(129);
+    // Weight of each one-sided FFT bin in each mel band; bin centres outside a
+    // filter contribute nothing.
+    let filters: Vec<Vec<f64>> = bands
+        .iter()
+        .map(|band| {
+            (0..count)
+                .map(|bin| {
+                    let hz = bin as f64 * resolution;
+                    if hz <= band.low_hz || hz >= band.high_hz {
+                        0.0
+                    } else if hz <= band.center_hz {
+                        (hz - band.low_hz) / (band.center_hz - band.low_hz)
+                    } else {
+                        (band.high_hz - hz) / (band.high_hz - band.center_hz)
+                    }
+                })
+                .collect()
+        })
+        .collect();
     let window: Vec<f64> = (0..n)
         .map(|i| 0.5 - 0.5 * (2.0 * std::f64::consts::PI * i as f64 / (n - 1) as f64).cos())
         .collect();
@@ -273,10 +362,19 @@ fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
             })
             .collect();
         bins.push(
-            power
-                .chunks(group)
-                .map(|bucket| {
-                    (10.0 * bucket.iter().sum::<f64>().max(1e-10).log10()).clamp(-100.0, 0.0) as f32
+            filters
+                .iter()
+                .zip(&measurable)
+                .map(|(filter, measured)| {
+                    if !measured {
+                        return None;
+                    }
+                    let energy: f64 = filter
+                        .iter()
+                        .zip(&power)
+                        .map(|(weight, value)| weight * value)
+                        .sum();
+                    Some((10.0 * energy.max(1e-10).log10()).clamp(-100.0, 0.0) as f32)
                 })
                 .collect(),
         );
@@ -287,8 +385,13 @@ fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
         frame_start_seconds,
         window_seconds: n as f64 / rate as f64,
         fft_size: n,
-        frequency_bin_hz: resolution * group as f64,
-        max_frequency_hz: (count - 1) as f64 * resolution,
+        bands,
+        min_frequency_hz: MEL_MIN_HZ,
+        max_frequency_hz: MEL_MAX_HZ,
+        measured_max_frequency_hz: measured,
+        mel_scale: MEL_SCALE.into(),
+        normalization: MEL_NORMALIZATION.into(),
+        db_reference: DB_REFERENCE.into(),
         db_min: -100.0,
         db_max: 0.0,
         bins,
@@ -326,6 +429,19 @@ pub(crate) fn attach_words(
 
 #[cfg(test)]
 mod tests {
+    /// The loudest band a recording actually measured, with its level.
+    fn loudest(frame: &[Option<f32>]) -> (usize, f32) {
+        frame
+            .iter()
+            .enumerate()
+            .filter_map(|(index, db)| db.map(|value| (index, value)))
+            .max_by(|a, b| a.1.total_cmp(&b.1))
+            .expect("a measured band")
+    }
+
+    fn owner() -> crate::speech::recording::owner::RecordingOwner {
+        crate::speech::recording::owner::RecordingOwner::Conversation("conversation".into())
+    }
     use super::*;
     fn wav(samples: &[i16], rate: u32, channels: u16) -> Vec<u8> {
         let mut cursor = std::io::Cursor::new(Vec::new());
@@ -357,18 +473,16 @@ mod tests {
                     as i16
             })
             .collect();
-        let (inspection, _) =
-            inspect_wav(&wav(&samples, rate, 1), "recording", "conversation").unwrap();
+        let (inspection, _) = inspect_wav(&wav(&samples, rate, 1), "recording", &owner()).unwrap();
         let spectrum = &inspection.spectrogram;
-        let peak = spectrum.bins[0]
-            .iter()
-            .enumerate()
-            .max_by(|a, b| a.1.total_cmp(b.1))
-            .unwrap()
-            .0;
-        let lower = peak as f64 * spectrum.frequency_bin_hz;
-        assert!(frequency >= lower && frequency < lower + spectrum.frequency_bin_hz);
-        assert!(spectrum.bins[0][peak] > -20.0);
+        let (peak, level) = loudest(&spectrum.bins[0]);
+        // The loudest mel band is the one whose triangle covers the tone.
+        let band = &spectrum.bands[peak];
+        assert!(
+            frequency > band.low_hz && frequency < band.high_hz,
+            "{frequency} Hz outside {band:?}"
+        );
+        assert!(level > -20.0);
         assert_eq!(spectrum.frame_start_seconds[0], 0.0);
         assert_eq!(spectrum.frame_start_seconds[1], spectrum.frame_seconds);
         assert_eq!(
@@ -376,35 +490,32 @@ mod tests {
             spectrum.fft_size as f64 / rate as f64
         );
         assert_eq!(inspection.recording_id, "recording");
-        assert_eq!(inspection.conversation_id, "conversation");
+        assert_eq!(inspection.owner, owner());
         assert!(inspection.waveform.min.iter().all(|v| *v >= -1.0));
         assert!(inspection.waveform.max.iter().all(|v| *v <= 1.0));
     }
     #[test]
     fn long_silence_is_bounded_and_wav_validation_fails_before_dispatch() {
-        let (inspection, _) = inspect_wav(&wav(&vec![0; 8000 * 120], 8000, 1), "r", "c").unwrap();
+        let (inspection, _) =
+            inspect_wav(&wav(&vec![0; 8000 * 120], 8000, 1), "r", &owner()).unwrap();
         assert!(inspection.waveform.min.len() <= 1200);
         assert!(inspection.spectrogram.bins.len() <= 400);
-        assert!(
-            inspection
-                .spectrogram
-                .bins
-                .iter()
-                .all(|row| row.len() <= 129 && row.iter().all(|db| *db == -100.0))
-        );
+        assert!(inspection.spectrogram.bins.iter().all(|row| {
+            row.len() == MEL_BANDS && row.iter().all(|db| db.is_none() || *db == Some(-100.0))
+        }));
         assert!(inspection.activity.regions.is_empty());
         assert!(matches!(
             inspection.word_timing.status,
             InspectionTimingStatus::Unavailable
         ));
         assert!(inspection.word_timing.reason.is_some());
-        assert!(inspect_wav(b"invalid", "r", "c").is_err());
-        assert!(inspect_wav(&wav(&[0; 100], 16000, 2), "r", "c").is_err());
-        assert!(inspect_wav(&wav(&[0; 100], 1000, 1), "r", "c").is_err());
+        assert!(inspect_wav(b"invalid", "r", &owner()).is_err());
+        assert!(inspect_wav(&wav(&[0; 100], 16000, 2), "r", &owner()).is_err());
+        assert!(inspect_wav(&wav(&[0; 100], 1000, 1), "r", &owner()).is_err());
         let mut truncated = wav(&[0; 100], 16000, 1);
         truncated.truncate(truncated.len() - 7);
-        assert!(inspect_wav(&truncated, "r", "c").is_err());
-        assert!(inspect_wav(&vec![0; MAX_BYTES + 1], "r", "c").is_err());
+        assert!(inspect_wav(&truncated, "r", &owner()).is_err());
+        assert!(inspect_wav(&vec![0; MAX_BYTES + 1], "r", &owner()).is_err());
     }
     #[test]
     fn provider_timing_is_preserved_without_fluency_alignment() {
@@ -418,7 +529,8 @@ mod tests {
                 }
             })
             .collect();
-        let (mut inspection, _) = inspect_wav(&wav(&samples, rate as u32, 1), "r", "c").unwrap();
+        let (mut inspection, _) =
+            inspect_wav(&wav(&samples, rate as u32, 1), "r", &owner()).unwrap();
         // A provider need only supply word timing, not Whisper segment probabilities.
         let transcript = fluency::TranscriptTiming {
             text: "مرحبا وهم".into(),
@@ -466,18 +578,224 @@ mod tests {
                 })
                 .collect();
             let spectrum = spectrogram(&samples, rate);
-            let (peak, power) = spectrum.bins[0]
-                .iter()
-                .enumerate()
-                .max_by(|a, b| a.1.total_cmp(b.1))
-                .unwrap();
+            let (peak, power) = loudest(&spectrum.bins[0]);
+            let band = &spectrum.bands[peak];
             assert!(
-                ((peak as f64 + 0.5) * spectrum.frequency_bin_hz - 1000.0).abs()
-                    < spectrum.frequency_bin_hz * 1.5
+                1000.0 > band.low_hz && 1000.0 < band.high_hz,
+                "{rate}: 1000 Hz outside {band:?}"
             );
-            assert!((-15.0..-8.0).contains(power), "{rate}: {power}");
+            assert!((-15.0..-8.0).contains(&power), "{rate}: {power}");
             assert!(spectrum.bins.len() <= 400);
-            assert!(spectrum.bins[0].len() <= 129);
+            assert_eq!(spectrum.bins[0].len(), MEL_BANDS);
+            // Every rate reports the same grid; only what it could measure differs.
+            assert_eq!(spectrum.max_frequency_hz, MEL_MAX_HZ);
+            assert_eq!(
+                spectrum.measured_max_frequency_hz,
+                MEL_MAX_HZ.min(rate as f64 / 2.0)
+            );
         }
+    }
+
+    #[test]
+    fn every_recording_shares_one_band_grid_and_marks_what_it_cannot_measure() {
+        for (rate, measured_high) in [(8000u32, 4000.0), (16000, 8000.0), (48000, 8000.0)] {
+            let spectrum = spectrogram(&vec![0; rate as usize / 8], rate);
+            let bands = &spectrum.bands;
+            assert_eq!(bands.len(), MEL_BANDS);
+            // One grid, whatever the sample rate: row N is the same frequency
+            // in every panel, which is what makes two recordings comparable.
+            assert!((bands[0].low_hz - MEL_MIN_HZ).abs() < 1e-6);
+            assert!((bands[MEL_BANDS - 1].high_hz - MEL_MAX_HZ).abs() < 1e-6);
+            assert_eq!(spectrum.max_frequency_hz, MEL_MAX_HZ);
+            assert_eq!(spectrum.measured_max_frequency_hz, measured_high);
+            for (index, band) in bands.iter().enumerate() {
+                assert!(band.low_hz < band.center_hz && band.center_hz < band.high_hz);
+                if index > 0 {
+                    // Each filter starts at the previous one's centre: adjacent
+                    // triangles overlap by half a band, covering the whole range.
+                    assert!((band.low_hz - bands[index - 1].center_hz).abs() < 1e-6);
+                    assert!(band.center_hz > bands[index - 1].center_hz);
+                }
+                // Above Nyquist there is nothing to hear, so the band is
+                // unavailable rather than a convincing stretch of silence.
+                let measurable = band.high_hz <= measured_high + 1e-6;
+                assert_eq!(
+                    spectrum.bins[0][index].is_some(),
+                    measurable,
+                    "{rate}: band {index} ({band:?})"
+                );
+                if measurable {
+                    assert_eq!(spectrum.bins[0][index], Some(-100.0));
+                }
+            }
+            // A mel axis spends its rows on speech: the middle band sits well
+            // below the midpoint a linear axis would put there.
+            assert!(bands[MEL_BANDS / 2].center_hz < MEL_MAX_HZ / 2.5);
+            // Formants live in the lowest couple of kHz; most bands are there.
+            let low_bands = bands.iter().filter(|b| b.center_hz < 2000.0).count();
+            assert!(low_bands * 2 > MEL_BANDS, "{low_bands} of {MEL_BANDS}");
+        }
+        // The scale is the documented HTK formula, invertible in both directions.
+        assert!((to_mel(700.0) - 2595.0 * 2.0_f64.log10()).abs() < 1e-9);
+        for hz in [50.0, 440.0, 1000.0, 4000.0, 8000.0] {
+            assert!((from_mel(to_mel(hz)) - hz).abs() < 1e-6);
+        }
+    }
+
+    #[test]
+    fn the_same_tone_lands_in_the_same_band_whatever_the_capture_rate() {
+        let peaks: Vec<usize> = [8000u32, 16000, 44100, 48000]
+            .into_iter()
+            .map(|rate| {
+                let samples: Vec<i16> = (0..rate / 2)
+                    .map(|i| {
+                        (12000.0
+                            * (2.0 * std::f64::consts::PI * 1000.0 * i as f64 / rate as f64).sin())
+                            as i16
+                    })
+                    .collect();
+                let spectrum = spectrogram(&samples, rate);
+                let (peak, _) = loudest(&spectrum.bins[spectrum.bins.len() / 2]);
+                // The band grid itself is identical, so the row index is
+                // directly comparable between recordings.
+                assert_eq!(
+                    serde_json::to_value(&spectrum.bands).unwrap(),
+                    serde_json::to_value(spectrogram(&vec![0; 8000], 16000).bands).unwrap()
+                );
+                peak
+            })
+            .collect();
+        assert!(
+            peaks.windows(2).all(|pair| pair[0] == pair[1]),
+            "one tone, different rows: {peaks:?}"
+        );
+    }
+
+    #[test]
+    fn silence_sits_at_the_floor_and_a_tone_lifts_only_its_own_band() {
+        let rate = 16000;
+        let silence = spectrogram(&vec![0; rate as usize], rate);
+        assert!(
+            silence.bins.iter().flatten().all(|db| *db == Some(-100.0)),
+            "digital silence must read as the floor"
+        );
+        assert_eq!(silence.db_min, -100.0);
+        assert_eq!(silence.db_max, 0.0);
+
+        let samples: Vec<i16> = (0..rate)
+            .map(|i| {
+                (12000.0 * (2.0 * std::f64::consts::PI * 1000.0 * i as f64 / rate as f64).sin())
+                    as i16
+            })
+            .collect();
+        let tone = spectrogram(&samples, rate);
+        let frame = &tone.bins[tone.bins.len() / 2];
+        let (peak, peak_db) = loudest(frame);
+        assert!(1000.0 > tone.bands[peak].low_hz && 1000.0 < tone.bands[peak].high_hz);
+        // Bands the tone does not reach stay far below it, so a comparison reads
+        // as one bright stripe rather than a wash.
+        for (index, db) in frame.iter().enumerate() {
+            let db = db.expect("16 kHz measures the whole grid");
+            if tone.bands[index].low_hz > 1200.0 || tone.bands[index].high_hz < 800.0 {
+                assert!(
+                    db < peak_db - 30.0,
+                    "band {index} at {db} dB is too close to the {peak_db} dB peak"
+                );
+            }
+        }
+        // Halving the amplitude lowers the same band by about 6 dB.
+        let quiet: Vec<i16> = samples.iter().map(|value| value / 2).collect();
+        let quieter = spectrogram(&quiet, rate);
+        let difference = peak_db - loudest(&quieter.bins[quieter.bins.len() / 2]).1;
+        assert!((difference - 6.02).abs() < 0.2, "{difference} dB");
+    }
+
+    #[test]
+    fn the_reported_parameters_describe_the_numbers_that_were_produced() {
+        let rate = 16000;
+        let spectrum = spectrogram(&vec![0; rate as usize], rate);
+        assert_eq!(spectrum.bands.len(), spectrum.bins[0].len());
+        assert_eq!(spectrum.mel_scale, MEL_SCALE);
+        assert_eq!(spectrum.normalization, MEL_NORMALIZATION);
+        assert_eq!(spectrum.db_reference, DB_REFERENCE);
+        assert_eq!(spectrum.min_frequency_hz, MEL_MIN_HZ);
+        assert_eq!(spectrum.window_seconds, spectrum.fft_size as f64 / 16000.0);
+        assert_eq!(spectrum.frame_seconds, spectrum.window_seconds / 2.0);
+    }
+
+    /// Two synthetic utterances: a steady "reference" and a lower, slower
+    /// "attempt". Deterministic, so the committed preview fixture stays honest.
+    fn paired_utterances(rate: u32) -> [Vec<i16>; 2] {
+        let tone = |samples: &mut Vec<i16>, hz: f64, seconds: f64, amplitude: f64| {
+            let count = (rate as f64 * seconds) as usize;
+            for i in 0..count {
+                let t = i as f64 / rate as f64;
+                // Two harmonics and a short fade keep the picture speech-like
+                // without pretending this is a recorded voice.
+                let fade = (t / 0.02).min(1.0).min((seconds - t) / 0.02).max(0.0);
+                let value = (2.0 * std::f64::consts::PI * hz * t).sin()
+                    + 0.5 * (4.0 * std::f64::consts::PI * hz * t).sin();
+                samples.push((12000.0 * amplitude * fade * value / 1.5) as i16);
+            }
+        };
+        let silence = |samples: &mut Vec<i16>, seconds: f64| {
+            samples.extend(std::iter::repeat_n(0, (rate as f64 * seconds) as usize))
+        };
+        let mut reference = Vec::new();
+        silence(&mut reference, 0.1);
+        tone(&mut reference, 220.0, 0.35, 1.0);
+        silence(&mut reference, 0.08);
+        tone(&mut reference, 440.0, 0.3, 0.8);
+        silence(&mut reference, 0.08);
+        tone(&mut reference, 880.0, 0.25, 0.6);
+        silence(&mut reference, 0.1);
+        let mut attempt = Vec::new();
+        silence(&mut attempt, 0.2);
+        tone(&mut attempt, 196.0, 0.45, 0.7);
+        silence(&mut attempt, 0.15);
+        tone(&mut attempt, 392.0, 0.25, 0.5);
+        silence(&mut attempt, 0.05);
+        tone(&mut attempt, 784.0, 0.2, 0.3);
+        silence(&mut attempt, 0.1);
+        [reference, attempt]
+    }
+
+    /// The UI spectrogram preview renders this file. Regenerate it with
+    /// `SKELLYSPEAK_UPDATE_FIXTURES=1 cargo test --lib paired_inspection`
+    /// whenever the analysis changes, so the picture is never stale.
+    #[test]
+    fn paired_inspection_fixture_matches_the_current_analysis() {
+        // Deliberately different capture rates: the reference comes from the
+        // speech provider, the attempt from whatever the microphone gives.
+        // Their pictures must still line up row for row.
+        let inspections: Vec<_> = [("reference", 16000u32), ("attempt", 8000)]
+            .into_iter()
+            .map(|(name, rate)| {
+                let [reference, attempt] = paired_utterances(rate);
+                let samples = if name == "reference" {
+                    reference
+                } else {
+                    attempt
+                };
+                inspect_wav(
+                    &wav(&samples, rate, 1),
+                    name,
+                    &crate::speech::recording::owner::RecordingOwner::DrillItem(name.into()),
+                )
+                .unwrap()
+                .0
+            })
+            .collect();
+        let current = serde_json::to_string_pretty(&inspections).unwrap() + "\n";
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../ui/tools/spectrogram-fixture.json");
+        if std::env::var("SKELLYSPEAK_UPDATE_FIXTURES").is_ok() {
+            std::fs::write(&path, &current).unwrap();
+        }
+        let committed = std::fs::read_to_string(&path).expect("preview fixture exists");
+        assert_eq!(
+            committed, current,
+            "the spectrogram preview fixture is stale; regenerate it with SKELLYSPEAK_UPDATE_FIXTURES=1"
+        );
     }
 }

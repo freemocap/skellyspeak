@@ -445,3 +445,82 @@ fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
         user.id
     );
 }
+
+#[test]
+fn explicit_reading_gloss_sends_the_same_request_as_a_word_gloss_turn() {
+    let (_dir, mut store, conversation) = setup();
+    let (turn, _translation) = gloss_children(&mut store, &conversation, "Hola.");
+    let (variety, explanation, explanation_variety): (String, String, String) = store
+        .connection
+        .query_row(
+            "SELECT json_extract(settings,'$.varietyId'),json_extract(settings,'$.explanationLanguage'),json_extract(settings,'$.explanationVarietyId') FROM conversation_settings WHERE conversation_id=?1",
+            [&conversation],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    let request = crate::language::reading::Request::capture(
+        &store,
+        crate::language::reading::ReadingInput {
+            reference_item: None,
+            text: "Hola.".into(),
+            language: "spanish".into(),
+            variety: Some(variety),
+            explanation,
+            explanation_variety: Some(explanation_variety),
+            aid: crate::language::reading::ReadingAid::WordGloss,
+        },
+    )
+    .unwrap();
+    let reading = request.word_gloss_dispatch().unwrap();
+    assert_eq!(
+        serde_json::to_value(&reading.messages).unwrap(),
+        serde_json::to_value(&turn.messages).unwrap()
+    );
+    assert_eq!(reading.gloss_schema, turn.gloss_schema);
+    assert!(reading.coaching_schema.is_none() && turn.coaching_schema.is_none());
+    assert_eq!(reading.model, turn.model);
+    assert_eq!(reading.temperature, turn.temperature);
+    assert_eq!(reading.temperature, TASK_TEMPERATURE);
+    assert_eq!(
+        (reading.route, &reading.target.url, &reading.credential),
+        (turn.route, &turn.target.url, &turn.credential)
+    );
+    let (reading_source, turn_source) = (
+        reading.gloss_source.as_ref().unwrap(),
+        turn.gloss_source.as_ref().unwrap(),
+    );
+    assert_eq!(reading_source.text, turn_source.text);
+    assert_eq!(
+        (
+            &reading_source.identity.target_language_id,
+            &reading_source.identity.explanation_language_id,
+            &reading_source.identity.analysis_version
+        ),
+        (
+            &turn_source.identity.target_language_id,
+            &turn_source.identity.explanation_language_id,
+            &turn_source.identity.analysis_version
+        )
+    );
+    // Both engines accept independently valid spans and keep the rest unresolved.
+    let partial = crate::conversations::gloss::recover_with_context(
+        reading_source,
+        &reply(r#"{"spans":[]}"#),
+        &reading.operation,
+        &reading.attempt,
+        &request.context,
+    )
+    .unwrap()
+    .0;
+    assert_eq!(partial.coverage, GlossCoverage::Partial);
+    store.finish(&turn, Ok(reply(r#"{"spans":[]}"#))).unwrap();
+    let published = store
+        .conversation_snapshot(&conversation, None)
+        .unwrap()
+        .messages[1]
+        .word_gloss
+        .clone()
+        .unwrap();
+    assert_eq!(published.coverage, partial.coverage);
+    assert_eq!(published.segments, partial.segments);
+}

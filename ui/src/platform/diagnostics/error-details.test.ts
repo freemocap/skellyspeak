@@ -1,6 +1,28 @@
 import { expect, it } from 'vitest'
 import { errorDetails, scrubErrorText } from './error-details'
 
+it('preserves a plain-string IPC contract error in the structured details', () => {
+  const message = 'invalid args `input` for command `begin_reading`: unknown field `aid`, expected one of `text`, `language`, `variety`, `explanation`, `explanationVariety`, `speech`'
+  const details = errorDetails(message)
+  expect(details.message).toBe(message)
+  expect(details.fields).toEqual({ message })
+  // Details may cross another diagnostic boundary before durable logging.
+  expect(errorDetails(details).fields).toMatchObject({ message, fields: { message } })
+})
+
+it('scrubs sensitive spans in string errors without dropping their diagnostic context', () => {
+  const details = errorDetails(
+    'Decode failed at input.text: expected string; api_key=short-key; transcript="private sentence"; received private-echo',
+    { text: 'private-echo' },
+  )
+  expect(details.fields).toEqual({ message: details.message })
+  expect(details.message).toContain('Decode failed at input.text: expected string')
+  const retained = JSON.stringify(details)
+  for (const secret of ['short-key', 'private sentence', 'private-echo']) expect(retained).not.toContain(secret)
+  expect(retained).toContain('[secret redacted]')
+  expect(retained).toContain('[user content redacted]')
+})
+
 it('retains the actual runtime explanation and source frames without URL secrets', () => {
   const error = new Error('Maximum update depth exceeded. This can happen when a component repeatedly calls setState.')
   error.stack = `${error.message}\n    at LearningPicker (http://user:pass@localhost:1420/src/features/settings/language/LanguagePickers.tsx?t=secret:51:9)\nrender@http://localhost:1420/assets/app.js?token=secret:27:3`

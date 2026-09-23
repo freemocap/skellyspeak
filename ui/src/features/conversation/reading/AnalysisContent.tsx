@@ -3,8 +3,8 @@ import { MixedText } from '../../../components/reading/MixedText'
 import { Markdown } from '../../../components/reading/Markdown'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
-import { ReadingPassage } from './ReadingPassage'
-import { ReadingExample } from './ReadingExample'
+import { TargetMessage } from '../../../components/reading/TargetMessage'
+import { ReadingExample } from '../../../components/reading/ReadingExample'
 import { SavedReadingProvider } from '../../../components/reading/SavedReadingProvider'
 import { useReadingScope } from '../../../components/reading/ReadingContext'
 import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
@@ -15,12 +15,6 @@ import { MessageReadingScope } from './MessageReadingScope'
 import { useNavigationStore } from '../../../state/navigation/navigation'
 import type { StoredTurn } from '../../../types'
 
-export interface InspectTarget {
-  turn: number
-  side: 'me' | 'bot'
-  index: number
-}
-
 /// Just the parts of a turn this pane renders. Deriving from `StoredTurn` keeps
 /// this view synchronized with the canonical shape.
 export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation' | 'turnId'>
@@ -29,7 +23,6 @@ interface AnalysisContentProps {
   conversationId?: string
   onAsk?: (question: string) => void
   turn: AnalysedTurn
-  inspect: InspectTarget | null
   nativeLanguageName: string
   showRomanization: boolean
   rtl: boolean
@@ -41,7 +34,6 @@ export const AnalysisContent = memo(function AnalysisContent({
   turn,
   conversationId,
   onAsk,
-  inspect: _inspect,
   nativeLanguageName,
   showRomanization: _showRomanization,
   rtl: _rtl,
@@ -96,7 +88,7 @@ export const AnalysisContent = memo(function AnalysisContent({
                 <span className="exp-title">{mech.title}</span>
                 {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
               </div>
-              {mech.quote && <ReadingPassage key={mech.quote} text={mech.quote} />}
+              {mech.quote && <TargetMessage key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
               <Markdown text={mech.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(mech)}`) : undefined} />
               {mech.example && <ReadingExample text={mech.example} />}
               {mech.contrast && (

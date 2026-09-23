@@ -6,9 +6,9 @@ import { I18nProvider } from '../../../components/localization/i18n'
 import { TranscriptionInspector } from './TranscriptionInspector'
 const transcript: TranscriptionInspectionResult = {
   text: 'fixture transcript', audioBase64: '', diagnostics: null,
-  inspection: { recordingId: 'fixture-recording', conversationId: 'fixture-conversation', duration: 1, sampleRate: 16000,
+  inspection: { recordingId: 'fixture-recording', owner: { kind: 'conversation', id: 'fixture-conversation' }, duration: 1, sampleRate: 16000,
     waveform: { binSeconds: 0.5, min: [-0.4, -0.2], max: [0.4, 0.2] },
-    spectrogram: { frameSeconds: 0.5, frameStartSeconds: [0, 0.5], windowSeconds: 0.025, fftSize: 512, frequencyBinHz: 100, maxFrequencyHz: 200, dbMin: -80, dbMax: 0, bins: [[-60, -30], [-70, -20]] },
+    spectrogram: { frameSeconds: 0.5, frameStartSeconds: [0, 0.5], windowSeconds: 0.025, fftSize: 512, bands: [{ lowHz: 50, centerHz: 100, highHz: 200 }, { lowHz: 100, centerHz: 200, highHz: 400 }], minFrequencyHz: 50, maxFrequencyHz: 400, measuredMaxFrequencyHz: 400, melScale: 'htk', normalization: 'unit-peak triangular filters', dbReference: '0 dB = full-scale power (1.0)', dbMin: -80, dbMax: 0, bins: [[-60, -30], [-70, -20]] },
     activity: { algorithm: 'fixture', noiseFloorDbfs: -60, thresholdDbfs: -40, regions: [{ start: 0.1, end: 0.9 }], pauses: [], limitations: [] },
     wordTiming: { status: 'unavailable', reason: 'Provider returned text only.', words: [], unsupported: [] } },
 }

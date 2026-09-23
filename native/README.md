@@ -10,10 +10,11 @@ remote [Python server](../server/).
 | --- | --- |
 | [src/application/](src/application/) | Startup, runtime state, native command registration and background scheduling |
 | [src/conversations/](src/conversations/) | Conversation turns and execution, prompts, opening choices, revisions, reading results and conversation export |
-| [src/partners/](src/partners/) | Persona definitions and prompts, generation and its receipts, and reactions |
+| [src/partners/](src/partners/) | Persona definitions, prompts, generation request projection, and reactions |
+| [src/drill/](src/drill/) | Manual phrases, attempts/comparisons, sessions/visits, reference cache and recording retention; recording and AI execution stay shared |
 | [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, rewards and reward settings |
 | [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and speech cache |
-| [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, hosted connections and provider transports |
+| [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, shared generation lifecycle and receipts, hosted connections and provider transports |
 | [src/storage/](src/storage/) | Workspace ownership, database initialization and schemas, reset and workspace-copy export |
 | [src/language/](src/language/) | Language lookup, Unicode/emoji handling, existing linguistics code and its fixtures |
 | [src/configuration/](src/configuration/) | Configuration loading, validation, types, citations and schema checks |
@@ -60,9 +61,9 @@ and each partner message's captured reading scope.
 | --- | --- |
 | `application/` | Startup/command registration, shared state and scheduler; `commands/` groups workspace, connection, hosted and persona-generation handlers; existing suites live in `tests/` |
 | `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings) |
-| `partners/` | `persona/` (definitions, prompts), `generation/` (registry, receipts), and reactions |
+| `partners/` | `persona/` (definitions, prompts), `generation.rs` (persona request projection), and reactions |
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
-| `ai/` | `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
+| `ai/` | `generation/` (shared proposal registry and receipts), `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
 | `storage/` | `schemas/` holds database SQL; `store/` groups locking, schema validation, startup, snapshots and transactional commands; reset remains in factory_reset.rs |
 | `conversations/execution/` | Admission, holds, connections, turns, snapshots, dispatch, publication, reading retries, speech and recovery; behavior-based tests in `tests/` |
 | `ai/transport/provider/` | `keys.rs` verifies credentials; `payload.rs` builds prose/structured requests and enforces input limits; `request.rs` owns HTTP and dispatch routing; `response.rs` decodes completions and validates prose; matching suites and local HTTP fixtures live in `tests/` |
@@ -183,19 +184,36 @@ development checkout, remove its `applications/skellyspeak.desktop` and
 
 ### Explicit reading help
 
-`language/reading/` owns bounded, source-captured gloss and token-speech requests
-outside conversation turns. `application/commands/reading.rs` registers begin,
-run, cancel and receipt-inspection commands. Requests reuse the existing gloss
-validator and speech transport, validate captured connection/workspace authority,
-and create no learning credit. Source text and audio remain volatile;
-`reading_attempts` retains content-free diagnostic receipts. Development schema
-25 requires explicit reset of older workspaces.
+`language/reading/` owns bounded, source-captured word meanings, translation,
+explanations and speech requests outside conversation turns.
+`application/commands/reading.rs` registers begin, run, cancel and receipt inspection.
+Requests reuse conversation aid contracts and provider execution, validate captured
+connection/workspace authority, and create no learning credit. Ordinary selections
+remain volatile; `reading_attempts` retains content-free diagnostic receipts.
+Drill can opt into its phrase-owned reference cache through the same executor.
+
+### Manual Drill storage
+
+`drill/` owns immutable phrases, attempts with grapheme/word comparisons, and
+language-scoped sessions/visits. A recording captures its visit before dispatch;
+receipt completion and the attempt's transcript/comparison/pending audio publish
+in one transaction. File publication can be retried without retranscribing.
+
+Recording retention defaults to 500 MB, with 100 MB, 2,000 MB and keep-none
+options. Native pruning covers pending SQLite bytes and WAV files, oldest first;
+transcripts, comparisons and usage receipts remain. References use a separate
+16 MiB regenerable cache. Pruned files are marked unavailable before deletion,
+and interrupted cleanup is retried on startup. In-progress replay owns loaded
+bytes rather than a file handle. SQLite incremental vacuum reclaims freed media
+pages after pruning, file publication and phrase deletion. Export includes the
+database and `drill-audio`; reset removes both. Development schema 34 requires
+explicit reset of older workspaces.
 
 ### Transcription boundary
 
 `ai/audio.rs` owns the provider-neutral request, language identity, result and
-outcome. Recording captures conversation language, previous-message context and
-execution settings once. `ai/transport/` owns language conversion, prompting,
+outcome. Recording resolves language and recognizer context from a conversation or
+Drill item owner, and captures execution settings once. `ai/transport/` owns language conversion, prompting,
 provider HTTP formats and response decoding. Fluency analysis consumes normalized
 timing only; inspection shows bounded redacted diagnostic metadata separately.
 
@@ -206,3 +224,16 @@ forwards that model unchanged. There is no model or route fallback.
 The ElevenLabs credential slot requires development schema 28. Older workspaces
 are refused without modification and require an explicit reset, per the repository
 policy. No reset is performed by this source change.
+
+### Reviewed phrase generation
+
+Drill and persona proposals use `application/commands/proposal_execution.rs` for
+structured completion, admission, cancellation checks and refusal handling.
+`ai/generation/` owns their shared request registry and `generation_attempts`
+receipts; each feature owns its prompt and response projection. Drill task text
+is editable under `content/prompts/drill/`; difficulty instructions reuse the
+conversation configuration.
+
+`drill/previews.rs` owns durable candidates and transactional, IDs-only acceptance.
+`drill/conversation_source.rs` extracts exact sentence spans without inference and
+revalidates their source before adoption. Schema 36 uses fresh development data.

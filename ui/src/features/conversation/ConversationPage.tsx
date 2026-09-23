@@ -15,7 +15,7 @@ import { OpeningStatus } from './session/OpeningStatus'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { ConversationStart } from './session/ConversationStart'
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
-import { DifficultySelect, difficultyLabel } from './session/DifficultySelect'
+import { DifficultySelect, difficultyLabel } from '../../components/controls/DifficultySelect'
 import { ConversationHeader } from './session/ConversationHeader'
 import { ConversationSettings } from './session/ConversationSettings'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
@@ -37,7 +37,6 @@ import type { PersonaDetails } from '../../generated/contracts'
 import { unreportedInput, type InputEvidence } from '../../domain/learning/evidence/skills'
 import { PracticeContext } from './session/PracticeContext'
 import { SkillRewards } from './progress/SkillRewards'
-import { GlossPopup } from './reading/GlossPopup'
 import { isTauri, languageFor } from '../../platform/ipc/tauri'
 import { languageLabel } from '../../domain/language/language-label'
 import { personaName } from './partners/personaLimits'
@@ -59,8 +58,7 @@ import { ChatHistory } from './session/ChatHistory'
 import { latestAnswered } from '../../domain/conversation/turns'
 import { useConversation } from './session/useConversation'
 import { useConversationScroll } from './messages/useConversationScroll'
-import { useWordInspection } from './reading/useWordInspection'
-import { useMicRecorder } from './speech/useMicRecorder'
+import { useMicRecorder } from '../../platform/audio/useMicRecorder'
 import { usePersistentToggle } from '../../components/persistence/usePersistentToggle'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { reportFault } from '../../platform/diagnostics/faults'
@@ -130,7 +128,6 @@ export default function ConversationPage({
   const consumeCoachDraft = useCallback(() => setCoachDraft(''), [])
   const { open: breakOpen, toggle: toggleBreak } = usePersistentToggle('skellyspeak_break', true)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const words = useWordInspection({ pinTurn: setPinnedId, breakOpen, toggleBreak })
   // Panel reload counter: bumped when the coach thread is reset externally.
   const [threadReload, setThreadReload] = useState(0)
 
@@ -155,7 +152,6 @@ export default function ConversationPage({
     setPinnedId(null)
     setCoachDraft('')
     setReviewing(new Set())
-    clearWordsRef.current()
     setError(null)
     setSending(false)
     setEditingTurnId(null)
@@ -165,8 +161,6 @@ export default function ConversationPage({
     setThreadReload((v) => v + 1)
   }, [])
 
-  // resetView is declared before the conversation controller.
-  const clearWordsRef = useRef<() => void>(() => {})
   const {
     turns,
     chats,
@@ -427,12 +421,9 @@ export default function ConversationPage({
   const showRomanization =
     settings != null && languageFor(settings.target_language, settings.target_variety)?.romanization != null
 
-  // RTL targets render token lines right-to-left.
+  // RTL targets render message lines right-to-left.
   const rtl =
     settings != null && languageFor(settings.target_language, settings.target_variety)?.direction === 'rtl'
-
-  // Romanization visibility: "always" setting OR a revealed token.
-  const alwaysRomanize = settings?.always_romanize ?? false
 
   useEffect(() => {
     onNewChatReady?.(settings && !sending ? () => { void startNewConversation() } : null)
@@ -449,10 +440,9 @@ export default function ConversationPage({
   const romanized = Boolean(targetLanguage?.romanization)
   const pinnedTurn = activeTurns.find(t => t.id === (pinnedId ?? latestAssistantId) && t.assistant) ?? null
 
-  clearWordsRef.current = words.clear
 
   const mic = useMicRecorder({
-    conversationId: active ? currentChatId : null,
+    owner: active && currentChatId ? { kind: 'conversation', id: currentChatId } : null,
     onTranscribe: (text: string) => {
       if (text) {
         inputEvidence.current.modality = 'speech_transcript'
@@ -472,7 +462,6 @@ export default function ConversationPage({
 
   const aiBusy = replyActive
 
-  useEffect(() => { if (words.inspect) setAnalysisOpen(true) }, [words.inspect])
 
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
@@ -579,18 +568,9 @@ export default function ConversationPage({
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
               speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
               onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
-              revealed={words.revealed}
-              showRomanization={showRomanization}
-              alwaysRomanize={alwaysRomanize}
-              alwaysPronunciation={settings?.always_pronunciation ?? false}
-              autoTranslate={settings?.auto_translate ?? false}
               rtl={rtl}
-              onReveal={words.reveal}
               onBubbleTap={onBubbleTap}
               onOpenCoach={openCoach}
-              onPopup={words.setPopup}
-              onInspect={words.inspectWord}
-              onToggleReveal={words.toggleReveal}
               onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
               onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
@@ -651,7 +631,6 @@ export default function ConversationPage({
           draftQuestion={coachDraft}
           onDraftConsumed={consumeCoachDraft}
           pinnedTurn={pinnedTurn}
-          inspect={words.inspect}
           nativeLanguageName={nativeLanguageName}
           showRomanization={showRomanization}
           rtl={rtl}
@@ -676,9 +655,8 @@ export default function ConversationPage({
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
       {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
         <h2>{tr("Message analysis")}</h2>
-        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent key={pinnedTurn.turnId} conversationId={snapshot?.conversationId} onAsk={askCoach} turn={pinnedTurn} inspect={words.inspect} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
+        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent key={pinnedTurn.turnId} conversationId={snapshot?.conversationId} onAsk={askCoach} turn={pinnedTurn} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
       </DetailDialog>}
-      {words.popup && <GlossPopup popup={words.popup} onClose={words.closePopup} />}
 
     </div>
     </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider></AskCoachContext></ConversationReadingProvider>

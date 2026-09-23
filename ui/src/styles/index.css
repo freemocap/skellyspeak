@@ -66,7 +66,10 @@
 @import './components/inspection-controls.css';
 @import './features/skills/learner-model.css';
 @import './components/yaml-export.css';
+@import './components/spectrogram.css';
+@import './components/inspection-tracks.css';
 @import './features/conversation/speech-inspection.css';
+@import './features/drill/drill.css';
 @import './features/skills/skills.css';
 @import './features/skills/graph.css';
 @import './features/skills/review.css';

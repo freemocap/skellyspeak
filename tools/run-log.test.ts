@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { LineLog, runLogged } from './run-log.ts'
+import { LineLog, redactTerminal, runLogged } from './run-log.ts'
 
 test('captures split UTF8 and credentials across chunks, including final unterminated line', () => {
   const dir = mkdtempSync(join(tmpdir(), 'run-logs-'))
@@ -56,7 +56,7 @@ test('records a missing executable without leaving the launcher pending', async 
   } finally { rmSync(dir, { recursive: true }) }
 })
 
-test('console mirroring uses the same redaction after a split secret is complete', () => {
+test('console mirroring masks credentials after a split secret is complete', () => {
   const dir = mkdtempSync(join(tmpdir(), 'run-logs-'))
   try {
     const messages: string[] = []
@@ -65,5 +65,45 @@ test('console mirroring uses the same redaction after a split secret is complete
     assert.equal(messages.length, 0)
     sink.write(Buffer.from('canary; OS error 111\n')); sink.close()
     assert.deepEqual(messages, ['Connection refused; [secret redacted]; OS error 111'])
+  } finally { rmSync(dir, { recursive: true }) }
+})
+
+test('terminal retains actionable locations, content and hashes while persisted diagnostics omit content', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'run-logs-'))
+  try {
+    const messages: string[] = []
+    const file = join(dir, 'out.jsonl')
+    const sink = new LineLog(file, 'stdout', [], message => messages.push(message))
+    const lines = [
+      '\u001b[32m➜  Local:   http://localhost:1420/\u001b[0m',
+      'Listening at http://127.0.0.1:8765/ and http://[::1]:1420/',
+      'source: file:///Users/developer/project/main.ts:42',
+      'model=example-model; response body="Hola, ¿cómo estás?"',
+      `sha256=${'abcdef0123456789'.repeat(4)}`,
+    ]
+    sink.write(Buffer.from(lines.join('\n') + '\n')); sink.close()
+    assert.deepEqual(messages, lines)
+    assert.ok(!readFileSync(file, 'utf8').includes('Hola'))
+  } finally { rmSync(dir, { recursive: true }) }
+})
+
+test('terminal masks credentials without erasing the endpoint or failure reason', () => {
+  const clean = redactTerminal('HTTP 401 https://user:pass@example.test/v1?token=query-canary#fragment-canary api_key="key-canary"; Bearer bearer-canary; sk-provider-canary; known-canary', ['known-canary'])
+  assert.ok(clean.includes('HTTP 401'))
+  assert.ok(clean.includes('example.test/v1'))
+  for (const secret of ['user:pass', 'query-canary', 'fragment-canary', 'key-canary', 'bearer-canary', 'sk-provider-canary', 'known-canary']) assert.ok(!clean.includes(secret), secret)
+})
+
+test('multiline private keys remain hidden in terminal and persisted logs', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'run-logs-'))
+  try {
+    const messages: string[] = []
+    const file = join(dir, 'out.jsonl')
+    const sink = new LineLog(file, 'stdout', [], message => messages.push(message))
+    sink.write(Buffer.from('-----BEGIN PRIVATE KEY-----\nshort-key-'))
+    sink.write(Buffer.from('canary\n-----END PRIVATE KEY-----\nready\n')); sink.close()
+    assert.ok(!messages.join('\n').includes('short-key-canary'))
+    assert.ok(!readFileSync(file, 'utf8').includes('short-key-canary'))
+    assert.equal(messages.at(-1), 'ready')
   } finally { rmSync(dir, { recursive: true }) }
 })

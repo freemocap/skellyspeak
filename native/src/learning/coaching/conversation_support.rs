@@ -12,6 +12,8 @@ pub const FEEDBACK: &str = "conversation_feedback";
 pub const BRIEF: &str = "reply_brief";
 pub const ASSISTANCE: &str = "reply_assistance";
 pub const EXPLANATIONS: &str = "reply_explanations";
+/// Model role for conversation support tasks, in turns and explicit reading requests.
+pub(crate) const ROLE: &str = "standard";
 pub fn owns(kind: &str) -> bool {
     matches!(kind, FEEDBACK | BRIEF | ASSISTANCE | EXPLANATIONS)
 }
@@ -237,9 +239,6 @@ fn quoted(source: &str, quote: &str, max: usize) -> Result<()> {
     Ok(())
 }
 pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) -> Result<Value> {
-    if output.finish_reason == "error" || output.text.len() > 20000 {
-        return Err(rejected("incomplete or oversized response"));
-    }
     let source: String = db.query_row(
         "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
         params![
@@ -252,6 +251,13 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
         ],
         |r| r.get(0),
     )?;
+    validate_source(&source, kind, output)
+}
+/// Validate a support result against the exact source text it describes.
+pub(crate) fn validate_source(source: &str, kind: &str, output: &Completion) -> Result<Value> {
+    if output.finish_reason == "error" || output.text.len() > 20000 {
+        return Err(rejected("incomplete or oversized response"));
+    }
     let value: Value = serde_json::from_str(&output.text).map_err(|cause| {
         crate::diagnostics::response::json_context(
             &cause,
@@ -274,12 +280,12 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                 return Err(rejected("feedback bounds"));
             }
             for fragment in v.used_target.iter().chain(&v.used_native) {
-                quoted(&source, fragment, 240)?;
+                quoted(source, fragment, 240)?;
             }
             // Multiple suggestions may discuss the same phrase. An unchanged
             // rewrite can accompany an explanation; neither invalidates feedback.
             for (index, c) in v.corrections.iter().enumerate() {
-                quoted(&source, &c.said, 240)?;
+                quoted(source, &c.said, 240)?;
                 prose(&c.corrected, 400, true)?;
                 prose(&c.explanation, 600, true)?;
                 if !matches!(
@@ -339,7 +345,7 @@ pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) ->
                     );
                     error
                 };
-                quoted(&source, &c.quote, 300).map_err(|e| at("quote", e))?;
+                quoted(source, &c.quote, 300).map_err(|e| at("quote", e))?;
                 prose(&c.title, 100, true).map_err(|e| at("title", e))?;
                 prose(&c.body, 700, true).map_err(|e| at("body", e))?;
                 prose(&c.example, 400, true).map_err(|e| at("example", e))?;

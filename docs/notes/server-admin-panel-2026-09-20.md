@@ -1,5 +1,36 @@
 # Hosted server administration — September 20, 2026
 
+## Hosted login investigation — September 22, 2026
+
+Live observation supersedes the earlier deployment uncertainty: `/admin` is
+deployed at the hosted origin. After the user's Google sign-in, the original tab
+returned to the sign-in page; a fresh navigation opened the authenticated panel.
+The panel then remained at "Loading server records…". Live records, controls and
+the effective account ceiling were not verified or changed.
+
+Implemented locally, not deployed in this investigation:
+
+- The verified owner callback now returns a small, non-cacheable HTML document
+  with a fixed `/admin` meta refresh and a Continue link. Committing the document
+  ends the cross-site redirect chain before requesting the panel. The session
+  remains Secure, HttpOnly, host-only and SameSite=Strict; owner verification,
+  browser-bound OAuth state, expiry, revocation and same-origin writes remain.
+- The admin asset builder now bundles imported modules with esbuild and rejects
+  remaining imports. The previous single-file transpilation emitted a relative
+  import for `platform/diagnostics/error-details`, which the hosted server does
+  not serve. That is a confirmed source packaging defect; the deployed script
+  could not be inspected because the browser blocked direct navigation to it.
+- A packaged-asset regression test executes the actual generated script and
+  verifies that an API failure is rendered with the bundled diagnostic helper.
+
+Verification: 535 server tests passed, seven emulator tests skipped; six admin UI
+tests passed; standalone TypeScript and deterministic asset checks passed. An
+isolated loopback browser fixture followed a cross-site provider-style redirect,
+received the real callback response, and reached an authenticated panel with
+rendered account-limit controls. This used disposable identities and synthetic
+usage records, not Google or production Firestore. No commit, deployment or live
+policy write was performed.
+
 ## Requested behavior and ownership
 
 The user requested a server-hosted admin panel using the existing Google login,

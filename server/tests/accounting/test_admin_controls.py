@@ -88,6 +88,28 @@ def test_effective_limits_reach_existing_admission_paths(ledger):
     assert quota.load_principal(ledger, principal.user_id, token_version=0, default_limit=10).daily_limit == 300
 
 
+def test_raising_account_ceiling_from_six_to_twelve(ledger):
+    def sign_in(number):
+        quota.upsert_user(ledger, user_id=f'google:{number}',
+                          email=f'user{number}@example.invalid', name='', max_users=6)
+
+    for number in range(6):
+        sign_in(number)
+    with pytest.raises(quota.SignupClosed):
+        sign_in(6)
+
+    change(ledger, 'policy', {'max_users': 12})
+    for number in range(6, 12):
+        sign_in(number)
+    with pytest.raises(quota.SignupClosed):
+        sign_in(12)
+    # Existing accounts can still sign in at capacity without consuming a slot.
+    sign_in(0)
+    accounts = [key for key in ledger.store if key.startswith('users/') and key.count('/') == 1]
+    assert len(accounts) == 12
+    assert 'users/google:12' not in ledger.store
+
+
 def test_failed_audit_rolls_back_reset(ledger, monkeypatch):
     from server.tests.accounting.test_quota import FakeTransaction
     user(ledger)

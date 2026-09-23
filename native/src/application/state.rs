@@ -188,5 +188,9 @@ impl Application {
 }
 
 #[cfg(test)]
+#[path = "tests/capture.rs"]
+mod capture_tests;
+
+#[cfg(test)]
 #[path = "tests/credential_io.rs"]
 mod tests;

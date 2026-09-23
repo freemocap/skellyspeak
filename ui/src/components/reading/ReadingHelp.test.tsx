@@ -2,6 +2,7 @@ import { SavedReadingProvider } from './SavedReadingProvider'
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import { useState } from 'react'
 import { ReadingPreferencesContext } from './ReadingPreferences'
 import { ReadingHelp } from './ReadingHelp'
 import { useReadingActions, ReadingScopeContext, type ReadingServices } from './ReadingContext'
@@ -30,7 +31,7 @@ it('requests help only on an explicit word action and reuses help for the same s
   expect(services.read).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
-  expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola', speech: false }, expect.any(AbortSignal))
+  expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola', aid:'word_gloss' }, expect.any(AbortSignal))
   await waitFor(() => expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello'))
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   fireEvent.keyDown(screen.getByRole('button', { name: 'Hola' }), { key: 'Enter' })
@@ -43,7 +44,7 @@ it('speaks an exact saved source occurrence without fetching glosses or opening 
   app(<div onClick={parent}><SavedGlossText text="sí, sí" segments={[{start:0,end:2,kind:'gloss',gloss:'yes'}, {start:4,end:6,kind:'gloss',gloss:'indeed'}]} /></div>)
   fireEvent.click(screen.getAllByRole('button', { name: 'sí' })[1])
   fireEvent.click(screen.getByRole('button', { name: 'Read aloud: sí' }))
-  await waitFor(() => expect(services.speak).toHaveBeenCalledWith({ ...scope, text: 'sí', speech: true }, expect.any(AbortSignal), expect.any(Function)))
+  await waitFor(() => expect(services.speak).toHaveBeenCalledWith({ ...scope, text: 'sí', aid:'speech' }, expect.any(AbortSignal), expect.any(Function)))
   expect(services.read).not.toHaveBeenCalled(); expect(parent).not.toHaveBeenCalled()
 })
 
@@ -171,4 +172,156 @@ it('opens the deep inspector from the same durable cache without asking held AI 
   fireEvent.click(screen.getByRole('button',{name:'playa'}))
   expect(within(screen.getByRole('group', {name:'Word help'})).getByText('beach')).toBeVisible()
   expect(services.read).not.toHaveBeenCalled()
+})
+
+it('caches translations separately from word meanings for the same source and scope', async () => {
+  const { useReadingLookup, useReadingPeek } = await import('./ReadingContext')
+  let lookup: ReturnType<typeof useReadingLookup> = null
+  let peek: ReturnType<typeof useReadingPeek> | null = null
+  function Probe() { lookup = useReadingLookup(); peek = useReadingPeek(); return null }
+  vi.mocked(services.read).mockImplementation(async input => input.aid === 'translation'
+    ? { gloss: null, audioBase64: null, translation: 'Hello', receipt: { providerId: 'translation-1' } } as ReadingResult
+    : result)
+  app(<Probe />)
+  const words = await lookup!({ ...scope, text: 'Hola', aid: 'word_gloss' }, new AbortController().signal)
+  expect(words.gloss?.segments[0].gloss).toBe('hello')
+  expect(peek!({ ...scope, text: 'Hola', aid: 'translation' })).toBeNull()
+  const translated = await lookup!({ ...scope, text: 'Hola', aid: 'translation' }, new AbortController().signal)
+  expect(translated.translation).toBe('Hello')
+  await lookup!({ ...scope, text: 'Hola', aid: 'translation' }, new AbortController().signal)
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
+  await expect(lookup!({ ...scope, text: 'Hola', aid: 'speech' }, new AbortController().signal)).rejects.toThrow('Read-aloud is requested through reading actions')
+})
+
+it('asks once when a word stays unresolved, and once more per explicit retry', async () => {
+  // A recovered partial result that resolves nothing for this word.
+  const unresolved = { gloss: { coverage: 'partial', segments: [{start:0,end:4,kind:'unresolved'}] }, audioBase64: null, translation: null, explanations: null, receipt: null } as unknown as ReadingResult
+  vi.mocked(services.read).mockResolvedValue(unresolved)
+  app(<TargetText text="Hola" />)
+  fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Retry word meanings' })).toBeVisible())
+  // The result updated the shared cache; that must not ask again.
+  await act(async () => { await Promise.resolve() })
+  expect(services.read).toHaveBeenCalledOnce()
+  fireEvent.click(screen.getByRole('button', { name: 'Retry word meanings' }))
+  await waitFor(() => expect(services.read).toHaveBeenCalledTimes(2))
+  await act(async () => { await Promise.resolve() })
+  expect(services.read).toHaveBeenCalledTimes(2)
+})
+
+it('keeps a partial meaning for the word it covers and does not re-ask after unrelated cache updates', async () => {
+  const { useReadingLookup } = await import('./ReadingContext')
+  let lookup: ReturnType<typeof useReadingLookup> = null
+  function Probe() { lookup = useReadingLookup(); return null }
+  vi.mocked(services.read).mockImplementation(async input => (input.aid === 'word_gloss'
+    ? { gloss: { coverage: 'partial', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'},{start:5,end:9,kind:'unresolved'}] }, audioBase64: null, translation: null, explanations: null, receipt: null }
+    : { gloss: null, audioBase64: null, translation: 'Hello house', explanations: null, receipt: null }) as unknown as ReadingResult)
+  app(<><Probe /><TargetText text="Hola casa" /></>)
+  // The word this partial result left unresolved.
+  fireEvent.click(screen.getByRole('button', { name: 'casa' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Retry word meanings' })).toBeVisible())
+  expect(services.read).toHaveBeenCalledOnce()
+  // An unrelated aid writes to the same cache while the card is open.
+  await act(async () => { await lookup!({ ...scope, text: 'Hola casa', aid: 'translation' }, new AbortController().signal) })
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
+  // The meanings that did come back are still shown for the word they cover.
+  fireEvent.keyDown(screen.getByRole('button', { name: 'casa' }), { key: 'Escape' })
+  fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+  await waitFor(() => expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello'))
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
+})
+
+it('drops a pending result when the source text changes and asks for the new source', async () => {
+  const pending: { input: { text: string }; resolve: (value: ReadingResult) => void }[] = []
+  vi.mocked(services.read).mockImplementation(input => new Promise(resolve => { pending.push({ input, resolve }) }))
+  function Switcher() {
+    const [text, setText] = useState('Hola')
+    return <><button onClick={() => setText('Casa')}>Change text</button><TargetText text={text} /></>
+  }
+  app(<Switcher />)
+  fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+  await waitFor(() => expect(pending).toHaveLength(1))
+  fireEvent.click(screen.getByRole('button', { name: 'Change text' }))
+  await waitFor(() => expect(pending).toHaveLength(2))
+  expect(pending.map(call => call.input.text)).toEqual(['Hola', 'Casa'])
+  // The first source's answer arrives after its question was abandoned.
+  await act(async () => { pending[0].resolve(result) })
+  expect(screen.getByRole('group', { name: 'Word help' })).not.toHaveTextContent('hello')
+  expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('Finding word meanings…')
+  await act(async () => { pending[1].resolve({ ...result, gloss: { coverage: 'complete', segments: [{start:0,end:4,kind:'gloss',gloss:'house'}] } } as ReadingResult) })
+  expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('house')
+})
+
+it('drops a pending result when the language scope changes and asks in the new scope', async () => {
+  const pending: { input: { variety?: string | null }; resolve: (value: ReadingResult) => void; reject: (error: unknown) => void }[] = []
+  vi.mocked(services.read).mockImplementation(input => new Promise((resolve, reject) => { pending.push({ input, resolve, reject }) }))
+  function Switcher() {
+    const [variety, setVariety] = useState('spanish-spain')
+    return <><button onClick={() => setVariety('spanish-mexico')}>Change variety</button>
+      <ReadingScopeContext value={{ ...scope, variety }}><TargetText text="Hola" /></ReadingScopeContext></>
+  }
+  app(<Switcher />)
+  fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+  await waitFor(() => expect(pending).toHaveLength(1))
+  fireEvent.click(screen.getByRole('button', { name: 'Change variety' }))
+  await waitFor(() => expect(pending).toHaveLength(2))
+  expect(pending.map(call => call.input.variety)).toEqual(['spanish-spain', 'spanish-mexico'])
+  // Neither a late result nor a late failure may reach the new scope's card.
+  await act(async () => { pending[0].reject(new Error('Word meanings failed')) })
+  expect(screen.queryByRole('alert')).toBeNull()
+  await act(async () => { pending[1].resolve(result) })
+  expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello')
+})
+
+it('caches grammar explanations per aid, scope and source, and reuses them', async () => {
+  const { useReadingLookup, useReadingPeek } = await import('./ReadingContext')
+  let lookup: ReturnType<typeof useReadingLookup> = null
+  let peek: ReturnType<typeof useReadingPeek> | null = null
+  function Probe() { lookup = useReadingLookup(); peek = useReadingPeek(); return null }
+  const cards = { cards: [{ quote: 'Hola', title: 'Greeting', body: 'A greeting.', example: 'Hola, Ana.', contrast: '' }] }
+  vi.mocked(services.read).mockImplementation(async input => ({ gloss: null, audioBase64: null, translation: null, explanations: input.aid === 'explanations' ? cards : null, receipt: null }) as ReadingResult)
+  app(<Probe />)
+  expect(peek!({ ...scope, text: 'Hola', aid: 'explanations' })).toBeNull()
+  const first = await lookup!({ ...scope, text: 'Hola', aid: 'explanations' }, new AbortController().signal)
+  expect(first.explanations).toEqual(cards)
+  expect(peek!({ ...scope, text: 'Hola', aid: 'explanations' })?.explanations).toEqual(cards)
+  await lookup!({ ...scope, text: 'Hola', aid: 'explanations' }, new AbortController().signal)
+  await lookup!({ ...scope, text: 'Hola.', aid: 'explanations' }, new AbortController().signal)
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => [input.aid, input.text])).toEqual([['explanations', 'Hola'], ['explanations', 'Hola.']])
+})
+
+it('a partial cached or saved result still lets Word by word request the whole passage, once', async () => {
+  const { TargetMessage } = await import('./TargetMessage')
+  vi.mocked(services.read).mockResolvedValue({ gloss: { coverage: 'complete', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'},{start:5,end:9,kind:'gloss',gloss:'house'}] }, audioBase64: null, translation: null, receipt: null } as ReadingResult)
+  const props = { text: 'Hola casa', segments: [], segmentsKey: 'hola-casa', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
+    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
+  // Only "Hola" is known from a durable source: the provider's peek reports partial coverage.
+  app(<SavedReadingProvider sources={[{ scope, text: 'Hola casa', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'}] }]}><TargetMessage {...props} /></SavedReadingProvider>)
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Word by word' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
+  expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola casa', aid: 'word_gloss' }, expect.any(AbortSignal))
+  await waitFor(() => expect(screen.getByText('house')).toBeVisible())
+  fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  expect(services.read).toHaveBeenCalledOnce()
+})
+
+it('a complete cached result is reused without a new request, and Chat-style owners never look up', async () => {
+  const { TargetMessage } = await import('./TargetMessage')
+  const props = { text: 'Hola', segments: [], segmentsKey: 'hola', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
+    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
+  const view = app(<><TargetMessage {...props} /><TargetMessage {...props} segmentsKey="second" /></>)
+  fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[0])
+  await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
+  // The second passage shows the cached complete meanings under the preference.
+  await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(2))
+  fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[1])
+  expect(view.container.querySelectorAll('.wg')).toHaveLength(1)
+  expect(services.read).toHaveBeenCalledOnce()
+  view.unmount()
+  app(<TargetMessage {...props} layout="bubble" lookupWords={false} />)
+  expect(screen.getByRole('button', { name: 'Word by word' })).toBeDisabled()
+  expect(screen.queryByRole('button', { name: 'Translate' })).toBeNull()
+  expect(services.read).toHaveBeenCalledOnce()
 })

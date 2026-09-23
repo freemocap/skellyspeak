@@ -39,7 +39,7 @@ pub(in crate::application) fn cancel_persona_generation(
 
 fn cancel_owned_persona_generation(state: &Application, generation_id: &str) -> Result<()> {
     let mut store = state.lock()?;
-    if let Some(request) = state.generations.cancel(generation_id)? {
+    if let Some(request) = state.generations.cancel_for(generation_id, "persona")? {
         generation_receipts::cancel(&mut store, &request)?;
     }
     Ok(())
@@ -58,99 +58,23 @@ pub(in crate::application) async fn run_persona_generation(
         state.generations.claim(&generation_id)?
     };
     let request = &run.request;
-    // Keep completion metadata even when the proposal fails parsing or loses
-    // authority before adoption. Its text never enters the durable receipt.
-    let mut provider_outcome = None;
-    let outcome = async {
-        let validate = || {
-            let store = state.lock()?;
-            request.validate(&store)
-        };
-        validate()?;
-        let permit = state.admission.try_chat().ok_or_else(|| {
-            AppError::new(
-                ErrorCode::AdmissionHeld,
-                "AI work is already at capacity. Let pending work finish, then generate again.",
-            )
-        })?;
-        let client = provider::client()?;
-        let key = generation::await_checked(
-            request,
-            async {
-                if request.credential.is_empty() {
-                    Ok(Zeroizing::new(String::new()))
-                } else {
-                    read_secret(request.credential.clone()).await
-                }
-            },
-            validate,
-        )
-        .await??;
-        validate()?;
-        let language = &request.language;
-        let schema = persona::output_schema();
-        let dispatch = execution::Dispatch {
-            temperature: 0.7,
-            target: request.target.clone(),
-            attempt: request.attempt.clone(),
-            operation: request.operation.clone(),
-            credential: request.credential.clone(),
-            model: request.target.model.clone(),
-            route: request.target.route,
-            install_id: request.install_id.clone(),
+    let output = super::proposal_execution::execute(
+        &state,
+        request,
+        super::proposal_execution::Task {
             messages: persona_prompt::messages_with_context(
-                &language.name,
+                &request.language.name,
                 request.brief.as_deref(),
                 &request.language_context,
             ),
-            gloss_schema: None,
-            decisions: None,
-            coaching_schema: None,
-            gloss_source: None,
-            speech_source: None,
-        };
-        {
-            // Cancellation also takes Store before Registry. Validation, the
-            // durable dispatch boundary and submission state are one ordered step.
-            let mut store = state.lock()?;
-            request.validate(&store)?;
-            generation_receipts::dispatch(&mut store, request)?;
-            request.mark_submitted();
-        }
-        provider_outcome = Some(
-            retry::run(
-                || {
-                    provider::complete_with_output(
-                        &client,
-                        &key,
-                        &dispatch,
-                        provider::RequestOutput::JsonSchema {
-                            max_output_tokens: 2048,
-                            name: persona_prompt::SCHEMA_NAME,
-                            schema: &schema,
-                        },
-                    )
-                },
-                validate,
-                |error| generation_receipts::record_retry(&*state.lock()?, request, error),
-            )
-            .await,
-        );
-        drop(permit);
-        let completed = provider_outcome
-            .as_ref()
-            .expect("provider outcome was captured");
-        generation::accept_completion(&mut *state.lock()?, request, completed)?;
-        let completion = completed.as_ref().map_err(Clone::clone)?;
-        let details = generated_persona_for_language(&completion.text, &request.language)?;
-        validate()?;
-        Ok(details)
-    }
+            schema: persona::output_schema(),
+            name: persona_prompt::SCHEMA_NAME,
+            max_output_tokens: 2048,
+        },
+        |_, completed| generated_persona_for_language(&completed.text, &request.language),
+    )
     .await;
-    let completion = provider_outcome
-        .as_ref()
-        .and_then(|value| value.as_ref().ok());
-    finish_persona_generation(&state, request, completion, outcome)
+    finish_persona_generation(&state, request, output.completion.as_ref(), output.outcome)
 }
 
 fn finish_persona_generation(

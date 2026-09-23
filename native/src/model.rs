@@ -658,8 +658,32 @@ pub fn bindings() -> String {
         TranscriptionAttempt::decl(&config),
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult::decl(&config),
         crate::speech::analysis::audio_inspection::AudioInspection::decl(&config),
+        crate::speech::recording::owner::RecordingOwner::decl(&config),
+        crate::drill::conversation_source::ConversationDrillInput::decl(&config),
+        crate::drill::conversation_source::ConversationDrillPage::decl(&config),
+        crate::drill::generation::DrillLength::decl(&config),
+        crate::drill::generation::DrillGenerationInput::decl(&config),
+        crate::drill::previews::DrillSource::decl(&config),
+        crate::drill::previews::DrillConversationRef::decl(&config),
+        crate::drill::previews::DrillReportedLabels::decl(&config),
+        crate::drill::previews::DrillVerifiedProperties::decl(&config),
+        crate::drill::previews::DrillCandidate::decl(&config),
+        crate::drill::previews::DrillShortfall::decl(&config),
+        crate::drill::previews::DrillGenerationPreview::decl(&config),
+        crate::drill::DrillItemInput::decl(&config),
+        crate::drill::retention::DrillStorageView::decl(&config),
+        crate::drill::sessions::DrillSessionView::decl(&config),
+        crate::drill::sessions::DrillVisitView::decl(&config),
+        crate::drill::DrillItemView::decl(&config),
+        crate::drill::history::DrillAttemptPage::decl(&config),
+        crate::drill::DrillAttemptView::decl(&config),
+        crate::drill::comparison::DrillComparison::decl(&config),
+        crate::drill::comparison::WordComparison::decl(&config),
+        crate::drill::comparison::WordOutcome::decl(&config),
+        crate::drill::comparison::ScriptNote::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionWaveform::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionSpectrogram::decl(&config),
+        crate::speech::analysis::audio_inspection::InspectionMelBand::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionActivity::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionRegion::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionPause::decl(&config),
@@ -668,6 +692,7 @@ pub fn bindings() -> String {
         crate::speech::analysis::audio_inspection::InspectionUnsupportedWord::decl(&config),
         crate::speech::analysis::audio_inspection::InspectionTimingStatus::decl(&config),
         RefusalReason::decl(&config),
+        crate::language::reading::ReadingAid::decl(&config),
         crate::language::reading::ReadingInput::decl(&config),
         crate::language::reading::ReadingResult::decl(&config),
         AppError::decl(&config),
@@ -686,12 +711,17 @@ pub fn bindings() -> String {
             crate::learning::coaching::catalog_version()
         ),
         format_args!(
-            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}",
+            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}\nexport const DIFFICULTY_LEVELS: readonly Difficulty[] = {} as const\nexport const DRILL_RECORDING_MAX_MB = {} as const\nexport const DRILL_LENGTHS: readonly DrillLength[] = {} as const",
             text_size_limits(),
             serde_json::to_string(
                 &crate::configuration::appearance::AppearancePreferences::default()
             )
-            .expect("appearance defaults serialize")
+            .expect("appearance defaults serialize"),
+            serde_json::to_string(&crate::configuration::difficulty::LEVELS)
+                .expect("difficulty levels serialize"),
+            crate::drill::retention::MAX_LIMIT_MB,
+            serde_json::to_string(&crate::drill::generation::LENGTHS)
+                .expect("drill lengths serialize")
         )
     )
 }
@@ -1074,6 +1104,9 @@ pub struct ProfileSnapshot {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct PersonaGenerationAttempt {
+    #[serde(default)]
+    #[ts(optional)]
+    pub finish_reason: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional, type = "unknown")]
     pub diagnostics: Option<serde_json::Value>,

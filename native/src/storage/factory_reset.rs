@@ -204,6 +204,42 @@ pub(crate) fn erase(
 
 /// Caller holds workspace ownership and, for an open Store, its write mutex.
 /// Publish only after the database, sidecars and editable configuration are copied.
+// Audio referenced by the database is part of the same workspace snapshot.
+// The caller holds Store's lock, so publication/pruning cannot race this copy.
+fn copy_drill_audio(data: &Path, staging: &Path) -> Result<()> {
+    let source = data.join("drill-audio");
+    let metadata = match std::fs::symlink_metadata(&source) {
+        Ok(value) => value,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => {
+            return Err(storage_error(format!(
+                "Could not inspect drill audio: {error}"
+            )));
+        }
+    };
+    if !metadata.is_dir() || metadata.file_type().is_symlink() {
+        return Err(storage_error("Drill audio must be a real directory."));
+    }
+    let destination = staging.join("drill-audio");
+    std::fs::create_dir(&destination)
+        .map_err(|error| storage_error(format!("Could not create audio backup: {error}")))?;
+    for entry in std::fs::read_dir(source)
+        .map_err(|error| storage_error(format!("Could not list drill audio: {error}")))?
+    {
+        let entry = entry
+            .map_err(|error| storage_error(format!("Could not inspect drill audio: {error}")))?;
+        let kind = entry
+            .file_type()
+            .map_err(|error| storage_error(format!("Could not inspect drill audio: {error}")))?;
+        if !kind.is_file() || kind.is_symlink() {
+            return Err(storage_error("Drill audio entries must be regular files."));
+        }
+        std::fs::copy(entry.path(), destination.join(entry.file_name()))
+            .map_err(|error| storage_error(format!("Could not copy drill audio: {error}")))?;
+    }
+    Ok(())
+}
+
 pub(crate) fn export_to(
     data: &Path,
     destination: &Path,
@@ -238,6 +274,7 @@ pub(crate) fn export_to(
             std::fs::copy(source, staging.join(name))
                 .map_err(|error| storage_error(format!("Could not copy workspace: {error}")))?;
         }
+        copy_drill_audio(data, &staging)?;
         std::fs::rename(&staging, &folder)
             .map_err(|error| storage_error(format!("Could not publish backup: {error}")))?;
         Ok(())
@@ -500,6 +537,12 @@ mod tests {
             .pragma_update(None, "journal_mode", "WAL")
             .unwrap();
         store.connection.execute_batch("CREATE TABLE backup_probe (value TEXT); INSERT INTO backup_probe VALUES ('first');").unwrap();
+        std::fs::create_dir(data.path().join("drill-audio")).unwrap();
+        std::fs::write(
+            data.path().join("drill-audio/attempt.wav"),
+            b"retained audio",
+        )
+        .unwrap();
         let guard = store.ownership();
         let first = export_to(data.path(), downloads.path(), 42, &guard).unwrap();
         store
@@ -515,6 +558,10 @@ mod tests {
         assert_ne!(first, second);
         assert!(!second.join(format!("{WORKSPACE_FILE}-wal")).exists());
         for (folder, expected) in [(first, "first"), (second, "second")] {
+            assert_eq!(
+                std::fs::read(folder.join("drill-audio/attempt.wav")).unwrap(),
+                b"retained audio"
+            );
             let copy = rusqlite::Connection::open(folder.join(WORKSPACE_FILE)).unwrap();
             assert_eq!(
                 copy.query_row("SELECT value FROM backup_probe", [], |row| row
@@ -553,6 +600,21 @@ mod tests {
         std::fs::create_dir(data.path().join(format!("{WORKSPACE_FILE}-wal"))).unwrap();
         assert!(export_to(data.path(), downloads.path(), 1, &guard).is_err());
         assert_eq!(std::fs::read_dir(downloads.path()).unwrap().count(), 0);
+        std::fs::remove_dir(data.path().join(format!("{WORKSPACE_FILE}-wal"))).unwrap();
+        std::fs::create_dir_all(data.path().join("drill-audio/unexpected-directory")).unwrap();
+        assert!(export_to(data.path(), downloads.path(), 1, &guard).is_err());
+        assert_eq!(std::fs::read_dir(downloads.path()).unwrap().count(), 0);
+        #[cfg(unix)]
+        {
+            std::fs::remove_dir(data.path().join("drill-audio/unexpected-directory")).unwrap();
+            std::os::unix::fs::symlink(
+                data.path().join(WORKSPACE_FILE),
+                data.path().join("drill-audio/linked.wav"),
+            )
+            .unwrap();
+            assert!(export_to(data.path(), downloads.path(), 1, &guard).is_err());
+            assert_eq!(std::fs::read_dir(downloads.path()).unwrap().count(), 0);
+        }
     }
 
     #[test]

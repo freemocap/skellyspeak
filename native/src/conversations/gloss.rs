@@ -15,6 +15,9 @@ use crate::model::GlossSegmentKind;
 use crate::model::Result;
 use crate::model::WordGlossView;
 
+/// Model role for word meanings, in conversation turns and explicit reading requests.
+pub(crate) const ROLE: &str = "standard";
+
 #[derive(Debug, Clone)]
 pub struct Source {
     pub identity: SourceIdentity,
@@ -52,22 +55,6 @@ pub fn validate(
     let analysis =
         adapter::validate_word_gloss_completion(&source.identity, &source.text, completion)
             .map_err(|error| gloss_error(error, completion))?;
-    project(source, analysis, operation, attempt)
-}
-pub fn validate_with_context(
-    source: &Source,
-    completion: &Completion,
-    operation: &str,
-    attempt: &str,
-    context: &crate::configuration::LanguageContext,
-) -> Result<WordGlossView> {
-    let analysis = adapter::validate_word_gloss_completion_with_context(
-        &source.identity,
-        &source.text,
-        completion,
-        context,
-    )
-    .map_err(|error| gloss_error(error, completion))?;
     project(source, analysis, operation, attempt)
 }
 pub fn recover_with_context(

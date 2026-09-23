@@ -5,7 +5,7 @@ import re
 import time
 import jwt
 from fastapi import HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from google.cloud import firestore
 from server.app.identity import auth
 from server.app.accounting import quota
@@ -46,7 +46,18 @@ def finish(identity, cfg, db):
     token = jwt.encode({'sub': identity.user_id, 'email': OWNER, 'tv': int(profile.get('token_version', 0)),
                         'iss': 'skellyspeak-api', 'aud': AUDIENCE, 'iat': now, 'exp': now + TTL},
                        cfg.jwt_signing_key, algorithm='HS256')
-    response = RedirectResponse('/admin', status_code=303)
+    # Commit a same-site document before opening the panel. An HTTP redirect
+    # keeps Google's cross-site navigation chain, which excludes Strict cookies.
+    response = HTMLResponse(
+        '<!doctype html><html lang="en"><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width">'
+        '<meta http-equiv="refresh" content="0;url=/admin">'
+        '<title>Opening server administration</title>'
+        '<p>Signed in. <a href="/admin">Continue to server administration</a>.</p></html>',
+        headers={'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer',
+                 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY',
+                 'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"},
+    )
     response.set_cookie(COOKIE, token, secure=True, httponly=True, samesite='strict', max_age=TTL, path='/')
     response.delete_cookie(FLOW_COOKIE, secure=True, httponly=True, samesite='lax', path='/')
     return response

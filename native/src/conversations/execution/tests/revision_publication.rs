@@ -20,7 +20,7 @@ fn deleting_revised_conversation_removes_chain_and_credit_but_keeps_generation_r
         .entity_id;
     finish_fixture_exchange(&mut store, &second, "Second.");
     fixture_evidence(&store, &second, "¿Qué hora es?");
-    store.connection.execute("INSERT INTO persona_generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state) VALUES('receipt','attempt','operation','spanish','custom','fixture',1,'succeeded')",[]).unwrap();
+    store.connection.execute("INSERT INTO generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state) VALUES('receipt','attempt','operation','spanish','custom','fixture',1,'succeeded')",[]).unwrap();
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         35
@@ -50,11 +50,8 @@ fn deleting_revised_conversation_removes_chain_and_credit_but_keeps_generation_r
     assert_eq!(
         store
             .connection
-            .query_row(
-                "SELECT count(*) FROM persona_generation_attempts",
-                [],
-                |r| r.get::<_, i32>(0)
-            )
+            .query_row("SELECT count(*) FROM generation_attempts", [], |r| r
+                .get::<_, i32>(0))
             .unwrap(),
         1
     );

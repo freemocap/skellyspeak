@@ -10,6 +10,9 @@ import { create } from 'zustand'
 
 /// The top-level surfaces the shell switches between.
 export type Page = 'guided' | 'skills'
+/// Which practice surface the guided page is showing: the conversation, or the
+/// drill. One replaces the other; they are never side by side.
+export type PracticeView = 'chat' | 'drill'
 export type WorkspaceMode = 'practice' | 'review'
 
 /// Where the narrow-window layout puts the learner: the conversation or the
@@ -25,6 +28,8 @@ interface NavigationState {
   readingQuestion: string | null
   draftReadingQuestion: (question: string | null) => void
   page: Page
+  practiceView: PracticeView
+  setPracticeView: (view: PracticeView) => void
   mode: WorkspaceMode
   setMode: (mode: WorkspaceMode) => void
   mobileSurface: MobileLocation
@@ -76,6 +81,7 @@ interface NavigationState {
 
 const initialState = {
   page: 'guided' as Page,
+  practiceView: 'chat' as PracticeView,
   mode: 'practice' as WorkspaceMode,
   mobileSurface: 'chat' as MobileLocation,
   historyOpen: false,
@@ -94,6 +100,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   readingQuestion: null,
   draftReadingQuestion: readingQuestion => set({ readingQuestion }),
 
+  setPracticeView: (practiceView) => set({ practiceView, mode: 'practice', page: 'guided', overlay: null }),
   setMode: (mode) => set(state => ({ mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
   showPage: (page) => set(state => ({ page, mode: page === 'skills' ? 'review' : 'practice', skillsOpened: state.skillsOpened || page === 'skills' })),
   openPractice: (surface) => set({ mode: 'practice', page: 'guided', mobileSurface: surface, overlay: null }),

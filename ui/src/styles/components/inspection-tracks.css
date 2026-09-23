@@ -1,0 +1,14 @@
+/* Shared recording-inspection tracks: where the analysis heard audio, where it
+   split one detected speech segment from the next, and the words a recognizer placed in time.
+   Chat and Drill both draw these over the same time axis. */
+
+.inspection-activity { width: 100%; height: 24px; background: var(--sheet); }
+.inspection-activity rect { fill: var(--interaction-ink); }
+.inspection-token-track { position: relative; height: 48px; background: var(--chrome); }
+.inspection-token-track button { position: absolute; top: 4px; height: 36px; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
+.inspection-token-track button[aria-pressed=true], .inspection-token-track .inspection-token-active { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
+.inspection-token-track button:focus-visible { z-index: var(--z-sticky); min-width: max-content; }
+
+.inspection-token-label { position: absolute; top: var(--space-2); overflow: hidden; padding: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); white-space: nowrap; text-overflow: ellipsis; }
+.inspection-segment-mark { position: absolute; inset-block: 0; width: 0; border-inline-start: var(--border-width-thick) dashed var(--interaction-ink); }
+.inspection-segment-mark span { position: absolute; top: var(--space-1); inset-inline-start: var(--space-2); padding: 0 var(--space-2); background: var(--interaction-fill); color: var(--ink-on-fill); font-family: var(--font-mono); font-size: var(--type-meta); border-radius: var(--radius-xs); white-space: nowrap; }

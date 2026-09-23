@@ -67,10 +67,6 @@
 
 .w.holding { background: var(--interaction-tint); }
 
-.line.rtl-line { flex-direction: row-reverse; }
-
-.line.rtl-line .wu { direction: rtl; }
-
 .trans-d {
   font-size: var(--type-ui);
   color: var(--ink-2);

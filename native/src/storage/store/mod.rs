@@ -17,6 +17,7 @@ use creation::{create_conversation, create_persona};
 pub(crate) use schema::SCHEMA_VERSION;
 use schema::{GENERATION_SCHEMA, validate_current_schema, validate_database};
 use snapshot::read_snapshot;
+pub(crate) use workspace::prepare_private_directory as private_directory;
 pub(crate) use workspace::{
     WORKSPACE_FILE, WORKSPACE_LOCK, WorkspaceOwnership, prepare_private_directory,
 };
@@ -30,6 +31,8 @@ pub struct Store {
     /// factory reset can remove secrets even when the workspace will not open.
     pub(crate) credential_index: std::path::PathBuf,
     pub(crate) speech_cache: crate::speech::cache::Cache,
+    /// Where drill attempt audio is stored, beside the workspace database.
+    pub(crate) drill_audio: std::path::PathBuf,
     ownership: WorkspaceOwnership,
 }
 

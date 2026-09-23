@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest'
 import { invoke } from '@tauri-apps/api/core'
 import type { WordGlossView } from '../../../generated/contracts'
 import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
-import { SavedGlossText as SharedSavedGlossText } from './SavedGlossText'
+import { SavedGlossText as SharedSavedGlossText } from '../../../components/reading/SavedGlossText'
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
 const enabled = { autoTranslate: true, alwaysRomanize: true, alwaysPronunciation: true }
 function render(node: React.ReactNode) {

@@ -39,18 +39,7 @@ pub(super) fn prepare_speech(
         .to_owned();
     let context: crate::configuration::LanguageContext =
         serde_json::from_value(captured["languageContext"].clone())?;
-    let language = format!("{} — {}", context.target_name, context.variety_name);
-    if text.is_empty() || text.chars().count() > 12000 || text.contains('\0') || voice.is_empty() {
-        return Err(fail("Speech input exceeds its source contract."));
-    }
-    crate::ai::audio::validate_speech(
-        &target,
-        &crate::ai::audio::SpeechInput {
-            text: text.clone(),
-            voice: voice.clone(),
-            language: language.clone(),
-        },
-    )?;
+    let input = speech_input(&target, text, voice, &context)?;
     let attempt = new_attempt_id();
     db.execute(
         "UPDATE operations SET state='running',permit=0 WHERE id=?1",
@@ -65,7 +54,7 @@ pub(super) fn prepare_speech(
         [turn],
     )?;
     Ok(Dispatch {
-        temperature: 0.7,
+        temperature: super::TASK_TEMPERATURE,
         credential: target.credential.clone().unwrap_or_default(),
         model: target.model.clone(),
         route: target.route,
@@ -79,12 +68,37 @@ pub(super) fn prepare_speech(
         gloss_source: None,
         speech_source: Some(crate::speech::cache::Source {
             message_id,
-            text,
-            language,
-            voice,
+            text: input.text,
+            language: input.language,
+            voice: input.voice,
         }),
         install_id: db.query_row("SELECT id FROM learner LIMIT 1", [], |r| r.get(0))?,
     })
+}
+
+/// The speech request for target-language text: the source contract, the
+/// language label and route validation shared by persona speech and explicit
+/// reading requests.
+pub(crate) fn speech_input(
+    target: &crate::ai::connections::access::ResolvedTarget,
+    text: String,
+    voice: String,
+    context: &crate::configuration::LanguageContext,
+) -> Result<crate::ai::audio::SpeechInput> {
+    if text.trim().is_empty()
+        || text.chars().count() > 12000
+        || text.contains('\0')
+        || voice.is_empty()
+    {
+        return Err(fail("Speech input exceeds its source contract."));
+    }
+    let input = crate::ai::audio::SpeechInput {
+        text,
+        voice,
+        language: format!("{} — {}", context.target_name, context.variety_name),
+    };
+    crate::ai::audio::validate_speech(target, &input)?;
+    Ok(input)
 }
 
 pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -> Result<String> {

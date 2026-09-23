@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { ReadingInput, ReadingResult } from '../../generated/contracts'
-export type ReadingScope = Omit<ReadingInput, 'text' | 'speech'>
+export type ReadingScope = Omit<ReadingInput, 'text' | 'aid'>
 export interface ReadingSelection { text: string; start: number; end: number; scope: ReadingScope }
 export interface ReadingServices {
   read: (input: ReadingInput, signal: AbortSignal) => Promise<ReadingResult>

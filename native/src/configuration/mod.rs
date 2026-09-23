@@ -2,6 +2,7 @@
 //! Invalid bundled content blocks startup with ConfigLoadError.
 pub mod appearance;
 mod citations;
+pub mod difficulty;
 mod documents;
 pub(crate) use documents::ConversationPromptContent;
 mod identity;
@@ -61,6 +62,7 @@ pub struct Registry {
     game: GamePolicy,
     topics: Vec<documents::ConversationTopic>,
     conversation_prompt: documents::ConversationPromptContent,
+    drill_instruction: String,
     hash: String,
     #[serde(skip)]
     documents: BTreeMap<String, documents::LanguageDocument>,
@@ -325,7 +327,7 @@ impl Registry {
             romanization: false,
             auto_send: true,
             read_aloud: true,
-            speech_voice: "alloy".into(),
+            speech_voice: SPEECH_VOICE.into(),
         })
     }
     pub fn preference_defaults(
@@ -424,7 +426,7 @@ impl Registry {
             &settings.explanation_language,
             Some(&settings.explanation_variety_id),
         )?;
-        if settings.speech_voice != "alloy" {
+        if settings.speech_voice != SPEECH_VOICE {
             return Err(model::AppError::new(
                 model::ErrorCode::Validation,
                 "Choose a supported speech voice.",
@@ -518,6 +520,10 @@ impl Registry {
         }
         Ok(())
     }
+    pub(crate) fn drill_instruction(&self) -> &str {
+        &self.drill_instruction
+    }
+
     pub fn conversation_prompt(&self) -> &documents::ConversationPromptContent {
         &self.conversation_prompt
     }
@@ -548,6 +554,8 @@ mod validation;
 #[cfg(test)]
 mod baseline_tests;
 
+/// The one supported speech voice, for conversations and reading requests.
+pub const SPEECH_VOICE: &str = "alloy";
 /// Interface translations are independent of the learning-language catalog.
 pub const INTERFACE_LOCALES: &[&str] = &[
     "english",

@@ -4,8 +4,8 @@ use rusqlite::params;
 pub fn begin(store: &Store, request: &Request) -> Result<()> {
     store.connection.execute("INSERT INTO reading_attempts(id,receipt) VALUES(?1,json_set(?2,'$.createdAt',strftime('%Y-%m-%dT%H:%M:%fZ','now')))", params![request.id, serde_json::json!({
         "id":request.id,"attemptId":request.attempt,"operationId":request.operation,"language":request.input.language,
-        "kind":if request.input.speech {"token_speech"} else {"reading_gloss"},"route":request.target.route.label(),
-        "requestedModel":request.target.model,"state":"pending"
+        "kind":request.input.aid.receipt_kind(),"route":request.target.route.label(),
+        "requestedModel":request.model,"state":"pending"
     }).to_string()])?;
     Ok(())
 }

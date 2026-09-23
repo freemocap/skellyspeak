@@ -570,7 +570,14 @@ fault; bridge delivery failures are explicitly reported and counted. In-memory
 rings limit the UI read view only, not file retention. Files are readable while
 processes run; this is not a guarantee against power-loss or hardware failure.
 
-Credential patterns are redacted from process output. Frontend/structured sinks
+Interactive launcher output masks credentials but preserves ordinary content,
+server addresses, local paths and build identifiers. URL user information,
+queries and fragments are masked; a plain development URL remains clickable.
+Saved process diagnostics use the stricter policy, including content and URL
+redaction. Terminal output is therefore not a sanitized diagnostic export.
+Multiline private keys and credentials split across writes are masked in both sinks.
+The diagnostic policy is not a filter for conversation or model-response content
+displayed in the application. Frontend/structured sinks
 exclude arbitrary argument bodies, stacks, transcripts and provider payloads;
 redacted bodies have explicit markers/counts. Unknown error causes are therefore
 not complete error text. Incomplete process lines get immediate arrival markers;

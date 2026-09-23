@@ -24,17 +24,31 @@ fn event(dispatch: &Dispatch, outcome: &SpeechOutcome) -> Value {
     event["code"] = json!("speech_validation");
     event["stage"] = json!("decoder_outcome");
     event["contentRedacted"] = json!(true);
-    event["audioAccepted"] = json!(outcome.audio.is_ok());
     event["errorCode"] = json!(outcome.audio.as_ref().err().map(|error| &error.code));
-    event["finishReason"] = json!(match outcome.finish_reason.as_deref() {
-        Some(reason @ ("stop" | "length" | "content_filter" | "error")) => Some(reason),
-        Some(_) => Some("other"),
-        None => None,
-    });
-    event["inputTokens"] = json!(outcome.input_tokens);
-    event["outputTokens"] = json!(outcome.output_tokens);
-    event["transcriptComparison"] = json!(outcome.transcript_diagnostics);
+    if let Value::Object(fields) = outcome_metadata(outcome) {
+        for (field, value) in fields {
+            event[field] = value;
+        }
+    }
     event
+}
+
+/// What one speech outcome says about itself without its content: whether audio
+/// was accepted, how it finished, its usage, and the provider's own comparison
+/// of the spoken transcript with the source. Persona speech events and explicit
+/// reading receipts retain the same projection, on success and on failure.
+pub(crate) fn outcome_metadata(outcome: &SpeechOutcome) -> Value {
+    json!({
+        "audioAccepted": outcome.audio.is_ok(),
+        "finishReason": match outcome.finish_reason.as_deref() {
+            Some(reason @ ("stop" | "length" | "content_filter" | "error")) => Some(reason),
+            Some(_) => Some("other"),
+            None => None,
+        },
+        "inputTokens": outcome.input_tokens,
+        "outputTokens": outcome.output_tokens,
+        "transcriptComparison": outcome.transcript_diagnostics,
+    })
 }
 
 #[cfg(test)]
@@ -107,5 +121,48 @@ mod tests {
         assert_eq!(event(&dispatch, &outcome)["audioAccepted"], true);
         outcome.transcript_diagnostics = None;
         assert!(event(&dispatch, &outcome)["transcriptComparison"].is_null());
+    }
+
+    #[test]
+    fn shared_outcome_metadata_keeps_the_comparison_without_its_content() {
+        let mut outcome = SpeechOutcome {
+            diagnostics: None,
+            audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
+            actual_model: Some("PRIVATE".into()),
+            provider_id: Some("PRIVATE".into()),
+            input_tokens: Some(12),
+            output_tokens: Some(30),
+            cost_micros: None,
+            finish_reason: Some("stop".into()),
+            transcript_diagnostics: Some(TranscriptDiagnostics::new(
+                "PRIVATE-क़",
+                "PRIVATE-क\u{93c}",
+                false,
+            )),
+        };
+        // A failed attempt still explains how the spoken audio compared.
+        let failed = outcome_metadata(&outcome);
+        assert_eq!(failed["audioAccepted"], false);
+        assert_eq!(failed["finishReason"], "stop");
+        assert_eq!(failed["inputTokens"], 12);
+        assert_eq!(failed["outputTokens"], 30);
+        assert_eq!(failed["transcriptComparison"]["canonicalEquivalent"], true);
+        assert_eq!(failed["transcriptComparison"]["complete"], false);
+        assert_eq!(failed["transcriptComparison"]["source"]["devanagari"], 2);
+        assert!(!failed.to_string().contains("PRIVATE"));
+        outcome.audio = Ok(vec![1, 2]);
+        let accepted = outcome_metadata(&outcome);
+        assert_eq!(accepted["audioAccepted"], true);
+        assert_eq!(
+            accepted["transcriptComparison"],
+            failed["transcriptComparison"]
+        );
+        // Absent comparison metadata is explicitly absent, never omitted.
+        outcome.transcript_diagnostics = None;
+        assert!(
+            outcome_metadata(&outcome)
+                .get("transcriptComparison")
+                .is_some_and(Value::is_null)
+        );
     }
 }

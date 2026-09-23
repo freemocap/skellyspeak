@@ -1,5 +1,6 @@
 import { ReadingAnalysisFixture } from './reading-analysis-fixture'
-import { ReadingPassage } from '../src/features/conversation/reading/ReadingPassage'
+import { TargetMessage, type TargetMessageProps } from '../src/components/reading/TargetMessage'
+import { useState } from 'react'
 import { SavedReadingProvider } from '../src/components/reading/SavedReadingProvider'
 /** Offline fixture: production reading controls, deterministic glosses, no AI/audio. */
 import { createRoot } from 'react-dom/client'
@@ -27,10 +28,36 @@ mockIPC(command=> { if(command==='get_snapshot') return {languages:registry}; th
 await loadLanguages()
 const segments = [{start:0,end:4,kind:'gloss' as const,gloss:'hello',pronunciation:'oh-la'},{start:6,end:11,kind:'gloss' as const,gloss:'world'}]
 const services: ReadingServices = {
-  read: async input => ({gloss:{segments: input.text==='Hola, mundo.'?segments:[...input.text.matchAll(/[\p{L}\p{M}]+/gu)].map(match => ({start:match.index,end:match.index+match[0].length,kind:'gloss',gloss:match[0].includes('قديم')?'old':match[0].includes('بيوت')?'houses':'fixture meaning',romanization:match[0].includes('قديم')?'qadīme':undefined})),coverage:'complete'},audioBase64:null,receipt:{fixture:true}} as ReadingResult),
+  read: async input => input.aid === 'translation' ? {gloss:null,audioBase64:null,translation:`Fixture translation of “${input.text}” (no request sent).`,receipt:{fixture:true}} as ReadingResult : ({gloss:{segments: input.text==='Hola, mundo.'?segments:[...input.text.matchAll(/[\p{L}\p{M}]+/gu)].map(match => ({start:match.index,end:match.index+match[0].length,kind:'gloss',gloss:match[0].includes('قديم')?'old':match[0].includes('بيوت')?'houses':'fixture meaning',romanization:match[0].includes('قديم')?'qadīme':undefined})),coverage:'complete'},audioBase64:null,receipt:{fixture:true}} as ReadingResult),
   speak: async () => { throw new Error('Offline preview: no speech request was sent.') },
   activity: async () => [{fixture:true}],
 }
+
+/// A standalone passage: lookup allowed, no owner actions.
+function passage(text: string, romanization: string, translation: string): TargetMessageProps {
+  return { text, segments: [], segmentsKey: text, translation, romanization, pronunciation: null, layout: 'passage', translateLabel: null,
+    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
+}
+
+/// The shared message tools with a source that is not a conversation turn:
+/// the drill item from the design canvas. Actions are local stubs; nothing is
+/// sent to native code or a provider.
+function DrillItemFixture() {
+  const [speaking, setSpeaking] = useState(false)
+  const [notice, setNotice] = useState('Nothing clicked yet.')
+  const text = 'ممكن تحكي شوي شوي؟'
+  return <section aria-label="Non-conversation source">
+    <h2>Same message tools, non-conversation source (drill item)</h2>
+    <TargetMessage layout="bubble" text={text} segmentsKey="drill-item"
+      segments={[{start:0,end:4,kind:'gloss',gloss:'can',romanization:'mumkin'},{start:5,end:9,kind:'gloss',gloss:'you speak',romanization:'tiḥki'},{start:10,end:13,kind:'gloss',gloss:'a little',romanization:'shwayy'},{start:14,end:17,kind:'gloss',gloss:'a little',romanization:'shwayy'}]}
+      translation="Can you speak slowly?" romanization="mumkin tiḥki shwayy shwayy?" pronunciation={null} translateLabel={null}
+      segmentsPending={false} lookupWords={false} status={null} annotation={null} focused={false} rtl
+      speech={{speaking, onToggle: () => { setSpeaking(!speaking); setNotice(speaking ? 'Stop playback (stub).' : 'Speak (stub, no audio).') }, error: null}}
+      analysis={{pending:false, onOpen: () => setNotice('Analysis opened (stub).')}} />
+    <p role="status">{notice}</p>
+  </section>
+}
+
 createRoot(document.getElementById('root')!).render(<I18nProvider locale="english"><ReadingProvider settings={{...PREVIEW_SETTINGS,target_language:'spanish',target_variety:'spanish-spain',native_language:'english',native_variety:'english-united-states'}}><ReadingHelp services={services} languages={languages()}>
   <SavedReadingProvider sources={[
     {scope:{language:'spanish',variety:'spanish-spain',explanation:'english',explanationVariety:'english-united-states'},text:'La playa.',segments:[{start:3,end:8,kind:'gloss',gloss:'beach',pronunciation:'pla-ya'}]},
@@ -40,8 +67,9 @@ createRoot(document.getElementById('root')!).render(<I18nProvider locale="englis
     <ReadingLanguageScope language="arabic" variety="arabic-levantine"><section style={{'--script-scale':1.5} as React.CSSProperties}>
       <p className="msg chat-message bot"><SavedGlossText text="مَسْكَنُك، هَل تُحِبُّ المَسالِكَ الجَدِيدَة؟" segments={[{start:11,end:14,kind:'gloss',gloss:'question'},{start:15,end:22,kind:'gloss',gloss:'like',romanization:'tuḥibbu'}]} /></p>
       <ReadingAnalysisFixture />
-      <ReadingPassage text="بَدّي أزور مَسْكَنَك بَكّير." romanization="Baddī azūr maskanak bakīr." translation="I want to visit your place early." />
-      <ReadingLanguageScope language="mandarin" variety="mandarin-mainland"><ReadingPassage text="你喜欢科幻小说吗？" romanization="Nǐ xǐhuān kēhuàn xiǎoshuō ma?" translation="Do you like science fiction?" /></ReadingLanguageScope>
+      <DrillItemFixture />
+      <TargetMessage {...passage("بَدّي أزور مَسْكَنَك بَكّير.", "Baddī azūr maskanak bakīr.", "I want to visit your place early.")} />
+      <ReadingLanguageScope language="mandarin" variety="mandarin-mainland"><TargetMessage {...passage("你喜欢科幻小说吗？", "Nǐ xǐhuān kēhuàn xiǎoshuō ma?", "Do you like science fiction?")} /></ReadingLanguageScope>
       <p className="msg chat-message bot"><SavedGlossText text="أَنَا بِحِبّ أَمْشِي نَفْس التَلّة كُلّ جُمْعَة. أَنْتَ بِتْمَشّى كُلّ يَوْم؟" segments={[{start:0,end:5,kind:'gloss',gloss:'I'},{start:6,end:12,kind:'gloss',gloss:'like'},{start:13,end:20,kind:'gloss',gloss:'walk'}]} /></p>
       <p className="msg chat-message bot"><span className="w" dir="auto">أَنَا بِحِبّ أَمْشِي نَفْس التَلّة كُلّ جُمْعَة. أَنْتَ بِتْمَشّى كُلّ يَوْم؟</span></p>
       <h2>Reported grammar example: source and reading aids</h2>

@@ -77,7 +77,10 @@ async def test_google_callback_completes_owner_flow_without_learner_quota(databa
         start = await client.get('/admin/login')
         state = parse_qs(urlparse(start.headers['location']).query)['state'][0]
         callback = await client.get('/auth/callback/google', params={'code': 'test-code', 'state': state})
-        assert callback.status_code == 303 and callback.headers['location'] == '/admin'
+        assert callback.status_code == 200 and 'location' not in callback.headers
+        assert 'http-equiv="refresh" content="0;url=/admin"' in callback.text
+        assert 'SameSite=strict' in callback.headers['set-cookie']
+        assert 'Sign in with Google' not in (await client.get('/admin')).text
         assert (await client.get('/admin/api/overview?days=1')).status_code == 200
         replay = await client.get('/auth/callback/google', params={'code': 'test-code', 'state': state})
         assert replay.status_code == 400
