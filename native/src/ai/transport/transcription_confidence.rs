@@ -33,10 +33,9 @@ pub(super) fn summary(value: &Value) -> Option<Value> {
     let response = value.pointer("/usage/diagnostics/response")?;
     let (rows, field, source, words) = if let Some(rows) = response["segments"].as_array() {
         (rows, "avg_logprob", "segment_logprobs", false)
-    } else if let Some(rows) = response["words"].as_array() {
-        (rows, "logprob", "word_logprobs", true)
     } else {
-        return None;
+        let rows = response["words"].as_array()?;
+        (rows, "logprob", "word_logprobs", true)
     };
     if rows.is_empty() || rows.len() > 10000 {
         return None;
