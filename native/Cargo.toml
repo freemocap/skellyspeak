@@ -1,6 +1,6 @@
 [package]
 name = "skellyspeak"
-version = "2.3.2"
+version = "2.3.3"
 license = "AGPL-3.0-or-later"
 edition = "2024"
 default-run = "skellyspeak"
