@@ -144,6 +144,7 @@ pub fn run() {
             diagnostics::read_frontend_diagnostics,
             voice::mic_start,
             crate::speech::recording::continuous::mic_listen_start,
+            crate::speech::recording::continuous::mic_listen_push,
             crate::speech::recording::continuous::mic_listen_status,
             crate::speech::recording::continuous::mic_listen_spectrogram,
             crate::speech::recording::continuous::mic_listen_stop,

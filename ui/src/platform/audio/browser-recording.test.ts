@@ -61,3 +61,39 @@ it('finishes consecutive captures as WAV and releases their tracks and contexts'
     expect(onError).not.toHaveBeenCalled()
   } finally { vi.unstubAllGlobals() }
 })
+
+it('streams ordered chunks without encoding a WAV and flushes acknowledged delivery before Stop', async () => {
+  const { vi } = await import('vitest')
+  const { startBrowserRecording } = await import('./browser-recording')
+  let port!: { onmessage: ((event: { data: Float32Array | string }) => void) | null; postMessage: () => void; close: () => void }
+  const stop = vi.fn(), close = vi.fn(async () => {}), encode = vi.fn()
+  vi.stubGlobal('navigator', { mediaDevices: { getUserMedia: async () => ({ getTracks: () => [{ stop }] }) } })
+  vi.stubGlobal('AudioContext', class {
+    sampleRate = 48000; close = close; createBuffer = encode
+    audioWorklet = { addModule: async () => {} }; resume = async () => {}
+    createAnalyser = () => ({ fftSize: 2048, getFloatTimeDomainData: () => {} })
+    createMediaStreamSource = () => ({ connect() {}, disconnect() {} })
+  })
+  vi.stubGlobal('AudioWorkletNode', class {
+    port = { onmessage: null as typeof port.onmessage, postMessage: () => { this.port.onmessage?.({ data: new Float32Array([.5]) }); this.port.onmessage?.({ data: 'finished' }) }, close() {} }
+    constructor() { port = this.port }
+    connect() {} disconnect() {}
+  })
+  try {
+    let acknowledge!: () => void
+    const first = new Promise<void>(resolve => { acknowledge = resolve })
+    const push = vi.fn().mockImplementationOnce(() => first).mockResolvedValue(undefined)
+    const recording = await startBrowserRecording(vi.fn(), push)
+    port.onmessage!({ data: new Float32Array([.25]) })
+    await Promise.resolve()
+    expect(push).toHaveBeenCalledWith([.25], 48000, 0)
+    const done = recording.finish()
+    expect(stop).not.toHaveBeenCalled()
+    acknowledge()
+    expect(await done).toBe('')
+    expect(push).toHaveBeenLastCalledWith([.5], 48000, 1)
+    expect(encode).not.toHaveBeenCalled()
+    expect(stop).toHaveBeenCalledOnce()
+    expect(close).toHaveBeenCalledOnce()
+  } finally { vi.unstubAllGlobals() }
+})

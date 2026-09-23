@@ -22,7 +22,7 @@ export function PhraseRail({ items, selectedId, languageTag, busy, locked, onAdd
   const tr = useI18n()
   const [phrase, setPhrase] = useState('')
   const submit = async () => {
-    if (!phrase.trim()) return
+    if (!phrase.trim() || locked || busy) return
     await onAdd(phrase)
     setPhrase('')
   }
@@ -32,9 +32,9 @@ export function PhraseRail({ items, selectedId, languageTag, busy, locked, onAdd
       <form className="drill-entry" onSubmit={event => { event.preventDefault(); void submit() }}>
         <label htmlFor="drill-phrase">{tr("Practise a phrase")}</label>
         <div className="drill-entry-row">
-          <input id="drill-phrase" className="field" dir="auto" lang={languageTag} value={phrase} disabled={busy}
+          <input id="drill-phrase" className="field" dir="auto" lang={languageTag} value={phrase} disabled={busy || locked}
             placeholder={tr("Type a line to say out loud")} onChange={event => setPhrase(event.target.value)} />
-          <button className="btn" type="submit" disabled={busy || !phrase.trim()}>{tr("Add")}</button>
+          <button className="btn" type="submit" disabled={busy || locked || !phrase.trim()}>{tr("Add")}</button>
         </div>
       </form>
       <button type="button" className="btn drill-ask-more" disabled={busy || locked} onClick={onAskForMore}>

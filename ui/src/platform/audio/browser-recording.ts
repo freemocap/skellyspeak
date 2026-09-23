@@ -25,7 +25,7 @@ export function encodeRecording(buffer: AudioBuffer): Uint8Array {
   return bytes
 }
 
-export async function startBrowserRecording(onError: (error: Error) => void): Promise<BrowserRecording> {
+export async function startBrowserRecording(onError: (error: unknown) => void, push?: (samples: number[], sampleRate: number, sequence: number) => Promise<void>): Promise<BrowserRecording> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
   let context: AudioContext
   try { context = new AudioContext() }
@@ -39,6 +39,9 @@ export async function startBrowserRecording(onError: (error: Error) => void): Pr
   let rejectFinish: ((error: Error) => void) | undefined
   const chunks: Float32Array[] = []
   let length = 0
+  let sequence = 0
+  let pendingSamples = 0
+  let delivery: Promise<void> = Promise.resolve()
   const cleanup = () => {
     if (stopped) return
     stopped = true
@@ -48,7 +51,7 @@ export async function startBrowserRecording(onError: (error: Error) => void): Pr
     if (processor) { processor.port.onmessage = null; processor.port.close(); processor.disconnect() }
     void context.close().catch(onError)
   }
-  const fail = (error: Error) => { cleanup(); rejectFinish?.(error); onError(error) }
+  const fail = (error: unknown) => { if (stopped) return; cleanup(); rejectFinish?.(error as Error); onError(error) }
   const cancel = () => { cleanup(); rejectFinish?.(new Error('Recording was cancelled.')) }
   try {
     await context.audioWorklet.addModule(recordingWorkletUrl)
@@ -67,11 +70,23 @@ export async function startBrowserRecording(onError: (error: Error) => void): Pr
       if (event.data === 'finished') { complete?.(); return }
       const samples = event.data
       if (!(samples instanceof Float32Array)) { fail(new Error('Invalid microphone samples.')); return }
+      if (push) {
+        pendingSamples += samples.length
+        if (pendingSamples > context.sampleRate * 2) { fail(new Error('Microphone audio delivery fell behind. Listening stopped.')); return }
+        const current = sequence++
+        delivery = delivery.then(async () => {
+          if (stopped) return
+          await push(Array.from(samples), context.sampleRate, current)
+          pendingSamples -= samples.length
+        })
+        void delivery.catch(fail)
+        return
+      }
       length += samples.length
       if (length > context.sampleRate * 120) { fail(new Error('Recording exceeded two minutes.')); return }
       chunks.push(samples)
     }
-    timer = setTimeout(() => fail(new Error('Recording exceeded two minutes. Please record a shorter message.')), 120000)
+    if (!push) timer = setTimeout(() => fail(new Error('Recording exceeded two minutes. Please record a shorter message.')), 120000)
     return {
       cancel,
       wave: { samplesPerSecond: 60 * analyser.fftSize / 10, read: () => { analyser.getFloatTimeDomainData(frame); return Array.from(frame).filter((_, i) => i % 10 === 0) } },
@@ -82,6 +97,10 @@ export async function startBrowserRecording(onError: (error: Error) => void): Pr
         clearTimeout(timer)
         timer = setTimeout(() => fail(new Error('Microphone did not finish delivering samples.')), 5000)
         complete = () => {
+          if (push) {
+            void delivery.then(() => { cleanup(); resolve('') }, error => { cleanup(); reject(error) })
+            return
+          }
           try {
             if (length === 0) throw new Error('The microphone captured no audio samples.')
             const buffer = context.createBuffer(1, length, context.sampleRate)

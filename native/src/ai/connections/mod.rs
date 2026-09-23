@@ -5,3 +5,6 @@ pub(crate) mod model_routing;
 
 #[cfg(target_os = "macos")]
 mod credential_cache;
+
+#[cfg(target_os = "macos")]
+mod credential_events;

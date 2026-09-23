@@ -3,7 +3,7 @@
 
 /* Three columns that fit the window: pick a phrase, practise it, read the
    report. The middle column never scrolls at desktop sizes; the report may. */
-.drill-page { display: grid; grid-template-columns: var(--drill-rail-width) auto minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
+.drill-page { width: 100%; min-width: 0; display: grid; grid-template-columns: var(--drill-rail-width) auto minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
 .drill-rail, .drill-log { min-height: 0; overflow-y: auto; }
 
 /* The rail: add a phrase, pick one, and the storage control kept out of the way. */
@@ -63,7 +63,7 @@
 .drill-stage { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; overflow-y: auto; }
 .drill-stage-alone { grid-column: 3 / -1; }
 .drill-pane { min-height: 0; overflow: auto; }
-.drill-dock-pane { flex: none; height: var(--drill-dock-height); }
+.drill-dock-pane { flex: none; height: var(--drill-dock-height); min-height: max-content; overflow: visible; }
 .drill-progress-pane { flex: none; height: var(--drill-progress-height); }
 .drill-inspection-pane { flex: none; height: var(--drill-inspection-height); }
 .drill-history-pane { flex: 1 1 auto; min-height: var(--control-height-lg); }
@@ -82,19 +82,20 @@
 .drill-segmented button[aria-checked="true"] { background: var(--interaction-fill); color: var(--ink-on-fill); }
 .drill-segmented button:disabled { opacity: 0.6; }
 
-/* The phrase, its reference reading and the selected take on one surface. The
-   phrase keeps Chat's partner bubble; each recording has a media row (play,
-   seek, time) directly above its timeline. */
-.drill-comparison-panel > .msg.chat-message { flex: none; align-self: flex-start; max-width: 100%; padding: var(--space-3) var(--space-5); cursor: default; }
-.drill-comparison-panel > .msg.chat-message > :is(.w, .target-text) { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale) * 1.6); line-height: var(--leading-relaxed); }
-.drill-comparison-panel > .msg.chat-message .message-actions { margin-top: var(--space-1); }
+/* The target pairs a tinted container with the shared display size at regular
+   weight. Reading/script scales remain learner-owned; annotations stay smaller. */
+.drill-target-card { flex: none; padding: var(--space-5) var(--space-6); background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+.drill-target-card > .msg.chat-message { width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; padding: 0; background: transparent; border: 0; box-shadow: none; cursor: default; }
+.drill-target-card .msg :is(.w, .target-text) { font-size: calc(var(--type-display) * var(--reading-scale) * var(--script-scale)); }
 .drill-media { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .drill-media .drill-seek { flex: 1 1 auto; min-width: 4rem; }
+.drill-media .drill-segmented { flex: none; flex-wrap: nowrap; }
 .drill-media-empty { flex: 1 1 auto; color: var(--ink-3); font-size: var(--type-meta); }
 .drill-media-time { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
 .drill-media-take { margin-top: var(--space-2); }
 .drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
 .drill-comparison-panel { flex: 1 1 auto; min-height: 16rem; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); overflow-y: auto; }
+.drill-reference { display: flex; flex-direction: column; gap: var(--space-2); }
 .drill-timelines { display: grid; gap: var(--space-1); }
 .drill-timeline-empty { margin: 0; padding: var(--space-4); color: var(--ink-3); font-size: var(--type-ui); background: var(--bg); border-radius: var(--radius-sm); }
 .drill-track { display: grid; gap: var(--space-1); }
@@ -148,16 +149,6 @@
 .drill-dock .inspection-spectrogram { height: 28px; }
 .drill-dock .inspection-frequency-scale { display: none; }
 
-/* Before the first take there is nothing to compare, so the record section
-   takes the free height and says how to start, in full. */
-.drill-stage[data-first-take="true"] .drill-comparison-panel { flex: 0 1 auto; min-height: 0; }
-.drill-stage[data-first-take="true"] .drill-dock-pane { flex: 1 1 auto; }
-.drill-stage[data-first-take="true"] .drill-dock { align-content: center; justify-items: center; gap: var(--space-5); padding: var(--space-8); text-align: center; }
-.drill-stage[data-first-take="true"] .drill-dock-row { flex-direction: column; gap: var(--space-5); }
-.drill-stage[data-first-take="true"] .drill-dock-button { height: calc(var(--control-height-lg) * 1.8); padding: 0 var(--space-13); font-size: var(--type-title); }
-.drill-stage[data-first-take="true"] .drill-dock-headline { font-size: var(--type-title); white-space: normal; }
-.drill-dock-first { margin: 0; max-width: 32rem; color: var(--ink-2); font-size: var(--type-ui); }
-.drill-stage[data-first-take="false"] .drill-dock-first { display: none; }
 
 /* Level against the threshold a take must cross. */
 .drill-meter { position: relative; flex: 1 1 8rem; min-width: 4rem; height: var(--space-8); cursor: ew-resize; touch-action: none; user-select: none; }
@@ -259,17 +250,14 @@
    outcome, and a word heard differently shows the heard form beneath it. */
 .drill-word-outcome { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-/* Target and heard as two separate rows with aligned columns, in the phrase's
-   direction. The gap between rows keeps them apart; the shared column and its
-   colour say whether the two match. */
-.drill-align { border-collapse: separate; border-spacing: var(--space-1) var(--space-2); margin: calc(var(--space-2) * -1) calc(var(--space-1) * -1); }
-.drill-align th { padding: 0; color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); text-align: start; white-space: nowrap; }
-.drill-align td { padding: 0 var(--space-2); text-align: center; white-space: nowrap; border-radius: var(--radius-xs); background: var(--success-tint); color: var(--success-ink); border-bottom: var(--border-width-thick) solid var(--success-line); }
-.drill-align tr:first-child td { font-family: var(--font-serif); font-size: calc(var(--type-body) * var(--reading-scale) * var(--script-scale)); line-height: var(--leading-snug); color: var(--ink); }
-.drill-align tr + tr td { font-family: var(--font-serif); font-size: calc(var(--type-ui) * var(--script-scale)); line-height: var(--leading-snug); }
-.drill-align td[data-outcome="substituted"] { background: var(--warning-tint); color: var(--warning-ink); border-bottom-color: var(--warning-line); }
-.drill-align td[data-outcome="missing"] { background: var(--danger-tint); color: var(--danger-ink); border-bottom-color: var(--danger-line); }
-.drill-align td[data-outcome="extra"] { background: var(--chip); color: var(--ink-2); border-bottom-style: dashed; border-bottom-color: var(--ink-3); }
+/* Aligned pairs wrap together so long phrases retain target/heard ownership. */
+.drill-word-pairs { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: start; }
+.drill-word-pair, .drill-word-labels { display: grid; gap: var(--space-2); max-width: 100%; min-width: 0; }
+.drill-word-labels { color: var(--ink-3); font-size: var(--type-meta); }
+.drill-word-pair > span:not(.drill-word-outcome) { padding: 0 var(--space-2); overflow-wrap: anywhere; background: var(--success-tint); border-bottom: var(--border-width-thick) solid var(--success-line); border-radius: var(--radius-xs); font-family: var(--font-serif); font-size: calc(var(--type-body) * var(--reading-scale) * var(--script-scale)); line-height: var(--leading-snug); }
+.drill-word-pair[data-outcome="substituted"] > span { background: var(--warning-tint); border-color: var(--warning-line); }
+.drill-word-pair[data-outcome="missing"] > span { background: var(--danger-tint); border-color: var(--danger-line); }
+.drill-word-pair[data-outcome="extra"] > span { background: var(--chip); border-color: var(--ink-3); border-bottom-style: dashed; }
 
 /* What was measured, you against the reference, one row per measure. */
 .drill-measures { width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
@@ -282,17 +270,74 @@
 .drill-comparison dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
 .drill-comparison dd { margin: 0; font-family: var(--font-mono); }
 
-/* One narrow column: the rail, the stage and the report stack in reading
-   order, and the control that records stays reachable while the page scrolls. */
+/* Desktop retains its resizable columns; only the central stage scrolls. */
+.drill-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.drill-workspace > .drill-stage { flex: 1 1 auto; }
+.drill-stage > [role="alert"] { margin: 0; padding: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
+.drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }
+
+/* Phone navigation and reports are disclosures, leaving the recording dock
+   outside the scrolling practice area. Its height follows content and zoom. */
 @media (max-width: 860px) {
-  .drill-page { grid-template-columns: minmax(0, 1fr); height: auto; overflow-y: auto; }
-  .drill-page > .resize-handle, .drill-stage-alone { grid-column: auto; }
-  .drill-page > .resize-handle { display: none; }
-  .drill-rail, .drill-stage, .drill-log { overflow-y: visible; }
-  .drill-rail { grid-template-rows: none; }
-  .drill-dock { position: sticky; bottom: 0; z-index: var(--z-sticky); box-shadow: var(--shadow-surface); }
+  .drill-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
+  .drill-page .resize-handle, .drill-sheet .resize-handle { display: none; }
+  .drill-phrase-bar { display: flex; gap: var(--space-2); }
+  .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
+  .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
+  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-title); }
+  [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
+  .drill-mobile-content { min-height: 0; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); }
+  /* Flatten composition wrappers so the reference sticks to the shared mobile
+     scrollport through the take feedback and history, not just the spectra. */
+  .drill-stage:not(.drill-stage-alone), .drill-comparison-panel { display: contents; }
+  .drill-reference { position: sticky; top: 0; z-index: var(--z-raised); flex: none; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-surface); }
+  .drill-stage { overflow: visible; flex: none; }
+  .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
+  .drill-comparison-panel { min-height: 0; overflow: visible; padding: var(--space-2); }
+  .drill-timelines .inspection-spectrogram { height: 72px; }
+  .drill-media { flex-wrap: wrap; gap: var(--space-2); position: relative; }
+  .drill-media-time { white-space: normal; flex-shrink: 1; }
+  .drill-media .drill-seek { min-width: 3rem; width: 3rem; }
+  .drill-play { min-height: var(--touch-target); }
+  .drill-media-options { margin-inline-start: auto; }
+  .drill-media-options summary { min-width: var(--touch-target); min-height: var(--touch-target); display: grid; place-content: center; list-style: none; cursor: pointer; }
+  .drill-media-options summary::-webkit-details-marker { display: none; }
+  .drill-media-options > div { position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
+  .drill-dock-pane { height: auto; min-height: 0; }
+  .drill-dock { box-shadow: var(--shadow-surface); padding: var(--space-2); }
+  .drill-dock-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-2); }
+  .drill-dock-copy { grid-row: 1; grid-column: 1; }
+  .drill-dock-headline { font-size: var(--type-ui); }
+  .drill-dock-row > .drill-segmented { grid-row: 1; grid-column: 2; justify-self: end; }
+  .drill-dock-row > .drill-segmented button { padding-inline: var(--space-2); }
+  .drill-dock .live-recording-plots > .inspection-plot { display: none; }
+  .drill-dock-settings { grid-row: 1; grid-column: 3; }
+  .drill-dock-button { grid-row: 2; grid-column: 1; height: var(--touch-target); padding: 0 var(--space-6); }
+  .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
+  .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
+  .drill-dock-discard { grid-row: 2; grid-column: 3; }
+  .drill-dock-panel { box-sizing: border-box; max-height: 55dvh; overflow-y: auto; }
+  .drill-dock-settings summary, .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
+  .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+  .drill-peek-open { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--touch-target); padding: 0; margin-bottom: var(--space-2); background: transparent; border: 0; color: var(--ink); text-align: start; }
+  .drill-peek-open > :last-child { margin-inline-start: auto; color: var(--interaction-ink); }
   .drill-add { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
 }
+
+/* Native modal semantics supply focus containment; the shared overlay owner
+   supplies Escape, Android Back and focus restoration. No capture suspension. */
+.drill-sheet { position: fixed; inset: auto 0 0; width: 100%; max-width: 100%; height: 88dvh; max-height: 100dvh; margin: 0; padding: 0; box-sizing: border-box; color: var(--ink); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-drawer); }
+.drill-sheet[open] { display: flex; flex-direction: column; }
+.drill-sheet::backdrop { background: var(--scrim); }
+.drill-sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: var(--border-width) solid var(--line-soft); }
+.drill-sheet-head h2 { margin: 0; font-size: var(--type-title); }
+.drill-sheet-body { min-height: 0; overflow-y: auto; padding: var(--space-2) var(--space-2) max(var(--space-2), env(safe-area-inset-bottom)); }
+.drill-sheet :is(.drill-log, .drill-rail, .drill-pane) { height: auto; overflow: visible; min-width: 0; }
+.drill-sheet .drill-rail { grid-template-rows: auto auto auto auto; }
+.drill-sheet .drill-measures :is(th, td) { white-space: normal; overflow-wrap: anywhere; }
+.drill-sheet .drill-inspection-pane { order: -1; }
+.drill-sheet .drill-clear { order: 1; }
+.drill-sheet .drill-history-pane { order: 2; }
 
 /* Touch keeps every control at the minimum target, including the icon-only
    delete and the cards that carry selection. */
@@ -306,3 +351,15 @@
 .practice-switch button { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-lg); padding: 0 var(--space-9); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-pill); font-size: var(--type-body); font-weight: var(--weight-semibold); }
 .practice-switch button:hover { color: var(--ink); }
 .practice-switch button[aria-pressed="true"] { background: var(--sheet); color: var(--interaction-ink); box-shadow: var(--shadow-sm); }
+
+@media (max-width: 860px) { .practice-switch button { padding-inline: var(--space-3); gap: var(--space-2); } }
+
+/* Compact progress shares the report calculations and plot. Recent takes select
+   the existing comparison; the full word history stays in the report. */
+.drill-progress-compact { flex: none; }
+.drill-progress-compact .drill-spark { height: 32px; }
+.drill-progress-compact .drill-progress-stats { justify-content: space-between; gap: var(--space-2); }
+.drill-recent-takes { display: flex; gap: var(--space-2); overflow-x: auto; }
+.drill-recent-takes button { flex: 1 0 auto; display: grid; align-content: center; gap: var(--space-1); min-height: var(--touch-target); min-width: var(--touch-target); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); color: var(--ink); background: var(--field); font-size: var(--type-meta); }
+.drill-recent-takes button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--interaction-tint); }
+.drill-recent-takes button > span { color: var(--ink-3); }

@@ -1,5 +1,11 @@
 /** Offline visual fixture for the Drill page: real native spectra, synthetic
  * attempts, take states and word timings. No microphone, IPC or AI. */
+import { mockIPC } from '@tauri-apps/api/mocks'
+import { loadLanguages } from '../src/platform/ipc/tauri'
+import { useSettingsStore } from '../src/state/settings/settings'
+import { PREVIEW_SETTINGS } from './preview-settings'
+import { TopBar } from '../src/app/shell/TopBar'
+import { useNavigationStore } from '../src/state/navigation/navigation'
 import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useState } from 'react'
 import { I18nProvider } from '../src/components/localization/i18n'
@@ -10,11 +16,34 @@ import { DrillComparison, type TimeDirection, type TimeScale } from '../src/feat
 import { PhraseProgress } from '../src/features/drill/PhraseProgress'
 import { ClearTakes } from '../src/features/drill/ClearTakes'
 import { CONTINUOUS_RECORDING_POLICY } from '../src/generated/contracts'
-import { ResizeHandle } from '../src/components/layout/ResizeHandle'
-import type { AudioInspection, DrillAttemptView, ListeningSettings, ListeningStatus, ListeningTake, WordComparison, WordOutcome } from '../src/generated/contracts'
+import { DrillLayout } from '../src/features/drill/DrillLayout'
+import { PhraseRail } from '../src/features/drill/PhraseRail'
+import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSettings, ListeningStatus, ListeningTake, WordComparison, WordOutcome } from '../src/generated/contracts'
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
 
+// Exercise the production language menu with an isolated in-memory settings writer.
+mockIPC(command => {
+  if (command === 'get_snapshot') return { languages: [
+    { id: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', transcriptionLanguage: 'es', fontScale: 1, direction: 'ltr', romanization: null, defaultVariety: 'spanish-mexico', varieties: [{ id: 'spanish-mexico', name: 'Mexico', description: 'Mexico', direction: 'ltr', fontScale: 1, romanization: null, transcriptionLanguage: 'es' }] },
+    { id: 'english', name: 'English', nativeName: 'English', languageTag: 'en', transcriptionLanguage: 'en', fontScale: 1, direction: 'ltr', romanization: null, defaultVariety: 'english-us', varieties: [{ id: 'english-us', name: 'United States', description: 'United States', direction: 'ltr', fontScale: 1, romanization: null, transcriptionLanguage: 'en' }] },
+  ] }
+  throw new Error('This offline fixture does not support native actions.')
+})
+await loadLanguages()
+useSettingsStore.setState({
+  settings: { ...PREVIEW_SETTINGS, target_variety: 'spanish-mexico', my_languages: ['spanish', 'english'] },
+  selectLanguageVariety: async (language, variety) => {
+    useSettingsStore.setState(state => ({ settings: { ...state.settings!, target_language: language, target_variety: variety } }))
+  },
+})
+
+const params = new URLSearchParams(location.search)
+const locale = params.get('locale') === 'arabic' ? 'arabic' : params.get('locale') === 'german' ? 'german' : 'english'
+document.documentElement.dataset.theme = params.get('theme') === 'dark' ? 'dark' : 'light'
+document.documentElement.dir = locale === 'arabic' ? 'rtl' : 'ltr'
+useNavigationStore.setState({ page: 'guided', practiceView: 'drill' })
+const firstVisit = params.has('first')
 const [reference, spoken] = fixture as unknown as AudioInspection[]
 const target = ['أنا', 'بفهم', 'الخرايط', 'القديمة', 'شوية']
 const timed = (inspection: AudioInspection): AudioInspection => ({
@@ -55,7 +84,6 @@ const attempts: DrillAttemptView[] = outcomes.map((kinds, index) => ({
 
 function Preview() {
   const [mode, setMode] = useState<RecordMode>('auto')
-  const [first, setFirst] = useState(false)
   const [direction, setDirection] = useState<TimeDirection>('rtl')
   const [timeScale, setTimeScale] = useState<TimeScale>('fit')
   const [selected, setSelected] = useState<string | null>(null)
@@ -88,36 +116,37 @@ function Preview() {
     frameStartSeconds: [0, 3, 6].flatMap(offset => reference.spectrogram.frameStartSeconds.map(frame => frame + offset)),
     bins: [0, 3, 6].flatMap(() => reference.spectrogram.bins),
   }), [])
-  return <I18nProvider locale="english">
-    <section className="drill-page" style={{ height: '100vh', boxSizing: 'border-box' }}>
-      <aside className="drill-rail"><p className="drill-rail-empty">Offline fixture: real native spectra; attempts, word timings and take states are synthetic.</p>
-        {/* The dock locks its own mode switch while recording, so the fixture switches from here. */}
-        <div className="drill-actions">{(['tap', 'hold', 'auto'] as const).map(option =>
-          <button key={option} type="button" className="btn" onClick={() => { setFirst(false); setMode(option) }}>Show {option}</button>)}
-          <button type="button" className="btn" onClick={() => { setMode('tap'); setFirst(true) }}>Show first take</button></div>
-      </aside>
-      <ResizeHandle label="Resize the phrase list" axis="x" grow={1} size={null} min={160} max={640} measure={() => 240} onResize={() => {}} />
-      <main className="drill-stage" data-first-take={first}>
+  const phrase: DrillItemView = { source: { kind: 'own' }, attempts: [], id: 'fixture', text: target.join(' '), language: 'arabic', variety: 'arabic-egyptian', explanation: 'english', explanationVariety: 'english-us', createdAt: attempts[0].createdAt, attemptCount: attempts.length, bestMatchRatio: .93, lastAttemptAt: attempts[0].createdAt }
+  return <I18nProvider locale={locale}>
+    <div className="app">
+    <TopBar />
+    <div className="content"><div className="page-holder"><section className="drill-page">
+      <DrillLayout items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} railResize={<div />} reportResize={<div />} attempt={firstVisit ? null : attempt} rtl
+        progress={<PhraseProgress attempts={firstVisit ? [] : attempts} compact selectedId={attempt.id} onSelect={setSelected} />}
+        rail={<PhraseRail items={[phrase]} selectedId="fixture" languageTag="ar" busy={false} locked={false} onSelect={() => {}} onAdd={async () => {}} onDelete={async () => {}} onAskForMore={() => {}}>
+          <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
+          <div className="drill-actions">{(['tap', 'hold', 'auto'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
+        </PhraseRail>}
+        dock={<div className="drill-dock-pane">        <RecordDock phase={!firstVisit && mode === 'auto' ? 'recording' : 'ready'} mode={mode} onMode={setMode} settings={settings} onSettings={setSettings}
+          listeningStatus={!firstVisit && mode === 'auto' ? status : null} waveSource={firstVisit ? null : source} liveSpectrum={!firstVisit && mode === 'auto' ? { data, endSeconds: 9 } : null}
+          onToggle={() => {}} onCancel={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} /></div>}
+        report={      <aside className="drill-log" aria-label="Attempts">
+        <ClearTakes disabled={false} onClear={() => {}} />
+        <div className="drill-progress-pane"><PhraseProgress attempts={attempts} /></div>
+        <div className="drill-inspection-pane"><AttemptInspection key={attempt.id} attempt={attempt} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} /></div>
+        <AttemptLog rtl onDelete={() => {}} deleting={false} attempts={attempts} liveTakes={[]} loading={false} hasMore={false} failure={null} selectedId={attempt.id}
+          onSelect={setSelected} onLoadMore={() => {}} onRetry={() => {}} />
+      </aside>}>
+      <main className="drill-stage">
         <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
             <div className="message-actions"><button type="button" className="message-translate">Translate</button><button type="button" className="message-translate">Word by word</button><button type="button" className="message-translate">Analysis</button></div></div>}
           onPlayReference={() => {}} playingReference={false} referenceNote="Fixture"
-          reference={timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={timed(spoken)}
-          attemptLabel={`Attempt ${attempt.sequence}`} attemptFailure={null} onRetryAttempt={() => {}} attemptUnavailable={null}
+          reference={firstVisit ? null : timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={firstVisit ? null : timed(spoken)}
+          attemptLabel={firstVisit ? null : `Attempt ${attempt.sequence}`} attemptFailure={null} onRetryAttempt={() => {}} attemptUnavailable={null}
           direction={direction} onDirection={setDirection} timeScale={timeScale} onTimeScale={setTimeScale} holding={false} playingAttempt={false} onPlayAttempt={() => {}} />
-        <ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={null} min={56} max={640} measure={() => 120} onResize={() => {}} />
-        <RecordDock phase={mode === 'auto' ? 'recording' : 'ready'} mode={mode} onMode={setMode} settings={settings} onSettings={setSettings}
-          listeningStatus={mode === 'auto' ? status : null} waveSource={source} liveSpectrum={mode === 'auto' ? { data, endSeconds: 9 } : null}
-          onToggle={() => {}} onCancel={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} />
       </main>
-      <ResizeHandle label="Resize the report column" axis="x" grow={-1} size={null} min={220} max={900} measure={() => 380} onResize={() => {}} />
-      <aside className="drill-log" aria-label="Attempts">
-        <ClearTakes disabled={false} onClear={() => {}} />
-        <PhraseProgress attempts={attempts} />
-        <AttemptInspection key={attempt.id} attempt={attempt} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />
-        <AttemptLog rtl onDelete={() => {}} deleting={false} attempts={attempts} liveTakes={[]} loading={false} hasMore={false} failure={null} selectedId={attempt.id}
-          onSelect={setSelected} onLoadMore={() => {}} onRetry={() => {}} />
-      </aside>
-    </section>
+      </DrillLayout>
+    </section></div></div></div>
   </I18nProvider>
 }
 createRoot(document.getElementById('root')!).render(<Preview />)

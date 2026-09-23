@@ -301,3 +301,25 @@ it('moves the threshold of the run in progress without restarting capture', asyn
   expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_start')).toHaveLength(1)
   unmount()
 })
+
+it('streams phone Auto audio, polls publication, flushes before Stop and releases browser capture', async () => {
+  let listening = true
+  const finish = vi.fn(async () => '')
+  const cancel = vi.fn()
+  browserStart.mockResolvedValue({ finish, cancel, wave: { samplesPerSecond: 750, read: () => [] } })
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_listen_start') return { recordingId: 'phone', samplesPerSecond: 750, browserCapture: true }
+    if (command === 'mic_listen_status') return { recordingId: 'phone', listening, queued: 0, processing: false, completed: 0, takes: [] }
+    if (command === 'mic_listen_stop') { expect(finish).toHaveBeenCalledOnce(); listening = false }
+    if (command === 'mic_listen_spectrogram') return null
+  })
+  const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300 }, onTranscribe: vi.fn() }))
+  await act(async () => { await result.current.toggleMic() })
+  await browserStart.mock.calls[0][1]([0.1, 0.2], 48000, 0)
+  expect(invoke).toHaveBeenCalledWith('mic_listen_push', { recordingId: 'phone', samples: [0.1, 0.2], sampleRate: 48000, sequence: 0 })
+  await waitFor(() => expect(result.current.listeningStatus?.recordingId).toBe('phone'))
+  await act(async () => { await result.current.toggleMic() })
+  await waitFor(() => expect(result.current.recording).toBe(false))
+  expect(invoke).not.toHaveBeenCalledWith('mic_transcribe', expect.anything())
+  unmount()
+})

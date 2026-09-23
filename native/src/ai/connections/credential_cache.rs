@@ -28,6 +28,10 @@ impl CredentialCache {
         // Serialize misses: simultaneous UI refreshes must not stack OS prompts.
         let mut entries = self.lock()?;
         if let Some(secret) = entries.get(id) {
+            crate::diagnostics::native_event(
+                "credential_cache_hit",
+                &[("pid", std::process::id() as u64)],
+            );
             return Ok(secret.clone());
         }
         let secret = load()?;

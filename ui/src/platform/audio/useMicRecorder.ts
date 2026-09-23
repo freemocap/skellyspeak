@@ -74,7 +74,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
 
   // Drain native samples once into the copied time-axis renderer.
   useEffect(() => {
-    if ((!recording && !transcribing) || browser.current) return
+    if ((!recording && !transcribing) || (browser.current && !continuous.current)) return
     let polling = false
     const timer = setInterval(() => {
       const recordingId = active.current
@@ -109,11 +109,13 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
           setTranscribing(status.processing || status.queued > 0)
           if (status.failure) setFailure(status.failure)
           if (!status.listening) {
+            browser.current?.cancel(); browser.current = null
             setWaveSource(null); release()
             if (!status.processing && status.queued === 0) active.current = null
             return
           }
         }
+        if (browser.current) return
         const chunk = await invoke<number[]>('mic_wave', { recordingId }).catch(async error => {
           // Capture can end between the status read and waveform read.
           if (continuous.current) {
@@ -138,7 +140,11 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
     try {
       const recordingId = active.current
       if (recordingId && continuous.current) {
-        await invoke('mic_listen_stop', { recordingId })
+        const capture = browser.current; browser.current = null
+        try { await capture?.finish() } catch (error) { await stopNative(recordingId); active.current = null; setRecording(false); throw error }
+        if (generation.current !== scope) return
+        try { await invoke('mic_listen_stop', { recordingId }) }
+        catch (error) { cancel(); throw error }
         return
       }
       if (recordingId) {
@@ -173,6 +179,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
           if (!continuous.current) return
           setFailure(new Error('Listening stopped because the app was suspended or another view opened. Start again to continue.'))
           const id = active.current
+          browser.current?.cancel(); browser.current = null
           if (id) void invoke('mic_cancel', { recordingId: id }).catch(error => { setFailure(error); reportFault('Stopping listening', error) })
           else cancel()
         })
@@ -187,7 +194,8 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
         }
         if (browserCapture) {
           try {
-            const capture = await startBrowserRecording(error => { reportFault('Microphone', error); cancel() })
+            const capture = await startBrowserRecording(error => { setFailure(error); reportFault('Microphone', error); cancel() }, settings
+              ? (samples, sampleRate, sequence) => invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence }) : undefined)
             if (generation.current !== scope) { capture.cancel(); await stopNative(recordingId); return }
             browser.current = capture
           } catch (error) { await stopNative(recordingId); throw error }

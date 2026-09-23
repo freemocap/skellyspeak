@@ -73,9 +73,10 @@ file, check `node --version`: an older system Node may be taking precedence.
 On macOS, `npm run macos:dev` runs **Tauri dev**, with terminal log capture.
 Tauri starts Vite, watches native inputs and rebuilds/restarts Rust; Vite handles
 frontend HMR. Before Cargo executes each macOS build, our executable runner signs
-and verifies it using the existing **SkellySpeak Local Development** certificate.
-The designated identity is the app identifier plus that certificate, so changed
-binary hashes do not make every rebuild a new app to Keychain. Automatic AI
+and verifies it using an existing **Apple Development** certificate for the
+FreeMoCap team (`U8LBJLBYPR`). Both the app requirement and Keychain partition
+identity are checked: the latter must use the stable Apple Team ID, not a binary
+hash. Self-signed certificates fail this second requirement. Automatic AI
 connection checks remain enabled. Native restarts still end active recordings.
 
 Restart an already-running dev launcher once to pick up this runner. macOS may ask
@@ -88,8 +89,9 @@ so Tauri retains native watcher, shutdown and restart ownership.
 The signing identity must already exist in Keychain Access → My Certificates,
 including its private key. To use another certificate, run
 `SKELLYSPEAK_SIGNING_IDENTITY="certificate name or SHA-1 fingerprint" npm run macos:dev`.
-Self-signed local certificates are supported; no certificate trust or credential
-access controls are changed. A different certificate is a different identity.
+Self-signed and ad-hoc certificates are rejected. No certificate trust or credential
+access controls are changed. Another team can be selected with
+`APPLE_DEVELOPMENT_TEAM`; multiple matching identities require an explicit certificate.
 
 For a separate signed-bundle permissions test, use `npm run macos:dev-signed`.
 It builds **SkellySpeak Dev.app** using the same identifier and signing requirement.
@@ -100,8 +102,16 @@ after `cargo build --manifest-path native/Cargo.toml --bin skellyspeak`.
 `npm run macos:dev:check` checks launcher types; `npm run macos:dev:test` tests
 argument forwarding. On macOS, `SKELLYSPEAK_TEST_SIGNING=1 npm run macos:dev:test`
 also signs and runs two disposable Cargo builds, verifies identical designated
-requirements despite different code hashes, and checks signature reuse. This
-opt-in test uses the local signing key but does not access app credentials.
+requirements and Team IDs despite different code hashes, and checks signature
+reuse. It also creates a disposable Keychain item and reads it from a rebuilt
+executable with system interaction disabled, then deletes that test item. It
+never reads or changes existing app credentials.
+
+Launcher logs record signing start/completion, PID, certificate fingerprint, Team ID,
+code hash and expected Keychain partition. Native logs record Keychain operation
+start/completion (1 read, 2 write, 3 delete), PID, duration and success, plus cache
+hits. Credential identifiers, values and lengths are excluded. For OS authorization
+reasons, inspect macOS `securityd` logs; app logs cannot observe the dialog itself.
 
 On macOS, successful credential reads are reused in native process memory, so
 frontend reloads do not repeatedly read the same Keychain entry. Concurrent reads

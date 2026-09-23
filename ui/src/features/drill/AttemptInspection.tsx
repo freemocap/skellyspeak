@@ -2,7 +2,7 @@ import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useSeconds } from '../../components/media/InspectionTracks'
 import { speechTiming, type SpeechTiming } from '../../domain/drill/timing'
-import { TargetText } from '../../components/reading/TargetText'
+import { WordPairs } from './WordPairs'
 import type { AudioInspection, DrillAttemptView } from '../../generated/contracts'
 import { facts, match } from './AttemptLog'
 
@@ -42,7 +42,6 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
     { label: tr("Pace"), yours: pace(yours), theirs: pace(theirs) },
     { label: tr("Pauses inside"), yours: pauses(yours), theirs: pauses(theirs) },
   ]
-  const dir = rtl ? 'rtl' : 'ltr'
 
   return (
     <section className="drill-inspection" aria-label={tr("Attempt {value0}", { value0: String(attempt.sequence) })}>
@@ -61,37 +60,12 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
       </div>
       {recording.note && <p className="drill-inspection-note">{recording.note}</p>}
 
-      {/* Two separate rows, target then heard, with one column per aligned
-          word in the phrase's own direction; a column's colour says whether
-          the two match. */}
-      <table className="drill-align" dir={dir} aria-label={tr("Word by word")}>
-        <tbody>
-          <tr>
-            <th scope="row">{tr("Target")}</th>
-            {words.map((word, index) => <td key={index} data-outcome={word.kind}>
-              {word.target === null ? tr("—") : <TargetText text={word.target} interactive={false} />}
-            </td>)}
-          </tr>
-          <tr>
-            <th scope="row">{tr("Heard")}</th>
-            {words.map((word, index) => {
-              const outcome = { same: tr("same"), substituted: tr("letters differ"), missing: tr("not heard"), extra: tr("extra") }[word.kind]
-              return <td key={index} data-outcome={word.kind} title={outcome}>
-                <bdi>{word.transcript ?? tr("—")}</bdi>
-                <span className="drill-word-outcome">{outcome}</span>
-              </td>
-            })}
-          </tr>
-        </tbody>
-      </table>
+      <WordPairs words={words} rtl={rtl} />
       {comparison.scriptNote === 'mismatch' && <p role="note">{tr("The transcript is in a different script from the phrase. This does not change the measurement.")}</p>}
 
       <table className="drill-measures" title={tr("Speaking time, pace and pauses come from detected sound, not from recognised words.")}>
-        <thead><tr><td />{measures.map(row => <th key={row.label} scope="col">{row.label}</th>)}</tr></thead>
-        <tbody>
-          <tr><th scope="row">{tr("You")}</th>{measures.map(row => <td key={row.label}>{row.yours}</td>)}</tr>
-          <tr><th scope="row">{tr("Reference")}</th>{measures.map(row => <td key={row.label}>{row.theirs}</td>)}</tr>
-        </tbody>
+        <thead><tr><td /><th scope="col">{tr("You")}</th><th scope="col">{tr("Reference")}</th></tr></thead>
+        <tbody>{measures.map(row => <tr key={row.label}><th scope="row">{row.label}</th><td>{row.yours}</td><td>{row.theirs}</td></tr>)}</tbody>
       </table>
 
       {/* The summary above is a reading of these numbers, never a replacement

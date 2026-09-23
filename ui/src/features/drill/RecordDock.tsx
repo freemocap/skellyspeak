@@ -102,7 +102,6 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
             The longer instruction sits in the settings panel and the tooltip. */}
         <div className="drill-dock-copy" role="status" aria-live="polite" title={copy.detail}>
           <p className="drill-dock-headline">{copy.headline}</p>
-          <p className="drill-dock-first">{copy.detail}</p>
           {auto && listeningStatus && <p className="drill-dock-counts">{tr("Take {value0} · {value1} queued · {value2} ignored", {
             value0: String(listeningStatus.takes.length + (listeningStatus.speaking ? 1 : 0)),
             value1: String(listeningStatus.queued + (listeningStatus.processing ? 1 : 0)),

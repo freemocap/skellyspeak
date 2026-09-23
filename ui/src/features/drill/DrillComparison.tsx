@@ -1,4 +1,5 @@
-import { useRef, type CSSProperties, type ReactNode } from 'react'
+import { useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useIsMobile } from '../../components/layout/useIsMobile'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
@@ -52,6 +53,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   onPlayAttempt: () => void
 }) {
   const tr = useI18n()
+  const mobile = useIsMobile()
+  const [showTiming, setShowTiming] = useState(false)
   const seconds = useSeconds()
   const shown = [reference, attempt].filter(entry => entry !== null)
   const scale = shown.length ? sharedScale(shown.map(entry => entry.spectrogram)) : null
@@ -67,21 +70,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   }
   const width = (duration: number) => `${timeScale === 'shared' ? duration / span * 100 : 100}%`
 
-  return (
-    <section className="drill-comparison-panel" aria-label={tr("Reference and your take")}>
-      {target}
-
-      <div className="drill-media">
-        <button type="button" className="btn drill-play" disabled={playingReference || holding} onClick={onPlayReference} title={referenceNote}>
-          <ToolbarIcon name="play" size={14} />{tr(playingReference ? "Playing…" : "Hear it")}
-        </button>
-        {reference
-          ? <input className="drill-seek" type="range" dir={direction} aria-label={tr('Seek reference audio')} min={0} max={reference.duration} step={0.01}
-            value={Math.min(referenceTime, reference.duration)} disabled={holding} onChange={event => onSeekReference(Number(event.target.value))} />
-          : <span className="drill-media-empty">{tr("Hear it once to draw the reference here.")}</span>}
-        <span className="drill-media-time">{reference
-          ? tr("Reference · {value0}", { value0: `${seconds(Math.min(referenceTime, reference.duration))} / ${seconds(reference.duration)}` })
-          : tr("Reference")}</span>
+  const controls = <>
+    {mobile && <label><input type="checkbox" checked={showTiming} onChange={event => setShowTiming(event.target.checked)} />{tr("Word timing overlays")}</label>}
         <div className="drill-segmented" role="radiogroup" aria-label={tr("Time scale")}>
           {(['fit', 'shared'] as const).map(option => (
             <button key={option} type="button" role="radio" aria-checked={timeScale === option} onClick={() => onTimeScale(option)}
@@ -98,6 +88,25 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
             </button>
           ))}
         </div>
+  </>
+
+  return (
+    <section className="drill-comparison-panel" aria-label={tr("Reference and your take")}>
+      <div className="drill-reference">
+      <div className="drill-target-card">{target}</div>
+
+      <div className="drill-media">
+        <button type="button" className="btn drill-play" disabled={playingReference || holding} onClick={onPlayReference} title={referenceNote}>
+          <ToolbarIcon name="play" size={14} />{tr(playingReference ? "Playing…" : "Hear it")}
+        </button>
+        {reference
+          ? <input className="drill-seek" type="range" dir={direction} aria-label={tr('Seek reference audio')} min={0} max={reference.duration} step={0.01}
+            value={Math.min(referenceTime, reference.duration)} disabled={holding} onChange={event => onSeekReference(Number(event.target.value))} />
+          : <span className="drill-media-empty">{tr("Hear it once to draw the reference here.")}</span>}
+        <span className="drill-media-time">{reference
+          ? tr("Reference · {value0}", { value0: `${seconds(Math.min(referenceTime, reference.duration))} / ${seconds(reference.duration)}` })
+          : tr("Reference")}</span>
+        {mobile ? <details className="drill-media-options"><summary aria-label={tr('Comparison settings')}>⋯</summary><div>{controls}</div></details> : controls}
       </div>
 
       <div className="drill-timelines" data-time={direction}
@@ -108,13 +117,17 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
             <SpectrogramFrequencyScale data={reference.spectrogram} count={3} />
             <span className="audio-spectrum-cursor" style={{ left: `${Math.max(0, Math.min(1, referenceTime / reference.duration)) * 100}%` }} aria-hidden="true" />
           </div>
-          {reference.wordTiming.words.length > 0 && <div style={{ width: width(reference.duration) }}>
+          {(!mobile || showTiming) && reference.wordTiming.words.length > 0 && <div style={{ width: width(reference.duration) }}>
             <TimedWordTrack wordTiming={reference.wordTiming} duration={reference.duration} currentTime={referenceTime} onSeek={holding ? undefined : onSeekReference} />
           </div>}
         </div>}
         {reference && <ResizeHandle label={tr("Resize the spectrograms")} axis="y" grow={1} size={plotHeight} min={40} max={640}
           measure={measurePlot} onResize={setPlotHeight} />}
 
+      </div>
+      </div>
+      <div className="drill-timelines" data-time={direction}
+        style={{ '--drill-plot-height': plotHeight === null ? undefined : `${Math.round(plotHeight)}px` } as CSSProperties}>
         {attemptLabel && <>
           <div className="drill-media drill-media-take">
             <button type="button" className="btn drill-play" disabled={!attempt || playingAttempt || holding} onClick={onPlayAttempt}>
@@ -130,7 +143,7 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
                 <SpectrogramFrequencyScale data={attempt.spectrogram} count={3} />
                 <SegmentMarkers activity={attempt.activity} duration={attempt.duration} />
               </div>
-              {attempt.wordTiming.words.length > 0 && <div style={{ width: width(attempt.duration) }}>
+              {(!mobile || showTiming) && attempt.wordTiming.words.length > 0 && <div style={{ width: width(attempt.duration) }}>
                 <TimedWordTrack wordTiming={attempt.wordTiming} duration={attempt.duration} />
               </div>}
             </div>
@@ -146,8 +159,9 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
         <button type="button" className="btn" onClick={onRetryAttempt}>{tr("Try again")}</button></p>}
       {attemptLabel && !reference && <p role="status" className="drill-timeline-empty">{tr("Play the reference to compare it with this attempt.")}</p>}
       {attempt && <div className="drill-comparison-foot">
-        <WordTimingNote wordTiming={attempt.wordTiming} />
+        {!mobile && <WordTimingNote wordTiming={attempt.wordTiming} />}
         <DetectionDetails activity={attempt.activity} spectrogram={attempt.spectrogram}>
+          {mobile && <WordTimingNote wordTiming={attempt.wordTiming} />}
           <p>{tr("This recording is kept until the storage limit removes it.")}</p>
         </DetectionDetails>
       </div>}

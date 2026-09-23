@@ -38,7 +38,7 @@ export function SurfaceHost() {
   // Swiping between the halves is only meaningful with nothing over them.
   const swipe = usePracticeSwipe(
     direction => useNavigationStore.getState().openPractice(direction === 'next' ? 'panel' : 'chat'),
-    page === 'guided' && !historyOpen && overlay === null,
+    page === 'guided' && !drilling && !historyOpen && overlay === null,
   )
 
   return (

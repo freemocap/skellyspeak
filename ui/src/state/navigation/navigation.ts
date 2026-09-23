@@ -79,9 +79,13 @@ interface NavigationState {
   toggleSuggestions: () => void
 }
 
+// Remember only the practice destination, not open dialogs or transient work.
+const practiceViewKey = 'skellyspeak.practice-view'
+const savedPracticeView = typeof window === 'undefined' ? null : window.localStorage.getItem(practiceViewKey)
+
 const initialState = {
   page: 'guided' as Page,
-  practiceView: 'chat' as PracticeView,
+  practiceView: (savedPracticeView === 'drill' ? 'drill' : 'chat') as PracticeView,
   mode: 'practice' as WorkspaceMode,
   mobileSurface: 'chat' as MobileLocation,
   historyOpen: false,
@@ -100,7 +104,10 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   readingQuestion: null,
   draftReadingQuestion: readingQuestion => set({ readingQuestion }),
 
-  setPracticeView: (practiceView) => set({ practiceView, mode: 'practice', page: 'guided', overlay: null }),
+  setPracticeView: (practiceView) => {
+    window.localStorage.setItem(practiceViewKey, practiceView)
+    set({ practiceView, mode: 'practice', page: 'guided', overlay: null })
+  },
   setMode: (mode) => set(state => ({ mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
   showPage: (page) => set(state => ({ page, mode: page === 'skills' ? 'review' : 'practice', skillsOpened: state.skillsOpened || page === 'skills' })),
   openPractice: (surface) => set({ mode: 'practice', page: 'guided', mobileSurface: surface, overlay: null }),

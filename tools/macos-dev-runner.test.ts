@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
-import { developmentRequirement, ensureDevelopmentSignature, signingIdentity } from './macos-signing.ts'
+import { developmentRequirement, ensureDevelopmentSignature, signingIdentity, selectSigningIdentity, signatureDetails } from './macos-signing.ts'
 
 test('normal Tauri dev retains its watcher and receives a Cargo executable runner', () => {
   const args = signedDevArgs(['dev'], '/node path/node', '/repo path/runner.ts')
@@ -49,6 +49,7 @@ test('real Cargo rebuilds retain the same designated identity and reuse unchange
     writeFileSync(source, 'fn main() { println!("first-build"); }')
     assert.match(run('cargo', ['run', '--offline', ...cargoArgs]), /first-build/)
     const before = run('/usr/bin/codesign', ['-d', '-r-', '-vvvv', binary])
+    const firstIdentity = signatureDetails(binary)
     assert.equal(ensureDevelopmentSignature(binary, signingIdentity()), 'reused')
     // Cargo can restore its cached ad-hoc artifact even without recompiling.
     assert.match(run('cargo', ['run', '--offline', ...cargoArgs]), /first-build/)
@@ -57,7 +58,22 @@ test('real Cargo rebuilds retain the same designated identity and reuse unchange
     const after = run('/usr/bin/codesign', ['-d', '-r-', '-vvvv', binary])
     const requirement = (value: string) => value.match(/designated => (.+)/)![1]!
     assert.equal(requirement(before), requirement(after))
+    assert.equal(signatureDetails(binary).teamId, firstIdentity.teamId)
+    assert.match(firstIdentity.teamId, /^[A-Z0-9]{10}$/)
     assert.notEqual(before.match(/CDHash=(.+)/)![1], after.match(/CDHash=(.+)/)![1])
     run('/usr/bin/codesign', ['--verify', '--strict', '-R', `=${requirement(before)}`, binary])
   } finally { rmSync(directory, { recursive: true, force: true }) }
+})
+
+
+test('selects the project Apple team and rejects the old local self-signed identity', () => {
+  const identities = [
+    { fingerprint: 'A'.repeat(40), name: 'Apple Development: Personal', team: 'OTHERTEAM1' },
+    { fingerprint: 'B'.repeat(40), name: 'Apple Development: Project', team: 'U8LBJLBYPR' },
+  ]
+  assert.equal(selectSigningIdentity(identities), 'B'.repeat(40))
+  assert.equal(selectSigningIdentity(identities, 'A'.repeat(40)), 'A'.repeat(40))
+  assert.throws(() => selectSigningIdentity(identities, 'SkellySpeak Local Development'), /Self-signed/)
+  assert.throws(() => selectSigningIdentity(identities, '-'), /Self-signed/)
+  assert.throws(() => selectSigningIdentity([...identities, { ...identities[1]!, fingerprint: 'C'.repeat(40) }]), /found 2/)
 })

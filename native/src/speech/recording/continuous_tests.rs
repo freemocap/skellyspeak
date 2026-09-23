@@ -224,3 +224,28 @@ async fn expired_view_lease_discards_current_audio_and_releases_microphone() {
     assert!(app.capture.lock().unwrap().is_none());
     assert_eq!(app.lock().unwrap().profile().unwrap().global.attempts, 0);
 }
+
+#[tokio::test]
+async fn browser_pcm_uses_the_same_detector_receipts_and_publication() {
+    let (url, server, _gate) = server(1);
+    let (_dir, app, session, item) = fixture(Vec::new(), &url);
+    session.stop.store(0, Ordering::SeqCst);
+    *session.browser.lock().unwrap() = Some(Default::default());
+    let worker = tokio::spawn(listen(app.clone(), session.clone(), "continuous-fixture".into()));
+    for (sequence, chunk) in takes(1).chunks(2048).enumerate() {
+        session.browser.lock().unwrap().as_mut().unwrap()
+            .push(sequence as u32, 8000, chunk.to_vec()).unwrap();
+        tokio::time::sleep(std::time::Duration::from_millis(55)).await;
+    }
+    session.stop.store(1, Ordering::SeqCst);
+    worker.await.unwrap();
+    server.join().unwrap();
+    let status = session.status.lock().unwrap();
+    assert!(status.failure.is_none(), "{:?}", status.failure);
+    assert_eq!(status.completed, 1);
+    let store = app.lock().unwrap();
+    let page = store.drill_attempts(&item, None, 10).unwrap();
+    assert_eq!(page.attempts.len(), 1);
+    assert_eq!(page.attempts[0].transcript, "Hola");
+    assert_eq!(store.profile().unwrap().global.attempts, 1);
+}

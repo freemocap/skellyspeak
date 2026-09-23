@@ -133,6 +133,8 @@
   --spectrogram-low: #171b36;
   --spectrogram-mid: #8056b5;
   --spectrogram-high: #ffe071;
+  /* A band the recording could not carry: unavailable, not measured silence. */
+  --spectrogram-unavailable: #4a4636;
 
   /* ══ Depth ═══════════════════════════════════════════════════════════════
      The depth preference (flat, default, raised, recessed) overrides the
@@ -270,13 +272,20 @@
        --script-scale    language fontScale       components/reading/TargetText.tsx
        --word-spacing    preference.text_spacing  components/reading/TargetText.tsx
        --chat-share      guided split width       features/conversation/messages/PracticeDivider.tsx
-       --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx */
+       --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
+       --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx */
   --reading-scale: 1;
   --script-scale: 1;
   --word-spacing: 0px;
   --ai-inspector-width: 40%;
   --chat-share: calc(100% - 360px);
   --node-color: var(--interaction-ink);
+  --drill-rail-width: 15rem;
+  --drill-report-width: 24rem;
+  --drill-dock-height: auto;
+  --drill-progress-height: auto;
+  --drill-inspection-height: auto;
+  --drill-plot-height: clamp(64px, 22vh, 280px);
 }
 
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
@@ -679,11 +688,10 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 /* Top bar */
 
-/* The chrome is one row at every width. On a phone the connection shows as its
-   status dot, Browse languages moves to More (it is already listed there), and
-   Settings keeps only its icon. */
+/* Controls can flow to another row at intermediate desktop widths. Phones
+   use the compact controls below, with secondary destinations in More. */
 .topbar {
-  display: flex; align-items: center; flex-wrap: nowrap;
+  display: flex; align-items: center; flex-wrap: wrap;
   min-height: 44px; padding: 0 var(--space-6) 0 var(--space-4);
   border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome);
   flex: none; justify-content: flex-start; gap: var(--space-6);
@@ -912,17 +920,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   .topbar .tabs .tab { flex: 1; padding: var(--space-4); font-size: var(--type-meta); }
 }
 
-@media (max-width: 860px) {
-  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
-  .topbar-language .inspection-action { display: none; }
-  .topbar-actions { gap: 0; }
-  .topbar-actions .gear.app-settings { display: none; }
-  .topbar .profile-meter { display: none; }
-  .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
-  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
-  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .connection-state[data-configured=false] { background: transparent; }
-}
+
 
 @media (max-width: 860px) and (max-height: 550px) {
   .app:has(.composer :focus) .topbar { display: none; }
@@ -1024,11 +1022,29 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 @media (max-width: 860px) { .hamburger > span { display: none; } }
 @media (max-width: 480px) { .app-home > span { display: none; } }
 
-.topbar-language { min-width: 0; display: flex; align-items: center; gap: var(--space-2); }
+.topbar-language { min-width: 240px; display: flex; align-items: center; gap: var(--space-2); }
 .topbar-language .learning-picker { min-height: var(--control-height-lg); font-size: var(--type-body); font-weight: var(--weight-semibold); width: 360px; max-width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
-@media (max-width: 860px) { .topbar-language .learning-picker { width: 260px; max-width: 100%; min-width: 0; padding-inline: var(--space-3); } .topbar .app-home > span { display: none; } }
 @media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .hamburger { min-height: var(--touch-target); } }
 
+
+/* Keep compact overrides after the header controls they adapt. */
+@media (max-width: 860px) {
+  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
+  /* Give the language picker its own row so its label stays readable and its
+     existing menu remains directly accessible beside the practice controls. */
+  .topbar-language { order: -1; flex-basis: 100%; min-width: 0; }
+  .topbar-language .language-dropdown { flex: 1; }
+  .topbar-language .learning-picker { width: 100%; min-height: var(--touch-target); }
+  .topbar .app-home, .topbar .theme-toggle { display: none; }
+  .topbar-language .inspection-action { display: none; }
+  .topbar-actions { gap: 0; }
+  .topbar-actions .gear.app-settings { display: none; }
+  .topbar .profile-meter { display: none; }
+  .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
+  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
+  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .connection-state[data-configured=false] { background: transparent; }
+}
 
 /* ── components/panels.css ── */
 /* Shared panel headers and empty-state copy. */
@@ -1044,6 +1060,16 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .pane-header button { min-height: var(--control-height); margin-inline-start: auto; }
 
 .detail-meta { color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-normal); }
+
+/* A draggable divider between two panes. The hit area is wider than the line
+   it draws, so it is easy to grab without taking visible space. */
+.resize-handle { position: relative; flex: none; z-index: var(--z-raised); touch-action: none; user-select: none; }
+.resize-handle[data-axis="x"] { width: var(--space-3); margin-inline: calc(var(--space-3) / -2); cursor: col-resize; }
+.resize-handle[data-axis="y"] { height: var(--space-3); margin-block: calc(var(--space-3) / -2); cursor: row-resize; }
+.resize-handle::after { content: ""; position: absolute; border-radius: var(--radius-pill); background: var(--line); transition: background var(--dur-fast) var(--ease-out); }
+.resize-handle[data-axis="x"]::after { inset-block: 0; inset-inline-start: calc(50% - var(--space-hairline)); width: var(--border-width-thick); }
+.resize-handle[data-axis="y"]::after { inset-inline: 0; top: calc(50% - var(--space-hairline)); height: var(--border-width-thick); }
+.resize-handle:hover::after, .resize-handle:focus-visible::after, .resize-handle:active::after { background: var(--interaction-ink); }
 
 /* ── components/buttons.css ── */
 .panel-tabs {
@@ -1275,8 +1301,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .modal, .detail-dialog { resize: both; min-width: min(280px, 100%); min-height: 100px; }
 
 /* ── components/popovers.css ── */
-.popup-roman { color: var(--interaction-ink); font-family: var(--font-mono); font-style: normal; }
-
 .popup {
   position: fixed;
   z-index: var(--z-popover);
@@ -1291,19 +1315,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   padding: var(--space-5);
   box-shadow: var(--shadow-floating), var(--appearance-glow);
 }
-
-.popup-card {
-  display: flex; align-items: center; gap: var(--space-4);
-  max-width: min(340px, 90vw);
-  background: var(--sheet); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-6); box-shadow: var(--shadow-floating);
-  font-family: var(--font-serif); font-style: italic; font-size: var(--type-body); color: var(--interaction-ink);
-  line-height: var(--leading-normal);
-}
-
-.popup-x { background: none; border: none; color: var(--ink-3); cursor: pointer; font-size: var(--type-ui); }
-
-.popup-x:hover { color: var(--ink); }
 
 .info-tip { display: inline-block; position: relative; margin-inline: var(--space-2); vertical-align: middle; }
 
@@ -1331,8 +1342,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   font: var(--type-ui)/1.4 var(--font-sans);
   box-shadow: var(--shadow-floating), var(--appearance-glow);
 }
-
-.popup-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block: var(--space-5); }
 
 @media (pointer: coarse) {
   .info-tip > button { min-width: 44px; min-height: 44px; }
@@ -1407,17 +1416,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 }
 
 .w.holding { background: var(--interaction-tint); }
-
-.line.rtl-line { flex-direction: row-reverse; }
-
-.line.rtl-line .wu { direction: rtl; }
-
-.trans-d {
-  font-size: var(--type-ui);
-  color: var(--ink-2);
-  font-style: italic;
-  margin-bottom: var(--space-7);
-}
 
 @media (pointer: coarse) {
   .w[role=button] { display: inline-block; padding-block: var(--space-1); }
@@ -1495,16 +1493,14 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   .saved-word-help .wroman, .saved-word-help .wpronunciation { font-size: var(--type-body); }
 }
 .saved-word-details { overflow-wrap: anywhere; }
-.saved-word-details h2, .saved-word-part-source {
+.saved-word-details h2 {
   font: calc(var(--type-title) * var(--script-scale)) / 1.4 var(--font-serif);
 }
-.saved-word-details > span, .saved-word-part > span { display: block; }
+.saved-word-details > span { display: block; }
 .saved-word-details .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-details .wroman, .saved-word-details .wpronunciation {
   font: var(--type-ui) var(--font-reading-aid); color: var(--ink-2);
 }
-.saved-word-parts { margin-top: var(--space-6); }
-.saved-word-part { padding-block: var(--space-4); border-top: var(--border-width) solid var(--line-soft); }
 
 /* Romanization under a word may be wider than the word; it widens the column
    rather than breaking mid-word. */
@@ -1732,6 +1728,18 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   overflow: hidden;
 }
 
+/* Live waveform and log-mel share a clock and native cut bounds. */
+.live-recording { display: grid; gap: var(--space-2); min-width: 0; }
+.live-recording-head, .live-recording-axis { display: flex; justify-content: space-between; gap: var(--space-3); font-size: var(--type-meta); color: var(--ink-2); font-family: var(--font-mono); }
+.live-recording-plots { position: relative; overflow: hidden; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+.live-recording-plots .wave-strip { margin: 0; border: 0; border-radius: 0; }
+.live-take-region { position: absolute; inset-block: 0; pointer-events: none; border-inline-end: var(--border-width-thick) solid var(--interaction-ink); background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); animation: live-cut-flash var(--dur-deliberate) var(--ease-out); }
+.live-take-region span { position: absolute; inset-inline-end: var(--space-1); top: var(--space-2); padding: var(--space-1) var(--space-2); background: var(--chrome); color: var(--ink); font-size: var(--type-meta); white-space: nowrap; }
+.live-cut-notice { color: var(--interaction-ink); animation: live-cut-send var(--dur-slow) var(--ease-out); }
+@keyframes live-cut-flash { from { background: color-mix(in srgb, var(--interaction-ink) 40%, transparent); } to { background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); } }
+@keyframes live-cut-send { from { opacity: 0; transform: translateX(calc(-1 * var(--space-8))); } to { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .live-take-region, .live-cut-notice { animation: none; } }
+
 /* ── shell/notices.css ── */
 .err-action {
   flex: none; background: var(--danger-fill); border: var(--border-width) solid var(--danger-fill); border-radius: var(--radius-sm);
@@ -1891,14 +1899,14 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .msg.me .wg { color: var(--ink-3); }
 
-.msg.rtl .w, .line.rtl-line .w, .msg.rtl .target-text {
+.msg.rtl .w, .msg.rtl .target-text {
   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
   line-height: var(--leading-vocalized);
 }
 
-.msg.rtl .wg, .line.rtl-line .wg { font-size: var(--type-meta); }
+.msg.rtl .wg { font-size: var(--type-meta); }
 
-.msg.rtl .wroman, .line.rtl-line .wroman { font-size: var(--type-meta); }
+.msg.rtl .wroman { font-size: var(--type-meta); }
 
 .msg.me.rtl { align-self: flex-end; }
 
@@ -1965,8 +1973,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 }
 
 .msg .line { display: inline; }
-
-.msg .line.rtl-line { direction: rtl; unicode-bidi: embed; }
 
 .msg .line .wu { vertical-align: top; margin-block-end: var(--space-hairline); margin-inline-end: var(--word-spacing); }
 
@@ -2883,18 +2889,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .gloss { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 
-.tok {
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  background: var(--chrome);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.tok.key { border-color: var(--interaction-ink); background: var(--interaction-tint); }
-
 .phrase-pronunciation {
   margin: var(--space-4) 0;
   font-size: var(--type-ui);
@@ -3143,7 +3137,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--interaction-tint); }
 .analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--interaction-ink); }
 .analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--interaction-ink); }
-.analysis-sentence > .trans-d { margin: var(--space-2) 0 0; font-style: normal; }
 .live-coach-review > .analysis-sentence { margin: 0; }
 .detail-dialog > .analysis-sentence { clear: both; margin-bottom: var(--space-6); }
 
@@ -3164,9 +3157,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .coach-chat-toggle { min-width: 32px; border: 0; border-inline-start: var(--border-width) solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
 .coach-chat-resize:focus-visible, .coach-chat-toggle:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: -2px; }
 @media (pointer: coarse) { .coach-chat-divider { min-height: var(--touch-target); } .coach-chat-toggle { min-width: var(--touch-target); } }
-
-.study-credit-badges { display: flex; gap: var(--space-4); min-height: var(--control-height); }
-.study-credit-badges .inline-xp-badge { position: relative; inset: auto; margin: var(--space-4); }
 
 .detail-dialog .coach-entry-said { margin-bottom: var(--space-7); }
 
@@ -3913,7 +3903,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .access-alternative:hover { color: var(--ink); }
 .access-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: end;
   gap: var(--space-1);
   position: relative;
@@ -3997,7 +3987,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .access-route-panel .check-label input[type="checkbox"] { flex: none; width: auto; }
 
-.access-key-status, .access-key-check {
+.access-key-status {
   flex: none;
   width: 28px;
   height: 28px;
@@ -4017,10 +4007,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   display: inline;
   color: var(--danger-ink);
 }
-
-.access-key-check.valid { color: var(--success-ink); }
-
-.access-key-check.invalid { color: var(--danger-ink); }
 
 @media (max-width: 600px) {
   .access-tabs [role="tab"] { gap: var(--space-2); padding: var(--space-4) var(--space-2); font-size: var(--type-meta); }
@@ -4362,28 +4348,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* ── features/conversation/progress-map.css ── */
 /* Conversation progress map: the compact toggle that opens the reward map. */
 
-.conversation-map-toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-1) var(--space-6) var(--space-1) var(--space-1);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--chrome);
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.conversation-map-toggle svg { display: block; width: 132px; height: 132px; }
-
-.conversation-map-toggle [data-reward-total] { fill: var(--chrome); }
-
-.conversation-map-toggle svg text { fill: var(--ink); }
-
-.conversation-map-toggle > span { font-size: var(--type-ui); }
-
 @media (max-width: 860px) {
-  .conversation-map-toggle svg { width: 80px; height: 80px; }
 }
 
 
@@ -4914,6 +4879,38 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .yaml-export label, .yaml-export button { min-height: var(--touch-target); }
 }
 
+/* ── components/spectrogram.css ── */
+/* The spectrogram canvas and its mel frequency axis: shared by the Chat
+   recording inspector and by paired Drill comparisons. Geometry that belongs to
+   one surface (timeline rows, playhead, legend) stays with that surface. */
+
+.inspection-plot { position: relative; min-width: 0; background: var(--spectrogram-low); overflow: hidden; }
+.inspection-spectrogram { display: block; width: 100%; height: 160px; }
+/* The mel frequency axis, over the canvas's trailing edge: highest band on top. */
+.inspection-frequency-scale { position: absolute; inset-block: var(--space-2); inset-inline-end: var(--space-2); z-index: var(--z-raised); display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; pointer-events: none; font-family: var(--font-mono); font-size: var(--type-meta); }
+.inspection-frequency-scale span { padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); }
+@media (max-width: 600px) {
+  .inspection-spectrogram { height: 120px; }
+}
+
+.audio-spectrum-cursor { position: absolute; inset-block: 0; width: var(--border-width-thick); background: var(--ink-on-fill); pointer-events: none; z-index: var(--z-raised); }
+
+/* ── components/inspection-tracks.css ── */
+/* Shared recording-inspection tracks: where the analysis heard audio, where it
+   split one detected speech segment from the next, and the words a recognizer placed in time.
+   Chat and Drill both draw these over the same time axis. */
+
+.inspection-activity { width: 100%; height: 24px; background: var(--sheet); }
+.inspection-activity rect { fill: var(--interaction-ink); }
+.inspection-token-track { position: relative; height: 48px; background: var(--chrome); }
+.inspection-token-track button { position: absolute; top: 4px; height: 36px; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
+.inspection-token-track button[aria-pressed=true], .inspection-token-track .inspection-token-active { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
+.inspection-token-track button:focus-visible { z-index: var(--z-sticky); min-width: max-content; }
+
+.inspection-token-label { position: absolute; top: var(--space-2); overflow: hidden; padding: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); white-space: nowrap; text-overflow: ellipsis; }
+.inspection-segment-mark { position: absolute; inset-block: 0; width: 0; border-inline-start: var(--border-width-thick) dashed var(--interaction-ink); }
+.inspection-segment-mark span { position: absolute; top: var(--space-1); inset-inline-start: var(--space-2); padding: 0 var(--space-2); background: var(--interaction-fill); color: var(--ink-on-fill); font-family: var(--font-mono); font-size: var(--type-meta); border-radius: var(--radius-xs); white-space: nowrap; }
+
 /* ── features/conversation/speech-inspection.css ── */
 /* Audio inspection: waveform/spectrogram layers share the timeline geometry. Overflow is contained by the viewport; data positioning remains in TypeScript. */
 
@@ -4926,15 +4923,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .inspection-row { position: relative; min-width: 0; }
 .inspection-row > h3 { position: absolute; top: 4px; left: 4px; z-index: var(--z-raised); padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); pointer-events: none; }
 .inspection-row > h3 span { display: none; }
-.inspection-plot { position: relative; min-width: 0; background: var(--spectrogram-low); overflow: hidden; }
 .inspection-wave { display: block; width: 100%; height: 80px; background: var(--sheet); }
 .inspection-wave path { stroke: var(--interaction-ink); stroke-width: 1; }
-.inspection-spectrogram { display: block; width: 100%; height: 160px; image-rendering: pixelated; }
 .inspection-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .inspection-word-band { fill: transparent; stroke: var(--spectrogram-high); stroke-width: 1; }
 .inspection-word-selected { fill: color-mix(in srgb, var(--spectrogram-high) 22%, transparent); stroke: var(--spectrogram-high); stroke-width: 3; }
-.inspection-activity { width: 100%; height: 24px; background: var(--sheet); }
-.inspection-activity rect { fill: var(--interaction-ink); }
 .inspection-axis { display: flex; justify-content: space-between; width: 100%; min-height: 28px; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
 .inspection-legend, .inspection-word-toggle { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; font-size: var(--type-ui); }
 .inspection-heatmap-key { width: 100px; height: 12px; background: linear-gradient(to right, var(--spectrogram-low), var(--spectrogram-mid), var(--spectrogram-high)); }
@@ -4945,7 +4938,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .inspection-open { align-self: flex-end; font-size: var(--type-ui); }
 @media (max-width: 600px) {
   .inspection-row > h3 { font-size: var(--type-meta); }
-  .inspection-spectrogram { height: 120px; }
 }
 
 .inspection-plot-word { position: absolute; top: 4px; max-width: 80%; overflow-wrap: anywhere; padding: 0 var(--space-2); background: var(--chip); color: var(--ink); font-size: var(--type-ui); border-radius: var(--radius-xs); }
@@ -4961,11 +4953,373 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .inspection-viewport { overflow-x: auto; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); overscroll-behavior-x: contain; }
 .inspection-timeline { position: relative; cursor: crosshair; }
 .inspection-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--spectrogram-high); box-shadow: 0 0 0 1px var(--spectrogram-low); z-index: var(--z-raised); pointer-events: none; }
-.inspection-token-track { position: relative; height: 48px; background: var(--chrome); }
-.inspection-token-track button { position: absolute; top: 4px; height: 36px; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
-.inspection-token-track button[aria-pressed=true], .inspection-token-track .inspection-token-active { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
-.inspection-token-track button:focus-visible { z-index: var(--z-sticky); min-width: max-content; }
-.inspection-confidence { padding: var(--space-4) var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); overflow-wrap: anywhere; font-size: var(--type-ui); }
+
+/* ── features/drill/drill.css ── */
+/* Drill: the phrase rail, the practice stage and the attempt log. The target
+   card, spectrogram and waveform bring their own styles from shared components. */
+
+/* Three columns that fit the window: pick a phrase, practise it, read the
+   report. The middle column never scrolls at desktop sizes; the report may. */
+.drill-page { width: 100%; min-width: 0; display: grid; grid-template-columns: var(--drill-rail-width) auto minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
+.drill-rail, .drill-log { min-height: 0; overflow-y: auto; }
+
+/* The rail: add a phrase, pick one, and the storage control kept out of the way. */
+.drill-rail { display: grid; grid-template-rows: auto auto 1fr auto; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-entry { display: grid; gap: var(--space-2); }
+.drill-entry label { color: var(--ink-2); font-size: var(--type-meta); }
+.drill-entry-row { display: flex; gap: var(--space-2); }
+.drill-entry-row .field { flex: 1 1 auto; min-width: 0; }
+.drill-rail-empty { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
+
+.drill-items { display: grid; align-content: start; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.drill-items li { display: flex; align-items: stretch; gap: var(--space-2); }
+.drill-item { flex: 1 1 auto; min-width: 0; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); text-align: start; background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-item[aria-current="true"] { border-color: var(--interaction-ink); border-width: var(--border-width-thick); }
+.drill-item-text { font-size: var(--type-body); overflow-wrap: anywhere; }
+.drill-item-meta { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-remove { align-self: center; padding: var(--space-2); }
+
+.drill-rail-foot { border-top: var(--border-width) solid var(--line-soft); padding-top: var(--space-3); }
+.drill-storage { font-size: var(--type-ui); }
+.drill-storage summary { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; }
+.drill-storage-total { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-storage-body { display: grid; gap: var(--space-2); padding-top: var(--space-3); }
+.drill-storage-body p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-storage-limit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.drill-storage-limit .field { width: 6rem; font-family: var(--font-mono); }
+
+.drill-ask-more { justify-self: start; }
+
+/* Asking for phrases happens in a raised dialog over the page, so the practice
+   columns stay where they are. The request is on the left, whatever came back
+   on the right. One press asks, one press per phrase keeps it. */
+.drill-add { display: grid; grid-template-columns: 22rem minmax(0, 1fr); gap: var(--space-7); align-items: start; }
+.drill-add-ask { display: grid; align-content: start; }
+.drill-add-ask p { margin: var(--space-3) 0 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-add-results { display: grid; align-content: start; gap: var(--space-3); min-width: 0; }
+.drill-add-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+
+/* One list of what to add, with past chats as a source beside the lengths
+   rather than a section of its own. */
+.drill-add-options { display: grid; gap: var(--space-2); margin: 0 0 var(--space-5); padding: 0; border: 0; }
+.drill-add-options legend { padding: 0; margin-bottom: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); }
+.drill-add-source { margin-top: var(--space-2); padding-top: var(--space-3); border-top: var(--border-width) solid var(--line-soft); }
+.drill-add-difficulty { display: grid; gap: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); }
+
+.drill-candidates { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.drill-candidate { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); background: var(--bg); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-candidate[data-kept="true"] { border-color: var(--success-line); }
+.drill-candidate-body { display: grid; gap: var(--space-1); min-width: 0; flex: 1 1 auto; }
+.drill-candidate-translation { color: var(--ink-2); font-size: var(--type-ui); }
+.drill-candidate-notes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.drill-candidates-note { display: grid; gap: var(--space-1); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+
+/* The stage: what to say, the reference against the take, and the control
+   that records. It is a column that fills the height: the comparison takes
+   whatever the phrase and the dock leave. */
+.drill-stage { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; overflow-y: auto; }
+.drill-stage-alone { grid-column: 3 / -1; }
+.drill-pane { min-height: 0; overflow: auto; }
+.drill-dock-pane { flex: none; height: var(--drill-dock-height); min-height: max-content; overflow: visible; }
+.drill-progress-pane { flex: none; height: var(--drill-progress-height); }
+.drill-inspection-pane { flex: none; height: var(--drill-inspection-height); }
+.drill-history-pane { flex: 1 1 auto; min-height: var(--control-height-lg); }
+.drill-stage > * { flex: none; }
+/* The phrase sits in the same partner bubble as Chat, its reading aids inside
+   it. It is what the page is for, so it is set well above reading size. */
+.drill-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.drill-actions .btn { display: inline-flex; align-items: center; gap: var(--space-2); }
+.drill-empty { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
+
+/* A row of mutually exclusive choices, all visible: recording mode, pause
+   length, time direction. The checked one is filled. */
+.drill-segmented { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-1); background: var(--chip); border-radius: var(--radius-md); }
+.drill-segmented button { min-height: var(--control-height-sm); padding: 0 var(--space-4); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-sm); font-size: var(--type-ui); font-weight: var(--weight-medium); }
+.drill-segmented button:hover:not(:disabled) { background: var(--sheet); color: var(--ink); }
+.drill-segmented button[aria-checked="true"] { background: var(--interaction-fill); color: var(--ink-on-fill); }
+.drill-segmented button:disabled { opacity: 0.6; }
+
+/* The target pairs a tinted container with the shared display size at regular
+   weight. Reading/script scales remain learner-owned; annotations stay smaller. */
+.drill-target-card { flex: none; padding: var(--space-5) var(--space-6); background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+.drill-target-card > .msg.chat-message { width: 100%; max-width: 100%; box-sizing: border-box; margin: 0; padding: 0; background: transparent; border: 0; box-shadow: none; cursor: default; }
+.drill-target-card .msg :is(.w, .target-text) { font-size: calc(var(--type-display) * var(--reading-scale) * var(--script-scale)); }
+.drill-media { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.drill-media .drill-seek { flex: 1 1 auto; min-width: 4rem; }
+.drill-media .drill-segmented { flex: none; flex-wrap: nowrap; }
+.drill-media-empty { flex: 1 1 auto; color: var(--ink-3); font-size: var(--type-meta); }
+.drill-media-time { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
+.drill-media-take { margin-top: var(--space-2); }
+.drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
+.drill-comparison-panel { flex: 1 1 auto; min-height: 16rem; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); overflow-y: auto; }
+.drill-reference { display: flex; flex-direction: column; gap: var(--space-2); }
+.drill-timelines { display: grid; gap: var(--space-1); }
+.drill-timeline-empty { margin: 0; padding: var(--space-4); color: var(--ink-3); font-size: var(--type-ui); background: var(--bg); border-radius: var(--radius-sm); }
+.drill-track { display: grid; gap: var(--space-1); }
+.drill-timelines .inspection-spectrogram { height: var(--drill-plot-height); }
+.drill-timelines .inspection-token-track { height: 36px; }
+.drill-timelines .inspection-token-track button { height: 28px; top: var(--space-1); }
+.drill-seek { accent-color: var(--interaction-ink); }
+.drill-axis { position: relative; height: var(--space-8); }
+.drill-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
+.drill-axis span:first-child { transform: none; }
+/* Right-to-left time mirrors each track as a whole, so the start of every
+   recording sits on the right. Text inside is turned back to read normally. */
+.drill-timelines[data-time="rtl"] .drill-track { transform: scaleX(-1); }
+.drill-timelines[data-time="rtl"] .drill-track :is(bdi, .inspection-frequency-scale span, .inspection-segment-mark span) { display: inline-block; transform: scaleX(-1); }
+.drill-comparison-foot { display: grid; gap: var(--space-2); color: var(--ink-3); font-size: var(--type-meta); }
+.drill-comparison-foot p { margin: 0; }
+
+/* The dock is one row and a thin timeline: it records, it never competes with
+   the comparison for height. Tuning lives in a panel that opens above it.
+   The dock states differ in what the control does, so each says so in words;
+   colour repeats the sentence rather than carrying it alone. */
+.drill-dock { position: relative; display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
+.drill-dock-pane > .drill-dock { box-sizing: border-box; min-height: 100%; align-content: start; }
+.drill-dock[data-phase="ready"] { border: var(--border-width-thick) solid var(--interaction-ink); box-shadow: var(--shadow-sm); }
+.drill-dock[data-phase="recording"] { background: var(--danger-tint); border-color: var(--danger-line); }
+.drill-dock[data-phase="working"] { background: var(--chrome); }
+.drill-dock-row { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+.drill-dock-row .drill-segmented { flex: none; flex-wrap: nowrap; }
+.drill-dock-button { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: var(--space-3); height: calc(var(--control-height-lg) * 1.3); padding: 0 var(--space-11); background: var(--interaction-fill); color: var(--ink-on-fill); border: 0; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
+.drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); }
+.drill-dock[data-phase="recording"] .drill-dock-button:hover { background: var(--danger-fill-hover); }
+.drill-dock-copy { flex: 0 1 auto; min-width: 0; display: grid; }
+.drill-dock-headline { margin: 0; overflow: hidden; font-size: var(--type-body); font-weight: var(--weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
+.drill-dock-discard { flex: none; padding: 0 var(--space-4); }
+.drill-dock-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
+.drill-dock-detail { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+
+.drill-dock-settings { flex: none; }
+.drill-dock-settings summary { display: flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); color: var(--ink-2); list-style: none; cursor: pointer; border-radius: var(--radius-md); }
+.drill-dock-settings summary::-webkit-details-marker { display: none; }
+.drill-dock-settings summary:hover, .drill-dock-settings[open] summary { background: var(--sheet); color: var(--interaction-ink); }
+.drill-dock-panel { position: absolute; inset-inline-end: 0; bottom: calc(100% + var(--space-2)); z-index: var(--z-popover); display: grid; gap: var(--space-4); width: min(26rem, 100%); padding: var(--space-5); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-floating); }
+.drill-choice { display: grid; gap: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
+.drill-choice .drill-segmented { justify-self: start; }
+.drill-choice .drill-segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
+
+/* The live timeline: waveform and a sliver of spectrum, no axis row. */
+.drill-dock .live-recording { gap: var(--space-1); }
+.drill-dock .live-recording-axis { display: none; }
+.drill-dock .inspection-spectrogram { height: 28px; }
+.drill-dock .inspection-frequency-scale { display: none; }
+
+
+/* Level against the threshold a take must cross. */
+.drill-meter { position: relative; flex: 1 1 8rem; min-width: 4rem; height: var(--space-8); cursor: ew-resize; touch-action: none; user-select: none; }
+.drill-meter-level { position: absolute; inset-inline: 0; top: calc(50% - var(--space-3)); height: var(--space-6); overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); }
+.drill-meter-fill { position: absolute; inset-block: 0; inset-inline-start: 0; background: var(--success-line); transition: width var(--dur-fast) var(--ease-out); }
+.drill-meter[data-above="true"] .drill-meter-fill { background: var(--success-ink); }
+.drill-meter-noise { position: absolute; inset-inline-start: 0; top: calc(50% - var(--space-3)); height: var(--space-6); border-inline-end: var(--border-width-thick) dashed var(--ink-3); pointer-events: none; }
+/* The threshold marker is the handle: a bar with a round grip, wider to grab than it looks. */
+.drill-meter-threshold { position: absolute; inset-block: 0; width: var(--space-5); margin-inline-start: calc(var(--space-5) / -2); cursor: ew-resize; }
+.drill-meter-threshold::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: calc(50% - var(--space-hairline)); width: var(--border-width-thick); background: var(--interaction-ink); }
+.drill-meter-threshold::after { content: ""; position: absolute; top: calc(50% - var(--space-3)); inset-inline-start: calc(50% - var(--space-3)); width: var(--space-6); height: var(--space-6); border-radius: var(--radius-circle); background: var(--interaction-fill); border: var(--border-width-thick) solid var(--sheet); box-shadow: var(--shadow-sm); }
+
+/* Clearing the recent past: a quiet control that opens to explicit choices. */
+.drill-clear { flex: none; align-self: flex-end; font-size: var(--type-ui); }
+.drill-clear summary { color: var(--ink-2); cursor: pointer; }
+.drill-clear-panel { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); }
+.drill-clear-panel p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-clear-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* The report column: the phrase over time, the selected take in full, then
+   every other take as one line. */
+.drill-log { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); }
+
+.drill-progress { display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-progress-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.drill-progress-head h2 { margin: 0; font-size: var(--type-body); }
+.drill-progress-head span { color: var(--ink-3); font-size: var(--type-meta); }
+.drill-progress-stats { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-6); margin: 0; }
+.drill-progress-stats div { display: flex; align-items: baseline; gap: var(--space-2); }
+.drill-progress-stats dt { color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.drill-progress-stats dd { margin: 0; font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.drill-spark { width: 100%; height: var(--space-11); }
+.drill-spark-rule { stroke: var(--line-soft); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.drill-spark-line { fill: none; stroke: var(--interaction-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.drill-spark-point { fill: var(--interaction-ink); }
+.drill-word-grid { display: grid; gap: var(--space-hairline); }
+.drill-word-row { display: grid; align-items: center; gap: var(--space-1); }
+.drill-word-grid-label { overflow: hidden; font-family: var(--font-serif); font-size: var(--type-ui); line-height: var(--leading-tight); text-align: end; text-overflow: ellipsis; white-space: nowrap; padding-inline-end: var(--space-3); }
+.drill-word-cell { height: var(--space-5); border-radius: var(--radius-xs); }
+[data-outcome="same"].drill-word-cell, .drill-attempt-words [data-outcome="same"] { background: var(--success-line); }
+[data-outcome="substituted"].drill-word-cell, .drill-attempt-words [data-outcome="substituted"] { background: var(--warning-line); }
+[data-outcome="missing"].drill-word-cell, .drill-attempt-words [data-outcome="missing"] { background: var(--danger-line); }
+.drill-word-legend { display: flex; flex-wrap: wrap; gap: var(--space-5); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-word-legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
+.drill-word-legend span::before { content: ""; width: var(--space-5); height: var(--space-5); border-radius: var(--radius-xs); }
+.drill-word-legend [data-outcome="same"]::before { background: var(--success-line); }
+.drill-word-legend [data-outcome="substituted"]::before { background: var(--warning-line); }
+.drill-word-legend [data-outcome="missing"]::before { background: var(--danger-line); }
+.drill-trouble { margin: 0; padding: var(--space-2) var(--space-3); background: var(--warning-tint); color: var(--warning-ink); border-radius: var(--radius-sm); font-size: var(--type-ui); }
+.drill-progress-note { margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
+
+.drill-attempts { display: grid; align-content: start; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.drill-attempt:hover { border-color: var(--interaction-ink); }
+.drill-attempt-number { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-attempt-words { display: inline-flex; gap: var(--space-1); }
+.drill-attempt-when { color: var(--ink-3); font-size: var(--type-meta); }
+
+/* Earlier takes: a sunken list, visibly apart from the selected take above it.
+   Each take is one line: number, word marks, what was heard, time, match. */
+.drill-history { display: grid; gap: var(--space-1); padding: var(--space-2); background: var(--bg); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-recessed); }
+.drill-history-head { margin: 0; padding: 0 var(--space-1); color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); text-transform: uppercase; letter-spacing: var(--tracking-label); }
+.drill-attempt-row { display: flex; align-items: center; gap: var(--space-1); }
+.drill-attempt { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-3); text-align: start; background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-attempt-head { display: contents; }
+.drill-attempt-words span { width: var(--space-4); height: var(--space-3); border-radius: var(--radius-xs); }
+.drill-attempt-transcript { order: 1; flex: 1 1 auto; min-width: 0; overflow: hidden; font-family: var(--font-serif); font-size: var(--type-ui); color: var(--ink-2); text-overflow: ellipsis; white-space: nowrap; }
+.drill-attempt .drill-attempt-when { order: 2; }
+.drill-attempt-score { order: 3; font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.drill-history .drill-remove { padding: 0 var(--space-2); min-height: var(--control-height-sm); }
+
+/* A take joins the log the moment it is cut, before anything has been
+   transcribed, and its result card replaces it in place when one arrives. */
+.drill-take-arrival { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+.drill-take-pending { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
+.drill-take-pending[data-state="failed"] { border-color: var(--danger-line); }
+.drill-take-pending p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-take-progress { overflow: hidden; height: var(--space-2); background: var(--chrome); border-radius: var(--radius-xs); }
+.drill-take-progress span { display: block; width: 25%; height: 100%; background: var(--interaction-ink); animation: take-progress var(--dur-deliberate) var(--ease-in-out) infinite; }
+@media (prefers-reduced-motion: reduce) { .drill-take-arrival, .drill-take-progress span { animation: none; } .drill-meter-fill { transition: none; } }
+.drill-more { width: 100%; margin-top: var(--space-3); }
+
+/* A chip states something the comparison established mechanically. There is no
+   graded verdict here: the thresholds for one are policy data we do not have. */
+.drill-chip { padding: 0 var(--space-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); border-radius: var(--radius-pill); background: var(--chip); color: var(--ink-2); }
+.drill-chip[data-tone="success"] { background: var(--success-tint); color: var(--success-ink); }
+.drill-chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning-ink); }
+
+/* The selected take in full: its words, then what was measured. */
+.drill-inspection { display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--sheet); border: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+.drill-inspection-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); }
+.drill-inspection-score { font-family: var(--font-mono); font-size: var(--type-body); font-weight: var(--weight-bold); color: var(--interaction-ink); }
+.drill-inspection-words { color: var(--ink-2); font-size: var(--type-meta); }
+.drill-inspection-head h2 { margin: 0; font-size: var(--type-body); }
+.drill-inspection-spacer { flex: 1 1 auto; }
+.drill-inspection-note { margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
+
+
+/* The phrase as written, one mark per word: the colour under a word names its
+   outcome, and a word heard differently shows the heard form beneath it. */
+.drill-word-outcome { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Aligned pairs wrap together so long phrases retain target/heard ownership. */
+.drill-word-pairs { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: start; }
+.drill-word-pair, .drill-word-labels { display: grid; gap: var(--space-2); max-width: 100%; min-width: 0; }
+.drill-word-labels { color: var(--ink-3); font-size: var(--type-meta); }
+.drill-word-pair > span:not(.drill-word-outcome) { padding: 0 var(--space-2); overflow-wrap: anywhere; background: var(--success-tint); border-bottom: var(--border-width-thick) solid var(--success-line); border-radius: var(--radius-xs); font-family: var(--font-serif); font-size: calc(var(--type-body) * var(--reading-scale) * var(--script-scale)); line-height: var(--leading-snug); }
+.drill-word-pair[data-outcome="substituted"] > span { background: var(--warning-tint); border-color: var(--warning-line); }
+.drill-word-pair[data-outcome="missing"] > span { background: var(--danger-tint); border-color: var(--danger-line); }
+.drill-word-pair[data-outcome="extra"] > span { background: var(--chip); border-color: var(--ink-3); border-bottom-style: dashed; }
+
+/* What was measured, you against the reference, one row per measure. */
+.drill-measures { width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
+.drill-measures th, .drill-measures td { padding: 0 var(--space-2); text-align: start; white-space: nowrap; }
+.drill-measures thead th { color: var(--ink-3); font-weight: var(--weight-semibold); border-bottom: var(--border-width) solid var(--line-soft); }
+.drill-measures tbody th { color: var(--ink-2); font-weight: var(--weight-medium); }
+.drill-measures td { font-family: var(--font-mono); color: var(--ink); }
+
+.drill-comparison { font-size: var(--type-ui); }
+.drill-comparison dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
+.drill-comparison dd { margin: 0; font-family: var(--font-mono); }
+
+/* Desktop retains its resizable columns; only the central stage scrolls. */
+.drill-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.drill-workspace > .drill-stage { flex: 1 1 auto; }
+.drill-stage > [role="alert"] { margin: 0; padding: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
+.drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }
+
+/* Phone navigation and reports are disclosures, leaving the recording dock
+   outside the scrolling practice area. Its height follows content and zoom. */
+@media (max-width: 860px) {
+  .drill-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
+  .drill-page .resize-handle, .drill-sheet .resize-handle { display: none; }
+  .drill-phrase-bar { display: flex; gap: var(--space-2); }
+  .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
+  .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
+  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-title); }
+  [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
+  .drill-mobile-content { min-height: 0; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); }
+  /* Flatten composition wrappers so the reference sticks to the shared mobile
+     scrollport through the take feedback and history, not just the spectra. */
+  .drill-stage:not(.drill-stage-alone), .drill-comparison-panel { display: contents; }
+  .drill-reference { position: sticky; top: 0; z-index: var(--z-raised); flex: none; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-surface); }
+  .drill-stage { overflow: visible; flex: none; }
+  .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
+  .drill-comparison-panel { min-height: 0; overflow: visible; padding: var(--space-2); }
+  .drill-timelines .inspection-spectrogram { height: 72px; }
+  .drill-media { flex-wrap: wrap; gap: var(--space-2); position: relative; }
+  .drill-media-time { white-space: normal; flex-shrink: 1; }
+  .drill-media .drill-seek { min-width: 3rem; width: 3rem; }
+  .drill-play { min-height: var(--touch-target); }
+  .drill-media-options { margin-inline-start: auto; }
+  .drill-media-options summary { min-width: var(--touch-target); min-height: var(--touch-target); display: grid; place-content: center; list-style: none; cursor: pointer; }
+  .drill-media-options summary::-webkit-details-marker { display: none; }
+  .drill-media-options > div { position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
+  .drill-dock-pane { height: auto; min-height: 0; }
+  .drill-dock { box-shadow: var(--shadow-surface); padding: var(--space-2); }
+  .drill-dock-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-2); }
+  .drill-dock-copy { grid-row: 1; grid-column: 1; }
+  .drill-dock-headline { font-size: var(--type-ui); }
+  .drill-dock-row > .drill-segmented { grid-row: 1; grid-column: 2; justify-self: end; }
+  .drill-dock-row > .drill-segmented button { padding-inline: var(--space-2); }
+  .drill-dock .live-recording-plots > .inspection-plot { display: none; }
+  .drill-dock-settings { grid-row: 1; grid-column: 3; }
+  .drill-dock-button { grid-row: 2; grid-column: 1; height: var(--touch-target); padding: 0 var(--space-6); }
+  .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
+  .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
+  .drill-dock-discard { grid-row: 2; grid-column: 3; }
+  .drill-dock-panel { box-sizing: border-box; max-height: 55dvh; overflow-y: auto; }
+  .drill-dock-settings summary, .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
+  .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+  .drill-peek-open { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--touch-target); padding: 0; margin-bottom: var(--space-2); background: transparent; border: 0; color: var(--ink); text-align: start; }
+  .drill-peek-open > :last-child { margin-inline-start: auto; color: var(--interaction-ink); }
+  .drill-add { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+}
+
+/* Native modal semantics supply focus containment; the shared overlay owner
+   supplies Escape, Android Back and focus restoration. No capture suspension. */
+.drill-sheet { position: fixed; inset: auto 0 0; width: 100%; max-width: 100%; height: 88dvh; max-height: 100dvh; margin: 0; padding: 0; box-sizing: border-box; color: var(--ink); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--shadow-drawer); }
+.drill-sheet[open] { display: flex; flex-direction: column; }
+.drill-sheet::backdrop { background: var(--scrim); }
+.drill-sheet-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: var(--border-width) solid var(--line-soft); }
+.drill-sheet-head h2 { margin: 0; font-size: var(--type-title); }
+.drill-sheet-body { min-height: 0; overflow-y: auto; padding: var(--space-2) var(--space-2) max(var(--space-2), env(safe-area-inset-bottom)); }
+.drill-sheet :is(.drill-log, .drill-rail, .drill-pane) { height: auto; overflow: visible; min-width: 0; }
+.drill-sheet .drill-rail { grid-template-rows: auto auto auto auto; }
+.drill-sheet .drill-measures :is(th, td) { white-space: normal; overflow-wrap: anywhere; }
+.drill-sheet .drill-inspection-pane { order: -1; }
+.drill-sheet .drill-clear { order: 1; }
+.drill-sheet .drill-history-pane { order: 2; }
+
+/* Touch keeps every control at the minimum target, including the icon-only
+   delete and the cards that carry selection. */
+@media (pointer: coarse) {
+  .drill-remove, .drill-item, .drill-attempt, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
+}
+
+/* The Chat/Drill switch in the top bar: one surface replaces the other. It is
+   the largest control in the bar, centred, so the two surfaces read as peers. */
+.practice-switch { display: inline-flex; gap: var(--space-1); margin-inline: auto; padding: var(--space-1); background: var(--chip); border-radius: var(--radius-pill); }
+.practice-switch button { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-lg); padding: 0 var(--space-9); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-pill); font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.practice-switch button:hover { color: var(--ink); }
+.practice-switch button[aria-pressed="true"] { background: var(--sheet); color: var(--interaction-ink); box-shadow: var(--shadow-sm); }
+
+@media (max-width: 860px) { .practice-switch button { padding-inline: var(--space-3); gap: var(--space-2); } }
+
+/* Compact progress shares the report calculations and plot. Recent takes select
+   the existing comparison; the full word history stays in the report. */
+.drill-progress-compact { flex: none; }
+.drill-progress-compact .drill-spark { height: 32px; }
+.drill-progress-compact .drill-progress-stats { justify-content: space-between; gap: var(--space-2); }
+.drill-recent-takes { display: flex; gap: var(--space-2); overflow-x: auto; }
+.drill-recent-takes button { flex: 1 0 auto; display: grid; align-content: center; gap: var(--space-1); min-height: var(--touch-target); min-width: var(--touch-target); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); color: var(--ink); background: var(--field); font-size: var(--type-meta); }
+.drill-recent-takes button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--interaction-tint); }
+.drill-recent-takes button > span { color: var(--ink-3); }
 
 /* ── features/skills/skills.css ── */
 /* Skills page frame, toolbar, navigation and list view. Graph and inspector variants have separate owners. */
@@ -5113,6 +5467,9 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 @keyframes hydrate-arrive { from { opacity: 0; } to { opacity: 1; } }
 
+/* Work of unknown length: the bar says something is happening, not how far. */
+@keyframes take-progress { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
+
 @keyframes reward-receipt { 0% { opacity: 0; transform: translateY(-8px); } 10%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
 @keyframes xp-invitation { 0%, 75%, 100% { transform: translateY(-50%); box-shadow: none; } 85% { transform: translateY(calc(-50% - 1px)); box-shadow: 0 0 5px color-mix(in srgb, currentColor 15%, transparent); } }
@@ -5215,8 +5572,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 #admin-console #user-detail { margin-top: var(--space-11); padding-top: var(--space-4); border-top: var(--border-width-strong) solid var(--line); overflow-x: auto; }
 #admin-console .bars { display: flex; gap: var(--space-3); align-items: flex-end; min-height: 190px; overflow-x: auto; border-bottom: var(--border-width) solid var(--line); margin: var(--space-8) 0; padding-top: var(--space-7); }
 #admin-console .bar { flex: 1; min-width: 21px; display: flex; align-items: center; flex-direction: column; justify-content: flex-end; }
-#admin-console .bar-fill { background: var(--interaction-fill); width: 100%; min-height: 1px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
-#admin-console .bar-fill.missing { background: var(--track); }
 #admin-console .bar span { writing-mode: vertical-rl; font-size: var(--type-meta); margin-top: var(--space-3); color: var(--ink-3); }
 #admin-console .heat { display: block; min-width: 28px; text-align: center; border-radius: var(--radius-xs); padding: var(--space-2); }
 #admin-console #heatmap td, #admin-console #heatmap th { padding: var(--space-1); }

@@ -27,6 +27,7 @@ vi.mock('../platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () =
 vi.mock('./shell/UpdateBanner', () => ({ UpdateBanner: () => null }))
 vi.mock('../features/settings/SettingsModal', () => ({ SettingsModal: () => null }))
 vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
+vi.mock('../features/drill/DrillPage', () => ({ default: () => <p>Drill surface</p> }))
 // The page is replaced, but it reads access the way the real one does — from the
 // session store — rather than through props the shell no longer threads down.
 vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
@@ -66,6 +67,21 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
 })
 
 vi.mock('../features/activity/AiView', () => ({ AiView: () => <p role="status">Live operations</p> }))
+
+it('switches the practice page and saves the selected destination', async () => {
+  render(<App />)
+  const switcher = screen.getByRole('group', { name: 'Practice surface' })
+  fireEvent.click(within(switcher).getByRole('button', { name: 'Drill' }))
+  expect(await screen.findByText('Drill surface')).toBeInTheDocument()
+  expect(screen.queryByLabelText('Draft')).not.toBeInTheDocument()
+  expect(localStorage.getItem('skellyspeak.practice-view')).toBe('drill')
+
+  fireEvent.click(within(switcher).getByRole('button', { name: 'Chat' }))
+  expect(screen.getByLabelText('Draft')).toBeInTheDocument()
+  expect(screen.queryByText('Drill surface')).not.toBeInTheDocument()
+  expect(localStorage.getItem('skellyspeak.practice-view')).toBe('chat')
+  localStorage.removeItem('skellyspeak.practice-view')
+})
 
 it('connects the page stub to hosted sign-in through the session store', async () => {
   state.connection = { route: 'custom', signedIn: false, email: '', revision: 7, configured: false, standardModel: '', fastModel: '', paused: false }

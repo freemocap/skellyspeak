@@ -67,8 +67,7 @@ function bundle(fingerprint?: string): boolean {
   if (fingerprint && previous === stamp) {
     // The stamp is inside the signature seal. Matching inputs alone never authorize reuse.
     // codesign requires a leading '=' for inline requirements; otherwise it reads a file.
-    run("/usr/bin/codesign", ["--verify", "--deep", "--strict", "-R",
-      `=identifier "${identifier}" and certificate leaf = H"${fingerprint}"`, app]);
+    ensureDevelopmentSignature(app, fingerprint);
     console.log("Reusing verified development bundle; no signing-key access needed.");
     return true;
   }

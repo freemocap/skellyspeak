@@ -54,6 +54,7 @@ pub struct ListeningStatus {
     pub ignored_takes: u32,
 }
 pub(crate) struct Session {
+    browser: Mutex<Option<super::browser_capture::BrowserCapture>>,
     spectrum: Mutex<Option<crate::speech::analysis::spectrogram::LiveAnalysis>>,
     status: Mutex<ListeningStatus>,
     settings: Mutex<ListeningSettings>,
@@ -64,6 +65,7 @@ pub(crate) struct Session {
 impl Session {
     pub(crate) fn new(recording_id: String, settings: ListeningSettings) -> Self {
         Self {
+            browser: Mutex::new(None),
             spectrum: Mutex::new(None),
             status: Mutex::new(ListeningStatus {
                 recording_id,
@@ -106,29 +108,18 @@ pub async fn mic_listen_start(
     settings
         .validate()
         .map_err(|message| AppError::new(ErrorCode::Validation, message))?;
-    #[cfg(mobile)]
-    {
-        let _ = (state, owner, settings);
-        Err(AppError::new(
-            ErrorCode::Conflict,
-            "Continuous listening is not available on this device yet. Use manual recording.",
-        ))
-    }
-    #[cfg(desktop)]
-    {
-        let state = state.inner().clone();
-        tauri::async_runtime::spawn_blocking(move || start(&state, owner, settings))
-            .await
-            .map_err(|e| {
-                crate::diagnostics::failures::join(
-                    &e,
-                    "continuous_start",
-                    AppError::new(ErrorCode::Conflict, "Listening could not start."),
-                )
-            })?
-    }
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || start(&state, owner, settings))
+        .await
+        .map_err(|e| {
+            crate::diagnostics::failures::join(
+                &e,
+                "continuous_start",
+                AppError::new(ErrorCode::Conflict, "Listening could not start."),
+            )
+        })?
 }
-#[cfg(desktop)]
+
 fn start(
     state: &Arc<Application>,
     owner: RecordingOwner,
@@ -149,6 +140,9 @@ fn start(
     }
     let started = voice::start_capture(state, owner)?;
     let session = Arc::new(Session::new(started.recording_id.clone(), settings));
+    if started.browser_capture {
+        *session.browser.lock().expect("browser capture") = Some(Default::default());
+    }
     *held = Some(session.clone());
     tauri::async_runtime::spawn(listen(state.clone(), session, started.recording_id.clone()));
     Ok(started)
@@ -168,6 +162,33 @@ fn session(state: &Application, id: &str) -> Result<Arc<Session>> {
             )
         })
 }
+/// Each request is acknowledged before the browser sends its next PCM chunk.
+#[tauri::command]
+pub fn mic_listen_push(
+    state: tauri::State<'_, Arc<Application>>,
+    recording_id: String,
+    sequence: u32,
+    sample_rate: u32,
+    samples: Vec<f32>,
+) -> Result<()> {
+    let session = session(&state, &recording_id)?;
+    if session.stop.load(Ordering::SeqCst) != 0 {
+        return Err(AppError::new(ErrorCode::Conflict, "Listening is stopping."));
+    }
+    let result = session
+        .browser
+        .lock()
+        .expect("browser capture")
+        .as_mut()
+        .ok_or("This recording does not accept browser audio.")
+        .and_then(|capture| capture.push(sequence, sample_rate, samples));
+    result.map_err(|message| {
+        let error = AppError::new(ErrorCode::Validation, message);
+        session.error(error.clone());
+        error
+    })
+}
+
 /// Whether `id` names the current listening run, finished or not.
 pub(super) fn is_listening_run(state: &Application, id: &str) -> bool {
     session(state, id).is_ok()
@@ -252,9 +273,8 @@ pub fn mic_listen_discard(
     Ok(())
 }
 
-#[cfg(desktop)]
 async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
-    use super::{audio, segmentation::Segmenter};
+    use super::{segmentation::Segmenter, wav};
     let (tx, mut rx) = tokio::sync::mpsc::channel::<(voice::Transcription, Vec<u8>)>(
         POLICY.max_pending_takes as usize,
     );
@@ -331,7 +351,25 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
             let Some(recording) = slot.as_ref().filter(|r| r.id() == id) else {
                 return Ok(None);
             };
-            let (rate, pcm) = recording.drain()?;
+            let mut browser = session.browser.lock().expect("browser capture");
+            let (rate, pcm) = if let Some(browser) = browser.as_mut() {
+                match browser.drain() {
+                    Some(value) => value,
+                    None => return Ok(Some((recording.request(), 0, Vec::new()))),
+                }
+            } else {
+                #[cfg(desktop)]
+                {
+                    recording.drain()?
+                }
+                #[cfg(mobile)]
+                {
+                    return Err(AppError::new(
+                        ErrorCode::Conflict,
+                        "Browser capture is unavailable.",
+                    ));
+                }
+            };
             Ok(Some((recording.request(), rate, pcm)))
         })();
         let (template, rate, pcm) = match drained {
@@ -342,6 +380,12 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
                 break;
             }
         };
+        if rate == 0 {
+            if session.stop.load(Ordering::SeqCst) != 0 {
+                break;
+            }
+            continue;
+        }
         received_samples += pcm.len();
         {
             let mut spectrum = session.spectrum.lock().expect("live spectrum");
@@ -407,7 +451,7 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
                 session.fail("Listening reached its 100-take limit. Start again to continue.");
                 break;
             }
-            let wav = match audio::encode_wav(&clip.samples, rate) {
+            let wav = match wav::encode_wav(&clip.samples, rate) {
                 Ok(wav) => wav,
                 Err(error) => {
                     session.fail(&error);

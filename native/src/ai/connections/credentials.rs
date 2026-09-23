@@ -188,7 +188,9 @@ pub extern "system" fn Java_com_freemocap_skellyspeak_MainActivity_initializeCre
 pub fn save(id: &str, secret: &str) -> Result<()> {
     #[cfg(target_os = "macos")]
     {
-        super::credential_cache::CACHE.mutate(id, || save_uncached(id, secret))
+        super::credential_cache::CACHE.mutate(id, || {
+            super::credential_events::observe(2, || save_uncached(id, secret))
+        })
     }
     #[cfg(not(target_os = "macos"))]
     {
@@ -223,7 +225,9 @@ fn save_uncached(id: &str, secret: &str) -> Result<()> {
 pub fn read(id: &str) -> Result<Zeroizing<String>> {
     #[cfg(target_os = "macos")]
     {
-        super::credential_cache::CACHE.read(id, || read_uncached(id))
+        super::credential_cache::CACHE.read(id, || {
+            super::credential_events::observe(1, || read_uncached(id))
+        })
     }
     #[cfg(not(target_os = "macos"))]
     {
@@ -261,7 +265,9 @@ fn read_uncached(id: &str) -> Result<Zeroizing<String>> {
 pub fn remove(id: &str) -> Result<()> {
     #[cfg(target_os = "macos")]
     {
-        super::credential_cache::CACHE.mutate(id, || remove_uncached(id))
+        super::credential_cache::CACHE.mutate(id, || {
+            super::credential_events::observe(3, || remove_uncached(id))
+        })
     }
     #[cfg(not(target_os = "macos"))]
     {

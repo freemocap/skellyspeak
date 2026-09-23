@@ -7,11 +7,10 @@
 
 /* Top bar */
 
-/* The chrome is one row at every width. On a phone the connection shows as its
-   status dot, Browse languages moves to More (it is already listed there), and
-   Settings keeps only its icon. */
+/* Controls can flow to another row at intermediate desktop widths. Phones
+   use the compact controls below, with secondary destinations in More. */
 .topbar {
-  display: flex; align-items: center; flex-wrap: nowrap;
+  display: flex; align-items: center; flex-wrap: wrap;
   min-height: 44px; padding: 0 var(--space-6) 0 var(--space-4);
   border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome);
   flex: none; justify-content: flex-start; gap: var(--space-6);
@@ -240,17 +239,7 @@
   .topbar .tabs .tab { flex: 1; padding: var(--space-4); font-size: var(--type-meta); }
 }
 
-@media (max-width: 860px) {
-  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
-  .topbar-language .inspection-action { display: none; }
-  .topbar-actions { gap: 0; }
-  .topbar-actions .gear.app-settings { display: none; }
-  .topbar .profile-meter { display: none; }
-  .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
-  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
-  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .connection-state[data-configured=false] { background: transparent; }
-}
+
 
 @media (max-width: 860px) and (max-height: 550px) {
   .app:has(.composer :focus) .topbar { display: none; }
@@ -352,8 +341,26 @@
 @media (max-width: 860px) { .hamburger > span { display: none; } }
 @media (max-width: 480px) { .app-home > span { display: none; } }
 
-.topbar-language { min-width: 0; display: flex; align-items: center; gap: var(--space-2); }
+.topbar-language { min-width: 240px; display: flex; align-items: center; gap: var(--space-2); }
 .topbar-language .learning-picker { min-height: var(--control-height-lg); font-size: var(--type-body); font-weight: var(--weight-semibold); width: 360px; max-width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
-@media (max-width: 860px) { .topbar-language .learning-picker { width: 260px; max-width: 100%; min-width: 0; padding-inline: var(--space-3); } .topbar .app-home > span { display: none; } }
 @media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .hamburger { min-height: var(--touch-target); } }
 
+
+/* Keep compact overrides after the header controls they adapt. */
+@media (max-width: 860px) {
+  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
+  /* Give the language picker its own row so its label stays readable and its
+     existing menu remains directly accessible beside the practice controls. */
+  .topbar-language { order: -1; flex-basis: 100%; min-width: 0; }
+  .topbar-language .language-dropdown { flex: 1; }
+  .topbar-language .learning-picker { width: 100%; min-height: var(--touch-target); }
+  .topbar .app-home, .topbar .theme-toggle { display: none; }
+  .topbar-language .inspection-action { display: none; }
+  .topbar-actions { gap: 0; }
+  .topbar-actions .gear.app-settings { display: none; }
+  .topbar .profile-meter { display: none; }
+  .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
+  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
+  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .connection-state[data-configured=false] { background: transparent; }
+}

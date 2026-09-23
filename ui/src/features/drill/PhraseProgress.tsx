@@ -11,7 +11,9 @@ const SPARK_HEIGHT = 48
  * target word in every take, so a word that keeps going wrong stands out.
  *
  * Only loaded takes are summarised, and the card says how many. */
-export function PhraseProgress({ attempts }: { attempts: DrillAttemptView[] }) {
+export function PhraseProgress({ attempts, compact = false, selectedId, onSelect }: {
+  attempts: DrillAttemptView[]; compact?: boolean; selectedId?: string; onSelect?: (id: string) => void
+}) {
   const tr = useI18n()
   const progress = phraseProgress(attempts, SUMMARISED_TAKES)
   if (!progress) return null
@@ -29,7 +31,7 @@ export function PhraseProgress({ attempts }: { attempts: DrillAttemptView[] }) {
   const columns = `6rem repeat(${progress.words[0]?.outcomes.length ?? 0}, minmax(0, 1fr))`
 
   return (
-    <section className="drill-progress" aria-label={tr("This phrase")}>
+    <section className={`drill-progress${compact ? ' drill-progress-compact' : ''}`} aria-label={tr("This phrase")}>
       <div className="drill-progress-head">
         <h2>{tr("This phrase")}</h2>
         <span>{tr("Last {value0} takes", { value0: String(progress.takes.length) })}</span>
@@ -49,6 +51,15 @@ export function PhraseProgress({ attempts }: { attempts: DrillAttemptView[] }) {
         {progress.ratios[last] !== null && <circle cx={x(last)} cy={y(progress.ratios[last])} r={3.5} className="drill-spark-point" />}
       </svg>
 
+      {compact && onSelect && <div className="drill-recent-takes" aria-label={tr('Attempts')}>
+        {progress.takes.slice(-6).reverse().map(take => <button type="button" key={take.id}
+          aria-pressed={take.id === selectedId} onClick={() => onSelect(take.id)}
+          aria-label={`${tr('Take {value0}', { value0: String(take.sequence) })} · ${percent(take.comparison.matchRatio)}`}
+          title={tr.dateTime(new Date(take.createdAt))}>
+          <span>#{String(take.sequence)}</span><strong>{percent(take.comparison.matchRatio)}</strong>
+        </button>)}
+      </div>}
+      {!compact && <>
       <div className="drill-word-grid">
         {progress.words.map((word, row) => <div key={row} className="drill-word-row" role="img" style={{ gridTemplateColumns: columns }}
           aria-label={tr("{value0}: heard exactly in {value1} of {value2} takes", {
@@ -68,6 +79,7 @@ export function PhraseProgress({ attempts }: { attempts: DrillAttemptView[] }) {
         value0: progress.trouble.word, value1: String(progress.trouble.misses), value2: String(progress.trouble.outcomes.length),
       })}</p>}
       {progress.excluded > 0 && <p className="drill-progress-note">{tr("{value0} older takes were compared against a different split of the phrase and are left out of the word grid.", { value0: String(progress.excluded) })}</p>}
+      </>}
     </section>
   )
 }

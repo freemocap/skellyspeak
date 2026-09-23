@@ -246,13 +246,20 @@
        --script-scale    language fontScale       components/reading/TargetText.tsx
        --word-spacing    preference.text_spacing  components/reading/TargetText.tsx
        --chat-share      guided split width       features/conversation/messages/PracticeDivider.tsx
-       --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx */
+       --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
+       --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx */
   --reading-scale: 1;
   --script-scale: 1;
   --word-spacing: 0px;
   --ai-inspector-width: 40%;
   --chat-share: calc(100% - 360px);
   --node-color: var(--interaction-ink);
+  --drill-rail-width: 15rem;
+  --drill-report-width: 24rem;
+  --drill-dock-height: auto;
+  --drill-progress-height: auto;
+  --drill-inspection-height: auto;
+  --drill-plot-height: clamp(64px, 22vh, 280px);
 }
 
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
