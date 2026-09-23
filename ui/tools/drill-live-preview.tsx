@@ -1,0 +1,123 @@
+/** Offline visual fixture for the Drill page: real native spectra, synthetic
+ * attempts, take states and word timings. No microphone, IPC or AI. */
+import { createRoot } from 'react-dom/client'
+import { useEffect, useMemo, useState } from 'react'
+import { I18nProvider } from '../src/components/localization/i18n'
+import { RecordDock, type RecordMode } from '../src/features/drill/RecordDock'
+import { AttemptLog } from '../src/features/drill/AttemptLog'
+import { AttemptInspection } from '../src/features/drill/AttemptInspection'
+import { DrillComparison, type TimeDirection, type TimeScale } from '../src/features/drill/DrillComparison'
+import { PhraseProgress } from '../src/features/drill/PhraseProgress'
+import { ClearTakes } from '../src/features/drill/ClearTakes'
+import { CONTINUOUS_RECORDING_POLICY } from '../src/generated/contracts'
+import { ResizeHandle } from '../src/components/layout/ResizeHandle'
+import type { AudioInspection, DrillAttemptView, ListeningSettings, ListeningStatus, ListeningTake, WordComparison, WordOutcome } from '../src/generated/contracts'
+import fixture from './spectrogram-fixture.json'
+import '../src/styles/index.css'
+
+const [reference, spoken] = fixture as unknown as AudioInspection[]
+const target = ['أنا', 'بفهم', 'الخرايط', 'القديمة', 'شوية']
+const timed = (inspection: AudioInspection): AudioInspection => ({
+  ...inspection,
+  wordTiming: {
+    status: 'available', reason: null, unsupported: [],
+    words: target.map((word, index) => {
+      const width = inspection.duration / target.length
+      return { index, word, providerStart: index * width, providerEnd: (index + 0.9) * width, start: index * width, end: (index + 0.9) * width, clipped: false }
+    }),
+  },
+})
+const word = (text: string, kind: WordOutcome): WordComparison => kind === 'same'
+  ? { kind, target: text, transcript: text, similarity: null }
+  : kind === 'missing' ? { kind, target: text, transcript: null, similarity: null }
+  : { kind, target: text, transcript: `${text.slice(0, -1)}ة`, similarity: 0.7 }
+const outcomes: WordOutcome[][] = [
+  ['same', 'substituted', 'substituted', 'substituted', 'same'],
+  ['same', 'same', 'same', 'same', 'same'],
+  ['same', 'same', 'substituted', 'missing', 'same'],
+  ['same', 'same', 'same', 'same', 'same'],
+  ['same', 'same', 'substituted', 'same', 'same'],
+  ['same', 'same', 'substituted', 'same', 'missing'],
+  ['same', 'same', 'substituted', 'same', 'same'],
+]
+const ratios = [0.72, 0.93, 0.45, 0.83, 0.48, 0.45, 0.88]
+const attempts: DrillAttemptView[] = outcomes.map((kinds, index) => ({
+  id: `attempt-${index + 1}`, sequence: BigInt(index + 1), visitId: null, audioBytes: 400000n, audioPrunedAt: null,
+  transcriptionAttemptId: null, createdAt: new Date(Date.UTC(2026, 8, 23, 14, 27, index * 9)).toISOString(),
+  transcript: kinds.map((kind, n) => kind === 'missing' ? '' : word(target[n], kind).transcript).join(' '),
+  comparison: {
+    policy: 'drill-comparison-v1', target: target.join(' '), transcript: '', normalizations: ['strip_punctuation'],
+    normalizedTarget: target.join(' '), normalizedTranscript: '', edits: kinds.filter(kind => kind !== 'same').length,
+    referenceGraphemes: 26, characterErrorRate: 1 - ratios[index], matchRatio: ratios[index], scriptNote: 'matches',
+    words: kinds.map((kind, n) => word(target[n], kind)),
+  },
+} as unknown as DrillAttemptView)).reverse()
+
+function Preview() {
+  const [mode, setMode] = useState<RecordMode>('auto')
+  const [first, setFirst] = useState(false)
+  const [direction, setDirection] = useState<TimeDirection>('rtl')
+  const [timeScale, setTimeScale] = useState<TimeScale>('fit')
+  const [selected, setSelected] = useState<string | null>(null)
+  const [settings, setSettings] = useState<ListeningSettings>({
+    pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,
+    thresholdOffsetDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdOffsetDb,
+    minTakeMs: CONTINUOUS_RECORDING_POLICY.defaultMinTakeMs,
+  })
+  const [time, setTime] = useState(0)
+  const [level, setLevel] = useState(-50)
+  useEffect(() => {
+    const timer = setInterval(() => { setTime(t => (t + .025) % reference.duration); setLevel(l => Math.max(-62, Math.min(-18, l + (Math.random() - .45) * 8))) }, 60)
+    return () => clearInterval(timer)
+  }, [])
+  const source = useMemo(() => {
+    let offset = 0
+    return { samplesPerSecond: 750, read: () => {
+      if (offset >= 6750) return []
+      const values = Array.from({ length: 6750 }, (_, n) => Math.sin(n * .25) * (n % 2250 < 1300 ? .5 * Math.sin(n * .017) ** 2 : .003))
+      offset += values.length; return values
+    } }
+  }, [])
+  const takes: ListeningTake[] = [{ recordingId: 'take-8', number: 8, startSeconds: 2, endSeconds: 4, cutSeconds: 4.8, state: 'processing', failure: null }]
+  const status: ListeningStatus = {
+    recordingId: 'fixture', listening: true, speaking: level > -40, queued: 0, processing: true, completed: 7, failure: null, takes,
+    settings, levelDb: level, noiseFloorDb: -54, thresholdDb: -54 + settings.thresholdOffsetDb, ignoredTakes: 2,
+  }
+  const attempt = attempts.find(entry => entry.id === selected) ?? attempts[0]
+  const data = useMemo(() => ({ ...reference.spectrogram,
+    frameStartSeconds: [0, 3, 6].flatMap(offset => reference.spectrogram.frameStartSeconds.map(frame => frame + offset)),
+    bins: [0, 3, 6].flatMap(() => reference.spectrogram.bins),
+  }), [])
+  return <I18nProvider locale="english">
+    <section className="drill-page" style={{ height: '100vh', boxSizing: 'border-box' }}>
+      <aside className="drill-rail"><p className="drill-rail-empty">Offline fixture: real native spectra; attempts, word timings and take states are synthetic.</p>
+        {/* The dock locks its own mode switch while recording, so the fixture switches from here. */}
+        <div className="drill-actions">{(['tap', 'hold', 'auto'] as const).map(option =>
+          <button key={option} type="button" className="btn" onClick={() => { setFirst(false); setMode(option) }}>Show {option}</button>)}
+          <button type="button" className="btn" onClick={() => { setMode('tap'); setFirst(true) }}>Show first take</button></div>
+      </aside>
+      <ResizeHandle label="Resize the phrase list" axis="x" grow={1} size={null} min={160} max={640} measure={() => 240} onResize={() => {}} />
+      <main className="drill-stage" data-first-take={first}>
+        <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
+            <div className="message-actions"><button type="button" className="message-translate">Translate</button><button type="button" className="message-translate">Word by word</button><button type="button" className="message-translate">Analysis</button></div></div>}
+          onPlayReference={() => {}} playingReference={false} referenceNote="Fixture"
+          reference={timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={timed(spoken)}
+          attemptLabel={`Attempt ${attempt.sequence}`} attemptFailure={null} onRetryAttempt={() => {}} attemptUnavailable={null}
+          direction={direction} onDirection={setDirection} timeScale={timeScale} onTimeScale={setTimeScale} holding={false} playingAttempt={false} onPlayAttempt={() => {}} />
+        <ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={null} min={56} max={640} measure={() => 120} onResize={() => {}} />
+        <RecordDock phase={mode === 'auto' ? 'recording' : 'ready'} mode={mode} onMode={setMode} settings={settings} onSettings={setSettings}
+          listeningStatus={mode === 'auto' ? status : null} waveSource={source} liveSpectrum={mode === 'auto' ? { data, endSeconds: 9 } : null}
+          onToggle={() => {}} onCancel={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} />
+      </main>
+      <ResizeHandle label="Resize the report column" axis="x" grow={-1} size={null} min={220} max={900} measure={() => 380} onResize={() => {}} />
+      <aside className="drill-log" aria-label="Attempts">
+        <ClearTakes disabled={false} onClear={() => {}} />
+        <PhraseProgress attempts={attempts} />
+        <AttemptInspection key={attempt.id} attempt={attempt} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />
+        <AttemptLog rtl onDelete={() => {}} deleting={false} attempts={attempts} liveTakes={[]} loading={false} hasMore={false} failure={null} selectedId={attempt.id}
+          onSelect={setSelected} onLoadMore={() => {}} onRetry={() => {}} />
+      </aside>
+    </section>
+  </I18nProvider>
+}
+createRoot(document.getElementById('root')!).render(<Preview />)

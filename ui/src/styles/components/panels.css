@@ -11,3 +11,13 @@
 .pane-header button { min-height: var(--control-height); margin-inline-start: auto; }
 
 .detail-meta { color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-normal); }
+
+/* A draggable divider between two panes. The hit area is wider than the line
+   it draws, so it is easy to grab without taking visible space. */
+.resize-handle { position: relative; flex: none; z-index: var(--z-raised); touch-action: none; user-select: none; }
+.resize-handle[data-axis="x"] { width: var(--space-3); margin-inline: calc(var(--space-3) / -2); cursor: col-resize; }
+.resize-handle[data-axis="y"] { height: var(--space-3); margin-block: calc(var(--space-3) / -2); cursor: row-resize; }
+.resize-handle::after { content: ""; position: absolute; border-radius: var(--radius-pill); background: var(--line); transition: background var(--dur-fast) var(--ease-out); }
+.resize-handle[data-axis="x"]::after { inset-block: 0; inset-inline-start: calc(50% - var(--space-hairline)); width: var(--border-width-thick); }
+.resize-handle[data-axis="y"]::after { inset-inline: 0; top: calc(50% - var(--space-hairline)); height: var(--border-width-thick); }
+.resize-handle:hover::after, .resize-handle:focus-visible::after, .resize-handle:active::after { background: var(--interaction-ink); }
