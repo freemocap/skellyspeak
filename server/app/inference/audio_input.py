@@ -10,15 +10,35 @@ from email import policy
 from email.parser import BytesParser
 
 from fastapi import HTTPException
+from server.app.diagnostics.exceptions import DiagnosticRuntimeError
 
 MAX_SECONDS = 120
 SAMPLE_RATE = 16_000
 MICROS_PER_HOUR = 111_000
 MAX_COST_MICROS: int = math.ceil(MAX_SECONDS * MICROS_PER_HOUR / 3600)
+DECODER_STARTUP_TIMEOUT_SECONDS = 60
 
 
 def verify_decoder() -> None:
-    subprocess.run(["ffmpeg", "-version"], capture_output=True, timeout=10, check=True)
+    # Cold container starts can take longer than normal decoding startup. Keep
+    # this bounded below Cloud Run's startup probe budget; never serve without
+    # a working decoder or silently retry a failed check.
+    try:
+        subprocess.run(["ffmpeg", "-version"], capture_output=True,
+                       timeout=DECODER_STARTUP_TIMEOUT_SECONDS, check=True)
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, OSError) as cause:
+        error = DiagnosticRuntimeError("Audio decoder startup verification failed.")
+        error.diagnostics = {
+            "stage": "decoder_startup",
+            "timeout_seconds": DECODER_STARTUP_TIMEOUT_SECONDS,
+            "reason": ("timeout" if isinstance(cause, subprocess.TimeoutExpired)
+                       else "nonzero_exit" if isinstance(cause, subprocess.CalledProcessError)
+                       else "execution_failed"),
+            "exit_code": cause.returncode if isinstance(cause, subprocess.CalledProcessError) else None,
+            "errno": cause.errno if isinstance(cause, OSError) else None,
+            "output_omitted": True,
+        }
+        raise error from cause
 
 
 @dataclass(frozen=True)

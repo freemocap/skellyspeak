@@ -7,6 +7,7 @@ interface WaveformStripProps {
   source: WaveSource | null
   height?: number
   timelineSeconds?: number
+  endSeconds?: number
 }
 
 /// Compact scrolling oscilloscope for the composer — adapted from the
@@ -17,7 +18,10 @@ export function WaveformStrip({
   source,
   height = 44,
   timelineSeconds = 6,
+  endSeconds,
 }: WaveformStripProps) {
+  const clock = useRef(endSeconds)
+  clock.current = endSeconds
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef<number | null>(null)
@@ -42,6 +46,8 @@ export function WaveformStrip({
 
     const maxSamples = Math.max(1, Math.floor(timelineSeconds * source.samplesPerSecond))
 
+    let totalSamples = 0
+    let paintedClock: number | undefined
     let needsPaint = true
     let paintedElapsed = -1
     const resize = () => {
@@ -64,6 +70,7 @@ export function WaveformStrip({
       const width = container.clientWidth
 
       const incoming = source.read()
+      totalSamples += incoming.length
       if (incoming.length > 0) {
         historyRef.current = historyRef.current.concat(incoming)
         if (historyRef.current.length > maxSamples) {
@@ -71,15 +78,16 @@ export function WaveformStrip({
         }
       }
 
-      const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000)
+      const elapsed = Math.floor(clock.current ?? (Date.now() - startedAtRef.current) / 1000)
       // Sample positions only change when data arrives; identical frames add no motion.
       // Keep polling, but repaint for new data, elapsed text, or a cleared/resized canvas.
-      if (!needsPaint && incoming.length === 0 && elapsed === paintedElapsed) {
+      if (!needsPaint && incoming.length === 0 && elapsed === paintedElapsed && clock.current === paintedClock) {
         rafRef.current = requestAnimationFrame(draw)
         return
       }
       needsPaint = false
       paintedElapsed = elapsed
+      paintedClock = clock.current
 
       ctx2d.globalAlpha = 1
       ctx2d.fillStyle = backgroundColor
@@ -108,7 +116,8 @@ export function WaveformStrip({
         const peak = points.reduce((largest, [, sample]) => Math.max(largest, Math.abs(sample)), 0.01)
         const amplitudeScale = height * 0.45 / peak
         for (let i = 0; i < points.length; i++) {
-          const [x, sample] = points[i]!
+          const [position, sample] = points[i]!
+          const x = position + (clock.current === undefined ? 0 : (totalSamples / source.samplesPerSecond - clock.current) / timelineSeconds * width)
           const y = height / 2 - sample * amplitudeScale
           if (i === 0) ctx2d.moveTo(x, y)
           else ctx2d.lineTo(x, y)

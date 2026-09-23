@@ -28,6 +28,7 @@ export function speechPlaybackPermit(): object | null { return permit }
 
 // A recording in progress. One at a time, matching the native capture slot.
 let capturing: object | null = null
+let captureSuspension: (() => void) | null = null
 let lifecycleAllowed = true
 
 /** Whether a recording currently holds the microphone. */
@@ -35,10 +36,11 @@ export function microphoneHeld(): boolean { return capturing !== null }
 
 /** Claim the microphone: stop anything playing and hold playback off until the
  * recording ends. Returns a token the same recording releases with. */
-export function beginCapture(): object {
+export function beginCapture(onSuspend?: () => void): object {
   if (capturing) throw new Error('A recording is already running.')
   const token = {}
   capturing = token
+  captureSuspension = onSuspend ?? null
   active?.suspend()
   permit = null
   notifyInterrupted()
@@ -50,6 +52,7 @@ export function beginCapture(): object {
 export function endCapture(token: object): void {
   if (capturing !== token) return
   capturing = null
+  captureSuspension = null
   if (lifecycleAllowed) permit ??= {}
 }
 
@@ -61,9 +64,11 @@ export function registerSpeechPlayback(playback: ActiveSpeechPlayback | null): v
 }
 
 /** Lifecycle suspension stops the active utterance; returning never resumes it. */
+export function suspendCapture(): void { captureSuspension?.() }
+
 export function setPlaybackAllowed(allowed: boolean): void {
   lifecycleAllowed = allowed
-  if (!allowed) { permit = null; active?.suspend(); notifyInterrupted() }
+  if (!allowed) { suspendCapture(); permit = null; active?.suspend(); notifyInterrupted() }
   // A recording still holds the microphone: the app returning does not hand
   // playback back until that recording ends.
   else if (!capturing) permit ??= {}

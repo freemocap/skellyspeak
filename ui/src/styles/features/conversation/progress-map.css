@@ -1,26 +1,5 @@
 /* Conversation progress map: the compact toggle that opens the reward map. */
 
-.conversation-map-toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-1) var(--space-6) var(--space-1) var(--space-1);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--chrome);
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.conversation-map-toggle svg { display: block; width: 132px; height: 132px; }
-
-.conversation-map-toggle [data-reward-total] { fill: var(--chrome); }
-
-.conversation-map-toggle svg text { fill: var(--ink); }
-
-.conversation-map-toggle > span { font-size: var(--type-ui); }
-
 @media (max-width: 860px) {
-  .conversation-map-toggle svg { width: 80px; height: 80px; }
 }
 

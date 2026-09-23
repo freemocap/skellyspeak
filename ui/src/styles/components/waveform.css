@@ -5,3 +5,15 @@
   margin: var(--space-1) var(--space-1) var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg);
   overflow: hidden;
 }
+
+/* Live waveform and log-mel share a clock and native cut bounds. */
+.live-recording { display: grid; gap: var(--space-2); min-width: 0; }
+.live-recording-head, .live-recording-axis { display: flex; justify-content: space-between; gap: var(--space-3); font-size: var(--type-meta); color: var(--ink-2); font-family: var(--font-mono); }
+.live-recording-plots { position: relative; overflow: hidden; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+.live-recording-plots .wave-strip { margin: 0; border: 0; border-radius: 0; }
+.live-take-region { position: absolute; inset-block: 0; pointer-events: none; border-inline-end: var(--border-width-thick) solid var(--interaction-ink); background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); animation: live-cut-flash var(--dur-deliberate) var(--ease-out); }
+.live-take-region span { position: absolute; inset-inline-end: var(--space-1); top: var(--space-2); padding: var(--space-1) var(--space-2); background: var(--chrome); color: var(--ink); font-size: var(--type-meta); white-space: nowrap; }
+.live-cut-notice { color: var(--interaction-ink); animation: live-cut-send var(--dur-slow) var(--ease-out); }
+@keyframes live-cut-flash { from { background: color-mix(in srgb, var(--interaction-ink) 40%, transparent); } to { background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); } }
+@keyframes live-cut-send { from { opacity: 0; transform: translateX(calc(-1 * var(--space-8))); } to { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .live-take-region, .live-cut-notice { animation: none; } }

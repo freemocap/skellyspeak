@@ -25,18 +25,6 @@
 
 .gloss { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 
-.tok {
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  background: var(--chrome);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.tok.key { border-color: var(--interaction-ink); background: var(--interaction-tint); }
-
 .phrase-pronunciation {
   margin: var(--space-4) 0;
   font-size: var(--type-ui);

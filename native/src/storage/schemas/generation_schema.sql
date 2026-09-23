@@ -6,7 +6,7 @@ CREATE TABLE generation_attempts (
     attempt_id TEXT NOT NULL UNIQUE,
     operation_id TEXT NOT NULL UNIQUE,
     language_id TEXT NOT NULL,
-    route TEXT NOT NULL CHECK(route IN ('hosted','openrouter','custom')),
+    route TEXT NOT NULL CHECK(route IN ('hosted','custom')),
     requested_model TEXT NOT NULL,
     profile_revision INTEGER NOT NULL,
     state TEXT NOT NULL CHECK(state IN ('pending','running','succeeded','failed','unknown','cancelled')),

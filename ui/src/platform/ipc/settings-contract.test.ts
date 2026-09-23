@@ -30,8 +30,8 @@ function commands(): Command[] {
 beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
-  connection = { route: 'openrouter', revision: 4, signedIn: true, ownKeyConfigured: true, email: 'person@example.invalid', configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'configured-model', fastModel: 'fast-model', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
-  access = { customUrlIsUnsavedDefault: false, revision: 4, groqKeyConfigured: true, elevenlabsKeyConfigured: false, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
+  connection = { route: 'hosted', revision: 4, signedIn: true, email: 'person@example.invalid', configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'configured-model', fastModel: 'fast-model', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
+  access = { customUrlIsUnsavedDefault: false, revision: 4, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
   backend.invoke.mockImplementation(async (name: string, args?: { command: Command }) => {
     if (name === 'get_snapshot') return workspace
     if (name === 'get_connection') return connection
@@ -46,18 +46,18 @@ beforeEach(() => {
 })
 
 describe('native settings projection', () => {
-  it.each([['openrouter', 'cloud'], ['hosted', 'hosted'], ['custom', 'custom']] as const)('maps %s from three read-only snapshots with no credentials', async (route, projected) => {
+  it.each([['hosted', 'hosted'], ['custom', 'custom']] as const)('maps %s from three read-only snapshots with no credentials', async (route, projected) => {
     connection.route = route
     const settings = await getSettings()
     expect(backend.invoke.mock.calls.map(([name]) => name).sort()).toEqual(['get_access_settings', 'get_connection', 'get_playback_rate', 'get_reward_settings', 'get_snapshot'])
     expect(settings).toMatchObject({
       scope: { sessionId: 'session', conversationId: 'a', settingsRevision: 6, learnerRevision: 9 },
-      provider_mode: projected, hosted_email: 'person@example.invalid', openrouter_model: 'configured-model',
+      provider_mode: projected, hosted_email: 'person@example.invalid', standard_model: 'configured-model',
       custom_base_url: 'https://example.invalid/v1', custom_model: 'configured-model',
       target_language: 'spanish', target_variety: 'spanish-mexico', native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english',
       auto_translate: true, always_pronunciation: false, always_romanize: true, text_size: 125, text_spacing: 3,
     })
-    for (const field of ['hosted_token', 'install_id', 'openrouter_key', 'groq_key', 'custom_api_key'] as const) expect(settings[field]).toBe('')
+    for (const field of ['hosted_token', 'install_id', 'openrouter_key', 'groq_key', 'custom_api_key'] as const) expect(settings).not.toHaveProperty(field)
     expect(commands()).toEqual([])
   })
 

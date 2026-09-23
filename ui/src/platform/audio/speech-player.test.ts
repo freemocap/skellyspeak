@@ -8,13 +8,14 @@ const audio0 = { status: 'ready', operationId: 'op', messageId: 'message', attem
 interface Media {
   play: ReturnType<typeof vi.fn>; pause: ReturnType<typeof vi.fn>; load: ReturnType<typeof vi.fn>
   removeAttribute: ReturnType<typeof vi.fn>; onended: (() => void) | null; onerror: (() => void) | null
+  currentTime: number; duration: number; onloadedmetadata: (() => void) | null
   playbackRate: number; volume: number; preservesPitch: boolean
 }
 
 function stubAudio(): { media: Media[]; revoke: ReturnType<typeof vi.fn> } {
   const media: Media[] = []
   vi.stubGlobal('Audio', vi.fn(function () {
-    const element: Media = { play: vi.fn().mockResolvedValue(undefined), pause: vi.fn(), load: vi.fn(), removeAttribute: vi.fn(), onended: null, onerror: null, playbackRate: 1, volume: 1, preservesPitch: false }
+    const element: Media = { currentTime: 0, duration: 4, onloadedmetadata: null, play: vi.fn().mockResolvedValue(undefined), pause: vi.fn(), load: vi.fn(), removeAttribute: vi.fn(), onended: null, onerror: null, playbackRate: 1, volume: 1, preservesPitch: false }
     media.push(element)
     return element
   }))
@@ -110,4 +111,24 @@ it('propagates a play promise rejection while the utterance is active', async ()
   media[0].play.mockRejectedValueOnce(new Error('Playback denied'))
   await expect(player.play()).rejects.toThrow('Playback denied')
   player.stop()
+})
+
+it('reports the real media clock, clamps seeking and releases the observer on stop', () => {
+  const { media } = stubAudio()
+  let tick: FrameRequestCallback = () => {}
+  vi.stubGlobal('requestAnimationFrame', vi.fn((callback: FrameRequestCallback) => { tick = callback; return 42 }))
+  const cancel = vi.fn(); vi.stubGlobal('cancelAnimationFrame', cancel)
+  const onTime = vi.fn(), onReady = vi.fn()
+  const player = playSpeechAudio(audio0, vi.fn(), vi.fn(), 1, 1, { onTime, onReady, startSeconds: 1.5 })
+  media[0].onloadedmetadata?.()
+  expect(media[0].currentTime).toBe(1.5)
+  media[0].currentTime = 2.3; tick(0)
+  expect(onTime).toHaveBeenLastCalledWith(2.3, 4)
+  player.seek(99); expect(media[0].currentTime).toBe(4)
+  player.seek(-1); expect(media[0].currentTime).toBe(0)
+  player.stop()
+  expect(cancel).toHaveBeenCalledWith(42)
+  expect(onReady).toHaveBeenLastCalledWith(null)
+  onTime.mockClear(); tick(0)
+  expect(onTime).not.toHaveBeenCalled()
 })

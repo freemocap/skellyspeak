@@ -3,15 +3,15 @@ import type { Settings } from '../src/types'
 export const PREVIEW_SETTINGS: Settings = {
   my_languages: [], target_varieties: {},
   provider_mode: 'hosted',
-  hosted_token: '',
+
   hosted_email: 'me@example.com',
-  install_id: '',
-  openrouter_key: '',
+
+
   custom_base_url: '',
-  custom_api_key: '',
+
   custom_model: '',
-  groq_key: '',
-  openrouter_model: 'google/gemini-2.5-flash',
+
+  standard_model: 'google/gemini-2.5-flash',
   observer_model: null,
   target_language: 'spanish',
   target_variety: '',

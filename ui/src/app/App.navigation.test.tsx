@@ -8,7 +8,7 @@ import { useSessionStore } from '../state/session/session'
 vi.mock('../components/layout/useIsMobile', () => ({ useIsMobile: () => true }))
 vi.mock('../state/learning/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/learning/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
 const { native, state } = vi.hoisted(() => {
-  const state = { connection: { route: 'hosted', signedIn: true, ownKeyConfigured: false, email: '', revision: 1, configured: true, standardModel: '', fastModel: '', paused: false } }
+  const state = { connection: { route: 'hosted', signedIn: true, email: '', revision: 1, configured: true, standardModel: '', fastModel: '', paused: false } }
   const native = vi.fn(async (command: string) => {
     if (command === 'get_connection') return state.connection
     if (command === 'select_route') {
@@ -68,7 +68,7 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
 vi.mock('../features/activity/AiView', () => ({ AiView: () => <p role="status">Live operations</p> }))
 
 it('connects the page stub to hosted sign-in through the session store', async () => {
-  state.connection = { route: 'custom', signedIn: false, ownKeyConfigured: false, email: '', revision: 7, configured: false, standardModel: '', fastModel: '', paused: false }
+  state.connection = { route: 'custom', signedIn: false, email: '', revision: 7, configured: false, standardModel: '', fastModel: '', paused: false }
   native.mockClear()
   // Startup loads the session store; a test that asserts on what it holds seeds
   // it the same way rather than relying on the shell to fetch.

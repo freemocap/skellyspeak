@@ -76,13 +76,12 @@ impl Store {
             )?;
             tx.commit()?;
         }
-        // Development data may be reset explicitly; startup never silently wipes it.
         let version: i32 = connection.pragma_query_value(None, "user_version", |r| r.get(0))?;
         if version != SCHEMA_VERSION {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 format!(
-                    "This workspace uses schema version {version}, and this build supports only version {SCHEMA_VERSION}. No data was changed. Use Factory Reset to start a new workspace."
+                    "Unsupported development schema {version}; this build requires {SCHEMA_VERSION}. No data was changed. Clear incompatible development data before reopening, or use Factory Reset to clear this app workspace. No format conversion is provided."
                 ),
             ));
         }

@@ -4,7 +4,7 @@ import type { ConnectionConfig } from '../../generated/contracts'
 const native = vi.hoisted(() => vi.fn())
 vi.mock('../../platform/ipc/native', () => ({ invoke: native }))
 const connection: ConnectionConfig = { route: 'custom', revision: 1, configured: true,
-  signedIn: false, ownKeyConfigured: false, email: '', paused: false,
+  signedIn: false, email: '', paused: false,
   assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'transcription' }, speech: { model: 'openai/gpt-audio-mini' } } }
 const verified = { providers: ['OPENROUTER', 'GROQ'].map(provider => ({ provider, state: 'accepted', status: 200, durationMs: 10 })) }
 beforeEach(() => { native.mockReset(); useConnectionHealth.setState({ routes: {} }) })
@@ -12,7 +12,7 @@ it('checks the saved token and reuses recent results without inference', async (
   native.mockResolvedValue(verified)
   await useConnectionHealth.getState().check(connection)
   await useConnectionHealth.getState().check(connection)
-  expect(native).toHaveBeenCalledExactlyOnceWith('check_access', { expectedRevision: 1, custom: true })
+  expect(native).toHaveBeenCalledExactlyOnceWith('check_access', { expectedRevision: 1 })
   expect(useConnectionHealth.getState().routes.custom).toMatchObject({ status: 'connected', revision: 1, error: null })
 })
 it('does not let an older successful request overwrite a newer refusal', async () => {
@@ -37,10 +37,10 @@ it('does not contact an unconfigured service', async () => {
   expect(native).not.toHaveBeenCalled()
   expect(useConnectionHealth.getState().routes.custom?.status).toBe('disconnected')
 })
-it.each(['openrouter', 'hosted'] as const)('checks %s with its own credential mechanism', async route => {
+it.each(['hosted'] as const)('checks %s with its own credential mechanism', async route => {
   native.mockResolvedValue({})
   await useConnectionHealth.getState().check({ ...connection, route })
-  expect(native.mock.calls[0][0]).toBe(route === 'hosted' ? 'hosted_account' : 'verify_openrouter_key')
+  expect(native.mock.calls[0][0]).toBe('hosted_account')
   expect(useConnectionHealth.getState().routes[route]?.status).toBe('connected')
 })
 

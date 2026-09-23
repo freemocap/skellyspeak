@@ -202,3 +202,86 @@ it('refreshes a Drill owner after post-publication cleanup fails without retrans
   expect(fault).toHaveBeenCalledWith('Microphone', expect.any(Error))
   unsubscribe()
 })
+
+it('continuous listening publishes separate takes and stops through the shared authority', async () => {
+  let status = { recordingId: 'listen', listening: true, speaking: false, queued: 0, processing: false, completed: 0, failure: null }
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_status') return status
+    if (command === 'mic_wave') return []
+  })
+  const owner: RecordingOwner = { kind: 'drillItem', id: 'phrase' }
+  const { result, unmount } = renderHook(() => useMicRecorder({ owner, pauseMs: 1000, onTranscribe: vi.fn() }))
+  await act(async () => { await result.current.toggleMic() })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_start', { owner, pauseMs: 1000 })
+  status = { ...status, speaking: true, queued: 2, processing: true, completed: 1 }
+  await waitFor(() => expect(result.current.listeningStatus?.queued).toBe(2))
+  expect(result.current.recording).toBe(true)
+  expect(result.current.transcribing).toBe(true)
+  await act(async () => { await result.current.toggleMic() })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_stop', { recordingId: 'listen' })
+  status = { ...status, listening: false, speaking: false, queued: 0, processing: false, completed: 3 }
+  await waitFor(() => expect(result.current.recording).toBe(false))
+  expect(result.current.transcribing).toBe(false)
+  expect(invoke.mock.calls.some(([command]) => command === 'mic_transcribe')).toBe(false)
+  unmount()
+})
+
+it('discards only the current continuous take and cancels capture when its owner changes', async () => {
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_wave') return []
+    if (command === 'mic_listen_status') return { recordingId: 'listen', listening: true, queued: 0, processing: false, completed: 0, speaking: true, failure: null }
+  })
+  const { result, rerender, unmount } = renderHook(({ owner }) => useMicRecorder({ owner, pauseMs: 1000, onTranscribe: vi.fn() }),
+    { initialProps: { owner: { kind: 'drillItem' as const, id: 'first' } } })
+  await act(async () => { await result.current.toggleMic() })
+  act(() => result.current.discardCurrent())
+  expect(invoke).toHaveBeenCalledWith('mic_listen_discard', { recordingId: 'listen' })
+  expect(result.current.recording).toBe(true)
+  rerender({ owner: { kind: 'drillItem', id: 'second' } })
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'listen' }))
+  expect(result.current.listeningStatus).toBeNull()
+  unmount()
+})
+
+it('suspends continuous capture through the existing playback lifecycle and never auto-resumes', async () => {
+  const { setPlaybackAllowed } = await import('./speech')
+  let listening = true
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_cancel') { listening = false; return }
+    if (command === 'mic_wave') return []
+    if (command === 'mic_listen_status') return { recordingId: 'listen', listening, queued: 0, processing: false, completed: 0, speaking: false, failure: null }
+  })
+  const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, pauseMs: 1000, onTranscribe: vi.fn() }))
+  await act(async () => { await result.current.toggleMic() })
+  act(() => { setPlaybackAllowed(false) })
+  await waitFor(() => expect(result.current.recording).toBe(false))
+  expect(result.current.failure).toBeInstanceOf(Error)
+  act(() => { setPlaybackAllowed(true) })
+  expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_start')).toHaveLength(1)
+  unmount()
+})
+
+it('requests only newer spectral frames, merges them and clears history on owner change', async () => {
+  const fixture = (await import('../../../tools/spectrogram-fixture.json')).default[0].spectrogram
+  let cursor = 0
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_listen_start') return { recordingId: 'live', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_status') return { recordingId: 'live', listening: true, queued: 0, processing: false, completed: 0, speaking: false, failure: null, takes: [] }
+    if (command === 'mic_wave') return []
+    if (command === 'mic_listen_spectrogram') {
+      const time = cursor++ * .2
+      return { endSeconds: time + .2, data: { ...fixture, frameStartSeconds: [time], bins: [fixture.bins[0]] } }
+    }
+  })
+  const { result, rerender, unmount } = renderHook(({ id }) => useMicRecorder({ owner: { kind: 'drillItem', id }, pauseMs: 1000, onTranscribe: vi.fn() }), { initialProps: { id: 'first' } })
+  await act(async () => { await result.current.toggleMic() })
+  await waitFor(() => expect(result.current.liveSpectrum?.data.frameStartSeconds.length).toBeGreaterThanOrEqual(2))
+  expect(result.current.liveSpectrum?.data.frameStartSeconds.slice(0, 2)).toEqual([0, .2])
+  expect(invoke).toHaveBeenCalledWith('mic_listen_spectrogram', { recordingId: 'live', afterSeconds: 0 })
+  rerender({ id: 'second' })
+  expect(result.current.liveSpectrum).toBeNull()
+  unmount()
+})

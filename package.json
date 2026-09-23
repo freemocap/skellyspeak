@@ -14,6 +14,7 @@
     "macos:dev-bundle": "node tools/dev-run.ts bundle",
     "macos:dev-sign": "node tools/dev-run.ts sign",
     "macos:dev": "node tools/dev-run.ts launch",
+    "macos:dev-signed": "node tools/dev-run.ts launch-signed",
     "contracts": "cargo run --manifest-path native/Cargo.toml --bin export-contracts",
     "contracts:check": "cargo run --manifest-path native/Cargo.toml --bin export-contracts -- --check",
     "styles:check": "node ui/tools/check-styles.ts",
@@ -49,7 +50,8 @@
     "diagnostics:policy": "node tools/diagnostic-policy.ts",
     "diagnostics:check": "node tools/diagnostic-policy.ts --check",
     "transcription:lab": "node --env-file-if-exists=server/local.env tools/benchmarks/transcription/run.ts",
-    "transcription:check": "tsc -p tools/benchmarks/transcription/tsconfig.json && node --test tools/benchmarks/transcription/*.test.ts tools/benchmarks/transcription/dashboard/*.test.ts"
+    "transcription:check": "tsc -p tools/benchmarks/transcription/tsconfig.json && node --test tools/benchmarks/transcription/*.test.ts tools/benchmarks/transcription/dashboard/*.test.ts",
+    "macos:dev:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/macos-dev.ts"
   },
   "license": "AGPL-3.0-or-later",
   "workspaces": [

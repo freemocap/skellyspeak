@@ -135,12 +135,12 @@ fn a_drill_recording_receipt_belongs_to_its_item_and_goes_with_it() {
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+            "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
             [],
         )
         .unwrap();
     store
-        .set_connection(1, Some("chat-reference"), "standard", "fast")
+        .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
         .unwrap();
     let item = store.create_drill_item(phrase("Buenos días.")).unwrap();
     let target = crate::ai::connections::access::resolve(
@@ -182,12 +182,12 @@ fn an_attempt_is_stored_once_per_recording_and_only_for_its_own_item() {
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+            "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
             [],
         )
         .unwrap();
     store
-        .set_connection(1, Some("chat-reference"), "standard", "fast")
+        .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
         .unwrap();
     let item = store.create_drill_item(phrase("Buenos días.")).unwrap();
     let other = store.create_drill_item(phrase("Hasta luego.")).unwrap();
@@ -307,12 +307,12 @@ fn native_publication_survives_page_loss_and_reopen_with_pending_audio() {
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+            "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
             [],
         )
         .unwrap();
     store
-        .set_connection(1, Some("chat-reference"), "standard", "fast")
+        .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
         .unwrap();
     let item = store.create_drill_item(phrase("Hola")).unwrap();
     let owner = RecordingOwner::DrillItem(item.id.clone());
@@ -352,12 +352,12 @@ fn failed_attempt_publication_does_not_commit_a_successful_receipt() {
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+            "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
             [],
         )
         .unwrap();
     store
-        .set_connection(1, Some("chat-reference"), "standard", "fast")
+        .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
         .unwrap();
     let item = store.create_drill_item(phrase("Hola")).unwrap();
     let owner = RecordingOwner::DrillItem(item.id.clone());

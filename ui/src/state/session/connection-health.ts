@@ -39,8 +39,7 @@ export const useConnectionHealth = create<State>((set, get) => ({
     try {
       if (!connection.configured) throw new Error('Set up this connection in AI access settings.')
       let result: AccessCheck | undefined
-      if (route === 'custom') result = await invoke<AccessCheck>('check_access', { expectedRevision: revision, custom: true })
-      else if (route === 'openrouter') await invoke('verify_openrouter_key', { expectedRevision: revision, apiKey: null })
+      if (route === 'custom') result = await invoke<AccessCheck>('check_access', { expectedRevision: revision })
       else await invoke('hosted_account')
       if (get().routes[route] === pending) get().record(route, revision, undefined, result)
     } catch (error) {

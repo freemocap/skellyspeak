@@ -15,12 +15,12 @@ fn an_unknown_owner_is_refused_before_the_microphone_opens() {
         store
             .connection
             .execute(
-                "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+                "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
                 [],
             )
             .unwrap();
         store
-            .set_connection(1, Some("chat-reference"), "standard", "fast")
+            .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
             .unwrap();
     }
     for owner in [

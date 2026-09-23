@@ -4,7 +4,10 @@ import { reportFault } from '../../platform/diagnostics/faults'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { onRecordingPublished } from '../../platform/audio/recording-events'
 import { useMicRecorder } from '../../platform/audio/useMicRecorder'
-import { speakSelection } from '../../platform/audio/reading-speech'
+import { replaySelectionAudio, speakSelection } from '../../platform/audio/reading-speech'
+import type { PlaybackHandle, PlaybackObserver } from '../../platform/audio/speech-player'
+import { AudioSpectrumPlayer } from '../../components/media/AudioSpectrumPlayer'
+import { CONTINUOUS_RECORDING_POLICY } from '../../generated/contracts'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { TargetMessage } from '../../components/reading/TargetMessage'
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
@@ -54,6 +57,10 @@ export function DrillPage({ active }: { active: boolean }) {
   const [chosenAttemptId, setChosenAttemptId] = useState<string | null>(null)
   const [asking, setAsking] = useState(false)
   const [speaking, setSpeaking] = useState(false)
+  const [continuous, setContinuous] = useState(false)
+  const [pauseMs, setPauseMs] = useState<number>(CONTINUOUS_RECORDING_POLICY.defaultPauseMs)
+  const [referenceTime, setReferenceTime] = useState(0)
+  const referencePlayer = useRef<PlaybackHandle | null>(null)
   const selected = items.find(item => item.id === selectedId) ?? null
   // The item's own stored scope: an aid asks about the phrase as it was written,
   // not as today's settings happen to read.
@@ -97,7 +104,7 @@ export function DrillPage({ active }: { active: boolean }) {
   const history = useDrillAttempts(selected?.id ?? null, active)
   const visit = useDrillVisit(active, creating?.language ?? null, selected?.id ?? null)
   const owner = useMemo(() => active && visit.visitId && selected ? { kind: 'drillItem' as const, id: selected.id } : null, [active, selected?.id, visit.visitId])
-  const mic = useMicRecorder({ owner, onTranscribe: () => {} })
+  const mic = useMicRecorder({ owner, onTranscribe: () => {}, pauseMs: continuous ? pauseMs : undefined })
   const phase = dockPhase({ ready: visit.visitId !== null, recording: mic.recording, transcribing: mic.transcribing })
   // The microphone and the speakers share one authority, so neither reference
   // playback nor replay runs while an attempt is being captured or stored.
@@ -123,28 +130,52 @@ export function DrillPage({ active }: { active: boolean }) {
   /// native cache checks the current source and speech configuration on every play.
   const referenceRequest = useRef<AbortController | null>(null)
   useEffect(() => {
-    setSpeaking(false); setFailure(null)
+    setSpeaking(false); setFailure(null); setReference(null); setReferenceTime(0); referencePlayer.current = null
     return () => { referenceRequest.current?.abort(); referenceRequest.current = null }
   }, [selected?.id, active])
-  const playReference = async (item: DrillItemView) => {
+  const playReference = async (item: DrillItemView, startSeconds?: number) => {
     if (!active || !scope || holdingAudio) return
-    setSpeaking(true); setFailure(null)
     referenceRequest.current?.abort()
     const controller = new AbortController()
     referenceRequest.current = controller
+    setSpeaking(true); setFailure(null)
+    const current = () => referenceRequest.current === controller && !controller.signal.aborted && itemShowing.current === item.id
+    const observer: PlaybackObserver = {
+      startSeconds,
+      onTime: seconds => { if (current()) setReferenceTime(seconds) },
+      onReady: player => { if (current()) referencePlayer.current = player },
+    }
+    const rate = settings?.tts_rate ?? 1
+    const volume = (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000
     try {
-      const spoken = await speakSelection({ ...scope, text: item.text, aid: 'speech', referenceItem: item.id }, controller.signal, () => {},
-        settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
-      if (!spoken.audioBase64) return
-      controller.signal.throwIfAborted()
-      const inspection = await inspectDrillAudio(item.id, spoken.audioBase64)
-      controller.signal.throwIfAborted()
-      // The phrase may have changed while the speech was in flight; a reference
-      // belongs to the phrase that asked for it, or to nothing.
-      setReference(current => item.id === itemShowing.current ? { itemId: item.id, audioBase64: spoken.audioBase64!, inspection } : current)
+      if (startSeconds !== undefined && reference?.itemId === item.id) {
+        // Seeking retained audio must not issue a speech-generation request.
+        await replaySelectionAudio(reference.audioBase64, controller.signal, () => {}, rate, volume, observer)
+      } else {
+        await speakSelection({ ...scope, text: item.text, aid: 'speech', referenceItem: item.id }, controller.signal, () => {}, rate, volume, {
+          ...observer,
+          onAudio: async spoken => {
+            controller.signal.throwIfAborted()
+            if (!spoken.audioBase64) throw new Error('The speech service returned no audio.')
+            const inspection = await inspectDrillAudio(item.id, spoken.audioBase64)
+            controller.signal.throwIfAborted()
+            if (current()) {
+              setReference({ itemId: item.id, audioBase64: spoken.audioBase64, inspection })
+              setReferenceTime(0)
+            }
+          },
+        })
+      }
     } catch (error) {
-      if (referenceRequest.current === controller && !controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) setFailure(error)
-    } finally { if (referenceRequest.current === controller) setSpeaking(false) }
+      if (current() && !(error instanceof DOMException && error.name === 'AbortError')) setFailure(error)
+    } finally {
+      if (referenceRequest.current === controller) { setSpeaking(false); referencePlayer.current = null }
+    }
+  }
+  const seekReference = (seconds: number) => {
+    if (holdingAudio || !selected || reference?.itemId !== selected.id) return
+    if (referencePlayer.current) { referencePlayer.current.seek(seconds); setReferenceTime(seconds) }
+    else void playReference(selected, seconds)
   }
   // What is on screen right now, for late results to check themselves against.
   const itemShowing = useRef<string | null>(null)
@@ -164,6 +195,7 @@ export function DrillPage({ active }: { active: boolean }) {
         {visit.failure != null && <p role="alert">{errorMessage(visit.failure)}
           <button type="button" className="btn" onClick={visit.retry}>{tr("Try again")}</button></p>}
         {failure != null && <p role="alert">{errorMessage(failure)}</p>}
+        {mic.failure != null && <p role="alert">{errorMessage(mic.failure)}</p>}
 
         <div className="drill-target">
           <DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
@@ -184,14 +216,28 @@ export function DrillPage({ active }: { active: boolean }) {
           </div>
         </div>
 
-        <RecordDock phase={phase} waveSource={mic.waveSource} onToggle={() => void mic.toggleMic()} onCancel={mic.cancel} />
+        {shown && <AudioSpectrumPlayer inspection={shown.inspection} currentTime={referenceTime} onSeek={seekReference} disabled={holdingAudio} />}
+        <div className="drill-actions">
+          <label className="check-label"><input type="checkbox" checked={continuous} disabled={holdingAudio}
+            onChange={event => setContinuous(event.target.checked)} />{tr('Repeat with pauses (desktop)')}</label>
+          {continuous && <label>{tr('Pause between takes')}
+            <select value={pauseMs} disabled={holdingAudio} onChange={event => setPauseMs(Number(event.target.value))}>
+              {CONTINUOUS_RECORDING_POLICY.pauseOptionsMs.map(value => <option key={value} value={value}>
+                {tr('{value0} seconds', { value0: tr.number(value / 1000) })}
+              </option>)}
+            </select>
+          </label>}
+        </div>
+        <RecordDock phase={phase} waveSource={mic.waveSource} continuous={continuous}
+          listeningStatus={mic.listeningStatus} liveSpectrum={mic.liveSpectrum}
+          onToggle={() => void mic.toggleMic()} onCancel={continuous ? mic.discardCurrent : mic.cancel} />
 
         {attempt && <AttemptInspection key={attempt.id} item={selected} attempt={attempt}
           reference={shown?.inspection ?? null} holding={holdingAudio} />}
       </main>
 
       <aside className="drill-log" aria-label={tr("Attempts")}>
-        <AttemptLog attempts={history.attempts} loading={history.loading} hasMore={history.hasMore}
+        <AttemptLog liveTakes={mic.listeningStatus?.takes ?? []} attempts={history.attempts} loading={history.loading} hasMore={history.hasMore}
           failure={history.failure} selectedId={attempt?.id ?? null} onSelect={setChosenAttemptId}
           onLoadMore={history.loadMore} onRetry={history.retry} />
       </aside>
@@ -206,17 +252,16 @@ export function DrillPage({ active }: { active: boolean }) {
         <DrillStorage active={active} onChanged={reload} />
       </PhraseRail>
 
-      {asking
-        ? <main className="drill-stage">
-          <AddPhrases scope={creating} onAdded={async () => refresh()} onClose={() => setAsking(false)} />
-        </main>
-        : practice ?? <main className="drill-stage">
+      {practice ?? <main className="drill-stage">
         {failure != null && <p role="alert">{errorMessage(failure)}</p>}
         {loadFailure != null
           ? <p role="alert">{errorMessage(loadFailure)}
             <button type="button" className="btn" onClick={() => refresh()}>{tr("Try again")}</button></p>
           : <p className="drill-empty">{tr("Add a phrase to start practising.")}</p>}
       </main>}
+
+      {/* Raised over the practice columns rather than replacing them. */}
+      {asking && <AddPhrases scope={creating} onAdded={async () => refresh()} onClose={() => setAsking(false)} />}
     </section>
   )
 }

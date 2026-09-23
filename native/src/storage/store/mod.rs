@@ -14,8 +14,9 @@ mod startup;
 mod workspace;
 
 use creation::{create_conversation, create_persona};
+use schema::GENERATION_SCHEMA;
 pub(crate) use schema::SCHEMA_VERSION;
-use schema::{GENERATION_SCHEMA, validate_current_schema, validate_database};
+pub(super) use schema::{validate_current_schema, validate_database};
 use snapshot::read_snapshot;
 pub(crate) use workspace::prepare_private_directory as private_directory;
 pub(crate) use workspace::{

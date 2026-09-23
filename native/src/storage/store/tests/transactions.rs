@@ -5,17 +5,12 @@ fn handler_failure_after_turn_creation_rolls_back_and_leaves_action_retryable() 
     let directory = tempfile::tempdir().unwrap();
     let mut store = Store::open(&directory.path().join("db")).unwrap();
     store
-        .set_connection(
-            1,
-            Some("test-credential"),
-            "google/gemini-2.5-flash",
-            "google/gemini-2.5-flash-lite",
-        )
+        .set_hosted_connection(1, Some("test-credential"), "fixture@example.invalid")
         .unwrap();
     store
         .select_route(
             store.connection_config().unwrap().revision,
-            ConnectionRoute::Openrouter,
+            ConnectionRoute::Hosted,
         )
         .unwrap();
     let config = store.connection_config().unwrap();

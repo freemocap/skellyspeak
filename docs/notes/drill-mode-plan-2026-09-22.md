@@ -2796,3 +2796,99 @@ native change in this slice.
 **Still open.** The wider Drill UX pass the learner asked for is not this slice:
 this fixed the add flow and the CSS report only. Generation quality still needs a
 real-provider look, and schema 37 still needs a development reset on rebuild.
+
+### Continuous repetition — first desktop checkpoint (2026-09-23)
+
+Implemented start-once, silence-separated takes through shared native capture and
+transcription. Includes adjustable gap, bounded pending work, visible errors and
+counts, current-take discard, owner/visit fencing, playback exclusion and explicit
+restart after lifecycle suspension. Original E7/Milestone C is only partly complete:
+mobile streaming and progression remain later work. No grading scheme was added.
+See [implementation, limits and the Mac checkpoint](drill-continuous-repetition-2026-09-23.md).
+
+### Continuous recording visual follow-up — September 23
+
+Implemented native cut bounds/state, immediate take cards, shared live log-mel
+analysis, higher-resolution completed inspections, and reference playback seeking.
+Details, measurements, verification and the remaining reference-word-timing gap are
+in [the continuous repetition note](drill-continuous-repetition-2026-09-23.md#implemented-visible-cuts-live-spectrum-and-reference-playback-september-23).
+No schema change or commit. Next checkpoint is the live Mac recording/playback check.
+
+### UX-CP6 — Add phrases becomes a raised dialog with one list of sources
+
+**Shape.** Adding phrases no longer takes over the working column. `AddPhrases`
+is now a `DetailDialog size="wide"` raised over the practice columns, which stay
+where they are behind it. `DrillPage` renders the practice surface
+unconditionally and mounts the dialog beside it, rather than swapping one for
+the other.
+
+**One list of what to add.** A single `<fieldset className="drill-add-options">`
+holds the four `DRILL_LENGTHS` as checkboxes and `Lines from your chats` as a
+fifth option beside them, separated by a rule rather than promoted to a section
+of its own. There is no source mode, no tab, and no state in which neither
+source is chosen and the dialog still looks coherent. The learner never picks a
+chat: native already returns individual lines with their own provenance, so each
+line arrives as its own row with its own Keep.
+
+**Several lengths in one ask.** `DrillGenerationInput.length` still carries a
+single `DrillLength`, so ticking several lengths is several requests sharing the
+quantity out between them; the remainder goes to the earlier lengths in the
+contract's own order, which `toggleLength` preserves regardless of ticking
+order. `useDrillPreview.generate(inputs, alsoChats)` runs them in sequence,
+pushing each preview into `pages` as it lands, then optionally appends one page
+of chat lines. When the backend ships `lengths: DrillLength[]`, this collapses
+to one request and one receipt; nothing else has to change.
+
+**Shared machinery, not new machinery.** Candidate text renders through
+`TargetText` — the same component every other target-language string goes
+through — so word hover, gloss, reading scale and script scale come for free;
+the private `.drill-candidate-text` span is gone. The form uses only house
+patterns: `.form-row` label+field, `.check-row .check-label`, `.field`. The
+oversized difficulty text was `DifficultySelect` hardcoding
+`.chat-language-picker`; inside a `.form-row`, the shared `.form-row select`
+rule outranks it on specificity, so the control matches every other field
+without touching the shared component. Topic is explicitly optional and
+clearable: the label says so and the field is `type="search"`, the same pattern
+`LanguageBrowser` already uses — no custom clear button and no new CSS.
+
+**Removed.** `.drill-sources`, `.drill-ask`, `.drill-generate`,
+`.drill-add-head`, `.drill-candidate-text`, and the static explanatory copy that
+went with them (eight message keys, in all seven locales). Four keys were added:
+`What to add`, `Lines from your chats`, `Topic (optional)`,
+`Pick at least one thing to add.`
+
+**Still owed by the backend.** (A) `lengths: DrillLength[]` on
+`DrillGenerationInput`, so a mixed ask is one paid request instead of several.
+(B) A count of available chat lines before asking — until then the chats option
+carries no badge rather than an invented number, and an empty answer simply says
+so.
+
+### Sync incident — continuous-repetition work overwritten, 2026-09-23
+
+**What happened.** Committing UX-CP6 to the Mac wrote whole files without first
+checking whether the continuous-repetition slice had touched them in the
+meantime. It had. Seven locale catalogues, `drill.css` and `DrillPage.tsx` were
+replaced with the cloud clone's older copies, discarding uncommitted work that
+had no committed version to fall back on.
+
+**Restored here, but rewritten rather than recovered.** Eighteen message keys
+(`Take {value0}`, `Listening`, `Queued: {value0} · Processing: {value1}`,
+`Recording timeline`, `Seek reference audio` and the rest) were re-authored in
+all seven locales from the names the checker reported, and `.drill-take-arrival`
+/ `.drill-take-pending` / `.drill-take-progress` were re-authored in `drill.css`
+with a new `take-progress` keyframe in `motion.css`. These are replacements, not
+the original text and rules: the continuous-repetition owner should read them
+and replace any that say the wrong thing.
+
+**Not restored.** Whatever `DrillPage.tsx` did to wire continuous capture is
+gone. `RecordDock`'s `continuous`, `listeningStatus` and `liveSpectrum` props
+and `AttemptLog`'s `liveTakes` prop all default to off, so the feature type-checks
+and silently does nothing. Only the continuous-repetition owner can put that
+back. Any edits that slice made to existing translations, rather than additions,
+are also gone and cannot be listed.
+
+**The rule that was missing.** A whole-file commit to the Mac is only safe when
+the device copy is known to match the clone's base. From here: stage the device
+copy of every file about to be written, diff it against the clone's base, and
+merge before writing — not only for shared notes, which was the only file this
+check had been applied to.

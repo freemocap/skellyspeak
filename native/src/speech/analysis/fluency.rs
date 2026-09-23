@@ -126,6 +126,21 @@ pub(crate) fn validate_timing(text: &str, duration: f64, words: &[Word]) -> Resu
     }
     Ok(())
 }
+/// RMS energy shared by offline inspection and the streaming boundary detector.
+/// Inputs are normalized mono samples; callers own PCM conversion and framing.
+pub(crate) fn frame_energy_db(samples: impl Iterator<Item = f64>) -> f64 {
+    let (power, count) = samples.fold((0.0, 0usize), |(sum, count), value| {
+        (sum + value * value, count + 1)
+    });
+    let mean = power / count.max(1) as f64;
+    (10.0 * mean.max(1e-12).log10()).max(-120.0)
+}
+
+/// Shared noise-relative activity threshold for inspection and live boundaries.
+pub(crate) fn activity_threshold(noise_floor: f64) -> f64 {
+    (noise_floor + 10.0).clamp(-50.0, -20.0)
+}
+
 /// Pure PCM16 mono analysis. RMS activity is a noise-adaptive heuristic; regions
 /// are candidates for speech and cannot identify voices or distinguish loud noise.
 pub fn analyze_pcm16(samples: &[i16], sample_rate: u32) -> Result<LocalTiming> {
@@ -138,19 +153,12 @@ pub fn analyze_pcm16(samples: &[i16], sample_rate: u32) -> Result<LocalTiming> {
     let width = (sample_rate as usize * FRAME_MS as usize / 1000).max(1);
     let db: Vec<f64> = samples
         .chunks(width)
-        .map(|chunk| {
-            let power = chunk
-                .iter()
-                .map(|sample| (*sample as f64 / 32768.0).powi(2))
-                .sum::<f64>()
-                / chunk.len() as f64;
-            (10.0 * power.max(1e-12).log10()).max(-120.0)
-        })
+        .map(|chunk| frame_energy_db(chunk.iter().map(|sample| *sample as f64 / 32768.0)))
         .collect();
     let mut sorted = db.clone();
     sorted.sort_by(f64::total_cmp);
     let noise_floor = sorted[(sorted.len() - 1) / 5];
-    let threshold = (noise_floor + 10.0).clamp(-50.0, -20.0);
+    let threshold = activity_threshold(noise_floor);
     let duration = samples.len() as f64 / sample_rate as f64;
     let mut regions: Vec<Region> = vec![];
     for (index, energy) in db.iter().enumerate() {

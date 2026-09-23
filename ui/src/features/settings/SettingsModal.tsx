@@ -103,7 +103,7 @@ const SECTIONS: { id: SectionId; labelKey: string; icon: ToolbarIconName; descKe
     id: 'keys',
     labelKey: messageKey('AI access'),
     icon: 'key',
-    descKey: messageKey('Hosted sign-in, API keys or a custom server'),
+    descKey: messageKey('Hosted sign-in or a custom server'),
   },
   { id: 'models', labelKey: messageKey('Models'), icon: 'models', descKey: messageKey('Models') },
   {
@@ -302,7 +302,7 @@ export function SettingsModal({
       node: <div inert={routeBusy}><SettingsModels refreshKey={configurationRevision} onBusyChange={setModelsBusy} onChanged={refreshFromBackend} /></div>,
     },
     provider_mode: {
-      section: 'keys', label: tr('AI access'), kw: 'provider server token key account custom hosted openrouter groq',
+      section: 'keys', label: tr('AI access'), kw: 'provider server token key account custom hosted',
       node: <div inert={modelsBusy}><SettingsAccess refreshKey={configurationRevision} onBusyChange={setRouteBusy} onChanged={refreshFromBackend} /></div>,
     },
     target_language: {

@@ -225,12 +225,7 @@ fn captured_settings_and_persona_context_are_scoped_and_credential_revocation_wi
             .contains("Advanced difficulty level")
     );
     store
-        .set_connection(
-            2,
-            None,
-            "google/gemini-2.5-flash",
-            "google/gemini-2.5-flash-lite",
-        )
+        .set_hosted_connection(2, None, "fixture@example.invalid")
         .unwrap();
     store.finish(&dispatch, Ok(reply("Revoked"))).unwrap();
     assert_eq!(

@@ -25,8 +25,8 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [connection, setConnection] = useState<ConnectionConfig | null>(null)
   const [access, setAccess] = useState<AccessSettings | null>(null)
   const [endpoint, setEndpoint] = useState<CustomEndpoint | null>(null)
-  const [keys, setKeys] = useState({ openrouter: '', groq: '', elevenlabs: '', custom: '' })
-  const [dirty, setDirty] = useState<'openrouter' | 'groq' | 'elevenlabs' | 'custom' | null>(null)
+  const [keys, setKeys] = useState({ custom: '' })
+  const [dirty, setDirty] = useState<'custom' | null>(null)
   const [editingField, setEditingField] = useState(false)
   const [busy, setBusy] = useState(false)
   const [signingIn, setSigningIn] = useState(false)
@@ -35,9 +35,8 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const [localAvailable, setLocalAvailable] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
-  const [checks, setChecks] = useState<Record<string, 'valid' | 'invalid' | 'checking'>>({})
   const [account, setAccount] = useState<HostedAccount | null>(null)
-  const [removing, setRemoving] = useState<'openrouter' | 'groq' | 'elevenlabs' | 'custom' | null>(null)
+  const [removing, setRemoving] = useState<'custom' | null>(null)
   const writing = useRef(false)
   const savedDraft = useRef<{ endpoint: CustomEndpoint } | null>(null)
 
@@ -82,7 +81,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     const saved = savedDraft.current
     if (busy || !saved) return
     setEndpoint(saved.endpoint)
-    setKeys({ openrouter: '', groq: '', elevenlabs: '', custom: '' })
+    setKeys({ custom: '' })
     setDirty(null); setError(null); setStatus('Changes discarded'); setEditingField(false)
   }
 
@@ -93,20 +92,12 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     catch (error) { setError(message(error)) }
     finally { writing.current = false; setBusy(false) }
   }
-  async function save(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom', removeKey = false) {
+  async function save(provider: 'custom', removeToken = false) {
     if (!connection || !access || !endpoint) throw new Error('AI access has not loaded.')
-    if (provider === 'openrouter') {
-      if (removeKey) await invoke('disconnect', { expectedRevision: connection.revision })
-      else await invoke('save_connection', {
-        expectedRevision: connection.revision, apiKey: keys.openrouter.trim() || null,
-      })
-    } else {
-      await invoke('save_access_settings', {
-        expectedRevision: access.revision, custom: provider === 'custom' ? endpoint : null,
-        apiKey: removeKey ? null : keys[provider].trim() || null, removeKey,
-        ...(provider === 'elevenlabs' ? { provider } : {}),
-      })
-    }
+    await invoke('save_access_settings', {
+      expectedRevision: access.revision, custom: endpoint,
+      sessionToken: removeToken ? null : keys.custom.trim() || null, removeToken,
+    })
     setKeys(current => ({ ...current, [provider]: '' }))
     setDirty(null); setRemoving(null)
     await read(); await onChanged(); setStatus('Saved')
@@ -117,34 +108,23 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     return () => clearTimeout(timer)
   }, [dirty, keys, endpoint, editingField, busy, error])
 
-  function edit(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom') { setChecks(current => { const next = { ...current }; delete next[provider]; return next }); setDirty(provider); setError(null); setStatus('') }
-  async function check(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom') {
+  function edit(provider: 'custom') { setDirty(provider); setError(null); setStatus('') }
+  async function check() {
     if (!connection || !access) throw new Error('AI access has not loaded.')
-    let checkedRevision = provider === 'openrouter' ? connection.revision : access.revision
-    if (provider === 'openrouter' || provider === 'custom') useConnectionHealth.getState().begin(provider, checkedRevision)
-    setChecks(current => ({ ...current, [provider]: 'checking' }))
+    let checkedRevision = access.revision
+    useConnectionHealth.getState().begin('custom', checkedRevision)
     try {
-      if (provider === 'openrouter') {
-        await invoke('verify_openrouter_key', { apiKey: null, expectedRevision: connection.revision })
-      } else {
-        let current = access
-        if (provider === 'custom' && access.customUrlIsUnsavedDefault) {
-          if (!endpoint) throw new Error('Custom endpoint has not loaded.')
-          current = await invoke<AccessSettings>('save_access_settings', {
-            expectedRevision: access.revision, custom: endpoint, apiKey: null, removeKey: false,
-          })
-          setAccess(current)
-          await onChanged()
-        }
-        checkedRevision = current.revision
-        const result = await invoke<AccessCheck>('check_access', { expectedRevision: current.revision, custom: provider === 'custom', ...(provider === 'elevenlabs' ? { provider } : {}) })
-        if (provider === 'custom') useConnectionHealth.getState().record('custom', current.revision, undefined, result)
+      let current = access
+      if (access.customUrlIsUnsavedDefault) {
+        if (!endpoint) throw new Error('Custom endpoint has not loaded.')
+        current = await invoke<AccessSettings>('save_access_settings', { expectedRevision: access.revision, custom: endpoint, sessionToken: null, removeToken: false })
+        setAccess(current); await onChanged()
       }
-      if (provider === 'openrouter') useConnectionHealth.getState().record('openrouter', connection.revision)
-      setChecks(current => ({ ...current, [provider]: provider === 'custom' && useConnectionHealth.getState().routes.custom?.status !== 'connected' ? 'invalid' : 'valid' }))
+      checkedRevision = current.revision
+      const result = await invoke<AccessCheck>('check_access', { expectedRevision: current.revision })
+      useConnectionHealth.getState().record('custom', current.revision, undefined, result)
     } catch (error) {
-      if (provider === 'openrouter' || provider === 'custom') useConnectionHealth.getState().record(provider, checkedRevision, error)
-      setChecks(current => ({ ...current, [provider]: 'invalid' }))
+      useConnectionHealth.getState().record('custom', checkedRevision, error)
       throw error
     }
   }
@@ -156,7 +136,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     await read(); await onChanged()
     useConnectionHealth.getState().begin('custom', saved.revision)
     try {
-      const result = await invoke<AccessCheck>('check_access', { expectedRevision: saved.revision, custom: true })
+      const result = await invoke<AccessCheck>('check_access', { expectedRevision: saved.revision })
       useConnectionHealth.getState().record('custom', saved.revision, undefined, result)
     } catch (error) {
       useConnectionHealth.getState().record('custom', saved.revision, error)
@@ -164,7 +144,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
     }
   }
 
-  function credential(provider: 'openrouter' | 'groq' | 'elevenlabs' | 'custom', label: string, configured: boolean) {
+  function credential(provider: 'custom', label: string, configured: boolean) {
     return <div className="form-row">
       <label htmlFor={`access-${provider}`}>{label}</label>
       <div className="key-row">
@@ -174,18 +154,15 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
           onFocus={() => setEditingField(true)} onBlur={() => { setKeys(current => ({ ...current, [provider]: current[provider].trim() })); setEditingField(false) }}
           onChange={event => { setKeys(current => ({ ...current, [provider]: event.target.value.trim() })); edit(provider) }} />
         {configured && <button type="button" className="access-key-status" disabled={busy || dirty !== null}
-          aria-label={tr("Delete {value0}", { value0: String(label) })} title={tr("Saved key · delete")} onClick={() => setRemoving(provider)}>
+          aria-label={tr("Delete {value0}", { value0: String(label) })} title={tr("Saved token · delete")} onClick={() => setRemoving(provider)}>
           <span className="access-key-saved" aria-hidden="true">•</span><span className="access-key-delete" aria-hidden="true">×</span>
         </button>}
-        {configured && provider !== 'custom' && <button type="button" className={`access-key-check ${checks[provider] ?? ''}`}
-          disabled={busy || dirty !== null} aria-label={tr("Check {value0}", { value0: String(label) })}
-          title={checks[provider] === 'valid' ? tr("Validated") : checks[provider] === 'invalid' ? tr("Validation failed") : tr("Check credential")}
-          onClick={() => void run(() => check(provider))}>{checks[provider] === 'valid' ? '✓' : checks[provider] === 'invalid' ? '×' : checks[provider] === 'checking' ? '…' : '↻'}</button>}
+
       </div>
       {keys[provider].trim() && <output aria-label={tr('{label} preview', { label })}>{credentialPreview(keys[provider])}</output>}
       {removing === provider && <div role="alert">
         <p>{tr('Delete the saved {label}?', { label })}</p>
-        <button type="button" className="btn danger" disabled={busy} onClick={() => void run(() => save(provider, true))}>{tr("Delete key")}</button>
+        <button type="button" className="btn danger" disabled={busy} onClick={() => void run(() => save(provider, true))}>{tr("Delete token")}</button>
         <button type="button" className="btn" disabled={busy} onClick={() => setRemoving(null)}>{tr("Cancel")}</button>
       </div>}
     </div>
@@ -198,7 +175,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
   const healthLabel = health?.status === 'connected' ? tr('Connected') : health?.status === 'checking' ? tr('Checking…')
     : health?.status === 'disconnected' ? tr('Not connected') : tr('Not checked')
   const routes: { id: ConnectionRoute; label: string }[] = [
-    { id: 'hosted', label: tr('Hosted sign-in') }, { id: 'openrouter', label: tr('API keys') }, { id: 'custom', label: tr('Custom URL') },
+    { id: 'hosted', label: tr('Hosted sign-in') }, { id: 'custom', label: tr('Custom URL') },
   ]
   return <section className="account-settings">
     <p>{tr('AI access')}</p>
@@ -239,17 +216,12 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
       {connection.signedIn && <button className="btn" disabled={locked} onClick={() => void run(async () => setAccount(await invoke<HostedAccount>('hosted_account')))}>{tr("Refresh account")}</button>}
       {account && <p>{tr.number(account.usedUsd, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} / {tr.number(account.limitUsd, { minimumFractionDigits: 4, maximumFractionDigits: 4 })} {tr(" USD · ")}{tr.number(account.tokensToday)} {tr(" tokens · ")}{tr.number(account.requestsToday)} {tr(" requests")}</p>}
     </div>}
-    {connection.route === 'openrouter' && <>
-      {credential('openrouter', tr('OpenRouter API key'), connection.ownKeyConfigured)}
-      {credential('groq', tr('Groq API key'), access.groqKeyConfigured)}
-      {credential('elevenlabs', tr('ElevenLabs API key'), access.elevenlabsKeyConfigured)}
-    </>}
     {connection.route === 'custom' && <>
       {localAvailable && <button type="button" className="btn primary access-local-connect" disabled={locked}
         onClick={() => void run(connectLocal)}>{tr('Connect to local server')}</button>}
       {localAvailable && <button className="btn" disabled={locked} onClick={() => void run(async () => { await invoke('open_local_admin') })}>{tr('Open local admin')}</button>}
       <ConnectionHealthPanel health={health} bearerAuth={endpoint.bearerAuth} disabled={locked}
-        onCheck={() => void run(() => check('custom'))} />
+        onCheck={() => void run(() => check())} />
       <div className="form-row"><label htmlFor="access-url">{tr("Server address")}</label>
         <input id="access-url" className="field" value={endpoint.baseUrl} onFocus={() => setEditingField(true)} onBlur={() => setEditingField(false)} disabled={busy}
           data-reading-private placeholder={tr("https://your-server.example/v1")} onChange={event => { setEndpoint({ ...endpoint, baseUrl: event.target.value }); edit('custom') }} />

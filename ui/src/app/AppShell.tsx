@@ -87,6 +87,7 @@ export function AppShell() {
   return (
     <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><div className="app">
       <UpdateBanner />
+
       <TopBar />
       <FaultBar />
       <CredentialCleanup />

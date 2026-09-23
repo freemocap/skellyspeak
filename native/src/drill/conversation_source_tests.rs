@@ -12,12 +12,12 @@ fn setup() -> (tempfile::TempDir, Store, ReadingScope, String) {
     let dir = tempfile::tempdir().unwrap();
     let mut store = Store::open(&dir.path().join("source.sqlite3")).unwrap();
     store
-        .set_connection(1, Some("fixture"), "standard", "fast")
+        .set_hosted_connection(1, Some("fixture"), "fixture@example.invalid")
         .unwrap();
     store
         .select_route(
             store.connection_config().unwrap().revision,
-            ConnectionRoute::Openrouter,
+            ConnectionRoute::Hosted,
         )
         .unwrap();
     command(

@@ -31,14 +31,6 @@ pub fn message(route: ConnectionRoute, url: &str, operation: &str, status: u16) 
         ConnectionRoute::Hosted => {
             "The SkellySpeak service rejected your session or account access. Sign in again in Settings → AI access → Hosted sign-in and check account access."
         }
-        ConnectionRoute::Openrouter
-            if operation == "Transcription" || operation == "Connection check" =>
-        {
-            "Groq rejected the app's API credential or its permissions. Check the Groq API key in Settings → AI access → API keys."
-        }
-        ConnectionRoute::Openrouter => {
-            "OpenRouter rejected the app's API credential or its permissions. Check the OpenRouter API key in Settings → AI access → API keys."
-        }
     };
     Some(format!(
         "{operation}: HTTP {status}. {guidance} No automatic retry was made."
@@ -70,14 +62,14 @@ mod tests {
         assert!(!remote.contains("private.example"));
         assert!(!remote.contains("session-token.txt"));
         assert!(
-            message(ConnectionRoute::Openrouter, "", "Transcription", 401)
+            message(ConnectionRoute::Hosted, "", "Transcription", 401)
                 .unwrap()
-                .contains("Groq API key")
+                .contains("Hosted sign-in")
         );
         assert!(
-            message(ConnectionRoute::Openrouter, "", "Speech", 403)
+            message(ConnectionRoute::Hosted, "", "Speech", 403)
                 .unwrap()
-                .contains("OpenRouter API key")
+                .contains("Hosted sign-in")
         );
         assert!(
             message(ConnectionRoute::Custom, "", "Chat", 403)

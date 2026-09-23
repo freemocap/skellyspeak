@@ -174,7 +174,7 @@ mod tests {
         db.execute_batch(include_str!("../../storage/schemas/schema.sql"))
             .unwrap();
         let target = ResolvedTarget {
-            route: ConnectionRoute::Openrouter,
+            route: ConnectionRoute::Hosted,
             revision: 1,
             url: "https://api.groq.com/openai/v1/audio/transcriptions".into(),
             model: "audio".into(),
@@ -197,8 +197,8 @@ mod tests {
             ErrorCode::AdmissionHeld
         );
         let mut other = target.clone();
-        other.url = "https://openrouter.ai/api/v1/chat/completions".into();
-        other.credential = Some("opaque-openrouter-reference".into());
+        other.url = "https://independent.example/v1/operations".into();
+        other.credential = Some("opaque-custom-reference".into());
         check(&db, &other).unwrap();
         other = target.clone();
         other.credential = Some("different-account".into());
@@ -234,7 +234,7 @@ mod tests {
                 .reason,
             RefusalReason::SpendingPaused
         ));
-        target.route = ConnectionRoute::Openrouter;
+        target.route = ConnectionRoute::Hosted;
         for index in 1..MAX_HOLDS {
             target.credential = Some(format!("test-reference-{index}"));
             record(

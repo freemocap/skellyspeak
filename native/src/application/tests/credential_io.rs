@@ -108,7 +108,7 @@ fn blocked_credential_io_releases_workspace_and_rechecks_revision() {
                     Ok(())
                 },
                 |store, id| {
-                    store.set_connection(revision, Some(id), "fixture-standard", "fixture-fast")
+                    store.set_hosted_connection(revision, Some(id), "fixture@example.invalid")
                 },
                 |id| {
                     assert!(
@@ -149,11 +149,33 @@ fn blocked_credential_io_releases_workspace_and_rechecks_revision() {
         let store = app.lock().unwrap();
         if change_revision {
             assert_eq!(result.unwrap_err().code, ErrorCode::Conflict);
-            assert!(store.credential_id().unwrap().is_none());
+            assert!(
+                store
+                    .connection
+                    .query_row("SELECT hosted_credential_id FROM ai_config", [], |r| r
+                        .get::<_, Option<
+                        String,
+                    >>(
+                        0
+                    ))
+                    .unwrap()
+                    .is_none()
+            );
             assert_eq!(removed.lock().unwrap().len(), 1);
         } else {
             result.unwrap();
-            assert!(store.credential_id().unwrap().is_some());
+            assert!(
+                store
+                    .connection
+                    .query_row("SELECT hosted_credential_id FROM ai_config", [], |r| r
+                        .get::<_, Option<
+                        String,
+                    >>(
+                        0
+                    ))
+                    .unwrap()
+                    .is_some()
+            );
             assert!(removed.lock().unwrap().is_empty());
         }
         assert!(store.credential_writes.is_empty());
@@ -183,7 +205,18 @@ fn failed_keychain_io_releases_claims_and_keeps_failed_cleanup_retryable() {
     {
         let store = app.lock().unwrap();
         assert!(store.credential_writes.is_empty());
-        assert!(store.credential_id().unwrap().is_none());
+        assert!(
+            store
+                .connection
+                .query_row("SELECT hosted_credential_id FROM ai_config", [], |r| r
+                    .get::<_, Option<
+                    String,
+                >>(
+                    0
+                ))
+                .unwrap()
+                .is_none()
+        );
         assert_eq!(
             store
                 .connection

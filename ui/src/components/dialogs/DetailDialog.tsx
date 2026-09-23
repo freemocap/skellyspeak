@@ -1,3 +1,4 @@
+import { suspendCapture } from '../../platform/audio/speech'
 import { ToolbarIcon } from '../controls/ToolbarIcon'
 import { useI18n } from '../localization/i18n'
 import { useEffect, useRef, type ReactNode } from 'react'
@@ -9,6 +10,7 @@ export function DetailDialog({ title, children, onClose, size = 'standard' }: { 
   const dialog = useRef<HTMLDialogElement>(null)
   useOverlayLayer(dialog, onClose, false)
   useEffect(() => {
+    suspendCapture()
     const element = dialog.current!
     element.showModal()
     return () => element.close()

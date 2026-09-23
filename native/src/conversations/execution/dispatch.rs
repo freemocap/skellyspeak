@@ -309,9 +309,6 @@ impl Store {
             };
             let decisions = if jev {
                 target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
-                if target.route == ConnectionRoute::Openrouter {
-                    target.url = crate::ai::transport::provider::decisions::URL.into();
-                }
                 Some(crate::learning::coaching::assessment_adapter::request(
                     &messages, &captured,
                 )?)

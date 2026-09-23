@@ -276,7 +276,7 @@ fn jev_native_wire_contract_matches_server_fixture() {
         assert!(persona.decisions.is_none());
         assert_eq!(
             assessment.target.url,
-            crate::ai::transport::provider::decisions::URL
+            format!("{}/v1/operations", crate::ai::hosted::ORIGIN)
         );
         let request = assessment.decisions.unwrap();
         assert_eq!(request["state"]["input"]["modality"], modality);

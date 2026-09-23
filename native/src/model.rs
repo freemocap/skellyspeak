@@ -540,6 +540,11 @@ pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
         RecordingStarted::decl(&config),
+        crate::speech::recording::continuous_policy::ContinuousRecordingPolicy::decl(&config),
+        crate::speech::recording::continuous::ListeningStatus::decl(&config),
+        crate::speech::recording::continuous::ListeningTake::decl(&config),
+        crate::speech::analysis::spectrogram::LiveSpectrogram::decl(&config),
+        crate::speech::recording::continuous::ListeningTakeState::decl(&config),
         Theme::decl(&config),
         crate::learning::rewards::RewardEvent::decl(&config),
         crate::learning::learner::learner_state::LearnerState::decl(&config),
@@ -711,7 +716,7 @@ pub fn bindings() -> String {
             crate::learning::coaching::catalog_version()
         ),
         format_args!(
-            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}\nexport const DIFFICULTY_LEVELS: readonly Difficulty[] = {} as const\nexport const DRILL_RECORDING_MAX_MB = {} as const\nexport const DRILL_LENGTHS: readonly DrillLength[] = {} as const",
+            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}\nexport const DIFFICULTY_LEVELS: readonly Difficulty[] = {} as const\nexport const DRILL_RECORDING_MAX_MB = {} as const\nexport const DRILL_LENGTHS: readonly DrillLength[] = {} as const\nexport const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {} as const",
             text_size_limits(),
             serde_json::to_string(
                 &crate::configuration::appearance::AppearancePreferences::default()
@@ -721,7 +726,9 @@ pub fn bindings() -> String {
                 .expect("difficulty levels serialize"),
             crate::drill::retention::MAX_LIMIT_MB,
             serde_json::to_string(&crate::drill::generation::LENGTHS)
-                .expect("drill lengths serialize")
+                .expect("drill lengths serialize"),
+            serde_json::to_string(&crate::speech::recording::continuous_policy::POLICY)
+                .expect("continuous policy serializes")
         )
     )
 }
@@ -759,7 +766,6 @@ pub struct ConnectionConfig {
     pub assessment_adapter: AssessmentAdapter,
     pub route: ConnectionRoute,
     pub signed_in: bool,
-    pub own_key_configured: bool,
     pub email: String,
     pub revision: i32,
     pub configured: bool,
@@ -1038,21 +1044,18 @@ pub struct TranscriptionAttempt {
 #[serde(rename_all = "snake_case")]
 pub enum ConnectionRoute {
     Hosted,
-    Openrouter,
     Custom,
 }
 impl ConnectionRoute {
     pub fn label(self) -> &'static str {
         match self {
             Self::Hosted => "hosted",
-            Self::Openrouter => "openrouter",
             Self::Custom => "custom",
         }
     }
     pub fn parse(value: &str) -> Result<Self> {
         match value {
             "hosted" => Ok(Self::Hosted),
-            "openrouter" => Ok(Self::Openrouter),
             "custom" => Ok(Self::Custom),
             _ => Err(AppError::new(ErrorCode::Storage, "Unknown AI route.")),
         }
@@ -1159,8 +1162,6 @@ pub struct AccessSettings {
     pub credential_previews: Option<std::collections::BTreeMap<String, String>>,
     pub custom_url_is_unsaved_default: bool,
     pub revision: i32,
-    pub groq_key_configured: bool,
-    pub elevenlabs_key_configured: bool,
     pub custom_key_configured: bool,
     pub custom: CustomEndpoint,
 }

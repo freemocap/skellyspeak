@@ -107,7 +107,7 @@ fn speech_payload_preflight_fails_before_attempt_without_harming_translation() {
     store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.readAloud',json('true')) WHERE conversation_id=?1",[&conversation]).unwrap();
     let parent = begin(&mut store, &conversation);
     store
-        .finish(&parent, Ok(reply(&"\"".repeat(11000))))
+        .finish(&parent, Ok(reply(&"界".repeat(6000))))
         .unwrap();
     let mut translation = None;
     for _ in 0..2 {
@@ -393,7 +393,7 @@ fn speech_validated_audio_is_independent_of_finish_metadata() {
 fn explicit_reading_speech_sends_the_same_request_as_persona_speech() {
     let (_dir, mut store, conversation) = setup();
     let (speech, _helpers) = speech_children(&mut store, &conversation);
-    assert_eq!(speech.route, ConnectionRoute::Openrouter);
+    assert_eq!(speech.route, ConnectionRoute::Hosted);
     let (variety, explanation, explanation_variety): (String, String, String) = store
         .connection
         .query_row(

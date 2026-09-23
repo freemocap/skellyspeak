@@ -27,7 +27,6 @@ pub(in crate::application) async fn connect_local_server(
             }),
             Some(token.to_string()),
             false,
-            None,
         )
         .await
     }

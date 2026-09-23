@@ -162,10 +162,7 @@ pub(crate) fn finish_pending(directory: &Path, trusted_logs: &Path) -> Result<()
 
 fn credential_ids(store: &Store) -> Result<BTreeSet<String>> {
     let mut statement = store.connection.prepare(
-        "SELECT credential_id FROM ai_config
-         UNION SELECT hosted_credential_id FROM ai_config
-         UNION SELECT groq_credential_id FROM ai_config
-         UNION SELECT elevenlabs_credential_id FROM ai_config
+        "SELECT hosted_credential_id FROM ai_config
          UNION SELECT custom_credential_id FROM ai_config
          UNION SELECT id FROM credential_cleanup",
     )?;

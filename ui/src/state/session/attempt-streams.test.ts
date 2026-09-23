@@ -9,7 +9,7 @@ beforeEach(() => useAttemptStreams.getState().reset())
 
 function replyTurn(state: string, unpublishedText: string | null): TurnView {
   return {
-    id: 't', state, paused: false, route: 'openrouter', hold: null, replacesTurnId: null, replacedBy: null,
+    id: 't', state, paused: false, route: 'hosted', hold: null, replacesTurnId: null, replacedBy: null,
     operations: [{ id: 'o', kind: 'persona_reply', state, role: 'standard', contractVersion: 1, dependencies: [], sourceMessageId: null }],
     attempts: [{ id: 'a', operationId: 'o', state, requestedModel: 'm', actualModel: null, providerId: null,
       startedAt: '', finishedAt: null, inputTokens: null, outputTokens: null, error: null, diagnostics: null, unpublishedText }],

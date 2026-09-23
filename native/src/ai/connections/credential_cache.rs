@@ -31,7 +31,7 @@ impl CredentialCache {
             return Ok(secret.clone());
         }
         let secret = load()?;
-        // Four current routes fit comfortably; bound retained secrets across workspaces.
+        // Bound retained hosted/custom secrets across workspaces.
         if entries.len() >= 8 {
             entries.clear();
         }

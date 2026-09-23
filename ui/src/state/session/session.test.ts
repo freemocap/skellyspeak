@@ -8,7 +8,7 @@ vi.mock('../../platform/ipc/tauri', () => ({ invoke: native.invoke }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 
 const connection = (over: Partial<ConnectionConfig> = {}): ConnectionConfig => ({
-  route: 'hosted', signedIn: true, ownKeyConfigured: false, email: 'learner@example.test',
+  route: 'hosted', signedIn: true, email: 'learner@example.test',
   revision: 1, configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: '', fastModel: '', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false, ...over,
 })
 

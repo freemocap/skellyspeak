@@ -191,7 +191,7 @@ async fn permanent_errors_and_persistence_failures_never_resubmit() {
 }
 
 #[tokio::test]
-async fn real_embedded_429_retries_and_records_redacted_receipt_before_success() {
+async fn service_refusal_is_not_retried_and_keeps_redacted_provider_details() {
     use crate::ai::transport::provider::{self, RequestOutput};
     use crate::model::{Action, Command, ConnectionRoute};
     use crate::storage::store::Store;
@@ -217,9 +217,11 @@ async fn real_embedded_429_retries_and_records_redacted_receipt_before_success()
     let mut dispatch = (0..20).find_map(|_| store.dispatch().unwrap()).unwrap();
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     dispatch.target.url = format!("http://{}/chat/completions", listener.local_addr().unwrap());
-    dispatch.route = ConnectionRoute::Openrouter;
+    dispatch.route = ConnectionRoute::Custom;
+    let operation = dispatch.operation.clone();
+    let attempt = dispatch.attempt.clone();
     let server = tokio::spawn(async move {
-        for first in [true, false] {
+        for first in [true] {
             let (mut socket, _) = listener.accept().await.unwrap();
             let mut bytes = Vec::new();
             loop {
@@ -242,16 +244,24 @@ async fn real_embedded_429_retries_and_records_redacted_receipt_before_success()
                     }
                 }
             }
-            let choice = if first {
-                json!({"finish_reason":"error","message":{"content":""},"error":{"code":429,"message":"Temporarily limited token=private-secret"}})
+            let body = if first {
+                json!({"id":"refusal-id","error":{"code":429,"message":"Temporarily limited token=private-secret"}}).to_string()
             } else {
-                json!({"finish_reason":"stop","message":{"content":"Hola"}})
+                format!(
+                    "{}\n{}\n",
+                    json!({"type":"result","operation_id":operation,"attempt_id":attempt,"response":{"id":"success-id","model":"actual","choices":[{"finish_reason":"stop","message":{"content":"Hola"}}],"usage":{"prompt_tokens":0,"completion_tokens":0,"cost":0}}}),
+                    json!({"type":"complete","count":1})
+                )
             };
-            let body = json!({"id":if first {"refusal-id"} else {"success-id"},"model":"actual","choices":[choice],"usage":{"prompt_tokens":0,"completion_tokens":0,"cost":0}}).to_string();
+            let status = if first {
+                "429 Too Many Requests"
+            } else {
+                "200 OK"
+            };
             socket
                 .write_all(
                     format!(
-                        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                        "HTTP/1.1 {status}\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
                         body.len(),
                         body
                     )
@@ -269,36 +279,21 @@ async fn real_embedded_429_retries_and_records_redacted_receipt_before_success()
         name: "test",
         schema: &schema,
     };
-    let result = run(
+    let error = run(
         || provider::complete_with_output(&client, "private-secret", &dispatch, output),
         || {
             assert!(store.borrow().attempt_active(&dispatch.attempt)?);
             Ok(())
         },
-        |error| store.borrow_mut().record_retry(&dispatch, error),
+        |_| panic!("service admission refusals must not be automatically retried"),
     )
     .await
-    .unwrap();
+    .unwrap_err();
     server.await.unwrap();
-    assert_eq!(result.provider_id, "success-id");
-    let d = result.diagnostics.unwrap();
-    assert_eq!(
-        d["automatic_retries"][0]["error"]["diagnostics"]["response"]["id"],
-        "refusal-id"
-    );
-    assert!(!d.to_string().contains("private-secret"));
-    let saved: String = store
-        .borrow()
-        .connection
-        .query_row(
-            "SELECT diagnostics FROM attempts WHERE id=?1",
-            [&dispatch.attempt],
-            |r| r.get(0),
-        )
-        .unwrap();
-    assert!(saved.contains("refusal-id"));
-    assert!(saved.contains("automatic_retries"));
-    assert!(!saved.contains("private-secret"));
+    let details = error.diagnostics.unwrap();
+    assert_eq!(details["http"]["status"], 429);
+    assert_eq!(details["response"]["id"], "refusal-id");
+    assert!(!details.to_string().contains("private-secret"));
 }
 
 fn busy_audio() -> AppError {

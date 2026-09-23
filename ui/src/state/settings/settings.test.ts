@@ -13,8 +13,8 @@ vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: vi.fn() }))
 /// sends the whole thing back, which is what the assertions compare.
 const record = (over: Partial<Settings> = {}): Settings => ({
   my_languages: [], target_varieties: {},
-  provider_mode: 'custom', hosted_token: '', hosted_email: '', install_id: '', openrouter_key: '',
-  custom_base_url: '', custom_api_key: '', custom_model: '', groq_key: '', openrouter_model: '', observer_model: null,
+  provider_mode: 'custom', hosted_email: '',
+  custom_base_url: '', custom_model: '', standard_model: '', observer_model: null,
   target_language: 'spanish', target_variety: '', native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english', microphone_device_id: null,
   auto_speak: false, auto_send: false, always_romanize: false, auto_translate: false,
   text_size: 100, text_spacing: 100, always_pronunciation: false, fast_mode: true,

@@ -34,8 +34,9 @@ fn event(dispatch: &Dispatch, outcome: &SpeechOutcome) -> Value {
 }
 
 /// What one speech outcome says about itself without its content: whether audio
-/// was accepted, how it finished, its usage, and the provider's own comparison
-/// of the spoken transcript with the source. Persona speech events and explicit
+/// was accepted, how it finished, and its usage. The service audio contract
+/// does not supply a separate transcript comparison; provider metadata is
+/// retained in diagnostics by both callers. Persona speech events and explicit
 /// reading receipts retain the same projection, on success and on failure.
 pub(crate) fn outcome_metadata(outcome: &SpeechOutcome) -> Value {
     json!({
@@ -47,7 +48,7 @@ pub(crate) fn outcome_metadata(outcome: &SpeechOutcome) -> Value {
         },
         "inputTokens": outcome.input_tokens,
         "outputTokens": outcome.output_tokens,
-        "transcriptComparison": outcome.transcript_diagnostics,
+        "transcriptComparison": serde_json::Value::Null,
     })
 }
 
@@ -56,7 +57,6 @@ mod tests {
     use super::*;
     use crate::{
         ai::connections::access::ResolvedTarget,
-        language::text_diagnostics::TranscriptDiagnostics,
         model::{AppError, ConnectionRoute, ErrorCode},
     };
 
@@ -93,11 +93,6 @@ mod tests {
             output_tokens: Some(30),
             cost_micros: None,
             finish_reason: Some("PRIVATE".into()),
-            transcript_diagnostics: Some(TranscriptDiagnostics::new(
-                "PRIVATE-क़",
-                "PRIVATE-क\u{93c}",
-                true,
-            )),
         };
         let value = event(&dispatch, &outcome);
         assert_eq!(value["code"], "speech_validation");
@@ -106,7 +101,7 @@ mod tests {
         assert_eq!(value["operationId"], dispatch.operation);
         assert_eq!(value["audioAccepted"], false);
         assert_eq!(value["finishReason"], "other");
-        assert_eq!(value["transcriptComparison"]["canonicalEquivalent"], true);
+        assert!(value["transcriptComparison"].is_null());
         assert!(!value.to_string().contains("PRIVATE"));
         let temp = tempfile::tempdir().unwrap();
         let dir = temp.path().canonicalize().unwrap().join("run");
@@ -114,17 +109,16 @@ mod tests {
         sink.append("native", &value).unwrap();
         let stored = std::fs::read_to_string(dir.join("native.jsonl")).unwrap();
         assert!(stored.contains(&dispatch.attempt));
-        assert!(stored.contains("canonicalEquivalent"));
+        assert!(stored.contains("transcriptComparison"));
         assert!(!stored.contains("PRIVATE"));
         outcome.audio = Ok(vec![1, 2]);
         outcome.finish_reason = Some("stop".into());
         assert_eq!(event(&dispatch, &outcome)["audioAccepted"], true);
-        outcome.transcript_diagnostics = None;
         assert!(event(&dispatch, &outcome)["transcriptComparison"].is_null());
     }
 
     #[test]
-    fn shared_outcome_metadata_keeps_the_comparison_without_its_content() {
+    fn shared_outcome_metadata_keeps_usage_and_explicitly_absent_comparison() {
         let mut outcome = SpeechOutcome {
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
@@ -134,21 +128,13 @@ mod tests {
             output_tokens: Some(30),
             cost_micros: None,
             finish_reason: Some("stop".into()),
-            transcript_diagnostics: Some(TranscriptDiagnostics::new(
-                "PRIVATE-क़",
-                "PRIVATE-क\u{93c}",
-                false,
-            )),
         };
-        // A failed attempt still explains how the spoken audio compared.
+        // A failed attempt retains usage and an explicit missing-comparison value.
         let failed = outcome_metadata(&outcome);
         assert_eq!(failed["audioAccepted"], false);
         assert_eq!(failed["finishReason"], "stop");
         assert_eq!(failed["inputTokens"], 12);
         assert_eq!(failed["outputTokens"], 30);
-        assert_eq!(failed["transcriptComparison"]["canonicalEquivalent"], true);
-        assert_eq!(failed["transcriptComparison"]["complete"], false);
-        assert_eq!(failed["transcriptComparison"]["source"]["devanagari"], 2);
         assert!(!failed.to_string().contains("PRIVATE"));
         outcome.audio = Ok(vec![1, 2]);
         let accepted = outcome_metadata(&outcome);
@@ -158,7 +144,6 @@ mod tests {
             failed["transcriptComparison"]
         );
         // Absent comparison metadata is explicitly absent, never omitted.
-        outcome.transcript_diagnostics = None;
         assert!(
             outcome_metadata(&outcome)
                 .get("transcriptComparison")

@@ -1,4 +1,9 @@
 //! Transient, bounded recording inspection. Audio is returned for temporary playback, never saved.
+use super::spectrogram::spectrogram;
+#[cfg(test)]
+use super::spectrogram::{
+    DB_REFERENCE, MEL_BANDS, MEL_MAX_HZ, MEL_MIN_HZ, MEL_NORMALIZATION, MEL_SCALE, from_mel, to_mel,
+};
 use crate::model::*;
 use crate::speech::analysis::fluency;
 use serde::Serialize;
@@ -232,171 +237,6 @@ pub(crate) fn inspect_wav(
         local,
     ))
 }
-fn fft(real: &mut [f64], imag: &mut [f64]) {
-    let n = real.len();
-    let mut j = 0;
-    for i in 1..n {
-        let mut bit = n >> 1;
-        while j & bit != 0 {
-            j ^= bit;
-            bit >>= 1;
-        }
-        j ^= bit;
-        if i < j {
-            real.swap(i, j);
-            imag.swap(i, j);
-        }
-    }
-    let mut length = 2;
-    while length <= n {
-        let angle = -2.0 * std::f64::consts::PI / length as f64;
-        let (sin, cos) = angle.sin_cos();
-        for start in (0..n).step_by(length) {
-            let (mut wr, mut wi) = (1.0, 0.0);
-            for offset in 0..length / 2 {
-                let a = start + offset;
-                let b = a + length / 2;
-                let tr = wr * real[b] - wi * imag[b];
-                let ti = wr * imag[b] + wi * real[b];
-                real[b] = real[a] - tr;
-                imag[b] = imag[a] - ti;
-                real[a] += tr;
-                imag[a] += ti;
-                let next = wr * cos - wi * sin;
-                wi = wr * sin + wi * cos;
-                wr = next;
-            }
-        }
-        length *= 2;
-    }
-}
-/// Analysis parameters, stated once and reported with every result.
-/// Mel bands, not linear FFT bins: speech detail sits in the lowest couple of
-/// kHz, and a mel axis spends its rows there instead of on 6 kHz of hiss.
-const MEL_BANDS: usize = 64;
-const MEL_MIN_HZ: f64 = 50.0;
-const MEL_MAX_HZ: f64 = 8000.0;
-const MEL_SCALE: &str = "htk: mel = 2595 * log10(1 + hz / 700)";
-const MEL_NORMALIZATION: &str = "unit-peak triangular filters";
-const DB_REFERENCE: &str = "0 dB = full-scale power (1.0)";
-
-fn to_mel(hz: f64) -> f64 {
-    2595.0 * (1.0 + hz / 700.0).log10()
-}
-fn from_mel(mel: f64) -> f64 {
-    700.0 * (10.0_f64.powf(mel / 2595.0) - 1.0)
-}
-
-/// Triangular filter edges, evenly spaced on the mel scale between `low` and
-/// `high`. Adjacent filters overlap by half a band, so every frequency in range
-/// is covered.
-fn mel_bands(low: f64, high: f64) -> Vec<InspectionMelBand> {
-    let (low_mel, high_mel) = (to_mel(low), to_mel(high));
-    let step = (high_mel - low_mel) / (MEL_BANDS + 1) as f64;
-    (0..MEL_BANDS)
-        .map(|band| InspectionMelBand {
-            low_hz: from_mel(low_mel + step * band as f64),
-            center_hz: from_mel(low_mel + step * (band + 1) as f64),
-            high_hz: from_mel(low_mel + step * (band + 2) as f64),
-        })
-        .collect()
-}
-
-fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
-    let n = ((rate as usize * 25 / 1000).max(256))
-        .next_power_of_two()
-        .min(8192);
-    let hop = (n / 2).max(samples.len().div_ceil(400));
-    let resolution = rate as f64 / n as f64;
-    // Every recording gets the same band grid, so row N means the same
-    // frequency in every panel. A recording below 16 kHz simply cannot measure
-    // the top of it: those bands are reported as unavailable, never as silence.
-    let nyquist = rate as f64 / 2.0;
-    let measured = MEL_MAX_HZ.min(nyquist);
-    let bands = mel_bands(MEL_MIN_HZ, MEL_MAX_HZ);
-    // A band is measured only when its whole triangle is below Nyquist;
-    // a half-covered filter would understate its own energy.
-    // The tolerance absorbs the mel round trip: a band whose edge lands on
-    // Nyquist to within a millionth of a hertz is still measurable.
-    let measurable: Vec<bool> = bands
-        .iter()
-        .map(|band| band.high_hz <= nyquist + 1e-6)
-        .collect();
-    let last_bin = (measured / resolution).floor() as usize;
-    let count = last_bin.min(n / 2) + 1;
-    // Weight of each one-sided FFT bin in each mel band; bin centres outside a
-    // filter contribute nothing.
-    let filters: Vec<Vec<f64>> = bands
-        .iter()
-        .map(|band| {
-            (0..count)
-                .map(|bin| {
-                    let hz = bin as f64 * resolution;
-                    if hz <= band.low_hz || hz >= band.high_hz {
-                        0.0
-                    } else if hz <= band.center_hz {
-                        (hz - band.low_hz) / (band.center_hz - band.low_hz)
-                    } else {
-                        (band.high_hz - hz) / (band.high_hz - band.center_hz)
-                    }
-                })
-                .collect()
-        })
-        .collect();
-    let window: Vec<f64> = (0..n)
-        .map(|i| 0.5 - 0.5 * (2.0 * std::f64::consts::PI * i as f64 / (n - 1) as f64).cos())
-        .collect();
-    let normalization = window.iter().sum::<f64>().powi(2);
-    let mut bins = vec![];
-    let mut frame_start_seconds = vec![];
-    for start in (0..samples.len()).step_by(hop) {
-        let mut real: Vec<f64> = (0..n)
-            .map(|i| samples.get(start + i).copied().unwrap_or(0) as f64 / 32768.0 * window[i])
-            .collect();
-        let mut imag = vec![0.0; n];
-        fft(&mut real, &mut imag);
-        let power: Vec<f64> = (0..count)
-            .map(|i| {
-                (real[i] * real[i] + imag[i] * imag[i]) / normalization
-                    * if i == 0 || i == n / 2 { 1.0 } else { 2.0 }
-            })
-            .collect();
-        bins.push(
-            filters
-                .iter()
-                .zip(&measurable)
-                .map(|(filter, measured)| {
-                    if !measured {
-                        return None;
-                    }
-                    let energy: f64 = filter
-                        .iter()
-                        .zip(&power)
-                        .map(|(weight, value)| weight * value)
-                        .sum();
-                    Some((10.0 * energy.max(1e-10).log10()).clamp(-100.0, 0.0) as f32)
-                })
-                .collect(),
-        );
-        frame_start_seconds.push(start as f64 / rate as f64);
-    }
-    InspectionSpectrogram {
-        frame_seconds: hop as f64 / rate as f64,
-        frame_start_seconds,
-        window_seconds: n as f64 / rate as f64,
-        fft_size: n,
-        bands,
-        min_frequency_hz: MEL_MIN_HZ,
-        max_frequency_hz: MEL_MAX_HZ,
-        measured_max_frequency_hz: measured,
-        mel_scale: MEL_SCALE.into(),
-        normalization: MEL_NORMALIZATION.into(),
-        db_reference: DB_REFERENCE.into(),
-        db_min: -100.0,
-        db_max: 0.0,
-        bins,
-    }
-}
 /// Display validated provider timestamps without fluency alignment. Acoustic
 /// activity is inspection data, never a gate on a successful transcription.
 pub(crate) fn attach_words(
@@ -499,7 +339,7 @@ mod tests {
         let (inspection, _) =
             inspect_wav(&wav(&vec![0; 8000 * 120], 8000, 1), "r", &owner()).unwrap();
         assert!(inspection.waveform.min.len() <= 1200);
-        assert!(inspection.spectrogram.bins.len() <= 400);
+        assert!(inspection.spectrogram.bins.len() <= 1200);
         assert!(inspection.spectrogram.bins.iter().all(|row| {
             row.len() == MEL_BANDS && row.iter().all(|db| db.is_none() || *db == Some(-100.0))
         }));
@@ -585,7 +425,7 @@ mod tests {
                 "{rate}: 1000 Hz outside {band:?}"
             );
             assert!((-15.0..-8.0).contains(&power), "{rate}: {power}");
-            assert!(spectrum.bins.len() <= 400);
+            assert!(spectrum.bins.len() <= 1200);
             assert_eq!(spectrum.bins[0].len(), MEL_BANDS);
             // Every rate reports the same grid; only what it could measure differs.
             assert_eq!(spectrum.max_frequency_hz, MEL_MAX_HZ);
@@ -720,7 +560,10 @@ mod tests {
         assert_eq!(spectrum.db_reference, DB_REFERENCE);
         assert_eq!(spectrum.min_frequency_hz, MEL_MIN_HZ);
         assert_eq!(spectrum.window_seconds, spectrum.fft_size as f64 / 16000.0);
-        assert_eq!(spectrum.frame_seconds, spectrum.window_seconds / 2.0);
+        assert_eq!(
+            spectrum.frame_seconds,
+            spectrum.frame_start_seconds[1] - spectrum.frame_start_seconds[0]
+        );
     }
 
     /// Two synthetic utterances: a steady "reference" and a lower, slower

@@ -9,23 +9,11 @@ export interface Settings {
   appearance?: import('./generated/contracts').AppearancePreferences
   theme?: 'light' | 'dark' | 'system'
   scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number; rewardRevision: number }
-  /// 'hosted' (the project's service, signed in with Google), 'cloud'
-  /// (OpenRouter with the user's key) or 'custom' (their own
-  /// SkellySpeak server). Mirrors settings.rs PROVIDER_* constants.
-  provider_mode: string
-  /// Always empty here: the Rust side blanks the session token on its way out
-  /// and ignores whatever comes back. Sign in and out through the commands.
-  hosted_token: string
-  /// Who is signed in, for display. Empty means signed out.
+  provider_mode: import('./generated/contracts').ConnectionRoute
   hosted_email: string
-  /// Always empty here too — the anonymous installation id stays in Rust.
-  install_id: string
-  openrouter_key: string
   custom_base_url: string
-  custom_api_key: string
   custom_model: string
-  groq_key: string
-  openrouter_model: string
+  standard_model: string
   observer_model: string | null
   my_languages: string[]
   target_varieties: Record<string, string>

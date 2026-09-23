@@ -4,6 +4,7 @@ pub(crate) struct Application {
     pub(super) reading: crate::language::reading::Registry,
     pub(crate) admission: admission::Admission,
     pub(super) generations: generation::Registry,
+    pub(crate) listening: Mutex<Option<Arc<crate::speech::recording::continuous::Session>>>,
     pub(crate) capture: Mutex<Option<voice::Recording>>,
     pub(crate) store: Mutex<Option<Store>>,
     /// Why the workspace could not be opened at startup. Commands report it
@@ -42,6 +43,10 @@ impl Application {
     /// an ordinary outcome, and it has to reach a screen that can reset it.
     /// `cleanup` is the failure, if any, of finishing a previous reset; the caller
     /// runs that before the log sink opens, because the log directory is part of it.
+    #[cfg(test)]
+    pub(crate) fn recording_fixture(workspace: &std::path::Path) -> Arc<Self> {
+        Self::start(workspace, None)
+    }
     pub(super) fn start(workspace: &std::path::Path, cleanup: Option<AppError>) -> Arc<Self> {
         let (store, refusal) = match Store::open(workspace) {
             Ok(store) => (Some(store), None),
@@ -52,6 +57,7 @@ impl Application {
             reading: Default::default(),
             generations: generation::Registry::default(),
             capture: Mutex::new(None),
+            listening: Mutex::new(None),
             store: Mutex::new(store),
             refusal: Mutex::new(refusal),
             cleanup: Mutex::new(cleanup),

@@ -71,7 +71,7 @@ fn evidence_experiment() {
             let request = crate::ai::transport::provider::payload_with_output(
                 row["fastModel"].as_str().unwrap(),
                 &messages,
-                crate::model::ConnectionRoute::Openrouter,
+                crate::model::ConnectionRoute::Custom,
                 crate::ai::transport::provider::RequestOutput::JsonSchema {
                     max_output_tokens: crate::ai::transport::provider::MAX_OUTPUT_TOKENS,
                     name: "coaching",

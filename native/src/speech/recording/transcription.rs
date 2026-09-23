@@ -231,15 +231,15 @@ mod tests {
         store.prepare_chat().unwrap();
         store
             .connection
-            .execute("UPDATE ai_config SET route='openrouter'", [])
+            .execute("UPDATE ai_config SET route='hosted'", [])
             .unwrap();
         store
-            .set_connection(1, Some("chat-reference"), "standard", "fast")
+            .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
             .unwrap();
         store
             .connection
             .execute(
-                "UPDATE ai_config SET groq_credential_id='audio-reference'",
+                "UPDATE ai_config SET hosted_credential_id='audio-reference'",
                 [],
             )
             .unwrap();
@@ -391,7 +391,7 @@ mod tests {
         store
             .connection
             .execute(
-                "UPDATE ai_config SET revision=revision+1,groq_credential_id=NULL",
+                "UPDATE ai_config SET revision=revision+1,hosted_credential_id=NULL",
                 [],
             )
             .unwrap();

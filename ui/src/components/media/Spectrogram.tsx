@@ -19,11 +19,12 @@ export function sharedScale(sources: InspectionSpectrogram[]): SpectrogramScale 
 
 /** Mel-band rows painted on a time axis: one canvas, wherever a recording is
  * shown. `scale` overrides the analysis's own dB window for paired views. */
-export function Spectrogram({ data, duration, zoom, scale }: {
+export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0 }: {
   data: InspectionSpectrogram
   duration: number
   zoom: number
   scale?: SpectrogramScale
+  startSeconds?: number
 }) {
   const tr = useI18n()
   const [unavailable, setUnavailable] = useState(false)
@@ -35,7 +36,7 @@ export function Spectrogram({ data, duration, zoom, scale }: {
       if (!element || !data.bins.length || !data.bins[0].length) return
       const context = element.getContext('2d')
       if (!context) { setUnavailable(true); return }
-      element.width = Math.ceil(1000 * zoom); element.height = data.bins[0].length
+      element.width = Math.ceil(Math.max(1000, data.bins.length) * zoom); element.height = data.bins[0].length
       const channels = (token: `--${string}`) => {
         context.fillStyle = cssToken(token); context.fillRect(0, 0, 1, 1)
         return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3)
@@ -46,8 +47,8 @@ export function Spectrogram({ data, duration, zoom, scale }: {
       const absent = channels('--spectrogram-unavailable')
       const pixels = context.createImageData(element.width, element.height)
       data.bins.forEach((frame, index) => {
-        const left = data.frameStartSeconds[index] / duration * element.width
-        const width = Math.min(data.windowSeconds, duration - data.frameStartSeconds[index]) / duration * element.width
+        const left = (data.frameStartSeconds[index] - startSeconds) / duration * element.width
+        const width = Math.min(data.windowSeconds, startSeconds + duration - data.frameStartSeconds[index]) / duration * element.width
         frame.forEach((db, band) => {
           let color = absent
           if (db !== null) {
@@ -55,7 +56,7 @@ export function Spectrogram({ data, duration, zoom, scale }: {
             const lower = Math.min(1, Math.floor(level)); const mix = level - lower
             color = stops[lower].map((value, channel) => Math.round(value * (1 - mix) + stops[lower + 1][channel] * mix))
           }
-          for (let pixel = Math.floor(left); pixel < Math.min(element.width, Math.ceil(left + width)); pixel++) {
+          for (let pixel = Math.max(0, Math.floor(left)); pixel < Math.min(element.width, Math.ceil(left + width)); pixel++) {
             const offset = ((element.height - 1 - band) * element.width + pixel) * 4
             color.forEach((value, channel) => { pixels.data[offset + channel] = value })
             pixels.data[offset + 3] = 255
@@ -68,7 +69,7 @@ export function Spectrogram({ data, duration, zoom, scale }: {
     const observer = new MutationObserver(paint)
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     return () => observer.disconnect()
-  }, [data, duration, zoom, dbMin, dbMax])
+  }, [data, duration, zoom, dbMin, dbMax, startSeconds])
   return <>{unavailable && <p role="status">{tr("Spectrogram rendering unavailable.")}</p>}
     <canvas ref={canvas} className="inspection-spectrogram" role="img"
       aria-label={data.measuredMaxFrequencyHz < data.maxFrequencyHz

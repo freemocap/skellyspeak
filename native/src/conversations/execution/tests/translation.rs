@@ -11,12 +11,7 @@ fn r1_running_translation_survives_route_switch_but_not_revocation() {
         assert!(store.attempt_active(&translation.attempt).unwrap());
         if revoke {
             store
-                .set_connection(
-                    3,
-                    None,
-                    "google/gemini-2.5-flash",
-                    "google/gemini-2.5-flash-lite",
-                )
+                .set_hosted_connection(3, None, "fixture@example.invalid")
                 .unwrap();
         }
         store

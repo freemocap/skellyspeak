@@ -1,6 +1,7 @@
 import { useI18n } from '../../components/localization/i18n'
 import { messageKey } from '../../domain/localization'
 import { difficultyLabel } from '../../components/controls/DifficultySelect'
+import { TargetText } from '../../components/reading/TargetText'
 import type { DrillGenerationInput, DrillLength } from '../../generated/contracts'
 import type { OfferedCandidate } from './useDrillPreview'
 
@@ -37,7 +38,7 @@ export function CandidateList({ offered, added, adding, onKeep }: {
         return (
           <li key={candidate.candidateId} className="drill-candidate" data-kept={isAdded}>
             <span className="drill-candidate-body">
-              <bdi className="drill-candidate-text">{candidate.text}</bdi>
+              <TargetText text={candidate.text} />
               {candidate.translation !== null && <span className="drill-candidate-translation">{candidate.translation}</span>}
               <span className="drill-candidate-notes">
                 {candidate.source.kind === 'conversation'
@@ -60,18 +61,24 @@ export function CandidateList({ offered, added, adding, onKeep }: {
   )
 }
 
-/** What was asked for, in the request's own words rather than whatever the
- * controls say now — they may have moved on since. */
-export function RequestedCaption({ requested }: { requested: DrillGenerationInput | null }) {
+/** What was asked for, in each request's own words rather than whatever the
+ * controls say now — they may have moved on since. One line per paid request,
+ * plus a line for lines taken from past chats, which were not asked of anyone. */
+export function RequestedCaption({ requested, chats }: { requested: DrillGenerationInput[]; chats: boolean }) {
   const tr = useI18n()
-  if (requested === null) return <p className="drill-candidates-note">{tr("Taken from your chats, exactly as written there.")}</p>
-  return <p className="drill-candidates-note">{requested.topic === null
+  const said = (one: DrillGenerationInput) => one.topic === null
     ? tr("Asked for {value0} × {value1} at {value2}.", {
-        value0: String(requested.count), value1: tr(lengthLabel(requested.length)).toLocaleLowerCase(tr.browserLocale),
-        value2: tr(difficultyLabel(requested.difficulty)).toLocaleLowerCase(tr.browserLocale),
+        value0: String(one.count), value1: tr(lengthLabel(one.length)).toLocaleLowerCase(tr.browserLocale),
+        value2: tr(difficultyLabel(one.difficulty)).toLocaleLowerCase(tr.browserLocale),
       })
     : tr("Asked for {value0} × {value1} at {value2}, on “{value3}”.", {
-        value0: String(requested.count), value1: tr(lengthLabel(requested.length)).toLocaleLowerCase(tr.browserLocale),
-        value2: tr(difficultyLabel(requested.difficulty)).toLocaleLowerCase(tr.browserLocale), value3: requested.topic,
-      })}</p>
+        value0: String(one.count), value1: tr(lengthLabel(one.length)).toLocaleLowerCase(tr.browserLocale),
+        value2: tr(difficultyLabel(one.difficulty)).toLocaleLowerCase(tr.browserLocale), value3: one.topic,
+      })
+  return (
+    <p className="drill-candidates-note">
+      {requested.map(one => <span key={one.length}>{said(one)}</span>)}
+      {chats && <span>{tr("Taken from your chats, exactly as written there.")}</span>}
+    </p>
+  )
 }

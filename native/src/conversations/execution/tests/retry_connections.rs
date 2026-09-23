@@ -59,7 +59,7 @@ fn settings_revocation_keeps_accepted_text_retryable_and_rejects_old_publication
     let (speech, others) = speech_children(&mut store, &conversation);
     let message = speech.speech_source.as_ref().unwrap().message_id.clone();
     store
-        .set_connection(2, Some("replacement-key"), "new-model", "new-fast")
+        .set_hosted_connection(2, Some("replacement-key"), "fixture@example.invalid")
         .unwrap();
     assert!(!store.attempt_active(&speech.attempt).unwrap());
     assert!(

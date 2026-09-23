@@ -6,7 +6,7 @@ import { SettingsModels } from '../src/features/settings/models/SettingsModels'
 import type { ConnectionConfig } from '../src/generated/contracts'
 import '../src/styles/index.css'
 let settings: ConnectionConfig = {
-  assessmentAdapter: 'chat_model', route: 'openrouter', signedIn: false, ownKeyConfigured: true,
+  assessmentAdapter: 'chat_model', route: 'hosted', signedIn: false,
   email: '', revision: 1, configured: true, standardModel: 'google/gemini-2.5-flash', fastModel: 'google/gemini-2.5-flash-lite',
   audio: { transcription: { model: 'scribe_v2' }, speech: { model: 'eleven_v3' } }, paused: false,
 }

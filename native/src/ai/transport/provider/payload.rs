@@ -9,10 +9,8 @@ pub fn payload(
     messages: &[PromptMessage],
     route: ConnectionRoute,
 ) -> Result<serde_json::Value> {
-    let mut payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":MAX_OUTPUT_TOKENS,"temperature":0.7,"reasoning":{"enabled":false}});
-    if route == ConnectionRoute::Openrouter {
-        payload["provider"] = serde_json::json!({"allow_fallbacks":false});
-    }
+    let payload = serde_json::json!({"model":model,"messages":messages,"stream":false,"max_tokens":MAX_OUTPUT_TOKENS,"temperature":0.7,"reasoning":{"enabled":false}});
+    let _ = route;
     Ok(payload)
 }
 /// Transport-local request contract; never inferred from prompt text or serialized over IPC.
@@ -157,10 +155,7 @@ pub fn payload_with_output(
     let mut request = payload(model, messages, route)?;
     request["max_tokens"] = serde_json::json!(max_output_tokens);
     request["response_format"] = serde_json::json!({"type":"json_schema","json_schema":{"name":name,"strict":true,"schema":schema}});
-    if route == ConnectionRoute::Openrouter {
-        request["provider"] =
-            serde_json::json!({"allow_fallbacks":false,"require_parameters":true});
-    }
+
     structured_input_bound(&request)?;
     Ok(request)
 }

@@ -16,17 +16,12 @@ pub(super) fn setup() -> (tempfile::TempDir, Store, String) {
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',assessment_adapter='chat_model'",
+            "UPDATE ai_config SET route='hosted',assessment_adapter='chat_model'",
             [],
         )
         .unwrap();
     store
-        .set_connection(
-            1,
-            Some("test-credential"),
-            "google/gemini-2.5-flash",
-            "google/gemini-2.5-flash-lite",
-        )
+        .set_hosted_connection(1, Some("test-credential"), "fixture@example.invalid")
         .unwrap();
     apply(
         &mut store,
@@ -127,7 +122,7 @@ pub(super) fn gloss_children(
     );
     // Audit the outbound provider body, not just validation/display behavior.
     for route in [
-        ConnectionRoute::Openrouter,
+        ConnectionRoute::Hosted,
         ConnectionRoute::Custom,
         ConnectionRoute::Hosted,
     ] {
@@ -166,7 +161,6 @@ pub(super) fn speech_outcome(audio: Result<Vec<u8>>) -> crate::ai::audio::Speech
     crate::ai::audio::SpeechOutcome {
         diagnostics: None,
         audio,
-        transcript_diagnostics: None,
         actual_model: Some("speech-model".into()),
         provider_id: Some("speech-request".into()),
         input_tokens: Some(12),

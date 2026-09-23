@@ -62,7 +62,11 @@ fn unavailable() -> AppError {
         "Secure credential storage is unavailable or access was denied. Check your system keychain.",
     )
 }
-fn credential_failure(error: &keyring::Error, stage: &str, private: &[&str]) -> AppError {
+pub(super) fn credential_failure(
+    error: &keyring::Error,
+    stage: &str,
+    private: &[&str],
+) -> AppError {
     use keyring::Error;
     let mut details = serde_json::json!({"stage":stage});
     details["reason"] = serde_json::json!(match error {
@@ -116,11 +120,19 @@ fn credential_failure(error: &keyring::Error, stage: &str, private: &[&str]) -> 
         Error::NoDefaultStore => "no_default_store",
         _ => "unrecognized_keyring_error_variant",
     });
-    unavailable().with_diagnostics(details)
+    let error = if matches!(error, keyring::Error::NoEntry) {
+        AppError::new(
+            ErrorCode::Credential,
+            "The saved session token is unavailable. Sign in again or replace the custom server session token in AI access settings.",
+        )
+    } else {
+        unavailable()
+    };
+    error.with_diagnostics(details)
 }
 #[cfg(not(target_os = "android"))]
 fn entry(id: &str) -> Result<keyring::Entry> {
-    keyring::Entry::new("org.skellyspeak.practice.openrouter", id)
+    keyring::Entry::new("com.freemocap.skellyspeak.credentials", id)
         .map_err(|cause| credential_failure(&cause, "credential_entry", &[id]))
 }
 #[cfg(target_os = "android")]
@@ -227,10 +239,12 @@ fn read_uncached(id: &str) -> Result<Zeroizing<String>> {
         target_os = "android"
     ))]
     {
-        entry(id)?
-            .get_password()
-            .map(Zeroizing::new)
-            .map_err(|cause| credential_failure(&cause, "credential_read", &[id]))
+        {
+            entry(id)?
+                .get_password()
+                .map(Zeroizing::new)
+                .map_err(|e| credential_failure(&e, "credential_read", &[id]))
+        }
     }
     #[cfg(not(any(
         target_os = "macos",
@@ -263,10 +277,12 @@ fn remove_uncached(id: &str) -> Result<()> {
         target_os = "android"
     ))]
     {
-        match entry(id)?.delete_credential() {
+        let remove = |result| match result {
             Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
             Err(cause) => Err(credential_failure(&cause, "credential_delete", &[id])),
-        }
+        };
+        remove(entry(id)?.delete_credential())?;
+        Ok(())
     }
     #[cfg(not(any(
         target_os = "macos",
@@ -292,6 +308,17 @@ pub fn preview(secret: &str) -> String {
         chars[..5].iter().collect::<String>(),
         chars[chars.len() - 5..].iter().collect::<String>()
     )
+}
+
+/// Server session tokens use the same bounded printable secret contract.
+pub fn validate_session_token(key: &str) -> Result<()> {
+    if !(10..=4096).contains(&key.len()) || !key.bytes().all(|b| b.is_ascii_graphic()) {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Invalid server session token. Use 10–4096 printable characters without spaces.",
+        ));
+    }
+    Ok(())
 }
 
 #[cfg(test)]

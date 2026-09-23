@@ -616,8 +616,6 @@
 #admin-console #user-detail { margin-top: var(--space-11); padding-top: var(--space-4); border-top: var(--border-width-strong) solid var(--line); overflow-x: auto; }
 #admin-console .bars { display: flex; gap: var(--space-3); align-items: flex-end; min-height: 190px; overflow-x: auto; border-bottom: var(--border-width) solid var(--line); margin: var(--space-8) 0; padding-top: var(--space-7); }
 #admin-console .bar { flex: 1; min-width: 21px; display: flex; align-items: center; flex-direction: column; justify-content: flex-end; }
-#admin-console .bar-fill { background: var(--interaction-fill); width: 100%; min-height: 1px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
-#admin-console .bar-fill.missing { background: var(--track); }
 #admin-console .bar span { writing-mode: vertical-rl; font-size: var(--type-meta); margin-top: var(--space-3); color: var(--ink-3); }
 #admin-console .heat { display: block; min-width: 28px; text-align: center; border-radius: var(--radius-xs); padding: var(--space-2); }
 #admin-console #heatmap td, #admin-console #heatmap th { padding: var(--space-1); }

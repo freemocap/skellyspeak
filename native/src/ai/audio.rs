@@ -1,9 +1,8 @@
 //! Internal audio boundary. Callers supply captured targets and credentials;
 //! adapters alone build provider payloads and decode responses. These are not IPC types.
 use crate::ai::connections::access::ResolvedTarget;
-use crate::ai::transport::{speech_provider, transcription_provider};
-use crate::language::text_diagnostics::TranscriptDiagnostics;
-use crate::model::{ConnectionRoute, Result};
+use crate::ai::transport::transcription_provider;
+use crate::model::{AppError, Result};
 
 pub struct SpeechInput {
     pub text: String,
@@ -12,7 +11,6 @@ pub struct SpeechInput {
 }
 pub struct SpeechOutcome {
     pub diagnostics: Option<serde_json::Value>,
-    pub(crate) transcript_diagnostics: Option<TranscriptDiagnostics>,
     pub audio: Result<Vec<u8>>,
     pub actual_model: Option<String>,
     pub provider_id: Option<String>,
@@ -48,11 +46,8 @@ pub struct TranscriptionResult {
 /// Run the adapter's request validation before admitting a paid attempt.
 /// Provider JSON remains inside the transport boundary.
 pub fn validate_speech(target: &ResolvedTarget, input: &SpeechInput) -> Result<()> {
-    if target.route == ConnectionRoute::Openrouter {
-        speech_provider::payload(target, input).map(|_| ())
-    } else {
-        crate::ai::transport::service_audio::validate(input)
-    }
+    let _ = target;
+    crate::ai::transport::service_audio::validate(input)
 }
 
 pub async fn synthesize(
@@ -62,11 +57,7 @@ pub async fn synthesize(
     input: &SpeechInput,
     install: &str,
 ) -> SpeechOutcome {
-    if target.route == ConnectionRoute::Openrouter {
-        speech_provider::synthesize(client, target, key, input, install).await
-    } else {
-        crate::ai::transport::service_audio::synthesize(client, target, key, input, install).await
-    }
+    crate::ai::transport::service_audio::synthesize(client, target, key, input, install).await
 }
 
 pub async fn transcribe(
@@ -84,4 +75,22 @@ pub fn validate_transcription_language(
     language: &TranscriptionLanguage,
 ) -> Result<()> {
     transcription_provider::validate_language(target, language).map(|_| ())
+}
+
+impl SpeechOutcome {
+    pub(crate) fn empty() -> Self {
+        Self {
+            diagnostics: None,
+            audio: Err(AppError::new(
+                crate::model::ErrorCode::UnknownOutcome,
+                "Speech outcome is unknown after an interrupted response. Processing may have incurred a charge. No automatic retry was made.",
+            )),
+            actual_model: None,
+            provider_id: None,
+            input_tokens: None,
+            output_tokens: None,
+            cost_micros: None,
+            finish_reason: None,
+        }
+    }
 }

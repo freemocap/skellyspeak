@@ -16,6 +16,57 @@ pub struct Recording {
     #[cfg(desktop)]
     capture: audio::Capture,
 }
+#[derive(Clone)]
+pub(super) struct Transcription {
+    pub id: String,
+    owner: RecordingOwner,
+    visit: Option<String>,
+    target: access::ResolvedTarget,
+    language: crate::ai::audio::TranscriptionLanguage,
+    context: Option<String>,
+}
+impl Transcription {
+    pub(super) fn capture_permitted(&self, state: &Application) -> Result<()> {
+        let store = state.lock()?;
+        super::transcription::permitted(&store.connection, &self.owner, &self.target)?;
+        crate::ai::policy::holds::check(&store.connection, &self.target)?;
+        if crate::conversations::execution::config(&store.connection)?.paused {
+            return Err(AppError::new(
+                ErrorCode::AdmissionHeld,
+                "Listening stopped: AI execution is paused.",
+            ));
+        }
+        if let RecordingOwner::DrillItem(item) = &self.owner {
+            let current = crate::drill::sessions::active_visit(&store.connection, item)?;
+            if Some(current.as_str()) != self.visit.as_deref() {
+                return Err(AppError::new(
+                    ErrorCode::Conflict,
+                    "Listening stopped because the practice visit changed.",
+                ));
+            }
+        }
+        Ok(())
+    }
+}
+impl Recording {
+    pub(super) fn id(&self) -> &str {
+        &self.id
+    }
+    pub(super) fn request(&self) -> Transcription {
+        Transcription {
+            id: self.id.clone(),
+            owner: self.owner.clone(),
+            visit: self.visit.clone(),
+            target: self.target.clone(),
+            language: self.language.clone(),
+            context: self.context.clone(),
+        }
+    }
+    #[cfg(desktop)]
+    pub(super) fn drain(&self) -> Result<(u32, Vec<f32>)> {
+        self.capture.drain().map_err(fault)
+    }
+}
 fn fault(message: impl Into<String>) -> AppError {
     AppError::new(ErrorCode::Provider, message)
 }
@@ -105,6 +156,7 @@ pub fn mic_wave(
 }
 #[tauri::command]
 pub fn mic_cancel(state: tauri::State<'_, Arc<Application>>, recording_id: String) -> Result<()> {
+    super::continuous::cancel_session(&state, &recording_id);
     let mut slot = state.capture.lock().map_err(|_| {
         crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
     })?;
@@ -129,18 +181,7 @@ pub async fn mic_transcribe(
         slot.take()
             .ok_or_else(|| fault("Recording is unavailable."))?
     };
-    let (credential, install) = {
-        let store = state.lock()?;
-        crate::speech::recording::transcription::permitted(
-            &store.connection,
-            &recording.owner,
-            &recording.target,
-        )?;
-        (
-            recording.target.credential.clone(),
-            store.snapshot()?.learner.id,
-        )
-    };
+    let request = recording.request();
     #[cfg(desktop)]
     if audio_base64.is_some() {
         return Err(fault("Desktop capture does not accept browser audio."));
@@ -176,6 +217,29 @@ pub async fn mic_transcribe(
             return Err(fault("Recording must be WAV audio."));
         }
         bytes
+    };
+    transcribe(state.inner().clone(), request, wav).await
+}
+
+// Manual clips and segmented utterances share inspection, admission, receipts,
+// provider execution, and durable publication without a second attempt writer.
+pub(super) async fn transcribe(
+    state: Arc<Application>,
+    recording: Transcription,
+    wav: Vec<u8>,
+) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
+    let recording_id = recording.id.clone();
+    let (credential, install) = {
+        let store = state.lock()?;
+        crate::speech::recording::transcription::permitted(
+            &store.connection,
+            &recording.owner,
+            &recording.target,
+        )?;
+        (
+            recording.target.credential.clone(),
+            store.snapshot()?.learner.id,
+        )
     };
     let inspection_recording = recording.id.clone();
     let inspection_owner = recording.owner.clone();
@@ -277,4 +341,25 @@ pub async fn mic_transcribe(
             diagnostics,
         },
     )
+}
+
+#[cfg(all(test, desktop))]
+pub(super) fn fixture(state: &Application, owner: RecordingOwner, pcm: Vec<f32>) -> Recording {
+    let store = state.lock().unwrap();
+    let scope = owner.scope(&store).unwrap();
+    let visit = match &owner {
+        RecordingOwner::DrillItem(id) => {
+            Some(crate::drill::sessions::active_visit(&store.connection, id).unwrap())
+        }
+        _ => None,
+    };
+    Recording {
+        id: "continuous-fixture".into(),
+        owner,
+        visit,
+        target: access::resolve(&store.connection, access::Capability::Transcription).unwrap(),
+        language: scope.language,
+        context: scope.context,
+        capture: audio::fixture(pcm, 8000),
+    }
 }

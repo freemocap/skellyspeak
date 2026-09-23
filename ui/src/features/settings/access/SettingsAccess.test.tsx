@@ -7,10 +7,10 @@ import { useConnectionHealth } from '../../../state/session/connection-health'
 const native = vi.hoisted(() => vi.fn())
 vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
-const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
+const connection = { route: 'custom', signedIn: false, email: '', revision: 7,
   configured: true, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
 const verified = { providers: ['OPENROUTER', 'GROQ'].map(provider => ({ provider, state: 'accepted', status: 200, durationMs: 10 })) }
-const access = { customUrlIsUnsavedDefault: false, revision: 7, groqKeyConfigured: true, elevenlabsKeyConfigured: true, customKeyConfigured: true,
+const access = { customUrlIsUnsavedDefault: false, revision: 7, customKeyConfigured: true,
   custom: { baseUrl: 'https://fixture.example/v1', bearerAuth: true } }
 beforeEach(() => {
   useConnectionHealth.setState({ routes: {} })
@@ -32,15 +32,13 @@ it('loads only configuration on mount and shows no stored secret or cloud-key fa
   expect(native.mock.calls.map(call => call[0])).toEqual(['get_connection', 'get_access_settings', 'local_server_available'])
 })
 it.each([
-  ['openrouter', 'OpenRouter API key', 'save_connection'],
-  ['openrouter', 'Groq API key', 'save_access_settings'],
   ['custom', 'Server session token', 'save_access_settings'],
 ] as const)('trims accidental spaces around the %s credential before saving', async (route, label, commandName) => {
   native.mockImplementation(async (command: string) => {
     if (command === 'local_server_available') return false
     if (command === 'get_connection') return { ...connection, route }
     if (command === 'get_access_settings') return access
-    if (command === commandName) return commandName === 'save_connection' ? connection : access
+    if (command === commandName) return access
     throw new Error(command)
   })
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
@@ -49,7 +47,7 @@ it.each([
   fireEvent.change(key, { target: { value: ' \t synthetic-key \r\n ' } })
   fireEvent.blur(key)
   expect(key).toHaveValue('synthetic-key')
-  await waitFor(() => expect(native.mock.calls.some(([name, args]) => name === commandName && args.apiKey === 'synthetic-key')).toBe(true))
+  await waitFor(() => expect(native.mock.calls.some(([name, args]) => name === commandName && args.sessionToken === 'synthetic-key')).toBe(true))
 })
 it('keeps model selection out of hosted access', async () => {
   native.mockImplementation(async (command: string) => {
@@ -93,9 +91,9 @@ it('requires a separate confirmed deletion and sends revision-scoped removal', a
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
   fireEvent.click(await screen.findByRole('button', { name: 'Delete Server session token' }))
   expect(native.mock.calls.filter(call => call[0] === 'save_access_settings')).toHaveLength(0)
-  fireEvent.click(screen.getByRole('button', { name: 'Delete key' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Delete token' }))
   await waitFor(() => expect(native).toHaveBeenCalledWith('save_access_settings', {
-    expectedRevision: 7, custom: access.custom, apiKey: null, removeKey: true,
+    expectedRevision: 7, custom: access.custom, sessionToken: null, removeToken: true,
   }))
 })
 
@@ -106,7 +104,7 @@ it('selects only the persisted route from tab headings and never falls back afte
     if (command === 'get_connection') return saved
     if (command === 'get_access_settings') return access
     if (command === 'select_route') {
-      if (args.route === 'hosted') throw new Error('Route change failed')
+      if (args.route === 'custom') throw new Error('Route change failed')
       saved = { ...saved, route: args.route!, revision: 8 }
       return saved
     }
@@ -116,17 +114,17 @@ it('selects only the persisted route from tab headings and never falls back afte
   expect(await screen.findByRole('tab', { name: 'Custom URL' })).toHaveAttribute('aria-selected', 'true')
   expect(screen.queryByRole('combobox')).toBeNull()
   expect(screen.queryByText('Models')).toBeNull()
-  fireEvent.click(screen.getByRole('tab', { name: 'API keys' }))
-  await waitFor(() => expect(screen.getByRole('tab', { name: 'API keys' })).toHaveAttribute('aria-selected', 'true'))
+  fireEvent.click(screen.getByRole('tab', { name: 'Hosted sign-in' }))
+  await waitFor(() => expect(screen.getByRole('tab', { name: 'Hosted sign-in' })).toHaveAttribute('aria-selected', 'true'))
   expect(screen.queryByText('Models')).toBeNull()
   expect(screen.queryByLabelText('Transcription model')).toBeNull()
-  expect(screen.getByLabelText('OpenRouter API key', { selector: 'input' })).toHaveAttribute('type', 'password')
-  expect(screen.getByLabelText('Groq API key', { selector: 'input' })).toHaveValue('')
-  expect(native).toHaveBeenCalledWith('select_route', { expectedRevision: 7, route: 'openrouter' })
-  fireEvent.click(screen.getByRole('tab', { name: 'Hosted sign-in' }))
+  expect(screen.getAllByRole('tab')).toHaveLength(2)
+  expect(screen.queryByLabelText('OpenRouter API key')).toBeNull()
+  expect(native).toHaveBeenCalledWith('select_route', { expectedRevision: 7, route: 'hosted' })
+  fireEvent.click(screen.getByRole('tab', { name: 'Custom URL' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('Route change failed')
-  expect(screen.getByRole('tab', { name: 'API keys' })).toHaveAttribute('aria-selected', 'true')
-  expect(native).toHaveBeenCalledWith('select_route', { expectedRevision: 8, route: 'hosted' })
+  expect(screen.getByRole('tab', { name: 'Hosted sign-in' })).toHaveAttribute('aria-selected', 'true')
+  expect(native).toHaveBeenCalledWith('select_route', { expectedRevision: 8, route: 'custom' })
   expect(native.mock.calls.filter(call => call[0] === 'select_route')).toHaveLength(2)
 })
 
@@ -176,7 +174,7 @@ it('retains a cleared address after rejection until explicitly discarded', async
   await screen.findByRole('alert')
   expect(url).toHaveValue('')
   expect(native).toHaveBeenCalledWith('save_access_settings', {
-    expectedRevision: 7, custom: { ...access.custom, baseUrl: '' }, apiKey: null, removeKey: false,
+    expectedRevision: 7, custom: { ...access.custom, baseUrl: '' }, sessionToken: null, removeToken: false,
   })
   fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }))
   expect(url).toHaveValue(defaultAddress)
@@ -199,10 +197,10 @@ it('a failed access draft can be explicitly discarded to unlock navigation and c
   fireEvent.focus(url); fireEvent.change(url, { target: { value: 'invalid' } }); fireEvent.blur(url)
   await screen.findByText('Invalid URL')
   expect(url).toHaveValue('invalid')
-  expect(screen.getByRole('tab', { name: 'API keys' })).toBeDisabled()
+  expect(screen.getByRole('tab', { name: 'Hosted sign-in' })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }))
   expect(url).toHaveValue(access.custom.baseUrl)
-  expect(screen.getByRole('tab', { name: 'API keys' })).not.toBeDisabled()
+  expect(screen.getByRole('tab', { name: 'Hosted sign-in' })).not.toBeDisabled()
   await waitFor(() => expect(busy).toHaveBeenLastCalledWith(false))
   expect(native.mock.calls.filter(call => call[0] === 'save_access_settings')).toHaveLength(1)
   expect(native.mock.calls.filter(call => call[0] === 'select_route')).toHaveLength(0)
@@ -216,13 +214,13 @@ it('waits for URL blur and releases the lock when a draft is reverted', async ()
   expect(native.mock.calls.filter(call => call[0] === 'save_access_settings')).toHaveLength(0)
   fireEvent.change(url, { target: { value: access.custom.baseUrl } })
   await waitFor(() => expect(busy).toHaveBeenLastCalledWith(false))
-  expect(screen.getByRole('tab', { name: 'API keys' })).not.toBeDisabled()
+  expect(screen.getByRole('tab', { name: 'Hosted sign-in' })).not.toBeDisabled()
 })
 
 it('recovers from a fresh rejected key save without deleting credentials or changing routes', async () => {
   const busy = vi.fn()
-  const freshConnection = { ...connection, ownKeyConfigured: false, configured: false }
-  const freshAccess = { ...access, customKeyConfigured: false, groqKeyConfigured: false,
+  const freshConnection = { ...connection, configured: false }
+  const freshAccess = { ...access, customKeyConfigured: false,
     custom: { ...access.custom, baseUrl: '' } }
   native.mockImplementation(async (command: string) => {
     if (command === 'local_server_available') return false
@@ -241,10 +239,10 @@ it('recovers from a fresh rejected key save without deleting credentials or chan
   expect(key).toHaveValue('synthetic-corrected-key')
   fireEvent.click(screen.getByRole('button', { name: 'Discard changes' }))
   expect(key).toHaveValue('')
-  expect(screen.getByRole('tab', { name: 'API keys' })).not.toBeDisabled()
+  expect(screen.getByRole('tab', { name: 'Hosted sign-in' })).not.toBeDisabled()
   await waitFor(() => expect(busy).toHaveBeenLastCalledWith(false))
   expect(native.mock.calls.filter(call => !['get_connection', 'get_access_settings', 'local_server_available'].includes(call[0]))).toEqual([
-    ['save_access_settings', { expectedRevision: 7, custom: freshAccess.custom, apiKey: 'synthetic-unsaved-key', removeKey: false }],
+    ['save_access_settings', { expectedRevision: 7, custom: freshAccess.custom, sessionToken: 'synthetic-unsaved-key', removeToken: false }],
   ])
 })
 
@@ -260,7 +258,7 @@ it('saves an unsaved URL default once before checking the returned revision', as
   })
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn().mockResolvedValue(undefined)} />)
   fireEvent.click(await screen.findByRole('button', { name: 'Check connection' }))
-  await waitFor(() => expect(native).toHaveBeenCalledWith('check_access', { expectedRevision: 8, custom: true }))
+  await waitFor(() => expect(native).toHaveBeenCalledWith('check_access', { expectedRevision: 8 }))
   await waitFor(() => expect((screen.getByRole('button', { name: 'Check connection' }) as HTMLButtonElement).disabled).toBe(false))
   fireEvent.click(screen.getByRole('button', { name: 'Check connection' }))
   await waitFor(() => expect(native.mock.calls.filter(([name]) => name === 'check_access')).toHaveLength(2))
@@ -269,9 +267,6 @@ it('saves an unsaved URL default once before checking the returned revision', as
 
 
 it.each([
-  ['openrouter', 'openrouter', 'OpenRouter API key'],
-  ['openrouter', 'groq', 'Groq API key'],
-  ['openrouter', 'elevenlabs', 'ElevenLabs API key'],
   ['custom', 'custom', 'Server session token'],
 ] as const)('shows masked saved and replacement credentials for %s/%s', async (route, provider, label) => {
   native.mockImplementation(async (command: string) => {
@@ -333,7 +328,7 @@ it('shows server and token verification and replaces it with a failed check', as
   })
   render(<SettingsAccess onBusyChange={vi.fn()} onChanged={vi.fn()} />)
   fireEvent.click(await screen.findByRole('button', { name: 'Connect to local server' }))
-  await waitFor(() => expect(native).toHaveBeenCalledWith('check_access', { expectedRevision: 8, custom: true }))
+  await waitFor(() => expect(native).toHaveBeenCalledWith('check_access', { expectedRevision: 8 }))
   expect(native).toHaveBeenCalledWith('connect_local_server', { expectedRevision: 7 })
   expect(screen.getByLabelText('Server address')).toHaveValue(local.custom.baseUrl)
   expect(screen.getByLabelText('Server session token', { selector: 'input' })).toHaveValue('')

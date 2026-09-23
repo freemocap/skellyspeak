@@ -7,11 +7,7 @@ fn structured_payload_preserves_prose_and_routes_strict_schema() {
         role: "user".into(),
         content: "Sí 你好".into(),
     }];
-    for route in [
-        ConnectionRoute::Openrouter,
-        ConnectionRoute::Hosted,
-        ConnectionRoute::Custom,
-    ] {
+    for route in [ConnectionRoute::Hosted, ConnectionRoute::Custom] {
         let prose = payload("google/gemini-2.5-flash", &messages, route).unwrap();
         assert_eq!(
             prose,
@@ -46,18 +42,7 @@ fn structured_payload_preserves_prose_and_routes_strict_schema() {
             structured["reasoning"],
             serde_json::json!({"enabled":false})
         );
-        if route == ConnectionRoute::Openrouter {
-            assert_eq!(
-                structured["provider"],
-                serde_json::json!({"allow_fallbacks":false,"require_parameters":true})
-            );
-            assert_eq!(
-                prose["provider"],
-                serde_json::json!({"allow_fallbacks":false})
-            );
-        } else {
-            assert!(structured.get("provider").is_none());
-        }
+        assert!(structured.get("provider").is_none());
     }
 }
 
@@ -81,11 +66,7 @@ fn structured_bounds_include_schema_python_spaces_escaping_and_float_headroom() 
         );
     }
     let schema = serde_json::json!({"description":"schema content", "type":"object"});
-    for route in [
-        ConnectionRoute::Hosted,
-        ConnectionRoute::Custom,
-        ConnectionRoute::Openrouter,
-    ] {
+    for route in [ConnectionRoute::Hosted, ConnectionRoute::Custom] {
         let mut messages = vec![PromptMessage {
             role: "user".into(),
             content: String::new(),
@@ -160,7 +141,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
             payload_with_output(
                 "chosen/model",
                 &messages,
-                ConnectionRoute::Openrouter,
+                ConnectionRoute::Custom,
                 RequestOutput::JsonSchema {
                     max_output_tokens: 2048,
                     name: "schema",
@@ -178,7 +159,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
     assert!(
         payload_with_output("chosen/model", &messages, ConnectionRoute::Custom, output).is_ok()
     );
-    assert!(payload_with_output("chosen/model", &[], ConnectionRoute::Openrouter, output).is_err());
+    assert!(payload_with_output("chosen/model", &[], ConnectionRoute::Custom, output).is_err());
     let unsupported = [PromptMessage {
         role: "tool".into(),
         content: "private fixture".into(),
@@ -187,7 +168,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
         payload_with_output(
             "chosen/model",
             &unsupported,
-            ConnectionRoute::Openrouter,
+            ConnectionRoute::Custom,
             output
         )
         .is_err()
@@ -200,7 +181,7 @@ fn structured_invalid_contracts_fail_with_content_free_errors() {
         payload_with_output(
             "chosen/model",
             &messages,
-            ConnectionRoute::Openrouter,
+            ConnectionRoute::Custom,
             RequestOutput::JsonSchema {
                 max_output_tokens: 2048,
                 name: "schema",
@@ -220,8 +201,8 @@ fn hosted_payload_obeys_service_routing_and_model_contract() {
         payload("new-provider/new-model", &[], ConnectionRoute::Hosted).unwrap()["model"],
         "new-provider/new-model"
     );
-    let direct = payload("chosen/model", &[], ConnectionRoute::Openrouter).unwrap();
-    assert_eq!(direct["provider"]["allow_fallbacks"], false);
+    let custom = payload("chosen/model", &[], ConnectionRoute::Custom).unwrap();
+    assert!(custom.get("provider").is_none());
 }
 
 #[test]
@@ -231,11 +212,7 @@ fn every_route_preserves_an_arbitrary_structured_model() {
         content: "Hello".into(),
     }];
     let schema = serde_json::json!({"type":"object","properties":{}});
-    for route in [
-        ConnectionRoute::Hosted,
-        ConnectionRoute::Custom,
-        ConnectionRoute::Openrouter,
-    ] {
+    for route in [ConnectionRoute::Hosted, ConnectionRoute::Custom] {
         let body = payload_with_output(
             "new-provider/new-model:variant",
             &messages,

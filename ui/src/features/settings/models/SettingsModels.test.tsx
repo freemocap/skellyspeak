@@ -6,7 +6,7 @@ import { SettingsModels } from './SettingsModels'
 const native = vi.hoisted(() => vi.fn())
 vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
-const connection = { route: 'custom', signedIn: false, ownKeyConfigured: true, email: '', revision: 7,
+const connection = { route: 'custom', signedIn: false, email: '', revision: 7,
   configured: true, assessmentAdapter: 'chat_model' as const, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
 beforeEach(() => {
   native.mockReset()
@@ -90,7 +90,7 @@ it('disables Jev selection and explains the retained adapters', async () => {
   Reflect.deleteProperty(HTMLElement.prototype, 'hidePopover')
 })
 
-it.each(['hosted', 'custom', 'openrouter'])('switches both transcription methods without changing %s access', async route => {
+it.each(['hosted', 'custom'])('switches both transcription methods without changing %s access', async route => {
   let saved = { ...connection, route, audio: { ...connection.audio, transcription: { model: 'whisper-large-v3' } } }
   native.mockImplementation(async (command, args) => {
     if (command === 'get_connection') return saved

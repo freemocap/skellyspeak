@@ -1,10 +1,10 @@
 use super::*;
 
-/// Current development schema; other versions require explicit reset.
-pub(crate) const SCHEMA_VERSION: i32 = 37;
+/// Only the current development format is supported.
+pub(crate) const SCHEMA_VERSION: i32 = 40;
 pub(super) const GENERATION_SCHEMA: &str = include_str!("../schemas/generation_schema.sql");
 
-pub(super) fn validate_database(connection: &Connection) -> Result<()> {
+pub(crate) fn validate_database(connection: &Connection) -> Result<()> {
     let application_id: i32 =
         connection.pragma_query_value(None, "application_id", |r| r.get(0))?;
     if application_id != 1397443659 {
@@ -27,10 +27,11 @@ pub(super) fn validate_database(connection: &Connection) -> Result<()> {
 }
 
 /// Check current DDL, including revision constraints, before startup writes.
-pub(super) fn validate_current_schema(connection: &Connection) -> Result<()> {
+pub(crate) fn validate_current_schema(connection: &Connection) -> Result<()> {
     let reference = Connection::open_in_memory()?;
-    reference.execute_batch(include_str!("../schemas/schema.sql"))?;
-    reference.execute_batch(GENERATION_SCHEMA)?;
+    for schema in [include_str!("../schemas/schema.sql"), GENERATION_SCHEMA] {
+        reference.execute_batch(schema)?;
+    }
     let mut statement = reference.prepare("SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'")?;
     for row in statement.query_map([], |r| {
         Ok((

@@ -42,12 +42,7 @@ pub fn validate_prose(text: &str) -> Result<()> {
     }
     Ok(())
 }
-pub(super) fn malformed() -> AppError {
-    AppError::new(
-        ErrorCode::Provider,
-        "The AI service returned an incomplete or malformed completion. Usage may have been incurred; no automatic retry was made.",
-    )
-}
+
 pub fn decode(bytes: &[u8]) -> Result<Completion> {
     let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
         crate::diagnostics::response::invalid(

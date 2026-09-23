@@ -37,9 +37,11 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
     setPages([]); setCursor(null); setAdded([]); setFailure(null); setRunning(false)
   }, [])
 
-  /// One explicit request. A late answer for a superseded request is dropped
-  /// rather than replacing whatever is on screen now.
-  const generate = useCallback(async (input: DrillGenerationInput) => {
+  /// One explicit ask, made of one paid request per requested length plus, when
+  /// asked for, a page of lines taken from past chats. Answers land as they
+  /// arrive; a late answer for a superseded ask is dropped rather than
+  /// replacing whatever is on screen now.
+  const generate = useCallback(async (inputs: DrillGenerationInput[], alsoChats: boolean) => {
     generation.current++
     const current = generation.current
     request.current?.abort()
@@ -47,31 +49,38 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
     request.current = controller
     setPages([]); setCursor(null); setAdded([]); setFailure(null); setRunning(true)
     try {
-      const preview = await previewDrillItems(input, controller.signal)
-      if (!mounted.current || current !== generation.current) return
-      setPages([preview])
+      for (const input of inputs) {
+        const preview = await previewDrillItems(input, controller.signal)
+        if (!mounted.current || current !== generation.current) return
+        setPages(existing => [...existing, preview])
+      }
+      if (alsoChats) {
+        if (!scope) throw new Error('Drill generation needs a reading scope.')
+        const page = await conversationDrillCandidates({ scope, cursor: null, limit: CONVERSATION_PAGE })
+        if (!mounted.current || current !== generation.current) return
+        setPages(existing => [...existing, page.preview])
+        setCursor(page.nextCursor)
+      }
     } catch (error) {
       if (mounted.current && current === generation.current
         && !(error instanceof DOMException && error.name === 'AbortError')) setFailure(error)
     } finally {
       if (mounted.current && current === generation.current) { setRunning(false); request.current = null }
     }
-  }, [])
+  }, [scope])
 
   const cancel = useCallback(() => { request.current?.abort(); request.current = null; setRunning(false) }, [])
 
-  /// Extraction, not generation: no provider call, and the text is taken as it
-  /// stands. An empty page can still carry a continuation.
-  const loadConversation = useCallback(async (from: string | null) => {
+  /// The next page of chat lines, appended to what is already offered. Extraction,
+  /// not generation: no provider call, and the text is taken as it stands.
+  const loadMoreLines = useCallback(async (from: string) => {
     if (!scope) return
-    if (from === null) generation.current++
     const current = generation.current
     setFailure(null); setRunning(true)
-    if (from === null) { setPages([]); setCursor(null); setAdded([]) }
     try {
       const page = await conversationDrillCandidates({ scope, cursor: from, limit: CONVERSATION_PAGE })
       if (!mounted.current || current !== generation.current) return
-      setPages(existing => from === null ? [page.preview] : [...existing, page.preview])
+      setPages(existing => [...existing, page.preview])
       setCursor(page.nextCursor)
     } catch (error) {
       if (mounted.current && current === generation.current) setFailure(error)
@@ -109,12 +118,13 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
 
   return {
     offered,
-    requested: pages[0]?.requested ?? null,
-    shortfall: pages[0]?.shortfall ?? null,
+    requested: pages.map(page => page.requested).filter((one): one is DrillGenerationInput => one !== null),
+    fromChats: pages.some(page => page.requested === null),
+    shortfall: pages.map(page => page.shortfall).find(one => one != null) ?? null,
     hasMore: cursor !== null,
-    loadMore: () => { if (cursor !== null && !running) void loadConversation(cursor) },
+    loadMore: () => { if (cursor !== null && !running) void loadMoreLines(cursor) },
     asked: pages.length > 0,
     running, adding, added, failure,
-    generate, cancel, loadConversation, accept, discard, clear,
+    generate, cancel, accept, discard, clear,
   }
 }

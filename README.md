@@ -24,7 +24,7 @@ website have not all been checked against current code. Links to `old/` are
 historical context, not current specifications. See [documentation status](docs/).
 
 **Current source implementation: immediate chat, recording/transcription and speech
-playback, a separate coach thread, Google sign-in and own-key/custom-server execution.** Rust persists
+playback, a separate coach thread, Google sign-in and custom-server execution.** Rust persists
 messages, conversation settings and validated replies. The integrated conversation UI
 reads those native records and uses native commands for sends and settings changes.
 
@@ -70,30 +70,26 @@ The repository's `.nvmrc` selects Node 24. Run `nvm use` when opening a new
 terminal here. If a launcher reports `ERR_UNKNOWN_FILE_EXTENSION` for a `.ts`
 file, check `node --version`: an older system Node may be taking precedence.
 
-On macOS, this builds a debug executable, creates **SkellySpeak Dev.app**, signs
-and verifies it with the existing **SkellySpeak Local Development** certificate,
-starts Vite, and runs the signed bundle executable. PyCharm's signed-app run
-configuration uses this same command. Frontend edits reload through Vite; restart
-the command after Rust changes. Quit the app or stop the command to stop Vite.
-The launcher fails if port 1420 is occupied or signing fails. Unchanged builds
-reuse the existing bundle after verifying its signature against the selected
-certificate; they do not request signing-key access again. Keep this command
-running while editing the frontend; Vite updates do not rebuild or re-sign Rust.
+On macOS, `npm run macos:dev` runs standard **Tauri dev**, with terminal log
+capture. Tauri starts Vite through `beforeDevCommand`, watches native inputs and
+rebuilds/restarts Rust. Vite handles frontend HMR. Native restarts end active
+recordings; page refreshes and frontend HMR do not restart Rust.
+
+For an explicit signed-bundle permissions test, use `npm run macos:dev-signed`.
+It builds **SkellySpeak Dev.app**, signs and verifies it with the existing
+**SkellySpeak Local Development** certificate, and starts Vite. It has no native
+watcher: restart that command after Rust changes. This separate route can help
+test Keychain/microphone permissions under a stable signed app identity. Standard
+Tauri dev does not use that certificate-signing wrapper, so Keychain prompts may
+still differ between these workflows.
 
 The signing identity must already exist in Keychain Access → My Certificates,
 including its private key. To use another certificate, run
-`SKELLYSPEAK_SIGNING_IDENTITY="certificate name or SHA-1 fingerprint" npm run macos:dev`.
+`SKELLYSPEAK_SIGNING_IDENTITY="certificate name or SHA-1 fingerprint" npm run macos:dev-signed`.
 Self-signed local certificates are supported; no certificate trust settings are
-changed. Ad-hoc signing is rejected because it cannot preserve the certificate
-identity across rebuilds. If macOS requests access to an existing SkellySpeak
-credential, **Always Allow** can remember access for this signed app; switching
-from a previously unsigned build may require that initial grant.
-
+changed. Unchanged signed bundles are verified and reused.
 `npm run macos:dev-bundle` and `npm run macos:dev-sign` are also available
 separately after `cargo build --manifest-path native/Cargo.toml --bin skellyspeak`.
-For other desktop platforms use `npm run tauri dev`. On macOS, that direct Tauri
-command bypasses the certificate-signing launcher and may prompt again for Keychain
-access after rebuilds.
 
 On macOS, successful credential reads are reused in native process memory, so
 frontend reloads do not repeatedly read the same Keychain entry. Concurrent reads
@@ -265,8 +261,7 @@ Record starts microphone capture for the current conversation. Stop transcribes
 through the selected AI route and automatically sends the transcript when Auto-send is enabled (default on).
 When disabled, the transcript stays in the composer for review and manual Send.
 Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
-uploaded only on Stop. Hosted uses Google sign-in; API-key mode uses a separate Groq
-key. Custom URL and Hosted audio use the service audio contract; new workspaces
+uploaded only on Stop. Hosted uses Google sign-in. Custom URL and Hosted audio use the service audio contract; new workspaces
 select `scribe_v2` for STT and `eleven_v3` for TTS. Existing selections are
 preserved. See [audio setup](docs/notes/audio-provider-setup.md).
 Desktop capture uses native audio; Android/iOS use browser capture connected to the
@@ -289,29 +284,22 @@ to the app. The account panel reports daily tokens, requests, monetary allowance
 its reset time. Request/token amounts remaining are estimates; money is authoritative.
 The session stays in the platform credential store. There is no transcript sync.
 
-Choose **Own OpenRouter API key** to enter a key and configure Standard/Fast models.
-Keys and model settings save automatically after typing stops, with visible pending
-and failure states. Connection verification reports authentication separately from saving a key.
-Automatic API-key verification remains tracked as CQ001; do not treat a saved
-credential as verified. Key entry remains masked; saved secrets are never returned to the frontend and
-there is no Show/Hide control. Model edits
-retain the saved key when the key field is blank. Pasted surrounding whitespace is
-trimmed. Saving errors preserve the input. Clicking outside Settings or pressing
-Escape dismisses it after pending writes complete; failures keep the edits visible.
-Conversation practice preferences also save automatically on change. Hosted account refreshes are limited to
-the hosted route.
+Choose **Custom URL** to use your own SkellySpeak server. Save its address and,
+if authentication is enabled, its server session token. Provider keys belong on
+the server; the desktop app has no direct-provider access route. Standard/Fast,
+transcription and speech models are configured in Models.
 
-Verification uses OpenRouter's authenticated `GET /api/v1/key`; it does not request
-inference or prove model availability or sufficient credits. Saved state and verification
-state are separate. **Send** uses the selected route and the
-captured Standard model. Replies are buffered and validated before publication.
+Settings save automatically with visible pending and failure states. Token entry
+is masked; a blank field retains the saved token. Connection checks validate the
+server protocol and report its provider checks without requesting inference.
+Saving and verification are separate. Send uses the selected route and captured
+model; responses are validated before publication.
 
 The native execution controls are implemented; their UI wiring is pending.
 At the command layer, Pause all prevents new starts; it does not revoke running work. Pause a turn and
 Step to admit one operation while keeping that turn paused. The app-wide gate must
 be resumed to Step. Cancel revokes publication and drops the local HTTP request;
-remote execution and billing may continue. Direct OpenRouter text operations retry
-explicit 429 rate-limit failures up to three times, with roughly 1, 2 and 4 second
+remote execution and billing may continue. Eligible provider failures follow the shared bounded retry policy, with roughly 1, 2 and 4 second
 delays plus jitter. Provider `Retry-After` is respected within a 30-second total
 wait budget; longer waits require an explicit retry. Each refusal is retained in
 the operation's diagnostic metadata. Responses that already produced text,
@@ -336,7 +324,7 @@ The app stores `skellyspeak.sqlite3` in its platform application-data directory 
 identifier `com.freemocap.skellyspeak`, as configured in `native/tauri.conf.json`
 and `native/tauri.release.conf.json`. On macOS this is
 `~/Library/Application Support/com.freemocap.skellyspeak/`. No application data is
-synchronized. Send transmits selected context through the selected hosted or own-key route;
+synchronized. Send transmits selected context through the selected hosted or custom-server route;
 see [privacy and data flow](old/notes/privacy.md).
 
 ## Verification
@@ -424,8 +412,7 @@ authenticated service status check; the matching server deployment is required.
 ## AI access foundation: current source checkpoint
 
 Custom URL connects to a self-hosted SkellySpeak server. Hosted and Custom URL chat
-use version-1 grouped `/operations`; OpenRouter chat and Groq transcription use
-direct API keys. Include `/v1` in the custom API base URL. HTTPS is required except
+use grouped `/operations`; audio uses the shared service contracts. Include `/v1` in the custom API base URL. HTTPS is required except
 on loopback. No automatic endpoint or credential fallback is provided.
 
 Custom Check connection calls authenticated `/protocol`, validates the protocol
@@ -433,16 +420,14 @@ version and configured chat/transcription capabilities, and performs no inferenc
 Our server requires a session token issued by that server. Selecting no authentication
 cannot bypass server authentication. Hosted session credentials are never reused for
 Custom URL; its token is stored separately and bound to the saved destination.
-Groq key verification uses its `/models` endpoint. Simple translation and reaction tasks use the Fast model; other chat tasks use Standard. Read-aloud uses the shared AI access route and its selected
+Simple translation and reaction tasks use the Fast model; other chat tasks use Standard. Read-aloud uses the shared AI access route and its selected
 speech model; actual playback requires device verification. A protocol check does not establish live inference quality.
 
 Standard and Fast model IDs apply to chat. Models settings selects only models,
 including Transcription and Read aloud. AI access selects one route for every
-capability: Hosted sign-in, API keys, or Custom URL. API keys uses OpenRouter for
-chat/read-aloud and Groq for transcription. Each capability uses only credentials
+capability: Hosted sign-in or Custom URL. Each capability uses only credentials
 from the shared selected route; missing credentials fail explicitly without fallback.
-Custom URL stores its address and authentication choice separately. The development
-schema is v21; older workspaces require Factory Reset. No migration is performed.
+Custom URL stores its address and authentication choice separately. Development data is disposable; reset only the affected scope when its format becomes incompatible.
 
 Hosted and custom chat batch only operations sharing captured destination and
 credential authority. Custom requests omit hosted install/platform/version headers.
@@ -451,18 +436,18 @@ The user verified local Custom URL chat with real configured inference keys;
 all seven local Firestore emulator tests passed. Recheck the native development
 session when resuming this branch; no new runtime check is implied by this summary.
 
-Saved API keys remain in the platform credential store; no session-only or plain-file
-storage option was added. See [credential decisions and sources](old/notes/SECURITY.md).
-Direct-key and Custom URL chat were user-verified. Groq-specific inference and
-microphone permission still need capability-specific verification. Restart the
-signed native development app after Rust changes; frontend reload alone is insufficient.
+Hosted and custom-server session tokens stay in the platform credential store.
+The desktop credential service is `com.freemocap.skellyspeak.credentials`.
+Old provider-named credentials are never read or copied into the new namespace.
+Sign in again or replace the custom-server session token if needed. The app does not access the retired namespace, even for deletion; old entries
+can remain in Keychain but are never used by this app.
+The application supports only its current schema; it does not convert old settings
+or retain retired route variants for historical receipts.
 
-
-AI access layout: OpenRouter and Groq keys are grouped together, with model
-preferences collapsed below. Hosted sign-in precedes usage/service details. Access
-configuration has no toolbar button. UI wording uses functional labels and compact
-spacing. The actual React settings components were inspected in an isolated visual
-fixture at 1180×820 and 390×780; this verifies layout, not native authentication.
+Restart the signed native development launcher once after updating its tooling.
+It then watches Rust changes and restarts the app automatically; frontend reload
+alone cannot load new native commands. AI access now has two tabs, Hosted sign-in
+and Custom URL. Live Keychain prompt behavior must be checked in the signed app.
 
 ## Reply translation slice
 
@@ -549,13 +534,15 @@ issues or commits; review them for private data before sharing.
 
 Each run captures process stdout/stderr in `stdout.jsonl` and `stderr.jsonl`,
 including inherited child output. `launcher.jsonl` records lifecycle and exit
-status. The native process adds `diagnostics.jsonl` (frontend events),
+status. Each native launch creates a unique `native-<uuid>/` subdirectory with
+`diagnostics.jsonl` (frontend events),
 `native.jsonl` (native events/log facade/panic notices), and its manifest. The
 local API adds `server-logging.jsonl`, `server-stdout.jsonl`,
 `server-stderr.jsonl`, and its manifest. The outer process streams preserve
 credential-redacted text; structured files preserve reviewed diagnostic fields.
-`SKELLYSPEAK_LOG_RUN_DIR` connects these sinks to the same run directory. Do not
-reuse a run directory for a second process of the same type.
+`SKELLYSPEAK_LOG_RUN_DIR` groups these sinks under the launcher run directory.
+Native reloads create fresh subdirectories there; they never reopen or overwrite
+the previous process's streams.
 
 For other local development tools, including the Firestore emulator, use
 `node tools/dev-run.ts process <executable> <arguments...>` to capture their
@@ -687,13 +674,16 @@ changes; the prompt preview shows the same assembly used by new turns.
 Lesson generation, quizzes and lesson handoffs have been removed. Coaching,
 evidence and conversation rewards remain. See the
 [implementation report](docs/notes/conversation-prompt-implementation-2026-09-18.md)
-for scope and verification. Database schema 26 requires an explicit development
-reset for older workspaces; it does not migrate or silently erase them.
+for scope and verification.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current development database schema is **28**; older workspaces require an
-explicit reset rather than a migration. App builds carry their own teaching content.
+The current database schema is **40**. There is no backwards-compatibility or
+versioned upgrade framework. Delete and recreate incompatible development data
+in the smallest practical feature scope; UI/code-only changes do not justify a
+reset. Reject unknown, damaged and newer databases explicitly rather than silently
+resetting them. Full Factory Reset is available when a scoped cleanup is impractical.
+App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in
 [the design-pass report](old/notes/workspace-redesign-report.md).

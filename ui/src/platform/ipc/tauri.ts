@@ -100,10 +100,10 @@ export async function getSettings(): Promise<Settings> {
   const preferences = snapshot.learner.preferences
   return {
     scope: { sessionId: snapshot.sessionId, conversationId: conversation.id, settingsRevision: conversation.settingsRevision, learnerRevision: snapshot.learner.revision, rewardRevision: rewards.revision },
-    provider_mode: connection.route === 'openrouter' ? 'cloud' : connection.route,
-    hosted_token: '', hosted_email: connection.email, install_id: '', openrouter_key: '', groq_key: '', custom_api_key: '',
+    provider_mode: connection.route,
+    hosted_email: connection.email,
     custom_base_url: access.custom.baseUrl, custom_model: connection.standardModel,
-    openrouter_model: connection.standardModel, observer_model: null,
+    standard_model: connection.standardModel, observer_model: null,
     my_languages: preferences.myLanguages, target_varieties: preferences.targetVarieties, script_scales: preferences.scriptScales ?? {},
     target_language: conversation.languageId, target_variety: conversation.settings.varietyId,
     native_language: conversation.settings.explanationLanguage,
@@ -159,7 +159,7 @@ async function writeSettings(settings: Settings): Promise<void> {
   const conversation = snapshot.conversations.find(c => c.id === scope.conversationId)
   if (!conversation) throw new Error('The settings conversation is unavailable.')
   if (conversation.settingsRevision !== scope.settingsRevision) throw new Error('Settings changed. Reload before saving.')
-  if (settings.openrouter_key || settings.groq_key || settings.custom_api_key || settings.hosted_token) throw new Error('Credentials must use the AI access controls.')
+  if (['openrouter_key', 'groq_key', 'custom_api_key', 'hosted_token', 'sessionToken'].some(field => (settings as unknown as Record<string, unknown>)[field])) throw new Error('Credentials must use the AI access controls.')
   if (settings.microphone_device_id !== null || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
   const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, effectsEnabled: settings.xp_effects !== false, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
   const currentRewards = await invoke<RewardSettings>('get_reward_settings')

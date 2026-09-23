@@ -27,12 +27,12 @@ fn returning_to_an_item_starts_a_new_visit_and_late_results_count_in_the_origina
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+            "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
             [],
         )
         .unwrap();
     store
-        .set_connection(1, Some("chat-reference"), "standard", "fast")
+        .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
         .unwrap();
     let target = crate::ai::connections::access::resolve(
         &store.connection,
@@ -85,12 +85,12 @@ fn a_visit_cannot_cross_languages_or_claim_another_items_recording() {
     store
         .connection
         .execute(
-            "UPDATE ai_config SET route='openrouter',groq_credential_id='audio-reference'",
+            "UPDATE ai_config SET route='hosted',hosted_credential_id='audio-reference'",
             [],
         )
         .unwrap();
     store
-        .set_connection(1, Some("chat-reference"), "standard", "fast")
+        .set_hosted_connection(1, Some("chat-reference"), "fixture@example.invalid")
         .unwrap();
     let target = crate::ai::connections::access::resolve(
         &store.connection,

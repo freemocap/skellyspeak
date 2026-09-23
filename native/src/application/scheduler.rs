@@ -16,10 +16,7 @@ impl Application {
             } else {
                 access::Capability::Chat
             };
-            let mut current = access::resolve(&store.connection, capability)?;
-            if dispatch.decisions.is_some() && current.route == ConnectionRoute::Openrouter {
-                current.url = provider::decisions::URL.into();
-            }
+            let current = access::resolve(&store.connection, capability)?;
             if current.route != dispatch.target.route
                 || current.url != dispatch.target.url
                 || current.credential != dispatch.target.credential
@@ -86,7 +83,6 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     0
                 };
                 if dispatch.speech_source.is_none()
-                    && dispatch.route != ConnectionRoute::Openrouter
                     && let Some(group) = groups.iter_mut().find(|g| {
                         g.len() < grouped::MAX_ITEMS
                             && g[0].0.speech_source.is_none()
@@ -154,26 +150,6 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                         }
                         finished[0] = true;
                         permits[0].take();
-                    } else if first.route == ConnectionRoute::Openrouter {
-                        // Prose streams; structured requests stay whole until
-                        // structured deltas are verified (plan D4).
-                        let request = || async {
-                            if first.decisions.is_some() {
-                                provider::decisions::complete(&client, &key, first).await
-                            } else if matches!(outputs[0], provider::RequestOutput::Prose) {
-                                provider::complete_streaming(&client, &key, first, |text| state.stream_delta(generations[0], &first.attempt, text)).await
-                            } else {
-                                provider::complete_with_output(&client, &key, first, outputs[0]).await
-                            }
-                        };
-                        let outcome = retry::run(
-                            request,
-                            || state.check_dispatches(std::slice::from_ref(first)),
-                            |error| state.lock()?.record_retry(first, error),
-                        ).await;
-                        state.finish_attempt(&app, generations[0], first, outcome)?;
-                        finished[0] = true;
-                        permits[0].take();
                     } else {
                         // Version 2 streams prose items' text; an older or
                         // custom server keeps the whole-result protocol.
@@ -211,7 +187,6 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                                         audio::SpeechOutcome {
                                             diagnostics: None,
                                             audio: Err(error),
-                                            transcript_diagnostics: None,
                                             actual_model: None,
                                             provider_id: None,
                                             input_tokens: None,

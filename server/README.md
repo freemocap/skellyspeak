@@ -94,6 +94,13 @@ The separate owner-only administration surface is documented below.
 
 ## Verification and deployment
 
+Startup verifies FFmpeg with a single, bounded 60-second check before accepting
+requests. This accommodates slower cold starts; a timeout, missing executable or
+nonzero exit still fails startup. Runtime events `decoder_check_started`,
+`decoder_check_finished` and `decoder_check_failed` report completion/failure
+duration. Failure diagnostics retain the timeout budget, reason, exit code or OS
+error number, and explicitly mark process output as omitted.
+
 From the repository root:
 
 ```sh

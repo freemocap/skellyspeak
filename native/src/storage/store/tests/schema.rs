@@ -36,6 +36,9 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
         15,
         16,
         17,
+        37,
+        38,
+        39,
         SCHEMA_VERSION + 1,
     ] {
         let connection = Connection::open(&path).unwrap();
@@ -53,7 +56,11 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
             Err(error) => error,
         };
         assert_eq!(error.code, ErrorCode::Storage);
-        assert!(error.message.contains("Factory Reset"), "{}", error.message);
+        assert!(
+            error.message.contains("No data was changed"),
+            "{}",
+            error.message
+        );
         let connection = Connection::open(&path).unwrap();
         assert_eq!(
             connection

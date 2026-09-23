@@ -233,18 +233,32 @@ Any implementation reuse requires explicit review against the approved design
 after implementation is authorized. Do not run or maintain the reference
 application as part of design work.
 
-The rebuild starts from empty application data. No compatibility layers, imports,
-backups or data-conversion work.
+The rebuild starts from current application data only. No backwards compatibility,
+legacy credential copying, imports, backups, format conversion or versioned upgrade
+frameworks are required. Do not retain obsolete schemas, route variants or saved
+configuration solely to preserve development history.
 
-Development application data is disposable. The user explicitly authorizes agents
-to erase and recreate SkellySpeak user data as needed during development, without
-repeat confirmation. Existing conversations, progress and generation receipts need
-not survive schema changes. Prefer a clean current schema over preservation or
-migration work. This is development authorization, not permission for silent
-production data loss; retain explicit errors and correct workspace ownership.
-This does not authorize deleting source code, Git history or unrelated app data.
+Development application data is disposable. When a change makes data incompatible,
+delete and recreate the affected feature's data rather than converting it. Keep the
+scope proportional: UI/code changes do not justify a reset, and a local feature
+change does not automatically justify deleting unrelated application data. Review
+foreign-key, file and credential ownership before a targeted deletion. A full reset
+is allowed when shared schema incompatibility makes a smaller cleanup impractical;
+explain the actual scope instead of adding preservation machinery.
+
+The user authorizes this development cleanup without repeat confirmation. Retain
+workspace locking and explicit failure reporting; never silently reset unknown,
+damaged or newer databases. This is not permission for silent production data loss,
+or for deleting source code, Git history or unrelated app data. Ordinary product
+records (such as Drill attempts) remain product features, not a promise to preserve
+old formats or retired configurations.
 
 ## Collaboration
+
+Edit the shared checkout in place. Do not overwrite it with whole files from a
+stale clone. Before editing, read the current file and diff; preserve changes made
+by another agent. A successful copy or clean type-check does not prove feature
+wiring survived. Verify the affected user flow and regression tests.
 
 Keep communication concrete and concise. Product UI uses plain functional labels:
 no marketing copy, slogans, saccharine encouragement or filler. This rule governs

@@ -15,7 +15,7 @@ request_id: ContextVar[str | None] = ContextVar("request_id", default=None)
 EVENTS = {
     "request_started", "request_finished", "request_failed", "request_cancelled",
     "response_progress", "client_disconnected", "runtime_started",
-    "runtime_stopped", "decoder_check_started", "decoder_check_finished",
+    "runtime_stopped", "decoder_check_started", "decoder_check_finished", "decoder_check_failed",
     "provider_credential_checked", "provider_retry_scheduled", "provider_error_response", "provider_headers", "provider_started", "provider_finished", "provider_failed", "provider_cancelled",
     "reservation_started", "reservation_finished", "reservation_failed",
     "settlement_started", "settlement_finished", "settlement_failed",

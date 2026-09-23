@@ -1,4 +1,4 @@
-//! Provider-neutral hosted/custom speech wire protocol. Direct adapters stay separate.
+//! Provider-neutral hosted/custom speech wire protocol.
 use crate::ai::audio::{SpeechInput, SpeechOutcome};
 use crate::ai::connections::access::{ResolvedTarget, response_bytes};
 use crate::ai::hosted;

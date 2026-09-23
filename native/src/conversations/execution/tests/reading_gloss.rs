@@ -361,12 +361,7 @@ fn g2_cancel_and_revocation_block_publication_and_retry() {
         let (gloss, translation) = gloss_children(&mut store, &conversation, "Hola.");
         if revoke {
             store
-                .set_connection(
-                    2,
-                    None,
-                    "google/gemini-2.5-flash",
-                    "google/gemini-2.5-flash-lite",
-                )
+                .set_hosted_connection(2, None, "fixture@example.invalid")
                 .unwrap();
         } else {
             let turn = store

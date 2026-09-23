@@ -50,9 +50,8 @@ the turn's captured language and source context remain fixed. Store commands ret
 the transaction, receipt and replay boundary. Existing dispatch, holds, validation,
 publication and safe response diagnostics serve all three operations.
 
-Schema 26 replaces the former automatic assistance graph. Older development
-workspaces require the existing explicit reset path; no migration or silent reset
-is performed. Contracts come from Rust and include each operation's reply-help kind
+Schema 26 replaced the former automatic assistance graph. The current workspace
+upgrade policy below supersedes the former reset-on-version-change policy. Contracts come from Rust and include each operation's reply-help kind
 and each partner message's captured reading scope.
 
 ### Subfolder groups
@@ -135,7 +134,7 @@ Transport tests use local loopback servers; allow localhost binding when running
 inside a sandbox. They do not need live AI providers. The UI registration check
 reads `src/application/startup.rs`, where the `generate_handler!` list lives.
 
-`ai/policy/retry.rs` owns bounded automatic retries for direct text/decision
+`ai/policy/retry.rs` owns bounded automatic retries for eligible provider
 requests, transcription, read-aloud, reading help and persona generation. All use
 one runner with typed outcomes and owner-specific authority/persistence callbacks:
 three retries, 1/2/4-second exponential delays plus up to 250ms jitter, and a
@@ -206,8 +205,8 @@ transcripts, comparisons and usage receipts remain. References use a separate
 and interrupted cleanup is retried on startup. In-progress replay owns loaded
 bytes rather than a file handle. SQLite incremental vacuum reclaims freed media
 pages after pruning, file publication and phrase deletion. Export includes the
-database and `drill-audio`; reset removes both. Development schema 34 requires
-explicit reset of older workspaces.
+database and `drill-audio`; explicit Factory Reset removes both. Development data may be deleted when its feature format changes; do not build
+legacy format conversion to retain it.
 
 ### Transcription boundary
 
@@ -217,13 +216,17 @@ Drill item owner, and captures execution settings once. `ai/transport/` owns lan
 provider HTTP formats and response decoding. Fluency analysis consumes normalized
 timing only; inspection shows bounded redacted diagnostic metadata separately.
 
-Model selection remains independent of Hosted, Custom URL and API-key access.
-Whisper Large v3 is the new-workspace default. Direct access resolves Groq or
-ElevenLabs credentials from the selected transcription model; service access
-forwards that model unchanged. There is no model or route fallback.
-The ElevenLabs credential slot requires development schema 28. Older workspaces
-are refused without modification and require an explicit reset, per the repository
-policy. No reset is performed by this source change.
+Model selection is shared by Hosted sign-in and Custom URL. Both routes use
+SkellySpeak service contracts for text, transcription and speech. Provider
+credentials and provider-specific transports belong on the server. There is no
+model or route fallback. New workspaces default to `scribe_v2` transcription and
+`eleven_v3` speech; existing model selections are preserved.
+
+Only the current schema is supported. Desktop credentials use
+`com.freemocap.skellyspeak.credentials`. There is no fallback read or relocation
+from the retired provider namespace; existing sessions can be re-established.
+Deletion uses only the current namespace. Retired Keychain entries are left untouched
+so cleanup cannot provoke authorization for a removed access route.
 
 ### Reviewed phrase generation
 
@@ -237,3 +240,13 @@ conversation configuration.
 `drill/previews.rs` owns durable candidates and transactional, IDs-only acceptance.
 `drill/conversation_source.rs` extracts exact sentence spans without inference and
 revalidates their source before adoption. Schema 36 uses fresh development data.
+
+### Development data
+
+Schema 40 is the only supported format. Do not keep old DDL, format converters,
+versioned upgrade chains, persistent upgrade notices, or obsolete route variants.
+When a change invalidates stored development data, remove the affected feature's
+data rather than converting it. Review foreign keys, files and credential ownership
+first. A code/UI change alone does not require a reset. Keep workspace locking and
+explicit schema/integrity errors. Use a full reset only when a smaller cleanup is
+impractical; this is development authorization, not silent production data loss.

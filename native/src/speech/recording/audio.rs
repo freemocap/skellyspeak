@@ -36,6 +36,7 @@ const MAX_SECONDS: u32 = 120;
 struct Buffers {
     /// Every captured sample, mono, for the WAV.
     pcm: Vec<f32>,
+    total_samples: usize,
     /// Decimated samples the UI has not drawn yet.
     wave: Vec<f32>,
     /// Set when `pcm` hit [`MAX_SECONDS`]. The recording is no longer complete,
@@ -86,7 +87,8 @@ fn push(buffers: &Arc<Mutex<Buffers>>, mono: &[f32], limit: usize) {
         b.overflowed = true;
         return;
     }
-    let offset = b.pcm.len();
+    let offset = b.total_samples;
+    b.total_samples += mono.len();
     b.pcm.extend_from_slice(mono);
     // Strided against the running total, not the callback, so the decimation
     // stays even across buffer boundaries.
@@ -241,6 +243,21 @@ impl Capture {
         Ok(std::mem::take(&mut b.wave))
     }
 
+    /// Bounded worker consumes PCM; the device callback only appends samples.
+    pub(super) fn drain(&self) -> Result<(u32, Vec<f32>), String> {
+        let mut b = self
+            .buffers
+            .lock()
+            .map_err(|_| "Audio buffers unavailable.")?;
+        if let Some(error) = &b.error {
+            return Err(error.clone());
+        }
+        if b.overflowed {
+            return Err("Microphone buffer overflow; recording stopped.".into());
+        }
+        Ok((self.sample_rate, std::mem::take(&mut b.pcm)))
+    }
+
     fn halt(&mut self) {
         let _ = self.stop.send(());
         if let Some(t) = self.thread.take()
@@ -285,7 +302,7 @@ impl Capture {
 }
 
 /// Mono 16-bit PCM WAV, which is what the transcription endpoints accept.
-fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
+pub(super) fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
     let spec = hound::WavSpec {
         channels: 1,
         sample_rate,
@@ -312,6 +329,21 @@ fn encode_wav(samples: &[f32], sample_rate: u32) -> Result<Vec<u8>, String> {
 impl Drop for Capture {
     fn drop(&mut self) {
         self.halt();
+    }
+}
+
+#[cfg(test)]
+pub(super) fn fixture(samples: Vec<f32>, sample_rate: u32) -> Capture {
+    let (stop, _) = mpsc::channel();
+    Capture {
+        stop,
+        buffers: Arc::new(Mutex::new(Buffers {
+            pcm: samples,
+            ..Buffers::default()
+        })),
+        sample_rate,
+        thread: None,
+        device_label: "fixture".into(),
     }
 }
 

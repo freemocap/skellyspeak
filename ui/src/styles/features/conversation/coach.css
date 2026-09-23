@@ -161,7 +161,6 @@
 .analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--interaction-tint); }
 .analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--interaction-ink); }
 .analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--interaction-ink); }
-.analysis-sentence > .trans-d { margin: var(--space-2) 0 0; font-style: normal; }
 .live-coach-review > .analysis-sentence { margin: 0; }
 .detail-dialog > .analysis-sentence { clear: both; margin-bottom: var(--space-6); }
 
@@ -182,9 +181,6 @@
 .coach-chat-toggle { min-width: 32px; border: 0; border-inline-start: var(--border-width) solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
 .coach-chat-resize:focus-visible, .coach-chat-toggle:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: -2px; }
 @media (pointer: coarse) { .coach-chat-divider { min-height: var(--touch-target); } .coach-chat-toggle { min-width: var(--touch-target); } }
-
-.study-credit-badges { display: flex; gap: var(--space-4); min-height: var(--control-height); }
-.study-credit-badges .inline-xp-badge { position: relative; inset: auto; margin: var(--space-4); }
 
 .detail-dialog .coach-entry-said { margin-bottom: var(--space-7); }
 

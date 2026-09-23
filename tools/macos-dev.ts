@@ -173,14 +173,6 @@ async function launch() {
       server.close((error) => (error ? reject(error) : resolve())),
     );
   });
-  run("cargo", [
-    "build",
-    "--manifest-path",
-    "native/Cargo.toml",
-    "--bin",
-    "skellyspeak",
-  ]);
-  if (!bundle(fingerprint)) sign(fingerprint);
   const vite = spawn(
     process.execPath,
     ["node_modules/vite/bin/vite.js", "ui", "--host", "127.0.0.1"],
@@ -194,9 +186,11 @@ async function launch() {
   void viteStopped.catch(() => {});
   let native: ChildProcess | undefined;
   let nativeDone: Promise<void> | undefined;
+  let build: ChildProcess | undefined;
   const readiness = new AbortController();
   const stop = () => {
     readiness.abort();
+    build?.kill("SIGTERM");
     native?.kill("SIGTERM");
     vite.kill("SIGTERM");
   };
@@ -225,13 +219,19 @@ async function launch() {
       throw new Error("Vite did not become ready after 60 attempts.");
     };
     await Promise.race([ready(), viteStopped]);
-    // Run the signed bundle executable so logs, exit status and IDE Stop stay
-    // attached to this launcher. macOS resolves its enclosing app's Info.plist.
-    native = spawn(resolve(app, "Contents/MacOS/skellyspeak"), [], {
-      cwd: root,
-      stdio: "inherit",
+    // Explicit signed permission smoke test. Normal development uses tauri dev;
+    // do not maintain a second native file watcher/restart implementation here.
+    build = spawn("cargo", ["build", "--manifest-path", "native/Cargo.toml", "--bin", "skellyspeak"], {
+      cwd: root, stdio: "inherit",
     });
+    await completion(build);
+    build = undefined;
+    if (readiness.signal.aborted) return;
+    if (!bundle(fingerprint)) sign(fingerprint);
+    if (readiness.signal.aborted) return;
+    native = spawn(resolve(app, "Contents/MacOS/skellyspeak"), [], { cwd: root, stdio: "inherit" });
     nativeDone = completion(native);
+    console.log("Signed app launched. Vite HMR is active; restart this command after native changes.");
     await Promise.race([nativeDone, viteStopped]);
   } finally {
     stop();

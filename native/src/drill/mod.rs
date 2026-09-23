@@ -320,7 +320,11 @@ impl Store {
             let mut file = std::fs::File::create(&temporary)?;
             file.write_all(wav)?;
             file.sync_all()?;
+            drop(file);
             std::fs::rename(&temporary, &path)?;
+            // Unix supports flushing directory entries after rename. Opening a
+            // directory as a regular File fails with access denied on Windows.
+            #[cfg(unix)]
             std::fs::File::open(&self.drill_audio)?.sync_all()?;
             Ok(())
         };

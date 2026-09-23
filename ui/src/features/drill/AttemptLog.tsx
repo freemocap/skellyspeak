@@ -1,13 +1,15 @@
+import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
-import type { DrillAttemptView, DrillComparison } from '../../generated/contracts'
+import type { DrillAttemptView, DrillComparison, ListeningTake } from '../../generated/contracts'
 
 /** Every attempt at the selected phrase, newest first, a page at a time.
  *
  * A card states what was measured and nothing more. There is no graded verdict:
  * the measurement compares recognized text, not pronunciation, so a
  * Match/Close/Off scale here would be an invented one. */
-export function AttemptLog({ attempts, loading, hasMore, failure, selectedId, onSelect, onLoadMore, onRetry }: {
+export function AttemptLog({ attempts, loading, hasMore, failure, selectedId, onSelect, onLoadMore, onRetry, liveTakes }: {
+  liveTakes: ListeningTake[]
   attempts: DrillAttemptView[]
   loading: boolean
   hasMore: boolean
@@ -18,17 +20,38 @@ export function AttemptLog({ attempts, loading, hasMore, failure, selectedId, on
   onRetry: () => void
 }) {
   const tr = useI18n()
-  if (failure != null) return <p role="alert">{errorMessage(failure)}
+  const linked = new Set(liveTakes.map(take => take.recordingId))
+  const history = attempts.filter(attempt => !attempt.transcriptionAttemptId || !linked.has(attempt.transcriptionAttemptId))
+  const failureNotice = failure != null && <p role="alert">{errorMessage(failure)}
     <button type="button" className="btn" onClick={onRetry}>{tr("Try again")}</button></p>
-  if (!attempts.length) {
-    return loading
-      ? <p role="status">{tr("Loading…")}</p>
-      : <p className="center-note">{tr("No attempts yet. Record one to compare.")}</p>
-  }
-  return (<>
+  if (!attempts.length && !liveTakes.length) return <>{failureNotice}{failure == null && (loading
+    ? <p role="status">{tr("Loading…")}</p>
+    : <p className="center-note">{tr("No attempts yet. Record one to compare.")}</p>)}</>
+  return <>{failureNotice}
     <ol className="drill-attempts">
-      {attempts.map(attempt => (
-        <li key={attempt.id}>
+      {[...liveTakes].reverse().map(take => {
+        const attempt = attempts.find(item => item.transcriptionAttemptId === take.recordingId)
+        return <li key={take.recordingId} className="drill-take-arrival" data-recording-id={take.recordingId}>
+          {attempt ? <AttemptResult attempt={attempt} selectedId={selectedId} onSelect={onSelect} /> :
+            <article className="drill-take-pending" data-state={take.state} aria-busy={take.state === 'queued' || take.state === 'processing'}>
+              <div className="drill-attempt-head"><strong>{tr('Take {value0}', { value0: take.number })}</strong>
+                <span className="drill-chip">{tr('{value0} seconds', { value0: tr.number(take.endSeconds - take.startSeconds, { maximumFractionDigits: 1 }) })}</span></div>
+              <p role="status">{take.state === 'queued' ? tr('Queued') : take.state === 'processing' ? tr('Transcribing…') : take.state === 'failed' ? tr('Take failed') : tr('Loading result…')}</p>
+              {(take.state === 'queued' || take.state === 'processing') && <div className="drill-take-progress" aria-hidden="true"><span /></div>}
+              {take.failure && <><p>{errorMessage(take.failure)}</p><ResponseDetails value={take.failure} /></>}
+            </article>}
+        </li>
+      })}
+      {history.map(attempt => <li key={attempt.id}><AttemptResult attempt={attempt} selectedId={selectedId} onSelect={onSelect} /></li>)}
+    </ol>
+    {hasMore && <button type="button" className="btn drill-more" disabled={loading} onClick={onLoadMore}>
+      {tr(loading ? "Loading…" : "Show older attempts")}
+    </button>}
+  </>
+}
+function AttemptResult({ attempt, selectedId, onSelect }: { attempt: DrillAttemptView; selectedId: string | null; onSelect: (id: string) => void }) {
+  const tr = useI18n()
+  return (
           <button type="button" className="drill-attempt" aria-current={attempt.id === selectedId}
             onClick={() => onSelect(attempt.id)}>
             <span className="drill-attempt-head">
@@ -42,13 +65,7 @@ export function AttemptLog({ attempts, loading, hasMore, failure, selectedId, on
             <bdi className="drill-attempt-transcript">{attempt.transcript || tr("Nothing was transcribed.")}</bdi>
             <span className="drill-attempt-meta">{meta(attempt, tr)}</span>
           </button>
-        </li>
-      ))}
-    </ol>
-    {hasMore && <button type="button" className="btn drill-more" disabled={loading} onClick={onLoadMore}>
-      {tr(loading ? "Loading…" : "Show older attempts")}
-    </button>}
-  </>)
+  )
 }
 
 /// The measured match as a percentage, or a statement that it could not be

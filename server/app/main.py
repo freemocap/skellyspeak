@@ -82,9 +82,8 @@ CFG = config.load()
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     runtime.emit("runtime_started")
-    runtime.emit("decoder_check_started")
-    await asyncio.to_thread(audio_input.verify_decoder)
-    runtime.emit("decoder_check_finished")
+    async with runtime.phase("decoder_check"):
+        await asyncio.to_thread(audio_input.verify_decoder)
     try:
         yield
     finally:

@@ -3,12 +3,12 @@ use super::*;
 #[test]
 fn model_selection_is_shared_across_routes_without_changing_credentials() {
     let (dir, mut store, _) = setup();
-    let credentials: (Option<String>, Option<String>, Option<String>) = store
+    let credentials: (Option<String>, Option<String>) = store
         .connection
         .query_row(
-            "SELECT credential_id,hosted_credential_id,custom_credential_id FROM ai_config",
+            "SELECT hosted_credential_id,custom_credential_id FROM ai_config",
             [],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .unwrap();
     let revision = store.connection_config().unwrap().revision;
@@ -28,11 +28,7 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
             AssessmentAdapter::ChatModel,
         )
         .unwrap();
-    for route in [
-        ConnectionRoute::Hosted,
-        ConnectionRoute::Openrouter,
-        ConnectionRoute::Custom,
-    ] {
+    for route in [ConnectionRoute::Hosted, ConnectionRoute::Custom] {
         let revision = store.connection_config().unwrap().revision;
         store.select_route(revision, route).unwrap();
         let config = store.connection_config().unwrap();
@@ -42,12 +38,12 @@ fn model_selection_is_shared_across_routes_without_changing_credentials() {
         assert_eq!(config.route, route);
         assert_eq!(config.audio.speech.model, "independent-speech");
     }
-    let after: (Option<String>, Option<String>, Option<String>) = store
+    let after: (Option<String>, Option<String>) = store
         .connection
         .query_row(
-            "SELECT credential_id,hosted_credential_id,custom_credential_id FROM ai_config",
+            "SELECT hosted_credential_id,custom_credential_id FROM ai_config",
             [],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            |row| Ok((row.get(0)?, row.get(1)?)),
         )
         .unwrap();
     assert_eq!(after, credentials);
@@ -91,7 +87,7 @@ fn credential_changes_never_select_a_route() {
     let (_dir, mut store, _) = setup();
     store.select_route(2, ConnectionRoute::Custom).unwrap();
     store
-        .set_connection(3, Some("replacement"), "standard", "fast")
+        .set_hosted_connection(3, Some("replacement"), "fixture@example.invalid")
         .unwrap();
     assert_eq!(
         store.connection_config().unwrap().route,
@@ -119,8 +115,15 @@ fn credential_changes_never_select_a_route() {
 }
 
 #[test]
-fn hosted_revocation_blocks_publication_and_keeps_own_key() {
+fn hosted_revocation_blocks_publication_and_keeps_custom_token() {
     let (_dir, mut store, conversation) = setup();
+    store
+        .connection
+        .execute(
+            "UPDATE ai_config SET custom_credential_id='custom-token'",
+            [],
+        )
+        .unwrap();
     store
         .set_hosted_connection(2, Some("hosted-token"), "test@example.com")
         .unwrap();
@@ -138,11 +141,17 @@ fn hosted_revocation_blocks_publication_and_keeps_own_key() {
             .len(),
         1
     );
-    assert_eq!(
-        store.credential_id().unwrap().as_deref(),
-        Some("test-credential")
-    );
     assert!(!store.connection_config().unwrap().signed_in);
+    assert_eq!(
+        store
+            .connection
+            .query_row("SELECT custom_credential_id FROM ai_config", [], |r| r
+                .get::<_, String>(
+                0
+            ))
+            .unwrap(),
+        "custom-token"
+    );
 }
 
 #[test]
@@ -153,7 +162,7 @@ fn route_switch_preserves_dispatched_route_and_profile_reports_real_usage() {
         .unwrap();
     store.select_route(3, ConnectionRoute::Hosted).unwrap();
     let dispatch = begin(&mut store, &conversation);
-    store.select_route(4, ConnectionRoute::Openrouter).unwrap();
+    store.select_route(4, ConnectionRoute::Custom).unwrap();
     store.finish(&dispatch, Ok(reply("Hola."))).unwrap();
     let chat = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(chat.turns[0].route, ConnectionRoute::Hosted);
@@ -161,7 +170,7 @@ fn route_switch_preserves_dispatched_route_and_profile_reports_real_usage() {
     store.set_hosted_connection(5, None, "").unwrap();
     assert_eq!(
         store.connection_config().unwrap().route,
-        ConnectionRoute::Openrouter
+        ConnectionRoute::Custom
     );
     let profile = store.profile().unwrap();
     assert_eq!(profile.global.attempts, 1);

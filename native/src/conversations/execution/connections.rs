@@ -7,7 +7,7 @@ fn valid_model_id(model: &str) -> bool {
 }
 
 pub fn config(db: &Connection) -> Result<ConnectionConfig> {
-    let (revision,key,standard,fast,transcription,paused,route,hosted,email):(i32,bool,String,String,String,bool,String,bool,String)=db.query_row("SELECT revision,credential_id IS NOT NULL,standard_model,fast_model,audio_settings,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?,r.get(8)?)))?;
+    let (revision,standard,fast,transcription,paused,route,hosted,email):(i32,String,String,String,bool,String,bool,String)=db.query_row("SELECT revision,standard_model,fast_model,audio_settings,paused,route,hosted_credential_id IS NOT NULL,hosted_email FROM ai_config WHERE singleton=1",[],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?,r.get(4)?,r.get(5)?,r.get(6)?,r.get(7)?)))?;
     let route = ConnectionRoute::parse(&route)?;
     let access = crate::ai::connections::access::settings(db)?;
     Ok(ConnectionConfig {
@@ -19,11 +19,9 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
         revision,
         configured: if route == ConnectionRoute::Hosted {
             hosted
-        } else if route == ConnectionRoute::Custom {
+        } else {
             !access.custom.base_url.is_empty()
                 && (!access.custom.bearer_auth || access.custom_key_configured)
-        } else {
-            key
         },
         standard_model: standard,
         fast_model: fast,
@@ -31,7 +29,6 @@ pub fn config(db: &Connection) -> Result<ConnectionConfig> {
         paused,
         route,
         signed_in: hosted,
-        own_key_configured: key,
         email,
     })
 }
@@ -45,7 +42,7 @@ pub(crate) fn new_attempt_id() -> String {
 }
 
 pub(crate) fn active_credential(db: &Connection) -> Result<Option<String>> {
-    Ok(db.query_row("SELECT CASE route WHEN 'hosted' THEN hosted_credential_id WHEN 'custom' THEN CASE WHEN json_extract(custom_config,'$.bearerAuth') THEN custom_credential_id ELSE '' END ELSE credential_id END FROM ai_config",[],|r|r.get(0))?)
+    Ok(db.query_row("SELECT CASE route WHEN 'hosted' THEN hosted_credential_id WHEN 'custom' THEN CASE WHEN json_extract(custom_config,'$.bearerAuth') THEN custom_credential_id ELSE '' END ELSE NULL END FROM ai_config",[],|r|r.get(0))?)
 }
 
 pub(crate) fn invalidate(db: &Connection, revoked: Option<ConnectionRoute>) -> Result<()> {
@@ -147,42 +144,6 @@ impl Store {
             self.connection
                 .execute("DELETE FROM credential_cleanup WHERE id=?1", [id])?;
         }
-        Ok(())
-    }
-
-    pub fn credential_id(&self) -> Result<Option<String>> {
-        Ok(self
-            .connection
-            .query_row("SELECT credential_id FROM ai_config", [], |r| r.get(0))?)
-    }
-
-    pub fn set_connection(
-        &mut self,
-        expected: i32,
-        credential: Option<&str>,
-        standard: &str,
-        fast: &str,
-    ) -> Result<()> {
-        if ![standard, fast].iter().all(|model| valid_model_id(model)) {
-            return Err(fail(
-                "Provide explicit valid model IDs for Standard and Fast.",
-            ));
-        }
-        let tx = self.connection.transaction()?;
-        if config(&tx)?.revision != expected {
-            return Err(AppError::new(
-                ErrorCode::Conflict,
-                "AI connection changed. Reload its settings.",
-            ));
-        }
-        tx.execute("INSERT OR IGNORE INTO credential_cleanup SELECT credential_id FROM ai_config WHERE credential_id IS NOT NULL AND credential_id IS NOT ?1",[credential])?;
-        if let Some(id) = credential {
-            tx.execute("DELETE FROM credential_cleanup WHERE id=?1", [id])?;
-        }
-        tx.execute("UPDATE ai_config SET revision=revision+1,credential_id=?1,standard_model=?2,fast_model=?3",params![credential,standard,fast])?;
-        invalidate(&tx, Some(ConnectionRoute::Openrouter))?;
-        bump(&tx)?;
-        tx.commit()?;
         Ok(())
     }
 

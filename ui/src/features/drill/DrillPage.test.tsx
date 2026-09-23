@@ -108,7 +108,7 @@ beforeEach(() => {
       default: throw new Error(`Unexpected native command: ${command}`)
     }
   })
-  speak.mockResolvedValue({ audioBase64: 'cmVmZXJlbmNl', receipt: null })
+  speak.mockImplementation(async (...args) => { const result = { audioBase64: 'cmVmZXJlbmNl', receipt: null }; await args[5]?.onAudio?.(result); return result })
   play.mockReturnValue({ play: () => Promise.resolve(), stop: vi.fn() })
   vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} })
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', '') }
@@ -164,7 +164,7 @@ it('shows the measured comparison, the words that differed, and replays the atte
   await waitFor(() => expect(screen.getByRole('button', { name: 'Play yours' })).toBeEnabled(), { timeout: 5000 })
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
   expect(play).toHaveBeenCalledOnce()
-  expect(play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), expect.any(Function), 0.85, 0.15)
+  expect(play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), expect.any(Function), 0.85, 0.15, undefined)
   // With no reference played yet, the panel says so instead of comparing one.
   expect(screen.getByText('Play the reference to compare it with this attempt.')).toBeVisible()
 })
@@ -177,7 +177,7 @@ it('pairs the reference with the attempt once the reference has been heard', asy
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl' }), { timeout: 5000 })
   expect(speak).toHaveBeenCalledWith(
     expect.objectContaining({ text: 'Quisiera un café.', aid: 'speech', language: 'spanish', referenceItem: 'item-1' }),
-    expect.any(AbortSignal), expect.any(Function), expect.any(Number), expect.any(Number))
+    expect.any(AbortSignal), expect.any(Function), expect.any(Number), expect.any(Number), expect.objectContaining({ onAudio: expect.any(Function), onTime: expect.any(Function) }))
   // Both recordings are captioned with their own measured length.
   expect(await screen.findByText(/^Reference · /, {}, { timeout: 5000 })).toBeVisible()
   expect(screen.getByText(/^You · /)).toBeVisible()
@@ -249,18 +249,19 @@ it('retries retained audio after a storage failure without creating another atte
 
 it('never attaches one phrase’s reference to another', async () => {
   items = [item(), second()]
-  let release: (value: { audioBase64: string }) => void = () => {}
-  speak.mockImplementation(() => new Promise(resolve => { release = resolve }))
+  let release!: (value: unknown) => void
+  const native = invoke.getMockImplementation()!
+  invoke.mockImplementation((command, args) => command === 'inspect_drill_audio'
+    ? new Promise(resolve => { release = resolve }) : native(command, args))
   app()
-  await screen.findByRole('button', { name: 'Hear it' })
-  fireEvent.click(screen.getByRole('button', { name: 'Hear it' }))
-  // The learner moves on while the speech is still being fetched.
+  fireEvent.click(await screen.findByRole('button', { name: 'Hear it' }))
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl' }))
+  // The learner moves on while the reference inspection is still being prepared.
   fireEvent.click(screen.getAllByRole('button').find(node => node.textContent?.startsWith('Hasta luego.'))!)
   expect((speak.mock.calls[0][1] as AbortSignal).aborted).toBe(true)
-  await act(async () => { release({ audioBase64: 'cmVmZXJlbmNl' }) })
-  // The reference belonged to the phrase that asked for it.
+  await act(async () => { release(inspection) })
   expect(invoke).not.toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-2', audioBase64: 'cmVmZXJlbmNl' })
-  expect(screen.queryByText('Reference')).toBeNull()
+  expect(screen.queryByRole('slider', { name: 'Seek reference audio' })).toBeNull()
 })
 
 it('asks about the phrase in its own stored language, and only once', async () => {
@@ -433,4 +434,59 @@ it('announces what the microphone is doing without the learner looking', async (
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(live).toHaveTextContent('Recording'))
+})
+
+it('wires repeated takes, native cuts and live spectra into the real Drill page', async () => {
+  items = [item()]
+  const native = invoke.getMockImplementation()!
+  const take = { recordingId: 'take-1', number: 1, startSeconds: 0, endSeconds: 1, cutSeconds: 1.6, state: 'processing', failure: null }
+  const status = { recordingId: 'listening-1', listening: true, speaking: false, queued: 0, processing: true, completed: 0, failure: null, takes: [take] }
+  invoke.mockImplementation(async (command, args) => {
+    if (command === 'mic_listen_start') return { recordingId: 'listening-1', samplesPerSecond: 689, browserCapture: false }
+    if (command === 'mic_listen_status') return status
+    if (command === 'mic_listen_spectrogram') return args.afterSeconds === null ? { data: inspection.spectrogram, endSeconds: 2 } : null
+    if (command === 'mic_listen_discard') return
+    if (command === 'mic_listen_stop') { status.listening = false; return }
+    return native(command, args)
+  })
+  app()
+  fireEvent.click(await screen.findByRole('checkbox', { name: 'Repeat with pauses (desktop)' }))
+  fireEvent.change(screen.getByRole('combobox', { name: 'Pause between takes' }), { target: { value: '600' } })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_start', { owner: { kind: 'drillItem', id: 'item-1' }, pauseMs: 600 }))
+  expect(await screen.findByText('Take 1 clipped →')).toBeVisible()
+  expect(await screen.findByText('Transcribing…')).toBeVisible()
+  expect(document.querySelector('.live-take-region')).not.toBeNull()
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_spectrogram', { recordingId: 'listening-1', afterSeconds: null }))
+  expect(screen.getByRole('checkbox', { name: 'Repeat with pauses (desktop)' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Hear it' })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Discard current take' }))
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_discard', { recordingId: 'listening-1' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_stop', { recordingId: 'listening-1' }))
+  items = [item({ attempts: [attempt({ transcriptionAttemptId: 'take-1' })] })]
+  status.processing = false; status.completed = 1; take.state = 'completed'
+  expect(await within(screen.getByRole('complementary', { name: 'Attempts' })).findByRole('button', { name: /94%/ })).toBeVisible()
+  expect(screen.queryByText('Transcribing…')).toBeNull()
+  expect(invoke.mock.calls.some(([command]) => command === 'mic_start')).toBe(false)
+})
+
+it('shows reference audio before an attempt and seeks the actual player clock', async () => {
+  items = [item()]
+  const seek = vi.fn()
+  speak.mockImplementation(async (...args) => {
+    await args[5].onAudio({ audioBase64: 'cmVmZXJlbmNl', receipt: null })
+    args[5].onReady({ seek })
+    args[5].onTime(0.25, 1)
+    await new Promise<void>(resolve => args[1].addEventListener('abort', () => resolve(), { once: true }))
+  })
+  const view = app()
+  fireEvent.click(await screen.findByRole('button', { name: 'Hear it' }))
+  const slider = await screen.findByRole('slider', { name: 'Seek reference audio' })
+  await waitFor(() => expect(slider).toHaveValue('0.25'))
+  fireEvent.change(slider, { target: { value: '0.7' } })
+  expect(seek).toHaveBeenCalledWith(0.7)
+  expect(speak).toHaveBeenCalledOnce()
+  view.unmount()
 })
