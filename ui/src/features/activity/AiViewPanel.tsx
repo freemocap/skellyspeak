@@ -79,7 +79,7 @@ export function AiViewPanel({ open, onOpenChange }: AiViewPanelProps) {
       .catch(error => reportFault('Opening the AI window', error))
   }
 
-  if (isMobile) return open ? <DetailDialog title={tr("AI activity")} size="wide" onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><AiView mode="expanded" actions={null} /></div></DetailDialog> : null
+  if (isMobile) return open ? <DetailDialog capture="preserve" title={tr("AI activity")} size="wide" onClose={() => onOpenChange(false)}><div className="mobile-ai-panel"><AiView mode="expanded" actions={null} /></div></DetailDialog> : null
   if (!open) return null
 
   const actions = <>

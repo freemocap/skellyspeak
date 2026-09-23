@@ -16,3 +16,16 @@ it('dismisses only backdrop clicks, not dialog padding or content', () => {
   fireEvent.click(dialog, { clientX: 20, clientY: 20 })
   expect(close).toHaveBeenCalledOnce()
 })
+
+it('allows capture policy to be preserved independently of dialog geometry', async () => {
+  const { beginCapture, endCapture } = await import('../../platform/audio/speech')
+  const suspend = vi.fn()
+  const token = beginCapture(suspend)
+  try {
+    const view = render(<DetailDialog capture="preserve" title="Report" onClose={() => {}}>Report</DetailDialog>)
+    expect(suspend).not.toHaveBeenCalled()
+    view.unmount()
+    render(<DetailDialog capture="suspend" title="Other view" onClose={() => {}}>Other view</DetailDialog>)
+    expect(suspend).toHaveBeenCalledOnce()
+  } finally { endCapture(token) }
+})
