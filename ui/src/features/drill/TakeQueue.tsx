@@ -1,0 +1,35 @@
+import { useI18n } from '../../components/localization/i18n'
+import { ResponseDetails } from '../../components/feedback/ResponseDetails'
+import { errorMessage } from '../../platform/diagnostics/error-details'
+import type { DrillAttemptView, ListeningTake } from '../../generated/contracts'
+import type { PendingRecording } from '../../platform/audio/useMicRecorder'
+import { AttemptResult } from './AttemptLog'
+
+/** Keep the recording identity (and its row) while native publishes the result. */
+export function TakeQueue({ takes, attempts, rtl, onSelect, onDelete, deleting }: {
+  takes: (ListeningTake | PendingRecording)[]
+  attempts: DrillAttemptView[]
+  rtl: boolean
+  onSelect: (id: string) => void
+  onDelete: (attempt: DrillAttemptView) => void
+  deleting: boolean
+}) {
+  const tr = useI18n()
+  if (!takes.length) return null
+  return <ol className="drill-attempts" aria-label={tr('Attempts')}>
+    {[...takes].reverse().map(take => {
+      const attempt = attempts.find(item => item.transcriptionAttemptId === take.recordingId)
+      const busy = take.state === 'queued' || take.state === 'processing'
+      return <li key={take.recordingId} className="drill-take-arrival" data-recording-id={take.recordingId}>
+        {attempt ? <AttemptResult attempt={attempt} rtl={rtl} onSelect={onSelect} onDelete={onDelete} deleting={deleting} /> :
+          <article className="drill-take-pending" data-state={take.state} aria-busy={busy}>
+            <div className="drill-attempt-head"><strong>{'number' in take ? tr('Take {value0}', { value0: take.number }) : tr('Recording')}</strong>
+              {'endSeconds' in take && <span className="drill-chip">{tr('{value0} seconds', { value0: tr.number(take.endSeconds - take.startSeconds, { maximumFractionDigits: 1 }) })}</span>}</div>
+            <p role="status">{take.state === 'queued' ? tr('Queued') : take.state === 'processing' ? tr('Transcribing…') : take.state === 'failed' ? tr('Take failed') : tr('Loading result…')}</p>
+            {busy && <div className="drill-take-progress" aria-hidden="true"><span /></div>}
+            {take.failure != null && <><p>{errorMessage(take.failure)}</p><ResponseDetails value={take.failure} /></>}
+          </article>}
+      </li>
+    })}
+  </ol>
+}
