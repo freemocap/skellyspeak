@@ -11,7 +11,7 @@
   font-size: var(--type-body);
 }
 
-.msg.chat-message { padding: var(--space-4) var(--space-6); line-height: var(--leading-snug); }
+.msg.chat-message { max-width: 80%; padding: var(--space-4) var(--space-6); line-height: var(--leading-snug); box-shadow: var(--shadow-bubble); }
 
 .msg.bot {
   align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
@@ -186,11 +186,29 @@
 
 .message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
 
-.msg.chat-message.bot { box-shadow: var(--shadow-sm); }
+/* Stream bubbles end in a tail on the speaker's side: the square corner meets a
+   curved spur. ::before draws the spur in the border colour; ::after fills it
+   one border width inside and covers the bubble's own border where they join.
+   The paths are drawn for --bubble-tail-width × --bubble-tail-height. */
+.msg.chat-message.bot { border-bottom-left-radius: 0; }
+.msg.chat-message.me { border-bottom-right-radius: 0; }
+.msg.chat-message.bot::before, .msg.chat-message.bot::after,
+.msg.chat-message.me::before, .msg.chat-message.me::after {
+  content: ''; position: absolute; bottom: calc(-1 * var(--border-width));
+  width: var(--bubble-tail-width); height: var(--bubble-tail-height); pointer-events: none;
+}
+.msg.chat-message.bot::before, .msg.chat-message.bot::after { left: calc(var(--border-width) - var(--bubble-tail-width)); }
+.msg.chat-message.me::before, .msg.chat-message.me::after { right: calc(var(--border-width) - var(--bubble-tail-width)); transform: scaleX(-1); }
+.msg.chat-message.bot::before, .msg.chat-message.me::before { clip-path: path('M9 0 L7 0 C6.5 5.5 4 8.8 0 10 L9 10 Z'); }
+.msg.chat-message.bot::after, .msg.chat-message.me::after { clip-path: path('M9 0 L8 0 C7.5 5 5 8 1.5 9 L9 9 Z'); }
+.msg.chat-message.bot::before { background: var(--bubble-partner-line); }
+.msg.chat-message.bot::after { background: var(--bubble-partner-bg); }
+.msg.chat-message.me::before { background: var(--bubble-learner-line); }
+.msg.chat-message.me::after { background: var(--bubble-learner-bg); }
 
 .msg.chat-message.bot.focused { border-color: var(--interaction-ink); }
+.msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
 
-.msg.chat-message.me { max-width: 82%; }
 
 /* Feedback is a status pill straddling your message's bottom border: neutral
    when there is nothing to fix, amber when the coach has a correction waiting.

@@ -65,10 +65,13 @@
 
   /* ══ Colour: the conversation ════════════════════════════════════════════
      The partner's side is warm; the learner's side is cool. */
-  --bubble-partner-bg: #fff4e3;
-  --bubble-partner-line: #ebd3a8;
-  --bubble-learner-bg: #e8eef8;
-  --bubble-learner-line: #c9d6eb;
+  --bubble-partner-bg: #ffefd6;
+  --bubble-partner-line: #e2bd83;
+  --bubble-learner-bg: #dce7f8;
+  --bubble-learner-line: #a9bfe3;
+  /* A bubble's tail: a curved spur below the speaker-side corner. */
+  --bubble-tail-width: 9px;
+  --bubble-tail-height: 10px;
 
   /* ══ Colour: interaction ═════════════════════════════════════════════════
      The one accent: links, selection, active tabs, XP, focus. */
@@ -139,7 +142,8 @@
   /* ══ Depth ═══════════════════════════════════════════════════════════════
      The depth preference (flat, default, raised, recessed) overrides the
      surface, floating and input shadows, the scrim and the surface fill. */
-  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* bubbles, cards, active tab */
+  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* cards, active tab */
+  --shadow-bubble: 0 1px 1px rgb(31 28 23 / 10%), 0 2px 5px rgb(31 28 23 / 7%); /* chat bubbles off the sheet */
   --shadow-surface: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%); /* the chat sheet off the ground */
   --shadow-floating: 0 4px 12px rgb(0 0 0 / 16%), 0 16px 40px rgb(0 0 0 / 12%); /* dialogs, popovers, rewards */
   --shadow-menu: 0 8px 24px rgb(0 0 0 / 25%);                                  /* menus */
@@ -303,10 +307,10 @@
   --ink-2: #d3d6da;
   --ink-3: #a3a8af;
   /* Neutral partner bubbles keep reading aids clear without an amber cast. */
-  --bubble-partner-bg: #282c32;
-  --bubble-partner-line: #4b535e;
-  --bubble-learner-bg: #1e2836;
-  --bubble-learner-line: #34465f;
+  --bubble-partner-bg: #30343b;
+  --bubble-partner-line: #626c79;
+  --bubble-learner-bg: #213350;
+  --bubble-learner-line: #41618f;
   --interaction-ink: #6fa3ea;
   --success-ink: #75d6f5;
   --success-line: #75d6f5;
@@ -356,7 +360,7 @@
 :root[data-spacing='extra_tight'] { --layout-scale: .5; }
 :root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
 :root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
-:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
+:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-bubble: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
 :root[data-depth='raised'] { --shadow-surface: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --shadow-floating: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --scrim: rgb(0 0 0 / 55%); }
 :root[data-depth='recessed'] { --shadow-surface: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
 
@@ -1438,6 +1442,14 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .target-text { font-family: var(--font-serif); line-height: var(--leading-normal); white-space: pre-wrap; }
 
+/* Word meanings are set to show but have not arrived: plain text takes the
+   annotated line pitch (the word line plus its gloss row), so their arrival
+   does not add height to every line. Glosses can still widen words enough to
+   wrap onto another line; that growth cannot be known before they arrive. */
+.aids-reserved .target-text {
+  line-height: calc(var(--leading-normal) * 1em + var(--type-meta) * var(--reading-scale) * var(--leading-tight));
+}
+
 .wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); }
 
 .trans { font-size: calc(var(--type-ui) * var(--reading-scale)); color: var(--ink-3); font-style: italic;
@@ -1604,7 +1616,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .activity-summary-last { flex: none; color: var(--ink-3); white-space: nowrap; }
 
-.turn-activity { margin-block-start: var(--space-2); padding-inline: var(--space-4); transition: opacity var(--dur-slow) var(--ease-out); }
+.turn-activity { min-width: 0; transition: opacity var(--dur-slow) var(--ease-out); }
 
 .turn-activity[data-settled=true] { opacity: 0.7; }
 
@@ -1612,7 +1624,12 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .turn-activity-open:hover .activity-summary-text { color: var(--ink); text-decoration: underline; }
 
-.reply-activity { margin-block-start: var(--space-3); }
+/* The pending reply's footer holds its progress where the landed reply's
+   actions will sit, at the same height. */
+.reply-activity { min-height: var(--control-height-xs); align-items: center; flex-wrap: nowrap; overflow: hidden; }
+
+/* A reading line reserved before any reply text arrives. */
+.reply-placeholder::before { content: '\00a0'; }
 
 /* Hydration: only a surface whose operation is running moves, with one moving
    edge. Waiting and held surfaces are still. */
@@ -1637,28 +1654,38 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   animation: stream-caret var(--dur-loop-fast) steps(1) infinite;
 }
 
-.hydrating-block { display: flex; flex-direction: column; gap: var(--space-2); margin-block-start: var(--space-3); }
+/* A reserved one-line slot for work that will land as one line of text. */
+.hydrating-slot { display: flex; align-items: center; gap: var(--space-3); }
 
-.hydrating-label { font-size: var(--type-meta); color: var(--ink-3); }
+.hydrating-label { flex: none; font-size: var(--type-meta); color: var(--ink-3); }
 
 .hydrating-line {
-  display: block; width: 90%; height: 8px; border-radius: var(--radius-pill); background: var(--chip);
+  display: block; flex: 0 1 45%; height: 8px; border-radius: var(--radius-pill); background: var(--chip);
 }
 
-.hydrating-line-short { width: 55%; }
-
-.hydrating-block[data-phase=running] .hydrating-line {
+.hydrating-slot[data-phase=running] .hydrating-line {
   background: linear-gradient(90deg, var(--chip) 0%, var(--sheet) 50%, var(--chip) 100%) 0 0 / 200% 100%;
   animation: hydrate-shimmer var(--dur-loop) linear infinite;
 }
 
-.hydrating-block[data-phase=waiting] { opacity: 0.6; }
+.hydrating-slot[data-phase=waiting] { opacity: 0.6; }
+
+/* Progress announced to assistive technology without taking layout space;
+   the control that owns the work shows it visually. */
+.hydrating-announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .hydrating-waiting { color: var(--ink-3); font-size: var(--type-meta); }
 
 @media (prefers-reduced-motion: reduce) {
   .is-hydrating::after { animation: none; background: var(--interaction-ink); }
-  .stream-caret, .hydrating-block[data-phase=running] .hydrating-line, .reply-received { animation: none; }
+  .stream-caret, .hydrating-slot[data-phase=running] .hydrating-line, .reply-received { animation: none; }
 }
 
 /* ── components/skill-list.css ── */
@@ -1835,13 +1862,24 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .chat .stream {
   padding: var(--space-6) var(--space-8) var(--space-4);
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .chat .stream > * { width: 100%; max-width: var(--measure-thread); }
 
+/* Shown only while reading earlier messages and the tail has changed. It sits
+   at the end of the stream and sticks to the bottom edge, so it never moves
+   the messages being read. */
+.chat .stream > .stream-jump {
+  position: sticky; bottom: 0; z-index: var(--z-sticky); flex: none; width: auto; margin-block-start: auto;
+  padding: var(--space-2) var(--space-8); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
+  background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui) / var(--leading-snug) var(--font-sans);
+  box-shadow: var(--shadow-floating); cursor: pointer;
+}
+.chat .stream > .stream-jump:hover { border-color: var(--interaction-ink); }
+
 @media(max-width:860px) {
-  .chat .stream { padding: var(--space-3) var(--space-3); gap: var(--space-3); }
+  .chat .stream { padding: var(--space-3) var(--space-6); gap: var(--space-5); }
 }
 
 @media (max-width: 860px) {
@@ -1889,7 +1927,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   font-size: var(--type-body);
 }
 
-.msg.chat-message { padding: var(--space-4) var(--space-6); line-height: var(--leading-snug); }
+.msg.chat-message { max-width: 80%; padding: var(--space-4) var(--space-6); line-height: var(--leading-snug); box-shadow: var(--shadow-bubble); }
 
 .msg.bot {
   align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
@@ -2064,19 +2102,42 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
 
-.msg.chat-message.bot { box-shadow: var(--shadow-sm); }
+/* Stream bubbles end in a tail on the speaker's side: the square corner meets a
+   curved spur. ::before draws the spur in the border colour; ::after fills it
+   one border width inside and covers the bubble's own border where they join.
+   The paths are drawn for --bubble-tail-width × --bubble-tail-height. */
+.msg.chat-message.bot { border-bottom-left-radius: 0; }
+.msg.chat-message.me { border-bottom-right-radius: 0; }
+.msg.chat-message.bot::before, .msg.chat-message.bot::after,
+.msg.chat-message.me::before, .msg.chat-message.me::after {
+  content: ''; position: absolute; bottom: calc(-1 * var(--border-width));
+  width: var(--bubble-tail-width); height: var(--bubble-tail-height); pointer-events: none;
+}
+.msg.chat-message.bot::before, .msg.chat-message.bot::after { left: calc(var(--border-width) - var(--bubble-tail-width)); }
+.msg.chat-message.me::before, .msg.chat-message.me::after { right: calc(var(--border-width) - var(--bubble-tail-width)); transform: scaleX(-1); }
+.msg.chat-message.bot::before, .msg.chat-message.me::before { clip-path: path('M9 0 L7 0 C6.5 5.5 4 8.8 0 10 L9 10 Z'); }
+.msg.chat-message.bot::after, .msg.chat-message.me::after { clip-path: path('M9 0 L8 0 C7.5 5 5 8 1.5 9 L9 9 Z'); }
+.msg.chat-message.bot::before { background: var(--bubble-partner-line); }
+.msg.chat-message.bot::after { background: var(--bubble-partner-bg); }
+.msg.chat-message.me::before { background: var(--bubble-learner-line); }
+.msg.chat-message.me::after { background: var(--bubble-learner-bg); }
 
 .msg.chat-message.bot.focused { border-color: var(--interaction-ink); }
+.msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
 
-.msg.chat-message.me { max-width: 82%; }
 
-/* Feedback is a status pill under your message: neutral when there is nothing
-   to fix, amber when the coach has a correction waiting in the coach panel. */
+/* Feedback is a status pill straddling your message's bottom border: neutral
+   when there is nothing to fix, amber when the coach has a correction waiting.
+   It keeps that place in every state from "Analyzing…" to scores, and the
+   bubble reserves the room below (with-actions), so feedback arriving never
+   changes the message's height. A long correction truncates here and reads in
+   full in its dialog. */
 .message-feedback > .feedback-badge {
-  position: static; display: inline-flex; margin-top: var(--space-2); margin-inline-start: auto; padding: var(--space-1) var(--space-5);
+  position: absolute; bottom: calc(-1 * var(--control-height) / 2); right: var(--space-2); display: inline-flex; flex-shrink: 0;
+  height: var(--control-height); min-height: var(--control-height); padding: 0 var(--space-5); column-gap: var(--space-4);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
-  max-width: 100%; text-align: start;
+  font-variant-numeric: tabular-nums; max-width: calc(100% - 2 * var(--space-2)); overflow: hidden; text-align: start;
 }
 .message-feedback > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
@@ -2110,11 +2171,10 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-.feedback-badge.has-correction { white-space: normal; }
-/* Saved scores still straddle the learner bubble's bottom border. Reserve room
-   below the footer so neither actions nor message text sit behind the badge. */
-.msg.chat-message.me.with-scores { padding-block-end: calc(var(--space-4) + var(--control-height) / 2); margin-block-end: calc(var(--space-2) + var(--control-height) / 2); }
-.message-feedback > .feedback-badge.has-scores { position: absolute; bottom: calc(-1 * var(--control-height) / 2); right: var(--space-2); margin-block-start: 0; min-height: var(--control-height); height: var(--control-height); padding-block: 0; column-gap: var(--space-4); flex-shrink: 0; }
+/* Room for the straddling feedback badge, reserved from the first frame. */
+.msg.chat-message.me.with-actions { padding-block-end: calc(var(--space-4) + var(--control-height) / 2); margin-block-end: calc(var(--space-2) + var(--control-height) / 2); }
+.msg.rtl .message-feedback > .feedback-badge { right: auto; left: var(--space-2); }
+.feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
 }
@@ -2226,9 +2286,9 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
 
-.composer-activity:empty { display: none; }
-
-.composer-activity { padding: var(--space-1) var(--space-5); color: var(--ink); }
+/* One fixed status line above the input: transcription, reply and follow-on
+   AI work all report here, so their arrival never moves the input. */
+.composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); padding: 0 var(--space-5); color: var(--ink); overflow: hidden; white-space: nowrap; }
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
 
@@ -5061,14 +5121,22 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-media { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .drill-media .drill-seek { flex: 1 1 auto; min-width: 4rem; }
 .drill-media .drill-segmented { flex: none; flex-wrap: nowrap; }
-.drill-media-empty { flex: 1 1 auto; color: var(--ink-3); font-size: var(--type-meta); }
 .drill-media-time { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
 .drill-media-take { margin-top: var(--space-2); }
 .drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
 .drill-comparison-panel { flex: 1 1 auto; min-height: 16rem; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); overflow-y: auto; }
 .drill-reference { display: flex; flex-direction: column; gap: var(--space-2); }
 .drill-timelines { display: grid; gap: var(--space-1); }
-.drill-timeline-empty { margin: 0; padding: var(--space-4); color: var(--ink-3); font-size: var(--type-ui); background: var(--bg); border-radius: var(--radius-sm); }
+/* A recording that is not drawn yet keeps the plot's frame: empty, loading and
+   failed states draw inside it, so the drawing arriving moves nothing. */
+.drill-plot-frame { display: flex; flex-direction: column; justify-content: center; height: var(--drill-plot-height); box-sizing: border-box; padding: var(--space-3) var(--space-5); overflow: auto; background: var(--bg); border: var(--border-width) dashed var(--line); border-radius: var(--radius-sm); color: var(--ink-3); font-size: var(--type-ui); }
+.drill-plot-frame > p { margin: 0; }
+.drill-plot-frame[data-state="loading"] { border-style: solid; }
+.drill-plot-frame[data-state="failed"] { border-style: solid; border-color: var(--danger-line); background: var(--danger-tint); color: var(--danger-ink); }
+.drill-plot-frame > [role="alert"] p { margin: var(--space-1) 0; }
+.drill-plot-frame > [role="alert"] .btn { margin-inline-end: var(--space-2); }
+/* Word timing keeps its row even for a recording without recognised words. */
+.drill-word-slot { min-height: 36px; }
 .drill-track { display: grid; gap: var(--space-1); }
 .drill-timelines .inspection-spectrogram { height: var(--drill-plot-height); }
 .drill-timelines .inspection-token-track { height: 36px; }
@@ -5193,6 +5261,9 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* A take joins the log the moment it is cut, before anything has been
    transcribed, and its result card replaces it in place when one arrives. */
 .drill-take-arrival { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+/* The idle slot holds the first row's place until a recording starts. */
+.drill-take-pending[data-state="idle"] { border-style: dashed; background: transparent; }
+.drill-take-pending[data-state="idle"] strong { color: var(--ink-3); }
 .drill-take-pending { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .drill-take-pending[data-state="failed"] { border-color: var(--danger-line); }
 .drill-take-pending p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
@@ -5205,6 +5276,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
    graded verdict here: the thresholds for one are policy data we do not have. */
 .drill-chip { padding: 0 var(--space-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); border-radius: var(--radius-pill); background: var(--chip); color: var(--ink-2); }
 .drill-chip[data-tone="success"] { background: var(--success-tint); color: var(--success-ink); }
+.drill-chip[data-tone="danger"] { background: var(--danger-tint); color: var(--danger-ink); }
 .drill-chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning-ink); }
 
 /* The selected take in full: its words, then what was measured. */
@@ -5265,7 +5337,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .drill-stage { overflow: visible; flex: none; }
   .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
   .drill-comparison-panel { min-height: 0; overflow: visible; padding: var(--space-2); }
-  .drill-timelines .inspection-spectrogram { height: 72px; }
+  .drill-timelines :is(.inspection-spectrogram, .drill-plot-frame) { height: 72px; }
   .drill-media { flex-wrap: wrap; gap: var(--space-2); position: relative; }
   .drill-media-time { white-space: normal; flex-shrink: 1; }
   .drill-media .drill-seek { min-width: 3rem; width: 3rem; }

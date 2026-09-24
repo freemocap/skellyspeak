@@ -39,10 +39,13 @@
 
   /* ══ Colour: the conversation ════════════════════════════════════════════
      The partner's side is warm; the learner's side is cool. */
-  --bubble-partner-bg: #fff4e3;
-  --bubble-partner-line: #ebd3a8;
-  --bubble-learner-bg: #e8eef8;
-  --bubble-learner-line: #c9d6eb;
+  --bubble-partner-bg: #ffefd6;
+  --bubble-partner-line: #e2bd83;
+  --bubble-learner-bg: #dce7f8;
+  --bubble-learner-line: #a9bfe3;
+  /* A bubble's tail: a curved spur below the speaker-side corner. */
+  --bubble-tail-width: 9px;
+  --bubble-tail-height: 10px;
 
   /* ══ Colour: interaction ═════════════════════════════════════════════════
      The one accent: links, selection, active tabs, XP, focus. */
@@ -113,7 +116,8 @@
   /* ══ Depth ═══════════════════════════════════════════════════════════════
      The depth preference (flat, default, raised, recessed) overrides the
      surface, floating and input shadows, the scrim and the surface fill. */
-  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* bubbles, cards, active tab */
+  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* cards, active tab */
+  --shadow-bubble: 0 1px 1px rgb(31 28 23 / 10%), 0 2px 5px rgb(31 28 23 / 7%); /* chat bubbles off the sheet */
   --shadow-surface: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%); /* the chat sheet off the ground */
   --shadow-floating: 0 4px 12px rgb(0 0 0 / 16%), 0 16px 40px rgb(0 0 0 / 12%); /* dialogs, popovers, rewards */
   --shadow-menu: 0 8px 24px rgb(0 0 0 / 25%);                                  /* menus */
@@ -277,10 +281,10 @@
   --ink-2: #d3d6da;
   --ink-3: #a3a8af;
   /* Neutral partner bubbles keep reading aids clear without an amber cast. */
-  --bubble-partner-bg: #282c32;
-  --bubble-partner-line: #4b535e;
-  --bubble-learner-bg: #1e2836;
-  --bubble-learner-line: #34465f;
+  --bubble-partner-bg: #30343b;
+  --bubble-partner-line: #626c79;
+  --bubble-learner-bg: #213350;
+  --bubble-learner-line: #41618f;
   --interaction-ink: #6fa3ea;
   --success-ink: #75d6f5;
   --success-line: #75d6f5;
@@ -330,7 +334,7 @@
 :root[data-spacing='extra_tight'] { --layout-scale: .5; }
 :root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
 :root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
-:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
+:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-bubble: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
 :root[data-depth='raised'] { --shadow-surface: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --shadow-floating: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --scrim: rgb(0 0 0 / 55%); }
 :root[data-depth='recessed'] { --shadow-surface: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
 
