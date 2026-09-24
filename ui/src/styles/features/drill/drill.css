@@ -359,7 +359,7 @@
 /* The Chat/Drill switch in the top bar: one surface replaces the other. It is
    the largest control in the bar, centred, so the two surfaces read as peers. */
 .practice-switch { display: inline-flex; gap: var(--space-1); margin-inline: auto; padding: var(--space-1); background: var(--chip); border-radius: var(--radius-pill); }
-.practice-switch button { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-lg); padding: 0 var(--space-9); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-pill); font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.practice-switch button { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height); padding: 0 var(--space-7); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-pill); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
 .practice-switch button:hover { color: var(--ink); }
 .practice-switch button[aria-pressed="true"] { background: var(--sheet); color: var(--interaction-ink); box-shadow: var(--shadow-sm); }
 

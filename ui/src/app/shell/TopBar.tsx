@@ -75,7 +75,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         {(['chat', 'drill'] as const).map(view => (
           <button key={view} type="button" aria-pressed={practiceSurface === view && page === 'guided'}
             onClick={() => setPracticeView(view)}>
-            <ToolbarIcon name={view === 'chat' ? 'chat' : 'mic'} size={18} />{view === 'chat' ? tr("Chat") : tr("Drill")}
+            <ToolbarIcon name={view === 'chat' ? 'chat' : 'mic'} size={18} /><span className="practice-switch-label">{view === 'chat' ? tr("Chat") : tr("Drill")}</span>
           </button>
         ))}
       </div>
