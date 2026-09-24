@@ -38,8 +38,31 @@ async fn speech_request(reference: bool) {
         writer.finalize().unwrap();
     }
     let encoded_audio = STANDARD.encode(wav.into_inner());
-    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
+    let profile = "a".repeat(64);
+    let body = serde_json::json!({"version":1,"synthesis_profile":profile,"format":"wav","audio_base64":encoded_audio,"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
     let worker = std::thread::spawn(move || {
+        let (mut probe, _) = listener.accept().unwrap();
+        probe
+            .set_read_timeout(Some(Duration::from_secs(5)))
+            .unwrap();
+        let mut headers = Vec::new();
+        while !headers.ends_with(b"\r\n\r\n") {
+            let mut byte = [0];
+            probe.read_exact(&mut byte).unwrap();
+            headers.push(byte[0]);
+        }
+        assert!(String::from_utf8_lossy(&headers).starts_with("GET /v1/protocol "));
+        let protocol = serde_json::json!({"protocol":"skellyspeak","version":1,
+            "audio":{"speech_model":target.model,"synthesis_profile":profile}})
+        .to_string();
+        write!(
+            probe,
+            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+            protocol.len(),
+            protocol
+        )
+        .unwrap();
+        drop(probe);
         let (mut socket, _) = listener.accept().unwrap();
         socket
             .set_read_timeout(Some(Duration::from_secs(5)))
@@ -69,6 +92,7 @@ async fn speech_request(reference: bool) {
         assert!(request.starts_with("POST /v1/audio/speech"));
         let payload: serde_json::Value =
             serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
+        assert_eq!(payload["synthesis_profile"], profile);
         assert_eq!(payload["text"], "كتاب");
         write!(
             socket,
@@ -111,7 +135,61 @@ async fn speech_request(reference: bool) {
             },
         )
         .unwrap();
-    let result = run_owned_reading(&state, &id).await.unwrap();
+    let companion_input = reading::ReadingInput {
+        reference_item: None,
+        text: "\u{0643}\u{062a}\u{0627}\u{0628}".into(),
+        language: "arabic".into(),
+        variety: None,
+        explanation: "english".into(),
+        explanation_variety: None,
+        aid: reading::ReadingAid::Speech,
+    };
+    let independent =
+        reading::Request::capture(&state.lock().unwrap(), companion_input.clone()).unwrap();
+    let companion = state
+        .reading
+        .begin(&state.lock().unwrap(), companion_input)
+        .unwrap();
+    let (result, other, third) = tokio::join!(
+        run_owned_reading(&state, &id),
+        run_owned_reading(&state, &companion),
+        state.shared_speech(
+            independent.target.clone(),
+            independent.speech_input().unwrap(),
+            independent.install.clone(),
+            "independent-consumer",
+            || Ok(())
+        )
+    );
+    let result = result.unwrap();
+    let other = other.unwrap();
+    let third = third.unwrap();
+    assert_eq!(result.audio_base64, other.audio_base64);
+    assert_eq!(
+        result.receipt["response"]["sourceExecutionId"],
+        other.receipt["response"]["sourceExecutionId"]
+    );
+    assert_eq!(
+        third.execution,
+        result.receipt["response"]["sourceExecutionId"]
+            .as_str()
+            .unwrap()
+    );
+    let paid: i64 = state
+        .lock()
+        .unwrap()
+        .connection
+        .query_row(
+            "SELECT count(*) FROM inference_executions WHERE dispatched=1",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(paid, 1);
+    let profile = state.lock().unwrap().profile().unwrap();
+    assert_eq!(profile.global.attempts,1);
+    assert_eq!(profile.languages.iter().find(|v|v.id=="arabic").unwrap().attempts,1);
+
     worker.join().unwrap();
     assert!(result.audio_base64.is_some());
     assert!(result.gloss.is_none());
@@ -124,6 +202,7 @@ async fn speech_request(reference: bool) {
     // explicitly null rather than dropped; the shared projection's own test
     // covers retention when a provider does send one.
     let response = &receipts[0]["response"];
+    assert_eq!(response["synthesisProfile"], "a".repeat(64));
     assert_eq!(response["audioAccepted"], true);
     assert!(response.get("finishReason").is_some());
     assert!(
@@ -134,12 +213,13 @@ async fn speech_request(reference: bool) {
     assert!(!receipts[0].to_string().contains("كتاب"));
     assert!(!receipts[0].to_string().contains(&encoded_audio));
     assert!(state.reading.claim(&id).is_err());
-    if let Some(item) = item {
+    {
         drop(state);
         let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+        state.lock().unwrap().connection.execute("UPDATE ai_config SET paused=1",[]).unwrap();
         let before: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         let input = reading::ReadingInput {
-            reference_item: Some(item),
+            reference_item: item,
             text: "كتاب".into(),
             language: "arabic".into(),
             variety: None,
@@ -151,15 +231,26 @@ async fn speech_request(reference: bool) {
             .reading
             .begin(&state.lock().unwrap(), input.clone())
             .unwrap();
-        assert!(state.reading.begin(&state.lock().unwrap(), input).is_err());
+        let duplicate = state.reading.begin(&state.lock().unwrap(), input).unwrap();
         // The only server has shut down: any second provider call fails this test.
         let cached = run_owned_reading(&state, &cached_id).await.unwrap();
         assert_eq!(cached.audio_base64, result.audio_base64);
         assert_eq!(cached.receipt["response"]["cacheHit"], true);
-        assert_eq!(cached.receipt["response"]["sourceReceiptId"], id);
+        assert_eq!(
+            cached.receipt["response"]["sourceExecutionId"],
+            result.receipt["response"]["sourceExecutionId"]
+        );
+        assert_eq!(
+            run_owned_reading(&state, &duplicate)
+                .await
+                .unwrap()
+                .audio_base64,
+            result.audio_base64
+        );
         assert!(cached.receipt.get("dispatchedAt").is_none());
         let after: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         assert_eq!(before, after);
+        assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts,1);
     }
 }
 

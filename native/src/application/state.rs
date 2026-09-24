@@ -1,6 +1,7 @@
 use super::*;
 
 pub(crate) struct Application {
+    pub(super) speech_pending: crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) reading: crate::language::reading::Registry,
     pub(crate) admission: admission::Admission,
     pub(super) generations: generation::Registry,
@@ -53,6 +54,7 @@ impl Application {
             Err(error) => (None, Some(error)),
         };
         Arc::new(Self {
+            speech_pending: Default::default(),
             admission: admission::Admission::new(),
             reading: Default::default(),
             generations: generation::Registry::default(),

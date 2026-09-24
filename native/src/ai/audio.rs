@@ -4,12 +4,16 @@ use crate::ai::connections::access::ResolvedTarget;
 use crate::ai::transport::transcription_provider;
 use crate::model::{AppError, Result};
 
+#[derive(Clone)]
 pub struct SpeechInput {
     pub text: String,
     pub voice: String,
     pub language: String,
 }
+#[derive(Clone)]
 pub struct SpeechOutcome {
+    /// Verified effective configuration; absent when identity validation failed.
+    pub synthesis_profile: Option<String>,
     pub diagnostics: Option<serde_json::Value>,
     pub audio: Result<Vec<u8>>,
     pub actual_model: Option<String>,
@@ -50,14 +54,26 @@ pub fn validate_speech(target: &ResolvedTarget, input: &SpeechInput) -> Result<(
     crate::ai::transport::service_audio::validate(input)
 }
 
-pub async fn synthesize(
+pub async fn synthesis_profile(
+    client: &reqwest::Client,
+    target: &ResolvedTarget,
+    key: &str,
+    install: &str,
+) -> Result<String> {
+    crate::ai::transport::synthesis_profile::fetch(client, target, key, install).await
+}
+pub async fn synthesize_profiled(
     client: &reqwest::Client,
     target: &ResolvedTarget,
     key: &str,
     input: &SpeechInput,
     install: &str,
+    profile: &str,
 ) -> SpeechOutcome {
-    crate::ai::transport::service_audio::synthesize(client, target, key, input, install).await
+    crate::ai::transport::service_audio::synthesize_profiled(
+        client, target, key, input, install, profile,
+    )
+    .await
 }
 
 pub async fn transcribe(
@@ -80,6 +96,7 @@ pub fn validate_transcription_language(
 impl SpeechOutcome {
     pub(crate) fn empty() -> Self {
         Self {
+            synthesis_profile: None,
             diagnostics: None,
             audio: Err(AppError::new(
                 crate::model::ErrorCode::UnknownOutcome,

@@ -86,7 +86,7 @@ fn gloss_retry_runs_alongside_speech_without_regenerating_siblings() {
             Some(&initial)
         );
 
-        let mut cache = crate::speech::cache::Cache::default();
+        let mut cache = crate::speech::delivery::DeliveryBuffer::default();
         if speech_first {
             cache
                 .insert(

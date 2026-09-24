@@ -1,6 +1,13 @@
 {
+  "AI result cache": "ذاكرة التخزين المؤقت لنتائج الذكاء الاصطناعي",
+  "Cache capacity (MiB)": "سعة التخزين المؤقت (MiB)",
+  "Cached: {value0} MiB · results: {value1}": "المخزّن مؤقتًا: {value0} MiB · النتائج: {value1}",
+  "Cache details": "تفاصيل التخزين المؤقت",
+  "Shared across the app. Least recently used results are removed first. Zero disables retained caching. Recordings, accepted records and execution receipts are retained separately.": "مشتركة في التطبيق كله. تُحذف أولًا النتائج التي مضى أطول وقت على استخدامها. يعطّل الصفر التخزين المؤقت الدائم. تُحفظ التسجيلات والسجلات المقبولة وإيصالات التنفيذ بشكل منفصل.",
+  "Enter a whole number from 0 to 100000.": "أدخل عددًا صحيحًا من 0 إلى 100000.",
+  "Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Synthesized audio uses the shared cache in Settings.": "لا يحتفظ الصفر بأي صوت مسجّل. تُحذف التسجيلات الأقدم أولًا؛ وتبقى النصوص المفرّغة والمقارنات. يستخدم الصوت المُولّد ذاكرة التخزين المؤقت المشتركة في الإعدادات.",
+  "Recordings {value0} MB": "التسجيلات: {value0} MB",
   "Add to Drill": "إضافة إلى التدريب",
-  "Added to Drill": "أُضيف إلى التدريب",
   "Help with this reply": "مساعدة في هذا الرد",
   "Hide reply help": "إخفاء مساعدة الرد",
   "Explain grammar": "شرح القواعد",
@@ -1371,5 +1378,6 @@
   "Loading reference…": "جارٍ تحميل المرجع…",
   "Next take": "التسجيل التالي",
   "No take in progress": "لا يوجد تسجيل جارٍ",
-  "{value0} more": "{value0} أخرى"
+  "{value0} more": "{value0} أخرى",
+  "Remove from Drill": "إزالة من التدريب"
 }

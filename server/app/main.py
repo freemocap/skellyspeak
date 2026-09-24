@@ -892,6 +892,7 @@ async def audio_speech(request: Request, who: quota.Principal = Depends(current_
 
 @app.get("/v1/protocol")
 async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_providers: bool = False) -> dict[str, object]:
+    from server.app.inference.synthesis_profiles import profile_id
     result = {"protocol": "skellyspeak", "version": 1, "max_items": grouped.MAX_ITEMS,
             "operations_versions": list(grouped.SUPPORTED_VERSIONS),
             "chat_models": list(model_routing.RECOMMENDED_TEXT_MODELS),
@@ -901,6 +902,7 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
             "audio": {"version": 1, "transcription_provider": "groq",
                       "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"] + (["scribe_v2"] if CFG.elevenlabs_key else []),
                       "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,
+                      "synthesis_profile": profile_id(CFG),
                       "speech_ready": bool(CFG.elevenlabs_key and CFG.elevenlabs_voice_id)}}
     if verify_providers:
         result["providers"] = await provider_health.check(CFG)

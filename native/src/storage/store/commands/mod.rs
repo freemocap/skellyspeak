@@ -9,7 +9,7 @@ struct Handlers<'a> {
     tx: &'a Connection,
     config: &'a crate::configuration::Registry,
     snapshot: &'a Snapshot,
-    speech_cache: &'a crate::speech::cache::Cache,
+    speech_delivery: &'a crate::speech::delivery::DeliveryBuffer,
     persona_scope: Option<String>,
     conversation_scope: Option<String>,
 }
@@ -51,7 +51,7 @@ impl Store {
             tx: &tx,
             config: &self.config,
             snapshot: &snapshot,
-            speech_cache: &self.speech_cache,
+            speech_delivery: &self.speech_delivery,
             persona_scope: None,
             conversation_scope: None,
         };

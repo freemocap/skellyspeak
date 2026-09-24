@@ -4,38 +4,57 @@ import { useI18n } from '../../../components/localization/i18n'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
 import { errorMessage } from '../../../platform/diagnostics/error-details'
-import { createDrillItem } from '../../../platform/ipc/drill'
+import { createDrillItem, deleteDrillItem } from '../../../platform/ipc/drill'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
-/** Copy a completed message through the same command as Drill's manual entry.
- * The reading scope belongs to this conversation, not current global preferences. */
+type DrillLink = { kind: 'ready' } | { kind: 'saving' } | { kind: 'saved'; itemId: string } | { kind: 'removing'; itemId: string }
+
+/** Copy a completed message through the same command as Drill's manual entry,
+ * and remove that Drill item on a second press. The reading scope belongs to
+ * this conversation, not current global preferences. */
 export function AddToDrillButton({ text }: { text: string }) {
   const scope = useReadingScope()
   const tr = useI18n()
   const busy = useRef(false)
-  const [state, setState] = useState<'ready' | 'saving' | 'saved'>('ready')
-  const [failure, setFailure] = useState<unknown>(null)
+  const [link, setLink] = useState<DrillLink>({ kind: 'ready' })
+  const [failure, setFailure] = useState<{ action: 'add' | 'remove'; error: unknown } | null>(null)
   if (!scope || !text.trim()) return null
-  const label = state === 'saved' ? tr('Added to Drill') : tr('Add to Drill')
-  async function add() {
-    if (!scope || busy.current || state === 'saved') return
+  const saved = link.kind === 'saved' || link.kind === 'removing'
+  const label = saved ? tr('Remove from Drill') : tr('Add to Drill')
+  async function toggle() {
+    if (!scope || busy.current) return
     busy.current = true
-    setState('saving'); setFailure(null)
+    setFailure(null)
     try {
-      await createDrillItem({ text, ...scope })
-      setState('saved')
-    } catch (error) {
-      setFailure(error); setState('ready')
+      if (link.kind === 'ready') {
+        setLink({ kind: 'saving' })
+        try {
+          const item = await createDrillItem({ text, ...scope })
+          setLink({ kind: 'saved', itemId: item.id })
+        } catch (error) {
+          setFailure({ action: 'add', error }); setLink({ kind: 'ready' })
+        }
+      } else if (link.kind === 'saved') {
+        const itemId = link.itemId
+        setLink({ kind: 'removing', itemId })
+        try {
+          await deleteDrillItem(itemId)
+          setLink({ kind: 'ready' })
+        } catch (error) {
+          setFailure({ action: 'remove', error }); setLink({ kind: 'saved', itemId })
+        }
+      }
     } finally { busy.current = false }
   }
   return <>
     <button type="button" className="message-translate message-add-drill" title={label} aria-label={label}
-      aria-busy={state === 'saving'} data-state={state} disabled={state !== 'ready'}
-      onClick={event => { event.stopPropagation(); void add() }}>
-      <ToolbarIcon name={state === 'saved' ? 'deck-added' : 'deck-add'} size={20} />
+      aria-busy={link.kind === 'saving' || link.kind === 'removing'} data-state={saved ? 'saved' : 'ready'}
+      disabled={link.kind === 'saving' || link.kind === 'removing'}
+      onClick={event => { event.stopPropagation(); void toggle() }}>
+      <ToolbarIcon name={saved ? 'deck-added' : 'deck-add'} size={20} />
     </button>
-    {failure != null && <ErrorDetails label={tr('Add to Drill')} errorKey={errorMessage(failure)} explanation={errorMessage(failure)}>
-      <ResponseDetails value={failure} />
+    {failure != null && <ErrorDetails label={failure.action === 'add' ? tr('Add to Drill') : tr('Remove from Drill')} errorKey={errorMessage(failure.error)} explanation={errorMessage(failure.error)}>
+      <ResponseDetails value={failure.error} />
     </ErrorDetails>}
   </>
 }

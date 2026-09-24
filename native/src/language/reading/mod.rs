@@ -153,10 +153,20 @@ impl Request {
         Ok(request)
     }
     pub fn validate(&self, store: &Store) -> Result<()> {
+        self.validate_source(store)?;
+        if self.input.aid == ReadingAid::Speech {
+            return Ok(());
+        }
+        self.validate_execution(store)
+    }
+    pub fn validate_source(&self, store: &Store) -> Result<()> {
         crate::drill::reference::validate(store, self)?;
-        if self.cancelled.load(Ordering::SeqCst) {
+        if self.cancelled.load(Ordering::SeqCst) || self.install != store.snapshot()?.learner.id {
             return Err(self.stopped());
         }
+        Ok(())
+    }
+    fn validate_execution(&self, store: &Store) -> Result<()> {
         let config = crate::ai::connections::configuration::config(&store.connection)?;
         if config.paused
             || self.config_hash != store.config.hash()
@@ -333,17 +343,6 @@ impl Registry {
             ));
         }
         let request = Arc::new(Request::capture(store, input)?);
-        if request.input.reference_item.is_some()
-            && entries.values().any(|other| {
-                other.input.reference_item == request.input.reference_item
-                    && !other.cancelled.load(Ordering::SeqCst)
-            })
-        {
-            return Err(AppError::new(
-                ErrorCode::Conflict,
-                "This phrase already has a reference request in progress.",
-            ));
-        }
         receipts::begin(store, &request)?;
         let id = request.id.clone();
         entries.insert(id.clone(), request);

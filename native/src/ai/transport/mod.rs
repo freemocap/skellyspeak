@@ -3,6 +3,7 @@ pub mod provider;
 pub(super) mod transcription_provider;
 
 pub(super) mod service_audio;
+pub(super) mod synthesis_profile;
 
 #[cfg(test)]
 mod boundary_tests;

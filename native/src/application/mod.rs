@@ -42,6 +42,7 @@ use zeroize::Zeroizing;
 mod commands;
 use crate::ai::policy::retry;
 mod scheduler;
+mod speech_results;
 mod startup;
 mod state;
 mod streams;

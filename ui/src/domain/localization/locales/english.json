@@ -1,6 +1,13 @@
 {
+  "AI result cache": "AI result cache",
+  "Cache capacity (MiB)": "Cache capacity (MiB)",
+  "Cached: {value0} MiB · results: {value1}": "Cached: {value0} MiB · results: {value1}",
+  "Cache details": "Cache details",
+  "Shared across the app. Least recently used results are removed first. Zero disables retained caching. Recordings, accepted records and execution receipts are retained separately.": "Shared across the app. Least recently used results are removed first. Zero disables retained caching. Recordings, accepted records and execution receipts are retained separately.",
+  "Enter a whole number from 0 to 100000.": "Enter a whole number from 0 to 100000.",
+  "Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Synthesized audio uses the shared cache in Settings.": "Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Synthesized audio uses the shared cache in Settings.",
+  "Recordings {value0} MB": "Recordings {value0} MB",
   "Add to Drill": "Add to Drill",
-  "Added to Drill": "Added to Drill",
   "Help with this reply": "Help with this reply",
   "Hide reply help": "Hide reply help",
   "Explain grammar": "Explain grammar",
@@ -1371,5 +1378,6 @@
   "Loading reference…": "Loading reference…",
   "Next take": "Next take",
   "No take in progress": "No take in progress",
-  "{value0} more": "{value0} more"
+  "{value0} more": "{value0} more",
+  "Remove from Drill": "Remove from Drill"
 }

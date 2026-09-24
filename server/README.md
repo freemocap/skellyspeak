@@ -524,7 +524,15 @@ retain the sanitized error body for investigation.
 ## Dedicated ElevenLabs audio routes (September 18, 2026)
 
 The native service client uses `POST /v1/audio/speech` with exactly `model`,
-`text` and `language` (the captured language and variety, such as `Spanish — Mexico`).
+`text`, `language` (the captured language and variety, such as `Spanish — Mexico`),
+and `synthesis_profile`. The profile comes from `audio.synthesis_profile` in
+`GET /v1/protocol` and identifies the effective model, voice, input preparation
+and output contract. It excludes credentials and allowance rates. A mismatch
+returns `409 SYNTHESIS_PROFILE_MISMATCH` before spending reservation or provider
+submission; clients must not automatically retry it. Successful responses echo
+the profile, and native decoding rejects a different or missing identity while
+retaining available execution metadata. New synthesis requires matching native
+and server versions. Source changes do not deploy the service.
 The server supplies its configured voice profile and prefixes an Eleven v3 accent
 cue to the provider input; stored message text stays unchanged. The cue is included
 in the character-based allowance estimate. Missing/invalid variety, unsupported

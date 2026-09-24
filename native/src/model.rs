@@ -708,6 +708,7 @@ pub fn bindings() -> String {
         crate::language::reading::ReadingAid::decl(&config),
         crate::language::reading::ReadingInput::decl(&config),
         crate::language::reading::ReadingResult::decl(&config),
+        crate::ai::results::CacheSettings::decl(&config),
         AppError::decl(&config),
     ];
     format!(

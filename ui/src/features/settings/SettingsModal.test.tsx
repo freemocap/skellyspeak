@@ -51,6 +51,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '' })
   backend.saveSettings.mockResolvedValue(undefined)
+  backend.invoke.mockResolvedValue({ capacityBytes: 268435456, usedBytes: 0, resultCount: 0 })
   microphones.listMicrophones.mockResolvedValue({ source: 'native', devices: [] })
 })
 

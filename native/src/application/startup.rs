@@ -138,6 +138,8 @@ pub fn run() {
             updater::get_update_channel,
             updater::latest_github_release,
             commands::workspace::read_speech_audio,
+            commands::cache::get_inference_cache_settings,
+            commands::cache::save_inference_cache_settings,
             diagnostics::record_frontend_diagnostic,
             diagnostics::sharing::share_diagnostic_logs,
             diagnostics::sharing::save_diagnostic_logs,

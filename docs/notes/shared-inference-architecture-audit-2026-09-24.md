@@ -338,3 +338,159 @@ Verification for this slice:
 No application launch, paid request, database reset, commit or deployment was
 performed. UI and server source are unchanged in this slice. Device behavior
 has not been manually verified.
+
+## Design checkpoint: shared results and speech integration
+
+Status: scope approved, including the configurable 256 MiB default. The service
+identity step is implemented below; the repository and consumer integration
+remain pending. The following design description is not a claim of implementation.
+The user committed the execution-input slice and reports that the app runs;
+this is a smoke check, not verification of cache behavior. The working tree was
+clean at the start of this review.
+
+### Ownership and behavior proposed for review
+
+The shared native layer owns requests, completed results, execution provenance,
+payload retention and pending subscriptions. A workflow owns its association
+with a result and its right to publish. No shared request key, pending entry or
+eviction policy contains a chat message, Drill item or other presentation owner.
+
+- A request identifies exact effective inputs, task/output contract and service
+  configuration. Preserve source Unicode and whitespace; do not apply reading
+  matching normalization. Credentials, timestamps, playback speed, UI owner and
+  unrelated settings are not semantic inputs. Service/account isolation remains
+  explicit; removing credential bytes from keys must not merge unrelated access
+  scopes.
+- A result is immutable, validated output linked to its originating execution.
+  Several results may exist for one request when a caller explicitly requests
+  fresh generation. Reuse versus fresh execution is an explicit shared policy,
+  not a test for which feature called it.
+- An execution retains redacted diagnostics and billing provenance whether or
+  not its output remains cached. A reuse association points to that execution;
+  it is not another paid execution or another learning event.
+- Payloads belong to the shared repository. Accepted text, learner recordings
+  and other durable product records retain their existing ownership in this
+  slice. A reference to evictable synthesized audio does not promise permanent
+  audio availability. Any future durable payload reference needs explicit
+  retention protection before eviction is allowed to affect it.
+- One workspace-wide byte budget covers evictable request/result payloads and
+  unique blobs. Successful lookup updates recency; eviction removes the least
+  recently used unprotected entries. Shared blobs are counted once and removed
+  only after their last retaining reference. Active playback holds its bytes
+  independently of disk eviction. Report payload usage separately from physical
+  database size and retained product data.
+
+### Effective speech identity
+
+Confirmed source behavior: `ai/transport/service_audio.rs` sends model, text and
+language; it does not send `SpeechInput.voice`. The server's
+`inference/audio_service.py` selects the configured voice. The current Drill key
+hashes the unused local voice and broad configuration, which cannot reliably
+identify the actual synthesis configuration.
+
+Proposed contract: the service advertises an opaque synthesis profile identifier
+covering its effective model, voice, synthesis preparation and output contract.
+The client supplies the expected profile on new synthesis requests; the service
+rejects a mismatch before paid dispatch and echoes the actual profile on success.
+Changing a profile must not cause an automatic paid retry. Native validation
+requires the expected profile before publishing a reusable completed result.
+Do not expose credentials or raw configuration through this identifier.
+
+Retained audio replay is local and needs neither credentials nor service
+availability. An equivalent lookup may use the last verified service profile;
+that is reuse under a known profile, not proof of the server's current settings.
+A request explicitly requiring current settings refreshes the profile first.
+Connection verification and subsequent online requests update the known profile.
+After a profile change is learned, new equivalent lookups use the new identity;
+existing result references still identify their original audio. If no verified
+profile exists, do not guess identity from local voice configuration.
+
+### Pending work and publication
+
+Equivalent reusable requests join one native pending execution, including across
+windows. Each caller holds an independent subscription. Leaving revokes that
+caller's publication rights; work required by remaining callers continues.
+When the last subscriber leaves, cancel work that has not dispatched. Dispatched
+work still requires truthful receipt settlement; cancelling a local wait cannot
+claim that remote work was cancelled or unbilled. Valid completed output may be
+retained without publication to a departed workflow. Failed, interrupted and
+partially validated outputs never become complete cache hits.
+
+### Finite implementation scope after review
+
+1. Add and test effective synthesis profiles in the service and native adapter.
+   Preserve existing error metadata and the no-automatic-retry rule. This is a
+   source change only; service deployment remains separately authorized.
+2. Implement the generic native repository and pending subscriptions. Prefer
+   transactional storage in the workspace database so result, blob and execution
+   provenance publication can commit together. Review the exact schema and any
+   necessary development-data cleanup before applying it; do not silently reset
+   or add historical conversion machinery.
+3. Route chat speech, phrase references and token speech through that same path.
+   Retain workflow validation at association/publication boundaries. Remove the
+   replaced memory cache and Drill-owned reference cache only after regression
+   checks pass. Reuse reads precede paid admission and credential loading.
+4. Expose one shared cache capacity setting. Approved starting default: 256 MiB.
+   Capacity zero
+   disables retained reuse but still allows sharing currently pending work.
+   Lowering capacity evicts reusable payloads without deleting product records.
+
+Verification must cover reuse across all three speech callers and after restart,
+same text in different Drill items, exact-input/profile differences, read-touch
+LRU and capacity reduction, shared-blob accounting, offline replay, independent
+subscriber cancellation, stale publication rejection, failed validation, and
+one paid receipt for joined work. Preserve existing refusal, accounting and
+diagnostic tests. Tests use local fixtures and must not issue paid requests.
+
+Translation/gloss lookup, transcription lifecycle, generation lifecycle and
+application-wide follow-up findings remain the subsequent audit slices. This
+proposal does not claim those paths or speech caching are already repaired.
+
+## Implementation checkpoint: effective synthesis identity
+
+Implemented the first step of the approved speech integration scope:
+
+- The service advertises a synthesis profile derived from its model, configured
+  voice, input-preparation revision and output contract. Credentials and allowance
+  rates are excluded. Profile revisions must change when those executable
+  preparation/output contracts change.
+- Speech requests supply the expected profile. The server rejects a mismatch
+  before reserving spending or calling the provider, and echoes it on success.
+- The shared native adapter obtains the profile before synthesis and rejects a
+  missing or mismatched response identity. A verified identity is carried in
+  `SpeechOutcome` and retained diagnostics/reading receipts. Both existing speech
+  callers use this adapter without feature-specific profile logic.
+- Profile-fetch failures distinguish an unsubmitted synthesis request from an
+  ambiguous paid synthesis outcome. Missing/mismatched identity or invalid audio
+  retains available provider request IDs and usage metadata. A profile mismatch
+  does not trigger an automatic retry.
+- The shared diagnostic policy and its generated copies include the validated
+  profile field. No input text, voice identifier or credentials were added to
+  retained metadata.
+
+This is not the shared cache implementation. No result/blob tables, pending
+subscriptions, capacity control or cache replacement have been added. The adapter
+currently probes before each actual synthesis; retained Drill replay still uses
+its existing local path. Persisting the last verified profile for generic local
+lookup belongs to the repository step. Gloss and transcription behavior is
+unchanged.
+
+Verification:
+
+- Native library suite: 576 passed, 6 ignored; no failures. Includes profile
+  validation, incompatible protocol rejection, receipt preservation and existing
+  reading/restart-replay regression tests.
+- Native all-target compilation and generated IPC contract check: passed.
+- Service audio and adapter tests: 72 passed, 3 transcription tests excluded on
+  the focused rerun. The initial complete audio-service run found those three
+  failures because `ffmpeg` is not installed in this environment.
+- Broader server diagnostics run: 129 passed, one unrelated local-admin failure
+  because Windows Python has no `os.fchmod`; the same three transcription tests
+  were excluded. These are verification gaps, not passing checks.
+- Diagnostic artifacts regenerated from their source policy; diff whitespace
+  check passed.
+
+New synthesis with this native build requires the matching service code. An
+older service without the profile fails before a paid synthesis request. No
+service deployment, application launch, paid request, data reset or commit was
+performed. Storage, shared reuse, cancellation and capacity remain outstanding.

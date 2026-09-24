@@ -1,4 +1,4 @@
-//! Learner-owned recording retention. Reference media has a separate small cache.
+//! Learner-owned recording retention. Synthesized audio uses the shared result repository.
 use crate::{model::*, storage::store::Store};
 use rusqlite::{Connection, params};
 use serde::Serialize;
@@ -15,8 +15,6 @@ pub struct DrillStorageView {
     pub recording_bytes: i64,
     #[ts(type = "number")]
     pub pending_removal_bytes: i64,
-    #[ts(type = "number")]
-    pub reference_bytes: i64,
 }
 
 pub(crate) fn limit(db: &Connection) -> Result<i64> {
@@ -57,7 +55,6 @@ impl Store {
             limit_mb: (limit(&self.connection)? / 1_000_000) as i32,
             recording_bytes: self.connection.query_row("SELECT COALESCE(SUM(COALESCE(audio_bytes,length(pending_audio),0)),0) FROM drill_attempts", [], |r| r.get(0))?,
             pending_removal_bytes: self.connection.query_row("SELECT COALESCE(SUM(audio_bytes),0) FROM drill_attempts WHERE audio_pruned_at IS NOT NULL", [], |r| r.get(0))?,
-            reference_bytes: self.connection.query_row("SELECT COALESCE(SUM(length(audio)),0) FROM drill_references", [], |r| r.get(0))?,
         })
     }
     pub fn set_drill_storage(&mut self, limit_mb: i32) -> Result<DrillStorageView> {

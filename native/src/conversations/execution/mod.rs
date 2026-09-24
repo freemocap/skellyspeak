@@ -18,7 +18,6 @@ mod holds;
 mod publication;
 mod reading;
 mod recovery;
-mod retry_diagnostics;
 mod snapshots;
 mod speech;
 mod turns;
@@ -72,7 +71,7 @@ pub struct Dispatch {
     pub gloss_schema: Option<serde_json::Value>,
     pub coaching_schema: Option<serde_json::Value>,
     pub gloss_source: Option<crate::language::gloss::Source>,
-    pub speech_source: Option<crate::speech::cache::Source>,
+    pub speech_source: Option<crate::speech::delivery::Source>,
 }
 
 impl Dispatch {

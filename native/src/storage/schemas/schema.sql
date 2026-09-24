@@ -48,8 +48,6 @@ CREATE INDEX drill_attempts_visit ON drill_attempts(visit_id);
 CREATE INDEX drill_attempts_item ON drill_attempts(drill_item_id,sequence);
 -- One attempt per recording: a retried save cannot store the same utterance twice.
 CREATE UNIQUE INDEX drill_attempts_recording ON drill_attempts(transcription_attempt_id) WHERE transcription_attempt_id IS NOT NULL;
--- Regenerable reference audio, bounded separately from learner recordings.
-CREATE TABLE drill_references(drill_item_id TEXT PRIMARY KEY REFERENCES drill_items(id) ON DELETE CASCADE, cache_key TEXT NOT NULL, audio BLOB NOT NULL, receipt_id TEXT NOT NULL REFERENCES reading_attempts(id), last_used INTEGER NOT NULL);
 CREATE TABLE drill_storage(id INTEGER PRIMARY KEY CHECK(id=1), limit_mb INTEGER NOT NULL CHECK(limit_mb BETWEEN 0 AND 100000));
 INSERT INTO drill_storage(id,limit_mb) VALUES(1,500);
 CREATE TABLE drill_previews(id TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('generated','conversation')), input TEXT NOT NULL CHECK(json_valid(input)), receipt_id TEXT REFERENCES generation_attempts(id), ready INTEGER NOT NULL DEFAULT 0, expires_at TEXT NOT NULL DEFAULT(datetime('now','+1 day')));

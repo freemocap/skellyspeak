@@ -1,6 +1,13 @@
 {
+  "AI result cache": "AI 结果缓存",
+  "Cache capacity (MiB)": "缓存容量（MiB）",
+  "Cached: {value0} MiB · results: {value1}": "已缓存：{value0} MiB · 结果数：{value1}",
+  "Cache details": "缓存详情",
+  "Shared across the app. Least recently used results are removed first. Zero disables retained caching. Recordings, accepted records and execution receipts are retained separately.": "整个应用共享此缓存。最久未使用的结果会最先删除。设为零可禁用持久缓存。录音、已接受的记录和执行凭据会单独保留。",
+  "Enter a whole number from 0 to 100000.": "请输入 0 到 100000 之间的整数。",
+  "Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Synthesized audio uses the shared cache in Settings.": "设为零时不保留录音音频。最早的录音会最先删除，转录文本和比较结果仍会保留。合成音频使用“设置”中的共享缓存。",
+  "Recordings {value0} MB": "录音：{value0} MB",
   "Add to Drill": "添加到练习",
-  "Added to Drill": "已添加到练习",
   "Help with this reply": "回复帮助",
   "Hide reply help": "隐藏回复帮助",
   "Explain grammar": "讲解语法",
@@ -1371,5 +1378,6 @@
   "Loading reference…": "正在加载参考音频…",
   "Next take": "下一次录音",
   "No take in progress": "没有正在进行的录音",
-  "{value0} more": "还有 {value0} 个"
+  "{value0} more": "还有 {value0} 个",
+  "Remove from Drill": "从练习中移除"
 }

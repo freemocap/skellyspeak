@@ -13,7 +13,7 @@ fn saved_audio_survives_settings_changes_and_cache_loss_uses_current_route() {
     let (_dir, mut store, conversation) = setup();
     let (speech, others) = speech_children(&mut store, &conversation);
     let message = speech.speech_source.as_ref().unwrap().message_id.clone();
-    let mut cache = crate::speech::cache::Cache::default();
+    let mut cache = crate::speech::delivery::DeliveryBuffer::default();
     cache
         .insert(
             store

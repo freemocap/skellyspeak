@@ -2209,7 +2209,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* Quiet bubble action, last in the row, with a full touch target despite its
    small icon. Saved shows a success check. */
 .message-actions .message-add-drill { order: 1; margin-inline-start: auto; min-width: var(--control-height); display: inline-flex; align-items: center; justify-content: center; }
-.message-add-drill svg { stroke-width: 2; }
+.message-actions .message-translate.message-add-drill { color: var(--ink-3); }
 .message-actions .message-translate.message-add-drill[data-state=saved] { opacity: 1; color: var(--success-ink); }
 /* The corner control sits at the top of the bubble, so its gutter is free at the
    bottom: the action row spans the full width and keeps one line. */

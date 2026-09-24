@@ -1,6 +1,13 @@
 {
+  "AI result cache": "Cache des résultats de l’IA",
+  "Cache capacity (MiB)": "Capacité du cache (MiB)",
+  "Cached: {value0} MiB · results: {value1}": "En cache : {value0} MiB · résultats : {value1}",
+  "Cache details": "Détails du cache",
+  "Shared across the app. Least recently used results are removed first. Zero disables retained caching. Recordings, accepted records and execution receipts are retained separately.": "Partagé dans toute l’application. Les résultats utilisés le moins récemment sont supprimés en premier. Zéro désactive le cache persistant. Les enregistrements, les données acceptées et les reçus d’exécution sont conservés séparément.",
+  "Enter a whole number from 0 to 100000.": "Saisissez un entier entre 0 et 100000.",
+  "Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Synthesized audio uses the shared cache in Settings.": "Zéro ne conserve aucun audio enregistré. Les enregistrements les plus anciens sont supprimés en premier ; les transcriptions et comparaisons restent disponibles. L’audio synthétisé utilise le cache partagé dans les paramètres.",
+  "Recordings {value0} MB": "Enregistrements : {value0} MB",
   "Add to Drill": "Ajouter à l’entraînement",
-  "Added to Drill": "Ajouté à l’entraînement",
   "Help with this reply": "Aide pour cette réponse",
   "Hide reply help": "Masquer l’aide",
   "Explain grammar": "Expliquer la grammaire",
@@ -1371,5 +1378,6 @@
   "Loading reference…": "Chargement de la référence…",
   "Next take": "Prochaine prise",
   "No take in progress": "Aucune prise en cours",
-  "{value0} more": "{value0} de plus"
+  "{value0} more": "{value0} de plus",
+  "Remove from Drill": "Retirer de l’entraînement"
 }

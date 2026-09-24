@@ -5,7 +5,7 @@ fn speech_siblings_partial_arrival_and_read_only_cache() {
     for speech_first in [true, false] {
         let (_dir, mut store, conversation) = setup();
         let (speech, others) = speech_children(&mut store, &conversation);
-        let mut cache = crate::speech::cache::Cache::default();
+        let mut cache = crate::speech::delivery::DeliveryBuffer::default();
         if speech_first {
             cache
                 .insert(
@@ -39,6 +39,17 @@ fn speech_siblings_partial_arrival_and_read_only_cache() {
                 )
                 .unwrap();
         }
+        crate::ai::results::begin(&store.connection, "shared-speech", "speech").unwrap();
+        crate::ai::results::finish(
+            &store.connection,
+            "shared-speech",
+            "key",
+            &serde_json::json!({}),
+            Some(&[1; 44]),
+            None,
+        )
+        .unwrap();
+        crate::ai::results::associate(&store.connection, &speech.attempt, "shared-speech").unwrap();
         let before: i64 = store
             .connection
             .query_row("SELECT count(*) FROM attempts", [], |r| r.get(0))
@@ -67,6 +78,7 @@ fn speech_siblings_partial_arrival_and_read_only_cache() {
         store.execute(command).unwrap();
         isolate_coaching(&mut store);
         cache.remove_operation(&speech.operation);
+        crate::ai::results::set_capacity(&store.connection, 0).unwrap();
         assert!(matches!(
             store.speech_audio(&speech.operation, &cache).unwrap(),
             SpeechAudioState::Unavailable {
@@ -103,7 +115,10 @@ fn speech_cancellation_defeats_late_publication_and_keeps_usage() {
     }
     assert!(matches!(
         store
-            .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
+            .speech_audio(
+                &speech.operation,
+                &crate::speech::delivery::DeliveryBuffer::default()
+            )
             .unwrap(),
         SpeechAudioState::Unavailable {
             reason: SpeechUnavailableReason::Cancelled,
@@ -252,7 +267,10 @@ fn speech_source_edit_and_route_revocation_reject_publication() {
                 .unwrap()
                 .is_none()
         );
-        let audio = store.speech_audio(&speech.operation, &crate::speech::cache::Cache::default());
+        let audio = store.speech_audio(
+            &speech.operation,
+            &crate::speech::delivery::DeliveryBuffer::default(),
+        );
         if route_change {
             assert!(matches!(
                 audio.unwrap(),
@@ -323,7 +341,10 @@ fn unavailable_speech_retains_provider_failure_and_request_metadata() {
         .finish_speech(&speech, speech_outcome(Err(error)))
         .unwrap();
     let state = store
-        .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
+        .speech_audio(
+            &speech.operation,
+            &crate::speech::delivery::DeliveryBuffer::default(),
+        )
         .unwrap();
     let SpeechAudioState::Unavailable {
         message,
@@ -359,7 +380,10 @@ fn unavailable_speech_retains_admission_failure_before_a_new_attempt() {
         .unwrap();
     store.connection.execute("UPDATE turns SET context=json_set(context,'$.speechError',json(?2)) WHERE id=(SELECT turn_id FROM operations WHERE id=?1)", params![speech.operation, serde_json::to_string(&error).unwrap()]).unwrap();
     let state = store
-        .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
+        .speech_audio(
+            &speech.operation,
+            &crate::speech::delivery::DeliveryBuffer::default(),
+        )
         .unwrap();
     let SpeechAudioState::Unavailable {
         message,

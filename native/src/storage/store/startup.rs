@@ -90,11 +90,12 @@ impl Store {
         crate::learning::learner::progression::initialize(&connection)?;
         crate::learning::rewards::reward_settings::initialize(&connection)?;
         crate::speech::recording::microphone::initialize(&connection)?;
+        crate::ai::results::initialize(&connection)?;
         let store = Self {
             config,
             connection,
             session_id: id(),
-            speech_cache: crate::speech::cache::Cache::default(),
+            speech_delivery: crate::speech::delivery::DeliveryBuffer::default(),
             credential_writes: std::collections::HashSet::new(),
             credential_index: path.with_file_name("credentials.index"),
             drill_audio: path.with_file_name("drill-audio"),
