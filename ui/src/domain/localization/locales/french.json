@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "Confiance faible — non évalué",
   "Confidence unavailable — not scored": "Confiance indisponible — non évalué",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Confiance minimale de reconnaissance : {value0}. La vraisemblance du modèle n’est pas une probabilité calibrée d’exactitude.",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} prises ont une reconnaissance peu fiable ou un découpage différent de la phrase et sont exclues du tableau des mots."
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} prises ont une reconnaissance peu fiable ou un découpage différent de la phrase et sont exclues du tableau des mots.",
+  "New messages": "Nouveaux messages",
+  "Loading reference…": "Chargement de la référence…",
+  "Next take": "Prochaine prise",
+  "No take in progress": "Aucune prise en cours"
 }

@@ -275,7 +275,9 @@ it('never attaches one phrase’s reference to another', async () => {
   expect((speak.mock.calls[0][1] as AbortSignal).aborted).toBe(true)
   await act(async () => { release(inspection) })
   expect(invoke).not.toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-2', audioBase64: 'cmVmZXJlbmNl' })
-  expect(screen.queryByRole('slider', { name: 'Seek reference audio' })).toBeNull()
+  // The seek control keeps its place but has nothing to seek: no reference is drawn.
+  expect(screen.getByRole('slider', { name: 'Seek reference audio' })).toBeDisabled()
+  expect(screen.getByText('Hear it once to draw the reference here.')).toBeVisible()
 })
 
 it('asks about the phrase in its own stored language, and only once', async () => {

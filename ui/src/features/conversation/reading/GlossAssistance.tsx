@@ -24,12 +24,17 @@ export function GlossAssistance({ assistant, onRetryGloss }: {
     catch (error) { setGlossRetryError(errorMessage(error)) }
     finally { glossRetryLock.current = false; setGlossRetryPending(false) }
   }
-  const showGlossHelp = (assistant.savedGloss?.coverage === 'partial' || ['ready', 'running', 'waiting_dependencies', 'held', 'failed', 'unknown'].includes(assistant.glossState ?? '') || glossRetryError || (assistant.glossState === 'succeeded' && assistant.savedGloss && !assistant.savedGloss.segments.some(segment => segment.kind === 'gloss')))
+  const pending = ['ready', 'running', 'waiting_dependencies'].includes(assistant.glossState ?? '')
+  const pendingLabel = tr(assistant.savedGloss ? "Finishing word meanings…" : "Word meanings pending")
+  // Work in progress is carried by the Word by word control; a line appears
+  // only for a result that needs attention: partial, held, failed or empty.
+  const showGlossHelp = (assistant.savedGloss?.coverage === 'partial' || ['held', 'failed', 'unknown'].includes(assistant.glossState ?? '') || glossRetryError || (assistant.glossState === 'succeeded' && assistant.savedGloss && !assistant.savedGloss.segments.some(segment => segment.kind === 'gloss')))
+  if (pending && !showGlossHelp) return <span className="hydrating-announce" role="status">{pendingLabel}</span>
   return (
     <>          {showGlossHelp && <div className="trans" dir="auto" aria-label={tr("Word meanings")} onDoubleClick={event => event.stopPropagation()}>
           {assistant.savedGloss?.coverage === 'partial' && <span>{tr("Partial · ")}</span>}
-          {assistant.glossState === 'running' && <ActivityIndicator compact label={tr(assistant.savedGloss ? "Finishing word meanings…" : "Word meanings pending")} />}
-          {['ready', 'waiting_dependencies'].includes(assistant.glossState ?? '') && <span className="hydrating-waiting">{tr(assistant.savedGloss ? "Finishing word meanings…" : "Word meanings pending")}</span>}
+          {assistant.glossState === 'running' && <ActivityIndicator compact label={pendingLabel} />}
+          {['ready', 'waiting_dependencies'].includes(assistant.glossState ?? '') && <span className="hydrating-waiting">{pendingLabel}</span>}
           {assistant.glossState === 'held' && <span className="hydrating-waiting">{tr("Word meanings held")}</span>}
           {['failed', 'unknown'].includes(assistant.glossState ?? '') && <ErrorDetails label={tr("Word meanings")} errorKey={`${assistant.glossOperationId}:${assistant.glossState}:${assistant.glossError}`}>{assistant.glossError ?? tr("Word meanings unavailable")}</ErrorDetails>}
           {(['failed', 'unknown'].includes(assistant.glossState ?? '') || (assistant.glossState === 'succeeded' && assistant.savedGloss && (assistant.savedGloss.coverage === 'partial' || !assistant.savedGloss.segments.some(segment => segment.kind === 'gloss')))) && assistant.glossOperationId && onRetryGloss && <button type="button" className="message-translate" disabled={glossRetryPending} onClick={event => { event.stopPropagation(); void retryGloss() }}>{tr("Retry word meanings")}</button>}

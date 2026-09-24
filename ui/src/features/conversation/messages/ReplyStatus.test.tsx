@@ -44,3 +44,13 @@ it('retries explicitly once, surfaces admission rejection, and only displays pro
   expect(screen.getByText('Thinking…')).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Retry exchange' })).toBeNull()
 })
+it('gives a pending reply the landed bubble shape: a reading line and an action footer', () => {
+  const view = render(<ReplyStatus reply={project(execution('running', 'pending'))} />)
+  const bubble = view.container.querySelector('.msg.bot') as HTMLElement
+  expect(bubble).toHaveClass('with-actions')
+  expect(bubble.querySelector('.reply-placeholder')).not.toBeNull()
+  expect(bubble.querySelector('.message-actions.reply-activity')).toHaveTextContent('Thinking…')
+  view.rerender(<ReplyStatus reply={project(execution('running', 'pending'))} stream={{ text: 'Hola' } as never} />)
+  expect(view.container.querySelector('.msg.bot')).toBe(bubble)
+  expect(bubble.querySelector('.reply-received.target-text')).toHaveTextContent('Hola')
+})

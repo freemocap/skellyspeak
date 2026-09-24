@@ -464,3 +464,40 @@ it('preserves source text and reading controls without inline XP tags', async ()
   expect(view.container.querySelector('.whole-message-credit-source')).toBeNull()
   expect(open).not.toHaveBeenCalled()
 })
+
+it('carries pending translation on the Translate control unless the translation is set to show', () => {
+  const input = props()
+  input.turn.assistant!.translation = null
+  input.turn.assistant!.translationState = 'running'
+  const view = render(<TurnView {...input} />)
+  const bubble = view.container.querySelector('.msg.bot') as HTMLElement
+  expect(bubble.querySelector('.hydrating-slot')).toBeNull()
+  expect(within(bubble).getByRole('status')).toHaveClass('hydrating-announce')
+  expect(within(bubble).getByRole('button', { name: 'Translate persona message' })).toHaveClass('is-hydrating')
+  view.rerender(<TurnView {...input} autoTranslate />)
+  expect(bubble.querySelector('.hydrating-slot')).toHaveTextContent('Translating…')
+  view.rerender(<TurnView {...input} autoTranslate turn={{ ...input.turn, assistant: { ...input.turn.assistant!, translationState: 'succeeded', translation: 'Arrived' } }} />)
+  expect(bubble.querySelector('.hydrating-slot')).toBeNull()
+  expect(within(bubble).getByText('Arrived')).toBeVisible()
+})
+
+it('keeps pending word meanings out of the layout and follow-on activity out of the thread', () => {
+  const input = props()
+  input.turn.assistant!.glossState = 'running'
+  input.turn.execution = { id: 'turn', state: 'assisting', paused: false, hold: null, operations: [{ id: 'reply', kind: 'persona_reply', state: 'succeeded' }, { id: 'gloss', kind: 'word_gloss', state: 'running' }], attempts: [] } as never
+  const view = render(<TurnView {...input} />)
+  expect(view.container.querySelector('.msg.bot .trans[aria-label="Word meanings"]')).toBeNull()
+  expect(screen.getByText('Word meanings pending')).toHaveClass('hydrating-announce')
+  expect(view.container.querySelector('.turn-activity')).toBeNull()
+})
+
+it('reserves the feedback badge place on the learner message in every feedback state', () => {
+  const input = props()
+  const view = render(<TurnView {...input} reviewing />)
+  const message = view.container.querySelector('.msg.me') as HTMLElement
+  expect(message).toHaveClass('with-actions')
+  view.rerender(<TurnView {...input} reviewing={false} turn={{ ...input.turn, conversationFeedback: { grammar: 4, conversation: 3 } as never }} />)
+  expect(view.container.querySelector('.msg.me')).toBe(message)
+  expect(message).toHaveClass('with-actions')
+  expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me')).toBe(message)
+})

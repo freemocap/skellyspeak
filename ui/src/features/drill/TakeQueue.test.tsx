@@ -45,3 +45,11 @@ it('separates recognition confidence from similarity using shared status tones',
   expect(screen.getByText('Recognition confidence: 90%')).toHaveAttribute('data-tone', 'success')
   expect(screen.getByText('100%')).toBeInTheDocument()
 })
+it('holds the first row with an idle take slot so a new take does not push the report down', () => {
+  const { rerender } = render(view([]))
+  expect(screen.getByText('No take in progress')).toBeInTheDocument()
+  expect(screen.getAllByRole('listitem')).toHaveLength(1)
+  rerender(view([take]))
+  expect(screen.queryByText('No take in progress')).toBeNull()
+  expect(screen.getAllByRole('listitem')).toHaveLength(1)
+})

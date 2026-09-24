@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "ثقة منخفضة — بلا تقييم",
   "Confidence unavailable — not scored": "الثقة غير متاحة — بلا تقييم",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "الحد الأدنى لثقة التعرف: {value0}. ترجيح النموذج ليس احتمالًا معايرًا للصحة.",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "تم استبعاد {value0} تسجيلات من جدول الكلمات لعدم موثوقية التعرف أو لاختلاف تقسيم العبارة."
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "تم استبعاد {value0} تسجيلات من جدول الكلمات لعدم موثوقية التعرف أو لاختلاف تقسيم العبارة.",
+  "New messages": "رسائل جديدة",
+  "Loading reference…": "جارٍ تحميل المرجع…",
+  "Next take": "التسجيل التالي",
+  "No take in progress": "لا يوجد تسجيل جارٍ"
 }

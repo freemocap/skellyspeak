@@ -38,7 +38,7 @@
 
 .activity-summary-last { flex: none; color: var(--ink-3); white-space: nowrap; }
 
-.turn-activity { margin-block-start: var(--space-2); padding-inline: var(--space-4); transition: opacity var(--dur-slow) var(--ease-out); }
+.turn-activity { min-width: 0; transition: opacity var(--dur-slow) var(--ease-out); }
 
 .turn-activity[data-settled=true] { opacity: 0.7; }
 
@@ -46,7 +46,12 @@
 
 .turn-activity-open:hover .activity-summary-text { color: var(--ink); text-decoration: underline; }
 
-.reply-activity { margin-block-start: var(--space-3); }
+/* The pending reply's footer holds its progress where the landed reply's
+   actions will sit, at the same height. */
+.reply-activity { min-height: var(--control-height-xs); align-items: center; flex-wrap: nowrap; overflow: hidden; }
+
+/* A reading line reserved before any reply text arrives. */
+.reply-placeholder::before { content: '\00a0'; }
 
 /* Hydration: only a surface whose operation is running moves, with one moving
    edge. Waiting and held surfaces are still. */
@@ -71,26 +76,36 @@
   animation: stream-caret var(--dur-loop-fast) steps(1) infinite;
 }
 
-.hydrating-block { display: flex; flex-direction: column; gap: var(--space-2); margin-block-start: var(--space-3); }
+/* A reserved one-line slot for work that will land as one line of text. */
+.hydrating-slot { display: flex; align-items: center; gap: var(--space-3); }
 
-.hydrating-label { font-size: var(--type-meta); color: var(--ink-3); }
+.hydrating-label { flex: none; font-size: var(--type-meta); color: var(--ink-3); }
 
 .hydrating-line {
-  display: block; width: 90%; height: 8px; border-radius: var(--radius-pill); background: var(--chip);
+  display: block; flex: 0 1 45%; height: 8px; border-radius: var(--radius-pill); background: var(--chip);
 }
 
-.hydrating-line-short { width: 55%; }
-
-.hydrating-block[data-phase=running] .hydrating-line {
+.hydrating-slot[data-phase=running] .hydrating-line {
   background: linear-gradient(90deg, var(--chip) 0%, var(--sheet) 50%, var(--chip) 100%) 0 0 / 200% 100%;
   animation: hydrate-shimmer var(--dur-loop) linear infinite;
 }
 
-.hydrating-block[data-phase=waiting] { opacity: 0.6; }
+.hydrating-slot[data-phase=waiting] { opacity: 0.6; }
+
+/* Progress announced to assistive technology without taking layout space;
+   the control that owns the work shows it visually. */
+.hydrating-announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .hydrating-waiting { color: var(--ink-3); font-size: var(--type-meta); }
 
 @media (prefers-reduced-motion: reduce) {
   .is-hydrating::after { animation: none; background: var(--interaction-ink); }
-  .stream-caret, .hydrating-block[data-phase=running] .hydrating-line, .reply-received { animation: none; }
+  .stream-caret, .hydrating-slot[data-phase=running] .hydrating-line, .reply-received { animation: none; }
 }

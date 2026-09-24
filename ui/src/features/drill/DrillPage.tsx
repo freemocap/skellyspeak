@@ -303,6 +303,7 @@ export function DrillPage({ active }: { active: boolean }) {
 
   const dock = selected && (
         <div className="drill-pane drill-dock-pane" ref={element => { panes.current.dock = element }}>
+          {mic.failure != null && <ErrorNotice as="div" error={mic.failure}><strong>{tr('Microphone')}</strong><p>{errorMessage(mic.failure)}</p><ResponseDetails value={mic.failure} /></ErrorNotice>}
           <RecordDock phase={phase} mode={mode} onMode={setMode} settings={listening} onSettings={changeListening}
             listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} liveSpectrum={mic.liveSpectrum}
             onToggle={() => void mic.toggleMic()} onCancel={mode === 'auto' ? mic.discardCurrent : mic.cancel}
@@ -343,9 +344,6 @@ export function DrillPage({ active }: { active: boolean }) {
         {visit.failure != null && <ErrorNotice as="p" error={visit.failure}>{errorMessage(visit.failure)}
           <button type="button" className="btn" onClick={visit.retry}>{tr("Try again")}</button></ErrorNotice>}
         {failure != null && <ErrorNotice as="p" error={failure}>{errorMessage(failure)}</ErrorNotice>}
-        {mic.failure != null && <ErrorNotice as="div" error={mic.failure}><strong>{tr('Microphone')}</strong><p>{errorMessage(mic.failure)}</p><ResponseDetails value={mic.failure} /></ErrorNotice>}
-        {referenceFailure != null && <ErrorNotice as="div" error={referenceFailure}><strong>{tr('Reference')}</strong><p>{errorMessage(referenceFailure)}</p>
-          <button type="button" className="btn" disabled={holdingAudio || speaking} onClick={() => void playReference(selected)}>{tr('Try again')}</button><ResponseDetails value={referenceFailure} /></ErrorNotice>}
 
         <DrillComparison target={<DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
             {analysis => (
@@ -360,6 +358,8 @@ export function DrillPage({ active }: { active: boolean }) {
             onChange={event => void setPreference('tts_rate', Number(event.target.value))}>
             {[...new Set([0.5, 0.65, 0.8, 1, 1.2, 1.5, settings?.tts_rate ?? 1])].sort((a, b) => a - b).map(rate => <option key={rate} value={rate}>{rate}×</option>)}
           </select></label>}
+          referenceFailure={referenceFailure != null ? <ErrorNotice as="div" error={referenceFailure}><strong>{tr('Reference')}</strong><p>{errorMessage(referenceFailure)}</p>
+            <button type="button" className="btn" disabled={holdingAudio || speaking} onClick={() => void playReference(selected)}>{tr('Try again')}</button><ResponseDetails value={referenceFailure} /></ErrorNotice> : undefined}
           onPlayReference={() => {
             if (speaking) { referenceRequest.current?.abort(); referencePlayer.current?.stop(); setSpeaking(false) }
             else void playReference(selected)

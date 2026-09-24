@@ -10,6 +10,7 @@ import { useReadingPreferences } from './ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 import { TargetText } from './TargetText'
 import { useSavedReading } from './SavedReadingProvider'
+import { TranslationStatus, translationPending } from './TranslationStatus'
 
 /// Where the message sits. `bubble` is a message in a thread with its actions
 /// inside the bubble; `passage` is a standalone bubble with actions beneath it;
@@ -46,6 +47,10 @@ export interface TargetMessageProps {
   lookupWords: boolean
   /// Owner-supplied progress and failures for this message's aids.
   status: ReactNode
+  /// Operation state of a translation the owner requested for this text. The
+  /// Translate control carries its progress; a reserved line shows it only
+  /// while the translation is set to show and has no text yet.
+  translationState?: string | null
   /// Optional actions supplied by the owning surface, without feature coupling.
   extraActions?: ReactNode
   /// Owner-supplied content shown directly under the text.
@@ -61,7 +66,7 @@ export interface TargetMessageProps {
  *  consumer supplies its own data and actions; the tools behave identically. */
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
-  segmentsPending, lookupWords, status, annotation, speech, analysis, focused, rtl, extraActions,
+  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, extraActions,
 }: TargetMessageProps) {
   const tr = useI18n()
   const uiDirection = useUiDirection()
@@ -116,6 +121,7 @@ export function TargetMessage({
   const translating = useSourceRequest(sourceKey)
   // What the learner sees: a translation is shown only when one exists.
   const translationShown = translationOpen && shownTranslation !== null
+  const translationWorking = translationPending(translationState)
   async function toggleTranslation() {
     if (shownTranslation !== null) { setTranslationOverride(!translationOpen); return }
     // Nothing to show yet: one explicit click requests it and shows it.
@@ -135,6 +141,7 @@ export function TargetMessage({
       : <TargetText text={text} />}
     {annotation}
     {translationShown && <div className="trans" dir="auto">{shownTranslation}</div>}
+    {translationState !== undefined && <TranslationStatus state={translationState} shown={translationOpen && shownTranslation === null} />}
     {soundOpen && sound && !(wordsOpen && known.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
     {status}
     {speech && <button type="button" className="bubble-corner-control speak-btn" title={speech.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speech.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); speech.onToggle() }}><span aria-hidden="true">{speech.speaking ? '⏹' : '🔊'}</span></button>}
@@ -142,7 +149,7 @@ export function TargetMessage({
   </>
   const actions = <div className="message-actions" dir={layout === 'bubble' ? uiDirection : undefined} onDoubleClick={stop}>
     {sound && <button type="button" className="message-translate" aria-expanded={soundOpen} aria-pressed={soundOpen} onClick={event => { stop(event); setSoundOverride(!soundOpen) }}>{tr('Pronunciation')}</button>}
-    {(shownTranslation || canLookup) && <button type="button" className={translating.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={translating.pending} aria-label={translateLabel ?? undefined} aria-expanded={translationShown} aria-pressed={translationShown} onKeyDown={stop} onClick={event => { stop(event); void toggleTranslation() }}>{tr("Translate")}</button>}
+    {(shownTranslation || canLookup || translationWorking) && <button type="button" className={translating.pending || translationWorking ? 'message-translate is-hydrating' : 'message-translate'} disabled={translating.pending} aria-label={translateLabel ?? undefined} aria-expanded={translationShown} aria-pressed={translationShown} onKeyDown={stop} onClick={event => { stop(event); void toggleTranslation() }}>{tr("Translate")}</button>}
     <button type="button" className={segmentsPending || words.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={words.pending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
     {analysis && <button type="button" className={analysis.pending ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={event => { stop(event); analysis.onOpen() }}>{tr("Analysis")}</button>}
     {extraActions}
@@ -152,7 +159,9 @@ export function TargetMessage({
     {translating.error != null && <ErrorDetails label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
   </>
 
-  if (layout === 'bubble') return <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${speech ? ' with-corner-control' : ''}`}>
+  // Meanings that are set to show and still being produced keep their line pitch.
+  const aidsReserved = aidsEnabled && known.length === 0 && segmentsPending
+  if (layout === 'bubble') return <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${speech ? ' with-corner-control' : ''}${aidsReserved ? ' aids-reserved' : ''}`}>
     {body}{actions}{failure}
   </div>
   return <div className={`reading-passage${layout === 'compact' ? ' reading-passage-compact' : ''}`}>

@@ -11,10 +11,9 @@ import { TargetMessage } from '../../../components/reading/TargetMessage'
 import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
 import { TargetText } from '../../../components/reading/TargetText'
 import { ReplyStatus } from './ReplyStatus'
-import { TurnActivityLine } from './TurnActivityLine'
 import { retainedReplyText, turnActivity } from '../../../domain/conversation/activity-summary'
 import { useReplyStream } from '../../../state/session/attempt-streams'
-import { TranslationStatus } from './TranslationStatus'
+import { TranslationStatus, translationPending } from '../../../components/reading/TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
 import { createMessageEvidenceSelector, evidenceStyle } from '../../../domain/learning/evidence/message-evidence'
@@ -69,8 +68,6 @@ export interface TurnViewProps {
   onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
   editDisabled?: boolean
   onEditUser?: (turn: TurnShape) => void
-  /// The newest exchange: its live activity line shows even while only waiting.
-  latest?: boolean
 }
 
 /// Memoized: during streaming, every delta re-renders only the turn that
@@ -94,7 +91,6 @@ export const TurnView = memo(function TurnView({
   onRetryHelp,
   onReplyControl,
   onActivity,
-  latest = false,
 }: TurnViewProps) {
   const tr = useI18n()
   const uiDirection = useUiDirection()
@@ -123,6 +119,8 @@ export const TurnView = memo(function TurnView({
   const userTranslation = turn.userTranslation ?? assistant?.user_translation
 
   const userSegments = turn.userSavedGloss?.segments ?? (turn.user && assistant ? anchoredTokenGlosses(turn.user, assistant.user_tokens) : [])
+  // Meanings set to show that may still arrive keep their line pitch reserved.
+  const userAidsReserved = userWordsOpen && userSegments.length === 0 && !['failed', 'unknown', 'held', 'cancelled', 'invalidated'].includes(turn.userGlossState ?? '')
   const decorateEvidence = (node: React.ReactNode, start: number, end: number) => {
     const matches = evidence.filter(item => item.start < end && item.end > start)
     return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
@@ -133,13 +131,13 @@ export const TurnView = memo(function TurnView({
       {turn.user && (
         <div
           data-reward-message={turn.id}
-          className={`msg chat-message me${userSegments.length ? '' : ' plain'}${rtl ? ' rtl' : ''}${turn.conversationFeedback ? ' with-scores' : ''} with-actions`}
+          className={`msg chat-message me${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''} with-actions`}
         >
           {userSegments.length > 0
             ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user} segments={userSegments} decorateSegment={decorateEvidence} />
             : plainEvidence}
           {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
-          <TranslationStatus state={turn.userTranslationState} />
+          <TranslationStatus state={turn.userTranslationState} shown={showUserTranslation && !userTranslation} />
           <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
           <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
           <div className="message-xp-actions" onDoubleClick={event => event.stopPropagation()}>
@@ -163,7 +161,7 @@ export const TurnView = memo(function TurnView({
           </div>
         <div dir={uiDirection} className={`message-feedback${turn.conversationFeedback ? ' has-scores' : ''}`} onDoubleClick={event => event.stopPropagation()}>
           <MessageFeedback conversationFeedback={turn.conversationFeedback} onOpenCoach={onOpenCoach ? () => onOpenCoach(turn.id) : undefined} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
-            {userTranslation && <button type="button" className="message-translate" aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
+            {(userTranslation || translationPending(turn.userTranslationState)) && <button type="button" className={translationPending(turn.userTranslationState) ? 'message-translate is-hydrating' : 'message-translate'} aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
             <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!userSegments.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
           </MessageFeedback>
         </div>
@@ -184,7 +182,8 @@ export const TurnView = memo(function TurnView({
             romanization={null}
             pronunciation={null}
             annotation={turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
-            status={<><TranslationStatus state={assistant.translationState} /><GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} /></>}
+            translationState={assistant.translationState}
+            status={<GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />}
             speech={ttsReady && onSpeak ? { speaking, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
             analysis={{ pending: assistant.explanationsState === 'running', onOpen: () => onBubbleTap(turn.id) }}
             focused={focused}
@@ -194,9 +193,6 @@ export const TurnView = memo(function TurnView({
       )}
       {assistant === null && (
         <ReplyStatus reply={turn.replyState} activity={activity} stream={replyStream} retainedText={retainedReplyText(turn.execution)} rtl={rtl} onControl={onReplyControl} onActivity={onActivity} />
-      )}
-      {assistant !== null && activity && (latest || activity.running.length > 0) && (
-        <TurnActivityLine activity={activity} onActivity={onActivity} />
       )}
     </div>
   )

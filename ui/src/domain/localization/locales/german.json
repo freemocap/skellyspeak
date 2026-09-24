@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "Niedrige Konfidenz — nicht bewertet",
   "Confidence unavailable — not scored": "Konfidenz nicht verfügbar — nicht bewertet",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Mindestkonfidenz der Erkennung: {value0}. Die Modellwahrscheinlichkeit ist keine kalibrierte Wahrscheinlichkeit für Richtigkeit.",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} Aufnahmen haben keine zuverlässige Erkennung oder eine andere Satzaufteilung und werden aus dem Wortraster ausgeschlossen."
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} Aufnahmen haben keine zuverlässige Erkennung oder eine andere Satzaufteilung und werden aus dem Wortraster ausgeschlossen.",
+  "New messages": "Neue Nachrichten",
+  "Loading reference…": "Referenz wird geladen…",
+  "Next take": "Nächste Aufnahme",
+  "No take in progress": "Keine Aufnahme läuft"
 }

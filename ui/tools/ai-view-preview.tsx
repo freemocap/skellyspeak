@@ -9,7 +9,7 @@ import { ActivityGraph } from '../src/features/activity/ActivityGraph'
 import { OperationInspector } from '../src/features/activity/OperationInspector'
 import { ExchangeTimeline } from '../src/features/activity/ExchangeTimeline'
 import { ReplyStatus } from '../src/features/conversation/messages/ReplyStatus'
-import { TranslationStatus } from '../src/features/conversation/messages/TranslationStatus'
+import { TranslationStatus } from '../src/components/reading/TranslationStatus'
 import { TurnActivityLine } from '../src/features/conversation/messages/TurnActivityLine'
 import { ActivitySummary } from '../src/components/feedback/ActivitySummary'
 import '../src/styles/index.css'
@@ -55,12 +55,12 @@ function Preview() {
     <section aria-label="Chat" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
       <h2>Chat: live status and hydration</h2>
       <ReplyStatus reply={{ state: tick < 10 ? 'pending' : 'unavailable', error: null, control: null }} activity={activity} stream={stream} />
-      {tick >= 10 && <div className="msg chat-message bot"><p>{REPLY}</p><TranslationStatus state={turn.operations.find(item => item.kind === 'reply_translation')!.state} /></div>}
+      {tick >= 10 && <div className="msg chat-message bot"><p>{REPLY}</p><TranslationStatus shown state={turn.operations.find(item => item.kind === 'reply_translation')!.state} /></div>}
       {tick >= 10 && <TurnActivityLine activity={activity} />}
       <h3>Failed mid-stream: the text stays</h3>
       <ReplyStatus reply={{ state: 'failed', error: 'Provider did not finish the reply normally. The reply was not saved to the conversation; the text that arrived is shown above.', control: 'retry' }} retainedText="¡Qué bien! Entonces fuiste al merc" onControl={async () => {}} />
       <h3>Held and waiting (still)</h3>
-      <div className="msg chat-message bot"><p>Translation</p><TranslationStatus state="held" /><TranslationStatus state="waiting_dependencies" /></div>
+      <div className="msg chat-message bot"><p>Translation</p><TranslationStatus shown state="held" /><TranslationStatus shown state="waiting_dependencies" /></div>
       <ActivitySummary activity={turnActivity(older)} />
     </section>
     <section aria-label="AI View" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', minHeight: 0 }}>

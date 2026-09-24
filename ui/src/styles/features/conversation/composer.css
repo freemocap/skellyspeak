@@ -93,9 +93,9 @@
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
 
-.composer-activity:empty { display: none; }
-
-.composer-activity { padding: var(--space-1) var(--space-5); color: var(--ink); }
+/* One fixed status line above the input: transcription, reply and follow-on
+   AI work all report here, so their arrival never moves the input. */
+.composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); padding: 0 var(--space-5); color: var(--ink); overflow: hidden; white-space: nowrap; }
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
 

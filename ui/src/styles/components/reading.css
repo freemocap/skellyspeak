@@ -88,6 +88,14 @@
 
 .target-text { font-family: var(--font-serif); line-height: var(--leading-normal); white-space: pre-wrap; }
 
+/* Word meanings are set to show but have not arrived: plain text takes the
+   annotated line pitch (the word line plus its gloss row), so their arrival
+   does not add height to every line. Glosses can still widen words enough to
+   wrap onto another line; that growth cannot be known before they arrive. */
+.aids-reserved .target-text {
+  line-height: calc(var(--leading-normal) * 1em + var(--type-meta) * var(--reading-scale) * var(--leading-tight));
+}
+
 .wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); }
 
 .trans { font-size: calc(var(--type-ui) * var(--reading-scale)); color: var(--ink-3); font-style: italic;

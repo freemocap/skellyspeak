@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "Low confidence — not scored",
   "Confidence unavailable — not scored": "Confidence unavailable — not scored",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid."
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.",
+  "New messages": "New messages",
+  "Loading reference…": "Loading reference…",
+  "Next take": "Next take",
+  "No take in progress": "No take in progress"
 }

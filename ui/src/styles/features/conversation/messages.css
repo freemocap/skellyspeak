@@ -192,13 +192,18 @@
 
 .msg.chat-message.me { max-width: 82%; }
 
-/* Feedback is a status pill under your message: neutral when there is nothing
-   to fix, amber when the coach has a correction waiting in the coach panel. */
+/* Feedback is a status pill straddling your message's bottom border: neutral
+   when there is nothing to fix, amber when the coach has a correction waiting.
+   It keeps that place in every state from "Analyzing…" to scores, and the
+   bubble reserves the room below (with-actions), so feedback arriving never
+   changes the message's height. A long correction truncates here and reads in
+   full in its dialog. */
 .message-feedback > .feedback-badge {
-  position: static; display: inline-flex; margin-top: var(--space-2); margin-inline-start: auto; padding: var(--space-1) var(--space-5);
+  position: absolute; bottom: calc(-1 * var(--control-height) / 2); right: var(--space-2); display: inline-flex; flex-shrink: 0;
+  height: var(--control-height); min-height: var(--control-height); padding: 0 var(--space-5); column-gap: var(--space-4);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
-  max-width: 100%; text-align: start;
+  font-variant-numeric: tabular-nums; max-width: calc(100% - 2 * var(--space-2)); overflow: hidden; text-align: start;
 }
 .message-feedback > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
@@ -232,11 +237,10 @@
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-.feedback-badge.has-correction { white-space: normal; }
-/* Saved scores still straddle the learner bubble's bottom border. Reserve room
-   below the footer so neither actions nor message text sit behind the badge. */
-.msg.chat-message.me.with-scores { padding-block-end: calc(var(--space-4) + var(--control-height) / 2); margin-block-end: calc(var(--space-2) + var(--control-height) / 2); }
-.message-feedback > .feedback-badge.has-scores { position: absolute; bottom: calc(-1 * var(--control-height) / 2); right: var(--space-2); margin-block-start: 0; min-height: var(--control-height); height: var(--control-height); padding-block: 0; column-gap: var(--space-4); flex-shrink: 0; }
+/* Room for the straddling feedback badge, reserved from the first frame. */
+.msg.chat-message.me.with-actions { padding-block-end: calc(var(--space-4) + var(--control-height) / 2); margin-block-end: calc(var(--space-2) + var(--control-height) / 2); }
+.msg.rtl .message-feedback > .feedback-badge { right: auto; left: var(--space-2); }
+.feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
 }

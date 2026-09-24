@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "Confiança baixa — sem pontuação",
   "Confidence unavailable — not scored": "Confiança indisponível — sem pontuação",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Confiança mínima do reconhecimento: {value0}. A verosimilhança do modelo não é uma probabilidade calibrada de correção.",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} gravações não têm reconhecimento fiável ou usam outra divisão da frase e ficam fora da grelha de palavras."
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} gravações não têm reconhecimento fiável ou usam outra divisão da frase e ficam fora da grelha de palavras.",
+  "New messages": "Novas mensagens",
+  "Loading reference…": "Carregando a referência…",
+  "Next take": "Próxima gravação",
+  "No take in progress": "Nenhuma gravação em andamento"
 }

@@ -33,6 +33,17 @@
 
 .chat .stream > * { width: 100%; max-width: var(--measure-thread); }
 
+/* Shown only while reading earlier messages and the tail has changed. It sits
+   at the end of the stream and sticks to the bottom edge, so it never moves
+   the messages being read. */
+.chat .stream > .stream-jump {
+  position: sticky; bottom: 0; z-index: var(--z-sticky); flex: none; width: auto; margin-block-start: auto;
+  padding: var(--space-2) var(--space-8); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
+  background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui) / var(--leading-snug) var(--font-sans);
+  box-shadow: var(--shadow-floating); cursor: pointer;
+}
+.chat .stream > .stream-jump:hover { border-color: var(--interaction-ink); }
+
 @media(max-width:860px) {
   .chat .stream { padding: var(--space-3) var(--space-3); gap: var(--space-3); }
 }

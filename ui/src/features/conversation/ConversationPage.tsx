@@ -51,6 +51,7 @@ import { comboFromEvent } from '../../domain/input/keyboard'
 import { WaveformStrip } from '../../components/media/WaveformStrip'
 import { EditFeedback } from './coaching/EditFeedback'
 import { TurnView } from './messages/TurnView'
+import { LatestTurnActivity } from './messages/TurnActivityLine'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { AnalysisContent } from './reading/AnalysisContent'
 import { CoachAnalysisPanel } from './coaching/CoachAnalysisPanel'
@@ -255,7 +256,8 @@ export default function ConversationPage({
     void useSettingsStore.getState().load().catch((error: unknown) => reportFault('Loading settings', error))
   }, [currentChatId])
 
-  const onStreamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns)
+  const streamTail = (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
+  const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
 
   const isMobile = useIsMobile()
   function openCoach(id?: number) {
@@ -468,6 +470,8 @@ export default function ConversationPage({
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
   const latestTurn = activeTurns.at(-1)
+  const analysing = (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null
+  const inspectLatest = () => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: latestTurn?.turnId ?? null, operationKind: null })
   const replyHelp = (
     <ConversationErrorScope conversationId={snapshot?.conversationId} turn={latestTurn?.execution}>
       <TurnReplyHelp turn={latestTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} busy={sending}
@@ -491,7 +495,9 @@ export default function ConversationPage({
             await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
           } : undefined} conversationFeedback={editingTurn.conversationFeedback} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} /> : (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null}
+            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} />
+              : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
+              : analysing}
           </div>
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
@@ -538,7 +544,7 @@ export default function ConversationPage({
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
         <div className="reward-effects-rail" data-reward-surface />
-        <div className="stream" ref={streamRef} onScroll={onStreamScroll}>
+        <div className="stream" ref={streamRef} onScroll={streamScroll.onScroll}>
           {readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
           {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}
           {olderError && <ErrorNotice as="p" error={olderError}>{olderError}</ErrorNotice>}
@@ -559,7 +565,6 @@ export default function ConversationPage({
             <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
               turn={turn}
               onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
-              latest={turn === activeTurns.at(-1)}
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
@@ -590,6 +595,7 @@ export default function ConversationPage({
             />
             </ConversationErrorScope>
           ))}
+          {streamScroll.unseen && <button type="button" className="stream-jump" onClick={streamScroll.jumpToLatest}>{tr("New messages")}</button>}
           {error && (
             <ErrorDetails label={tr("Request failed")} errorKey={error} explanation={error}>
               {/* A message that says "go to Settings" should take you there,

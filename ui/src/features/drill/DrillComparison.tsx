@@ -26,7 +26,7 @@ function tickStep(span: number) {
  * one time scale choice and one colour scale, so length, rhythm and loudness
  * can be read against each other. Each recording has its own play control
  * beside its own timeline, the way a media player does. */
-export function DrillComparison({ target, reference, referenceTime, onSeekReference, onPlayReference, playingReference, referenceNote,
+export function DrillComparison({ target, reference, referenceTime, onSeekReference, onPlayReference, playingReference, referenceNote, referenceFailure,
   attempt, attemptLabel, attemptFailure, onRetryAttempt, attemptUnavailable, direction, onDirection, timeScale, onTimeScale,
   holding, playingAttempt, onPlayAttempt, playbackSpeed }: {
   /** The phrase itself, in its reading bubble. */
@@ -39,6 +39,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   playingReference: boolean
   /** Why reference playback is the way it is, shown as the play control's tooltip. */
   referenceNote: string
+  /** A failed reference request, drawn inside the reference frame. */
+  referenceFailure?: ReactNode
   attempt: AudioInspection | null
   /** The selected take's name, or null when there is no take yet. */
   attemptLabel: string | null
@@ -67,10 +69,13 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   const [plotHeight, setPlotHeight] = useStoredSize('drill-plot')
   const referencePlot = useRef<HTMLDivElement>(null)
   const measurePlot = () => {
-    if (!referencePlot.current) throw new Error('The reference spectrogram is not on the page.')
+    if (!referencePlot.current) throw new Error('The reference frame is not on the page.')
     return referencePlot.current.getBoundingClientRect().height
   }
   const width = (duration: number) => `${timeScale === 'shared' ? duration / span * 100 : 100}%`
+  // Word tracks keep their row whether or not a recording has words, so a
+  // recording arriving never pushes the next one down.
+  const showWords = !mobile || showTiming
 
   const controls = <>
     {mobile && <label><input type="checkbox" checked={showTiming} onChange={event => setShowTiming(event.target.checked)} />{tr("Word timing overlays")}</label>}
@@ -102,10 +107,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
           <ToolbarIcon name={playingReference ? "stop" : "play"} size={14} />{tr(playingReference ? "Stop" : "Hear it")}
         </button>
         {playbackSpeed}
-        {reference
-          ? <input className="drill-seek" type="range" dir={direction} aria-label={tr('Seek reference audio')} min={0} max={reference.duration} step={0.01}
-            value={Math.min(referenceTime, reference.duration)} disabled={holding} onChange={event => onSeekReference(Number(event.target.value))} />
-          : <span className="drill-media-empty">{tr("Hear it once to draw the reference here.")}</span>}
+        <input className="drill-seek" type="range" dir={direction} aria-label={tr('Seek reference audio')} min={0} max={reference?.duration ?? 1} step={0.01}
+          value={reference ? Math.min(referenceTime, reference.duration) : 0} disabled={holding || !reference} onChange={event => onSeekReference(Number(event.target.value))} />
         <span className="drill-media-time">{reference
           ? tr("Reference · {value0}", { value0: `${seconds(Math.min(referenceTime, reference.duration))} / ${seconds(reference.duration)}` })
           : tr("Reference")}</span>
@@ -114,18 +117,24 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
 
       <div className="drill-timelines" data-time={direction}
         style={{ '--drill-plot-height': plotHeight === null ? undefined : `${Math.round(plotHeight)}px` } as CSSProperties}>
-        {reference && scale && <div className="drill-track">
+        {reference && scale ? <div className="drill-track">
           <div className="inspection-plot" ref={referencePlot} style={{ width: width(reference.duration) }}>
             <Spectrogram data={reference.spectrogram} duration={reference.duration} zoom={1} scale={scale} />
             <SpectrogramFrequencyScale data={reference.spectrogram} count={3} />
             <span className="audio-spectrum-cursor" style={{ left: `${Math.max(0, Math.min(1, referenceTime / reference.duration)) * 100}%` }} aria-hidden="true" />
           </div>
-          {(!mobile || showTiming) && reference.wordTiming.words.length > 0 && <div style={{ width: width(reference.duration) }}>
-            <TimedWordTrack wordTiming={reference.wordTiming} duration={reference.duration} currentTime={referenceTime} onSeek={holding ? undefined : onSeekReference} />
+          {showWords && <div className="drill-word-slot" style={{ width: width(reference.duration) }}>
+            {reference.wordTiming.words.length > 0 && <TimedWordTrack wordTiming={reference.wordTiming} duration={reference.duration} currentTime={referenceTime} onSeek={holding ? undefined : onSeekReference} />}
           </div>}
+        </div> : <div className="drill-track">
+          <div className="drill-plot-frame" ref={referencePlot} data-state={referenceFailure ? 'failed' : playingReference ? 'loading' : 'empty'}>
+            {referenceFailure ?? <p role="status">{playingReference ? tr("Loading reference…")
+              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Hear it once to draw the reference here.")}</p>}
+          </div>
+          {showWords && <div className="drill-word-slot" />}
         </div>}
-        {reference && <ResizeHandle label={tr("Resize the spectrograms")} axis="y" grow={1} size={plotHeight} min={40} max={640}
-          measure={measurePlot} onResize={setPlotHeight} />}
+        <ResizeHandle label={tr("Resize the spectrograms")} axis="y" grow={1} size={plotHeight} min={40} max={640}
+          measure={measurePlot} onResize={setPlotHeight} />
 
       </div>
       </div>
@@ -146,11 +155,14 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
                 <SpectrogramFrequencyScale data={attempt.spectrogram} count={3} />
                 <SegmentMarkers activity={attempt.activity} duration={attempt.duration} />
               </div>
-              {(!mobile || showTiming) && attempt.wordTiming.words.length > 0 && <div style={{ width: width(attempt.duration) }}>
-                <TimedWordTrack wordTiming={attempt.wordTiming} duration={attempt.duration} />
+              {showWords && <div className="drill-word-slot" style={{ width: width(attempt.duration) }}>
+                {attempt.wordTiming.words.length > 0 && <TimedWordTrack wordTiming={attempt.wordTiming} duration={attempt.duration} />}
               </div>}
             </div>
-            : <p className="drill-timeline-empty">{attemptUnavailable ?? tr("Loading…")}</p>}
+            : <div className="drill-track">
+              <div className="drill-plot-frame" data-state={attemptUnavailable ? 'empty' : 'loading'}><p role="status">{attemptUnavailable ?? tr("Loading…")}</p></div>
+              {showWords && <div className="drill-word-slot" />}
+            </div>}
         </>}
 
         {timeScale === 'shared' && shown.length > 0 && <div className="drill-track drill-axis" aria-hidden="true">
@@ -160,7 +172,6 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
 
       {attemptFailure != null && <ErrorNotice as="p" error={attemptFailure}>{errorMessage(attemptFailure)}
         <button type="button" className="btn" onClick={onRetryAttempt}>{tr("Try again")}</button></ErrorNotice>}
-      {attemptLabel && !reference && <p role="status" className="drill-timeline-empty">{tr("Play the reference to compare it with this attempt.")}</p>}
       {attempt && <div className="drill-comparison-foot">
         {!mobile && <WordTimingNote wordTiming={attempt.wordTiming} />}
         <DetectionDetails activity={attempt.activity} spectrogram={attempt.spectrogram}>

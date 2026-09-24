@@ -90,14 +90,22 @@
 .drill-media { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .drill-media .drill-seek { flex: 1 1 auto; min-width: 4rem; }
 .drill-media .drill-segmented { flex: none; flex-wrap: nowrap; }
-.drill-media-empty { flex: 1 1 auto; color: var(--ink-3); font-size: var(--type-meta); }
 .drill-media-time { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
 .drill-media-take { margin-top: var(--space-2); }
 .drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
 .drill-comparison-panel { flex: 1 1 auto; min-height: 16rem; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); overflow-y: auto; }
 .drill-reference { display: flex; flex-direction: column; gap: var(--space-2); }
 .drill-timelines { display: grid; gap: var(--space-1); }
-.drill-timeline-empty { margin: 0; padding: var(--space-4); color: var(--ink-3); font-size: var(--type-ui); background: var(--bg); border-radius: var(--radius-sm); }
+/* A recording that is not drawn yet keeps the plot's frame: empty, loading and
+   failed states draw inside it, so the drawing arriving moves nothing. */
+.drill-plot-frame { display: flex; flex-direction: column; justify-content: center; height: var(--drill-plot-height); box-sizing: border-box; padding: var(--space-3) var(--space-5); overflow: auto; background: var(--bg); border: var(--border-width) dashed var(--line); border-radius: var(--radius-sm); color: var(--ink-3); font-size: var(--type-ui); }
+.drill-plot-frame > p { margin: 0; }
+.drill-plot-frame[data-state="loading"] { border-style: solid; }
+.drill-plot-frame[data-state="failed"] { border-style: solid; border-color: var(--danger-line); background: var(--danger-tint); color: var(--danger-ink); }
+.drill-plot-frame > [role="alert"] p { margin: var(--space-1) 0; }
+.drill-plot-frame > [role="alert"] .btn { margin-inline-end: var(--space-2); }
+/* Word timing keeps its row even for a recording without recognised words. */
+.drill-word-slot { min-height: 36px; }
 .drill-track { display: grid; gap: var(--space-1); }
 .drill-timelines .inspection-spectrogram { height: var(--drill-plot-height); }
 .drill-timelines .inspection-token-track { height: 36px; }
@@ -222,6 +230,9 @@
 /* A take joins the log the moment it is cut, before anything has been
    transcribed, and its result card replaces it in place when one arrives. */
 .drill-take-arrival { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+/* The idle slot holds the first row's place until a recording starts. */
+.drill-take-pending[data-state="idle"] { border-style: dashed; background: transparent; }
+.drill-take-pending[data-state="idle"] strong { color: var(--ink-3); }
 .drill-take-pending { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .drill-take-pending[data-state="failed"] { border-color: var(--danger-line); }
 .drill-take-pending p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
@@ -295,7 +306,7 @@
   .drill-stage { overflow: visible; flex: none; }
   .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
   .drill-comparison-panel { min-height: 0; overflow: visible; padding: var(--space-2); }
-  .drill-timelines .inspection-spectrogram { height: 72px; }
+  .drill-timelines :is(.inspection-spectrogram, .drill-plot-frame) { height: 72px; }
   .drill-media { flex-wrap: wrap; gap: var(--space-2); position: relative; }
   .drill-media-time { white-space: normal; flex-shrink: 1; }
   .drill-media .drill-seek { min-width: 3rem; width: 3rem; }

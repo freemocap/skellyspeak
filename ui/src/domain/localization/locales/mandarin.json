@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "置信度低 — 不计分",
   "Confidence unavailable — not scored": "置信度不可用 — 不计分",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "最低识别置信度：{value0}。模型似然并非经过校准的正确率。",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} 次录音的识别不可靠或短语分词方式不同，已从单词表中排除。"
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} 次录音的识别不可靠或短语分词方式不同，已从单词表中排除。",
+  "New messages": "新消息",
+  "Loading reference…": "正在加载参考音频…",
+  "Next take": "下一次录音",
+  "No take in progress": "没有正在进行的录音"
 }

@@ -1372,5 +1372,9 @@
   "Low confidence — not scored": "Confianza baja — sin puntuación",
   "Confidence unavailable — not scored": "Confianza no disponible — sin puntuación",
   "Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.": "Confianza mínima del reconocimiento: {value0}. La verosimilitud del modelo no es una probabilidad calibrada de corrección.",
-  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} tomas carecen de reconocimiento fiable o usan otra división de la frase y se excluyen de la tabla de palabras."
+  "{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.": "{value0} tomas carecen de reconocimiento fiable o usan otra división de la frase y se excluyen de la tabla de palabras.",
+  "New messages": "Mensajes nuevos",
+  "Loading reference…": "Cargando la referencia…",
+  "Next take": "Siguiente toma",
+  "No take in progress": "Ninguna toma en curso"
 }
