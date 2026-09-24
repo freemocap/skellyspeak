@@ -1871,6 +1871,11 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   gap: var(--space-6);
 }
 
+/* Messages settle at the bottom, next to the composer, and grow upward. The
+   spacer collapses once the conversation fills the stream, so scrolling is
+   unaffected; the empty top leaves room for XP cards opening from the header. */
+.chat .stream:has(.turn-stack)::before { content: ''; flex: 1 0 0; }
+
 /* Turns inside a reading-language scope (display: contents) are stream items
    too; without full width each turn shrinks to its content and centres. */
 .chat .stream > *, .chat .stream > .reading-language-scope > * { width: 100%; max-width: var(--measure-thread); }
@@ -1900,7 +1905,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   }
   .mobile-conversation .chat { display: flex; flex: none; overflow: visible; min-height: 65dvh; }
   .mobile-conversation .stream {
-    overflow: visible;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
@@ -4936,7 +4940,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .transcription-inspector dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-6); font-size: var(--type-ui); }
 .transcription-inspector dd { margin: 0; }
 .transcription-inspector details { font-size: var(--type-ui); overflow-wrap: anywhere; }
-.inspection-open { align-self: flex-end; font-size: var(--type-ui); }
 @media (max-width: 600px) {
   .inspection-row > h3 { font-size: var(--type-meta); }
 }
