@@ -64,11 +64,6 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         >
           <ToolbarIcon name="menu" size={18} /> <span>{tr("Conversations")}</span>
         </button>
-      {/* Phones: language and practice mode live in this menu instead of the bar. */}
-      <button type="button" className="gear phone-menu" aria-label={tr("Menu")} title={tr("Menu")}
-        aria-expanded={overlay === 'menu'} onClick={() => showOverlay('menu')}>
-        <ToolbarIcon name="menu" size={18} />
-      </button>
       <button type="button" className="wordmark app-home" aria-label={tr("SkellySpeak home — Chat")} onClick={goHome}>
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SkellySpeak</span>

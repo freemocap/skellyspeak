@@ -23,7 +23,6 @@ import { UpdateBanner } from './shell/UpdateBanner'
 import { FaultBar } from './shell/FaultBar'
 import { MobileNav } from './shell/MobileNav'
 import { MoreDialog } from './shell/MoreDialog'
-import { MenuDialog } from './shell/MenuDialog'
 import { ProfileOverlay } from './shell/ProfileOverlay'
 import { SurfaceHost } from './shell/SurfaceHost'
 import { TopBar } from './shell/TopBar'
@@ -96,7 +95,6 @@ export function AppShell() {
       <SurfaceHost />
       <MobileNav />
       <MoreDialog />
-      <MenuDialog />
       {overlay === 'languages' && <LanguageBrowser key={languageInfo} initialLanguage={languageInfo} onClose={closeOverlay} />}
       <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}

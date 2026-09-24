@@ -802,22 +802,23 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .mobile-nav {
   flex: none; display: flex;
-  border-top: var(--border-width) solid var(--line-soft); background: var(--chrome);
+  border-top: var(--border-width) solid var(--line); background: var(--chrome);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* The current surface reads as a raised, accent-marked tab; the other stays quiet. */
 .mobile-nav-item {
-  flex: 1; min-height: var(--control-height-lg);
-  display: inline-flex; align-items: center; justify-content: center;
+  flex: 1; min-height: var(--touch-target);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3);
   padding: var(--space-3) var(--space-2);
-  border: 0; border-top: var(--border-width-strong) solid transparent; background: none;
+  border: 0; border-top: var(--border-width-thick) solid transparent; background: none;
   color: var(--ink-2); cursor: pointer;
-  font-family: var(--font-sans); font-size: var(--type-ui);
+  font-family: var(--font-sans); font-size: var(--type-body);
   font-weight: var(--weight-semibold);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.mobile-nav-item.active { color: var(--interaction-ink); background: var(--field); border-top-color: var(--interaction-ink); }
+.mobile-nav-item.active { color: var(--interaction-ink); background: var(--interaction-tint); border-top-color: var(--interaction-ink); }
 
 @media (max-width: 860px) {
   .split { flex-direction: column; padding: 0; gap: 0; }
@@ -841,14 +842,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   background: var(--chrome); border-right: var(--border-width) solid var(--line-soft);
   box-shadow: var(--shadow-drawer);
 }
-
-.topbar .phone-menu { display: none; }
-
-.menu-sections { display: flex; flex-direction: column; gap: var(--space-9); }
-.menu-section { display: flex; flex-direction: column; gap: var(--space-4); }
-.menu-section h3 { margin: 0; font-size: var(--type-ui); font-weight: var(--weight-semibold); color: var(--ink-2); }
-.menu-section .learning-picker { width: 100%; min-height: var(--touch-target); }
-.menu-section .practice-switch { align-self: flex-start; margin-inline: 0; }
 
 .chat-history-head {
   display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
@@ -1044,9 +1037,15 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 /* Keep compact overrides after the header controls they adapt. */
 @media (max-width: 860px) {
   .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
-  /* Language and practice mode move into the phone menu (☰). */
-  .topbar .hamburger, .topbar-language, .topbar .practice-switch, .topbar .app-home, .topbar .theme-toggle { display: none; }
-  .topbar .phone-menu { display: inline-flex; align-items: center; justify-content: center; width: var(--touch-target); height: var(--touch-target); padding: 0; }
+  /* The language picker takes the room left over and shows the language name
+     only; the practice switch keeps only its icons. */
+  .topbar .hamburger, .topbar .app-home, .topbar .theme-toggle { display: none; }
+  .topbar-language { flex: 1 1 0; min-width: 0; }
+  .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); }
+  .topbar-language .language-dropdown .learning-picker small { display: none; }
+  .topbar .practice-switch { flex: none; margin-inline: 0; }
+  .topbar .practice-switch button { padding-inline: var(--space-4); }
+  .topbar .practice-switch-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .topbar-language .inspection-action { display: none; }
   .topbar-actions { gap: 0; }
   .topbar-actions .gear.app-settings { display: none; }
