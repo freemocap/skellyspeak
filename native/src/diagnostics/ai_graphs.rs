@@ -247,7 +247,7 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 ),
             ];
         }
-        kind if matches!(kind, "user_translation" | "reply_translation") => {
+        "user_translation" | "reply_translation" => {
             node.source = "native/src/language/translation.rs".into();
             node.description = "Translates the source message into the explanation language. Destination writing guidance is appended at dispatch.".into();
             node.templates = messages(translation::prompt("{{sourceMessage}}".into(), &captured)?);

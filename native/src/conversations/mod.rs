@@ -6,5 +6,6 @@ pub mod execution;
 pub(crate) mod openers;
 mod persona_projection;
 pub(crate) mod revision;
+pub(crate) mod saved_reading;
 pub(crate) mod saved_topics;
 pub mod turn_plan;

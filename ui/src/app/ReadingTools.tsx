@@ -6,6 +6,7 @@ import type { Settings } from '../types'
 import { ReadingHelp } from '../components/reading/ReadingHelp'
 import { ReadingProvider } from '../components/reading/TargetText'
 import { readSelection, readingActivity } from '../platform/ipc/reading'
+import { readSavedGloss } from '../platform/ipc/saved-reading'
 import { speakSelection } from '../platform/audio/reading-speech'
 import { languages } from '../platform/ipc/tauri'
 import type { ReadingServices } from '../components/reading/ReadingContext'
@@ -13,7 +14,7 @@ import type { ReadingServices } from '../components/reading/ReadingContext'
 export function ReadingTools({ settings, defaultScope, onAsk, children }: { settings: Settings | null; defaultScope?: ReadingScope; onAsk?: ((question: string) => void) | null; children: ReactNode }) {
   const playback = useRef(settings); playback.current = settings
   const services = useMemo<ReadingServices>(() => ({
-    read: readSelection, activity: readingActivity,
+    read: readSelection, saved: readSavedGloss, activity: readingActivity,
     // Reading tools show the receipt, never the audio it came with.
     speak: (input, signal, onPlayback) => speakSelection(input, signal, onPlayback,
       playback.current?.tts_rate ?? 1, (playback.current?.master_volume ?? 100) * (playback.current?.voice_volume ?? 100) / 10000)

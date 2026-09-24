@@ -1,9 +1,9 @@
-import type { GlossSegment, ReadingInput } from '../../generated/contracts'
+import type { GlossSegment, ReadingInput, SavedGlossSource as AcceptedGlossSource } from '../../generated/contracts'
 import { glossDisplayGroups } from './gloss-display'
 import { readingWords } from './word-boundaries'
 
 export type GlossScope = Omit<ReadingInput, 'text' | 'aid'>
-export type SavedGlossSource = { text: string; segments: GlossSegment[]; scope: GlossScope }
+export type SavedGlossSource = Pick<AcceptedGlossSource, 'text' | 'segments' | 'scope'>
 export const glossScopeKey = (scope: GlossScope) => JSON.stringify([scope.language, scope.variety ?? null, scope.explanation, scope.explanationVariety ?? null])
 
 /** A read index over existing annotations, not a second source of truth.

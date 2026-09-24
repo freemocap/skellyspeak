@@ -22,7 +22,7 @@ text; normalization belongs only to the operation that requires it.
 | [src/partners/](src/partners/) | Persona definitions, prompts, generation request projection, and reactions |
 | [src/drill/](src/drill/) | Manual phrases, attempts/comparisons, sessions/visits, reference cache and recording retention; recording and AI execution stay shared |
 | [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, rewards and reward settings |
-| [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and speech cache |
+| [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and one-time audio delivery |
 | [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, shared generation lifecycle and receipts, hosted connections and provider transports |
 | [src/storage/](src/storage/) | Workspace ownership, database initialization and schemas, reset and workspace-copy export |
 | [src/language/](src/language/) | Language lookup, Unicode/emoji handling, existing linguistics code and its fixtures |
@@ -57,8 +57,35 @@ generation construct them directly. Translation and gloss contracts live in
 `language/{translation,gloss}.rs`; speech-input construction lives in `ai/audio.rs`.
 Shared execution settings live in `ai/connections/configuration.rs`, and request
 identities in `ai/identity.rs`. Transports must not import product workflows.
-Result persistence and caching still follow the existing paths pending the
-[shared inference refactor](../docs/notes/shared-inference-architecture-audit-2026-09-24.md).
+Speech callers share persistent results, blobs and pending subscriptions in
+`ai/results/`, composed with access and transport in `application/speech_results.rs`.
+Keys identify exact synthesis inputs and the effective service profile, scoped to
+the workspace and connection/account. Product associations do not enter those keys.
+The shared cache defaults to 256 MiB and uses read-touch LRU; Settings exposes its
+capacity and logical payload usage. Zero disables retained reuse, while concurrent
+callers can still share pending work. Receipts survive eviction and cancellation.
+`speech/delivery.rs` is a bounded, consuming mailbox for asynchronous playback,
+including output too large for the configured cache; it is not reusable storage.
+
+Cache hits use the last verified service profile without loading secrets or
+submitting work. New synthesis and custom connection verification update that
+profile. Existing result associations keep their original audio. A matching
+service implementation must advertise and echo the synthesis profile; older
+services fail before paid synthesis. Local replay does not verify current remote
+settings. Accepted text and original recordings keep their existing durable owners.
+Translation/gloss, transcription and generation integration remain subsequent
+[shared inference refactor](../docs/notes/shared-inference-architecture-audit-2026-09-24.md)
+stages.
+
+Accepted gloss lookup is independent of conversation snapshots and UI lifetime.
+`language/reading/saved.rs` defines read-only query/source contracts;
+`conversations/saved_reading.rs` projects accepted message and suggestion
+annotations from their existing durable owner. The query uses captured language
+and variety scope, excludes archived/replaced/invalidated sources, preserves
+source/operation/attempt IDs, and creates no inference attempts or cache entries.
+Exact matching stays in the shared UI reading domain. The native projection
+filters exact surface candidates and bounds input/output without silently
+truncating results. It does not consolidate newly generated text-result storage.
 
 Normal and opening turns automatically schedule `reply_brief`. Grammar
 (`reply_explanations`) and suggestions (`reply_assistance`) are created only by
@@ -80,8 +107,8 @@ and each partner message's captured reading scope.
 | `application/` | Startup/command registration, shared state and scheduler; `commands/` groups workspace, connection, hosted and persona-generation handlers; existing suites live in `tests/` |
 | `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings) |
 | `partners/` | `persona/` (definitions, prompts), `generation.rs` (persona request projection), and reactions |
-| `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); playback cache stays in `cache.rs` |
-| `ai/` | `generation/` (shared proposal registry and receipts), `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
+| `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); `delivery.rs` holds the one-time playback mailbox |
+| `ai/` | `results/` (shared results, blobs, receipts, request identity and subscriptions), `generation/` (proposal registry and receipts), `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
 | `storage/` | `schemas/` holds database SQL; `store/` groups locking, schema validation, startup, snapshots and transactional commands; reset remains in factory_reset.rs |
 | `conversations/execution/` | Admission, holds, connections, turns, snapshots, dispatch, publication, reading retries, speech and recovery; behavior-based tests in `tests/` |
 | `ai/transport/provider/` | `keys.rs` verifies credentials; `payload.rs` builds prose/structured requests and enforces input limits; `request.rs` owns HTTP and dispatch routing; `response.rs` decodes completions and validates prose; matching suites and local HTTP fixtures live in `tests/` |

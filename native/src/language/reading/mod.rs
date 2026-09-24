@@ -1,6 +1,7 @@
 //! Explicit, ephemeral reading requests. Source text stays in memory; only
 //! redacted inference receipts are durable. Never grants learning credit.
 mod receipts;
+pub(crate) mod saved;
 #[cfg(test)]
 mod tests;
 use crate::{
@@ -161,49 +162,51 @@ impl Request {
     }
     pub fn validate_source(&self, store: &Store) -> Result<()> {
         crate::drill::reference::validate(store, self)?;
-        if self.cancelled.load(Ordering::SeqCst) || self.install != store.snapshot()?.learner.id {
-            return Err(self.stopped());
+        if self.cancelled.load(Ordering::SeqCst) {
+            return Err(self.stopped("cancelled"));
+        }
+        if self.install != store.snapshot()?.learner.id {
+            return Err(self.stopped("workspace_changed"));
         }
         Ok(())
     }
     fn validate_execution(&self, store: &Store) -> Result<()> {
         let config = crate::ai::connections::configuration::config(&store.connection)?;
-        if config.paused
-            || self.config_hash != store.config.hash()
-            || self.install != store.snapshot()?.learner.id
-        {
-            return Err(self.stopped());
+        if config.paused {
+            return Err(self.stopped("paused"));
+        }
+        if self.config_hash != store.config.hash() {
+            return Err(self.stopped("configuration_changed"));
         }
         let current =
             access::resolve(&store.connection, self.input.aid.capability()).map_err(|error| {
                 if self.submitted.load(Ordering::SeqCst) {
-                    self.stopped()
+                    self.stopped("access_unavailable")
                 } else {
                     error
                 }
             })?;
-        if self.cancelled.load(Ordering::SeqCst)
-            || config.paused
-            || self.config_hash != store.config.hash()
-            || self.install != store.snapshot()?.learner.id
-            || current.revision != self.target.revision
+        if self.cancelled.load(Ordering::SeqCst) {
+            return Err(self.stopped("cancelled"));
+        }
+        if current.revision != self.target.revision
             || current.route != self.target.route
             || current.url != self.target.url
             || current.model != self.target.model
             || current.credential != self.target.credential
         {
-            return Err(self.stopped());
+            return Err(self.stopped("access_changed"));
         }
         crate::ai::policy::holds::check(&store.connection, &self.target).map_err(|error| {
             if self.submitted.load(Ordering::SeqCst) {
-                self.stopped()
+                self.stopped("execution_held")
             } else {
                 error
             }
         })?;
         Ok(())
     }
-    fn stopped(&self) -> AppError {
+    fn stopped(&self, reason: &str) -> AppError {
         AppError::new(
             if self.submitted.load(Ordering::SeqCst) {
                 ErrorCode::UnknownOutcome
@@ -211,7 +214,11 @@ impl Request {
                 ErrorCode::Conflict
             },
             "Reading request stopped or its source/access changed. A submitted request may have incurred usage; no automatic retry was made.",
-        )
+        ).with_diagnostics(serde_json::json!({
+            "stage":"reading_authority", "reason":reason,
+            "dispatched":(self.input.aid != ReadingAid::Speech)
+                .then(|| self.submitted.load(Ordering::SeqCst))
+        }))
     }
     fn source(&self) -> gloss::Source {
         gloss::Source {
@@ -359,11 +366,14 @@ impl Registry {
                 "Reading request expired or was closed.",
             )
         })?;
-        if request.created.elapsed().as_secs() >= 30
-            || request.cancelled.load(Ordering::SeqCst)
-            || request.claimed.swap(true, Ordering::SeqCst)
-        {
-            return Err(request.stopped());
+        if request.created.elapsed().as_secs() >= 30 {
+            return Err(request.stopped("expired"));
+        }
+        if request.cancelled.load(Ordering::SeqCst) {
+            return Err(request.stopped("cancelled"));
+        }
+        if request.claimed.swap(true, Ordering::SeqCst) {
+            return Err(request.stopped("already_claimed"));
         }
         Ok(request.clone())
     }

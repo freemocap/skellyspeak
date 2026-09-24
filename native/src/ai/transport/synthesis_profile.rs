@@ -76,9 +76,17 @@ async fn fetch_inner(
             &serde_json::json!({"http":http}),
         )
     })?;
+    decode(&value, &target.model, &http)
+}
+
+pub(in crate::ai) fn decode(
+    value: &serde_json::Value,
+    model: &str,
+    http: &serde_json::Value,
+) -> Result<String> {
     if value["protocol"] != "skellyspeak"
         || value["version"] != 1
-        || value["audio"]["speech_model"] != target.model
+        || value["audio"]["speech_model"] != model
         || !value["audio"]["synthesis_profile"]
             .as_str()
             .is_some_and(valid)
@@ -89,7 +97,7 @@ async fn fetch_inner(
             "audio.synthesis_profile",
             "matching model and 64-character synthesis profile",
             &serde_json::json!({"http":http,
-                "requested_model":target.model, "actual_model":value["audio"]["speech_model"]}),
+                "requested_model":model, "actual_model":value["audio"]["speech_model"]}),
         ));
     }
     Ok(value["audio"]["synthesis_profile"]

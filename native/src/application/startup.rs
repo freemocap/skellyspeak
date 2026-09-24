@@ -135,6 +135,7 @@ pub fn run() {
             commands::reading::run_reading,
             commands::reading::cancel_reading,
             commands::reading::get_reading_activity,
+            commands::reading::get_saved_gloss_sources,
             updater::get_update_channel,
             updater::latest_github_release,
             commands::workspace::read_speech_audio,

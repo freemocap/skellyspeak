@@ -3,7 +3,98 @@
 Status: source audit and authorized staged refactor, 2026-09-24. The ownership
 principle and staged direction below are agreed. The original findings describe
 the baseline before implementation; progress is recorded separately below.
-Record shapes, retention policy and storage choices have not been implemented.
+Shared result/blob retention, speech integration and view-independent accepted
+gloss lookup are now implemented; see the
+completion audit below for current verification and remaining modality work. Earlier
+checkpoints below are historical snapshots, not the current completion status.
+
+## Completion audit: speech-first stopping point
+
+Status: local automated checkpoint reached; operational gates remain open. The user
+requested a complete work audit and tangible stopping points. This does not mark
+the whole shared-inference refactor complete. Finish the speech integration before
+expanding modality coverage; retain the rest of the agreed scope explicitly below.
+
+### Findings and disposition
+
+| Item | Current evidence | Disposition and closure condition |
+| --- | --- | --- |
+| Generic text transport ownership | Reading and transports use `ai/transport/text_request.rs`; the original dependency on conversation `Dispatch` is removed from these paths. | Implemented. The existing `ai/transport/boundary_tests.rs` recursively checks runtime transport sources for product dependencies and passes in the native suite. The earlier audit incorrectly listed this check as missing. |
+| Shared speech storage and execution | All speech consumers use shared results; tests cover independent subscribers, restart reuse, zero capacity, eviction, corruption and cancellation. | Implemented and native tests passing. Runtime playback gate remains open. |
+| Service package | `synthesis_profiles.py` was absent from Docker COPY and both source allowlists. This would prevent the new runtime from importing. | Fixed during this audit in all three places. Existing package/import and upload-list tests now exercise the module. |
+| Protocol regression | The exact protocol-response test still expected the response before synthesis profiles were introduced. | Fixed to validate the profile and the remaining exact response. No compatibility bypass added. |
+| Portable package inventory | The module inventory compared Windows backslash paths with Docker slash paths. | Fixed using POSIX relative paths, so the test detects actual missing modules on either platform. |
+| Hosted speech compatibility | Two recent speech failures received HTTP 200 but rejected `audio.synthesis_profile`, with `synthesis_submitted=false`. | Open: verify and deploy the matching server revision, then confirm fresh synthesis. These logs alone do not establish the currently deployed revision. Deployment requires explicit authorization. |
+| Actual audio playback | Existing tests use local HTTP fixtures and simulated browser media. | Open: verify chat, Drill reference and selected-word playback, repeated replay, restart replay, Stop, navigation and microphone exclusion in the running app. A fixture pass is not an audible-playback result. |
+| Reading cancellation | The separate recent `run_reading` error has a text model, a dispatch timestamp and an empty response. | Added retained cancellation/authority reasons and text dispatch status, with receipt tests. Speech dispatch remains owned by its shared execution. The historical trigger remains unknown; reproduce in the running app. Do not infer that a submitted text request was free or completed. |
+| Usage and receipt attribution | Shared execution is counted globally once; consumer associations retain receipts after eviction/cancellation. | Verified across two partners, repeated reading consumers, language scopes, eviction and restart. Partner totals overlap when they consume the same execution and must not be summed as a global total. An undispatched profile failure is excluded. |
+| Accepted gloss lookup | Native accepted-source query and actual app composition are covered independently of chat mounting. | Implemented and tested. Preserve captured scopes, exact anchors, alternatives and explicit retry behavior. |
+| Generated text results | `ReadingHelp.tsx` still owns the 64-entry generated-result cache and pending requests. | Outstanding agreed work: typed request identity, native shared execution/results, partial-result recovery and explicit fresh execution; remove the UI cache only after replacement flows pass. |
+| Transcription | Recording execution still assesses Drill reliability and publishes through owner-bound receipts. | Outstanding agreed work: shared typed result and input-blob identity; workflow-owned assessment/publication; preserve atomic attempt ownership and original recordings. |
+| Proposal generation | Generation registry and receipts remain separate from shared result retention. | Outstanding agreed work: explicit fresh-candidate policy and shared lifecycle, with acceptance and learning credit retained by product owners. |
+| Server verification | Full local suite now passes with the decoder available. | Fixed Windows private files using protected current-user access controls and handle checks; POSIX retains restrictive modes. Tests cover permissions, link refusal, credential reuse, failed replacement and temporary-file cleanup. Linux runtime/container verification remains external. |
+| UI verification | Full suite passes from `ui/`; initial root-directory run had path errors and one Stop-button test failure. Five subsequent complete Drill test-file runs passed. | Invocation corrected. Stop failure not reproduced in 175 additional test executions; cause remains unknown. This bounded investigation does not establish live playback correctness. |
+
+### Verification performed in this audit
+
+- `cargo test --manifest-path native/Cargo.toml --lib --quiet`: 592 passed,
+  6 ignored. Ignored cases are explicit artifact/benchmark replays and a paid live
+  request suite; they are not passing runtime checks.
+- Full UI suite, run from `ui/` with
+  `node ../node_modules/vitest/vitest.mjs run --reporter=dot`: 180 files,
+  1,226 tests passed. Initial `--root ui` invocation from the repository root
+  exposed working-directory assumptions in admin tests; it is not the successful
+  suite invocation. Canvas-not-implemented and duplicate-key notices remain;
+  neither provides real audio/canvas verification.
+- TypeScript, strict native Clippy, generated contracts, diagnostic policy and diff whitespace checks:
+  passed. Formatting, Clippy, contracts and diagnostic checks were repeated after
+  the cancellation/accounting changes and passed.
+- Full server suite: **552 passed, 7 skipped**, using workspace-local FFmpeg 7.1
+  on the test process PATH and fresh `.local/` temporary/cache directories.
+  Isolated packaged-startup subprocesses required execution outside the sandbox.
+  The seven skipped cases require the local database emulator; none was available
+  in this Windows environment. This supersedes the initial 525-pass/24-failure
+  result and the intermediate decoder-enabled run. No test was disabled to obtain
+  this result. One dependency deprecation warning remains.
+- Decoder-backed audio and isolated startup of the Docker-COPY source package
+  pass. This is not an actual Linux container test. Windows permission assertions
+  inspect the real access-control list; link tests exercise junctions/hardlinks
+  without requiring privileged symlink creation. POSIX behavior was not executed
+  in this Windows run.
+- Five consecutive runs from `ui/` of the complete `DrillPage.test.tsx`:
+  35 tests each, 175 passed. No UI source change was made to mask the earlier
+  intermittent Stop failure.
+- Focused package inventory, source upload allowlist and protocol checks:
+  28 passed. Actual upload-manifest CLI semantics remain unverified locally because
+  the cloud CLI is unavailable. No upload was performed.
+- The earlier focused 100-pass run deselected three decoder cases; all three are
+  included in the successful full run above. No container tool was found and the
+  Linux subsystem reports that it is not installed, so there is no verified local
+  Linux runtime available for the remaining service gates.
+
+### Finite completion gates
+
+1. **Speech source ready:** package and contract checks pass; receipt/accounting
+   and cancellation regressions cover shared consumers; playback-test instability
+   has a reproduced cause or a bounded, explicit unresolved finding. Complete the
+   decoder-backed service tests in a suitable environment. This local automated
+   gate is reached, with the bounded Stop-test finding recorded above. It does
+   not certify Linux packaging, live speech or the historical cancellation cause.
+2. **Speech operational:** authorize the prepared deployment, verify the exact
+   revision and protocol, then complete the running-app playback matrix above.
+   Record fresh executions separately from replays and inspect failure receipts.
+   This gate is open; a code checkpoint is not operational completion.
+3. **Shared inference complete:** finish generated text, transcription and
+   proposal lifecycle integration; remove superseded paths; verify retention,
+   accounting, accepted product records and future-consumer behavior across all
+   modalities. This gate is open and is not hidden behind the speech checkpoint.
+
+No code was committed, pushed or deployed during this audit. Existing uncommitted
+work was preserved. No application data or cloud counters were reset. The initial
+package/test fixes were followed by private-file portability fixes, explicit
+reading authority diagnostics and shared-speech statistics coverage. The Windows
+dependency is platform-scoped and locked. The decoder is a workspace-local
+verification tool, not a new application dependency or system PATH modification.
 
 ## Agreed principle
 
@@ -291,7 +382,7 @@ authorization for a broad rewrite or for changing task behavior.
 - A minimal non-chat/non-Drill consumer can use each modality without adding an
   owner variant, cache implementation or transport branch.
 
-## Next review
+## Historical next review after the initial audit
 
 The staged direction is authorized and the execution-input slice below is
 implemented. The next checkpoint concerns shared result/blob ownership, effective
@@ -341,7 +432,7 @@ has not been manually verified.
 
 ## Design checkpoint: shared results and speech integration
 
-Status: scope approved, including the configurable 256 MiB default. The service
+Historical status at this checkpoint: scope approved, including the configurable 256 MiB default. The service
 identity step is implemented below; the repository and consumer integration
 remain pending. The following design description is not a claim of implementation.
 The user committed the execution-input slice and reports that the app runs;
@@ -494,3 +585,145 @@ New synthesis with this native build requires the matching service code. An
 older service without the profile fails before a paid synthesis request. No
 service deployment, application launch, paid request, data reset or commit was
 performed. Storage, shared reuse, cancellation and capacity remain outstanding.
+
+## Implementation checkpoint: shared speech results and retention
+
+This checkpoint supersedes the storage-pending statements above. Source now has:
+
+- A modality-independent result/blob repository and pending subscriptions in
+  `native/src/ai/results/`. Execution receipts and opaque consumer associations
+  are retained separately from evictable payloads. No chat or Drill identifier
+  participates in speech request equivalence, sharing or eviction.
+- Shared speech composition in `application/speech_results.rs` used by the
+  conversation scheduler and explicit reading (including Drill and token speech).
+  Exact text, language, service/account scope and verified synthesis profile
+  determine reuse. Unused local voice and unrelated configuration revisions do not.
+- One configurable 256 MiB default capacity, read-touch LRU, shared-blob accounting,
+  restart reuse and explicit corruption/schema errors. Zero capacity disables
+  retained payloads without disabling simultaneous-request sharing. Usage counts
+  payload bytes, not SQLite file size; receipts are outside that budget.
+- Independent consumer cancellation. A departing last consumer prevents synthesis
+  if discovery has not finished. Already-dispatched execution settles separately
+  even when every consumer leaves. Publication still checks source ownership.
+- One execution counted for joined work. Replay creates no new paid execution.
+  Reading activity and unavailable conversation speech can inspect the shared
+  receipt after cancellation or eviction. Requested/actual model, provider request
+  ID, unknown cost, decoder metadata and retry information remain inspectable.
+- Native Settings commands and a compact capacity/usage control. Conversation's
+  old memory cache is now a consuming delivery mailbox, and the Drill reference
+  owner only validates publication eligibility.
+
+Startup adds the shared repository schema and drops only the retired
+`drill_references` cache table. Original recordings, Drill attempts, conversations
+and existing receipts are not reset. Incompatible existing inference schema
+objects produce an error before this cleanup; no compatibility migration or
+silent recovery of unknown data was added.
+
+Cached requests use the last verified profile. A new synthesis request probes the
+service, and custom connection verification also updates the profile. Learning a
+new profile changes subsequent equivalent lookups; existing result associations
+retain their original audio. There is no periodic hosted profile refresh or
+dedicated refresh button. Replay is not proof of the service's current voice.
+New reading requests still need a configured access identity to choose their
+account scope, but cache lookup does not read credential secrets. Existing
+conversation result associations remain readable after credentials are removed.
+
+### Verification
+
+- Full native library suite: 587 passed, 6 ignored, no failures at this checkpoint.
+  Covers repository restart/LRU/byte limits, exact Unicode and profile identity,
+  corruption refusal, retry receipts, shared reading/Drill/independent execution,
+  paused offline replay, cancellation before dispatch and settlement after one or
+  all consumers cancel. Conversation also reuses an independent result while
+  paused, reopens its association without credentials and rejects changed source
+  text. Invalid independent inputs fail before discovery or execution association.
+- Focused settings, Drill storage, IPC registration and merged Drill undo UI
+  tests: 36 passed across 6 files. Architecture suite: 26 passed across 8 files.
+- TypeScript compilation, generated contracts, diagnostic policy and all 7
+  locale catalogs passed. Native all-target compilation and strict Clippy passed.
+- HTTP tests use local fixtures; no paid inference or deployment was performed.
+  Automated tests do not establish real-device playback or hosted compatibility.
+
+The observed running-app speech failure came from the hosted protocol response
+missing the new synthesis profile. Diagnostics recorded `synthesis_submitted:
+false`. The matching server source exists, but this work has not deployed it;
+new hosted synthesis remains dependent on that deployment. Earlier server test
+gaps concerning unavailable ffmpeg and Windows `os.fchmod` remain as recorded
+above and are not passing checks.
+
+### Next bounded architecture pass
+
+The original audit's gloss concern remains confirmed: saved annotations are
+registered by a mounted conversation provider, and `ReadingHelp.tsx` still owns
+the 64-entry text-result cache and request sharing. Speech no longer uses that
+cache. Do not retain the conversation view merely to make its data available.
+
+Next scope for review is shared translation/gloss/explanation result ownership:
+
+1. Query accepted annotations independently of mounted views, preserving exact
+   language/variety scope, original source anchors and alternative meanings.
+2. Project typed text-task inputs and validators into the shared result lifecycle.
+   Whole-request equivalence must include actual prompt/context/model/schema;
+   reusing a saved word meaning is a separate indexed lookup with provenance.
+3. Remove the component-owned cache only after native lookup, concurrent sharing,
+   partial gloss recovery and explicit retry behavior have regression coverage.
+
+Recording/transcription and proposal generation are later slices. Keep recording
+ownership, accepted product records, intentional fresh candidates and learner
+credit outside the result cache. Audit aggregate attribution across several
+partners separately from counting one underlying execution. This checkpoint does
+not claim those lifecycles are consolidated or authorize incidental task changes.
+
+## Implementation checkpoint: accepted gloss lookup without mounted chat
+
+Implemented the first bounded part of the text-result pass. This supersedes the
+mounted-view limitation recorded above for reading help's accepted-word lookup.
+It does not claim the component cache for newly generated text results is removed.
+
+- Added a read-only native query over accepted message and suggestion annotations.
+  It is independent of selected conversation and snapshot pagination, resolves
+  omitted varieties through shared configuration, and filters by the original
+  captured source/explanation scope. Current conversation preference changes do
+  not relabel old annotations. Archived, replaced and invalidated sources are
+  excluded. Source identity/anchor errors fail explicitly.
+- Query/source contracts belong to shared reading; the conversation owner
+  projects its durable records. There is no new cache table, capacity setting,
+  migration or retained copy of accepted content. This query neither requires
+  AI access nor creates an inference attempt, provider request or learning event.
+- `app/ReadingTools.tsx` composes the query into shared reading services.
+  Word help queries it before new inference. The existing pure matcher preserves
+  exact source encodings, scope, clitic offsets, passage priority and alternative
+  meanings. Native candidate filtering is substring-only; it never decides that
+  a substring is an equivalent word. The shared matcher makes that decision.
+- Reading display types distinguish an annotation projection from a new
+  `WordGlossView`; no invented provider attempt is attached to reused meanings.
+  Inspection retains consulted source IDs, available operation/attempt IDs and
+  original anchors without copying source content into the lookup receipt.
+- Read-only results are not inserted into the component cache. Reopening help
+  queries accepted data again. Cancellation during lookup prevents subsequent
+  dispatch, and a storage failure is shown rather than silently generating a
+  replacement. Partial saved data can explain a known word; an unknown selected
+  word can still request inference. Explicit retry bypasses the read-only lookup.
+
+Verification for this checkpoint:
+
+- Full native library suite: 591 passed, 6 ignored. Added cases cover restart,
+  paused/no-credential lookup, captured scope after preference changes, multiple
+  sources, suggestion provenance, archive/replacement exclusion and invalid data.
+- Reading, Drill and architecture UI suite: 214 tests passed across 31 files.
+  Integration coverage uses the actual application reading composition and native
+  adapter with fixture IPC: chat unmount, a fresh non-chat surface, refreshed
+  accepted data, cancelled queries, lookup errors, unknown words and explicit
+  partial-result retry. Pure matching covers scripts and canonical encodings.
+  Simulated-browser tests emit canvas-not-implemented notices; these do not
+  verify real canvas/audio rendering.
+- TypeScript, strict native Clippy, generated contracts, diagnostic policy and
+  diff whitespace checks passed. The generated types remain the annotation
+  contract source; the pure UI index uses a projection of that type.
+
+Remaining text-result work: move newly generated translation, gloss and
+explanation request/results into the shared native lifecycle, including task
+identity, partial-result recovery and fresh execution. The existing 64-entry
+component cache and pending-request map still serve those generated text results.
+Transcription and proposal generation remain later stages. No service deployment,
+paid request, application-data reset or commit was performed in this checkpoint.

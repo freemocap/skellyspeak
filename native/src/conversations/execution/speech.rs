@@ -318,7 +318,7 @@ impl Store {
             } else {
                 fallback
             };
-            let diagnostics = if let Some(error) = admission {
+            let mut diagnostics = if let Some(error) = admission {
                 Some(error.clone())
             } else if let Some(a) = &attempt {
                 let response =
@@ -331,6 +331,13 @@ impl Store {
             } else {
                 None
             };
+            if let Some(a) = &attempt
+                && let Some(receipt) =
+                    crate::ai::results::receipt_for_consumer(&self.connection, &a.0)?
+            {
+                diagnostics.get_or_insert_with(|| serde_json::json!({}))["sourceExecution"] =
+                    receipt;
+            }
             Ok(SpeechAudioState::Unavailable {
                 operation_id: operation.into(),
                 message_id: message.clone(),

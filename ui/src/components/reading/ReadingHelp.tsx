@@ -13,7 +13,9 @@ import { TokenAudio } from './TokenAudio'
 import { DetailDialog } from '../dialogs/DetailDialog'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
-import type { ReadingInput, ReadingResult } from '../../generated/contracts'
+import type { ReadingInput } from '../../generated/contracts'
+import type { ReadingHelpResult as ReadingResult } from '../../domain/reading/reading-result'
+import type { ReadingLookup } from './ReadingContext'
 
 export interface ReadingLanguage { code: string; name: string; languageTag?: string; defaultVariety: string; varieties: { id: string; label: string }[] }
 
@@ -62,12 +64,18 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     })
     return {gloss: {...exact?.gloss, segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, translation:null, explanations:null, receipt:exact?.receipt ?? null} as ReadingResult
   }, [savedIndex, cacheRevision])
-  const lookup = useCallback<ReadingServices['read']>(async (input, signal) => {
+  const lookup = useCallback<ReadingLookup>(async (input, signal, options) => {
     signal.throwIfAborted()
     if (input.aid === 'speech') throw new Error('Read-aloud is requested through reading actions, not lookup.')
+    if (!options?.retry && services.saved) {
+      const accepted = await services.saved(input, signal)
+      signal.throwIfAborted()
+      const selected = options?.selection
+      if (accepted && (!selected || accepted.gloss?.segments.some(part => part.kind === 'gloss' && part.start < selected.end && part.end > selected.start))) return accepted
+    }
     const saved = peek(input)
     const complete = { word_gloss: saved?.gloss?.coverage === 'complete', translation: saved?.translation != null, explanations: saved?.explanations != null }[input.aid]
-    if (complete) return saved!
+    if (complete && !options?.retry) return saved!
     const key = cacheKey(input)
     return requests.current.run(key, signal, async owned => {
       const result = await services.read(input, owned)
@@ -133,7 +141,7 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
     const controller = new AbortController()
     setResult(null); setFailure(null); setPending(true)
     lastRequest.current = requestKey
-    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal)
+    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal, { retry: attempt > 0 })
       .then(value => { if (!controller.signal.aborted) {
         setResult(value)
       } })

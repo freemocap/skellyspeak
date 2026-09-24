@@ -59,7 +59,16 @@ pub fn activity(store: &Store) -> Result<Vec<serde_json::Value>> {
         .prepare("SELECT receipt FROM reading_attempts ORDER BY rowid DESC LIMIT 50")?;
     query
         .query_map([], |r| r.get::<_, String>(0))?
-        .map(|r| Ok(serde_json::from_str(&r?)?))
+        .map(|r| {
+            let mut receipt: serde_json::Value = serde_json::from_str(&r?)?;
+            if let Some(id) = receipt["id"].as_str()
+                && let Some(execution) =
+                    crate::ai::results::receipt_for_consumer(&store.connection, id)?
+            {
+                receipt["sourceExecution"] = execution;
+            }
+            Ok(receipt)
+        })
         .collect()
 }
 

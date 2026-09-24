@@ -263,6 +263,13 @@ path. That local HTTP integration and app QA remain pending.
 
 ## Local server with real providers
 
+Local credentials and logs use owner-only permissions: directory/file modes on
+POSIX, and protected current-user access-control lists on Windows. The Windows
+dependency is installed by `uv sync` only on Windows. Private-file helpers reject
+symlinks, junctions and file aliases; failed credential replacement preserves the
+previous file and removes its temporary file. These development helpers are not
+included in the hosted image.
+
 After `uv sync`, copy the sample and put `OPENROUTER_API_KEY` and `GROQ_API_KEY`
 in `server/.env`. The file is Git-ignored and is loaded automatically; no other
 environment variables, database, emulator, or cloud credentials are needed.

@@ -37,11 +37,13 @@ fn requests_are_bounded_single_use_and_source_owned() {
         &store,
         &request,
         serde_json::json!({"providerId":"receipt-123","inputTokens":8}),
-        Some(&request.stopped()),
+        Some(&request.stopped("cancelled")),
     )
     .unwrap();
     assert_eq!(receipt["state"], "unknown");
     assert_eq!(receipt["response"]["providerId"], "receipt-123");
+    assert_eq!(receipt["error"]["diagnostics"]["reason"], "cancelled");
+    assert_eq!(receipt["error"]["diagnostics"]["dispatched"], true);
     assert!(!receipt.to_string().contains("Hola"));
 }
 #[test]
@@ -52,12 +54,18 @@ fn connection_change_and_pause_revoke_reading_without_touching_messages() {
         .connection
         .execute("UPDATE ai_config SET revision=revision+1", [])
         .unwrap();
-    assert!(request.validate(&store).is_err());
+    let changed = request.validate(&store).unwrap_err();
+    assert_eq!(
+        changed.diagnostics.as_ref().unwrap()["reason"],
+        "access_changed"
+    );
+    assert_eq!(changed.diagnostics.as_ref().unwrap()["dispatched"], false);
     store
         .connection
         .execute("UPDATE ai_config SET paused=1", [])
         .unwrap();
-    assert!(Request::capture(&store, input()).is_err());
+    let paused = Request::capture(&store, input()).err().unwrap();
+    assert_eq!(paused.diagnostics.as_ref().unwrap()["reason"], "paused");
 }
 #[test]
 fn recovery_preserves_unknown_billing_and_metadata() {

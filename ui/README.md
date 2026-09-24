@@ -88,6 +88,17 @@ variety and explanation context. Shared reading requests coalesce by full scope;
 consumer cancellation is independent, and the bounded cache resets with workspace
 session identity in `app/ReadingTools.tsx`.
 
+Accepted word meanings are also queried on demand through
+`platform/ipc/saved-reading.ts`, independently of mounted conversation providers.
+The native query returns source-bound annotations in their captured scope; the
+existing pure `domain/reading/saved-gloss-index.ts` projects exact words and
+alternative saved meanings. Those read-only projections are not copied into the
+component result cache. A word covered by a partial saved passage needs no new
+inference; unknown words and explicit retries still use the reading executor.
+Lookup failures remain visible and do not silently trigger inference. The
+component cache for newly generated text results remains pending the next shared
+execution/result integration stage.
+
 ## Commands
 
 From the repository root, `npm ci` installs the UI workspace and development tools.

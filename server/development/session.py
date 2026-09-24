@@ -2,54 +2,23 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 import secrets
-import stat
-import tempfile
 import time
 
 import jwt
+from server.development.private_files import private_directory, read_private, reject_links, write_private
 
 LIFETIME_SECONDS = 10 * 365 * 24 * 60 * 60
 INVALID = "Local session credentials are invalid. Run with --reset-session-token to replace them."
 
 
-def read_private(path: Path) -> str:
-    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    with os.fdopen(descriptor, encoding="utf-8") as file:
-        info = os.fstat(file.fileno())
-        if not stat.S_ISREG(info.st_mode) or info.st_size > 16384:
-            raise RuntimeError(INVALID)
-        os.fchmod(file.fileno(), 0o600)
-        return file.read()
-
-
-def write_private(path: Path, text: str) -> None:
-    if path.is_symlink():
-        raise RuntimeError("Local session files cannot be symlinks.")
-    descriptor, temporary = tempfile.mkstemp(prefix=".session-", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as file:
-            os.fchmod(file.fileno(), 0o600)
-            file.write(text)
-            file.flush()
-            os.fsync(file.fileno())
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
-
-
 def load(directory: Path, *, reset: bool = False) -> tuple[str, str]:
-    if any(path.is_symlink() for path in (directory, *directory.parents)):
-        raise RuntimeError("Local session directory cannot use symlinks.")
-    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
-    directory.chmod(0o700)
+    private_directory(directory)
     state_path = directory / "session.json"
     token_path = directory / "session-token.txt"
-    if state_path.is_symlink() or token_path.is_symlink():
-        raise RuntimeError("Local session files cannot be symlinks.")
+    reject_links(state_path)
+    reject_links(token_path)
     if reset or not state_path.exists():
         signing_key = secrets.token_urlsafe(48)
         issued = int(time.time())

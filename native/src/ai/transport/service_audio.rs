@@ -179,7 +179,7 @@ pub(in crate::ai) async fn synthesize_profiled(
             }
             error
         })?;
-        let result = decode(&bytes, &profile, &mut outcome);
+        let result = decode(&bytes, profile, &mut outcome);
         outcome
             .diagnostics
             .get_or_insert_with(|| serde_json::json!({}))["http"] = http;

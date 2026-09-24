@@ -124,9 +124,15 @@ pub fn lookup(db: &Connection, key: &str) -> Result<Option<Retained>> {
 }
 
 pub fn read(db: &Connection, id: &str) -> Result<Option<Retained>> {
-    let value: Option<(Vec<u8>,String)> = db.query_row("SELECT b.payload,e.metadata FROM inference_results r JOIN inference_blobs b ON b.digest=r.blob_digest JOIN inference_executions e ON e.id=r.id WHERE r.id=?1 AND e.state='succeeded'", [id], |r| Ok((r.get(0)?,r.get(1)?))).optional()?;
+    let value: Option<(Vec<u8>,String,String)> = db.query_row("SELECT b.payload,e.metadata,b.digest FROM inference_results r JOIN inference_blobs b ON b.digest=r.blob_digest JOIN inference_executions e ON e.id=r.id WHERE r.id=?1 AND e.state='succeeded'", [id], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional()?;
     value
-        .map(|(payload, metadata)| {
+        .map(|(payload, metadata, expected_digest)| {
+            if digest(&payload) != expected_digest {
+                return Err(AppError::new(
+                    ErrorCode::Storage,
+                    "Cached result failed its integrity check.",
+                ));
+            }
             let metadata = serde_json::from_str(&metadata)?;
             db.execute(
                 "UPDATE inference_results SET last_used=?2 WHERE id=?1",
@@ -182,7 +188,7 @@ pub fn finish(
     } else {
         "succeeded"
     };
-    if tx.execute("UPDATE inference_executions SET state=?2,metadata=?3,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1 AND state='pending'", params![id,state,serde_json::to_string(metadata)?])? != 1 {
+    if tx.execute("UPDATE inference_executions SET state=?2,metadata=CASE WHEN json_type(metadata,'$.retry') IS NOT NULL THEN json_set(?3,'$.retry',json_extract(metadata,'$.retry')) ELSE ?3 END,finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1 AND state='pending'", params![id,state,serde_json::to_string(metadata)?])? != 1 {
         return Err(AppError::new(ErrorCode::Conflict, "Execution already settled."));
     }
     if error.is_none()
@@ -231,6 +237,19 @@ pub fn for_consumer(db: &Connection, consumer: &str) -> Result<Option<Retained>>
         )
         .optional()?;
     id.map(|id| read(db, &id)).transpose().map(Option::flatten)
+}
+
+/// Receipts remain inspectable after payload eviction or consumer cancellation.
+pub fn receipt_for_consumer(db: &Connection, consumer: &str) -> Result<Option<serde_json::Value>> {
+    let row: Option<(String, String, bool, String)> = db.query_row(
+        "SELECT e.id,e.state,e.dispatched,e.metadata FROM inference_consumers c JOIN inference_executions e ON e.id=c.execution_id WHERE c.consumer_id=?1",
+        [consumer], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?)),
+    ).optional()?;
+    row.map(|(id, state, dispatched, metadata)| {
+        let response: serde_json::Value = serde_json::from_str(&metadata)?;
+        Ok(serde_json::json!({"id":id,"state":state,"dispatched":dispatched,"response":response}))
+    })
+    .transpose()
 }
 
 #[cfg(test)]

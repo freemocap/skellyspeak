@@ -228,7 +228,12 @@ async def test_group_requires_authentication_before_storage(ledger, monkeypatch)
 async def test_protocol_capabilities_are_authenticated_and_match_grouped_contract(proxy):
     response = await proxy.get("/v1/protocol")
     assert response.status_code == 200
-    assert response.json() == {"protocol": "skellyspeak", "version": 1, "max_items": 8, "operations_versions": [1, 2],
+    value = response.json()
+    from server.app.inference.synthesis_profiles import profile_id
+    profile = value['audio'].pop('synthesis_profile')
+    assert profile == profile_id(main.CFG)
+    assert len(profile) == 64 and all(char in '0123456789abcdef' for char in profile)
+    assert value == {"protocol": "skellyspeak", "version": 1, "max_items": 8, "operations_versions": [1, 2],
                                "chat_models": ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite", "openai/gpt-oss-120b"],
                                "accepts_other_text_models": True, "decisions": {"version": 1, "models": ["typesafe/jev-1.13"]}, "transcription_model": "whisper-large-v3",
                                "audio": {"version": 1, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_ready": False, "transcription_provider": "groq", "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"]}}

@@ -435,6 +435,20 @@ pub async fn check_access(
         {
             return Err(error("Server returned invalid provider credential checks."));
         }
+        if store.connection_config()?.route == ConnectionRoute::Custom {
+            let target = resolve(&store.connection, Capability::Speech)?;
+            let profile = crate::ai::transport::synthesis_profile::decode(
+                &value,
+                &target.model,
+                &serde_json::json!({}),
+            )?;
+            let install: String =
+                store
+                    .connection
+                    .query_row("SELECT id FROM learner LIMIT 1", [], |r| r.get(0))?;
+            let scope = crate::ai::results::speech::scope(&target, &install)?;
+            crate::ai::results::remember_profile(&store.connection, &scope, &profile)?;
+        }
         Ok(AccessCheck { providers })
     }
 }

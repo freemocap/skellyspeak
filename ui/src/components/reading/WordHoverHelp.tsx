@@ -10,7 +10,7 @@ import { TokenAudio } from './TokenAudio'
 import { GlossHelpParts } from './GlossHelpParts'
 import { useReadingActions, useReadingLookup, useReadingPeek, type ReadingSelection } from './ReadingContext'
 import { useReadingPreferences } from './ReadingPreferences'
-import type { ReadingResult } from '../../generated/contracts'
+import type { ReadingHelpResult as ReadingResult } from '../../domain/reading/reading-result'
 
 /** A separate top-layer card never replaces or participates in source text layout. */
 export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onClose }: {
@@ -54,7 +54,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     if (known.current.length) return
     const controller = new AbortController()
     request.current = controller
-    void lookup({ ...selection.scope, text: selection.text, aid:'word_gloss' }, controller.signal)
+    void lookup({ ...selection.scope, text: selection.text, aid:'word_gloss' }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
       .then(value => { if (request.current === controller) setResult(value) })
       .catch(error => { if (request.current === controller) setFailure(error) })
   }, [lookup, requestKey, selection.scope, selection.text])

@@ -39,6 +39,7 @@ impl Application {
         validate_consumer: impl Fn() -> Result<()>,
     ) -> Result<Retained> {
         validate_consumer()?;
+        audio::validate_speech(&target, &input)?;
         {
             let store = self.lock()?;
             if let Some(saved) = retained_speech(&store.connection, &target, &input, &install)? {
@@ -65,6 +66,7 @@ impl Application {
         loop {
             tokio::select! {
                 result = &mut result => {
+                    validate_consumer()?;
                     if let Ok(saved) = &result { results::associate(&self.lock()?.connection,consumer,&saved.execution)?; }
                     return result;
                 },
@@ -132,7 +134,7 @@ impl Application {
             |error| results::record_retry(&self.lock()?.connection, id, error),
         )
         .await;
-        let metadata = json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,
+        let metadata = json!({"requestedModel":target.model,"route":target.route.label(),"actualModel":completed.actual_model,"providerId":completed.provider_id,
             "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,
             "synthesisProfile":completed.synthesis_profile,"finishReason":completed.finish_reason,
             "diagnostics":completed.diagnostics,"error":completed.audio.as_ref().err()});
@@ -183,3 +185,7 @@ pub(super) fn reused_outcome(saved: Retained) -> audio::SpeechOutcome {
     outcome.audio = Ok(saved.payload);
     outcome
 }
+
+#[cfg(test)]
+#[path = "tests/shared_speech.rs"]
+mod tests;

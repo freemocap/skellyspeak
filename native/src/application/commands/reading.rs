@@ -5,6 +5,14 @@ use crate::learning::coaching::conversation_support as support;
 use base64::{Engine, engine::general_purpose::STANDARD};
 
 #[tauri::command]
+pub(in crate::application) fn get_saved_gloss_sources(
+    state: tauri::State<'_, Arc<Application>>,
+    query: reading::saved::SavedGlossQuery,
+) -> Result<Vec<reading::saved::SavedGlossSource>> {
+    crate::conversations::saved_reading::sources(&*state.lock()?, &query)
+}
+
+#[tauri::command]
 pub(in crate::application) fn begin_reading(
     state: tauri::State<'_, Arc<Application>>,
     input: reading::ReadingInput,

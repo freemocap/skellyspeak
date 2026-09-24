@@ -187,8 +187,16 @@ async fn speech_request(reference: bool) {
         .unwrap();
     assert_eq!(paid, 1);
     let profile = state.lock().unwrap().profile().unwrap();
-    assert_eq!(profile.global.attempts,1);
-    assert_eq!(profile.languages.iter().find(|v|v.id=="arabic").unwrap().attempts,1);
+    assert_eq!(profile.global.attempts, 1);
+    assert_eq!(
+        profile
+            .languages
+            .iter()
+            .find(|v| v.id == "arabic")
+            .unwrap()
+            .attempts,
+        1
+    );
 
     worker.join().unwrap();
     assert!(result.audio_base64.is_some());
@@ -216,7 +224,12 @@ async fn speech_request(reference: bool) {
     {
         drop(state);
         let state = Application::start(&directory.path().join("reading.sqlite3"), None);
-        state.lock().unwrap().connection.execute("UPDATE ai_config SET paused=1",[]).unwrap();
+        state
+            .lock()
+            .unwrap()
+            .connection
+            .execute("UPDATE ai_config SET paused=1", [])
+            .unwrap();
         let before: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         let input = reading::ReadingInput {
             reference_item: item,
@@ -250,7 +263,7 @@ async fn speech_request(reference: bool) {
         assert!(cached.receipt.get("dispatchedAt").is_none());
         let after: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         assert_eq!(before, after);
-        assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts,1);
+        assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts, 1);
     }
 }
 
