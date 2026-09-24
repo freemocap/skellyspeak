@@ -11,7 +11,7 @@
   font-size: var(--type-body);
 }
 
-.msg.chat-message { padding: var(--space-4) var(--space-6); line-height: var(--leading-snug); }
+.msg.chat-message { max-width: 80%; padding: var(--space-4) var(--space-6); line-height: var(--leading-snug); box-shadow: var(--shadow-bubble); }
 
 .msg.bot {
   align-self: flex-start; background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
@@ -186,11 +186,29 @@
 
 .message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
 
-.msg.chat-message.bot { box-shadow: var(--shadow-sm); }
+/* Stream bubbles end in a tail on the speaker's side: the square corner meets a
+   curved spur. ::before draws the spur in the border colour; ::after fills it
+   one border width inside and covers the bubble's own border where they join.
+   The paths are drawn for --bubble-tail-width × --bubble-tail-height. */
+.msg.chat-message.bot { border-bottom-left-radius: 0; }
+.msg.chat-message.me { border-bottom-right-radius: 0; }
+.msg.chat-message.bot::before, .msg.chat-message.bot::after,
+.msg.chat-message.me::before, .msg.chat-message.me::after {
+  content: ''; position: absolute; bottom: calc(-1 * var(--border-width));
+  width: var(--bubble-tail-width); height: var(--bubble-tail-height); pointer-events: none;
+}
+.msg.chat-message.bot::before, .msg.chat-message.bot::after { left: calc(var(--border-width) - var(--bubble-tail-width)); }
+.msg.chat-message.me::before, .msg.chat-message.me::after { right: calc(var(--border-width) - var(--bubble-tail-width)); transform: scaleX(-1); }
+.msg.chat-message.bot::before, .msg.chat-message.me::before { clip-path: path('M9 0 L7 0 C6.5 5.5 4 8.8 0 10 L9 10 Z'); }
+.msg.chat-message.bot::after, .msg.chat-message.me::after { clip-path: path('M9 0 L8 0 C7.5 5 5 8 1.5 9 L9 9 Z'); }
+.msg.chat-message.bot::before { background: var(--bubble-partner-line); }
+.msg.chat-message.bot::after { background: var(--bubble-partner-bg); }
+.msg.chat-message.me::before { background: var(--bubble-learner-line); }
+.msg.chat-message.me::after { background: var(--bubble-learner-bg); }
 
 .msg.chat-message.bot.focused { border-color: var(--interaction-ink); }
+.msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
 
-.msg.chat-message.me { max-width: 82%; }
 
 /* Feedback is a status pill straddling your message's bottom border: neutral
    when there is nothing to fix, amber when the coach has a correction waiting.
@@ -198,18 +216,18 @@
    bubble reserves the room below (with-actions), so feedback arriving never
    changes the message's height. A long correction truncates here and reads in
    full in its dialog. */
-.message-feedback > .feedback-badge {
-  position: absolute; bottom: calc(-1 * var(--control-height) / 2); right: var(--space-2); display: inline-flex; flex-shrink: 0;
-  height: var(--control-height); min-height: var(--control-height); padding: 0 var(--space-5); column-gap: var(--space-4);
+.message-actions > .feedback-badge {
+  display: inline-flex; flex: 0 1 auto; margin-inline-start: auto;
+  height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0 var(--space-4); column-gap: var(--space-4);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
-  font-variant-numeric: tabular-nums; max-width: calc(100% - 2 * var(--space-2)); overflow: hidden; text-align: start;
+  font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
 }
-.message-feedback > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
+.message-actions > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
-.message-feedback > .feedback-badge:hover { border-color: currentColor; }
+.message-actions > .feedback-badge:hover { border-color: currentColor; }
 
-.message-feedback > .feedback-badge.feedback-error {
+.message-actions > .feedback-badge.feedback-error {
   background: var(--sheet);
   color: var(--danger-ink);
   border-color: var(--danger-line);
@@ -237,9 +255,6 @@
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-/* Room for the straddling feedback badge, reserved from the first frame. */
-.msg.chat-message.me.with-actions { padding-block-end: calc(var(--space-4) + var(--control-height) / 2); margin-block-end: calc(var(--space-2) + var(--control-height) / 2); }
-.msg.rtl .message-feedback > .feedback-badge { right: auto; left: var(--space-2); }
 .feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
@@ -253,5 +268,9 @@
 
 /* Quiet bubble action, with a full touch target despite its small glyph. */
 .message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+/* The corner control sits at the top of the bubble, so its gutter is free at the
+   bottom: the action row spans the full width and keeps one line. */
+.msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
+.msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
 .message-add-drill > span { font-size: var(--type-title); }
 @media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }

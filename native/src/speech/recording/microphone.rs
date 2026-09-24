@@ -65,7 +65,10 @@ pub(crate) fn selected(db: &Connection) -> Result<Option<String>> {
 }
 
 fn select(db: &Connection, device: Option<String>) -> Result<()> {
-    if device.as_ref().is_some_and(|d| d.is_empty() || d.len() > MAX_DEVICE_LENGTH) {
+    if device
+        .as_ref()
+        .is_some_and(|d| d.is_empty() || d.len() > MAX_DEVICE_LENGTH)
+    {
         return Err(AppError::new(
             ErrorCode::Validation,
             "A microphone must be named, in at most 512 bytes. Choose System default to clear it.",
@@ -79,9 +82,7 @@ fn select(db: &Connection, device: Option<String>) -> Result<()> {
 }
 
 #[tauri::command]
-pub(crate) fn get_microphone(
-    state: tauri::State<'_, Arc<Application>>,
-) -> Result<Option<String>> {
+pub(crate) fn get_microphone(state: tauri::State<'_, Arc<Application>>) -> Result<Option<String>> {
     selected(&state.lock()?.connection)
 }
 
@@ -139,10 +140,16 @@ mod tests {
         drop(db);
         let db = Connection::open(&path).unwrap();
         initialize(&db).unwrap();
-        assert_eq!(selected(&db).unwrap().as_deref(), Some("Microphone (Yeti X)"));
+        assert_eq!(
+            selected(&db).unwrap().as_deref(),
+            Some("Microphone (Yeti X)")
+        );
         assert!(select(&db, Some(String::new())).is_err());
         assert!(select(&db, Some("x".repeat(513))).is_err());
-        assert_eq!(selected(&db).unwrap().as_deref(), Some("Microphone (Yeti X)"));
+        assert_eq!(
+            selected(&db).unwrap().as_deref(),
+            Some("Microphone (Yeti X)")
+        );
         select(&db, None).unwrap();
         assert_eq!(selected(&db).unwrap(), None);
     }
