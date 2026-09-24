@@ -12,6 +12,7 @@ import { useAiWindowStore } from '../../state/navigation/ai-window'
 import { useAiBusyStore } from '../../state/session/ai-busy'
 import { openAiWindow } from '../../platform/ipc/window'
 import { reportFault } from '../../platform/diagnostics/faults'
+import { PracticeSwitch } from './PracticeSwitch'
 
 /** Global language and history navigation. The injected picker supports the local
  * layout fixture; production selection uses the shared settings writer. */
@@ -29,9 +30,6 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const connectionDetail = checking ? tr('Checking AI connection…') : health?.revision === connection?.revision && health?.error
     ? health.error : health?.revision === connection?.revision && health?.checkedAt ? `${tr('Last checked')}: ${tr.dateTime(health.checkedAt)}` : tr('Connection not checked yet')
   const openPractice = useNavigationStore((state) => state.openPractice)
-  const page = useNavigationStore((state) => state.page)
-  const practiceSurface = useNavigationStore((state) => state.practiceView)
-  const setPracticeView = useNavigationStore((state) => state.setPracticeView)
   const historyOpen = useNavigationStore((state) => state.historyOpen)
   const overlay = useNavigationStore((state) => state.overlay)
   const toggleHistory = useNavigationStore((state) => state.toggleHistory)
@@ -66,19 +64,17 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         >
           <ToolbarIcon name="menu" size={18} /> <span>{tr("Conversations")}</span>
         </button>
+      {/* Phones: language and practice mode live in this menu instead of the bar. */}
+      <button type="button" className="gear phone-menu" aria-label={tr("Menu")} title={tr("Menu")}
+        aria-expanded={overlay === 'menu'} onClick={() => showOverlay('menu')}>
+        <ToolbarIcon name="menu" size={18} />
+      </button>
       <button type="button" className="wordmark app-home" aria-label={tr("SkellySpeak home — Chat")} onClick={goHome}>
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SkellySpeak</span>
       </button>
       <div className="topbar-language">{languagePicker}</div>
-      <div className="practice-switch" role="group" aria-label={tr("Practice surface")}>
-        {(['chat', 'drill'] as const).map(view => (
-          <button key={view} type="button" aria-pressed={practiceSurface === view && page === 'guided'}
-            onClick={() => setPracticeView(view)}>
-            <ToolbarIcon name={view === 'chat' ? 'chat' : 'mic'} size={18} /><span className="practice-switch-label">{view === 'chat' ? tr("Chat") : tr("Drill")}</span>
-          </button>
-        ))}
-      </div>
+      <PracticeSwitch />
       <div className="topbar-actions">
       <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)} XP</strong><span className="profile-meter" aria-hidden="true"><span style={{ width: `${(profile.xp % 50) * 2}%` }} /></span></> : tr("Progress")}</button>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}

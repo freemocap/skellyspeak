@@ -20,7 +20,7 @@ export type WorkspaceMode = 'practice' | 'review'
 export type MobileLocation = 'chat' | 'panel'
 
 /// The dialogs that sit over a surface.
-export type Overlay = 'more' | 'profile' | 'settings' | 'activity' | 'languages'
+export type Overlay = 'more' | 'menu' | 'profile' | 'settings' | 'activity' | 'languages'
 
 interface NavigationState {
   aiInspection: AiViewSelection | null
