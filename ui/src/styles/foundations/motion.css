@@ -29,6 +29,4 @@
 /* Work of unknown length: the bar says something is happening, not how far. */
 @keyframes take-progress { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
 
-@keyframes reward-receipt { 0% { opacity: 0; transform: translateY(-8px); } 10%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
-@keyframes xp-invitation { 0%, 75%, 100% { transform: translateY(-50%); box-shadow: none; } 85% { transform: translateY(calc(-50% - 1px)); box-shadow: 0 0 5px color-mix(in srgb, currentColor 15%, transparent); } }

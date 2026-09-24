@@ -1375,5 +1375,6 @@
   "New messages": "Neue Nachrichten",
   "Loading reference…": "Referenz wird geladen…",
   "Next take": "Nächste Aufnahme",
-  "No take in progress": "Keine Aufnahme läuft"
+  "No take in progress": "Keine Aufnahme läuft",
+  "{value0} more": "{value0} weitere"
 }

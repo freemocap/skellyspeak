@@ -1375,5 +1375,6 @@
   "New messages": "رسائل جديدة",
   "Loading reference…": "جارٍ تحميل المرجع…",
   "Next take": "التسجيل التالي",
-  "No take in progress": "لا يوجد تسجيل جارٍ"
+  "No take in progress": "لا يوجد تسجيل جارٍ",
+  "{value0} more": "{value0} أخرى"
 }

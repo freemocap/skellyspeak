@@ -2,10 +2,11 @@ import { ConversationProgress } from '../src/features/conversation/progress/Conv
 /** Production chat/reward components; synthetic session-only credits, no AI calls. */
 import { mockIPC } from '@tauri-apps/api/mocks'
 import { createRoot } from 'react-dom/client'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { TurnView } from '../src/features/conversation/messages/TurnView'
 import { RewardPresentationProvider } from '../src/features/conversation/progress/RewardPresentation'
 import { SkillRewards } from '../src/features/conversation/progress/SkillRewards'
+import { XpChip } from '../src/features/conversation/progress/XpChip'
 import { SkillEvidenceContext } from '../src/state/learning/useSkillEvidence'
 import { PracticeContext } from '../src/features/conversation/session/PracticeContext'
 import { skillDemo } from '../src/domain/learning/catalog/skillDemo'
@@ -17,7 +18,6 @@ mockIPC((command, args) => {
   throw new Error('Unsupported preview action: ' + command)
 })
 function Preview() {
-  const workspace = useRef<HTMLDivElement>(null)
   const [fast, setFast] = useState(false)
   const [enabled, setEnabled] = useState(true)
   const [snapshot, setSnapshot] = useState(() => { const s = structuredClone(skillDemo); s.profile.rules_version = 2; return s })
@@ -41,8 +41,8 @@ function Preview() {
     <label><input type="checkbox" checked={fast} onChange={e => setFast(e.target.checked)} />Fast mode</label>
     <label><input type="checkbox" checked={enabled} onChange={e => { setEnabled(e.target.checked); configureRewardSounds(e.target.checked ? 'yes' : 'no', false) }} />XP effects</label>
     <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'preview', selectionVersion: 0, selected: null, select: noop }}>
-      <RewardPresentationProvider enabled={enabled} workspace={workspace} chatId="preview" active fastMode={fast}>
-        <div ref={workspace} style={{ position: 'relative', minHeight: 480 }}><div className="reward-effects-rail" data-reward-surface /><div className="stream" style={{ minHeight: 400 }}>
+      <RewardPresentationProvider enabled={enabled} chatId="preview" active fastMode={fast}>
+        <div style={{ position: 'relative', minHeight: 480 }}><div className="chat-head"><div className="chat-heading-actions"><XpChip chatId="preview" /></div></div><div className="stream" style={{ minHeight: 400 }}>
           <TurnView turn={{ id: 1, user: source, pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onEditUser={noop} onBubbleTap={noop} onSpeak={noop} onAskCoach={noop} />
         </div><SkillRewards chatId="preview" active /><aside className="break" style={{ height: 320 }}><ConversationProgress chatId="preview" /></aside></div>
       </RewardPresentationProvider>

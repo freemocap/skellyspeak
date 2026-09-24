@@ -1375,5 +1375,6 @@
   "New messages": "Mensajes nuevos",
   "Loading reference…": "Cargando la referencia…",
   "Next take": "Siguiente toma",
-  "No take in progress": "Ninguna toma en curso"
+  "No take in progress": "Ninguna toma en curso",
+  "{value0} more": "{value0} más"
 }

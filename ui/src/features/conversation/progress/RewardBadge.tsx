@@ -1,41 +1,12 @@
 import { TargetText } from '../../../components/reading/TargetText'
 import { useI18n } from '../../../components/localization/i18n'
-import { useSkillNavigationStore } from '../../../state/navigation/skill-navigation'
-import { useContext, useRef, type RefObject } from 'react'
-import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { domainColors } from '../../../domain/learning/catalog/skill-domains'
-import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
-import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
 
+/** Static evidence badge used by the reward design-review preview. */
 export function RewardBadge({ domainId, label, xp, quote, creditKind, interactive = false }: { interactive?: boolean; domainId: string; label: string; xp: number; quote: string; creditKind: 'earned' | 'stored' }) {
   const tr = useI18n()
   return <div className="reward-badge" style={{ borderColor: domainColors(domainId).bright }}>
     <div className="reward-badge-heading"><span className="reward-domain-dot" style={{ background: domainColors(domainId).bright }} /><span>{tr(label)}</span><strong style={{ background: domainColors(domainId).ink }}>{creditKind === 'earned' ? '+' : ''}{tr.number(xp)} {tr(" XP")}</strong></div>
     <blockquote dir="auto"><TargetText text={quote} interactive={interactive} /></blockquote>
   </div>
-}
-
-function InspectionLayer({ host, onClose }: { host: RefObject<HTMLElement | null>; onClose: () => void }) {
-  useOverlayLayer(host, onClose, true)
-  return null
-}
-
-export function RewardDetail({ evidence, onClose, interactive, automatic }: { automatic: boolean; evidence: MessageEvidence[]; onClose: () => void; interactive: boolean }) {
-  const tr = useI18n()
-  const host = useRef<HTMLElement>(null)
-  const explore = useSkillNavigationStore((state) => state.explore)
-  const { snapshot } = useContext(SkillEvidenceContext)
-  const groups = new Map<string, MessageEvidence[]>()
-  for (const item of evidence) {
-    const group = groups.get(item.id) ?? []
-    if (!group.some(existing => existing.quote === item.quote)) group.push(item)
-    groups.set(item.id, group)
-  }
-  return <section ref={host} className="reward-inspection-card" role="dialog" aria-label={tr("XP details")} inert={!interactive}>{!automatic && interactive && <InspectionLayer host={host} onClose={onClose} />}<button className="reward-inspection-close" aria-label={tr("Close XP details")} onClick={onClose}>×</button>
-    {[...groups.values()].map(group => {
-      const item = group[0]
-      return <section key={item.id}><RewardBadge {...item} creditKind="stored" interactive={interactive} />
-      {group.slice(1).map(quote => <blockquote key={quote.quote} dir="auto"><TargetText text={quote.quote} /></blockquote>)}
-      {item.rationale && <p className="reward-rationale">{item.rationale}</p>}{snapshot && <button className="detail-action" onClick={() => { onClose(); explore({ target: snapshot.target, skillId: item.skillId }) }}>{tr("Explore this skill")}</button>}</section>})}
-  </section>
 }

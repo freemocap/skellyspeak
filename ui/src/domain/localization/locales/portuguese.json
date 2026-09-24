@@ -1375,5 +1375,6 @@
   "New messages": "Novas mensagens",
   "Loading reference…": "Carregando a referência…",
   "Next take": "Próxima gravação",
-  "No take in progress": "Nenhuma gravação em andamento"
+  "No take in progress": "Nenhuma gravação em andamento",
+  "{value0} more": "mais {value0}"
 }

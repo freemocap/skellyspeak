@@ -1375,5 +1375,6 @@
   "New messages": "New messages",
   "Loading reference…": "Loading reference…",
   "Next take": "Next take",
-  "No take in progress": "No take in progress"
+  "No take in progress": "No take in progress",
+  "{value0} more": "{value0} more"
 }

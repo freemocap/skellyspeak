@@ -110,15 +110,16 @@
   /* ══ Colour: skill domains ═══════════════════════════════════════════════
      Data colours for the six domains: d-* fills marks (map nodes, bars, dots),
      di-* is the domain as text on sheet, dm-* a muted fill. Read from
-     domain/learning/catalog/skill-domains.ts. Never a status. */
-  --d-social: #e08a2e;
-  --di-social: #8a4e0a;
+     domain/learning/catalog/skill-domains.ts. Never a status: domain hues stay
+     out of the red and orange range that learners read as errors and warnings. */
+  --d-social: #3f9a4a;
+  --di-social: #24632e;
   --dm-social: color-mix(in srgb, var(--d-social) 65%, var(--sheet));
-  --d-questions: #d9564f;
-  --di-questions: #922c2a;
+  --d-questions: #1693b8;
+  --di-questions: #0b5c75;
   --dm-questions: color-mix(in srgb, var(--d-questions) 65%, var(--sheet));
-  --d-opinions: #c0519b;
-  --di-opinions: #822f66;
+  --d-opinions: #a94fc0;
+  --di-opinions: #6d2d80;
   --dm-opinions: color-mix(in srgb, var(--d-opinions) 65%, var(--sheet));
   --d-statements: #3d7bd6;
   --di-statements: #1f4785;
@@ -247,6 +248,7 @@
   --dur-base: 200ms;
   --dur-slow: 320ms;
   --dur-deliberate: 800ms;
+  --dur-xp-card-hold: 2s;     /* Fast mode XP card lifetime; XP_CARD_HOLD_MS in XpArrivalCard.tsx */
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-spin: 800ms;
@@ -265,8 +267,6 @@
   --z-drawer: 41;
   --z-popover: 50;
   --z-modal: 60;
-  --z-reward-toast: 1090;
-  --z-reward-path: 1095;
   --z-reward: 1100;
 
   /* ══ Runtime contracts ═══════════════════════════════════════════════════
@@ -320,12 +320,12 @@
   --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);
   --danger-ink: #f07a72;
   --danger-tint: color-mix(in srgb, #f07a72 16%, transparent);
-  --d-social: #f0a957;
-  --di-social: #f0a957;
-  --d-questions: #f07a72;
-  --di-questions: #f07a72;
-  --d-opinions: #de7bbb;
-  --di-opinions: #de7bbb;
+  --d-social: #7ccb84;
+  --di-social: #7ccb84;
+  --d-questions: #5cc4e4;
+  --di-questions: #5cc4e4;
+  --d-opinions: #cf8ae0;
+  --di-opinions: #d9a2e8;
   --d-statements: #6fa3ea;
   --di-statements: #6fa3ea;
   --d-descriptions: #a585e8;
@@ -2996,69 +2996,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .reading-passage-text { font: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)) / var(--leading-normal) var(--font-serif); overflow-wrap: anywhere; }
 .reading-passage-compact .trans { font: var(--type-ui) / var(--leading-normal) var(--font-sans); }
 
-/* ── features/conversation/inline-rewards.css ── */
-/* inline rewards — conversation style owner. */
-.inline-xp-badge {
-  position: relative;
-  top: -.3em;
-  display: inline-block;
-  vertical-align: baseline;
-  min-width: 28px;
-  width: 28px;
-  height: 0;
-  min-height: 0;
-  margin: 0 var(--space-1);
-  padding: 0;
-  border: 0;
-  overflow: visible;
-  font: var(--weight-heavy) var(--type-ui)/0 var(--font-sans);
-  color: var(--interaction-ink);
-  background: none;
-  cursor: pointer;
-}
-
-.inline-xp-badge::before { content: ''; position: absolute; inset: -9px -1px; }
-
-.inline-xp-badge:hover, .inline-xp-badge:focus-visible { outline-offset: 5px; outline: none; }
-
-.inline-xp-face {
-  white-space: nowrap;
-  direction: ltr;
-  unicode-bidi: isolate;
-  font-size: var(--type-ui);
-  position: absolute;
-  inset-inline-start: 0;
-  top: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: var(--control-height-sm);
-  height: 24px;
-  padding: 0 var(--space-1);
-  border: var(--border-width) solid color-mix(in srgb, currentColor 24%, transparent);
-  border-radius: var(--radius-circle);
-  background: color-mix(in srgb, currentColor 4%, transparent);
-  line-height: var(--leading-none);
-  transform: translateY(-50%);
-  animation: xp-invitation var(--dur-loop-long) ease-in-out 2;
-}
-
-.inline-xp-badge:hover .inline-xp-face, .inline-xp-badge:focus-visible .inline-xp-face {
-  animation: none;
-  transform: translateY(calc(-50% - 1px));
-  border-color: currentColor;
-  background: color-mix(in srgb, currentColor 12%, transparent);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .inline-xp-face { animation: none; }
-  .inline-xp-badge:hover .inline-xp-face, .inline-xp-badge:focus-visible .inline-xp-face {
-    transform: translateY(-50%);
-    animation: none;
-  }
-}
-
 /* ── features/conversation/coach.css ── */
 /* Private coach conversation beside the conversation. */
 
@@ -4442,8 +4379,9 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 
 /* ── features/conversation/reward-presentation.css ── */
-/* Explicit evidence inspection uses floating cards. Automatic rewards occupy
-   a compact row outside message text, with bounded motion and progress. */
+/* XP presentation: a fixed-size header chip, an arrival card that overlays the
+   conversation beneath it, and a list of this conversation's awards. Nothing
+   here takes space in the conversation layout. */
 
 .skill-reward-status { position: absolute; width: 0; height: 0; }
 
@@ -4487,91 +4425,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   line-height: var(--leading-normal);
 }
 
-.reward-rationale { margin: var(--space-8) var(--space-1) var(--space-5); }
-
-.reward-credit-note {
-  display: block;
-  margin: 0 var(--space-1) var(--space-6);
-  color: var(--ink-3);
-  font-size: var(--type-meta);
-}
-
-.floating-reward {
-  position: fixed;
-  z-index: var(--z-reward);
-  overflow: auto;
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--chrome);
-  color: var(--ink);
-  box-shadow: var(--shadow-floating);
-  transform-origin: center;
-}
-
-.floating-reward.departing { pointer-events: none; }
-
-.floating-reward .reward-badge-heading { font-size: var(--type-ui); }
-
-.floating-reward .reward-badge blockquote { font-size: var(--type-ui); margin-block: var(--space-2); }
-
-.reward-progress-toast {
-  position: static;
-  flex: 1 0 100%;
-  order: -1;
-  box-sizing: border-box;
-  min-width: 0;
-  padding: var(--space-3) var(--space-4);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--chrome);
-  color: var(--ink);
-  font: var(--type-meta)/var(--leading-snug) var(--font-sans);
-  display: grid;
-  gap: var(--space-2);
-}
-
-.reward-progress-heading {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-  font-size: var(--type-meta);
-}
-
-.reward-progress-track {
-  cursor: pointer;
-  height: 3px;
-  background: var(--field);
-  border-radius: var(--radius-md);
-  margin-top: var(--space-1);
-  overflow: hidden;
-}
-
-.reward-progress-track > span {
-  display: block;
-  height: 100%;
-  background: currentColor;
-  transition: width var(--dur-deliberate) ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reward-progress-toast { animation: none; }
-  .reward-progress-track > span { transition: none; }
-}
-
-.reward-path-trace { position: fixed; pointer-events: none; opacity: 0; transform-origin: center; }
-
-.reward-path-outline {
-  width: 100%;
-  height: 100%;
-  border: var(--border-width) solid var(--field);
-  border-radius: var(--radius-lg);
-  background: transparent;
-  box-shadow: 0 0 5px var(--field);
-  transform-origin: center;
-}
-
-@media (prefers-reduced-motion: reduce) { .reward-path-trace { display: none; } }
-
 .rewards-ledger { display: grid; gap: var(--space-4); padding-block: var(--space-6); }
 .rewards-ledger h3, .rewards-ledger p { margin: 0; }
 .rewards-ledger h3 { font-size: var(--type-title); }
@@ -4579,101 +4432,161 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .reward-provenance div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-4); }
 .reward-provenance dd { margin: 0; overflow-wrap: anywhere; }
 
-.reward-inspection-card {
-  position: relative;
-  padding: var(--space-5) var(--space-12) var(--space-5) var(--space-6);
-  border-top: var(--border-width) solid var(--line);
-  font: var(--type-ui)/1.4 var(--font-sans);
-}
+.xp-chip-anchor { position: relative; flex: none; }
 
-.reward-inspection-close {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  background: transparent;
-  color: inherit;
+.xp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-width: 104px;
+  height: var(--control-height);
+  padding: 0 var(--space-5);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--sheet);
+  color: var(--ink-2);
+  font: var(--weight-semibold) var(--type-ui)/var(--leading-none) var(--font-mono);
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  font-size: var(--type-display);
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
+.xp-chip svg { color: var(--interaction-ink); flex: none; }
+.xp-chip-value { flex: 1; text-align: end; white-space: nowrap; }
+.xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--interaction-ink); color: var(--interaction-ink); }
+.xp-chip.is-arriving { border-color: var(--interaction-ink); background: var(--interaction-tint); color: var(--interaction-ink); }
 
-.reward-inspection-card .reward-badge { padding: var(--space-3) var(--space-4); }
-
-.reward-inspection-card .reward-rationale { margin: var(--space-3) 0; }
-
-.floating-reward .reward-inspection-card {
-  border-top: 0;
-  padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
-  line-height: var(--leading-snug);
-}
-
-.floating-reward .reward-badge-heading strong { font-size: var(--type-ui); padding: var(--space-2); }
-.floating-reward .reward-inspection-card .detail-action { font-size: var(--type-meta); }
-@media (pointer: coarse) {
-  .reward-inspection-close { min-width: 44px; min-height: 44px; }
-}
-
-/* Automatic effects occupy a bounded row below the header, outside message
-   text. Full evidence remains available through explicit inspection. */
-.reward-effects-rail {
-  display: flex;
-  flex-wrap: wrap;
-  flex: none;
-  align-items: center;
-  gap: var(--space-3);
-  overflow: hidden;
-  max-height: 80px;
-  overflow-y: auto;
-}
-.reward-effects-rail:empty { display: none; }
-.reward-summary {
-  position: static;
-  flex: 1 1 140px;
-  min-width: 0;
-  max-height: 64px;
-  overflow: hidden;
-  box-shadow: none;
-  border-radius: var(--radius-sm);
-}
-.reward-summary-content {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding-inline-start: var(--space-4);
+.xp-arrival-card, .xp-ledger {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  inset-inline-end: 0;
+  z-index: var(--z-reward);
+  box-sizing: border-box;
+  width: min(320px, calc(100vw - var(--space-12)));
+  max-height: min(420px, 60vh);
+  overflow: auto;
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: var(--shadow-floating);
   font: var(--type-ui)/var(--leading-snug) var(--font-sans);
+  text-transform: none;
+  letter-spacing: normal;
+  transform-origin: top right;
+  animation: xp-card-open var(--dur-base) var(--ease-out);
 }
-.reward-summary-content > span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.reward-summary-content strong { flex-shrink: 0; }
-.reward-summary-content button { flex-shrink: 0; }
-.reward-summary .reward-milestone { margin: 0; font-size: var(--type-meta); }
-.reward-progress-skills { display: flex; gap: var(--space-4); overflow: hidden; }
-.reward-progress-skills > div { flex: 1; min-width: 0; }
-.reward-progress-heading span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[dir="rtl"] .xp-arrival-card, [dir="rtl"] .xp-ledger { transform-origin: top left; }
 
-@media (pointer: coarse) {
-  .reward-summary-content button { min-width: 44px; min-height: 44px; }
-  .reward-effects-rail { max-height: 96px; }
+.xp-arrival-card { display: grid; gap: var(--space-5); padding: var(--space-6) var(--space-7); }
+.xp-arrival-card.is-milestone { border-width: var(--border-width-strong); border-color: var(--interaction-ink); }
+.xp-arrival-milestone {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--interaction-ink);
+  font-weight: var(--weight-semibold);
 }
+.xp-arrival-skill { display: grid; gap: var(--space-3); }
+.xp-arrival-heading { display: flex; align-items: center; gap: var(--space-4); padding-inline-end: var(--space-12); }
+.xp-arrival-heading strong { flex: none; margin-inline-start: auto; color: var(--interaction-ink); font: var(--weight-semibold) var(--type-ui) var(--font-mono); }
+.xp-arrival-skill blockquote { margin: 0; font: var(--type-body)/var(--leading-normal) var(--font-serif); }
+.xp-domain-dot { flex: none; width: 9px; height: 9px; border-radius: var(--radius-circle); }
 
-/* Temporary receipts expose the same saved evidence as persistent skill bars. */
-.reward-progress-heading button {
+.xp-skill-link {
   min-width: 0;
   min-height: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  color: inherit;
-  font: inherit;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
+  font: var(--weight-semibold) var(--type-ui)/var(--leading-snug) var(--font-sans);
   text-align: start;
+  cursor: pointer;
 }
+.xp-skill-link:hover { text-decoration: underline; }
+
+.xp-meter { display: grid; gap: var(--space-2); }
+.xp-meter-track { display: flex; height: 6px; overflow: hidden; border-radius: var(--radius-pill); background: var(--track); }
+.xp-meter-track > span { height: 100%; background: currentColor; }
+.xp-meter-earlier { opacity: .5; }
+.xp-meter-added { animation: xp-meter-fill var(--dur-deliberate) var(--ease-out); transform-origin: left; }
+[dir="rtl"] .xp-meter-added { transform-origin: right; }
+.xp-meter-caption { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
+
+.xp-arrival-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-3); }
+.xp-arrival-remaining { margin-inline-end: auto; color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
+
+.xp-arrival-close {
+  position: absolute;
+  top: var(--space-3);
+  inset-inline-end: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-xs);
+  height: var(--control-height-xs);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.xp-arrival-close:hover { background: var(--chrome); color: var(--ink); }
+
+/* Fast mode countdown; restarts whenever hover or focus releases the card. */
+.xp-arrival-timer {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--interaction-ink);
+  transform-origin: left;
+  animation: xp-card-timer var(--dur-xp-card-hold) linear forwards;
+}
+[dir="rtl"] .xp-arrival-timer { transform-origin: right; }
+
+.xp-ledger-heading { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-6) var(--space-7); }
+.xp-ledger-heading h2 { flex: 1; margin: 0; font: var(--weight-semibold) var(--type-body) var(--font-sans); }
+.xp-ledger-heading strong { color: var(--interaction-ink); font: var(--weight-semibold) var(--type-ui) var(--font-mono); }
+.xp-ledger-heading span { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
+.xp-ledger-empty { margin: 0; padding: 0 var(--space-7) var(--space-6); color: var(--ink-3); }
+.xp-ledger-rows { margin: 0; padding: 0; list-style: none; }
+.xp-ledger-rows button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-5);
+  row-gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-4) var(--space-7);
+  border: 0;
+  border-top: var(--border-width) solid var(--line-soft);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.xp-ledger-rows button:hover { background: var(--chrome); }
+.xp-ledger-skill { font-weight: var(--weight-semibold); }
+.xp-ledger-rows strong { color: var(--interaction-ink); font: var(--weight-semibold) var(--type-ui) var(--font-mono); }
+.xp-ledger-quote { grid-column: 2; font: var(--type-body)/var(--leading-snug) var(--font-serif); color: var(--ink-2); }
+.xp-ledger-rows time { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
+
+@keyframes xp-card-open { from { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes xp-meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes xp-card-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-arrival-card, .xp-ledger, .xp-meter-added { animation: none; }
+}
+
 @media (pointer: coarse) {
-  .reward-progress-heading button { min-height: 44px; }
+  .xp-chip { min-height: var(--touch-target); }
+  .xp-arrival-close { width: var(--touch-target); height: var(--touch-target); }
 }
 
 /* ── features/conversation/progress-report.css ── */
@@ -5585,9 +5498,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* Work of unknown length: the bar says something is happening, not how far. */
 @keyframes take-progress { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
 
-@keyframes reward-receipt { 0% { opacity: 0; transform: translateY(-8px); } 10%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
-@keyframes xp-invitation { 0%, 75%, 100% { transform: translateY(-50%); box-shadow: none; } 85% { transform: translateY(calc(-50% - 1px)); box-shadow: 0 0 5px color-mix(in srgb, currentColor 15%, transparent); } }
 
 
 /* ── features/settings/onboarding.css ── */

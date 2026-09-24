@@ -1,246 +1,174 @@
+import { SKILL_CATALOG_VERSION } from '../../../generated/contracts'
+// @vitest-environment jsdom
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { RewardPresentationProvider } from './RewardPresentation'
+import { SkillRewards } from './SkillRewards'
+import { XpChip } from './XpChip'
+import { XP_CARD_HOLD_MS } from './XpArrivalCard'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
-// @vitest-environment jsdom
-import { useContext, useRef } from 'react'
-import { act, fireEvent, render, screen } from '@testing-library/react'
-import { expect, it, vi } from 'vitest'
-import { RewardPresentationProvider } from './RewardPresentation'
-import { RewardInspectionContext } from './RewardInspectionContext'
-import type { MessageEvidence } from '../../../domain/learning/evidence/message-evidence'
+import { unreportedInput, type SkillSnapshot } from '../../../domain/learning/evidence/skills'
+
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
-const items = vi.hoisted(() => [{ id: 'a', skillId: 'referent', domainId: 'reference', label: 'Identify a referent', xp: 10, quote: 'this cup', rationale: 'Identifies the cup.', start: 0, end: 8, ambiguous: false, color: '#a32b44', explanation: '' }])
-vi.mock('../../../domain/learning/evidence/message-evidence', () => ({ createMessageRewardEvidenceSelector: () => () => [...items, { ...items[0], id: 'b' }] }))
-function Triggers() {
-  const controller = useContext(RewardInspectionContext)!
-  return <><button onClick={() => controller.open(items as MessageEvidence[], 1, 'this cup')}>Score</button><button onClick={() => controller.open([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Other score</button><button onClick={() => controller.arrive(items as MessageEvidence[], 1, 'this cup')}>Arrive</button><button onClick={() => controller.arrive([{ ...items[0], id: 'b' }] as MessageEvidence[], 1, 'this cup')}>Another arrival</button></>
+vi.mock('../../../platform/audio/reward-sounds', () => ({ playRewardSound: vi.fn() }))
+vi.mock('../../../platform/ipc/rewards', () => ({ claimRewardEvents: vi.fn(async (_target: string, ids: string[]) => ids.map(id => ({ id }))) }))
+import { playRewardSound } from '../../../platform/audio/reward-sounds'
+import { claimRewardEvents } from '../../../platform/ipc/rewards'
+
+function Fixture({ snapshot, fastMode, enabled = true }: { snapshot: SkillSnapshot; fastMode: boolean; enabled?: boolean }) {
+  return <SkillEvidenceContext value={{ snapshot, error: null }}>
+    <RewardPresentationProvider enabled={enabled} fastMode={fastMode} chatId="chat" active>
+      <header className="chat-head"><XpChip chatId="chat" /></header>
+      <div className="stream" />
+      <SkillRewards chatId="chat" active />
+    </RewardPresentationProvider>
+  </SkillEvidenceContext>
 }
-function Fixture({ fastMode, enabled = true }: { fastMode: boolean; enabled?: boolean }) {
-  const workspace = useRef<HTMLDivElement>(null)
-  return <RewardPresentationProvider enabled={enabled} fastMode={fastMode} workspace={workspace} chatId="chat" active={true}><div ref={workspace}><div className="reward-effects-rail" data-reward-surface /><div className="stream"><Triggers /></div><div data-reward-skill="referent" /></div></RewardPresentationProvider>
+
+/** Credits `count` skills for one message, each with its own attempt so they arrive as separate cards. */
+function earn(base: SkillSnapshot, count: number, xp = 10): SkillSnapshot {
+  const next = structuredClone(base)
+  const skills = next.catalog.filter(item => item.kind === 'skill').slice(0, count)
+  skills.forEach((skill, index) => {
+    const attempt = `a${index}`
+    next.records.push({ attempt_id: attempt, session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'this cup', input: unreportedInput(), at_secs: 1 + index, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: skill.id, outcome: 'demonstrated', quotes: ['this cup'], rationale: `Evidence for ${skill.label}` }] } })
+    next.profile.credits.push({ attempt_id: attempt, skill_id: skill.id, xp })
+    next.profile.skills.find(item => item.skill_id === skill.id)!.xp += xp
+    next.profile.xp += xp
+  })
+  return next
 }
-it('grows, holds, and departs on dismissal before flashing the destination', () => {
-  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
-  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
-  const original = Element.prototype.animate
-  Element.prototype.animate = vi.fn(function (this: Element) { const animation = { cancel: vi.fn(), onfinish: null }; if (!this.classList.contains('reward-path-trace')) animations.push(animation); return animation as unknown as Animation })
-  const view = render(<Fixture fastMode={false} />)
-  try {
-    fireEvent.click(screen.getByText('Score'))
-    expect(document.querySelector('.floating-reward')).toHaveClass('opening')
-    act(() => animations[0].onfinish!())
-    expect(document.querySelector('.floating-reward')).toHaveClass('hovering')
-    fireEvent.click(screen.getByLabelText('Close XP details'))
-    expect(document.querySelector('.floating-reward')).toHaveClass('departing')
-    act(() => animations[1].onfinish!())
-    expect(animations).toHaveLength(3)
-    act(() => animations[2].onfinish!())
-    expect(screen.queryByRole('dialog')).toBeNull()
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
-})
 
-
-it('shows saved mobile progress on dismissal without replaying the same credit', () => {
+let media: ReturnType<typeof vi.spyOn>
+beforeEach(() => {
   vi.useFakeTimers()
-  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
-  const snapshot = structuredClone(skillDemo)
-  snapshot.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 20
-  snapshot.profile.xp = 120
-  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><Fixture fastMode={false} /></SkillEvidenceContext>)
-  try {
-    fireEvent.click(screen.getByText('Score'))
-    fireEvent.click(screen.getByLabelText('Close XP details'))
-    expect(screen.getByRole('status', { name: 'XP saved' })).toHaveTextContent('+10 XP · 120 XP total')
-    act(() => vi.advanceTimersByTime(2800))
-    expect(screen.queryByRole('status', { name: 'XP saved' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByText('Score'))
-    fireEvent.click(screen.getByLabelText('Close XP details'))
-    expect(screen.queryByRole('status', { name: 'XP saved' })).not.toBeInTheDocument()
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
+  vi.mocked(playRewardSound).mockClear()
+  vi.mocked(claimRewardEvents).mockClear()
+  HTMLDialogElement.prototype.showModal = function (): void { this.open = true }
+  HTMLDialogElement.prototype.close = function (): void { this.open = false }
+  media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+})
+afterEach(() => { media.mockRestore(); vi.useRealTimers() })
+
+const card = () => screen.queryByRole('status', { name: 'XP saved' })
+const chip = () => screen.getByRole('button', { name: 'Conversation XP' })
+
+it('opens the card inside the header anchor and closes it after two seconds in Fast mode', () => {
+  const view = render(<Fixture snapshot={skillDemo} fastMode />)
+  expect(chip()).toHaveTextContent(`${skillDemo.profile.xp} XP`)
+  view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />)
+  expect(card()).toBeVisible()
+  expect(card()!.closest('.xp-chip-anchor')).toContainElement(chip())
+  expect(document.querySelector('.stream')!.previousElementSibling).toHaveClass('chat-head')
+  expect(chip()).toHaveTextContent('+10 XP')
+  expect(playRewardSound).toHaveBeenCalledOnce()
+  expect(playRewardSound).toHaveBeenCalledWith({ kind: 'xp', xp: 10 }, card())
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS - 1))
+  expect(card()).toBeVisible()
+  act(() => vi.advanceTimersByTime(1))
+  expect(card()).toBeNull()
+  expect(chip()).toHaveTextContent(`${skillDemo.profile.xp + 10} XP`)
+  view.unmount()
 })
 
-
-it('pauses Fast mode cards for half a second before departure and holds a reopened card', () => {
-  vi.useFakeTimers()
-  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
-  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
-  const original = Element.prototype.animate
-  const animate = vi.fn<Element['animate']>(function (this: Element) { const animation = { cancel: vi.fn(), onfinish: null }; if (!this.classList.contains('reward-path-trace')) animations.push(animation); return animation as unknown as Animation })
-  Element.prototype.animate = animate
-  const view = render(<Fixture fastMode />)
-  try {
-    fireEvent.click(screen.getByText('Arrive'))
-    expect(document.querySelector('.floating-reward')).toHaveClass('opening')
-    expect(animate.mock.calls[0][1]).toMatchObject({ duration: 440 })
-    act(() => animations[0].onfinish!())
-    act(() => vi.advanceTimersByTime(499))
-    expect(document.querySelector('.floating-reward')).toHaveClass('hovering')
-    act(() => vi.advanceTimersByTime(1))
-    expect(document.querySelector('.floating-reward')).toHaveClass('departing')
-    expect(animate.mock.calls.filter((_, index) => { const target = animate.mock.contexts[index]; return target instanceof Element && target.classList.contains('floating-reward') })[1][1]).toMatchObject({ duration: 560, easing: 'cubic-bezier(.42,0,.75,.35)' })
-    act(() => animations[1].onfinish!())
-    act(() => animations[2].onfinish!())
-    expect(document.querySelector('.floating-reward')).toBeNull()
-    fireEvent.click(screen.getByText('Score'))
-    act(() => animations[3].onfinish!())
-    expect(document.querySelector('.floating-reward')).toHaveClass('hovering')
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original; vi.useRealTimers() }
+it('holds the card while hovered and restarts the wait when released', () => {
+  const view = render(<Fixture snapshot={skillDemo} fastMode />)
+  view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />)
+  fireEvent.pointerEnter(card()!)
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS * 3))
+  expect(card()).toBeVisible()
+  expect(card()!.querySelector('.xp-arrival-timer')).toBeNull()
+  fireEvent.pointerLeave(card()!)
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS - 1))
+  expect(card()).toBeVisible()
+  act(() => vi.advanceTimersByTime(1))
+  expect(card()).toBeNull()
+  view.unmount()
 })
 
-it('stacks persistent arrivals without pausing incoming rewards and drains them when Fast mode is enabled', () => {
-  vi.useFakeTimers()
-  const jitter = vi.spyOn(Math, 'random').mockReturnValue(.5)
-  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
-  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
-  const original = Element.prototype.animate
-  Element.prototype.animate = vi.fn(function (this: Element) { const animation = { cancel: vi.fn(), onfinish: null }; if (!this.classList.contains('reward-path-trace')) animations.push(animation); return animation as unknown as Animation })
-  const view = render(<Fixture fastMode={false} />)
-  try {
-    fireEvent.click(screen.getByText('Arrive'))
-    act(() => animations[0].onfinish!())
-    fireEvent.click(screen.getByText('Another arrival'))
-    expect(document.querySelectorAll('.floating-reward')).toHaveLength(1)
-    act(() => vi.advanceTimersByTime(509))
-    expect(document.querySelectorAll('.floating-reward')).toHaveLength(1)
-    act(() => vi.advanceTimersByTime(1))
-    expect(document.querySelectorAll('.floating-reward')).toHaveLength(2)
-    act(() => animations[1].onfinish!())
-    const cards = Array.from(document.querySelectorAll<HTMLElement>('.floating-reward'))
-    expect(cards).toHaveLength(2)
-    expect(cards.every(card => card.classList.contains('hovering'))).toBe(true)
-    expect(cards.every(card => card.parentElement?.hasAttribute('data-reward-surface'))).toBe(true)
-    expect(screen.queryByRole('dialog')).toBeNull()
-    fireEvent.pointerDown(document.body)
-    expect(document.querySelectorAll('.floating-reward.hovering')).toHaveLength(2)
-    view.rerender(<Fixture fastMode />)
-    expect(document.querySelectorAll('.floating-reward.hovering')).toHaveLength(2)
-    act(() => vi.advanceTimersByTime(500))
-    expect(document.querySelectorAll('.floating-reward.departing')).toHaveLength(2)
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original; jitter.mockRestore(); vi.useRealTimers() }
+it('keeps a card open on request and shows queued awards one at a time', () => {
+  const view = render(<Fixture snapshot={skillDemo} fastMode />)
+  const earned = earn(skillDemo, 2)
+  const [first, second] = earned.catalog.filter(item => item.kind === 'skill')
+  view.rerender(<Fixture snapshot={earned} fastMode />)
+  expect(within(card()!).getByText(first.label)).toBeVisible()
+  expect(within(card()!).getByText('1 more')).toBeVisible()
+  fireEvent.click(within(card()!).getByRole('button', { name: 'Keep' }))
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS * 3))
+  expect(within(card()!).getByText(first.label)).toBeVisible()
+  fireEvent.click(within(card()!).getByRole('button', { name: 'Close XP details' }))
+  expect(within(card()!).getByText(second.label)).toBeVisible()
+  expect(within(card()!).queryByText('1 more')).toBeNull()
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
+  expect(card()).toBeNull()
+  view.unmount()
 })
 
-it('automatically dismisses reduced-motion arrivals without running flight animations', () => {
-  vi.useFakeTimers()
-  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
-  const view = render(<Fixture fastMode />)
-  try {
-    fireEvent.click(screen.getByText('Arrive'))
-    expect(document.querySelector('.floating-reward')).toBeNull()
-    expect(document.querySelector('.reward-path-trace')).toBeNull()
-    act(() => vi.advanceTimersByTime(500))
-    expect(document.querySelector('.floating-reward')).toBeNull()
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
+it('keeps cards until closed when Fast mode is off', () => {
+  const view = render(<Fixture snapshot={skillDemo} fastMode={false} />)
+  view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode={false} />)
+  expect(within(card()!).queryByRole('button', { name: 'Keep' })).toBeNull()
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS * 5))
+  expect(card()).toBeVisible()
+  fireEvent.click(within(card()!).getByRole('button', { name: 'Close XP details' }))
+  expect(card()).toBeNull()
+  view.unmount()
 })
 
- it('keeps inspected cards until explicit dismissal when Fast mode is off', () => {
-  vi.useFakeTimers()
-  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 400, 400))
-  const view = render(<Fixture fastMode={false} />)
-  try {
-    fireEvent.click(screen.getByText('Score'))
-    const prior = screen.getByRole('dialog', { name: 'XP details' })
-    fireEvent.click(screen.getByText('Other score'))
-    expect(prior).not.toBeInTheDocument()
-    expect(screen.getAllByRole('dialog', { name: 'XP details' })).toHaveLength(1)
-    const card = document.querySelector('.floating-reward')!
-    fireEvent.pointerEnter(card)
-    act(() => vi.advanceTimersByTime(5000))
-    expect(card).toBeInTheDocument()
-    fireEvent.focus(screen.getByLabelText('Close XP details'))
-    fireEvent.pointerLeave(card)
-    act(() => vi.advanceTimersByTime(5000))
-    expect(card).toBeInTheDocument()
-    fireEvent.blur(screen.getByLabelText('Close XP details'), { relatedTarget: document.body })
-    act(() => vi.advanceTimersByTime(3999))
-    expect(card).toBeInTheDocument()
-    act(() => vi.advanceTimersByTime(60000))
-    expect(card).toBeInTheDocument()
-    fireEvent.click(screen.getByLabelText('Close XP details'))
-    expect(card).not.toBeInTheDocument()
-    fireEvent.click(screen.getByText('Score'))
-    fireEvent.pointerDown(document.body)
-    expect(screen.queryByRole('dialog', { name: 'XP details' })).toBeNull()
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); vi.useRealTimers() }
+it('reports milestone crossings and shows the added part of the meter', () => {
+  const base = structuredClone(skillDemo)
+  const skill = base.catalog.filter(item => item.kind === 'skill')[0]
+  base.profile.skills.find(item => item.skill_id === skill.id)!.xp = 45
+  const view = render(<Fixture snapshot={base} fastMode />)
+  view.rerender(<Fixture snapshot={earn(base, 1)} fastMode />)
+  expect(within(card()!).getByText('50 XP milestone')).toBeVisible()
+  expect(playRewardSound).toHaveBeenCalledWith({ kind: 'milestone' }, card())
+  const meter = within(card()!).getByRole('progressbar')
+  expect(meter).toHaveAttribute('aria-valuenow', '5')
+  expect(meter).toHaveAttribute('aria-valuetext', '55 XP; next milestone 100')
+  expect(meter.querySelector<HTMLElement>('.xp-meter-earlier')!.style.width).toBe('0%')
+  expect(meter.querySelector<HTMLElement>('.xp-meter-added')!.style.width).toBe('10%')
+  view.unmount()
 })
 
-it('flies mobile Fast mode rewards straight to the meter and fills only on arrival', () => {
-  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query.includes('max-width'), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 300, 200))
-  const snapshot = structuredClone(skillDemo)
-  snapshot.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 20
-  const original = Element.prototype.animate
-  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
-  const animate = vi.fn<Element['animate']>(function (this: Element) {
-    const animation = { cancel: vi.fn(), onfinish: null }
-    if (this.classList.contains('floating-reward')) animations.push(animation)
-    return animation as unknown as Animation
-  })
-  Element.prototype.animate = animate
-  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><Fixture fastMode /></SkillEvidenceContext>)
-  try {
-    fireEvent.click(screen.getByText('Arrive'))
-    expect(document.querySelector('.floating-reward')).toHaveClass('departing')
-    expect(document.querySelector('.floating-reward.hovering')).toBeNull()
-    const flights = animate.mock.calls.filter((_, index) => (animate.mock.contexts[index] as Element).classList.contains('floating-reward'))
-    expect(flights).toHaveLength(1)
-    expect(flights[0][1]).toMatchObject({ duration: 340 })
-    const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
-    expect(parseFloat(fill.style.width)).toBeCloseTo(20)
-    act(() => animations[0].onfinish!())
-    expect(parseFloat(fill.style.width)).toBeCloseTo(40)
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
+it('lists this conversation’s awards from the chip after the card has gone', () => {
+  const earned = earn(skillDemo, 2)
+  earned.records.push({ ...structuredClone(earned.records[0]), attempt_id: 'elsewhere', chat_id: 'other' })
+  earned.profile.credits.push({ attempt_id: 'elsewhere', skill_id: earned.records[0].assessment!.judgments[0].skill_id, xp: 99 })
+  const view = render(<Fixture snapshot={skillDemo} fastMode />)
+  view.rerender(<Fixture snapshot={earned} fastMode />)
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
+  act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
+  expect(card()).toBeNull()
+  fireEvent.click(chip())
+  const ledger = screen.getByRole('dialog', { name: 'Conversation XP' })
+  expect(within(ledger).getByText('+20 XP')).toBeVisible()
+  expect(within(ledger).getAllByRole('button')).toHaveLength(2)
+  expect(within(ledger).queryByText('+99')).toBeNull()
+  fireEvent.click(within(ledger).getAllByRole('button')[0])
+  expect(screen.getByRole('heading', { name: 'Message XP' })).toBeInTheDocument()
+  view.unmount()
 })
 
-it('shows a temporary desktop meter when the skill destination is hidden and fills on arrival', () => {
-  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: false, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
-  const bounds = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue(new DOMRect(10, 100, 300, 200))
-  const snapshot = structuredClone(skillDemo)
-  snapshot.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 20
-  const original = Element.prototype.animate
-  const animations: { cancel: ReturnType<typeof vi.fn>; onfinish: (() => void) | null }[] = []
-  const animate = vi.fn<Element['animate']>(function (this: Element) {
-    const animation = { cancel: vi.fn(), onfinish: null }
-    if (this.classList.contains('floating-reward')) animations.push(animation)
-    return animation as unknown as Animation
-  })
-  Element.prototype.animate = animate
-  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><Fixture fastMode /></SkillEvidenceContext>)
-  try {
-    view.container.querySelector('[data-reward-skill]')!.setAttribute('aria-hidden', 'true')
-    fireEvent.click(screen.getByText('Arrive'))
-    act(() => animations[0].onfinish!())
-    fireEvent.click(screen.getByLabelText('Close XP details'))
-    expect(document.querySelector('.floating-reward')).toHaveClass('departing')
-    expect(document.querySelector('.floating-reward.hovering')).toBeNull()
-    const flights = animate.mock.calls.filter((_, index) => (animate.mock.contexts[index] as Element).classList.contains('floating-reward'))
-    expect(flights).toHaveLength(2)
-    expect(flights[1][1]).toMatchObject({ duration: 560 })
-    const fill = screen.getByRole('progressbar').firstElementChild as HTMLElement
-    expect(parseFloat(fill.style.width)).toBeCloseTo(20)
-    act(() => animations[1].onfinish!())
-    expect(parseFloat(fill.style.width)).toBeCloseTo(40)
-  } finally { view.unmount(); media.mockRestore(); bounds.mockRestore(); Element.prototype.animate = original }
+it('keeps the chip and list when effects are off, and does not replay arrivals on re-enable', () => {
+  const view = render(<Fixture snapshot={skillDemo} fastMode enabled={false} />)
+  const earned = earn(skillDemo, 1)
+  view.rerender(<Fixture snapshot={earned} fastMode enabled={false} />)
+  expect(card()).toBeNull()
+  expect(playRewardSound).not.toHaveBeenCalled()
+  expect(chip()).toHaveTextContent(`${earned.profile.xp} XP`)
+  view.rerender(<Fixture snapshot={earned} fastMode enabled />)
+  expect(card()).toBeNull()
+  view.unmount()
 })
 
-
-it('clears active effects when disabled and does not replay arrivals on re-enable', () => {
-  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
-  const view = render(<Fixture fastMode={false} />)
-  try {
-    fireEvent.click(screen.getByText('Arrive'))
-    expect(document.querySelector('.reward-summary')).not.toBeNull()
-    view.rerender(<Fixture fastMode={false} enabled={false} />)
-    expect(document.querySelector('.floating-reward')).toBeNull()
-    fireEvent.click(screen.getByText('Arrive'))
-    fireEvent.click(screen.getByText('Score'))
-    expect(document.querySelector('.floating-reward')).toBeNull()
-    expect(document.querySelector('.reward-progress-toast')).toBeNull()
-    view.rerender(<Fixture fastMode={false} />)
-    expect(document.querySelector('.floating-reward')).toBeNull()
-  } finally { view.unmount(); media.mockRestore() }
+it('shows Jev awards only after their durable claim', async () => {
+  const base = structuredClone(skillDemo)
+  base.profile.rules_version = 2
+  const view = render(<Fixture snapshot={base} fastMode />)
+  await act(async () => view.rerender(<Fixture snapshot={earn(base, 1)} fastMode />))
+  expect(claimRewardEvents).toHaveBeenCalledOnce()
+  expect(card()).toBeVisible()
+  view.unmount()
 })
