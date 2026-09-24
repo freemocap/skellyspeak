@@ -1,6 +1,7 @@
 import { useI18n } from '../../components/localization/i18n'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { useNavigationStore } from '../../state/navigation/navigation'
+import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 
 /** Narrow windows show one workspace surface at a time. */
 export function MobileNav() {
@@ -15,6 +16,6 @@ export function MobileNav() {
     {(['chat', 'panel'] as const).map(item => <button key={item} type="button"
       className={`mobile-nav-item ${mode === 'practice' && surface === item ? 'active' : ''}`}
       aria-current={mode === 'practice' && surface === item ? 'page' : undefined}
-      onClick={() => openPractice(item)}>{tr(item === 'chat' ? 'Chat' : 'Coach')}</button>)}
+      onClick={() => openPractice(item)}><ToolbarIcon name={item === 'chat' ? 'chat' : 'idea'} size={20} />{tr(item === 'chat' ? 'Chat' : 'Coach')}</button>)}
   </nav>
 }
