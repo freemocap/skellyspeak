@@ -216,18 +216,18 @@
    bubble reserves the room below (with-actions), so feedback arriving never
    changes the message's height. A long correction truncates here and reads in
    full in its dialog. */
-.message-feedback > .feedback-badge {
-  position: absolute; bottom: calc(-1 * var(--control-height) / 2); right: var(--space-2); display: inline-flex; flex-shrink: 0;
-  height: var(--control-height); min-height: var(--control-height); padding: 0 var(--space-5); column-gap: var(--space-4);
+.message-actions > .feedback-badge {
+  display: inline-flex; flex: 0 1 auto; margin-inline-start: auto;
+  height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0 var(--space-4); column-gap: var(--space-4);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
-  font-variant-numeric: tabular-nums; max-width: calc(100% - 2 * var(--space-2)); overflow: hidden; text-align: start;
+  font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
 }
-.message-feedback > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
+.message-actions > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
-.message-feedback > .feedback-badge:hover { border-color: currentColor; }
+.message-actions > .feedback-badge:hover { border-color: currentColor; }
 
-.message-feedback > .feedback-badge.feedback-error {
+.message-actions > .feedback-badge.feedback-error {
   background: var(--sheet);
   color: var(--danger-ink);
   border-color: var(--danger-line);
@@ -255,9 +255,6 @@
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-/* Room for the straddling feedback badge, reserved from the first frame. */
-.msg.chat-message.me.with-actions { padding-block-end: calc(var(--space-4) + var(--control-height) / 2); margin-block-end: calc(var(--space-2) + var(--control-height) / 2); }
-.msg.rtl .message-feedback > .feedback-badge { right: auto; left: var(--space-2); }
 .feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
@@ -271,5 +268,9 @@
 
 /* Quiet bubble action, with a full touch target despite its small glyph. */
 .message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+/* The corner control sits at the top of the bubble, so its gutter is free at the
+   bottom: the action row spans the full width and keeps one line. */
+.msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
+.msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
 .message-add-drill > span { font-size: var(--type-title); }
 @media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }
