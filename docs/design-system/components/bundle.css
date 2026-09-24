@@ -1923,6 +1923,16 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
   .mobile-conversation.mobile-coach > .chat { display: none; }
   .mobile-conversation.mobile-coach .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
+  /* A switch slides the incoming surface in from the side its tab sits on:
+     Coach from the end, Chat from the start. Opening the page does not slide. */
+  .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
+  .mobile-conversation.surface-switched:not(.mobile-coach) > .chat { animation: surface-in-from-left var(--dur-slow) var(--ease-out); }
+  .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }
+  .mobile-conversation.surface-switched:not(.mobile-coach) > .chat:dir(rtl) { animation-name: surface-in-from-right; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-conversation.surface-switched .break, .mobile-conversation.surface-switched > .chat { animation: none; }
 }
 
 /* ── features/conversation/messages.css ── */
@@ -2194,13 +2204,15 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   .message-xp-actions > button { min-height: 44px; min-width: 44px; }
 }
 
-/* Quiet bubble action, with a full touch target despite its small glyph. */
-.message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+/* Quiet bubble action, last in the row, with a full touch target despite its
+   small icon. Saved shows a success check. */
+.message-actions .message-add-drill { order: 1; margin-inline-start: auto; min-width: var(--control-height); display: inline-flex; align-items: center; justify-content: center; }
+.message-add-drill svg { stroke-width: 2; }
+.message-actions .message-translate.message-add-drill[data-state=saved] { opacity: 1; color: var(--success-ink); }
 /* The corner control sits at the top of the bubble, so its gutter is free at the
    bottom: the action row spans the full width and keeps one line. */
 .msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
 .msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-.message-add-drill > span { font-size: var(--type-title); }
 @media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }
 
 /* ── features/conversation/composer.css ── */
@@ -5488,6 +5500,10 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 }
 
 @keyframes activity-spin { to { transform: rotate(360deg); } }
+
+@keyframes surface-in-from-right { from { transform: translateX(100%); opacity: .6; } to { transform: none; opacity: 1; } }
+
+@keyframes surface-in-from-left { from { transform: translateX(-100%); opacity: .6; } to { transform: none; opacity: 1; } }
 
 @keyframes hydrate-sweep { from { background-position: 0% 0; } to { background-position: 300% 0; } }
 

@@ -83,4 +83,14 @@
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
   .mobile-conversation.mobile-coach > .chat { display: none; }
   .mobile-conversation.mobile-coach .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
+  /* A switch slides the incoming surface in from the side its tab sits on:
+     Coach from the end, Chat from the start. Opening the page does not slide. */
+  .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
+  .mobile-conversation.surface-switched:not(.mobile-coach) > .chat { animation: surface-in-from-left var(--dur-slow) var(--ease-out); }
+  .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }
+  .mobile-conversation.surface-switched:not(.mobile-coach) > .chat:dir(rtl) { animation-name: surface-in-from-right; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-conversation.surface-switched .break, .mobile-conversation.surface-switched > .chat { animation: none; }
 }

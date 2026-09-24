@@ -18,6 +18,10 @@
 
 @keyframes activity-spin { to { transform: rotate(360deg); } }
 
+@keyframes surface-in-from-right { from { transform: translateX(100%); opacity: .6; } to { transform: none; opacity: 1; } }
+
+@keyframes surface-in-from-left { from { transform: translateX(-100%); opacity: .6; } to { transform: none; opacity: 1; } }
+
 @keyframes hydrate-sweep { from { background-position: 0% 0; } to { background-position: 300% 0; } }
 
 @keyframes hydrate-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }

@@ -470,6 +470,14 @@ export default function ConversationPage({
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
+  // Chat and Coach slide only after the learner switches between them, not on first open.
+  const [surfaceSwitched, setSurfaceSwitched] = useState(false)
+  const shownSurface = useRef(mobileSurface)
+  useEffect(() => {
+    if (shownSurface.current === mobileSurface) return
+    shownSurface.current = mobileSurface
+    setSurfaceSwitched(true)
+  }, [mobileSurface])
   const latestTurn = activeTurns.at(-1)
   // The latest recording belongs to the newest learner message that carries its transcript unchanged.
   const recordingTurnId = mic.lastTranscription ? [...activeTurns].reverse().find(turn => turn.user?.trim() === mic.lastTranscription!.text.trim())?.id ?? null : null
@@ -517,7 +525,7 @@ export default function ConversationPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`}
     >
       <ChatHistory
         open={historyOpen}

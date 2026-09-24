@@ -5,8 +5,9 @@ import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
 import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { createDrillItem } from '../../../platform/ipc/drill'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
-/** Copy a completed reply through the same command as Drill's manual entry.
+/** Copy a completed message through the same command as Drill's manual entry.
  * The reading scope belongs to this conversation, not current global preferences. */
 export function AddToDrillButton({ text }: { text: string }) {
   const scope = useReadingScope()
@@ -29,9 +30,9 @@ export function AddToDrillButton({ text }: { text: string }) {
   }
   return <>
     <button type="button" className="message-translate message-add-drill" title={label} aria-label={label}
-      aria-busy={state === 'saving'} disabled={state !== 'ready'}
+      aria-busy={state === 'saving'} data-state={state} disabled={state !== 'ready'}
       onClick={event => { event.stopPropagation(); void add() }}>
-      <span aria-hidden="true">{state === 'saved' ? '✓' : '+'}</span>
+      <ToolbarIcon name={state === 'saved' ? 'added' : 'add'} size={20} />
     </button>
     {failure != null && <ErrorDetails label={tr('Add to Drill')} errorKey={errorMessage(failure)} explanation={errorMessage(failure)}>
       <ResponseDetails value={failure} />

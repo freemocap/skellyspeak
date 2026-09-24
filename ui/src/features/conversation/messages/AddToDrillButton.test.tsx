@@ -12,12 +12,13 @@ const create = vi.mocked(createDrillItem)
 const scope = { language: 'spanish', variety: 'spanish-mexico', explanation: 'english', explanationVariety: 'english-us' }
 beforeEach(() => create.mockReset())
 
-it('puts one add action on the completed AI bubble and uses its captured language scope', async () => {
+it('puts one add action on each bubble and saves the AI reply with its captured language scope', async () => {
   create.mockResolvedValue({ id: 'phrase-1' } as Awaited<ReturnType<typeof createDrillItem>>)
   const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: {
     reply: 'Buenos días.', tokens: [], user_tokens: [], translation: '', user_translation: '', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [],
   } }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
-  expect(within(container.querySelector('.msg.me') as HTMLElement).queryByRole('button', { name: 'Add to Drill' })).toBeNull()
+  expect(within(container.querySelector('.msg.me') as HTMLElement).getAllByRole('button', { name: 'Add to Drill' })).toHaveLength(1)
+  expect(within(container.querySelector('.msg.bot') as HTMLElement).getAllByRole('button', { name: 'Add to Drill' })).toHaveLength(1)
   fireEvent.click(within(container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Add to Drill' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Added to Drill' })).toBeDisabled())
   expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Buenos días.', ...scope })
@@ -52,4 +53,12 @@ it('does not guess a language when the conversation scope is unavailable', () =>
   render(<AddToDrillButton text="Hola" />)
   expect(screen.queryByRole('button')).toBeNull()
   expect(create).not.toHaveBeenCalled()
+})
+
+it('saves the learner message from its own bubble', async () => {
+  create.mockResolvedValue({ id: 'phrase-2' } as Awaited<ReturnType<typeof createDrillItem>>)
+  const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
+  fireEvent.click(within(container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Add to Drill' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Added to Drill' })).toHaveAttribute('data-state', 'saved'))
+  expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Hola', ...scope })
 })

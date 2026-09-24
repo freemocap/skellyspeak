@@ -266,11 +266,13 @@
   .message-xp-actions > button { min-height: 44px; min-width: 44px; }
 }
 
-/* Quiet bubble action, with a full touch target despite its small glyph. */
-.message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+/* Quiet bubble action, last in the row, with a full touch target despite its
+   small icon. Saved shows a success check. */
+.message-actions .message-add-drill { order: 1; margin-inline-start: auto; min-width: var(--control-height); display: inline-flex; align-items: center; justify-content: center; }
+.message-add-drill svg { stroke-width: 2; }
+.message-actions .message-translate.message-add-drill[data-state=saved] { opacity: 1; color: var(--success-ink); }
 /* The corner control sits at the top of the bubble, so its gutter is free at the
    bottom: the action row spans the full width and keeps one line. */
 .msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
 .msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-.message-add-drill > span { font-size: var(--type-title); }
 @media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }
