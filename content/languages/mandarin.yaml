@@ -83,10 +83,207 @@ guidance:
   sources:
   - ud
 learning:
+  skill_guides:
+    possession_relationships:
+      core:
+        assessment: Mandarin can express possession or relationships using 的, relational nouns, or context;
+          的 can be omitted in some close relationships. Distinguish ownership, kinship, assignment
+          and use. A short answer may supply the related person without repeating the entire
+          construction.
+        explanation: Mandarin can express possession and relationships with 的, relational nouns and context.
+          Some close relationships omit 的. A relationship does not always imply ownership.
+        examples: []
+      varieties:
+        mandarin-mainland-china:
+          assessment: Apply the shared Mandarin guidance to the selected Mainland China variety, using
+            Simplified Chinese for authored examples.
+          explanation: A short reply can identify the related person without repeating the whole construction.
+            Expanded examples remain to be authored.
+          examples: []
+      review: needs_review
+      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
+        specimens; not a completed or human-reviewed language guide.
+      sources: []
+    past_reference:
+      core:
+        assessment: Mandarin can express past meaning through time words, context and aspectual
+          constructions without tense inflection. Do not require a past-tense verb ending or equate
+          了 with past tense. Past states and ongoing activities count; interpret the situation's
+          time rather than spotting a particle.
+        explanation: Mandarin does not require tense inflection to express past time. Time expressions,
+          context and aspectual constructions contribute; 了 is not a past-tense marker.
+        examples: []
+      varieties:
+        mandarin-mainland-china:
+          assessment: Apply the shared Mandarin guidance to the selected Mainland China variety. Judge the
+            event or state in context, including past ongoing situations.
+          explanation: The time relationship can be expressed without a past-tense verb ending. Expanded
+            examples remain to be authored.
+          examples: []
+      review: needs_review
+      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
+        specimens; not a completed or human-reviewed language guide.
+      sources: []
+    identify_describe:
+      core:
+        assessment: Mandarin can identify things with nouns, pronouns and demonstratives and describe them
+          through nominal, adjectival and locative predicates.
+        explanation: Mandarin can identify things with nouns, pronouns and demonstratives and describe them
+          through nominal, adjectival and locative predicates.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Do not require 是 before every description. A quality or location can be expressed
+            without an English-style copula.
+          explanation: Do not require 是 before every description. A quality or location can be expressed
+            without an English-style copula.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Mandarin expresses amounts with numerals, quantifiers and number/classifier/noun
+          constructions.
+        explanation: Mandarin expresses amounts with numerals, quantifiers and number/classifier/noun
+          constructions.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Judge the intended amount or portion even when a classifier is omitted or misselected;
+            an identifier number is not automatically a quantity.
+          explanation: Judge the intended amount or portion even when a classifier is omitted or misselected;
+            an identifier number is not automatically a quantity.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Mandarin often establishes present meaning through context or time expressions; 在 or 正在
+          can mark ongoing activity.
+        explanation: Mandarin often establishes present meaning through context or time expressions; 在 or 正在
+          can mark ongoing activity.
+      varieties:
+        mandarin-mainland-china:
+          assessment: No present-tense inflection is required. Distinguish current or habitual situations from
+            time established elsewhere in the exchange.
+          explanation: No present-tense inflection is required. Distinguish current or habitual situations
+            from time established elsewhere in the exchange.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Mandarin can establish future time through time expressions, plans and modal
+          constructions without a future-tense ending.
+        explanation: Mandarin can establish future time through time expressions, plans and modal
+          constructions without a future-tense ending.
+      varieties:
+        mandarin-mainland-china:
+          assessment: 会 can have several meanings. Determine whether the situation is placed in the future
+            rather than merely possible or within someone’s ability.
+          explanation: 会 can have several meanings. Determine whether the situation is placed in the future
+            rather than merely possible or within someone’s ability.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Mandarin can express wants with 想 or 要 and likes with 喜欢, among other expressions.
+        explanation: Mandarin can express wants with 想 or 要 and likes with 喜欢, among other expressions.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Interpret the intended desire or preference in context; 要 can also express a requirement
+            or intended action.
+          explanation: Interpret the intended desire or preference in context; 要 can also express a
+            requirement or intended action.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Mandarin can express learned ability with 会, capability with 能, permission with 可以 and
+          necessity with 必须 or 得.
+        explanation: Mandarin can express learned ability with 会, capability with 能, permission with 可以 and
+          necessity with 必须 or 得.
+      varieties:
+        mandarin-mainland-china:
+          assessment: These forms have other uses. Identify the expressed subtype in context rather than
+            requiring one fixed word-to-meaning mapping.
+          explanation: These forms have other uses. Identify the expressed subtype in context rather than
+            requiring one fixed word-to-meaning mapping.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Mandarin uses affirmative responses, verb repetition and negative expressions including
+          不 and 没 to accept or reject propositions.
+        explanation: Mandarin uses affirmative responses, verb repetition and negative expressions including
+          不 and 没 to accept or reject propositions.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Determine what is affirmed or denied. Do not require a single word equivalent to English
+            yes for affirmative answers.
+          explanation: Determine what is affirmed or denied. Do not require a single word equivalent to
+            English yes for affirmative answers.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Mandarin information questions can use question words, 吗 or affirmative-negative forms.
+        explanation: Mandarin information questions can use question words, 吗 or affirmative-negative forms.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Question words need not move to the start of a sentence. A relevant short answer can
+            supply the missing information.
+          explanation: Question words need not move to the start of a sentence. A relevant short answer can
+            supply the missing information.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    requests:
+      core:
+        assessment: Mandarin requests can use direct action phrases, 请 or contextual questions; replies can
+          accept, decline or negotiate.
+        explanation: Mandarin requests can use direct action phrases, 请 or contextual questions; replies can
+          accept, decline or negotiate.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Judge the requested action and response in context. Politeness particles or a question
+            form alone do not establish a request.
+          explanation: Judge the requested action and response in context. Politeness particles or a question
+            form alone do not establish a request.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Mandarin can express reasons with 因为 and conditions with 如果 or 要是, among other
+          constructions.
+        explanation: Mandarin can express reasons with 因为 and conditions with 如果 or 要是, among other
+          constructions.
+      varieties:
+        mandarin-mainland-china:
+          assessment: A causal or conditional relation need not repeat a matching connector in both clauses.
+            Mere sequence or a quoted connector is insufficient.
+          explanation: A causal or conditional relation need not repeat a matching connector in both clauses.
+            Mere sequence or a quoted connector is insufficient.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
   goal_material:
     courtesy:
       tokens:
-      - 谢谢
+        - 谢谢
 conversation:
   greeting:
     text: 你好

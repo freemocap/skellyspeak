@@ -75,30 +75,6 @@ impl Store {
             tx.commit()?;
             return Ok(None);
         }
-        if kind == "skill_evidence" {
-            let captured: serde_json::Value = serde_json::from_str(&context)?;
-            let chat = captured["skillAssessment"]["adapter"] == "chat_model";
-            if chat || crate::learning::coaching::skill_evidence::implicated(&captured)?.is_empty()
-            {
-                if !chat {
-                    crate::learning::coaching::skill_evidence::publish(
-                        &tx,
-                        &turn,
-                        &captured["skillDecisions"],
-                    )?;
-                }
-                tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) VALUES(?1,?2,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now'))", params![attempt,operation])?;
-                tx.execute(
-                    "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",
-                    [&operation],
-                )?;
-                super::graph::release_dependents(&tx, &turn)?;
-                refresh_turn(&tx, &turn)?;
-                bump(&tx)?;
-                tx.commit()?;
-                return Ok(None);
-            }
-        }
         if kind == "persona_speech" {
             let result = prepare_speech(&tx, &operation, &turn, &context);
             match result {
@@ -129,7 +105,6 @@ impl Store {
         if !crate::learning::coaching::conversation_support::owns(&kind)
             && !crate::learning::coaching::message_assessment::owns(&kind)
             && kind != "skill_assessment"
-            && kind != "skill_evidence"
             && kind != "persona_reply"
             && kind != "persona_opening"
             && kind != "coach_retry_check"
@@ -164,14 +139,6 @@ impl Store {
             let rating = crate::learning::coaching::message_assessment::owns(&kind);
             let coaching_schema = if rating {
                 None
-            } else if kind == "skill_evidence" {
-                Some(crate::learning::coaching::skill_evidence::schema(
-                    &captured,
-                )?)
-            } else if kind == "skill_assessment" && !jev {
-                Some(crate::learning::coaching::skill_assessment::schema(
-                    &captured,
-                )?)
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 Some(
                     crate::learning::coaching::conversation_support::schema_for_context(
@@ -192,8 +159,6 @@ impl Store {
             };
             let messages = if rating {
                 crate::learning::coaching::message_assessment::prompt(&tx, &turn, &kind, &captured)?
-            } else if kind == "skill_evidence" {
-                crate::learning::coaching::skill_evidence::prompt(&tx, &turn, &captured)?
             } else if kind == "skill_assessment" {
                 crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?
             } else if crate::learning::coaching::conversation_support::owns(&kind) {

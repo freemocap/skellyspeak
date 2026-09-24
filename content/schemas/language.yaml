@@ -43,6 +43,21 @@ definitions:
     - orthographies
     - romanization_schemes
     type: object
+  Example:
+    additionalProperties: false
+    properties:
+      context:
+        type:
+        - string
+        - 'null'
+      text:
+        type: string
+      translation:
+        type: string
+    required:
+    - text
+    - translation
+    type: object
   GoalMaterial:
     additionalProperties: false
     properties:
@@ -84,6 +99,23 @@ definitions:
     - sources
     - text
     type: object
+  Guidance2:
+    additionalProperties: false
+    properties:
+      assessment:
+        type: string
+      examples:
+        default: []
+        items:
+          $ref: '#/definitions/Example'
+        type: array
+      explanation:
+        description: Human-readable Markdown; excluded from the assessor projection.
+        type: string
+    required:
+    - assessment
+    - explanation
+    type: object
   GuidanceScope:
     enum:
     - target_writing
@@ -94,6 +126,31 @@ definitions:
     - assessment
     - pragmatics
     type: string
+  Guide:
+    additionalProperties: false
+    properties:
+      authorship:
+        type: string
+      core:
+        $ref: '#/definitions/Guidance2'
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sources:
+        items:
+          type: string
+        type: array
+      varieties:
+        additionalProperties:
+          $ref: '#/definitions/Guidance2'
+        description: Explicit coverage. Missing varieties never inherit another variety's guide.
+        type: object
+    required:
+    - authorship
+    - core
+    - review
+    - sources
+    - varieties
+    type: object
   Integrations:
     additionalProperties: false
     properties:
@@ -160,6 +217,14 @@ definitions:
         additionalProperties:
           $ref: '#/definitions/GoalMaterial'
         type: object
+      skill_guides:
+        additionalProperties:
+          $ref: '#/definitions/Guide'
+        type: object
+      skills:
+        items:
+          $ref: '#/definitions/Skill'
+        type: array
     required:
     - goal_material
     type: object
@@ -341,6 +406,26 @@ definitions:
         type:
         - boolean
         - 'null'
+    type: object
+  Skill:
+    additionalProperties: false
+    properties:
+      boundary:
+        type: string
+      category:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      overview:
+        type: string
+    required:
+    - boundary
+    - category
+    - id
+    - name
+    - overview
     type: object
   VarietyDocument:
     additionalProperties: false

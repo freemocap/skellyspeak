@@ -45,7 +45,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
         expectedRevision: saved.revision,
         ...Object.fromEntries(fields.map(key => [key, draft[key]])),
         audio: draft.audio,
-        assessmentAdapter: draft.assessmentAdapter,
+        assessmentAdapter: 'jev_choice',
       })
       setSaved(config); setDraft(config)
       await onChanged(); setStatus('Saved')
@@ -62,12 +62,8 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
   return <section aria-label={tr('Models')}>
     <div className="form-row">
       <span className="assessment-label"><label htmlFor="assessment-adapter">{tr('Skill assessment')}</label><AssessmentInfo /></span>
-      <select id="assessment-adapter" className="field" value={draft.assessmentAdapter} disabled
-        onChange={event => { setDraft({ ...draft, assessmentAdapter: event.target.value as ConnectionConfig['assessmentAdapter'] }); setError(null); setStatus('') }}>
-        <option value="jev_choice" disabled>{tr('Jev Choice')} — {tr('Disabled')}</option>
-        <option value="chat_model">{tr('Chat model assessment')}</option>
-      </select>
-      <span className="detail-meta">{draft.assessmentAdapter === 'jev_choice' ? jevModel : draft.fastModel}</span>
+      <output id="assessment-adapter">{tr('Jev Choice')}</output>
+      <span className="detail-meta">{jevModel}</span>
     </div>
     {fields.map((key, index) => <div className="form-row" key={key}>
       <label htmlFor={`model-${key}`}>{tr(labels[index])}</label>

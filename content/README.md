@@ -10,7 +10,8 @@ content/
 ├── languages/         One YAML file per language, including its varieties
 ├── prompts/           Authored instructions grouped by feature
 │   ├── conversation/
-│   └── drill/
+│   ├── drill/
+│   └── skills/
 ├── schemas/           Generated schemas stored as YAML
 ├── shared/            Definitions and policies used across languages
 └── README.md          This guide
@@ -46,6 +47,8 @@ Indic writing and local transliteration definitions.
 | `varieties` | Related variety identities, guidance and explicit overrides |
 | `guidance` | Language-wide instructions |
 | `learning.goal_material` | Lexical hints associated with universal skills |
+| `learning.skills` | Optional language-owned skills using the same terse structure as shared skills |
+| `learning.skill_guides` | Skill-keyed language cores and explicit variety sections; compact assessment text and human explanations |
 | `conversation` | Greeting and `default_partner` definition |
 
 ### Identities, references and inheritance
@@ -86,6 +89,38 @@ Indic writing and local transliteration definitions.
 
 Speech preferences use the shared capability catalog described under
 [shared/speech-routing.yaml](#speech-routingyaml).
+
+### Skill content coverage
+
+The native registry loads the twelve-skill catalog and the conversation assessor
+uses its compact language/variety guidance. `learning.skill_guides` covers all
+twelve skills for Spanish/Mexico, Spanish/Spain, Arabic/Levantine and
+Mandarin/Mainland China. Missing coverage fails assessment explicitly without
+blocking the partner reply or selecting another variety. Arabic's shared core is
+not Modern Standard Arabic. Pilot material is marked `needs_review`, not a
+completed or linguistically validated grammar guide.
+
+Each guide has `core` and `varieties` sections with compact `assessment` text,
+human-readable `explanation` Markdown, and optional `examples`. The assessor uses
+only the skill name, overview, boundary, shared instructions and core/selected
+variety assessment text. Markdown composition retains explanations and examples.
+`learning.skills` adds language-owned definitions without overriding shared IDs or
+introducing prerequisites. All IDs must be unique across the registry; categories
+refer to the shared browsing groups.
+
+Inspect the same content through the native composer without provider calls:
+
+```sh
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skills
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skill-coverage arabic arabic-levantine
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skill-markdown arabic arabic-levantine past_reference
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skill-prompt arabic arabic-levantine past_reference
+```
+
+`--skill-prompt` shows the compact skill input. The shared presence question and
+criteria live in `prompts/skills/presence.yaml`. A full-catalog request additionally
+requires guidance for every applicable skill. Uncovered varieties cannot
+silently become a smaller live assessment.
 
 ### Adding a learning language
 
@@ -155,6 +190,13 @@ structured conversation-prompt mapping.
 Other prompt assembly and execution still live with their code owners; see
 [code connections](#code-connections) below.
 
+### skills/
+
+[presence.yaml](prompts/skills/presence.yaml) owns the shared presence question,
+instructions and four categories: absent, contextual, direct and unclear. These
+are evidence categories, not success grades or XP weights. The native content
+composer validates this source; conversation dispatch cutover is still pending.
+
 ## schemas/
 
 **Purpose:** describe the shapes accepted by the current authoring models.
@@ -170,6 +212,8 @@ instance with its keys, types and required/optional fields.
 | [conversation-topics.yaml](schemas/conversation-topics.yaml) | `shared/conversation-topics.yaml` |
 | [learning-goals.yaml](schemas/learning-goals.yaml) | `shared/learning-goals.yaml` |
 | [learning-map.yaml](schemas/learning-map.yaml) | `shared/learning-map.yaml` |
+| [skills.yaml](schemas/skills.yaml) | New terse shared skill catalog and browsing categories |
+| [skill-presence.yaml](schemas/skill-presence.yaml) | Shared presence question and instructions |
 | [speech-routing.yaml](schemas/speech-routing.yaml) | `shared/speech-routing.yaml` |
 | [teaching-policy.yaml](schemas/teaching-policy.yaml) | `shared/teaching-policy.yaml` |
 | [teaching-guides.yaml](schemas/teaching-guides.yaml) | Preliminary guide model; see the draft status below |
@@ -197,8 +241,9 @@ languages and feature prompts.
 | --- | --- |
 | [conversation-topics.yaml](shared/conversation-topics.yaml) | Topic identities, localized interface labels and language-independent subjects |
 | [language-foundations.yaml](shared/language-foundations.yaml) | Scripts, families, traits and explicitly shared writing definitions |
-| [learning-goals.yaml](shared/learning-goals.yaml) | The 45 universal skills: criteria, prerequisites and opportunities |
-| [learning-map.yaml](shared/learning-map.yaml) | Navigation hierarchy, display codes and colors; skill text comes from its goal |
+| [learning-goals.yaml](shared/learning-goals.yaml) | Older coaching/learner goal definitions; no longer the live skill/XP catalog |
+| [learning-map.yaml](shared/learning-map.yaml) | Older goal navigation; live skill browsing is projected from skills.yaml |
+| [skills.yaml](shared/skills.yaml) | Twelve accepted terse definitions; four browsing categories, no progression or scoring rules |
 | [speech-routing.yaml](shared/speech-routing.yaml) | Provider/model capabilities, language-code mappings and ordered speech alternatives |
 | [teaching-policy.yaml](shared/teaching-policy.yaml) | General guidance, feedback, learner estimation and reward policy |
 

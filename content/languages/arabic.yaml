@@ -111,11 +111,222 @@ guidance:
   sources:
   - ryding2005
 learning:
+  skill_guides:
+    past_reference:
+      core:
+        assessment: Judge the expressed time relationship in context, including past states and ongoing
+          activities. A form alone does not establish past reference.
+        explanation: Arabic expresses past reference through grammatical constructions, time expressions and
+          context. The applicable forms depend on the selected variety.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine Arabic past meaning can come from verb forms, time expressions such as مبارح,
+            and conversation context. Past states or ongoing activities can use كان constructions. A
+            past-looking form alone is insufficient in hypothetical contexts; assess the meaning in
+            the selected spoken variety.
+          explanation: Time expressions and the preceding conversation can establish the past. A past state or
+            ongoing activity need not be a completed event. The examples here illustrate Levantine
+            usage; they are not a rule for all Arabic varieties.
+          examples:
+            - text: مبارح رحت عالسوق.
+              translation: Yesterday I went to the market.
+            - text: كنت ناطر التاكسي.
+              translation: I was waiting for the taxi.
+      review: needs_review
+      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
+        specimens; not a completed or human-reviewed language guide.
+      sources:
+        - nassraLevantinePast20260924
+    possession_relationships:
+      core:
+        assessment: Arabic expresses possession and other relationships through constructions whose forms
+          depend on the selected variety. Interpret ownership, kinship, assignment and use in
+          context.
+        explanation: Possession is one kind of relationship. A construction can also express kinship,
+          assignment or use; the applicable forms belong to the selected variety.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine Arabic can express ownership, kinship, assignment or use with noun
+            relationships, attached pronouns and expressions such as إلو or تبع. Interpret the
+            relationship in context, not only physical ownership. Short replies can rely on the
+            preceding question.
+          explanation: Levantine guidance covers noun relationships, attached pronouns and expressions such as
+            إلو and تبع. These express more than physical ownership. A short answer can rely on the
+            preceding question.
+          examples: []
+      review: needs_review
+      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
+        specimens; not a completed or human-reviewed language guide.
+      sources: []
+    identify_describe:
+      core:
+        assessment: Arabic identifies and describes people and things through noun phrases, modifiers and
+          predication; the concrete forms depend on the variety.
+        explanation: Arabic identifies and describes people and things through noun phrases, modifiers and
+          predication; the concrete forms depend on the variety.
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, a present nominal description need not contain a verb corresponding to
+            English is.
+          explanation: In Levantine, a present nominal description need not contain a verb corresponding to
+            English is.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Arabic expresses amounts and portions through numerals, quantifiers and noun
+          constructions whose forms vary by variety.
+        explanation: Arabic expresses amounts and portions through numerals, quantifiers and noun
+          constructions whose forms vary by variety.
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, singular, dual and plural forms can contribute quantity; numeral agreement
+            is not a condition for presence.
+          explanation: In Levantine, singular, dual and plural forms can contribute quantity; numeral
+            agreement is not a condition for presence.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Arabic expresses current states, activities and habits through constructions interpreted
+          in their time context.
+        explanation: Arabic expresses current states, activities and habits through constructions
+          interpreted in their time context.
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, b-prefixed verbs, عم constructions and some active participles can
+            contribute present meaning.
+          explanation: In Levantine, b-prefixed verbs, عم constructions and some active participles can
+            contribute present meaning.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources:
+      - nassraLevantinePresentFuture20260924
+    future_reference:
+      core:
+        assessment: Arabic future reference can be established by a construction, a time expression or the
+          conversation context.
+        explanation: Arabic future reference can be established by a construction, a time expression or the
+          conversation context.
+      varieties:
+        arabic-levantine:
+          assessment: Levantine رح can mark future reference; context can also establish future time. Do not
+            require MSA سـ or سوف.
+          explanation: Levantine رح can mark future reference; context can also establish future time. Do not
+            require MSA سـ or سوف.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources:
+      - nassraLevantinePresentFuture20260924
+    wants_preferences:
+      core:
+        assessment: Arabic can express desires, likes and preferences; identify the person and the desired
+          or preferred thing.
+        explanation: Arabic can express desires, likes and preferences; identify the person and the desired
+          or preferred thing.
+      varieties:
+        arabic-levantine:
+          assessment: Levantine بدي expresses wanting. Distinguish the desire from a prediction or an implied
+            request.
+          explanation: Levantine بدي expresses wanting. Distinguish the desire from a prediction or an implied
+            request.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Arabic can express ability, permission and necessity with variety-specific expressions;
+          these are distinct meanings within this skill.
+        explanation: Arabic can express ability, permission and necessity with variety-specific expressions;
+          these are distinct meanings within this skill.
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, بقدر can express ability and لازم necessity. Interpret permission from the
+            utterance in context.
+          explanation: In Levantine, بقدر can express ability and لازم necessity. Interpret permission from
+            the utterance in context.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Arabic affirmation and negation depend on the proposition and its scope, with
+          variety-specific constructions.
+        explanation: Arabic affirmation and negation depend on the proposition and its scope, with
+          variety-specific constructions.
+      varieties:
+        arabic-levantine:
+          assessment: Levantine uses ما for verbal negation and مو or مش in other constructions, with regional
+            variation. Do not demand one regional form.
+          explanation: Levantine uses ما for verbal negation and مو or مش in other constructions, with
+            regional variation. Do not demand one regional form.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Arabic information questions and their answers can be explicit or context-dependent;
+          question words differ across varieties.
+        explanation: Arabic information questions and their answers can be explicit or context-dependent;
+          question words differ across varieties.
+      varieties:
+        arabic-levantine:
+          assessment: Levantine شو, مين and وين are possible question words. A relevant short answer can
+            express this skill without repeating the question.
+          explanation: Levantine شو, مين and وين are possible question words. A relevant short answer can
+            express this skill without repeating the question.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    requests:
+      core:
+        assessment: Arabic requests and responses can use direct commands, question-shaped requests,
+          acceptance, refusal or negotiation.
+        explanation: Arabic requests and responses can use direct commands, question-shaped requests,
+          acceptance, refusal or negotiation.
+      varieties:
+        arabic-levantine:
+          assessment: Interpret the action in the Levantine exchange. A question about capability is not
+            always a request to act.
+          explanation: Interpret the action in the Levantine exchange. A question about capability is not
+            always a request to act.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Arabic can connect situations through reasons or conditions, using constructions
+          appropriate to the selected variety.
+        explanation: Arabic can connect situations through reasons or conditions, using constructions
+          appropriate to the selected variety.
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, لأنو can introduce a reason and إذا a condition. A sequence of events
+            alone supplies neither relation.
+          explanation: In Levantine, لأنو can introduce a reason and إذا a condition. A sequence of events
+            alone supplies neither relation.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
   goal_material:
     courtesy:
       tokens:
-      - شكرًا
-      - شكرا
+        - شكرًا
+        - شكرا
 conversation:
   greeting:
     text: مَرْحَبًا

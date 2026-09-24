@@ -5,6 +5,8 @@ mod citations;
 pub mod difficulty;
 mod documents;
 pub mod guides;
+mod skill_navigation;
+pub mod skills;
 pub mod speech;
 pub(crate) use documents::ConversationPromptContent;
 mod identity;
@@ -58,6 +60,8 @@ pub struct Registry {
     pub families: Vec<Family>,
     pub universal: Vec<Guidance>,
     constructs: Vec<Construct>,
+    skills: skills::Catalog,
+    presence_instructions: crate::learning::practice_assessment::Instructions,
     navigation: Vec<NavigationNode>,
     feedback: FeedbackPolicy,
     estimator: EstimatorPolicy,
@@ -80,7 +84,13 @@ impl Registry {
         &self.hash
     }
     pub fn learning_content_hash(&self) -> String {
-        fingerprint(&(&self.constructs, &self.goal_material))
+        fingerprint(&(
+            &self.skills,
+            self.documents
+                .iter()
+                .map(|(id, d)| (id, &d.learning.skills))
+                .collect::<Vec<_>>(),
+        ))
     }
     pub fn constructs(&self) -> &[Construct] {
         &self.constructs

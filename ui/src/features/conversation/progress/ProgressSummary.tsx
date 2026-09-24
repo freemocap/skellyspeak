@@ -25,7 +25,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
   if (!focus) throw new Error('Missing practice focus')
   const domain = domainId === null ? null : stats.domains.find(item => item.node.id === domainId)
   if (domainId !== null && !domain) throw new Error('Missing selected practice domain')
-  const skills = (domain ? domain.skills : snapshot.profile.skills).filter(skill => includeUnpracticed || skill.successes + skill.assisted > 0)
+  const skills = (domain ? domain.skills : snapshot.profile.skills).filter(skill => includeUnpracticed || skill.experience + skill.effort > 0)
   return <div className="practice-statistics">
       <header className="practice-statistics-header"><h2>{name} {tr(" progress")}</h2><InfoTip>{tr("Trace every score back to the messages that contributed it.")}</InfoTip></header>
       <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: null, selectionVersion: 0, selected: domain?.skills[0]?.skill_id ?? focus.id, select: id => { const match = stats.domains.find(item => item.skills.some(skill => skill.skill_id === id)); setDomainId(match?.node.id ?? null) } }}><ConversationMap /></PracticeContext></SkillEvidenceContext>
@@ -33,26 +33,25 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
       <dl className="practice-metrics">
         <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.browserLocale)}</dd></div>
         <div><dt>{tr("Skills with credit")}</dt><dd>{tr.number(stats.practiced)}<small> / {snapshot.profile.skills.length}</small></dd></div>
-        <div><dt>{tr("Skill stars")}</dt><dd>{tr.number(stats.stars)}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>{tr("Contributing messages")}</dt><dd>{tr.number(stats.contributingMessages)}</dd></div>
       </dl>
       <InfoTip>{tr("Descriptive app records, not a validated language-proficiency score. AI assessments can be wrong; these counts are not independent trials.")}</InfoTip>
-      <section aria-label={tr("Credited demonstrations")} className="practice-demonstrations">
-        <div><strong>{tr.number(stats.unassisted)}</strong><span>{tr("Unassisted skill demonstrations")}</span></div>
-        <div><strong>{tr.number(stats.assisted)}</strong><span>{tr("Assisted skill demonstrations")}</span></div>
-        <InfoTip>{tr("Counts are distinct wording–skill pairs, not messages. One message can contribute to multiple skills.")}</InfoTip>
+      <section aria-label={tr("Experience and effort")} className="practice-demonstrations">
+        <div><strong>{tr.number(stats.experience)}</strong><span>{tr("Experience counts")}</span></div>
+        <div><strong>{tr.number(stats.effort)}</strong><span>{tr("Effort counts")}</span></div>
+        <InfoTip>{tr("Experience counts first use in a message; effort counts retained skills on changed retries. One message can contribute to multiple skills.")}</InfoTip>
       </section>
       <section aria-labelledby="practice-skills-title">
         <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? tr(domain.node.label) : tr("All domains")} {tr(" · skill evidence")}</h3>{domainId && <button className="detail-action" onClick={() => setDomainId(null)}>{tr("All domains")}</button>}</div>
         <label className="practice-unpracticed"><input type="checkbox" checked={includeUnpracticed} onChange={event => setIncludeUnpracticed(event.target.checked)} />{tr("Include skills without credit")}</label>
         <InfoTip>{tr("Open a skill to inspect its contributing messages and assessment provenance.")}</InfoTip>
-        {skills.length === 0 && <p>{tr("No credited demonstrations in this selection yet. Your first credited message will appear here.")}</p>}
+        {skills.length === 0 && <p>{tr("No recorded practice in this selection yet.")}</p>}
         <div className="practice-skill-list">{skills.map(skill => {
           const node = snapshot.catalog.find(item => item.id === skill.skill_id)
           if (!node) throw new Error(`Missing skill ${skill.skill_id}`)
           const credits = snapshot.profile.credits.filter(item => item.skill_id === skill.skill_id)
           return <details key={skill.skill_id} className="practice-skill">
-            <summary><span>{tr(node.label)}{skill.star && <span className="practice-star" aria-label={tr("Skill star")}> ★</span>}</span><strong>{tr.number(skill.xp)} {tr(" XP")}</strong><small>{tr.number(skill.successes)} {tr(" unassisted · ")}{skill.assisted} {tr(" assisted")}</small></summary>
+            <summary><span>{tr(node.label)}{skill.star && <span className="practice-star" aria-label={tr("Skill star")}> ★</span>}</span><strong>{tr.number(skill.xp)} {tr(" XP")}</strong><small>{tr.number(skill.experience)} {tr(" experience · ")}{skill.effort} {tr(" effort")}</small></summary>
             <InfoTip>{tr("Criterion: ")}{tr(node.criterion)}</InfoTip>
             {credits.length === 0 && <p>{tr("No credited messages.")}</p>}
             {credits.map(credit => {
@@ -60,9 +59,9 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
               if (!record) throw new Error('Missing credited record')
               const judgment = record.assessment?.judgments.find(item => item.skill_id === skill.skill_id)
               if (!judgment) throw new Error('Missing credited assessment')
-              const assisted = record.input.suggestion || record.input.scaffold || record.input.revision
+              const effort = (credit.effort ?? credit.event?.effort ?? 0) > 0
               return <article key={credit.attempt_id} className="practice-credit">
-                <header><strong>{tr.number(credit.xp)} {tr(" XP · ")}{assisted ? tr("Assisted") : tr("Unassisted")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
+                <header><strong>{tr.number(credit.xp)} {tr(" XP · ")}{effort ? tr("Effort") : tr("Experience")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
                 <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}><blockquote dir="auto"><TargetText text={record.source} /></blockquote></ReadingLanguageScope><p>{judgment.rationale}</p>
                 <small>{tr("Model: ")}{record.model} {tr(" · Rubric ")}{record.catalog_version} {tr(" · Prompt ")}{record.prompt_version}<br />{tr("Chat ")}{record.chat_id} {tr(" · Message ")}{record.message_id} {tr(" · Attempt ")}{record.attempt_id}</small>
               </article>
@@ -72,8 +71,8 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
       </section>
       <details className="practice-methods"><summary>{tr("How these numbers are calculated")}</summary>
         <p>{tr("Scope: saved records for ")}{snapshot.target} {tr(" on this learner profile, across ")}{snapshot.conversation_count} {tr(" saved conversations. Deleted or edited messages and excluded evidence can change totals; this is the current projection, not an immutable history.")}</p>
-        <p>{tr("Rules version ")}{snapshot.profile.rules_version}{tr("; catalog version ")}{snapshot.catalog_version}. {snapshot.profile.rules_version >= 2 ? tr("XP comes from persisted evidence awards using the support, difficulty and novelty policy captured for each attempt. Repeated wording cannot earn duplicate credit for the same construct.") : tr("Legacy rules award 10 XP per distinct unassisted wording–skill demonstration and 2 XP per assisted one. Repeated wording is normalized for whitespace and letter case; unassisted evidence takes precedence.")} {tr(" Three distinct unassisted demonstrations earn an app star; that is a practice milestone, not proof of mastery.")}</p>
-        <p>{tr("“Assisted” means a suggestion, scaffold, or revision was recorded by the app. Assistance outside the app is not observed. Speech inputs are transcripts, not acoustic pronunciation assessments.")}</p>
+        <p>{tr("XP equals experience plus effort, with 1 XP per credited skill. Correctness, assistance, difficulty and novelty do not change the award. Unchanged retries add no credit.")}</p>
+        <p>{tr("A text transcript does not establish pronunciation, listening ability or retention.")}</p>
         <p>{tr("Snapshot counts cover retained source messages, not a lifetime activity log. Only completed, non-excluded records from the current catalog contribute credit. Assessments are model judgments, not independent human validation. No proficiency estimate, learning-rate claim, or statistical confidence interval is inferred here.")}</p>
         <dl className="practice-record-counts"><div><dt>{tr("Complete records")}</dt><dd>{tr.number(stats.statuses.complete)}</dd></div><div><dt>{tr("Pending")}</dt><dd>{tr.number(stats.statuses.pending)}</dd></div><div><dt>{tr("Failed")}</dt><dd>{tr.number(stats.statuses.failed)}</dd></div><div><dt>{tr("Superseded")}</dt><dd>{tr.number(stats.statuses.superseded)}</dd></div><div><dt>{tr("Stored exclusions")}</dt><dd>{tr.number(snapshot.profile.choices.excluded_attempts.length)}</dd></div></dl>
       </details>

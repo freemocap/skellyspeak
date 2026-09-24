@@ -94,30 +94,9 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
         &store,
         &second,
         "coach_retry_check",
-        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"question","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
+        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"questions_answers","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
     );
     assert!(checked["nativeRepair"]["support_step"].is_null());
-    let record =
-        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["records"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .find(|r| {
-                r["assessment"]["judgments"]
-                    .as_array()
-                    .is_some_and(|j| j.iter().any(|j| j["source"] == "native_repair_check"))
-            })
-            .unwrap()
-            .clone();
-    assert_eq!(
-        record["assessment"]["judgments"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .filter(|j| j["skill_id"] == "question" && j["source"] == "native_repair_check")
-            .count(),
-        1
-    );
     assert_eq!(checked["decision"]["repairStatus"], "repaired");
     assert!(
         checked["decision"]["fixed"]
@@ -126,7 +105,7 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
             .contains("linking verb")
     );
     let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(profile["profile"]["xp"], 18);
+    assert_eq!(profile["profile"]["xp"], 0);
 }
 
 #[test]
@@ -193,7 +172,7 @@ fn direct_retry_and_keep_going_do_not_block_chat() {
 }
 
 #[test]
-fn wave2_bundled_content_update_reaches_capture_and_hash_mismatch_retains_evidence() {
+fn guidance_updates_reach_capture_without_erasing_experience() {
     let (dir, mut store, conversation) = setup();
     let first = store
         .execute(send(&store, &conversation))
@@ -215,17 +194,18 @@ fn wave2_bundled_content_update_reaches_capture_and_hash_mismatch_retains_eviden
             std::fs::copy(entry.path(), content.join(folder).join(entry.file_name())).unwrap();
         }
     }
-    for prompt in ["conversation", "drill"] {
+    for (prompt, file) in [
+        ("conversation", "instructions.yaml"),
+        ("drill", "instructions.yaml"),
+        ("skills", "presence.yaml"),
+    ] {
         std::fs::create_dir_all(content.join("prompts").join(prompt)).unwrap();
         std::fs::copy(
             std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("../content/prompts")
                 .join(prompt)
-                .join("instructions.yaml"),
-            content
-                .join("prompts")
-                .join(prompt)
-                .join("instructions.yaml"),
+                .join(file),
+            content.join("prompts").join(prompt).join(file),
         )
         .unwrap();
     }
@@ -246,8 +226,8 @@ fn wave2_bundled_content_update_reaches_capture_and_hash_mismatch_retains_eviden
     store.config = crate::configuration::Registry::load(&content).unwrap();
     assert_eq!(store.config.catalog(), before_catalog);
     let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(profile["profile"]["xp"], 0);
-    assert!(profile["records"][0]["mapping_error"].is_string());
+    assert_eq!(profile["profile"]["xp"], 1);
+    assert!(profile["records"][0]["mapping_error"].is_null());
     assert!(profile["records"][0]["assessment"].is_object());
     let next = store
         .execute(send(&store, &conversation))

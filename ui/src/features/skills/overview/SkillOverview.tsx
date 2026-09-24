@@ -9,6 +9,6 @@ export function SkillOverview({ node, snapshot }: { node: TreeNode; snapshot: Sk
   const progress = snapshot.profile.skills.find(item => item.skill_id === node.id)
   return <header className="skill-overview" style={domain ? { borderColor: domainColors(domain.id).bright } : undefined}>
     {domain && <small>{tr(domain.label)}</small>}<h2>{tr(node.label)}</h2><p>{tr(node.criterion || node.description)}</p>
-    {progress && <div className="skill-overview-progress"><strong>{tr.number(progress.xp)} {tr(" XP")}</strong><span>{tr('Next milestone: {value0} XP', { value0: (Math.floor(progress.xp / 50) + 1) * 50 })}</span>{progress.assisted > 0 && <span>{tr.number(progress.assisted)} {tr(" assisted")}</span>}</div>}
+    {progress && <div className="skill-overview-progress"><strong>{tr.number(progress.xp)} {tr(" XP")}</strong><span>{tr('Next milestone: {value0} XP', { value0: (Math.floor(progress.xp / 50) + 1) * 50 })}</span><span>{tr('Experience')}: {tr.number(progress.experience)}</span>{progress.effort > 0 && <span>{tr.number(progress.effort)} {tr(" effort")}</span>}</div>}
   </header>
 }

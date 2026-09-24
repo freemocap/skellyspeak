@@ -35,7 +35,7 @@ fn r1_queue_reserves_translation_before_accepting_send() {
     let contact = store.snapshot().unwrap().contacts[0].id.clone();
     apply(&mut store, Action::SetPaused { paused: true });
     let mut last = first;
-    for index in 0..=OUTSTANDING_NETWORK_LIMIT / 10 {
+    for index in 0..=OUTSTANDING_NETWORK_LIMIT / 9 {
         if index > 0 {
             last = apply(
                 &mut store,
@@ -47,7 +47,7 @@ fn r1_queue_reserves_translation_before_accepting_send() {
             .entity_id;
         }
         let command = send(&store, &last);
-        if index == OUTSTANDING_NETWORK_LIMIT / 10 {
+        if index == OUTSTANDING_NETWORK_LIMIT / 9 {
             let before = store.snapshot().unwrap().revision;
             assert_eq!(
                 store.execute(command).unwrap_err().code,
@@ -66,7 +66,7 @@ fn r1_queue_reserves_translation_before_accepting_send() {
         }
     }
     let count: i64 = store.connection.query_row("SELECT count(*) FROM operations WHERE kind IN ('skill_evidence','skill_assessment','persona_reply','reply_translation','persona_word_gloss','conversation_feedback','reply_brief','user_word_gloss','user_translation','coach_reaction')", [], |r| r.get(0)).unwrap();
-    assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 10 * 10);
+    assert_eq!(count, OUTSTANDING_NETWORK_LIMIT / 9 * 9);
     assert_eq!(store.profile().unwrap().global.attempts, 0);
     assert!(store.dispatch().unwrap().is_none());
 }

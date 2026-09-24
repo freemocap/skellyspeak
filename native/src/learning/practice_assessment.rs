@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SkillPrompt {
     pub id: String,
@@ -15,7 +15,7 @@ pub struct SkillPrompt {
     pub boundary: String,
     pub language_guidance: String,
 }
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Instructions {
     pub instructions: String,
@@ -35,6 +35,7 @@ fn invalid(path: &str) -> AppError {
 const LABELS: [&str; 4] = ["absent", "contextual", "direct", "unclear"];
 pub fn request(state: Value, skills: &[SkillPrompt], shared: &Instructions) -> Result<Value> {
     if skills.is_empty()
+        || skills.len() > 64
         || shared.instructions.trim().is_empty()
         || shared.question.trim().is_empty()
         || shared.criteria.len() != 4
@@ -46,15 +47,16 @@ pub fn request(state: Value, skills: &[SkillPrompt], shared: &Instructions) -> R
     }
     let mut questions = BTreeMap::new();
     for skill in skills {
-        if [
-            &skill.id,
-            &skill.name,
-            &skill.overview,
-            &skill.boundary,
-            &skill.language_guidance,
-        ]
-        .iter()
-        .any(|s| s.trim().is_empty())
+        if skill.id.len() > 64
+            || [
+                &skill.id,
+                &skill.name,
+                &skill.overview,
+                &skill.boundary,
+                &skill.language_guidance,
+            ]
+            .iter()
+            .any(|s| s.trim().is_empty())
         {
             return Err(invalid("skill_content"));
         }
@@ -128,7 +130,7 @@ mod tests {
     #[test]
     fn composes_presence_only_without_catalog_size_or_language_branches() {
         let shared: Instructions = serde_yaml_ng::from_str(include_str!(
-            "../../../docs/notes/language-guides-and-xp/drafts/assessment-presence.yaml"
+            "../../../content/prompts/skills/presence.yaml"
         ))
         .unwrap();
         let skills = [SkillPrompt {

@@ -32,7 +32,7 @@ function earn(base: SkillSnapshot, count: number, xp = 10): SkillSnapshot {
   const skills = next.catalog.filter(item => item.kind === 'skill').slice(0, count)
   skills.forEach((skill, index) => {
     const attempt = `a${index}`
-    next.records.push({ attempt_id: attempt, session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'this cup', input: unreportedInput(), at_secs: 1 + index, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: skill.id, outcome: 'demonstrated', quotes: ['this cup'], rationale: `Evidence for ${skill.label}` }] } })
+    next.records.push({ attempt_id: attempt, session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'this cup', input: unreportedInput(), at_secs: 1 + index, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: skill.id, presence: 'direct', quotes: ['this cup'], rationale: `Evidence for ${skill.label}` }] } })
     next.profile.credits.push({ attempt_id: attempt, skill_id: skill.id, xp })
     next.profile.skills.find(item => item.skill_id === skill.id)!.xp += xp
     next.profile.xp += xp
@@ -54,10 +54,10 @@ afterEach(() => { media.mockRestore(); vi.useRealTimers() })
 const card = () => screen.queryByRole('status', { name: 'XP saved' })
 const chip = () => screen.getByRole('button', { name: 'Conversation XP' })
 
-it('opens the card inside the header anchor and closes it after two seconds in Fast mode', () => {
+it('opens the card inside the header anchor and closes it after two seconds in Fast mode', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
   expect(chip()).toHaveTextContent(`${skillDemo.profile.xp} XP`)
-  view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />)
+  await act(async () => view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />))
   expect(card()).toBeVisible()
   expect(card()!.closest('.xp-chip-anchor')).toContainElement(chip())
   expect(document.querySelector('.stream')!.previousElementSibling).toHaveClass('chat-head')
@@ -72,9 +72,9 @@ it('opens the card inside the header anchor and closes it after two seconds in F
   view.unmount()
 })
 
-it('holds the card while hovered and restarts the wait when released', () => {
+it('holds the card while hovered and restarts the wait when released', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
-  view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />)
+  await act(async () => view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />))
   fireEvent.pointerEnter(card()!)
   act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS * 3))
   expect(card()).toBeVisible()
@@ -87,11 +87,11 @@ it('holds the card while hovered and restarts the wait when released', () => {
   view.unmount()
 })
 
-it('keeps a card open on request and shows queued awards one at a time', () => {
+it('keeps a card open on request and shows queued awards one at a time', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
   const earned = earn(skillDemo, 2)
   const [first, second] = earned.catalog.filter(item => item.kind === 'skill')
-  view.rerender(<Fixture snapshot={earned} fastMode />)
+  await act(async () => view.rerender(<Fixture snapshot={earned} fastMode />))
   expect(within(card()!).getByText(first.label)).toBeVisible()
   expect(within(card()!).getByText('1 more')).toBeVisible()
   fireEvent.click(within(card()!).getByRole('button', { name: 'Keep' }))
@@ -105,9 +105,9 @@ it('keeps a card open on request and shows queued awards one at a time', () => {
   view.unmount()
 })
 
-it('keeps cards until closed when Fast mode is off', () => {
+it('keeps cards until closed when Fast mode is off', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode={false} />)
-  view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode={false} />)
+  await act(async () => view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode={false} />))
   expect(within(card()!).queryByRole('button', { name: 'Keep' })).toBeNull()
   act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS * 5))
   expect(card()).toBeVisible()
@@ -116,12 +116,12 @@ it('keeps cards until closed when Fast mode is off', () => {
   view.unmount()
 })
 
-it('reports milestone crossings and shows the added part of the meter', () => {
+it('reports milestone crossings and shows the added part of the meter', async () => {
   const base = structuredClone(skillDemo)
   const skill = base.catalog.filter(item => item.kind === 'skill')[0]
   base.profile.skills.find(item => item.skill_id === skill.id)!.xp = 45
   const view = render(<Fixture snapshot={base} fastMode />)
-  view.rerender(<Fixture snapshot={earn(base, 1)} fastMode />)
+  await act(async () => view.rerender(<Fixture snapshot={earn(base, 1)} fastMode />))
   expect(within(card()!).getByText('50 XP milestone')).toBeVisible()
   expect(playRewardSound).toHaveBeenCalledWith({ kind: 'milestone' }, card())
   const meter = within(card()!).getByRole('progressbar')
@@ -132,12 +132,12 @@ it('reports milestone crossings and shows the added part of the meter', () => {
   view.unmount()
 })
 
-it('lists this conversation’s awards from the chip after the card has gone', () => {
+it('lists this conversation’s awards from the chip after the card has gone', async () => {
   const earned = earn(skillDemo, 2)
   earned.records.push({ ...structuredClone(earned.records[0]), attempt_id: 'elsewhere', chat_id: 'other' })
   earned.profile.credits.push({ attempt_id: 'elsewhere', skill_id: earned.records[0].assessment!.judgments[0].skill_id, xp: 99 })
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
-  view.rerender(<Fixture snapshot={earned} fastMode />)
+  await act(async () => view.rerender(<Fixture snapshot={earned} fastMode />))
   act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
   act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
   expect(card()).toBeNull()
@@ -151,21 +151,21 @@ it('lists this conversation’s awards from the chip after the card has gone', (
   view.unmount()
 })
 
-it('keeps the chip and list when effects are off, and does not replay arrivals on re-enable', () => {
+it('keeps the chip and list when effects are off, and does not replay arrivals on re-enable', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode enabled={false} />)
   const earned = earn(skillDemo, 1)
-  view.rerender(<Fixture snapshot={earned} fastMode enabled={false} />)
+  await act(async () => view.rerender(<Fixture snapshot={earned} fastMode enabled={false} />))
   expect(card()).toBeNull()
   expect(playRewardSound).not.toHaveBeenCalled()
   expect(chip()).toHaveTextContent(`${earned.profile.xp} XP`)
-  view.rerender(<Fixture snapshot={earned} fastMode enabled />)
+  await act(async () => view.rerender(<Fixture snapshot={earned} fastMode enabled />))
   expect(card()).toBeNull()
   view.unmount()
 })
 
 it('shows Jev awards only after their durable claim', async () => {
   const base = structuredClone(skillDemo)
-  base.profile.rules_version = 2
+  base.profile.rules_version = 3
   const view = render(<Fixture snapshot={base} fastMode />)
   await act(async () => view.rerender(<Fixture snapshot={earn(base, 1)} fastMode />))
   expect(claimRewardEvents).toHaveBeenCalledOnce()

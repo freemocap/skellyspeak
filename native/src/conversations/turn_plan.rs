@@ -26,13 +26,6 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "skill_evidence",
-        activation: Activation::Automatic,
-        dependencies: &["skill_assessment"],
-        role: "fast",
-        contract_version: 1,
-    },
-    Declaration {
         kind: "reply_assistance",
         activation: Activation::Explicit,
         dependencies: &["persona_reply"],

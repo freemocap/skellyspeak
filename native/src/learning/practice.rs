@@ -1,6 +1,6 @@
 //! Presence-only practice publication for the new skills flow.
 //! The caller supplies validated observations inside its completion transaction.
-//! This boundary is not yet registered in the conversation operation graph.
+//! Invoked by skill-assessment publication before the owning attempt completes.
 use crate::model::{AppError, ErrorCode, Result};
 use rusqlite::{OptionalExtension, Transaction, params};
 use serde::{Deserialize, Serialize};

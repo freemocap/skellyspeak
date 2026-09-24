@@ -16,6 +16,11 @@ pub fn schemas() -> BTreeMap<String, serde_json::Value> {
         schema!("speech-routing.yaml", super::speech::Catalog),
         schema!("language-foundations.yaml", Foundations),
         schema!("learning-goals.yaml", Vec<Construct>),
+        schema!("skills.yaml", super::skills::Catalog),
+        schema!(
+            "skill-presence.yaml",
+            crate::learning::practice_assessment::Instructions
+        ),
         schema!("learning-map.yaml", Vec<NavigationNode>),
         schema!("teaching-policy.yaml", TeachingPolicy),
         schema!("conversation-topics.yaml", Vec<ConversationTopic>),

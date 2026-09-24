@@ -17,7 +17,7 @@ export function skillRewards(previous: SkillSnapshot, current: SkillSnapshot, ch
       const xp = Math.min(increase, remaining.get(credit.skill_id) ?? 0)
       if (!xp) continue
       const node = current.catalog.find(item => item.id === credit.skill_id)
-      const judgment = record.assessment?.judgments.find(item => item.skill_id === credit.skill_id && (item.outcome === 'demonstrated' || item.outcome === 'partial'))
+      const judgment = record.assessment?.judgments.find(item => item.skill_id === credit.skill_id && ['direct', 'contextual'].includes(item.presence ?? ''))
       if (!node || !judgment || (!judgment.quotes.length && !(judgment.evidence_kind === 'whole_message' && record.assessment_adapter === 'jev_choice' && record.source.trim()))) throw new Error('Credited skill is missing its catalog entry or evidence')
       let domain = node
       while (domain.kind !== 'domain') {

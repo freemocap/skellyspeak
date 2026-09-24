@@ -6,7 +6,7 @@ from urllib.parse import urlsplit, urlunsplit
 from server.app.inference.contracts import ChatRequest, reject
 
 MODEL = "typesafe/jev-1.13"
-CATEGORIES = {"demonstrated", "partial", "not_demonstrated", "not_observed", "uncertain"}
+CATEGORIES = {"absent", "contextual", "direct", "unclear"}
 
 def encoded_size(value) -> int:
     # Match serde_json's compact UTF-8 representation used by native admission.
@@ -42,8 +42,8 @@ def request(payload: dict) -> ChatRequest:
         flags = state["input"]
         if not isinstance(flags, dict) or set(flags) != {"modality", "suggestion", "revision", "scaffold"} or not isinstance(flags["modality"], str) or flags["modality"] not in {"text", "speech_transcript"} or any(type(flags[k]) is not bool for k in ("suggestion", "revision", "scaffold")):
             reject("Invalid decisions input flags.")
-        if not isinstance(questions, dict) or len(questions) != 45:
-            reject("Decisions require 45 skill questions.")
+        if not isinstance(questions, dict) or not 1 <= len(questions) <= 64:
+            reject("Decisions require between 1 and 64 skill questions.")
     size = encoded_size(payload)
     if size > 100_000:
         reject("Decisions request exceeds input limit.")

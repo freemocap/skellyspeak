@@ -224,3 +224,19 @@ Run `node tools/benchmarks/conversation-prompts/assessment/two-stage.test.ts` fo
 five focused regression checks. No valid-only success rate constitutes an adoption gate.
 
 See [the first candidate's No-Go report](../../../../docs/notes/conversation-prompts/jev-two-stage-2026-09-21/README.md).
+
+## Runtime cutover note
+
+The live application now uses twelve-skill presence and experience/effort credit;
+see the [integration checkpoint](../../../../docs/notes/language-guides-and-xp/live-presence-xp-checkpoint.md).
+The `skill-*` studies above retain their frozen payloads and independent runners.
+They have not been regenerated against the new catalog. Their two-skill accuracy
+must not be treated as accuracy measured across the twelve current skills.
+
+The older 45-skill generative-assessor and two-stage quote-localization Rust export
+hooks were retired with those runtime paths. Historical saved reports remain
+readable; `two-stage.ts`'s old native export/replay hook is no longer a supported
+runner. Use the current `inspect-content --skill-prompt` composer and the native
+`conversations::execution::tests::skill_assessment` tests for the active contract.
+Revisiting old model comparisons requires a deliberate new plan, never silently
+replacing a frozen request or reference set.

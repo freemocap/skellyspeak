@@ -182,7 +182,7 @@ it('retains whole-passage translation and sound help without inserting or invent
 
 it('splits saved mixed-script grammar examples into source and separate reading aids', () => {
   const example = 'مَاذَا تَأْكُلُ؟ (mādhā ta’kulu?) – What are you eating?'
-  const view = render(<ReplyHelp {...base} opened={['grammar']} grammar={[{ title: 'Question', quote: 'مَاذَا تَفْعَلُ؟', body: 'Ask a question.', example, contrast: '' }]} />)
+  const view = render(<ReplyHelp {...base} opened={['grammar']} grammar={[{ title: 'Question', quote: 'مَاذَا تَفْعَلُ؟', body: 'Ask and answer questions.', example, contrast: '' }]} />)
   const passages = view.container.querySelectorAll('.reading-passage-text')
   expect(passages[1].textContent).toBe('مَاذَا تَأْكُلُ؟')
   fireEvent.click(screen.getByRole('button', { name: 'Translate' }))

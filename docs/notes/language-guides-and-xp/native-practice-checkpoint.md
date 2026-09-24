@@ -1,9 +1,9 @@
 # Native practice publication checkpoint
 
-Status: implemented and tested as native components, **not connected to the live
-conversation graph or displayed XP**, 2026-09-24. The existing 45-skill evaluator
-and old reward publication remain active until the coordinated cutover. No
-application database was reset, app relaunched, deployment or commit performed.
+Status: historical component checkpoint. The integration described as pending
+below is now implemented; see [the live presence/XP checkpoint](live-presence-xp-checkpoint.md)
+for current behavior and verification. The original component verification is
+retained here as history, not the current implementation status.
 
 ## Implemented
 
@@ -43,9 +43,12 @@ This validates persistence behavior, not automatic dispatch or a live model call
 
 ## Remaining integration
 
-1. Replace the old catalog contracts with the accepted terse skill definitions and
-   explicit language/variety guidance. Preserve the other agent's message-rating
-   work; its grammar scores do not become practice signals.
+1. The accepted twelve definitions and language/variety content resolver are now
+   implemented; see [the content checkpoint](catalog-content-checkpoint.md).
+   Complete compact pilot guidance for the remaining ten skills, then replace
+   the old live catalog together with assessment/award publication. Preserve the
+   other agent's message-rating work; its grammar scores do not become practice
+   signals.
 2. Wire the presence builder/validator and practice publisher into skill-assessment
    completion, removing the old success/quote-dependent credit path for this flow.
    Preserve transport diagnostics and raw receipt ownership. No extra source-span

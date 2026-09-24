@@ -4,10 +4,8 @@ import { useI18n } from '../../../components/localization/i18n'
 export function AssessmentInfo() {
   const tr = useI18n()
   return <InfoTip>
-    <strong>{tr('Jev Choice')} — {tr('Disabled')}</strong><br />
-    {tr('Jev evaluates skill questions and returns category probabilities. The selected Fast model then locates supporting quotes in your message. The app validates those quotes before publishing XP.')}<br /><br />
-    <strong>{tr('Chat model assessment')}</strong><br />
-    {tr('Uses the selected Fast model to generate structured observations, including exact learner quotes and explanations. The app validates those quotes before accepting evidence.')}<br /><br />
-    {tr('Both can make incorrect judgments. Probabilities describe assessment outcomes, not learner proficiency. Switching affects future assessments; saved evidence keeps its original source and method.')}
+    <strong>{tr('Jev Choice')}</strong><br />
+    {tr('Jev identifies direct or contextual skill use in your message. The app records experience and credits retained skills on changed retries as effort.')}<br /><br />
+    {tr('Correctness and assistance do not change XP. Category probabilities describe the assessment, not your proficiency.')}
   </InfoTip>
 }

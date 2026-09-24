@@ -7,27 +7,27 @@ import type { SkillRecord, SkillSnapshot } from '../evidence/skills'
 function sample(): SkillSnapshot {
   const snapshot = structuredClone(skillDemo)
   const [first, second] = snapshot.profile.skills
-  const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'That cup is blue.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'v1', status: 'complete', assessment: { judgments: [first, second].map(skill => ({ skill_id: skill.skill_id, outcome: 'demonstrated', quotes: ['cup'], rationale: 'Recorded judgment' })) }, error: null }
+  const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'That cup is blue.', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, at_secs: 100, model: 'test', provider_mode: 'custom', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'v1', status: 'complete', assessment: { judgments: [first, second].map(skill => ({ skill_id: skill.skill_id, presence: 'direct', quotes: ['cup'], rationale: 'Recorded judgment' })) }, error: null }
   snapshot.records = [record, { ...record, attempt_id: 'b', message_id: 2, source: 'That red cup.', input: { ...record.input, suggestion: true } }]
-  Object.assign(first, { successes: 1, assisted: 1, xp: 12 })
-  Object.assign(second, { successes: 1, xp: 10 })
-  snapshot.profile.xp = 22
-  snapshot.profile.credits = [{ attempt_id: 'a', skill_id: first.skill_id, xp: 10 }, { attempt_id: 'a', skill_id: second.skill_id, xp: 10 }, { attempt_id: 'b', skill_id: first.skill_id, xp: 2 }]
+  Object.assign(first, { experience: 1, effort: 1, xp: 2 })
+  Object.assign(second, { experience: 1, xp: 1 })
+  snapshot.profile.xp = 3
+  snapshot.profile.credits = [{ attempt_id: 'a', skill_id: first.skill_id, experience: 1, effort: 0 }, { attempt_id: 'a', skill_id: second.skill_id, experience: 1, effort: 0 }, { attempt_id: 'b', skill_id: first.skill_id, experience: 0, effort: 1 }].map(c => ({...c, xp: 1, event: {id:`${c.attempt_id}:${c.skill_id}`,attemptId:c.attempt_id,constructId:c.skill_id,kind:c.effort?'effort':'experience',tier:1,xp:1,experience:c.experience,effort:c.effort,quote:'cup',support:'not_weighted',difficulty:'not_weighted',novelty:'not_weighted',policyHash:'experience-effort-1',atSecs:1n,claimed:false}}))
   return snapshot
 }
 
 it('reconciles domain totals and distinguishes skill demonstrations from contributing messages', () => {
   const stats = practiceStatistics(sample())
-  expect(stats.domains.reduce((sum, domain) => sum + domain.xp, 0)).toBe(22)
-  expect(stats.unassisted).toBe(2)
-  expect(stats.assisted).toBe(1)
+  expect(stats.domains.reduce((sum, domain) => sum + domain.xp, 0)).toBe(3)
+  expect(stats.experience).toBe(2)
+  expect(stats.effort).toBe(1)
   expect(stats.contributingMessages).toBe(2)
   expect(stats.practiced).toBe(2)
 })
 it('shows true zero counts for an empty language profile', () => {
   const stats = practiceStatistics(skillDemo)
   expect(stats.contributingMessages).toBe(0)
-  expect(stats.unassisted + stats.assisted).toBe(0)
+  expect(stats.experience + stats.effort).toBe(0)
   expect(stats.domains.every(domain => domain.xp === 0)).toBe(true)
 })
 it('rejects cross-language evidence and mismatched XP ledgers', () => {

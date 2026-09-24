@@ -4,7 +4,7 @@ use crate::{
     ai::transport::provider::PromptMessage,
     configuration::{LanguageContext, Registry},
     conversations::{coach_prompt, conversation_prompt, translation, turn_plan},
-    learning::coaching::{self, conversation_support, skill_assessment},
+    learning::coaching::{self, conversation_support},
     model::{AppError, ErrorCode, Result},
     partners::persona::{self, persona_prompt},
 };
@@ -175,53 +175,16 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 ),
             ];
         }
-        "skill_evidence" => {
-            node.source = "native/src/learning/coaching/skill_evidence.rs".into();
-            node.description = "After Jev, locate exact learner quotes for implicated skills using the captured Fast model. Preserve Jev outcomes and probabilities. Native validation rejects missing, duplicate, invented or ambiguous quotes before publishing credit. Chat model assessments already contain quotes; they and empty Jev assessments complete this node locally without a provider call.".into();
-            let mut input = captured.clone();
-            input["skillCriteria"] = json!([{"id":"question","criterion":"Request information"}]);
-            input["skillDecisions"] =
-                json!({"items":[{"construct":"question","outcome":"demonstrated"}]});
-            node.templates = messages(
-                crate::learning::coaching::skill_evidence::prompt_for_source(
-                    "{{currentLearnerMessage}}".into(),
-                    &input,
-                )?,
-            );
-            node.output_schema = Some(crate::learning::coaching::skill_evidence::schema(&input)?);
-        }
         "skill_assessment" => {
             node.source = "native/src/learning/coaching/assessment_adapter.rs; native/src/learning/coaching/skill_assessment.rs".into();
-            node.description = "Selectable assessment adapter. Jev Choice (default) returns 45 category decisions and probabilities, then skill_evidence localizes implicated skills before credit publication. Chat model assessment uses the Fast model and returns up to four quoted observations. Both receive the current learner message, up to four preceding messages and the shared criteria. The output schema below describes the chat adapter; the Jev request shows its typed Choice contract.".into();
-            node.templates = messages(skill_assessment::prompt_for_source(
-                "{{currentLearnerMessage}}".into(),
-                &captured,
-            )?);
-            node.output_schema = Some(skill_assessment::schema(
-                &json!({"skillCriteria":registry.constructs().iter().map(|c| json!({"id":c.id})).collect::<Vec<_>>()}),
-            )?);
-            let mut decision_context = captured.clone();
-            decision_context["skillCriteria"] = json!(
-                registry
-                    .constructs()
-                    .iter()
-                    .map(|c| json!({"id":c.id,"criterion":c.criterion}))
-                    .collect::<Vec<_>>()
-            );
-            let input = skill_assessment::prompt_for_source(
-                "{{currentLearnerMessage}}".into(),
-                &decision_context,
-            )?;
+            node.description = "Jev returns presence for every selected skill: direct, contextual, absent or unclear. Validated presence and deterministic experience/effort credit publish in one transaction. No quote-localization call or grammar grade gates XP.".into();
+            let request = registry.skill_presence_request("spanish", "spanish-mexico", json!({"currentLearnerMessage":"{{currentLearnerMessage}}","precedingExchange":[],"input":{"modality":"text","suggestion":false,"revision":false,"scaffold":false}}))?;
             node.templates.push(section(
-                "Jev Choice · decisions request",
-                serde_json::to_string_pretty(
-                    &crate::learning::coaching::assessment_adapter::request(
-                        &input,
-                        &decision_context,
-                    )?,
-                )?,
+                "Jev presence request · Spanish/Mexico specimen",
+                serde_json::to_string_pretty(&request)?,
             ));
         }
+
         kind if crate::learning::coaching::message_assessment::owns(kind) => {
             node.source = "native/src/learning/coaching/message_assessment.rs; content/prompts/conversation/ratings.yaml".into();
             node.description = "Typed 0–10 utterance ratings run alongside the reply. Understanding uses the actual reply in a separate dependent request. Missing evidence remains unscored; neither result grants learning credit.".into();
@@ -406,16 +369,13 @@ mod tests {
             .iter()
             .find(|n| n.kind == "skill_assessment")
             .unwrap();
+        assert!(assessment.templates[0].text.contains("\"direct\""));
         assert!(
             assessment.templates[0]
                 .text
-                .contains(skill_assessment::VERSION)
-        );
-        assert!(
-            assessment.templates[1]
-                .text
                 .contains("{{currentLearnerMessage}}")
         );
-        assert_eq!(assessment.output_schema.as_ref().unwrap()["properties"]["items"]["items"]["properties"]["construct"]["enum"].as_array().unwrap().len(), 45);
+        let request: Value = serde_json::from_str(&assessment.templates[0].text).unwrap();
+        assert_eq!(request["questions"].as_object().unwrap().len(), 12);
     }
 }

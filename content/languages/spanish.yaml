@@ -39,10 +39,277 @@ varieties:
 
 guidance: []
 learning:
+  skill_guides:
+    possession_relationships:
+      core:
+        assessment: Interpret the relationship in context; a possessive does not necessarily establish legal
+          ownership. A short answer can supply a participant in a relationship established by the
+          partner.
+        explanation: Spanish uses possessives and relational de phrases for ownership, kinship, access and
+          other relationships.
+        examples: []
+      varieties:
+        spanish-mexico:
+          assessment: Spanish possessives and relational de phrases can express ownership, kinship or use.
+            Interpret the relationship in context; do not equate every possessive with ownership.
+            Short answers may rely on a relationship established by the question.
+          explanation: A possessive or a phrase with de can identify the related person. Context determines
+            what the relationship is. These examples apply to Mexican Spanish without claiming the
+            constructions are exclusive to it.
+          examples:
+            - text: Es el libro de mi hermana.
+              translation: It is my sister's book.
+            - text: Ana.
+              context: ¿De quién es el libro?
+              translation: Ana.
+        spanish-spain:
+          assessment: Interpret the relationship in context; a possessive does not necessarily establish legal
+            ownership. A short answer can supply a participant in a relationship established by the
+            partner.
+          explanation: The shared constructions also apply to Spain. This section contains no region-specific
+            examples.
+      review: needs_review
+      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
+        specimens; not a completed or human-reviewed language guide.
+      sources: []
+    past_reference:
+      core:
+        assessment: Spanish past reference can be conveyed by verb forms, time expressions and conversation
+          context. A past-looking form is not enough on its own. An ongoing situation can overlap a
+          past reference event; relative time can differ from time before now.
+        explanation: Past reference can come from verb forms, time expressions and the surrounding
+          conversation. The relevant time can be before now or before another established time.
+        examples: []
+      varieties:
+        spanish-mexico:
+          assessment: Apply the shared guidance to the selected Mexican variety. Do not infer time from a verb
+            form alone.
+          explanation: Use the expressed time relationship, including past states and ongoing activities. This
+            initial assessment guide has no expanded lesson yet.
+          examples: []
+        spanish-spain:
+          assessment: Spanish past reference can be conveyed by verb forms, time expressions and conversation
+            context. A past-looking form is not enough on its own. An ongoing situation can overlap
+            a past reference event; relative time can differ from time before now.
+          explanation: The shared constructions also apply to Spain. This section contains no region-specific
+            examples.
+      review: needs_review
+      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
+        specimens; not a completed or human-reviewed language guide.
+      sources: []
+    identify_describe:
+      core:
+        assessment: Spanish can identify referents with nouns, pronouns and demonstratives, and describe
+          them with adjectives, location phrases, ser or estar.
+        explanation: Spanish can identify referents with nouns, pronouns and demonstratives, and describe
+          them with adjectives, location phrases, ser or estar.
+      varieties:
+        spanish-mexico:
+          assessment: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
+            a permanent/temporary test.
+          explanation: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
+            a permanent/temporary test.
+        spanish-spain:
+          assessment: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
+            a permanent/temporary test.
+          explanation: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
+            a permanent/temporary test.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Spanish expresses amounts with numerals, quantifiers and partitive expressions.
+        explanation: Spanish expresses amounts with numerals, quantifiers and partitive expressions.
+      varieties:
+        spanish-mexico:
+          assessment: Count the expressed amount or portion, even with agreement errors; distinguish a
+            quantity from a date or identifier.
+          explanation: Count the expressed amount or portion, even with agreement errors; distinguish a
+            quantity from a date or identifier.
+        spanish-spain:
+          assessment: Count the expressed amount or portion, even with agreement errors; distinguish a
+            quantity from a date or identifier.
+          explanation: Count the expressed amount or portion, even with agreement errors; distinguish a
+            quantity from a date or identifier.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Spanish present forms can describe current states, activities and habits; estar with a
+          gerund can express an ongoing activity.
+        explanation: Spanish present forms can describe current states, activities and habits; estar with a
+          gerund can express an ongoing activity.
+      varieties:
+        spanish-mexico:
+          assessment: Determine the time from the whole exchange; a present form may instead refer to a
+            planned future or a narrated past.
+          explanation: Determine the time from the whole exchange; a present form may instead refer to a
+            planned future or a narrated past.
+        spanish-spain:
+          assessment: Determine the time from the whole exchange; a present form may instead refer to a
+            planned future or a narrated past.
+          explanation: Determine the time from the whole exchange; a present form may instead refer to a
+            planned future or a narrated past.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Spanish future reference can use the future tense, ir a plus infinitive, or a present
+          form with future context.
+        explanation: Spanish future reference can use the future tense, ir a plus infinitive, or a present
+          form with future context.
+      varieties:
+        spanish-mexico:
+          assessment: Distinguish future reference from a conjecture about the present; a future-looking form
+            alone is insufficient.
+          explanation: Distinguish future reference from a conjecture about the present; a future-looking form
+            alone is insufficient.
+        spanish-spain:
+          assessment: Distinguish future reference from a conjecture about the present; a future-looking form
+            alone is insufficient.
+          explanation: Distinguish future reference from a conjecture about the present; a future-looking form
+            alone is insufficient.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Spanish can express wants with querer, preferences with preferir and likes with gustar
+          constructions.
+        explanation: Spanish can express wants with querer, preferences with preferir and likes with gustar
+          constructions.
+      varieties:
+        spanish-mexico:
+          assessment: Identify whose preference is expressed. A desire is not automatically an action request
+            or a future prediction.
+          explanation: Identify whose preference is expressed. A desire is not automatically an action request
+            or a future prediction.
+        spanish-spain:
+          assessment: Identify whose preference is expressed. A desire is not automatically an action request
+            or a future prediction.
+          explanation: Identify whose preference is expressed. A desire is not automatically an action request
+            or a future prediction.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Spanish can express ability or permission with poder, learned ability with saber plus
+          infinitive, and obligation with tener que, deber or hay que.
+        explanation: Spanish can express ability or permission with poder, learned ability with saber plus
+          infinitive, and obligation with tener que, deber or hay que.
+      varieties:
+        spanish-mexico:
+          assessment: Use context to distinguish ability, permission and obligation from inference or
+            likelihood. One subtype is enough for presence, not evidence of all three.
+          explanation: Use context to distinguish ability, permission and obligation from inference or
+            likelihood. One subtype is enough for presence, not evidence of all three.
+        spanish-spain:
+          assessment: Use context to distinguish ability, permission and obligation from inference or
+            likelihood. One subtype is enough for presence, not evidence of all three.
+          explanation: Use context to distinguish ability, permission and obligation from inference or
+            likelihood. One subtype is enough for presence, not evidence of all three.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources:
+      - yepesObligation20260924
+    affirm_negate:
+      core:
+        assessment: Spanish uses affirmative replies, no and other negative expressions to accept or reject
+          propositions.
+        explanation: Spanish uses affirmative replies, no and other negative expressions to accept or reject
+          propositions.
+      varieties:
+        spanish-mexico:
+          assessment: Interpret negative concord and scope; multiple negative words need not reverse the
+            negative meaning. Short replies can depend on the preceding question.
+          explanation: Interpret negative concord and scope; multiple negative words need not reverse the
+            negative meaning. Short replies can depend on the preceding question.
+        spanish-spain:
+          assessment: Interpret negative concord and scope; multiple negative words need not reverse the
+            negative meaning. Short replies can depend on the preceding question.
+          explanation: Interpret negative concord and scope; multiple negative words need not reverse the
+            negative meaning. Short replies can depend on the preceding question.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Spanish information questions can use interrogative words or yes/no question structure;
+          a relevant short reply can supply the requested information.
+        explanation: Spanish information questions can use interrogative words or yes/no question structure;
+          a relevant short reply can supply the requested information.
+      varieties:
+        spanish-mexico:
+          assessment: Do not require English-style auxiliary inversion or punctuation as evidence. Distinguish
+            information-seeking from a request to act.
+          explanation: Do not require English-style auxiliary inversion or punctuation as evidence.
+            Distinguish information-seeking from a request to act.
+        spanish-spain:
+          assessment: Do not require English-style auxiliary inversion or punctuation as evidence. Distinguish
+            information-seeking from a request to act.
+          explanation: Do not require English-style auxiliary inversion or punctuation as evidence.
+            Distinguish information-seeking from a request to act.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources:
+      - yepesQuestions20260924
+    requests:
+      core:
+        assessment: Spanish can request action with imperatives or contextual question/conditional forms,
+          and respond by accepting, declining or negotiating.
+        explanation: Spanish can request action with imperatives or contextual question/conditional forms,
+          and respond by accepting, declining or negotiating.
+      varieties:
+        spanish-mexico:
+          assessment: Judge the conversational action. A statement of ability or desire alone need not request
+            anything.
+          explanation: Judge the conversational action. A statement of ability or desire alone need not
+            request anything.
+        spanish-spain:
+          assessment: Judge the conversational action. A statement of ability or desire alone need not request
+            anything.
+          explanation: Judge the conversational action. A statement of ability or desire alone need not
+            request anything.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Spanish can express reasons with porque and conditions with si, among other constructions.
+        explanation: Spanish can express reasons with porque and conditions with si, among other constructions.
+      varieties:
+        spanish-mexico:
+          assessment: Identify the causal or conditional relation, not just a linking word. Distinguish si
+            meaning if from sí meaning yes using context when accents are missing.
+          explanation: Identify the causal or conditional relation, not just a linking word. Distinguish si
+            meaning if from sí meaning yes using context when accents are missing.
+        spanish-spain:
+          assessment: Identify the causal or conditional relation, not just a linking word. Distinguish si
+            meaning if from sí meaning yes using context when accents are missing.
+          explanation: Identify the causal or conditional relation, not just a linking word. Distinguish si
+            meaning if from sí meaning yes using context when accents are missing.
+      review: needs_review
+      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
+        remain pending.
+      sources:
+      - yepesConditions20260924
   goal_material:
     courtesy:
       tokens:
-      - gracias
+        - gracias
 conversation:
   greeting:
     text: hola

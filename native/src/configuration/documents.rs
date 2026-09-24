@@ -124,7 +124,13 @@ pub struct VarietyOverrides {
     #[serde(default)]
     pub integrations: Integrations,
 }
-document!(LearningContent { goal_material: BTreeMap<String, GoalMaterial> });
+document!(LearningContent {
+    goal_material: BTreeMap<String, GoalMaterial>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    skills: Vec<super::skills::Skill>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    skill_guides: BTreeMap<String, super::skills::Guide>
+});
 document!(GoalMaterial { tokens: Vec<String> });
 document!(ConversationContent {
     default_partner: crate::model::PersonaDetails,

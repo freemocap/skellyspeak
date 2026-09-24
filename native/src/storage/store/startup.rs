@@ -103,7 +103,6 @@ impl Store {
         store.snapshot()?;
         store.reconcile_execution()?;
         crate::drill::sessions::recover(&store.connection)?;
-        store.shelve_jev_assessment()?;
         crate::ai::generation::generation_receipts::recover(&store.connection)?;
         crate::language::reading::recover(&store.connection)?;
         // Audio an interrupted save or deletion left with no attempt to claim it.

@@ -65,7 +65,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
     store.finish(&persona, Ok(reply("Está bien."))).unwrap();
     fixture_evidence(&store, &revised, "¿Cómo está tu hermana?");
     let xp = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(xp["profile"]["xp"], 35);
+    assert_eq!(xp["profile"]["xp"], 2);
     let record = xp["records"]
         .as_array()
         .unwrap()
@@ -87,7 +87,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
     fixture_evidence(&store, &second, "¿Cómo está tu hermana?");
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        35,
+        2,
         "Repeated wording earns nothing further"
     );
     let record = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
@@ -105,7 +105,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
             [serde_json::to_string(&ids).unwrap()],
         )
         .unwrap();
-    // Exclude both repeated assisted observations, since either otherwise owns the wording.
+    // Excluding retry observations leaves the original experience point.
     store
         .connection
         .execute(
@@ -118,7 +118,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
         .unwrap();
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        30
+        1
     );
     drop(store);
     let store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
@@ -130,7 +130,7 @@ fn revisions_regenerate_preserve_chain_credit_and_restart() {
     );
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        30
+        1
     );
 }
 

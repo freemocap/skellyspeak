@@ -66,6 +66,6 @@ export function skillIndex(snapshot: SkillSnapshot) {
 }
 export function evidenceForSkill(snapshot: SkillSnapshot, id: string, chatId: string | null): EvidenceEntry[] {
   const index = skillIndex(snapshot)
-  return index.catalog.descendants(id).flatMap(skill => index.skills.get(skill) ?? []).filter(entry => (chatId === null || entry.record.chat_id === chatId) && entry.judgment.outcome !== 'not_observed').sort((a, b) => b.record.at_secs - a.record.at_secs)
+  return index.catalog.descendants(id).flatMap(skill => index.skills.get(skill) ?? []).filter(entry => (chatId === null || entry.record.chat_id === chatId) && entry.judgment.presence !== 'absent' && entry.judgment.outcome !== 'not_observed').sort((a, b) => b.record.at_secs - a.record.at_secs)
 }
 

@@ -34,6 +34,5 @@ mod reply_help;
 mod graph;
 
 mod message_ratings;
-mod skill_evidence;
 
 mod practice_counts;

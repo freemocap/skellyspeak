@@ -2,7 +2,11 @@ import { messageKey } from '../../localization/messages'
 import type { SkillOutcome, SkillRecord } from '../evidence/skills'
 
 /** Presentation labels only; persisted evidence retains its native enum values. */
-const evidenceLabels: Record<SkillOutcome | SkillRecord['status'] | 'excluded', string> = {
+const evidenceLabels: Record<SkillOutcome | SkillRecord['status'] | 'excluded' | 'direct' | 'contextual' | 'absent' | 'unclear', string> = {
+  direct: messageKey('Direct use'),
+  contextual: messageKey('Contextual use'),
+  absent: messageKey('Not observed'),
+  unclear: messageKey('Unclear'),
   demonstrated: messageKey('Demonstrated'),
   partial: messageKey('Partial'),
   not_demonstrated: messageKey('Not demonstrated'),

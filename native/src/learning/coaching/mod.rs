@@ -4,7 +4,6 @@ pub(crate) mod coach_policy;
 pub(crate) mod conversation_support;
 pub(crate) mod message_assessment;
 pub(crate) mod skill_assessment;
-pub(crate) mod skill_evidence;
 use crate::ai::transport::provider::Completion;
 use crate::ai::transport::provider::PromptMessage;
 use crate::model::*;
@@ -226,7 +225,7 @@ pub fn catalog_version() -> u32 {
 pub fn catalog() -> Value {
     crate::configuration::Registry::bundled()
         .expect("Bundled registry is validated")
-        .catalog()
+        .shared_practice_catalog()
 }
 pub fn schema(kind: &str) -> Value {
     if kind == SUGGESTIONS {
@@ -474,7 +473,7 @@ mod tests {
         let ids = schema["properties"]["items"]["items"]["properties"]["construct"]["enum"]
             .as_array()
             .unwrap();
-        assert!(ids.iter().any(|id| id == "question"));
+        assert!(ids.iter().any(|id| id == "questions_answers"));
         assert!(!ids.iter().any(|id| id == "reference"));
     }
     fn token(text: &str, gloss: &str) -> super::ReplyToken {

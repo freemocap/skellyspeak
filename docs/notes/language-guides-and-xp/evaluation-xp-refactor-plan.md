@@ -8,11 +8,11 @@ are equivalent or that all skills have been validated. See the
 [completed multilingual report](jev-multilingual-2026-09-24/README.md).
 
 Rich explanations, examples and optional meaning notation stay in human-readable
-language guides. Jev receives compact baseline content. The next checkpoint is
-the attempt/observation model, deterministic XP, and how the resulting experience
-profile guides future practice. Bulk guide
-generation and new app integration have not started. No further prompt sweep or
-LLM comparator is required to proceed.
+language guides. Jev receives compact baseline content. The twelve-skill pilot
+content and presence → experience/effort → displayed XP flow are now implemented
+and tested. See [the integrated checkpoint](live-presence-xp-checkpoint.md).
+The next stage is experience-based recommendations and the saved language profile.
+Bulk teaching-guide generation and further prompt sweeps remain deferred.
 
 ## Where we are
 
@@ -20,7 +20,7 @@ The authoring workbench and YAML schema conversion have prior implementation and
 verification notes. They support inspection; they do not validate the new learning
 model. Twelve terse shared definitions are accepted as a first pass. Composition
 replaces the strict tree, and progression is separate. Language/variety additions
-are supported by the intended content model, not yet by a newly verified runtime.
+are supported by the native content contract and tested resolver. Live conversation assessment now captures them explicitly.
 
 The current conversation supersedes old tree counts, progression-inside-skill
 requirements and old-system preservation work in earlier notes. Existing coaching
@@ -32,12 +32,12 @@ behavior are outside this refactor unless an explicit dependency requires review
 
 | Stage | Status and work | Concrete review artifact |
 | --- | --- | --- |
-| 1. Shared skills and content structure | Twelve first-pass definitions and separation of progression agreed; YAML/Markdown specimens exist. Finish remaining cores and language/variety composition around the selected baseline. | One source rendered as a full learner guide and a compact Jev prompt, side by side; then the remaining ten terse cores |
+| 1. Shared skills and content structure | Twelve accepted cores now authored in `content/shared/skills.yaml`. Native loading, language extensions, explicit variety coverage and Markdown/compact composition implemented. Compact pilot guides cover all twelve skills in Spanish/Mexico, Spanish/Spain, Arabic/Levantine and Mandarin/Mainland China. | [Current content checkpoint](catalog-content-checkpoint.md); compact guidance is ready for linguistic review |
 | 2. Prompt strategy | **Complete: baseline B adopted.** Preserve the experimental alternatives, frozen requests, receipts and reusable tooling. | Completed multilingual dashboard and adoption decision |
-| 3. Attempt and observation model | **Agreed first-pass policy:** count experience from skill use and effort from changed retries. Success is not an input to XP or recommendations. Record attempt/revision ownership; settle remaining counting details with worked examples. | Worked attempt histories and proposed saved observations; no XP numbers disguised as model probabilities |
-| 4. XP policy | **Agreed: XP = experience + effort**, each weighted 1 per skill. No success bonus, multipliers, assistance discount or diminishing-return curve in the first version. | Counting example below; implement deterministic awards after the record/content checkpoint |
+| 3. Attempt and observation model | **Implemented and tested:** count experience from skill use and effort from changed retries. Success is not an input to XP or recommendations. Record attempt/revision ownership; changed retries credit every retained skill. | Worked attempt histories and proposed saved observations; no XP numbers disguised as model probabilities |
+| 4. XP policy | **Implemented: XP = experience + effort**, each weighted 1 per skill. No success bonus, multipliers, assistance discount or diminishing-return curve in the first version. | Counting example below; durable awards and displayed totals now use this rule |
 | 5. Experience profile and recommendations | Required scope; design alongside stages 3–4. Use recorded XP/use distribution to identify underexplored skills, guide optional practice, and maintain a saved language-level assessment. | One learner history → profile write-up and reasons → conversation, coach and drill/card recommendations; learner controls and refresh examples |
-| 6. Integrated pilot | Pending review of stages 3–5. Connect selected content, Jev, durable observations, deterministic awards, skill-guide display, on-demand explanations, saved profile assessment and optional recommendation use in coach, conversation and drill/card generation. Check all twelve skill outputs plus a language-defined extension fixture without reopening the prompt sweep. | One working practice → assessment → XP/profile → recommended practice loop; duplicate/restart/late-result tests and disclosed content coverage |
+| 6. Integrated pilot | Presence/XP slice implemented. Remaining: skill-guide display, on-demand explanations, saved profile assessment and optional recommendation use in coach, conversation and drill/card generation. Check all twelve skill outputs plus a language-defined extension fixture without reopening the prompt sweep. | One working practice → assessment → XP/profile → recommended practice loop; duplicate/restart/late-result tests and disclosed content coverage |
 | 7. Offline authoring | Deferred until content composition and pilot flow are stable. Generate language-skill, shared writing-system and language-reading guides in inspectable batches; preserve human edits. | Coverage inventory, first batch, human-readable Markdown review and validation report |
 | 8. Expansion and cleanup | Pending. Expand covered languages/varieties; replace obsolete skill/evaluation/XP behavior directly and reset affected development records. | End-to-end verification, coverage gaps, source cleanup and a scoped commit-ready review |
 
@@ -106,7 +106,7 @@ assistance discounts or diminishing-return curve in this first version. Keep
 assistance provenance where available without weighting it yet. Progression and
 proficiency estimation remain separate.
 
-### Next implementation checkpoint
+### Implemented counting checkpoint
 
 Review one compact content/record specimen: authored core and language guidance
 rendered as both learner Markdown and the presence-only assessor prompt; initial
@@ -360,7 +360,9 @@ not newly generated Jev results. No runtime AI pipeline, database or other-agent
 source was changed. Next is the native integration and shared persisted-contract
 pass; do not claim the user flow is complete from these pure tests.
 
-## Native practice components — next checkpoint
+## Native practice components — historical checkpoint
+
+Superseded by [integrated presence and XP](live-presence-xp-checkpoint.md).
 
 The [native implementation and verification record](native-practice-checkpoint.md)
 now covers presence-only question composition/validation and transactional

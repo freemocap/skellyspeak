@@ -58,7 +58,7 @@ const initialStart: ConversationStartConfig = {
 }
 // Existing ConversationFeedbackCard.test.tsx fixture, reproduced verbatim.
 // These are test judgments, not an assessment of a live conversation.
-const feedback: ConversationFeedback = { remark: 'Your meaning is clear.', usedTarget: ['Ayer'], usedNative: ['go'], grammar: 3, conversation: 5, corrections: [{ said: 'go', corrected: 'fui', explanation: 'Use [[past tense]] for yesterday.', kind: 'missing_expression' }] }
+const feedback: ConversationFeedback = { grammar: 3, conversation: 5, answers: {} }
 // Exact word and saved fields visible in the user's token-help screenshot.
 // Regression fixture only; this does not generate or assess language data.
 const arabicText = 'البيوت'

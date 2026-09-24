@@ -59,6 +59,8 @@ impl Registry {
             romanizations: vec![],
             universal: policy.guidance,
             constructs: parse(&files, "shared/learning-goals.yaml")?,
+            skills: parse(&files, "shared/skills.yaml")?,
+            presence_instructions: parse(&files, "prompts/skills/presence.yaml")?,
             navigation: parse(&files, "shared/learning-map.yaml")?,
             feedback: policy.feedback,
             estimator: policy.estimator,
@@ -107,12 +109,14 @@ impl Registry {
                 "shared/language-foundations.yaml",
                 "shared/speech-routing.yaml",
                 "shared/learning-goals.yaml",
+                "shared/skills.yaml",
                 "shared/learning-map.yaml",
                 "shared/teaching-policy.yaml",
                 "shared/conversation-topics.yaml",
                 "prompts/conversation/instructions.yaml",
                 "prompts/drill/instructions.yaml",
                 "prompts/conversation/ratings.yaml",
+                "prompts/skills/presence.yaml",
                 "references.bib",
             ]
             .contains(&name.as_str())
@@ -148,6 +152,7 @@ impl Registry {
         })?;
         let citations = citations::parse_bib(bib).map_err(|e| error("references.bib", "bib", e))?;
         registry.validate_guides(&citations.keys().cloned().collect())?;
+        registry.validate_skills(&citations.keys().cloned().collect())?;
         for source in &speech.sources {
             if !citations.contains_key(source) {
                 return Err(error("shared/speech-routing.yaml", "citation", source));

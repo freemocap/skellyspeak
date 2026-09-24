@@ -49,6 +49,24 @@ test('saves exact comments and Unicode; rejects stale drafts, invalid YAML, trav
     assert(inspect('x.yaml', 'example: [').errors.length)
   } finally { f.cleanup() }
 })
+test('skill guides link to shared or language-owned skills and their own varieties', () => {
+  const f = fixture()
+  try {
+    writeFileSync(join(f.root, 'content/shared/skills.yaml'), 'categories:\n- id: time\nskills:\n- id: past\n  category: time\n')
+    writeFileSync(join(f.root, 'content/languages/sample.yaml'), 'identity:\n  id: sample\nvarieties:\n- id: selected\nlearning:\n  skills:\n  - id: local_skill\n    category: time\n  skill_guides:\n    past:\n      varieties:\n        selected: {}\n    local_skill:\n      varieties:\n        foreign: {}\n')
+    writeFileSync(join(f.root, 'content/languages/other.yaml'), 'identity:\n  id: other\nvarieties:\n- id: foreign\nlearning:\n  skills:\n  - id: local_skill\n')
+    const links = catalog(f.root).links.filter(l => l.from.file === 'content/languages/sample.yaml')
+    const skill = links.find(l => l.from.key.endsWith('$practice_skill') && l.from.label === 'past')!
+    assert.equal(skill.to.length, 1)
+    assert.equal(skill.to[0].file, 'content/shared/skills.yaml')
+    const local = links.find(l => l.from.key.endsWith('$practice_skill') && l.from.label === 'local_skill')!
+    assert.equal(local.to.length, 1)
+    assert.equal(local.to[0].file, 'content/languages/sample.yaml')
+    assert.equal(links.find(l => l.from.key.endsWith('$variety') && l.from.label === 'selected')!.to.length, 1)
+    assert.equal(links.find(l => l.from.key.endsWith('$variety') && l.from.label === 'foreign')!.to.length, 0)
+    assert.equal(links.find(l => l.from.key.endsWith('.category'))!.to[0].key, 'categories.0.id')
+  } finally { f.cleanup() }
+})
 test('HTTP editor requires same origin and session token; Unicode survives transport', async () => {
   const f = fixture(); const server = createWorkbench(f.root)
   try {

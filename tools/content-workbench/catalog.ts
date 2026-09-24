@@ -45,8 +45,13 @@ export function inspect(path: string, text: string): { value: unknown; errors: s
     function walk(node: unknown, keys: string[]) {
       if (isMap(node)) for (const pair of node.items) {
         const key = String(isScalar(pair.key) ? pair.key.value : '')
-        if (isScalar(pair.key) && (keys.join('.') === 'learning.goal_material' || /(^|\.)(orthographies|romanization_schemes)$/.test(keys.join('.')))) {
-          scalars.push({file: path, key: `${keys.join('.')}.${keys.join('.') === 'learning.goal_material' ? '$skill' : '$definition'}`, label: key, line: lines.linePos(pair.key.range?.[0] ?? 0).line})
+        const owner = keys.join('.')
+        const keyRole = owner === 'learning.goal_material' ? '$skill'
+          : owner === 'learning.skill_guides' ? '$practice_skill'
+          : /^learning\.skill_guides\.[^.]+\.varieties$/.test(owner) ? '$variety'
+          : /(^|\.)(orthographies|romanization_schemes)$/.test(owner) ? '$definition' : undefined
+        if (isScalar(pair.key) && keyRole) {
+          scalars.push({file: path, key: `${owner}.${keyRole}`, label: key, line: lines.linePos(pair.key.range?.[0] ?? 0).line})
         }
         walk(pair.value, [...keys, key])
       }
@@ -93,7 +98,7 @@ export function catalog(root: string): Catalog {
     }
   }
   const links: Link[] = []
-  const declared = /(^|\.)(sources|requires|traits|script|family|language|variety|skill|shared_guides|\$skill)(\.\d+)?$/
+  const declared = /(^|\.)(sources|requires|traits|script|family|language|variety|skill|shared_guides|\$skill|\$practice_skill|\$variety|category)(\.\d+)?$/
   for (const entry of entries) {
     for (const scalar of inspect(entry.path, entry.text).scalars) {
       if (scalar.key.endsWith('.id') || scalar.key === 'id' || scalar.key.endsWith('.$definition')) continue
@@ -101,6 +106,10 @@ export function catalog(root: string): Catalog {
       const role = scalar.key.replace(/\.\d+$/, '').split('.').at(-1)
       if (role === 'sources') candidates = candidates.filter(c => c.file === 'references.bib')
       if (['requires', 'skill', '$skill'].includes(role ?? '')) candidates = candidates.filter(c => c.file === 'content/shared/learning-goals.yaml')
+      if (role === '$practice_skill') candidates = candidates.filter(c =>
+        c.file === 'content/shared/skills.yaml' && c.key.startsWith('skills.') || c.file === entry.path && c.key.startsWith('learning.skills.'))
+      if (role === 'category') candidates = candidates.filter(c => c.file === 'content/shared/skills.yaml' && c.key.startsWith('categories.'))
+      if (role === '$variety') candidates = candidates.filter(c => c.file === entry.path && c.key.startsWith('varieties.'))
       const namespaces: Record<string, string> = {script: 'scripts.', family: 'families.', traits: 'traits.'}
       if (role && namespaces[role]) candidates = candidates.filter(c => c.file === 'content/shared/language-foundations.yaml' && c.key.startsWith(namespaces[role]))
       if (role === 'language') candidates = candidates.filter(c => c.file.startsWith('content/languages/') && c.key === 'identity.id')
