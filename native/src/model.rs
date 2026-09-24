@@ -612,7 +612,7 @@ pub fn bindings() -> String {
         crate::conversations::direction::PromptPreview::decl(&config),
         crate::learning::coaching::SuggestedReply::decl(&config),
         crate::learning::coaching::conversation_support::ConversationFeedback::decl(&config),
-        crate::learning::coaching::conversation_support::ConversationCorrection::decl(&config),
+        crate::learning::coaching::message_assessment::ChoiceAssessment::decl(&config),
         crate::learning::coaching::conversation_support::AssistedReply::decl(&config),
         crate::learning::coaching::conversation_support::ReplyAssistance::decl(&config),
         crate::learning::coaching::conversation_support::ReplyBrief::decl(&config),

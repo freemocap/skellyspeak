@@ -24,7 +24,7 @@ function props(): Props {
 }
 it('places the persona reaction on the reply', () => {
   const input = props()
-  input.turn.reaction = { kind: 'confused', interpretation: 'Uncertain meaning', explanation: 'Please clarify the reference.' }
+  input.turn.reaction = { kind: 'clarification_requested', answer: {choice:'clarification_requested',probabilities:{clarification_requested:1},confidence:1} }
   const view = render(<TurnView {...input} />)
   expect(view.container.querySelector('.msg.bot .persona-reaction')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .persona-reaction')).toBeNull()

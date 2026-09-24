@@ -2,6 +2,7 @@
 pub(crate) mod coach_observation;
 pub(crate) mod coach_policy;
 pub(crate) mod conversation_support;
+pub(crate) mod message_assessment;
 pub(crate) mod skill_assessment;
 pub(crate) mod skill_evidence;
 use crate::ai::transport::provider::Completion;

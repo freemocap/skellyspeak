@@ -1,0 +1,174 @@
+calls: 216
+costUsd: 0.008081472
+invalidResponses: 0
+grammar:
+  cases: 36
+  clusters: 12
+  metrics:
+    - arm: narrow
+      cases: 36
+      calls: 72
+      referenceAgreement: 0.9444444444444444
+      ci:
+        - 0.8611111111111112
+        - 1
+      invalid: 0
+      distribution:
+        score_5: 58
+        insufficient_evidence: 6
+        score_2: 3
+        score_3: 4
+        score_1: 1
+      repeatChanged: 0.027777777777777776
+      repeatCI:
+        - 0
+        - 0.08333333333333333
+      numericPairCount: 33
+      repeatDistance: 0.007575757575757576
+      repeatDistanceCI:
+        - 0
+        - 0.022727272727272728
+      medianMs: 172
+      p95Ms: 207.25
+      cost: 0.00003727033333333333
+    - arm: wide
+      cases: 36
+      calls: 72
+      referenceAgreement: 0.9444444444444444
+      ci:
+        - 0.8611111111111112
+        - 1
+      invalid: 0
+      distribution:
+        insufficient_evidence: 6
+        score_10: 58
+        score_1: 4
+        score_4: 4
+      repeatChanged: 0
+      repeatCI:
+        - 0
+        - 0
+      numericPairCount: 33
+      repeatDistance: 0
+      repeatDistanceCI:
+        - 0
+        - 0
+      medianMs: 172.5
+      p95Ms: 253.30000000000004
+      cost: 0.000049366333333333356
+    - arm: reaction
+      cases: 36
+      calls: 72
+      referenceAgreement: 1
+      ci:
+        - 1
+        - 1
+      invalid: 0
+      distribution:
+        no_reply: 6
+        understood: 30
+        misunderstood: 6
+        partial: 6
+        clarification_requested: 18
+        unclear: 6
+      repeatChanged: 0
+      repeatCI:
+        - 0
+        - 0
+      numericPairCount: 0
+      repeatDistance: null
+      repeatDistanceCI: null
+      medianMs: 171.5
+      p95Ms: 272.8
+      cost: 0.000025606
+  numericComparisonCases: 33
+  meanScoreDifference: -0.011363636363636364
+  scoreDifferenceCI:
+    - -0.028030303030303027
+    - 0
+conversation:
+  cases: 36
+  clusters: 12
+  metrics:
+    - arm: narrow
+      cases: 36
+      calls: 72
+      referenceAgreement: 0.9444444444444444
+      ci:
+        - 0.8611111111111112
+        - 1
+      invalid: 0
+      distribution:
+        insufficient_evidence: 6
+        score_5: 50
+        score_1: 10
+        score_3: 6
+      repeatChanged: 0
+      repeatCI:
+        - 0
+        - 0
+      numericPairCount: 33
+      repeatDistance: 0
+      repeatDistanceCI:
+        - 0
+        - 0
+      medianMs: 172
+      p95Ms: 207.25
+      cost: 0.00003727033333333333
+    - arm: wide
+      cases: 36
+      calls: 72
+      referenceAgreement: 0.9444444444444444
+      ci:
+        - 0.8611111111111112
+        - 1
+      invalid: 0
+      distribution:
+        score_10: 50
+        score_6: 5
+        score_2: 6
+        score_1: 4
+        insufficient_evidence: 6
+        score_5: 1
+      repeatChanged: 0.027777777777777776
+      repeatCI:
+        - 0
+        - 0.08333333333333333
+      numericPairCount: 33
+      repeatDistance: 0.0030303030303030294
+      repeatDistanceCI:
+        - 0
+        - 0.009090909090909089
+      medianMs: 172.5
+      p95Ms: 253.30000000000004
+      cost: 0.000049366333333333356
+    - arm: reaction
+      cases: 36
+      calls: 72
+      referenceAgreement: 1
+      ci:
+        - 1
+        - 1
+      invalid: 0
+      distribution:
+        no_reply: 6
+        understood: 30
+        misunderstood: 6
+        partial: 6
+        clarification_requested: 18
+        unclear: 6
+      repeatChanged: 0
+      repeatCI:
+        - 0
+        - 0
+      numericPairCount: 0
+      repeatDistance: null
+      repeatDistanceCI: null
+      medianMs: 171.5
+      p95Ms: 272.8
+      cost: 0.000025606
+  numericComparisonCases: 33
+  meanScoreDifference: 0.03181818181818182
+  scoreDifferenceCI:
+    - 0
+    - 0.07272727272727272

@@ -59,11 +59,7 @@ export interface OpenedConversation {
 
 export type AnalysisState = 'pending' | 'done' | null
 
-export interface PersonaReaction {
-  kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned' | 'happy' | 'sad' | 'angry'
-  interpretation: string
-  explanation: string
-}
+export type PersonaReaction = import('./generated/contracts').PartnerReaction
 
 /// One exchange, as stored. This is the canonical turn shape: the live turn in
 /// ConversationPage is this plus `pendingText`, the streaming buffer, which is

@@ -1,8 +1,18 @@
 # Evaluation and XP refactor: current checkpoint and sequence
 
-Status: **working execution proposal**, 2026-09-24. Decisions are recorded in
-[the skill plan](learner-facing-skill-plan.md). New evaluation, XP and app behavior
-are not implemented. No new Jev calls or bulk guide generation have been run.
+Status: **baseline B adopted; prompt-strategy experiments closed**, 2026-09-24.
+The user accepts the observed roughly 85–87% reference agreement as sufficient to
+proceed with development. This is a product decision, not proof that strategies
+are equivalent or that all skills have been validated. See the
+[adoption decision](baseline-assessment-decision.md) and
+[completed multilingual report](jev-multilingual-2026-09-24/README.md).
+
+Rich explanations, examples and optional meaning notation stay in human-readable
+language guides. Jev receives compact baseline content. The next checkpoint is
+the attempt/observation model, deterministic XP, and how the resulting experience
+profile guides future practice. Bulk guide
+generation and new app integration have not started. No further prompt sweep or
+LLM comparator is required to proceed.
 
 ## Where we are
 
@@ -20,22 +30,23 @@ behavior are outside this refactor unless an explicit dependency requires review
 
 ## Sequence and review artifacts
 
-| Stage | Work | Artifact the user reviews before the next dependent step |
+| Stage | Status and work | Concrete review artifact |
 | --- | --- | --- |
-| 1. Structural content pass — next | Separate core definitions, applicability, language teaching, assessment guidance and progression; resolve the three open skill boundaries | A small readable specimen and a fully composed Markdown prompt in chat, followed by draft YAML after agreement |
-| 2. Define the measurement | Decide what a skill score means, what a unit of practice is, and how revisions/context/assistance are represented | Worked input/output cases, including absent skill, unsuccessful attempt, uncertainty, multiple skills and an assisted retry |
-| 3. Small Jev experiment | Test definition length and guidance content first, then input grouping/context and output detail; compare viable model routes | Reviewed fixtures, run plan and cost estimate before provider calls; measured accuracy, latency and cost report afterward |
-| 4. XP policy experiments | Use fixed assessment/event fixtures to explore repetition, novelty, assistance, retry effort, improvement and leveling | Interactive curves and numeric attempt histories, including repeated resends and unchanged revisions |
-| 5. One integrated app slice | Implement the selected content resolution, Jev assessment, saved observations, deterministic award and requested explanation for a limited pilot | Working learner flow, targeted verification and explicit coverage limits; review before broader rollout |
-| 6. Bulk authoring and review | Generate skill guides and writing/reading guidance for the agreed language/variety inventory offline | Generation inventory, small batch, human edits/review, then coverage report and further batches |
-| 7. Expand and retire obsolete behavior | Apply the verified flow across covered languages; remove replaced code/config, reset affected development data and exercise end-to-end behavior | Complete source/verification checkpoint with remaining linguistic review gaps disclosed |
+| 1. Shared skills and content structure | Twelve first-pass definitions and separation of progression agreed; YAML/Markdown specimens exist. Finish remaining cores and language/variety composition around the selected baseline. | One source rendered as a full learner guide and a compact Jev prompt, side by side; then the remaining ten terse cores |
+| 2. Prompt strategy | **Complete: baseline B adopted.** Preserve the experimental alternatives, frozen requests, receipts and reusable tooling. | Completed multilingual dashboard and adoption decision |
+| 3. Attempt and observation model | **Agreed first-pass policy:** count experience from skill use and effort from changed retries. Success is not an input to XP or recommendations. Record attempt/revision ownership; settle remaining counting details with worked examples. | Worked attempt histories and proposed saved observations; no XP numbers disguised as model probabilities |
+| 4. XP policy | **Agreed: XP = experience + effort**, each weighted 1 per skill. No success bonus, multipliers, assistance discount or diminishing-return curve in the first version. | Counting example below; implement deterministic awards after the record/content checkpoint |
+| 5. Experience profile and recommendations | Required scope; design alongside stages 3–4. Use recorded XP/use distribution to identify underexplored skills, guide optional practice, and maintain a saved language-level assessment. | One learner history → profile write-up and reasons → conversation, coach and drill/card recommendations; learner controls and refresh examples |
+| 6. Integrated pilot | Pending review of stages 3–5. Connect selected content, Jev, durable observations, deterministic awards, skill-guide display, on-demand explanations, saved profile assessment and optional recommendation use in coach, conversation and drill/card generation. Check all twelve skill outputs plus a language-defined extension fixture without reopening the prompt sweep. | One working practice → assessment → XP/profile → recommended practice loop; duplicate/restart/late-result tests and disclosed content coverage |
+| 7. Offline authoring | Deferred until content composition and pilot flow are stable. Generate language-skill, shared writing-system and language-reading guides in inspectable batches; preserve human edits. | Coverage inventory, first batch, human-readable Markdown review and validation report |
+| 8. Expansion and cleanup | Pending. Expand covered languages/varieties; replace obsolete skill/evaluation/XP behavior directly and reset affected development records. | End-to-end verification, coverage gaps, source cleanup and a scoped commit-ready review |
 
-Stages 3 and 4 need not be entirely sequential: XP can be explored using synthetic
-observations once their semantics are defined. Final XP tuning must account for
-measured evaluator behavior. A small amount of pilot guide authoring is needed
-before stage 3; bulk production is intentionally delayed until the structure and
-assessment needs are stable. No new course/progression subsystem is needed to
-complete this evaluation/XP slice.
+Stages 1 and 3 can advance together. Design stage 5 alongside the observation and
+XP policies so records support recommendations from the start. Content examples remain teaching material;
+they do not become mandatory assessment payloads. The integrated pilot checks
+coverage and operational correctness, not another contest among prompt styles.
+A separate Read surface and reading XP remain deferred. No backwards-compatibility
+or migration work is required.
 
 ## Structural specimen
 
@@ -50,72 +61,193 @@ Show the actual filled prompt as Markdown, with each included section traceable
 to its source. Preserve human edits; no regeneration over reviewed prose. Final
 storage shape and native contracts follow the content/behavior review.
 
-## Measurement questions to settle before benchmarking
+## Experience and effort — agreed first version
 
-- Distinguish skill presence/use, successful realization, uncertainty and amount
-  of practice. Do not call a single uninterpreted number all four things.
-- Choose the primary observation unit: message/revision, with optional source-linked
-  groups as evidence. Several spans must not silently become several practice events.
-- Include conversation context when meaning depends on it. Define what is missing
-  or unassessable rather than treating absence of evidence as failure.
-- Retain actual attempt/revision ownership and supplied assistance. Do not infer
-  independent production solely from text similarity to a suggestion.
-- Specify how broad skills retain the meaning actually observed without claiming
-  that every component has been demonstrated.
-- Keep explanatory prose off the required scoring path. Preserve sufficient input,
-  content/model identity and validated result provenance to explain the saved
-  assessment later. Requested explanations must not silently rescore it.
+User-approved simplification: experience and effort drive the initial profile, XP
+and recommendations. Success is not required and is not used in these calculations.
+This supersedes earlier plans for success-weighted rewards, inferred difficulty
+and improvement bonuses. Baseline's compact content strategy remains selected;
+only its skill-evidence judgment is required for this first product version.
+Historical two-judgment experiments and their reported results remain unchanged.
 
-These are semantic decisions first. Exact output fields, score scales and provider
-contracts are subsequent choices, informed by the experiment.
+| Signal | Agreed counting rule |
+| --- | --- |
+| Experience | One count per skill used or attempted when first present in an attempt/revision chain, including meaningful participation that relies on conversation context; a new message begins a new attempt |
+| Effort | A changed resubmission counts as effort for an already-present skill when the submitted message changes; no proof of improvement is required |
+| Blind spot | Little or no recorded experience; derived from the experience distribution, not an assertion of inability |
 
-## Jev experiment design
+Partner text or generated suggestions alone do not count as learner experience.
+An unchanged resend does not add editing effort. Repeated mentions/spans within
+one initial attempt do not multiply that skill's count. Counts remain separate
+from eventual XP weights. An inference error or unclear evidence is not a success
+or failure judgment about the learner.
 
-Use a small reviewed set before scaling. Start with possession and past reference
-in both Spanish and Arabic so language and skill are not confounded by using one
-skill per language. Include Levantine and MSA cases with explicit applicability;
-first specimens do not imply complete Arabic coverage. Add coverage cases for all
-twelve definitions before adopting a production evaluator. Mandarin and Hindi
-provide later cross-script checks before expanding the language set.
+### XP math — adopted
 
-Include correct, incorrect and ambiguous uses; short replies; multiple simultaneous
-skills; negation; implicit time; questions versus requests; assisted attempts and
-revisions. Record reviewer disagreement. Split development examples from held-out
-assessment cases so prompt tuning is not evaluated on its own examples.
+For each skill: **XP = experience count + effort count**. Each increment is worth
+1 XP. Keep both counts separately available to recommendations and the learner
+profile. A revision introducing a skill earns experience for that skill; a changed revision
+retaining an already-encountered skill earns effort for that skill.
+Do not award both for the same skill in the same submission. User clarification: editing any part of the message grants effort to all retained
+skills that remain present. This broad first-version rule replaces edit/span
+attribution; no proof of which construction changed is required.
 
-First compare, on the same inputs and output semantics:
+| Event for past reference | Experience added | Effort added | XP added |
+| --- | ---: | ---: | ---: |
+| Initial submitted attempt | 1 | 0 | 1 |
+| Changed retry involving past reference | 0 | 1 | 1 |
+| Another changed retry involving past reference | 0 | 1 | 1 |
+| Unchanged resend | 0 | 0 | 0 |
+| A new message using past reference | 1 | 0 | 1 |
+| Total | 2 | 2 | 4 |
 
-1. Concise skill definitions and boundaries only.
-2. Definitions plus selected compact language/variety assessment guidance.
-3. Definitions plus fuller teaching guidance as a comparison condition.
+Multiple skills accrue separately. No success or improvement bonus, multipliers,
+assistance discounts or diminishing-return curve in this first version. Keep
+assistance provenance where available without weighting it yet. Progression and
+proficiency estimation remain separate.
 
-Then compare whole-message versus source-linked grouping, necessary conversation
-context, and whether span outputs help enough to justify their latency/cost. Do not
-run every combination of every variable by default. Compare model routes after
-establishing a useful content/input format; repeat a bounded subset to measure
-stability. Any candidate prefilter must be measured for missed skills, against an
-all-twelve reference condition, before it becomes a speed optimization.
+### Next implementation checkpoint
 
-Measure per-skill and per-variety false positives/negatives, agreement with reviewed
-judgments, uncertainty/abstention, structured-output failures, repeatability,
-end-to-end latency (including grouping), input/output tokens and actual billed
-cost when available. Report estimated cost separately. Use latency distributions
-when sample size supports them, not just averages. If scores represent probabilities,
-measure calibration before treating them as confidence.
+Review one compact content/record specimen: authored core and language guidance
+rendered as both learner Markdown and the presence-only assessor prompt; initial
+attempt and revision identities; per-skill presence and credited experience/effort.
+The user selected broad retry credit: changed text grants effort to all retained
+skills. No source-span edit attribution is required. Reintroducing a previously
+encountered skill in the same chain earns effort, not a second experience count.
 
-Set acceptance thresholds and a bounded call/token/spend plan before the run.
-Choose the lowest-cost, fastest configuration that meets those thresholds; no
-numerical thresholds or winning model are asserted yet. User review of the concrete
-run plan is the provider-spend checkpoint. No provider/model prices are assumed.
-Existing harness code can be reused after inspection; missing old result artifacts
-are not a restoration prerequisite. New fixtures/results must be clearly labeled.
+Then implement a narrow vertical slice using the existing classifier transport
+and execution lifecycle: submitted attempt → skill-use observation → one-time
+experience/effort credit → displayed counts and XP. Cover duplicates, changed and
+unchanged retries, newly introduced skills, broad retained-skill credit, late results and
+restarts. Expand recommendations and saved profile rendering from those records
+as the next part of the integrated pilot; no new prompt sweep or bulk guide run.
+
+### Concurrent AI-workflow changes
+
+The [message-assessment handoff](../message-assessment-replacement.md) reports
+classifier-based grammar/conversational-fit ratings and separate partner
+understanding, with on-demand explanations. These are separate from skill-use
+observations and do not grant XP. The current turn-plan source retains a distinct
+skill-assessment path. Reuse shared transport/lifecycle facilities where appropriate
+without feeding message-quality scores into experience or effort.
+
+This checkpoint read the handoff and current graph declarations; it did not rerun
+the other agent's verification or claim that the installed app has been updated.
+Preserve its concurrent changes. The broader scheduling/hydration proposals in
+[the workflow audit](../workflow-graph-review-2026-09-24.md) are separate work,
+not prerequisites to this XP slice.
+
+## Experience profile and recommendations — required scope
+
+Added by user clarification on 2026-09-24. Using recorded experience to guide
+future language practice is a core purpose of the new skills system, not a later
+optional project. Baseline B remains selected. This is agreed product scope;
+selection algorithms, refresh thresholds, controls and runtime contracts still
+need their design pass. Earlier coaching-plan focus concepts are relevant context,
+not an obligation to restore old estimators or skill contracts.
+
+### Agreed behavior
+
+- Build a language-scoped view of the learner's distribution of XP and recorded
+  skill use. Respect selected varieties and applicable language-defined skills.
+- Identify gaps and underexplored uses, then offer relevant conversations,
+  phrases, samples, cards and drill statements that create practice opportunities.
+- Make skill recommendations available to the coach, conversation generation and
+  drill/card generation through one shared recommendation model. Each surface
+  needs a way to use recommendations. Chat starts have two distinct choices,
+  agreed by the user: **Let the persona decide** chooses from the persona's
+  interests and conversational perspective; **Let the coach decide** chooses
+  practice using one of three choices: **Explore** (little or no recorded
+  experience; breadth), **Continue practicing** (skills receiving editing/retry
+  effort; depth), or **Coach’s choice** (a mix of the two). Depth is not an
+  inference that the learner is failing or struggling.
+  Do not fold experience-gap targeting into the persona option. With coach
+  selection, the persona remains the conversation partner; the coach selects
+  the practice focus and a suitable conversational opportunity. Controls for
+  other generation surfaces remain to be discussed.
+- Provide a saved, readable assessment of the person's current recorded experience
+  in a language, alongside numeric statistics. It should explain coverage, gaps,
+  and suggested next practice. It remains available between refreshes.
+- Refresh that assessment on explicit request or after enough new information
+  has accumulated. New usage and conversations are candidate signals; thresholds,
+  timing, cost and what is computed versus generated remain undecided.
+
+### Proposed division of labor to review
+
+Recorded attempts/observations and XP feed a structured experience profile. That
+profile supplies recommendation targets and reasons. Generators use those targets
+to propose natural practice, and the saved prose assessment explains the same
+profile. Generators should not independently reinterpret the entire history or
+use an old prose write-up as the sole source of current recommendations.
+
+Experience and effort counts are the first-version recommendation inputs; XP is
+a weighted presentation of practice, not a competence score. Low recorded XP means little recorded
+experience, not proven inability. High XP can reflect repeated familiar or assisted
+practice. Retain usage counts, variety/context, recency and assistance information
+alongside awards so reward tuning does not accidentally dictate all recommendations.
+Do not require an equal XP allocation across every skill: relevance, learner intent
+and actual opportunities matter. How these factors affect ranking is still open.
+
+Keep recommendations explainable and controllable. The learner can choose their
+own focus or decline suggested practice. A requested topic or correction should
+remain useful on its own; recommendation-driven opportunities should fit the
+conversation, not force every exchange into an exercise. Track what was offered
+separately from what the learner actually practiced. Generated partner text, cards
+or suggestions do not by themselves earn learner XP or fill an evidence gap.
+
+The saved assessment is a language-learning guidance artifact, separate from raw
+statistics and from an explanation of one attempt's score. It should identify the
+evidence period/last included activity and refresh time. Staleness should be visible;
+a failed refresh should report failure and preserve the last usable assessment.
+Whether to retain previous write-ups as a browsable history is an open question.
+
+### Review and verification artifacts
+
+Before implementation, work through a profile with extensive present-reference
+practice, limited past-reference practice and assisted possession attempts. Show:
+
+1. What the profile can and cannot infer, and the resulting gap recommendations.
+2. How “Let the persona decide” differs from “Let the coach decide” at chat start,
+   and how coaching and card/drill generation use shared recommendation targets.
+3. What the persistent write-up says, and how it differs from numeric statistics.
+4. What happens after new conversations, an explicit refresh, an ignored suggestion
+   and a learner-selected topic. Include a language with little or no history.
+
+Integration checks should cover selected-language/variety isolation, unsupported
+content, learner override, stale or failed refresh, and avoiding duplicate refresh
+work. Verify that suggestions do not count as demonstrated use and repeated
+recommendations can be explained. These are product checks, not a new prompt-style
+benchmark or a claimed proficiency estimator.
+
+## Jev strategy — selected, experiments closed
+
+Use baseline B: shared instructions, terse skill name/overview/boundary, compact
+selected language/variety guidance, and the evidence Choice
+question with its existing criteria. The historical baseline also asked an
+expression-success question; that is not required by the simplified product policy. General instructions and criteria are
+shared; language guidance comes from the same authored source as the learner
+view. Full examples and notation are omitted from this assessment projection.
+
+Success means communicated meaning, not error-free grammar. Only evidence is required for the first version; expression success is optional
+and excluded from XP and recommendations. The chosen labels
+are not XP amounts, proficiency levels or calibrated probabilities. Source spans,
+amount of practice and grammar-correctness judgments are not established by this
+experiment. Do not silently add them to the meaning of the saved observations.
+
+The latest accepted evidence covers possession/relationships and past reference
+in Spanish, Levantine Arabic only and Mandarin Chinese. Earlier runs and their
+historical defaults remain documented below; they are not current run instructions.
+Any future experiment is a separately scoped question with new frozen inputs and
+receipts. The [tooling guide](../../../tools/benchmarks/conversation-prompts/assessment/README.md)
+explains offline report rebuilding and future harness reuse. No new run is queued.
 
 ## XP policy and implementation checks
 
 The evaluator supplies observations. Deterministic code calculates credit using
-those observations and attempt history. Explore diminishing repetition rewards,
-meaningful novelty, assistance, substantive retries and improvement. Reward retry
-work without allowing unchanged resends or cycling edits to farm full awards.
+those observations and attempt history. Start with experience and changed-retry
+effort counts and simple weights. Success and improvement do not affect awards.
+More elaborate novelty, diminishing-return and assistance policies are deferred;
+unchanged resends must not add effort.
 Keep XP separate from proficiency and from model uncertainty.
 
 Review worked histories for a first attempt, assisted attempt, correction, failed
@@ -146,31 +278,95 @@ composition. Linguistic review is distinct from schema validation. Shared script
 material and language reading guidance have their own coverage inventory and do
 not create a Read app surface or reading XP by implication.
 
-## Git checkpoint
+## Source and verification checkpoint
 
-Inspection on 2026-09-24 found branch `main` with a substantially mixed uncommitted
-checkout: workbench, YAML schema conversion, language-guide contracts, speech
-routing and redaction relocation. This is not one ready-to-commit feature change.
+The shared checkout is on branch `skillz`; the user already created and pushed a
+branch checkpoint. Subsequent experiment files and notes remain uncommitted with
+other work. No new commit, branch, runtime change or data reset is made by this
+adoption decision. Inspect the current diff and preserve unrelated work before
+any later commit; commits require an explicit instruction.
 
-A focused documentation checkpoint can include exactly:
+This checkpoint reconciles documentation and logs the user's selection. Experiment
+verification belongs in each study report. Documentation checks do not constitute
+new runtime verification or linguistic review.
 
-- `docs/notes/language-guides-and-xp/README.md`
-- `docs/notes/language-guides-and-xp/learner-facing-skill-plan.md`
-- `docs/notes/language-guides-and-xp/evaluation-xp-refactor-plan.md`
+## Historical experiment record
 
-These files are currently untracked as part of the notes directory. The README
-links other existing local notes that are also untracked; include those referenced
-notes if publishing this documentation as a standalone commit, or narrow the commit
-to the latter two files, which link only each other. Do not stage the whole checkout.
-Suggested branch name: `codex/skills-evaluation-xp`. The user said they will create
-the branch and commit; neither operation has been performed by this task.
+The following entries describe the sequence of completed investigations. Their
+suggested next experiments are superseded by baseline adoption above.
 
-This checkpoint documents direction, not completed implementation. Prior workbench
-and schema changes need a separate scoped diff and relevant checks before committing.
+## Spanish sensitivity follow-up — completed 2026-09-24
 
-## Verification for this checkpoint
+The [Spanish-only study](jev-sensitivity-2026-09-24/README.md) adds 900
+concurrent-baseline responses across minimal, rule-based, example-based and
+intentionally misleading descriptions. Misleading definitions sharply reduce
+agreement, establishing content sensitivity. Neither richer candidate has a
+clearly positive paired interval against baseline. Next proposed evaluation work
+is a compact absence-versus-unsuccessful-use distinction tested on fresh cases,
+after reviewing the current disagreements. No new inference or production
+implementation is implied by this proposed next step.
 
-Documentation reconciliation only. Read back the updated plan and check whitespace
-and local links. No runtime tests rerun, provider calls, data reset, branch creation,
-staging or commit performed. Earlier test results in the README are historical,
-not fresh verification of the current mixed checkout.
+## Criteria and question-structure study — completed 2026-09-24
+
+The [eight-strategy study](jev-strategies-2026-09-24/README.md) completed
+3,360 requests. Primary fresh/unflagged agreement was 95.25% for baseline and
+96.25% for the highest candidate, without a positive multiplicity-adjusted
+contrast. The exact-body repeat audit found focal choice variation in 36 of
+669 fully valid five-repeat groups. Repeats measure instability, not additional
+independent cases. The next proposed emphasis is adjudicated, independent cases
+with a smaller repeatability subset; no further sweep is started automatically.
+
+## Matched multilingual study — completed 2026-09-24
+
+The [multilingual round](jev-multilingual-2026-09-24/README.md) completed 2,304
+requests across Spanish, Levantine Arabic only, and Mandarin Chinese. It uses
+48 matched cases per language, two repetitions, and 24 shared semantic clusters.
+The default includes all preflagged cases. Misleading control E is separate from
+all candidate performance summaries. Cost: $0.189583968, three billed invalid
+distributions, no transport failures or retries.
+
+Baseline agreement is 86.98%, 85.94%, and 86.46% respectively. No pooled candidate
+contrast excludes zero; exploratory Arabic D and G contrasts are negative.
+Matched Spanish baseline changes only +0.73 points from the preceding run on
+identical cases and request bodies. The dashboard includes this historical panel
+without pooling past responses. References/translations remain provisional.
+
+The next checkpoint is the architecture and content recommendation discussion:
+shared terse skill definitions, language/variety-owned guidance, evaluator output
+structure, and evidence retained for XP. These results do not settle all skills,
+XP conversion, or reference correctness. Bulk guide generation and app runtime
+integration remain deferred. No commit or runtime change was made in this round.
+
+## Content and counting checkpoint — implemented, not integrated
+
+[Generated review artifact](drafts/composition-and-counts.md): Spanish possession
+and Arabic/Levantine past reference, each rendered from authored YAML as a learner
+guide and a presence-only question. Shared language material and selected variety
+material compose explicitly; uncovered varieties fail instead of silently falling
+back. These are draft examples, not full language coverage or native-reviewed text.
+The presence-only projection adapts the baseline strategy; historical study
+payloads and measurements remain unchanged.
+
+`tools/content-workbench/composition/skill.ts` provides the pure composition;
+`preview.ts` rebuilds the artifact without provider calls. The practice replay
+calculator is `ui/src/domain/learning/practice/counts.ts`. It calculates experience
+and effort from validated, chronological submission fixtures. It is not called
+by the running app and does not persist or award credit. Durable native publication
+still requires implementation; the calculator does not replace that transaction.
+
+Verification: five counter tests, two composition tests and focused strict
+TypeScript checks passed. The worked presence observations are synthetic fixtures,
+not newly generated Jev results. No runtime AI pipeline, database or other-agent
+source was changed. Next is the native integration and shared persisted-contract
+pass; do not claim the user flow is complete from these pure tests.
+
+## Native practice components — next checkpoint
+
+The [native implementation and verification record](native-practice-checkpoint.md)
+now covers presence-only question composition/validation and transactional
+experience/effort publication over the existing revision chain. The full native
+suite passed: 599 tests, five ignored. A real-store fixture verifies revised
+practice credit survives reopening. These new components are not yet invoked by
+the live graph or rendered in XP totals. The old catalog and award path remain
+active pending the coordinated cutover; do not treat component tests as a completed
+learner flow. Other-agent message-assessment changes were preserved.

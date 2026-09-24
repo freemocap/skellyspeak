@@ -221,6 +221,10 @@ impl Store {
                     coaching = Some(value);
                 })
             }
+            Ok(output) if crate::learning::coaching::message_assessment::owns(&kind) => {
+                crate::learning::coaching::message_assessment::validate(&kind, output)
+                    .map(|v| coaching = Some(v))
+            }
             Ok(output) if crate::learning::coaching::conversation_support::owns(&kind) => {
                 crate::learning::coaching::conversation_support::validate(&tx, &turn, &kind, output)
                     .map(|v| {
@@ -231,14 +235,13 @@ impl Store {
                 if kind == "skill_assessment"
                     || kind == "skill_evidence"
                     || crate::learning::coaching::conversation_support::owns(&kind)
+                    || crate::learning::coaching::message_assessment::owns(&kind)
                     || kind == "coach_feedback"
                     || kind == "coach_retry_check"
                     || kind == "coach_suggestions"
                     || kind == "coach_reaction" =>
             {
-                (if kind == "coach_reaction" {
-                    crate::partners::partner_reaction::validate(output)
-                } else if kind == crate::learning::coaching::SUGGESTIONS {
+                (if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::validate(&tx, &turn, &kind, output)
                 } else {
                     crate::learning::coaching::coach_observation::validate(
@@ -339,6 +342,7 @@ impl Store {
         if kind == "skill_assessment"
             || kind == "skill_evidence"
             || crate::learning::coaching::conversation_support::owns(&kind)
+            || crate::learning::coaching::message_assessment::owns(&kind)
             || kind == "coach_feedback"
             || kind == "coach_retry_check"
             || kind == "coach_suggestions"
@@ -378,7 +382,9 @@ impl Store {
                     // declared evidence node locally without another network call.
                     tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) SELECT ?1,id,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now') FROM operations WHERE turn_id=?2 AND kind='skill_evidence' AND state='ready'", params![id(),turn])?;
                     tx.execute("UPDATE operations SET state='succeeded',permit=0 WHERE turn_id=?1 AND kind='skill_evidence' AND state='ready'", [&turn])?;
-                } else if crate::learning::coaching::conversation_support::owns(&kind) {
+                } else if kind == "conversation_feedback"
+                    || crate::learning::coaching::conversation_support::owns(&kind)
+                {
                     crate::learning::coaching::conversation_support::publish(
                         &tx, &turn, &kind, &value,
                     )?;

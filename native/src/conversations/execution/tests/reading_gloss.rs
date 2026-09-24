@@ -395,7 +395,7 @@ fn human_reading_publishes_before_reply_and_stays_bound_to_its_source() {
     store
         .connection
         .execute(
-            "DELETE FROM operations WHERE kind IN ('skill_assessment','skill_evidence')",
+            "DELETE FROM operations WHERE kind IN ('skill_assessment','skill_evidence','conversation_feedback','coach_reaction')",
             [],
         )
         .unwrap();

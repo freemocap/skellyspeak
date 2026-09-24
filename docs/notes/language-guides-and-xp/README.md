@@ -1,11 +1,12 @@
 # Language guides, writing-system guides and XP
 
-Status: **planning and content authoring**, 2026-09-24. We are still agreeing on
+Status: **baseline assessment strategy adopted; content and XP design continue**, 2026-09-24. We are still agreeing on
 the content strategy. The standalone developer workbench is authorized and
 implemented. App integration, native contracts, skill-matching behavior and XP
 policy remain deferred. Earlier Rust/schema work in this checkout was premature;
 its existence does not settle the design or authorize further app integration.
-No new Jev run has been executed. The current sequence and review gates are in
+The Jev prompt-strategy experiments are complete and baseline B is selected; see
+[the adoption decision](baseline-assessment-decision.md). The current sequence and review gates are in
 [the evaluation and XP refactor plan](evaluation-xp-refactor-plan.md). Earlier
 verification sections below record historical checks, not fresh checkout validation.
 
@@ -29,9 +30,10 @@ verification sections below record historical checks, not fresh checkout validat
 - Assess eligible learner attempts across the agreed catalog (currently 45
   implemented skills; the twelve-skill replacement is under design). Test whole-message and
   source-linked group inputs; do not assume segmentation improves accuracy.
-- Compute XP deterministically from saved assessment and event history. Reward
-  novelty, repeated practice with diminishing returns, substantive retry effort,
-  and improvement; account for actual supplied assistance.
+- Compute XP deterministically from recorded experience and changed-retry effort.
+  Success is outside the initial calculation. Defer novelty models, improvement
+  bonuses and complex assistance weighting. Coach choices target breadth
+  (Explore), depth (Continue practicing), or a mix (Coach’s choice).
 - Explanations and optional highlights are requested on demand. Their availability
   does not gate awards and requesting them does not change the score.
 - Expose effort, observed performance, estimated capability and evidence separately.
@@ -73,7 +75,9 @@ linguistic review. These requirements apply only to guides being authored, not a
 claim that all 45 skills or all languages already have guides.
 
 Pilot scope remains Spanish, Arabic, Mandarin and Hindi using Devanagari.
-Spanish covers Spain and Mexico; Arabic covers Levantine and MSA together.
+The broader guide inventory can cover connected varieties. The completed evaluator
+round used Spanish (Mexico), Levantine Arabic only, and Mandarin Chinese; future
+MSA teaching coverage is not a prerequisite for Levantine.
 The earlier Spanish prose specimens remain drafts requiring this composition
 pass before promotion into application content.
 
@@ -108,23 +112,25 @@ of [the pilot documents](pilot-guides.md), before schema implementation.
 The [current refactor plan](evaluation-xp-refactor-plan.md) replaces the earlier
 sequence. In particular, a small Jev experiment precedes bulk guide generation.
 
-| Stage | Next result to inspect |
-| --- | --- |
-| 1. Structural content pass | Compact skill, guide and assessment sections; composed Markdown prompt |
-| 2. Measurement definition | Worked judgments for attempts, revisions, assistance and uncertainty |
-| 3. Jev experiments | Small reviewed fixture set, bounded run plan, then accuracy/latency/cost comparisons |
-| 4. XP policy | Curves and worked histories using explicit observation semantics |
-| 5. Integrated pilot | One functioning assessment-to-award-to-explanation flow |
-| 6. Bulk authoring | Reviewed generation batches for selected languages, varieties and writing systems |
-| 7. Expansion | Broader coverage, retired obsolete behavior and end-to-end verification |
+The detailed status and review artifacts live in that plan. The current sequence is:
 
-**Current checkpoint:** twelve core definitions are accepted as a first pass;
-[the skill plan](learner-facing-skill-plan.md) records them and the remaining scope
-questions. Review structural specimens in chat before moving content into YAML.
-No strict skill tree, embedded progression, old-skill crosswalk or backward
-compatibility work is required. Bulk guide generation and provider runs have not
-started. New drafts can later live under this notes directory and be inspected
-through the workbench.
+1. Finish full-guide versus compact-baseline content composition.
+2. Define saved attempts, revisions, assistance and skill observations (**next discussion**).
+3. **XP weights agreed:** experience + effort, one point each per skill.
+   Success is excluded; richer reward models are deferred.
+4. Define a shared experience profile, optional gap-targeted recommendations for
+   coach/chat/card/drill generation, and a saved language assessment with explicit
+   and evidence-triggered refresh. Design this alongside steps 2–3.
+5. Implement and verify the practice → assessment → XP/profile → recommended
+   practice loop, including static guides and on-demand explanations.
+6. Generate and review language-skill and writing/reading guides in batches.
+7. Expand coverage and retire obsolete behavior without compatibility work.
+
+**Completed:** twelve first-pass shared definitions, composition/progression
+separation, YAML/Markdown specimens, workbench and the prompt-strategy experiments.
+**Selected:** baseline B for Jev; richer explanations and examples remain in static
+human-readable guides. Bulk authoring and app integration remain deferred. No new
+prompt sweep or LLM comparison is queued.
 
 The initial workbench supports existing-file edits with explicit Save, syntax
 checking, original-text preservation and stale-file conflict detection. It has

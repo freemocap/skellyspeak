@@ -22,10 +22,7 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
         {
             continue;
         }
-        if path
-            .file_name()
-            .is_some_and(|name| name == "schemas")
-        {
+        if path.file_name().is_some_and(|name| name == "schemas") {
             continue;
         }
         if kind.is_dir() {

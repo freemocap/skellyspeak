@@ -2,21 +2,12 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ConversationFeedback {
-    pub remark: String,
-    pub used_target: Vec<String>,
-    pub used_native: Vec<String>,
-    pub corrections: Vec<ConversationCorrection>,
-    pub grammar: u8,
-    pub conversation: u8,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, TS)]
-pub struct ConversationCorrection {
-    pub said: String,
-    pub corrected: String,
-    pub explanation: String,
-    pub kind: String,
+    pub grammar: Option<u8>,
+    pub conversation: Option<u8>,
+    pub answers:
+        std::collections::BTreeMap<String, super::super::message_assessment::ChoiceAssessment>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 pub struct AssistedReply {

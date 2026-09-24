@@ -1,0 +1,62 @@
+# Columns: preceding partner message, learner message, actual partner reply.
+# Parallel scenarios are adaptations, not independently reviewed translations.
+- id: clear
+  expected: {grammar: [0.8, 1], conversation: [0.8, 1], understanding: [understood]}
+  es: ["¿Qué hiciste ayer?", "Ayer fui al mercado y compré pan.", "¿Qué tipo de pan compraste?"]
+  ar: ["شو عملت مبارح؟", "مبارح رحت عالسوق واشتريت خبز.", "أي نوع خبز اشتريت؟"]
+  zh: ["你昨天做了什么？", "我昨天去市场买了面包。", "你买了什么面包？"]
+- id: grammar_errors
+  expected: {grammar: [0.2, 0.7], conversation: [0.7, 1], understanding: [understood]}
+  es: ["¿Qué hiciste ayer?", "Ayer yo ir mercado y comprar dos pan.", "¿Qué tipo de pan compraste?"]
+  ar: ["شو عملت مبارح؟", "مبارح أنا يروح عالسوق ويشتري خبز.", "أي نوع خبز اشتريت؟"]
+  zh: ["你昨天做了什么？", "我昨天市场去，买面包两个的。", "你买了什么面包？"]
+- id: off_topic
+  expected: {grammar: [0.8, 1], conversation: [0, 0.4], understanding: [clarification_requested]}
+  es: ["¿A qué hora llega el tren?", "Mi hermana tiene dos gatos.", "Te preguntaba por la hora del tren."]
+  ar: ["أي ساعة بيوصل القطار؟", "أختي عندها بستين.", "عم اسألك عن ساعة وصول القطار."]
+  zh: ["火车几点到？", "我姐姐养了两只猫。", "我问的是火车几点到。"]
+- id: short_answer
+  expected: {grammar: [0.8, 1], conversation: [0.8, 1], understanding: [understood]}
+  es: ["¿Cuándo llegaste?", "Ayer.", "Entonces llevas aquí un día."]
+  ar: ["إيمتى وصلت؟", "مبارح.", "يعني صارلك هون يوم."]
+  zh: ["你什么时候到的？", "昨天。", "那你到这里一天了。"]
+- id: no_context
+  expected: {grammar: [0.7, 1], conversation: null, understanding: [no_reply]}
+  es: [null, "El martes.", null]
+  ar: [null, "يوم التلاتا.", null]
+  zh: [null, "星期二。", null]
+- id: misunderstanding
+  expected: {grammar: [0.8, 1], conversation: [0.8, 1], understanding: [misunderstood]}
+  es: ["¿Cuándo nos vemos?", "El martes, no el jueves.", "Perfecto, nos vemos el jueves."]
+  ar: ["إيمتى منشوف بعض؟", "يوم التلاتا، مو الخميس.", "تمام، منشوف بعض الخميس."]
+  zh: ["我们什么时候见面？", "星期二，不是星期四。", "好，那星期四见。"]
+- id: clarification
+  expected: {grammar: [0.7, 1], conversation: [0.2, 0.7], understanding: [clarification_requested]}
+  es: ["¿Qué objeto necesitas?", "Ese de allí.", "¿Cuál? ¿La caja o la bolsa?"]
+  ar: ["شو الغرض اللي بدك ياه؟", "هداك اللي هنيك.", "أي واحد؟ العلبة ولا الكيس؟"]
+  zh: ["你要哪个东西？", "那边那个。", "哪个？盒子还是袋子？"]
+- id: partial_understanding
+  expected: {grammar: [0.8, 1], conversation: [0.8, 1], understanding: [partial]}
+  es: ["¿Qué debo traer?", "Trae el libro azul y la carpeta verde.", "Entendí lo del libro azul, pero no qué más tengo que traer."]
+  ar: ["شو لازم جيب؟", "جيب الكتاب الأزرق والملف الأخضر.", "فهمت إنو لازم جيب الكتاب الأزرق، بس ما فهمت شو كمان."]
+  zh: ["我要带什么？", "带蓝色的书和绿色的文件夹。", "我听懂了要带蓝色的书，但没听懂还要带什么。"]
+- id: understood_disagrees
+  expected: {grammar: [0.8, 1], conversation: [0.8, 1], understanding: [understood]}
+  es: ["¿Aceptas el precio?", "No, es demasiado caro.", "Entiendo que te parece caro, pero no voy a bajar el precio."]
+  ar: ["موافق عالسعر؟", "لأ، غالي كتير.", "فهمت إنو شايفه غالي، بس ما رح نزّل السعر."]
+  zh: ["你接受这个价格吗？", "不接受，太贵了。", "我明白你觉得贵，但我不会降价。"]
+- id: polite_non_evidence
+  expected: {grammar: [0.8, 1], conversation: [0.8, 1], understanding: [unclear]}
+  es: ["¿Cuál prefieres?", "Prefiero el azul.", "Gracias por decírmelo."]
+  ar: ["أي واحد بتفضّل؟", "بفضّل الأزرق.", "شكراً إنك خبرتني."]
+  zh: ["你更喜欢哪个？", "我更喜欢蓝色的。", "谢谢你告诉我。"]
+- id: emoji_only
+  expected: {grammar: null, conversation: [0.8, 1], understanding: [understood]}
+  es: ["¿Nos vemos a las seis?", "👍", "Perfecto, hasta las seis."]
+  ar: ["منشوف بعض عالستة؟", "👍", "تمام، بشوفك عالستة."]
+  zh: ["我们六点见好吗？", "👍", "好，六点见。"]
+- id: unintelligible
+  expected: {grammar: [0, 0.3], conversation: [0, 0.3], understanding: [clarification_requested]}
+  es: ["¿Dónde está el libro?", "El de pero ser con mañana.", "No entiendo. ¿Dónde está?"]
+  ar: ["وين الكتاب؟", "اللي من بس كان مع بكرا.", "ما فهمت. وينه؟"]
+  zh: ["书在哪里？", "的但是在把明天了。", "我没听懂，书在哪里？"]

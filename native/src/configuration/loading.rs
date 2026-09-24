@@ -112,6 +112,7 @@ impl Registry {
                 "shared/conversation-topics.yaml",
                 "prompts/conversation/instructions.yaml",
                 "prompts/drill/instructions.yaml",
+                "prompts/conversation/ratings.yaml",
                 "references.bib",
             ]
             .contains(&name.as_str())

@@ -135,7 +135,7 @@ it('retains reply failure and pause state independently of successful saved assi
 })
 
 it('projects independent support on its own exchange without manufacturing skill evidence', () => {
-  const feedback={remark:'Clear meaning.',corrections:[],usedTarget:['Hola'],usedNative:[],grammar:5,conversation:5}
+  const feedback={answers:{},grammar:10,conversation:10}
   const assistance={explanation:'A greeting.',replies:[],frames:['Soy ___.'],starters:['Hola…']}
   const cards={cards:[{quote:'Hola',title:'Greeting',body:'A greeting.',example:'Hola, Ana.',contrast:''}]}
   const turns=conversationTurns(snapshot([

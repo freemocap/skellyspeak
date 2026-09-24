@@ -127,6 +127,7 @@ impl Store {
             }
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
+            && !crate::learning::coaching::message_assessment::owns(&kind)
             && kind != "skill_assessment"
             && kind != "skill_evidence"
             && kind != "persona_reply"
@@ -160,7 +161,10 @@ impl Store {
             let jev = kind == "skill_assessment"
                 && crate::learning::coaching::assessment_adapter::selected(&captured)?
                     == AssessmentAdapter::JevChoice;
-            let coaching_schema = if kind == "skill_evidence" {
+            let rating = crate::learning::coaching::message_assessment::owns(&kind);
+            let coaching_schema = if rating {
+                None
+            } else if kind == "skill_evidence" {
                 Some(crate::learning::coaching::skill_evidence::schema(
                     &captured,
                 )?)
@@ -175,9 +179,7 @@ impl Store {
                     ),
                 )
             } else if kind.starts_with("coach_") && kind != "coach_reply" {
-                Some(if kind == "coach_reaction" {
-                    crate::partners::partner_reaction::schema()
-                } else if kind == crate::learning::coaching::SUGGESTIONS {
+                Some(if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::schema(&kind)
                 } else {
                     crate::learning::coaching::coach_observation::schema(
@@ -188,7 +190,9 @@ impl Store {
             } else {
                 None
             };
-            let messages = if kind == "skill_evidence" {
+            let messages = if rating {
+                crate::learning::coaching::message_assessment::prompt(&tx, &turn, &kind, &captured)?
+            } else if kind == "skill_evidence" {
                 crate::learning::coaching::skill_evidence::prompt(&tx, &turn, &captured)?
             } else if kind == "skill_assessment" {
                 crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?
@@ -196,8 +200,6 @@ impl Store {
                 crate::learning::coaching::conversation_support::prompt(
                     &tx, &turn, &kind, &captured,
                 )?
-            } else if kind == "coach_reaction" {
-                crate::partners::partner_reaction::prompt(&tx, &turn, &captured)?
             } else if coaching_schema.is_some() {
                 crate::learning::coaching::prompt(&tx, &turn, &kind, &captured)?
             } else if matches!(kind.as_str(), "persona_word_gloss" | "user_word_gloss") {
@@ -307,7 +309,12 @@ impl Store {
             } else {
                 coaching_schema
             };
-            let decisions = if jev {
+            let decisions = if rating {
+                target.model = crate::learning::coaching::message_assessment::model().into();
+                Some(crate::learning::coaching::message_assessment::request(
+                    &messages, &kind,
+                )?)
+            } else if jev {
                 target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
                 Some(crate::learning::coaching::assessment_adapter::request(
                     &messages, &captured,

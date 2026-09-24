@@ -222,6 +222,16 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 )?,
             ));
         }
+        kind if crate::learning::coaching::message_assessment::owns(kind) => {
+            node.source = "native/src/learning/coaching/message_assessment.rs; content/prompts/conversation/ratings.yaml".into();
+            node.description = "Typed 0–10 utterance ratings run alongside the reply. Understanding uses the actual reply in a separate dependent request. Missing evidence remains unscored; neither result grants learning credit.".into();
+            node.templates.push(section(
+                "Choice questions",
+                serde_json::to_string_pretty(
+                    &crate::learning::coaching::message_assessment::questions(kind)?,
+                )?,
+            ));
+        }
         kind if conversation_support::owns(kind) => {
             node.source = "native/src/learning/coaching/conversation_support.rs".into();
             node.description = "Uses the current partner reply, latest learner input and up to eight preceding messages. The request drops only whole older messages to fit its budget. Romanization is empty for Latin-script targets.".into();

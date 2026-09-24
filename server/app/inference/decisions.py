@@ -16,20 +16,34 @@ def request(payload: dict) -> ChatRequest:
     if set(payload) != {"model", "state", "questions"} or payload.get("model") != MODEL:
         reject("Unsupported decisions request or model.")
     state, questions = payload["state"], payload["questions"]
-    if not isinstance(state, dict) or set(state) != {"currentLearnerMessage", "precedingExchange", "input"}:
-        reject("Decisions require the learner state contract.")
-    if not isinstance(state["currentLearnerMessage"], str) or not state["currentLearnerMessage"].strip():
-        reject("Decisions require learner text.")
-    if not isinstance(state["precedingExchange"], list) or len(state["precedingExchange"]) > 4:
-        reject("Decisions context exceeds four messages.")
-    for message in state["precedingExchange"]:
-        if not isinstance(message, dict) or set(message) != {"role", "content"} or not isinstance(message["role"], str) or message["role"] not in {"user", "assistant"} or not isinstance(message["content"], str):
-            reject("Invalid decisions context message.")
-    flags = state["input"]
-    if not isinstance(flags, dict) or set(flags) != {"modality", "suggestion", "revision", "scaffold"} or not isinstance(flags["modality"], str) or flags["modality"] not in {"text", "speech_transcript"} or any(type(flags[k]) is not bool for k in ("suggestion", "revision", "scaffold")):
-        reject("Invalid decisions input flags.")
-    if not isinstance(questions, dict) or len(questions) != 45:
-        reject("Decisions require 45 skill questions.")
+    rating_keys = {"grammar", "conversation"}
+    understanding_keys = {"understanding"}
+    is_rating = isinstance(questions, dict) and set(questions) in (rating_keys, understanding_keys)
+    if is_rating:
+        required = {"language", "variety", "learnerMessage", "precedingPartner"}
+        if set(questions) == understanding_keys:
+            required.add("actualPartnerReply")
+        if not isinstance(state, dict) or set(state) != required:
+            reject("Invalid message assessment state.")
+        if any(not isinstance(state[k], str) for k in required):
+            reject("Message assessment state requires text fields.")
+        if not state["learnerMessage"].strip() or not state["language"].strip():
+            reject("Message assessment requires language and learner text.")
+    else:
+        if not isinstance(state, dict) or set(state) != {"currentLearnerMessage", "precedingExchange", "input"}:
+            reject("Decisions require the learner state contract.")
+        if not isinstance(state["currentLearnerMessage"], str) or not state["currentLearnerMessage"].strip():
+            reject("Decisions require learner text.")
+        if not isinstance(state["precedingExchange"], list) or len(state["precedingExchange"]) > 4:
+            reject("Decisions context exceeds four messages.")
+        for message in state["precedingExchange"]:
+            if not isinstance(message, dict) or set(message) != {"role", "content"} or not isinstance(message["role"], str) or message["role"] not in {"user", "assistant"} or not isinstance(message["content"], str):
+                reject("Invalid decisions context message.")
+        flags = state["input"]
+        if not isinstance(flags, dict) or set(flags) != {"modality", "suggestion", "revision", "scaffold"} or not isinstance(flags["modality"], str) or flags["modality"] not in {"text", "speech_transcript"} or any(type(flags[k]) is not bool for k in ("suggestion", "revision", "scaffold")):
+            reject("Invalid decisions input flags.")
+        if not isinstance(questions, dict) or len(questions) != 45:
+            reject("Decisions require 45 skill questions.")
     size = encoded_size(payload)
     if size > 100_000:
         reject("Decisions request exceeds input limit.")
@@ -39,8 +53,9 @@ def request(payload: dict) -> ChatRequest:
         if not isinstance(key, str) or not key or len(key) > 64 or not isinstance(question, dict) or set(question) != {"type", "instructions", "criteria"}:
             reject("Invalid decisions question.")
         criteria = question["criteria"]
-        if question["type"] != "choice" or not isinstance(question["instructions"], str) or not isinstance(criteria, dict) or set(criteria) != CATEGORIES or any(not isinstance(v, str) for v in criteria.values()):
-            reject("Decisions require five-way Choice criteria.")
+        expected = ({f"score_{n}" for n in range(11)} | {"insufficient_evidence"}) if is_rating and key in rating_keys else ({"understood", "partial", "misunderstood", "clarification_requested", "unclear", "no_reply"} if is_rating else CATEGORIES)
+        if question["type"] != "choice" or not isinstance(question["instructions"], str) or not isinstance(criteria, dict) or set(criteria) != expected or any(not isinstance(v, str) for v in criteria.values()):
+            reject("Decisions criteria do not match the task.")
         bound = state_size + encoded_size(question) + 4096
         if bound > 28_000:
             reject("Decisions question exceeds context limit.")

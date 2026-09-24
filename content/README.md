@@ -134,6 +134,16 @@ relationship behavior and difficulty instructions are written in English for all
 target languages; resolved language and writing guidance determine the response
 language. The shared behavior layer is not translated into per-language prompts.
 
+[ratings.yaml](prompts/conversation/ratings.yaml) defines two 0–10 rating
+questions and a separate partner-understanding question. Each includes its
+instructions, category labels and anchors. Both ratings allow insufficient
+evidence; understanding distinguishes understood, partial, misunderstood,
+clarification requested, unclear, and no reply. Message ratings use the preceding
+partner message, while understanding also receives the actual reply. Neither
+result awards learning credit. Explanations are requested separately through the
+coach. These definitions are shared across languages and receive the selected
+language and variety as input.
+
 ### drill/
 
 [instructions.yaml](prompts/drill/instructions.yaml) contains the instructions
