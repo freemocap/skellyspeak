@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  Category:
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  Skill:
+    additionalProperties: false
+    properties:
+      boundary:
+        type: string
+      category:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      overview:
+        type: string
+    required:
+    - boundary
+    - category
+    - id
+    - name
+    - overview
+    type: object
+properties:
+  categories:
+    items:
+      $ref: '#/definitions/Category'
+    type: array
+  skills:
+    items:
+      $ref: '#/definitions/Skill'
+    type: array
+required:
+- categories
+- skills
+title: Catalog
+type: object

@@ -1,0 +1,17 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+properties:
+  criteria:
+    additionalProperties:
+      type: string
+    type: object
+  instructions:
+    type: string
+  question:
+    type: string
+required:
+- criteria
+- instructions
+- question
+title: Instructions
+type: object
