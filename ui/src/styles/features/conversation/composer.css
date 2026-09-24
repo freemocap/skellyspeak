@@ -104,7 +104,42 @@
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
 /* Optional guidance shares the composer surface and never overlays its controls. */
-.conversation-help { padding: var(--space-6); background: var(--chrome); border-inline-start: var(--space-2) solid var(--interaction-ink); font-size: var(--type-ui); }
-.conversation-help p { margin: 0 0 var(--space-4); }
+/* First-conversation guide: an outlined card above the input whose arrow
+   points down at the composer while it asks for speech. */
+.getting-started {
+  position: relative; display: grid; gap: var(--space-4);
+  margin: var(--space-3) var(--space-5) var(--space-6); padding: var(--space-5) var(--space-6);
+  background: var(--field); color: var(--ink);
+  border: var(--border-width-strong) solid var(--interaction-ink); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating); font-size: var(--type-ui);
+}
+.getting-started[data-step='0']::after, .getting-started[data-step='1']::after {
+  content: ''; position: absolute; bottom: calc(-1 * var(--space-4)); inset-inline-end: var(--space-13);
+  width: var(--space-7); height: var(--space-7); background: var(--field);
+  border-right: var(--border-width-strong) solid var(--interaction-ink); border-bottom: var(--border-width-strong) solid var(--interaction-ink);
+  transform: rotate(45deg);
+}
+.getting-started-head { display: flex; align-items: center; gap: var(--space-4); color: var(--interaction-ink); }
+.getting-started-head h2 { flex: 1; margin: 0; color: var(--ink); font: var(--weight-semibold) var(--type-body)/var(--leading-snug) var(--font-sans); }
+.getting-started-hide {
+  display: flex; align-items: center; justify-content: center; width: var(--control-height-xs); height: var(--control-height-xs);
+  padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-3); cursor: pointer;
+}
+.getting-started-hide:hover { background: var(--chrome); color: var(--ink); }
+.getting-started p { margin: 0; color: var(--ink-2); line-height: var(--leading-normal); }
+.getting-started-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.getting-started-actions .btn { display: inline-flex; align-items: center; gap: var(--space-3); }
+.getting-started-steps { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin: 0; padding: 0; list-style: none; }
+.getting-started-steps li { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ink-3); font-size: var(--type-meta); }
+.getting-started-steps li[data-state='current'] { color: var(--ink); font-weight: var(--weight-semibold); }
+.getting-started-dot {
+  display: inline-flex; align-items: center; justify-content: center; width: var(--space-10); height: var(--space-10);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); font-family: var(--font-mono);
+}
+.getting-started-steps li[data-state='current'] .getting-started-dot { border-color: var(--interaction-fill); background: var(--interaction-fill); color: var(--ink-on-fill); }
+.getting-started-steps li[data-state='done'] .getting-started-dot { border-color: var(--success-ink); background: var(--success-ink); color: var(--ink-on-fill); }
+/* While the guide asks for speech, Record carries the same highlight. */
+.composer[data-guide='record'] .mic { box-shadow: var(--shadow-sm), 0 0 0 var(--space-3) var(--interaction-tint); }
+@media (pointer: coarse) { .getting-started-hide { width: var(--touch-target); height: var(--touch-target); } }
 
 .crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }

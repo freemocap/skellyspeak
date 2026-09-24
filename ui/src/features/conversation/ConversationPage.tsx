@@ -2,7 +2,8 @@ import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
 import { interruptSpeech } from '../../platform/audio/speech'
-import { ConversationHelp } from './composer/ConversationHelp'
+import { GettingStartedGuide, guideStep } from './composer/GettingStartedGuide'
+import { useOnboardingStore } from '../../state/settings/onboarding'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
 import { useAttemptStreamSync } from '../../state/session/attempt-streams'
 import type { ConversationStartConfig } from '../../generated/contracts'
@@ -125,6 +126,7 @@ export default function ConversationPage({
   }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
   const [panelTab, setPanelTab] = useState<'coaching' | 'evidence'>('coaching')
+  const guideShown = useOnboardingStore(state => state.preferences?.onboardingHelp ?? false)
   const [coachDraft, setCoachDraft] = useState('')
   const mode = useNavigationStore(state => state.mode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
@@ -493,8 +495,12 @@ export default function ConversationPage({
         }} />
     </ConversationErrorScope>
   )
+  const hasReply = activeTurns.some(turn => !!turn.assistant)
+  const hasLearnerTurn = activeTurns.some(turn => !!turn.user)
+  // While the guide asks for speech, the Record button carries the same highlight.
+  const guideAsksRecord = connection?.configured === true && guideShown && guideStep(hasReply, hasLearnerTurn) < 2
   const chatComposer = (
-        <div className="composer" ref={composer}>
+        <div className="composer" ref={composer} data-guide={guideAsksRecord ? 'record' : undefined}>
           {editingTurnId !== null && (
             <div className="edit-banner">
               <span>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("✎ Editing your message — send to replace it")}</span>
@@ -510,7 +516,7 @@ export default function ConversationPage({
               : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
               : analysing}
           </div>
-          {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
+          {connection?.configured && <GettingStartedGuide hasReply={hasReply} hasLearnerTurn={hasLearnerTurn} canRecord={isTauri && !sending && !mic.transcribing && !mic.recording} onRecord={toggleMic} onOpenCoach={() => openCoach()} />}
           {isMobile && replyHelp}
           <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
