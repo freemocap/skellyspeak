@@ -108,6 +108,10 @@ pub fn fold(registry: &Registry, evidence: &Value, as_of_secs: i64) -> Result<Le
             .as_array()
             .ok_or_else(|| invalid("Complete evidence lacks judgments."))?;
         for item in judgments {
+            // Presence is experience evidence, never a success grade for this estimator.
+            if item.get("presence").is_some() {
+                continue;
+            }
             let outcome = match string(item, "outcome")? {
                 "demonstrated" => 1.0,
                 "partial" => 0.5,
@@ -458,7 +462,7 @@ mod tests {
         store.connection.execute("INSERT INTO personas SELECT 'second-persona',learner_id,language_id,1,details FROM personas WHERE id=?1",[&persona]).unwrap();
         store.connection.execute("INSERT INTO contacts SELECT 'second-contact',learner_id,'second-persona',0,1 FROM contacts WHERE persona_id=?1",[&persona]).unwrap();
         store.connection.execute("INSERT INTO conversations(id,contact_id,language_id,title,archived,revision,last_used) VALUES('second-chat','second-contact','spanish','Second',0,1,0)",[]).unwrap();
-        for (turn, chat, source, outcome) in [
+        for (turn, chat, source, _outcome) in [
             (
                 "first-turn",
                 conversation.as_str(),
@@ -472,10 +476,10 @@ mod tests {
                 "not_demonstrated",
             ),
         ] {
-            let context = json!({"constructRegistryHash":crate::learning::coaching::construct_hash(&store.config),"catalogVersion":crate::learning::coaching::version_for(&store.config),"translationLanguage":"english","practiceSettings":{"varietyId":"spanish-spain"},"input":{},"coachObservationAttempt":turn,"coachObservation":{"meaning_recovered":"full","items":[{"construct":"question","quote":source,"outcome":outcome,"error":null,"rationale":"Fixture observation."}]}});
+            let context = json!({"constructRegistryHash":crate::learning::coaching::construct_hash(&store.config),"catalogVersion":crate::learning::coaching::version_for(&store.config),"translationLanguage":"english","practiceSettings":{"varietyId":"spanish-spain"},"input":{},"skillAssessmentAttempt":turn,"skillAssessment":{"adapter":"jev_choice","answers":{"questions_answers":{"choice":"direct"}}}});
             store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'fixture','custom','fixture',?3)",rusqlite::params![turn,chat,context.to_string()]).unwrap();
             store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text,created_at) VALUES(?1,?2,?1,1,'user',?3,'2020-01-01T00:00:00Z')",rusqlite::params![turn,chat,source]).unwrap();
-            store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) VALUES(?1,?1,'coach_feedback','succeeded')",[turn]).unwrap();
+            store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) VALUES(?1,?1,'skill_assessment','succeeded')",[turn]).unwrap();
         }
         (dir, store, persona, conversation)
     }
@@ -488,22 +492,16 @@ mod tests {
         let all = profile(&store, "spanish", None, at).unwrap();
         let first = profile(&store, "spanish", Some(&persona), at).unwrap();
         let second = profile(&store, "spanish", Some("second-persona"), at).unwrap();
-        assert_eq!(all["model"]["constructs"][0]["n"], 2);
-        assert_eq!(first["model"]["constructs"][0]["n"], 1);
-        assert_eq!(second["model"]["constructs"][0]["n"], 1);
-        assert!(first["model"]["constructs"][0]["rating"].as_f64().unwrap() > 0.0);
-        assert!(second["model"]["constructs"][0]["rating"].as_f64().unwrap() < 0.0);
-        assert_eq!(
-            first["model"]["constructs"][0]["evidenceAttemptIds"],
-            json!(["first-turn"])
-        );
+        assert!(all["model"]["constructs"].as_array().unwrap().is_empty());
+        assert_eq!(first["evidence"]["records"].as_array().unwrap().len(), 1);
+        assert_eq!(second["evidence"]["records"].as_array().unwrap().len(), 1);
         assert_eq!(first["evidence"]["records"][0]["chat_id"], chat);
         assert_eq!(
-            first["model"]["observations"][0]["source"],
+            first["evidence"]["records"][0]["source"],
             "¿Dónde está la estación?"
         );
         assert_eq!(
-            second["model"]["observations"][0]["source"],
+            second["evidence"]["records"][0]["source"],
             "¿Dónde estación?"
         );
         assert_eq!(first["evidence"]["profile"], all["evidence"]["profile"]);
@@ -545,8 +543,10 @@ mod tests {
             1
         );
         assert_eq!(
-            profile(&store, "spanish", Some("second-persona"), at).unwrap()["model"]["constructs"]
-                [0]["n"],
+            profile(&store, "spanish", Some("second-persona"), at).unwrap()["evidence"]["records"]
+                .as_array()
+                .unwrap()
+                .len(),
             1
         );
         store
