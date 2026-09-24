@@ -153,6 +153,7 @@ impl Registry {
                 .map(|key| self.orthography_script(&format!("{vpath}.overrides.orthography"), key))
                 .transpose()?;
             varieties.push(Variety {
+                speech_routes: o.speech_routes.clone(),
                 id: v.id.to_string(),
                 name: v.name.clone(),
                 description: v.description.clone(),
@@ -173,6 +174,7 @@ impl Registry {
         self.goal_material
             .insert(id.clone(), doc.learning.goal_material.clone());
         self.languages.push(Language {
+            speech_routes: doc.defaults.speech_routes.clone(),
             id: id.clone(),
             name: doc.identity.name.clone(),
             native_name: doc.identity.native_name.clone(),

@@ -23,7 +23,7 @@ struct Rule {
 pub fn get() -> &'static Policy {
     static POLICY: OnceLock<Policy> = OnceLock::new();
     POLICY.get_or_init(|| {
-        serde_json::from_str(include_str!("../../../content/diagnostics/policy.json"))
+        serde_json::from_str(include_str!("../../../redaction-policy/policy.json"))
             .expect("compiled diagnostic policy")
     })
 }
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn shared_redaction_conformance() {
         let cases: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../content/diagnostics/retention-cases.json"
+            "../../../redaction-policy/cases.json"
         ))
         .unwrap();
         for case in cases.as_array().unwrap() {

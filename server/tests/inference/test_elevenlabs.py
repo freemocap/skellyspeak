@@ -51,7 +51,7 @@ async def test_speech_sends_verbatim_source_and_returns_standard_wav():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("language", ["ml", "hi", "ga", "gle", "gd", "ko", "ja", "vi", "id", "tr", "ru", "uk", "chr"])
+@pytest.mark.parametrize("language", ["ml", "hi", "ga", "gle", "ast", "ko", "ja", "vi", "id", "tr", "ru", "uk", "ibo"])
 async def test_transcription_language_is_not_limited_by_whisper(language):
     async def respond(request):
         body = await request.aread()

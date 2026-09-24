@@ -138,7 +138,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                         }
                     }).collect::<Result<Vec<_>>>()?;
                     if let Some(source) = &first.speech_source {
-                        let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
+                        let input = audio::SpeechInput { language_tag: source.language_tag.clone(), text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
                         let outcome = retry::run(
                             || audio::synthesize(&client, &first.target, &key, &input, &first.install_id),
                             || state.check_dispatches(std::slice::from_ref(first)),

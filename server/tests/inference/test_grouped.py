@@ -231,7 +231,7 @@ async def test_protocol_capabilities_are_authenticated_and_match_grouped_contrac
     assert response.json() == {"protocol": "skellyspeak", "version": 1, "max_items": 8, "operations_versions": [1, 2],
                                "chat_models": ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite", "openai/gpt-oss-120b"],
                                "accepts_other_text_models": True, "decisions": {"version": 1, "models": ["typesafe/jev-1.13"]}, "transcription_model": "whisper-large-v3",
-                               "audio": {"version": 1, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_ready": False, "transcription_provider": "groq", "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"]}}
+                               "audio": {"version": 1, "routing": {"version": 1, "available_models": ["whisper-large-v3", "whisper-large-v3-turbo"], "accepts_custom_transcription_models": True}, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_ready": False, "transcription_provider": "groq", "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"]}}
 
 
 @pytest.mark.asyncio

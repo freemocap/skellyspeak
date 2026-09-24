@@ -76,20 +76,31 @@ pub async fn mic_start(
     owner: RecordingOwner,
 ) -> Result<RecordingStarted> {
     let state = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || start_capture(&state, owner))
-        .await
-        .map_err(|cause| {
-            crate::diagnostics::failures::join(
-                &cause,
-                "voice.rs",
-                fault("Microphone startup stopped unexpectedly."),
-            )
-        })?
+    let prepared = super::preflight::prepare(&state, &owner).await?;
+    tauri::async_runtime::spawn_blocking(move || {
+        start_prepared_capture(&state, owner, Some(prepared))
+    })
+    .await
+    .map_err(|cause| {
+        crate::diagnostics::failures::join(
+            &cause,
+            "voice.rs",
+            fault("Microphone startup stopped unexpectedly."),
+        )
+    })?
 }
 /// One capture at a time, whatever owns it: Chat and Drill share this slot.
+#[cfg(test)]
 pub(crate) fn start_capture(
     state: &Arc<Application>,
     owner: RecordingOwner,
+) -> Result<RecordingStarted> {
+    start_prepared_capture(state, owner, None)
+}
+pub(super) fn start_prepared_capture(
+    state: &Arc<Application>,
+    owner: RecordingOwner,
+    prepared: Option<super::preflight::Prepared>,
 ) -> Result<RecordingStarted> {
     let mut slot = state.capture.lock().map_err(|_| {
         crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
@@ -98,10 +109,19 @@ pub(crate) fn start_capture(
         return Err(fault("A recording is already running."));
     }
     let store = state.lock()?;
-    let target = access::resolve(&store.connection, access::Capability::Transcription)?;
-    crate::ai::policy::holds::check(&store.connection, &target)?;
     // Language, variety and recognizer context come from the owner's record.
     let scope = owner.scope(&store)?;
+    let target = if let Some(prepared) = prepared {
+        prepared.validate(&store.connection, &scope.language_context)?;
+        prepared.target
+    } else {
+        crate::ai::connections::speech_routing::resolve(
+            &store.connection,
+            access::Capability::Transcription,
+            &scope.language_context,
+        )?
+    };
+    crate::ai::policy::holds::check(&store.connection, &target)?;
     let visit = match &owner {
         RecordingOwner::Conversation(_) => None,
         RecordingOwner::DrillItem(item) => Some(crate::drill::sessions::active_visit(

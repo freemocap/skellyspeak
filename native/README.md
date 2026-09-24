@@ -259,3 +259,19 @@ data rather than converting it. Review foreign keys, files and credential owners
 first. A code/UI change alone does not require a reset. Keep workspace locking and
 explicit schema/integrity errors. Use a full reset only when a smaller cleanup is
 impractical; this is development authorization, not silent production data loss.
+
+### Speech configuration and captured routes
+
+`configuration/speech.rs` resolves language/variety preferences, learner model
+defaults and the shared speech capability catalog. `ai/connections/speech_routing.rs`
+combines that decision with the existing service access route. Recording, automatic
+persona speech, explicit message playback and reading/Drill reference speech all
+capture the selected model through this boundary; adapters do not select alternatives.
+
+`recording/preflight.rs` checks configured service availability before single or
+continuous capture. It holds no workspace lock during network or credential work,
+and revalidates the access revision and language context before opening the mic.
+The availability check is metadata-only, with no inference or quota reservation.
+Read-aloud validates the canonical language before queuing; the service checks its
+voice and credentials before inference. Provider failure does not trigger rerouting.
+See [speech content](../content/README.md#speech-routing) for authoring and precedence.

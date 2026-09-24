@@ -15,6 +15,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from server.app.inference import audio_input
+from server.app.inference.transcription_languages import availability, language_code
 from server.app.inference.audio_contracts import AudioFailure, SynthesisRequest, TranscriptionRequest
 from server.app.inference.elevenlabs import ElevenLabs, synthesis_text
 from server.app.inference.transcription_profiles import bind, MAX_MICROS_PER_HOUR
@@ -109,9 +110,12 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
             value = json.loads(raw)
         except (ValueError, UnicodeError):
             raise HTTPException(400, "Invalid speech request JSON.") from None
-        if not isinstance(value, dict) or set(value) != {"model", "text", "language"}:
-            raise HTTPException(400, "Speech requires model, text and language variety.")
+        if not isinstance(value, dict) or set(value) != {"model", "text", "language", "language_tag"}:
+            raise HTTPException(400, "Speech requires model, text, language variety and language_tag.")
         _model(value["model"], cfg.tts_model)
+        code = language_code(value["model"], value["language_tag"], 'speech')
+        if code is None:
+            raise AudioRejection(400, "AUDIO_LANGUAGE_UNSUPPORTED", "The selected speech model does not support this language tag.")
         text = value["text"]
         try:
             valid = isinstance(text, str) and text.strip() and len(text.encode()) <= 16_384 and "\0" not in text
@@ -155,8 +159,8 @@ async def transcribe(request, who, cfg, reserve, settle, read_body):
             raw = await read_body(request, 8 * 1024 * 1024, "Recording")
             audio = await anyio.to_thread.run_sync(partial(audio_input.decode_upload, raw,
                 content_type=content_type, language_code_width=3))
-            binding = bind(audio.fields["model"], cfg)
             language = audio.fields.get("language")
+            binding = bind(audio.fields["model"], cfg)
             if binding.language_code(language) is None:
                 raise AudioRejection(400, "AUDIO_LANGUAGE_REQUIRED", "The selected model requires an explicit supported language tag.")
             if not binding.configured:

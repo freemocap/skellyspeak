@@ -125,7 +125,7 @@ fn export_schemas() {
         for (name, value) in &schemas {
             fs::write(
                 root.join(name),
-                format!("{}\n", serde_json::to_string_pretty(value).unwrap()),
+                serde_yaml_ng::to_string(value).unwrap(),
             )
             .unwrap();
         }
@@ -135,7 +135,7 @@ fn export_schemas() {
             .join("../content/schemas")
             .join(name);
         let actual: serde_json::Value =
-            serde_json::from_str(&fs::read_to_string(&path).unwrap()).unwrap();
+            serde_yaml_ng::from_str(&fs::read_to_string(&path).unwrap()).unwrap();
         assert_eq!(actual, value, "{}", path.display());
     }
 }

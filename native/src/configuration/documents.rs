@@ -102,6 +102,8 @@ document!(RomanizationExample {
     romanized: String
 });
 document!(LanguageDefaults {
+    #[serde(default)]
+    speech_routes: super::speech::Preferences,
     variety: VarietyId,
     orthography: DefinitionRef,
     scalars: ScalarOverrides,
@@ -112,6 +114,8 @@ document!(VarietyDocument { id: VarietyId, name: String, description: String, re
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct VarietyOverrides {
+    #[serde(default)]
+    pub speech_routes: super::speech::Preferences,
     pub orthography: Option<DefinitionRef>,
     pub romanization: Option<RomanizationSelection>,
     pub supported_romanizations: Option<Vec<DefinitionRef>>,

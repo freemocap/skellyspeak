@@ -184,7 +184,20 @@ greeting: StarterGreeting,
  * starter persona to introduce them, not the whole profile.
  */
 partner: LanguagePartner, };
-export type LanguageInspection = { fingerprint: string, language: Language, varietyId: string, review: string, family: string, values: Array<ContentValue>, rules: Array<ContentRule>, schemes: Array<SchemeInspection>, sources: Array<ContentSource>, partner: PersonaDetails, schemaJson: string, resolvedJson: string, learningJson: string, conversationJson: string, };
+export type LanguageInspection = { guides: Array<GuideInspection>, fingerprint: string, language: Language, varietyId: string, review: string, family: string, values: Array<ContentValue>, rules: Array<ContentRule>, schemes: Array<SchemeInspection>, sources: Array<ContentSource>, partner: PersonaDetails, schemaJson: string, resolvedJson: string, learningJson: string, conversationJson: string, };
+export type GuideInspection = { guide: TeachingGuide, fingerprint: string,
+/**
+ * The UI and later assessment projection compose this supplement with the core.
+ */
+selectedVariety: string | null, source: string, explanationName: string, explanationTag: string | null, explanationDirection: string, };
+export type TeachingGuide = { id: string, target: { "kind": "script", script: string, } | { "kind": "reading", language: string, } | { "kind": "skill", language: string, skill: string, }, explanation_language: string, title: string, summary: string, sections: Array<GuideSection>, examples: Array<GuideExample>,
+/**
+ * Compact authored guidance; not automatically added to existing prompts.
+ */
+guidance: string, shared_guides: Array<string>, variants: Array<GuideVariant>, sources: Array<string>, review: "needs_review" | "reviewed", origin: "human" | "ai" | "mixed", authorship: string, };
+export type GuideSection = { title: string, text: string, };
+export type GuideExample = { text: string, meaning: string, note: string, };
+export type GuideVariant = { variety: string, summary: string, sections: Array<GuideSection>, examples: Array<GuideExample>, guidance: string, sources: Array<string>, review: "needs_review" | "reviewed", origin: "human" | "ai" | "mixed", authorship: string, };
 export type ContentSource = { path: string, yaml: string, };
 export type ContentRule = { scope: string, text: string, source: string, };
 export type ContentValue = { field: string, value: string, source: string, };

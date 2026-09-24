@@ -11,12 +11,14 @@ pub fn schemas() -> BTreeMap<String, serde_json::Value> {
         };
     }
     BTreeMap::from([
-        schema!("language.json", LanguageDocument),
-        schema!("language-foundations.json", Foundations),
-        schema!("learning-goals.json", Vec<Construct>),
-        schema!("learning-map.json", Vec<NavigationNode>),
-        schema!("teaching-policy.json", TeachingPolicy),
-        schema!("conversation-topics.json", Vec<ConversationTopic>),
-        schema!("conversation-prompt.json", ConversationPromptContent),
+        schema!("language.yaml", LanguageDocument),
+        schema!("teaching-guides.yaml", super::guides::GuideDocument),
+        schema!("speech-routing.yaml", super::speech::Catalog),
+        schema!("language-foundations.yaml", Foundations),
+        schema!("learning-goals.yaml", Vec<Construct>),
+        schema!("learning-map.yaml", Vec<NavigationNode>),
+        schema!("teaching-policy.yaml", TeachingPolicy),
+        schema!("conversation-topics.yaml", Vec<ConversationTopic>),
+        schema!("conversation-prompt.yaml", ConversationPromptContent),
     ])
 }

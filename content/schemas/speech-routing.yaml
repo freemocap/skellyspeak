@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  Model:
+    additionalProperties: false
+    properties:
+      languages:
+        type: string
+      provider:
+        type: string
+      task:
+        $ref: '#/definitions/Task'
+    required:
+    - languages
+    - provider
+    - task
+    type: object
+  Preferences:
+    additionalProperties: false
+    properties:
+      speech:
+        items:
+          type: string
+        type:
+        - array
+        - 'null'
+      transcription:
+        items:
+          type: string
+        type:
+        - array
+        - 'null'
+    type: object
+  Task:
+    enum:
+    - transcription
+    - speech
+    type: string
+properties:
+  defaults:
+    $ref: '#/definitions/Preferences'
+  language_sets:
+    additionalProperties:
+      additionalProperties:
+        type: string
+      type: object
+    type: object
+  models:
+    additionalProperties:
+      $ref: '#/definitions/Model'
+    type: object
+  sources:
+    items:
+      type: string
+    type: array
+  version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+required:
+- defaults
+- language_sets
+- models
+- sources
+- version
+title: Catalog
+type: object

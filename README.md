@@ -20,6 +20,7 @@ text; normalization belongs only to the operation that requires it.
 | [native/](native/) | Rust/Tauri application running on the user's device |
 | [server/](server/) | Python/FastAPI hosted service |
 | [content/](content/) | Editable language, learning-policy, topic and prompt data; AI behavior index |
+| [redaction-policy/](redaction-policy/) | Shared diagnostic-data redaction policy and cross-runtime conformance cases |
 | [docs/](docs/) | Documentation status, guides and existing website |
 | [tools/](tools/) | Development, verification and release tooling |
 | [old/](old/) | Historical reference; potentially outdated and untrustworthy |
@@ -318,7 +319,9 @@ The session stays in the platform credential store. There is no transcript sync.
 Choose **Custom URL** to use your own SkellySpeak server. Save its address and,
 if authentication is enabled, its server session token. Provider keys belong on
 the server; the desktop app has no direct-provider access route. Standard/Fast,
-transcription and speech models are configured in Models.
+transcription and speech model defaults are configured in Models. Shared speech
+capabilities and optional language/variety preferences resolve the model actually
+used; recording checks configured service availability before opening the microphone.
 
 Settings save automatically with visible pending and failure states. Token entry
 is masked; a blank field retains the saved token. Connection checks validate the
@@ -736,7 +739,7 @@ file picker. Error panels use a compact export icon beside the dismiss control.
 Desktop uses **Save logs** and saves to Downloads. The ZIP excludes conversations,
 recordings and credentials.
 
-Privacy rules live in `content/diagnostics/policy.json`; run
+Privacy rules live in `redaction-policy/policy.json`; run
 `npm run diagnostics:policy` after editing and `npm run diagnostics:check` to check
 all generated runtime copies. Redaction uses `[secret redacted]` and
 `[user content redacted]`, preserving surrounding explanations. Error receipts and

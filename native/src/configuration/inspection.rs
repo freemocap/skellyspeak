@@ -39,6 +39,7 @@ pub struct SchemeInspection {
 #[derive(Debug, Clone, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct LanguageInspection {
+    pub guides: Vec<guides::GuideInspection>,
     pub fingerprint: String,
     pub language: model::Language,
     pub variety_id: String,
@@ -62,6 +63,7 @@ impl Registry {
         explanation: &str,
         explanation_variety: Option<&str>,
     ) -> Result<LanguageInspection> {
+        let guides = self.inspect_guides(language, variety)?;
         let context = self.resolve_pair(language, variety, explanation, explanation_variety)?;
         let doc = self
             .documents
@@ -210,6 +212,7 @@ impl Registry {
             .iter()
             .filter(|(name, _)| {
                 *name == &path
+                    || guides.iter().any(|g| g.source.split('#').next() == Some(name.as_str()))
                     || *name == &format!("languages/{explanation}.yaml")
                     || name.starts_with("shared/")
                     || name.as_str() == "references.bib"
@@ -232,6 +235,7 @@ impl Registry {
             .key(language);
         language_projection.font_scale = context.font_scale;
         Ok(LanguageInspection {
+            guides,
             fingerprint: self.hash.clone(),
             language: language_projection,
             variety_id: context.variety_id.clone(),
@@ -242,7 +246,7 @@ impl Registry {
             schemes,
             sources,
             partner: doc.conversation.default_partner.clone(),
-            schema_json: serde_json::to_string_pretty(&schemas()["language.json"]).unwrap(),
+            schema_json: serde_json::to_string_pretty(&schemas()["language.yaml"]).unwrap(),
             resolved_json: serde_json::to_string_pretty(
                 &serde_json::json!({"language":self.language_config(language)?,"context":context}),
             )

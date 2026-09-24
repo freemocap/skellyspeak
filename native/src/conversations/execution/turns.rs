@@ -238,9 +238,10 @@ fn accept_turn(
     crate::ai::policy::holds::check(db, &target)?;
     let speech_enabled = !coach && conversation.settings.read_aloud;
     let speech_target = if speech_enabled {
-        Some(crate::ai::connections::access::resolve(
+        Some(crate::ai::connections::speech_routing::resolve(
             db,
             crate::ai::connections::access::Capability::Speech,
+            &language_context,
         )?)
     } else {
         None

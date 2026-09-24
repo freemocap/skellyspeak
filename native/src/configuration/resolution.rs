@@ -143,7 +143,13 @@ impl Registry {
             guidance.insert(scope.to_string(), rules);
         }
         let (direction, font_scale, word_spacing) = self.resolved_scalars(target, variety);
+        let selected = target
+            .varieties
+            .iter()
+            .find(|v| v.id == variety)
+            .expect("validated variety");
         let mut ctx = LanguageContext {
+            speech_routes: target.speech_routes.overlay(&selected.speech_routes),
             script: target
                 .varieties
                 .iter()

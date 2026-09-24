@@ -20,6 +20,8 @@ pub type Result<T> = std::result::Result<T, ConfigLoadError>;
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct LanguageContext {
+    #[serde(default, skip_serializing_if = "super::speech::Preferences::is_empty")]
+    pub speech_routes: super::speech::Preferences,
     pub language_id: String,
     pub variety_id: String,
     pub explanation_language_id: String,
@@ -137,6 +139,8 @@ pub struct Family {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Variety {
+    #[serde(default, skip_serializing_if = "super::speech::Preferences::is_empty")]
+    pub speech_routes: super::speech::Preferences,
     #[serde(default)]
     pub romanization_disabled: bool,
     pub description: String,
@@ -155,6 +159,8 @@ pub struct Variety {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Language {
+    #[serde(default, skip_serializing_if = "super::speech::Preferences::is_empty")]
+    pub speech_routes: super::speech::Preferences,
     pub external_tags: BTreeMap<String, String>,
     pub starter_persona: crate::model::PersonaDetails,
     #[serde(default)]

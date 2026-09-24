@@ -21,6 +21,8 @@ pub enum Capability {
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolvedTarget {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub audio_resolution: Option<crate::configuration::speech::Resolution>,
     pub route: ConnectionRoute,
     pub revision: i32,
     pub url: String,
@@ -152,6 +154,7 @@ pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget
         Capability::Transcription => "audio/transcriptions",
     };
     Ok(ResolvedTarget {
+        audio_resolution: None,
         route,
         revision: config.revision,
         url: format!("{}/{path}", base.trim_end_matches('/')),

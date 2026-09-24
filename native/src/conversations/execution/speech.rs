@@ -67,6 +67,7 @@ pub(super) fn prepare_speech(
         coaching_schema: None,
         gloss_source: None,
         speech_source: Some(crate::speech::cache::Source {
+            language_tag: input.language_tag,
             message_id,
             text: input.text,
             language: input.language,
@@ -93,6 +94,11 @@ pub(crate) fn speech_input(
         return Err(fail("Speech input exceeds its source contract."));
     }
     let input = crate::ai::audio::SpeechInput {
+        language_tag: context
+            .external_tags
+            .get("language_tag")
+            .cloned()
+            .ok_or_else(|| fail("Speech requires a language tag."))?,
         text,
         voice,
         language: format!("{} — {}", context.target_name, context.variety_name),
@@ -120,9 +126,12 @@ pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -
     }
     // A click authorizes synthesis of this saved text using today's settings.
     // Completed audio and active requests above need no new connection at all.
-    let target = crate::ai::connections::access::resolve(
+    let context: crate::configuration::LanguageContext =
+        serde_json::from_value(captured["languageContext"].clone())?;
+    let target = crate::ai::connections::speech_routing::resolve(
         db,
         crate::ai::connections::access::Capability::Speech,
+        &context,
     )?;
     captured["speechTarget"] = serde_json::to_value(&target)?;
     speech_binding(db, message_id, &text, &captured)?;

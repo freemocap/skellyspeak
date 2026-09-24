@@ -81,5 +81,7 @@ server/app/diagnostics/admin_assets/*
 !server/app/inference/groq_transcription.py
 
 !server/app/inference/transcription_profiles.py
+!server/app/inference/transcription_languages.py
+!server/app/inference/speech_catalog.py
 !server/app/inference/transcription_timing.py
 !server/app/inference/transcription_confidence.py

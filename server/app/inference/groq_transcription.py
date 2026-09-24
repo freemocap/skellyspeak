@@ -11,6 +11,7 @@ import wave
 import httpx
 
 from server.app.inference.transcription_confidence import summarize
+from server.app.inference.transcription_languages import WHISPER_MODELS, whisper_code, primary_code
 from server.app.diagnostics import provider_errors
 from server.app.diagnostics.exceptions import describe
 from server.app.inference.transcription_timing import decode_words
@@ -25,7 +26,7 @@ class GroqTranscription:
     async def transcribe(self, source: TranscriptionRequest) -> TranscriptionResult:
         receipt = AudioReceipt('groq', self.model)
         duration = len(source.pcm) / 32000
-        language = transcription_language(source.language_tag)
+        language = transcription_language(source.language_tag, model=self.model)
         if (not self.model or language is None
                 or len(source.pcm) % 2 or not .1 <= duration <= 120):
             raise AudioFailure('AUDIO_INPUT_INVALID', receipt=receipt, unknown_outcome=False)
@@ -72,10 +73,11 @@ class GroqTranscription:
                     'exception': describe(error, private=(self.key, source.context, self.base_url), include_message=True)}) from None
 
 
-def transcription_language(tag):
-    if not isinstance(tag, str) or len(tag) > 80 or not re.fullmatch(r"[a-z]{2}(?:-[A-Za-z0-9]{1,8})*", tag):
-        return None
-    return tag.split("-")[0]
+def transcription_language(tag, *, model="whisper-large-v3"):
+    if model in WHISPER_MODELS:
+        return whisper_code(tag)
+    # Unknown custom models retain provider-side validation.
+    return primary_code(tag)
 
 
 def decode(body, duration, receipt):

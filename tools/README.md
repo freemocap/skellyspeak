@@ -89,3 +89,12 @@ compares identical audio across Scribe, Whisper and OpenAI transcription conditi
 Run `npm run transcription:check` for offline checks. See the
 [workbench guide](benchmarks/transcription/README.md) for keys, pronunciation
 references, recording privacy, experiment controls and current limitations.
+
+## Content authoring
+
+`npm run content:workbench` opens a standalone local content browser/editor for
+YAML, prompt files and language-guide pilot notes. It shows sections, references
+and incoming links, and saves exact source text with stale-file protection.
+See [the workbench guide](content-workbench/README.md). This tool supports content
+planning independently of app/native integration. Run
+`npm run content:workbench:check` for its focused checks.

@@ -24,7 +24,7 @@ fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
         }
         if path
             .file_name()
-            .is_some_and(|name| name == "schemas" || name == "diagnostics")
+            .is_some_and(|name| name == "schemas")
         {
             continue;
         }

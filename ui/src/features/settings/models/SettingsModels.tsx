@@ -76,6 +76,7 @@ export function SettingsModels({ onBusyChange, onChanged, refreshKey = 0 }: {
         onBlur={() => { setDraft(current => current && ({ ...current, [key]: current[key].trim() })); setEditing(false) }}
         onChange={event => { setDraft({ ...draft, [key]: event.target.value }); setError(null); setStatus('') }} />
     </div>)}
+    <p className="detail-meta">{tr('Audio models are defaults. Language preferences and supported languages determine the model used.')}</p>
     {(['transcription', 'speech'] as const).map(kind => <fieldset key={kind}>
       <legend>{tr(kind === 'transcription' ? 'Transcription model' : 'Read aloud')}</legend>
       {kind === 'transcription' && <div className="form-row">

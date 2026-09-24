@@ -9,3 +9,5 @@ mod segmentation;
 pub(crate) mod transcription;
 pub(crate) mod voice;
 mod wav;
+
+mod preflight;

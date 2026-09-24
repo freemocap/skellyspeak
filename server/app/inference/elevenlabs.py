@@ -17,6 +17,8 @@ import wave
 
 import httpx
 
+from server.app.inference.transcription_languages import scribe_code
+
 from server.app.diagnostics import provider_errors
 
 from server.app.inference.transcription_timing import decode_words
@@ -178,9 +180,7 @@ class ElevenLabs:
 
 
 def transcription_language(tag):
-    if not isinstance(tag, str) or len(tag) > 80 or not re.fullmatch(r"[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*", tag):
-        return None
-    return tag.split("-")[0]
+    return scribe_code(tag)
 
 
 def _transcript(body: bytes, duration: float, receipt: AudioReceipt) -> TranscriptionResult:

@@ -211,6 +211,7 @@ mod tests {
             decisions: None,
             temperature: 0.7,
             target: ResolvedTarget {
+                audio_resolution: None,
                 route: ConnectionRoute::Custom,
                 revision: 1,
                 url: "SECRET".into(),

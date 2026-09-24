@@ -4,6 +4,8 @@ pub mod appearance;
 mod citations;
 pub mod difficulty;
 mod documents;
+pub mod guides;
+pub mod speech;
 pub(crate) use documents::ConversationPromptContent;
 mod identity;
 mod inspection;
@@ -69,6 +71,7 @@ pub struct Registry {
     #[serde(skip)]
     source_files: BTreeMap<String, String>,
     goal_material: BTreeMap<String, BTreeMap<String, documents::GoalMaterial>>,
+    guides: BTreeMap<String, guides::GuideDocument>,
 }
 include!(concat!(env!("OUT_DIR"), "/config_seeds.rs"));
 
@@ -577,3 +580,9 @@ mod latin_language_tests;
 
 #[cfg(test)]
 mod added_language_tests;
+
+#[cfg(test)]
+mod speech_tests;
+
+#[cfg(test)]
+mod guides_tests;

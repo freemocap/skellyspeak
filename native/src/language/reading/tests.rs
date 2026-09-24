@@ -79,3 +79,22 @@ fn recovery_preserves_unknown_billing_and_metadata() {
             .any(|r| r["id"] == active && r["state"] == "unknown")
     );
 }
+
+#[test]
+fn reading_speech_uses_language_capability_and_keeps_canonical_tag() {
+    let (_dir, store) = fixture();
+    let mut source = input();
+    source.aid = ReadingAid::Speech;
+    source.language = "irish".into();
+    source.text = "Go raibh maith agat".into();
+    let request = Request::capture(&store, source.clone()).unwrap();
+    assert_eq!(request.target.model, "eleven_v3");
+    assert_eq!(
+        request.target.audio_resolution.as_ref().unwrap().provider,
+        "elevenlabs"
+    );
+    assert_eq!(request.speech_input().unwrap().language_tag, "ga");
+    request.validate(&store).unwrap();
+    source.language = "scottish-gaelic".into();
+    assert!(Request::capture(&store, source).is_err());
+}

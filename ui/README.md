@@ -271,7 +271,9 @@ record audio or save preferences.
 
 Model selection has its own Settings section, owned by
 `features/settings/models/SettingsModels.tsx`. Standard, Fast and Transcription
-choices are shared across all access routes. `features/settings/access/` owns
+choices are shared across all access routes. Audio choices are global defaults;
+the shared native speech resolver applies language preferences and model capabilities
+and captures the actual model on each operation. `features/settings/access/` owns
 route selection, credentials and endpoint configuration, with no model editor.
 
 

@@ -5,6 +5,7 @@ use crate::ai::transport::transcription_provider;
 use crate::model::{AppError, Result};
 
 pub struct SpeechInput {
+    pub language_tag: String,
     pub text: String,
     pub voice: String,
     pub language: String,

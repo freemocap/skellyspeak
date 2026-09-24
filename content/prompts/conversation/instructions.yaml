@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../schemas/conversation-prompt.json
+# yaml-language-server: $schema=../../schemas/conversation-prompt.yaml
 # Editable runtime conversation instructions, bundled by native/build.rs.
 base: >-
   Output only the requested language and writing system, without translation, labels,

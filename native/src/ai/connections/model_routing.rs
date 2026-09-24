@@ -15,6 +15,7 @@ mod tests {
     #[test]
     fn declared_role_selects_model_without_changing_access() {
         let base = ResolvedTarget {
+            audio_resolution: None,
             route: crate::model::ConnectionRoute::Custom,
             revision: 1,
             url: "https://example.test/v1/operations".into(),

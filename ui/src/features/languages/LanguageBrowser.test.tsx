@@ -25,7 +25,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
 const current = { my_languages:['arabic','english'], target_varieties:{}, target_language:'arabic', target_variety:'arabic-levantine', native_language:'english', native_variety:'english-united-states' } as Settings
 function report(id='arabic-levantine'): LanguageInspection {
   return {
-    fingerprint:'content-fingerprint',varietyId:id,review:'needs_review',family:'afro-asiatic',
+    guides:[],fingerprint:'content-fingerprint',varietyId:id,review:'needs_review',family:'afro-asiatic',
     language:{id:'arabic',name:'Arabic',nativeName:'العربية',transcriptionLanguage: null, languageTag:'ar',defaultVariety:'arabic-levantine',fontScale:1.5,direction:'rtl',romanization:'arabic:ala-lc-arabic',varieties:[],greeting:{text:'مرحبا',romanized:'marḥaban'},partner:{name:'نور',romanizedName:'Nūr',vibe:['🏛️']}},
     values:[{field:'font_scale',value:'1.5',source:'languages/arabic.yaml#defaults.scalars.font_scale'}],
     rules:[{scope:'assessment',text:'Preserve learner quotations.',source:'languages/arabic.yaml#guidance.0'}],

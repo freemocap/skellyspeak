@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import pytest
 from server.app.diagnostics.provider_errors import scrub
-CASES = json.loads((Path(__file__).resolve().parents[3] / 'content/diagnostics/retention-cases.json').read_text())
+CASES = json.loads((Path(__file__).resolve().parents[3] / 'redaction-policy/cases.json').read_text())
 @pytest.mark.parametrize('sample', CASES, ids=lambda sample: sample['name'])
 def test_shared_privacy_and_retention_contract(sample):
     result = scrub(sample['text'], sample['private'])
