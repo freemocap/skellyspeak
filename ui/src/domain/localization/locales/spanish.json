@@ -1,6 +1,5 @@
 {
   "Add to Drill": "Añadir a práctica",
-  "Added to Drill": "Añadido a práctica",
   "Help with this reply": "Ayuda con esta respuesta",
   "Hide reply help": "Ocultar la ayuda",
   "Explain grammar": "Explicar la gramática",
@@ -1371,5 +1370,6 @@
   "Loading reference…": "Cargando la referencia…",
   "Next take": "Siguiente toma",
   "No take in progress": "Ninguna toma en curso",
-  "{value0} more": "{value0} más"
+  "{value0} more": "{value0} más",
+  "Remove from Drill": "Quitar de práctica"
 }
