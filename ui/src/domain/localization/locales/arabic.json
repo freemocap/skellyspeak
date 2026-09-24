@@ -1,6 +1,5 @@
 {
   "Add to Drill": "إضافة إلى التدريب",
-  "Added to Drill": "أُضيف إلى التدريب",
   "Help with this reply": "مساعدة في هذا الرد",
   "Hide reply help": "إخفاء مساعدة الرد",
   "Explain grammar": "شرح القواعد",
@@ -1371,5 +1370,6 @@
   "Loading reference…": "جارٍ تحميل المرجع…",
   "Next take": "التسجيل التالي",
   "No take in progress": "لا يوجد تسجيل جارٍ",
-  "{value0} more": "{value0} أخرى"
+  "{value0} more": "{value0} أخرى",
+  "Remove from Drill": "إزالة من التدريب"
 }

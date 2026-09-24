@@ -1,6 +1,5 @@
 {
   "Add to Drill": "添加到练习",
-  "Added to Drill": "已添加到练习",
   "Help with this reply": "回复帮助",
   "Hide reply help": "隐藏回复帮助",
   "Explain grammar": "讲解语法",
@@ -1371,5 +1370,6 @@
   "Loading reference…": "正在加载参考音频…",
   "Next take": "下一次录音",
   "No take in progress": "没有正在进行的录音",
-  "{value0} more": "还有 {value0} 个"
+  "{value0} more": "还有 {value0} 个",
+  "Remove from Drill": "从练习中移除"
 }
