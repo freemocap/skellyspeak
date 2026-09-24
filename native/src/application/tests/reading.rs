@@ -177,8 +177,10 @@ async fn translation_runs_the_conversation_translation_contract_and_is_counted()
             .unwrap();
         let captured = serde_json::json!({"targetLanguage":"arabic","translationLanguage":"english","languageContext":context});
         (
-            execution::config(&store.connection).unwrap().fast_model,
-            crate::conversations::translation::prompt("كتاب".into(), &captured).unwrap(),
+            crate::ai::connections::configuration::config(&store.connection)
+                .unwrap()
+                .fast_model,
+            crate::language::translation::prompt("كتاب".into(), &captured).unwrap(),
         )
     };
     let before = state.lock().unwrap().profile().unwrap();
@@ -208,10 +210,13 @@ async fn translation_runs_the_conversation_translation_contract_and_is_counted()
         serde_json::to_value(&expected_messages).unwrap()
     );
     assert_eq!(request["model"], fast);
-    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["temperature"],
+        crate::ai::connections::model_routing::TASK_TEMPERATURE
+    );
     assert_eq!(
         request["response_format"]["json_schema"]["schema"],
-        crate::conversations::translation::schema()
+        crate::language::translation::schema()
     );
     let receipts = reading::activity(&state.lock().unwrap()).unwrap();
     assert_eq!(receipts[0]["kind"], "reading_translation");
@@ -313,8 +318,10 @@ async fn word_gloss_runs_the_conversation_gloss_contract_and_keeps_partial_meani
         (
             crate::ai::connections::model_routing::target(
                 &target,
-                crate::conversations::gloss::ROLE,
-                &execution::config(&store.connection).unwrap().fast_model,
+                crate::language::gloss::ROLE,
+                &crate::ai::connections::configuration::config(&store.connection)
+                    .unwrap()
+                    .fast_model,
             )
             .model,
             prompt,
@@ -347,7 +354,10 @@ async fn word_gloss_runs_the_conversation_gloss_contract_and_keeps_partial_meani
         serde_json::to_value(&expected.messages).unwrap()
     );
     assert_eq!(request["model"], model);
-    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["temperature"],
+        crate::ai::connections::model_routing::TASK_TEMPERATURE
+    );
     assert_eq!(
         request["response_format"]["json_schema"]["schema"],
         expected.output_schema
@@ -395,7 +405,10 @@ async fn explanations_run_the_conversation_support_contract_against_the_source()
     assert_eq!(cards.len(), 1);
     assert_eq!(cards[0].quote, "كتاب");
     let request = &payload["items"][0]["request"];
-    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["temperature"],
+        crate::ai::connections::model_routing::TASK_TEMPERATURE
+    );
     assert_eq!(
         request["response_format"]["json_schema"]["schema"],
         crate::learning::coaching::conversation_support::schema("reply_explanations")

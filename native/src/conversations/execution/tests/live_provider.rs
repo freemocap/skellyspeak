@@ -49,9 +49,10 @@ async fn live_multilingual_conversation_support() {
         store.dispatch().unwrap();
         let persona = store.dispatch().unwrap().unwrap();
         let start = std::time::Instant::now();
-        let result = crate::ai::transport::provider::complete(&client, key, &persona)
-            .await
-            .unwrap();
+        let result =
+            crate::ai::transport::provider::complete(&client, key, &persona.text_request())
+                .await
+                .unwrap();
         println!(
             "LIVE {language} persona_reply {}ms input={:?} output={:?}: {}",
             start.elapsed().as_millis(),
@@ -74,7 +75,7 @@ async fn live_multilingual_conversation_support() {
             let output = crate::ai::transport::provider::complete_with_output(
                 &client,
                 key,
-                &work,
+                &work.text_request(),
                 crate::ai::transport::provider::RequestOutput::JsonSchema {
                     max_output_tokens: 2048,
                     name: "conversation_support",

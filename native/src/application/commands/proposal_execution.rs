@@ -41,8 +41,8 @@ pub(super) async fn execute<T>(
         )
         .await??;
         validate()?;
-        let dispatch = execution::Dispatch {
-            temperature: execution::TASK_TEMPERATURE,
+        let dispatch = crate::ai::transport::text_request::TextRequest {
+            temperature: crate::ai::connections::model_routing::TASK_TEMPERATURE,
             target: request.target.clone(),
             attempt: request.attempt.clone(),
             operation: request.operation.clone(),
@@ -51,11 +51,8 @@ pub(super) async fn execute<T>(
             route: request.target.route,
             install_id: request.install_id.clone(),
             messages: task.messages,
-            gloss_schema: None,
+
             decisions: None,
-            coaching_schema: None,
-            gloss_source: None,
-            speech_source: None,
         };
         {
             let mut store = state.lock()?;

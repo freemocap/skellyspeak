@@ -3,7 +3,6 @@
 pub(crate) mod generation_receipts;
 use crate::ai::connections::access;
 use crate::ai::policy::holds;
-use crate::conversations::execution;
 use crate::model::*;
 use crate::storage::store::Store;
 use std::{
@@ -49,13 +48,15 @@ impl Request {
         let language_id = context.language_id.clone();
         let language = store.config.language(&language_id)?;
         let target = access::resolve(&store.connection, access::Capability::Chat)?;
-        let credential = execution::active_credential(&store.connection)?.ok_or_else(|| {
-            AppError::new(
-                ErrorCode::Credential,
-                "Configure the selected AI connection before generating.",
-            )
-        })?;
-        let (attempt, operation) = crate::application::generation_identity();
+        let credential =
+            crate::ai::connections::configuration::active_credential(&store.connection)?
+                .ok_or_else(|| {
+                    AppError::new(
+                        ErrorCode::Credential,
+                        "Configure the selected AI connection before generating.",
+                    )
+                })?;
+        let (attempt, operation) = crate::ai::identity::new_execution_ids();
         let request = Self {
             id: uuid::Uuid::new_v4().to_string(),
             language_context: context,
@@ -113,7 +114,7 @@ impl Request {
             return Err(self.stopped("language configuration changed"));
         }
         self.check_cancelled()?;
-        let config = execution::config(&store.connection)?;
+        let config = crate::ai::connections::configuration::config(&store.connection)?;
         if config.paused {
             return Err(if self.was_submitted() {
                 self.stopped("AI execution is paused")
@@ -126,7 +127,9 @@ impl Request {
         }
         if config.revision != self.target.revision
             || config.route != self.target.route
-            || execution::active_credential(&store.connection)?.as_deref() != Some(&self.credential)
+            || crate::ai::connections::configuration::active_credential(&store.connection)?
+                .as_deref()
+                != Some(&self.credential)
         {
             return Err(self.stopped("connection authority changed"));
         }

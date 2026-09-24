@@ -4,11 +4,8 @@ mod receipts;
 #[cfg(test)]
 mod tests;
 use crate::{
-    ai::connections::access,
-    conversations::{execution, gloss},
-    learning::coaching::conversation_support as support,
-    model::*,
-    storage::store::Store,
+    ai::connections::access, ai::transport::text_request::TextRequest, language::gloss,
+    learning::coaching::conversation_support as support, model::*, storage::store::Store,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -55,8 +52,8 @@ impl ReadingAid {
     fn role(self) -> &'static str {
         match self {
             ReadingAid::WordGloss => gloss::ROLE,
-            ReadingAid::Speech => execution::SPEECH_ROLE,
-            ReadingAid::Translation => crate::conversations::translation::ROLE,
+            ReadingAid::Speech => crate::ai::connections::model_routing::SPEECH_ROLE,
+            ReadingAid::Translation => crate::language::translation::ROLE,
             ReadingAid::Explanations => support::ROLE,
         }
     }
@@ -133,9 +130,10 @@ impl Request {
         let model = crate::ai::connections::model_routing::target(
             &target,
             input.aid.role(),
-            &execution::config(&store.connection)?.fast_model,
+            &crate::ai::connections::configuration::config(&store.connection)?.fast_model,
         )
         .model;
+        let (attempt, operation) = crate::ai::identity::new_execution_ids();
         let request = Self {
             id: uuid::Uuid::new_v4().to_string(),
             input,
@@ -143,8 +141,8 @@ impl Request {
             target,
             model,
             install: store.snapshot()?.learner.id,
-            attempt: execution::new_attempt_id(),
-            operation: uuid::Uuid::new_v4().simple().to_string(),
+            attempt,
+            operation,
             config_hash: store.config.hash().into(),
             created: Instant::now(),
             claimed: AtomicBool::new(false),
@@ -159,7 +157,7 @@ impl Request {
         if self.cancelled.load(Ordering::SeqCst) {
             return Err(self.stopped());
         }
-        let config = execution::config(&store.connection)?;
+        let config = crate::ai::connections::configuration::config(&store.connection)?;
         if config.paused
             || self.config_hash != store.config.hash()
             || self.install != store.snapshot()?.learner.id
@@ -218,18 +216,15 @@ impl Request {
     }
     /// The provider request for this aid, on the aid's routed model at the
     /// task temperature conversation turns use.
-    fn dispatch(
+    fn text_request(
         &self,
         messages: Vec<crate::ai::transport::provider::PromptMessage>,
-        gloss_schema: Option<serde_json::Value>,
-        coaching_schema: Option<serde_json::Value>,
-        gloss_source: Option<gloss::Source>,
-    ) -> execution::Dispatch {
+    ) -> TextRequest {
         let mut target = self.target.clone();
         target.model = self.model.clone();
-        execution::Dispatch {
+        TextRequest {
             decisions: None,
-            temperature: execution::TASK_TEMPERATURE,
+            temperature: crate::ai::connections::model_routing::TASK_TEMPERATURE,
             credential: self.target.credential.clone().unwrap_or_default(),
             model: self.model.clone(),
             route: self.target.route,
@@ -238,10 +233,6 @@ impl Request {
             operation: self.operation.clone(),
             install_id: self.install.clone(),
             messages,
-            gloss_schema,
-            coaching_schema,
-            gloss_source,
-            speech_source: None,
         }
     }
     /// The captured language scope the conversation task contracts read.
@@ -256,7 +247,7 @@ impl Request {
     /// contract: the same instruction, output schema, validation, task
     /// temperature and model role that explanation turns send. The source text
     /// is the explained message; it has no surrounding exchange or learner input.
-    pub(crate) fn explanations_dispatch(&self) -> Result<execution::Dispatch> {
+    pub(crate) fn explanations_dispatch(&self) -> Result<(TextRequest, serde_json::Value)> {
         let mut captured = self.captured();
         captured["messages"] = serde_json::json!([]);
         let schema = support::schema_for_context(support::EXPLANATIONS, &captured);
@@ -266,25 +257,23 @@ impl Request {
             support::EXPLANATIONS,
             &captured,
         )?;
-        Ok(self.dispatch(messages, None, Some(schema), None))
+        Ok((self.text_request(messages), schema))
     }
     /// A translation request through the conversation translation contract:
     /// the same prompt, output schema, task temperature and model role that
     /// translation turns send. Returns the dispatch and its output schema.
-    pub(crate) fn translation_dispatch(&self) -> Result<(execution::Dispatch, serde_json::Value)> {
+    pub(crate) fn translation_dispatch(&self) -> Result<(TextRequest, serde_json::Value)> {
         let captured = self.captured();
-        let schema = crate::conversations::translation::schema();
-        let messages =
-            crate::conversations::translation::prompt(self.input.text.clone(), &captured)?;
-        Ok((
-            self.dispatch(messages, None, Some(schema.clone()), None),
-            schema,
-        ))
+        let schema = crate::language::translation::schema();
+        let messages = crate::language::translation::prompt(self.input.text.clone(), &captured)?;
+        Ok((self.text_request(messages), schema))
     }
     /// A word-meaning request through the conversation word-gloss contract:
     /// the same source-bound prompt, output schema, task temperature and model
     /// role that word-gloss turns send.
-    pub(crate) fn word_gloss_dispatch(&self) -> Result<execution::Dispatch> {
+    pub(crate) fn word_gloss_dispatch(
+        &self,
+    ) -> Result<(TextRequest, gloss::Source, serde_json::Value)> {
         let source = self.source();
         let prompt = crate::language::linguistics::adapter::build_word_gloss_prompt_with_context(
             &source.identity,
@@ -297,17 +286,16 @@ impl Request {
                 "This selection cannot be analyzed. Select a shorter passage.",
             )
         })?;
-        Ok(self.dispatch(
-            prompt.messages,
-            Some(prompt.output_schema),
-            None,
-            Some(source),
+        Ok((
+            self.text_request(prompt.messages),
+            source,
+            prompt.output_schema,
         ))
     }
     /// A speech request through the persona speech contract: the same source
     /// limits, voice, language label and route validation.
     pub(crate) fn speech_input(&self) -> Result<crate::ai::audio::SpeechInput> {
-        execution::speech_input(
+        crate::ai::audio::speech_input(
             &self.target,
             self.input.text.clone(),
             crate::configuration::SPEECH_VOICE.into(),

@@ -168,7 +168,7 @@ fn generation_identities_have_the_shape_the_hosted_server_accepts() {
                 .chars()
                 .all(|c| c.is_ascii_digit() || ('a'..='f').contains(&c))
     };
-    let (attempt, operation) = generation_identity();
+    let (attempt, operation) = crate::ai::identity::new_execution_ids();
     // The server's rules: operation `[0-9a-f]{32}`, attempt `[0-9]{10}-[0-9a-f]{32}`.
     let (issued, random) = attempt.split_once('-').expect("attempt has an issue time");
     assert!(

@@ -50,6 +50,16 @@ embedding language behavior in feature code.
 
 ### Reply-help execution
 
+Transport inputs live in `ai/transport/text_request.rs`. They contain execution
+identity and provider inputs, without conversation or Drill publication state.
+Conversation dispatch projects those inputs; independent reading and proposal
+generation construct them directly. Translation and gloss contracts live in
+`language/{translation,gloss}.rs`; speech-input construction lives in `ai/audio.rs`.
+Shared execution settings live in `ai/connections/configuration.rs`, and request
+identities in `ai/identity.rs`. Transports must not import product workflows.
+Result persistence and caching still follow the existing paths pending the
+[shared inference refactor](../docs/notes/shared-inference-architecture-audit-2026-09-24.md).
+
 Normal and opening turns automatically schedule `reply_brief`. Grammar
 (`reply_explanations`) and suggestions (`reply_assistance`) are created only by
 explicit requests for a published partner message. `conversations/execution/assistance.rs`

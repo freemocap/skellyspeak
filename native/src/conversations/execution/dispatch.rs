@@ -207,7 +207,7 @@ impl Store {
                         params![turn, analysis_role(&kind)],
                         |r| Ok((r.get(0)?, r.get(1)?)),
                     )?;
-                    let source = crate::conversations::gloss::Source {
+                    let source = crate::language::gloss::Source {
                         identity: crate::language::linguistics::SourceIdentity {
                             message_id,
                             target_language_id: captured["targetLanguage"]
@@ -274,7 +274,7 @@ impl Store {
                     params![turn, analysis_role(&kind)],
                     |r| r.get(0),
                 )?;
-                crate::conversations::translation::prompt(source, &captured)?
+                crate::language::translation::prompt(source, &captured)?
             } else {
                 serde_json::from_value(captured["messages"].clone())?
             };
@@ -302,11 +302,12 @@ impl Store {
                     .ok_or_else(|| fail("Captured fast model is missing."))?
                     .into();
             }
-            let coaching_schema = if crate::conversations::translation::owns(&kind) {
-                Some(crate::conversations::translation::schema())
-            } else {
-                coaching_schema
-            };
+            let coaching_schema =
+                if matches!(kind.as_str(), "user_translation" | "reply_translation") {
+                    Some(crate::language::translation::schema())
+                } else {
+                    coaching_schema
+                };
             let decisions = if jev {
                 target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
                 Some(crate::learning::coaching::assessment_adapter::request(

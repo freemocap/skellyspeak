@@ -33,7 +33,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
     let opening = store.dispatch().unwrap().unwrap();
     assert_eq!(opening.temperature, 1.1);
     let request = crate::ai::transport::provider::dispatch_payload(
-        &opening,
+        &opening.text_request(),
         crate::ai::transport::provider::RequestOutput::Prose,
     )
     .unwrap();

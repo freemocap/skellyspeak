@@ -86,7 +86,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     && let Some(group) = groups.iter_mut().find(|g| {
                         g.len() < grouped::MAX_ITEMS
                             && g[0].0.speech_source.is_none()
-                            && grouped::compatible(&g[0].0, &dispatch)
+                            && grouped::compatible(&g[0].0.text_request(), &dispatch.text_request())
                     })
                 {
                     group.push((dispatch, permit, generation));
@@ -154,7 +154,8 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                         // Version 2 streams prose items' text; an older or
                         // custom server keeps the whole-result protocol.
                         let deltas = state.prepare_grouped(&client, &key, &dispatches).await?;
-                        let request = grouped::request_streaming(&client, &key, &dispatches, &outputs, deltas, |index, outcome| {
+                        let requests: Vec<_> = dispatches.iter().map(execution::Dispatch::text_request).collect();
+                        let request = grouped::request_streaming(&client, &key, &requests, &outputs, deltas, |index, outcome| {
                             state.finish_attempt(&app, generations[index], &dispatches[index], outcome)?;
                             finished[index] = true;
                             permits[index].take();

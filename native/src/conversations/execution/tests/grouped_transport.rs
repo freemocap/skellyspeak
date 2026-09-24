@@ -85,7 +85,10 @@ async fn check_grouped_partial_result(translations: bool, route: ConnectionRoute
     let result = crate::ai::transport::grouped::request(
         &crate::ai::transport::provider::client().unwrap(),
         "test",
-        &dispatches,
+        &dispatches
+            .iter()
+            .map(Dispatch::text_request)
+            .collect::<Vec<_>>(),
         |index, result| {
             store.finish(&dispatches[index], result)?;
             assert_eq!(
@@ -157,10 +160,13 @@ async fn unreachable_grouped_server_is_a_connection_failure_before_inference() {
     dispatch.target.route = ConnectionRoute::Custom;
     dispatch.target.url = format!("http://{address}/v1/operations");
     let client = crate::ai::transport::provider::client().unwrap();
-    let protocol =
-        crate::ai::transport::grouped::supports_deltas(&client, "private-test-key", &dispatch)
-            .await
-            .unwrap_err();
+    let protocol = crate::ai::transport::grouped::supports_deltas(
+        &client,
+        "private-test-key",
+        &dispatch.text_request(),
+    )
+    .await
+    .unwrap_err();
     assert_eq!(protocol.code, ErrorCode::Provider);
     assert_eq!(
         protocol.diagnostics.as_ref().unwrap()["reason"],
@@ -170,12 +176,14 @@ async fn unreachable_grouped_server_is_a_connection_failure_before_inference() {
         protocol.diagnostics.as_ref().unwrap()["stage"],
         "grouped_protocol"
     );
-    let error =
-        crate::ai::transport::grouped::request(&client, "private-test-key", &[dispatch], |_, _| {
-            panic!("No result before connection")
-        })
-        .await
-        .unwrap_err();
+    let error = crate::ai::transport::grouped::request(
+        &client,
+        "private-test-key",
+        &[dispatch.text_request()],
+        |_, _| panic!("No result before connection"),
+    )
+    .await
+    .unwrap_err();
     assert_eq!(error.code, ErrorCode::Provider);
     assert_eq!(
         error.diagnostics.as_ref().unwrap()["reason"],

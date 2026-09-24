@@ -94,3 +94,31 @@ impl SpeechOutcome {
         }
     }
 }
+
+/// The speech request for target-language text: the source contract, the
+/// language label and route validation shared by persona speech and explicit
+/// reading requests.
+pub(crate) fn speech_input(
+    target: &crate::ai::connections::access::ResolvedTarget,
+    text: String,
+    voice: String,
+    context: &crate::configuration::LanguageContext,
+) -> Result<crate::ai::audio::SpeechInput> {
+    if text.trim().is_empty()
+        || text.chars().count() > 12000
+        || text.contains('\0')
+        || voice.is_empty()
+    {
+        return Err(crate::model::AppError::new(
+            crate::model::ErrorCode::Validation,
+            "Speech input exceeds its source contract.",
+        ));
+    }
+    let input = crate::ai::audio::SpeechInput {
+        text,
+        voice,
+        language: format!("{} — {}", context.target_name, context.variety_name),
+    };
+    crate::ai::audio::validate_speech(target, &input)?;
+    Ok(input)
+}

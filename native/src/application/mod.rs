@@ -10,8 +10,8 @@ use crate::ai::transport::grouped;
 use crate::ai::transport::provider;
 use crate::conversations::conversation_export;
 use crate::conversations::execution;
-use crate::conversations::gloss;
 use crate::diagnostics;
+use crate::language::gloss;
 #[cfg(test)]
 use crate::language::languages;
 use crate::learning::learner::learner_state;
@@ -46,7 +46,6 @@ mod startup;
 mod state;
 mod streams;
 
-pub(crate) use commands::partners::generation_identity;
 use scheduler::scheduler;
 pub use startup::run;
 pub(crate) use state::Application;

@@ -37,7 +37,7 @@ pub fn begin(
 ) -> Result<()> {
     permitted(db, owner, target)?;
     crate::ai::policy::holds::check(db, target)?;
-    if crate::conversations::execution::config(db)?.paused {
+    if crate::ai::connections::configuration::config(db)?.paused {
         return Err(AppError::new(
             ErrorCode::AdmissionHeld,
             "AI execution is paused. This recording was not submitted.",

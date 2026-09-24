@@ -130,7 +130,7 @@ pub(super) fn gloss_children(
             &gloss.model,
             &gloss.messages,
             route,
-            crate::conversations::gloss::request_output(
+            crate::language::gloss::request_output(
                 gloss.gloss_source.as_ref(),
                 gloss.gloss_schema.as_ref().unwrap(),
             ),

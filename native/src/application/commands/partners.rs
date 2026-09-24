@@ -106,16 +106,6 @@ pub(in crate::application) fn get_persona_generation_activity(
     generation_receipts::activity(&store.connection)
 }
 
-/// Attempt and operation identities for one generation request, in the forms every
-/// dispatch uses. The hosted server refuses a grouped request whose identities have
-/// any other shape.
-pub(crate) fn generation_identity() -> (String, String) {
-    (
-        execution::new_attempt_id(),
-        uuid::Uuid::new_v4().simple().to_string(),
-    )
-}
-
 /// Parse and validate one completion. Pure, so both outcomes are covered without
 /// a provider and a rejected response cannot have written anything.
 #[cfg(test)]

@@ -1,6 +1,6 @@
 use super::*;
-use crate::conversations::translation;
 use crate::language::reading;
+use crate::language::translation;
 use crate::learning::coaching::conversation_support as support;
 use base64::{Engine, engine::general_purpose::STANDARD};
 
@@ -81,15 +81,11 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
             reading::ReadingAid::WordGloss => {
                 // The word-gloss contract conversation turns use: the same
                 // prompt, output schema, recovery validation and model role.
-                let dispatch = request.word_gloss_dispatch()?;
-                let (source, schema) = match (&dispatch.gloss_source, &dispatch.gloss_schema) {
-                    (Some(source), Some(schema)) => (source, schema),
-                    _ => return Err(gloss::validation_error()),
-                };
+                let (dispatch, source, schema) = request.word_gloss_dispatch()?;
                 request.submitted(&*state.lock()?)?;
-                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(source), schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
+                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(&source), &schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
                 metadata = completion_metadata(&completed);
-                let (gloss, report) = gloss::recover_with_context(source, &completed, &request.operation, &request.attempt, &request.context)?;
+                let (gloss, report) = gloss::recover_with_context(&source, &completed, &request.operation, &request.attempt, &request.context)?;
                 metadata["wordGlossValidation"] = report;
                 validate()?;
                 Ok(Aid::Gloss(gloss))
@@ -108,8 +104,7 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
             reading::ReadingAid::Explanations => {
                 // The explanation contract conversation turns use: the same
                 // instruction, output schema, validation and model role.
-                let dispatch = request.explanations_dispatch()?;
-                let schema = dispatch.coaching_schema.clone().ok_or_else(|| AppError::new(ErrorCode::Internal, "Explanation schema is missing."))?;
+                let (dispatch, schema) = request.explanations_dispatch()?;
                 request.submitted(&*state.lock()?)?;
                 let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, provider::structured_output(&schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
                 metadata = completion_metadata(&completed);

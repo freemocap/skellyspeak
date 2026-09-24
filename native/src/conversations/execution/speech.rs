@@ -76,31 +76,6 @@ pub(super) fn prepare_speech(
     })
 }
 
-/// The speech request for target-language text: the source contract, the
-/// language label and route validation shared by persona speech and explicit
-/// reading requests.
-pub(crate) fn speech_input(
-    target: &crate::ai::connections::access::ResolvedTarget,
-    text: String,
-    voice: String,
-    context: &crate::configuration::LanguageContext,
-) -> Result<crate::ai::audio::SpeechInput> {
-    if text.trim().is_empty()
-        || text.chars().count() > 12000
-        || text.contains('\0')
-        || voice.is_empty()
-    {
-        return Err(fail("Speech input exceeds its source contract."));
-    }
-    let input = crate::ai::audio::SpeechInput {
-        text,
-        voice,
-        language: format!("{} — {}", context.target_name, context.variety_name),
-    };
-    crate::ai::audio::validate_speech(target, &input)?;
-    Ok(input)
-}
-
 pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -> Result<String> {
     let (turn,text,context):(String,String,String)=db.query_row("SELECT t.id,m.text,t.context FROM messages m JOIN turns t ON t.id=m.turn_id JOIN conversations c ON c.id=t.conversation_id JOIN contacts r ON r.id=c.contact_id WHERE m.id=?1 AND m.role='assistant' AND c.archived=0 AND r.archived=0 AND t.state NOT IN ('cancelled','invalidated') AND EXISTS(SELECT 1 FROM operations WHERE turn_id=t.id AND kind IN ('persona_reply','persona_opening') AND state='succeeded')",[message_id],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?))).optional()?.ok_or_else(||fail("Speech requires an accepted persona message."))?;
     let mut captured: serde_json::Value = serde_json::from_str(&context)?;

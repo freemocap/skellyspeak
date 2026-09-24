@@ -466,13 +466,13 @@ fn explicit_reading_gloss_sends_the_same_request_as_a_word_gloss_turn() {
         },
     )
     .unwrap();
-    let reading = request.word_gloss_dispatch().unwrap();
+    let (reading, source, schema) = request.word_gloss_dispatch().unwrap();
     assert_eq!(
         serde_json::to_value(&reading.messages).unwrap(),
         serde_json::to_value(&turn.messages).unwrap()
     );
-    assert_eq!(reading.gloss_schema, turn.gloss_schema);
-    assert!(reading.coaching_schema.is_none() && turn.coaching_schema.is_none());
+    assert_eq!(Some(schema), turn.gloss_schema);
+    assert!(turn.coaching_schema.is_none());
     assert_eq!(reading.model, turn.model);
     assert_eq!(reading.temperature, turn.temperature);
     assert_eq!(reading.temperature, TASK_TEMPERATURE);
@@ -480,10 +480,7 @@ fn explicit_reading_gloss_sends_the_same_request_as_a_word_gloss_turn() {
         (reading.route, &reading.target.url, &reading.credential),
         (turn.route, &turn.target.url, &turn.credential)
     );
-    let (reading_source, turn_source) = (
-        reading.gloss_source.as_ref().unwrap(),
-        turn.gloss_source.as_ref().unwrap(),
-    );
+    let (reading_source, turn_source) = (&source, turn.gloss_source.as_ref().unwrap());
     assert_eq!(reading_source.text, turn_source.text);
     assert_eq!(
         (
@@ -498,7 +495,7 @@ fn explicit_reading_gloss_sends_the_same_request_as_a_word_gloss_turn() {
         )
     );
     // Both engines accept independently valid spans and keep the rest unresolved.
-    let partial = crate::conversations::gloss::recover_with_context(
+    let partial = crate::language::gloss::recover_with_context(
         reading_source,
         &reply(r#"{"spans":[]}"#),
         &reading.operation,

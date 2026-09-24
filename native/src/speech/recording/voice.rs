@@ -30,7 +30,7 @@ impl Transcription {
         let store = state.lock()?;
         super::transcription::permitted(&store.connection, &self.owner, &self.target)?;
         crate::ai::policy::holds::check(&store.connection, &self.target)?;
-        if crate::conversations::execution::config(&store.connection)?.paused {
+        if crate::ai::connections::configuration::config(&store.connection)?.paused {
             return Err(AppError::new(
                 ErrorCode::AdmissionHeld,
                 "Listening stopped: AI execution is paused.",
@@ -270,7 +270,7 @@ pub(super) async fn transcribe(
     })??;
     let validate = || {
         let store = state.lock()?;
-        if crate::conversations::execution::config(&store.connection)?.paused {
+        if crate::ai::connections::configuration::config(&store.connection)?.paused {
             return Err(AppError::new(
                 ErrorCode::AdmissionHeld,
                 "Transcription stopped: AI execution is paused.",
