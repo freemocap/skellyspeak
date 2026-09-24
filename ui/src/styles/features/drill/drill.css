@@ -132,8 +132,10 @@
 .drill-dock[data-phase="working"] { background: var(--chrome); }
 .drill-dock-row { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .drill-dock-row .drill-segmented { flex: none; flex-wrap: nowrap; }
-.drill-dock-button { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: var(--space-3); height: calc(var(--control-height-lg) * 1.3); padding: 0 var(--space-11); background: var(--interaction-fill); color: var(--ink-on-fill); border: 0; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
+/* Same size and shape as the conversation composer's Record button. */
+.drill-dock-button { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: var(--space-4); height: var(--touch-target); padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: 0; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
 .drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+.drill-dock-button:disabled { opacity: 0.5; cursor: default; }
 .drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); }
 .drill-dock[data-phase="recording"] .drill-dock-button:hover { background: var(--danger-fill-hover); }
 .drill-dock-copy { flex: 0 1 auto; min-width: 0; display: grid; }
@@ -324,7 +326,7 @@
   .drill-dock-row > .drill-segmented button { padding-inline: var(--space-2); }
   .drill-dock .live-recording-plots > .inspection-plot { display: none; }
   .drill-dock-settings { grid-row: 1; grid-column: 3; }
-  .drill-dock-button { grid-row: 2; grid-column: 1; height: var(--touch-target); padding: 0 var(--space-6); }
+  .drill-dock-button { grid-row: 2; grid-column: 1; }
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
   .drill-dock-discard { grid-row: 2; grid-column: 3; }

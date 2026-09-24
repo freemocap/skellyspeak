@@ -95,7 +95,7 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
           : <button type="button" className="drill-dock-button" aria-label={phase === 'recording' ? tr("Stop recording") : tr("Start recording")}
             aria-pressed={phase === 'recording'} disabled={phase === 'preparing' || phase === 'working'} onClick={onToggle}>
             <ToolbarIcon name={phase === 'recording' ? 'stop' : 'mic'} size={20} />
-            <span aria-hidden="true">{phase === 'recording' ? tr("Stop") : auto ? tr("Listen") : tr("Record")}</span>
+            <span aria-hidden="true">{phase === 'recording' ? tr("Stop") : tr("Record")}</span>
           </button>}
         {/* The phase changes without the learner acting — a transcription
             finishing, a session opening — so it is announced, not just drawn.
