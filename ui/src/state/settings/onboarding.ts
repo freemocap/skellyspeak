@@ -10,7 +10,8 @@ interface OnboardingState {
   preferences: Preferences | null
   busy: boolean
   initialize: () => Promise<void>
-  saveLanguages: (language: string, variety: string, explanation: string, locale: string) => Promise<void>
+  /** `chosen` becomes My languages; `start` is the one the first conversation uses. */
+  saveLanguages: (chosen: string[], start: string, varieties: Record<string, string>, explanation: string, locale: string) => Promise<void>
   back: () => Promise<void>
   finish: (skip: boolean) => Promise<void>
   showHelp: (show: boolean) => Promise<void>
@@ -38,15 +39,20 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
       await write(preferences => ({ ...preferences, interfaceLocale: locale,
         explanationLanguage: language.code, explanationVarietyId: language.defaultVariety }))
     },
-    saveLanguages: async (language, variety, explanation, locale) => {
-      const target = languages().find(item => item.code === language)
-      const native = languages().find(item => item.code === explanation)
-      if (!target?.varieties.some(item => item.id === variety) || !native) throw new Error('Choose an available language and variety.')
+    saveLanguages: async (chosen, start, varieties, explanation, locale) => {
+      const catalog = languages()
+      if (!chosen.includes(start)) throw new Error('The starting language must be one of the chosen languages.')
+      for (const code of chosen) {
+        const target = catalog.find(item => item.code === code)
+        if (!target?.varieties.some(item => item.id === varieties[code])) throw new Error('Choose an available language and variety.')
+      }
+      const native = catalog.find(item => item.code === explanation)
+      if (!native) throw new Error('Choose an available explanation language.')
       await write(preferences => ({ ...preferences,
         interfaceLocale: locale, explanationLanguage: explanation, explanationVarietyId: native.defaultVariety,
-        myLanguages: [...new Set([...preferences.myLanguages, language])],
-        targetVarieties: { ...preferences.targetVarieties, [language]: variety },
-        onboardingLanguage: language, onboarding: 'in_progress',
+        myLanguages: chosen,
+        targetVarieties: { ...preferences.targetVarieties, ...Object.fromEntries(chosen.map(code => [code, varieties[code]!])) },
+        onboardingLanguage: start, onboarding: 'in_progress',
       }))
       await useSettingsStore.getState().refresh()
     },

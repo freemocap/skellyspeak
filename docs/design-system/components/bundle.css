@@ -2324,8 +2324,43 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
 /* Optional guidance shares the composer surface and never overlays its controls. */
-.conversation-help { padding: var(--space-6); background: var(--chrome); border-inline-start: var(--space-2) solid var(--interaction-ink); font-size: var(--type-ui); }
-.conversation-help p { margin: 0 0 var(--space-4); }
+/* First-conversation guide: an outlined card above the input whose arrow
+   points down at the composer while it asks for speech. */
+.getting-started {
+  position: relative; display: grid; gap: var(--space-4);
+  margin: var(--space-3) var(--space-5) var(--space-6); padding: var(--space-5) var(--space-6);
+  background: var(--field); color: var(--ink);
+  border: var(--border-width-strong) solid var(--interaction-ink); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating); font-size: var(--type-ui);
+}
+.getting-started[data-step='0']::after, .getting-started[data-step='1']::after {
+  content: ''; position: absolute; bottom: calc(-1 * var(--space-4)); inset-inline-end: var(--space-13);
+  width: var(--space-7); height: var(--space-7); background: var(--field);
+  border-right: var(--border-width-strong) solid var(--interaction-ink); border-bottom: var(--border-width-strong) solid var(--interaction-ink);
+  transform: rotate(45deg);
+}
+.getting-started-head { display: flex; align-items: center; gap: var(--space-4); color: var(--interaction-ink); }
+.getting-started-head h2 { flex: 1; margin: 0; color: var(--ink); font: var(--weight-semibold) var(--type-body)/var(--leading-snug) var(--font-sans); }
+.getting-started-hide {
+  display: flex; align-items: center; justify-content: center; width: var(--control-height-xs); height: var(--control-height-xs);
+  padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-3); cursor: pointer;
+}
+.getting-started-hide:hover { background: var(--chrome); color: var(--ink); }
+.getting-started p { margin: 0; color: var(--ink-2); line-height: var(--leading-normal); }
+.getting-started-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.getting-started-actions .btn { display: inline-flex; align-items: center; gap: var(--space-3); }
+.getting-started-steps { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin: 0; padding: 0; list-style: none; }
+.getting-started-steps li { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ink-3); font-size: var(--type-meta); }
+.getting-started-steps li[data-state='current'] { color: var(--ink); font-weight: var(--weight-semibold); }
+.getting-started-dot {
+  display: inline-flex; align-items: center; justify-content: center; width: var(--space-10); height: var(--space-10);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); font-family: var(--font-mono);
+}
+.getting-started-steps li[data-state='current'] .getting-started-dot { border-color: var(--interaction-fill); background: var(--interaction-fill); color: var(--ink-on-fill); }
+.getting-started-steps li[data-state='done'] .getting-started-dot { border-color: var(--success-ink); background: var(--success-ink); color: var(--ink-on-fill); }
+/* While the guide asks for speech, Record carries the same highlight. */
+.composer[data-guide='record'] .mic { box-shadow: var(--shadow-sm), 0 0 0 var(--space-3) var(--interaction-tint); }
+@media (pointer: coarse) { .getting-started-hide { width: var(--touch-target); height: var(--touch-target); } }
 
 .crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }
 
@@ -5546,25 +5581,64 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .onboarding-rail-step[data-state='current'] { background: var(--interaction-fill); }
 .onboarding-rail-step[data-state='done'] { background: var(--success-ink); }
 
-/* ── Step 1: a choice between languages, not a row in a form ──────────────── */
+/* ── Step 1: languages to learn ──────────────────────────────────────────── */
+/* The title, starting language and Continue stay in view while the cards scroll
+   under them. .onboarding-page is the scroll container; the negative offset
+   cancels its top padding so nothing shows above the bar. */
+.onboarding-languages-head {
+  position: sticky; top: calc(-1 * var(--space-12)); z-index: var(--z-sticky);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-6);
+  margin: 0 calc(-1 * var(--space-12)) var(--space-8); padding: var(--space-6) var(--space-12);
+  background: var(--sheet); border-bottom: var(--border-width) solid var(--line-soft);
+}
+.onboarding-sheet .onboarding-languages-title { flex: 1 1 8rem; min-width: 0; margin: 0; }
+.onboarding-languages-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); }
+.onboarding-start-field { display: inline-flex; align-items: center; gap: var(--space-4); font-size: var(--type-ui); color: var(--ink-2); }
+.onboarding-start-field select { min-height: var(--control-height); max-width: 12rem; }
+
 .language-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--space-5); min-width: 0; }
+/* A card holds two controls: the card itself chooses the starting language and
+   the corner checkbox adds or removes the language. */
 .language-choice {
-  display: grid; justify-items: center; align-content: center; gap: var(--space-2);
-  min-height: 7rem; padding: var(--space-7) var(--space-4); text-align: center;
+  position: relative; display: grid;
   background: var(--sheet); color: var(--ink);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
-  font-family: var(--font-sans); cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
-/* A chosen card keeps its chosen colours under the cursor: plain :hover is the
-   more specific selector and would otherwise grey it back out. */
-.language-choice:hover:not(:disabled):not([aria-checked='true']) { border-color: var(--ink-3); background: var(--chrome); }
-.language-choice[aria-checked='true'] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
-.language-choice:disabled { opacity: .5; cursor: default; }
+.language-choice:hover:not([data-chosen='true']) { border-color: var(--ink-3); background: var(--chrome); }
+.language-choice[data-chosen='true'] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); }
+.language-choice[data-start='true'] { background: var(--interaction-tint); }
+.language-choice-start {
+  display: grid; justify-items: center; align-content: center; gap: var(--space-2);
+  min-height: 7rem; padding: var(--space-9) var(--space-4) var(--space-7); text-align: center;
+  background: transparent; color: inherit; border: 0; border-radius: inherit;
+  font-family: var(--font-sans); cursor: pointer;
+}
+.language-choice-start:disabled, .language-choice-check:disabled { cursor: default; }
+.language-choice-badge {
+  position: absolute; top: var(--space-3); inset-inline-start: var(--space-3);
+  padding: 0 var(--space-3); border-radius: var(--radius-pill);
+  background: var(--interaction-fill); color: var(--ink-on-fill);
+  font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-normal);
+}
+/* Unchecked, the empty ring says the card can be added; checked, it fills. */
+.language-choice-check {
+  position: absolute; top: var(--space-3); inset-inline-end: var(--space-3);
+  display: flex; align-items: center; justify-content: center;
+  width: var(--control-height-xs); height: var(--control-height-xs); padding: 0;
+  background: transparent; border: 0; border-radius: var(--radius-circle); cursor: pointer;
+}
+.language-choice-check::before {
+  content: ''; position: absolute; inset: var(--space-2);
+  border: var(--border-width-strong) solid var(--ink-3); border-radius: var(--radius-circle); background: var(--field);
+}
+.language-choice-check[aria-checked='true']::before { border-color: var(--interaction-fill); background: var(--interaction-fill); }
+.language-choice-check svg { position: relative; color: var(--ink-on-fill); }
 /* The endonym is the card: its own script, its own scale, its own direction. */
 .language-choice-endonym { font-size: calc(var(--type-title) * var(--script-scale)); font-weight: var(--weight-semibold); line-height: var(--leading-tight); }
 .language-choice-greeting { font-family: var(--font-serif); font-size: var(--type-body); color: var(--interaction-ink); line-height: var(--leading-snug); }
 .language-choice-name { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+@media (pointer: coarse) { .language-choice-check { width: var(--touch-target); height: var(--touch-target); top: 0; inset-inline-end: 0; } }
 
 /* The payoff for choosing: who you are about to meet. */
 .language-chosen { display: grid; gap: var(--space-5); margin-top: var(--space-8); padding: var(--space-8);
@@ -5578,6 +5652,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 @media (max-width: 480px) {
   .onboarding-page { padding: var(--space-8) var(--space-5); }
   .onboarding-sheet { padding: var(--space-8); }
+  .onboarding-languages-head { top: calc(-1 * var(--space-8)); margin-inline: calc(-1 * var(--space-8)); padding-inline: var(--space-8); }
   .language-choices { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
 }
 
