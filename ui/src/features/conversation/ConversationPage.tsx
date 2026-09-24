@@ -471,6 +471,8 @@ export default function ConversationPage({
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
   const latestTurn = activeTurns.at(-1)
+  // The latest recording belongs to the newest learner message that carries its transcript unchanged.
+  const recordingTurnId = mic.lastTranscription ? [...activeTurns].reverse().find(turn => turn.user?.trim() === mic.lastTranscription!.text.trim())?.id ?? null : null
   const analysing = (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null
   const inspectLatest = () => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: latestTurn?.turnId ?? null, operationKind: null })
   const replyHelp = (
@@ -500,7 +502,6 @@ export default function ConversationPage({
               : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
               : analysing}
           </div>
-          {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
           {isMobile && replyHelp}
           <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
@@ -575,6 +576,7 @@ export default function ConversationPage({
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
               speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
               onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
+              onInspectRecording={turn.id === recordingTurnId ? () => setInspectionOpen(true) : undefined}
               rtl={rtl}
               onBubbleTap={onBubbleTap}
               onOpenCoach={openCoach}
