@@ -40,7 +40,7 @@ it('preserves confirmed preferences after an interrupted launch', async () => {
   expect(mocks.update).not.toHaveBeenCalled()
 })
 it('saves language choices without opening a conversation and resumes at access', async () => {
-  await useOnboardingStore.getState().saveLanguages('spanish', 'spanish-default', 'english', 'english')
+  await useOnboardingStore.getState().saveLanguages(['spanish'], 'spanish', { spanish: 'spanish-default' }, 'english', 'english')
   expect(preferences.onboarding).toBe('in_progress')
   expect(preferences.myLanguages).toEqual(['spanish'])
   expect(preferences.targetVarieties.spanish).toBe('spanish-default')
@@ -48,15 +48,24 @@ it('saves language choices without opening a conversation and resumes at access'
   await useOnboardingStore.getState().back()
   expect(preferences.onboardingLanguage).toBe('spanish')
 })
+it('saves every chosen language and starts in the chosen one', async () => {
+  await useOnboardingStore.getState().saveLanguages(['english', 'spanish'], 'spanish', { english: 'english-default', spanish: 'spanish-default' }, 'english', 'english')
+  expect(preferences.myLanguages).toEqual(['english', 'spanish'])
+  expect(preferences.onboardingLanguage).toBe('spanish')
+  expect(preferences.targetVarieties).toMatchObject({ english: 'english-default', spanish: 'spanish-default' })
+})
+it('refuses a starting language outside the chosen ones', async () => {
+  await expect(useOnboardingStore.getState().saveLanguages(['english'], 'spanish', { english: 'english-default', spanish: 'spanish-default' }, 'english', 'english')).rejects.toThrow('starting language')
+})
 it('leaves setup resumable if selecting the first conversation fails', async () => {
-  await useOnboardingStore.getState().saveLanguages('spanish', 'spanish-default', 'english', 'english')
+  await useOnboardingStore.getState().saveLanguages(['spanish'], 'spanish', { spanish: 'spanish-default' }, 'english', 'english')
   mocks.select.mockRejectedValueOnce(new Error('Save failed'))
   await expect(useOnboardingStore.getState().finish(true)).rejects.toThrow('Save failed')
   expect(preferences.onboardingRequired).toBe(true)
   expect(useOnboardingStore.getState().busy).toBe(false)
 })
 it('records skipping separately from optional help, and preserves unrelated preferences', async () => {
-  await useOnboardingStore.getState().saveLanguages('spanish', 'spanish-default', 'english', 'english')
+  await useOnboardingStore.getState().saveLanguages(['spanish'], 'spanish', { spanish: 'spanish-default' }, 'english', 'english')
   await useOnboardingStore.getState().finish(true)
   expect(preferences.onboardingRequired).toBe(false)
   expect(preferences.onboardingLanguage).toBe(null)
