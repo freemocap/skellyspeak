@@ -134,15 +134,18 @@
 .coach-card-explanation blockquote { background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); color: var(--interaction-ink); }
 .coach-entry { display: grid; gap: var(--space-8); }
 
-/* The coach's overall read on the message leads, above the details. */
+/* The coach's overall read on the message leads, above the details, on its
+   own card so it stands apart from the recessed coach surface. */
+.coach-verdict { padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); }
 .coach-verdict .md-p { font-size: calc(var(--type-body) * var(--reading-scale)); color: var(--ink); line-height: var(--leading-normal); }
 
 .coach-assessment { display: grid; gap: var(--space-6); }
-.coach-scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-4); }
-.coach-score { display: grid; gap: var(--space-3); padding: var(--space-4) var(--space-6); border-radius: var(--radius-md); background: var(--chrome); }
-.coach-score-label { font-size: var(--type-ui); color: var(--ink-3); }
-.coach-score-row { display: flex; align-items: center; gap: var(--space-4); }
-.coach-score-row > strong { font-size: var(--type-body); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+/* Each judgment is one line: label, five-segment meter, value; the labels share a column. */
+.coach-scores { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2) var(--space-6); }
+.coach-score { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; min-width: 0; }
+.coach-score-label { font-size: var(--type-ui); color: var(--ink-2); }
+.coach-score-row { flex: 1; display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.coach-score-row > strong { font-size: var(--type-ui); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
 .coach-meter { flex: 1; display: flex; gap: var(--space-2); }
 .coach-meter > span { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--line-soft); }
 .coach-score[data-level=low] .coach-meter > [data-on=true] { background: var(--danger-ink); }
