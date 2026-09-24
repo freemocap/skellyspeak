@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 interface ComposerInputProps {
   transcriptionWarning?: string
   waveform?: ReactNode
@@ -77,7 +78,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
               title={recording ? (autoSend ? tr("Stop and send recording") : tr("Stop and transcribe recording")) : tr("Record audio")}
               aria-label={recording ? (autoSend ? tr("Stop and send recording") : tr("Stop and transcribe recording")) : tr("Record audio")}
             >
-              <span aria-hidden="true">{recording ? '■' : '●'}</span>
+              <ToolbarIcon name={recording ? 'stop' : 'mic'} size={20} />
               <span>{recording ? tr("Stop") : tr("Record")}</span>
             </button>
 
