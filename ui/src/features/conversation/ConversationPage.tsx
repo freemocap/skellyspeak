@@ -38,6 +38,7 @@ import type { PersonaDetails } from '../../generated/contracts'
 import { unreportedInput, type InputEvidence } from '../../domain/learning/evidence/skills'
 import { PracticeContext } from './session/PracticeContext'
 import { SkillRewards } from './progress/SkillRewards'
+import { XpChip } from './progress/XpChip'
 import { isTauri, languageFor } from '../../platform/ipc/tauri'
 import { languageLabel } from '../../domain/language/language-label'
 import { personaName } from './partners/personaLimits'
@@ -511,7 +512,7 @@ export default function ConversationPage({
   )
 
   return (
-    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider enabled={settings?.xp_effects !== false} fastMode={settings?.fast_mode ?? true} workspace={workspace} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
+    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider enabled={settings?.xp_effects !== false} fastMode={settings?.fast_mode ?? true} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
     <div className="guided-workspace">
     <div
       ref={workspace}
@@ -533,6 +534,7 @@ export default function ConversationPage({
         <ConversationHeader persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
           <div className="chat-heading-actions">
+          <XpChip chatId={currentChatId} />
           {/* The settings summary rides on the button that changes them; under the
               persona it invited a click that only offered persona choices. */}
           <ConversationSettings summary={[details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
@@ -543,7 +545,6 @@ export default function ConversationPage({
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
-        <div className="reward-effects-rail" data-reward-surface />
         <div className="stream" ref={streamRef} onScroll={streamScroll.onScroll}>
           {readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
           {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}

@@ -181,7 +181,6 @@
   "Estimator version ": "Versão do estimador ",
   "Excluding an attempt removes all its contributions to learning estimates and XP. You can restore it here.": "Excluir uma tentativa remove todas as suas contribuições para as estimativas e os XP. Você pode restaurá-la aqui.",
   "Explore skill map": "Explorar mapa de habilidades",
-  "Explore this skill": "Explorar esta habilidade",
   "Failed": "Falhou",
   "Fast mode · dismiss XP cards automatically": "Modo rápido · dispensar cartões de XP automaticamente",
   "Feedback for your original message": "Feedback da sua mensagem original",
@@ -400,7 +399,6 @@
   "Word timings unavailable": "Tempos das palavras indisponíveis",
   "Words without supporting activity": "Palavras sem atividade de apoio",
   "XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.": "XP atribuídos às mensagens salvas do aprendiz nesta conversa. Formulações repetidas já creditadas em outro lugar não dão XP adicionais.",
-  "XP details": "Detalhes de XP",
   "XP saved": "XP salvos",
   "Your learning evidence": "Suas evidências de aprendizagem",
   "Your message": "Sua mensagem",
@@ -543,11 +541,9 @@
   "Delete {value0}": "Excluir {value0}",
   "Dismiss {value0} error": "Dispensar erro de {value0}",
   "Insert reply: {value0}": "Inserir resposta: {value0}",
-  "Inspect {value0} XP · {value1}": "Inspecionar {value0} XP · {value1}",
   "Shared time axis, 0 to {value0}": "Eixo de tempo compartilhado, 0 a {value0}",
   "Talking with {value0}": "Conversando com {value0}",
   "Write in {value0}…": "Escreva em {value0}…",
-  "{value0} XP · {value1}": "{value0} XP · {value1}",
   "{value0} content": "Conteúdo de {value0}",
   "{value0} practice XP": "{value0} XP de prática",
   "{value0} {value1} XP": "{value0} {value1} XP",
@@ -1374,5 +1370,6 @@
   "New messages": "Novas mensagens",
   "Loading reference…": "Carregando a referência…",
   "Next take": "Próxima gravação",
-  "No take in progress": "Nenhuma gravação em andamento"
+  "No take in progress": "Nenhuma gravação em andamento",
+  "{value0} more": "mais {value0}"
 }

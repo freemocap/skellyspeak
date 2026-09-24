@@ -33,7 +33,7 @@ function fixture() {
 
 it('opens message evidence with effects off, counts multiple quotes once, and isolates the chat and source', () => {
   const snapshot = fixture()
-  render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selected: null, selectionVersion: 0, select: vi.fn() }}><RewardInspectionContext value={{ enabled: false, open: vi.fn(), arrive: vi.fn() }}><MessageXpButton messageId={1} source="Esa taza." /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
+  render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selected: null, selectionVersion: 0, select: vi.fn() }}><RewardInspectionContext value={{ enabled: false, arrive: vi.fn() }}><MessageXpButton messageId={1} source="Esa taza." /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
   expect(screen.getByRole('button', { name: 'Message XP' })).toHaveTextContent('10 XP')
   fireEvent.click(screen.getByRole('button', { name: 'Message XP' }))
   const report = screen.getByRole('dialog', { name: 'Message XP' })

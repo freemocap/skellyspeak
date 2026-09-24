@@ -454,16 +454,13 @@ it('preserves source text and reading controls without inline XP tags', async ()
   const snapshot = structuredClone(skillDemo)
   snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
   snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'referent', xp: 10 }]
-  const open = vi.fn()
-  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ open, arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
+  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
   expect(view.container.querySelector('.message-evidence')).toHaveTextContent('Hola')
   expect(view.container.querySelector('.message-credit-badges')).toBeNull()
   expect(screen.queryByRole('button', { name: /Inspect .* XP/ })).toBeNull()
-  expect(view.container.querySelector('.inline-xp-badge')).toBeNull()
   fireEvent.click(screen.getAllByRole('button', { name: 'Hola' })[0])
   expect(view.container.querySelector('.message-credit-badges')).toBeNull()
   expect(view.container.querySelector('.whole-message-credit-source')).toBeNull()
-  expect(open).not.toHaveBeenCalled()
 })
 
 it('carries pending translation on the Translate control unless the translation is set to show', () => {

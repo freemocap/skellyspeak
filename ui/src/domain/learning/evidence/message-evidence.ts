@@ -47,10 +47,6 @@ export function evidenceStyle(evidence: MessageEvidence[]): { color: string; bor
 }
 
 /** One selector per mounted message reuses ranges across unrelated profile refreshes. */
-export function createMessageRewardEvidenceSelector() {
-  return createMessageEvidenceSelector(messageRewardEvidence)
-}
-
 export function createMessageEvidenceSelector(project = messageEvidence) {
   let previousKey = ''
   let previous: MessageEvidence[] = []

@@ -181,7 +181,6 @@
   "Estimator version ": "估计器版本 ",
   "Excluding an attempt removes all its contributions to learning estimates and XP. You can restore it here.": "排除一次尝试会移除其对学习估计和经验值的所有贡献。可在此恢复。",
   "Explore skill map": "探索技能图",
-  "Explore this skill": "探索此技能",
   "Failed": "失败",
   "Fast mode · dismiss XP cards automatically": "快速模式 · 自动关闭经验值卡片",
   "Feedback for your original message": "原消息反馈",
@@ -400,7 +399,6 @@
   "Word timings unavailable": "词语时间不可用",
   "Words without supporting activity": "无对应活动的词",
   "XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.": "此对话中保存的学习者消息所获经验值。已在其他地方计分的重复措辞不会获得额外经验值。",
-  "XP details": "经验值详情",
   "XP saved": "经验值已保存",
   "Your learning evidence": "你的学习证据",
   "Your message": "你的消息",
@@ -543,11 +541,9 @@
   "Delete {value0}": "删除 {value0}",
   "Dismiss {value0} error": "关闭 {value0} 错误",
   "Insert reply: {value0}": "插入回复：{value0}",
-  "Inspect {value0} XP · {value1}": "检查 {value0} 经验值 · {value1}",
   "Shared time axis, 0 to {value0}": "共享时间轴，0 到 {value0}",
   "Talking with {value0}": "正在与 {value0} 交谈",
   "Write in {value0}…": "用 {value0} 输入…",
-  "{value0} XP · {value1}": "{value0} 经验值 · {value1}",
   "{value0} content": "{value0} 内容",
   "{value0} practice XP": "{value0} 练习经验值",
   "{value0} {value1} XP": "{value0} {value1} 经验值",
@@ -1374,5 +1370,6 @@
   "New messages": "新消息",
   "Loading reference…": "正在加载参考音频…",
   "Next take": "下一次录音",
-  "No take in progress": "没有正在进行的录音"
+  "No take in progress": "没有正在进行的录音",
+  "{value0} more": "还有 {value0} 个"
 }

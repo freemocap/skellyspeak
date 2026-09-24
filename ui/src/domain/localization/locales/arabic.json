@@ -181,7 +181,6 @@
   "Estimator version ": "إصدار المقدّر ",
   "Excluding an attempt removes all its contributions to learning estimates and XP. You can restore it here.": "استبعاد محاولة يزيل جميع مساهماتها في تقديرات التعلم والخبرة. يمكنك استعادتها هنا.",
   "Explore skill map": "استكشاف خريطة المهارات",
-  "Explore this skill": "استكشاف هذه المهارة",
   "Failed": "فشل",
   "Fast mode · dismiss XP cards automatically": "الوضع السريع · إخفاء بطاقات الخبرة تلقائياً",
   "Feedback for your original message": "ملاحظات على رسالتك الأصلية",
@@ -400,7 +399,6 @@
   "Word timings unavailable": "توقيت الكلمات غير متاح",
   "Words without supporting activity": "كلمات دون نشاط داعم",
   "XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.": "خبرة منسوبة لرسائل المتعلم المحفوظة في هذه المحادثة. لا تمنح الصياغة المتكررة المحتسبة في مكان آخر خبرة إضافية.",
-  "XP details": "تفاصيل الخبرة",
   "XP saved": "الخبرة محفوظة",
   "Your learning evidence": "أدلة تعلمك",
   "Your message": "رسالتك",
@@ -543,11 +541,9 @@
   "Delete {value0}": "حذف {value0}",
   "Dismiss {value0} error": "إخفاء خطأ {value0}",
   "Insert reply: {value0}": "إدراج الرد: {value0}",
-  "Inspect {value0} XP · {value1}": "فحص {value0} خبرة · {value1}",
   "Shared time axis, 0 to {value0}": "محور زمني مشترك، 0 إلى {value0}",
   "Talking with {value0}": "محادثة مع {value0}",
   "Write in {value0}…": "اكتب بـ {value0}…",
-  "{value0} XP · {value1}": "{value0} خبرة · {value1}",
   "{value0} content": "محتوى {value0}",
   "{value0} practice XP": "{value0} خبرة تدريب",
   "{value0} {value1} XP": "{value0} {value1} خبرة",
@@ -1374,5 +1370,6 @@
   "New messages": "رسائل جديدة",
   "Loading reference…": "جارٍ تحميل المرجع…",
   "Next take": "التسجيل التالي",
-  "No take in progress": "لا يوجد تسجيل جارٍ"
+  "No take in progress": "لا يوجد تسجيل جارٍ",
+  "{value0} more": "{value0} أخرى"
 }

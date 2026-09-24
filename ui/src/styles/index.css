@@ -46,7 +46,6 @@
 @import './features/conversation/header.css';
 @import './features/conversation/start.css';
 @import './features/conversation/reading-evidence.css';
-@import './features/conversation/inline-rewards.css';
 @import './features/conversation/coach.css';
 @import './features/conversation/coaching-dock.css';
 @import './features/conversation/explanations.css';

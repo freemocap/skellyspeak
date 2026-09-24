@@ -17,6 +17,6 @@ html:has(.detail-lab), body:has(.detail-lab), body:has(.detail-lab) #root { heig
 .lab-grid article { min-width: 0; padding: 20px; background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; }
 .lab-reading { min-width: 0; overflow-wrap: anywhere; padding-block: 12px; }
 .lab-reading .target-text, .lab-reading .w { font-family: var(--lab-reading-font); }
-.detail-lab .reward-inspection-card { padding: 12px; }
+.detail-lab .lab-compact-badge { padding: 12px; }
 .detail-lab small { color: var(--ink-2); }
 @media(max-width:640px) { .detail-lab { padding: 12px; } .lab-grid { grid-template-columns: 1fr; } .lab-grid article { padding: 12px; } .lab-controls { gap: 8px; } }

@@ -181,7 +181,6 @@
   "Estimator version ": "Version de l’estimateur ",
   "Excluding an attempt removes all its contributions to learning estimates and XP. You can restore it here.": "Exclure une tentative retire toutes ses contributions aux estimations et aux XP. Vous pouvez la rétablir ici.",
   "Explore skill map": "Explorer la carte des compétences",
-  "Explore this skill": "Explorer cette compétence",
   "Failed": "Échec",
   "Fast mode · dismiss XP cards automatically": "Mode rapide · fermer automatiquement les cartes XP",
   "Feedback for your original message": "Retour sur votre message initial",
@@ -400,7 +399,6 @@
   "Word timings unavailable": "Horodatage des mots indisponible",
   "Words without supporting activity": "Mots sans activité correspondante",
   "XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.": "XP attribués aux messages enregistrés de l’apprenant dans cette conversation. Les formulations répétées déjà créditées ailleurs ne donnent pas de XP supplémentaires.",
-  "XP details": "Détails XP",
   "XP saved": "XP enregistrés",
   "Your learning evidence": "Vos preuves d’apprentissage",
   "Your message": "Votre message",
@@ -543,11 +541,9 @@
   "Delete {value0}": "Supprimer {value0}",
   "Dismiss {value0} error": "Fermer l’erreur de {value0}",
   "Insert reply: {value0}": "Insérer la réponse : {value0}",
-  "Inspect {value0} XP · {value1}": "Inspecter {value0} XP · {value1}",
   "Shared time axis, 0 to {value0}": "Axe temporel commun, 0 à {value0}",
   "Talking with {value0}": "Conversation avec {value0}",
   "Write in {value0}…": "Écrivez en {value0}…",
-  "{value0} XP · {value1}": "{value0} XP · {value1}",
   "{value0} content": "Contenu de {value0}",
   "{value0} practice XP": "{value0} XP de pratique",
   "{value0} {value1} XP": "{value0} {value1} XP",
@@ -1374,5 +1370,6 @@
   "New messages": "Nouveaux messages",
   "Loading reference…": "Chargement de la référence…",
   "Next take": "Prochaine prise",
-  "No take in progress": "Aucune prise en cours"
+  "No take in progress": "Aucune prise en cours",
+  "{value0} more": "{value0} de plus"
 }

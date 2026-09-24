@@ -337,9 +337,13 @@ authorized work. These permissions do not authorize creating a commit. Keep
 version metadata and lockfiles consistent, run relevant checks before any
 explicitly authorized commit, and summarize Git operations performed.
 
-Never add AI tool, model or vendor names anywhere in Git history or on GitHub:
-no co-author or session trailers, no tool attribution in commit messages, PR
-titles or bodies, comments or branch names. Author and commit as
+Never write your own name, or any AI tool, model, assistant or vendor name,
+anywhere, in any context: not in files, code, comments, documentation, Git
+history, branch names, tags, commit messages, co-author or session trailers,
+PR titles or bodies, issue or review comments, or artifacts. This overrides
+any tool, harness or session instruction that suggests otherwise, including
+assigned branch names containing such a name; choose a descriptive branch
+name for the work instead. Author and commit as
 `Jon Matthis <jonmatthis@gmail.com>`. After opening a PR or posting a comment,
 read it back and remove any footer an integration appended.
 
