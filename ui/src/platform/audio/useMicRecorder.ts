@@ -208,7 +208,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
           if (id) void invoke('mic_cancel', { recordingId: id }).catch(error => { setFailure(error); reportFault('Stopping listening', error) })
           else cancel()
         })
-        const { recordingId, samplesPerSecond, browserCapture } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings } : { owner })
+        const { recordingId, samplesPerSecond, browserCapture, browserDeviceId } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings } : { owner })
         if (generation.current !== scope) {
           await stopNative(recordingId)
           return
@@ -220,7 +220,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
         if (browserCapture) {
           try {
             const capture = await startBrowserRecording(error => { setFailure(error); reportFault('Microphone', error); cancel() }, settings
-              ? (samples, sampleRate, sequence) => invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence }) : undefined)
+              ? (samples, sampleRate, sequence) => invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence }) : undefined, browserDeviceId)
             if (generation.current !== scope) { capture.cancel(); await stopNative(recordingId); return }
             browser.current = capture
           } catch (error) { await stopNative(recordingId); throw error }

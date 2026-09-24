@@ -503,6 +503,9 @@ pub struct RecordingStarted {
     pub recording_id: String,
     pub samples_per_second: f64,
     pub browser_capture: bool,
+    // The browser device id to record from when `browser_capture` is set;
+    // `None` means the system default. Desktop capture opens its device natively.
+    pub browser_device_id: Option<String>,
 }
 
 /// What the window needs before it can mount: whether the workspace opened, and
@@ -577,6 +580,9 @@ pub fn bindings() -> String {
         WordGlossView::decl(&config),
         crate::diagnostics::DiagnosticCommand::decl(&config),
         crate::learning::rewards::reward_settings::RewardSettings::decl(&config),
+        crate::speech::recording::microphone::MicrophoneSource::decl(&config),
+        crate::speech::recording::microphone::MicrophoneDevice::decl(&config),
+        crate::speech::recording::microphone::MicrophoneList::decl(&config),
         crate::learning::coaching::InputEvidence::decl(&config),
         crate::learning::coaching::Outcome::decl(&config),
         RevisionSuffixCount::decl(&config),

@@ -104,6 +104,35 @@ fn push(buffers: &Arc<Mutex<Buffers>>, mono: &[f32], limit: usize) {
     }
 }
 
+/// Every input the host lists, with the format [`start`] would open it in. The
+/// id is the name, because [`open`] finds devices by name.
+pub(super) fn input_devices() -> Result<Vec<super::microphone::MicrophoneDevice>, String> {
+    let host = cpal::default_host();
+    let default = host.default_input_device().and_then(|d| d.name().ok());
+    let mut listed = Vec::new();
+    for device in host
+        .input_devices()
+        .map_err(|e| format!("The system would not list microphones: {e}"))?
+    {
+        let name = device
+            .name()
+            .map_err(|e| format!("Could not identify a microphone: {e}"))?;
+        let (channels, sample_rate, unavailable) = match device.default_input_config() {
+            Ok(config) => (Some(config.channels()), Some(config.sample_rate().0), None),
+            Err(e) => (None, None, Some(e.to_string())),
+        };
+        listed.push(super::microphone::MicrophoneDevice {
+            is_default: default.as_deref() == Some(name.as_str()),
+            id: name.clone(),
+            label: name,
+            channels,
+            sample_rate,
+            unavailable,
+        });
+    }
+    Ok(listed)
+}
+
 /// Build the input stream for one sample format.
 fn stream_for<T>(
     device: &cpal::Device,

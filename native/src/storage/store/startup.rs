@@ -89,6 +89,7 @@ impl Store {
         validate_current_schema(&connection)?;
         crate::learning::learner::progression::initialize(&connection)?;
         crate::learning::rewards::reward_settings::initialize(&connection)?;
+        crate::speech::recording::microphone::initialize(&connection)?;
         let store = Self {
             config,
             connection,

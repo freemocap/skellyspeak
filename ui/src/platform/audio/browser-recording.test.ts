@@ -97,3 +97,20 @@ it('streams ordered chunks without encoding a WAV and flushes acknowledged deliv
     expect(close).toHaveBeenCalledOnce()
   } finally { vi.unstubAllGlobals() }
 })
+
+it('records from the selected browser device and refuses to substitute another one', async () => {
+  const { vi } = await import('vitest')
+  const { startBrowserRecording } = await import('./browser-recording')
+  const missing = Object.assign(new Error('no such device'), { name: 'OverconstrainedError' })
+  const getUserMedia = vi.fn().mockRejectedValue(missing)
+  vi.stubGlobal('navigator', { mediaDevices: { getUserMedia } })
+  const context = vi.fn()
+  vi.stubGlobal('AudioContext', context)
+  try {
+    await expect(startBrowserRecording(vi.fn(), undefined, 'usb-mic')).rejects.toThrow('The selected microphone is not connected')
+    expect(getUserMedia).toHaveBeenCalledWith({ audio: { deviceId: { exact: 'usb-mic' } } })
+    await expect(startBrowserRecording(vi.fn())).rejects.toBe(missing)
+    expect(getUserMedia).toHaveBeenLastCalledWith({ audio: true })
+    expect(context).not.toHaveBeenCalled()
+  } finally { vi.unstubAllGlobals() }
+})

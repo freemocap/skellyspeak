@@ -24,12 +24,14 @@ function directory(): Snapshot {
 let workspace: Snapshot
 let connection: ConnectionConfig
 let access: AccessSettings
+let microphone: string | null
 function commands(): Command[] {
   return backend.invoke.mock.calls.filter(([name]) => name === 'execute_command').map(([, args]) => args.command as Command)
 }
 beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
+  microphone = null
   connection = { route: 'hosted', revision: 4, signedIn: true, email: 'person@example.invalid', configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'configured-model', fastModel: 'fast-model', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
   access = { customUrlIsUnsavedDefault: false, revision: 4, customKeyConfigured: true, custom: { baseUrl: 'https://example.invalid/v1', bearerAuth: true } }
   backend.invoke.mockImplementation(async (name: string, args?: { command: Command }) => {
@@ -38,6 +40,8 @@ beforeEach(() => {
     if (name === 'get_access_settings') return access
     if (name === 'get_playback_rate') return 1
     if (name === 'save_playback_rate') return undefined
+    if (name === 'get_microphone') return microphone
+    if (name === 'save_microphone') { microphone = (args as unknown as { device: string | null }).device; return undefined }
     if (name === 'get_reward_settings') return { revision: 0, fastMode: true, rewardSounds: 'follow_tts', masterVolume: 100, voiceVolume: 100, effectsVolume: 100 }
     if (name === 'save_reward_settings') return undefined
     if (name === 'execute_command') return { actionId: args!.command.actionId, entityId: 'updated', revision: 21 }
@@ -49,7 +53,7 @@ describe('native settings projection', () => {
   it.each([['hosted', 'hosted'], ['custom', 'custom']] as const)('maps %s from three read-only snapshots with no credentials', async (route, projected) => {
     connection.route = route
     const settings = await getSettings()
-    expect(backend.invoke.mock.calls.map(([name]) => name).sort()).toEqual(['get_access_settings', 'get_connection', 'get_playback_rate', 'get_reward_settings', 'get_snapshot'])
+    expect(backend.invoke.mock.calls.map(([name]) => name).sort()).toEqual(['get_access_settings', 'get_connection', 'get_microphone', 'get_playback_rate', 'get_reward_settings', 'get_snapshot'])
     expect(settings).toMatchObject({
       scope: { sessionId: 'session', conversationId: 'a', settingsRevision: 6, learnerRevision: 9 },
       provider_mode: projected, hosted_email: 'person@example.invalid', standard_model: 'configured-model',
@@ -101,6 +105,19 @@ describe('scoped native settings writes', () => {
     await saveSettings({ ...settings, text_size: 150, text_spacing: 4 })
     expect(commands()).toHaveLength(1)
     expect(commands()[0].action).toEqual({ kind: 'updateLearner', expectedRevision: 9, name: 'Learner', preferences: { ...workspace.learner.preferences, textSize: 150, textSpacing: 4 } })
+  })
+
+  it('saves the device-local microphone choice without a workspace command', async () => {
+    const settings = await getSettings()
+    expect(settings.microphone_device_id).toBeNull()
+    await saveSettings({ ...settings, microphone_device_id: 'Microphone (Yeti X)' })
+    expect(backend.invoke).toHaveBeenCalledWith('save_microphone', { device: 'Microphone (Yeti X)' })
+    expect(commands()).toEqual([])
+    const saved = await getSettings()
+    expect(saved.microphone_device_id).toBe('Microphone (Yeti X)')
+    await saveSettings({ ...saved, microphone_device_id: null })
+    expect(microphone).toBeNull()
+    expect(backend.invoke).toHaveBeenCalledWith('save_microphone', { device: null })
   })
 
   it('makes no write when projected values are unchanged', async () => {

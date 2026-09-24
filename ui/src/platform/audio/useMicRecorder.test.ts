@@ -31,13 +31,14 @@ it('uses browser capture when native requires it even with a desktop user agent'
   const capture = { wave: { samplesPerSecond: 60, read: () => [] }, cancel: vi.fn(), finish: vi.fn().mockResolvedValue('wav-base64') }
   browserStart.mockResolvedValue(capture)
   invoke.mockImplementation(async (command: string) => {
-    if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 750, browserCapture: true }
+    if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 750, browserCapture: true, browserDeviceId: 'usb-mic' }
     if (command === 'mic_transcribe') return transcript
     throw new Error(`Unexpected native command: ${command}`)
   })
   const { result } = setup()
   await act(async () => { await result.current.toggleMic() })
   expect(browserStart).toHaveBeenCalledOnce()
+  expect(browserStart.mock.calls[0][2]).toBe('usb-mic')
   expect(result.current.waveSource).toBe(capture.wave)
   await act(async () => { await result.current.toggleMic() })
   expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording', audioBase64: 'wav-base64' })
@@ -206,7 +207,7 @@ it('refreshes a Drill owner after post-publication cleanup fails without retrans
 it('continuous listening publishes separate takes and stops through the shared authority', async () => {
   let status = { recordingId: 'listen', listening: true, speaking: false, queued: 0, processing: false, completed: 0, failure: null }
   invoke.mockImplementation(async (command: string) => {
-    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false, browserDeviceId: null }
     if (command === 'mic_listen_status') return status
     if (command === 'mic_wave') return []
   })
@@ -229,7 +230,7 @@ it('continuous listening publishes separate takes and stops through the shared a
 
 it('discards only the current continuous take and cancels capture when its owner changes', async () => {
   invoke.mockImplementation(async (command: string) => {
-    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false, browserDeviceId: null }
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_status') return { recordingId: 'listen', listening: true, queued: 0, processing: false, completed: 0, speaking: true, failure: null }
   })
@@ -249,7 +250,7 @@ it('suspends continuous capture through the existing playback lifecycle and neve
   const { setPlaybackAllowed } = await import('./speech')
   let listening = true
   invoke.mockImplementation(async (command: string) => {
-    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false, browserDeviceId: null }
     if (command === 'mic_cancel') { listening = false; return }
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_status') return { recordingId: 'listen', listening, queued: 0, processing: false, completed: 0, speaking: false, failure: null }
@@ -268,7 +269,7 @@ it('requests only newer spectral frames, merges them and clears history on owner
   const fixture = (await import('../../../tools/spectrogram-fixture.json')).default[0].spectrogram
   let cursor = 0
   invoke.mockImplementation(async (command: string) => {
-    if (command === 'mic_listen_start') return { recordingId: 'live', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_start') return { recordingId: 'live', samplesPerSecond: 750, browserCapture: false, browserDeviceId: null }
     if (command === 'mic_listen_status') return { recordingId: 'live', listening: true, queued: 0, processing: false, completed: 0, speaking: false, failure: null, takes: [] }
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_spectrogram') {
@@ -288,7 +289,7 @@ it('requests only newer spectral frames, merges them and clears history on owner
 
 it('moves the threshold of the run in progress without restarting capture', async () => {
   invoke.mockImplementation(async (command: string) => {
-    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false }
+    if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false, browserDeviceId: null }
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_status') return { recordingId: 'listen', listening: true, queued: 0, processing: false, completed: 0, speaking: false, failure: null }
   })

@@ -110,6 +110,7 @@ pub(crate) fn start_capture(
         )?),
     };
     crate::ai::audio::validate_transcription_language(&target, &scope.language)?;
+    let microphone = super::microphone::selected(&store.connection)?;
     drop(store);
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),
@@ -119,11 +120,12 @@ pub(crate) fn start_capture(
         language: scope.language,
         context: scope.context,
         #[cfg(desktop)]
-        capture: audio::start(None).map_err(fault)?,
+        capture: audio::start(microphone.as_deref()).map_err(fault)?,
     };
     let started = RecordingStarted {
         recording_id: recording.id.clone(),
         browser_capture: cfg!(mobile),
+        browser_device_id: if cfg!(mobile) { microphone } else { None },
         #[cfg(desktop)]
         samples_per_second: recording.capture.wave_samples_per_second(),
         #[cfg(mobile)]

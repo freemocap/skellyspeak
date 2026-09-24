@@ -27,8 +27,15 @@ export function encodeRecording(buffer: AudioBuffer): Uint8Array {
   return bytes
 }
 
-export async function startBrowserRecording(onError: (error: unknown) => void, push?: (samples: number[], sampleRate: number, sequence: number) => Promise<void>): Promise<BrowserRecording> {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+/** `deviceId` is the stored selection; null records from the system default.
+ * A selected device that is gone fails instead of recording from another one. */
+export async function startBrowserRecording(onError: (error: unknown) => void, push?: (samples: number[], sampleRate: number, sequence: number) => Promise<void>, deviceId: string | null = null): Promise<BrowserRecording> {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: deviceId === null ? true : { deviceId: { exact: deviceId } } }).catch((error: unknown) => {
+    if (deviceId !== null && error instanceof Error && (error.name === 'OverconstrainedError' || error.name === 'NotFoundError')) {
+      throw Object.assign(new Error('The selected microphone is not connected. Pick another one in Settings, or choose System default.'), { cause: error })
+    }
+    throw error
+  })
   let context: AudioContext
   try { context = new AudioContext() }
   catch (error) { stream.getTracks().forEach(track => track.stop()); throw error }

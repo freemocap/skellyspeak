@@ -9,6 +9,8 @@ import { useI18n } from '../../components/localization/i18n'
 import { InfoTip } from '../../components/controls/InfoTip'
 import { configureAudioVolumes } from '../../platform/audio/audio-volume'
 import { configureRewardSounds } from '../../platform/audio/reward-sounds'
+import { listMicrophones } from '../../platform/audio/microphones'
+import type { MicrophoneList } from '../../generated/contracts'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { Settings, Shortcuts } from '../../types'
 import { logInfo, languages } from '../../platform/ipc/tauri'
@@ -185,8 +187,14 @@ export function SettingsModal({
   const accessBusy = routeBusy || modelsBusy
   const [configurationRevision, setConfigurationRevision] = useState(0)
   const [appVersion, setAppVersion] = useState<string | null>(null)
-  const mics: { id: string; label: string }[] = []
-  const listMics = async () => { throw new Error('Microphone selection is not connected.') }
+  const [mics, setMics] = useState<MicrophoneList | null>(null)
+  const [micError, setMicError] = useState<unknown>(null)
+  // Refreshing may ask for microphone access so the browser reveals device labels.
+  const listMics = useCallback(async (requestAccess: boolean) => {
+    try { setMics(await listMicrophones(requestAccess)); setMicError(null) }
+    catch (error) { setMicError(error); reportFault('Listing microphones', error) }
+  }, [])
+  useEffect(() => { void listMics(false) }, [listMics])
   const [section, setSection] = useState<SectionId>('keys')
   const [search, setSearch] = useState('')
   const isMobile = useIsMobile()
@@ -293,6 +301,11 @@ export function SettingsModal({
   // ── Row registry: adding a setting = one entry here ──────────────────────
   // Display labels localize via the settings.row.<id> convention (English
   // fallbacks double as the search index).
+  // Name what "System default" currently resolves to, and keep a saved device
+  // that is no longer listed visible instead of silently showing another one.
+  const systemMicrophone = mics?.devices.find(device => device.isDefault)
+  const missingMicrophone = mics && settings.microphone_device_id !== null && !mics.devices.some(device => device.id === settings.microphone_device_id)
+    ? settings.microphone_device_id : null
   const rows: Record<string, RowDef> = {
     conversation_help: {
       section: 'languages', label: tr('Restart onboarding'), kw: 'onboarding tutorial help guide',
@@ -413,17 +426,22 @@ export function SettingsModal({
                 })
               }
             >
-              <option value="">{tr("System default")}</option>
-              {mics.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.label}
+              <option value="">{systemMicrophone ? tr("System default · {value0}", { value0: systemMicrophone.label }) : tr("System default")}</option>
+              {mics?.devices.map((d, index) => {
+                const label = d.label || tr("Microphone {value0}", { value0: index + 1 })
+                return <option key={d.id} value={d.id}>
+                  {d.channels !== null && d.sampleRate !== null
+                    ? tr("{value0} · {value1} ch · {value2} Hz", { value0: label, value1: d.channels, value2: d.sampleRate.toLocaleString(tr.browserLocale) })
+                    : label}
                 </option>
-              ))}
+              })}
+              {missingMicrophone !== null && <option value={missingMicrophone}>{tr("{value0} (not connected)", { value0: missingMicrophone })}</option>}
             </select>
-            <button type="button" className="btn" onClick={() => void listMics()}>
+            <button type="button" className="btn" aria-label={tr("Refresh microphones")} title={tr("Refresh microphones")} onClick={() => void listMics(true)}>
               ↻
             </button>
           </div>
+          {micError !== null && <ErrorNotice as="p" error={micError}>{errorMessage(micError)}</ErrorNotice>}
         </div>
       ),
     },
@@ -577,7 +595,7 @@ export function SettingsModal({
     }
   }
 
-  const supported = new Set(['conversation_help', 'models', 'appearance', 'app_updates', 'tts_rate', 'xp_effects', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
+  const supported = new Set(['conversation_help', 'models', 'appearance', 'app_updates', 'tts_rate', 'microphone', 'xp_effects', 'fast_mode', 'audio_volume', 'auto_send', 'auto_speak', 'provider_mode', 'target_language', 'target_variety', 'native_variety', 'interface_locale', 'native_language', 'text_size', 'text_spacing', 'always_romanize', 'always_pronunciation', 'auto_translate', 'data_copy', 'data_reset'])
   for (const [id, row] of Object.entries(rows)) {
     if (!supported.has(id)) row.node = <fieldset disabled><p className="field-note">{tr("Not connected.")}</p>{row.node}</fieldset>
     else if (id !== 'provider_mode' && id !== 'models' && accessBusy) row.node = <fieldset disabled>{row.node}</fieldset>

@@ -11,6 +11,8 @@ vi.mock('./models/SettingsModels', () => ({ SettingsModels: () => <p>Shared mode
 vi.mock('./access/SettingsAccess', () => ({ SettingsAccess: () => <p>AI access</p> }))
 vi.mock('./language/VarietyField', () => ({ VarietyField: () => null }))
 vi.mock('../../platform/audio/speech', () => ({ setVoiceVolume: vi.fn() }))
+const microphones = vi.hoisted(() => ({ listMicrophones: vi.fn() }))
+vi.mock('../../platform/audio/microphones', () => microphones)
 vi.mock('../../platform/updates/updater', async original => ({ ...await original<typeof import('../../platform/updates/updater')>(), getUpdateChannel: async () => 'stable' }))
 vi.mock('@tauri-apps/api/app', () => ({ getVersion: async () => '0.13.4' }))
 const SETTINGS: Settings = {
@@ -49,6 +51,33 @@ beforeEach(() => {
   vi.clearAllMocks()
   backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '' })
   backend.saveSettings.mockResolvedValue(undefined)
+  microphones.listMicrophones.mockResolvedValue({ source: 'native', devices: [] })
+})
+
+it('lists microphones, names the system default and saves the chosen device', async () => {
+  microphones.listMicrophones.mockResolvedValue({ source: 'native', devices: [
+    { id: 'Microphone (USB Camera)', label: 'Microphone (USB Camera)', isDefault: true, channels: 2, sampleRate: 48000, unavailable: null },
+    { id: 'Microphone (Yeti X)', label: 'Microphone (Yeti X)', isDefault: false, channels: 2, sampleRate: 48000, unavailable: null },
+  ] })
+  render(<SettingsModal onClose={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'microphone' } })
+  expect(await screen.findByRole('option', { name: 'System default · Microphone (USB Camera)' })).toBeTruthy()
+  expect(microphones.listMicrophones).toHaveBeenCalledWith(false)
+  const select = screen.getByRole('option', { name: 'Microphone (Yeti X) · 2 ch · 48,000 Hz' }).closest('select')!
+  expect(select.matches(':disabled')).toBe(false)
+  expect(select.closest('fieldset')).toBeNull()
+  fireEvent.change(select, { target: { value: 'Microphone (Yeti X)' } })
+  await waitFor(() => expect(backend.saveSettings).toHaveBeenCalledWith(expect.objectContaining({ microphone_device_id: 'Microphone (Yeti X)' }), expect.anything()))
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh microphones' }))
+  expect(microphones.listMicrophones).toHaveBeenLastCalledWith(true)
+})
+
+it('keeps a saved microphone that is no longer connected visible', async () => {
+  backend.getSettings.mockResolvedValue({ ...SETTINGS, hosted_email: '', microphone_device_id: 'Microphone (Yeti X)' })
+  render(<SettingsModal onClose={vi.fn()} />)
+  fireEvent.change(await screen.findByLabelText('Search settings'), { target: { value: 'microphone' } })
+  const missing = await screen.findByRole('option', { name: 'Microphone (Yeti X) (not connected)' }) as HTMLOptionElement
+  expect(missing.selected).toBe(true)
 })
 
 it('routes explicit update checks to the shared update banner', async () => {

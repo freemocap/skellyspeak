@@ -92,8 +92,9 @@ export function languageFor(code: string, varietyId?: string): LanguageInfo | nu
 
 /** View settings combine native conversation choices and learner display preferences. */
 export async function getSettings(): Promise<Settings> {
-  const [snapshot, connection, access, rewards, playbackRate] = await Promise.all([
+  const [snapshot, connection, access, rewards, playbackRate, microphone] = await Promise.all([
     readWorkspace(), invoke<ConnectionConfig>('get_connection'), invoke<AccessSettings>('get_access_settings'), invoke<RewardSettings>('get_reward_settings'), invoke<number>('get_playback_rate'),
+    invoke<string | null>('get_microphone'),
   ])
   const conversation = selectedConversation(snapshot)
   if (!conversation) throw new Error('No active conversation is available.')
@@ -110,8 +111,8 @@ export async function getSettings(): Promise<Settings> {
     native_variety: conversation.settings.explanationVarietyId, interface_locale: preferences.interfaceLocale,
     always_romanize: conversation.settings.romanization, always_pronunciation: conversation.settings.pronunciation,
     theme: preferences.theme ?? 'light', appearance: preferences.appearance, auto_translate: conversation.settings.translation, text_size: preferences.textSize, text_spacing: preferences.textSpacing,
-    // Unsupported controls are disabled. These presentation values confer no runtime capability.
-    microphone_device_id: null, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode, xp_effects: rewards.effectsEnabled,
+    // The device-local microphone choice; null records from the system default.
+    microphone_device_id: microphone, auto_speak: conversation.settings.readAloud, auto_send: conversation.settings.autoSend, fast_mode: rewards.fastMode, xp_effects: rewards.effectsEnabled,
     reward_sounds: rewards.rewardSounds as Settings['reward_sounds'], master_volume: rewards.masterVolume, voice_volume: rewards.voiceVolume, effects_volume: rewards.effectsVolume,
     tts_rate: playbackRate, shortcuts: { ...SHORTCUT_DEFAULTS },
   }
@@ -160,12 +161,13 @@ async function writeSettings(settings: Settings): Promise<void> {
   if (!conversation) throw new Error('The settings conversation is unavailable.')
   if (conversation.settingsRevision !== scope.settingsRevision) throw new Error('Settings changed. Reload before saving.')
   if (['openrouter_key', 'groq_key', 'custom_api_key', 'hosted_token', 'sessionToken'].some(field => (settings as unknown as Record<string, unknown>)[field])) throw new Error('Credentials must use the AI access controls.')
-  if (settings.microphone_device_id !== null || JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
+  if (JSON.stringify(settings.shortcuts) !== JSON.stringify(SHORTCUT_DEFAULTS)) throw new Error('This preference is not connected yet.')
   const rewards: RewardSettings = { revision: scope.rewardRevision, fastMode: settings.fast_mode, effectsEnabled: settings.xp_effects !== false, rewardSounds: settings.reward_sounds, masterVolume: settings.master_volume, voiceVolume: settings.voice_volume, effectsVolume: settings.effects_volume }
   const currentRewards = await invoke<RewardSettings>('get_reward_settings')
   if (JSON.stringify(rewards) !== JSON.stringify(currentRewards)) await invoke('save_reward_settings', { settings: rewards })
   const currentRate = await invoke<number>('get_playback_rate')
   if (settings.tts_rate !== currentRate) await invoke('save_playback_rate', { rate: settings.tts_rate })
+  if (settings.microphone_device_id !== await invoke<string | null>('get_microphone')) await invoke('save_microphone', { device: settings.microphone_device_id })
   const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_variety, explanationVarietyId: settings.native_variety,
     autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: conversation.settings.speechVoice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
