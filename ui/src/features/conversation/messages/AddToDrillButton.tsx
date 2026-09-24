@@ -32,7 +32,7 @@ export function AddToDrillButton({ text }: { text: string }) {
     <button type="button" className="message-translate message-add-drill" title={label} aria-label={label}
       aria-busy={state === 'saving'} data-state={state} disabled={state !== 'ready'}
       onClick={event => { event.stopPropagation(); void add() }}>
-      <ToolbarIcon name={state === 'saved' ? 'added' : 'add'} size={20} />
+      <ToolbarIcon name={state === 'saved' ? 'deck-added' : 'deck-add'} size={20} />
     </button>
     {failure != null && <ErrorDetails label={tr('Add to Drill')} errorKey={errorMessage(failure)} explanation={errorMessage(failure)}>
       <ResponseDetails value={failure} />
