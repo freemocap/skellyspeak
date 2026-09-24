@@ -461,10 +461,10 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   const native = invoke.getMockImplementation()!
   const take = { recordingId: 'take-1', number: 1, startSeconds: 0, endSeconds: 1, cutSeconds: 1.6, state: 'processing', failure: null }
   const status = { recordingId: 'listening-1', listening: true, speaking: false, queued: 0, processing: true, completed: 0, failure: null, takes: [take],
-    settings: { pauseMs: 600, thresholdOffsetDb: 16, minTakeMs: 300, silenceTimeoutMs: 10000 }, levelDb: -35, noiseFloorDb: -55, thresholdDb: -45, ignoredTakes: 2 }
+    settings: { pauseMs: 600, thresholdDb: -45, minTakeMs: 300, silenceTimeoutMs: 10000 }, levelDb: -35, noiseFloorDb: -55 as number | null, thresholdDb: -45, ignoredTakes: 2 }
   invoke.mockImplementation(async (command, args) => {
     if (command === 'mic_listen_start') return { recordingId: 'listening-1', samplesPerSecond: 689, browserCapture: false }
-    if (command === 'mic_listen_status') return status
+    if (command === 'mic_listen_status') return { ...status }
     if (command === 'mic_listen_spectrogram') return args.afterSeconds === null ? { data: inspection.spectrogram, endSeconds: 2 } : null
     if (command === 'mic_listen_discard') return
     if (command === 'mic_listen_tune') return
@@ -479,7 +479,7 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_start', {
-    owner: { kind: 'drillItem', id: 'item-1' }, settings: { pauseMs: 600, thresholdOffsetDb: 16, minTakeMs: 300, silenceTimeoutMs: 10000 },
+    owner: { kind: 'drillItem', id: 'item-1' }, settings: { pauseMs: 600, thresholdDb: -45, minTakeMs: 300, silenceTimeoutMs: 10000 },
   }))
   expect(await screen.findByText('Take 1 clipped →')).toBeVisible()
   expect(await screen.findByText('Transcribing…')).toBeVisible()
@@ -495,12 +495,25 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   expect(invoke).not.toHaveBeenCalledWith('mic_listen_stop', expect.anything())
   fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   // The threshold marker on the meter is itself the control.
-  const marker = screen.getByRole('slider', { name: 'Start a take this far above the room noise' })
-  expect(marker).toHaveAttribute('aria-valuenow', '16')
+  const marker = screen.getByRole('slider', { name: 'Activity threshold' })
+  expect(marker).toHaveAttribute('aria-valuenow', '-45')
+  // The threshold is an absolute level: room noise moving under it while
+  // listening does not move the marker.
+  const placed = marker.style.insetInlineStart
+  status.noiseFloorDb = -40
+  await waitFor(() => expect(document.querySelector('.drill-meter-noise')).toHaveStyle({ width: '50%' }))
+  expect(marker).toHaveAttribute('aria-valuenow', '-45')
+  expect(marker.style.insetInlineStart).toBe(placed)
   fireEvent.keyDown(marker, { key: 'ArrowRight' })
-  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdOffsetDb: 17, minTakeMs: 300, silenceTimeoutMs: 10000 } })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdDb: -44, minTakeMs: 300, silenceTimeoutMs: 10000 } })
   fireEvent.keyDown(marker, { key: 'End' })
-  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdOffsetDb: 30, minTakeMs: 300, silenceTimeoutMs: 10000 } })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdDb: -10, minTakeMs: 300, silenceTimeoutMs: 10000 } })
+  // The whole meter is reachable, including below the measured room noise.
+  fireEvent.keyDown(marker, { key: 'Home' })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listening-1', settings: { pauseMs: 600, thresholdDb: -80, minTakeMs: 300, silenceTimeoutMs: 10000 } })
+  const tunes = invoke.mock.calls.filter(([command]) => command === 'mic_listen_tune').length
+  fireEvent.keyDown(marker, { key: 'ArrowLeft' })
+  expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_tune')).toHaveLength(tunes)
   expect(screen.getByRole('button', { name: 'Hear it' })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: 'Discard current take' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_discard', { recordingId: 'listening-1' }))

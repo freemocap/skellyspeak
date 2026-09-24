@@ -3,14 +3,16 @@ export const diagnosticCommands = ["start_drill_session","end_drill_session","en
 export type RecordingStarted = { recordingId: string, samplesPerSecond: number, browserCapture: boolean, browserDeviceId: string | null, };
 export type ContinuousRecordingPolicy = { version: number, pauseOptionsMs: [number, number, number, number, number], defaultPauseMs: number, silenceTimeoutOptionsMs: [number, number, number, number, number], defaultSilenceTimeoutMs: number,
 /**
- * How far above the measured room noise a frame must be to count as speech.
+ * The level (dBFS) a frame must exceed to count as speech. The learner sets
+ * it directly; it does not follow the measured room noise, so it stays where
+ * it was put while listening.
  */
-minThresholdOffsetDb: number, maxThresholdOffsetDb: number, defaultThresholdOffsetDb: number,
+minThresholdDb: number, maxThresholdDb: number, defaultThresholdDb: number,
 /**
  * Voiced time a take needs before it is kept; shorter bursts are ignored.
  */
 minTakeOptionsMs: [number, number, number, number], defaultMinTakeMs: number, maxPendingTakes: number, maxTakeSeconds: number, maxSessionSeconds: number, maxTakes: number, };
-export type ListeningSettings = { pauseMs: number, silenceTimeoutMs: number, thresholdOffsetDb: number, minTakeMs: number, };
+export type ListeningSettings = { pauseMs: number, silenceTimeoutMs: number, thresholdDb: number, minTakeMs: number, };
 export type ListeningStatus = { recordingId: string, listening: boolean, speaking: boolean, queued: number, processing: boolean, completed: number, takes: Array<ListeningTake>, failure: AppError | null,
 /**
  * The boundary choices in force now.
@@ -21,9 +23,10 @@ settings: ListeningSettings,
  */
 levelDb: number,
 /**
- * The measured room noise and the level a frame must exceed to count as speech.
+ * The measured room noise (absent until a quiet frame has been heard) and
+ * the level a frame must exceed to count as speech.
  */
-noiseFloorDb: number, thresholdDb: number,
+noiseFloorDb: number | null, thresholdDb: number,
 /**
  * Bursts that opened a take but ended shorter than the shortest take allowed.
  */
@@ -254,4 +257,4 @@ export const DEFAULT_APPEARANCE: AppearancePreferences = {"palette":"cool","cont
 export const DIFFICULTY_LEVELS: readonly Difficulty[] = ["absolute_zero","beginner","intermediate","advanced","fluent"] as const
 export const DRILL_RECORDING_MAX_MB = 100000 as const
 export const DRILL_LENGTHS: readonly DrillLength[] = ["word","shortPhrase","sentence","severalSentences"] as const
-export const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {"version":3,"pauseOptionsMs":[600,1000,1500,2000,2500],"defaultPauseMs":1000,"silenceTimeoutOptionsMs":[5000,10000,15000,30000,60000],"defaultSilenceTimeoutMs":10000,"minThresholdOffsetDb":4.0,"maxThresholdOffsetDb":30.0,"defaultThresholdOffsetDb":16.0,"minTakeOptionsMs":[160,300,600,1000],"defaultMinTakeMs":300,"maxPendingTakes":3,"maxTakeSeconds":30,"maxSessionSeconds":600,"maxTakes":100} as const
+export const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {"version":4,"pauseOptionsMs":[600,1000,1500,2000,2500],"defaultPauseMs":1000,"silenceTimeoutOptionsMs":[5000,10000,15000,30000,60000],"defaultSilenceTimeoutMs":10000,"minThresholdDb":-80.0,"maxThresholdDb":-10.0,"defaultThresholdDb":-45.0,"minTakeOptionsMs":[160,300,600,1000],"defaultMinTakeMs":300,"maxPendingTakes":3,"maxTakeSeconds":30,"maxSessionSeconds":600,"maxTakes":100} as const

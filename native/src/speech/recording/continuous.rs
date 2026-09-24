@@ -47,8 +47,9 @@ pub struct ListeningStatus {
     pub settings: ListeningSettings,
     /// Loudest analysed frame in the latest drain, in dBFS.
     pub level_db: f64,
-    /// The measured room noise and the level a frame must exceed to count as speech.
-    pub noise_floor_db: f64,
+    /// The measured room noise (absent until a quiet frame has been heard) and
+    /// the level a frame must exceed to count as speech.
+    pub noise_floor_db: Option<f64>,
     pub threshold_db: f64,
     /// Bursts that opened a take but ended shorter than the shortest take allowed.
     pub ignored_takes: u32,
@@ -78,8 +79,8 @@ impl Session {
                 failure: None,
                 settings,
                 level_db: -120.0,
-                noise_floor_db: -120.0,
-                threshold_db: -120.0,
+                noise_floor_db: None,
+                threshold_db: settings.threshold_db,
                 ignored_takes: 0,
             }),
             settings: Mutex::new(settings),

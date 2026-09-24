@@ -70,7 +70,7 @@ export function DrillPage({ active }: { active: boolean }) {
   const [mode, setMode] = useState<RecordMode>('auto')
   const [listening, setListening] = useState<ListeningSettings>({
     pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,
-    thresholdOffsetDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdOffsetDb,
+    thresholdDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdDb,
     minTakeMs: CONTINUOUS_RECORDING_POLICY.defaultMinTakeMs,
     silenceTimeoutMs: CONTINUOUS_RECORDING_POLICY.defaultSilenceTimeoutMs,
   })

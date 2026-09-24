@@ -25,8 +25,6 @@ export function dockPhase({ ready, recording, transcribing }: {
 
 /** The meter's range: quieter than this is drawn as empty. */
 const METER_FLOOR_DB = -80
-/** The room noise native assumes until it has measured a quiet frame. */
-const UNMEASURED_NOISE_DB = -60
 const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR_DB) / -METER_FLOOR_DB * 100))
 
 /** The control that records takes, the way it records them, and what it is doing.
@@ -111,8 +109,8 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
           })}</p>}
         </div>
         {auto && <LevelMeter level={listeningStatus?.levelDb ?? null} noise={listeningStatus?.noiseFloorDb ?? null}
-          offset={settings.thresholdOffsetDb} decibels={decibels}
-          onOffset={thresholdOffsetDb => onSettings({ ...settings, thresholdOffsetDb })} />}
+          threshold={settings.thresholdDb} decibels={decibels}
+          onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />}
         {phase === 'recording' && mode !== 'hold' && <button type="button" className="btn drill-dock-discard" onClick={onCancel}
           aria-label={auto ? tr("Discard current take") : tr("Discard")} title={auto ? tr("Discard current take") : tr("Discard")}>
           <ToolbarIcon name="trash" size={16} />
@@ -135,9 +133,9 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
             {auto && <>
               <Choice label={tr("Stop listening after silence of")} value={settings.silenceTimeoutMs} options={CONTINUOUS_RECORDING_POLICY.silenceTimeoutOptionsMs}
                 format={seconds} onChange={silenceTimeoutMs => onSettings({ ...settings, silenceTimeoutMs })} />
-              <p className="drill-dock-detail">{listeningStatus
-                ? tr("Room noise {value0} · takes start above {value1}", { value0: decibels(listeningStatus.noiseFloorDb), value1: decibels(listeningStatus.thresholdDb) })
-                : tr("The room noise is measured once listening starts; the threshold sits above it.")}</p>
+              <p className="drill-dock-detail">{listeningStatus?.noiseFloorDb != null
+                ? tr("Room noise {value0} · takes start above {value1}", { value0: decibels(listeningStatus.noiseFloorDb), value1: decibels(settings.thresholdDb) })
+                : tr("Takes start above {value0}", { value0: decibels(settings.thresholdDb) })}</p>
               <Choice label={tr("End a take after silence of")} value={settings.pauseMs} options={CONTINUOUS_RECORDING_POLICY.pauseOptionsMs}
                 format={seconds} onChange={pauseMs => onSettings({ ...settings, pauseMs })} />
             </>}
@@ -155,29 +153,27 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
 }
 
 /** The microphone level against the threshold a take must cross. The
- * threshold marker is a slider: drag it, or focus it and use the arrow keys,
- * to move how far above the room noise a take starts. Until listening has
- * measured the room, the marker sits above the noise level native assumes. */
-function LevelMeter({ level, noise, offset, decibels, onOffset }: {
+ * threshold marker is a slider over the whole meter: drag it, or focus it and
+ * use the arrow keys. It sets an absolute level, so it stays where it is put
+ * while the measured room noise (the dashed mark) moves underneath it. */
+function LevelMeter({ level, noise, threshold, decibels, onThreshold }: {
   level: number | null
   noise: number | null
-  offset: number
+  threshold: number
   decibels: (db: number) => string
-  onOffset: (offset: number) => void
+  onThreshold: (threshold: number) => void
 }) {
   const tr = useI18n()
   const track = useRef<HTMLDivElement>(null)
-  const floor = noise ?? UNMEASURED_NOISE_DB
-  const threshold = Math.min(-10, Math.max(-70, floor + offset))
-  const clampOffset = (value: number) => Math.round(Math.min(CONTINUOUS_RECORDING_POLICY.maxThresholdOffsetDb,
-    Math.max(CONTINUOUS_RECORDING_POLICY.minThresholdOffsetDb, value)))
+  const clamp = (value: number) => Math.round(Math.min(CONTINUOUS_RECORDING_POLICY.maxThresholdDb,
+    Math.max(CONTINUOUS_RECORDING_POLICY.minThresholdDb, value)))
   const fromPointer = (clientX: number) => {
     const element = track.current
     if (!element) throw new Error('The level meter is not on the page.')
     const bounds = element.getBoundingClientRect()
     const rtl = getComputedStyle(element).direction === 'rtl'
     const fraction = Math.min(1, Math.max(0, (rtl ? bounds.right - clientX : clientX - bounds.left) / bounds.width))
-    onOffset(clampOffset(METER_FLOOR_DB + fraction * -METER_FLOOR_DB - floor))
+    onThreshold(clamp(METER_FLOOR_DB + fraction * -METER_FLOOR_DB))
   }
   const summary = level === null
     ? tr("Takes start above {value0}", { value0: decibels(threshold) })
@@ -197,16 +193,17 @@ function LevelMeter({ level, noise, offset, decibels, onOffset }: {
       {level !== null && <span className="drill-meter-fill" style={{ width: `${meterPercent(level)}%` }} />}
     </span>
     {noise !== null && <span className="drill-meter-noise" style={{ width: `${meterPercent(noise)}%` }} aria-hidden="true" />}
-    <span className="drill-meter-threshold" role="slider" tabIndex={0} aria-label={tr("Start a take this far above the room noise")}
-      aria-valuemin={CONTINUOUS_RECORDING_POLICY.minThresholdOffsetDb} aria-valuemax={CONTINUOUS_RECORDING_POLICY.maxThresholdOffsetDb}
-      aria-valuenow={offset} aria-valuetext={decibels(offset)}
+    <span className="drill-meter-threshold" role="slider" tabIndex={0} aria-label={tr("Activity threshold")}
+      aria-valuemin={CONTINUOUS_RECORDING_POLICY.minThresholdDb} aria-valuemax={CONTINUOUS_RECORDING_POLICY.maxThresholdDb}
+      aria-valuenow={threshold} aria-valuetext={decibels(threshold)}
       style={{ insetInlineStart: `${meterPercent(threshold)}%` }}
       onKeyDown={event => {
-        const next = { ArrowRight: offset + 1, ArrowUp: offset + 1, ArrowLeft: offset - 1, ArrowDown: offset - 1,
-          Home: CONTINUOUS_RECORDING_POLICY.minThresholdOffsetDb, End: CONTINUOUS_RECORDING_POLICY.maxThresholdOffsetDb }[event.key]
+        const next = { ArrowRight: threshold + 1, ArrowUp: threshold + 1, ArrowLeft: threshold - 1, ArrowDown: threshold - 1,
+          PageUp: threshold + 10, PageDown: threshold - 10,
+          Home: CONTINUOUS_RECORDING_POLICY.minThresholdDb, End: CONTINUOUS_RECORDING_POLICY.maxThresholdDb }[event.key]
         if (next === undefined) return
         event.preventDefault()
-        onOffset(clampOffset(next))
+        onThreshold(clamp(next))
       }} />
   </div>
 }

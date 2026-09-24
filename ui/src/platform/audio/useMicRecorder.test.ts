@@ -212,9 +212,9 @@ it('continuous listening publishes separate takes and stops through the shared a
     if (command === 'mic_wave') return []
   })
   const owner: RecordingOwner = { kind: 'drillItem', id: 'phrase' }
-  const { result, unmount } = renderHook(() => useMicRecorder({ owner, listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
+  const { result, unmount } = renderHook(() => useMicRecorder({ owner, listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
   await act(async () => { await result.current.toggleMic() })
-  expect(invoke).toHaveBeenCalledWith('mic_listen_start', { owner, settings: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 } })
+  expect(invoke).toHaveBeenCalledWith('mic_listen_start', { owner, settings: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 } })
   status = { ...status, speaking: true, queued: 2, processing: true, completed: 1 }
   await waitFor(() => expect(result.current.listeningStatus?.queued).toBe(2))
   expect(result.current.recording).toBe(true)
@@ -234,7 +234,7 @@ it('discards only the current continuous take and cancels capture when its owner
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_status') return { recordingId: 'listen', listening: true, queued: 0, processing: false, completed: 0, speaking: true, failure: null }
   })
-  const { result, rerender, unmount } = renderHook(({ owner }) => useMicRecorder({ owner, listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }),
+  const { result, rerender, unmount } = renderHook(({ owner }) => useMicRecorder({ owner, listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }),
     { initialProps: { owner: { kind: 'drillItem' as const, id: 'first' } } })
   await act(async () => { await result.current.toggleMic() })
   act(() => result.current.discardCurrent())
@@ -255,7 +255,7 @@ it('suspends continuous capture through the existing playback lifecycle and neve
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_status') return { recordingId: 'listen', listening, queued: 0, processing: false, completed: 0, speaking: false, failure: null }
   })
-  const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
+  const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
   await act(async () => { await result.current.toggleMic() })
   act(() => { setPlaybackAllowed(false) })
   await waitFor(() => expect(result.current.recording).toBe(false))
@@ -277,7 +277,7 @@ it('requests only newer spectral frames, merges them and clears history on owner
       return { endSeconds: time + .2, data: { ...fixture, frameStartSeconds: [time], bins: [fixture.bins[0]] } }
     }
   })
-  const { result, rerender, unmount } = renderHook(({ id }) => useMicRecorder({ owner: { kind: 'drillItem', id }, listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }), { initialProps: { id: 'first' } })
+  const { result, rerender, unmount } = renderHook(({ id }) => useMicRecorder({ owner: { kind: 'drillItem', id }, listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }), { initialProps: { id: 'first' } })
   await act(async () => { await result.current.toggleMic() })
   await waitFor(() => expect(result.current.liveSpectrum?.data.frameStartSeconds.length).toBeGreaterThanOrEqual(2))
   expect(result.current.liveSpectrum?.data.frameStartSeconds.slice(0, 2)).toEqual([0, .2])
@@ -293,12 +293,12 @@ it('moves the threshold of the run in progress without restarting capture', asyn
     if (command === 'mic_wave') return []
     if (command === 'mic_listen_status') return { recordingId: 'listen', listening: true, queued: 0, processing: false, completed: 0, speaking: false, failure: null }
   })
-  const listening = { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }
+  const listening = { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }
   const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, listening, onTranscribe: vi.fn() }))
   expect(() => result.current.tune(listening)).toThrow(/only be tuned while listening/)
   await act(async () => { await result.current.toggleMic() })
-  act(() => result.current.tune({ ...listening, thresholdOffsetDb: 18 }))
-  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listen', settings: { ...listening, thresholdOffsetDb: 18 } })
+  act(() => result.current.tune({ ...listening, thresholdDb: -42 }))
+  expect(invoke).toHaveBeenCalledWith('mic_listen_tune', { recordingId: 'listen', settings: { ...listening, thresholdDb: -42 } })
   expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_start')).toHaveLength(1)
   unmount()
 })
@@ -314,7 +314,7 @@ it('streams phone Auto audio, polls publication, flushes before Stop and release
     if (command === 'mic_listen_stop') { expect(finish).toHaveBeenCalledOnce(); listening = false }
     if (command === 'mic_listen_spectrogram') return null
   })
-  const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
+  const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' }, listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
   await act(async () => { await result.current.toggleMic() })
   await browserStart.mock.calls[0][1]([0.1, 0.2], 48000, 0)
   expect(invoke).toHaveBeenCalledWith('mic_listen_push', { recordingId: 'phone', samples: [0.1, 0.2], sampleRate: 48000, sequence: 0 })
@@ -337,7 +337,7 @@ it('publishes new take status while a spectrogram request is still outstanding',
     throw new Error(`Unexpected native command: ${command}`)
   })
   const { result, unmount } = renderHook(() => useMicRecorder({ owner: { kind: 'drillItem', id: 'phrase' },
-    listening: { pauseMs: 1000, thresholdOffsetDb: 10, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
+    listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }))
   await act(async () => { await result.current.toggleMic() })
   await waitFor(() => expect(finishSpectrum).toBeDefined())
   takes = [{ recordingId: 'new-clip', state: 'queued' }]

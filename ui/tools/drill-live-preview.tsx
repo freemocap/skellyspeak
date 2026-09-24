@@ -90,7 +90,7 @@ function Preview() {
   const [selected, setSelected] = useState<string | null>(null)
   const [settings, setSettings] = useState<ListeningSettings>({
     pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,
-    thresholdOffsetDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdOffsetDb,
+    thresholdDb: CONTINUOUS_RECORDING_POLICY.defaultThresholdDb,
     minTakeMs: CONTINUOUS_RECORDING_POLICY.defaultMinTakeMs,
     silenceTimeoutMs: CONTINUOUS_RECORDING_POLICY.defaultSilenceTimeoutMs,
   })
@@ -111,7 +111,7 @@ function Preview() {
   const takes: ListeningTake[] = [{ recordingId: 'take-8', number: 8, startSeconds: 2, endSeconds: 4, cutSeconds: 4.8, state: 'processing', failure: null }]
   const status: ListeningStatus = {
     recordingId: 'fixture', listening: true, speaking: level > -40, queued: 0, processing: true, completed: 7, failure: null, takes,
-    settings, levelDb: level, noiseFloorDb: -54, thresholdDb: -54 + settings.thresholdOffsetDb, ignoredTakes: 2,
+    settings, levelDb: level, noiseFloorDb: -54 + 4 * Math.sin(Date.now() / 700), thresholdDb: settings.thresholdDb, ignoredTakes: 2,
   }
   const attempt = attempts.find(entry => entry.id === selected) ?? attempts[0]
   const data = useMemo(() => ({ ...reference.spectrogram,

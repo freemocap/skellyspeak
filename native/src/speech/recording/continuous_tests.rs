@@ -85,7 +85,7 @@ fn fixture(
         ListeningSettings {
             pause_ms: 1000,
             silence_timeout_ms: 10000,
-            threshold_offset_db: 10.0,
+            threshold_db: -60.0,
             min_take_ms: 160,
         },
     ));

@@ -13,14 +13,10 @@ pub(super) struct Clip {
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) struct Levels {
     pub level_db: f64,
-    pub noise_floor_db: f64,
+    /// The measured room noise, once a quiet frame has been heard. It is shown
+    /// beside the threshold for reference and does not move the threshold.
+    pub noise_floor_db: Option<f64>,
     pub threshold_db: f64,
-}
-/// Room noise assumed before any quiet frame has been measured.
-const UNMEASURED_NOISE_DB: f64 = -60.0;
-/// The threshold follows the room but never becomes meaningless.
-fn live_threshold(noise_floor_db: f64, offset_db: f64) -> f64 {
-    (noise_floor_db + offset_db).clamp(-70.0, -10.0)
 }
 pub(super) struct Segmenter {
     cursor: usize,
@@ -28,7 +24,7 @@ pub(super) struct Segmenter {
     rate: u32,
     width: usize,
     pause_frames: usize,
-    threshold_offset_db: f64,
+    threshold_db: f64,
     min_voiced_frames: usize,
     levels: Levels,
     ignored: u32,
@@ -55,12 +51,12 @@ impl Segmenter {
             rate,
             width: rate as usize / 50,
             pause_frames: settings.pause_ms.div_ceil(20) as usize,
-            threshold_offset_db: settings.threshold_offset_db,
+            threshold_db: settings.threshold_db,
             min_voiced_frames: settings.min_take_ms.div_ceil(20) as usize,
             levels: Levels {
                 level_db: -120.0,
-                noise_floor_db: UNMEASURED_NOISE_DB,
-                threshold_db: live_threshold(UNMEASURED_NOISE_DB, settings.threshold_offset_db),
+                noise_floor_db: None,
+                threshold_db: settings.threshold_db,
             },
             ignored: 0,
             remainder: vec![],
@@ -83,10 +79,9 @@ impl Segmenter {
         settings.validate()?;
         self.silence_timeout_frames = settings.silence_timeout_ms.div_ceil(20) as usize;
         self.pause_frames = settings.pause_ms.div_ceil(20) as usize;
-        self.threshold_offset_db = settings.threshold_offset_db;
+        self.threshold_db = settings.threshold_db;
         self.min_voiced_frames = settings.min_take_ms.div_ceil(20) as usize;
-        self.levels.threshold_db =
-            live_threshold(self.levels.noise_floor_db, settings.threshold_offset_db);
+        self.levels.threshold_db = settings.threshold_db;
         Ok(())
     }
     pub fn levels(&self) -> Levels {
@@ -117,18 +112,8 @@ impl Segmenter {
             }
             self.cursor += self.width;
             let energy = frame_energy_db(frame.iter().map(|s| f64::from(*s)));
-            let mut floor: Vec<_> = self.noise.iter().copied().collect();
-            floor.sort_by(f64::total_cmp);
-            let noise_floor_db = if floor.is_empty() {
-                UNMEASURED_NOISE_DB
-            } else {
-                floor[(floor.len() - 1) / 5]
-            };
-            let threshold = live_threshold(noise_floor_db, self.threshold_offset_db);
             peak = peak.max(energy);
-            self.levels.noise_floor_db = noise_floor_db;
-            self.levels.threshold_db = threshold;
-            let active = energy > threshold;
+            let active = energy > self.threshold_db;
             self.silent_frames = if active { 0 } else { self.silent_frames + 1 };
             if self.silent_frames >= self.silence_timeout_frames {
                 self.silence_expired = true;
@@ -144,12 +129,15 @@ impl Segmenter {
                 } else {
                     self.onset = 0;
                 }
-                // Only learn background while idle; speech cannot raise its own gate.
+                // Room noise is learned only while idle and quiet, for display.
                 if !active {
                     self.noise.push_back(energy);
                     if self.noise.len() > 100 {
                         self.noise.pop_front();
                     }
+                    let mut floor: Vec<_> = self.noise.iter().copied().collect();
+                    floor.sort_by(f64::total_cmp);
+                    self.levels.noise_floor_db = Some(floor[(floor.len() - 1) / 5]);
                 }
                 if self.onset >= 6 {
                     self.clip = self.preroll.drain(..).flatten().collect();
@@ -226,7 +214,7 @@ mod tests {
         ListeningSettings {
             pause_ms,
             silence_timeout_ms: 10000,
-            threshold_offset_db: 10.0,
+            threshold_db: -60.0,
             min_take_ms: 160,
         }
     }
@@ -339,7 +327,7 @@ mod tests {
         let mut strict = Segmenter::new(
             8000,
             ListeningSettings {
-                threshold_offset_db: 30.0,
+                threshold_db: -40.0,
                 ..settings(600)
             },
         )
@@ -351,27 +339,48 @@ mod tests {
         assert_eq!(block(&mut sensitive, 1.0, 0.0005).len(), 1);
         assert!(block(&mut strict, 1.0, 0.0005).is_empty());
         let levels = strict.levels();
-        assert!(levels.threshold_db > levels.noise_floor_db + 29.0);
+        assert_eq!(levels.threshold_db, -40.0);
+        assert!(levels.noise_floor_db.is_some_and(|noise| noise < -60.0));
         assert!(levels.level_db < levels.threshold_db);
+    }
+    #[test]
+    fn the_threshold_stays_where_it_is_set_while_room_noise_changes() {
+        let mut s = Segmenter::new(8000, settings(600)).unwrap();
+        assert_eq!(s.levels().noise_floor_db, None);
+        assert_eq!(s.levels().threshold_db, -60.0);
+        block(&mut s, 1.0, 0.0002); // about -74 dBFS
+        let quiet_room = s.levels().noise_floor_db.unwrap();
+        block(&mut s, 3.0, 0.0008); // about -62 dBFS
+        let louder_room = s.levels().noise_floor_db.unwrap();
+        assert!(louder_room > quiet_room + 6.0);
+        assert_eq!(s.levels().threshold_db, -60.0);
+        // Set below the room noise, the learner's choice still stands.
+        s.tune(ListeningSettings {
+            threshold_db: -80.0,
+            ..settings(600)
+        })
+        .unwrap();
+        assert_eq!(s.levels().threshold_db, -80.0);
     }
     #[test]
     fn tuning_rejects_out_of_policy_values_and_moves_the_threshold() {
         let mut s = Segmenter::new(8000, settings(1000)).unwrap();
         block(&mut s, 1.0, 0.0005);
-        let before = s.levels().threshold_db;
         s.tune(ListeningSettings {
-            threshold_offset_db: 20.0,
+            threshold_db: -30.0,
             ..settings(1000)
         })
         .unwrap();
-        assert!((s.levels().threshold_db - before - 10.0).abs() < 1e-9);
-        assert!(
-            s.tune(ListeningSettings {
-                threshold_offset_db: 50.0,
-                ..settings(1000)
-            })
-            .is_err()
-        );
+        assert_eq!(s.levels().threshold_db, -30.0);
+        for out_of_policy in [-81.0, -5.0, f64::NAN] {
+            assert!(
+                s.tune(ListeningSettings {
+                    threshold_db: out_of_policy,
+                    ..settings(1000)
+                })
+                .is_err()
+            );
+        }
         assert!(
             s.tune(ListeningSettings {
                 min_take_ms: 50,
