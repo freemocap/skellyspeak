@@ -11,7 +11,7 @@ export function ShowHelp({ onShown }: { onShown: () => void }) {
   return <div className="form-row"><button className="btn" disabled={busy} onClick={() => {
     setError('')
     void useOnboardingStore.getState().showHelp(true).then(onShown).catch(reason => setError(nativeError(reason)))
-  }}>{tr('Show conversation help')}</button>
+  }}>{tr('Show app tour')}</button>
     <button className="btn" disabled={busy} onClick={() => {
       setError('')
       void useOnboardingStore.getState().reviewSetup().then(onShown).catch(reason => setError(nativeError(reason)))

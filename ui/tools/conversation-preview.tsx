@@ -13,9 +13,6 @@ import { ReadingPreferencesContext } from '../src/components/reading/ReadingPref
 import { PersonaPicker } from '../src/features/conversation/partners/PersonaPicker'
 import { ConversationStart } from '../src/features/conversation/session/ConversationStart'
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
-import { GettingStartedGuide } from '../src/features/conversation/composer/GettingStartedGuide'
-import { useOnboardingStore } from '../src/state/settings/onboarding'
-import type { Preferences } from '../src/generated/contracts'
 import { MessageReadingScope } from '../src/features/conversation/reading/MessageReadingScope'
 import { replyHelpFixture } from '../src/features/conversation/composer/ReplyHelp.fixtures'
 import { ReplyHelp } from '../src/features/conversation/composer/ReplyHelp'
@@ -69,9 +66,6 @@ const arabicSegments = [
   { start: 0, end: 2, kind: 'gloss' as const, gloss: 'the', romanization: 'al-', pronunciation: 'il' },
   { start: 2, end: 6, kind: 'gloss' as const, gloss: 'houses', romanization: 'buyūt', pronunciation: 'buyuut' },
 ]
-// The fixture shows the first-conversation guide; hiding it updates only this page's store.
-useOnboardingStore.setState({ preferences: { onboardingHelp: true } as Preferences, showHelp: async show => { useOnboardingStore.setState({ preferences: { onboardingHelp: show } as Preferences }) } })
-
 function Preview() {
   const [input, setInput] = useState('')
   const [opening, setOpening] = useState(false)
@@ -119,8 +113,7 @@ function Preview() {
           </ReadingPreferencesContext></div>
           <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
         </>}</div>
-        <div className="composer" data-guide={opening ? 'record' : undefined}>
-          <GettingStartedGuide hasReply={!opening} hasLearnerTurn={!opening} canRecord onRecord={() => setRecording(!recording)} onOpenCoach={() => { setCoach(true); if (mobile) useNavigationStore.getState().openPractice('panel') }} />
+        <div className="composer">
           {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
           <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => setRecording(!recording)} onDiscardRecording={() => setRecording(false)} />
         </div>

@@ -1,5 +1,6 @@
 import { onReadingQuestion } from '../platform/ipc/window'
 import { OnboardingSetup } from '../features/settings/onboarding/OnboardingSetup'
+import { Tour } from './tour/Tour'
 import { useOnboardingStore } from '../state/settings/onboarding'
 import { LanguageBrowser } from '../features/languages/LanguageBrowser'
 import { useAppearance } from '../platform/appearance/useAppearance'
@@ -98,6 +99,7 @@ export function AppShell() {
       {overlay === 'languages' && <LanguageBrowser key={languageInfo} initialLanguage={languageInfo} onClose={closeOverlay} />}
       <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
+      {onboarding?.onboardingHelp && <Tour />}
     </div></ReadingTools></I18nProvider>
   )
 }
