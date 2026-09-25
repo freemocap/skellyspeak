@@ -86,7 +86,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     && let Some(group) = groups.iter_mut().find(|g| {
                         g.len() < grouped::MAX_ITEMS
                             && g[0].0.speech_source.is_none()
-                            && grouped::compatible(&g[0].0, &dispatch)
+                            && grouped::compatible(&g[0].0.text_request(), &dispatch.text_request())
                     })
                 {
                     group.push((dispatch, permit, generation));
@@ -122,6 +122,19 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                 let mut finished = vec![false; dispatches.len()];
                 let result: Result<()> = async {
                     let first = &dispatches[0];
+                    if let Some(source) = &first.speech_source {
+                        permits[0].take();
+                        let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
+                        let saved = state.shared_speech(first.target.clone(),input,first.install_id.clone(),&first.attempt, || {
+                            if state.lock()?.attempt_active(&first.attempt)? { Ok(()) }
+                            else { Err(AppError::new(ErrorCode::Conflict,"Speech consumer was cancelled.")) }
+                        }).await?;
+                        let mut store = state.lock()?;
+                        if let Some(audio) = store.finish_speech(first, super::speech_results::reused_outcome(saved))? {
+                            store.speech_delivery.insert(audio)?;
+                        }
+                        finished[0] = true;
+                    } else {
                     let key = if first.credential.is_empty() { Zeroizing::new(String::new()) }
                         else { read_secret(first.credential.clone()).await? };
                     // A group is captured under one authority; reject before HTTP
@@ -137,24 +150,11 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                             Ok(provider::RequestOutput::Prose)
                         }
                     }).collect::<Result<Vec<_>>>()?;
-                    if let Some(source) = &first.speech_source {
-                        let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
-                        let outcome = retry::run(
-                            || audio::synthesize(&client, &first.target, &key, &input, &first.install_id),
-                            || state.check_dispatches(std::slice::from_ref(first)),
-                            |error| state.lock()?.record_retry(first, error),
-                        ).await;
-                        let mut store = state.lock()?;
-                        if let Some(audio) = store.finish_speech(first, outcome)? {
-                            store.speech_cache.insert(audio)?;
-                        }
-                        finished[0] = true;
-                        permits[0].take();
-                    } else {
                         // Version 2 streams prose items' text; an older or
                         // custom server keeps the whole-result protocol.
                         let deltas = state.prepare_grouped(&client, &key, &dispatches).await?;
-                        let request = grouped::request_streaming(&client, &key, &dispatches, &outputs, deltas, |index, outcome| {
+                        let requests: Vec<_> = dispatches.iter().map(execution::Dispatch::text_request).collect();
+                        let request = grouped::request_streaming(&client, &key, &requests, &outputs, deltas, |index, outcome| {
                             state.finish_attempt(&app, generations[index], &dispatches[index], outcome)?;
                             finished[index] = true;
                             permits[index].take();
@@ -185,6 +185,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                                     .finish_speech(
                                         dispatch,
                                         audio::SpeechOutcome {
+                                            alignment: None,
                                             diagnostics: None,
                                             audio: Err(error),
                                             actual_model: None,

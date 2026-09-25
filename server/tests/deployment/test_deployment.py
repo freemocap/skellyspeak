@@ -134,7 +134,7 @@ def test_all_local_runtime_imports_are_copied_into_container():
     copied = {source for line in (root / 'Dockerfile').read_text().splitlines()
               if line.startswith('COPY ') and '--from=' not in line
               for source in line.split()[1:-1] if source.endswith('.py')}
-    runtime = {str(path.relative_to(root)) for path in (root / 'app').rglob('*.py')}
+    runtime = {path.relative_to(root).as_posix() for path in (root / 'app').rglob('*.py')}
     assert runtime <= copied, f'Runtime modules absent from image: {sorted(runtime - copied)}'
     for source in copied:
         tree = ast.parse((root / source).read_text())

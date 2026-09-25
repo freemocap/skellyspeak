@@ -187,20 +187,20 @@ impl Store {
                         "response_bytes": output.text.len(),
                     })))
             }
-            Ok(output) if crate::conversations::translation::owns(&kind) => (|| -> Result<()> {
-                let source: String = tx
-                    .query_row(
-                        "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
-                        params![turn, analysis_role(&kind)],
-                        |r| r.get(0),
-                    )
-                    .optional()?
-                    .ok_or_else(|| fail("Translation source is unavailable."))?;
-                translation = Some(crate::conversations::translation::validate(
-                    &source, output,
-                )?);
-                Ok(())
-            })(),
+            Ok(output) if matches!(kind.as_str(), "user_translation" | "reply_translation") => {
+                (|| -> Result<()> {
+                    let source: String = tx
+                        .query_row(
+                            "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
+                            params![turn, analysis_role(&kind)],
+                            |r| r.get(0),
+                        )
+                        .optional()?
+                        .ok_or_else(|| fail("Translation source is unavailable."))?;
+                    translation = Some(crate::language::translation::validate(&source, output)?);
+                    Ok(())
+                })()
+            }
             Ok(output) if kind == "skill_evidence" => {
                 crate::learning::coaching::skill_evidence::validate(&tx, &turn, output)
                     .map(|v| coaching = Some(v))
@@ -273,14 +273,13 @@ impl Store {
                     }
                     let language_context: crate::configuration::LanguageContext =
                         serde_json::from_value(captured["languageContext"].clone())?;
-                    let (mut value, mut report) =
-                        crate::conversations::gloss::recover_with_context(
-                            source,
-                            output,
-                            &dispatch.operation,
-                            &dispatch.attempt,
-                            &language_context,
-                        )?;
+                    let (mut value, mut report) = crate::language::gloss::recover_with_context(
+                        source,
+                        output,
+                        &dispatch.operation,
+                        &dispatch.attempt,
+                        &language_context,
+                    )?;
                     let saved_key = if kind == "user_word_gloss" {
                         "userWordGloss"
                     } else {
@@ -289,7 +288,7 @@ impl Store {
                     if let Some(saved) = captured.get(saved_key).filter(|v| !v.is_null()) {
                         let previous: WordGlossView = serde_json::from_value(saved.clone())?;
                         report["preserved_from_attempt"] = serde_json::json!(previous.attempt_id);
-                        value = crate::conversations::gloss::merge_repair(&previous, value)?;
+                        value = crate::language::gloss::merge_repair(&previous, value)?;
                     }
                     gloss_report = Some(report);
                     gloss = Some(value);

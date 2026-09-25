@@ -3,7 +3,8 @@
 use crate::{
     ai::transport::provider::PromptMessage,
     configuration::{LanguageContext, Registry},
-    conversations::{coach_prompt, conversation_prompt, translation, turn_plan},
+    conversations::{coach_prompt, conversation_prompt, turn_plan},
+    language::translation,
     learning::coaching::{self, conversation_support, skill_assessment},
     model::{AppError, ErrorCode, Result},
     partners::persona::{self, persona_prompt},
@@ -246,8 +247,8 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 ),
             ];
         }
-        kind if translation::owns(kind) => {
-            node.source = "native/src/conversations/translation.rs".into();
+        "user_translation" | "reply_translation" => {
+            node.source = "native/src/language/translation.rs".into();
             node.description = "Translates the source message into the explanation language. Destination writing guidance is appended at dispatch.".into();
             node.templates = messages(translation::prompt("{{sourceMessage}}".into(), &captured)?);
             node.output_schema = Some(translation::schema());

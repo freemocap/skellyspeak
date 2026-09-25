@@ -4,11 +4,11 @@ import io
 import json
 import logging
 from pathlib import Path
-import stat
 
 import pytest
 
 from server.development.logs import FileHandler, LocalLogs, Stream, safe_record
+from server.tests.development.file_assertions import assert_private, directory_link
 
 
 def record(name, message, args=()):
@@ -25,8 +25,9 @@ def test_append_preserves_all_records_and_existing_runs(tmp_path: Path):
     events = [json.loads(line) for line in contents.splitlines()]
     assert [r["event"]["sequence"] for r in events] == list(range(600))
     assert all(r["pid"] > 0 and r["recordedAtMs"] > 0 and r["run"] == "run" for r in events)
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
-    assert all(stat.S_IMODE(p.stat().st_mode) == 0o700 for p in (directory, directory.parent, directory.parent.parent))
+    assert_private(path)
+    for parent in (directory, directory.parent, directory.parent.parent):
+        assert_private(parent)
     with pytest.raises(FileExistsError):
         LocalLogs(directory)
     assert path.read_text() == contents
@@ -63,7 +64,7 @@ def test_structured_request_keeps_actionable_metadata_without_bodies(tmp_path: P
 def test_symlink_and_write_failures_are_explicit(tmp_path: Path):
     directory = tmp_path.resolve()
     link = directory / "linked"
-    link.symlink_to(directory, target_is_directory=True)
+    directory_link(link, directory)
     with pytest.raises(RuntimeError, match="symlink"):
         LocalLogs(link / "run")
     logs = LocalLogs(directory / "run")

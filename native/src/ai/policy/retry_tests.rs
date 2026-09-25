@@ -279,8 +279,9 @@ async fn service_refusal_is_not_retried_and_keeps_redacted_provider_details() {
         name: "test",
         schema: &schema,
     };
+    let transport = dispatch.text_request();
     let error = run(
-        || provider::complete_with_output(&client, "private-secret", &dispatch, output),
+        || provider::complete_with_output(&client, "private-secret", &transport, output),
         || {
             assert!(store.borrow().attempt_active(&dispatch.attempt)?);
             Ok(())

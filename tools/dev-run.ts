@@ -8,7 +8,8 @@ if (mode === 'launch') {
 } else if (mode === 'server') {
   const { execFileSync } = await import('node:child_process')
   execFileSync(process.execPath, ['ui/tools/admin-build.ts'], { cwd: root, stdio: 'inherit' })
-  process.exitCode = await runLogged(root, 'server/.venv/bin/python', ['-u', '-m', 'server.development.launcher', ...args], 'server')
+  const python = process.platform === 'win32' ? 'server/.venv/Scripts/python.exe' : 'server/.venv/bin/python'
+  process.exitCode = await runLogged(root, python, ['-u', '-m', 'server.development.launcher', ...args], 'server')
 } else if (mode === 'process') {
   const [command, ...parameters] = args
   if (!command) throw new Error('A process command is required.')

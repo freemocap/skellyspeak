@@ -1,5 +1,59 @@
 use super::*;
 
+#[tokio::test]
+async fn persona_proposal_uses_shared_receipts_without_creating_product_records() {
+    let proposed = persona::starter("french").unwrap();
+    let body = serde_json::to_string(&proposed).unwrap();
+    let (url, worker) = crate::application::test_server::structured_server(move |_| body);
+    let (directory, app) = generation_app();
+    app.lock()
+        .unwrap()
+        .connection
+        .execute(
+            "UPDATE ai_config SET custom_config=json_set(custom_config,'$.baseUrl',?1)",
+            [url],
+        )
+        .unwrap();
+    let id =
+        reserve_persona_generation(&app, "french".into(), Some("PRIVATE-BRIEF".into())).unwrap();
+    let details = run_owned_persona_generation(&app, &id).await.unwrap();
+    assert_eq!(details.name, proposed.name);
+    worker.join().unwrap();
+    assert!(run_owned_persona_generation(&app, &id).await.is_err());
+    drop(app);
+    let store = Store::open(&directory.path().join("generation.sqlite3")).unwrap();
+    let snapshot = store.snapshot().unwrap();
+    assert!(snapshot.personas.is_empty());
+    assert!(snapshot.contacts.is_empty());
+    assert!(snapshot.conversations.is_empty());
+    let activity = generation_receipts::activity(&store.connection).unwrap();
+    assert_eq!(activity.attempts[0].state, "succeeded");
+    assert_eq!(activity.usage.attempts, 1);
+    assert_eq!(activity.usage.input_tokens, 21);
+    let source = &activity.attempts[0].diagnostics.as_ref().unwrap()["sourceExecution"];
+    assert_eq!(source["state"], "succeeded");
+    assert!(!source.to_string().contains(&proposed.name));
+    assert!(!source.to_string().contains("PRIVATE-BRIEF"));
+    assert_eq!(
+        crate::ai::results::settings(&store.connection)
+            .unwrap()
+            .result_count,
+        0
+    );
+    let profile = store.profile().unwrap();
+    assert_eq!(profile.global.attempts, 1);
+    assert_eq!(profile.global.input_tokens, 21);
+    assert_eq!(
+        profile
+            .languages
+            .iter()
+            .find(|l| l.id == "french")
+            .unwrap()
+            .attempts,
+        1
+    );
+}
+
 fn generation_app() -> (tempfile::TempDir, Arc<Application>) {
     let directory = tempfile::tempdir().unwrap();
     let app = Application::start(&directory.path().join("generation.sqlite3"), None);
@@ -168,7 +222,7 @@ fn generation_identities_have_the_shape_the_hosted_server_accepts() {
                 .chars()
                 .all(|c| c.is_ascii_digit() || ('a'..='f').contains(&c))
     };
-    let (attempt, operation) = generation_identity();
+    let (attempt, operation) = crate::ai::identity::new_execution_ids();
     // The server's rules: operation `[0-9a-f]{32}`, attempt `[0-9]{10}-[0-9a-f]{32}`.
     let (issued, random) = attempt.split_once('-').expect("attempt has an issue time");
     assert!(

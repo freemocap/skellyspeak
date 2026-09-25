@@ -85,6 +85,7 @@ mod tests {
             speech_source: None,
         };
         let mut outcome = SpeechOutcome {
+            alignment: None,
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),
@@ -120,6 +121,7 @@ mod tests {
     #[test]
     fn shared_outcome_metadata_keeps_usage_and_explicitly_absent_comparison() {
         let mut outcome = SpeechOutcome {
+            alignment: None,
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),

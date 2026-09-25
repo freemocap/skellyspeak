@@ -290,7 +290,9 @@ impl Application {
         {
             return known;
         }
-        match crate::ai::transport::grouped::supports_deltas(client, key, dispatch).await {
+        match crate::ai::transport::grouped::supports_deltas(client, key, &dispatch.text_request())
+            .await
+        {
             Ok(supported) => {
                 if let Ok(mut cache) = self.delta_support.lock() {
                     cache.insert(target, supported);

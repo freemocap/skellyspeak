@@ -38,7 +38,7 @@ async fn speech_request(reference: bool) {
         writer.finalize().unwrap();
     }
     let encoded_audio = STANDARD.encode(wav.into_inner());
-    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
+    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"alignment":{"sourceText":"كتاب","original":{"characters":["ك","ت","ا","ب"],"starts":[0,0,0,0],"ends":[0.00001,0.00001,0.00001,0.00001]},"normalized":null},"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
     let worker = std::thread::spawn(move || {
         let (mut socket, _) = listener.accept().unwrap();
         socket
@@ -69,6 +69,7 @@ async fn speech_request(reference: bool) {
         assert!(request.starts_with("POST /v1/audio/speech"));
         let payload: serde_json::Value =
             serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
+        assert_eq!(payload.as_object().unwrap().len(), 3);
         assert_eq!(payload["text"], "كتاب");
         write!(
             socket,
@@ -111,7 +112,97 @@ async fn speech_request(reference: bool) {
             },
         )
         .unwrap();
-    let result = run_owned_reading(&state, &id).await.unwrap();
+    let companion_input = reading::ReadingInput {
+        reference_item: None,
+        text: "\u{0643}\u{062a}\u{0627}\u{0628}".into(),
+        language: "arabic".into(),
+        variety: None,
+        explanation: "english".into(),
+        explanation_variety: None,
+        aid: reading::ReadingAid::Speech,
+    };
+    let independent =
+        reading::Request::capture(&state.lock().unwrap(), companion_input.clone()).unwrap();
+    assert!(
+        cached_reading_audio(&state.lock().unwrap(), companion_input.clone())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(
+        state
+            .lock()
+            .unwrap()
+            .connection
+            .query_row::<i64, _, _>("SELECT count(*) FROM inference_executions", [], |r| r
+                .get(0))
+            .unwrap(),
+        0
+    );
+    let companion = state
+        .reading
+        .begin(&state.lock().unwrap(), companion_input)
+        .unwrap();
+    let (result, other, third) = tokio::join!(
+        run_owned_reading(&state, &id),
+        run_owned_reading(&state, &companion),
+        state.shared_speech(
+            independent.target.clone(),
+            independent.speech_input().unwrap(),
+            independent.install.clone(),
+            "independent-consumer",
+            || Ok(())
+        )
+    );
+    let result = result.unwrap();
+    let other = other.unwrap();
+    let third = third.unwrap();
+    assert_eq!(result.audio_base64, other.audio_base64);
+    assert_eq!(result.audio_alignment, other.audio_alignment);
+    assert_eq!(
+        result
+            .audio_alignment
+            .as_ref()
+            .unwrap()
+            .original
+            .as_ref()
+            .unwrap()
+            .characters
+            .len(),
+        4
+    );
+    assert_eq!(
+        result.receipt["response"]["sourceExecutionId"],
+        other.receipt["response"]["sourceExecutionId"]
+    );
+    assert_eq!(
+        third.execution,
+        result.receipt["response"]["sourceExecutionId"]
+            .as_str()
+            .unwrap()
+    );
+    let paid: i64 = state
+        .lock()
+        .unwrap()
+        .connection
+        .query_row(
+            "SELECT count(*) FROM inference_executions WHERE dispatched=1",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(paid, 1);
+    let profile = state.lock().unwrap().profile().unwrap();
+    assert_eq!(profile.global.attempts, 1);
+    assert_eq!(
+        profile
+            .languages
+            .iter()
+            .find(|v| v.id == "arabic")
+            .unwrap()
+            .attempts,
+        1
+    );
+
     worker.join().unwrap();
     assert!(result.audio_base64.is_some());
     assert!(result.gloss.is_none());
@@ -134,12 +225,18 @@ async fn speech_request(reference: bool) {
     assert!(!receipts[0].to_string().contains("كتاب"));
     assert!(!receipts[0].to_string().contains(&encoded_audio));
     assert!(state.reading.claim(&id).is_err());
-    if let Some(item) = item {
+    {
         drop(state);
         let state = Application::start(&directory.path().join("reading.sqlite3"), None);
+        state
+            .lock()
+            .unwrap()
+            .connection
+            .execute("UPDATE ai_config SET paused=1", [])
+            .unwrap();
         let before: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         let input = reading::ReadingInput {
-            reference_item: Some(item),
+            reference_item: item,
             text: "كتاب".into(),
             language: "arabic".into(),
             variety: None,
@@ -151,15 +248,54 @@ async fn speech_request(reference: bool) {
             .reading
             .begin(&state.lock().unwrap(), input.clone())
             .unwrap();
-        assert!(state.reading.begin(&state.lock().unwrap(), input).is_err());
+        let records_before: i64 = state
+            .lock()
+            .unwrap()
+            .connection
+            .query_row("SELECT count(*) FROM reading_attempts", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            cached_reading_audio(&state.lock().unwrap(), input.clone())
+                .unwrap()
+                .unwrap()
+                .alignment,
+            result.audio_alignment
+        );
+        assert_eq!(
+            cached_reading_audio(&state.lock().unwrap(), input.clone())
+                .unwrap()
+                .map(|audio| audio.audio_base64),
+            result.audio_base64
+        );
+        assert_eq!(
+            state
+                .lock()
+                .unwrap()
+                .connection
+                .query_row::<i64, _, _>("SELECT count(*) FROM reading_attempts", [], |r| r.get(0))
+                .unwrap(),
+            records_before
+        );
+        let duplicate = state.reading.begin(&state.lock().unwrap(), input).unwrap();
         // The only server has shut down: any second provider call fails this test.
         let cached = run_owned_reading(&state, &cached_id).await.unwrap();
         assert_eq!(cached.audio_base64, result.audio_base64);
         assert_eq!(cached.receipt["response"]["cacheHit"], true);
-        assert_eq!(cached.receipt["response"]["sourceReceiptId"], id);
+        assert_eq!(
+            cached.receipt["response"]["sourceExecutionId"],
+            result.receipt["response"]["sourceExecutionId"]
+        );
+        assert_eq!(
+            run_owned_reading(&state, &duplicate)
+                .await
+                .unwrap()
+                .audio_base64,
+            result.audio_base64
+        );
         assert!(cached.receipt.get("dispatchedAt").is_none());
         let after: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         assert_eq!(before, after);
+        assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts, 1);
     }
 }
 
@@ -177,8 +313,10 @@ async fn translation_runs_the_conversation_translation_contract_and_is_counted()
             .unwrap();
         let captured = serde_json::json!({"targetLanguage":"arabic","translationLanguage":"english","languageContext":context});
         (
-            execution::config(&store.connection).unwrap().fast_model,
-            crate::conversations::translation::prompt("كتاب".into(), &captured).unwrap(),
+            crate::ai::connections::configuration::config(&store.connection)
+                .unwrap()
+                .fast_model,
+            crate::language::translation::prompt("كتاب".into(), &captured).unwrap(),
         )
     };
     let before = state.lock().unwrap().profile().unwrap();
@@ -208,10 +346,13 @@ async fn translation_runs_the_conversation_translation_contract_and_is_counted()
         serde_json::to_value(&expected_messages).unwrap()
     );
     assert_eq!(request["model"], fast);
-    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["temperature"],
+        crate::ai::connections::model_routing::TASK_TEMPERATURE
+    );
     assert_eq!(
         request["response_format"]["json_schema"]["schema"],
-        crate::conversations::translation::schema()
+        crate::language::translation::schema()
     );
     let receipts = reading::activity(&state.lock().unwrap()).unwrap();
     assert_eq!(receipts[0]["kind"], "reading_translation");
@@ -313,8 +454,10 @@ async fn word_gloss_runs_the_conversation_gloss_contract_and_keeps_partial_meani
         (
             crate::ai::connections::model_routing::target(
                 &target,
-                crate::conversations::gloss::ROLE,
-                &execution::config(&store.connection).unwrap().fast_model,
+                crate::language::gloss::ROLE,
+                &crate::ai::connections::configuration::config(&store.connection)
+                    .unwrap()
+                    .fast_model,
             )
             .model,
             prompt,
@@ -347,7 +490,10 @@ async fn word_gloss_runs_the_conversation_gloss_contract_and_keeps_partial_meani
         serde_json::to_value(&expected.messages).unwrap()
     );
     assert_eq!(request["model"], model);
-    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["temperature"],
+        crate::ai::connections::model_routing::TASK_TEMPERATURE
+    );
     assert_eq!(
         request["response_format"]["json_schema"]["schema"],
         expected.output_schema
@@ -395,7 +541,10 @@ async fn explanations_run_the_conversation_support_contract_against_the_source()
     assert_eq!(cards.len(), 1);
     assert_eq!(cards[0].quote, "كتاب");
     let request = &payload["items"][0]["request"];
-    assert_eq!(request["temperature"], execution::TASK_TEMPERATURE);
+    assert_eq!(
+        request["temperature"],
+        crate::ai::connections::model_routing::TASK_TEMPERATURE
+    );
     assert_eq!(
         request["response_format"]["json_schema"]["schema"],
         crate::learning::coaching::conversation_support::schema("reply_explanations")

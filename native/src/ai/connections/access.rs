@@ -98,7 +98,7 @@ fn validate_key_destination(
     Ok(())
 }
 pub fn resolve(db: &Connection, capability: Capability) -> Result<ResolvedTarget> {
-    let config = execution::config(db)?;
+    let config = crate::ai::connections::configuration::config(db)?;
     let access = settings(db)?;
     let route = config.route;
     let (base, model, column) = match (route, capability) {
@@ -478,7 +478,7 @@ mod tests {
     fn fresh_custom_setup_uses_shared_models_and_voice_enabled() {
         let database = db();
         let endpoint = settings(&database).unwrap().custom;
-        let models = execution::config(&database).unwrap();
+        let models = crate::ai::connections::configuration::config(&database).unwrap();
         assert_eq!(models.standard_model, "google/gemini-2.5-flash");
         assert_eq!(models.fast_model, "google/gemini-2.5-flash-lite");
         assert_eq!(models.audio.transcription.model, "whisper-large-v3");
@@ -627,7 +627,11 @@ mod tests {
         assert_eq!(audio.credential.as_deref(), Some("unused-secret"));
         db.execute("UPDATE ai_config SET custom_credential_id=NULL", [])
             .unwrap();
-        assert!(!execution::config(&db).unwrap().configured);
+        assert!(
+            !crate::ai::connections::configuration::config(&db)
+                .unwrap()
+                .configured
+        );
         assert!(resolve(&db, Capability::Chat).is_err());
     }
     #[test]

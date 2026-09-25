@@ -13,29 +13,14 @@ import threading
 import time
 
 from server.app.diagnostics import runtime
-
-
-def private_file(path: Path):
-    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    return os.fdopen(descriptor, "a", encoding="utf-8")
+from server.development.private_files import private_directory, private_file
 
 
 class LocalLogs:
     def __init__(self, directory: Path):
         if not directory.is_absolute():
             raise RuntimeError("Local log directory must be absolute.")
-        if any(p.is_symlink() for p in (directory, *directory.parents)):
-            raise RuntimeError("Local log directory cannot use symlinks.")
-        missing = []
-        current = directory
-        while not current.exists():
-            missing.append(current)
-            current = current.parent
-        for parent in reversed(missing):
-            parent.mkdir(mode=0o700)
-        if not directory.is_dir():
-            raise RuntimeError("Local log destination must be a directory.")
-        directory.chmod(0o700)
+        private_directory(directory)
         self.directory = directory
         self.lock = threading.RLock()
         from collections import deque

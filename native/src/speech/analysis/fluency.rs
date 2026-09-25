@@ -14,7 +14,7 @@ const FRAME_MS: u32 = 20;
 const MIN_REGION_SECONDS: f64 = 0.06;
 const MIN_PAUSE_SECONDS: f64 = 0.25;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(deny_unknown_fields)]
 pub struct Word {
     pub word: String,
@@ -22,7 +22,7 @@ pub struct Word {
     pub end: f64,
 }
 /// Provider-independent timing evidence. Confidence diagnostics are separate.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(deny_unknown_fields)]
 pub struct TranscriptTiming {
     pub text: String,

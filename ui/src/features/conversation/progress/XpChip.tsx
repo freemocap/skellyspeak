@@ -3,7 +3,7 @@ import { useI18n } from '../../../components/localization/i18n'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
-import type { SkillSnapshot } from '../../../domain/learning/evidence/skills'
+import { conversationEvidence, type SkillSnapshot } from '../../../domain/learning/evidence/skills'
 import { XpArrivalContext } from './XpArrivalContext'
 import { XpArrivalCard } from './XpArrivalCard'
 import { XpLedger } from './XpLedger'
@@ -28,7 +28,7 @@ export function XpChip({ chatId }: { chatId: string | null }) {
   return <div ref={anchor} className="xp-chip-anchor">
     <button type="button" className={`xp-chip${current ? ' is-arriving' : ''}`} aria-label={tr('Conversation XP')} aria-haspopup="dialog" aria-expanded={ledgerOpen} onClick={() => setLedgerOpen(open => !open)}>
       <ToolbarIcon name="star" size={15} />
-      <span className="xp-chip-value">{current ? `+${tr.number(current.xp)}` : tr.number(snapshot.profile.xp)}{tr(' XP')}</span>
+      <span className="xp-chip-value">{current ? `+${tr.number(current.xp)}` : tr.number(conversationEvidence(snapshot, chatId).profile.xp)}{tr(' XP')}</span>
     </button>
     {ledgerOpen && <LedgerLayer anchor={anchor} snapshot={snapshot} chatId={chatId} onClose={() => setLedgerOpen(false)} onInspectMessage={message => setReport({ message })} />}
     {!ledgerOpen && current && <XpArrivalCard key={current.key} arrival={current} remaining={arrivals.arrivals.length - 1} fastMode={arrivals.fastMode}

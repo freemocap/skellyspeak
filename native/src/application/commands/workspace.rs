@@ -58,7 +58,7 @@ pub(in crate::application) fn read_speech_audio(
             "The application session changed. Refresh before continuing.",
         ));
     }
-    store.speech_audio(&operation_id, &store.speech_cache)
+    store.speech_audio(&operation_id, &store.speech_delivery)
 }
 
 #[tauri::command]

@@ -299,7 +299,7 @@ impl Decoder {
 pub async fn request(
     client: &reqwest::Client,
     key: &str,
-    dispatches: &[crate::conversations::execution::Dispatch],
+    dispatches: &[crate::ai::transport::text_request::TextRequest],
     publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
 ) -> Result<()> {
     let outputs = vec![provider::RequestOutput::Prose; dispatches.len()];
@@ -310,7 +310,7 @@ pub async fn request(
 pub async fn request_with_outputs(
     client: &reqwest::Client,
     key: &str,
-    dispatches: &[crate::conversations::execution::Dispatch],
+    dispatches: &[crate::ai::transport::text_request::TextRequest],
     outputs: &[provider::RequestOutput<'_>],
     publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
 ) -> Result<()> {
@@ -323,7 +323,7 @@ pub async fn request_with_outputs(
 pub async fn request_streaming(
     client: &reqwest::Client,
     key: &str,
-    dispatches: &[crate::conversations::execution::Dispatch],
+    dispatches: &[crate::ai::transport::text_request::TextRequest],
     outputs: &[provider::RequestOutput<'_>],
     deltas: bool,
     mut publish: impl FnMut(usize, Result<Completion>) -> Result<()>,
@@ -442,7 +442,7 @@ pub async fn request_streaming(
 pub async fn supports_deltas(
     client: &reqwest::Client,
     key: &str,
-    dispatch: &crate::conversations::execution::Dispatch,
+    dispatch: &crate::ai::transport::text_request::TextRequest,
 ) -> Result<bool> {
     let Some(base) = dispatch.target.url.strip_suffix("/operations") else {
         return Ok(false);
@@ -479,8 +479,8 @@ pub async fn supports_deltas(
 }
 
 pub fn compatible(
-    a: &crate::conversations::execution::Dispatch,
-    b: &crate::conversations::execution::Dispatch,
+    a: &crate::ai::transport::text_request::TextRequest,
+    b: &crate::ai::transport::text_request::TextRequest,
 ) -> bool {
     a.decisions.is_some() == b.decisions.is_some()
         && a.route == b.route
@@ -493,7 +493,7 @@ pub fn compatible(
 pub async fn complete(
     client: &reqwest::Client,
     key: &str,
-    dispatch: &crate::conversations::execution::Dispatch,
+    dispatch: &crate::ai::transport::text_request::TextRequest,
 ) -> Result<Completion> {
     let mut result = None;
     request(client, key, std::slice::from_ref(dispatch), |_, value| {
@@ -507,7 +507,7 @@ pub async fn complete(
 pub async fn complete_with_output(
     client: &reqwest::Client,
     key: &str,
-    dispatch: &crate::conversations::execution::Dispatch,
+    dispatch: &crate::ai::transport::text_request::TextRequest,
     output: provider::RequestOutput<'_>,
 ) -> Result<Completion> {
     let mut result = None;
@@ -761,13 +761,11 @@ mod tests {
                 socket.write_all(headers.as_bytes()).await.unwrap();
                 socket.write_all(&body).await.unwrap();
             });
-            let dispatch = crate::conversations::execution::Dispatch {
+            let dispatch = crate::ai::transport::text_request::TextRequest {
                 temperature: if structured { 0.7 } else { 1.1 },
-                gloss_schema: None,
+
                 decisions: None,
-                coaching_schema: None,
-                gloss_source: None,
-                speech_source: None,
+
                 target: crate::ai::connections::access::ResolvedTarget {
                     route,
                     revision: 1,
@@ -790,13 +788,11 @@ mod tests {
             };
             let schema = serde_json::json!({"type":"object"});
             if structured {
-                let second = crate::conversations::execution::Dispatch {
+                let second = crate::ai::transport::text_request::TextRequest {
                     temperature: 0.7,
-                    gloss_schema: None,
+
                     decisions: None,
-                    coaching_schema: None,
-                    gloss_source: None,
-                    speech_source: None,
+
                     target: dispatch.target.clone(),
                     operation: "22222222-2222-2222-2222-222222222222".into(),
                     attempt: "2000000000-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb".into(),
@@ -1019,8 +1015,8 @@ mod delta_tests {
         });
         url
     }
-    fn dispatch(url: String) -> crate::conversations::execution::Dispatch {
-        crate::conversations::execution::Dispatch {
+    fn dispatch(url: String) -> crate::ai::transport::text_request::TextRequest {
+        crate::ai::transport::text_request::TextRequest {
             temperature: 0.7,
             target: crate::ai::connections::access::ResolvedTarget {
                 route: crate::model::ConnectionRoute::Custom,
@@ -1039,11 +1035,8 @@ mod delta_tests {
                 role: "user".into(),
                 content: "Hola".into(),
             }],
-            gloss_schema: None,
+
             decisions: None,
-            coaching_schema: None,
-            gloss_source: None,
-            speech_source: None,
         }
     }
 

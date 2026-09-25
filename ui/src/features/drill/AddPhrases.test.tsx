@@ -65,6 +65,19 @@ it('never generates until asked, then sends length and difficulty as separate ch
 })
 
 it('asks once per ticked length, sharing the quantity out between them', async () => {
+  api.previewDrillItems.mockImplementation(async input => {
+    const requestId = `request-${input.length}`
+    return preview({
+      requestId, receiptId: `receipt-${input.length}`, requested: input,
+      candidates: Array.from({ length: input.count }, (_, index) => {
+        const candidateId = `${requestId}-${index}`
+        return candidate({ candidateId, source: {
+          kind: 'generated', requestId, candidateId, topic: input.topic,
+          difficulty: input.difficulty, length: input.length,
+        } })
+      }),
+    })
+  })
   open()
   fireEvent.click(screen.getByRole('checkbox', { name: 'Word' }))
   fireEvent.change(screen.getByLabelText('How many'), { target: { value: '3' } })
@@ -74,6 +87,11 @@ it('asks once per ticked length, sharing the quantity out between them', async (
   await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledTimes(2))
   expect(api.previewDrillItems.mock.calls.map(call => [call[0].length, call[0].count]))
     .toEqual([['word', 2], ['shortPhrase', 1]])
+  expect(await screen.findByRole('button', { name: 'Keep all 3' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Keep all 3' }))
+  await waitFor(() => expect(api.acceptDrillItems).toHaveBeenCalledTimes(2))
+  expect(api.acceptDrillItems).toHaveBeenCalledWith('request-word', ['request-word-0', 'request-word-1'])
+  expect(api.acceptDrillItems).toHaveBeenCalledWith('request-shortPhrase', ['request-shortPhrase-0'])
 })
 
 it('refuses a quantity outside the supported range before any request', async () => {

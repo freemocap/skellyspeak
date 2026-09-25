@@ -340,7 +340,7 @@ fn explicit_reading_explanations_use_the_explanation_turn_contract() {
         },
     )
     .unwrap();
-    let reading = request.explanations_dispatch().unwrap();
+    let (reading, schema) = request.explanations_dispatch().unwrap();
     // The same instruction; the explained text is the partner reply, without
     // the conversation's surrounding exchange.
     assert_eq!(reading.messages[0].role, turn.messages[0].role);
@@ -350,11 +350,8 @@ fn explicit_reading_explanations_use_the_explanation_turn_contract() {
     assert_eq!(data["actualPartnerReply"], turn_data["actualPartnerReply"]);
     assert_eq!(data["precedingExchange"], serde_json::json!([]));
     assert!(data["latestLearnerInput"].is_null());
-    assert_eq!(reading.coaching_schema, turn.coaching_schema);
-    assert_eq!(
-        reading.coaching_schema.as_ref().unwrap(),
-        &support::schema(support::EXPLANATIONS)
-    );
+    assert_eq!(Some(&schema), turn.coaching_schema.as_ref());
+    assert_eq!(&schema, &support::schema(support::EXPLANATIONS));
     assert_eq!(reading.model, turn.model);
     assert_eq!(reading.temperature, turn.temperature);
     assert_eq!(

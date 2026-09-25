@@ -62,7 +62,7 @@ pub(in crate::application) async fn preview_drill_items(
 ) -> Result<previews::DrillGenerationPreview> {
     run(&state, &request_id).await
 }
-async fn run(state: &Application, id: &str) -> Result<previews::DrillGenerationPreview> {
+async fn run(state: &Arc<Application>, id: &str) -> Result<previews::DrillGenerationPreview> {
     let run = state.generations.claim_for(id, "drill")?;
     let request = &run.request;
     if request.kind != "drill" {
@@ -80,9 +80,14 @@ async fn run(state: &Application, id: &str) -> Result<previews::DrillGenerationP
         name: "drill_candidates",
         max_output_tokens: input.output_budget(),
     };
-    let output = super::proposal_execution::execute(state, request, task, |store, completed| {
-        drill_generation::candidates(store, request, &input, completed)
-    })
+    let output = super::proposal_execution::execute(
+        state,
+        request.clone(),
+        task,
+        move |store, request, completed| {
+            drill_generation::candidates(store, request, &input, completed)
+        },
+    )
     .await;
     let mut store = state.lock()?;
     let outcome = output.outcome.and_then(|value| {

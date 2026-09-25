@@ -84,7 +84,10 @@ fn speech_saved_success_is_expired_after_reopen_without_new_work() {
     let mut reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
     assert!(matches!(
         reopened
-            .speech_audio(&speech.operation, &crate::speech::cache::Cache::default())
+            .speech_audio(
+                &speech.operation,
+                &crate::speech::delivery::DeliveryBuffer::default()
+            )
             .unwrap(),
         SpeechAudioState::Unavailable {
             reason: SpeechUnavailableReason::Expired,
@@ -138,7 +141,10 @@ fn speech_payload_preflight_fails_before_attempt_without_harming_translation() {
         diagnostics,
         ..
     } = store
-        .speech_audio(&operation, &crate::speech::cache::Cache::default())
+        .speech_audio(
+            &operation,
+            &crate::speech::delivery::DeliveryBuffer::default(),
+        )
         .unwrap()
     else {
         panic!("expected unavailable speech")
@@ -203,7 +209,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
         .finish_speech(&speech, speech_outcome(Ok(vec![1; 44])))
         .unwrap()
         .unwrap();
-    store.speech_cache.insert(audio).unwrap();
+    store.speech_delivery.insert(audio).unwrap();
     assert_eq!(store.execute(command).unwrap().entity_id, first.entity_id);
     for _ in 0..3 {
         let receipt = apply(
@@ -226,7 +232,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
             .unwrap(),
         1
     );
-    store.speech_cache.remove_operation(&first.entity_id);
+    store.speech_delivery.remove_operation(&first.entity_id);
     apply(
         &mut store,
         Action::RequestMessageSpeech {
@@ -238,7 +244,7 @@ fn speech_manual_action_replay_and_resident_audio_never_regenerate() {
         .finish_speech(&retry, speech_outcome(Ok(vec![1; 44])))
         .unwrap()
         .unwrap();
-    store.speech_cache.insert(audio).unwrap();
+    store.speech_delivery.insert(audio).unwrap();
     apply(
         &mut store,
         Action::RequestMessageSpeech {

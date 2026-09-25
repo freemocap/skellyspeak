@@ -50,17 +50,24 @@ pub(in crate::application) async fn run_persona_generation(
     state: tauri::State<'_, Arc<Application>>,
     generation_id: String,
 ) -> Result<PersonaDetails> {
+    run_owned_persona_generation(&state, &generation_id).await
+}
+
+async fn run_owned_persona_generation(
+    state: &Arc<Application>,
+    generation_id: &str,
+) -> Result<PersonaDetails> {
     let run = {
         let mut store = state.lock()?;
         for expired in state.generations.expire()? {
             generation_receipts::expire(&mut store, &expired)?;
         }
-        state.generations.claim(&generation_id)?
+        state.generations.claim(generation_id)?
     };
     let request = &run.request;
     let output = super::proposal_execution::execute(
-        &state,
-        request,
+        state,
+        request.clone(),
         super::proposal_execution::Task {
             messages: persona_prompt::messages_with_context(
                 &request.language.name,
@@ -71,10 +78,10 @@ pub(in crate::application) async fn run_persona_generation(
             name: persona_prompt::SCHEMA_NAME,
             max_output_tokens: 2048,
         },
-        |_, completed| generated_persona_for_language(&completed.text, &request.language),
+        |_, request, completed| generated_persona_for_language(&completed.text, &request.language),
     )
     .await;
-    finish_persona_generation(&state, request, output.completion.as_ref(), output.outcome)
+    finish_persona_generation(state, request, output.completion.as_ref(), output.outcome)
 }
 
 fn finish_persona_generation(
@@ -104,16 +111,6 @@ pub(in crate::application) fn get_persona_generation_activity(
         generation_receipts::expire(&mut store, &expired)?;
     }
     generation_receipts::activity(&store.connection)
-}
-
-/// Attempt and operation identities for one generation request, in the forms every
-/// dispatch uses. The hosted server refuses a grouped request whose identities have
-/// any other shape.
-pub(crate) fn generation_identity() -> (String, String) {
-    (
-        execution::new_attempt_id(),
-        uuid::Uuid::new_v4().simple().to_string(),
-    )
 }
 
 /// Parse and validate one completion. Pure, so both outcomes are covered without

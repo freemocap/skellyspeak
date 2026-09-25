@@ -6,7 +6,7 @@
 .inspection-spectrogram { display: block; width: 100%; height: 160px; }
 /* The mel frequency axis, over the canvas's trailing edge: highest band on top. */
 .inspection-frequency-scale { position: absolute; inset-block: var(--space-2); inset-inline-end: var(--space-2); z-index: var(--z-raised); display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; pointer-events: none; font-family: var(--font-mono); font-size: var(--type-meta); }
-.inspection-frequency-scale span { padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); }
+.inspection-frequency-scale span { color: var(--ink-on-fill); text-shadow: 0 0 var(--space-1) var(--spectrogram-low), 0 0 var(--space-1) var(--spectrogram-low); }
 @media (max-width: 600px) {
   .inspection-spectrogram { height: 120px; }
 }

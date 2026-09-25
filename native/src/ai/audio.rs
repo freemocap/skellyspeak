@@ -4,12 +4,15 @@ use crate::ai::connections::access::ResolvedTarget;
 use crate::ai::transport::transcription_provider;
 use crate::model::{AppError, Result};
 
+#[derive(Clone)]
 pub struct SpeechInput {
     pub text: String,
     pub voice: String,
     pub language: String,
 }
+#[derive(Clone)]
 pub struct SpeechOutcome {
+    pub alignment: Option<crate::speech::alignment::SpeechAlignment>,
     pub diagnostics: Option<serde_json::Value>,
     pub audio: Result<Vec<u8>>,
     pub actual_model: Option<String>,
@@ -38,7 +41,7 @@ pub struct TranscriptionOutcome {
     pub result: TranscriptionResult,
     pub diagnostics: Option<serde_json::Value>,
 }
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ts_rs::TS)]
 pub struct TranscriptionResult {
     pub text: String,
     pub timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
@@ -80,6 +83,7 @@ pub fn validate_transcription_language(
 impl SpeechOutcome {
     pub(crate) fn empty() -> Self {
         Self {
+            alignment: None,
             diagnostics: None,
             audio: Err(AppError::new(
                 crate::model::ErrorCode::UnknownOutcome,
@@ -93,4 +97,32 @@ impl SpeechOutcome {
             finish_reason: None,
         }
     }
+}
+
+/// The speech request for target-language text: the source contract, the
+/// language label and route validation shared by persona speech and explicit
+/// reading requests.
+pub(crate) fn speech_input(
+    target: &crate::ai::connections::access::ResolvedTarget,
+    text: String,
+    voice: String,
+    context: &crate::configuration::LanguageContext,
+) -> Result<crate::ai::audio::SpeechInput> {
+    if text.trim().is_empty()
+        || text.chars().count() > 12000
+        || text.contains('\0')
+        || voice.is_empty()
+    {
+        return Err(crate::model::AppError::new(
+            crate::model::ErrorCode::Validation,
+            "Speech input exceeds its source contract.",
+        ));
+    }
+    let input = crate::ai::audio::SpeechInput {
+        text,
+        voice,
+        language: format!("{} — {}", context.target_name, context.variety_name),
+    };
+    crate::ai::audio::validate_speech(target, &input)?;
+    Ok(input)
 }

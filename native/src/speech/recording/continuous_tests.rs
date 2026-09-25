@@ -95,8 +95,9 @@ fn fixture(
 }
 fn takes(count: usize) -> Vec<f32> {
     let mut pcm = vec![0.0; 4000];
-    for _ in 0..count {
-        pcm.extend(vec![0.1; 4000]);
+    for take in 0..count {
+        // Distinct utterances exercise distinct provider requests.
+        pcm.extend(vec![0.1 + take as f32 * 0.01; 4000]);
         pcm.extend(vec![0.0; 8800]);
     }
     pcm

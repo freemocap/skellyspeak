@@ -20,7 +20,8 @@ export function useAttemptAudio(itemId: string | null, attempt: DrillAttemptView
     let current = true
     void drillAttemptAudio(attemptId)
       .then(async base64 => {
-        const inspection = await inspectDrillAudio(itemId, base64)
+        if (!current) return
+        const inspection = await inspectDrillAudio(itemId, base64, { attemptId })
         if (current) setAudio({ attemptId, base64, inspection })
       })
       .catch(error => { if (current) setFailure(error) })

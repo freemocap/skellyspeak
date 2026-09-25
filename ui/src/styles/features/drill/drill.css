@@ -194,13 +194,22 @@
 .drill-spark-rule { stroke: var(--line-soft); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .drill-spark-line { fill: none; stroke: var(--interaction-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .drill-spark-point { fill: var(--interaction-ink); }
-.drill-word-grid { display: grid; gap: var(--space-hairline); }
-.drill-word-row { display: grid; align-items: center; gap: var(--space-1); }
-.drill-word-grid-label { overflow: hidden; font-family: var(--font-serif); font-size: var(--type-ui); line-height: var(--leading-tight); text-align: end; text-overflow: ellipsis; white-space: nowrap; padding-inline-end: var(--space-3); }
-.drill-word-cell { height: var(--space-5); border-radius: var(--radius-xs); }
-[data-outcome="same"].drill-word-cell, .drill-attempt-words [data-outcome="same"] { background: var(--success-line); }
-[data-outcome="substituted"].drill-word-cell, .drill-attempt-words [data-outcome="substituted"] { background: var(--warning-line); }
-[data-outcome="missing"].drill-word-cell, .drill-attempt-words [data-outcome="missing"] { background: var(--danger-line); }
+.drill-word-grid { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: 0 var(--space-1); min-width: 0; }
+/* Shared columns keep word boundaries aligned when take numbers gain digits. */
+.drill-word-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; min-width: 0; width: 100%; min-height: var(--control-height-sm); padding: 0 var(--space-1); background: var(--sheet); color: var(--ink); text-align: start; border: 0; border-radius: 0; }
+.drill-word-row[aria-pressed="true"] { outline: var(--border-width-thick) solid var(--interaction-ink); outline-offset: calc(-1 * var(--border-width-thick)); }
+.drill-word-row:hover { background: var(--field); }
+.drill-word-row-number, .drill-word-row-score { font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
+.drill-word-row-score { text-align: end; }
+.drill-word-row-cells { display: grid; align-self: stretch; align-items: stretch; min-width: 0; gap: var(--space-hairline); }
+.drill-word-cell { display: grid; align-items: center; min-width: 0; overflow: hidden; padding: 0; text-align: center; font-family: var(--font-serif); font-size: var(--type-ui); background: var(--chrome); color: var(--ink); border-radius: 0; }
+.drill-word-cell bdi { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-outcome="same"].drill-word-cell { background: var(--success-tint); color: var(--success-ink); }
+[data-outcome="substituted"].drill-word-cell { background: var(--warning-tint); color: var(--warning-ink); }
+[data-outcome="missing"].drill-word-cell { background: var(--danger-tint); color: var(--danger-ink); }
+.drill-attempt-words [data-outcome="same"] { background: var(--success-line); }
+.drill-attempt-words [data-outcome="substituted"] { background: var(--warning-line); }
+.drill-attempt-words [data-outcome="missing"] { background: var(--danger-line); }
 .drill-word-legend { display: flex; flex-wrap: wrap; gap: var(--space-5); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 .drill-word-legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
 .drill-word-legend span::before { content: ""; width: var(--space-5); height: var(--space-5); border-radius: var(--radius-xs); }
@@ -355,7 +364,7 @@
 /* Touch keeps every control at the minimum target, including the icon-only
    delete and the cards that carry selection. */
 @media (pointer: coarse) {
-  .drill-remove, .drill-item, .drill-attempt, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
+  .drill-remove, .drill-item, .drill-attempt, .drill-word-row, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
 }
 
 /* The Chat/Drill switch in the top bar: one surface replaces the other. It is

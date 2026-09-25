@@ -11,14 +11,14 @@ const SPARK_HEIGHT = 48
  * target word in every take, so a word that keeps going wrong stands out.
  *
  * Only loaded takes are summarised, and the card says how many. */
-export function PhraseProgress({ attempts, compact = false, selectedId, onSelect }: {
-  attempts: DrillAttemptView[]; compact?: boolean; selectedId?: string; onSelect?: (id: string) => void
+export function PhraseProgress({ attempts, compact = false, selectedId, onSelect, rtl = false }: {
+  attempts: DrillAttemptView[]; rtl?: boolean; compact?: boolean; selectedId?: string; onSelect?: (id: string) => void
 }) {
   const tr = useI18n()
-  const progress = phraseProgress(attempts, SUMMARISED_TAKES)
+  const progress = phraseProgress(attempts, compact ? SUMMARISED_TAKES : Math.max(1, attempts.length))
   if (!progress) return null
   const percent = (ratio: number | null) => ratio === null ? tr("—") : tr("{value0}%", { value0: String(Math.round(ratio * 100)) })
-  const outcome = { same: tr("same"), substituted: tr("letters differ"), missing: tr("not heard") }
+  const outcome = { same: tr("same"), substituted: tr("letters differ"), missing: tr("not heard"), extra: tr("extra") }
   const x = (index: number) => progress.ratios.length === 1 ? SPARK_WIDTH / 2 : 6 + index * (SPARK_WIDTH - 12) / (progress.ratios.length - 1)
   const y = (ratio: number) => SPARK_HEIGHT - 4 - ratio * (SPARK_HEIGHT - 8)
   // A take that could not be measured breaks the line rather than joining its neighbours.
@@ -28,7 +28,7 @@ export function PhraseProgress({ attempts, compact = false, selectedId, onSelect
     return lines
   }, [[]]).filter(line => line.length)
   const last = progress.ratios.length - 1
-  const columns = `6rem repeat(${progress.words[0]?.outcomes.length ?? 0}, minmax(0, 1fr))`
+  const selected = selectedId ?? attempts[0]?.id
 
   return (
     <section className={`drill-progress${compact ? ' drill-progress-compact' : ''}`} aria-label={tr("This phrase")}>
@@ -61,14 +61,24 @@ export function PhraseProgress({ attempts, compact = false, selectedId, onSelect
       </div>}
       {!compact && <>
       <div className="drill-word-grid">
-        {progress.words.map((word, row) => <div key={row} className="drill-word-row" role="img" style={{ gridTemplateColumns: columns }}
-          aria-label={tr("{value0}: heard exactly in {value1} of {value2} takes", {
-            value0: word.word, value1: String(word.outcomes.length - word.misses), value2: String(word.outcomes.length),
-          })}>
-          <bdi className="drill-word-grid-label" aria-hidden="true">{word.word}</bdi>
-          {word.outcomes.map((kind, column) => <span key={column} className="drill-word-cell" data-outcome={kind}
-            title={`${word.word}: ${outcome[kind]}`} aria-hidden="true" />)}
-        </div>)}
+        {[...progress.takes].reverse().map(take => {
+          const words = take.comparison.words.filter(word => word.kind !== 'extra')
+          const scored = take.comparison.reliability?.accepted !== false
+          return <button type="button" key={take.id} className="drill-word-row"
+            aria-pressed={take.id === selected} onClick={() => onSelect?.(take.id)}
+            aria-label={tr("Take {value0}", { value0: String(take.sequence) })}>
+            <span className="drill-word-row-number">#{String(take.sequence)}</span>
+            <span className="drill-word-row-cells" dir={rtl ? 'rtl' : 'ltr'}
+              style={{ gridTemplateColumns: `repeat(${Math.max(1, words.length)}, minmax(0, 1fr))` }}>
+              {words.map((word, index) => <span key={index} className="drill-word-cell"
+                data-outcome={scored ? word.kind : undefined}
+                title={`${word.target ?? ''}: ${scored ? outcome[word.kind] : tr("Not scored")}`}>
+                <bdi>{word.target}</bdi>
+              </span>)}
+            </span>
+            <span className="drill-word-row-score">{scored ? percent(take.comparison.matchRatio) : tr("Not scored")}</span>
+          </button>
+        })}
       </div>
       <p className="drill-word-legend" aria-hidden="true">
         <span data-outcome="same">{outcome.same}</span>
@@ -78,7 +88,7 @@ export function PhraseProgress({ attempts, compact = false, selectedId, onSelect
       {progress.trouble && <p className="drill-trouble">{tr("Most often different: {value0}, in {value1} of {value2} takes.", {
         value0: progress.trouble.word, value1: String(progress.trouble.misses), value2: String(progress.trouble.outcomes.length),
       })}</p>}
-      {progress.excluded > 0 && <p className="drill-progress-note">{tr("{value0} takes lack reliable recognition or use a different phrase split and are left out of the word grid.", { value0: String(progress.excluded) })}</p>}
+
       </>}
     </section>
   )

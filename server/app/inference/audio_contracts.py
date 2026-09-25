@@ -42,6 +42,7 @@ class SynthesisResult:
     wav: bytes = field(repr=False)
     duration_seconds: float
     receipt: AudioReceipt
+    alignment: dict | None = field(default=None, repr=False)
 
 
 @dataclass(frozen=True)

@@ -9,6 +9,11 @@ pub fn target(base: &ResolvedTarget, role: &str, fast: &str) -> ResolvedTarget {
     };
     target
 }
+/// Sampling policy for structured tasks, shared by all consumers.
+pub const TASK_TEMPERATURE: f64 = 0.7;
+/// Model role for text-to-audio requests.
+pub(crate) const SPEECH_ROLE: &str = "speech";
+
 #[cfg(test)]
 mod tests {
     use super::*;

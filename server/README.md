@@ -263,6 +263,13 @@ path. That local HTTP integration and app QA remain pending.
 
 ## Local server with real providers
 
+Local credentials and logs use owner-only permissions: directory/file modes on
+POSIX, and protected current-user access-control lists on Windows. The Windows
+dependency is installed by `uv sync` only on Windows. Private-file helpers reject
+symlinks, junctions and file aliases; failed credential replacement preserves the
+previous file and removes its temporary file. These development helpers are not
+included in the hosted image.
+
 After `uv sync`, copy the sample and put `OPENROUTER_API_KEY` and `GROQ_API_KEY`
 in `server/.env`. The file is Git-ignored and is loaded automatically; no other
 environment variables, database, emulator, or cloud credentials are needed.
@@ -524,7 +531,10 @@ retain the sanitized error body for investigation.
 ## Dedicated ElevenLabs audio routes (September 18, 2026)
 
 The native service client uses `POST /v1/audio/speech` with exactly `model`,
-`text` and `language` (the captured language and variety, such as `Spanish — Mexico`).
+`text` and `language` (the captured language and variety). Local request sharing
+and audio retention require no server-side cache, discovery call or additional
+request/response field. The service continues to own its configured voice and
+processing; the app does not infer their freshness from a locally cached result.
 The server supplies its configured voice profile and prefixes an Eleven v3 accent
 cue to the provider input; stored message text stays unchanged. The cue is included
 in the character-based allowance estimate. Missing/invalid variety, unsupported

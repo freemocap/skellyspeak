@@ -63,7 +63,15 @@ pub(in crate::application) async fn inspect_drill_audio(
     state: tauri::State<'_, Arc<Application>>,
     item_id: String,
     audio_base64: String,
+    attempt_id: Option<String>,
+    speech_alignment: Option<crate::speech::alignment::SpeechAlignment>,
 ) -> Result<crate::speech::analysis::audio_inspection::AudioInspection> {
+    if attempt_id.is_some() && speech_alignment.is_some() {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "A recording cannot use reference alignment.",
+        ));
+    }
     // The item must exist: an inspection is always attributed to a real owner.
     let owner = crate::drill::owner(&item_id);
     if !owner.available(&state.lock()?.connection)? {
@@ -72,6 +80,19 @@ pub(in crate::application) async fn inspect_drill_audio(
             "This drill item no longer exists.",
         ));
     }
+    if let Some(alignment) = &speech_alignment {
+        let text: String = state.lock()?.connection.query_row(
+            "SELECT text FROM drill_items WHERE id=?1",
+            [&item_id],
+            |r| r.get(0),
+        )?;
+        if alignment.source_text != text {
+            return Err(AppError::new(
+                ErrorCode::Conflict,
+                "Reference alignment belongs to different text.",
+            ));
+        }
+    }
     let wav = STANDARD.decode(&audio_base64).map_err(|cause| {
         crate::diagnostics::failures::base64(
             &cause,
@@ -79,9 +100,30 @@ pub(in crate::application) async fn inspect_drill_audio(
             AppError::new(ErrorCode::Validation, "Invalid recording encoding."),
         )
     })?;
+    let timing =
+        if let Some(attempt) = attempt_id {
+            let store = state.lock()?;
+            let recording: Option<String> = store.connection.query_row(
+            "SELECT transcription_attempt_id FROM drill_attempts WHERE id=?1 AND drill_item_id=?2",
+            rusqlite::params![attempt, item_id], |r| r.get(0))?;
+            recording
+                .map(|id| crate::speech::recording::results::load(&store.connection, &id, &wav))
+                .transpose()?
+                .flatten()
+                .and_then(|result| result.timing)
+        } else {
+            None
+        };
     tauri::async_runtime::spawn_blocking(move || {
-        crate::speech::analysis::audio_inspection::inspect_wav(&wav, &item_id, &owner)
-            .map(|(inspection, _)| inspection)
+        let (mut inspection, _) =
+            crate::speech::analysis::audio_inspection::inspect_wav(&wav, &item_id, &owner)?;
+        let timing = timing.or_else(|| {
+            speech_alignment
+                .as_ref()
+                .and_then(|alignment| alignment.words(inspection.duration))
+        });
+        crate::speech::analysis::audio_inspection::attach_words(&mut inspection, timing.as_ref());
+        Ok(inspection)
     })
     .await
     .map_err(|cause| {

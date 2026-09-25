@@ -45,7 +45,7 @@ async fn custom_server_refusal_redacts_remote_content_before_persistence() {
         let error = crate::ai::transport::grouped::complete(
             &crate::ai::transport::provider::client().unwrap(),
             "",
-            &dispatch,
+            &dispatch.text_request(),
         )
         .await
         .unwrap_err();

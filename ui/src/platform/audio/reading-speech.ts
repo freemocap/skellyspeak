@@ -20,7 +20,7 @@ async function play(base64: string, signal: AbortSignal, permit: object, onPlayb
   await new Promise<void>((resolve, reject) => {
     const finish = () => { signal.removeEventListener('abort', cancel); resolve() }
     const fail = (error: Error) => { signal.removeEventListener('abort', cancel); reject(error) }
-    const player = playSpeechAudio({ status: 'ready', operationId: '', attemptId: '', messageId: '', mime: 'audio/wav', audioBase64: base64 }, finish, fail, rate, volume, observer)
+    const player = playSpeechAudio({ mime: 'audio/wav', audioBase64: base64 }, finish, fail, rate, volume, observer)
     const cancel = () => { player.stop(); finish() }
     signal.addEventListener('abort', cancel, { once: true })
     if (signal.aborted) cancel()
