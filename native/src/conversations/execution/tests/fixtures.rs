@@ -130,7 +130,7 @@ pub(super) fn gloss_children(
             &gloss.model,
             &gloss.messages,
             route,
-            crate::conversations::gloss::request_output(
+            crate::language::gloss::request_output(
                 gloss.gloss_source.as_ref(),
                 gloss.gloss_schema.as_ref().unwrap(),
             ),
@@ -159,6 +159,7 @@ pub(super) fn gloss_children(
 
 pub(super) fn speech_outcome(audio: Result<Vec<u8>>) -> crate::ai::audio::SpeechOutcome {
     crate::ai::audio::SpeechOutcome {
+        alignment: None,
         diagnostics: None,
         audio,
         actual_model: Some("speech-model".into()),

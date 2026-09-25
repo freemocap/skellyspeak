@@ -1,4 +1,4 @@
-//! Source-owned projection for one persona-message gloss result.
+//! Shared source-bound gloss validation and projection for all consumers.
 use crate::ai::transport::provider::Completion;
 use crate::ai::transport::provider::RequestOutput;
 use crate::language::linguistics;

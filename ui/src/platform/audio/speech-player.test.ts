@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { playSpeechAudio } from './speech-player'
 import { setPlaybackAllowed, setVoiceVolume } from './speech'
 
-const audio0 = { status: 'ready', operationId: 'op', messageId: 'message', attemptId: 'attempt', mime: 'audio/mpeg', audioBase64: 'AA==' } as const
+const audio0 = { status: 'ready', operationId: 'op', messageId: 'message', attemptId: 'attempt', mime: 'audio/mpeg', audioBase64: 'AA==', alignment: null } as const
 
 interface Media {
   play: ReturnType<typeof vi.fn>; pause: ReturnType<typeof vi.fn>; load: ReturnType<typeof vi.fn>
@@ -69,7 +69,7 @@ it('suspension ends the active utterance exactly once and survives repeat suspen
 it('an older utterance releasing late does not steal the newer registration', async () => {
   const { media } = stubAudio()
   const first = playSpeechAudio(audio0, vi.fn(), vi.fn(), 1, 1)
-  const second = playSpeechAudio({ ...audio0, messageId: 'newer' }, vi.fn(), vi.fn(), 1, 1)
+  const second = playSpeechAudio(audio0, vi.fn(), vi.fn(), 1, 1)
   first.stop()
   setVoiceVolume(0.5)
   expect(media[1].volume).toBe(0.5)

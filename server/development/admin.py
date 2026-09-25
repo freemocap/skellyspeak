@@ -9,7 +9,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from server.app.diagnostics.admin_routes import HEADERS
 from server.app.diagnostics.admin_logs import entry
-from server.development.session import write_private
+from server.development.private_files import write_private
 
 COOKIE = 'skelly-local-admin'
 ORIGIN = 'http://127.0.0.1:8765'

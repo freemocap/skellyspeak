@@ -16,7 +16,7 @@ pub struct PromptMessage {
     pub role: String,
     pub content: String,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Completion {
     pub diagnostics: Option<serde_json::Value>,
     pub text: String,

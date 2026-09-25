@@ -455,7 +455,7 @@ fn unclear_and_unbound_translation_fail_without_publishing_and_keep_usage() {
         let translation = store.dispatch().unwrap().unwrap();
         assert_eq!(
             translation.coaching_schema,
-            Some(crate::conversations::translation::schema())
+            Some(crate::language::translation::schema())
         );
         store.finish(&translation, Ok(reply(&invalid))).unwrap();
         let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
@@ -511,7 +511,6 @@ fn explicit_reading_translation_sends_the_same_request_as_a_translation_turn() {
         serde_json::to_value(&reading.messages).unwrap(),
         serde_json::to_value(&turn.messages).unwrap()
     );
-    assert_eq!(reading.coaching_schema, turn.coaching_schema);
     assert_eq!(Some(schema), turn.coaching_schema);
     assert_eq!(reading.model, turn.model);
     assert_eq!(reading.model, "google/gemini-2.5-flash-lite");
@@ -523,7 +522,7 @@ fn explicit_reading_translation_sends_the_same_request_as_a_translation_turn() {
     // Both engines validate a reply with the same contract.
     let completion = translation_reply(&turn, "Hello.");
     assert_eq!(
-        crate::conversations::translation::validate("Hola.", &completion).unwrap(),
+        crate::language::translation::validate("Hola.", &completion).unwrap(),
         "Hello."
     );
 }

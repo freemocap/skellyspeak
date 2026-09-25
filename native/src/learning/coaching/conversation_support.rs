@@ -329,15 +329,32 @@ mod skill_context_tests {
             {"id":"future","name":"Future events","overview":"Locate an event after now."}
         ],"skillAssessment":{"presence":{"past":"direct","future":"absent"}},
         "skillAttribution":{"skills":{"past":{"spans":[{"quote":"ayer","start":0,"end":4}]}}}});
-        let messages = prompt_for_exchange("Hoy descansamos.".into(), Some("ayer trabajé".into()), EXPLANATIONS, &context).unwrap();
+        let messages = prompt_for_exchange(
+            "Hoy descansamos.".into(),
+            Some("ayer trabajé".into()),
+            EXPLANATIONS,
+            &context,
+        )
+        .unwrap();
         let data: Value = serde_json::from_str(&messages[1].content).unwrap();
         assert_eq!(data["skillDefinitions"].as_array().unwrap().len(), 2);
-        assert!(data["skillDefinitions"][0].get("language_guidance").is_none());
+        assert!(
+            data["skillDefinitions"][0]
+                .get("language_guidance")
+                .is_none()
+        );
         assert_eq!(data["learnerSkillEvidence"].as_array().unwrap().len(), 1);
-        assert_eq!(data["learnerSkillEvidence"][0]["source"], "latestLearnerInput");
+        assert_eq!(
+            data["learnerSkillEvidence"][0]["source"],
+            "latestLearnerInput"
+        );
         assert_eq!(data["learnerSkillEvidence"][0]["spans"][0]["quote"], "ayer");
         assert_eq!(data["actualPartnerReply"], "Hoy descansamos.");
-        assert!(messages[0].content.contains("never treat partner wording as learner achievement"));
+        assert!(
+            messages[0]
+                .content
+                .contains("never treat partner wording as learner achievement")
+        );
         let brief = prompt_for_exchange("Hoy descansamos.".into(), None, BRIEF, &context).unwrap();
         let data: Value = serde_json::from_str(&brief[1].content).unwrap();
         assert!(data.get("skillDefinitions").is_none());

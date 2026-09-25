@@ -166,7 +166,7 @@ mod tests;
 
 /// Actual dispatch settings shared by streamed, direct and grouped requests.
 pub fn dispatch_payload(
-    dispatch: &crate::conversations::execution::Dispatch,
+    dispatch: &crate::ai::transport::text_request::TextRequest,
     output: RequestOutput<'_>,
 ) -> Result<serde_json::Value> {
     if let Some(decisions) = &dispatch.decisions {

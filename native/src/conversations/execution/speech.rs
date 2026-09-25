@@ -54,6 +54,7 @@ pub(super) fn prepare_speech(
         [turn],
     )?;
     Ok(Dispatch {
+        structured_output_tokens: 2048,
         temperature: super::TASK_TEMPERATURE,
         credential: target.credential.clone().unwrap_or_default(),
         model: target.model.clone(),
@@ -66,7 +67,7 @@ pub(super) fn prepare_speech(
         decisions: None,
         coaching_schema: None,
         gloss_source: None,
-        speech_source: Some(crate::speech::cache::Source {
+        speech_source: Some(crate::speech::delivery::Source {
             language_tag: input.language_tag,
             message_id,
             text: input.text,
@@ -75,36 +76,6 @@ pub(super) fn prepare_speech(
         }),
         install_id: db.query_row("SELECT id FROM learner LIMIT 1", [], |r| r.get(0))?,
     })
-}
-
-/// The speech request for target-language text: the source contract, the
-/// language label and route validation shared by persona speech and explicit
-/// reading requests.
-pub(crate) fn speech_input(
-    target: &crate::ai::connections::access::ResolvedTarget,
-    text: String,
-    voice: String,
-    context: &crate::configuration::LanguageContext,
-) -> Result<crate::ai::audio::SpeechInput> {
-    if text.trim().is_empty()
-        || text.chars().count() > 12000
-        || text.contains('\0')
-        || voice.is_empty()
-    {
-        return Err(fail("Speech input exceeds its source contract."));
-    }
-    let input = crate::ai::audio::SpeechInput {
-        language_tag: context
-            .external_tags
-            .get("language_tag")
-            .cloned()
-            .ok_or_else(|| fail("Speech requires a language tag."))?,
-        text,
-        voice,
-        language: format!("{} — {}", context.target_name, context.variety_name),
-    };
-    crate::ai::audio::validate_speech(target, &input)?;
-    Ok(input)
 }
 
 pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -> Result<String> {
@@ -135,6 +106,27 @@ pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -
     )?;
     captured["speechTarget"] = serde_json::to_value(&target)?;
     speech_binding(db, message_id, &text, &captured)?;
+    let language_context = serde_json::from_value(captured["languageContext"].clone())?;
+    let input = speech_input(
+        &target,
+        text.clone(),
+        captured["speechVoice"].as_str().unwrap_or_default().into(),
+        &language_context,
+    )?;
+    let install: String = db.query_row("SELECT id FROM learner LIMIT 1", [], |r| r.get(0))?;
+    if let Some(saved) = crate::ai::results::speech::lookup(db, &target, &input, &install)? {
+        let operation = existing.map(|(id, _)| id).unwrap_or_else(id);
+        let attempt = new_attempt_id();
+        db.execute("INSERT INTO operations(id,turn_id,kind,state,permit) VALUES(?1,?2,'persona_speech','succeeded',0) ON CONFLICT(turn_id,kind) DO UPDATE SET state='succeeded',permit=0",params![operation,turn])?;
+        db.execute("INSERT INTO attempts(id,operation_id,state,requested_model,diagnostics,finished_at) VALUES(?1,?2,'succeeded','local',?3,strftime('%Y-%m-%dT%H:%M:%fZ','now'))",params![attempt,operation,serde_json::json!({"cacheHit":true,"sourceExecutionId":saved.execution}).to_string()])?;
+        crate::ai::results::associate(db, &attempt, &saved.execution)?;
+        db.execute(
+            "UPDATE turns SET context=?2 WHERE id=?1",
+            params![turn, serde_json::to_string(&captured)?],
+        )?;
+        refresh_turn(db, &turn)?;
+        return Ok(operation);
+    }
     if config(db)?.paused {
         return Err(AppError::new(
             ErrorCode::AdmissionHeld,
@@ -175,7 +167,7 @@ impl Store {
         &mut self,
         dispatch: &Dispatch,
         outcome: crate::ai::audio::SpeechOutcome,
-    ) -> Result<Option<crate::speech::cache::ReadyAudio>> {
+    ) -> Result<Option<crate::speech::delivery::ReadyAudio>> {
         crate::diagnostics::speech::completed(dispatch, &outcome);
         let tx = self.connection.transaction()?;
         let source = dispatch
@@ -233,7 +225,7 @@ impl Store {
         let validation = authority;
         let audio = match outcome.audio {
             Ok(wav) => validation.and_then(|_| {
-                if wav.is_empty() || wav.len() > crate::speech::cache::AUDIO_LIMIT {
+                if wav.is_empty() || wav.len() > crate::speech::delivery::AUDIO_LIMIT {
                     Err(fail("Speech audio exceeds its output limit."))
                 } else {
                     Ok(wav)
@@ -273,18 +265,19 @@ impl Store {
         refresh_turn(&tx, &turn)?;
         bump(&tx)?;
         tx.commit()?;
-        Ok(audio.ok().map(|wav| crate::speech::cache::ReadyAudio {
+        Ok(audio.ok().map(|wav| crate::speech::delivery::ReadyAudio {
             operation_id: dispatch.operation.clone(),
             attempt_id: dispatch.attempt.clone(),
             message_id: source.message_id.clone(),
             wav,
+            alignment: outcome.alignment,
         }))
     }
 
     pub fn speech_audio(
         &self,
         operation: &str,
-        cache: &crate::speech::cache::Cache,
+        cache: &crate::speech::delivery::DeliveryBuffer,
     ) -> Result<SpeechAudioState> {
         use base64::Engine;
         let (_, message, text, state, context) = speech_owner(&self.connection, operation)?;
@@ -331,7 +324,7 @@ impl Store {
             } else {
                 fallback
             };
-            let diagnostics = if let Some(error) = admission {
+            let mut diagnostics = if let Some(error) = admission {
                 Some(error.clone())
             } else if let Some(a) = &attempt {
                 let response =
@@ -344,6 +337,13 @@ impl Store {
             } else {
                 None
             };
+            if let Some(a) = &attempt
+                && let Some(receipt) =
+                    crate::ai::results::receipt_for_consumer(&self.connection, &a.0)?
+            {
+                diagnostics.get_or_insert_with(|| serde_json::json!({}))["sourceExecution"] =
+                    receipt;
+            }
             Ok(SpeechAudioState::Unavailable {
                 operation_id: operation.into(),
                 message_id: message.clone(),
@@ -364,6 +364,18 @@ impl Store {
             }),
             "succeeded" => {
                 let attempt:String=self.connection.query_row("SELECT id FROM attempts WHERE operation_id=?1 AND state='succeeded' ORDER BY rowid DESC LIMIT 1",[operation],|r|r.get(0))?;
+                if let Some(saved) = crate::ai::results::for_consumer(&self.connection, &attempt)? {
+                    cache.discard(&attempt);
+                    let audio = crate::speech::alignment::SpeechAudio::decode(&saved.payload)?;
+                    return Ok(SpeechAudioState::Ready {
+                        operation_id: operation.into(),
+                        attempt_id: attempt,
+                        message_id: message,
+                        mime: "audio/wav".into(),
+                        audio_base64: audio.audio_base64,
+                        alignment: audio.alignment,
+                    });
+                }
                 if let Some(audio) = cache
                     .get(&attempt)
                     .filter(|a| a.message_id == message && a.operation_id == operation)
@@ -374,6 +386,7 @@ impl Store {
                         message_id: message,
                         mime: "audio/wav".into(),
                         audio_base64: base64::engine::general_purpose::STANDARD.encode(&audio.wav),
+                        alignment: audio.alignment,
                     })
                 } else {
                     unavailable(SpeechUnavailableReason::Expired)

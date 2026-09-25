@@ -1,4 +1,4 @@
-import type { AudioInspection, DrillAttemptPage, DrillStorageView, DrillSessionView, DrillItemInput, DrillItemView } from '../../generated/contracts'
+import type { SpeechAlignment, AudioInspection, DrillAttemptPage, DrillStorageView, DrillSessionView, DrillItemInput, DrillItemView } from '../../generated/contracts'
 import { invoke } from './native'
 
 /** Drill's own commands. Recording, transcription, reading aids and speech are
@@ -25,8 +25,8 @@ export function drillAttemptAudio(attemptId: string): Promise<string> {
   return invoke<string>('get_drill_attempt_audio', { attemptId })
 }
 /** Analyse audio belonging to this item: the reference, or a replayed attempt. */
-export function inspectDrillAudio(itemId: string, audioBase64: string): Promise<AudioInspection> {
-  return invoke<AudioInspection>('inspect_drill_audio', { itemId, audioBase64 })
+export function inspectDrillAudio(itemId: string, audioBase64: string, evidence?: { attemptId?: string; speechAlignment?: SpeechAlignment | null }): Promise<AudioInspection> {
+  return invoke<AudioInspection>('inspect_drill_audio', { itemId, audioBase64, ...evidence })
 }
 
 export function startDrillSession(language: string): Promise<string> {

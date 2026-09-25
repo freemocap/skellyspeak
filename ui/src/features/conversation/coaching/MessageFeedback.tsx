@@ -11,11 +11,12 @@ import type { CoachControl, CoachDecision, CoachObservationView } from '../../..
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../../platform/ipc/workspace'
 
-export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis, onRetry, feedbackContext, onAddContext }: {
+export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis, skills, onRetry, feedbackContext, onAddContext }: {
   feedbackContext?: string
   onAddContext?: (note: string) => Promise<void>
   conversationFeedback?: ConversationFeedback
   onRetry?: () => Promise<void>
+  skills?: ReactNode
   analysis?: ReactNode
   children?: ReactNode
   id: number; text: string; feedback: CoachObservationView | undefined; decision?: CoachDecision; error: string | undefined
@@ -33,7 +34,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   async function openCard() {
     if (pending.current) return
     setFailure(null); setOpen(true)
-    if (!decision || decision.fixed || decision.keptGoing || (decision.shown && decision.exposedMove === decision.shown.move) || (!decision.shown && !onControl)) { setOpen(true); return }
+    if (!decision || decision.keptGoing || (decision.shown && decision.exposedMove === decision.shown.move) || (!decision.shown && !onControl)) { setOpen(true); return }
     if (!onControl) { setFailure('Coaching disclosure is unavailable.'); return }
     pending.current = true; setBusy(true)
     try { await onControl('open_card'); setOpen(true) }
@@ -62,8 +63,8 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   return <>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
     <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>{children}<button type="button" className="message-translate" aria-label={tr("Analyze your message")} aria-haspopup="dialog" disabled={busy} onClick={() => void openCard()}>{tr("Analysis")}</button>
-    <button type="button" data-feedback-state={error ? 'failed' : (conversationFeedback || (decision && feedback)) ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${conversationFeedback ? ' has-scores' : ''}${!conversationFeedback && decision?.shown ? ' has-correction' : ''}${error ? ' feedback-error' : ''}`} aria-describedby={conversationFeedback ? `${scoreId}-grammar ${scoreId}-conversation` : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
-        {conversationFeedback ? <><span title={tr("Grammar")}><span aria-hidden="true">✍️ {scoreText(conversationFeedback.grammar)}</span><span hidden id={`${scoreId}-grammar`}>{tr("Grammar: {value0}", { value0: conversationFeedback.grammar === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.grammar) })}</span></span><span title={tr("Conversation fit")}><span aria-hidden="true">🗣️ {scoreText(conversationFeedback.conversation)}</span><span hidden id={`${scoreId}-conversation`}>{tr("Conversation fit: {value0}", { value0: conversationFeedback.conversation === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.conversation) })}</span></span></> : shown ? <><span dir="auto">{shown.text}</span> <span>{tr("Ask the coach")}</span></> : error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
+    <button type="button" data-feedback-state={error ? 'failed' : (conversationFeedback || (decision && feedback)) ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${conversationFeedback ? ' has-scores' : ''}${error ? ' feedback-error' : ''}`} aria-describedby={conversationFeedback ? `${scoreId}-grammar ${scoreId}-conversation` : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
+        {conversationFeedback ? <><span title={tr("Grammar")}><span aria-hidden="true">✍️ {scoreText(conversationFeedback.grammar)}</span><span hidden id={`${scoreId}-grammar`}>{tr("Grammar: {value0}", { value0: conversationFeedback.grammar === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.grammar) })}</span></span><span title={tr("Conversation fit")}><span aria-hidden="true">🗣️ {scoreText(conversationFeedback.conversation)}</span><span hidden id={`${scoreId}-conversation`}>{tr("Conversation fit: {value0}", { value0: conversationFeedback.conversation === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.conversation) })}</span></span></> : error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
       </button>
     </div>
     {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
@@ -72,6 +73,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
       <CoachEntry feedback={feedback} decision={decision} source={analysis ? null : text} error={error} />
       {conversationFeedback && <ConversationFeedbackCard feedback={conversationFeedback} />}
       {!decision && !error && <p role="status">{reviewing ? tr("The coach is reviewing this message.") : feedback ? tr("Coaching decision is unavailable.") : tr("No feedback was saved for this message.")}</p>}
+      {skills}
       <div className="detail-actions">
         {error && onRetry && <button type="button" className="detail-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>{tr("Retry failed help")}</button>}
         {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy} className="detail-action" onClick={() => void openCard()}>{tr("View coaching help")}</button>}

@@ -36,7 +36,10 @@ impl Store {
         if kind == "skill_attribution" {
             let captured: serde_json::Value = serde_json::from_str(&context)?;
             if crate::learning::coaching::skill_attribution::selected(&captured)?.is_empty() {
-                tx.execute("UPDATE operations SET state='succeeded',permit=0 WHERE id=?1", [&operation])?;
+                tx.execute(
+                    "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",
+                    [&operation],
+                )?;
                 tx.execute("UPDATE turns SET context=json_set(context,'$.skillAttribution',json(?2)) WHERE id=?1", [&turn, &serde_json::json!({"skills":{}}).to_string()])?;
                 super::graph::release_dependents(&tx, &turn)?;
                 refresh_turn(&tx, &turn)?;
@@ -151,7 +154,9 @@ impl Store {
                     == AssessmentAdapter::JevChoice;
             let rating = crate::learning::coaching::message_assessment::owns(&kind);
             let coaching_schema = if kind == "skill_attribution" {
-                Some(crate::learning::coaching::skill_attribution::schema(&crate::learning::coaching::skill_attribution::selected(&captured)?))
+                Some(crate::learning::coaching::skill_attribution::schema(
+                    &crate::learning::coaching::skill_attribution::selected(&captured)?,
+                ))
             } else if rating {
                 None
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
@@ -191,7 +196,7 @@ impl Store {
                         params![turn, analysis_role(&kind)],
                         |r| Ok((r.get(0)?, r.get(1)?)),
                     )?;
-                    let source = crate::conversations::gloss::Source {
+                    let source = crate::language::gloss::Source {
                         identity: crate::language::linguistics::SourceIdentity {
                             message_id,
                             target_language_id: captured["targetLanguage"]
@@ -258,7 +263,7 @@ impl Store {
                     params![turn, analysis_role(&kind)],
                     |r| r.get(0),
                 )?;
-                crate::conversations::translation::prompt(source, &captured)?
+                crate::language::translation::prompt(source, &captured)?
             } else {
                 serde_json::from_value(captured["messages"].clone())?
             };
@@ -286,11 +291,12 @@ impl Store {
                     .ok_or_else(|| fail("Captured fast model is missing."))?
                     .into();
             }
-            let coaching_schema = if crate::conversations::translation::owns(&kind) {
-                Some(crate::conversations::translation::schema())
-            } else {
-                coaching_schema
-            };
+            let coaching_schema =
+                if matches!(kind.as_str(), "user_translation" | "reply_translation") {
+                    Some(crate::language::translation::schema())
+                } else {
+                    coaching_schema
+                };
             let decisions = if rating {
                 target.model = crate::learning::coaching::message_assessment::model().into();
                 Some(crate::learning::coaching::message_assessment::request(
@@ -364,6 +370,14 @@ impl Store {
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {
+            structured_output_tokens: if matches!(
+                kind.as_str(),
+                "coach_feedback" | "coach_retry_check"
+            ) {
+                8192
+            } else {
+                2048
+            },
             decisions,
             temperature: if matches!(kind.as_str(), "persona_opening" | "persona_reply") {
                 1.1

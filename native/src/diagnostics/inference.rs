@@ -10,7 +10,9 @@ fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 fn output_limit(dispatch: &Dispatch) -> i32 {
-    if dispatch.gloss_source.is_some() {
+    if dispatch.coaching_schema.is_some() {
+        dispatch.structured_output_tokens
+    } else if dispatch.gloss_source.is_some() {
         crate::ai::transport::provider::GLOSS_OUTPUT_TOKENS
     } else {
         crate::ai::transport::provider::MAX_OUTPUT_TOKENS
@@ -31,7 +33,8 @@ fn identity(value: &str) -> Option<String> {
 }
 fn kind(value: &str) -> &str {
     match value {
-        "skill_attribution" | "skill_assessment"
+        "skill_attribution"
+        | "skill_assessment"
         | "skill_evidence"
         | "conversation_feedback"
         | "reply_brief"
@@ -208,6 +211,7 @@ mod tests {
     #[test]
     fn completion_metadata_survives_rejection_without_content() {
         let dispatch = Dispatch {
+            structured_output_tokens: 2048,
             decisions: None,
             temperature: 0.7,
             target: ResolvedTarget {

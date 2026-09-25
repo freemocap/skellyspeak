@@ -9,7 +9,7 @@ import type { CoachDecision, CoachObservationView } from '../../src/generated/co
 
 afterEach(() => vi.restoreAllMocks())
 
-const observation: CoachObservationView = { meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
+const observation: CoachObservationView = { corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
 const decision: CoachDecision = { exposedMove: null, repairStatus: null, shown: null, retryInvited: false, fixed: null, alsoNoticed: [], keptGoing: false }
 
 function Exchange({ id, state, reply = true }: { id: string; state: 'complete' | 'pending' | 'unavailable' | 'failed' | 'missing-evidence'; reply?: boolean }) {

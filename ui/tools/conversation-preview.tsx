@@ -4,7 +4,7 @@ import { CoachPanelTabs } from '../src/features/conversation/coaching/CoachPanel
 import { mockIPC } from '@tauri-apps/api/mocks'
 import { loadLanguages } from '../src/platform/ipc/tauri'
 import { createRoot } from 'react-dom/client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
 import { MobileNav } from '../src/app/shell/MobileNav'
 import { ConversationHeader } from '../src/features/conversation/session/ConversationHeader'
@@ -82,12 +82,19 @@ function Preview() {
   const workspace = useRef<HTMLDivElement>(null)
   const mobile = useIsMobile()
   const surface = useNavigationStore(state => state.mobileSurface)
+  const [surfaceSwitched, setSurfaceSwitched] = useState(false)
+  const shownSurface = useRef(surface)
+  useEffect(() => {
+    if (shownSurface.current === surface) return
+    shownSurface.current = surface
+    setSurfaceSwitched(true)
+  }, [surface])
   const settings = { ...quick, appearance: { ...DEFAULT_APPEARANCE, palette, layoutSpacing: spacing }, theme: dark ? 'dark' as const : 'light' as const }
   useAppearance(settings)
   return <ReadingProvider settings={null}><ReadingPreferencesProvider settings={settings}><div className="app">
     <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>warm</option><option>cool</option></select></label><label>Spacing<select value={spacing} onChange={event => setSpacing(event.target.value as typeof spacing)}><option>roomy</option><option>balanced</option><option>tight</option><option>extra_tight</option></select></label><output>{notice}</output></div>
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
-    <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-lesson' : ''}`} ref={workspace}>
+    <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`} ref={workspace}>
       <section className="chat">
         <ConversationHeader error={null} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}>
           <div className="chat-heading-actions"><ConversationSettings summary={['Beginner', quick.auto_speak ? 'Reading aloud' : null].filter(Boolean).join(' · ')} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
@@ -104,7 +111,7 @@ function Preview() {
               formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
             } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} rtl onBubbleTap={() => setNotice('Message analysis')} />
           </ReadingPreferencesContext></div>
-          <TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} />
+          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onAddContext={async note => { setNotice(note); setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
         </>}</div>
         <div className="composer">
           {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}

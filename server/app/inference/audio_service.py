@@ -139,7 +139,7 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
                                 provider="elevenlabs", label="ElevenLabs",
                                 create=lambda client: ElevenLabs(client, api_key=cfg.elevenlabs_key))
         return JSONResponse({"version": 1, "audio_base64": base64.b64encode(result.wav).decode(),
-                             "format": "wav", "usage": _usage(result, amount)})
+                             "format": "wav", "alignment": result.alignment, "usage": _usage(result, amount)})
 
 
 async def transcribe(request, who, cfg, reserve, settle, read_body):

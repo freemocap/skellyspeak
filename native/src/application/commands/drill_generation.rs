@@ -14,7 +14,12 @@ fn reserve(state: &Application, input: drill_generation::DrillGenerationInput) -
         generation_receipts::expire(&mut store, &expired)?;
     }
     let request = input.capture(&store)?;
-    let skill_focus = crate::drill::skill_focus::capture(&store, &request.language_context, input.skill_target.as_ref(), &request.id)?;
+    let skill_focus = crate::drill::skill_focus::capture(
+        &store,
+        &request.language_context,
+        input.skill_target.as_ref(),
+        &request.id,
+    )?;
     let request = state.generations.insert(request)?;
     let outcome = (|| {
         generation_receipts::begin(&mut store, &request)?;
@@ -65,7 +70,7 @@ pub(in crate::application) async fn preview_drill_items(
 ) -> Result<previews::DrillGenerationPreview> {
     run(&state, &request_id).await
 }
-async fn run(state: &Application, id: &str) -> Result<previews::DrillGenerationPreview> {
+async fn run(state: &Arc<Application>, id: &str) -> Result<previews::DrillGenerationPreview> {
     let run = state.generations.claim_for(id, "drill")?;
     let request = &run.request;
     if request.kind != "drill" {
@@ -75,17 +80,34 @@ async fn run(state: &Application, id: &str) -> Result<previews::DrillGenerationP
         ));
     }
     let captured = previews::input(&state.lock()?.connection, id)?;
-    let input = captured.requested
+    let input = captured
+        .requested
         .ok_or_else(|| AppError::new(ErrorCode::Conflict, "This is not a generation preview."))?;
     let task = super::proposal_execution::Task {
-        messages: drill_generation::messages(&*state.lock()?, request, &input, captured.skill_focus.as_ref()),
+        messages: drill_generation::messages(
+            &*state.lock()?,
+            request,
+            &input,
+            captured.skill_focus.as_ref(),
+        ),
         schema: drill_generation::schema(input.length),
         name: "drill_candidates",
         max_output_tokens: input.output_budget(),
     };
-    let output = super::proposal_execution::execute(state, request, task, |store, completed| {
-        drill_generation::candidates(store, request, &input, completed, captured.skill_focus.as_ref())
-    })
+    let output = super::proposal_execution::execute(
+        state,
+        request.clone(),
+        task,
+        move |store, request, completed| {
+            drill_generation::candidates(
+                store,
+                request,
+                &input,
+                completed,
+                captured.skill_focus.as_ref(),
+            )
+        },
+    )
     .await;
     let mut store = state.lock()?;
     let outcome = output.outcome.and_then(|value| {

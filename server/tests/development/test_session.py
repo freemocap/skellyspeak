@@ -1,10 +1,10 @@
 from pathlib import Path
-import stat
 
 import pytest
 
 from server.app.identity.auth import AuthError, read_session_token
 from server.development import session
+from server.tests.development.file_assertions import assert_private, file_link
 
 
 def test_restarts_keep_key_and_token_and_reset_revokes_old_token(tmp_path: Path):
@@ -13,9 +13,9 @@ def test_restarts_keep_key_and_token_and_reset_revokes_old_token(tmp_path: Path)
     assert session.load(directory) == first
     assert read_session_token(first[1], signing_key=first[0]) == ('local-learner', 0)
     assert (directory / 'session-token.txt').read_text().strip() == first[1]
-    assert stat.S_IMODE(directory.stat().st_mode) == 0o700
+    assert_private(directory)
     for path in directory.iterdir():
-        assert stat.S_IMODE(path.stat().st_mode) == 0o600
+        assert_private(path)
     second = session.load(directory, reset=True)
     assert second != first
     with pytest.raises(AuthError):
@@ -44,13 +44,13 @@ def test_corruption_fails_explicitly_without_silent_rotation(tmp_path):
 
 
 @pytest.mark.parametrize('name', ['session.json', 'session-token.txt'])
-def test_symlink_files_are_rejected_even_on_explicit_reset(tmp_path, name):
+def test_linked_files_are_rejected_even_on_explicit_reset(tmp_path, name):
     directory = tmp_path.resolve() / 'local'
     directory.mkdir()
     target = tmp_path / 'unrelated'
     target.write_text('untouched')
-    (directory / name).symlink_to(target)
-    with pytest.raises(RuntimeError, match='symlink'):
+    file_link(directory / name, target)
+    with pytest.raises(RuntimeError, match='symlink|aliases'):
         session.load(directory, reset=True)
     assert target.read_text() == 'untouched'
 

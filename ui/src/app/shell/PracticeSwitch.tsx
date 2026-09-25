@@ -12,7 +12,7 @@ export function PracticeSwitch() {
     {(['chat', 'drill'] as const).map(view => (
       <button key={view} type="button" aria-pressed={practiceSurface === view && page === 'guided'}
         onClick={() => setPracticeView(view)}>
-        <ToolbarIcon name={view === 'chat' ? 'chat' : 'mic'} size={18} /><span className="practice-switch-label">{view === 'chat' ? tr("Chat") : tr("Drill")}</span>
+        <ToolbarIcon name={view === 'chat' ? 'chat' : 'cards'} size={18} /><span className="practice-switch-label">{view === 'chat' ? tr("Chat") : tr("Drill")}</span>
       </button>
     ))}
   </div>

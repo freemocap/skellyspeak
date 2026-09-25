@@ -19,11 +19,12 @@ export function sharedScale(sources: InspectionSpectrogram[]): SpectrogramScale 
 
 /** Mel-band rows painted on a time axis: one canvas, wherever a recording is
  * shown. `scale` overrides the analysis's own dB window for paired views. */
-export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0 }: {
+export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0, mapTime }: {
   data: InspectionSpectrogram
   duration: number
   zoom: number
   scale?: SpectrogramScale
+  mapTime?: (seconds: number) => number
   startSeconds?: number
 }) {
   const tr = useI18n()
@@ -47,8 +48,11 @@ export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0 }: {
       const absent = channels('--spectrogram-unavailable')
       const pixels = context.createImageData(element.width, element.height)
       data.bins.forEach((frame, index) => {
-        const left = (data.frameStartSeconds[index] - startSeconds) / duration * element.width
-        const width = Math.min(data.windowSeconds, startSeconds + duration - data.frameStartSeconds[index]) / duration * element.width
+        const start = data.frameStartSeconds[index]
+        const end = start + data.windowSeconds
+        const left = ((mapTime ? mapTime(start) : start) - startSeconds) / duration * element.width
+        const right = ((mapTime ? mapTime(end) : Math.min(end, startSeconds + duration)) - startSeconds) / duration * element.width
+        const width = right - left
         frame.forEach((db, band) => {
           let color = absent
           if (db !== null) {
@@ -69,7 +73,7 @@ export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0 }: {
     const observer = new MutationObserver(paint)
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     return () => observer.disconnect()
-  }, [data, duration, zoom, dbMin, dbMax, startSeconds])
+  }, [data, duration, zoom, dbMin, dbMax, startSeconds, mapTime])
   return <>{unavailable && <p role="status">{tr("Spectrogram rendering unavailable.")}</p>}
     <canvas ref={canvas} className="inspection-spectrogram" role="img"
       aria-label={data.measuredMaxFrequencyHz < data.maxFrequencyHz
@@ -87,8 +91,8 @@ export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0 }: {
 export function melAxisTicks(data: InspectionSpectrogram, count = 5): number[] {
   const bands = data.bands
   if (!bands.length || count < 2) return []
-  return Array.from({ length: count }, (_, tick) =>
-    Math.round(bands[Math.min(bands.length - 1, Math.round(tick * (bands.length - 1) / (count - 1)))].centerHz))
+  return [...new Set(Array.from({ length: count }, (_, tick) =>
+    Math.round(bands[Math.min(bands.length - 1, Math.round(tick * (bands.length - 1) / (count - 1)))].centerHz)))]
 }
 
 /** The frequency axis for a spectrogram, drawn over its trailing edge: highest

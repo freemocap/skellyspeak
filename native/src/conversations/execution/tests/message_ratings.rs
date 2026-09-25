@@ -48,10 +48,7 @@ fn scores_publish_before_reply_and_understanding_waits_for_reply_without_credit(
         "Please clarify."
     );
     store
-        .finish(
-            &reaction,
-            Ok(result("coach_reaction", "confused")),
-        )
+        .finish(&reaction, Ok(result("coach_reaction", "confused")))
         .unwrap();
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert!(view.messages[0].reaction.is_none());

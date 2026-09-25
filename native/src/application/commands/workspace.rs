@@ -58,7 +58,7 @@ pub(in crate::application) fn read_speech_audio(
             "The application session changed. Refresh before continuing.",
         ));
     }
-    store.speech_audio(&operation_id, &store.speech_cache)
+    store.speech_audio(&operation_id, &store.speech_delivery)
 }
 
 #[tauri::command]
@@ -284,14 +284,22 @@ pub(in crate::application) fn preview_conversation_prompt(
         &store.config,
         recommendation.as_ref(),
     )?;
-    preview.coach_focus = recommendation.as_ref().map(|value| {
-        let selection: crate::learning::recommendations::Recommendation = serde_json::from_value(value["selection"].clone())?;
-        let skill: crate::learning::practice_assessment::SkillPrompt = serde_json::from_value(value["skill"].clone())?;
-        Ok::<_, AppError>(crate::conversations::direction::CoachFocusPreview {
-            skill_id: skill.id, name: skill.name, mode: selection.selected,
-            experience: selection.skill.experience, effort: selection.skill.effort,
+    preview.coach_focus = recommendation
+        .as_ref()
+        .map(|value| {
+            let selection: crate::learning::recommendations::Recommendation =
+                serde_json::from_value(value["selection"].clone())?;
+            let skill: crate::learning::practice_assessment::SkillPrompt =
+                serde_json::from_value(value["skill"].clone())?;
+            Ok::<_, AppError>(crate::conversations::direction::CoachFocusPreview {
+                skill_id: skill.id,
+                name: skill.name,
+                mode: selection.selected,
+                experience: selection.skill.experience,
+                effort: selection.skill.effort,
+            })
         })
-    }).transpose()?;
+        .transpose()?;
     Ok(preview)
 }
 

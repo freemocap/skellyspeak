@@ -223,7 +223,6 @@
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
   font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
 }
-.message-actions > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
 .message-actions > .feedback-badge:hover { border-color: currentColor; }
 
@@ -255,7 +254,6 @@
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-.feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
 }
@@ -266,11 +264,13 @@
   .message-xp-actions > button { min-height: 44px; min-width: 44px; }
 }
 
-/* Quiet bubble action, with a full touch target despite its small glyph. */
-.message-actions .message-add-drill { margin-inline-start: auto; min-width: var(--control-height); }
+/* Quiet bubble action, last in the row, with a full touch target despite its
+   small icon. Saved shows a success check. */
+.message-actions .message-add-drill { order: 1; margin-inline-start: auto; min-width: var(--control-height); display: inline-flex; align-items: center; justify-content: center; }
+.message-actions .message-translate.message-add-drill { color: var(--ink-3); }
+.message-actions .message-translate.message-add-drill[data-state=saved] { opacity: 1; color: var(--success-ink); }
 /* The corner control sits at the top of the bubble, so its gutter is free at the
    bottom: the action row spans the full width and keeps one line. */
 .msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
 .msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-.message-add-drill > span { font-size: var(--type-title); }
 @media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }

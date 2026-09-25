@@ -167,7 +167,7 @@ fn changed_retry_credits_retained_skills_and_new_skills_separately_then_survives
     assert_eq!(profile(&store)["profile"]["xp"], 4);
 }
 #[test]
-fn invalid_distribution_does_not_award_and_keeps_validation_diagnostics() {
+fn out_of_range_probability_does_not_award_and_keeps_validation_diagnostics() {
     let (_dir, mut store, conversation) = setup();
     let turn = store
         .execute(send(&store, &conversation))
@@ -176,7 +176,7 @@ fn invalid_distribution_does_not_award_and_keeps_validation_diagnostics() {
     let work = assessment(&mut store, &turn);
     let mut result = presence(&work, &[("quantity", "direct")]);
     let mut raw: Value = serde_json::from_str(&result.text).unwrap();
-    raw["quantity"]["probabilities"]["absent"] = json!(1.0);
+    raw["quantity"]["probabilities"]["absent"] = json!(1.5);
     result.text = raw.to_string();
     store.finish(&work, Ok(result)).unwrap();
     assert_eq!(profile(&store)["profile"]["xp"], 0);
@@ -316,32 +316,90 @@ fn spanish_pilot_connects_retry_profile_guides_and_next_practice() {
     }
     let first = store.execute(command).unwrap().entity_id;
     let work = assessment(&mut store, &first);
-    store.finish(&work, Ok(presence(&work, &[
-        ("questions_answers", "direct"), ("identify_describe", "direct"),
-    ]))).unwrap();
-    let retry = store.execute(revision_command(&store, &conversation, &first,
-        "¿Dónde estaba Ana ayer?")).unwrap().entity_id;
+    store
+        .finish(
+            &work,
+            Ok(presence(
+                &work,
+                &[
+                    ("questions_answers", "direct"),
+                    ("identify_describe", "direct"),
+                ],
+            )),
+        )
+        .unwrap();
+    let retry = store
+        .execute(revision_command(
+            &store,
+            &conversation,
+            &first,
+            "¿Dónde estaba Ana ayer?",
+        ))
+        .unwrap()
+        .entity_id;
     let work = assessment(&mut store, &retry);
-    store.finish(&work, Ok(presence(&work, &[
-        ("questions_answers", "direct"), ("identify_describe", "direct"),
-        ("past_reference", "direct"),
-    ]))).unwrap();
+    store
+        .finish(
+            &work,
+            Ok(presence(
+                &work,
+                &[
+                    ("questions_answers", "direct"),
+                    ("identify_describe", "direct"),
+                    ("past_reference", "direct"),
+                ],
+            )),
+        )
+        .unwrap();
     let snapshot = profile(&store);
     assert_eq!(snapshot["profile"]["xp"], 5);
     let credits = snapshot["profile"]["credits"].as_array().unwrap();
-    assert_eq!(credits.iter().map(|c| c["experience"].as_u64().unwrap()).sum::<u64>(), 3);
-    assert_eq!(credits.iter().map(|c| c["effort"].as_u64().unwrap()).sum::<u64>(), 2);
+    assert_eq!(
+        credits
+            .iter()
+            .map(|c| c["experience"].as_u64().unwrap())
+            .sum::<u64>(),
+        3
+    );
+    assert_eq!(
+        credits
+            .iter()
+            .map(|c| c["effort"].as_u64().unwrap())
+            .sum::<u64>(),
+        2
+    );
     let variety = snapshot["records"][0]["variety"].as_str().unwrap();
-    let guide = snapshot["guides"].as_array().unwrap().iter().find(|g| g["id"] == variety).unwrap();
+    let guide = snapshot["guides"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|g| g["id"] == variety)
+        .unwrap();
     let markdown = guide["skills"]["past_reference"].as_str().unwrap();
-    assert_eq!(markdown, store.config.skill_markdown("spanish", variety, "past_reference").unwrap());
-    assert!(markdown.contains("How it works") && markdown.contains(guide["name"].as_str().unwrap()));
-    let ids: Vec<String> = snapshot["catalog"].as_array().unwrap().iter()
-        .filter(|n| n["kind"] == "skill").map(|n| n["id"].as_str().unwrap().into()).collect();
+    assert_eq!(
+        markdown,
+        store
+            .config
+            .skill_markdown("spanish", variety, "past_reference")
+            .unwrap()
+    );
+    assert!(
+        markdown.contains("How it works") && markdown.contains(guide["name"].as_str().unwrap())
+    );
+    let ids: Vec<String> = snapshot["catalog"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|n| n["kind"] == "skill")
+        .map(|n| n["id"].as_str().unwrap().into())
+        .collect();
     let candidates = recommendations::candidates(&snapshot, variety, &ids).unwrap();
-    let breadth = recommendations::choose(&candidates, RecommendationMode::Explore, "pilot").unwrap();
+    let breadth =
+        recommendations::choose(&candidates, RecommendationMode::Explore, "pilot").unwrap();
     assert_eq!(breadth.skill.experience, 0);
-    let depth = recommendations::choose(&candidates, RecommendationMode::ContinuePracticing, "pilot").unwrap();
+    let depth =
+        recommendations::choose(&candidates, RecommendationMode::ContinuePracticing, "pilot")
+            .unwrap();
     assert_eq!(depth.skill.effort, 1);
     assert!(["questions_answers", "identify_describe"].contains(&depth.skill.skill_id.as_str()));
     drop(store);

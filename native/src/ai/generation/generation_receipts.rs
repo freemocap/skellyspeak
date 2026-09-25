@@ -33,6 +33,9 @@ pub fn dispatch(store: &mut Store, request: &Request) -> Result<()> {
     if tx.execute("UPDATE generation_attempts SET state='running',dispatched_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1 AND attempt_id=?2 AND state='pending'", params![request.id,request.attempt])? != 1 {
         return Err(unavailable());
     }
+    if let Some(source) = crate::ai::results::receipt_for_consumer(&tx, &request.id)? {
+        crate::ai::results::dispatched(&tx, source["id"].as_str().ok_or_else(unavailable)?)?;
+    }
     changed(&tx)?;
     tx.commit()?;
     Ok(())
@@ -167,19 +170,27 @@ pub fn recover(db: &Connection) -> Result<()> {
     Ok(())
 }
 
-pub fn usage(db: &Connection, language: Option<&str>) -> Result<PersonaGenerationUsage> {
-    usage_for(db, language, None)
+/// Unlinked receipts only; profile totals add shared executions separately.
+pub fn unshared_usage(db: &Connection, language: Option<&str>) -> Result<PersonaGenerationUsage> {
+    usage_for(db, language, None, false)
 }
 fn usage_for(
     db: &Connection,
     language: Option<&str>,
     kind: Option<&str>,
+    include_shared: bool,
 ) -> Result<PersonaGenerationUsage> {
-    Ok(db.query_row("SELECT count(*),COALESCE(SUM(input_tokens),0),COALESCE(SUM(output_tokens),0),COALESCE(SUM(input_tokens IS NULL OR output_tokens IS NULL),0) FROM generation_attempts WHERE dispatched_at IS NOT NULL AND (?1 IS NULL OR language_id=?1) AND (?2 IS NULL OR kind=?2)", params![language,kind], |r| Ok(PersonaGenerationUsage { attempts:r.get(0)?,input_tokens:r.get(1)?,output_tokens:r.get(2)?,unknown_usage:r.get(3)? }))?)
+    Ok(db.query_row("SELECT count(*),COALESCE(SUM(COALESCE(json_extract(e.metadata,'$.inputTokens'),g.input_tokens)),0),COALESCE(SUM(COALESCE(json_extract(e.metadata,'$.outputTokens'),g.output_tokens)),0),COALESCE(SUM(COALESCE(json_extract(e.metadata,'$.inputTokens'),g.input_tokens) IS NULL OR COALESCE(json_extract(e.metadata,'$.outputTokens'),g.output_tokens) IS NULL),0) FROM generation_attempts g LEFT JOIN inference_consumers u ON u.consumer_id=g.id LEFT JOIN inference_executions e ON e.id=u.execution_id WHERE COALESCE(e.dispatched,g.dispatched_at IS NOT NULL)=1 AND (?1 IS NULL OR g.language_id=?1) AND (?2 IS NULL OR g.kind=?2) AND (?3 OR u.execution_id IS NULL)", params![language,kind,include_shared], |r| Ok(PersonaGenerationUsage { attempts:r.get(0)?,input_tokens:r.get(1)?,output_tokens:r.get(2)?,unknown_usage:r.get(3)? }))?)
 }
 
 pub fn activity(db: &Connection) -> Result<PersonaGenerationActivity> {
     activity_for(db, "persona")
+}
+fn source_field<T: serde::de::DeserializeOwned>(
+    response: &serde_json::Value,
+    field: &str,
+) -> Result<Option<T>> {
+    Ok(serde_json::from_value(response[field].clone())?)
 }
 pub(crate) fn activity_for(db: &Connection, kind: &str) -> Result<PersonaGenerationActivity> {
     let mut query = db.prepare("SELECT id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state,created_at,dispatched_at,finished_at,actual_model,provider_id,input_tokens,output_tokens,error,diagnostics,finish_reason FROM generation_attempts WHERE kind=?1 ORDER BY rowid DESC LIMIT 50")?;
@@ -213,33 +224,32 @@ pub(crate) fn activity_for(db: &Connection, kind: &str) -> Result<PersonaGenerat
         .map(|row| {
             let (route, mut view) = row?;
             view.route = ConnectionRoute::parse(&route)?;
+            if let Some(source) = crate::ai::results::receipt_for_consumer(db, &view.id)? {
+                let response = &source["response"];
+                view.actual_model = view.actual_model.or(source_field(response, "actualModel")?);
+                view.provider_id = view.provider_id.or(source_field(response, "providerId")?);
+                view.finish_reason = view
+                    .finish_reason
+                    .or(source_field(response, "finishReason")?);
+                view.input_tokens = view.input_tokens.or(source_field(response, "inputTokens")?);
+                view.output_tokens = view
+                    .output_tokens
+                    .or(source_field(response, "outputTokens")?);
+                let mut diagnostics = view
+                    .diagnostics
+                    .take()
+                    .unwrap_or_else(|| serde_json::json!({}));
+                diagnostics["sourceExecution"] = source;
+                view.diagnostics = Some(diagnostics);
+            }
             Ok(view)
         })
         .collect::<Result<Vec<_>>>()?;
     Ok(PersonaGenerationActivity {
         revision: db.query_row("SELECT revision FROM metadata", [], |r| r.get(0))?,
         attempts,
-        usage: usage_for(db, None, Some(kind))?,
+        usage: usage_for(db, None, Some(kind), true)?,
     })
-}
-
-pub fn record_retry(store: &Store, request: &Request, error: &AppError) -> Result<()> {
-    let diagnostic = crate::diagnostics::response::retained_with_private(
-        None,
-        Some(error),
-        &[request.brief.as_deref().unwrap_or("")],
-    );
-    if store.connection.execute(
-        "UPDATE generation_attempts SET diagnostics=?2 WHERE id=?1 AND state='running'",
-        params![request.id, diagnostic],
-    )? != 1
-    {
-        return Err(AppError::new(
-            ErrorCode::Conflict,
-            "Persona generation ended before retry.",
-        ));
-    }
-    Ok(())
 }
 
 #[cfg(test)]
@@ -341,7 +351,7 @@ mod tests {
         cancel(&mut store, &pending).unwrap();
         cancel(&mut store, &pending).unwrap();
         assert!(dispatch(&mut store, &pending).is_err());
-        assert_eq!(usage(&store.connection, None).unwrap().attempts, 0);
+        assert_eq!(unshared_usage(&store.connection, None).unwrap().attempts, 0);
         let running = request(&store, "spanish");
         submit(&mut store, &running);
         cancel(&mut store, &running).unwrap();

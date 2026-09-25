@@ -6,13 +6,13 @@
 pub mod comparison;
 pub mod conversation_source;
 pub mod generation;
-pub mod skill_focus;
 pub mod history;
 pub mod previews;
 pub(crate) mod reference;
 pub mod reliability;
 pub mod retention;
 pub mod sessions;
+pub mod skill_focus;
 
 use crate::model::*;
 use crate::speech::recording::owner::RecordingOwner;
@@ -278,8 +278,10 @@ impl Store {
     fn remove_drill_attempts(&mut self, attempts: &[String]) -> Result<()> {
         for attempt in attempts {
             self.remove_drill_audio(attempt)?;
-            self.connection
-                .execute("DELETE FROM drill_attempts WHERE id=?1", [attempt])?;
+            let tx = self.connection.transaction()?;
+            tx.execute("DELETE FROM recording_results WHERE recording_id IN (SELECT transcription_attempt_id FROM drill_attempts WHERE id=?1)", [attempt])?;
+            tx.execute("DELETE FROM drill_attempts WHERE id=?1", [attempt])?;
+            tx.commit()?;
         }
         self.reclaim_drill_audio_pages()?;
         self.connection

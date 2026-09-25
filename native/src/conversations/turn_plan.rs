@@ -32,7 +32,6 @@ pub const PLAN: &[Declaration] = &[
         role: "standard",
         contract_version: 3,
     },
-
     Declaration {
         kind: "coach_reaction",
         activation: Activation::Automatic,
@@ -100,35 +99,35 @@ pub const PLAN: &[Declaration] = &[
         kind: "persona_word_gloss",
         activation: Activation::Automatic,
         dependencies: &["persona_reply"],
-        role: crate::conversations::gloss::ROLE,
+        role: crate::language::gloss::ROLE,
         contract_version: 1,
     },
     Declaration {
         kind: "persona_speech",
         activation: Activation::SpeechEnabled,
         dependencies: &["persona_reply"],
-        role: crate::conversations::execution::SPEECH_ROLE,
+        role: crate::ai::connections::model_routing::SPEECH_ROLE,
         contract_version: 1,
     },
     Declaration {
         kind: "reply_translation",
         activation: Activation::Automatic,
         dependencies: &["persona_reply"],
-        role: crate::conversations::translation::ROLE,
+        role: crate::language::translation::ROLE,
         contract_version: 1,
     },
     Declaration {
         kind: "user_word_gloss",
         activation: Activation::Automatic,
         dependencies: &["persona_context"],
-        role: crate::conversations::gloss::ROLE,
+        role: crate::language::gloss::ROLE,
         contract_version: 1,
     },
     Declaration {
         kind: "user_translation",
         activation: Activation::Automatic,
         dependencies: &["persona_context"],
-        role: crate::conversations::translation::ROLE,
+        role: crate::language::translation::ROLE,
         contract_version: 1,
     },
 ];
@@ -190,32 +189,30 @@ pub const OPENING_PLAN: &[Declaration] = &[
         kind: "persona_word_gloss",
         activation: Activation::Automatic,
         dependencies: &["persona_opening"],
-        role: crate::conversations::gloss::ROLE,
+        role: crate::language::gloss::ROLE,
         contract_version: 1,
     },
     Declaration {
         kind: "persona_speech",
         activation: Activation::SpeechEnabled,
         dependencies: &["persona_opening"],
-        role: crate::conversations::execution::SPEECH_ROLE,
+        role: crate::ai::connections::model_routing::SPEECH_ROLE,
         contract_version: 1,
     },
     Declaration {
         kind: "reply_translation",
         activation: Activation::Automatic,
         dependencies: &["persona_opening"],
-        role: crate::conversations::translation::ROLE,
+        role: crate::language::translation::ROLE,
         contract_version: 1,
     },
 ];
 
 // Explicit operations and retained observations; never automatically created.
-pub const RETAINED: &[Declaration] = &[
-    Declaration {
-        kind: "coach_suggestions",
-        activation: Activation::Explicit,
-        dependencies: &[],
-        role: "standard",
-        contract_version: 3,
-    },
-];
+pub const RETAINED: &[Declaration] = &[Declaration {
+    kind: "coach_suggestions",
+    activation: Activation::Explicit,
+    dependencies: &[],
+    role: "standard",
+    contract_version: 3,
+}];

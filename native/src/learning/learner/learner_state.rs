@@ -245,21 +245,41 @@ fn profile(store: &Store, target: &str, persona_id: Option<&str>, _at: i64) -> R
         *records = scoped;
     }
     // Counts and source records must have the same partner scope.
-    let attempts: BTreeSet<String> = evidence["records"].as_array().unwrap().iter()
-        .map(|r| r["attempt_id"].as_str().unwrap().to_owned()).collect();
-    let credits: Vec<Value> = evidence["profile"]["credits"].as_array().unwrap().iter()
-        .filter(|c| attempts.contains(c["attempt_id"].as_str().unwrap())).cloned().collect();
+    let attempts: BTreeSet<String> = evidence["records"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| r["attempt_id"].as_str().unwrap().to_owned())
+        .collect();
+    let credits: Vec<Value> = evidence["profile"]["credits"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|c| attempts.contains(c["attempt_id"].as_str().unwrap()))
+        .cloned()
+        .collect();
     for skill in evidence["profile"]["skills"].as_array_mut().unwrap() {
-        let own: Vec<_> = credits.iter().filter(|c| c["skill_id"] == skill["skill_id"]).collect();
+        let own: Vec<_> = credits
+            .iter()
+            .filter(|c| c["skill_id"] == skill["skill_id"])
+            .collect();
         for field in ["experience", "effort", "xp"] {
-            skill[field] = serde_json::json!(own.iter().map(|c| c[field].as_u64().unwrap()).sum::<u64>());
+            skill[field] =
+                serde_json::json!(own.iter().map(|c| c[field].as_u64().unwrap()).sum::<u64>());
         }
         skill["checked"] = serde_json::json!(skill["experience"].as_u64().unwrap() > 0);
         skill["star"] = serde_json::json!(false);
     }
-    evidence["profile"]["xp"] = serde_json::json!(credits.iter().map(|c| c["xp"].as_u64().unwrap()).sum::<u64>());
+    evidence["profile"]["xp"] = serde_json::json!(
+        credits
+            .iter()
+            .map(|c| c["xp"].as_u64().unwrap())
+            .sum::<u64>()
+    );
     evidence["profile"]["credits"] = serde_json::json!(credits);
-    Ok(serde_json::json!({"evidence":evidence,"partners":partners,"scope":{"languageId":target,"personaId":persona_id}}))
+    Ok(
+        serde_json::json!({"evidence":evidence,"partners":partners,"scope":{"languageId":target,"personaId":persona_id}}),
+    )
 }
 /// Evidence and counts share one locked read so exclusions cannot race the UI.
 #[tauri::command]
@@ -521,7 +541,6 @@ mod tests {
             serde_yaml_ng::to_string(&snapshot(&store, "spanish", at).unwrap()).unwrap(),
             export_before
         );
-
     }
     #[test]
     fn partner_counts_and_exports_follow_eligible_credit_scope() {
@@ -534,17 +553,32 @@ mod tests {
             store.connection.execute("UPDATE turns SET context=json_set(context,'$.rewardEvents',json(?1),'$.gamePolicy',json('{}')) WHERE id=?2",
                 rusqlite::params![json!([event]).to_string(),turn]).unwrap();
         }
-        let all = profile(&store,"spanish",None,0).unwrap();
-        let scoped = profile(&store,"spanish",Some(&persona),0).unwrap();
-        assert_eq!(all["evidence"]["profile"]["xp"],2);
-        assert_eq!(scoped["evidence"]["profile"]["xp"],1);
-        assert_eq!(scoped["evidence"]["profile"]["credits"].as_array().unwrap().len(),1);
+        let all = profile(&store, "spanish", None, 0).unwrap();
+        let scoped = profile(&store, "spanish", Some(&persona), 0).unwrap();
+        assert_eq!(all["evidence"]["profile"]["xp"], 2);
+        assert_eq!(scoped["evidence"]["profile"]["xp"], 1);
+        assert_eq!(
+            scoped["evidence"]["profile"]["credits"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
         store.connection.execute("INSERT INTO skill_choices(language_id,revision,focus,excluded) VALUES('spanish',1,NULL,'[\"first-turn\"]')",[]).unwrap();
-        assert_eq!(profile(&store,"spanish",Some(&persona),0).unwrap()["evidence"]["profile"]["xp"],0);
-        store.connection.execute("UPDATE skill_choices SET excluded='[]',revision=2",[]).unwrap();
-        assert_eq!(profile(&store,"spanish",Some(&persona),0).unwrap()["evidence"]["profile"]["xp"],1);
-        let exported = crate::learning::learner::progression::snapshot(&store,"spanish").unwrap();
-        assert_eq!(exported["profile"]["xp"],2);
+        assert_eq!(
+            profile(&store, "spanish", Some(&persona), 0).unwrap()["evidence"]["profile"]["xp"],
+            0
+        );
+        store
+            .connection
+            .execute("UPDATE skill_choices SET excluded='[]',revision=2", [])
+            .unwrap();
+        assert_eq!(
+            profile(&store, "spanish", Some(&persona), 0).unwrap()["evidence"]["profile"]["xp"],
+            1
+        );
+        let exported = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
+        assert_eq!(exported["profile"]["xp"], 2);
         assert!(exported.get("model").is_none());
     }
     #[test]
@@ -554,7 +588,10 @@ mod tests {
         let initial = profile(&store, "spanish", Some(&persona), at).unwrap();
         store.connection.execute("INSERT INTO skill_choices(language_id,revision,focus,excluded) VALUES('spanish',1,NULL,'[\"first-turn\"]')",[]).unwrap();
         let excluded = profile(&store, "spanish", Some(&persona), at).unwrap();
-        assert_eq!(excluded["evidence"]["profile"]["choices"]["excluded_attempts"], serde_json::json!(["first-turn"]));
+        assert_eq!(
+            excluded["evidence"]["profile"]["choices"]["excluded_attempts"],
+            serde_json::json!(["first-turn"])
+        );
         assert_eq!(
             profile(&store, "spanish", Some("second-persona"), at).unwrap()["evidence"]["records"]
                 .as_array()

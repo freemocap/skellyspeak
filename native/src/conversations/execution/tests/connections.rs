@@ -229,9 +229,11 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             "conversation_feedback" | "coach_reaction" | "skill_assessment" => {
                 crate::learning::coaching::message_assessment::model()
             }
-            "skill_attribution" | "user_translation" | "reply_translation" => "google/gemini-2.5-flash-lite",
-            "coach_feedback" | "user_word_gloss" | "persona_word_gloss" | "reply_brief" | "reply_assistance"
-            | "reply_explanations" => "google/gemini-2.5-flash",
+            "skill_attribution" | "user_translation" | "reply_translation" => {
+                "google/gemini-2.5-flash-lite"
+            }
+            "coach_feedback" | "user_word_gloss" | "persona_word_gloss" | "reply_brief"
+            | "reply_assistance" | "reply_explanations" => "google/gemini-2.5-flash",
             _ => panic!("Unexpected automatic task: {kind}"),
         };
         assert_eq!(work.model, expected);

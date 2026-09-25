@@ -7,10 +7,6 @@ use serde_json::{Value, json};
 /// The model role every translation runs on, whichever engine sends it.
 pub(crate) const ROLE: &str = "fast";
 
-pub(crate) fn owns(kind: &str) -> bool {
-    matches!(kind, "user_translation" | "reply_translation")
-}
-
 pub(crate) fn schema() -> Value {
     json!({"type":"object","additionalProperties":false,"required":["source","translation"],"properties":{
         "source":{"type":"string"},

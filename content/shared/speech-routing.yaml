@@ -543,22 +543,26 @@
     "whisper-large-v3": {
       "provider": "groq",
       "task": "transcription",
-      "languages": "whisper"
+      "languages": "whisper",
+      "allow_unlisted_languages": false
     },
     "whisper-large-v3-turbo": {
       "provider": "groq",
       "task": "transcription",
-      "languages": "whisper"
+      "languages": "whisper",
+      "allow_unlisted_languages": false
     },
     "scribe_v2": {
       "provider": "elevenlabs",
       "task": "transcription",
-      "languages": "scribe"
+      "languages": "scribe",
+      "allow_unlisted_languages": true
     },
     "eleven_v3": {
       "provider": "elevenlabs",
       "task": "speech",
-      "languages": "eleven_v3"
+      "languages": "eleven_v3",
+      "allow_unlisted_languages": true
     }
   },
   "sources": [

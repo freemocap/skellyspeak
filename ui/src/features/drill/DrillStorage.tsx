@@ -63,10 +63,10 @@ export function DrillStorage({ active, onChanged }: { active: boolean; onChanged
         <span>{tr('MB')}</span>
         <button type="button" className="btn" disabled={busy || !valid} onClick={() => void save()}>{tr('Apply')}</button>
       </div>
-      <p>{tr('Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Reference audio uses a separate bounded cache.')}</p>
+      <p>{tr('Zero keeps no recording audio. Oldest recordings are removed first; transcripts and comparisons remain. Synthesized audio uses the shared cache in Settings.')}</p>
       {!valid && entered.trim() !== '' && <p role="alert">{tr('Enter a whole number of megabytes, 0 to {value0}.', { value0: tr.number(DRILL_RECORDING_MAX_MB) })}</p>}
-      {storage && <p role="status">{tr('Recordings {value0} MB · references {value1} MB', {
-        value0: megabytes(storage.recordingBytes), value1: megabytes(storage.referenceBytes),
+      {storage && <p role="status">{tr('Recordings {value0} MB', {
+        value0: megabytes(storage.recordingBytes),
       })}</p>}
       {failure != null && <ErrorNotice as="p" error={failure}>{errorMessage(failure)} <button type="button" className="btn" disabled={busy}
         onClick={() => storage === null ? setRetry(value => value + 1) : void save()}>{tr('Try again')}</button></ErrorNotice>}

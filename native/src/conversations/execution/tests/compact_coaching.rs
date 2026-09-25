@@ -26,7 +26,10 @@ fn repeated_skills_keep_distinct_evidence_and_collapse_exact_repeats() {
     let correction = wave2_error("¿cómo estás?");
     let mixed = json!({"meaning_recovered":"full","items":[first, correction]});
     let validated = validate(&store, &turn, &mixed).unwrap();
-    assert_eq!(validated["observation"]["items"].as_array().unwrap().len(), 2);
+    assert_eq!(
+        validated["observation"]["items"].as_array().unwrap().len(),
+        2
+    );
     assert_eq!(validated["decision"]["shown"]["quote"], "¿cómo estás?");
     output["items"][2]["quote"] = json!("not in the learner message");
     assert!(validate(&store, &turn, &output).is_err());

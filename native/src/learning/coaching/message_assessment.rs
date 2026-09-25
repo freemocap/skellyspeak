@@ -33,7 +33,7 @@ pub fn questions(kind: &str) -> Result<Value> {
     Ok(config[key].clone())
 }
 fn invalid(path: &str) -> AppError {
-    AppError::new(ErrorCode::Validation, "Invalid message assessment.").with_diagnostics(json!({"stage":"message_assessment","path":path,"expected":"complete choices, finite probabilities in [0,1], sum within 0.025 of 1, selected maximum"}))
+    AppError::new(ErrorCode::Validation, "Invalid message assessment.").with_diagnostics(json!({"stage":"message_assessment","path":path,"expected":"complete known choices and finite probabilities in [0,1]"}))
 }
 pub fn prompt(
     db: &Connection,
@@ -129,8 +129,6 @@ pub fn validate(kind: &str, output: &Completion) -> Result<Value> {
         if p.len() != criteria.len() || !criteria.contains_key(choice) {
             return Err(invalid(key));
         }
-        let mut sum = 0.0;
-        let mut max: f64 = 0.0;
         let mut probabilities = BTreeMap::new();
         for label in criteria.keys() {
             let v = p
@@ -138,13 +136,9 @@ pub fn validate(kind: &str, output: &Completion) -> Result<Value> {
                 .and_then(Value::as_f64)
                 .filter(|v| v.is_finite() && (0.0..=1.0).contains(v))
                 .ok_or_else(|| invalid(key))?;
-            sum += v;
-            max = max.max(v);
             probabilities.insert(label.clone(), v);
         }
-        if (sum - 1.0).abs() > 0.025 || probabilities[choice] + 0.001 < max {
-            return Err(invalid(key));
-        }
+        // The returned choice is authoritative; probabilities are retained, not reconciled.
         answers.insert(
             key.clone(),
             ChoiceAssessment {

@@ -3,7 +3,8 @@
 use crate::{
     ai::transport::provider::PromptMessage,
     configuration::{LanguageContext, Registry},
-    conversations::{coach_prompt, conversation_prompt, translation, turn_plan},
+    conversations::{coach_prompt, conversation_prompt, turn_plan},
+    language::translation,
     learning::coaching::{self, conversation_support},
     model::{AppError, ErrorCode, Result},
     partners::persona::{self, persona_prompt},
@@ -178,8 +179,20 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
         "skill_attribution" => {
             node.source = "native/src/learning/coaching/skill_attribution.rs; content/prompts/skills/presence.yaml".into();
             node.description = "After thresholded skill presence, one fast request locates supporting spans for the selected skills. Exact quotes and occurrences are validated against the original text. Unlocalized evidence uses the full message; attribution never changes XP. No eligible skills means no network request.".into();
-            node.templates = vec![section("system", registry.presence_instructions().attribution.instructions.clone()), section("user", "{{learnerMessage}}, {{selectedSkillDefinitions}}")];
-            node.output_schema = Some(coaching::skill_attribution::schema(&std::collections::BTreeSet::from(["{{skillId}}".into()])));
+            node.templates = vec![
+                section(
+                    "system",
+                    registry
+                        .presence_instructions()
+                        .attribution
+                        .instructions
+                        .clone(),
+                ),
+                section("user", "{{learnerMessage}}, {{selectedSkillDefinitions}}"),
+            ];
+            node.output_schema = Some(coaching::skill_attribution::schema(
+                &std::collections::BTreeSet::from(["{{skillId}}".into()]),
+            ));
         }
         "skill_assessment" => {
             node.source = "native/src/learning/coaching/assessment_adapter.rs; native/src/learning/coaching/skill_assessment.rs".into();
@@ -225,8 +238,8 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 ),
             ];
         }
-        kind if translation::owns(kind) => {
-            node.source = "native/src/conversations/translation.rs".into();
+        "user_translation" | "reply_translation" => {
+            node.source = "native/src/language/translation.rs".into();
             node.description = "Translates the source message into the explanation language. Destination writing guidance is appended at dispatch.".into();
             node.templates = messages(translation::prompt("{{sourceMessage}}".into(), &captured)?);
             node.output_schema = Some(translation::schema());

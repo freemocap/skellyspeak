@@ -15,7 +15,6 @@ struct Intensity {
 }
 #[derive(Deserialize)]
 struct Policy {
-    max_corrections_per_turn: usize,
     correct_only: String,
     skip_sources: Vec<String>,
     ladder: Vec<String>,
@@ -45,12 +44,49 @@ fn summary(item: &ObservedItem) -> ObservedItemSummary {
         },
     }
 }
+pub(crate) fn unchanged_correction(item: &ObservedItem) -> bool {
+    item.error
+        .as_ref()
+        .is_some_and(|e| e.target_hypothesis.trim() == item.quote.trim())
+}
+fn actionable(item: &ObservedItem) -> bool {
+    item.error.is_some()
+        && !unchanged_correction(item)
+        && matches!(item.outcome, Outcome::Partial | Outcome::NotDemonstrated)
+}
 pub(crate) fn view(captured: &Value) -> Result<Option<CoachObservationView>> {
     let Some(raw) = captured.get("coachObservation") else {
         return Ok(None);
     };
     let observation: CoachObservation = serde_json::from_value(raw.clone())?;
+    let mut corrections = Vec::new();
+    if captured["coachDecision"]["exposedMove"] == "explicit"
+        && captured["coachDecision"]["keptGoing"] != true
+    {
+        for item in observation.items.iter().filter(|item| actionable(item)) {
+            let value = correction(item, CoachMove::Explicit, captured)?;
+            if !corrections
+                .iter()
+                .any(|c: &Correction| c.quote == value.quote && c.text == value.text)
+            {
+                corrections.push(value);
+            }
+        }
+    }
+    let omitted = observation
+        .items
+        .iter()
+        .filter(|item| unchanged_correction(item))
+        .count();
     Ok(Some(CoachObservationView {
+        corrections,
+        notes: if omitted == 0 {
+            vec![]
+        } else {
+            vec![format!(
+                "{omitted} unchanged replacement(s) omitted from correction display. Other feedback is retained."
+            )]
+        },
         meaning_recovered: observation.meaning_recovered,
         items: observation.items.iter().map(summary).collect(),
         candidates_sent: captured["candidateConstructs"]
@@ -126,9 +162,6 @@ pub(crate) fn decide(
     repaired: Option<bool>,
 ) -> Result<CoachDecision> {
     let policy: Policy = serde_json::from_value(captured["feedbackPolicy"].clone())?;
-    if policy.max_corrections_per_turn != 1 {
-        return Err(invalid("This build requires one correction per turn."));
-    }
     let intensity = match captured["practiceSettings"]["coachProactivity"].as_str() {
         Some("on_request") => "light",
         Some("occasional") => "standard",
@@ -151,11 +184,11 @@ pub(crate) fn decide(
         kept_going: false,
     };
     if let Some(repaired) = repaired {
-        let has_target_evidence = observation
-            .items
-            .iter()
-            .any(|i| Some(i.construct.as_str()) == retry["item"]["construct"].as_str()
-                && !matches!(i.outcome, Outcome::Uncertain | Outcome::NotObserved));
+        let has_target_evidence = observation.items.iter().any(|i| {
+            Some(i.construct.as_str()) == retry["item"]["construct"].as_str()
+                && !matches!(i.outcome, Outcome::Uncertain | Outcome::NotObserved)
+                && !unchanged_correction(i)
+        });
         decision.repair_status = Some(if repaired {
             RepairStatus::Repaired
         } else if !has_target_evidence {
@@ -168,43 +201,36 @@ pub(crate) fn decide(
         let target = retry["item"]["construct"]
             .as_str()
             .ok_or_else(|| invalid("Missing repair target."))?;
-        let item = observation
+        decision.fixed = observation
             .items
             .iter()
             .find(|i| {
                 i.construct == target && i.outcome == Outcome::Demonstrated && i.error.is_none()
             })
-            .ok_or_else(|| invalid("Repair has no demonstrated target evidence."))?;
-        decision.fixed = (!item.rationale.is_empty()).then(|| item.rationale.clone());
-    } else {
-        let selected = if repaired == Some(false) {
-            observation.items.iter().find(|i| {
-                Some(i.construct.as_str()) == retry["item"]["construct"].as_str()
-                    && matches!(i.outcome, Outcome::Partial | Outcome::NotDemonstrated)
-                    && i.error.is_some()
-            })
-        } else {
-            observation
-                .items
-                .iter()
-                .filter(|i| {
-                    matches!(i.outcome, Outcome::Partial | Outcome::NotDemonstrated)
-                        && i.error.as_ref().is_some_and(|e| {
-                            let source = serde_json::to_value(&e.source).expect("enum serializes");
-                            !policy.skip_sources.iter().any(|s| source == *s)
-                                && (policy.correct_only == "useful_language"
-                                    || e.blocks_meaning
-                                    || focus == Some(i.construct.as_str()))
-                        })
+            .filter(|item| !item.rationale.is_empty())
+            .map(|item| item.rationale.clone());
+    }
+    // A revision may fix, remove or replace the earlier issue and introduce other
+    // useful feedback. Select from the current source regardless of the repair flag.
+    let selected = observation
+        .items
+        .iter()
+        .filter(|i| {
+            actionable(i)
+                && i.error.as_ref().is_some_and(|e| {
+                    let source = serde_json::to_value(&e.source).expect("enum serializes");
+                    !policy.skip_sources.iter().any(|s| source == *s)
+                        && (policy.correct_only == "useful_language"
+                            || e.blocks_meaning
+                            || focus == Some(i.construct.as_str()))
                 })
-                .min_by_key(|i| !i.error.as_ref().unwrap().blocks_meaning)
-        };
-        if let Some(item) = selected {
-            let depth = retry["depth"].as_u64().unwrap_or(0) as u32;
-            let rung = requested_move(captured)?;
-            decision.retry_invited = depth < intensity.max_revisions && rung != CoachMove::Explicit;
-            decision.shown = Some(correction(item, rung, captured)?);
-        }
+        })
+        .min_by_key(|i| !i.error.as_ref().unwrap().blocks_meaning);
+    if let Some(item) = selected {
+        let depth = retry["depth"].as_u64().unwrap_or(0) as u32;
+        let rung = requested_move(captured)?;
+        decision.retry_invited = depth < intensity.max_revisions && rung != CoachMove::Explicit;
+        decision.shown = Some(correction(item, rung, captured)?);
     }
     if intensity.show_logged {
         decision.also_noticed = observation
@@ -256,10 +282,7 @@ pub(crate) fn control(
             if decision.shown.is_none() {
                 let observation: CoachObservation =
                     serde_json::from_value(context["coachObservation"].clone())?;
-                if let Some(item) = observation.items.iter().find(|item| {
-                    item.error.is_some()
-                        && matches!(item.outcome, Outcome::Partial | Outcome::NotDemonstrated)
-                }) {
+                if let Some(item) = observation.items.iter().find(|item| actionable(item)) {
                     decision.shown = Some(correction(item, requested_move(&context)?, &context)?);
                     decision.retry_invited = requested_move(&context)? != CoachMove::Explicit;
                 }

@@ -1,6 +1,7 @@
 import { MessageSkillAnalysis } from '../reading/MessageSkillAnalysis'
 import { PhraseActions } from '../../../components/reading/PhraseActions'
 import { MessageXpButton } from '../progress/MessageXpButton'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 import { useUiDirection } from '../../../components/localization/useUiDirection'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from '../reading/AnalysisSentence'
@@ -60,6 +61,8 @@ export interface TurnViewProps {
   rtl: boolean
   onBubbleTap: (id: number) => void
   onSpeak?: (text: string, turnId: number) => void
+  /** Present only on the learner message sent from the latest recording. */
+  onInspectRecording?: () => void
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
   onReplyControl?: (control: 'retry' | 'resume') => Promise<void>
@@ -85,6 +88,7 @@ export const TurnView = memo(function TurnView({
   rtl,
   onBubbleTap,
   onSpeak,
+  onInspectRecording,
   onEditUser,
   onCoachControl,
   editDisabled,
@@ -159,11 +163,12 @@ export const TurnView = memo(function TurnView({
               <span aria-hidden="true">✏️</span>
             </button>
           )}
+          {onInspectRecording && <button type="button" className="message-translate recording-inspect" title={tr("Inspect recording")} aria-label={tr("Inspect recording")} aria-haspopup="dialog" onClick={event => { event.stopPropagation(); onInspectRecording() }}><ToolbarIcon name="mic" size={15} /></button>}
           <MessageXpButton messageId={turn.id} source={turn.user} />
           <PhraseActions text={turn.user} />
           </div>
         <div dir={uiDirection} className={`message-feedback${turn.conversationFeedback ? ' has-scores' : ''}`} onDoubleClick={event => event.stopPropagation()}>
-          <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<><AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} /><MessageSkillAnalysis messageId={turn.id} source={turn.user} /></>} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+          <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {(userTranslation || translationPending(turn.userTranslationState)) && <button type="button" className={translationPending(turn.userTranslationState) ? 'message-translate is-hydrating' : 'message-translate'} aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
             <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!userSegments.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
           </MessageFeedback>

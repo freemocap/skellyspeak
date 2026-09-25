@@ -51,7 +51,7 @@ fn validates_zero_abstention_and_complete_distributions() {
         assert_eq!(out["grammar"], score);
     }
     let mut bad = answer("conversation_feedback", "score_10");
-    bad["grammar"]["probabilities"]["score_9"] = json!(0.5);
+    bad["grammar"]["probabilities"]["score_9"] = json!(1.5);
     assert!(validate("conversation_feedback", &completion(bad.to_string())).is_err());
     let mut bad = answer("conversation_feedback", "score_10");
     bad.as_object_mut().unwrap().remove("conversation");
@@ -76,6 +76,31 @@ fn validates_zero_abstention_and_complete_distributions() {
             .unwrap()["kind"],
             *label
         );
+    }
+}
+#[test]
+fn accepts_returned_choice_without_reconciling_probability_ranking_or_total() {
+    for kind in ["conversation_feedback", "coach_reaction"] {
+        let (choice, other, key) = if kind == "conversation_feedback" {
+            ("score_6", "score_9", "conversation")
+        } else {
+            ("understood", "confused", "understanding")
+        };
+        let mut raw = answer(kind, choice);
+        raw[key]["probabilities"][choice] = json!(0.18);
+        raw[key]["probabilities"][other] = json!(0.19);
+        let saved = validate(kind, &completion(raw.to_string())).unwrap();
+        let result = if kind == "conversation_feedback" {
+            assert_eq!(saved["conversation"], 6);
+            &saved["answers"][key]
+        } else {
+            assert_eq!(saved["kind"], choice);
+            &saved["answer"]
+        };
+        assert_eq!(result["choice"], choice);
+        assert_eq!(result["probabilities"], raw[key]["probabilities"]);
+        raw[key]["choice"] = json!("unknown");
+        assert!(validate(kind, &completion(raw.to_string())).is_err());
     }
 }
 #[test]

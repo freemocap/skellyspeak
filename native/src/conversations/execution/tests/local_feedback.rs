@@ -1,6 +1,24 @@
 //! Opt-in live verification against the loopback development service.
 use super::*;
 
+#[test]
+fn coaching_dispatch_reserves_room_for_complete_observations() {
+    let (_dir, mut store, conversation) = setup();
+    let command = send(&store, &conversation);
+    store.execute(command).unwrap();
+    store
+        .connection
+        .execute(
+            "DELETE FROM operations WHERE kind NOT IN ('persona_context','coach_feedback')",
+            [],
+        )
+        .unwrap();
+    store.dispatch().unwrap();
+    let work = store.dispatch().unwrap().unwrap();
+    assert!(work.coaching_schema.is_some());
+    assert_eq!(work.structured_output_tokens, 8192);
+}
+
 #[tokio::test]
 #[ignore = "Requires the local development server and makes two paid feedback requests"]
 async fn local_feedback_and_clarification_round_trip() {
@@ -54,13 +72,15 @@ async fn local_feedback_and_clarification_round_trip() {
         }
         let work = store.dispatch().unwrap().unwrap();
         assert_eq!(work.target.url, "http://127.0.0.1:8765/v1/operations");
-        let output = crate::ai::transport::provider::structured_output(
-            work.coaching_schema.as_ref().unwrap(),
-        );
+        let output = crate::ai::transport::provider::RequestOutput::JsonSchema {
+            max_output_tokens: work.structured_output_tokens,
+            name: "coaching",
+            schema: work.coaching_schema.as_ref().unwrap(),
+        };
         let result = crate::ai::transport::provider::complete_with_output(
             &client,
             token.trim(),
-            &work,
+            &work.text_request(),
             output,
         )
         .await;

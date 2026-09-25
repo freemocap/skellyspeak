@@ -123,11 +123,7 @@ fn export_schemas() {
     if std::env::var_os("SKELLY_WRITE_CONFIG_SCHEMAS").is_some() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../content/schemas");
         for (name, value) in &schemas {
-            fs::write(
-                root.join(name),
-                serde_yaml_ng::to_string(value).unwrap(),
-            )
-            .unwrap();
+            fs::write(root.join(name), serde_yaml_ng::to_string(value).unwrap()).unwrap();
         }
     }
     for (name, value) in schemas {

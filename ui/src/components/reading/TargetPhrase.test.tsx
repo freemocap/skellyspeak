@@ -4,9 +4,9 @@ import { expect, it, vi } from 'vitest'
 import { TargetPhrase } from './TargetPhrase'
 import { TargetPassage } from './TargetPassage'
 import { ReadingActionsContext, ReadingScopeContext } from './ReadingContext'
-import { createDrillItem } from '../../platform/ipc/drill'
+import { createDrillItem, deleteDrillItem } from '../../platform/ipc/drill'
 vi.mock('../../platform/ipc/tauri', async original => ({...await original<typeof import('../../platform/ipc/tauri')>(), languageFor: () => ({languageTag:'es', direction:'ltr',fontScale:1})}))
-vi.mock('../../platform/ipc/drill', () => ({ createDrillItem: vi.fn() }))
+vi.mock('../../platform/ipc/drill', () => ({ createDrillItem: vi.fn(), deleteDrillItem: vi.fn(async () => {}) }))
 const scope = { language: 'spanish', variety: 'spanish-mexico', explanation: 'english', explanationVariety: null }
 it('reads and saves the whole phrase in its own scope, resetting save state on text changes', async () => {
   vi.mocked(createDrillItem).mockResolvedValue({ id: 'saved' } as Awaited<ReturnType<typeof createDrillItem>>)
@@ -16,7 +16,12 @@ it('reads and saves the whole phrase in its own scope, resetting save state on t
   fireEvent.click(screen.getByRole('button', {name:'Read aloud: Ayer fui al mercado.'}))
   expect(speak).toHaveBeenCalledWith({text:'Ayer fui al mercado.', start:0, end:20, scope})
   fireEvent.click(screen.getByRole('button', {name:'Add to Drill'}))
-  await screen.findByRole('button', {name:'Added to Drill'})
+  const remove = await screen.findByRole('button', {name:'Remove from Drill'})
+  fireEvent.click(remove)
+  await screen.findByRole('button', {name:'Add to Drill'})
+  expect(deleteDrillItem).toHaveBeenCalledWith('saved')
+  fireEvent.click(screen.getByRole('button', {name:'Add to Drill'}))
+  await screen.findByRole('button', {name:'Remove from Drill'})
   expect(createDrillItem).toHaveBeenCalledWith({text:'Ayer fui al mercado.', ...scope})
   view.rerender(content('Volví a casa.'))
   await waitFor(() => expect(screen.getByRole('button', {name:'Add to Drill'})).toBeEnabled())

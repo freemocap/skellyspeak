@@ -499,3 +499,16 @@ it('reserves the feedback badge place on the learner message in every feedback s
   expect(message).toHaveClass('with-actions')
   expect(screen.getByRole('button', { name: 'Coach feedback for message 1' }).closest('.msg.me')).toBe(message)
 })
+
+it('offers the recording inspector on the learner message only when that message owns the recording', () => {
+  const inspect = vi.fn()
+  const bubble = vi.fn()
+  const view = render(<TurnView {...props()} onBubbleTap={bubble} />)
+  expect(screen.queryByRole('button', { name: 'Inspect recording' })).toBeNull()
+  view.rerender(<TurnView {...props()} onBubbleTap={bubble} onInspectRecording={inspect} />)
+  const button = screen.getByRole('button', { name: 'Inspect recording' })
+  expect(button.closest('.message-xp-actions')).not.toBeNull()
+  fireEvent.click(button)
+  expect(inspect).toHaveBeenCalledOnce()
+  expect(bubble).not.toHaveBeenCalled()
+})

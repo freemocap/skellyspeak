@@ -24,7 +24,7 @@ function release(handle: PlaybackHandle): void {
   registerSpeechPlayback(null)
 }
 
-export function playSpeechAudio(state: Extract<SpeechAudioState, { status: 'ready' }>, onEnd: () => void, onError: (error: Error) => void, rate = 1, volume = 1, observer?: PlaybackObserver): PlaybackHandle {
+export function playSpeechAudio(state: Pick<Extract<SpeechAudioState, { status: 'ready' }>, 'audioBase64' | 'mime'>, onEnd: () => void, onError: (error: Error) => void, rate = 1, volume = 1, observer?: PlaybackObserver): PlaybackHandle {
   if (!Number.isFinite(rate) || rate < 0.5 || rate > 1.5 || !Number.isFinite(volume) || volume < 0 || volume > 1) throw new Error('Invalid voice playback settings.')
   const bytes = Uint8Array.from(atob(state.audioBase64), char => char.charCodeAt(0))
   const url = URL.createObjectURL(new Blob([bytes], { type: state.mime }))

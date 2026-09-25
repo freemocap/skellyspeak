@@ -29,6 +29,7 @@ import { appVersion as loadAppVersion, openDownloads } from '../../platform/upda
 import { SettingsModels } from './models/SettingsModels'
 import { SettingsAccess } from './access/SettingsAccess'
 import { FactoryReset } from './workspace/FactoryReset'
+import { InferenceCacheSettings } from './workspace/InferenceCacheSettings'
 import { SaveDataCopy } from '../../components/persistence/SaveDataCopy'
 
 type SaveState = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
@@ -568,6 +569,12 @@ export function SettingsModal({
       label: tr('Save a copy of my data'),
       kw: 'data export backup save copy download workspace conversations',
       node: <SaveDataCopy />,
+    },
+    inference_cache: {
+      section: 'data',
+      label: tr('AI result cache'),
+      kw: 'cache speech audio storage capacity results',
+      node: <InferenceCacheSettings />,
     },
     data_reset: {
       section: 'data',

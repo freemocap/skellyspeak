@@ -54,6 +54,15 @@ beforeEach(() => {
 afterEach(() => { media.mockRestore(); vi.useRealTimers() })
 
 const counter = () => screen.getByRole('button', { name: 'Message XP' })
+it('keeps the header scoped to conversation credit while message payouts remain separate', () => {
+  const snapshot = earn(skillDemo, 2)
+  snapshot.records.push({ ...snapshot.records[0], attempt_id: 'other-attempt', chat_id: 'other-chat' })
+  snapshot.profile.credits.push({ attempt_id: 'other-attempt', skill_id: snapshot.catalog[0].id, xp: 99 })
+  snapshot.profile.xp += 99
+  render(<Fixture snapshot={snapshot} fastMode />)
+  expect(screen.getByRole('button', { name: 'Conversation XP' })).toHaveTextContent('2 XP')
+  expect(counter()).toHaveTextContent('2 XP')
+})
 it('pays out at the message counter without cards and leaves its report clickable', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
   await act(async () => view.rerender(<Fixture snapshot={earn(skillDemo, 3)} fastMode />))

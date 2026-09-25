@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
 import { unreportedInput } from '../../../domain/learning/evidence/skills'
@@ -13,6 +13,8 @@ it('shows retained evidence and its guide even when this retry earned no additio
   const view = (source: string) => <SkillEvidenceContext value={{snapshot, error: null}}><MessageSkillAnalysis conversationId="chat" messageId={1} source={source} /></SkillEvidenceContext>
   const { rerender } = render(view('Ese café.'))
   expect(screen.getByRole('region', {name: 'Skills'})).toBeVisible()
+  expect(screen.getByText('Skills').closest('details')).not.toHaveAttribute('open')
+  fireEvent.click(screen.getByText('Skills'))
   expect(screen.getByText('Skill guide')).toBeVisible()
   rerender(view('Otro café.'))
   expect(screen.queryByRole('region', {name: 'Skills'})).toBeNull()

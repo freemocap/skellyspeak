@@ -144,7 +144,10 @@ impl Store {
                     |r| r.get(0),
                 )?;
                 let captured: serde_json::Value = serde_json::from_str(&captured)?;
-                message.feedback_context = captured.get("feedbackContext").and_then(|v| v.as_str()).map(str::to_owned);
+                message.feedback_context = captured
+                    .get("feedbackContext")
+                    .and_then(|v| v.as_str())
+                    .map(str::to_owned);
                 message.conversation_feedback = captured
                     .get("conversation_feedback")
                     .cloned()

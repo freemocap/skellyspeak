@@ -13,3 +13,13 @@ it('cancels a reservation that arrives after its source was closed and never run
   expect(native.invoke).toHaveBeenCalledWith('cancel_reading',{id:'request-1'})
   expect(native.invoke.mock.calls.some(([command])=>command==='run_reading')).toBe(false)
 })
+
+it('passes an explicit retry as fresh native work', async () => {
+  native.invoke.mockClear()
+  native.invoke.mockImplementation((command: string) => Promise.resolve(command === 'begin_reading' ? 'fresh-request' : {}))
+  const input = {text:'Hola',language:'spanish',variety:null,explanation:'english',explanationVariety:null,aid:'word_gloss' as const}
+  const signal = new AbortController().signal
+  await readSelection(input, signal, { retry: true })
+  expect(native.invoke).toHaveBeenCalledWith('begin_reading', {input, fresh:true})
+  expect(native.invoke).toHaveBeenCalledWith('run_reading', {id:'fresh-request'}, signal)
+})

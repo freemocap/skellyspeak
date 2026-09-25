@@ -8,7 +8,8 @@ it('renders bounded, finite bursts with silent edges for every comparison size',
     expect(data[0]).toBe(0)
     expect(data.at(-1)).toBe(0)
     let peak = 0
-    for (const value of data) { expect(Number.isFinite(value)).toBe(true); peak = Math.max(peak, Math.abs(value)) }
+    expect(data.every(Number.isFinite)).toBe(true)
+    for (const value of data) peak = Math.max(peak, Math.abs(value))
     expect(peak).toBeGreaterThan(.02)
     expect(peak).toBeLessThan(.5)
   }

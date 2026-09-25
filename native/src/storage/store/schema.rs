@@ -1,7 +1,8 @@
 use super::*;
 
-/// Only the current development format is supported.
-pub(crate) const SCHEMA_VERSION: i32 = 40;
+/// Only the current workspace format is supported, including persisted JSON.
+/// Bump when required stored fields or their meaning change, not only for SQL DDL.
+pub(crate) const SCHEMA_VERSION: i32 = 41;
 pub(super) const GENERATION_SCHEMA: &str = include_str!("../schemas/generation_schema.sql");
 
 pub(crate) fn validate_database(connection: &Connection) -> Result<()> {

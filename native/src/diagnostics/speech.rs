@@ -63,6 +63,7 @@ mod tests {
     #[test]
     fn speech_event_is_correlated_durable_and_content_free_on_success_and_failure() {
         let dispatch = Dispatch {
+            structured_output_tokens: 2048,
             temperature: 0.7,
             target: ResolvedTarget {
                 audio_resolution: None,
@@ -86,6 +87,7 @@ mod tests {
             speech_source: None,
         };
         let mut outcome = SpeechOutcome {
+            alignment: None,
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),
@@ -121,6 +123,7 @@ mod tests {
     #[test]
     fn shared_outcome_metadata_keeps_usage_and_explicitly_absent_comparison() {
         let mut outcome = SpeechOutcome {
+            alignment: None,
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),

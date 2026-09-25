@@ -1,5 +1,6 @@
 use super::*;
 
+pub(super) mod cache;
 pub(super) mod connections;
 pub(super) mod drill;
 pub(super) mod hosted;

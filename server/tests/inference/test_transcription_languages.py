@@ -13,9 +13,12 @@ from server.tests.inference.test_audio_service import configured, records
     ('whisper-large-v3', 'ga-IE', 'transcription', None),
     ('scribe_v2', 'ga-IE', 'transcription', 'ga'),
     ('scribe_v2', 'gle', 'transcription', 'gle'),
-    ('scribe_v2', 'gd', 'transcription', None),
+    ('scribe_v2', 'gd', 'transcription', 'gd'),
+    ('scribe_v2', 'chr', 'transcription', 'chr'),
+    ('eleven_v3', 'chr', 'speech', 'chr'),
+    ('whisper-large-v3', 'chr', 'transcription', None),
     ('eleven_v3', 'ga-IE', 'speech', 'ga'),
-    ('eleven_v3', 'ast', 'speech', None),
+    ('eleven_v3', 'ast', 'speech', 'ast'),
     ('scribe_v2', 'ast', 'transcription', 'ast'),
     ('whisper-large-v3', 'zh-Hans', 'transcription', 'zh'),
     ('whisper-large-v3', 'eng', 'transcription', 'en'),
@@ -36,12 +39,12 @@ def test_availability_uses_configured_credentials_and_synthesis_voice():
 
 
 @pytest.mark.asyncio
-async def test_synthesis_rejects_unsupported_language_before_reservation(proxy, ledger, monkeypatch):
+async def test_synthesis_rejects_malformed_language_before_reservation(proxy, ledger, monkeypatch):
     def respond(_request):
         pytest.fail('Unsupported language must not reach any provider')
     upstream(monkeypatch, respond)
     response = await proxy.post('/v1/audio/speech', json={
-        'model': 'eleven_v3', 'language': 'Scottish Gaelic', 'language_tag': 'gd', 'text': 'fixture'})
+        'model': 'eleven_v3', 'language': 'Scottish Gaelic', 'language_tag': 'gd_invalid', 'text': 'fixture'})
     assert response.status_code == 400
     assert response.json()['code'] == 'AUDIO_LANGUAGE_UNSUPPORTED'
     assert not records(ledger)
@@ -68,9 +71,30 @@ async def test_transcription_never_substitutes_model(proxy, ledger, monkeypatch)
     assert row['actual_micros'] == 0
 
 
-def test_generated_catalog_matches_authored_source():
+@pytest.mark.parametrize('line_ending', ['\n', '\r\n'])
+def test_generated_catalog_matches_authored_source(line_ending):
     import hashlib
     from pathlib import Path
     from server.app.inference.speech_catalog import SOURCE_SHA256
-    source = (Path(__file__).parents[3] / 'content/shared/speech-routing.yaml').read_bytes()
+    source = (Path(__file__).parents[3] / 'content/shared/speech-routing.yaml').read_text(encoding='utf-8')
+    source = source.replace('\n', line_ending).replace('\r\n', '\n').encode('utf-8')
     assert hashlib.sha256(source).hexdigest() == SOURCE_SHA256
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('tag', ['chr', 'gd'])
+async def test_unlisted_synthesis_reaches_captured_model(proxy, ledger, monkeypatch, tag):
+    import base64
+    import json
+    calls = []
+    def respond(request):
+        calls.append(request)
+        assert json.loads(request.read())['model_id'] == 'eleven_v3'
+        return httpx.Response(200, json={'audio_base64': base64.b64encode(bytes(48000)).decode()},
+                              headers={'request-id': 'speech-unlisted'})
+    upstream(monkeypatch, respond)
+    response = await proxy.post('/v1/audio/speech', json={
+        'model': 'eleven_v3', 'language': 'Fixture variety', 'language_tag': tag, 'text': 'fixture'})
+    assert response.status_code == 200, response.text
+    assert len(calls) == 1
+    assert response.json()['usage']['request_id'] == 'speech-unlisted'

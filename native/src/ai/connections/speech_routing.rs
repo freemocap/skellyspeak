@@ -8,6 +8,36 @@ use crate::configuration::{
 use crate::model::Result;
 use rusqlite::Connection;
 
+/// Validate captured access without replacing a model selected before capture.
+/// The selection may depend on the service inventory; validation does not repeat discovery.
+pub(crate) fn validate_access(
+    db: &Connection,
+    capability: Capability,
+    target: &ResolvedTarget,
+) -> Result<()> {
+    let current = access::resolve(db, capability)?;
+    let requested = target
+        .audio_resolution
+        .as_ref()
+        .map_or(target.model.as_str(), |r| r.requested_model.as_str());
+    if current.revision != target.revision
+        || current.route != target.route
+        || current.url != target.url
+        || current.credential != target.credential
+        || current.model != requested
+        || target
+            .audio_resolution
+            .as_ref()
+            .is_some_and(|r| r.model != target.model)
+    {
+        return Err(crate::model::AppError::new(
+            crate::model::ErrorCode::Conflict,
+            "Speech access changed before execution.",
+        ));
+    }
+    Ok(())
+}
+
 pub fn resolve(
     db: &Connection,
     capability: Capability,
@@ -121,6 +151,27 @@ fn decode_available(value: &serde_json::Value, default: &str) -> Result<Vec<Stri
 mod tests {
     use super::*;
     use serde_json::json;
+    #[test]
+    fn captured_language_model_survives_global_model_difference_but_not_access_changes() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut store =
+            crate::storage::store::Store::open(&dir.path().join("routing.sqlite3")).unwrap();
+        store.prepare_chat().unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.bearerAuth',json('false'))", []).unwrap();
+        let context = store.config.resolve("irish", None, "english").unwrap();
+        let target = resolve(&store.connection, Capability::Transcription, &context).unwrap();
+        let global = access::resolve(&store.connection, Capability::Transcription).unwrap();
+        assert_ne!(target.model, global.model);
+        validate_access(&store.connection, Capability::Transcription, &target).unwrap();
+        let mut changed = target.clone();
+        changed.model = "different".into();
+        assert!(validate_access(&store.connection, Capability::Transcription, &changed).is_err());
+        store
+            .connection
+            .execute("UPDATE ai_config SET revision=revision+1", [])
+            .unwrap();
+        assert!(validate_access(&store.connection, Capability::Transcription, &target).is_err());
+    }
     #[test]
     fn inventory_is_explicit_bounded_and_does_not_imply_custom_support() {
         let mut value = json!({"protocol":"skellyspeak","version":1,"audio":{"routing":{

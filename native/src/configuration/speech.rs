@@ -39,6 +39,7 @@ pub enum Task {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Model {
+    pub allow_unlisted_languages: bool,
     pub provider: String,
     pub task: Task,
     pub languages: String,
@@ -174,7 +175,7 @@ impl Catalog {
                 .map(|s| (s.as_str(), "compatible_alternative")),
         );
         let mut unavailable = Vec::new();
-        for (id, reason) in candidates {
+        for &(id, reason) in &candidates {
             if let Some(model) = self.models.get(id) {
                 if model.task != task {
                     continue;
@@ -207,6 +208,27 @@ impl Catalog {
                     reason: "custom_model_unverified".into(),
                 });
             }
+        }
+        // Listed support wins before a configured best-effort attempt. This is
+        // selection before dispatch, never a retry after a provider failure.
+        for (id, _) in candidates {
+            let Some(model) = self.models.get(id) else {
+                continue;
+            };
+            if model.task != task || !model.allow_unlisted_languages {
+                continue;
+            }
+            if available.is_some_and(|list| !list.iter().any(|m| m == id)) {
+                unavailable.push(id);
+                continue;
+            }
+            return Ok(Resolution {
+                requested_model: default.into(),
+                model: id.into(),
+                provider: model.provider.clone(),
+                language_code: code.into(),
+                reason: "unlisted_language_attempt".into(),
+            });
         }
         if !unavailable.is_empty() {
             return Err(error(

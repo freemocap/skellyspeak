@@ -2,7 +2,6 @@ import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
 import { interruptSpeech } from '../../platform/audio/speech'
-import { ConversationHelp } from './composer/ConversationHelp'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
 import { useAttemptStreamSync } from '../../state/session/attempt-streams'
 import type { ConversationStartConfig } from '../../generated/contracts'
@@ -470,7 +469,17 @@ export default function ConversationPage({
   useEffect(() => {
     if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
   }, [isMobile, mobileSurface, panelTab])
+  // Chat and Coach slide only after the learner switches between them, not on first open.
+  const [surfaceSwitched, setSurfaceSwitched] = useState(false)
+  const shownSurface = useRef(mobileSurface)
+  useEffect(() => {
+    if (shownSurface.current === mobileSurface) return
+    shownSurface.current = mobileSurface
+    setSurfaceSwitched(true)
+  }, [mobileSurface])
   const latestTurn = activeTurns.at(-1)
+  // The latest recording belongs to the newest learner message that carries its transcript unchanged.
+  const recordingTurnId = mic.lastTranscription ? [...activeTurns].reverse().find(turn => turn.user?.trim() === mic.lastTranscription!.text.trim())?.id ?? null : null
   const analysing = (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null
   const inspectLatest = () => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: latestTurn?.turnId ?? null, operationKind: null })
   const replyHelp = (
@@ -505,7 +514,6 @@ export default function ConversationPage({
             <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
           </ErrorNotice>}
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
-          {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
           {isMobile && replyHelp}
           <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
@@ -520,7 +528,7 @@ export default function ConversationPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`}
     >
       <ChatHistory
         open={historyOpen}
@@ -579,6 +587,7 @@ export default function ConversationPage({
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
               speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
               onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
+              onInspectRecording={turn.id === recordingTurnId ? () => setInspectionOpen(true) : undefined}
               rtl={rtl}
               onBubbleTap={onBubbleTap}
               onAddContext={turn.turnId && !turn.replacedBy ? async note => { await executeAction(await readWorkspace(), {kind:'reassessFeedback', turnId:turn.turnId!, note}) } : undefined}

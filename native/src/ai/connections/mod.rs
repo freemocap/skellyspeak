@@ -9,4 +9,5 @@ mod credential_cache;
 #[cfg(target_os = "macos")]
 mod credential_events;
 
+pub(crate) mod configuration;
 pub(crate) mod speech_routing;

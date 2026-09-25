@@ -104,7 +104,5 @@
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
 /* Optional guidance shares the composer surface and never overlays its controls. */
-.conversation-help { padding: var(--space-6); background: var(--chrome); border-inline-start: var(--space-2) solid var(--interaction-ink); font-size: var(--type-ui); }
-.conversation-help p { margin: 0 0 var(--space-4); }
 
 .crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }

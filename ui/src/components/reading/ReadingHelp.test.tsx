@@ -2,7 +2,7 @@ import { SavedReadingProvider } from './SavedReadingProvider'
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ReadingPreferencesContext } from './ReadingPreferences'
 import { ReadingHelp } from './ReadingHelp'
 import { useReadingActions, ReadingScopeContext, type ReadingServices } from './ReadingContext'
@@ -15,9 +15,10 @@ vi.mock('../../platform/ipc/tauri', () => ({ languageFor: (language: string) => 
 const scope = { language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-us' }
 const languages = [{ code: 'spanish', name: 'Spanish', languageTag: 'es', defaultVariety: 'spanish-spain', varieties: [{ id: 'spanish-spain', label: 'Spain' }] }, { code: 'arabic', name: 'Arabic', languageTag: 'ar', defaultVariety: 'arabic-egypt', varieties: [{ id: 'arabic-egypt', label: 'Egypt' }] }]
 const result = { gloss: { coverage: 'complete', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'}] }, audioBase64: null, receipt: { providerId: 'receipt-1' } } as ReadingResult
-const services: ReadingServices = { read: vi.fn(), speak: vi.fn(), activity: vi.fn() }
+const services: ReadingServices = { read: vi.fn(), saved: vi.fn(), speak: vi.fn(), activity: vi.fn() }
 beforeEach(() => {
-  vi.clearAllMocks()
+  vi.resetAllMocks()
+  vi.mocked(services.saved!).mockResolvedValue(null)
   vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} })
   vi.mocked(services.read).mockResolvedValue(result)
   vi.mocked(services.speak).mockResolvedValue({ providerId: 'speech-1' })
@@ -26,7 +27,29 @@ beforeEach(() => {
 })
 function app(children: React.ReactNode) { return render(<ReadingPreferencesContext value={{autoTranslate:true, alwaysRomanize:true, alwaysPronunciation:true}}><ReadingScopeContext value={scope}><ReadingHelp services={services} languages={languages}>{children}</ReadingHelp></ReadingScopeContext></ReadingPreferencesContext>) }
 
-it('requests help only on an explicit word action and reuses help for the same source and language', async () => {
+it('keeps an inspector request alive when unrelated saved meanings update', async () => {
+  let finish!: (value: ReadingResult) => void
+  vi.mocked(services.read).mockImplementation(() => new Promise(resolve => { finish = resolve }))
+  function Controls() {
+    const actions = useReadingActions()
+    const [updated, setUpdated] = useState(false)
+    const sources = useMemo(() => updated ? [{ scope, text:'casa', segments:[{start:0,end:4,kind:'gloss' as const,gloss:'house'}] }] : [], [updated])
+    return <><button onClick={() => actions?.inspect({scope, text:'Hola', start:0, end:4})}>Inspect</button>
+      <button onClick={() => setUpdated(true)}>Update saved meanings</button>
+      <SavedReadingProvider sources={sources}>{null}</SavedReadingProvider></>
+  }
+  app(<Controls />)
+  fireEvent.click(screen.getByRole('button', {name:'Inspect'}))
+  await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
+  const signal = vi.mocked(services.read).mock.calls[0][1]
+  fireEvent.click(screen.getByRole('button', {name:'Update saved meanings'}))
+  expect(signal.aborted).toBe(false)
+  expect(services.read).toHaveBeenCalledOnce()
+  await act(async () => finish(result))
+  expect(screen.getByRole('dialog', {name:'Word help'})).toHaveTextContent('hello')
+})
+
+it('requests help only on explicit actions and delegates reuse to the local service', async () => {
   app(<TargetText text="Hola" />)
   expect(services.read).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
@@ -36,7 +59,7 @@ it('requests help only on an explicit word action and reuses help for the same s
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   fireEvent.keyDown(screen.getByRole('button', { name: 'Hola' }), { key: 'Enter' })
   await waitFor(() => expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello'))
-  expect(services.read).toHaveBeenCalledOnce()
+  expect(services.read).toHaveBeenCalledTimes(2)
 })
 
 it('speaks an exact saved source occurrence without fetching glosses or opening its parent action', async () => {
@@ -151,13 +174,14 @@ it('shows a conversation word in another sentence synchronously without loading 
   expect(services.read).not.toHaveBeenCalled()
 })
 
-it('reuses a newly looked-up word synchronously in a different passage', async () => {
+it('uses the native saved lookup for a generated word in a different passage', async () => {
+  vi.mocked(services.saved!).mockResolvedValueOnce(null).mockResolvedValue(result)
   app(<><TargetText text="Hola" /><TargetText text="Hola amigo" /></>)
   fireEvent.click(screen.getAllByRole('button',{name:'Hola'})[0])
   await waitFor(()=>expect(screen.getByText('hello')).toBeVisible())
   fireEvent.click(screen.getAllByRole('button',{name:'Hola'})[0])
   fireEvent.click(screen.getAllByRole('button',{name:'Hola'})[1])
-  expect(screen.getByText('hello')).toBeVisible()
+  await waitFor(() => expect(screen.getByText('hello')).toBeVisible())
   expect(screen.queryByText('Finding word meanings…')).toBeNull()
   expect(services.read).toHaveBeenCalledOnce()
 })
@@ -174,7 +198,7 @@ it('opens the deep inspector from the same durable cache without asking held AI 
   expect(services.read).not.toHaveBeenCalled()
 })
 
-it('caches translations separately from word meanings for the same source and scope', async () => {
+it('delegates translations and word meanings as distinct local requests', async () => {
   const { useReadingLookup, useReadingPeek } = await import('./ReadingContext')
   let lookup: ReturnType<typeof useReadingLookup> = null
   let peek: ReturnType<typeof useReadingPeek> | null = null
@@ -189,7 +213,7 @@ it('caches translations separately from word meanings for the same source and sc
   const translated = await lookup!({ ...scope, text: 'Hola', aid: 'translation' }, new AbortController().signal)
   expect(translated.translation).toBe('Hello')
   await lookup!({ ...scope, text: 'Hola', aid: 'translation' }, new AbortController().signal)
-  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation', 'translation'])
   await expect(lookup!({ ...scope, text: 'Hola', aid: 'speech' }, new AbortController().signal)).rejects.toThrow('Read-aloud is requested through reading actions')
 })
 
@@ -200,7 +224,7 @@ it('asks once when a word stays unresolved, and once more per explicit retry', a
   app(<TargetText text="Hola" />)
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Retry word meanings' })).toBeVisible())
-  // The result updated the shared cache; that must not ask again.
+  // Displaying a partial result must not ask again.
   await act(async () => { await Promise.resolve() })
   expect(services.read).toHaveBeenCalledOnce()
   fireEvent.click(screen.getByRole('button', { name: 'Retry word meanings' }))
@@ -209,7 +233,7 @@ it('asks once when a word stays unresolved, and once more per explicit retry', a
   expect(services.read).toHaveBeenCalledTimes(2)
 })
 
-it('keeps a partial meaning for the word it covers and does not re-ask after unrelated cache updates', async () => {
+it('keeps a partial meaning for the word it covers and does not re-ask after unrelated aid results', async () => {
   const { useReadingLookup } = await import('./ReadingContext')
   let lookup: ReturnType<typeof useReadingLookup> = null
   function Probe() { lookup = useReadingLookup(); return null }
@@ -221,14 +245,14 @@ it('keeps a partial meaning for the word it covers and does not re-ask after unr
   fireEvent.click(screen.getByRole('button', { name: 'casa' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Retry word meanings' })).toBeVisible())
   expect(services.read).toHaveBeenCalledOnce()
-  // An unrelated aid writes to the same cache while the card is open.
+  // An unrelated aid completes while the card is open.
   await act(async () => { await lookup!({ ...scope, text: 'Hola casa', aid: 'translation' }, new AbortController().signal) })
   expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
   // The meanings that did come back are still shown for the word they cover.
   fireEvent.keyDown(screen.getByRole('button', { name: 'casa' }), { key: 'Escape' })
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   await waitFor(() => expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello'))
-  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation'])
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => input.aid)).toEqual(['word_gloss', 'translation', 'word_gloss'])
 })
 
 it('drops a pending result when the source text changes and asks for the new source', async () => {
@@ -273,7 +297,7 @@ it('drops a pending result when the language scope changes and asks in the new s
   expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello')
 })
 
-it('caches grammar explanations per aid, scope and source, and reuses them', async () => {
+it('delegates grammar explanation reuse to native and keeps source inputs distinct', async () => {
   const { useReadingLookup, useReadingPeek } = await import('./ReadingContext')
   let lookup: ReturnType<typeof useReadingLookup> = null
   let peek: ReturnType<typeof useReadingPeek> | null = null
@@ -284,10 +308,10 @@ it('caches grammar explanations per aid, scope and source, and reuses them', asy
   expect(peek!({ ...scope, text: 'Hola', aid: 'explanations' })).toBeNull()
   const first = await lookup!({ ...scope, text: 'Hola', aid: 'explanations' }, new AbortController().signal)
   expect(first.explanations).toEqual(cards)
-  expect(peek!({ ...scope, text: 'Hola', aid: 'explanations' })?.explanations).toEqual(cards)
+  expect(peek!({ ...scope, text: 'Hola', aid: 'explanations' })).toBeNull()
   await lookup!({ ...scope, text: 'Hola', aid: 'explanations' }, new AbortController().signal)
   await lookup!({ ...scope, text: 'Hola.', aid: 'explanations' }, new AbortController().signal)
-  expect(vi.mocked(services.read).mock.calls.map(([input]) => [input.aid, input.text])).toEqual([['explanations', 'Hola'], ['explanations', 'Hola.']])
+  expect(vi.mocked(services.read).mock.calls.map(([input]) => [input.aid, input.text])).toEqual([['explanations', 'Hola'], ['explanations', 'Hola'], ['explanations', 'Hola.']])
 })
 
 it('a partial cached or saved result still lets Word by word request the whole passage, once', async () => {
@@ -307,21 +331,21 @@ it('a partial cached or saved result still lets Word by word request the whole p
   expect(services.read).toHaveBeenCalledOnce()
 })
 
-it('a complete cached result is reused without a new request, and Chat-style owners never look up', async () => {
+it('each passage requests generated help explicitly, and Chat-style owners never look up', async () => {
   const { TargetMessage } = await import('./TargetMessage')
   const props = { text: 'Hola', segments: [], segmentsKey: 'hola', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
   const view = app(<><TargetMessage {...props} /><TargetMessage {...props} segmentsKey="second" /></>)
   fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[0])
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
-  // The second passage shows the cached complete meanings under the preference.
-  await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(2))
+  // A different surface has no generated inference state of its own until requested.
+  await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(1))
   fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[1])
-  expect(view.container.querySelectorAll('.wg')).toHaveLength(1)
-  expect(services.read).toHaveBeenCalledOnce()
+  await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(2))
+  expect(services.read).toHaveBeenCalledTimes(2)
   view.unmount()
   app(<TargetMessage {...props} layout="bubble" lookupWords={false} />)
   expect(screen.getByRole('button', { name: 'Word by word' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: 'Translate' })).toBeNull()
-  expect(services.read).toHaveBeenCalledOnce()
+  expect(services.read).toHaveBeenCalledTimes(2)
 })

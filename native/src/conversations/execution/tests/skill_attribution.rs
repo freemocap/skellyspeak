@@ -215,9 +215,13 @@ async fn local_attribution_round_trip() {
     let client = crate::ai::transport::provider::client().unwrap();
     let output =
         crate::ai::transport::provider::structured_output(work.coaching_schema.as_ref().unwrap());
-    let result =
-        crate::ai::transport::provider::complete_with_output(&client, token.trim(), &work, output)
-            .await;
+    let result = crate::ai::transport::provider::complete_with_output(
+        &client,
+        token.trim(),
+        &work.text_request(),
+        output,
+    )
+    .await;
     store.finish(&work, result).unwrap();
     let record = profile(&store)["records"][0].clone();
     assert!(

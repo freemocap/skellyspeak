@@ -38,6 +38,16 @@ async function start() {
   return { ...view, onBusyChange, onChanged }
 }
 
+it('makes the sign-in button primary only when asked, and never once signed in', async () => {
+  const onBusyChange = vi.fn(), onChanged = vi.fn(async () => {})
+  render(<SettingsAccess onBusyChange={onBusyChange} onChanged={onChanged} primaryAction />)
+  expect(await screen.findByRole('button', { name: 'Sign in with Google' })).toHaveClass('btn', 'primary')
+
+  signedIn = true
+  render(<SettingsAccess onBusyChange={onBusyChange} onChanged={onChanged} primaryAction />)
+  expect(await screen.findByRole('button', { name: 'Sign out' })).not.toHaveClass('primary')
+})
+
 it('keeps Cancel usable while sign-in locks the form, then waits for native cancellation to settle', async () => {
   const { onBusyChange } = await start()
   expect(screen.getByRole('button', { name: 'Sign in with Google' })).toBeDisabled()

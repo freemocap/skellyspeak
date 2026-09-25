@@ -13,7 +13,6 @@ guidance:
   - hooks1994
   - illich1973
 feedback:
-  max_corrections_per_turn: 1
   correct_only: useful_language
   skip_sources: []
   ladder:

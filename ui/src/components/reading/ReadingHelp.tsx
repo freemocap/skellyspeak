@@ -1,9 +1,8 @@
 import { ErrorNotice } from '../feedback/ErrorNotice'
 import { errorMessage as message, errorDetails as details } from '../../platform/diagnostics/error-details'
-import { readingRequests } from './reading-requests'
 import { readingWords } from '../../domain/reading/word-boundaries'
 import { SavedReadingContext, SavedReadingRegistryContext } from './SavedReadingProvider'
-import { glossScopeKey, savedGlossIndex, type SavedGlossSource } from '../../domain/reading/saved-gloss-index'
+import { savedGlossIndex, type SavedGlossSource } from '../../domain/reading/saved-gloss-index'
 import { AskCoachButton } from '../learning/AskCoachButton'
 import { ReadingLanguageScope } from './ReadingLanguageScope'
 import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
@@ -13,7 +12,9 @@ import { TokenAudio } from './TokenAudio'
 import { DetailDialog } from '../dialogs/DetailDialog'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
-import type { ReadingInput, ReadingResult } from '../../generated/contracts'
+import type { ReadingInput } from '../../generated/contracts'
+import type { ReadingHelpResult as ReadingResult } from '../../domain/reading/reading-result'
+import type { ReadingLookup } from './ReadingContext'
 
 export interface ReadingLanguage { code: string; name: string; languageTag?: string; defaultVariety: string; varieties: { id: string; label: string }[] }
 
@@ -35,48 +36,36 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   const [speechError, setSpeechError] = useState<unknown>(null)
   const [speechReceipt, setSpeechReceipt] = useState<unknown>(null)
   const speech = useRef<AbortController | null>(null)
-  const requests = useRef(readingRequests<ReadingResult>())
-  useEffect(() => { const current = requests.current; return () => current.clear() }, [])
-  const cache = useRef(new Map<string, ReadingResult>())
-  const [cacheRevision, setCacheRevision] = useState(0)
-  // One cache and one request-sharing map for every aid, keyed by aid, scope and text.
-  const cacheKey = (input: ReadingInput) => { const { text, aid, ...scope } = input; return JSON.stringify([aid, glossScopeKey(scope), text]) }
+  // Mounted accepted annotations support synchronous display. Generated results live in native storage.
   const peek = useCallback((input: ReadingInput): ReadingResult | null => {
-    const exact = cache.current.get(cacheKey(input))
-    if (input.aid !== 'word_gloss') return exact ?? null
+    if (input.aid !== 'word_gloss') return null
     const { text, aid: _aid, ...scope } = input
-    const sources = [...cache.current].flatMap(([key, result]) => {
-      const [aid, scopeKey, savedText] = JSON.parse(key)
-      if (aid !== 'word_gloss') return []
-      const [language, variety, explanation, explanationVariety] = JSON.parse(scopeKey)
-      return result.gloss ? [{scope:{language,variety,explanation,explanationVariety}, text:savedText, segments:result.gloss.segments}] : []
-    })
-    const durable = savedIndex(text, scope)
-    const cached = exact?.gloss?.segments ?? savedGlossIndex(sources)(text, scope)
-    const segments = [...durable, ...cached.filter(part => !durable.some(item => item.start < part.end && item.end > part.start))].sort((a,b) => a.start-b.start)
-    if (!segments.length) return exact ?? null
+    const segments = savedIndex(text, scope)
+    if (!segments.length) return null
     const complete = readingWords(text).filter(word => word.word).every(word => {
       let end = word.start
       for (const part of segments) if (part.kind === 'gloss' && part.start <= end && part.end > end) end = part.end
       return end >= word.end
     })
-    return {gloss: {...exact?.gloss, segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, translation:null, explanations:null, receipt:exact?.receipt ?? null} as ReadingResult
-  }, [savedIndex, cacheRevision])
-  const lookup = useCallback<ReadingServices['read']>(async (input, signal) => {
+    return {gloss: {segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, audioAlignment:null, translation:null, explanations:null, receipt:null}
+  }, [savedIndex])
+  const lookup = useCallback<ReadingLookup>(async (input, signal, options) => {
     signal.throwIfAborted()
     if (input.aid === 'speech') throw new Error('Read-aloud is requested through reading actions, not lookup.')
+    if (!options?.retry && services.saved) {
+      const accepted = await services.saved(input, signal)
+      signal.throwIfAborted()
+      const selected = options?.selection
+      if (accepted && (selected ? accepted.gloss?.segments.some(part => part.kind === 'gloss' && part.start < selected.end && part.end > selected.start) : accepted.gloss?.coverage === 'complete')) return accepted
+    }
     const saved = peek(input)
     const complete = { word_gloss: saved?.gloss?.coverage === 'complete', translation: saved?.translation != null, explanations: saved?.explanations != null }[input.aid]
-    if (complete) return saved!
-    const key = cacheKey(input)
-    return requests.current.run(key, signal, async owned => {
-      const result = await services.read(input, owned)
-      owned.throwIfAborted()
-      if (cache.current.size >= 64) cache.current.delete(cache.current.keys().next().value!)
-      cache.current.set(key, result)
-      setCacheRevision(value => value + 1)
-      return result
-    })
+    if (complete && !options?.retry) return saved!
+    const result = options?.retry
+      ? await services.read(input, signal, { retry: true })
+      : await services.read(input, signal)
+    signal.throwIfAborted()
+    return result
   }, [services, peek])
   const audioStatus = useRef<HTMLDivElement>(null)
   const stop = useCallback(() => { speech.current?.abort(); speech.current = null; setSpeaking(null) }, [])
@@ -121,6 +110,10 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   const tr = useI18n()
   const lookup = useContext(ReadingLookupContext)!
   const peek = useContext(ReadingPeekContext)
+  // Saved-source refreshes replace these functions without changing the question.
+  // They must not cancel an in-flight request for the open inspector.
+  const readers = useRef({ lookup, peek })
+  readers.current = { lookup, peek }
   const [scope, setScope] = useState(selection.scope)
   const [result, setResult] = useState<ReadingResult | null>(null)
   const [failure, setFailure] = useState<unknown>(null)
@@ -129,20 +122,21 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   const [activity, setActivity] = useState<unknown>(null)
   const lastRequest = useRef<string | null>(null)
   useEffect(() => {
+    const { lookup, peek } = readers.current
     const requestKey = JSON.stringify([scope, selection.text, attempt])
     const saved = peek({...scope, text:selection.text, aid:'word_gloss'})
     if (saved && (attempt === 0 || lastRequest.current === requestKey)) { setResult(saved); setFailure(null); setPending(false); return }
     const controller = new AbortController()
     setResult(null); setFailure(null); setPending(true)
     lastRequest.current = requestKey
-    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal)
+    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
       .then(value => { if (!controller.signal.aborted) {
         setResult(value)
       } })
       .catch(error => { if (!controller.signal.aborted) setFailure(error) })
       .finally(() => { if (!controller.signal.aborted) setPending(false) })
     return () => controller.abort()
-  }, [scope, attempt, selection.text, lookup, peek])
+  }, [scope, attempt, selection.text, selection.start, selection.end])
   const language = languages.find(item => item.code === scope.language)
   return <DetailDialog title={tr('Word help')} onClose={onClose}><div data-reading-tools>
     <h2>{tr('Word help')}</h2>

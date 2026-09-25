@@ -81,7 +81,7 @@ impl Store {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 format!(
-                    "Unsupported development schema {version}; this build requires {SCHEMA_VERSION}. No data was changed. Clear incompatible development data before reopening, or use Factory Reset to clear this app workspace. No format conversion is provided."
+                    "This workspace uses an incompatible data format ({version}); this build requires {SCHEMA_VERSION}. Use Factory Reset to delete this app's local data, then reopen the app. No data was changed."
                 ),
             ));
         }
@@ -90,11 +90,13 @@ impl Store {
         crate::learning::learner::progression::initialize(&connection)?;
         crate::learning::rewards::reward_settings::initialize(&connection)?;
         crate::speech::recording::microphone::initialize(&connection)?;
+        crate::ai::results::initialize(&connection)?;
+        crate::speech::recording::results::initialize(&connection)?;
         let store = Self {
             config,
             connection,
             session_id: id(),
-            speech_cache: crate::speech::cache::Cache::default(),
+            speech_delivery: crate::speech::delivery::DeliveryBuffer::default(),
             credential_writes: std::collections::HashSet::new(),
             credential_index: path.with_file_name("credentials.index"),
             drill_audio: path.with_file_name("drill-audio"),

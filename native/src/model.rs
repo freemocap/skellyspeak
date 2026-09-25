@@ -71,6 +71,7 @@ pub enum SpeechAudioState {
         message_id: String,
         mime: String,
         audio_base64: String,
+        alignment: Option<crate::speech::alignment::SpeechAlignment>,
     },
     Unavailable {
         operation_id: String,
@@ -472,13 +473,21 @@ impl AppError {
     pub fn with_diagnostics(mut self, value: serde_json::Value) -> Self {
         let limited = crate::ai::policy::rate_limit::detected(&value);
         self.diagnostics = Some(value);
-        if limited && !self.message.starts_with("Sorry, rate limited.") && matches!(self.code, ErrorCode::Provider | ErrorCode::UnknownOutcome | ErrorCode::AdmissionHeld) {
+        if limited
+            && !self.message.starts_with("Sorry, rate limited.")
+            && matches!(
+                self.code,
+                ErrorCode::Provider | ErrorCode::UnknownOutcome | ErrorCode::AdmissionHeld
+            )
+        {
             self.message = format!("Sorry, rate limited. Try again shortly. {}", self.message);
         }
         self
     }
     pub fn with_refusal(mut self, refusal: Refusal) -> Self {
-        if matches!(refusal.reason, RefusalReason::RateLimit) && !self.message.starts_with("Sorry, rate limited.") {
+        if matches!(refusal.reason, RefusalReason::RateLimit)
+            && !self.message.starts_with("Sorry, rate limited.")
+        {
             self.message = format!("Sorry, rate limited. Try again shortly. {}", self.message);
         }
         self.refusal = Some(refusal);
@@ -731,6 +740,15 @@ pub fn bindings() -> String {
         crate::language::reading::ReadingAid::decl(&config),
         crate::language::reading::ReadingInput::decl(&config),
         crate::language::reading::ReadingResult::decl(&config),
+        crate::speech::alignment::SpeechAudio::decl(&config),
+        crate::ai::audio::TranscriptionResult::decl(&config),
+        crate::speech::analysis::fluency::TranscriptTiming::decl(&config),
+        crate::speech::analysis::fluency::Word::decl(&config),
+        crate::speech::alignment::SpeechAlignment::decl(&config),
+        crate::speech::alignment::CharacterAlignment::decl(&config),
+        crate::language::reading::saved::SavedGlossQuery::decl(&config),
+        crate::language::reading::saved::SavedGlossSource::decl(&config),
+        crate::ai::results::CacheSettings::decl(&config),
         AppError::decl(&config),
     ];
     format!(

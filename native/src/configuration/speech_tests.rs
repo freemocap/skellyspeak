@@ -25,21 +25,46 @@ fn capabilities_select_without_language_specific_overrides() {
         assert_eq!(resolution.model, expected, "{tag}");
     }
     for task in [Task::Transcription, Task::Speech] {
-        assert!(
-            catalog
+        for tag in ["chr", "gd"] {
+            let resolution = catalog
                 .resolve(
                     task,
-                    "gd",
+                    tag,
                     &Preferences::default(),
                     if task == Task::Speech {
                         "eleven_v3"
                     } else {
                         "whisper-large-v3"
                     },
-                    None
+                    None,
                 )
-                .is_err()
-        );
+                .unwrap();
+            assert_eq!(
+                resolution.model,
+                if task == Task::Speech {
+                    "eleven_v3"
+                } else {
+                    "scribe_v2"
+                }
+            );
+            assert_eq!(resolution.language_code, tag);
+            assert_eq!(resolution.reason, "unlisted_language_attempt");
+            assert!(
+                catalog
+                    .resolve(
+                        task,
+                        tag,
+                        &Preferences::default(),
+                        if task == Task::Speech {
+                            "eleven_v3"
+                        } else {
+                            "whisper-large-v3"
+                        },
+                        Some(&[])
+                    )
+                    .is_err()
+            );
+        }
     }
     assert!(
         catalog
@@ -52,7 +77,7 @@ fn capabilities_select_without_language_specific_overrides() {
             )
             .is_ok()
     );
-    // Recognizer support is not synthesizer support.
+    // Listed recognition support and synthesis attempts are distinct.
     assert!(
         catalog
             .resolve(
@@ -73,7 +98,7 @@ fn capabilities_select_without_language_specific_overrides() {
                 "eleven_v3",
                 None
             )
-            .is_err()
+            .is_ok()
     );
 }
 

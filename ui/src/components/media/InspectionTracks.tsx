@@ -28,12 +28,13 @@ export function ActivityTrack({ activity, duration }: { activity: InspectionActi
  * A marker sits in the silence between two detected regions. Detection does not
  * establish separate attempts: a pause inside one utterance splits a region
  * just as a second reading of the line does. */
-export function SegmentMarkers({ activity, duration }: { activity: InspectionActivity; duration: number }) {
+export function SegmentMarkers({ activity, duration, mapTime }: { activity: InspectionActivity; duration: number; mapTime?: (seconds: number) => number }) {
   const tr = useI18n()
   if (activity.regions.length < 2) return null
   return <>{activity.regions.slice(1).map((region, index) => {
     const previous = activity.regions[index]
-    const at = (previous.end + region.start) / 2 / duration * 100
+    const middle = (previous.end + region.start) / 2
+    const at = (mapTime ? mapTime(middle) : middle) / duration * 100
     return <span key={index} className="inspection-segment-mark" style={{ left: `${at}%` }}>
       <span>{tr("segment {value0}", { value0: String(index + 2) })}</span>
     </span>
@@ -44,8 +45,9 @@ export function SegmentMarkers({ activity, duration }: { activity: InspectionAct
  *
  * Chat lets the learner select and seek by word; a read-only surface passes no
  * handlers and gets plain labels instead of controls. */
-export function TimedWordTrack({ wordTiming, duration, currentTime, selected, onSelect, onSeek }: {
+export function TimedWordTrack({ wordTiming, duration, currentTime, selected, onSelect, onSeek, mapTime }: {
   wordTiming: InspectionWordTiming
+  mapTime?: (seconds: number) => number
   duration: number
   currentTime?: number
   selected?: number | null
@@ -55,9 +57,10 @@ export function TimedWordTrack({ wordTiming, duration, currentTime, selected, on
   const tr = useI18n()
   const seconds = useSeconds()
   const interactive = onSelect !== undefined || onSeek !== undefined
+  const time = (seconds: number) => mapTime ? mapTime(seconds) : seconds
   const place = (word: { start: number; end: number }) => ({
-    left: `${word.start / duration * 100}%`,
-    width: `${Math.max(0.2, (word.end - word.start) / duration * 100)}%`,
+    left: `${time(word.start) / duration * 100}%`,
+    width: `${Math.max(0.2, (time(word.end) - time(word.start)) / duration * 100)}%`,
   })
   return <div className="inspection-token-track" aria-label={tr("Timed words")}>
     {wordTiming.words.map(word => interactive

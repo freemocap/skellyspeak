@@ -20,25 +20,65 @@
 .onboarding-rail-step[data-state='current'] { background: var(--interaction-fill); }
 .onboarding-rail-step[data-state='done'] { background: var(--success-ink); }
 
-/* ── Step 1: a choice between languages, not a row in a form ──────────────── */
+/* ── Step 1: languages to learn ──────────────────────────────────────────── */
+/* The title, starting language and Continue stay in view while the cards scroll
+   under them. .onboarding-page is the scroll container; the negative offset
+   cancels its top padding so nothing shows above the bar. */
+.onboarding-languages-head {
+  position: sticky; top: calc(-1 * var(--space-12)); z-index: var(--z-sticky);
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-6);
+  margin: 0 calc(-1 * var(--space-12)) var(--space-8); padding: var(--space-6) var(--space-12);
+  background: var(--sheet); border-bottom: var(--border-width) solid var(--line-soft);
+}
+.onboarding-sheet .onboarding-languages-title { flex: 1 1 8rem; min-width: 0; margin: 0; }
+.onboarding-languages-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); }
+.onboarding-languages-intro { margin: 0 0 var(--space-8); color: var(--ink-2); }
+.onboarding-start-field { display: inline-flex; align-items: center; gap: var(--space-4); font-size: var(--type-ui); color: var(--ink-2); }
+.onboarding-start-field select { min-height: var(--control-height); max-width: 12rem; }
+
 .language-choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--space-5); min-width: 0; }
+/* A card holds two controls: the card itself chooses the starting language and
+   the corner checkbox adds or removes the language. */
 .language-choice {
-  display: grid; justify-items: center; align-content: center; gap: var(--space-2);
-  min-height: 7rem; padding: var(--space-7) var(--space-4); text-align: center;
+  position: relative; display: grid;
   background: var(--sheet); color: var(--ink);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
-  font-family: var(--font-sans); cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
-/* A chosen card keeps its chosen colours under the cursor: plain :hover is the
-   more specific selector and would otherwise grey it back out. */
-.language-choice:hover:not(:disabled):not([aria-checked='true']) { border-color: var(--ink-3); background: var(--chrome); }
-.language-choice[aria-checked='true'] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
-.language-choice:disabled { opacity: .5; cursor: default; }
+.language-choice:hover:not([data-chosen='true']) { border-color: var(--ink-3); background: var(--chrome); }
+.language-choice[data-chosen='true'] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); }
+.language-choice[data-start='true'] { background: var(--interaction-tint); }
+.language-choice-start {
+  display: grid; justify-items: center; align-content: center; gap: var(--space-2);
+  min-height: 7rem; padding: var(--space-9) var(--space-4) var(--space-7); text-align: center;
+  background: transparent; color: inherit; border: 0; border-radius: inherit;
+  font-family: var(--font-sans); cursor: pointer;
+}
+.language-choice-start:disabled, .language-choice-check:disabled { cursor: default; }
+.language-choice-badge {
+  position: absolute; top: var(--space-3); inset-inline-start: var(--space-3);
+  padding: 0 var(--space-3); border-radius: var(--radius-pill);
+  background: var(--interaction-fill); color: var(--ink-on-fill);
+  font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-normal);
+}
+/* Unchecked, the empty ring says the card can be added; checked, it fills. */
+.language-choice-check {
+  position: absolute; top: var(--space-3); inset-inline-end: var(--space-3);
+  display: flex; align-items: center; justify-content: center;
+  width: var(--control-height-xs); height: var(--control-height-xs); padding: 0;
+  background: transparent; border: 0; border-radius: var(--radius-circle); cursor: pointer;
+}
+.language-choice-check::before {
+  content: ''; position: absolute; inset: var(--space-2);
+  border: var(--border-width-strong) solid var(--ink-3); border-radius: var(--radius-circle); background: var(--field);
+}
+.language-choice-check[aria-checked='true']::before { border-color: var(--interaction-fill); background: var(--interaction-fill); }
+.language-choice-check svg { position: relative; color: var(--ink-on-fill); }
 /* The endonym is the card: its own script, its own scale, its own direction. */
 .language-choice-endonym { font-size: calc(var(--type-title) * var(--script-scale)); font-weight: var(--weight-semibold); line-height: var(--leading-tight); }
 .language-choice-greeting { font-family: var(--font-serif); font-size: var(--type-body); color: var(--interaction-ink); line-height: var(--leading-snug); }
 .language-choice-name { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+@media (pointer: coarse) { .language-choice-check { width: var(--touch-target); height: var(--touch-target); top: 0; inset-inline-end: 0; } }
 
 /* The payoff for choosing: who you are about to meet. */
 .language-chosen { display: grid; gap: var(--space-5); margin-top: var(--space-8); padding: var(--space-8);
@@ -52,5 +92,80 @@
 @media (max-width: 480px) {
   .onboarding-page { padding: var(--space-8) var(--space-5); }
   .onboarding-sheet { padding: var(--space-8); }
+  .onboarding-languages-head { top: calc(-1 * var(--space-8)); margin-inline: calc(-1 * var(--space-8)); padding-inline: var(--space-8); }
   .language-choices { grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); }
 }
+
+/* ── After setup: a map of the app, then a walk through demo pages ──────────
+   The dialog fills the viewport and stacks a fixed head over a scrolling
+   body, whether that body is the map or one view's demo page. */
+.tour-overlay {
+  box-sizing: border-box; width: 100vw; height: 100dvh; max-width: none; max-height: none;
+  margin: 0; padding: 0; border: 0; background: var(--bg); color: var(--ink); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.tour-overlay::backdrop { background: var(--scrim-strong); }
+
+.tour-head {
+  flex: none; z-index: var(--z-sticky); display: flex; align-items: center; gap: var(--space-5);
+  padding: var(--space-6) var(--space-8); background: var(--chrome); border-bottom: var(--border-width) solid var(--line);
+}
+.tour-head-spacer { flex-grow: 1; }
+.tour-close {
+  display: flex; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height);
+  padding: 0; background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); color: var(--ink-2);
+}
+
+/* ── The map: a small live render of each demo, its controls pinned ─────── */
+.tour-map { flex: 1; overflow: auto; display: grid; align-content: start; gap: var(--space-9); max-width: 64rem; margin: var(--space-9) auto; padding: 0 var(--space-8) var(--space-9); }
+.tour-map-intro { margin: 0; color: var(--ink-2); line-height: var(--leading-normal); }
+.tour-map-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-8); justify-items: center; }
+.tour-map-view {
+  display: grid; gap: var(--space-5); justify-items: center; align-content: start; padding: var(--space-8);
+  background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+}
+.tour-map-view h2 { display: flex; align-items: center; gap: var(--space-4); margin: 0; align-self: start; font-size: var(--type-title); }
+/* The inner element is sized to the demo's natural layout and scaled down by
+   a runtime transform (its factor depends on the thumbnail size); the outer
+   element only clips that to the thumbnail's own box. */
+.tour-map-thumb { position: relative; overflow: hidden; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--bg); }
+.tour-map-thumb-inner { transform-origin: top left; pointer-events: none; }
+.tour-map-pin {
+  position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center;
+  width: var(--space-9); min-width: var(--space-9); height: var(--space-9); min-height: var(--space-9); padding: 0; background: var(--field); border: var(--border-width-strong) solid var(--interaction-ink);
+  border-radius: var(--radius-circle); color: var(--interaction-ink); font-size: var(--type-meta); font-weight: var(--weight-semibold); box-shadow: var(--shadow-sm);
+}
+.tour-map-pin:hover { background: var(--interaction-tint); }
+.tour-map-actions { display: flex; justify-content: flex-end; }
+@media (max-width: 600px) { .tour-map-grid { grid-template-columns: 1fr; } }
+
+/* ── The walk-through: a demo page, a ring around its control, its explanation ── */
+.tour-demo { flex: 1; overflow: auto; padding: var(--space-9) var(--space-8); }
+.demo-page { display: grid; gap: var(--space-6); max-width: 62rem; min-height: 60dvh; margin-inline: auto; background: var(--bg); }
+.demo-page .topbar { border-radius: var(--radius-lg); }
+/* Neither pane is hidden by mobile-surface rules here: every stop's control
+   must stay reachable, on any device, while the map measures every stop at once. */
+.tour-demo-chat { display: flex; flex-wrap: wrap; gap: var(--space-8); align-items: flex-start; }
+.tour-demo-chat .chat { flex: 3 1 22rem; min-width: 0; }
+.tour-demo-chat .break { flex: 2 1 18rem; min-width: 0; }
+.tour-ring {
+  position: fixed; box-sizing: border-box; border-radius: var(--radius-md);
+  border: var(--border-width-strong) solid var(--interaction-ink); box-shadow: 0 0 0 var(--space-4) var(--interaction-tint);
+  pointer-events: none; transition: left var(--dur-fast) var(--ease-out), top var(--dur-fast) var(--ease-out),
+    width var(--dur-fast) var(--ease-out), height var(--dur-fast) var(--ease-out);
+}
+.tour-callout {
+  position: fixed; z-index: var(--z-modal); display: grid; gap: var(--space-4); width: 21.25rem; max-width: calc(100vw - var(--space-8));
+  padding: var(--space-8); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-floating);
+}
+.tour-callout h2 { margin: 0; font-size: var(--type-title); }
+.tour-callout p { margin: 0; color: var(--ink-2); line-height: var(--leading-normal); }
+.tour-stepper { font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--ink-3); }
+.tour-callout-actions { display: flex; align-items: center; gap: var(--space-4); }
+.tour-callout-spacer { flex-grow: 1; }
+.tour-callout-sheet {
+  position: fixed; inset-inline: 0; bottom: 0; top: auto; width: auto; max-width: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding-bottom: max(var(--space-8), env(safe-area-inset-bottom));
+}
+@media (max-width: 480px) { .tour-head { padding: var(--space-5); } .tour-map { padding: 0 var(--space-5) var(--space-8); } }

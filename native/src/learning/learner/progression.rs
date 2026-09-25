@@ -25,7 +25,9 @@ pub(crate) fn snapshot_db(
         for coverage in registry.skill_coverage(target, &variety.id)? {
             let markdown = if coverage.guide_available {
                 json!(registry.skill_markdown(target, &variety.id, &coverage.skill_id)?)
-            } else { Value::Null };
+            } else {
+                Value::Null
+            };
             skills.insert(coverage.skill_id, markdown);
         }
         guides.push(json!({"id":variety.id,"name":variety.name,"skills":skills}));
@@ -57,7 +59,13 @@ pub(crate) fn snapshot_db(
             let quotes: Vec<_> = spans.iter().map(|s|s["quote"].clone()).collect();
             json!({"skill_id":id,"presence":assessment.unwrap()["presence"][id],"evidence_kind":if spans.is_empty(){"whole_message"}else{"quoted"},"answer":answer,"quotes":quotes,"spans":spans,"rationale":"","attribution_reason":evidence["reason"]})
         }).collect()).unwrap_or_default();
-        let attribution_state: Option<String> = db.query_row("SELECT state FROM operations WHERE turn_id=?1 AND kind='skill_attribution'", [&turn], |r|r.get(0)).optional()?;
+        let attribution_state: Option<String> = db
+            .query_row(
+                "SELECT state FROM operations WHERE turn_id=?1 AND kind='skill_attribution'",
+                [&turn],
+                |r| r.get(0),
+            )
+            .optional()?;
 
         records.push(json!({"attribution_state":attribution_state,"attribution_error":context["skill_attributionError"],"attribution_attempt":context["skillAttributionAttempt"],"reward_credits":crate::learning::rewards::credits(&context)?,"attempt_id":attempt,"session_id":session,"turn_id":sequence,"message_id":sequence,"replaces_message_id":db.query_row("SELECT m.sequence FROM turns t JOIN messages m ON m.turn_id=t.replaces_turn_id AND m.role='user' WHERE t.id=?1",[&turn],|r|r.get::<_,i32>(0)).optional()?,"chat_id":chat,"learner_id":learner,"target":target,"variety":context["practiceSettings"]["varietyId"],"native":context["translationLanguage"],"source":source,"input":context["input"],"support_step":context["coachRetry"]["supportStep"],"at_secs":time,"model":assessment.and_then(|a|a.get("model")).cloned().unwrap_or(json!(model)),"provider_mode":assessment.and_then(|a|a.get("providerMode")).cloned().unwrap_or(json!(route)),"catalog_version":context["catalogVersion"],"construct_registry_hash":context["constructRegistryHash"],"mapping_error":if context["constructRegistryHash"]!=construct_hash{json!("This observation uses a different construct registry. Its evidence is retained; current credit is unavailable.")}else if assessment.is_some() && context.get("gamePolicy").is_none(){json!("This observation predates the durable reward policy. Its evidence is retained; start a new exchange to earn current rewards.")}else{Value::Null},"assessment_adapter":assessment.and_then(|a|a.get("adapter")).cloned().unwrap_or(json!("jev_choice")),"decision_policy":assessment.and_then(|a|a.get("policy")).cloned().unwrap_or(Value::Null),"prompt_version":assessment.and_then(|a|a.get("promptVersion")).cloned().unwrap_or_else(||if context.get("skillAssessment").is_some(){context["skillAssessmentPromptVersion"].clone()}else{context["coachFeedbackPromptVersion"].clone()}),"status":if assessment.is_some(){"complete"}else if !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies"){"failed"}else{"pending"},"assessment":if assessment.is_some(){json!({"judgments":judgments})}else{Value::Null},"error":if assessment.is_none() && !matches!(state.as_str(),"ready"|"running"|"waiting_dependencies") {json!(format!("Skill presence unavailable: {state}."))} else {Value::Null}}));
     }

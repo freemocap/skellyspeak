@@ -57,6 +57,9 @@ export const AnalysisContent = memo(function AnalysisContent({
     {scope:a.help?.scope ?? scope, text:a.reply, segments:a.savedGloss?.segments ?? anchoredTokenGlosses(a.reply,a.tokens)},
     ...(turn.user ? [{scope:a.help?.scope ?? scope,text:turn.user,segments:turn.userSavedGloss?.segments ?? anchoredTokenGlosses(turn.user,a.user_tokens)}] : []),
   ] : [], [scope, a, turn.user, turn.userSavedGloss])
+  // A quote of an accepted message already has that message's translation.
+  const quoteTranslation = (quote: string) => quote === a?.reply ? a.translation
+    : quote === turn.user ? turn.userTranslation ?? a?.user_translation ?? null : null
   if (!a) return <>
     {turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} translation={turn.userTranslation} />}
     <p className="center-note">{tr("No partner reply yet.")}</p>
@@ -97,7 +100,7 @@ export const AnalysisContent = memo(function AnalysisContent({
                 <span className="exp-title">{mech.title}</span>
                 {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
               </div>
-              {mech.quote && <TargetMessage key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
+              {mech.quote && <TargetMessage key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={quoteTranslation(mech.quote)} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
               <Markdown text={mech.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(mech)}`) : undefined} />
               {mech.example && <ReadingExample text={mech.example} />}
               {mech.contrast && (

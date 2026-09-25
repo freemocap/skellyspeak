@@ -212,7 +212,9 @@ impl Registry {
             .iter()
             .filter(|(name, _)| {
                 *name == &path
-                    || guides.iter().any(|g| g.source.split('#').next() == Some(name.as_str()))
+                    || guides
+                        .iter()
+                        .any(|g| g.source.split('#').next() == Some(name.as_str()))
                     || *name == &format!("languages/{explanation}.yaml")
                     || name.starts_with("shared/")
                     || name.as_str() == "references.bib"

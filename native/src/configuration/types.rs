@@ -70,7 +70,6 @@ pub struct Intensity {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeedbackPolicy {
-    pub max_corrections_per_turn: usize,
     pub correct_only: String,
     pub skip_sources: Vec<String>,
     pub ladder: Vec<String>,

@@ -9,12 +9,6 @@ pub fn begin(store: &Store, request: &Request) -> Result<()> {
     }).to_string()])?;
     Ok(())
 }
-pub fn dispatch(store: &Store, id: &str) -> Result<()> {
-    if store.connection.execute("UPDATE reading_attempts SET receipt=json_set(receipt,'$.state','running','$.dispatchedAt',strftime('%Y-%m-%dT%H:%M:%fZ','now')) WHERE id=?1 AND json_extract(receipt,'$.state')='pending'", [id])? != 1 {
-        return Err(AppError::new(ErrorCode::Conflict, "Reading request is no longer pending."));
-    }
-    Ok(())
-}
 pub fn cancel(store: &Store, id: &str) -> Result<()> {
     store.connection.execute("UPDATE reading_attempts SET receipt=json_set(receipt,'$.state',CASE WHEN json_extract(receipt,'$.state')='running' THEN 'unknown' ELSE 'cancelled' END,'$.finishedAt',strftime('%Y-%m-%dT%H:%M:%fZ','now')) WHERE id=?1 AND json_extract(receipt,'$.state') IN ('pending','running')", [id])?;
     Ok(())
@@ -59,14 +53,15 @@ pub fn activity(store: &Store) -> Result<Vec<serde_json::Value>> {
         .prepare("SELECT receipt FROM reading_attempts ORDER BY rowid DESC LIMIT 50")?;
     query
         .query_map([], |r| r.get::<_, String>(0))?
-        .map(|r| Ok(serde_json::from_str(&r?)?))
+        .map(|r| {
+            let mut receipt: serde_json::Value = serde_json::from_str(&r?)?;
+            if let Some(id) = receipt["id"].as_str()
+                && let Some(execution) =
+                    crate::ai::results::receipt_for_consumer(&store.connection, id)?
+            {
+                receipt["sourceExecution"] = execution;
+            }
+            Ok(receipt)
+        })
         .collect()
-}
-
-pub fn record_retry(store: &Store, id: &str, error: &AppError) -> Result<()> {
-    let diagnostic = crate::diagnostics::response::retained(None, Some(error));
-    if store.connection.execute("UPDATE reading_attempts SET receipt=json_set(receipt,'$.response.retry',json(?2)) WHERE id=?1 AND json_extract(receipt,'$.state')='running'", params![id, diagnostic])? != 1 {
-        return Err(AppError::new(ErrorCode::Conflict, "Reading request ended before retry."));
-    }
-    Ok(())
 }

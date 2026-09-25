@@ -1,15 +1,68 @@
 use super::*;
-use crate::conversations::translation;
 use crate::language::reading;
 use crate::learning::coaching::conversation_support as support;
+#[cfg(test)]
 use base64::{Engine, engine::general_purpose::STANDARD};
+
+/// Local preview only: a cache miss must never create or dispatch reading work.
+#[tauri::command]
+pub(in crate::application) fn get_cached_reading_audio(
+    state: tauri::State<'_, Arc<Application>>,
+    input: reading::ReadingInput,
+) -> Result<Option<crate::speech::alignment::SpeechAudio>> {
+    cached_reading_audio(&*state.lock()?, input)
+}
+
+fn cached_reading_audio(
+    store: &Store,
+    input: reading::ReadingInput,
+) -> Result<Option<crate::speech::alignment::SpeechAudio>> {
+    if input.aid != reading::ReadingAid::Speech {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Cached audio requires a speech request.",
+        ));
+    }
+    let request = reading::Request::capture(store, input)?;
+    request.validate_source(store)?;
+    crate::ai::results::speech::lookup(
+        &store.connection,
+        &request.target,
+        &request.speech_input()?,
+        &request.install,
+    )?
+    .map(|saved| crate::speech::alignment::SpeechAudio::decode(&saved.payload))
+    .transpose()
+}
+
+#[tauri::command]
+pub(in crate::application) fn get_saved_gloss_sources(
+    state: tauri::State<'_, Arc<Application>>,
+    query: reading::saved::SavedGlossQuery,
+) -> Result<Vec<reading::saved::SavedGlossSource>> {
+    let store = state.lock()?;
+    let accepted = crate::conversations::saved_reading::sources(&store, &query)?;
+    let mut sources = reading::text_sources::sources(&store, &query)?;
+    // Exact accepted passages take precedence in the display index.
+    sources.extend(accepted);
+    if serde_json::to_vec(&sources)?.len() > 8 * 1024 * 1024 {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Saved word lookup exceeds its response limit. Select a shorter passage.",
+        ));
+    }
+    Ok(sources)
+}
 
 #[tauri::command]
 pub(in crate::application) fn begin_reading(
     state: tauri::State<'_, Arc<Application>>,
     input: reading::ReadingInput,
+    fresh: Option<bool>,
 ) -> Result<String> {
-    state.reading.begin(&*state.lock()?, input)
+    state
+        .reading
+        .begin_fresh(&*state.lock()?, input, fresh.unwrap_or(false))
 }
 #[tauri::command]
 pub(in crate::application) fn cancel_reading(
@@ -35,96 +88,68 @@ pub(in crate::application) async fn run_reading(
 /// What one explicit reading request produced.
 enum Aid {
     Gloss(model::WordGlossView),
-    Audio(String),
+    Audio(crate::speech::alignment::SpeechAudio),
     Translation(String),
     Explanations(support::ReplyExplanations),
 }
 
-fn completion_metadata(completed: &provider::Completion) -> serde_json::Value {
-    serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,"finishReason":completed.finish_reason,
-        "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"diagnostics":completed.diagnostics})
-}
-
-async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::ReadingResult> {
+async fn run_owned_reading(state: &Arc<Application>, id: &str) -> Result<reading::ReadingResult> {
     let request = state.reading.claim(id)?;
-    let validate = || request.validate(&*state.lock()?);
+    let validate = || request.validate_source(&*state.lock()?);
     let mut metadata = serde_json::json!({});
     let outcome: Result<Aid> = async {
         validate()?;
-        if let Some((audio, receipt)) = crate::drill::reference::get(&*state.lock()?, &request)? {
-            metadata = serde_json::json!({"cacheHit":true,"sourceReceiptId":receipt});
-            return Ok(Aid::Audio(STANDARD.encode(audio)));
+        if request.input.aid == reading::ReadingAid::Speech {
+            let saved = state
+                .shared_speech(
+                    request.target.clone(),
+                    request.speech_input()?,
+                    request.install.clone(),
+                    &request.id,
+                    validate,
+                )
+                .await?;
+            metadata = saved.metadata.clone();
+            metadata["sourceExecutionId"] = serde_json::json!(saved.execution);
+            metadata["cacheHit"] = serde_json::json!(saved.cached);
+            metadata["audioAccepted"] = serde_json::json!(true);
+            metadata["transcriptComparison"] = serde_json::Value::Null;
+            validate()?;
+            return Ok(Aid::Audio(crate::speech::alignment::SpeechAudio::decode(
+                &saved.payload,
+            )?));
         }
-        let _permit = state.admission.try_chat().ok_or_else(|| AppError::new(ErrorCode::AdmissionHeld, "AI work is at capacity. Try reading help again when pending work finishes."))?;
-        let client = provider::client()?;
-        let key = reading::checked(&request, async {
-            match request.target.credential.clone() { Some(id) => read_secret(id).await, None => Ok(Zeroizing::new(String::new())) }
-        }, validate).await??;
-        match request.input.aid {
-            reading::ReadingAid::Speech => {
-                let input = request.speech_input()?;
-                request.submitted(&*state.lock()?)?;
-                let completed = retry::run(|| audio::synthesize(&client, &request.target, &key, &input, &request.install), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await;
-                metadata = serde_json::json!({"actualModel":completed.actual_model,"providerId":completed.provider_id,
-                    "costMicros":completed.cost_micros,"diagnostics":completed.diagnostics});
-                // The same content-free projection persona speech retains, kept
-                // whether or not the audio itself was accepted.
-                if let serde_json::Value::Object(fields) = crate::diagnostics::speech::outcome_metadata(&completed) {
-                    for (field, value) in fields {
-                        metadata[field] = value;
-                    }
+        let saved = state
+            .shared_reading(request.clone())
+            .await
+            .inspect_err(|error| {
+                if let Some(response) = error.diagnostics.as_ref().and_then(|d| d.get("response")) {
+                    metadata = response.clone();
                 }
-                let bytes = completed.audio?;
-                validate()?;
-                Ok(Aid::Audio(STANDARD.encode(bytes)))
-            }
-            reading::ReadingAid::WordGloss => {
-                // The word-gloss contract conversation turns use: the same
-                // prompt, output schema, recovery validation and model role.
-                let dispatch = request.word_gloss_dispatch()?;
-                let (source, schema) = match (&dispatch.gloss_source, &dispatch.gloss_schema) {
-                    (Some(source), Some(schema)) => (source, schema),
-                    _ => return Err(gloss::validation_error()),
-                };
-                request.submitted(&*state.lock()?)?;
-                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, gloss::request_output(Some(source), schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
-                metadata = completion_metadata(&completed);
-                let (gloss, report) = gloss::recover_with_context(source, &completed, &request.operation, &request.attempt, &request.context)?;
-                metadata["wordGlossValidation"] = report;
-                validate()?;
-                Ok(Aid::Gloss(gloss))
-            }
-            reading::ReadingAid::Translation => {
-                // The translation contract conversation turns use: the same
-                // prompt, output schema, validation and model role.
-                let (dispatch, schema) = request.translation_dispatch()?;
-                request.submitted(&*state.lock()?)?;
-                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, provider::structured_output(&schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
-                metadata = completion_metadata(&completed);
-                let translated = translation::validate(&request.input.text, &completed)?;
-                validate()?;
-                Ok(Aid::Translation(translated))
-            }
-            reading::ReadingAid::Explanations => {
-                // The explanation contract conversation turns use: the same
-                // instruction, output schema, validation and model role.
-                let dispatch = request.explanations_dispatch()?;
-                let schema = dispatch.coaching_schema.clone().ok_or_else(|| AppError::new(ErrorCode::Internal, "Explanation schema is missing."))?;
-                request.submitted(&*state.lock()?)?;
-                let completed = retry::run(|| provider::complete_with_output(&client, &key, &dispatch, provider::structured_output(&schema)), validate, |error| reading::record_retry(&*state.lock()?, &request.id, error)).await?;
-                metadata = completion_metadata(&completed);
-                let value = support::validate_source(&request.input.text, support::EXPLANATIONS, &completed)?;
-                let explanations = serde_json::from_value(value)?;
-                validate()?;
-                Ok(Aid::Explanations(explanations))
-            }
+            })?;
+        metadata = saved.metadata;
+        metadata["sourceExecutionId"] = serde_json::json!(saved.execution);
+        metadata["cacheHit"] = serde_json::json!(saved.cached);
+        let stored = reading::text::Stored::decode(&saved.payload)?;
+        match request.input.aid {
+            reading::ReadingAid::WordGloss => stored.gloss.map(Aid::Gloss),
+            reading::ReadingAid::Translation => stored.translation.map(Aid::Translation),
+            reading::ReadingAid::Explanations => stored.explanations.map(Aid::Explanations),
+            reading::ReadingAid::Speech => unreachable!(),
         }
-    }.await;
+        .ok_or_else(|| {
+            AppError::new(
+                ErrorCode::Storage,
+                "Saved reading result is missing its requested aid.",
+            )
+        })
+    }
+    .await;
     // Always release volatile ownership, even when persisting a receipt fails.
     let result = (|| {
         let mut store = state.lock()?;
         let outcome = outcome.and_then(|value| {
-            request.validate(&store)?;
+            request.validate_source(&store)?;
             Ok(value)
         });
         if let Err(error) = &outcome {
@@ -133,17 +158,6 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
         // Keep generation metadata even if cache publication fails. A cache hit
         // has no dispatch timestamp and therefore never counts as paid usage.
         let transaction = store.connection.unchecked_transaction()?;
-        let outcome = outcome.and_then(|aid| {
-            if metadata["cacheHit"] != true
-                && let Aid::Audio(encoded) = &aid
-            {
-                let audio = STANDARD.decode(encoded).map_err(|_| {
-                    AppError::new(ErrorCode::Internal, "Invalid internal speech audio.")
-                })?;
-                crate::drill::reference::put(&store, &request, &audio)?;
-            }
-            Ok(aid)
-        });
         let receipt = reading::finish(&store, &request, metadata, outcome.as_ref().err())?;
         transaction.commit()?;
         match outcome {
@@ -151,13 +165,17 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
                 let mut result = reading::ReadingResult {
                     gloss: None,
                     audio_base64: None,
+                    audio_alignment: None,
                     translation: None,
                     explanations: None,
                     receipt,
                 };
                 match aid {
                     Aid::Gloss(gloss) => result.gloss = Some(gloss),
-                    Aid::Audio(audio) => result.audio_base64 = Some(audio),
+                    Aid::Audio(audio) => {
+                        result.audio_base64 = Some(audio.audio_base64);
+                        result.audio_alignment = audio.alignment;
+                    }
                     Aid::Translation(text) => result.translation = Some(text),
                     Aid::Explanations(value) => result.explanations = Some(value),
                 }
@@ -176,3 +194,7 @@ async fn run_owned_reading(state: &Application, id: &str) -> Result<reading::Rea
 #[cfg(test)]
 #[path = "../tests/reading.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "../tests/shared_reading.rs"]
+mod shared_tests;

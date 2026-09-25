@@ -9,6 +9,8 @@ from server.app.inference.transcription_confidence import summarize
 from server.app.diagnostics.exceptions import DiagnosticValueError
 
 import asyncio
+import base64
+import binascii
 import io
 import json
 import math
@@ -22,6 +24,7 @@ from server.app.inference.transcription_languages import scribe_code
 from server.app.diagnostics import provider_errors
 
 from server.app.inference.transcription_timing import decode_words
+from server.app.inference.synthesis_alignment import decode_alignment
 from server.app.inference.audio_contracts import (
     AudioFailure, AudioReceipt, SynthesisRequest, SynthesisResult,
     TranscriptionRequest, TranscriptionResult,
@@ -150,14 +153,29 @@ class ElevenLabs:
                    "apply_text_normalization": "off"}
         if request.language_code is not None:
             payload["language_code"] = request.language_code
-        pcm, receipt = await self._post(
-            f"text-to-speech/{request.voice_id}", receipt, limit=MAX_PCM_BYTES,
-            content_types={"audio/pcm", "audio/x-pcm", "application/octet-stream"},
+        body, receipt = await self._post(
+            f"text-to-speech/{request.voice_id}/with-timestamps", receipt, limit=8 * 1024 * 1024,
+            content_types={"application/json"},
             params={"output_format": "pcm_24000"}, json=payload, private=(request.text,),
         )
-        if not pcm or len(pcm) % 2:
-            raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True)
-        return SynthesisResult(_wav(pcm, OUTPUT_RATE), len(pcm) / (OUTPUT_RATE * 2), receipt)
+        value = None
+        try:
+            value = json.loads(body)
+            pcm = base64.b64decode(value['audio_base64'], validate=True)
+            if not pcm or len(pcm) % 2 or len(pcm) > MAX_PCM_BYTES:
+                raise ValueError()
+        except (ValueError, TypeError, KeyError, binascii.Error):
+            raise AudioFailure("AUDIO_RESPONSE_INVALID", receipt=receipt, unknown_outcome=True,
+                diagnostics={'stage': 'synthesis_audio', 'expected': 'bounded nonempty base64 mono PCM',
+                             'response': provider_errors.sanitize(value)}) from None
+        duration = len(pcm) / (OUTPUT_RATE * 2)
+        original, original_status = decode_alignment(value.get('alignment'), duration)
+        normalized, normalized_status = decode_alignment(value.get('normalized_alignment'), duration)
+        receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id, receipt.cost_micros,
+            {'http': receipt.diagnostics, 'response': provider_errors.sanitize(value),
+             'alignment': {'original': original_status, 'normalized': normalized_status}})
+        return SynthesisResult(_wav(pcm, OUTPUT_RATE), duration, receipt,
+            {'sourceText': request.text, 'original': original, 'normalized': normalized})
 
     async def transcribe(self, request: TranscriptionRequest, *, model: str = "scribe_v2") -> TranscriptionResult:
         receipt = AudioReceipt("elevenlabs", model)

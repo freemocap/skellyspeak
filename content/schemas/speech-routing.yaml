@@ -4,6 +4,8 @@ definitions:
   Model:
     additionalProperties: false
     properties:
+      allow_unlisted_languages:
+        type: boolean
       languages:
         type: string
       provider:
@@ -11,6 +13,7 @@ definitions:
       task:
         $ref: '#/definitions/Task'
     required:
+    - allow_unlisted_languages
     - languages
     - provider
     - task

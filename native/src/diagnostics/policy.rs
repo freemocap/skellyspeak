@@ -99,10 +99,8 @@ mod tests {
     use super::*;
     #[test]
     fn shared_redaction_conformance() {
-        let cases: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../redaction-policy/cases.json"
-        ))
-        .unwrap();
+        let cases: serde_json::Value =
+            serde_json::from_str(include_str!("../../../redaction-policy/cases.json")).unwrap();
         for case in cases.as_array().unwrap() {
             let private: Vec<_> = case["private"]
                 .as_array()

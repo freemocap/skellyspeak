@@ -17,6 +17,7 @@ vi.mock('../../../platform/ipc/tauri', () => ({
   })),
 }))
 vi.mock('../access/SettingsAccess', () => ({ SettingsAccess: () => <div>Existing access controls</div> }))
+vi.mock('@tauri-apps/plugin-opener', () => ({ openUrl: vi.fn() }))
 const save = vi.fn(), finish = vi.fn(), back = vi.fn()
 const initial: Preferences = {
   theme: 'light', appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false,
@@ -28,24 +29,57 @@ beforeEach(() => {
   useOnboardingStore.setState({ preferences: initial, busy: false, saveLanguages: save, finish, back })
   useSessionStore.setState({ connection: { configured: false } as ConnectionConfig })
 })
-it('starts in the selected interface language and requires a practice language', async () => {
+it('starts in the selected interface language and requires a starting language', async () => {
   render(<I18nProvider locale="spanish"><OnboardingSetup /></I18nProvider>)
-  expect(screen.getByRole('heading', { name: 'Quiero aprender' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Bienvenido a SkellySpeak' })).toBeInTheDocument()
   const next = screen.getByRole('button', { name: 'Continuar' })
   expect(next).toBeDisabled()
-  fireEvent.click(screen.getByRole('radio', { name: /spanish-greeting/ }))
+  fireEvent.click(screen.getByRole('button', { name: /spanish-greeting/ }))
+  expect(screen.getByRole('button', { name: /spanish-greeting/ })).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(next)
-  await waitFor(() => expect(save).toHaveBeenCalledWith('spanish', 'spanish-default', 'spanish', 'spanish'))
+  await waitFor(() => expect(save).toHaveBeenCalledWith(['spanish'], 'spanish', { spanish: 'spanish-default' }, 'spanish', 'spanish'))
+})
+it('adds several languages with the checkboxes and keeps the card and Start in field on one starting language', async () => {
+  render(<OnboardingSetup />)
+  const learnEnglish = screen.getByRole('checkbox', { name: 'Aprender english' })
+  const learnSpanish = screen.getByRole('checkbox', { name: 'Aprender spanish' })
+  expect(learnEnglish).toHaveAttribute('aria-checked', 'false')
+  fireEvent.click(learnEnglish)
+  fireEvent.click(learnSpanish)
+  expect(learnEnglish).toHaveAttribute('aria-checked', 'true')
+  // The first language added becomes the start until another is chosen.
+  const start = screen.getByRole('combobox', { name: 'Empezar en' })
+  expect(start).toHaveValue('english')
+  fireEvent.click(screen.getByRole('button', { name: /spanish-greeting/ }))
+  expect(start).toHaveValue('spanish')
+  fireEvent.change(start, { target: { value: 'english' } })
+  expect(screen.getByRole('button', { name: /english-greeting/ })).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('button', { name: /spanish-greeting/ })).toHaveAttribute('aria-pressed', 'false')
+  // Removing the starting language moves the start to one still chosen.
+  fireEvent.click(learnEnglish)
+  expect(start).toHaveValue('spanish')
+  fireEvent.click(learnEnglish)
+  fireEvent.click(screen.getByRole('button', { name: 'Continuar' }))
+  await waitFor(() => expect(save).toHaveBeenCalledWith(['spanish', 'english'], 'spanish', { english: 'english-default', spanish: 'spanish-default' }, 'spanish', 'spanish'))
 })
 it('names each language in its own script and says who the learner will meet', () => {
   render(<I18nProvider locale="spanish"><OnboardingSetup /></I18nProvider>)
-  const choice = screen.getByRole('radio', { name: /spanish-greeting/ })
+  const choice = screen.getByRole('button', { name: /spanish-greeting/ })
   expect(choice).toHaveTextContent('spanish-greeting')
   expect(choice.querySelector('.language-choice-endonym')).toHaveAttribute('lang', 'sp')
   // The partner is the payoff for choosing, and only appears once one is chosen.
   expect(screen.queryByText(/spanish-partner/)).not.toBeInTheDocument()
   fireEvent.click(choice)
   expect(screen.getByText(/spanish-partner/)).toBeInTheDocument()
+})
+it('keeps the sign-in control primary and the cost, funding and free-software notes secondary', async () => {
+  const { openUrl } = await import('@tauri-apps/plugin-opener')
+  useOnboardingStore.setState({ preferences: { ...initial, onboarding: 'in_progress' } })
+  render(<OnboardingSetup />)
+  expect(screen.getByRole('heading', { name: 'AI access' })).toBeInTheDocument()
+  expect(screen.getByText('Existing access controls')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'free software' }))
+  await waitFor(() => expect(openUrl).toHaveBeenCalledExactlyOnceWith('https://www.gnu.org/philosophy/free-sw.html'))
 })
 it('resumes at access and permits deferral without claiming a connection', async () => {
   useOnboardingStore.setState({ preferences: { ...initial, onboarding: 'in_progress' } })

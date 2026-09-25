@@ -246,7 +246,6 @@ pub struct CoachDecision {                    // deterministic, from policy + st
 ### 6.4 Feedback policy (`config/policy/feedback.yaml`)
 
 ```yaml
-max_corrections_per_turn: 1
 correct_only: focus_and_meaning_blocking
 skip_sources: [developmental, slip]
 ladder: [partner_clarify, hint, elicit, metalinguistic, explicit]

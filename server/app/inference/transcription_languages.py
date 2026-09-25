@@ -20,7 +20,9 @@ def language_code(model, tag, task):
     definition = CATALOG['models'].get(model)
     if definition is None or definition['task'] != task:
         return None
-    return CATALOG['language_sets'][definition['languages']].get(primary_code(tag))
+    code = primary_code(tag)
+    listed = CATALOG['language_sets'][definition['languages']].get(code)
+    return listed if listed is not None else code if definition['allow_unlisted_languages'] else None
 
 
 def whisper_code(tag):

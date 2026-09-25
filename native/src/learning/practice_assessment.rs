@@ -31,7 +31,7 @@ pub struct Answer {
 }
 fn invalid(path: &str) -> AppError {
     AppError::new(ErrorCode::Validation, "Invalid skill-presence assessment.")
-        .with_diagnostics(json!({"validation":{"stage":"skill_presence","path":path,"expected":"complete catalog coverage; four finite probabilities in [0,1], sum within 0.025 of 1; selected maximum"}}))
+        .with_diagnostics(json!({"validation":{"stage":"skill_presence","path":path,"expected":"complete catalog coverage; four finite probabilities in [0,1]; known choice"}}))
 }
 const LABELS: [&str; 4] = ["absent", "contextual", "direct", "unclear"];
 pub fn request(state: Value, skills: &[SkillPrompt], shared: &Instructions) -> Result<Value> {
@@ -110,11 +110,7 @@ pub fn validate(raw: &Value, expected: &BTreeSet<String>) -> Result<BTreeMap<Str
                 .ok_or_else(failure)?;
             probabilities.insert(label.to_owned(), value);
         }
-        if (probabilities.values().sum::<f64>() - 1.0).abs() > 0.025
-            || probabilities[choice] + 0.001 < probabilities.values().copied().fold(0.0, f64::max)
-        {
-            return Err(failure());
-        }
+        // The returned choice is authoritative; probabilities are retained, not reconciled.
         answers.insert(
             id.clone(),
             Answer {
@@ -158,7 +154,7 @@ mod tests {
         );
     }
     #[test]
-    fn retains_probabilities_and_rejects_bad_coverage_and_distributions() {
+    fn retains_choice_and_probabilities_without_reconciling_them() {
         let mut raw = json!({"past":{"type":"choice","choice":"contextual","confidence":0.8,"probabilities":{"absent":0.1,"contextual":0.8,"direct":0.05,"unclear":0.05}}});
         let ids = BTreeSet::from(["past".into()]);
         let valid = validate(&raw, &ids).unwrap();
@@ -166,9 +162,19 @@ mod tests {
         assert_eq!(valid["past"].probabilities["direct"], 0.05);
         assert!(validate(&raw, &BTreeSet::from(["other".into()])).is_err());
         raw["past"]["choice"] = json!("direct");
-        assert!(validate(&raw, &ids).is_err());
+        assert_eq!(
+            validate(&raw, &ids).unwrap()["past"].choice,
+            Presence::Direct
+        );
         raw["past"]["choice"] = json!("contextual");
-        raw["past"]["probabilities"]["direct"] = json!(0.5);
+        raw["past"]["probabilities"]["direct"] = json!(0.9);
+        let valid = validate(&raw, &ids).unwrap();
+        assert_eq!(valid["past"].choice, Presence::Contextual);
+        assert_eq!(valid["past"].probabilities["direct"], 0.9);
+        raw["past"]["choice"] = json!("unknown");
+        assert!(validate(&raw, &ids).is_err());
+        raw["past"]["choice"] = json!("direct");
+        raw["past"]["probabilities"]["direct"] = json!(1.1);
         assert!(validate(&raw, &ids).is_err());
     }
 }

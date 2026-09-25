@@ -2,7 +2,9 @@ use super::*;
 
 impl Handlers<'_> {
     pub(super) fn reassess_feedback(&mut self, turn_id: String, note: String) -> Result<String> {
-        self.conversation_scope = Some(crate::conversations::execution::reassess_feedback(self.tx, &turn_id, &note)?);
+        self.conversation_scope = Some(crate::conversations::execution::reassess_feedback(
+            self.tx, &turn_id, &note,
+        )?);
         Ok(turn_id)
     }
 
@@ -11,9 +13,13 @@ impl Handlers<'_> {
             "SELECT a.id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN messages m ON m.turn_id=o.turn_id WHERE m.id=?1 AND o.kind='persona_speech' AND o.state='succeeded' AND a.state='succeeded' ORDER BY a.rowid DESC LIMIT 1",
             [&message_id], |r| r.get(0),
         ).optional()?;
-        let resident = cached_attempt
-            .as_ref()
-            .is_some_and(|attempt| self.speech_cache.get(attempt).is_some());
+        let resident = match &cached_attempt {
+            Some(attempt) => {
+                crate::ai::results::for_consumer(self.tx, attempt)?.is_some()
+                    || self.speech_delivery.contains(attempt)
+            }
+            None => false,
+        };
         let operation =
             crate::conversations::execution::request_speech(self.tx, &message_id, resident)?;
         self.conversation_scope = Some(self.tx.query_row(

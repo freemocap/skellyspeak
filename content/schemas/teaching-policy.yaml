@@ -72,10 +72,6 @@ definitions:
         items:
           type: string
         type: array
-      max_corrections_per_turn:
-        format: uint
-        minimum: 0.0
-        type: integer
       never:
         items:
           type: string
@@ -92,7 +88,6 @@ definitions:
     - correct_only
     - intensity
     - ladder
-    - max_corrections_per_turn
     - never
     - skip_sources
     - sources

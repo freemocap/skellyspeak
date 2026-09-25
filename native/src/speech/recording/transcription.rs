@@ -1,4 +1,4 @@
-//! Metadata-only receipts for volatile audio. No replayable audio or transcript store.
+//! Product recording receipts and publication. Reusable recognition belongs to shared inference results.
 use crate::ai::connections::access::ResolvedTarget;
 use crate::model::*;
 use crate::speech::recording::owner::RecordingOwner;
@@ -18,6 +18,15 @@ pub fn permitted(db: &Connection, owner: &RecordingOwner, target: &ResolvedTarge
     })?;
     if !valid
         || current.route != target.route
+        || current.model
+            != target
+                .audio_resolution
+                .as_ref()
+                .map_or(target.model.as_str(), |r| r.requested_model.as_str())
+        || target
+            .audio_resolution
+            .as_ref()
+            .is_some_and(|r| r.model != target.model)
         || current.url != target.url
         || current.credential != target.credential
     {
@@ -37,7 +46,7 @@ pub fn begin(
 ) -> Result<()> {
     permitted(db, owner, target)?;
     crate::ai::policy::holds::check(db, target)?;
-    if crate::conversations::execution::config(db)?.paused {
+    if crate::ai::connections::configuration::config(db)?.paused {
         return Err(AppError::new(
             ErrorCode::AdmissionHeld,
             "AI execution is paused. This recording was not submitted.",
@@ -91,6 +100,7 @@ pub fn finish(
 }
 
 impl crate::storage::store::Store {
+    #[cfg(test)]
     pub fn begin_transcription(
         &mut self,
         id: &str,
@@ -99,6 +109,7 @@ impl crate::storage::store::Store {
     ) -> Result<()> {
         self.begin_transcription_in_visit(id, owner, target, None)
     }
+    #[cfg(test)]
     pub(crate) fn begin_transcription_in_visit(
         &mut self,
         id: &str,
@@ -106,8 +117,30 @@ impl crate::storage::store::Store {
         target: &ResolvedTarget,
         visit: Option<&str>,
     ) -> Result<()> {
+        self.transcription_in_visit(id, owner, target, visit, false)
+    }
+    pub(crate) fn reserve_transcription_in_visit(
+        &mut self,
+        id: &str,
+        owner: &RecordingOwner,
+        target: &ResolvedTarget,
+        visit: Option<&str>,
+    ) -> Result<()> {
+        self.transcription_in_visit(id, owner, target, visit, true)
+    }
+    fn transcription_in_visit(
+        &mut self,
+        id: &str,
+        owner: &RecordingOwner,
+        target: &ResolvedTarget,
+        visit: Option<&str>,
+        shared: bool,
+    ) -> Result<()> {
         let tx = self.connection.transaction()?;
         begin(&tx, id, owner, target)?;
+        if shared {
+            tx.execute("UPDATE transcription_attempts SET diagnostics=json_object('sharedExecution',json('true')) WHERE id=?1", [id])?;
+        }
         if let Some(visit) = visit {
             let valid = matches!(owner, RecordingOwner::DrillItem(_))
                 && tx.query_row(
@@ -139,22 +172,6 @@ impl crate::storage::store::Store {
     ) -> Result<String> {
         self.finish_transcription_with_diagnostics(id, owner, target, result, None)
     }
-    pub(crate) fn record_transcription_retry(&mut self, id: &str, error: &AppError) -> Result<()> {
-        if self.connection.execute(
-            "UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND state='running'",
-            params![
-                id,
-                crate::diagnostics::response::retained(None, Some(error))
-            ],
-        )? != 1
-        {
-            return Err(AppError::new(
-                ErrorCode::Conflict,
-                "Transcription ended before retry.",
-            ));
-        }
-        Ok(())
-    }
     pub fn finish_transcription_with_diagnostics(
         &mut self,
         id: &str,
@@ -175,14 +192,31 @@ impl crate::storage::store::Store {
         diagnostics: Option<&serde_json::Value>,
         wav: Option<&[u8]>,
     ) -> Result<String> {
+        self.publish_recording_result(id, owner, target, result, diagnostics, wav, None)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn publish_recording_result(
+        &mut self,
+        id: &str,
+        owner: &RecordingOwner,
+        target: &ResolvedTarget,
+        result: Result<String>,
+        diagnostics: Option<&serde_json::Value>,
+        wav: Option<&[u8]>,
+        evidence: Option<&crate::ai::audio::TranscriptionResult>,
+    ) -> Result<String> {
         let tx = self.connection.transaction()?;
         let diagnostic = crate::diagnostics::response::retained(diagnostics, result.as_ref().err());
         let (conversation, drill_item) = owner.columns();
         tx.execute(
-            "UPDATE transcription_attempts SET diagnostics=?2 WHERE id=?1 AND conversation_id IS ?3 AND drill_item_id IS ?4",
+            "UPDATE transcription_attempts SET diagnostics=CASE WHEN json_extract(diagnostics,'$.sharedExecution')=1 THEN json_set(COALESCE(?2,'{}'),'$.sharedExecution',json('true')) ELSE ?2 END WHERE id=?1 AND conversation_id IS ?3 AND drill_item_id IS ?4",
             params![id, diagnostic, conversation, drill_item],
         )?;
         let result = finish(&tx, id, owner, target, result)?;
+        if let (Ok(_), Some(wav), Some(evidence)) = (&result, wav, evidence) {
+            super::results::save(&tx, id, wav, evidence)?;
+        }
         if let (RecordingOwner::DrillItem(item), Ok(text), Some(wav)) = (owner, &result, wav) {
             let reliability = diagnostics
                 .and_then(|value| value.get("drill_reliability"))
@@ -216,7 +250,11 @@ pub fn views(db: &Connection, owner: &RecordingOwner) -> Result<Vec<Transcriptio
         .collect::<rusqlite::Result<Vec<_>>>()?;
     rows.into_iter()
         .map(
-            |(id, route, model, state, started_at, finished_at, error, diagnostics)| {
+            |(id, route, model, state, started_at, finished_at, error, mut diagnostics)| {
+                if let Some(execution) = crate::ai::results::receipt_for_consumer(db, &id)? {
+                    diagnostics.get_or_insert_with(|| serde_json::json!({}))["sourceExecution"] =
+                        execution;
+                }
                 Ok(TranscriptionAttempt {
                     diagnostics,
                     id,

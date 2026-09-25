@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { I18nProvider } from '../localization/i18n'
 import { Spectrogram, SpectrogramFrequencyScale, melAxisTicks, sharedScale } from './Spectrogram'
 import type { InspectionSpectrogram } from '../../generated/contracts'
+import * as appearance from '../../platform/appearance/css-token'
 
 const analysis = (overrides: Partial<InspectionSpectrogram> = {}): InspectionSpectrogram => ({
   frameSeconds: 0.016, frameStartSeconds: [0, 0.016], windowSeconds: 0.032, fftSize: 512,
@@ -20,6 +21,26 @@ const analysis = (overrides: Partial<InspectionSpectrogram> = {}): InspectionSpe
 })
 const app = (children: React.ReactNode) => render(<I18nProvider locale="english">{children}</I18nProvider>)
 
+it('paints sampled windows at mapped word times without filling unsampled gaps', () => {
+  const token = vi.spyOn(appearance, 'cssToken').mockReturnValue('rgb(80, 90, 100)')
+  const putImageData = vi.fn()
+  const context = {
+    fillStyle: '', fillRect: vi.fn(),
+    getImageData: () => ({ data: new Uint8ClampedArray([80, 90, 100, 255]) }),
+    createImageData: (width: number, height: number) => ({ data: new Uint8ClampedArray(width * height * 4) }),
+    putImageData,
+  }
+  const mock = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D)
+  try {
+    app(<Spectrogram data={analysis({ frameStartSeconds: [0.5], windowSeconds: 0.5, bins: [[-40]] })}
+      duration={2} zoom={1} mapTime={seconds => seconds * 2} />)
+    const pixels = putImageData.mock.calls[0][0].data as Uint8ClampedArray
+    expect(pixels[499 * 4 + 3]).toBe(0)
+    expect(pixels[500 * 4 + 3]).toBe(255)
+    expect(pixels[999 * 4 + 3]).toBe(255)
+  } finally { mock.mockRestore(); token.mockRestore() }
+})
+
 it('shares one dB window across recordings so brightness means the same thing', () => {
   const scale = sharedScale([analysis(), analysis({ dbMin: -120, dbMax: 6 })])
   expect(scale).toEqual({ dbMin: -120, dbMax: 6 })
@@ -32,6 +53,8 @@ it('labels the axis with the band centres the analysis reported', () => {
   // Fewer ticks than bands still starts at the lowest and ends at the highest.
   expect(melAxisTicks(data, 2)).toEqual([100, 4000])
   expect(melAxisTicks(analysis({ bands: [] }))).toEqual([])
+  expect(melAxisTicks(analysis({ bands: [data.bands[0]] }))).toEqual([100])
+  expect(melAxisTicks(data, 8)).toEqual([100, 400, 1600, 4000])
   app(<SpectrogramFrequencyScale data={data} count={2} />)
   // Highest band first: the labels read top to bottom like the canvas rows.
   expect(screen.getAllByText(/Hz/).map(node => node.textContent)).toEqual(['4000 Hz', '100 Hz'])

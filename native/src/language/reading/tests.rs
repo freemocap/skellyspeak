@@ -27,21 +27,22 @@ fn requests_are_bounded_single_use_and_source_owned() {
     let request = registry.claim(&id).unwrap();
     assert_eq!(request.source().text, "Hola");
     assert!(registry.claim(&id).is_err());
-    request.submitted(&store).unwrap();
     registry.cancel(&store, &id).unwrap();
     assert_eq!(
-        request.validate(&store).unwrap_err().code,
-        ErrorCode::UnknownOutcome
+        request.validate_source(&store).unwrap_err().code,
+        ErrorCode::Conflict
     );
     let receipt = finish(
         &store,
         &request,
         serde_json::json!({"providerId":"receipt-123","inputTokens":8}),
-        Some(&request.stopped()),
+        Some(&request.stopped("cancelled")),
     )
     .unwrap();
-    assert_eq!(receipt["state"], "unknown");
+    assert_eq!(receipt["state"], "cancelled");
     assert_eq!(receipt["response"]["providerId"], "receipt-123");
+    assert_eq!(receipt["error"]["diagnostics"]["reason"], "cancelled");
+    assert!(receipt["error"]["diagnostics"]["dispatched"].is_null());
     assert!(!receipt.to_string().contains("Hola"));
 }
 #[test]
@@ -52,12 +53,21 @@ fn connection_change_and_pause_revoke_reading_without_touching_messages() {
         .connection
         .execute("UPDATE ai_config SET revision=revision+1", [])
         .unwrap();
-    assert!(request.validate(&store).is_err());
+    let changed = request.validate_source(&store).unwrap_err();
+    assert_eq!(
+        changed.diagnostics.as_ref().unwrap()["reason"],
+        "access_changed"
+    );
+    assert!(changed.diagnostics.as_ref().unwrap()["dispatched"].is_null());
     store
         .connection
         .execute("UPDATE ai_config SET paused=1", [])
         .unwrap();
-    assert!(Request::capture(&store, input()).is_err());
+    let paused = Request::capture(&store, input())
+        .unwrap()
+        .validate_execution(&store)
+        .unwrap_err();
+    assert_eq!(paused.diagnostics.as_ref().unwrap()["reason"], "paused");
 }
 #[test]
 fn recovery_preserves_unknown_billing_and_metadata() {
@@ -65,7 +75,11 @@ fn recovery_preserves_unknown_billing_and_metadata() {
     let registry = Registry::default();
     let pending = registry.begin(&store, input()).unwrap();
     let active = registry.begin(&store, input()).unwrap();
-    registry.claim(&active).unwrap().submitted(&store).unwrap();
+    registry.claim(&active).unwrap();
+    crate::ai::results::begin(&store.connection, "shared", "reading_gloss").unwrap();
+    crate::ai::results::dispatched(&store.connection, "shared").unwrap();
+    crate::ai::results::associate(&store.connection, &active, "shared").unwrap();
+    crate::ai::results::initialize(&store.connection).unwrap();
     recover(&store.connection).unwrap();
     let receipts = activity(&store).unwrap();
     assert!(
@@ -73,11 +87,9 @@ fn recovery_preserves_unknown_billing_and_metadata() {
             .iter()
             .any(|r| r["id"] == pending && r["state"] == "cancelled")
     );
-    assert!(
-        receipts
-            .iter()
-            .any(|r| r["id"] == active && r["state"] == "unknown")
-    );
+    assert!(receipts.iter().any(|r| r["id"] == active
+        && r["state"] == "cancelled"
+        && r["sourceExecution"]["state"] == "unknown"));
 }
 
 #[test]
@@ -94,7 +106,13 @@ fn reading_speech_uses_language_capability_and_keeps_canonical_tag() {
         "elevenlabs"
     );
     assert_eq!(request.speech_input().unwrap().language_tag, "ga");
-    request.validate(&store).unwrap();
+    request.validate_execution(&store).unwrap();
     source.language = "scottish-gaelic".into();
-    assert!(Request::capture(&store, source).is_err());
+    let request = Request::capture(&store, source).unwrap();
+    assert_eq!(request.speech_input().unwrap().language_tag, "gd");
+    assert_eq!(
+        request.target.audio_resolution.as_ref().unwrap().reason,
+        "unlisted_language_attempt"
+    );
+    request.validate_execution(&store).unwrap();
 }
