@@ -1,6 +1,6 @@
 import { useI18n } from '../../../components/localization/i18n'
 import { ReadingLanguageScope } from '../../../components/reading/ReadingLanguageScope'
-import { TargetText } from '../../../components/reading/TargetText'
+import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { domainColors, skillDomain } from '../../../domain/learning/catalog/skill-domains'
 import type { SkillSnapshot } from '../../../domain/learning/evidence/skills'
 import { xpReportCredits, type XpMessageScope } from './XpEvidenceReport'
@@ -24,11 +24,11 @@ export function XpLedger({ snapshot, chatId, onInspectMessage }: { snapshot: Ski
           <span className="xp-domain-dot" style={{ background: colors.bright }} />
           <span className="xp-ledger-skill" style={{ color: colors.ink }}>{tr(skill.label)}</span>
           <strong>+{tr.number(credit.xp)}</strong>
-          <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}>
-            <span className="xp-ledger-quote" dir="auto"><TargetText text={judgment.quotes[0] ?? record.source} /></span>
-          </ReadingLanguageScope>
           <time dateTime={new Date(record.at_secs * 1000).toISOString()}>{tr.date(record.at_secs * 1000, { timeStyle: 'short' })}</time>
         </button>
+          <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}>
+            <span className="xp-ledger-quote" dir="auto"><TargetPhrase text={judgment.quotes[0] ?? record.source} /></span>
+          </ReadingLanguageScope>
       </li>
     })}</ul>}
   </section>

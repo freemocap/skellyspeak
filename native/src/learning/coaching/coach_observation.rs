@@ -36,7 +36,7 @@ pub(crate) fn schema(captured: &Value, retry: bool) -> Result<Value> {
             json!({"type":"string","const":""})
         }
     };
-    let error = json!({"type":["object","null"],"additionalProperties":false,"required":["op","category","source","blocks_meaning","target_hypothesis","hint","elicitation","metalinguistic"],"properties":{"op":{"type":"string","enum":["missing","replace","unnecessary"]},"category":{"type":"string","minLength":1,"maxLength":80,"pattern":"^[A-Za-z0-9=_|\\-]+$"},"source":{"type":"string","enum":["transfer","developmental","slip","unknown"]},"blocks_meaning":{"type":"boolean"},"target_hypothesis":text_schema(TARGET_LIMIT),"hint":cue_schema(help_move == CoachMove::Hint),"elicitation":cue_schema(matches!(help_move, CoachMove::Elicit | CoachMove::PartnerClarify)),"metalinguistic":cue_schema(help_move == CoachMove::Metalinguistic)}});
+    let error = json!({"type":["object","null"],"additionalProperties":false,"required":["op","category","source","blocks_meaning","target_hypothesis","hint","elicitation","metalinguistic"],"properties":{"op":{"type":"string","enum":["missing","replace","unnecessary"]},"category":{"type":"string","minLength":1,"maxLength":80},"source":{"type":"string","enum":["transfer","developmental","slip","unknown"]},"blocks_meaning":{"type":"boolean"},"target_hypothesis":text_schema(TARGET_LIMIT),"hint":cue_schema(help_move == CoachMove::Hint),"elicitation":cue_schema(matches!(help_move, CoachMove::Elicit | CoachMove::PartnerClarify)),"metalinguistic":cue_schema(help_move == CoachMove::Metalinguistic)}});
     let item = json!({"type":"object","additionalProperties":false,"required":["construct","quote","outcome","error","rationale"],"properties":{"construct":{"type":"string","enum":ids},"quote":text_schema(QUOTE_LIMIT),"outcome":{"type":"string","enum":Outcome::ALL},"error":error,"rationale":{"type":"string","maxLength":RATIONALE_LIMIT}}});
     let mut result = json!({"type":"object","additionalProperties":false,"required":["meaning_recovered","items"],"properties":{"meaning_recovered":{"type":"string","enum":["full","partial","none"]},"items":{"type":"array","maxItems":6,"items":item}}});
     if retry {
@@ -68,7 +68,7 @@ pub(crate) fn validate(
     })?;
     let captured: Value = serde_json::from_str(&raw)?;
     let retry = kind == "coach_retry_check";
-    let (observation, repaired) = if retry {
+    let (mut observation, repaired) = if retry {
         let result: RetryCheck = crate::diagnostics::structured::decode(
             &output.text,
             &schema(&captured, true)?,
@@ -100,10 +100,9 @@ pub(crate) fn validate(
     let candidates = captured["candidateConstructs"]
         .as_array()
         .ok_or_else(|| rejected("missing candidates"))?;
-    let mut seen = std::collections::HashSet::new();
     for item in &observation.items {
-        if !candidates.iter().any(|c| c["id"] == item.construct) || !seen.insert(&item.construct) {
-            return Err(rejected("unknown or duplicate construct"));
+        if !candidates.iter().any(|c| c["id"] == item.construct) {
+            return Err(rejected("unknown construct"));
         }
         prose("quote", &item.quote)?;
         if !item.rationale.is_empty() {
@@ -123,14 +122,9 @@ pub(crate) fn validate(
                     return Err(rejected("correction must change the quoted wording"));
                 }
             }
-            if error.category.is_empty()
-                || error.category.len() > 80
-                || !error
-                    .category
-                    .chars()
-                    .all(|c| c.is_ascii_alphanumeric() || "=_|-".contains(c))
-            {
-                return Err(rejected("invalid error category"));
+            prose("error category", &error.category)?;
+            if error.category.chars().count() > 80 {
+                return Err(rejected("error category exceeds 80 characters"));
             }
             for (field, cue) in [
                 ("hint", &error.hint),
@@ -151,6 +145,16 @@ pub(crate) fn validate(
             }
         }
     }
+    // A skill can occur in several passages. Only identical observations are
+    // redundant; validate all evidence before collapsing those repeats.
+    let mut seen = std::collections::HashSet::new();
+    let mut items = Vec::new();
+    for item in observation.items {
+        if seen.insert(serde_json::to_string(&item)?) {
+            items.push(item);
+        }
+    }
+    observation.items = items;
     if let Some(repaired) = repaired {
         let prior = captured["coachRetry"]["previousTurnId"]
             .as_str()
@@ -166,9 +170,9 @@ pub(crate) fn validate(
         let construct = captured["coachRetry"]["item"]["construct"]
             .as_str()
             .ok_or_else(|| rejected("missing retry construct"))?;
-        let item = observation.items.iter().find(|i| i.construct == construct);
-        let demonstrated =
-            item.is_some_and(|i| i.outcome == Outcome::Demonstrated && i.error.is_none());
+        let mut target_items = observation.items.iter().filter(|i| i.construct == construct).peekable();
+        let demonstrated = target_items.peek().is_some()
+            && target_items.all(|i| i.outcome == Outcome::Demonstrated && i.error.is_none());
         if repaired != demonstrated {
             return Err(rejected("repair flag contradicts target evidence"));
         }
@@ -196,7 +200,7 @@ pub(crate) fn validate(
 }
 pub(crate) fn publish(db: &Connection, turn: &str, value: &Value, attempt: &str) -> Result<()> {
     db.execute("UPDATE turns SET context=json_set(context,'$.coachObservation',json(?2),'$.coachDecision',json(?3),'$.coachObservationAttempt',?4,'$.itemsReturned',?5,'$.nativeRepairObservation',json(?6)) WHERE id=?1",params![turn,value["observation"].to_string(),value["decision"].to_string(),attempt,value["observation"]["items"].as_array().ok_or_else(||rejected("missing validated items"))?.len() as i32,value["nativeRepair"].to_string()])?;
-    crate::learning::rewards::publish(db, turn, attempt)?;
+    // Correction feedback is independent of skill credit.
     Ok(())
 }
 

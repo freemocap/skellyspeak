@@ -26,6 +26,7 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
   const [added, setAdded] = useState<string[]>([])
   const [failure, setFailure] = useState<unknown>(null)
   const request = useRef<AbortController | null>(null)
+  const failedBatch = useRef<{ inputs: DrillGenerationInput[]; alsoChats: boolean; index: number } | null>(null)
   const generation = useRef(0)
   const mounted = useRef(false)
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; generation.current++ } }, [])
@@ -33,6 +34,7 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
 
   const clear = useCallback(() => {
     generation.current++
+    failedBatch.current = null
     request.current?.abort(); request.current = null
     setPages([]); setCursor(null); setAdded([]); setFailure(null); setRunning(false)
   }, [])
@@ -41,15 +43,19 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
   /// asked for, a page of lines taken from past chats. Answers land as they
   /// arrive; a late answer for a superseded ask is dropped rather than
   /// replacing whatever is on screen now.
-  const generate = useCallback(async (inputs: DrillGenerationInput[], alsoChats: boolean) => {
+  const generate = useCallback(async (inputs: DrillGenerationInput[], alsoChats: boolean, resumeFrom?: number) => {
     generation.current++
     const current = generation.current
     request.current?.abort()
     const controller = new AbortController()
     request.current = controller
-    setPages([]); setCursor(null); setAdded([]); setFailure(null); setRunning(true)
+    if (resumeFrom === undefined) { setPages([]); setCursor(null); setAdded([]) }
+    failedBatch.current = null
+    setFailure(null); setRunning(true)
+    let index = resumeFrom ?? 0
     try {
-      for (const input of inputs) {
+      for (; index < inputs.length; index++) {
+        const input = inputs[index]
         const preview = await previewDrillItems(input, controller.signal)
         if (!mounted.current || current !== generation.current) return
         setPages(existing => [...existing, preview])
@@ -63,7 +69,7 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
       }
     } catch (error) {
       if (mounted.current && current === generation.current
-        && !(error instanceof DOMException && error.name === 'AbortError')) setFailure(error)
+        && !(error instanceof DOMException && error.name === 'AbortError')) { failedBatch.current = {inputs, alsoChats, index}; setFailure(error) }
     } finally {
       if (mounted.current && current === generation.current) { setRunning(false); request.current = null }
     }
@@ -93,6 +99,7 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
   /// Repeating this returns the same items rather than generating again.
   const accept = useCallback(async (chosen: OfferedCandidate[]) => {
     if (!chosen.length) return
+    failedBatch.current = null
     setAdding(true); setFailure(null)
     try {
       const byRequest = new Map<string, string[]>()
@@ -124,6 +131,10 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
     hasMore: cursor !== null,
     loadMore: () => { if (cursor !== null && !running) void loadMoreLines(cursor) },
     asked: pages.length > 0,
+    retry: failedBatch.current ? () => {
+      const batch = failedBatch.current
+      if (batch) return generate(batch.inputs, batch.alsoChats, batch.index)
+    } : undefined,
     running, adding, added, failure,
     generate, cancel, accept, discard, clear,
   }

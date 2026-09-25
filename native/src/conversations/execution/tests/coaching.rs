@@ -49,7 +49,7 @@ fn support_turn(store: &mut Store, conversation: &str, text: &str) -> String {
     }
     let turn = store.execute(command).unwrap().entity_id;
     isolate_user_reading(store);
-    store.connection.execute("DELETE FROM operations WHERE kind IN ('skill_assessment','skill_evidence','persona_word_gloss','reply_translation','reply_brief','conversation_feedback','coach_reaction') AND state='waiting_dependencies'",[]).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE kind IN ('skill_attribution','skill_assessment','skill_evidence','persona_word_gloss','reply_translation','reply_brief','coach_feedback','conversation_feedback','coach_reaction') AND state='waiting_dependencies'",[]).unwrap();
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
     assert!(

@@ -468,7 +468,6 @@ it('persists Show answer through the real handler and renders only the returned 
   value.messages[0].feedback = { meaningRecovered: 'full', items: [{ construct: 'past', quote: 'fue', outcome: 'partial', rationale: 'Past reference' }], candidatesSent: 18, itemsReturned: 1 }
   value.messages[0].coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
   await act(async () => watches[0].resolve(value))
-  fireEvent.click(screen.getByRole('button', { name: 'Coach feedback for message 1' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'open_card', expectedRevision: 31 })
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()

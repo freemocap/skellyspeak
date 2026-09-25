@@ -11,14 +11,14 @@ beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function (): void { this.open = true }
   HTMLDialogElement.prototype.close = function (): void { this.open = false }
 })
-const confused: Reaction = { kind: 'clarification_requested', answer: {choice:'clarification_requested',probabilities:{clarification_requested:1},confidence:1} }
+const confused: Reaction = { kind: 'confused', answer: {choice:'confused',probabilities:{confused:1},confidence:1} }
 const props = { message: 'Estoy bien porque estás cansada.', reply: 'Estoy bien. ¿Tú?', error: undefined, onEdit: undefined }
 
 it('explains this exchange and edits only its learner message without opening other bubble controls', () => {
   const edit = vi.fn()
   const bubble = vi.fn()
   render(<div onClick={bubble} onDoubleClick={bubble}><PersonaReaction {...props} reaction={confused} onEdit={edit} /></div>)
-  fireEvent.click(screen.getByRole('button', { name: 'Partner requested clarification' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Partner misunderstood' }))
   expect(bubble).not.toHaveBeenCalled()
   const dialog = screen.getByRole('dialog')
   expect(dialog).toHaveTextContent(props.message)
@@ -39,7 +39,7 @@ it('does not invent a positive reaction when absent or failed', () => {
   expect(screen.getByRole('button', { name: 'Edit & try again' })).toBeDisabled()
 })
 
-it.each(['understood', 'partial', 'misunderstood', 'unclear', 'no_reply'] as const)('explains a %s reaction and dismisses on outside click', kind => {
+it.each(['understood', 'confused'] as const)('explains a %s reaction and dismisses on outside click', kind => {
   render(<PersonaReaction {...props} reaction={{ kind, answer: {choice:kind,probabilities:{[kind]:1},confidence:1} }} />)
   fireEvent.click(screen.getByRole('button'))
   const dialog = screen.getByRole('dialog')
@@ -55,4 +55,13 @@ it('plays the understanding sound once on arrival, not on refreshed snapshot obj
  expect(playRewardSound).toHaveBeenCalledOnce()
  view.rerender(<PersonaReaction {...props} reaction={{...reaction}} />)
  expect(playRewardSound).toHaveBeenCalledOnce()
+})
+
+it('shows confusion only for a saved failure of understanding', () => {
+  const view = render(<PersonaReaction {...props} reaction={undefined} />)
+  view.rerender(<PersonaReaction {...props} reaction={confused} />)
+  const button = screen.getByRole('button', { name: 'Partner misunderstood' })
+  expect(button).toHaveTextContent('😕')
+  expect(button).not.toHaveClass('is-confused')
+  expect(playRewardSound).not.toHaveBeenCalled()
 })

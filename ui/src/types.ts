@@ -84,6 +84,7 @@ export interface StoredTurn {
   /// Saved feedback determines completion; operation errors remain independent
   /// in coachError and replyState, including when no reply exists.
   analysisState: AnalysisState
+  feedbackContext?: string
   conversationFeedback?: import('./generated/contracts').ConversationFeedback
   coach?: import('./generated/contracts').CoachObservationView
   coachDecision?: import('./generated/contracts').CoachDecision

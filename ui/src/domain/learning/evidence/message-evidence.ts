@@ -7,7 +7,7 @@ export function messageEvidence(snapshot: SkillSnapshot | null, chatId: string |
   return projectEvidence(snapshot, chatId, messageId, source, false)
 }
 
-/** Reward cards may describe a whole message without inventing a phrase highlight. */
+/** Reward evidence may cover a whole message without inventing a phrase highlight. */
 export function messageRewardEvidence(snapshot: SkillSnapshot | null, chatId: string | null, messageId: number, source: string): MessageEvidence[] {
   return projectEvidence(snapshot, chatId, messageId, source, true)
 }
@@ -27,6 +27,16 @@ function projectEvidence(snapshot: SkillSnapshot | null, chatId: string | null, 
     if (judgment.evidence_kind === 'whole_message') {
       if (record.assessment_adapter !== 'jev_choice' || !source.trim() || judgment.quotes.length) throw new Error('Invalid whole-message reward evidence')
       return [{ evidenceKind: 'whole_message' as const, ambiguous: false, skillId: node.id, domainId: index.catalog.domain(node.id).id, label: node.label, xp, quote: source, rationale: '', id: `${record.attempt_id}:${node.id}`, start: 0, end: source.length, color: domainColors(index.catalog.domain(node.id).id).ink, explanation: `${node.label} · ${xp} XP` }]
+    }
+    if (judgment.spans) {
+      const seen = new Set<string>()
+      return judgment.spans.flatMap(({quote, start, end}) => {
+        if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start || end > source.length || source.slice(start, end) !== quote) throw new Error('Evidence span does not match the message')
+        const key = `${start}:${end}`
+        if (seen.has(key)) return []
+        seen.add(key)
+        return [{ evidenceKind: 'quoted' as const, ambiguous: false, skillId: node.id, domainId: index.catalog.domain(node.id).id, label: node.label, xp, quote, rationale: judgment.rationale, id: `${record.attempt_id}:${node.id}`, start, end, color: domainColors(index.catalog.domain(node.id).id).ink, explanation: `${node.label} · ${xp} XP` }]
+      })
     }
     return [...new Set(judgment.quotes)].flatMap(quote => {
       const starts: number[] = []

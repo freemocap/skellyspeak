@@ -141,6 +141,7 @@ impl Store {
             Action::RequestExplanations { message_id } => {
                 handlers.request_explanations(message_id)?
             }
+            Action::ReassessFeedback { turn_id, note } => handlers.reassess_feedback(turn_id, note)?,
             Action::RetryReplyHelp {
                 message_id,
                 help_kind,

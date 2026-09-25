@@ -17,6 +17,8 @@ export interface InputEvidence {
 export const unreportedInput = (): InputEvidence => ({ modality: 'text', suggestion: false, scaffold: false, revision: false })
 export type SkillOutcome = import('../../../generated/contracts').Outcome
 export interface SkillJudgment {
+  spans?: { quote: string; start: number; end: number }[]
+  attribution_reason?: string | null
   evidence_kind?: 'quoted' | 'whole_message'
   scores?: { evidence: number; full: number } | null
   answer?: { choice: string; confidence: number; probabilities: Record<string, number> } | null
@@ -27,8 +29,11 @@ export interface SkillJudgment {
   rationale: string
 }
 export interface SkillRecord {
+  attribution_state?: string | null
+  attribution_error?: string | null
+  attribution_attempt?: string | null
   assessment_adapter?: 'jev_choice' | 'chat_model'
-  decision_policy?: { version: string; evidenceThreshold?: number; fullThreshold?: number } | null
+  decision_policy?: { version: string; minimumPositiveProbability?: number; evidenceThreshold?: number; fullThreshold?: number } | null
   variety?: string | null
   construct_registry_hash: string | null
   mapping_error: string | null
@@ -63,6 +68,7 @@ export function requireCatalogVersion(snapshot: SkillSnapshot, record: SkillReco
 }
 
 export interface SkillSnapshot {
+  guides?: { id: string; name: string; skills: Record<string, string | null> }[]
   construct_registry_hash: string
   catalog: TreeNode[]
   catalog_version: number

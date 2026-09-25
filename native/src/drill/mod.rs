@@ -6,6 +6,7 @@
 pub mod comparison;
 pub mod conversation_source;
 pub mod generation;
+pub mod skill_focus;
 pub mod history;
 pub mod previews;
 pub(crate) mod reference;

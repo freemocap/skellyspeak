@@ -175,6 +175,12 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 ),
             ];
         }
+        "skill_attribution" => {
+            node.source = "native/src/learning/coaching/skill_attribution.rs; content/prompts/skills/presence.yaml".into();
+            node.description = "After thresholded skill presence, one fast request locates supporting spans for the selected skills. Exact quotes and occurrences are validated against the original text. Unlocalized evidence uses the full message; attribution never changes XP. No eligible skills means no network request.".into();
+            node.templates = vec![section("system", registry.presence_instructions().attribution.instructions.clone()), section("user", "{{learnerMessage}}, {{selectedSkillDefinitions}}")];
+            node.output_schema = Some(coaching::skill_attribution::schema(&std::collections::BTreeSet::from(["{{skillId}}".into()])));
+        }
         "skill_assessment" => {
             node.source = "native/src/learning/coaching/assessment_adapter.rs; native/src/learning/coaching/skill_assessment.rs".into();
             node.description = "Jev returns presence for every selected skill: direct, contextual, absent or unclear. Validated presence and deterministic experience/effort credit publish in one transaction. No quote-localization call or grammar grade gates XP.".into();
@@ -206,16 +212,16 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
             )?);
             node.output_schema = Some(conversation_support::schema(kind));
         }
-        "coach_retry_check" => {
+        "coach_feedback" | "coach_retry_check" => {
             node.source =
                 "native/src/learning/coaching/mod.rs; native/src/conversations/execution/turns.rs"
                     .into();
-            node.description = "Declared operation; currently excluded from automatic turn admission. A retry check uses the revised learner source and prior coaching evidence.".into();
+            node.description = "Automatic source-bound correction and explanation, independent of ratings and XP. Clarification reruns this feedback with the learner note. A revision check also uses prior coaching evidence.".into();
             node.templates = vec![
                 section("system", coaching::system_prompt(kind, &captured)?),
                 section(
                     "user · inputs",
-                    "{{learnerSource}}, {{priorConversation}}, {{privateCoachHistory}}, {{targetLanguage}}, {{explanationLanguage}}, {{difficulty}}, {{candidateConstructs}}, {{helpMode}}, {{inputProvenance}}, {{proactivity}}, {{practiceFocus}}, {{coachRetry}}",
+                    "{{learnerSource}}, {{priorConversation}}, {{privateCoachHistory}}, {{targetLanguage}}, {{explanationLanguage}}, {{difficulty}}, {{candidateConstructs}}, {{helpMode}}, {{inputProvenance}}, {{proactivity}}, {{practiceFocus}}, {{coachRetry}}, {{learnerClarification}}",
                 ),
             ];
         }

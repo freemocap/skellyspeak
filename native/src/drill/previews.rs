@@ -15,6 +15,9 @@ use ts_rs::TS;
 pub enum DrillSource {
     Own,
     Generated {
+        #[ts(optional)]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        skill_focus: Option<super::skill_focus::DrillSkillFocus>,
         request_id: String,
         candidate_id: String,
         topic: Option<String>,
@@ -85,6 +88,7 @@ pub(crate) fn duplicate(db: &Connection, scope: &LanguageContext, text: &str) ->
 }
 #[derive(Deserialize, Serialize)]
 pub(crate) struct PreviewInput {
+    pub skill_focus: Option<super::skill_focus::DrillSkillFocus>,
     pub scope: crate::language::reading::ReadingScope,
     pub count: u32,
     pub requested: Option<DrillGenerationInput>,

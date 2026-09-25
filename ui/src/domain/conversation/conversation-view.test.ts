@@ -145,7 +145,7 @@ it('projects independent support on its own exchange without manufacturing skill
   ]))
   expect(turns[0].conversationFeedback).toEqual(feedback)
   expect(turns[0].coach).toBeUndefined()
-  expect(turns[0].analysisState).toBe('done')
+  expect(turns[0].analysisState).toBeNull()
   expect(turns[0].assistant?.assistance).toEqual(assistance)
   expect(turns[0].assistant?.mechanics[0].quote).toBe('Hola')
   expect(turns[1].conversationFeedback).toBeUndefined()

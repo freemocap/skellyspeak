@@ -1,3 +1,4 @@
+import guides from './practice-guides.generated.json'
 /** Production components; synthetic observations, no provider calls or workspace writes. */
 import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -10,6 +11,7 @@ import { ProgressSummary } from '../src/features/conversation/progress/ProgressS
 import '../src/styles/index.css'
 
 const snapshot = structuredClone(skillDemo)
+snapshot.guides = guides
 snapshot.target = 'spanish'
 snapshot.profile.choices.target = 'spanish'
 snapshot.conversation_count = 1
@@ -49,13 +51,13 @@ mockIPC(command => {
 function Preview() {
   const [report, setReport] = useState(new URLSearchParams(location.search).has('report'))
   const [locale, setLocale] = useState('english')
-  return <I18nProvider locale={locale}><main style={{ maxWidth: 1100, margin: '24px auto', padding: 20 }}>
+  return <I18nProvider locale={locale}><main style={{ height: '100dvh', overflowY: 'auto', padding: 'var(--space-5)'  }}>
     <h1>Experience and effort</h1>
     <p>Component review · synthetic observations · no AI calls or saved application changes.</p>
     <p>First message: 2 experience. Changed retry: 1 experience + 2 effort. Unchanged retry: 0. Total: 5 XP.</p>
     <label>Interface language <select value={locale} onChange={event => setLocale(event.target.value)}>{['english','spanish','arabic','mandarin','french','german','portuguese'].map(id => <option key={id}>{id}</option>)}</select></label>
     <button onClick={() => setReport(true)}>Open progress report</button>
-    <SkillListView snapshot={snapshot} demonstration refresh={() => {}} save={async () => {}} saving={false} onPractice={() => {}} />
+    <SkillListView initialVariety="spanish-spain" snapshot={snapshot} demonstration refresh={() => {}} save={async () => {}} saving={false} onPractice={() => {}} />
     {report && <ProgressSummary snapshot={snapshot} onClose={() => setReport(false)} />}
   </main></I18nProvider>
 }

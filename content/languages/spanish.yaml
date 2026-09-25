@@ -22,20 +22,20 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: spanish-mexico
-  name: Mexico
-  description: Mexico
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
-- id: spanish-spain
-  name: Spain
-  description: Spain
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: spanish-mexico
+    name: Mexico
+    description: Mexico
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
+  - id: spanish-spain
+    name: Spain
+    description: Spain
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 
 guidance: []
 learning:
@@ -45,267 +45,513 @@ learning:
         assessment: Interpret the relationship in context; a possessive does not necessarily establish legal
           ownership. A short answer can supply a participant in a relationship established by the
           partner.
-        explanation: Spanish uses possessives and relational de phrases for ownership, kinship, access and
-          other relationships.
-        examples: []
+        explanation: >-
+          ### Say who something belongs to
+
+
+          Put a possessive before the noun, or use `de` followed by the owner. These patterns also
+          describe relationships: a sister, a colleague or a place of work is not a possession.
+
+
+          ### What changes?
+
+
+          `Mi` becomes `mis` when the things or people are plural. It agrees with what follows, not
+          with the number of owners. `Su` can mean his, her, your or their; name the person with
+          `de` when the context is unclear.
+        examples:
+          - text: Es el libro de mi hermana.
+            translation: It is my sister's book.
+            context: Name the owner explicitly.
+          - text: Mis hermanas viven aquí.
+            translation: My sisters live here.
+            context: Plural sisters; one speaker.
       varieties:
         spanish-mexico:
           assessment: Spanish possessives and relational de phrases can express ownership, kinship or use.
             Interpret the relationship in context; do not equate every possessive with ownership.
             Short answers may rely on a relationship established by the question.
-          explanation: A possessive or a phrase with de can identify the related person. Context determines
-            what the relationship is. These examples apply to Mexican Spanish without claiming the
-            constructions are exclusive to it.
-          examples:
-            - text: Es el libro de mi hermana.
-              translation: It is my sister's book.
-            - text: Ana.
-              context: ¿De quién es el libro?
-              translation: Ana.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Interpret the relationship in context; a possessive does not necessarily establish legal
             ownership. A short answer can supply a participant in a relationship established by the
             partner.
-          explanation: The shared constructions also apply to Spain. This section contains no region-specific
-            examples.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
-        specimens; not a completed or human-reviewed language guide.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     past_reference:
       core:
         assessment: Spanish past reference can be conveyed by verb forms, time expressions and conversation
           context. A past-looking form is not enough on its own. An ongoing situation can overlap a
           past reference event; relative time can differ from time before now.
-        explanation: Past reference can come from verb forms, time expressions and the surrounding
-          conversation. The relevant time can be before now or before another established time.
-        examples: []
+        explanation: >-
+          ### An event or its background
+
+
+          Spanish gives you more than one way to look at the past. The **preterite** presents an
+          event as a whole. The **imperfect** describes a past situation, a repeated activity or
+          what was underway.
+
+
+          ### Compare the viewpoint
+
+
+          Both sentences below concern the past. The first reports a completed visit; the second
+          sets a scene. The imperfect does not mean that the situation never ended—its ending simply
+          is not the point of the sentence.
+        examples:
+          - text: Ayer fui al mercado.
+            translation: Yesterday I went to the market.
+            context: Report the visit as an event.
+          - text: Estaba en el mercado cuando llamaste.
+            translation: I was at the market when you called.
+            context: Give the background to the call.
       varieties:
         spanish-mexico:
           assessment: Apply the shared guidance to the selected Mexican variety. Do not infer time from a verb
             form alone.
-          explanation: Use the expressed time relationship, including past states and ongoing activities. This
-            initial assessment guide has no expanded lesson yet.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
           examples: []
         spanish-spain:
           assessment: Spanish past reference can be conveyed by verb forms, time expressions and conversation
             context. A past-looking form is not enough on its own. An ongoing situation can overlap
             a past reference event; relative time can differ from time before now.
-          explanation: The shared constructions also apply to Spain. This section contains no region-specific
-            examples.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored pilot content adapted from the retained skill experiments and composition
-        specimens; not a completed or human-reviewed language guide.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     identify_describe:
       core:
         assessment: Spanish can identify referents with nouns, pronouns and demonstratives, and describe
           them with adjectives, location phrases, ser or estar.
-        explanation: Spanish can identify referents with nouns, pronouns and demonstratives, and describe
-          them with adjectives, location phrases, ser or estar.
+        explanation: >-
+          ### Identity, description and location
+
+
+          Use `ser` to identify someone or say what kind of person or thing they are. Use `estar`
+          for a person's state or a thing's location. This is more useful than a
+          permanent-versus-temporary rule: a building's location can be permanent and still take
+          `estar`.
+
+
+          ### Agreement
+
+
+          An adjective often changes to match the noun: singular or plural, and masculine or
+          feminine. Learn a description as a short phrase, including the noun, rather than as an
+          isolated adjective.
+        examples:
+          - text: Ana es médica.
+            translation: Ana is a doctor.
+            context: Identify her profession.
+          - text: Ana está cansada.
+            translation: Ana is tired.
+            context: Describe her current state.
+          - text: La oficina está cerca.
+            translation: The office is nearby.
+            context: Locate a place.
       varieties:
         spanish-mexico:
           assessment: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
             a permanent/temporary test.
-          explanation: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
-            a permanent/temporary test.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
             a permanent/temporary test.
-          explanation: Interpret the intended identity, quality, state or location; do not reduce ser/estar to
-            a permanent/temporary test.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     quantity:
       core:
         assessment: Spanish expresses amounts with numerals, quantifiers and partitive expressions.
-        explanation: Spanish expresses amounts with numerals, quantifiers and partitive expressions.
+        explanation: >-
+          ### Count things or describe an amount
+
+
+          Use a number for an exact count. For an amount without an exact count, use words such as
+          `mucho` (a lot of), `poco` (little or few) or `un poco de` (a little).
+
+
+          ### Match the noun
+
+
+          `Mucho` and `poco` change with the noun. Compare an amount of time with a number of
+          people. The noun tells you whether you are counting separate things or talking about an
+          amount.
+        examples:
+          - text: Tengo poco tiempo.
+            translation: I have little time.
+            context: An amount, not a count.
+          - text: Hay muchas personas.
+            translation: There are many people.
+            context: A plural noun takes a plural quantity word.
       varieties:
         spanish-mexico:
           assessment: Count the expressed amount or portion, even with agreement errors; distinguish a
             quantity from a date or identifier.
-          explanation: Count the expressed amount or portion, even with agreement errors; distinguish a
-            quantity from a date or identifier.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Count the expressed amount or portion, even with agreement errors; distinguish a
             quantity from a date or identifier.
-          explanation: Count the expressed amount or portion, even with agreement errors; distinguish a
-            quantity from a date or identifier.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     present_situations:
       core:
         assessment: Spanish present forms can describe current states, activities and habits; estar with a
           gerund can express an ongoing activity.
-        explanation: Spanish present forms can describe current states, activities and habits; estar with a
-          gerund can express an ongoing activity.
+        explanation: >-
+          ### A habit or something happening now
+
+
+          The simple present can describe a routine, a current situation or what someone does for
+          work. To draw attention to an action in progress, use `estar` with the `-ando / -iendo`
+          form.
+
+
+          ### Let the context do some work
+
+
+          You do not need the progressive every time English uses “-ing.” Start with the simple
+          present for routines; use the progressive when the activity's being underway matters.
+        examples:
+          - text: Trabajo en casa.
+            translation: I work at home.
+            context: A routine or working arrangement.
+          - text: Estoy trabajando en casa.
+            translation: I am working at home.
+            context: The activity is in progress.
       varieties:
         spanish-mexico:
           assessment: Determine the time from the whole exchange; a present form may instead refer to a
             planned future or a narrated past.
-          explanation: Determine the time from the whole exchange; a present form may instead refer to a
-            planned future or a narrated past.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Determine the time from the whole exchange; a present form may instead refer to a
             planned future or a narrated past.
-          explanation: Determine the time from the whole exchange; a present form may instead refer to a
-            planned future or a narrated past.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     future_reference:
       core:
         assessment: Spanish future reference can use the future tense, ir a plus infinitive, or a present
           form with future context.
-        explanation: Spanish future reference can use the future tense, ir a plus infinitive, or a present
-          form with future context.
+        explanation: >-
+          ### Talk about plans
+
+
+          A useful everyday pattern is `ir + a + infinitive`. Change the form of `ir` for the
+          person; keep the next verb in its infinitive form. A present-tense verb with a future time
+          expression can also describe an arrangement.
+
+
+          ### Future forms have more than one use
+
+
+          You will also encounter endings such as `-é` in `llamaré`. Context matters: the future
+          tense can make a prediction, but it can also express a guess about the present.
+        examples:
+          - text: Voy a llamar mañana.
+            translation: I am going to call tomorrow.
+            context: "A plan: conjugate the first verb."
+          - text: Salimos mañana.
+            translation: We leave tomorrow.
+            context: The time expression places a present form in the future.
       varieties:
         spanish-mexico:
           assessment: Distinguish future reference from a conjecture about the present; a future-looking form
             alone is insufficient.
-          explanation: Distinguish future reference from a conjecture about the present; a future-looking form
-            alone is insufficient.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Distinguish future reference from a conjecture about the present; a future-looking form
             alone is insufficient.
-          explanation: Distinguish future reference from a conjecture about the present; a future-looking form
-            alone is insufficient.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     wants_preferences:
       core:
         assessment: Spanish can express wants with querer, preferences with preferir and likes with gustar
           constructions.
-        explanation: Spanish can express wants with querer, preferences with preferir and likes with gustar
-          constructions.
+        explanation: >-
+          ### Wanting, liking and choosing
+
+
+          Use `querer` for something you want, and `preferir` to choose between alternatives. Follow
+          either with a noun or an infinitive.
+
+
+          ### A different pattern for liking
+
+
+          With `gustar`, the thing liked controls the verb: one thing takes `gusta`, plural things
+          take `gustan`. `Me` identifies the person who likes it. This is why changing “coffee” to
+          “books” changes the verb.
+        examples:
+          - text: Prefiero tomar té.
+            translation: I prefer to drink tea.
+            context: A preference followed by an infinitive.
+          - text: Me gusta el café.
+            translation: I like coffee.
+            context: One thing liked.
+          - text: Me gustan estos libros.
+            translation: I like these books.
+            context: Several things liked.
       varieties:
         spanish-mexico:
           assessment: Identify whose preference is expressed. A desire is not automatically an action request
             or a future prediction.
-          explanation: Identify whose preference is expressed. A desire is not automatically an action request
-            or a future prediction.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Identify whose preference is expressed. A desire is not automatically an action request
             or a future prediction.
-          explanation: Identify whose preference is expressed. A desire is not automatically an action request
-            or a future prediction.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     ability_permission_necessity:
       core:
         assessment: Spanish can express ability or permission with poder, learned ability with saber plus
           infinitive, and obligation with tener que, deber or hay que.
-        explanation: Spanish can express ability or permission with poder, learned ability with saber plus
-          infinitive, and obligation with tener que, deber or hay que.
+        explanation: >-
+          ### Can, know how to, have to
+
+
+          Use `poder` for ability or permission. Use `saber + infinitive` for a learned skill. Use
+          `tener que + infinitive` for an obligation. In each pattern, conjugate the first verb and
+          leave the action verb in its infinitive form.
+
+
+          ### Separate knowledge from circumstances
+
+
+          Knowing how to swim and being able to swim today are different claims. A person may have
+          the skill but lack permission, time or a safe place to use it.
+        examples:
+          - text: Sé nadar.
+            translation: I know how to swim.
+            context: A learned skill.
+          - text: Hoy no puedo nadar.
+            translation: I cannot swim today.
+            context: Circumstances prevent it.
+          - text: Tengo que trabajar.
+            translation: I have to work.
+            context: An obligation.
       varieties:
         spanish-mexico:
           assessment: Use context to distinguish ability, permission and obligation from inference or
             likelihood. One subtype is enough for presence, not evidence of all three.
-          explanation: Use context to distinguish ability, permission and obligation from inference or
-            likelihood. One subtype is enough for presence, not evidence of all three.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Use context to distinguish ability, permission and obligation from inference or
             likelihood. One subtype is enough for presence, not evidence of all three.
-          explanation: Use context to distinguish ability, permission and obligation from inference or
-            likelihood. One subtype is enough for presence, not evidence of all three.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
-      - yepesObligation20260924
+        - yepesObligation20260924
     affirm_negate:
       core:
         assessment: Spanish uses affirmative replies, no and other negative expressions to accept or reject
           propositions.
-        explanation: Spanish uses affirmative replies, no and other negative expressions to accept or reject
-          propositions.
+        explanation: >-
+          ### Put the negative before the verb
+
+
+          To deny a statement, place `no` before the conjugated verb. If a short object pronoun is
+          present, `no` comes before that too.
+
+
+          ### More than one negative word
+
+
+          Spanish can use `no` together with a negative word after the verb. This is a normal
+          negative sentence, not a cancellation of two negatives. If the negative word comes before
+          the verb, the extra `no` is usually absent.
+        examples:
+          - text: No conozco a nadie.
+            translation: I do not know anyone.
+            context: The negative word follows the verb.
+          - text: Nadie viene.
+            translation: Nobody is coming.
+            context: The negative word comes first.
       varieties:
         spanish-mexico:
           assessment: Interpret negative concord and scope; multiple negative words need not reverse the
             negative meaning. Short replies can depend on the preceding question.
-          explanation: Interpret negative concord and scope; multiple negative words need not reverse the
-            negative meaning. Short replies can depend on the preceding question.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Interpret negative concord and scope; multiple negative words need not reverse the
             negative meaning. Short replies can depend on the preceding question.
-          explanation: Interpret negative concord and scope; multiple negative words need not reverse the
-            negative meaning. Short replies can depend on the preceding question.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     questions_answers:
       core:
         assessment: Spanish information questions can use interrogative words or yes/no question structure;
           a relevant short reply can supply the requested information.
-        explanation: Spanish information questions can use interrogative words or yes/no question structure;
-          a relevant short reply can supply the requested information.
+        explanation: >-
+          ### Ask for the missing information
+
+
+          Use a question word for what you need: `dónde` for a place, `cuándo` for a time, `quién`
+          for a person. Written questions use both opening and closing question marks.
+
+
+          ### Short answers are natural
+
+
+          You do not need to repeat the whole question. A place or time phrase can be a complete
+          answer in conversation. For a yes-or-no question, intonation and context can turn an
+          ordinary statement pattern into a question.
+        examples:
+          - text: ¿Dónde está la estación?
+            translation: Where is the station?
+            context: Ask for a location.
+          - text: Está cerca del hotel.
+            translation: It is near the hotel.
+            context: Give the location.
+          - text: ¿Vienes mañana?
+            translation: Are you coming tomorrow?
+            context: A yes-or-no question.
       varieties:
         spanish-mexico:
           assessment: Do not require English-style auxiliary inversion or punctuation as evidence. Distinguish
             information-seeking from a request to act.
-          explanation: Do not require English-style auxiliary inversion or punctuation as evidence.
-            Distinguish information-seeking from a request to act.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Do not require English-style auxiliary inversion or punctuation as evidence. Distinguish
             information-seeking from a request to act.
-          explanation: Do not require English-style auxiliary inversion or punctuation as evidence.
-            Distinguish information-seeking from a request to act.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
-      - yepesQuestions20260924
+        - yepesQuestions20260924
     requests:
       core:
         assessment: Spanish can request action with imperatives or contextual question/conditional forms,
           and respond by accepting, declining or negotiating.
-        explanation: Spanish can request action with imperatives or contextual question/conditional forms,
-          and respond by accepting, declining or negotiating.
+        explanation: >-
+          ### Ask someone to act
+
+
+          A question with `poder` is a common way to ask for help. `Por favor` makes the request
+          explicit and polite, but tone and your relationship to the person still matter.
+
+
+          ### Address the person appropriately
+
+
+          The verb form changes with the person you address. Compare an informal singular request
+          with an `usted` request. Both can be courteous; neither is the right choice in every
+          setting.
+        examples:
+          - text: ¿Puedes repetir, por favor?
+            translation: Can you repeat that, please?
+            context: Address one person with tú.
+          - text: ¿Puede repetir, por favor?
+            translation: Can you repeat that, please?
+            context: Address one person with usted.
       varieties:
         spanish-mexico:
           assessment: Judge the conversational action. A statement of ability or desire alone need not request
             anything.
-          explanation: Judge the conversational action. A statement of ability or desire alone need not
-            request anything.
+          explanation: In Mexico, ustedes is used for plural address in both familiar and formal settings. The
+            examples here address one person.
+          examples: []
         spanish-spain:
           assessment: Judge the conversational action. A statement of ability or desire alone need not request
             anything.
-          explanation: Judge the conversational action. A statement of ability or desire alone need not
-            request anything.
+          explanation: In Spain, vosotros is widely used for informal plural address; ustedes is used for
+            formal plural address. The examples here address one person.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
     reasons_conditions:
       core:
         assessment: Spanish can express reasons with porque and conditions with si, among other constructions.
-        explanation: Spanish can express reasons with porque and conditions with si, among other constructions.
+        explanation: >-
+          ### Explain why, or say what must happen first
+
+
+          Use `porque` to give a reason. Use `si` to introduce a condition. A reason explains an
+          action; a condition makes the action depend on something else.
+
+
+          ### Start with an open possibility
+
+
+          For a realistic future possibility, Spanish commonly uses the present after `si`. You do
+          not need a future-tense form there just because the situation has not happened yet.
+        examples:
+          - text: Me quedo porque llueve.
+            translation: I am staying because it is raining.
+            context: Give the reason.
+          - text: Si llueve, me quedo en casa.
+            translation: If it rains, I will stay at home.
+            context: Set a condition.
       varieties:
         spanish-mexico:
           assessment: Identify the causal or conditional relation, not just a linking word. Distinguish si
             meaning if from sí meaning yes using context when accents are missing.
-          explanation: Identify the causal or conditional relation, not just a linking word. Distinguish si
-            meaning if from sí meaning yes using context when accents are missing.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
         spanish-spain:
           assessment: Identify the causal or conditional relation, not just a linking word. Distinguish si
             meaning if from sí meaning yes using context when accents are missing.
-          explanation: Identify the causal or conditional relation, not just a linking word. Distinguish si
-            meaning if from sí meaning yes using context when accents are missing.
+          explanation: These examples can be used in this variety. Choose forms of address to suit the person
+            and setting.
+          examples: []
       review: needs_review
-      authorship: AI-authored compact assessment guidance; expanded teaching material and speaker review
-        remain pending.
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
-      - yepesConditions20260924
+        - yepesConditions20260924
   goal_material:
     courtesy:
       tokens:
@@ -325,28 +571,29 @@ conversation:
     currentSituation: Her sister's wedding is in three weeks and Lucía is in charge of the playlist. She
       is also trying to finish a pottery course before it ends.
     interests:
-    - balcony vegetable garden
-    - swimming in the sea before work
-    - detective novels
-    - second-hand markets
+      - balcony vegetable garden
+      - swimming in the sea before work
+      - detective novels
+      - second-hand markets
     opinions:
-    - Paella should never contain chorizo.
-    - The beach is better in winter.
-    - Breakfast is the best meal of the day.
+      - Paella should never contain chorizo.
+      - The beach is better in winter.
+      - Breakfast is the best meal of the day.
     interestingFacts:
-    - Can name every tree on her street.
-    - Once cycled from Valencia to Sagunto on a dare.
+      - Can name every tree on her street.
+      - Once cycled from Valencia to Sagunto on a dare.
     favoriteBooks:
-    - La sombra del viento — Carlos Ruiz Zafón
-    - Nada — Carmen Laforet
+      - La sombra del viento — Carlos Ruiz Zafón
+      - Nada — Carmen Laforet
     favoriteMovies:
-    - Volver (2006)
-    - Mar adentro (2004)
-    manner: Warm and quick. Short sentences, plenty of questions, and gentle teasing once she is comfortable.
+      - Volver (2006)
+      - Mar adentro (2004)
+    manner: Warm and quick. Short sentences, plenty of questions, and gentle teasing once she is
+      comfortable.
     quirks:
-    - Describes food by its smell.
-    - Sends voice notes instead of writing.
+      - Describes food by its smell.
+      - Sends voice notes instead of writing.
     vibe:
-    - 🌿
-    - 🌊
-    - 🍊
+      - 🌿
+      - 🌊
+      - 🍊

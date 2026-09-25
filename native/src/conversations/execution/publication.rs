@@ -201,6 +201,9 @@ impl Store {
                 )?);
                 Ok(())
             })(),
+            Ok(output) if kind == "skill_attribution" => {
+                crate::learning::coaching::skill_attribution::validate(&tx, &turn, output).map(|value| { coaching = Some(value); })
+            }
             Ok(output) if kind == "skill_assessment" => {
                 crate::learning::coaching::assessment_adapter::validate(
                     &tx,
@@ -228,7 +231,7 @@ impl Store {
                     })
             }
             Ok(output)
-                if kind == "skill_assessment"
+                if kind == "skill_attribution" || kind == "skill_assessment"
                     || crate::learning::coaching::conversation_support::owns(&kind)
                     || crate::learning::coaching::message_assessment::owns(&kind)
                     || kind == "coach_feedback"
@@ -345,7 +348,7 @@ impl Store {
                 params![turn, error, gloss_error_path(&kind)],
             )?;
         }
-        if kind == "skill_assessment"
+        if kind == "skill_attribution" || kind == "skill_assessment"
             || crate::learning::coaching::conversation_support::owns(&kind)
             || crate::learning::coaching::message_assessment::owns(&kind)
             || kind == "coach_feedback"
@@ -367,7 +370,9 @@ impl Store {
             super::graph::release_dependents(&tx, &turn)?;
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
-                if kind == "skill_assessment" {
+                if kind == "skill_attribution" {
+                    tx.execute("UPDATE turns SET context=json_set(context,'$.skillAttribution',json(?2),'$.skillAttributionAttempt',?3) WHERE id=?1", params![turn,value.to_string(),dispatch.attempt])?;
+                } else if kind == "skill_assessment" {
                     // Presence and its deterministic award were published while the
                     // owning attempt was still running, in this same transaction.
                 } else if kind == "conversation_feedback"

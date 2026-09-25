@@ -305,3 +305,46 @@ fn missing_guidance_fails_only_assessment_without_a_fallback_call() {
     assert_eq!(profile(&store)["profile"]["xp"], 0);
     assert_eq!(store.connection.query_row("SELECT count(*) FROM messages WHERE turn_id=?1 AND role='assistant' AND text='The conversation still works.'",[&turn],|r|r.get::<_,i64>(0)).unwrap(),1);
 }
+
+#[test]
+fn spanish_pilot_connects_retry_profile_guides_and_next_practice() {
+    use crate::learning::recommendations::{self, RecommendationMode};
+    let (dir, mut store, conversation) = setup();
+    let mut command = send(&store, &conversation);
+    if let Action::SendMessage { text, .. } = &mut command.action {
+        *text = "¿Dónde está Ana?".into();
+    }
+    let first = store.execute(command).unwrap().entity_id;
+    let work = assessment(&mut store, &first);
+    store.finish(&work, Ok(presence(&work, &[
+        ("questions_answers", "direct"), ("identify_describe", "direct"),
+    ]))).unwrap();
+    let retry = store.execute(revision_command(&store, &conversation, &first,
+        "¿Dónde estaba Ana ayer?")).unwrap().entity_id;
+    let work = assessment(&mut store, &retry);
+    store.finish(&work, Ok(presence(&work, &[
+        ("questions_answers", "direct"), ("identify_describe", "direct"),
+        ("past_reference", "direct"),
+    ]))).unwrap();
+    let snapshot = profile(&store);
+    assert_eq!(snapshot["profile"]["xp"], 5);
+    let credits = snapshot["profile"]["credits"].as_array().unwrap();
+    assert_eq!(credits.iter().map(|c| c["experience"].as_u64().unwrap()).sum::<u64>(), 3);
+    assert_eq!(credits.iter().map(|c| c["effort"].as_u64().unwrap()).sum::<u64>(), 2);
+    let variety = snapshot["records"][0]["variety"].as_str().unwrap();
+    let guide = snapshot["guides"].as_array().unwrap().iter().find(|g| g["id"] == variety).unwrap();
+    let markdown = guide["skills"]["past_reference"].as_str().unwrap();
+    assert_eq!(markdown, store.config.skill_markdown("spanish", variety, "past_reference").unwrap());
+    assert!(markdown.contains("How it works") && markdown.contains(guide["name"].as_str().unwrap()));
+    let ids: Vec<String> = snapshot["catalog"].as_array().unwrap().iter()
+        .filter(|n| n["kind"] == "skill").map(|n| n["id"].as_str().unwrap().into()).collect();
+    let candidates = recommendations::candidates(&snapshot, variety, &ids).unwrap();
+    let breadth = recommendations::choose(&candidates, RecommendationMode::Explore, "pilot").unwrap();
+    assert_eq!(breadth.skill.experience, 0);
+    let depth = recommendations::choose(&candidates, RecommendationMode::ContinuePracticing, "pilot").unwrap();
+    assert_eq!(depth.skill.effort, 1);
+    assert!(["questions_answers", "identify_describe"].contains(&depth.skill.skill_id.as_str()));
+    drop(store);
+    let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    assert_eq!(profile(&reopened)["profile"], snapshot["profile"]);
+}

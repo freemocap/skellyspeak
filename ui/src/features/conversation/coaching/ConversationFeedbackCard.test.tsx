@@ -5,9 +5,9 @@ import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import { MessageFeedback } from './MessageFeedback'
 beforeAll(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', '') }; HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') } })
 const feedback = { grammar: 0, conversation: 10, answers: {} }
-it('renders zero and ten as scores and explains only on request',()=>{
- const ask=vi.fn();render(<ConversationFeedbackCard feedback={feedback} onAsk={ask}/>);
- expect(screen.getByRole('meter',{name:'Grammar'})).toHaveAttribute('aria-valuenow','0');expect(screen.getByRole('meter',{name:'Conversation fit'})).toHaveAttribute('aria-valuemax','10');expect(ask).not.toHaveBeenCalled();fireEvent.click(screen.getByRole('button',{name:'Explain scores'}));expect(ask.mock.calls[0][0]).toContain('"grammar":0');
+it('renders supplementary scores without redirecting to chat',()=>{
+ const ask=vi.fn();render(<ConversationFeedbackCard feedback={feedback}/>);
+ expect(screen.getByRole('meter',{name:'Grammar'})).toHaveAttribute('aria-valuenow','0');expect(screen.getByRole('meter',{name:'Conversation fit'})).toHaveAttribute('aria-valuemax','10');expect(ask).not.toHaveBeenCalled();expect(screen.queryByRole('button',{name:'Explain scores'})).toBeNull();
 });
 it('represents insufficient evidence without a zero meter',()=>{
  render(<ConversationFeedbackCard feedback={{...feedback,grammar:null}}/>);expect(screen.queryByRole('meter',{name:'Grammar'})).toBeNull();expect(screen.getByText('Insufficient evidence')).toBeVisible();

@@ -154,6 +154,7 @@ impl Store {
         };
         let id = uuid::Uuid::new_v4().to_string();
         let captured = PreviewInput {
+            skill_focus: None,
             scope: ReadingScope {
                 language: scope.language_id,
                 variety: Some(scope.variety_id),

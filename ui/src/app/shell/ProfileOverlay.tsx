@@ -1,27 +1,18 @@
-import { ErrorNotice } from '../../components/feedback/ErrorNotice'
-import { useI18n } from '../../components/localization/i18n'
+import { useSettingsStore } from '../../state/settings/settings'
 import { useState } from 'react'
 import { LearnerModel } from '../../features/skills/learner/LearnerModel'
-import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { ProgressSummary } from '../../features/conversation/progress/ProgressSummary'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
 
-/// The language profile, opened from the topbar, and the failure that stands in
-/// for it when evidence is not connected.
-///
-/// It opens on the evidence for the active language. `ProgressSummary` then
-/// presents every language to its own subtree, which is why that subtree reads a
-/// different snapshot than this one.
+/** The report loads its own overview; it is available before the shared snapshot arrives. */
 export function ProfileOverlay() {
-  const tr = useI18n()
   const [learningTarget, setLearningTarget] = useState<string | null>(null)
-  const { snapshot, error, reload } = useSkillEvidence()
+  const { snapshot } = useSkillEvidence()
+  const target = useSettingsStore(state => state.settings?.target_language)
   const open = useNavigationStore((state) => state.overlay === 'profile')
   const closeOverlay = useNavigationStore((state) => state.closeOverlay)
-  return <>
-    {error && <ErrorNotice as="div" error={error}>{error}<button onClick={reload}>{tr("Retry profile")}</button></ErrorNotice>}
-    {open && !snapshot && <DetailDialog title={tr("Language profile")} onClose={closeOverlay}><p>{tr("Language evidence is not connected.")}</p></DetailDialog>}
-    {open && snapshot && (learningTarget ? <LearnerModel key={learningTarget} target={learningTarget} onClose={() => setLearningTarget(null)} /> : <ProgressSummary key={snapshot.target} snapshot={snapshot} onClose={closeOverlay} onLearning={setLearningTarget} />)}
-  </>
+  if (!open) return null
+  return learningTarget ? <LearnerModel key={learningTarget} target={learningTarget} onClose={() => setLearningTarget(null)} />
+    : <ProgressSummary key={target} target={target} snapshot={snapshot ?? undefined} onClose={closeOverlay} onLearning={setLearningTarget} />
 }

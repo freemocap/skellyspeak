@@ -191,3 +191,18 @@ it('scales the effects output independently and silences active and future notes
   expect(() => configureAudioVolumes({ master_volume: 101, voice_volume: 100, effects_volume: 80 })).toThrow('Volume')
   sound.stopRewardSounds()
 })
+
+it('varies coin pitches within a pentatonic scale and keeps single-point payouts short', () => {
+  const roots = new Set<number>()
+  for (let variation = 0; variation < 5; variation++) {
+    const notes = soundPattern({ kind: 'xp', xp: 1 }, variation)
+    roots.add(notes[0].frequency)
+    expect(notes[1].frequency).toBeGreaterThan(notes[0].frequency)
+    expect(notes[1].at + notes[1].duration).toBeLessThan(.15)
+    for (const note of notes) {
+      const semitones = Math.round(12 * Math.log2(note.frequency / 523.251))
+      expect([0, 2, 4, 7, 9]).toContain(semitones % 12)
+    }
+  }
+  expect(roots.size).toBe(5)
+})

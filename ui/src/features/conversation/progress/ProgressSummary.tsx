@@ -1,7 +1,11 @@
+import { useNavigationStore } from '../../../state/navigation/navigation'
+import { SkillCatalogBrowser } from '../../../components/learning/SkillCatalogBrowser'
+import { SkillGuide } from '../../../components/learning/SkillGuide'
+import { useSettingsStore } from '../../../state/settings/settings'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { ReadingLanguageScope } from '../../../components/reading/ReadingLanguageScope'
-import { TargetText } from '../../../components/reading/TargetText'
+import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { RewardsLedger } from './RewardsLedger'
 import { useI18n } from '../../../components/localization/i18n'
 import { InfoTip } from '../../../components/controls/InfoTip'
@@ -17,10 +21,11 @@ import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 
 function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot; name: string; onClose: () => void }) {
   const tr = useI18n()
+  const active = useSettingsStore(state => state.settings?.target_language === snapshot.target ? state.settings.target_variety : undefined)
   const explore = useSkillNavigationStore((state) => state.explore)
   const stats = useMemo(() => practiceStatistics(snapshot), [snapshot])
   const [domainId, setDomainId] = useState<string | null>(null)
-  const [includeUnpracticed, setIncludeUnpracticed] = useState(false)
+  const [includeUnpracticed, setIncludeUnpracticed] = useState(true)
   const focus = snapshot.catalog.find(node => node.id === snapshot.profile.active_focus)
   if (!focus) throw new Error('Missing practice focus')
   const domain = domainId === null ? null : stats.domains.find(item => item.node.id === domainId)
@@ -53,6 +58,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
           return <details key={skill.skill_id} className="practice-skill">
             <summary><span>{tr(node.label)}{skill.star && <span className="practice-star" aria-label={tr("Skill star")}> ★</span>}</span><strong>{tr.number(skill.xp)} {tr(" XP")}</strong><small>{tr.number(skill.experience)} {tr(" experience · ")}{skill.effort} {tr(" effort")}</small></summary>
             <InfoTip>{tr("Criterion: ")}{tr(node.criterion)}</InfoTip>
+            <SkillGuide snapshot={snapshot} skillId={node.id} active={active} />
             {credits.length === 0 && <p>{tr("No credited messages.")}</p>}
             {credits.map(credit => {
               const record = snapshot.records.find(item => item.attempt_id === credit.attempt_id)
@@ -62,7 +68,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
               const effort = (credit.effort ?? credit.event?.effort ?? 0) > 0
               return <article key={credit.attempt_id} className="practice-credit">
                 <header><strong>{tr.number(credit.xp)} {tr(" XP · ")}{effort ? tr("Effort") : tr("Experience")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
-                <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}><blockquote dir="auto"><TargetText text={record.source} /></blockquote></ReadingLanguageScope><p>{judgment.rationale}</p>
+                <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}><blockquote dir="auto"><TargetPhrase text={record.source} /></blockquote></ReadingLanguageScope><p>{judgment.rationale}</p>
                 <small>{tr("Model: ")}{record.model} {tr(" · Rubric ")}{record.catalog_version} {tr(" · Prompt ")}{record.prompt_version}<br />{tr("Chat ")}{record.chat_id} {tr(" · Message ")}{record.message_id} {tr(" · Attempt ")}{record.attempt_id}</small>
               </article>
             })}
@@ -81,28 +87,32 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
     </div>
 }
 
-export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: SkillSnapshot; onClose: () => void; onLearning?: (target: string) => void }) {
+export function ProgressSummary({ snapshot, target, onClose, onLearning }: { snapshot?: SkillSnapshot; target?: string; onClose: () => void; onLearning?: (target: string) => void }) {
   const tr = useI18n()
-  const [selected, setSelected] = useState(snapshot.target)
+  const included = useSettingsStore(state => state.settings?.my_languages)
+  const initialTarget = target ?? snapshot?.target
+  const [selected, setSelected] = useState(initialTarget)
   const [attempt, setAttempt] = useState(0)
   const [loaded, setLoaded] = useState<{ status: 'loading' } | { status: 'ready'; overview: PracticeOverview } | { status: 'error'; error: string }>({ status: 'loading' })
   useEffect(() => {
     let disposed = false
-    setLoaded({ status: 'loading' })
+    setLoaded(current => current.status === 'ready' ? current : { status: 'loading' })
     void getPracticeOverview().then(overview => {
-      if (!overview.languages.some(language => language.snapshot.target === snapshot.target)) throw new Error('Overview is missing the active language')
+      if (initialTarget && !overview.languages.some(language => language.snapshot.target === initialTarget)) throw new Error('Overview is missing the active language')
       const targets = new Set<string>()
       for (const language of overview.languages) {
         if (targets.has(language.snapshot.target)) throw new Error('Duplicate overview language')
         targets.add(language.snapshot.target)
         practiceStatistics(language.snapshot)
       }
-      if (!disposed) setLoaded({ status: 'ready', overview })
+      if (!disposed) { setLoaded({ status: 'ready', overview }); setSelected(current => overview.languages.some(language => language.snapshot.target === current) ? current : initialTarget ?? overview.languages[0]?.snapshot.target) }
     }).catch((error: unknown) => { if (!disposed) setLoaded({ status: 'error', error: errorMessage(error) }) })
     return () => { disposed = true }
-  }, [snapshot, attempt])
+  }, [snapshot, initialTarget, attempt])
   const overview = loaded.status === 'ready' ? loaded.overview : null
-  const active = overview?.languages.find(language => language.snapshot.target === selected)
+  const visibleLanguages = (included ?? []).flatMap(id => overview?.languages.filter(language => language.snapshot.target === id) ?? [])
+  const selectedTarget = visibleLanguages.some(language => language.snapshot.target === selected) ? selected : visibleLanguages[0]?.snapshot.target
+  const active = visibleLanguages.find(language => language.snapshot.target === selectedTarget)
   const snapshots = overview?.languages.map(language => language.snapshot) ?? []
   const globalXp = snapshots.reduce((total, item) => total + item.profile.xp, 0)
   const conversations = snapshots.reduce((total, item) => total + item.conversation_count, 0)
@@ -110,9 +120,10 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
   const practiceDates = new Set(records.map(record => new Date(record.at_secs * 1000).toISOString().slice(0, 10)))
   return <DetailDialog size="wide" title={tr("Practice progress")} onClose={onClose}>
     <div className="practice-overview">
-      <header className="practice-statistics-header"><h2>{tr("App activity")}</h2>{onLearning && <button onClick={() => onLearning(selected)}>{tr("Your learning evidence")}</button>}</header>
+      <header className="practice-statistics-header"><h2>{tr("App activity")}</h2>{onLearning && selectedTarget && <button onClick={() => onLearning(selectedTarget!)}>{tr("Your learning evidence")}</button>}</header>
       {loaded.status === 'loading' && <p role="status">{tr("Loading language profiles…")}</p>}
-      {loaded.status === 'error' && <ErrorNotice as="div" error={loaded.error}><p>{loaded.error}</p><button className="detail-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></ErrorNotice>}
+      {loaded.status === 'error' && <ErrorNotice as="div" className="turn-errors" dismissible={false} error={loaded.error}><p>{loaded.error}</p><button className="detail-action" onClick={() => setAttempt(value => value + 1)}>{tr("Retry profiles")}</button></ErrorNotice>}
+      {!overview && <SkillCatalogBrowser />}
       {overview && <>
         <dl className="practice-metrics">
           <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>
@@ -122,17 +133,18 @@ export function ProgressSummary({ snapshot, onClose, onLearning }: { snapshot: S
         </dl>
         <InfoTip>{tr("Global XP is the sum of separate language accounts, not a combined proficiency score. Activity counts cover retained records: conversations with learner text, assessment attempts, and distinct UTC dates with attempts. Deleted records can reduce these counts.")}</InfoTip>
 
-        <div className="practice-language-tabs" role="tablist" aria-label={tr("Language experience")}>{overview.languages.map(language => <button key={language.snapshot.target} id={`practice-tab-${language.snapshot.target}`} role="tab" aria-label={tr("{value0} {value1} XP", { value0: String(language.name), value1: language.snapshot.profile.xp })} aria-selected={selected === language.snapshot.target} aria-controls="practice-language-panel" tabIndex={selected === language.snapshot.target ? 0 : -1} onClick={() => setSelected(language.snapshot.target)} onKeyDown={event => {
-          const index = overview.languages.findIndex(item => item.snapshot.target === selected)
-          const next = event.key === 'ArrowRight' ? (index + 1) % overview.languages.length : event.key === 'ArrowLeft' ? (index - 1 + overview.languages.length) % overview.languages.length : event.key === 'Home' ? 0 : event.key === 'End' ? overview.languages.length - 1 : null
+        <div className="practice-language-tabbar"><div className="practice-language-tabs" role="tablist" aria-label={tr("Language experience")}>{visibleLanguages.map(language => <button key={language.snapshot.target} id={`practice-tab-${language.snapshot.target}`} role="tab" aria-label={tr("{value0} {value1} XP", { value0: String(language.name), value1: language.snapshot.profile.xp })} aria-selected={selectedTarget === language.snapshot.target} aria-controls="practice-language-panel" tabIndex={selectedTarget === language.snapshot.target ? 0 : -1} onClick={() => setSelected(language.snapshot.target)} onKeyDown={event => {
+          const index = visibleLanguages.findIndex(item => item.snapshot.target === selectedTarget)
+          const next = event.key === 'ArrowRight' ? (index + 1) % visibleLanguages.length : event.key === 'ArrowLeft' ? (index - 1 + visibleLanguages.length) % visibleLanguages.length : event.key === 'Home' ? 0 : event.key === 'End' ? visibleLanguages.length - 1 : null
           if (next === null) return
           event.preventDefault()
-          const target = overview.languages[next].snapshot.target
+          const target = visibleLanguages[next].snapshot.target
           setSelected(target)
           document.getElementById(`practice-tab-${target}`)?.focus()
-        }}><span>{language.name}</span><small>{tr.number(language.snapshot.profile.xp)} {tr(" XP")}</small></button>)}</div>
+        }}><span>{language.name}</span><small>{tr.number(language.snapshot.profile.xp)} {tr(" XP")}</small></button>)}</div><button type="button" className="practice-language-add" aria-label={tr('Add language…')} title={tr('Add language…')} onClick={() => useNavigationStore.getState().showOverlay('languages')}><span aria-hidden="true">+</span></button></div>
+        {!active && <SkillCatalogBrowser />}
         {active && <div id="practice-language-panel" role="tabpanel" aria-labelledby={`practice-tab-${active.snapshot.target}`}>
-          {active.snapshot.records.length === 0 && active.snapshot.conversation_count === 0 ? <div className="practice-language-empty"><h2>{active.name} {tr(" experience")}</h2><p>{tr("We don’t have any experience for this language yet.")}</p><p>{tr("0 XP · No recorded practice. Activity in another language does not add experience here.")}</p></div> : <LanguageProgress key={active.snapshot.target} snapshot={active.snapshot} name={active.name} onClose={onClose} />}
+          <LanguageProgress key={active.snapshot.target} snapshot={active.snapshot} name={active.name} onClose={onClose} />
         </div>}
       </>}
     </div>

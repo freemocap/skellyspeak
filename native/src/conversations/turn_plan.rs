@@ -19,6 +19,21 @@ pub struct Declaration {
 }
 pub const PLAN: &[Declaration] = &[
     Declaration {
+        kind: "skill_attribution",
+        activation: Activation::Automatic,
+        dependencies: &["skill_assessment"],
+        role: "fast",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "coach_feedback",
+        activation: Activation::Automatic,
+        dependencies: &["persona_context"],
+        role: "standard",
+        contract_version: 3,
+    },
+
+    Declaration {
         kind: "coach_reaction",
         activation: Activation::Automatic,
         dependencies: &["persona_reply"],
@@ -196,13 +211,6 @@ pub const OPENING_PLAN: &[Declaration] = &[
 
 // Explicit operations and retained observations; never automatically created.
 pub const RETAINED: &[Declaration] = &[
-    Declaration {
-        kind: "coach_feedback",
-        activation: Activation::Explicit,
-        dependencies: &["persona_context"],
-        role: "standard",
-        contract_version: 3,
-    },
     Declaration {
         kind: "coach_suggestions",
         activation: Activation::Explicit,

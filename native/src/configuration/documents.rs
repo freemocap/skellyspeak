@@ -173,5 +173,5 @@ document!(ConversationPromptContent {
     base: String, persona: String, interaction: String,
     examples_intro: String, examples: BTreeMap<String, String>, opening_angles: Vec<String>,
     difficulty: BTreeMap<String,String>, ceiling: String,
-    past: String, future: String, opening: String, response: String, subject: String
+    coach_focus: String, past: String, future: String, opening: String, response: String, subject: String
 });

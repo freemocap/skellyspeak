@@ -86,7 +86,10 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
     </div>}
     notices={<>{readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
-    {(error || executionError) && <ErrorDetails label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}</>}
+    {(error || executionError) && <ErrorDetails onRetry={async () => {
+      if (executionError && lastCoachTurn) await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:lastCoachTurn.id, control:'retry'})
+      else await ask()
+    }} label={tr("Coach")} errorKey={`${lastCoachTurn?.id}:${error || executionError}`}>{error || executionError}</ErrorDetails>}</>}
     composer={<form className="coach-input-row" onSubmit={event => { event.preventDefault(); void ask() }}>
       <textarea ref={inputRef} className="coach-input" rows={2} onKeyDown={event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {

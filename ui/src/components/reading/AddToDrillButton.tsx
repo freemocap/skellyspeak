@@ -1,14 +1,19 @@
 import { useRef, useState } from 'react'
-import { useReadingScope } from '../../../components/reading/ReadingContext'
-import { useI18n } from '../../../components/localization/i18n'
-import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
-import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
-import { errorMessage } from '../../../platform/diagnostics/error-details'
-import { createDrillItem } from '../../../platform/ipc/drill'
+import { useReadingScope } from './ReadingContext'
+import { useI18n } from '../localization/i18n'
+import { ErrorDetails } from '../feedback/ErrorDetails'
+import { ResponseDetails } from '../feedback/ResponseDetails'
+import { errorMessage } from '../../platform/diagnostics/error-details'
+import { createDrillItem } from '../../platform/ipc/drill'
 
 /** Copy a completed reply through the same command as Drill's manual entry.
  * The reading scope belongs to this conversation, not current global preferences. */
 export function AddToDrillButton({ text }: { text: string }) {
+  const scope = useReadingScope()
+  return <ScopedAddToDrill key={JSON.stringify([scope, text])} text={text} />
+}
+
+function ScopedAddToDrill({ text }: { text: string }) {
   const scope = useReadingScope()
   const tr = useI18n()
   const busy = useRef(false)

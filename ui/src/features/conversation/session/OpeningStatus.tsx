@@ -1,3 +1,4 @@
+import { executeAction, readWorkspace } from '../../../platform/ipc/workspace'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useI18n } from '../../../components/localization/i18n'
 import type { ConversationSnapshot } from '../../../generated/contracts'
@@ -14,7 +15,7 @@ export function OpeningStatus({ snapshot, onActivity }: { snapshot: Conversation
     error = turn.attempts.filter(attempt => attempt.error).at(-1)?.error ?? (turn.state === 'cancelled' ? tr('Conversation opening was cancelled.') : turn.state === 'failed' ? tr('Conversation opening failed.') : tr('The outcome of the conversation opening is unknown.'))
   }
   return <section className="opening-status" aria-label={tr("Conversation opening")}>
-    {error ? <ErrorNotice as="p" error={error}>{error}</ErrorNotice> : (turn?.paused || snapshot.connection.paused) ? <p role="status">{tr("Conversation opening is paused.")}</p> : <ActivityIndicator label={tr("Starting conversation…")} />}
+    {error ? <ErrorNotice as="p" onRetry={turn ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.id, control:'retry'}) } : null} error={error}>{error}</ErrorNotice> : (turn?.paused || snapshot.connection.paused) ? <p role="status">{tr("Conversation opening is paused.")}</p> : <ActivityIndicator label={tr("Starting conversation…")} />}
     <button type="button" className="btn" onClick={onActivity}>{tr("Open AI activity")}</button>
   </section>
 }

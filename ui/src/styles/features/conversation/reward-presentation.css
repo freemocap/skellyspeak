@@ -1,6 +1,4 @@
-/* XP presentation: a fixed-size header chip, an arrival card that overlays the
-   conversation beneath it, and a list of this conversation's awards. Nothing
-   here takes space in the conversation layout. */
+/* Message-local XP payouts and user-opened reward reports. */
 
 .skill-reward-status { position: absolute; width: 0; height: 0; }
 
@@ -73,9 +71,8 @@
 .xp-chip svg { color: var(--interaction-ink); flex: none; }
 .xp-chip-value { flex: 1; text-align: end; white-space: nowrap; }
 .xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--interaction-ink); color: var(--interaction-ink); }
-.xp-chip.is-arriving { border-color: var(--interaction-ink); background: var(--interaction-tint); color: var(--interaction-ink); }
 
-.xp-arrival-card, .xp-ledger {
+.xp-ledger {
   position: absolute;
   top: calc(100% + var(--space-4));
   inset-inline-end: 0;
@@ -93,78 +90,11 @@
   text-transform: none;
   letter-spacing: normal;
   transform-origin: top right;
-  animation: xp-card-open var(--dur-base) var(--ease-out);
+  animation: xp-ledger-open var(--dur-base) var(--ease-out);
 }
-[dir="rtl"] .xp-arrival-card, [dir="rtl"] .xp-ledger { transform-origin: top left; }
+[dir="rtl"] .xp-ledger { transform-origin: top left; }
 
-.xp-arrival-card { display: grid; gap: var(--space-5); padding: var(--space-6) var(--space-7); }
-.xp-arrival-card.is-milestone { border-width: var(--border-width-strong); border-color: var(--interaction-ink); }
-.xp-arrival-milestone {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--interaction-ink);
-  font-weight: var(--weight-semibold);
-}
-.xp-arrival-skill { display: grid; gap: var(--space-3); }
-.xp-arrival-heading { display: flex; align-items: center; gap: var(--space-4); padding-inline-end: var(--space-12); }
-.xp-arrival-heading strong { flex: none; margin-inline-start: auto; color: var(--interaction-ink); font: var(--weight-semibold) var(--type-ui) var(--font-mono); }
-.xp-arrival-skill blockquote { margin: 0; font: var(--type-body)/var(--leading-normal) var(--font-serif); }
 .xp-domain-dot { flex: none; width: 9px; height: 9px; border-radius: var(--radius-circle); }
-
-.xp-skill-link {
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font: var(--weight-semibold) var(--type-ui)/var(--leading-snug) var(--font-sans);
-  text-align: start;
-  cursor: pointer;
-}
-.xp-skill-link:hover { text-decoration: underline; }
-
-.xp-meter { display: grid; gap: var(--space-2); }
-.xp-meter-track { display: flex; height: 6px; overflow: hidden; border-radius: var(--radius-pill); background: var(--track); }
-.xp-meter-track > span { height: 100%; background: currentColor; }
-.xp-meter-earlier { opacity: .5; }
-.xp-meter-added { animation: xp-meter-fill var(--dur-deliberate) var(--ease-out); transform-origin: left; }
-[dir="rtl"] .xp-meter-added { transform-origin: right; }
-.xp-meter-caption { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
-
-.xp-arrival-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-3); }
-.xp-arrival-remaining { margin-inline-end: auto; color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
-
-.xp-arrival-close {
-  position: absolute;
-  top: var(--space-3);
-  inset-inline-end: var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--ink-3);
-  cursor: pointer;
-}
-.xp-arrival-close:hover { background: var(--chrome); color: var(--ink); }
-
-/* Fast mode countdown; restarts whenever hover or focus releases the card. */
-.xp-arrival-timer {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 3px;
-  background: var(--interaction-ink);
-  transform-origin: left;
-  animation: xp-card-timer var(--dur-xp-card-hold) linear forwards;
-}
-[dir="rtl"] .xp-arrival-timer { transform-origin: right; }
 
 .xp-ledger-heading { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-6) var(--space-7); }
 .xp-ledger-heading h2 { flex: 1; margin: 0; font: var(--weight-semibold) var(--type-body) var(--font-sans); }
@@ -195,15 +125,25 @@
 .xp-ledger-quote { grid-column: 2; font: var(--type-body)/var(--leading-snug) var(--font-serif); color: var(--ink-2); }
 .xp-ledger-rows time { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
 
-@keyframes xp-card-open { from { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes xp-meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes xp-card-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes xp-ledger-open { from { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(.96); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .xp-arrival-card, .xp-ledger, .xp-meter-added { animation: none; }
+  .xp-ledger { animation: none; }
 }
 
 @media (pointer: coarse) {
   .xp-chip { min-height: var(--touch-target); }
-  .xp-arrival-close { width: var(--touch-target); height: var(--touch-target); }
+}
+
+.message-xp-anchor { position: relative; display: inline-flex; overflow: visible; }
+.message-xp-payout { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-reward); }
+.message-xp-coin { position: absolute; inset-inline-end: 0; bottom: 100%; color: var(--interaction-ink); background: var(--sheet); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3); font: var(--weight-bold) var(--type-ui) var(--font-mono); box-shadow: var(--shadow-floating); animation: message-xp-coin var(--dur-xp-payout) var(--ease-out) both; }
+@keyframes message-xp-coin {
+  0% { opacity: 0; transform: translateY(0) scale(.6); }
+  20% { opacity: 1; transform: translateY(calc(-1 * var(--space-3))) scale(1.15); }
+  65% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(calc(-1 * var(--space-13))) scale(.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .message-xp-coin { animation: none; }
 }

@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ReadingScopeContext } from '../../../components/reading/ReadingContext'
 import { createDrillItem } from '../../../platform/ipc/drill'
-import { AddToDrillButton } from './AddToDrillButton'
+import { AddToDrillButton } from '../../../components/reading/AddToDrillButton'
 import { TurnView } from './TurnView'
 
 vi.mock('../../../platform/ipc/tauri', async importOriginal => ({ ...await importOriginal<typeof import('../../../platform/ipc/tauri')>(), languageFor: () => ({ languageTag: 'es', direction: 'ltr', fontScale: 1 }) }))
@@ -17,7 +17,7 @@ it('puts one add action on the completed AI bubble and uses its captured languag
   const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: {
     reply: 'Buenos días.', tokens: [], user_tokens: [], translation: '', user_translation: '', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [],
   } }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
-  expect(within(container.querySelector('.msg.me') as HTMLElement).queryByRole('button', { name: 'Add to Drill' })).toBeNull()
+  expect(within(container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Add to Drill' })).toBeEnabled()
   fireEvent.click(within(container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Add to Drill' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Added to Drill' })).toBeDisabled())
   expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Buenos días.', ...scope })

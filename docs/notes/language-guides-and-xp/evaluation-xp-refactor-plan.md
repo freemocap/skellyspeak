@@ -11,8 +11,22 @@ Rich explanations, examples and optional meaning notation stay in human-readable
 language guides. Jev receives compact baseline content. The twelve-skill pilot
 content and presence → experience/effort → displayed XP flow are now implemented
 and tested. See [the integrated checkpoint](live-presence-xp-checkpoint.md).
-The next stage is experience-based recommendations and the saved language profile.
+Coach-led conversation selection is now implemented; see [its checkpoint](coach-selection-checkpoint.md). The live profile and guide inspectors are implemented. The next gate is the interactive Spanish pilot.
 Bulk teaching-guide generation and further prompt sweeps remain deferred.
+Implemented source slice: [the live experience profile](saved-experience-assessment.md):
+deterministic counts from current records, updated when viewed and when evidence
+changes. No AI call, saved write-up or explicit refresh. The live Skills count table is
+implemented; optional skill-targeted drill generation is now connected. Content-availability display remains a follow-up.
+
+Spanish integrated pilot: [automated results and interactive trial](spanish-integrated-pilot.md).
+Native accounting/guides/recommendation integration passes. The user reports the
+local loop is working. Coach-intent visibility and one-action analysis are now
+implemented; see [the polish checkpoint and proposed PR gates](analysis-and-coach-intent-checkpoint.md).
+Interactive verification of that latest polish in a matching build remains open.
+
+Source attribution now follows thresholded presence through a dependent fast
+request; see [implementation and verification](skill-attribution-checkpoint.md).
+Missing supporting spans retain whole-message evidence and do not remove credit.
 
 ## Where we are
 
@@ -36,8 +50,8 @@ behavior are outside this refactor unless an explicit dependency requires review
 | 2. Prompt strategy | **Complete: baseline B adopted.** Preserve the experimental alternatives, frozen requests, receipts and reusable tooling. | Completed multilingual dashboard and adoption decision |
 | 3. Attempt and observation model | **Implemented and tested:** count experience from skill use and effort from changed retries. Success is not an input to XP or recommendations. Record attempt/revision ownership; changed retries credit every retained skill. | Worked attempt histories and proposed saved observations; no XP numbers disguised as model probabilities |
 | 4. XP policy | **Implemented: XP = experience + effort**, each weighted 1 per skill. No success bonus, multipliers, assistance discount or diminishing-return curve in the first version. | Counting example below; durable awards and displayed totals now use this rule |
-| 5. Experience profile and recommendations | Required scope; design alongside stages 3–4. Use recorded XP/use distribution to identify underexplored skills, guide optional practice, and maintain a saved language-level assessment. | One learner history → profile write-up and reasons → conversation, coach and drill/card recommendations; learner controls and refresh examples |
-| 6. Integrated pilot | Presence/XP slice implemented. Remaining: skill-guide display, on-demand explanations, saved profile assessment and optional recommendation use in coach, conversation and drill/card generation. Check all twelve skill outputs plus a language-defined extension fixture without reopening the prompt sweep. | One working practice → assessment → XP/profile → recommended practice loop; duplicate/restart/late-result tests and disclosed content coverage |
+| 5. Experience profile and recommendations | Coach-led conversation selection implemented: Explore, Continue practicing, and Coach’s choice. Live profile counts and optional skill-targeted drill generation are implemented; see [the drill checkpoint](drill-skill-generation-checkpoint.md). Use recorded XP/use distribution to identify underexplored skills, guide optional practice, and show a live deterministic language-level profile. | One learner history → profile counts and targets → conversation, coach and drill/card recommendations; learner controls and live-update examples |
+| 6. Integrated pilot | Presence/XP slice implemented. Automatic-on-open analysis, saved skill evidence and coach-intent previews implemented. Remaining: matching-build interactive verification and final scoped diff review. Optional drill generation now supports manual skill targets and the shared coach modes. Check all twelve skill outputs plus a language-defined extension fixture without reopening the prompt sweep. | One working practice → assessment → XP/profile → recommended practice loop; duplicate/restart/late-result tests and disclosed content coverage |
 | 7. Offline authoring | Deferred until content composition and pilot flow are stable. Generate language-skill, shared writing-system and language-reading guides in inspectable batches; preserve human edits. | Coverage inventory, first batch, human-readable Markdown review and validation report |
 | 8. Expansion and cleanup | Pending. Expand covered languages/varieties; replace obsolete skill/evaluation/XP behavior directly and reset affected development records. | End-to-end verification, coverage gaps, source cleanup and a scoped commit-ready review |
 
@@ -119,8 +133,8 @@ Then implement a narrow vertical slice using the existing classifier transport
 and execution lifecycle: submitted attempt → skill-use observation → one-time
 experience/effort credit → displayed counts and XP. Cover duplicates, changed and
 unchanged retries, newly introduced skills, broad retained-skill credit, late results and
-restarts. Expand recommendations and saved profile rendering from those records
-as the next part of the integrated pilot; no new prompt sweep or bulk guide run.
+restarts. Verify recommendations and live profile rendering from those records
+in the running native pilot; no new prompt sweep or bulk guide run.
 
 ### Concurrent AI-workflow changes
 
@@ -142,8 +156,8 @@ not prerequisites to this XP slice.
 Added by user clarification on 2026-09-24. Using recorded experience to guide
 future language practice is a core purpose of the new skills system, not a later
 optional project. Baseline B remains selected. This is agreed product scope;
-selection algorithms, refresh thresholds, controls and runtime contracts still
-need their design pass. Earlier coaching-plan focus concepts are relevant context,
+Conversation selection is implemented; live profile and drill/card controls
+and runtime integration remain pending. Earlier coaching-plan focus concepts are relevant context,
 not an obligation to restore old estimators or skill contracts.
 
 ### Agreed behavior
@@ -165,20 +179,17 @@ not an obligation to restore old estimators or skill contracts.
   selection, the persona remains the conversation partner; the coach selects
   the practice focus and a suitable conversational opportunity. Controls for
   other generation surfaces remain to be discussed.
-- Provide a saved, readable assessment of the person's current recorded experience
-  in a language, alongside numeric statistics. It should explain coverage, gaps,
-  and suggested next practice. It remains available between refreshes.
-- Refresh that assessment on explicit request or after enough new information
-  has accumulated. New usage and conversations are candidate signals; thresholds,
-  timing, cost and what is computed versus generated remain undecided.
+- Provide a live deterministic profile of recorded experience, effort and XP,
+  scoped to the selected language/variety. Calculate it whenever viewed and update
+  it when eligible records change. No AI generation or explicit refresh.
+- This supersedes the earlier saved write-up and periodic-refresh proposals.
 
 ### Proposed division of labor to review
 
 Recorded attempts/observations and XP feed a structured experience profile. That
 profile supplies recommendation targets and reasons. Generators use those targets
-to propose natural practice, and the saved prose assessment explains the same
-profile. Generators should not independently reinterpret the entire history or
-use an old prose write-up as the sole source of current recommendations.
+to propose natural practice. The live profile renders the same underlying counts.
+Generators should not independently reinterpret the entire history.
 
 Experience and effort counts are the first-version recommendation inputs; XP is
 a weighted presentation of practice, not a competence score. Low recorded XP means little recorded
@@ -195,11 +206,10 @@ conversation, not force every exchange into an exercise. Track what was offered
 separately from what the learner actually practiced. Generated partner text, cards
 or suggestions do not by themselves earn learner XP or fill an evidence gap.
 
-The saved assessment is a language-learning guidance artifact, separate from raw
-statistics and from an explanation of one attempt's score. It should identify the
-evidence period/last included activity and refresh time. Staleness should be visible;
-a failed refresh should report failure and preserve the last usable assessment.
-Whether to retain previous write-ups as a browsable history is an open question.
+The profile is a mechanical view of recorded experience, not a generated
+assessment or an explanation of one attempt's score. Recompute after exclusions
+and catalog changes as well as new awards. No saved assessment or refresh history
+is needed; underlying observations and awards remain durable.
 
 ### Review and verification artifacts
 
@@ -209,13 +219,12 @@ practice, limited past-reference practice and assisted possession attempts. Show
 1. What the profile can and cannot infer, and the resulting gap recommendations.
 2. How “Let the persona decide” differs from “Let the coach decide” at chat start,
    and how coaching and card/drill generation use shared recommendation targets.
-3. What the persistent write-up says, and how it differs from numeric statistics.
-4. What happens after new conversations, an explicit refresh, an ignored suggestion
+3. What counts, coverage and practice targets the live profile displays.
+4. What happens after new conversations, excluded evidence, an ignored suggestion
    and a learner-selected topic. Include a language with little or no history.
 
 Integration checks should cover selected-language/variety isolation, unsupported
-content, learner override, stale or failed refresh, and avoiding duplicate refresh
-work. Verify that suggestions do not count as demonstrated use and repeated
+content, learner override, load errors and updates to the open profile. Verify that suggestions do not count as demonstrated use and repeated
 recommendations can be explained. These are product checks, not a new prompt-style
 benchmark or a claimed proficiency estimator.
 
@@ -372,3 +381,12 @@ practice credit survives reopening. These new components are not yet invoked by
 the live graph or rendered in XP totals. The old catalog and award path remain
 active pending the coordinated cutover; do not treat component tests as a completed
 learner flow. Other-agent message-assessment changes were preserved.
+
+## 2026-09-25 source completion checkpoint
+
+Replaced the legacy estimate view with live experience/effort/XP, preserved partner
+filtering and language-wide native exports, connected guide access in all reviewed
+skill-evidence entry points, and verified exclusion/restore and scope-change updates.
+See [profile completion and remaining limits](saved-experience-assessment.md).
+603 native tests passed (one ignored), 54 focused UI tests and 26 architecture
+checks passed. Interactive Mac/Spanish verification remains pending, not completed.

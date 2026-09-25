@@ -1,7 +1,8 @@
+import { InfoTip } from '../../components/controls/InfoTip'
 import { useI18n } from '../../components/localization/i18n'
 import { messageKey } from '../../domain/localization'
 import { difficultyLabel } from '../../components/controls/DifficultySelect'
-import { TargetText } from '../../components/reading/TargetText'
+import { TargetPhrase } from '../../components/reading/TargetPhrase'
 import type { DrillGenerationInput, DrillLength } from '../../generated/contracts'
 import type { OfferedCandidate } from './useDrillPreview'
 
@@ -38,7 +39,8 @@ export function CandidateList({ offered, added, adding, onKeep }: {
         return (
           <li key={candidate.candidateId} className="drill-candidate" data-kept={isAdded}>
             <span className="drill-candidate-body">
-              <TargetText text={candidate.text} />
+              {candidate.source.kind === 'generated' && candidate.source.skillFocus && <span className="drill-chip">{tr('Skill focus')}: {tr(candidate.source.skillFocus.skill.name)}{candidate.source.skillFocus.recommendation && <InfoTip>{tr('Experience')}: {tr.number(candidate.source.skillFocus.recommendation.skill.experience)}{' · '}{tr('Effort')}: {tr.number(candidate.source.skillFocus.recommendation.skill.effort)}</InfoTip>}</span>}
+              <TargetPhrase text={candidate.text} addToDrill={false} />
               {candidate.translation !== null && <span className="drill-candidate-translation">{candidate.translation}</span>}
               <span className="drill-candidate-notes">
                 {candidate.source.kind === 'conversation'

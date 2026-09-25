@@ -39,10 +39,13 @@
 
   /* ══ Colour: the conversation ════════════════════════════════════════════
      The partner's side is warm; the learner's side is cool. */
-  --bubble-partner-bg: #fff4e3;
-  --bubble-partner-line: #ebd3a8;
-  --bubble-learner-bg: #e8eef8;
-  --bubble-learner-line: #c9d6eb;
+  --bubble-partner-bg: #ffefd6;
+  --bubble-partner-line: #e2bd83;
+  --bubble-learner-bg: #dce7f8;
+  --bubble-learner-line: #a9bfe3;
+  /* A bubble's tail: a curved spur below the speaker-side corner. */
+  --bubble-tail-width: 9px;
+  --bubble-tail-height: 10px;
 
   /* ══ Colour: interaction ═════════════════════════════════════════════════
      The one accent: links, selection, active tabs, XP, focus. */
@@ -81,15 +84,16 @@
   /* ══ Colour: skill domains ═══════════════════════════════════════════════
      Data colours for the six domains: d-* fills marks (map nodes, bars, dots),
      di-* is the domain as text on sheet, dm-* a muted fill. Read from
-     domain/learning/catalog/skill-domains.ts. Never a status. */
-  --d-social: #e08a2e;
-  --di-social: #8a4e0a;
+     domain/learning/catalog/skill-domains.ts. Never a status: domain hues stay
+     out of the red and orange range that learners read as errors and warnings. */
+  --d-social: #3f9a4a;
+  --di-social: #24632e;
   --dm-social: color-mix(in srgb, var(--d-social) 65%, var(--sheet));
-  --d-questions: #d9564f;
-  --di-questions: #922c2a;
+  --d-questions: #1693b8;
+  --di-questions: #0b5c75;
   --dm-questions: color-mix(in srgb, var(--d-questions) 65%, var(--sheet));
-  --d-opinions: #c0519b;
-  --di-opinions: #822f66;
+  --d-opinions: #a94fc0;
+  --di-opinions: #6d2d80;
   --dm-opinions: color-mix(in srgb, var(--d-opinions) 65%, var(--sheet));
   --d-statements: #3d7bd6;
   --di-statements: #1f4785;
@@ -113,7 +117,8 @@
   /* ══ Depth ═══════════════════════════════════════════════════════════════
      The depth preference (flat, default, raised, recessed) overrides the
      surface, floating and input shadows, the scrim and the surface fill. */
-  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* bubbles, cards, active tab */
+  --shadow-sm: 0 1px 2px rgb(31 28 23 / 8%);                                   /* cards, active tab */
+  --shadow-bubble: 0 1px 1px rgb(31 28 23 / 10%), 0 2px 5px rgb(31 28 23 / 7%); /* chat bubbles off the sheet */
   --shadow-surface: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%); /* the chat sheet off the ground */
   --shadow-floating: 0 4px 12px rgb(0 0 0 / 16%), 0 16px 40px rgb(0 0 0 / 12%); /* dialogs, popovers, rewards */
   --shadow-menu: 0 8px 24px rgb(0 0 0 / 25%);                                  /* menus */
@@ -217,6 +222,7 @@
   --dur-base: 200ms;
   --dur-slow: 320ms;
   --dur-deliberate: 800ms;
+  --dur-xp-payout: 650ms;     /* One point burst; XP_PAYOUT_LIFETIME_MS in RewardPresentation.tsx */
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-spin: 800ms;
@@ -235,8 +241,6 @@
   --z-drawer: 41;
   --z-popover: 50;
   --z-modal: 60;
-  --z-reward-toast: 1090;
-  --z-reward-path: 1095;
   --z-reward: 1100;
 
   /* ══ Runtime contracts ═══════════════════════════════════════════════════
@@ -277,10 +281,10 @@
   --ink-2: #d3d6da;
   --ink-3: #a3a8af;
   /* Neutral partner bubbles keep reading aids clear without an amber cast. */
-  --bubble-partner-bg: #282c32;
-  --bubble-partner-line: #4b535e;
-  --bubble-learner-bg: #1e2836;
-  --bubble-learner-line: #34465f;
+  --bubble-partner-bg: #30343b;
+  --bubble-partner-line: #626c79;
+  --bubble-learner-bg: #213350;
+  --bubble-learner-line: #41618f;
   --interaction-ink: #6fa3ea;
   --success-ink: #75d6f5;
   --success-line: #75d6f5;
@@ -290,12 +294,12 @@
   --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);
   --danger-ink: #f07a72;
   --danger-tint: color-mix(in srgb, #f07a72 16%, transparent);
-  --d-social: #f0a957;
-  --di-social: #f0a957;
-  --d-questions: #f07a72;
-  --di-questions: #f07a72;
-  --d-opinions: #de7bbb;
-  --di-opinions: #de7bbb;
+  --d-social: #7ccb84;
+  --di-social: #7ccb84;
+  --d-questions: #5cc4e4;
+  --di-questions: #5cc4e4;
+  --d-opinions: #cf8ae0;
+  --di-opinions: #d9a2e8;
   --d-statements: #6fa3ea;
   --di-statements: #6fa3ea;
   --d-descriptions: #a585e8;
@@ -330,7 +334,7 @@
 :root[data-spacing='extra_tight'] { --layout-scale: .5; }
 :root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
 :root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
-:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
+:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-bubble: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
 :root[data-depth='raised'] { --shadow-surface: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --shadow-floating: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --scrim: rgb(0 0 0 / 55%); }
 :root[data-depth='recessed'] { --shadow-surface: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
 

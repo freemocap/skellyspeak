@@ -20,7 +20,7 @@ pub fn selected(captured: &Value) -> Result<AssessmentAdapter> {
 fn fail(message: &str) -> AppError {
     AppError::new(ErrorCode::Validation, message)
 }
-fn skills(captured: &Value) -> Result<Vec<SkillPrompt>> {
+pub(super) fn skills(captured: &Value) -> Result<Vec<SkillPrompt>> {
     if !captured["presenceContentError"].is_null() {
         return Err(fail("Skill guidance is unavailable for this language and variety.")
             .with_diagnostics(json!({"validation":{"stage":"skill_content","path":captured["presenceContentError"]["path"],"expected":"guidance for every selected skill and variety"}})));
@@ -72,7 +72,29 @@ pub fn validate(
         )
     })?;
     let answers = practice_assessment::validate(&raw, &ids)?;
+    let config: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
+    config.attribution.validate()?;
+    let presence = answers
+        .iter()
+        .map(|(id, answer)| {
+            let selected = config.attribution.accepts(answer);
+            (
+                id,
+                if selected
+                    || matches!(
+                        answer.choice,
+                        crate::learning::practice::Presence::Absent
+                            | crate::learning::practice::Presence::Unclear
+                    )
+                {
+                    answer.choice
+                } else {
+                    crate::learning::practice::Presence::Absent
+                },
+            )
+        })
+        .collect::<std::collections::BTreeMap<_, _>>();
     Ok(
-        json!({"presence":answers.iter().map(|(id,a)|(id,a.choice)).collect::<std::collections::BTreeMap<_,_>>(),"answers":answers,"model":output.actual_model,"adapter":"jev_choice","promptVersion":VERSION,"policy":{"version":crate::learning::practice::POLICY}}),
+        json!({"presence":presence,"answers":answers,"model":output.actual_model,"adapter":"jev_choice","promptVersion":VERSION,"policy":{"version":crate::learning::practice::POLICY,"minimumPositiveProbability":config.attribution.minimum_positive_probability}}),
     )
 }

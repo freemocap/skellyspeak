@@ -1,6 +1,11 @@
 use super::*;
 
 impl Handlers<'_> {
+    pub(super) fn reassess_feedback(&mut self, turn_id: String, note: String) -> Result<String> {
+        self.conversation_scope = Some(crate::conversations::execution::reassess_feedback(self.tx, &turn_id, &note)?);
+        Ok(turn_id)
+    }
+
     pub(super) fn request_message_speech(&mut self, message_id: String) -> Result<String> {
         let cached_attempt: Option<String> = self.tx.query_row(
             "SELECT a.id FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN messages m ON m.turn_id=o.turn_id WHERE m.id=?1 AND o.kind='persona_speech' AND o.state='succeeded' AND a.state='succeeded' ORDER BY a.rowid DESC LIMIT 1",

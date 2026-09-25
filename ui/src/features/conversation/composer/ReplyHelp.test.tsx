@@ -56,7 +56,7 @@ it('discloses grammar without touching the reply ideas', () => {
   expect(screen.queryByRole('heading', {name:'Yes-no questions with 吗'})).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: /Explain grammar/ }))
   expect(screen.getByRole('heading', {name:'Yes-no questions with 吗'})).toBeVisible()
-  expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent === 'Add 吗 to a statement to make it a question.')).toBeVisible()
+  expect(screen.getByText((_, element) => element?.tagName === 'P' && element.textContent?.startsWith('Add 吗') && element.textContent.endsWith('to a statement to make it a question.'))).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Insert reply: 我很好。' })).toBeNull()
 })
 
@@ -183,8 +183,8 @@ it('retains whole-passage translation and sound help without inserting or invent
 it('splits saved mixed-script grammar examples into source and separate reading aids', () => {
   const example = 'مَاذَا تَأْكُلُ؟ (mādhā ta’kulu?) – What are you eating?'
   const view = render(<ReplyHelp {...base} opened={['grammar']} grammar={[{ title: 'Question', quote: 'مَاذَا تَفْعَلُ؟', body: 'Ask and answer questions.', example, contrast: '' }]} />)
-  const passages = view.container.querySelectorAll('.reading-passage-text')
-  expect(passages[1].textContent).toBe('مَاذَا تَأْكُلُ؟')
+  const passages = view.container.querySelectorAll('.reading-passage .msg')
+  expect(passages[1].querySelector('.target-text')?.textContent).toBe('مَاذَا تَأْكُلُ؟')
   fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
   expect(screen.getByText('What are you eating?')).toHaveAttribute('dir', 'auto')
   expect(passages[1].querySelector('.target-text')?.textContent).not.toContain('mādhā')

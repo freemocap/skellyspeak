@@ -1,4 +1,5 @@
-import { AddToDrillButton } from './AddToDrillButton'
+import { MessageSkillAnalysis } from '../reading/MessageSkillAnalysis'
+import { PhraseActions } from '../../../components/reading/PhraseActions'
 import { MessageXpButton } from '../progress/MessageXpButton'
 import { useUiDirection } from '../../../components/localization/useUiDirection'
 import { useI18n } from '../../../components/localization/i18n'
@@ -40,6 +41,7 @@ export interface TurnShape {
   assistant: GuidedTurnResult | null
   pendingText: string
   coach?: CoachObservationView
+  feedbackContext?: string
   conversationFeedback?: import('../../../generated/contracts').ConversationFeedback
   coachDecision?: CoachDecision
   coachError?: string
@@ -50,7 +52,6 @@ export interface TurnShape {
 export interface TurnViewProps {
   turn: TurnShape
   reviewing: boolean
-  onOpenCoach?: (id: number) => void
   onAskCoach: (question: string) => void
   focused: boolean
   ttsReady: boolean
@@ -63,6 +64,7 @@ export interface TurnViewProps {
   /// their response from the edited text. Omitted while a turn is in flight.
   onReplyControl?: (control: 'retry' | 'resume') => Promise<void>
   onActivity?: () => void
+  onAddContext?: (note: string) => Promise<void>
   onRetryHelp?: () => Promise<void>
   onRetryGloss?: (operationId: string) => Promise<void>
   onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
@@ -76,7 +78,6 @@ export const TurnView = memo(function TurnView({
   turn,
   reviewing,
   onAskCoach,
-  onOpenCoach,
   focused,
   ttsReady,
   speaking,
@@ -89,6 +90,7 @@ export const TurnView = memo(function TurnView({
   editDisabled,
   onRetryGloss,
   onRetryHelp,
+  onAddContext,
   onReplyControl,
   onActivity,
 }: TurnViewProps) {
@@ -158,9 +160,10 @@ export const TurnView = memo(function TurnView({
             </button>
           )}
           <MessageXpButton messageId={turn.id} source={turn.user} />
+          <PhraseActions text={turn.user} />
           </div>
         <div dir={uiDirection} className={`message-feedback${turn.conversationFeedback ? ' has-scores' : ''}`} onDoubleClick={event => event.stopPropagation()}>
-          <MessageFeedback conversationFeedback={turn.conversationFeedback} onOpenCoach={onOpenCoach ? () => onOpenCoach(turn.id) : undefined} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
+          <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<><AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} /><MessageSkillAnalysis messageId={turn.id} source={turn.user} /></>} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
             {(userTranslation || translationPending(turn.userTranslationState)) && <button type="button" className={translationPending(turn.userTranslationState) ? 'message-translate is-hydrating' : 'message-translate'} aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
             <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!userSegments.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
           </MessageFeedback>
@@ -172,7 +175,6 @@ export const TurnView = memo(function TurnView({
           <TargetMessage
             layout="bubble"
             text={assistant.reply}
-            extraActions={<AddToDrillButton key={assistant.reply} text={assistant.reply} />}
             segments={assistant.savedGloss?.segments ?? anchoredTokenGlosses(assistant.reply, assistant.tokens)}
             segmentsKey={assistant.savedGloss ? `${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}` : 'tokens'}
             segmentsPending={assistant.glossState === 'running'}

@@ -151,15 +151,14 @@ pub(crate) fn decide(
         kept_going: false,
     };
     if let Some(repaired) = repaired {
-        let target = observation
+        let has_target_evidence = observation
             .items
             .iter()
-            .find(|i| Some(i.construct.as_str()) == retry["item"]["construct"].as_str());
+            .any(|i| Some(i.construct.as_str()) == retry["item"]["construct"].as_str()
+                && !matches!(i.outcome, Outcome::Uncertain | Outcome::NotObserved));
         decision.repair_status = Some(if repaired {
             RepairStatus::Repaired
-        } else if target
-            .is_none_or(|i| matches!(i.outcome, Outcome::Uncertain | Outcome::NotObserved))
-        {
+        } else if !has_target_evidence {
             RepairStatus::Uncertain
         } else {
             RepairStatus::NotRepaired

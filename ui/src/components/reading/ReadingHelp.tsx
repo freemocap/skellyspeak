@@ -85,7 +85,9 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     return stop
   }, [stop, scope?.language, scope?.variety, scope?.explanation, scope?.explanationVariety])
   const inspect = useCallback((next: ReadingSelection) => { stop(); setSelection(next) }, [stop])
+  const lastSpeech = useRef<ReadingSelection | null>(null)
   const speak = useCallback((next: ReadingSelection) => {
+    lastSpeech.current = next
     stop(); setSpeechError(null); setSpeechReceipt(null); setLoadingAudio(true)
     const controller = new AbortController(); speech.current = controller
     setSpeaking(speechKey(next))
@@ -108,7 +110,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} services={services} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
     {(speechError != null || speechReceipt != null || speaking != null) && <div ref={audioStatus} popover="manual" className="reading-audio-status" data-reading-tools>
       {speaking && <><span role="status">{tr(loadingAudio ? 'Loading speech…' : 'Reading aloud…')}</span><button className="btn" onClick={stop}>{tr('Stop reading')}</button></>}
-      {speechError != null && <ErrorNotice error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
+      {speechError != null && <ErrorNotice onRetry={() => { if (lastSpeech.current) speak(lastSpeech.current) }} error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
       {speechReceipt != null && <ResponseDetails value={speechReceipt} />}
       {!speaking && <button className="btn" onClick={() => { setSpeechError(null); setSpeechReceipt(null) }}>{tr('Close')}</button>}
     </div>}

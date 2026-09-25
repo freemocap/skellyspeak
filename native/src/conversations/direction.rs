@@ -19,8 +19,15 @@ pub enum TimeReference {
     deny_unknown_fields
 )]
 pub enum TopicChoice {
-    Builtin { id: String },
-    Custom { text: String },
+    Builtin {
+        id: String,
+    },
+    Coach {
+        mode: crate::learning::recommendations::RecommendationMode,
+    },
+    Custom {
+        text: String,
+    },
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -70,10 +77,23 @@ pub struct TopicCard {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct PromptPreview {
+    pub coach_focus: Option<CoachFocusPreview>,
     pub configuration: ConversationStartConfig,
     pub yaml: String,
     pub system_prompt: String,
     pub difficulty_prompts: Vec<(Difficulty, String)>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub struct CoachFocusPreview {
+    pub skill_id: String,
+    pub name: String,
+    pub mode: crate::learning::recommendations::RecommendationMode,
+    #[ts(type = "number")]
+    pub experience: u64,
+    #[ts(type = "number")]
+    pub effort: u64,
 }
 
 pub(crate) fn topic_text(
@@ -81,7 +101,7 @@ pub(crate) fn topic_text(
     direction: &ConversationDirection,
 ) -> Result<Option<String>> {
     match &direction.topic {
-        None => Ok(None),
+        None | Some(TopicChoice::Coach { .. }) => Ok(None),
         Some(TopicChoice::Builtin { id }) => Ok(Some(registry.topic(id)?.subject.clone())),
         Some(TopicChoice::Custom { text }) => {
             validate_text(text)?;

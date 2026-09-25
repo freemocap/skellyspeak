@@ -137,7 +137,7 @@ pub(crate) fn prompt_for_exchange(
             "Help the learner understand and answer actualPartnerReply. Supply exactly two different plausible replies. In each reply, text is the reply written in the target language and its own script (never the explanation language); translation is its meaning written in the explanation language (never the target language); romanization is text transliterated into Latin letters only (never the target script; empty when the target language uses Latin script); and pronunciation is a readable guide for explanation-language readers. Also give two target-language sentence frames containing ___ and two short target-language starters. Match the topic and selected difficulty. These are optional draft choices, not claims about the learner's life. Do not redirect to a lesson."
         }
         EXPLANATIONS => {
-            "Explain zero to two useful grammar or usage patterns in actualPartnerReply. Each card must quote actual partner wording verbatim and give a short title, explanation, target-language example, and a useful contrast with the explanation language (empty if none). Contrast languages, not two forms in the target language. No forced filler for simple/repeated language. Do not assess the learner here."
+            "Explain zero to two useful grammar or usage patterns in actualPartnerReply. Each card must quote actual partner wording verbatim and give a short title, explanation, target-language example, and a useful contrast with the explanation language (empty if none). Contrast languages, not two forms in the target language. No forced filler for simple/repeated language. Do not assess the learner here. When a pattern illustrates a supplied skill definition, mention that skill by its readable name in the explanation. Reference skills only when the quoted partner wording supports the connection. learnerSkillEvidence describes the learner message only; never treat partner wording as learner achievement or award XP."
         }
         _ => return Err(rejected("unknown task")),
     };
@@ -185,6 +185,10 @@ pub(crate) fn prompt_for_exchange(
         )
     };
     let mut data = json!({"precedingExchange":preceding,"latestLearnerInput":latest,"actualPartnerReply":partner,"difficulty":captured["practiceSettings"]["difficulty"],"input":captured["input"]});
+    if kind == EXPLANATIONS {
+        data["skillDefinitions"] = json!(captured["presenceSkills"].as_array().map(|skills| skills.iter().map(|skill| json!({"id":skill["id"],"name":skill["name"],"overview":skill["overview"]})).collect::<Vec<_>>()).unwrap_or_default());
+        data["learnerSkillEvidence"] = json!(captured["skillAssessment"]["presence"].as_object().map(|presence| presence.iter().filter(|(_, value)| matches!(value.as_str(), Some("direct" | "contextual"))).map(|(id,_)| json!({"skillId":id,"source":"latestLearnerInput","spans":captured["skillAttribution"]["skills"][id]["spans"]})).collect::<Vec<_>>()).unwrap_or_default());
+    }
     // Drop only whole old exchanges; never truncate the evaluated source or reply.
     while instruction.len() + data.to_string().len() > 12000 {
         let preceding = data["precedingExchange"]
@@ -313,4 +317,29 @@ pub fn publish(db: &Connection, turn: &str, kind: &str, value: &Value) -> Result
         params![turn, format!("$.{kind}"), value.to_string()],
     )?;
     Ok(())
+}
+
+#[cfg(test)]
+mod skill_context_tests {
+    use super::*;
+    #[test]
+    fn grammar_gets_compact_skills_and_separately_owned_learner_evidence() {
+        let context = json!({"messages":[],"presenceSkills":[
+            {"id":"past","name":"Past events","overview":"Locate an event before now.","language_guidance":"Detailed content omitted."},
+            {"id":"future","name":"Future events","overview":"Locate an event after now."}
+        ],"skillAssessment":{"presence":{"past":"direct","future":"absent"}},
+        "skillAttribution":{"skills":{"past":{"spans":[{"quote":"ayer","start":0,"end":4}]}}}});
+        let messages = prompt_for_exchange("Hoy descansamos.".into(), Some("ayer trabajé".into()), EXPLANATIONS, &context).unwrap();
+        let data: Value = serde_json::from_str(&messages[1].content).unwrap();
+        assert_eq!(data["skillDefinitions"].as_array().unwrap().len(), 2);
+        assert!(data["skillDefinitions"][0].get("language_guidance").is_none());
+        assert_eq!(data["learnerSkillEvidence"].as_array().unwrap().len(), 1);
+        assert_eq!(data["learnerSkillEvidence"][0]["source"], "latestLearnerInput");
+        assert_eq!(data["learnerSkillEvidence"][0]["spans"][0]["quote"], "ayer");
+        assert_eq!(data["actualPartnerReply"], "Hoy descansamos.");
+        assert!(messages[0].content.contains("never treat partner wording as learner achievement"));
+        let brief = prompt_for_exchange("Hoy descansamos.".into(), None, BRIEF, &context).unwrap();
+        let data: Value = serde_json::from_str(&brief[1].content).unwrap();
+        assert!(data.get("skillDefinitions").is_none());
+    }
 }

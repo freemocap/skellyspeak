@@ -33,6 +33,18 @@ impl Store {
                 "Ready operation has unsatisfied declared dependencies.",
             ));
         }
+        if kind == "skill_attribution" {
+            let captured: serde_json::Value = serde_json::from_str(&context)?;
+            if crate::learning::coaching::skill_attribution::selected(&captured)?.is_empty() {
+                tx.execute("UPDATE operations SET state='succeeded',permit=0 WHERE id=?1", [&operation])?;
+                tx.execute("UPDATE turns SET context=json_set(context,'$.skillAttribution',json(?2)) WHERE id=?1", [&turn, &serde_json::json!({"skills":{}}).to_string()])?;
+                super::graph::release_dependents(&tx, &turn)?;
+                refresh_turn(&tx, &turn)?;
+                bump(&tx)?;
+                tx.commit()?;
+                return Ok(None);
+            }
+        }
         let attempt = id();
         if kind == "persona_context" || kind == "coach_context" {
             let captured: serde_json::Value = serde_json::from_str(&context)?;
@@ -104,6 +116,7 @@ impl Store {
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
             && !crate::learning::coaching::message_assessment::owns(&kind)
+            && kind != "skill_attribution"
             && kind != "skill_assessment"
             && kind != "persona_reply"
             && kind != "persona_opening"
@@ -137,7 +150,9 @@ impl Store {
                 && crate::learning::coaching::assessment_adapter::selected(&captured)?
                     == AssessmentAdapter::JevChoice;
             let rating = crate::learning::coaching::message_assessment::owns(&kind);
-            let coaching_schema = if rating {
+            let coaching_schema = if kind == "skill_attribution" {
+                Some(crate::learning::coaching::skill_attribution::schema(&crate::learning::coaching::skill_attribution::selected(&captured)?))
+            } else if rating {
                 None
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 Some(
@@ -157,7 +172,9 @@ impl Store {
             } else {
                 None
             };
-            let messages = if rating {
+            let messages = if kind == "skill_attribution" {
+                crate::learning::coaching::skill_attribution::prompt(&tx, &turn, &captured)?
+            } else if rating {
                 crate::learning::coaching::message_assessment::prompt(&tx, &turn, &kind, &captured)?
             } else if kind == "skill_assessment" {
                 crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?

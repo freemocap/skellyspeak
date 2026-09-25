@@ -5,11 +5,7 @@ use ts_rs::TS;
 #[serde(rename_all = "snake_case")]
 pub enum ReactionKind {
     Understood,
-    Partial,
-    Misunderstood,
-    ClarificationRequested,
-    Unclear,
-    NoReply,
+    Confused,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(deny_unknown_fields)]

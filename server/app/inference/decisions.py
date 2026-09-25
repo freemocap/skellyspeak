@@ -53,7 +53,7 @@ def request(payload: dict) -> ChatRequest:
         if not isinstance(key, str) or not key or len(key) > 64 or not isinstance(question, dict) or set(question) != {"type", "instructions", "criteria"}:
             reject("Invalid decisions question.")
         criteria = question["criteria"]
-        expected = ({f"score_{n}" for n in range(11)} | {"insufficient_evidence"}) if is_rating and key in rating_keys else ({"understood", "partial", "misunderstood", "clarification_requested", "unclear", "no_reply"} if is_rating else CATEGORIES)
+        expected = ({f"score_{n}" for n in range(11)} | {"insufficient_evidence"}) if is_rating and key in rating_keys else ({"understood", "confused"} if is_rating else CATEGORIES)
         if question["type"] != "choice" or not isinstance(question["instructions"], str) or not isinstance(criteria, dict) or set(criteria) != expected or any(not isinstance(v, str) for v in criteria.values()):
             reject("Decisions criteria do not match the task.")
         bound = state_size + encoded_size(question) + 4096

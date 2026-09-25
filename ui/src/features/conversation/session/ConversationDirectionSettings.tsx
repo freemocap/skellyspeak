@@ -14,7 +14,7 @@ export function ConversationDirectionSettings({ conversationId, topics, directio
   const contact = workspace?.contacts.find(item => item.id === owner?.contactId)
   const persona = workspace?.personas.find(item => item.id === contact?.personaId)
   const language = workspace?.languages.find(item => item.id === owner?.languageId)
-  const topic = direction.topic?.kind === 'custom' ? direction.topic.text : direction.topic?.kind === 'builtin' ? topics.find(item => direction.topic?.kind === 'builtin' && item.id === direction.topic.id)?.target : tr('Partner chooses')
+  const topic = direction.topic?.kind === 'custom' ? direction.topic.text : direction.topic?.kind === 'builtin' ? topics.find(item => direction.topic?.kind === 'builtin' && item.id === direction.topic.id)?.target : direction.topic?.kind === 'coach' ? tr({ explore: 'Explore', continuePracticing: 'Continue practicing', coachChoice: 'Coach’s choice' }[direction.topic.mode]) : tr('Partner chooses')
   return <section className="conversation-settings-group">
     <p className="prompt-topic-summary">{topic} · {tr({ any: 'No preference', past: 'Past events', future: 'Future plans' }[direction.timeReference])}</p>
     <button type="button" className="btn" onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>{tr('Conversation Prompt Creator')}</button>

@@ -6,13 +6,15 @@ import type { PendingRecording } from '../../platform/audio/useMicRecorder'
 import { AttemptResult } from './AttemptLog'
 
 /** Keep the recording identity (and its row) while native publishes the result. */
-export function TakeQueue({ takes, attempts, rtl, onSelect, onDelete, deleting }: {
+export function TakeQueue({ takes, attempts, rtl, onSelect, onDelete, deleting, onRecordAgain, recordingBusy }: {
   takes: (ListeningTake | PendingRecording)[]
   attempts: DrillAttemptView[]
   rtl: boolean
   onSelect: (id: string) => void
   onDelete: (attempt: DrillAttemptView) => void
   deleting: boolean
+  onRecordAgain?: () => void
+  recordingBusy?: boolean
 }) {
   const tr = useI18n()
   // The first row is always there: an idle take slot until a recording starts,
@@ -35,7 +37,8 @@ export function TakeQueue({ takes, attempts, rtl, onSelect, onDelete, deleting }
               {'endSeconds' in take && <span className="drill-chip">{tr('{value0} seconds', { value0: tr.number(take.endSeconds - take.startSeconds, { maximumFractionDigits: 1 }) })}</span>}</div>
             <p role="status">{take.state === 'queued' ? tr('Queued') : take.state === 'processing' ? tr('Transcribing…') : take.state === 'failed' ? tr('Take failed') : tr('Loading result…')}</p>
             <div className="drill-take-progress" aria-hidden="true">{busy && <span />}</div>
-            {take.failure != null && <><p>{errorMessage(take.failure)}</p><ResponseDetails value={take.failure} /></>}
+            {take.failure != null && <><p>{errorMessage(take.failure)}</p><ResponseDetails value={take.failure} />
+              {onRecordAgain && <button type="button" className="btn" disabled={recordingBusy} onClick={onRecordAgain}>{tr('Record again')}</button>}</>}
           </article>}
       </li>
     })}

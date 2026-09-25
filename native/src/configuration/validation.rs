@@ -587,6 +587,7 @@ impl Registry {
             "conversation prompt",
             &[
                 &prompt.base,
+                &prompt.coach_focus,
                 &prompt.persona,
                 &prompt.interaction,
                 &prompt.examples_intro,

@@ -335,10 +335,9 @@ impl Registry {
             format!("# {}", skill.name),
             format!("{} · {}", context.target_name, context.variety_name),
             skill.overview.clone(),
-            format!("**Boundary:** {}", skill.boundary),
-            "## Shared language guidance".into(),
+            "## How it works".into(),
             guide.core.explanation.clone(),
-            "## Selected variety".into(),
+            format!("## {}", context.variety_name),
             local.explanation.clone(),
         ];
         let examples: Vec<_> = guide.core.examples.iter().chain(&local.examples).collect();
@@ -346,9 +345,6 @@ impl Registry {
             lines.push("## Examples".into());
         }
         for example in examples {
-            if let Some(context) = &example.context {
-                lines.push(format!("**Context:** {context}"));
-            }
             lines.push(
                 example
                     .text
@@ -358,9 +354,12 @@ impl Registry {
                     .join("\n"),
             );
             lines.push(example.translation.clone());
+            if let Some(context) = &example.context {
+                lines.push(context.clone());
+            }
         }
         lines.extend([
-            "## Content review".into(),
+            "## Editorial notes".into(),
             format!("Review: {}\n\n{}", guide.review, guide.authorship),
         ]);
         Ok(lines.join("\n\n") + "\n")

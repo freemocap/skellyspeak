@@ -192,3 +192,4 @@
 /* The reply card is the insert target and the under-bubble links are secondary,
    so only the primary composer controls take the full touch size. */
 @media (pointer: coarse) { .mic, .send, .coach-send { min-width: var(--touch-target); min-height: var(--touch-target); } }
+.feedback-context textarea.field { display: block; width: 100%; margin-top: var(--space-3); resize: vertical; }

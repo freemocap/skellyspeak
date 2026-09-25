@@ -73,3 +73,12 @@ it('does not fabricate a highlighted span for whole-message classifications', ()
   expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
   expect(messageRewardEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([expect.objectContaining({ evidenceKind: 'whole_message', quote: 'Ese café.' })])
 })
+
+it('uses the validated occurrence without highlighting other identical phrases', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].source = '🙂 Ese café. Ese café.'
+  snapshot.records[0].assessment!.judgments[0].spans = [{ quote: 'Ese café', start: 13, end: 21 }]
+  const spans = messageEvidence(snapshot, 'chat', 1, snapshot.records[0].source)
+  expect(spans).toHaveLength(1)
+  expect(spans[0]).toMatchObject({ start: 13, end: 21, ambiguous: false, xp: 2 })
+})

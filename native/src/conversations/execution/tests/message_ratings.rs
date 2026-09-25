@@ -50,14 +50,14 @@ fn scores_publish_before_reply_and_understanding_waits_for_reply_without_credit(
     store
         .finish(
             &reaction,
-            Ok(result("coach_reaction", "clarification_requested")),
+            Ok(result("coach_reaction", "confused")),
         )
         .unwrap();
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert!(view.messages[0].reaction.is_none());
     assert!(matches!(
         view.messages[1].reaction.as_ref().unwrap().kind,
-        crate::partners::partner_reaction::ReactionKind::ClarificationRequested
+        crate::partners::partner_reaction::ReactionKind::Confused
     ));
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
@@ -101,7 +101,7 @@ fn invalid_scores_do_not_block_partner_reply_or_understanding() {
     store.finish(&partner, Ok(reply("A reply."))).unwrap();
     let understanding = store.dispatch().unwrap().unwrap();
     store
-        .finish(&understanding, Ok(result("coach_reaction", "unclear")))
+        .finish(&understanding, Ok(result("coach_reaction", "confused")))
         .unwrap();
     let view = store.conversation_snapshot(&conversation, None).unwrap();
     assert!(view.messages[0].conversation_feedback.is_none());

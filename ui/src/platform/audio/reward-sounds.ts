@@ -1,3 +1,4 @@
+import { COIN_SCALES, DEFAULT_COIN_VOICE, coinNotes, validateCoinVoice, type CoinVoice } from './coin-voice'
 import { reportFault } from '../diagnostics/faults'
 import { visibleRewardRect } from '../../domain/rewards/reward-anchors'
 import { cssToken } from '../appearance/css-token'
@@ -10,15 +11,22 @@ export function soundEnabled(mode: RewardSoundMode, readAloud: boolean): boolean
   return mode === 'yes' || (mode === 'follow_tts' && readAloud)
 }
 
-/** Short original square-wave motifs; larger rewards rise higher, never louder. */
-export function soundPattern(cue: SoundCue): Beep[] {
+/** Pentatonic coin motifs: a quick pickup and a longer, higher bell note. */
+export function soundPattern(cue: SoundCue, variation = 0, voice: CoinVoice = DEFAULT_COIN_VOICE): Beep[] {
   if (cue.kind === 'xp' && (!Number.isFinite(cue.xp) || cue.xp <= 0)) throw new Error('Reward sounds require positive XP.')
+  if (cue.kind === 'xp' || cue.kind === 'milestone') {
+    const count = cue.kind === 'milestone' ? Math.max(5, voice.notes) : cue.xp >= 20 ? Math.max(4, voice.notes) : cue.xp >= 10 ? Math.max(3, voice.notes) : voice.notes
+    return coinNotes(voice, variation, count)
+  }
   if (cue.kind === 'pop') return [{ frequency: 520, at: 0, duration: 0.075 }, { frequency: 1040, at: 0.055, duration: 0.12 }]
-  const pitches = cue.kind === 'milestone' ? [523, 659, 784, 1047, 1319, 1568]
-    : cue.kind === 'confused' ? [440, 370, 392]
-    : cue.kind === 'understood' ? [659, 988]
-    : cue.xp >= 20 ? [784, 988, 1175, 1568] : cue.xp >= 10 ? [784, 988, 1319] : [784, 1047]
+  const pitches = cue.kind === 'confused' ? [440, 370, 392] : [659, 988]
   return pitches.map((frequency, index) => ({ frequency, at: index * 0.075, duration: 0.07 }))
+}
+
+let coinVoice: CoinVoice = { ...DEFAULT_COIN_VOICE }
+/** Preview tuning is session-local; application settings are not changed. */
+export function configureCoinVoice(value: CoinVoice): void {
+  coinVoice = validateCoinVoice(value)
 }
 
 let enabled = false
@@ -26,6 +34,7 @@ let allowed = true
 let context: AudioContext | null = null
 let output: GainNode | null = null
 let volume = 1
+let lastCoinVariation = -1
 let nextStart = 0
 const voices = new Set<OscillatorNode>()
 const flashes = new Set<Animation>()
@@ -69,26 +78,34 @@ export function unlockRewardAudio(): void {
 }
 
 /** No historical replay, no background queue, and no sound without a visible cause. */
-export function playRewardSound(cue: SoundCue, target: HTMLElement): boolean {
-  const notes = soundPattern(cue)
+export function playRewardSound(cue: SoundCue, target: HTMLElement, timing: 'queued' | 'immediate' = 'queued', plannedNotes?: Beep[]): boolean {
   if (!enabled || !allowed || volume === 0 || document.visibilityState === 'hidden' || context?.state !== 'running' || !target.isConnected) return false
   if (!visibleRewardRect(target, document.body)) return false
+  const coin = cue.kind === 'xp' || cue.kind === 'milestone'
+  const scaleLength = COIN_SCALES[coinVoice.scale].length
+  let variation = Math.floor(Math.random() * scaleLength)
+  if (variation === lastCoinVariation) variation = (variation + 1) % scaleLength
+  if (coin) lastCoinVariation = variation
+  const notes = plannedNotes ?? soundPattern(cue, coin ? variation : 0, coinVoice)
   const audio = context
-  const start = Math.max(audio.currentTime, nextStart)
+  const start = timing === 'immediate' ? audio.currentTime : Math.max(audio.currentTime, nextStart)
   if (start - audio.currentTime > 0.45) return false
-  nextStart = start + 0.12
+  if (timing === 'queued') nextStart = start + 0.12
   for (const note of notes) {
     const oscillator = audio.createOscillator()
     const gain = audio.createGain()
-    oscillator.type = cue.kind === 'pop' ? 'triangle' : 'square'
+    oscillator.type = coin ? coinVoice.waveform : cue.kind === 'pop' ? 'triangle' : 'square'
     oscillator.frequency.value = note.frequency
     const at = start + note.at
-    if (cue.kind === 'pop') {
+    if (coin) {
+      oscillator.frequency.setValueAtTime(note.frequency * 2 ** (coinVoice.bend / 12), at)
+      oscillator.frequency.exponentialRampToValueAtTime(note.frequency, at + .006)
+    } else if (cue.kind === 'pop') {
       oscillator.frequency.setValueAtTime(note.frequency, at)
       oscillator.frequency.exponentialRampToValueAtTime(note.frequency * 1.35, at + note.duration * .55)
     }
     gain.gain.setValueAtTime(0, at)
-    gain.gain.linearRampToValueAtTime(cue.kind === 'pop' ? 0.09 : 0.025, at + 0.004)
+    gain.gain.linearRampToValueAtTime(coin ? (coinVoice.waveform === 'square' || coinVoice.waveform === 'sawtooth' ? .022 : .055) : cue.kind === 'pop' ? 0.09 : 0.025, at + (coin ? coinVoice.attackMs / 1000 : 0.004))
     gain.gain.exponentialRampToValueAtTime(0.001, at + note.duration)
     oscillator.connect(gain)
     gain.connect(output!)

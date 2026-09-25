@@ -31,7 +31,7 @@ fn identity(value: &str) -> Option<String> {
 }
 fn kind(value: &str) -> &str {
     match value {
-        "skill_assessment"
+        "skill_attribution" | "skill_assessment"
         | "skill_evidence"
         | "conversation_feedback"
         | "reply_brief"

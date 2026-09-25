@@ -158,7 +158,6 @@
   cursor: pointer;
 }
 
-.persona-reaction.is-confused { border-color: var(--interaction-ink); box-shadow: 0 0 0 1px var(--interaction-ink); }
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 

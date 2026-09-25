@@ -5,6 +5,8 @@ properties:
     type: string
   ceiling:
     type: string
+  coach_focus:
+    type: string
   difficulty:
     additionalProperties:
       type: string
@@ -36,6 +38,7 @@ properties:
 required:
 - base
 - ceiling
+- coach_focus
 - difficulty
 - examples
 - examples_intro

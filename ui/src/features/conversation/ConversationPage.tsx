@@ -500,6 +500,10 @@ export default function ConversationPage({
               : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
               : analysing}
           </div>
+          {mic.failure != null && <ErrorNotice error={mic.failure}>
+            <p>{nativeError(mic.failure)}</p>
+            <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
+          </ErrorNotice>}
           {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {connection?.configured && <ConversationHelp hasReply={activeTurns.some(turn => !!turn.assistant)} hasLearnerTurn={activeTurns.some(turn => !!turn.user)} />}
           {isMobile && replyHelp}
@@ -512,7 +516,7 @@ export default function ConversationPage({
   )
 
   return (
-    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider enabled={settings?.xp_effects !== false} fastMode={settings?.fast_mode ?? true} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
+    <ConversationReadingProvider snapshot={snapshot} conversation={details.conversation}><AskCoachContext value={askCoach}><ReadingPreferencesProvider settings={settings}><RewardPresentationProvider enabled={settings?.xp_effects !== false} chatId={currentChatId} active={active}><PracticeContext value={{ chatId: currentChatId, selectionVersion, selected: skillSelection && skillSelection.target === settings?.target_language ? skillSelection.skillId : null, select: skillId => { if (!settings) throw new Error('Settings are not loaded'); selectSkill({ target: settings.target_language, skillId }) } }}>
     <div className="guided-workspace">
     <div
       ref={workspace}
@@ -577,7 +581,7 @@ export default function ConversationPage({
               onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
               rtl={rtl}
               onBubbleTap={onBubbleTap}
-              onOpenCoach={openCoach}
+              onAddContext={turn.turnId && !turn.replacedBy ? async note => { await executeAction(await readWorkspace(), {kind:'reassessFeedback', turnId:turn.turnId!, note}) } : undefined}
               onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
               onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
@@ -626,7 +630,7 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview onAsk={askCoach} turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
             if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
             await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })

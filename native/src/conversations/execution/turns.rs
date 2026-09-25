@@ -181,12 +181,30 @@ fn accept_turn(
             &language_context,
         );
     }
-    let focus = crate::learning::learner::progression::capture_focus(
+    let recommendation = crate::learning::recommendations::capture(
         db,
         registry,
         &snapshot.session_id,
-        &conversation.language_id,
+        conversation,
+        &conversation.settings.direction,
     )?;
+    if !coach {
+        crate::learning::recommendations::append_prompt(
+            &mut system,
+            registry,
+            recommendation.as_ref(),
+        )?;
+    }
+    let focus = if let Some(value) = &recommendation {
+        serde_json::json!({"id":value["skill"]["id"],"label":value["skill"]["name"],"opportunity":value["skill"]["overview"],"source":"coach","reason":value["basis"]})
+    } else {
+        crate::learning::learner::progression::capture_focus(
+            db,
+            registry,
+            &snapshot.session_id,
+            &conversation.language_id,
+        )?
+    };
     let retry = if let Some(replaced) = replaced {
         crate::learning::coaching::coach_policy::retry_context(db, replaced)?
     } else {
@@ -263,7 +281,7 @@ fn accept_turn(
         Ok(skills) => (serde_json::to_value(skills)?, serde_json::Value::Null),
         Err(error) => (serde_json::Value::Null, serde_json::to_value(error)?),
     };
-    let captured = serde_json::json!({"skillContentHash":registry.skill_content_hash(&conversation.language_id, &conversation.settings.variety_id)?,"presenceSkills":presence_skills,"presenceContentError":presence_error,"presenceInstructions":registry.presence_instructions(),"assessmentAdapter":AssessmentAdapter::JevChoice,"skillCriteria":registry.skills_for_language(&conversation.language_id)?.iter().map(|c|serde_json::json!({"id":c.id,"criterion":c.overview})).collect::<Vec<_>>(),"skillAssessmentPromptVersion":crate::learning::coaching::assessment_adapter::version(profile.assessment_adapter),"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::learning::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"practiceFocus":focus,"catalogVersion":crate::learning::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":crate::conversations::conversation_prompt::VERSION,"conversationSupportPromptVersion":"conversation-support-5","coachFeedbackPromptVersion":crate::learning::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::learning::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
+    let captured = serde_json::json!({"practiceRecommendation":recommendation,"skillContentHash":registry.skill_content_hash(&conversation.language_id, &conversation.settings.variety_id)?,"presenceSkills":presence_skills,"presenceContentError":presence_error,"presenceInstructions":registry.presence_instructions(),"assessmentAdapter":AssessmentAdapter::JevChoice,"skillCriteria":registry.skills_for_language(&conversation.language_id)?.iter().map(|c|serde_json::json!({"id":c.id,"criterion":c.overview})).collect::<Vec<_>>(),"skillAssessmentPromptVersion":crate::learning::coaching::assessment_adapter::version(profile.assessment_adapter),"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::learning::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"coachRetry":retry,"opening":opening,"practiceFocus":focus,"catalogVersion":crate::learning::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":crate::conversations::conversation_prompt::VERSION,"conversationSupportPromptVersion":"conversation-support-5","coachFeedbackPromptVersion":crate::learning::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::learning::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,target.model,serde_json::to_string(&captured)?,profile.route.label()])?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;

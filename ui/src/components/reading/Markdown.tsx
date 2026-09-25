@@ -1,6 +1,7 @@
 import { useI18n } from '../localization/i18n'
 import { MixedText } from './MixedText'
 import { ReadingSentenceContext } from './TargetText'
+import { TargetText } from './TargetText'
 import { Fragment, type ReactNode } from 'react'
 
 /// The small slice of Markdown that models actually emit into coach text:
@@ -34,7 +35,7 @@ function TermButton({ term, onTerm }: { term: string; onTerm: TermHandler }) {
 }
 
 /// Split one line's inline markup into React nodes.
-function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNode[] {
+function inline(text: string, keyPrefix: string, onTerm?: TermHandler, targetCode = false): ReactNode[] {
   const out: ReactNode[] = []
   let last = 0
   let match: RegExpExecArray | null
@@ -51,7 +52,7 @@ function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNod
           term
         )
       )
-    } else if (code !== undefined) out.push(<code key={key}><MixedText text={code} /></code>)
+    } else if (code !== undefined) out.push(targetCode ? <bdi className="target-inline" key={key}><TargetText text={code} /></bdi> : <code key={key}><MixedText text={code} /></code>)
     else if (bold !== undefined) out.push(<strong key={key}><MixedText text={bold} /></strong>)
     else out.push(<em key={key}><MixedText text={italic} /></em>)
     last = match.index + match[0].length
@@ -63,13 +64,13 @@ function inline(text: string, keyPrefix: string, onTerm?: TermHandler): ReactNod
 /// A run of lines that belong to the same paragraph, with the line breaks the
 /// author wrote preserved. Markdown proper would fold them into one line, but
 /// a coach writing three short observations on three lines means three lines.
-function paragraph(lines: string[], key: string, onTerm?: TermHandler): ReactNode {
+function paragraph(lines: string[], key: string, onTerm?: TermHandler, targetCode = false): ReactNode {
   return (
     <p className="md-p" key={key}>
       {lines.map((line, i) => (
         <Fragment key={i}>
           {i > 0 && <br />}
-          {inline(line, `${key}-${i}`, onTerm)}
+          {inline(line, `${key}-${i}`, onTerm, targetCode)}
         </Fragment>
       ))}
     </p>
@@ -91,8 +92,11 @@ function bulletText(line: string): string {
 export function Markdown({
   text,
   onTerm,
+  targetCode = false,
 }: {
   text: string
+  /** Authored guides mark inline target-language forms with code spans. */
+  targetCode?: boolean
   /// Called when the reader presses a `[[curiosity marker]]`. Omit it and the
   /// markers render as plain words.
   onTerm?: TermHandler
@@ -107,7 +111,7 @@ export function Markdown({
 
   const flushParagraph = () => {
     if (para.length > 0) {
-      blocks.push(paragraph(para, `p${blocks.length}`, onTerm))
+      blocks.push(paragraph(para, `p${blocks.length}`, onTerm, targetCode))
       para = []
     }
   }
@@ -117,7 +121,7 @@ export function Markdown({
       blocks.push(
         <ul className="md-list" key={key}>
           {bullets.map((b, i) => (
-            <li key={i}>{inline(b, `${key}-${i}`, onTerm)}</li>
+            <li key={i}>{inline(b, `${key}-${i}`, onTerm, targetCode)}</li>
           ))}
         </ul>
       )
@@ -168,7 +172,7 @@ export function Markdown({
       flush()
       blocks.push(
         <p className="md-p" key={`h${blocks.length}`}>
-          <strong>{inline(heading[1], `h${blocks.length}`, onTerm)}</strong>
+          <strong>{inline(heading[1], `h${blocks.length}`, onTerm, targetCode)}</strong>
         </p>
       )
       continue

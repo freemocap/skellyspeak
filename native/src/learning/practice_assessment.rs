@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ts_rs::TS)]
 #[serde(deny_unknown_fields)]
 pub struct SkillPrompt {
     pub id: String,
@@ -18,6 +18,7 @@ pub struct SkillPrompt {
 #[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Instructions {
+    pub attribution: crate::learning::coaching::skill_attribution::Config,
     pub instructions: String,
     pub question: String,
     pub criteria: BTreeMap<String, String>,
@@ -45,6 +46,7 @@ pub fn request(state: Value, skills: &[SkillPrompt], shared: &Instructions) -> R
     {
         return Err(invalid("content"));
     }
+    shared.attribution.validate()?;
     let mut questions = BTreeMap::new();
     for skill in skills {
         if skill.id.len() > 64

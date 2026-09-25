@@ -24,8 +24,9 @@ export function EditFeedback({ conversationFeedback, decision, feedback, error, 
     <p>{tr("Feedback for your original message")}</p>
     <div className="edit-feedback-body" role="region" aria-label={tr("Coach feedback while editing")} tabIndex={0}>
       {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy || !onControl} onClick={() => void help('open_card')}>{tr("Show help")}</button>}
-      {conversationFeedback ? <ConversationFeedbackCard feedback={conversationFeedback} /> : decision || error ? <CoachEntry feedback={feedback} decision={decision} source={null} error={error} /> : <p>{reviewing ? tr("The coach is still reviewing this attempt.") : tr("No feedback was saved for this attempt.")}</p>}
+      {decision || error ? <CoachEntry feedback={feedback} decision={decision} source={null} error={error} /> : <p>{reviewing ? tr("The coach is still reviewing this attempt.") : tr("No feedback was saved for this attempt.")}</p>}
       {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" disabled={busy || !onControl} onClick={() => void help('show_answer')}>{tr("Show answer")}</button>}
+      {conversationFeedback && <ConversationFeedbackCard feedback={conversationFeedback} />}
       {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     </div>
   </section>

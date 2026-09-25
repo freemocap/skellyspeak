@@ -13,7 +13,9 @@ fn reserve(state: &Application, input: drill_generation::DrillGenerationInput) -
     for expired in state.generations.expire()? {
         generation_receipts::expire(&mut store, &expired)?;
     }
-    let request = state.generations.insert(input.capture(&store)?)?;
+    let request = input.capture(&store)?;
+    let skill_focus = crate::drill::skill_focus::capture(&store, &request.language_context, input.skill_target.as_ref(), &request.id)?;
+    let request = state.generations.insert(request)?;
     let outcome = (|| {
         generation_receipts::begin(&mut store, &request)?;
         // Persist resolved scope: omitted varieties must not change with later defaults.
@@ -25,6 +27,7 @@ fn reserve(state: &Application, input: drill_generation::DrillGenerationInput) -
             &request.id,
             "generated",
             &previews::PreviewInput {
+                skill_focus,
                 scope: crate::language::reading::ReadingScope {
                     language: input.language.clone(),
                     variety: input.variety.clone(),
@@ -71,17 +74,17 @@ async fn run(state: &Application, id: &str) -> Result<previews::DrillGenerationP
             "This is not a Drill generation request.",
         ));
     }
-    let input = previews::input(&state.lock()?.connection, id)?
-        .requested
+    let captured = previews::input(&state.lock()?.connection, id)?;
+    let input = captured.requested
         .ok_or_else(|| AppError::new(ErrorCode::Conflict, "This is not a generation preview."))?;
     let task = super::proposal_execution::Task {
-        messages: drill_generation::messages(&*state.lock()?, request, &input),
+        messages: drill_generation::messages(&*state.lock()?, request, &input, captured.skill_focus.as_ref()),
         schema: drill_generation::schema(input.length),
         name: "drill_candidates",
         max_output_tokens: input.output_budget(),
     };
     let output = super::proposal_execution::execute(state, request, task, |store, completed| {
-        drill_generation::candidates(store, request, &input, completed)
+        drill_generation::candidates(store, request, &input, completed, captured.skill_focus.as_ref())
     })
     .await;
     let mut store = state.lock()?;

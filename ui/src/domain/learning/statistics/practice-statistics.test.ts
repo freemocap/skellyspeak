@@ -1,3 +1,4 @@
+import { experienceProfile } from './experience-profile'
 import { SKILL_CATALOG_VERSION } from '../../../generated/contracts'
 import { expect, it } from 'vitest'
 import { skillDemo } from '../catalog/skillDemo'
@@ -37,4 +38,27 @@ it('rejects cross-language evidence and mismatched XP ledgers', () => {
   snapshot.records[0].target = snapshot.target
   snapshot.profile.credits.pop()
   expect(() => practiceStatistics(snapshot)).toThrow('ledger')
+})
+
+it('projects experience and effort by exact variety without counting other varieties', () => {
+  const snapshot = sample()
+  snapshot.records[0].variety = 'one'
+  snapshot.records[1].variety = 'two'
+  const one = experienceProfile(snapshot, 'one')
+  expect([one.experience, one.effort, one.xp, one.used]).toEqual([2, 0, 2, 2])
+  const two = experienceProfile(snapshot, 'two')
+  expect([two.experience, two.effort, two.xp, two.used]).toEqual([0, 1, 1, 0])
+  expect(experienceProfile(snapshot, 'empty').skills.every(skill => skill.xp === 0)).toBe(true)
+  expect(experienceProfile(snapshot, null).xp).toBe(3)
+})
+it('recalculates after excluded credit is removed, without retaining profile state', () => {
+  const snapshot = sample()
+  expect(experienceProfile(snapshot, null).xp).toBe(3)
+  snapshot.profile.choices.excluded_attempts = ['b']
+  snapshot.profile.credits = snapshot.profile.credits.filter(credit => credit.attempt_id !== 'b')
+  snapshot.profile.xp = 2
+  snapshot.profile.skills[0].xp = 1
+  snapshot.profile.skills[0].effort = 0
+  expect(experienceProfile(snapshot, null).xp).toBe(2)
+  expect(experienceProfile(snapshot, null).effort).toBe(0)
 })

@@ -1,4 +1,4 @@
-import { TargetText } from '../../../components/reading/TargetText'
+import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { useI18n } from '../../../components/localization/i18n'
 import { domainColors } from '../../../domain/learning/catalog/skill-domains'
 
@@ -7,6 +7,6 @@ export function RewardBadge({ domainId, label, xp, quote, creditKind, interactiv
   const tr = useI18n()
   return <div className="reward-badge" style={{ borderColor: domainColors(domainId).bright }}>
     <div className="reward-badge-heading"><span className="reward-domain-dot" style={{ background: domainColors(domainId).bright }} /><span>{tr(label)}</span><strong style={{ background: domainColors(domainId).ink }}>{creditKind === 'earned' ? '+' : ''}{tr.number(xp)} {tr(" XP")}</strong></div>
-    <blockquote dir="auto"><TargetText text={quote} interactive={interactive} /></blockquote>
+    <blockquote dir="auto"><TargetPhrase text={quote} interactive={interactive} /></blockquote>
   </div>
 }

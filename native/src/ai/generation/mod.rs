@@ -168,7 +168,7 @@ pub fn accept_completion(
                 return Err(AppError::new(
                     ErrorCode::Provider,
                     "The AI service did not finish the generation. Usage may have been incurred; no automatic retry was made.",
-                ));
+                ).with_diagnostics(serde_json::json!({"stage":"provider_completion","chars":completion.text.chars().count(),"response":completion.diagnostics})));
             }
             Ok(())
         }
@@ -319,6 +319,31 @@ mod tests {
     }
     fn capture(store: &Store) -> Request {
         Request::capture(store, "spanish".into(), Some("A quiet librarian".into())).unwrap()
+    }
+
+    #[test]
+    fn failed_completion_preserves_rate_limit_details() {
+        let (_directory, mut store) = fixture();
+        let request = capture(&store);
+        let completion = crate::ai::transport::provider::Completion {
+            diagnostics: Some(serde_json::json!({
+                "id": "request-test",
+                "choices": [{"error": {"code": 429}}],
+                "usage": {"total_tokens": 0}
+            })),
+            text: String::new(),
+            finish_reason: "error".into(),
+            actual_model: "test".into(),
+            provider_id: "test".into(),
+            input_tokens: Some(0),
+            output_tokens: Some(0),
+        };
+        let error = accept_completion(&mut store, &request, &Ok(completion)).unwrap_err();
+        assert!(error.message.starts_with("Sorry, rate limited."));
+        let details = error.diagnostics.unwrap();
+        assert_eq!(details["response"]["id"], "request-test");
+        assert_eq!(details["response"]["choices"][0]["error"]["code"], 429);
+        assert_eq!(details["response"]["usage"]["total_tokens"], 0);
     }
 
     #[test]

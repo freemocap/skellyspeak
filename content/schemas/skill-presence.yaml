@@ -1,6 +1,21 @@
 $schema: http://json-schema.org/draft-07/schema#
 additionalProperties: false
+definitions:
+  Config:
+    additionalProperties: false
+    properties:
+      instructions:
+        type: string
+      minimum_positive_probability:
+        format: double
+        type: number
+    required:
+    - instructions
+    - minimum_positive_probability
+    type: object
 properties:
+  attribution:
+    $ref: '#/definitions/Config'
   criteria:
     additionalProperties:
       type: string
@@ -10,6 +25,7 @@ properties:
   question:
     type: string
 required:
+- attribution
 - criteria
 - instructions
 - question

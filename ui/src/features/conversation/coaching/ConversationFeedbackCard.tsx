@@ -15,11 +15,10 @@ function ScoreMeter({ label, value }: { label: string; value: number | null }) {
     </span>
   </div>
 }
-export function ConversationFeedbackCard({ feedback, onAsk }: { feedback: ConversationFeedback; onAsk?: (question: string) => void }) {
+export function ConversationFeedbackCard({ feedback }: { feedback: ConversationFeedback }) {
   const tr = useI18n()
   return <section className="coach-assessment" aria-label={tr('Message assessment')}>
     <div className="coach-scores"><ScoreMeter label={tr('Grammar')} value={feedback.grammar}/><ScoreMeter label={tr('Conversation fit')} value={feedback.conversation}/></div>
-    {onAsk && <button type="button" className="detail-action" onClick={()=>onAsk(`Explain these saved message ratings, including any uncertainty: ${JSON.stringify(feedback)}`)}>{tr('Explain scores')}</button>}
-    <details><summary>{tr('Assessment details')}</summary><pre>{JSON.stringify(feedback.answers,null,2)}</pre></details>
+
   </section>
 }
