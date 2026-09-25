@@ -91,6 +91,7 @@ impl Store {
         crate::learning::rewards::reward_settings::initialize(&connection)?;
         crate::speech::recording::microphone::initialize(&connection)?;
         crate::ai::results::initialize(&connection)?;
+        crate::speech::recording::results::initialize(&connection)?;
         let store = Self {
             config,
             connection,

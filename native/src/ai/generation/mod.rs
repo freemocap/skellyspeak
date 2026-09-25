@@ -1,5 +1,5 @@
-//! Volatile ownership for reviewable persona proposals. Durable inference receipts
-//! attach at begin, dispatch and finish; request text and proposals stay volatile.
+//! Reviewable proposal ownership, separate from shared provider execution.
+//! Persona proposals stay volatile; durable Drill candidates belong to previews.
 pub(crate) mod generation_receipts;
 use crate::ai::connections::access;
 use crate::ai::policy::holds;
@@ -85,6 +85,10 @@ impl Request {
     pub fn mark_submitted(&self) {
         self.submitted.store(true, Ordering::SeqCst);
     }
+    pub(crate) fn cancel(&self) {
+        self.cancelled.store(true, Ordering::SeqCst);
+        self.changed.notify_one();
+    }
     fn stopped(&self, reason: &str) -> AppError {
         if self.was_submitted() {
             AppError::new(
@@ -108,12 +112,17 @@ impl Request {
         }
     }
     pub fn validate(&self, store: &Store) -> Result<()> {
+        self.check_cancelled()?;
+        self.validate_execution(store)?;
+        self.check_cancelled()
+    }
+    /// Submission authority is independent of a closed proposal after dispatch.
+    pub(crate) fn validate_execution(&self, store: &Store) -> Result<()> {
         if self.install_id != store.snapshot()?.learner.id
             || self.config_hash != store.config.hash()
         {
             return Err(self.stopped("language configuration changed"));
         }
-        self.check_cancelled()?;
         let config = crate::ai::connections::configuration::config(&store.connection)?;
         if config.paused {
             return Err(if self.was_submitted() {
@@ -149,7 +158,7 @@ impl Request {
                 },
             );
         }
-        self.check_cancelled()
+        Ok(())
     }
 }
 
@@ -166,7 +175,7 @@ pub fn accept_completion(
             Err(error.clone())
         }
         Ok(completion) => {
-            request.validate(store)?;
+            request.validate_execution(store)?;
             if completion.finish_reason == "error" {
                 return Err(AppError::new(
                     ErrorCode::Provider,
@@ -268,8 +277,7 @@ impl Registry {
         let Some(request) = requests.get(id).cloned() else {
             return Ok(None);
         };
-        request.cancelled.store(true, Ordering::SeqCst);
-        request.changed.notify_one();
+        request.cancel();
         if !request.claimed.load(Ordering::SeqCst) {
             requests.remove(id);
         }

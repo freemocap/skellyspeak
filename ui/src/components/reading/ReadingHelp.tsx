@@ -47,7 +47,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
       for (const part of segments) if (part.kind === 'gloss' && part.start <= end && part.end > end) end = part.end
       return end >= word.end
     })
-    return {gloss: {segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, translation:null, explanations:null, receipt:null}
+    return {gloss: {segments, coverage:complete ? 'complete' : 'partial'}, audioBase64:null, audioAlignment:null, translation:null, explanations:null, receipt:null}
   }, [savedIndex])
   const lookup = useCallback<ReadingLookup>(async (input, signal, options) => {
     signal.throwIfAborted()

@@ -12,6 +12,7 @@ pub struct SpeechInput {
 }
 #[derive(Clone)]
 pub struct SpeechOutcome {
+    pub alignment: Option<crate::speech::alignment::SpeechAlignment>,
     pub diagnostics: Option<serde_json::Value>,
     pub audio: Result<Vec<u8>>,
     pub actual_model: Option<String>,
@@ -40,7 +41,7 @@ pub struct TranscriptionOutcome {
     pub result: TranscriptionResult,
     pub diagnostics: Option<serde_json::Value>,
 }
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, ts_rs::TS)]
 pub struct TranscriptionResult {
     pub text: String,
     pub timing: Option<crate::speech::analysis::fluency::TranscriptTiming>,
@@ -82,6 +83,7 @@ pub fn validate_transcription_language(
 impl SpeechOutcome {
     pub(crate) fn empty() -> Self {
         Self {
+            alignment: None,
             diagnostics: None,
             audio: Err(AppError::new(
                 crate::model::ErrorCode::UnknownOutcome,

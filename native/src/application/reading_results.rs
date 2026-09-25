@@ -60,18 +60,22 @@ impl Application {
         prepared: Prepared,
         producer: &results::pending::Producer<Retained>,
     ) -> Result<Retained> {
-        let previous = results::lookup(&self.lock()?.connection, &prepared.key)?;
-        if !request.fresh
-            && let Some(saved) = previous
-        {
-            return Ok(saved);
-        }
         let id = producer.id();
-        results::begin(
-            &self.lock()?.connection,
-            id,
-            request.input.aid.receipt_kind(),
-        )?;
+        {
+            let store = self.lock()?;
+            if store.snapshot()?.learner.id != request.install {
+                return Err(AppError::new(
+                    ErrorCode::SessionExpired,
+                    "Workspace changed before reading execution.",
+                ));
+            }
+            if !request.fresh
+                && let Some(saved) = results::lookup(&store.connection, &prepared.key)?
+            {
+                return Ok(saved);
+            }
+            results::begin(&store.connection, id, request.input.aid.receipt_kind())?;
+        }
         let result = self.execute_reading(request, prepared, producer).await;
         if let Err(mut error) = result {
             let store = self.lock()?;

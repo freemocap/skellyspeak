@@ -15,10 +15,10 @@ fn summary(
     // A recording belongs to a conversation or to a drill item. Both count
     // toward global and language usage; only a conversation has a partner, so a
     // partner-scoped report never attributes a drill recording to one.
-    let audio: i32 = db.query_row("SELECT count(*) FROM transcription_attempts a LEFT JOIN conversations c ON c.id=a.conversation_id LEFT JOIN contacts r ON r.id=c.contact_id LEFT JOIN drill_items d ON d.id=a.drill_item_id WHERE (?1 IS NULL OR COALESCE(c.language_id,d.language_id)=?1) AND (?2 IS NULL OR r.persona_id=?2)", params![language,persona], |r| r.get(0))?;
+    let audio: i32 = db.query_row("SELECT count(*) FROM transcription_attempts a LEFT JOIN conversations c ON c.id=a.conversation_id LEFT JOIN contacts r ON r.id=c.contact_id LEFT JOIN drill_items d ON d.id=a.drill_item_id WHERE NOT EXISTS(SELECT 1 FROM inference_consumers u WHERE u.consumer_id=a.id) AND COALESCE(json_extract(a.diagnostics,'$.sharedExecution'),0)=0 AND (?1 IS NULL OR COALESCE(c.language_id,d.language_id)=?1) AND (?2 IS NULL OR r.persona_id=?2)", params![language,persona], |r| r.get(0))?;
     // Proposals belong to a language and workspace, not an existing persona.
     let generation = if persona.is_none() {
-        crate::ai::generation::generation_receipts::usage(db, language)?
+        crate::ai::generation::generation_receipts::unshared_usage(db, language)?
     } else {
         PersonaGenerationUsage::default()
     };
@@ -33,7 +33,7 @@ fn summary(
     // Count each shared execution once per selected scope. Partner reports overlap
     // when partners reuse one execution; adding them is not the global total.
     let (shared_attempts,shared_input,shared_output,shared_unknown): (i32,i32,i32,i32) = db.query_row(
-        "SELECT count(*),COALESCE(SUM(json_extract(e.metadata,'$.inputTokens')),0),COALESCE(SUM(json_extract(e.metadata,'$.outputTokens')),0),COALESCE(SUM(json_extract(e.metadata,'$.inputTokens') IS NULL OR json_extract(e.metadata,'$.outputTokens') IS NULL),0) FROM inference_executions e WHERE e.dispatched=1 AND ((?1 IS NULL AND ?2 IS NULL) OR EXISTS(SELECT 1 FROM inference_consumers u LEFT JOIN reading_attempts reading ON reading.id=u.consumer_id LEFT JOIN attempts a ON a.id=u.consumer_id LEFT JOIN operations o ON o.id=a.operation_id LEFT JOIN turns t ON t.id=o.turn_id LEFT JOIN conversations c ON c.id=t.conversation_id LEFT JOIN contacts r ON r.id=c.contact_id WHERE u.execution_id=e.id AND (?1 IS NULL OR COALESCE(c.language_id,json_extract(reading.receipt,'$.language'))=?1) AND (?2 IS NULL OR r.persona_id=?2)))",
+        "SELECT count(*),COALESCE(SUM(json_extract(e.metadata,'$.inputTokens')),0),COALESCE(SUM(json_extract(e.metadata,'$.outputTokens')),0),COALESCE(SUM(json_extract(e.metadata,'$.inputTokens') IS NULL OR json_extract(e.metadata,'$.outputTokens') IS NULL),0) FROM inference_executions e WHERE e.dispatched=1 AND ((?1 IS NULL AND ?2 IS NULL) OR EXISTS(SELECT 1 FROM inference_consumers u LEFT JOIN generation_attempts generation ON generation.id=u.consumer_id LEFT JOIN reading_attempts reading ON reading.id=u.consumer_id LEFT JOIN transcription_attempts transcription ON transcription.id=u.consumer_id LEFT JOIN drill_items d ON d.id=transcription.drill_item_id LEFT JOIN attempts a ON a.id=u.consumer_id LEFT JOIN operations o ON o.id=a.operation_id LEFT JOIN turns t ON t.id=o.turn_id LEFT JOIN conversations c ON c.id=COALESCE(t.conversation_id,transcription.conversation_id) LEFT JOIN contacts r ON r.id=c.contact_id WHERE u.execution_id=e.id AND (?1 IS NULL OR COALESCE(c.language_id,d.language_id,generation.language_id,json_extract(reading.receipt,'$.language'))=?1) AND (?2 IS NULL OR r.persona_id=?2)))",
         params![language,persona],|r|Ok((r.get(0)?,r.get(1)?,r.get(2)?,r.get(3)?)))?;
     Ok(UsageSummary {
         id: id.into(),

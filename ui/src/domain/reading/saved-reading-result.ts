@@ -21,7 +21,7 @@ export function savedReadingResult(text: string, sources: SavedGlossSource[]): R
     return end >= word.end
   })
   return { gloss: { segments, coverage: complete ? 'complete' : 'partial' },
-    audioBase64: null, translation: null, explanations: null,
+    audioBase64: null, audioAlignment: null, translation: null, explanations: null,
     receipt: { kind: 'saved_gloss_lookup', providerExecution: false,
       // These are consulted records, including alternate meanings; no source content is copied into diagnostics.
       consultedSources: sources.filter(source => savedGlossIndex([source])(text, scope).length).map(source => ({

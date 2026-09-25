@@ -38,7 +38,7 @@ async fn speech_request(reference: bool) {
         writer.finalize().unwrap();
     }
     let encoded_audio = STANDARD.encode(wav.into_inner());
-    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
+    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"alignment":{"sourceText":"كتاب","original":{"characters":["ك","ت","ا","ب"],"starts":[0,0,0,0],"ends":[0.00001,0.00001,0.00001,0.00001]},"normalized":null},"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
     let worker = std::thread::spawn(move || {
         let (mut socket, _) = listener.accept().unwrap();
         socket
@@ -123,6 +123,21 @@ async fn speech_request(reference: bool) {
     };
     let independent =
         reading::Request::capture(&state.lock().unwrap(), companion_input.clone()).unwrap();
+    assert!(
+        cached_reading_audio(&state.lock().unwrap(), companion_input.clone())
+            .unwrap()
+            .is_none()
+    );
+    assert_eq!(
+        state
+            .lock()
+            .unwrap()
+            .connection
+            .query_row::<i64, _, _>("SELECT count(*) FROM inference_executions", [], |r| r
+                .get(0))
+            .unwrap(),
+        0
+    );
     let companion = state
         .reading
         .begin(&state.lock().unwrap(), companion_input)
@@ -142,6 +157,19 @@ async fn speech_request(reference: bool) {
     let other = other.unwrap();
     let third = third.unwrap();
     assert_eq!(result.audio_base64, other.audio_base64);
+    assert_eq!(result.audio_alignment, other.audio_alignment);
+    assert_eq!(
+        result
+            .audio_alignment
+            .as_ref()
+            .unwrap()
+            .original
+            .as_ref()
+            .unwrap()
+            .characters
+            .len(),
+        4
+    );
     assert_eq!(
         result.receipt["response"]["sourceExecutionId"],
         other.receipt["response"]["sourceExecutionId"]
@@ -220,6 +248,34 @@ async fn speech_request(reference: bool) {
             .reading
             .begin(&state.lock().unwrap(), input.clone())
             .unwrap();
+        let records_before: i64 = state
+            .lock()
+            .unwrap()
+            .connection
+            .query_row("SELECT count(*) FROM reading_attempts", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(
+            cached_reading_audio(&state.lock().unwrap(), input.clone())
+                .unwrap()
+                .unwrap()
+                .alignment,
+            result.audio_alignment
+        );
+        assert_eq!(
+            cached_reading_audio(&state.lock().unwrap(), input.clone())
+                .unwrap()
+                .map(|audio| audio.audio_base64),
+            result.audio_base64
+        );
+        assert_eq!(
+            state
+                .lock()
+                .unwrap()
+                .connection
+                .query_row::<i64, _, _>("SELECT count(*) FROM reading_attempts", [], |r| r.get(0))
+                .unwrap(),
+            records_before
+        );
         let duplicate = state.reading.begin(&state.lock().unwrap(), input).unwrap();
         // The only server has shut down: any second provider call fails this test.
         let cached = run_owned_reading(&state, &cached_id).await.unwrap();

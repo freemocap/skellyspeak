@@ -83,3 +83,4 @@ server/app/diagnostics/admin_assets/*
 !server/app/inference/transcription_profiles.py
 !server/app/inference/transcription_timing.py
 !server/app/inference/transcription_confidence.py
+!server/app/inference/synthesis_alignment.py

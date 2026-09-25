@@ -245,3 +245,40 @@ fn inspecting_an_older_result_does_not_make_it_the_current_answer() {
         "repair"
     );
 }
+
+#[test]
+fn audio_only_development_cache_cleanup_preserves_receipts_and_complete_results() {
+    let db = Connection::open_in_memory().unwrap();
+    initialize(&db).unwrap();
+    begin(&db, "old-speech", "speech").unwrap();
+    finish(
+        &db,
+        "old-speech",
+        "old-key",
+        &serde_json::json!({}),
+        Some(b"RIFF1234WAVEpayload"),
+        None,
+    )
+    .unwrap();
+    associate(&db, "old-consumer", "old-speech").unwrap();
+    let complete_audio =
+        serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(b"audio", None)).unwrap();
+    begin(&db, "new-speech", "speech").unwrap();
+    finish(
+        &db,
+        "new-speech",
+        "new-key",
+        &serde_json::json!({}),
+        Some(&complete_audio),
+        None,
+    )
+    .unwrap();
+    let receipt = receipt_for_consumer(&db, "old-consumer").unwrap();
+    initialize(&db).unwrap();
+    assert!(read(&db, "old-speech").unwrap().is_none());
+    assert_eq!(receipt_for_consumer(&db, "old-consumer").unwrap(), receipt);
+    assert_eq!(
+        read(&db, "new-speech").unwrap().unwrap().payload,
+        complete_audio
+    );
+}

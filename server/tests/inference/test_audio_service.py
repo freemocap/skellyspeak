@@ -28,15 +28,16 @@ async def test_speech_route_converts_request_and_accounts_estimate(proxy, ledger
     def respond(request):
         assert request.headers["xi-api-key"] == "test-elevenlabs-key"
         assert "authorization" not in request.headers
-        assert request.url.path == "/v1/text-to-speech/fixtureVoice"
+        assert request.url.path == "/v1/text-to-speech/fixtureVoice/with-timestamps"
         body = json.loads(request.content)
         assert body["text"] == "[Spanish — Mexico accent]\nGracias." and body["model_id"] == "eleven_v3"
-        return httpx.Response(200, content=b"\0\0" * 24_000, headers={"content-type": "audio/pcm", "request-id": "speech-receipt"})
+        return httpx.Response(200, json={"audio_base64": base64.b64encode(b"\0\0" * 24_000).decode(), "alignment": {"characters": ["G"], "character_start_times_seconds": [0.1], "character_end_times_seconds": [0.2]}}, headers={"request-id": "speech-receipt"})
     upstream(monkeypatch, respond)
     response = await proxy.post("/v1/audio/speech", json={"model": "eleven_v3", "language": "Spanish — Mexico", "text": "Gracias."})
     assert response.status_code == 200, response.text
     result = response.json()
     assert base64.b64decode(result["audio_base64"]).startswith(b"RIFF")
+    assert result["alignment"]["original"]["starts"] == [0.1]
     assert result["usage"]["cost_micros"] is None
     assert result["usage"]["allowance_basis"] == "estimate"
     row, = records(ledger)

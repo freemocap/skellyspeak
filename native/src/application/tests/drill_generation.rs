@@ -188,6 +188,10 @@ async fn cancellation_during_inference_preserves_receipt_but_rejects_late_candid
         .remove(0);
     assert_eq!(receipt.state, "unknown");
     assert!(receipt.dispatched_at.is_some());
+    let source = receipt.diagnostics.unwrap()["sourceExecution"].clone();
+    assert_eq!(source["state"], "succeeded");
+    assert_eq!(source["response"]["inputTokens"], 21);
+    assert_eq!(store.profile().unwrap().global.attempts, 1);
     assert!(store.drill_items("spanish").unwrap().is_empty());
 }
 
@@ -208,6 +212,10 @@ async fn failed_candidate_publication_rolls_back_and_keeps_provider_metadata() {
         .remove(0);
     assert_eq!(receipt.state, "failed");
     assert_eq!(receipt.input_tokens, Some(21));
+    assert_eq!(
+        receipt.diagnostics.as_ref().unwrap()["sourceExecution"]["state"],
+        "succeeded"
+    );
     assert_eq!(receipt.provider_id.as_deref(), Some("structured-receipt"));
     assert_eq!(
         store
@@ -307,3 +315,6 @@ fn output_budget_scales_with_length_and_count_within_shared_provider_bounds() {
     assert!((2048..=32768).contains(&word));
     assert!((2048..=32768).contains(&paragraphs));
 }
+
+#[path = "proposal_lifecycle.rs"]
+mod proposal_lifecycle;

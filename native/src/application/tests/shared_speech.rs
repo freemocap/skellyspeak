@@ -78,20 +78,66 @@ async fn invalid_independent_input_fails_before_execution() {
 
 #[tokio::test]
 async fn cancelling_one_consumer_preserves_shared_dispatch_and_receipt() {
-    cancellation(false).await;
+    cancellation(false, false).await;
+}
+
+#[tokio::test]
+async fn paused_speech_has_an_undispatched_shared_receipt() {
+    let directory = tempfile::tempdir().unwrap();
+    let state = Application::start(&directory.path().join("speech.sqlite3"), None);
+    let (target, install) = {
+        let store = state.lock().unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',paused=1,custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:1/v1','$.bearerAuth',json('false'))", []).unwrap();
+        (
+            access::resolve(&store.connection, access::Capability::Speech).unwrap(),
+            store.snapshot().unwrap().learner.id,
+        )
+    };
+    assert!(
+        state
+            .shared_speech(
+                target,
+                audio::SpeechInput {
+                    text: "PRIVATE-UNSENT".into(),
+                    language: "en".into(),
+                    voice: "unused".into(),
+                },
+                install,
+                "paused-consumer",
+                || Ok(())
+            )
+            .await
+            .is_err()
+    );
+    let store = state.lock().unwrap();
+    let receipt = results::receipt_for_consumer(&store.connection, "paused-consumer")
+        .unwrap()
+        .unwrap();
+    assert_eq!(receipt["state"], "failed");
+    assert_eq!(receipt["dispatched"], false);
+    assert!(!receipt.to_string().contains("PRIVATE-UNSENT"));
+    assert_eq!(store.profile().unwrap().global.attempts, 0);
 }
 
 #[tokio::test]
 async fn cancelling_all_consumers_after_dispatch_still_settles_receipt() {
-    cancellation(true).await;
+    cancellation(true, false).await;
 }
 
-async fn cancellation(cancel_all: bool) {
+#[tokio::test]
+async fn failed_audio_cache_write_preserves_provider_receipt_and_usage() {
+    cancellation(false, true).await;
+}
+
+async fn cancellation(cancel_all: bool, reject_blob: bool) {
     let directory = tempfile::tempdir().unwrap();
     let state = Application::start(&directory.path().join("speech.sqlite3"), None);
     // Joining pending work remains available when retained reuse is disabled.
-    if !cancel_all {
+    if !cancel_all && !reject_blob {
         results::set_capacity(&state.lock().unwrap().connection, 0).unwrap();
+    }
+    if reject_blob {
+        state.lock().unwrap().connection.execute_batch("CREATE TRIGGER reject_speech_blob BEFORE INSERT ON inference_blobs BEGIN SELECT RAISE(ABORT,'fixture cache failure'); END").unwrap();
     }
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
     let (target, install) = {
@@ -206,7 +252,7 @@ async fn cancellation(cancel_all: bool) {
         loop {
             let settled = results::receipt_for_consumer(&state.lock().unwrap().connection, "first")
                 .unwrap()
-                .is_some_and(|r| r["state"] == "succeeded");
+                .is_some_and(|r| r["state"] == if reject_blob { "failed" } else { "succeeded" });
             if settled {
                 break;
             }
@@ -219,10 +265,26 @@ async fn cancellation(cancel_all: bool) {
     let receipt = results::receipt_for_consumer(&store.connection, "first")
         .unwrap()
         .unwrap();
-    if !cancel_all {
+    if reject_blob {
+        let error = saved.err().unwrap();
+        assert_eq!(error.code, ErrorCode::Storage);
+        assert_eq!(
+            error.diagnostics.unwrap()["response"]["providerId"],
+            "shared-request"
+        );
+        assert!(
+            results::for_consumer(&store.connection, "second")
+                .unwrap()
+                .is_none()
+        );
+        assert!(receipt["response"]["storageError"].is_object());
+    } else if !cancel_all {
         assert_eq!(receipt["id"], saved.unwrap().execution);
     }
-    assert_eq!(receipt["state"], "succeeded");
+    assert_eq!(
+        receipt["state"],
+        if reject_blob { "failed" } else { "succeeded" }
+    );
     assert_eq!(receipt["response"]["providerId"], "shared-request");
     assert!(receipt["response"]["costMicros"].is_null());
     assert!(!receipt.to_string().contains("shared source"));

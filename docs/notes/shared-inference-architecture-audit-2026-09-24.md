@@ -4,8 +4,11 @@ Status: source audit and authorized staged refactor, 2026-09-24. The ownership
 principle and staged direction below are agreed. The original findings describe
 the baseline before implementation; progress is recorded separately below.
 Shared result/blob retention, speech integration, view-independent accepted
-gloss lookup and generated reading-text execution are implemented. See the latest
-generated-reading checkpoint below for verification and remaining modality work. Earlier
+gloss lookup, generated reading-text execution, shared transcription and proposal
+execution receipts are implemented. Final automated verification and user desktop
+smoke testing passed on 2026-09-25, including the phrase-switch correction.
+See the pre-commit checkpoint at the end for the current stopping point and
+verification limits. Earlier
 checkpoints below are historical snapshots, not the current completion status.
 
 ## Current correction: local caching, unchanged service contract
@@ -895,3 +898,469 @@ Remaining agreed work, in order:
    Stop/navigation/microphone interaction, restart reuse and diagnostic inspection.
    Earlier device-playback and emulator verification limits remain open. Deployment
    is outside this authorization and is not a prerequisite for local verification.
+
+
+## Implementation checkpoint: shared transcription, 2026-09-25
+
+Status: source implementation and local automated verification complete for this
+slice. This supersedes earlier listings of transcription lifecycle integration as
+unimplemented. Proposal generation and the final running-app audit remain open.
+The separate recognition-quality investigation remains parked at the user's request.
+
+Implemented behavior:
+
+- Added the local transcription executor and exact request identity under shared
+  inference ownership. It uses the existing pending registry, bounded result cache,
+  execution receipts and consumer associations. Keys include exact WAV bytes,
+  captured language/variety/tag, prompt context, requested model, endpoint, account
+  and workspace. No language-specific rules, audio transformations, prompt edits,
+  recognition setting changes or server protocol changes were introduced.
+- Only validated transcript/timing payloads enter the shared cache. Original
+  recordings remain with the recording/Drill owner and its retention policy.
+  Results survive restart; eviction does not remove product attempts or receipts.
+  Hidden remote processing changes are not detected by the local key.
+- Chat and Drill preserve separate recording identities, inspections and publication.
+  Drill reliability remains a product assessment over its own inspection plus the
+  preserved provider evidence; it is not part of reusable recognition. Chat still
+  returns the transcript to its composer rather than inserting a conversation turn.
+  Duplicate recording IDs cannot publish twice. Captured Drill visits and the
+  existing continuous-listening accepted-take queue remain unchanged.
+- Provider execution owns admission, credential access, bounded existing retry
+  policy and settlement. Losing one or all consumers cannot abandon submitted
+  work or its accounting. A removed/archived recording owner cannot receive a late
+  transcript. Workspace identity is captured before recording and checked under
+  the store guard before receipt creation, refusal handling and publication.
+- Recording receipts are marked as shared consumers at reservation, atomically
+  with their captured visit. They do not imply paid submission. Statistics count
+  the underlying dispatched execution once globally and per matching language/
+  partner scope. Drill-only recordings have no partner attribution. Global shared
+  receipts/usage survive removal of product owners; scoped attribution follows
+  remaining owner associations, as in the existing shared result design.
+- Receipts preserve provider diagnostics on success, malformed-response failure and
+  local cache-write failure. Malformed provider completion retains its existing
+  unknown-outcome classification rather than implying no cost. Receipt views
+  attach current shared settlement even after a consumer has stopped.
+- Capture/reservation pause and access policies remain in force. Shared cached
+  results do not authorize starting a new recording while execution is paused.
+- Reviewed the noisy recording UI tests: sparse spectrogram band sets produced
+  duplicate rounded frequency ticks. The shared tick projection now returns unique
+  labels, with sparse/single-band tests. The former repeated-key `100` warnings
+  are absent. Proposal fixture ID warnings belong to the next proposal pass.
+
+Verification:
+
+- Full native library suite: **603 passed, 6 ignored**. New loopback fixtures prove
+  independent Chat/Drill publication and one-time accounting; restart reuse;
+  duplicate-recording refusal; owner removal; one/all consumers leaving after
+  submission; exact audio/context/language/model/workspace separation; provider
+  contract failures; cache-write failures; and pre-dispatch pause with no paid count.
+- After adding eviction assertions, all **36 recording tests** passed: clearing the
+  shared cache preserves both durable Drill attempts and content-free receipts.
+  Existing continuous-take tests now use distinct waveforms for distinct-utterance
+  dispatch assertions, rather than accidentally asking for identical recognition.
+- UI recording/Drill/speech-inspection/media/activity and architecture suite:
+  **223 passed across 35 files**. TypeScript, generated contracts, diagnostic policy,
+  strict native Clippy, formatting and diff whitespace checks passed.
+- Simulated canvas remains unavailable in the UI harness; the tests explicitly
+  exercise that failure display and do not certify real rendering or playback.
+  AddPhrases fixtures still repeat candidate/request identifiers; review that
+  diagnostic during the next generation pass rather than suppressing it globally.
+
+No deployment, hosted configuration change, paid provider request, app-data reset
+or commit was performed. Verification used temporary databases and local HTTP
+fixtures. No claim is made that the currently running app has loaded these sources,
+that a physical microphone was tested, or that recognition accuracy improved.
+
+Next bounded slice: proposal generation ownership, preserving fresh generation,
+acceptance and durable learning/product ownership. Then complete the cross-modality
+cleanup/audit and running-app checks already listed above. Deployment still requires
+explicit authorization and is not a prerequisite for local verification.
+
+## Implementation checkpoint: proposal execution, 2026-09-25
+
+Status: implemented and automatically verified. This supersedes the preceding
+checkpoint's statement that proposal execution is the next unimplemented slice.
+The complete cross-modality audit and running-app verification remain open.
+
+Implemented:
+
+- Persona and Drill generation now create independent shared execution receipts
+  and associate their existing proposal consumer receipts. Dispatch updates both
+  receipts in one transaction. Admission, credentials, transport, bounded existing
+  retry policy and refusal handling stay local and use the existing service contract.
+- Each explicit Generate action remains fresh, with distinct operation/attempt
+  identities. Proposals are neither deduplicated by prompt nor retained in the
+  reusable result cache. Persona output remains volatile; Drill previews retain
+  their existing product-owned candidates and transactional IDs-only acceptance.
+- A worker settles submitted execution independently of its command future.
+  Explicit cancellation or a dropped command cannot publish candidates or create
+  a persona. A consumer guard also handles the race where a worker has delivered
+  a result but the command closes before consuming it. Pre-dispatch cancellation
+  prevents submission. Workspace, pause, configuration and access authority checks
+  remain active; consumer cancellation is separate from execution authority.
+- Product receipt state and execution outcome remain distinct. A closed proposal
+  can be unknown while its underlying execution is known to have succeeded.
+  Activity exposes that source receipt and projects known provider/model/finish/
+  usage fields even when the consumer never receives the result.
+- Profile totals count each submitted shared execution once globally and per
+  language, without attributing proposals to an existing partner. Generation
+  activity totals use the same execution evidence. Older unlinked receipts keep
+  their existing accounting; this introduces no schema conversion or data reset.
+- Provider metadata survives validation and product-publication failures. A
+  failed shared terminal write still fails the command and refuses publication;
+  known response metadata is retained separately when storage permits, and the
+  error carries both the source execution ID and sanitized response facts.
+  A pending receipt from such a storage failure remains unresolved until restart
+  recovery marks the interrupted execution unknown; it is not reported as success.
+- Removed the obsolete proposal-specific retry receipt writer. Fixed the
+  multi-length AddPhrases fixture to return separate native identities and the
+  requested length/count, and verified Keep all submits each request's own IDs.
+  The previous duplicate candidate/length-key diagnostics no longer appear.
+
+Verification:
+
+- Full native library suite: **609 passed, 6 ignored**. Added local HTTP tests
+  cover fresh identical requests, one-time usage, persona source wiring and
+  restart receipts, dropped commands during inference, dropped delivered results,
+  atomic dispatch failure, and shared receipt-write failure. Existing tests still
+  cover explicit cancellation, malformed output, candidate publication failure,
+  partial/idempotent acceptance and single-use generation IDs.
+- UI Drill, partner, activity and architecture suites: **224 passed in 23 files**.
+  Proposal IPC suites: **5 passed in 2 files**. TypeScript, strict native Clippy,
+  generated contracts and diagnostic-policy checks passed. The simulated canvas
+  limitation remains; these tests do not certify device rendering or playback.
+- Fixtures use temporary workspaces and loopback HTTP. No paid provider request,
+  server code/configuration change, deployment, app-data reset or commit occurred.
+  Earlier uncommitted transcription work is preserved in the same checkout.
+
+Remaining agreed work:
+
+1. Final cross-modality source/receipt/publication audit, including leftover
+   caches and workflow-specific execution paths, with an explicit findings list.
+2. Running local application checks across Chat, Drill, reading help and proposal
+   acceptance: cancellation/navigation, replay after restart, eviction, failure
+   details and usage attribution. Verify the running build before interpreting logs.
+3. Speech recognition-quality regression investigation remains separately parked
+   at the user's request. This checkpoint does not claim improved transcription.
+
+Deployment is not needed for these local checks and still requires explicit
+authorization. This is a completed proposal checkpoint, not completion of the
+entire audit or evidence that the running app has loaded the changed native code.
+
+## Final source audit checkpoint, 2026-09-25
+
+Status: source review and automated verification complete for this refactor.
+Interactive runtime verification is incomplete, with the specific blocker below.
+This supersedes the preceding checkpoint's open source-audit item.
+
+### Boundary review
+
+| Area | Reviewed ownership and evidence |
+| --- | --- |
+| Speech | Chat playback, Drill reference playback and reading speech converge on `application/speech_results.rs`. Exact wire text/language and access/workspace scope select reuse. `speech/delivery.rs` is a bounded, consuming playback mailbox, not a competing reusable cache. `shared_speech`, `speech_reuse` and `speech_publication` tests cover sharing, cancellation, restart, pause, owner validity and receipts. |
+| Reading | `application/reading_results.rs` owns generated reading execution, pending subscriptions and retained results. Explicit fresh retries bypass old pending work. Saved lookup combines native retained results with accepted product annotations. UI reading providers project/lookup those records; they no longer own generated-result retention. `shared_reading` tests cover fresh retries, partial repair, restart, cancellation and failed cache publication. |
+| Transcription | Chat and Drill use `application/transcription_results.rs`, with exact WAV/context/language/access identity. Original recording files, inspection, Drill assessment and publication remain recording/product responsibilities. `transcription_execution_tests` covers cross-consumer reuse, independent adoption, owner removal, failures and one-time usage. |
+| Proposals | Persona and Drill share execution receipts, not generated content. Explicit actions stay fresh. Preview candidates, review, acceptance and learning credit stay product-owned. Proposal lifecycle and IPC suites cover cancellation, delivered-result abandonment, validation, publication and usage. |
+| Conversation flow | Replies, coaching and turn-owned annotations retain the scheduler's existing grouped dispatch/publication transactions. They use generic `TextRequest` transports and remain intentionally fresh product work. Moving product orchestration or making conversational replies reusable is not part of this refactor. The transport dependency test rejects imports back into product workflows. |
+| Retention and statistics | One native result/blob store and byte budget; consumer associations do not grant publication rights. LRU eviction removes reusable payloads, retaining execution metadata and durable product records. Profile totals exclude linked consumer attempts before counting shared executions once per selected scope. Tests distinguish missing usage, actual cost and estimated allowance. |
+| Interface state | Remaining reading/loading flags, waveform buffers, grouped acceptance IDs and active playback bytes represent UI work or delivery. They are not reusable inference caches. Cache controls invoke native settings; generated IPC contracts remain unchanged. |
+
+### Findings fixed in this pass
+
+1. Speech previously lost provider response facts when a successful response could
+   not be written to the blob cache. It now retains a failed metadata-only receipt
+   and returns the storage failure with its source execution ID and response facts.
+   If receipt storage also fails, that failure is retained in the returned details;
+   the request is never represented as successful. A local HTTP/SQLite-trigger
+   regression verifies request ID, unknown actual cost, failed receipt, no reusable
+   payload and exactly one submitted execution survive a cache-write failure.
+2. Speech failures before dispatch could leave a consumer association without an
+   execution receipt. Valid uncached work now creates its shared receipt before
+   authority/credential/admission checks and settles those failures as undispatched.
+   A paused-request test verifies no network work, no paid count and no source text
+   in the retained receipt.
+3. Reading and speech now check captured workspace identity under the same store
+   guard used for producer cache lookup/receipt creation. An obsolete worker cannot
+   create an execution receipt in a replacement workspace before its authority check.
+
+No additional source defect was identified in the reviewed boundaries. This is a
+bounded ownership audit, not proof of linguistic quality or physical device behavior.
+
+### Verification
+
+- Native library suite: **611 passed, 6 ignored**; strict library/test Clippy passed.
+- Full UI suite: **1,224 passed across 179 files**. Expected simulated-canvas and
+  deliberate diagnostic-test output remain; the suite has no failed tests.
+- Generated contracts, TypeScript, diagnostic policy, formatting and diff whitespace
+  checks passed. No service changes required a server or deployment test.
+- All native/frontend log streams from the four application runs in the audit
+  window beginning 07:50 local time were inspected, including successful events.
+  Each run contained 20 IPC starts and 20 successes, with no unmatched calls,
+  warning/error events or malformed log records. These were startup/settings/evidence
+  reads, not inference or playback runs; they do not certify the runtime matrix.
+- The local development executable was rebuilt at 07:56:25 and its current process
+  started at 07:56:30, after the source changes. This confirms a subsequent local
+  build/start by the running development watcher. No source hash is recorded in the
+  manifest, so this is timestamp/process evidence rather than binary attestation.
+
+### Runtime blocker and finite remaining matrix
+
+The desktop automation package initializes, but application enumeration fails with:
+`Computer Use native pipe is unavailable: failed to connect native pipe: The system cannot find the file specified. (os error 2)`.
+No app controls were exercised through that unavailable connection. A working
+desktop automation connection or a manual check of the running local app is needed
+to close these items:
+
+| Local check | Expected result | Status |
+| --- | --- | --- |
+| Chat, Drill reference and reading playback; Stop and navigation | Correct audio; Stop/navigation prevent late playback; another caller can finish independently | Device/UI verification outstanding; automated ownership tests pass |
+| Chat and Drill microphone capture | Transcript stays with its recording owner; Drill publication is independent; abandoned capture cannot publish late | Physical microphone/UI verification outstanding; local fixture tests pass |
+| Reopen app and replay previously retained speech/reading result | Replay works from native retention; usage does not increment | Interactive verification outstanding; restart/offline tests pass |
+| Set cache capacity to zero and restore it in a disposable test workspace | Reusable payloads clear; accepted items, recordings and receipts remain | Interactive verification outstanding; eviction tests pass |
+| Generate, cancel and accept persona/Drill proposals | Each generation is fresh; canceled results cannot be adopted; acceptance adds only selected IDs | Interactive verification outstanding; native/UI/IPC tests pass |
+| Inspect a failed request and usage report | Expandable source receipt retains provider facts; one submitted execution counts once | Interactive verification outstanding; failure/accounting tests pass |
+
+Recognition-quality investigation remains parked separately at the user's request.
+No remote configuration, deployment, paid request, app-data deletion or commit was
+performed. The audit leaves only the explicitly listed runtime checks open; it does
+not claim the entire task is done while those checks are unavailable.
+
+## Desktop testing follow-up: reference preview and XP scope, 2026-09-25
+
+User evidence: the desktop app ran successfully during a partial manual test;
+the user reported no apparent AI-layer failures. This is positive smoke-test
+evidence, not completion of the full runtime matrix above.
+
+Two display issues were confirmed and fixed:
+
+- Drill cleared its reference state on entry/selection and populated it only in
+  the playback callback. Cached audio could therefore exist while its spectrogram
+  stayed absent. A new cache-only reading IPC lookup now exposes retained speech
+  for inspection when selecting a phrase. It uses current speech/access identity
+  and validates the reference owner. It never starts generation, plays audio,
+  creates a reading attempt or increases paid usage. Misses remain empty until
+  explicit playback; late lookups cannot attach to another phrase or override a
+  newer play action. Analysis still uses the existing native audio inspector.
+- The conversation XP chip displayed the language profile total. It now uses
+  existing conversation-filtered credited evidence. At the user's follow-up request,
+  the added language-experience labels were removed, retaining the existing XP
+  wording pending the broader overhaul. All-language XP remains the existing sum
+  in the progress panel. No award,
+  persistence, reward animation or progression rules were changed; broader XP work
+  remains with the separately assigned work. Equal values can still be legitimate
+  when all language XP belongs to a single conversation.
+
+Verification: 13 native reading tests and 90 UI/progress/Drill/architecture tests
+passed. Tests cover an empty cache without dispatch, retained lookup after restart
+while paused and offline, unchanged receipt counts, drawing before playback,
+discarding a late selection result, and displaying 20 conversation XP separately
+from 119 language XP. Existing overview tests retain the all-language total while
+switching displayed languages. TypeScript, strict Clippy and command registration
+checks passed. Contracts were regenerated from the command registration source.
+A Stop-button fixture now waits for the button to become enabled before pressing
+it, rather than racing the existing Drill visit admission state.
+
+Logs from the user-test run beginning 08:05:53 were reviewed across native and
+frontend streams, including successes. They contain 20 accepted text/structured
+response validations and 3 accepted speech validations; no provider failure was
+recorded in those outcomes. The 158 logged lifecycle IPC starts have matching
+success events. Separate diagnostic records also include:
+
+- One `run_reading` conflict at the reading-authority stage: the source/access was
+  no longer valid or the request was stopped. Its exact reason is redacted, so it
+  cannot be confidently attributed to cancellation versus an access/source change.
+- Two related HTML-nesting console warnings. Their element names and component
+  stack arguments are redacted, preventing attribution to a specific component
+  from these records. They remain a separate UI diagnostic to reproduce; passing
+  provider checks must not be described as an entirely error-free log.
+
+These logs do not establish recognition quality, flawless playback or completion
+of the full runtime matrix. The two implemented display corrections are ready for
+desktop retesting. No service/deployment change or commit was performed.
+
+Follow-up source verification: Auto capture encodes each segmented clip into its
+own WAV. Transcription publication retains those bytes for the individual Drill
+attempt. `useAttemptAudio` reads that attempt's WAV and passes the same bytes to
+inspection and playback, so the comparison spectrogram and Play yours use the
+selected take, not the continuous listening session. Segmentation retains short
+boundary padding, including up to 200 ms of trailing quiet. Fit mode stretches
+each recording to the available width; Same scale uses a common time scale.
+The 10 segmentation tests passed. This verifies the source path and segmentation
+tests, not an audition of the user's particular recording.
+
+## Spectrogram presentation follow-up, 2026-09-25
+
+Implemented: frequency labels are plain overlay text with a small contrast shadow,
+without opaque backgrounds, padding or rounded badge shapes. Drill adds an
+optional Align words mode. Valid matching word sequences map the take's word
+boundaries to reference times by piecewise linear interpolation; spectrogram
+windows, word labels and segment markers use that same map. Original audio,
+duration labels, word timestamp tooltips and playback remain unchanged. The
+aligned view states that playback keeps original timing.
+
+Historical availability before the timing follow-up below: `inspect_drill_audio` only analysed WAV samples and did
+not attach word timestamps for either recording. Therefore the control is
+disabled in the current desktop flow. No timestamp generation or service change
+was added. Missing, unsupported, clipped, overlapping or incompatible timings
+disable alignment without a timing error message. Changing to an untimed take
+shows the ordinary Fit view. Matching requires the same sequence, allowing only
+canonical Unicode equivalence and surrounding whitespace; it does not infer
+correspondence for changed words or provide pronunciation/spelling evidence.
+
+Verification: 70 tests across Drill, alignment, localization and architecture
+passed, along with TypeScript and the style checker. Timestamped fixtures verify
+word placement, unchanged playback actions and loss of alignment availability.
+An additional canvas regression passed, verifying that mapped spectral windows
+retain unsampled gaps. The enabled alignment path is fixture-tested, not available in current Drill
+inspection responses. Desktop visual review remains outstanding.
+
+## Retained speech timing follow-up, 2026-09-25
+
+Implemented in source; this supersedes the preceding availability limitation.
+Recording publication now retains the normalized transcription result, including
+word timing, independently of the evictable inference cache. It publishes in the
+same transaction as the recording outcome. Inspection verifies the recording's
+audio digest and Drill ownership before attaching its retained timing. Timing
+survives restart and audio retention pruning; explicit attempt deletion removes
+the retained result while preserving the content-free execution receipt.
+
+Synthesis requests the provider's timestamped endpoint. Original and normalized
+character alignments travel with the generated audio through the service response,
+native result, shared local cache, reading response and Drill inspection. Their
+validated arrays are retained rather than replaced by the derived word view.
+Reference words are projected only from an unambiguous source-text span. Invalid
+optional alignment has an explicit diagnostic status and does not discard valid
+audio. Product text and timing stay in product records, outside diagnostic logs.
+
+Alignment matching ignores case, punctuation and whitespace while preserving
+diacritics. The UI discloses that matching policy. Missing or incompatible word
+sequences keep the control disabled; this is visual alignment, not pronunciation
+evidence, and playback retains original timing.
+
+Existing recordings without retained results are not backfilled or retranscribed.
+Known obsolete raw-audio synthesis cache entries are invalidated, not converted;
+fresh synthesis creates the audio-and-alignment result. This cleanup preserves
+recordings and execution receipts and does not reset the workspace.
+
+Verification: 614 native tests passed, with 6 ignored. The server inference suite
+passed 293 tests. The affected UI run passed 267 tests with two outdated result
+fixtures failing; after correcting those fixtures, all 48 tests in the three
+affected Drill/playback suites passed. TypeScript, strict Clippy, formatting and
+generated-contract checks passed. Tests cover cache eviction, restart, audio
+identity, deletion ownership, Unicode alignment and retained synthesis arrays.
+The Windows local launcher now selects the virtual environment's Windows Python
+path; its TypeScript check passed.
+
+Still pending: live synthesis/transcription against the changed local server and
+desktop inspection. The user is running a server from another location; the
+checkout/address and source revision need confirmation. Local port 8765 was not
+responding during these checks. The packaged-runtime check needs a rerun with the
+local audio decoder on PATH; initial runs encountered temporary-directory access
+and missing-decoder setup failures. No cloud deployment or commit was performed.
+
+## Attempt playback cursor follow-up, 2026-09-25
+
+Implemented: the selected take now observes playback time and draws the same
+vertical cursor as the reference. In word-aligned view its position follows the
+visual time mapping while playback uses the original recording. Switching takes
+or leaving Drill aborts the old playback and resets its time; aborted players
+cannot update the new take's cursor. Existing right-to-left track mirroring also
+mirrors the cursor. The defect was missing UI wiring, not missing audio timing.
+
+Verification: all 50 focused Drill page, comparison and word-alignment tests
+passed after correcting a floating-point assertion; TypeScript passed. The page
+test drives the playback observer and checks the visible cursor position, and
+the comparison test checks its mapped position. Desktop visual review of this
+cursor change remains pending.
+
+The local server run starting at 13:57 UTC passed decoder startup and logged six
+speech and four transcription requests, all HTTP 200, with no warning/error
+events at review time. Its eleven operations requests and six protocol requests
+also completed with HTTP 200. These outcomes establish successful requests, not
+recognition accuracy or word-alignment quality. The latest reviewed native run
+had 70 started and 70 successful IPC calls and no recorded failures. The preceding
+native run contained one account conflict and two reading conflicts; those should
+not be described as provider failures or silently omitted from the audit.
+
+## Drill report rows, 2026-09-25
+
+Implemented: the detailed selected-take report precedes the phrase summary.
+The full summary shows every loaded take as a selectable row, newest first,
+instead of one word per row and one take per column. Each take divides its full
+word area into equal-width target-word cells; long words truncate visually but
+remain available in tooltips and the detailed report. Extras remain in the detail
+and do not consume target-word cells. Unreliable recognition keeps a neutral row
+with its existing not-scored label rather than displaying colored evidence.
+Different target splits retain their own source words in their own row.
+
+The active take has a rectangular outline. Selecting a row updates the detail
+and playback selection; a newly published newest take becomes active. The compact
+mobile summary retains its existing controls. Summary calculations still consume
+stored comparisons; no recognition, grading or server behavior changed.
+
+Verification: 43 Drill page and progress tests passed, along with TypeScript and
+the style checker. The page regression checks newest-first row order, equal-width
+word columns, selected outline state, detail-before-summary order and row selection.
+Desktop visual review remains pending.
+
+Density refinement: each attempt now occupies one horizontal row with shared
+number, word-strip and percentage columns. Rows have no vertical gap or padding;
+the selected outline draws inside the row without adding spacing. Desktop uses
+the small control height, while coarse pointers retain the touch minimum.
+TypeScript and style checks passed for this presentation-only refinement.
+
+## User test and log review, 2026-09-25
+
+The user reports that the desktop test worked well. This supersedes the earlier
+blanket statements that desktop review is unavailable; it is a successful smoke
+test, not a claim that every historical runtime-matrix case was exercised.
+
+At this review, the active local server had 57 completed requests, all HTTP 200:
+21 transcription, 9 speech, 12 operations and 15 protocol requests. All 64 logged
+provider starts had matching completion, reservation and settlement events. No
+warning/error events were recorded. The server's prior decoder startup failure
+is resolved in this running session.
+
+Desktop logs were not entirely clean: the previous native run had eight
+`inspect_drill_audio` storage failures and the newest restart had two, all reporting
+`query_returned_no_rows`. Inspection scopes each attempt to its phrase. Source
+review found that history exposed the old phrase's attempts during the render
+before its clearing effect ran, allowing inspection with mismatched ownership.
+The history hook now hides results for other phrases synchronously, invalidates
+abandoned page requests, and avoids launching inspection after an abandoned audio
+read. A regression drives that exact phrase-switch/effect sequence. The logs do
+not retain phrase/attempt IDs, so individual historical failures cannot be mapped
+to a specific selection gesture from logs alone.
+
+Verification: 38 focused history/Drill page tests passed. The suite also exposed
+and verified a correction to initial-history selection: automatic selection now
+resets only when an already-loaded phrase receives a different newest take, not
+when history first arrives. TypeScript passed. These final selection fixes still
+need a short desktop phrase-switch check; they do not require repeating the full
+successful user test. Consolidated pre-PR checks and the packaged-runtime rerun
+remain outstanding. No commit or deployment was performed.
+
+## Pre-commit checkpoint, 2026-09-25
+
+The user confirmed the final phrase-switch check works and authorized one commit.
+This closes the local implementation and desktop smoke-test checkpoint. The
+earlier pending consolidated checks and packaged-runtime rerun are superseded:
+
+- Complete UI suite: 1,239 tests passed across 181 files.
+- Native library: 614 passed, 6 ignored.
+- Complete server suite: 562 passed, 7 emulator-dependent tests skipped. This
+  includes isolated packaged-runtime startup with the installed audio decoder.
+- Strict Clippy, Rust formatting, generated contracts, TypeScript, diagnostic
+  policy and style checks passed.
+
+Test-environment notices remain: simulated canvas drawing is unavailable in the
+DOM test environment, and the server test client's HTTP dependency reports a
+deprecation notice. Neither caused a failed test. These checks do not establish
+cross-device behavior, emulator integration or production deployment readiness.
+
+Generated admin assets were refreshed by the local launcher from their current
+source, including retained diagnostic fields and shared style tokens. No hand
+edits to generated assets or new admin behavior are introduced by this refresh.
+Merge planning is separate. No push, merge or cloud deployment is authorized by
+this checkpoint; the main-branch server workflow must be considered before a
+later merge so it does not inadvertently deploy the server.

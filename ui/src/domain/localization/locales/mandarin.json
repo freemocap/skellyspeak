@@ -1,4 +1,8 @@
 {
+  "Alignment matching ignores case and punctuation.": "对齐匹配忽略大小写和标点。",
+  "Align words": "对齐词语",
+  "Requires matching word timestamps in both recordings": "需要两段录音中对应词语的时间戳",
+  "Word-aligned display; playback uses original timing.": "按词语对齐显示；播放保留原始时间。",
   "AI result cache": "AI 结果缓存",
   "Cache capacity (MiB)": "缓存容量（MiB）",
   "Cached: {value0} MiB · results: {value1}": "已缓存：{value0} MiB · 结果数：{value1}",

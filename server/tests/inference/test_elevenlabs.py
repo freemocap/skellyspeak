@@ -1,5 +1,6 @@
 """Adapter HTTP contract tests; no network or paid provider calls."""
 import asyncio
+import base64
 from dataclasses import replace
 import io
 import json
@@ -26,15 +27,15 @@ def transcript():
 @pytest.mark.asyncio
 async def test_speech_sends_verbatim_source_and_returns_standard_wav():
     async def respond(request):
-        assert str(request.url) == "https://api.elevenlabs.io/v1/text-to-speech/fixtureVoiceId?output_format=pcm_24000"
+        assert str(request.url) == "https://api.elevenlabs.io/v1/text-to-speech/fixtureVoiceId/with-timestamps?output_format=pcm_24000"
         assert request.headers["xi-api-key"] == KEY
         assert "authorization" not in request.headers
         assert "cookie" not in request.headers
         assert "x-api-key" not in request.headers
         assert json.loads(request.content) == {"text": "നന്ദി", "model_id": "eleven_v3",
                                               "language_code": "ml", "apply_text_normalization": "off"}
-        return httpx.Response(200, content=b"\x01\0" * 24_000,
-                              headers={"content-type": "audio/pcm", "request-id": "receipt-123"})
+        return httpx.Response(200, json={"audio_base64": base64.b64encode(b"\x01\0" * 24_000).decode(), "alignment": {"characters": list(SPEECH.text), "character_start_times_seconds": [0.1] * len(SPEECH.text), "character_end_times_seconds": [0.8] * len(SPEECH.text)}},
+                              headers={"request-id": "receipt-123"})
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond),
                                 headers={"x-api-key": "other-provider-key"},
                                 cookies={"session": "other-service-session"},
@@ -44,6 +45,8 @@ async def test_speech_sends_verbatim_source_and_returns_standard_wav():
         assert (audio.getframerate(), audio.getnchannels(), audio.getsampwidth()) == (24_000, 1, 2)
         assert audio.getnframes() == 24_000
     assert result.duration_seconds == 1
+    assert result.alignment["original"]["characters"] == list(SPEECH.text)
+    assert result.alignment["original"]["ends"] == [0.8] * len(SPEECH.text)
     assert result.receipt.request_id == "receipt-123"
     assert result.receipt.cost_micros is None
     assert "നന്ദി" not in repr(SPEECH)
@@ -102,8 +105,8 @@ async def test_refusals_do_not_retry_follow_redirects_or_expose_body(status):
 @pytest.mark.parametrize("body,media,code", [
     (b"", "audio/pcm", "AUDIO_RESPONSE_INVALID"),
     (b"x", "audio/pcm", "AUDIO_RESPONSE_INVALID"),
-    (b"{}", "application/json", "AUDIO_RESPONSE_TYPE"),
-    pytest.param(b"x" * (MAX_PCM_BYTES + 2), "audio/pcm", "AUDIO_RESPONSE_LIMIT", id="oversized-pcm"),
+    (b"{}", "application/json", "AUDIO_RESPONSE_INVALID"),
+    pytest.param(b"x" * (8 * 1024 * 1024 + 2), "audio/pcm", "AUDIO_RESPONSE_LIMIT", id="oversized-pcm"),
 ])
 async def test_invalid_audio_retains_receipt_and_unknown_cost(body, media, code):
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
@@ -241,7 +244,7 @@ async def test_variety_reaches_provider_without_changing_source(variety):
         body = json.loads(request.content)
         assert body["text"] == f"[{variety} accent]\nGracias."
         assert body["language_code"] == "es"
-        return httpx.Response(200, content=b"\0\0", headers={"content-type": "audio/pcm"})
+        return httpx.Response(200, json={"audio_base64": base64.b64encode(b"\0\0").decode()})
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         await ElevenLabs(client, api_key=KEY).synthesize(source)
     assert source.text == "Gracias."

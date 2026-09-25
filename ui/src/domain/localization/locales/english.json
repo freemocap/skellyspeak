@@ -1,4 +1,8 @@
 {
+  "Alignment matching ignores case and punctuation.": "Alignment matching ignores case and punctuation.",
+  "Align words": "Align words",
+  "Requires matching word timestamps in both recordings": "Requires matching word timestamps in both recordings",
+  "Word-aligned display; playback uses original timing.": "Word-aligned display; playback uses original timing.",
   "AI result cache": "AI result cache",
   "Cache capacity (MiB)": "Cache capacity (MiB)",
   "Cached: {value0} MiB · results: {value1}": "Cached: {value0} MiB · results: {value1}",

@@ -14,7 +14,7 @@ pub fn scope(target: &ResolvedTarget, install: &str) -> Result<String> {
 }
 pub fn request_key(scope: &str, input: &SpeechInput) -> Result<String> {
     Ok(digest(&serde_json::to_vec(&json!([
-        "speech-local-v1",
+        "speech-local-v2",
         scope,
         input.text,
         input.language

@@ -8,7 +8,7 @@ import { XpChip } from './XpChip'
 import { XP_CARD_HOLD_MS } from './XpArrivalCard'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
-import { unreportedInput, type SkillSnapshot } from '../../../domain/learning/evidence/skills'
+import { conversationEvidence, unreportedInput, type SkillSnapshot } from '../../../domain/learning/evidence/skills'
 
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../../../platform/audio/reward-sounds', () => ({ playRewardSound: vi.fn() }))
@@ -56,7 +56,7 @@ const chip = () => screen.getByRole('button', { name: 'Conversation XP' })
 
 it('opens the card inside the header anchor and closes it after two seconds in Fast mode', () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
-  expect(chip()).toHaveTextContent(`${skillDemo.profile.xp} XP`)
+  expect(chip()).toHaveTextContent(`${conversationEvidence(skillDemo, 'chat').profile.xp} XP`)
   view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />)
   expect(card()).toBeVisible()
   expect(card()!.closest('.xp-chip-anchor')).toContainElement(chip())
@@ -68,7 +68,7 @@ it('opens the card inside the header anchor and closes it after two seconds in F
   expect(card()).toBeVisible()
   act(() => vi.advanceTimersByTime(1))
   expect(card()).toBeNull()
-  expect(chip()).toHaveTextContent(`${skillDemo.profile.xp + 10} XP`)
+  expect(chip()).toHaveTextContent(`${conversationEvidence(skillDemo, 'chat').profile.xp + 10} XP`)
   view.unmount()
 })
 
@@ -136,14 +136,17 @@ it('lists this conversation’s awards from the chip after the card has gone', (
   const earned = earn(skillDemo, 2)
   earned.records.push({ ...structuredClone(earned.records[0]), attempt_id: 'elsewhere', chat_id: 'other' })
   earned.profile.credits.push({ attempt_id: 'elsewhere', skill_id: earned.records[0].assessment!.judgments[0].skill_id, xp: 99 })
+  earned.profile.xp += 99
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
   view.rerender(<Fixture snapshot={earned} fastMode />)
   act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
   act(() => vi.advanceTimersByTime(XP_CARD_HOLD_MS))
   expect(card()).toBeNull()
+  expect(chip()).toHaveTextContent('20 XP')
   fireEvent.click(chip())
   const ledger = screen.getByRole('dialog', { name: 'Conversation XP' })
   expect(within(ledger).getByText('+20 XP')).toBeVisible()
+  expect(within(ledger).getByText('119 XP total')).toBeVisible()
   expect(within(ledger).getAllByRole('button')).toHaveLength(2)
   expect(within(ledger).queryByText('+99')).toBeNull()
   fireEvent.click(within(ledger).getAllByRole('button')[0])
@@ -157,7 +160,7 @@ it('keeps the chip and list when effects are off, and does not replay arrivals o
   view.rerender(<Fixture snapshot={earned} fastMode enabled={false} />)
   expect(card()).toBeNull()
   expect(playRewardSound).not.toHaveBeenCalled()
-  expect(chip()).toHaveTextContent(`${earned.profile.xp} XP`)
+  expect(chip()).toHaveTextContent(`${conversationEvidence(earned, 'chat').profile.xp} XP`)
   view.rerender(<Fixture snapshot={earned} fastMode enabled />)
   expect(card()).toBeNull()
   view.unmount()

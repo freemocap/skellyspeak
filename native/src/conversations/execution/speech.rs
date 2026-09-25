@@ -265,6 +265,7 @@ impl Store {
             attempt_id: dispatch.attempt.clone(),
             message_id: source.message_id.clone(),
             wav,
+            alignment: outcome.alignment,
         }))
     }
 
@@ -360,13 +361,14 @@ impl Store {
                 let attempt:String=self.connection.query_row("SELECT id FROM attempts WHERE operation_id=?1 AND state='succeeded' ORDER BY rowid DESC LIMIT 1",[operation],|r|r.get(0))?;
                 if let Some(saved) = crate::ai::results::for_consumer(&self.connection, &attempt)? {
                     cache.discard(&attempt);
+                    let audio = crate::speech::alignment::SpeechAudio::decode(&saved.payload)?;
                     return Ok(SpeechAudioState::Ready {
                         operation_id: operation.into(),
                         attempt_id: attempt,
                         message_id: message,
                         mime: "audio/wav".into(),
-                        audio_base64: base64::engine::general_purpose::STANDARD
-                            .encode(saved.payload),
+                        audio_base64: audio.audio_base64,
+                        alignment: audio.alignment,
                     });
                 }
                 if let Some(audio) = cache
@@ -379,6 +381,7 @@ impl Store {
                         message_id: message,
                         mime: "audio/wav".into(),
                         audio_base64: base64::engine::general_purpose::STANDARD.encode(&audio.wav),
+                        alignment: audio.alignment,
                     })
                 } else {
                     unavailable(SpeechUnavailableReason::Expired)

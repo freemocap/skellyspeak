@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS recording_results(recording_id TEXT PRIMARY KEY REFERENCES transcription_attempts(id) ON DELETE CASCADE, audio_digest TEXT NOT NULL, result TEXT NOT NULL CHECK(json_valid(result)));

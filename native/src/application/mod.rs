@@ -47,6 +47,7 @@ mod speech_results;
 mod startup;
 mod state;
 mod streams;
+mod transcription_results;
 
 use scheduler::scheduler;
 pub use startup::run;

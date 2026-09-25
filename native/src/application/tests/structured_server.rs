@@ -60,7 +60,8 @@ fn serve_one(
     let payload: serde_json::Value =
         serde_json::from_slice(&received[start..start + length]).unwrap();
     let item = &payload["items"][0];
-    let content = content(item["request"]["messages"][1]["content"].as_str().unwrap());
+    let messages = item["request"]["messages"].as_array().unwrap();
+    let content = content(messages.last().unwrap()["content"].as_str().unwrap());
     let mut body = serde_json::to_vec(&serde_json::json!({"type":"result","operation_id":item["operation_id"],"attempt_id":item["attempt_id"],
         "response":{"id":"structured-receipt","model":"actual-fast","choices":[{"finish_reason":"stop","message":{"content":content}}],"usage":{"prompt_tokens":21,"completion_tokens":4}}})).unwrap();
     body.push(b'\n');

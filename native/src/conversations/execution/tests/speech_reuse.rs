@@ -24,7 +24,10 @@ fn conversation_reuses_independent_result_while_paused_and_reopens_without_crede
         "independent-execution",
         &key,
         &serde_json::json!({"providerId":"receipt","costMicros":null}),
-        Some(&[1; 44]),
+        Some(
+            &serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(&[1; 44], None))
+                .unwrap(),
+        ),
         None,
     )
     .unwrap();

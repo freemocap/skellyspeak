@@ -45,7 +45,10 @@ fn speech_siblings_partial_arrival_and_read_only_cache() {
             "shared-speech",
             "key",
             &serde_json::json!({}),
-            Some(&[1; 44]),
+            Some(
+                &serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(&[1; 44], None))
+                    .unwrap(),
+            ),
             None,
         )
         .unwrap();

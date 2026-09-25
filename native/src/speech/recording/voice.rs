@@ -6,8 +6,18 @@ use crate::speech::recording::audio;
 use crate::speech::recording::owner::RecordingOwner;
 use std::sync::Arc;
 
+/// The complete retained recognition result, shared by recording consumers.
+#[tauri::command]
+pub fn get_transcription_result(
+    state: tauri::State<'_, Arc<Application>>,
+    recording_id: String,
+) -> Result<Option<crate::ai::audio::TranscriptionResult>> {
+    crate::speech::recording::results::result(&state.lock()?.connection, &recording_id)
+}
+
 pub struct Recording {
     id: String,
+    install: String,
     owner: RecordingOwner,
     visit: Option<String>,
     target: access::ResolvedTarget,
@@ -19,6 +29,7 @@ pub struct Recording {
 #[derive(Clone)]
 pub(super) struct Transcription {
     pub id: String,
+    install: String,
     owner: RecordingOwner,
     visit: Option<String>,
     target: access::ResolvedTarget,
@@ -28,6 +39,12 @@ pub(super) struct Transcription {
 impl Transcription {
     pub(super) fn capture_permitted(&self, state: &Application) -> Result<()> {
         let store = state.lock()?;
+        if store.snapshot()?.learner.id != self.install {
+            return Err(AppError::new(
+                ErrorCode::SessionExpired,
+                "Recording belongs to a different workspace.",
+            ));
+        }
         super::transcription::permitted(&store.connection, &self.owner, &self.target)?;
         crate::ai::policy::holds::check(&store.connection, &self.target)?;
         if crate::ai::connections::configuration::config(&store.connection)?.paused {
@@ -55,6 +72,7 @@ impl Recording {
     pub(super) fn request(&self) -> Transcription {
         Transcription {
             id: self.id.clone(),
+            install: self.install.clone(),
             owner: self.owner.clone(),
             visit: self.visit.clone(),
             target: self.target.clone(),
@@ -111,9 +129,11 @@ pub(crate) fn start_capture(
     };
     crate::ai::audio::validate_transcription_language(&target, &scope.language)?;
     let microphone = super::microphone::selected(&store.connection)?;
+    let install = store.snapshot()?.learner.id;
     drop(store);
     let recording = Recording {
         id: uuid::Uuid::new_v4().to_string(),
+        install,
         owner,
         visit,
         target,
@@ -238,18 +258,17 @@ pub(super) async fn transcribe(
     wav: Vec<u8>,
 ) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
     let recording_id = recording.id.clone();
-    let (credential, install) = {
+    let validate = || {
         let store = state.lock()?;
-        crate::speech::recording::transcription::permitted(
-            &store.connection,
-            &recording.owner,
-            &recording.target,
-        )?;
-        (
-            recording.target.credential.clone(),
-            store.snapshot()?.learner.id,
-        )
+        if store.snapshot()?.learner.id != recording.install {
+            return Err(AppError::new(
+                ErrorCode::SessionExpired,
+                "Recording belongs to a different workspace.",
+            ));
+        }
+        super::transcription::permitted(&store.connection, &recording.owner, &recording.target)
     };
+    validate()?;
     let inspection_recording = recording.id.clone();
     let inspection_owner = recording.owner.clone();
     let (wav, mut inspection) = tauri::async_runtime::spawn_blocking(move || {
@@ -268,35 +287,21 @@ pub(super) async fn transcribe(
             fault("Audio inspection stopped unexpectedly."),
         )
     })??;
-    let validate = || {
-        let store = state.lock()?;
-        if crate::ai::connections::configuration::config(&store.connection)?.paused {
+    {
+        let mut store = state.lock()?;
+        if store.snapshot()?.learner.id != recording.install {
             return Err(AppError::new(
-                ErrorCode::AdmissionHeld,
-                "Transcription stopped: AI execution is paused.",
+                ErrorCode::SessionExpired,
+                "Recording belongs to a different workspace.",
             ));
         }
-        crate::ai::policy::holds::check(&store.connection, &recording.target)?;
-        crate::speech::recording::transcription::permitted(
-            &store.connection,
+        store.reserve_transcription_in_visit(
+            &recording_id,
             &recording.owner,
             &recording.target,
+            recording.visit.as_deref(),
         )?;
-        Ok(())
-    };
-    let _permit = state.admission.audio(validate).await?;
-    let token = match credential {
-        Some(id) => crate::application::read_secret(id).await?,
-        None => zeroize::Zeroizing::new(String::new()),
-    };
-    validate()?;
-    let client = crate::ai::transport::provider::client()?;
-    state.lock()?.begin_transcription_in_visit(
-        &recording_id,
-        &recording.owner,
-        &recording.target,
-        recording.visit.as_deref(),
-    )?;
+    }
     use base64::Engine;
     let audio_base64 = base64::engine::general_purpose::STANDARD.encode(&wav);
 
@@ -305,26 +310,44 @@ pub(super) async fn transcribe(
         language: recording.language.clone(),
         context: recording.context.clone(),
     };
-    let result = crate::ai::policy::retry::run(
-        || {
-            crate::ai::audio::transcribe(
-                &client,
-                &recording.target,
-                &token,
-                input.clone(),
-                &install,
-            )
-        },
-        validate,
-        |error| {
-            state
-                .lock()?
-                .record_transcription_retry(&recording_id, error)
-        },
-    )
-    .await;
-    if let Err(error) = &result {
-        state.lock()?.note_refusal(&recording.target, error)?;
+    let result = state
+        .shared_transcription(
+            recording.target.clone(),
+            input.clone(),
+            recording.install.clone(),
+            &recording_id,
+            validate,
+        )
+        .await
+        .and_then(|saved| {
+            let result = serde_json::from_slice(&saved.payload).map_err(|_| {
+                AppError::new(
+                    ErrorCode::Storage,
+                    "Saved transcription has an invalid shape.",
+                )
+            })?;
+            let mut diagnostics = saved.metadata["diagnostics"].clone();
+            if diagnostics.is_null() {
+                diagnostics = serde_json::json!({});
+            }
+            diagnostics["sourceExecutionId"] = serde_json::json!(saved.execution);
+            diagnostics["cacheHit"] = serde_json::json!(saved.cached);
+            Ok(crate::ai::audio::TranscriptionOutcome {
+                result,
+                diagnostics: Some(diagnostics),
+            })
+        });
+    {
+        let mut store = state.lock()?;
+        if store.snapshot()?.learner.id != recording.install {
+            return Err(AppError::new(
+                ErrorCode::SessionExpired,
+                "Recording belongs to a different workspace.",
+            ));
+        }
+        if let Err(error) = &result {
+            store.note_refusal(&recording.target, error)?;
+        }
     }
     let mut diagnostics = result.as_ref().ok().and_then(|r| r.diagnostics.clone());
     if result.is_ok() && matches!(recording.owner, RecordingOwner::DrillItem(_)) {
@@ -337,16 +360,30 @@ pub(super) async fn transcribe(
             &mut inspection,
             response.result.timing.as_ref(),
         );
-        response.result.text
+        response.result
     });
-    let text = state.lock()?.publish_transcription(
-        &recording_id,
-        &recording.owner,
-        &recording.target,
-        result,
-        diagnostics.as_ref(),
-        Some(&input.wav),
-    )?;
+    let evidence = result.as_ref().ok();
+    let text = {
+        let mut store = state.lock()?;
+        if store.snapshot()?.learner.id != recording.install {
+            return Err(AppError::new(
+                ErrorCode::SessionExpired,
+                "Recording belongs to a different workspace.",
+            ));
+        }
+        store.publish_recording_result(
+            &recording_id,
+            &recording.owner,
+            &recording.target,
+            result
+                .as_ref()
+                .map(|value| value.text.clone())
+                .map_err(Clone::clone),
+            diagnostics.as_ref(),
+            Some(&input.wav),
+            evidence,
+        )?
+    };
     Ok(
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult {
             text,
@@ -369,6 +406,7 @@ pub(super) fn fixture(state: &Application, owner: RecordingOwner, pcm: Vec<f32>)
     };
     Recording {
         id: "continuous-fixture".into(),
+        install: store.snapshot().unwrap().learner.id,
         owner,
         visit,
         target: access::resolve(&store.connection, access::Capability::Transcription).unwrap(),
@@ -377,3 +415,7 @@ pub(super) fn fixture(state: &Application, owner: RecordingOwner, pcm: Vec<f32>)
         capture: audio::fixture(pcm, 8000),
     }
 }
+
+#[cfg(all(test, desktop))]
+#[path = "transcription_execution_tests.rs"]
+mod tests;

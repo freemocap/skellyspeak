@@ -79,9 +79,11 @@ The app does not discover hidden server voice or processing changes. To discard
 retained audio, set cache capacity to zero, then restore the desired capacity;
 execution receipts survive. Accepted text and original recordings keep their
 existing durable owners.
-Translation/gloss, transcription and generation integration remain subsequent
-[shared inference refactor](../docs/notes/shared-inference-architecture-audit-2026-09-24.md)
-stages.
+Generated reading text and transcription also use the shared local repository and
+pending subscriptions. Proposal generation uses shared execution receipts while
+remaining fresh for each explicit request; proposal text is not reusable cache data.
+See the [shared inference audit](../docs/notes/shared-inference-architecture-audit-2026-09-24.md)
+for verification and remaining application checks.
 
 Accepted gloss lookup is independent of conversation snapshots and UI lifetime.
 `language/reading/saved.rs` defines read-only query/source contracts;
@@ -91,7 +93,8 @@ and variety scope, excludes archived/replaced/invalidated sources, preserves
 source/operation/attempt IDs, and creates no inference attempts or cache entries.
 Exact matching stays in the shared UI reading domain. The native projection
 filters exact surface candidates and bounds input/output without silently
-truncating results. It does not consolidate newly generated text-result storage.
+truncating results. Generated glosses are a separate evictable projection from
+`language/reading/text_sources.rs`; accepted records keep their durable owners.
 
 Normal and opening turns automatically schedule `reply_brief`. Grammar
 (`reply_explanations`) and suggestions (`reply_assistance`) are created only by
@@ -254,6 +257,32 @@ can be queried locally across passages alongside accepted conversation annotatio
 accepted annotations keep their own durable ownership and need no AI credentials.
 Speech and Drill reference playback use the shared local speech result lifecycle.
 
+### Shared transcription execution
+
+`application/transcription_results.rs` owns recognizer admission, credentials,
+transport, bounded retries and shared execution settlement. Exact audio bytes,
+model, endpoint/account/workspace, captured language/variety/tag and prompt context
+identify a result. No text normalization, audio preprocessing or recognition
+settings change accompanies reuse. Validated text and timing are evictable local
+payloads; the shared repository does not copy original recordings into its cache.
+Hidden server processing changes are not discovered by local request identity.
+
+`speech/recording/voice.rs` retains per-recording inspection, Chat/Drill ownership,
+Drill reliability assessment and publication. A recording captures its workspace
+before asynchronous work. Duplicate submission of its ID cannot create another
+product attempt. A removed owner cannot receive a late result, while submitted
+provider work still settles its shared receipt. Continuous listening keeps its
+existing accepted-take queue and captured-visit publication behavior.
+
+`transcription_attempts` remains the product receipt, marked as a shared-execution
+consumer from reservation. It never independently implies a paid dispatch. Usage
+counts the shared execution once globally and once per matching language/partner
+scope; Drill-only consumers do not acquire partner attribution. Provider metadata
+and timing/confidence diagnostics survive success, failure and cache-write failure.
+Views attach the current shared receipt, including settlement after owner departure.
+The existing capture/reservation pause and access checks remain in force; reuse
+does not authorize starting a new recording while execution is paused.
+
 ### Manual Drill storage
 
 `drill/` owns immutable phrases, attempts with grapheme/word comparisons, and
@@ -279,6 +308,14 @@ Drill item owner, and captures execution settings once. `ai/transport/` owns lan
 provider HTTP formats and response decoding. Fluency analysis consumes normalized
 timing only; inspection shows bounded redacted diagnostic metadata separately.
 
+`speech/recording/results.rs` retains each published recording's normalized
+transcription and timing independently of the inference cache. Inspection checks
+audio identity before reusing that timing. Explicit Drill attempt deletion removes
+its result; audio retention pruning preserves the transcript and timing.
+`speech/alignment.rs` retains original and normalized synthesis character timing
+with generated audio and derives words for inspection without replacing those
+arrays. Missing or incompatible timing leaves visual word alignment unavailable.
+
 Model selection is shared by Hosted sign-in and Custom URL. Both routes use
 SkellySpeak service contracts for text, transcription and speech. Provider
 credentials and provider-specific transports belong on the server. There is no
@@ -295,8 +332,15 @@ so cleanup cannot provoke authorization for a removed access route.
 
 Drill and persona proposals use `application/commands/proposal_execution.rs` for
 structured completion, admission, cancellation checks and refusal handling.
-`ai/generation/` owns their shared request registry and `generation_attempts`
-receipts; each feature owns its prompt and response projection. Drill task text
+`ai/generation/` owns their proposal registry and `generation_attempts` consumer
+receipts; `ai/results/` retains independent execution receipts. Each feature owns
+its prompt and response projection. Every Generate action dispatches fresh work;
+there is no prompt deduplication or reusable proposal cache. Closing a submitted
+proposal cannot abandon its execution accounting or authorize late adoption.
+Pause and access changes still stop execution under the existing authority policy.
+Activity shows the consumer state alongside the shared execution outcome; usage
+counts each submitted execution once, including failed product publication.
+Drill task text
 is editable under `content/prompts/drill/`; difficulty instructions reuse the
 conversation configuration.
 

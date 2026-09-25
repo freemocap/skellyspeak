@@ -185,6 +185,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                                     .finish_speech(
                                         dispatch,
                                         audio::SpeechOutcome {
+                                            alignment: None,
                                             diagnostics: None,
                                             audio: Err(error),
                                             actual_model: None,

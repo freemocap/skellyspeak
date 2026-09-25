@@ -88,6 +88,7 @@ pub struct ReadingInput {
 pub struct ReadingResult {
     pub gloss: Option<WordGlossView>,
     pub audio_base64: Option<String>,
+    pub audio_alignment: Option<crate::speech::alignment::SpeechAlignment>,
     pub translation: Option<String>,
     pub explanations: Option<support::ReplyExplanations>,
     #[ts(type = "unknown")]

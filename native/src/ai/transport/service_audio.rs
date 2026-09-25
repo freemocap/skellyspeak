@@ -30,6 +30,7 @@ struct Response {
     version: u32,
     audio_base64: String,
     format: String,
+    alignment: Option<serde_json::Value>,
 }
 
 fn decode(bytes: &[u8], outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
@@ -88,6 +89,7 @@ fn decode(bytes: &[u8], outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
         crate::diagnostics::failures::wav(&cause, "speech_wav_header", invalid())
     })?;
     let spec = reader.spec();
+    let duration = reader.duration() as f64 / spec.sample_rate as f64;
     if spec.channels != 1
         || spec.sample_rate != 24_000
         || spec.bits_per_sample != 16
@@ -104,6 +106,18 @@ fn decode(bytes: &[u8], outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
         sample.map_err(|cause| {
             crate::diagnostics::failures::wav(&cause, "speech_wav_samples", invalid())
         })?;
+    }
+    if let Some(alignment) = value.alignment {
+        let decoded =
+            serde_json::from_value::<crate::speech::alignment::SpeechAlignment>(alignment);
+        if let Ok(alignment) = decoded.as_ref()
+            && alignment.valid(duration)
+        {
+            outcome.alignment = Some(alignment.clone());
+        } else {
+            outcome.diagnostics.as_mut().unwrap()["alignmentValidation"] = serde_json::json!({
+                "status":"unavailable", "reason":"invalid_timing", "stage":"speech_alignment"});
+        }
     }
     outcome.finish_reason = Some("stop".into());
     Ok(wav)
@@ -140,7 +154,7 @@ pub(in crate::ai) async fn synthesize(
         {
             hosted::body_with_private(response, &[key, &input.text]).await
         } else {
-            response_bytes(response, "Speech", target.route, 6 * 1024 * 1024).await
+            response_bytes(response, "Speech", target.route, 8 * 1024 * 1024).await
         }
         .map_err(|mut error| {
             if !status.is_client_error() {
@@ -149,6 +163,11 @@ pub(in crate::ai) async fn synthesize(
             error
         })?;
         let result = decode(&bytes, &mut outcome);
+        if outcome.alignment.as_ref().is_some_and(|a| a.source_text != input.text) {
+            outcome.alignment = None;
+            outcome.diagnostics.as_mut().unwrap()["alignmentValidation"] = serde_json::json!({
+                "status":"unavailable", "reason":"source_mismatch", "stage":"speech_alignment"});
+        }
         outcome
             .diagnostics
             .get_or_insert_with(|| serde_json::json!({}))["http"] = http;

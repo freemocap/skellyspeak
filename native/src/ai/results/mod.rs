@@ -8,6 +8,7 @@ use ts_rs::TS;
 pub mod pending;
 pub mod speech;
 pub mod text;
+pub mod transcription;
 
 #[derive(Clone)]
 pub struct Retained {
@@ -62,6 +63,10 @@ pub fn initialize(db: &Connection) -> Result<()> {
     transaction.execute_batch(
         "DROP TABLE IF EXISTS drill_references; DROP TABLE IF EXISTS inference_profiles;",
     )?;
+    // The former speech cache stored only WAV bytes. Invalidate that known
+    // regenerable format; keep every execution receipt and recording untouched.
+    transaction.execute("DELETE FROM inference_results WHERE id IN (SELECT r.id FROM inference_results r JOIN inference_executions e ON e.id=r.id JOIN inference_blobs b ON b.digest=r.blob_digest WHERE e.task='speech' AND substr(b.payload,1,4)=x'52494646' AND substr(b.payload,9,4)=x'57415645')", [])?;
+    prune(&transaction)?;
     transaction.execute("UPDATE inference_executions SET state=CASE WHEN dispatched=1 THEN 'unknown' ELSE 'cancelled' END, finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE state='pending'", [])?;
     transaction.commit()?;
     Ok(())

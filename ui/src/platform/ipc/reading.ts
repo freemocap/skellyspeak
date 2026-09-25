@@ -1,4 +1,4 @@
-import type { ReadingInput, ReadingResult } from '../../generated/contracts'
+import type { ReadingInput, ReadingResult, SpeechAudio } from '../../generated/contracts'
 import { invoke } from './native'
 import { ownedRequest } from './owned-request'
 
@@ -8,3 +8,8 @@ export async function readSelection(input: ReadingInput, signal: AbortSignal, op
     id => invoke<void>('cancel_reading', { id }), 'Closing reading help')
 }
 export function readingActivity(): Promise<unknown> { return invoke<unknown>('get_reading_activity') }
+
+/** Inspect retained audio without starting inference or playback. */
+export function cachedReadingAudio(input: ReadingInput): Promise<SpeechAudio | null> {
+  return invoke('get_cached_reading_audio', { input })
+}

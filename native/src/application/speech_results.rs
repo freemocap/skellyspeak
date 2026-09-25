@@ -83,9 +83,62 @@ impl Application {
         service_scope: &str,
         producer: &results::pending::Producer<Retained>,
     ) -> Result<Retained> {
-        if let Some(saved) = retained_speech(&self.lock()?.connection, target, input, install)? {
-            return Ok(saved);
+        let id = producer.id();
+        {
+            let store = self.lock()?;
+            if store.snapshot()?.learner.id != install {
+                return Err(AppError::new(
+                    ErrorCode::SessionExpired,
+                    "Workspace changed before speech execution.",
+                ));
+            }
+            if let Some(saved) = retained_speech(&store.connection, target, input, install)? {
+                return Ok(saved);
+            }
+            results::begin(&store.connection, id, "speech")?;
         }
+        let result = self
+            .execute_speech(target, input, install, service_scope, producer)
+            .await;
+        if let Err(mut error) = result {
+            let store = self.lock()?;
+            if store.snapshot()?.learner.id == install {
+                let pending: bool = store.connection.query_row(
+                    "SELECT state='pending' FROM inference_executions WHERE id=?1",
+                    [id],
+                    |r| r.get(0),
+                )?;
+                if pending {
+                    let metadata = error.diagnostics.as_ref().and_then(|d| d.get("response")).cloned().unwrap_or_else(|| json!({
+                        "requestedModel":target.model,"route":target.route.label(),
+                        "error":crate::diagnostics::response::error_metadata(&error, &[&input.text])
+                    }));
+                    if let Err(receipt_error) =
+                        results::finish(&store.connection, id, "", &metadata, None, Some(&error))
+                    {
+                        error.diagnostics = Some(
+                            json!({"sourceExecutionId":id,"response":metadata,
+                            "receiptStorageError":crate::diagnostics::response::error_metadata(&receipt_error, &[])}),
+                        );
+                    } else {
+                        error.diagnostics =
+                            Some(json!({"sourceExecutionId":id,"response":metadata}));
+                    }
+                }
+            }
+            return Err(error);
+        }
+        result
+    }
+
+    async fn execute_speech(
+        &self,
+        target: &access::ResolvedTarget,
+        input: &audio::SpeechInput,
+        install: &str,
+        service_scope: &str,
+        producer: &results::pending::Producer<Retained>,
+    ) -> Result<Retained> {
         self.speech_authority(target, install)?;
         let client = provider::client()?;
         let key = match &target.credential {
@@ -115,7 +168,6 @@ impl Application {
         let id = producer.id();
         {
             let store = self.lock()?;
-            results::begin(&store.connection, id, "speech")?;
             results::dispatched(&store.connection, id)?;
         }
         // Once submitted, settlement is independent of consumer cancellation.
@@ -125,10 +177,21 @@ impl Application {
             |error| results::record_retry(&self.lock()?.connection, id, error),
         )
         .await;
-        let metadata = json!({"requestedModel":target.model,"route":target.route.label(),"actualModel":completed.actual_model,"providerId":completed.provider_id,
+        let mut metadata = json!({"requestedModel":target.model,"route":target.route.label(),"actualModel":completed.actual_model,"providerId":completed.provider_id,
             "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,
             "finishReason":completed.finish_reason,
             "diagnostics":completed.diagnostics,"error":completed.audio.as_ref().err()});
+        let payload = completed
+            .audio
+            .as_ref()
+            .ok()
+            .map(|wav| {
+                serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(
+                    wav,
+                    completed.alignment.clone(),
+                ))
+            })
+            .transpose()?;
         {
             let store = self.lock()?;
             let current_install: String =
@@ -141,23 +204,43 @@ impl Application {
                     "Workspace changed during speech execution.",
                 ));
             }
-            results::finish(
+            let retained = results::finish(
                 &store.connection,
                 id,
                 &cache_key,
                 &metadata,
-                completed.audio.as_ref().ok().map(Vec::as_slice),
+                payload.as_deref(),
                 completed.audio.as_ref().err(),
-            )?;
+            );
+            if let Err(mut error) = retained {
+                metadata["storageError"] =
+                    crate::diagnostics::response::error_metadata(&error, &[]);
+                let receipt = results::finish(
+                    &store.connection,
+                    id,
+                    &cache_key,
+                    &metadata,
+                    None,
+                    Some(&error),
+                );
+                if let Err(receipt_error) = receipt {
+                    metadata["receiptStorageError"] =
+                        crate::diagnostics::response::error_metadata(&receipt_error, &[]);
+                }
+                error.diagnostics = Some(json!({"sourceExecutionId":id,"response":metadata}));
+                return Err(error);
+            }
         }
-        let payload = completed.audio.map_err(|mut error| {
+        completed.audio.map_err(|mut error| {
             error.diagnostics = Some(json!({"sourceExecutionId":id,"response":metadata}));
             error
         })?;
         Ok(Retained {
             cached: false,
             execution: id.into(),
-            payload,
+            payload: payload.ok_or_else(|| {
+                AppError::new(ErrorCode::Internal, "Speech result has no payload.")
+            })?,
             metadata,
         })
     }
@@ -170,7 +253,13 @@ pub(super) fn reused_outcome(saved: Retained) -> audio::SpeechOutcome {
         json!({"sourceExecutionId":saved.execution,"cacheHit":saved.cached,"sourceReceipt":saved.metadata}),
     );
     outcome.finish_reason = Some("stop".into());
-    outcome.audio = Ok(saved.payload);
+    match crate::speech::alignment::SpeechAudio::decode(&saved.payload) {
+        Ok(result) => {
+            outcome.audio = result.wav();
+            outcome.alignment = result.alignment;
+        }
+        Err(error) => outcome.audio = Err(error),
+    }
     outcome
 }
 

@@ -1,4 +1,8 @@
 {
+  "Alignment matching ignores case and punctuation.": "Der Abgleich zur Ausrichtung ignoriert Groß- und Kleinschreibung sowie Satzzeichen.",
+  "Align words": "Wörter ausrichten",
+  "Requires matching word timestamps in both recordings": "Erfordert Zeitstempel für übereinstimmende Wörter in beiden Aufnahmen",
+  "Word-aligned display; playback uses original timing.": "Nach Wörtern ausgerichtete Anzeige; die Wiedergabe behält das ursprüngliche Timing.",
   "AI result cache": "Cache für KI-Ergebnisse",
   "Cache capacity (MiB)": "Cache-Kapazität (MiB)",
   "Cached: {value0} MiB · results: {value1}": "Im Cache: {value0} MiB · Ergebnisse: {value1}",

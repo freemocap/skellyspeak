@@ -82,6 +82,7 @@ beforeEach(() => {
   invoke.mockImplementation(async (command: string, args: Record<string, unknown>) => {
     switch (command) {
       case 'get_drill_items': return items
+      case 'get_cached_reading_audio': return null
       case 'create_drill_item': {
         const created = item({ id: 'item-1', text: (args.input as { text: string }).text.trim() })
         items = [created, ...items]
@@ -118,7 +119,7 @@ beforeEach(() => {
       default: throw new Error(`Unexpected native command: ${command}`)
     }
   })
-  speak.mockImplementation(async (...args) => { const result = { audioBase64: 'cmVmZXJlbmNl', receipt: null }; await args[5]?.onAudio?.(result); return result })
+  speak.mockImplementation(async (...args) => { const result = { audioBase64: 'cmVmZXJlbmNl', audioAlignment: null, receipt: null }; await args[5]?.onAudio?.(result); return result })
   play.mockReturnValue({ play: () => Promise.resolve(), stop: vi.fn() })
   vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} })
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', '') }
@@ -132,6 +133,35 @@ const app = (lookup?: Lookup) => render(
       <DrillPage active />
     </ReadingLookupContext>
   </I18nProvider>)
+
+it('draws a cached reference on entry without playback or generation', async () => {
+  items = [item()]
+  const native = invoke.getMockImplementation()!
+  invoke.mockImplementation((command, args) => command === 'get_cached_reading_audio'
+    ? Promise.resolve({ audioBase64: 'cmVmZXJlbmNl', alignment: null }) : native(command, args))
+  app()
+  await waitFor(() => expect(screen.getByRole('slider', { name: 'Seek reference audio' })).toBeEnabled())
+  expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl', speechAlignment: null })
+  expect(speak).not.toHaveBeenCalled()
+  expect(play).not.toHaveBeenCalled()
+  expect(invoke.mock.calls.some(([command]) => command === 'begin_reading')).toBe(false)
+})
+
+it('ignores a late cached reference after selecting another phrase', async () => {
+  items = [item(), second()]
+  const native = invoke.getMockImplementation()!
+  let release!: (audio: { audioBase64: string; alignment: null }) => void
+  invoke.mockImplementation((command, args) => command === 'get_cached_reading_audio'
+    ? (args.input.referenceItem === 'item-1' ? new Promise(resolve => { release = resolve }) : Promise.resolve(null))
+    : native(command, args))
+  app()
+  await screen.findByRole('button', { name: 'Hear it' })
+  fireEvent.click(screen.getAllByRole('button').find(node => node.textContent?.startsWith('Hasta luego.'))!)
+  await act(async () => release({ audioBase64: 'cmVmZXJlbmNl', alignment: null }))
+  expect(invoke.mock.calls.some(([command]) => command === 'inspect_drill_audio')).toBe(false)
+  expect(screen.getByRole('slider', { name: 'Seek reference audio' })).toBeDisabled()
+  expect(speak).not.toHaveBeenCalled()
+})
 
 it('takes a typed phrase, records an attempt against it, and scores what was said', async () => {
   app()
@@ -177,7 +207,9 @@ it('shows the measured comparison, the words that differed, and replays the atte
   await waitFor(() => expect(screen.getByRole('button', { name: 'Play yours' })).toBeEnabled(), { timeout: 5000 })
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
   expect(play).toHaveBeenCalledOnce()
-  expect(play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), expect.any(Function), 0.85, 0.15, undefined)
+  expect(play).toHaveBeenCalledWith(expect.anything(), expect.any(Function), expect.any(Function), 0.85, 0.15, expect.objectContaining({ onTime: expect.any(Function) }))
+  act(() => play.mock.calls[0][5].onTime(0.4, 1))
+  expect(document.querySelector('.drill-comparison-panel .audio-spectrum-cursor')).toHaveStyle({ left: '40%' })
   // With no reference played yet, the panel says so instead of comparing one.
   expect(screen.getByText('Play the reference to compare it with this attempt.')).toBeVisible()
 })
@@ -187,7 +219,7 @@ it('pairs the reference with the attempt once the reference has been heard', asy
   app()
   await screen.findByRole('button', { name: 'Play yours' })
   await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Hear it' })) })
-  await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl' }), { timeout: 5000 })
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl', speechAlignment: null }), { timeout: 5000 })
   expect(speak).toHaveBeenCalledWith(
     expect.objectContaining({ text: 'Quisiera un café.', aid: 'speech', language: 'spanish', referenceItem: 'item-1' }),
     expect.any(AbortSignal), expect.any(Function), expect.any(Number), expect.any(Number), expect.objectContaining({ onAudio: expect.any(Function), onTime: expect.any(Function) }))
@@ -269,7 +301,7 @@ it('never attaches one phrase’s reference to another', async () => {
     ? new Promise(resolve => { release = resolve }) : native(command, args))
   app()
   fireEvent.click(await screen.findByRole('button', { name: 'Hear it' }))
-  await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl' }))
+  await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl', speechAlignment: null }))
   // The learner moves on while the reference inspection is still being prepared.
   fireEvent.click(screen.getAllByRole('button').find(node => node.textContent?.startsWith('Hasta luego.'))!)
   expect((speak.mock.calls[0][1] as AbortSignal).aborted).toBe(true)
@@ -370,10 +402,12 @@ it('marks where one detected speech segment ended and the next began', async () 
   expect(screen.getByText(/2 speech segments/)).toBeVisible()
 })
 
-it('says when the recognizer returned no word timings instead of drawing any', async () => {
+it('disables word alignment without a timing error when timestamps are absent', async () => {
   items = [item({ attempts: [attempt()] })]
   app()
-  expect(await screen.findByText('Word timings unavailable.', {}, { timeout: 5000 })).toBeVisible()
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Play yours' })).toBeEnabled())
+  expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
+  expect(screen.queryByText('Word timings unavailable.')).not.toBeInTheDocument()
   expect(screen.queryByLabelText('Timed words')).not.toBeInTheDocument()
   expect(screen.queryByText('segment 2')).not.toBeInTheDocument()
 })
@@ -590,7 +624,16 @@ it('summarises the phrase across takes and names the word that keeps changing', 
   app()
   const summary = within(await screen.findByRole('region', { name: 'This phrase' }))
   expect(summary.getByText('Last 3 takes')).toBeVisible()
-  expect(summary.getByRole('img', { name: 'café: heard exactly in 1 of 3 takes' })).toBeVisible()
+  const rows = summary.getAllByRole('button')
+  expect(rows.map(row => row.getAttribute('aria-label'))).toEqual(['Take 3', 'Take 2', 'Take 1'])
+  expect(rows[0]).toHaveAttribute('aria-pressed', 'true')
+  expect(within(rows[0]).getByText('café')).toBeVisible()
+  expect(rows[0].querySelector('.drill-word-row-cells')).toHaveStyle({ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' })
+  const detail = screen.getByRole('region', { name: 'Attempt 3' })
+  expect(detail.compareDocumentPosition(screen.getByRole('region', { name: 'This phrase' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  fireEvent.click(rows[1])
+  expect(rows[1]).toHaveAttribute('aria-pressed', 'true')
+  expect(screen.getByRole('region', { name: 'Attempt 2' })).toBeVisible()
   expect(summary.getByText('Most often different: café, in 2 of 3 takes.')).toBeVisible()
   expect(summary.getByRole('img', { name: 'Transcript match by take, oldest to newest: 94%, 94%, 100%' })).toBeVisible()
 })
@@ -718,7 +761,7 @@ it('lets the learner stop reference and recorded playback', async () => {
   const stop = vi.fn()
   play.mockReturnValue({ play: () => new Promise(() => {}), stop })
   app()
-  await screen.findByRole('button', { name: 'Hear it' })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Hear it' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Hear it' }))
   const referenceStop = await screen.findByRole('button', { name: 'Stop' })
   expect(referenceStop).toBeEnabled()

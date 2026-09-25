@@ -1,7 +1,39 @@
 use super::*;
 use crate::language::reading;
 use crate::learning::coaching::conversation_support as support;
+#[cfg(test)]
 use base64::{Engine, engine::general_purpose::STANDARD};
+
+/// Local preview only: a cache miss must never create or dispatch reading work.
+#[tauri::command]
+pub(in crate::application) fn get_cached_reading_audio(
+    state: tauri::State<'_, Arc<Application>>,
+    input: reading::ReadingInput,
+) -> Result<Option<crate::speech::alignment::SpeechAudio>> {
+    cached_reading_audio(&*state.lock()?, input)
+}
+
+fn cached_reading_audio(
+    store: &Store,
+    input: reading::ReadingInput,
+) -> Result<Option<crate::speech::alignment::SpeechAudio>> {
+    if input.aid != reading::ReadingAid::Speech {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Cached audio requires a speech request.",
+        ));
+    }
+    let request = reading::Request::capture(store, input)?;
+    request.validate_source(store)?;
+    crate::ai::results::speech::lookup(
+        &store.connection,
+        &request.target,
+        &request.speech_input()?,
+        &request.install,
+    )?
+    .map(|saved| crate::speech::alignment::SpeechAudio::decode(&saved.payload))
+    .transpose()
+}
 
 #[tauri::command]
 pub(in crate::application) fn get_saved_gloss_sources(
@@ -56,7 +88,7 @@ pub(in crate::application) async fn run_reading(
 /// What one explicit reading request produced.
 enum Aid {
     Gloss(model::WordGlossView),
-    Audio(String),
+    Audio(crate::speech::alignment::SpeechAudio),
     Translation(String),
     Explanations(support::ReplyExplanations),
 }
@@ -83,7 +115,9 @@ async fn run_owned_reading(state: &Arc<Application>, id: &str) -> Result<reading
             metadata["audioAccepted"] = serde_json::json!(true);
             metadata["transcriptComparison"] = serde_json::Value::Null;
             validate()?;
-            return Ok(Aid::Audio(STANDARD.encode(saved.payload)));
+            return Ok(Aid::Audio(crate::speech::alignment::SpeechAudio::decode(
+                &saved.payload,
+            )?));
         }
         let saved = state
             .shared_reading(request.clone())
@@ -131,13 +165,17 @@ async fn run_owned_reading(state: &Arc<Application>, id: &str) -> Result<reading
                 let mut result = reading::ReadingResult {
                     gloss: None,
                     audio_base64: None,
+                    audio_alignment: None,
                     translation: None,
                     explanations: None,
                     receipt,
                 };
                 match aid {
                     Aid::Gloss(gloss) => result.gloss = Some(gloss),
-                    Aid::Audio(audio) => result.audio_base64 = Some(audio),
+                    Aid::Audio(audio) => {
+                        result.audio_base64 = Some(audio.audio_base64);
+                        result.audio_alignment = audio.alignment;
+                    }
                     Aid::Translation(text) => result.translation = Some(text),
                     Aid::Explanations(value) => result.explanations = Some(value),
                 }

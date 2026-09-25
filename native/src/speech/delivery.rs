@@ -23,6 +23,7 @@ pub struct ReadyAudio {
     pub attempt_id: String,
     pub message_id: String,
     pub wav: Vec<u8>,
+    pub alignment: Option<crate::speech::alignment::SpeechAlignment>,
 }
 
 #[derive(Default)]
@@ -79,6 +80,7 @@ mod tests {
             attempt_id: attempt.into(),
             message_id: "source".into(),
             wav: vec![0; size],
+            alignment: None,
         }
     }
     #[test]

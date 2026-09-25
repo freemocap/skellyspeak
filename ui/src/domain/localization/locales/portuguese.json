@@ -1,4 +1,8 @@
 {
+  "Alignment matching ignores case and punctuation.": "A correspondência para alinhamento ignora maiúsculas e pontuação.",
+  "Align words": "Alinhar palavras",
+  "Requires matching word timestamps in both recordings": "Requer marcações de tempo de palavras correspondentes nas duas gravações",
+  "Word-aligned display; playback uses original timing.": "Visualização alinhada por palavras; a reprodução mantém os tempos originais.",
   "AI result cache": "Cache de resultados de IA",
   "Cache capacity (MiB)": "Capacidade do cache (MiB)",
   "Cached: {value0} MiB · results: {value1}": "Em cache: {value0} MiB · resultados: {value1}",

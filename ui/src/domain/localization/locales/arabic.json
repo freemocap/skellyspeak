@@ -1,4 +1,8 @@
 {
+  "Alignment matching ignores case and punctuation.": "تتجاهل المطابقة للمحاذاة حالة الأحرف وعلامات الترقيم.",
+  "Align words": "محاذاة الكلمات",
+  "Requires matching word timestamps in both recordings": "يتطلب طوابع زمنية لكلمات متطابقة في كلا التسجيلين",
+  "Word-aligned display; playback uses original timing.": "عرض بمحاذاة الكلمات؛ يحتفظ التشغيل بالتوقيت الأصلي.",
   "AI result cache": "ذاكرة التخزين المؤقت لنتائج الذكاء الاصطناعي",
   "Cache capacity (MiB)": "سعة التخزين المؤقت (MiB)",
   "Cached: {value0} MiB · results: {value1}": "المخزّن مؤقتًا: {value0} MiB · النتائج: {value1}",
