@@ -1364,3 +1364,23 @@ edits to generated assets or new admin behavior are introduced by this refresh.
 Merge planning is separate. No push, merge or cloud deployment is authorized by
 this checkpoint; the main-branch server workflow must be considered before a
 later merge so it does not inadvertently deploy the server.
+
+## PR CI corrections, 2026-09-25
+
+PR 44 exposed two integration omissions. The mobile jobs stopped at TypeScript:
+the tour demo added on main did not supply the new attempt playback position.
+The comparison now defaults static previews to zero; live Drill continues to
+supply observed playback time. Its regression covers the default cursor position.
+The frontend job stopped at the unused-message audit: five retired Drill grid and
+audio-cache labels remained in every locale. Those unused entries are removed.
+
+Verification used an isolated combined source tree from the branch and current
+main, preserving main's new tour code and translations. The exact production
+build command passed, as did the merged localization audit (1,366 messages,
+zero unused candidates). Preview type-checking, seven localization-tool tests
+and 51 focused Drill/localization tests passed. The branch-only localization
+audit also passes. An existing large-bundle advisory remains non-fatal.
+
+The fixes are uncommitted for the user. Remote CI must run on the updated branch
+before its mobile compilation or complete PR status can be called green. No
+commit, push, merge or deployment was performed for these corrections.

@@ -9,7 +9,7 @@ function view(overrides: Partial<Parameters<typeof DrillComparison>[0]> = {}) {
   return <I18nProvider locale="english"><DrillComparison target={<p>Hola</p>} reference={null} referenceTime={0} onSeekReference={() => {}}
     onPlayReference={() => {}} playingReference={false} referenceNote="" attempt={null} attemptLabel={null} attemptFailure={null}
     onRetryAttempt={() => {}} attemptUnavailable={null} direction="ltr" onDirection={() => {}} timeScale="fit" onTimeScale={() => {}}
-    holding={false} playingAttempt={false} attemptTime={0} onPlayAttempt={() => {}} {...overrides} /></I18nProvider>
+    holding={false} playingAttempt={false} onPlayAttempt={() => {}} {...overrides} /></I18nProvider>
 }
 
 it('draws every reference state inside the same frame', () => {
@@ -50,7 +50,8 @@ const inspection: AudioInspection = {
 }
 
 it('disables alignment without word timing and shows no timing error', () => {
-  render(view({ reference: inspection, attempt: inspection, attemptLabel: 'Take 1', timeScale: 'words' }))
+  const { container } = render(view({ reference: inspection, attempt: inspection, attemptLabel: 'Take 1', timeScale: 'words' }))
+  expect(container.querySelectorAll('.audio-spectrum-cursor')[1]).toHaveStyle({ left: '0%' })
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
   expect(screen.getByRole('radio', { name: 'Fit' })).toHaveAttribute('aria-checked', 'true')
   expect(screen.queryByText(/Word timings unavailable/)).not.toBeInTheDocument()

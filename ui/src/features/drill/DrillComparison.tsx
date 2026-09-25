@@ -29,7 +29,7 @@ function tickStep(span: number) {
  * can be read against each other. Each recording has its own play control
  * beside its own timeline, the way a media player does. */
 export function DrillComparison({ target, reference, referenceTime, onSeekReference, onPlayReference, playingReference, referenceNote, referenceFailure,
-  attempt, attemptTime, attemptLabel, attemptFailure, onRetryAttempt, attemptUnavailable, direction, onDirection, timeScale, onTimeScale,
+  attempt, attemptTime = 0, attemptLabel, attemptFailure, onRetryAttempt, attemptUnavailable, direction, onDirection, timeScale, onTimeScale,
   holding, playingAttempt, onPlayAttempt, playbackSpeed }: {
   /** The phrase itself, in its reading bubble. */
   target: ReactNode
@@ -44,7 +44,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   /** A failed reference request, drawn inside the reference frame. */
   referenceFailure?: ReactNode
   attempt: AudioInspection | null
-  attemptTime: number
+  /** Static previews start at zero; live playback supplies its observed position. */
+  attemptTime?: number
   /** The selected take's name, or null when there is no take yet. */
   attemptLabel: string | null
   attemptFailure: unknown
