@@ -71,11 +71,13 @@ async def test_transcription_never_substitutes_model(proxy, ledger, monkeypatch)
     assert row['actual_micros'] == 0
 
 
-def test_generated_catalog_matches_authored_source():
+@pytest.mark.parametrize('line_ending', ['\n', '\r\n'])
+def test_generated_catalog_matches_authored_source(line_ending):
     import hashlib
     from pathlib import Path
     from server.app.inference.speech_catalog import SOURCE_SHA256
-    source = (Path(__file__).parents[3] / 'content/shared/speech-routing.yaml').read_bytes()
+    source = (Path(__file__).parents[3] / 'content/shared/speech-routing.yaml').read_text(encoding='utf-8')
+    source = source.replace('\n', line_ending).replace('\r\n', '\n').encode('utf-8')
     assert hashlib.sha256(source).hexdigest() == SOURCE_SHA256
 
 

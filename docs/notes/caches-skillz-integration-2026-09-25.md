@@ -283,3 +283,21 @@ Regression cases cover both repair flags with the old skill demonstrated, partia
 or absent, preserving and displaying the new correction in every case. Restart the
 native app and explicitly retry existing failed help to exercise the updated path.
 Changes remain uncommitted.
+
+
+## PR 45 CI checksum fix
+
+The two server test jobs and Windows contract check failed on the same speech
+catalog source checksum. Local CRLF bytes produced a different hash from the LF
+source stored in Git; authored content and generated routing values matched.
+The exporter now canonicalizes CRLF to LF before hashing. The server source check
+uses the same canonical text policy, and the generated catalog was regenerated.
+Exporter regression coverage checks LF/CRLF equivalence and sensitivity to actual
+content changes; CI now runs that exporter test. Server coverage exercises both
+line endings against the generated checksum.
+
+Verification: 602 server tests passed, 7 emulator tests skipped; exporter regression,
+generated contracts check, exporter strict lint, formatting and diff checks passed.
+Android, iOS, Linux, frontend, docs and container CI jobs passed on the existing PR
+commit. Only the three checksum-related jobs failed. Fixes remain uncommitted and
+must be committed and pushed by the user before remote CI can verify them.

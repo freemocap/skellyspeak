@@ -108,6 +108,8 @@ jobs:
         working-directory: native
       - run: cargo run --locked --bin export-contracts -- --check
         working-directory: native
+      - run: cargo test --locked --bin export-contracts
+        working-directory: native
       - run: cargo run --locked --bin benchmark_gloss -- export --check
         working-directory: native
       - run: cargo fmt -- --check
