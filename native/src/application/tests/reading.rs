@@ -38,31 +38,8 @@ async fn speech_request(reference: bool) {
         writer.finalize().unwrap();
     }
     let encoded_audio = STANDARD.encode(wav.into_inner());
-    let profile = "a".repeat(64);
-    let body = serde_json::json!({"version":1,"synthesis_profile":profile,"format":"wav","audio_base64":encoded_audio,"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
+    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
     let worker = std::thread::spawn(move || {
-        let (mut probe, _) = listener.accept().unwrap();
-        probe
-            .set_read_timeout(Some(Duration::from_secs(5)))
-            .unwrap();
-        let mut headers = Vec::new();
-        while !headers.ends_with(b"\r\n\r\n") {
-            let mut byte = [0];
-            probe.read_exact(&mut byte).unwrap();
-            headers.push(byte[0]);
-        }
-        assert!(String::from_utf8_lossy(&headers).starts_with("GET /v1/protocol "));
-        let protocol = serde_json::json!({"protocol":"skellyspeak","version":1,
-            "audio":{"speech_model":target.model,"synthesis_profile":profile}})
-        .to_string();
-        write!(
-            probe,
-            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-            protocol.len(),
-            protocol
-        )
-        .unwrap();
-        drop(probe);
         let (mut socket, _) = listener.accept().unwrap();
         socket
             .set_read_timeout(Some(Duration::from_secs(5)))
@@ -92,7 +69,7 @@ async fn speech_request(reference: bool) {
         assert!(request.starts_with("POST /v1/audio/speech"));
         let payload: serde_json::Value =
             serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
-        assert_eq!(payload["synthesis_profile"], profile);
+        assert_eq!(payload.as_object().unwrap().len(), 3);
         assert_eq!(payload["text"], "كتاب");
         write!(
             socket,
@@ -210,7 +187,6 @@ async fn speech_request(reference: bool) {
     // explicitly null rather than dropped; the shared projection's own test
     // covers retention when a provider does send one.
     let response = &receipts[0]["response"];
-    assert_eq!(response["synthesisProfile"], "a".repeat(64));
     assert_eq!(response["audioAccepted"], true);
     assert!(response.get("finishReason").is_some());
     assert!(

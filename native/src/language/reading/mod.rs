@@ -1,9 +1,11 @@
-//! Explicit, ephemeral reading requests. Source text stays in memory; only
-//! redacted inference receipts are durable. Never grants learning credit.
+//! Explicit reading consumers. Generated payloads are evictable local results;
+//! redacted execution receipts are durable. Never grants learning credit.
 mod receipts;
 pub(crate) mod saved;
 #[cfg(test)]
 mod tests;
+pub(crate) mod text;
+pub(crate) mod text_sources;
 use crate::{
     ai::connections::access, ai::transport::text_request::TextRequest, language::gloss,
     learning::coaching::conversation_support as support, model::*, storage::store::Store,
@@ -94,6 +96,7 @@ pub struct ReadingResult {
 
 pub struct Request {
     pub id: String,
+    pub fresh: bool,
     pub input: ReadingInput,
     pub context: crate::configuration::LanguageContext,
     pub target: access::ResolvedTarget,
@@ -106,7 +109,6 @@ pub struct Request {
     created: Instant,
     claimed: AtomicBool,
     cancelled: AtomicBool,
-    submitted: AtomicBool,
 }
 impl Request {
     pub fn capture(store: &Store, input: ReadingInput) -> Result<Self> {
@@ -137,6 +139,7 @@ impl Request {
         let (attempt, operation) = crate::ai::identity::new_execution_ids();
         let request = Self {
             id: uuid::Uuid::new_v4().to_string(),
+            fresh: false,
             input,
             context,
             target,
@@ -148,17 +151,9 @@ impl Request {
             created: Instant::now(),
             claimed: AtomicBool::new(false),
             cancelled: AtomicBool::new(false),
-            submitted: AtomicBool::new(false),
         };
-        request.validate(store)?;
+        request.validate_source(store)?;
         Ok(request)
-    }
-    pub fn validate(&self, store: &Store) -> Result<()> {
-        self.validate_source(store)?;
-        if self.input.aid == ReadingAid::Speech {
-            return Ok(());
-        }
-        self.validate_execution(store)
     }
     pub fn validate_source(&self, store: &Store) -> Result<()> {
         crate::drill::reference::validate(store, self)?;
@@ -168,62 +163,55 @@ impl Request {
         if self.install != store.snapshot()?.learner.id {
             return Err(self.stopped("workspace_changed"));
         }
+        if self.input.aid != ReadingAid::Speech {
+            self.validate_access(store)?;
+        }
         Ok(())
     }
-    fn validate_execution(&self, store: &Store) -> Result<()> {
-        let config = crate::ai::connections::configuration::config(&store.connection)?;
-        if config.paused {
+    pub(crate) fn validate_execution(&self, store: &Store) -> Result<()> {
+        self.validate_access(store)?;
+        if crate::ai::connections::configuration::config(&store.connection)?.paused {
             return Err(self.stopped("paused"));
+        }
+        crate::ai::policy::holds::check(&store.connection, &self.target)
+    }
+    fn validate_access(&self, store: &Store) -> Result<()> {
+        if self.install != store.snapshot()?.learner.id {
+            return Err(self.stopped("workspace_changed"));
         }
         if self.config_hash != store.config.hash() {
             return Err(self.stopped("configuration_changed"));
         }
-        let current =
-            access::resolve(&store.connection, self.input.aid.capability()).map_err(|error| {
-                if self.submitted.load(Ordering::SeqCst) {
-                    self.stopped("access_unavailable")
-                } else {
-                    error
-                }
-            })?;
-        if self.cancelled.load(Ordering::SeqCst) {
-            return Err(self.stopped("cancelled"));
-        }
+        let current = access::resolve(&store.connection, self.input.aid.capability())?;
+        let config = crate::ai::connections::configuration::config(&store.connection)?;
+        let model = crate::ai::connections::model_routing::target(
+            &current,
+            self.input.aid.role(),
+            &config.fast_model,
+        )
+        .model;
         if current.revision != self.target.revision
             || current.route != self.target.route
             || current.url != self.target.url
             || current.model != self.target.model
             || current.credential != self.target.credential
+            || model != self.model
         {
             return Err(self.stopped("access_changed"));
         }
-        crate::ai::policy::holds::check(&store.connection, &self.target).map_err(|error| {
-            if self.submitted.load(Ordering::SeqCst) {
-                self.stopped("execution_held")
-            } else {
-                error
-            }
-        })?;
         Ok(())
     }
     fn stopped(&self, reason: &str) -> AppError {
-        AppError::new(
-            if self.submitted.load(Ordering::SeqCst) {
-                ErrorCode::UnknownOutcome
-            } else {
-                ErrorCode::Conflict
-            },
-            "Reading request stopped or its source/access changed. A submitted request may have incurred usage; no automatic retry was made.",
-        ).with_diagnostics(serde_json::json!({
-            "stage":"reading_authority", "reason":reason,
-            "dispatched":(self.input.aid != ReadingAid::Speech)
-                .then(|| self.submitted.load(Ordering::SeqCst))
-        }))
+        AppError::new(ErrorCode::Conflict, "Reading request stopped or its source/access changed. See the shared execution receipt for any submitted work.")
+            .with_diagnostics(serde_json::json!({"stage":"reading_authority", "reason":reason, "dispatched":null}))
     }
     fn source(&self) -> gloss::Source {
         gloss::Source {
             identity: crate::language::linguistics::SourceIdentity {
-                message_id: self.id.clone(),
+                message_id: crate::ai::results::digest(
+                    &serde_json::to_vec(&serde_json::json!([self.input.text, self.context]))
+                        .expect("serializable reading source"),
+                ),
                 target_language_id: self.input.language.clone(),
                 explanation_language_id: self.input.explanation.clone(),
                 analysis_version: crate::language::linguistics::ANALYSIS_VERSION.into(),
@@ -319,17 +307,15 @@ impl Request {
             &self.context,
         )
     }
-    pub fn submitted(&self, store: &Store) -> Result<()> {
-        self.validate(store)?;
-        receipts::dispatch(store, &self.id)?;
-        self.submitted.store(true, Ordering::SeqCst);
-        Ok(())
-    }
 }
 #[derive(Default)]
 pub struct Registry(Mutex<HashMap<String, Arc<Request>>>);
 impl Registry {
+    #[cfg(test)]
     pub fn begin(&self, store: &Store, input: ReadingInput) -> Result<String> {
+        self.begin_fresh(store, input, false)
+    }
+    pub fn begin_fresh(&self, store: &Store, input: ReadingInput, fresh: bool) -> Result<String> {
         let mut entries = self
             .0
             .lock()
@@ -349,7 +335,9 @@ impl Registry {
                 "Finish or close pending reading requests first.",
             ));
         }
-        let request = Arc::new(Request::capture(store, input)?);
+        let mut request = Request::capture(store, input)?;
+        request.fresh = fresh;
+        let request = Arc::new(request);
         receipts::begin(store, &request)?;
         let id = request.id.clone();
         entries.insert(id.clone(), request);
@@ -399,19 +387,4 @@ impl Registry {
         Ok(())
     }
 }
-pub async fn checked<T>(
-    _request: &Request,
-    future: impl std::future::Future<Output = T>,
-    validate: impl Fn() -> Result<()>,
-) -> Result<T> {
-    validate()?;
-    tokio::pin!(future);
-    loop {
-        tokio::select! {
-            biased;
-            _ = tokio::time::sleep(std::time::Duration::from_millis(100)) => { validate()?; },
-            result = &mut future => return Ok(result)
-        }
-    }
-}
-pub use receipts::{activity, finish, record_retry, recover};
+pub use receipts::{activity, finish, recover};

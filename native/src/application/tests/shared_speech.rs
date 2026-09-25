@@ -43,7 +43,7 @@ fn respond(socket: &mut std::net::TcpStream, body: serde_json::Value) {
 
 // Exercise real HTTP dispatch and receipt settlement, not just subscription bookkeeping.
 #[tokio::test]
-async fn invalid_independent_input_fails_before_discovery_or_execution() {
+async fn invalid_independent_input_fails_before_execution() {
     let directory = tempfile::tempdir().unwrap();
     let state = Application::start(&directory.path().join("speech.sqlite3"), None);
     let target = access::ResolvedTarget {
@@ -86,93 +86,6 @@ async fn cancelling_all_consumers_after_dispatch_still_settles_receipt() {
     cancellation(true).await;
 }
 
-#[tokio::test]
-async fn last_consumer_leaving_during_profile_discovery_prevents_synthesis() {
-    let directory = tempfile::tempdir().unwrap();
-    let state = Application::start(&directory.path().join("speech.sqlite3"), None);
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
-    let (target, install) = {
-        let store = state.lock().unwrap();
-        let base = format!("http://{}/v1", listener.local_addr().unwrap());
-        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))",[base]).unwrap();
-        (
-            access::resolve(&store.connection, access::Capability::Speech).unwrap(),
-            store
-                .connection
-                .query_row("SELECT id FROM learner LIMIT 1", [], |r| {
-                    r.get::<_, String>(0)
-                })
-                .unwrap(),
-        )
-    };
-    let service_scope = scope(&target, &install).unwrap();
-    let model = target.model.clone();
-    let (started, discovering) = tokio::sync::oneshot::channel();
-    let (release, released) = std::sync::mpsc::channel();
-    let worker = std::thread::spawn(move || {
-        let (mut socket, _) = listener.accept().unwrap();
-        assert!(request(&mut socket).starts_with("GET /v1/protocol "));
-        started.send(()).unwrap();
-        released.recv_timeout(Duration::from_secs(5)).unwrap();
-        respond(
-            &mut socket,
-            json!({"protocol":"skellyspeak","version":1,"audio":{"speech_model":model,"synthesis_profile":"a".repeat(64)}}),
-        );
-    });
-    let active = AtomicBool::new(true);
-    let consumer = state.shared_speech(
-        target,
-        audio::SpeechInput {
-            text: "never submitted".into(),
-            language: "en".into(),
-            voice: "unused".into(),
-        },
-        install,
-        "cancelled",
-        || {
-            if active.load(Ordering::SeqCst) {
-                Ok(())
-            } else {
-                Err(AppError::new(ErrorCode::Conflict, "Consumer closed."))
-            }
-        },
-    );
-    let controller = async {
-        discovering.await.unwrap();
-        active.store(false, Ordering::SeqCst);
-    };
-    let (result, _) = tokio::time::timeout(Duration::from_secs(5), async {
-        tokio::join!(consumer, controller)
-    })
-    .await
-    .unwrap();
-    assert!(matches!(result,Err(e) if e.code==ErrorCode::Conflict));
-    release.send(()).unwrap();
-    worker.join().unwrap();
-    tokio::time::timeout(Duration::from_secs(5), async {
-        loop {
-            if results::profile(&state.lock().unwrap().connection, &service_scope)
-                .unwrap()
-                .is_some()
-            {
-                break;
-            }
-            tokio::time::sleep(Duration::from_millis(10)).await;
-        }
-    })
-    .await
-    .unwrap();
-    let count: i64 = state
-        .lock()
-        .unwrap()
-        .connection
-        .query_row("SELECT count(*) FROM inference_executions", [], |r| {
-            r.get(0)
-        })
-        .unwrap();
-    assert_eq!(count, 0);
-}
-
 async fn cancellation(cancel_all: bool) {
     let directory = tempfile::tempdir().unwrap();
     let state = Application::start(&directory.path().join("speech.sqlite3"), None);
@@ -199,16 +112,12 @@ async fn cancellation(cancel_all: bool) {
     let (started, dispatched) = tokio::sync::oneshot::channel();
     let (release, released) = std::sync::mpsc::channel();
     let worker = std::thread::spawn(move || {
-        let profile = "a".repeat(64);
         let (mut socket, _) = listener.accept().unwrap();
-        assert!(request(&mut socket).starts_with("GET /v1/protocol "));
-        respond(
-            &mut socket,
-            json!({"protocol":"skellyspeak","version":1,"audio":{"speech_model":model,"synthesis_profile":profile}}),
-        );
-        drop(socket);
-        let (mut socket, _) = listener.accept().unwrap();
-        assert!(request(&mut socket).starts_with("POST /v1/audio/speech "));
+        let wire = request(&mut socket);
+        assert!(wire.starts_with("POST /v1/audio/speech "));
+        let body: serde_json::Value =
+            serde_json::from_str(wire.split_once("\r\n\r\n").unwrap().1).unwrap();
+        assert_eq!(body.as_object().unwrap().len(), 3);
         started.send(()).unwrap();
         released.recv_timeout(Duration::from_secs(10)).unwrap();
         let mut wav = std::io::Cursor::new(Vec::new());
@@ -226,7 +135,7 @@ async fn cancellation(cancel_all: bool) {
         writer.finalize().unwrap();
         respond(
             &mut socket,
-            json!({"version":1,"synthesis_profile":profile,"format":"wav",
+            json!({"version":1,"format":"wav",
             "audio_base64":base64::engine::general_purpose::STANDARD.encode(wav.into_inner()),
             "usage":{"requested_model":model,"actual_model":model,"provider":"elevenlabs","request_id":"shared-request","cost_micros":null,"allowance_micros":12}}),
         );

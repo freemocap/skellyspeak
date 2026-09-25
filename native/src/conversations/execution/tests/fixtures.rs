@@ -159,7 +159,6 @@ pub(super) fn gloss_children(
 
 pub(super) fn speech_outcome(audio: Result<Vec<u8>>) -> crate::ai::audio::SpeechOutcome {
     crate::ai::audio::SpeechOutcome {
-        synthesis_profile: None,
         diagnostics: None,
         audio,
         actual_model: Some("speech-model".into()),

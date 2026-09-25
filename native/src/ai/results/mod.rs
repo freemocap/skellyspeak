@@ -7,6 +7,7 @@ use ts_rs::TS;
 
 pub mod pending;
 pub mod speech;
+pub mod text;
 
 #[derive(Clone)]
 pub struct Retained {
@@ -58,7 +59,9 @@ pub fn initialize(db: &Connection) -> Result<()> {
     let transaction = db.unchecked_transaction()?;
     transaction.execute_batch(schema)?;
     // Targeted development cleanup: obsolete regenerable bytes only, never receipts or recordings.
-    transaction.execute_batch("DROP TABLE IF EXISTS drill_references;")?;
+    transaction.execute_batch(
+        "DROP TABLE IF EXISTS drill_references; DROP TABLE IF EXISTS inference_profiles;",
+    )?;
     transaction.execute("UPDATE inference_executions SET state=CASE WHEN dispatched=1 THEN 'unknown' ELSE 'cancelled' END, finished_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE state='pending'", [])?;
     transaction.commit()?;
     Ok(())
@@ -119,7 +122,7 @@ fn prune(db: &Connection) -> Result<()> {
 }
 
 pub fn lookup(db: &Connection, key: &str) -> Result<Option<Retained>> {
-    let id: Option<String> = db.query_row("SELECT id FROM inference_results WHERE request_key=?1 ORDER BY last_used DESC,id LIMIT 1", [key], |r| r.get(0)).optional()?;
+    let id: Option<String> = db.query_row("SELECT r.id FROM inference_results r JOIN inference_executions e ON e.id=r.id WHERE r.request_key=?1 ORDER BY e.rowid DESC LIMIT 1", [key], |r| r.get(0)).optional()?;
     id.map(|id| read(db, &id)).transpose().map(Option::flatten)
 }
 
@@ -206,20 +209,6 @@ pub fn finish(
         }
     }
     tx.commit()?;
-    Ok(())
-}
-
-pub fn profile(db: &Connection, scope: &str) -> Result<Option<String>> {
-    Ok(db
-        .query_row(
-            "SELECT profile FROM inference_profiles WHERE scope=?1",
-            [scope],
-            |r| r.get(0),
-        )
-        .optional()?)
-}
-pub fn remember_profile(db: &Connection, scope: &str, profile: &str) -> Result<()> {
-    db.execute("INSERT INTO inference_profiles(scope,profile) VALUES(?1,?2) ON CONFLICT(scope) DO UPDATE SET profile=excluded.profile", params![scope,profile])?;
     Ok(())
 }
 

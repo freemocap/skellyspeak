@@ -13,6 +13,33 @@ fn complete(db: &Connection, id: &str, key: &str, bytes: &[u8]) {
     .unwrap();
 }
 #[test]
+fn obsolete_discovery_state_is_removed_without_losing_audio_or_receipts() {
+    let db = Connection::open_in_memory().unwrap();
+    initialize(&db).unwrap();
+    complete(&db, "saved", "saved-key", b"audio");
+    associate(&db, "consumer", "saved").unwrap();
+    let receipt = receipt_for_consumer(&db, "consumer").unwrap();
+    db.execute_batch(
+        "CREATE TABLE inference_profiles(scope TEXT PRIMARY KEY, profile TEXT NOT NULL);
+        INSERT INTO inference_profiles VALUES('scope','retired');",
+    )
+    .unwrap();
+    initialize(&db).unwrap();
+    let count: i64 = db
+        .query_row(
+            "SELECT count(*) FROM sqlite_master WHERE name='inference_profiles'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(count, 0);
+    assert_eq!(receipt_for_consumer(&db, "consumer").unwrap(), receipt);
+    assert_eq!(
+        for_consumer(&db, "consumer").unwrap().unwrap().payload,
+        b"audio"
+    );
+}
+#[test]
 fn restart_reuse_lru_shared_blobs_and_receipts_have_independent_lifetimes() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("results.sqlite3");
@@ -150,7 +177,7 @@ fn speech_identity_preserves_exact_inputs_and_effective_access_scope() {
         language: "fr".into(),
         voice: "unused".into(),
     };
-    let key = speech::request_key(&scope, &input, "profile-one").unwrap();
+    let key = speech::request_key(&scope, &input).unwrap();
     let mut changed = input.clone();
     for text in [
         "e\u{0301}",
@@ -159,26 +186,13 @@ fn speech_identity_preserves_exact_inputs_and_effective_access_scope() {
         "\u{4e66}",
     ] {
         changed.text = text.into();
-        assert_ne!(
-            key,
-            speech::request_key(&scope, &changed, "profile-one").unwrap()
-        );
+        assert_ne!(key, speech::request_key(&scope, &changed).unwrap());
     }
     changed = input.clone();
     changed.voice = "different-unused-voice".into();
-    assert_eq!(
-        key,
-        speech::request_key(&scope, &changed, "profile-one").unwrap()
-    );
+    assert_eq!(key, speech::request_key(&scope, &changed).unwrap());
     changed.language = "other-language-tag".into();
-    assert_ne!(
-        key,
-        speech::request_key(&scope, &changed, "profile-one").unwrap()
-    );
-    assert_ne!(
-        key,
-        speech::request_key(&scope, &input, "profile-two").unwrap()
-    );
+    assert_ne!(key, speech::request_key(&scope, &changed).unwrap());
     let mut changed_target = target.clone();
     changed_target.revision += 1;
     assert_eq!(scope, speech::scope(&changed_target, "workspace").unwrap());
@@ -193,22 +207,41 @@ fn speech_identity_preserves_exact_inputs_and_effective_access_scope() {
     assert_ne!(scope, speech::scope(&target, "other-workspace").unwrap());
     let db = Connection::open_in_memory().unwrap();
     initialize(&db).unwrap();
-    complete(&db, "old-profile", &key, b"old audio");
-    remember_profile(&db, &scope, "profile-one").unwrap();
+    complete(&db, "saved-speech", &key, b"old audio");
     assert!(
         speech::lookup(&db, &target, &input, "workspace")
             .unwrap()
             .is_some()
     );
-    remember_profile(&db, &scope, "profile-two").unwrap();
+    let original = target.clone();
+    let mut target = target.clone();
+    target.model = "other-model".into();
     assert!(
         speech::lookup(&db, &target, &input, "workspace")
             .unwrap()
             .is_none()
     );
+    assert!(
+        speech::lookup(&db, &original, &input, "workspace")
+            .unwrap()
+            .is_some()
+    );
     // Existing associations still reference the original result after configuration changes.
     assert_eq!(
-        read(&db, "old-profile").unwrap().unwrap().payload,
+        read(&db, "saved-speech").unwrap().unwrap().payload,
         b"old audio"
+    );
+}
+
+#[test]
+fn inspecting_an_older_result_does_not_make_it_the_current_answer() {
+    let db = Connection::open_in_memory().unwrap();
+    initialize(&db).unwrap();
+    complete(&db, "original", "same-key", b"partial");
+    complete(&db, "repair", "same-key", b"complete");
+    read(&db, "original").unwrap();
+    assert_eq!(
+        lookup(&db, "same-key").unwrap().unwrap().execution,
+        "repair"
     );
 }

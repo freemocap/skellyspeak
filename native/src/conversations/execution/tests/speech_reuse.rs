@@ -16,9 +16,7 @@ fn conversation_reuses_independent_result_while_paused_and_reopens_without_crede
         voice: source.voice.clone(),
     };
     let scope = results::speech::scope(&speech.target, &speech.install_id).unwrap();
-    let profile = "a".repeat(64);
-    let key = results::speech::request_key(&scope, &input, &profile).unwrap();
-    results::remember_profile(&store.connection, &scope, &profile).unwrap();
+    let key = results::speech::request_key(&scope, &input).unwrap();
     results::begin(&store.connection, "independent-execution", "speech").unwrap();
     results::dispatched(&store.connection, "independent-execution").unwrap();
     results::finish(

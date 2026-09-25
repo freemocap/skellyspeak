@@ -4,7 +4,7 @@ import type { ReadingHelpResult, ReadingLookupOptions } from '../../domain/readi
 export type ReadingScope = Omit<ReadingInput, 'text' | 'aid'>
 export interface ReadingSelection { text: string; start: number; end: number; scope: ReadingScope }
 export interface ReadingServices {
-  read: (input: ReadingInput, signal: AbortSignal) => Promise<ReadingHelpResult>
+  read: (input: ReadingInput, signal: AbortSignal, options?: ReadingLookupOptions) => Promise<ReadingHelpResult>
   saved?: (input: ReadingInput, signal: AbortSignal) => Promise<ReadingHelpResult | null>
   speak: (input: ReadingInput, signal: AbortSignal, onPlayback: () => void) => Promise<unknown>
   activity: () => Promise<unknown>

@@ -3,12 +3,65 @@
 Status: source audit and authorized staged refactor, 2026-09-24. The ownership
 principle and staged direction below are agreed. The original findings describe
 the baseline before implementation; progress is recorded separately below.
-Shared result/blob retention, speech integration and view-independent accepted
-gloss lookup are now implemented; see the
-completion audit below for current verification and remaining modality work. Earlier
+Shared result/blob retention, speech integration, view-independent accepted
+gloss lookup and generated reading-text execution are implemented. See the latest
+generated-reading checkpoint below for verification and remaining modality work. Earlier
 checkpoints below are historical snapshots, not the current completion status.
 
-## Completion audit: speech-first stopping point
+## Current correction: local caching, unchanged service contract
+
+Decision: the user confirmed that shared inference ownership and caching are
+local application work. The mandatory synthesis-profile protocol extension was
+unnecessary coupling and is removed. No deployment, hosted test or remote workflow
+run is required for this correction. Earlier deployment-oriented gates below are
+historical and superseded by this section.
+
+Implemented:
+
+- Fresh speech sends exactly `model`, `text` and `language` directly to the
+  existing speech endpoint. No profile-discovery request precedes it. Audio
+  decoding still validates the response version, format and complete PCM data;
+  available usage, request IDs and failure diagnostics remain retained.
+- Shared pending work, retained audio, eviction and receipts remain in the native
+  app. Local keys contain exact text/language and model/endpoint/route/account/
+  workspace scope. They exclude UI/workflow identity and unused voice hints.
+- Reuse survives restart and requires no network or credential read. Different
+  wire inputs/access scope select different results. Unrelated settings revisions
+  and pause do not invalidate existing audio. Hidden remote voice/processing
+  changes are not detected; cache capacity zero clears retained results while
+  preserving receipts. Restoring capacity enables new retention.
+- Removed profile transport, profile outcome fields, discovery storage and local
+  server protocol additions, including their package entries. Startup removes the
+  retired discovery table only; existing result associations/audio/receipts remain.
+  Changed key semantics do not reinterpret old keys. Old associated audio can still
+  be played and is subject to normal eviction. Historical safe diagnostic fields
+  remain allowlisted so existing receipts are still readable.
+- Local server speech and protocol handlers now match the source at the last
+  successful deployed commit `04fca005`; this was checked with a file diff, not by
+  accessing or changing the deployed service. Local permission and packaging
+  portability fixes remain intact.
+
+Verification after correction:
+
+- Native library suite: **589 passed, 6 ignored**. Loopback HTTP tests require a
+  direct speech POST with exactly three fields, return no profile field, and cover
+  selected-word/Drill/shared consumers, restart replay without a listening server,
+  cancellation, one-time accounting and retained diagnostics.
+- Local server suite with workspace-local decoder: **549 passed, 7 skipped**.
+  Speech requests exercise the original wire contract, audio validation, spending
+  accounting and provider-failure redaction. Isolated package startup passes. The
+  seven database-emulator tests remain unrun; one dependency deprecation warning
+  remains. Obsolete profile-feature tests were removed with that feature, not skipped.
+- Strict native Clippy passed. Cleanup regression confirms retired discovery
+  storage can be removed without losing associated audio or receipts.
+
+Remaining local checkpoint: audible app playback, Stop/navigation/microphone
+interaction and any recurrence of the historical reading cancellation need
+running-app verification. Automated fixtures do not certify device playback.
+Generated reading text is completed in the later checkpoint below; transcription
+and proposal-lifecycle integration remain agreed subsequent work. None of these findings authorizes deployment or a commit.
+
+## Historical completion audit: speech-first stopping point
 
 Status: local automated checkpoint reached; operational gates remain open. The user
 requested a complete work audit and tangible stopping points. This does not mark
@@ -95,6 +148,40 @@ package/test fixes were followed by private-file portability fixes, explicit
 reading authority diagnostics and shared-speech statistics coverage. The Windows
 dependency is platform-scoped and locked. The decoder is a workspace-local
 verification tool, not a new application dependency or system PATH modification.
+
+## Historical post-checkpoint operational inspection
+
+Observed after the user pushed checkpoint `ad0ec3349d47c5ae8d475290f13b5786ab1e6e14`:
+
+- Local checkout was clean and the remote `caches` branch resolved to that exact
+  commit. No workflow runs existed for its SHA. Branch push alone does not run
+  the current CI or deployment workflows on `caches`.
+- The latest successful deployment workflow was
+  [run 35920041980](https://github.com/freemocap/skellyspeak/actions/runs/35920041980),
+  for `04fca005f9f3ad65d4a8f1bca534f7ff5f383e52`. That source's protocol handler
+  does not publish `synthesis_profile`. This supports the observed client/server
+  mismatch; it is not direct verification of current Cloud Run traffic or of
+  deployments made outside this workflow.
+- The latest main-branch CI failure, at `97eda06f`, was annotated as a 15-minute
+  timeout in the Rust library test step. It is not a failing result for the new
+  checkpoint, and the annotation does not identify a specific failed assertion.
+- No local runtime log files were newer than the checkpoint commit at
+  `2026-09-24T23:02:48Z`. There is no fresh playback evidence to evaluate.
+- The existing **Deploy server** workflow can be manually run on `caches` to
+  execute Linux server tests, database-emulator transactions, upload-boundary
+  validation and container startup. Its deploy job explicitly requires
+  `refs/heads/main`, so this branch run does not deploy. Verify the run's resolved
+  SHA is the checkpoint above before using its result as release evidence.
+- Public workflow metadata was accessible. No authenticated repository CLI or
+  browser was available to dispatch the run; the browser inventory was empty and
+  opening the in-app browser reported that it was unavailable. The cloud CLI is
+  also unavailable. No workflow was dispatched, no access changed and no
+  deployment was attempted.
+
+Superseded next action (do not execute): run the existing workflow on `caches`, inspect all test/container
+results, then obtain explicit deployment authorization and verify the exact live
+revision plus the running-app playback matrix. The local checkpoint remains
+complete; operational verification remains open.
 
 ## Agreed principle
 
@@ -727,3 +814,84 @@ identity, partial-result recovery and fresh execution. The existing 64-entry
 component cache and pending-request map still serve those generated text results.
 Transcription and proposal generation remain later stages. No service deployment,
 paid request, application-data reset or commit was performed in this checkpoint.
+
+
+## Implementation checkpoint: generated reading results, 2026-09-25
+
+Status: implementation complete; verification results below distinguish automated
+coverage from running-app checks. This supersedes earlier statements that the
+64-entry component cache and UI pending map still own generated reading results.
+It does not mark the entire shared-inference task complete.
+
+Implemented behavior:
+
+- Translation, word gloss and explanation requests use shared local native
+  execution and the existing bounded result/blob store. Identity hashes the exact
+  wire prompt/output contract, task, effective model, resolved language context,
+  configuration and access/workspace scope. Consumer IDs are excluded. Language
+  handling remains shared; source encodings are not normalized for cache identity.
+- Each reading card keeps its own receipt/cancellation and source authority.
+  Concurrent equivalent requests share an execution with independent transport
+  IDs. Closing the initiating card, or every card after submission, does not
+  abandon settlement. Access/admission failures also settle an execution receipt
+  without being counted as submitted provider usage.
+- Retained results survive restart and can be reused while AI is paused, without
+  network or secret reads. Access/configuration changes revoke stale consumers.
+  Explicit retries start fresh execution, including when an equivalent request is
+  still pending. Valid partial gloss spans survive repair; the repair receipt
+  links the previous execution. Repairs merge under one store guard.
+- Cache-write failures retain the validated provider response and accounting in
+  the failure receipt. Successful provider transport is not reported as successful
+  reading publication when local storage rejects the result.
+- Reuse selects the newest retained execution, not the most recently inspected
+  payload. Historical receipt inspection no longer promotes an older answer.
+  Eviction removes generated bytes while preserving receipts and usage attribution.
+- Local saved-word lookup includes generated glosses in the current model/access/
+  configuration and language scope. Accepted conversation records remain separate,
+  take precedence for exact passages, and remain available without credentials.
+  Generated provenance identifies the source execution; no new learning credit or
+  accepted product record is invented by reuse.
+- Removed the generated-result Map, request-sharing Map and their obsolete UI
+  helper/tests. Native tests now cover those lifecycle guarantees. UI state holds
+  only current presentation and cancellation. Mounted accepted annotations still
+  display synchronously; other generated results are queried on explicit actions
+  and do not automatically populate unrelated mounted cards.
+- Inspector lookup preserves the selected word's saved partial result until an
+  explicit retry. Whole-passage lookup requires complete saved coverage. Analysis
+  quotes that exactly match their owning message reuse its accepted translation.
+
+Verification:
+
+- Full native library suite: **596 passed, 6 ignored**. After the final cache-write
+  failure diagnostic refinement, all **40 reading tests** passed, including the
+  added failure-injection test. Strict Clippy over library and tests passed on the
+  final source. The injected database failure retains provider ID, usage, failed
+  execution state and zero reusable payloads rather than losing the paid receipt.
+- Local HTTP fixtures cover equivalent concurrent consumers, initiator and final
+  consumer cancellation, restart/paused reuse, distinct in-flight retry, partial
+  repair, cross-passage generated lookup, eviction and one-time usage accounting.
+- Full UI suite: **1,224 passed across 179 files**, including the actual reading
+  composition, saved partial-result inspector, exact-message analysis translation,
+  scope changes, explicit retries and cancellation. TypeScript, generated contract
+  checks, diagnostic policy, formatting and diff whitespace checks passed.
+- The UI harness still emits duplicate-key messages in Drill fixtures, simulated
+  canvas limitations and expected diagnostic delivery/error output. These are not
+  device verification. Review the noisy Drill fixtures with the transcription/
+  proposal passes and distinguish their repeated fixture IDs from product data;
+  do not treat a passing suite as proof that those diagnostics were audited.
+- No paid provider request, hosted configuration change, deployment, application
+  data reset or commit was performed. Tests use temporary databases and loopback
+  fixtures. Source implementation is not evidence that the running installed app
+  has loaded this revision or that device playback/transcription quality improved.
+
+Remaining agreed work, in order:
+
+1. Shared transcription lifecycle, preserving captured recording ownership and
+   Chat/Drill publication. The separate transcription-quality investigation remains
+   parked at the user's request; it is not resolved by these changes.
+2. Shared proposal generation lifecycle, preserving intentional fresh candidates,
+   acceptance, durable product ownership and learning-credit rules.
+3. Final cross-modality audit and running-app checks: chat, Drill and reading help,
+   Stop/navigation/microphone interaction, restart reuse and diagnostic inspection.
+   Earlier device-playback and emulator verification limits remain open. Deployment
+   is outside this authorization and is not a prerequisite for local verification.

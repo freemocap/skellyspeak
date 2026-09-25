@@ -84,20 +84,27 @@ Retries target one help kind, and opening saved help does not request new work.
 Replies retain whole-passage translation and sound fields through `ReadingPassage`.
 Words use shared `TargetText`/`ReadingHelp`, saved annotations and the existing
 speech path. `MessageReadingScope` restores the message's captured language,
-variety and explanation context. Shared reading requests coalesce by full scope;
-consumer cancellation is independent, and the bounded cache resets with workspace
-session identity in `app/ReadingTools.tsx`.
+variety and explanation context. Native reading execution shares equivalent text
+requests and retains bounded results in the workspace. Each surface owns only its
+current display and cancellation; `app/ReadingTools.tsx` resets those surfaces with
+the workspace session identity. No generated-result cache or pending-request map
+lives in the reading provider.
 
-Accepted word meanings are also queried on demand through
+Accepted and retained generated word meanings are queried locally on demand through
 `platform/ipc/saved-reading.ts`, independently of mounted conversation providers.
 The native query returns source-bound annotations in their captured scope; the
 existing pure `domain/reading/saved-gloss-index.ts` projects exact words and
-alternative saved meanings. Those read-only projections are not copied into the
-component result cache. A word covered by a partial saved passage needs no new
-inference; unknown words and explicit retries still use the reading executor.
-Lookup failures remain visible and do not silently trigger inference. The
-component cache for newly generated text results remains pending the next shared
-execution/result integration stage.
+alternative saved meanings. A word covered by a partial saved passage needs no
+new inference; a whole-passage request requires complete coverage. Unknown words
+use the native executor, which may return a retained partial result. Explicit
+retry bypasses saved lookup and requests fresh execution, preserving accepted
+gloss spans. Lookup failures remain visible and never silently trigger inference.
+
+Mounted accepted annotations still provide synchronous display. Generated results
+are read asynchronously on an explicit action, including on another surface or
+after reopening; they do not populate unrelated mounted cards automatically.
+Translation and explanation reuse is also native-owned. The analysis view passes
+the accepted translation when a quote exactly matches its owning message.
 
 ## Commands
 

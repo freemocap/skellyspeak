@@ -1,4 +1,4 @@
-//! Speech request identity uses effective service inputs, never presentation owners.
+//! Local speech identity uses exact wire inputs and access scope, never presentation owners.
 use super::*;
 use crate::ai::{audio::SpeechInput, connections::access::ResolvedTarget};
 use serde_json::json;
@@ -12,11 +12,10 @@ pub fn scope(target: &ResolvedTarget, install: &str) -> Result<String> {
         target.credential
     ]))?))
 }
-pub fn request_key(scope: &str, input: &SpeechInput, profile: &str) -> Result<String> {
+pub fn request_key(scope: &str, input: &SpeechInput) -> Result<String> {
     Ok(digest(&serde_json::to_vec(&json!([
-        "speech-v1",
+        "speech-local-v1",
         scope,
-        profile,
         input.text,
         input.language
     ]))?))
@@ -28,8 +27,5 @@ pub fn lookup(
     install: &str,
 ) -> Result<Option<Retained>> {
     let scope = scope(target, install)?;
-    let Some(profile) = super::profile(db, &scope)? else {
-        return Ok(None);
-    };
-    super::lookup(db, &request_key(&scope, input, &profile)?)
+    super::lookup(db, &request_key(&scope, input)?)
 }

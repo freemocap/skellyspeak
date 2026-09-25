@@ -4,9 +4,6 @@ CREATE TABLE IF NOT EXISTS inference_cache_settings (
  clock INTEGER NOT NULL DEFAULT 0
 );
 INSERT OR IGNORE INTO inference_cache_settings(singleton,capacity_bytes) VALUES(1,268435456);
-CREATE TABLE IF NOT EXISTS inference_profiles (
- scope TEXT PRIMARY KEY, profile TEXT NOT NULL
-);
 -- Content-free execution provenance survives payload eviction.
 CREATE TABLE IF NOT EXISTS inference_executions (
  id TEXT PRIMARY KEY, task TEXT NOT NULL, state TEXT NOT NULL,

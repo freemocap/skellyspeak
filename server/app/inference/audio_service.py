@@ -15,7 +15,6 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from server.app.inference import audio_input
-from server.app.inference.synthesis_profiles import profile_id
 from server.app.inference.audio_contracts import AudioFailure, SynthesisRequest, TranscriptionRequest
 from server.app.inference.elevenlabs import ElevenLabs, synthesis_text
 from server.app.inference.transcription_profiles import bind, MAX_MICROS_PER_HOUR
@@ -110,12 +109,8 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
             value = json.loads(raw)
         except (ValueError, UnicodeError):
             raise HTTPException(400, "Invalid speech request JSON.") from None
-        if not isinstance(value, dict) or set(value) != {"model", "text", "language", "synthesis_profile"}:
-            raise HTTPException(400, "Speech requires model, text, language variety and synthesis profile.")
-        profile = profile_id(cfg)
-        if value["synthesis_profile"] != profile:
-            raise AudioRejection(409, "SYNTHESIS_PROFILE_MISMATCH",
-                                 "Speech configuration changed. Refresh the service configuration before requesting speech again.")
+        if not isinstance(value, dict) or set(value) != {"model", "text", "language"}:
+            raise HTTPException(400, "Speech requires model, text and language variety.")
         _model(value["model"], cfg.tts_model)
         text = value["text"]
         try:
@@ -139,7 +134,7 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
         result = await _execute(who, reserve, settle, amount, lambda adapter: adapter.synthesize(source),
                                 provider="elevenlabs", label="ElevenLabs",
                                 create=lambda client: ElevenLabs(client, api_key=cfg.elevenlabs_key))
-        return JSONResponse({"version": 1, "synthesis_profile": profile, "audio_base64": base64.b64encode(result.wav).decode(),
+        return JSONResponse({"version": 1, "audio_base64": base64.b64encode(result.wav).decode(),
                              "format": "wav", "usage": _usage(result, amount)})
 
 

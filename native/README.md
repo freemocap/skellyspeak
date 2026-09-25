@@ -59,20 +59,26 @@ Shared execution settings live in `ai/connections/configuration.rs`, and request
 identities in `ai/identity.rs`. Transports must not import product workflows.
 Speech callers share persistent results, blobs and pending subscriptions in
 `ai/results/`, composed with access and transport in `application/speech_results.rs`.
-Keys identify exact synthesis inputs and the effective service profile, scoped to
-the workspace and connection/account. Product associations do not enter those keys.
+Keys identify exact text, language and model, scoped to the workspace, endpoint,
+route and account identity. A local contract marker separates incompatible key
+semantics. Product associations do not enter those keys. The unused local voice
+hint is not sent to the service and does not affect reuse.
 The shared cache defaults to 256 MiB and uses read-touch LRU; Settings exposes its
 capacity and logical payload usage. Zero disables retained reuse, while concurrent
 callers can still share pending work. Receipts survive eviction and cancellation.
 `speech/delivery.rs` is a bounded, consuming mailbox for asynchronous playback,
 including output too large for the configured cache; it is not reusable storage.
 
-Cache hits use the last verified service profile without loading secrets or
-submitting work. New synthesis and custom connection verification update that
-profile. Existing result associations keep their original audio. A matching
-service implementation must advertise and echo the synthesis profile; older
-services fail before paid synthesis. Local replay does not verify current remote
-settings. Accepted text and original recordings keep their existing durable owners.
+Cache hits need no network request or secret lookup. A miss sends the existing
+speech request directly; caching requires no server protocol change. Saved audio
+survives restart and remains reusable until evicted or cleared. A changed input,
+model, endpoint or account selects a different key; changing back can reuse the
+original result. Unrelated configuration revisions and pause do not invalidate
+saved audio. Existing result associations keep their original audio.
+The app does not discover hidden server voice or processing changes. To discard
+retained audio, set cache capacity to zero, then restore the desired capacity;
+execution receipts survive. Accepted text and original recordings keep their
+existing durable owners.
 Translation/gloss, transcription and generation integration remain subsequent
 [shared inference refactor](../docs/notes/shared-inference-architecture-audit-2026-09-24.md)
 stages.
@@ -232,10 +238,21 @@ development checkout, remove its `applications/skellyspeak.desktop` and
 `language/reading/` owns bounded, source-captured word meanings, translation,
 explanations and speech requests outside conversation turns.
 `application/commands/reading.rs` registers begin, run, cancel and receipt inspection.
-Requests reuse conversation aid contracts and provider execution, validate captured
-connection/workspace authority, and create no learning credit. Ordinary selections
-remain volatile; `reading_attempts` retains content-free diagnostic receipts.
-Drill can opt into its phrase-owned reference cache through the same executor.
+Requests reuse conversation aid contracts, validate captured connection/workspace
+authority, and create no learning credit. `application/reading_results.rs` owns
+shared generated-text execution; `ai/results/` retains evictable validated
+payloads and durable content-free execution receipts. `reading_attempts` records
+independent consumers and links to those executions. Closing a card cannot cancel
+another consumer or abandon accounting for submitted work.
+
+Text identity includes the exact prompt, output contract, model, configuration,
+language context and access/workspace scope. Retained results work without a
+network request, including while AI is paused. Explicit retries start fresh work;
+gloss repair retains accepted spans and fills unresolved intervals. Receipt
+inspection cannot make an older result supersede a newer one. Generated glosses
+can be queried locally across passages alongside accepted conversation annotations;
+accepted annotations keep their own durable ownership and need no AI credentials.
+Speech and Drill reference playback use the shared local speech result lifecycle.
 
 ### Manual Drill storage
 

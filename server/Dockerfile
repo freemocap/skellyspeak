@@ -15,7 +15,6 @@ COPY app/accounting/usage_limits.py app/accounting/quota.py app/accounting/budge
 COPY app/diagnostics/policy.py app/diagnostics/exceptions.py app/diagnostics/provider_health.py app/diagnostics/provider_errors.py app/diagnostics/runtime.py app/diagnostics/observability.py app/diagnostics/diagnostics.py app/diagnostics/__init__.py ./server/app/diagnostics/
 COPY app/identity/admin_auth.py ./server/app/identity/
 COPY app/inference/transcription_confidence.py ./server/app/inference/
-COPY app/inference/synthesis_profiles.py ./server/app/inference/
 COPY app/accounting/admin_controls.py ./server/app/accounting/
 COPY app/diagnostics/admin_events.py app/diagnostics/admin_live.py ./server/app/diagnostics/
 COPY app/diagnostics/admin_routes.py ./server/app/diagnostics/

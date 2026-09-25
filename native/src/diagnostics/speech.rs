@@ -41,7 +41,6 @@ fn event(dispatch: &Dispatch, outcome: &SpeechOutcome) -> Value {
 pub(crate) fn outcome_metadata(outcome: &SpeechOutcome) -> Value {
     json!({
         "audioAccepted": outcome.audio.is_ok(),
-        "synthesisProfile": outcome.synthesis_profile,
         "finishReason": match outcome.finish_reason.as_deref() {
             Some(reason @ ("stop" | "length" | "content_filter" | "error")) => Some(reason),
             Some(_) => Some("other"),
@@ -86,7 +85,6 @@ mod tests {
             speech_source: None,
         };
         let mut outcome = SpeechOutcome {
-            synthesis_profile: None,
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),
@@ -122,7 +120,6 @@ mod tests {
     #[test]
     fn shared_outcome_metadata_keeps_usage_and_explicitly_absent_comparison() {
         let mut outcome = SpeechOutcome {
-            synthesis_profile: None,
             diagnostics: None,
             audio: Err(AppError::new(ErrorCode::Provider, "PRIVATE")),
             actual_model: Some("PRIVATE".into()),

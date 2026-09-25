@@ -48,8 +48,8 @@ impl Application {
             }
         }
         let service_scope = scope(&target, &install)?;
-        // Profile discovery is shared too; no product identifiers participate.
-        let pending_key = request_key(&service_scope, &input, "")?;
+        // Pending work shares the same local identity as retained results.
+        let pending_key = request_key(&service_scope, &input)?;
         let (subscription, producer) = self.speech_pending.subscribe(pending_key)?;
         results::associate(&self.lock()?.connection, consumer, subscription.id())?;
         if let Some(producer) = producer {
@@ -99,16 +99,7 @@ impl Application {
                 "Speech request closed before dispatch.",
             ));
         }
-        let profile = audio::synthesis_profile(&client, target, &key, install).await?;
-        self.speech_authority(target, install)?;
-        let cache_key = request_key(service_scope, input, &profile)?;
-        {
-            let store = self.lock()?;
-            results::remember_profile(&store.connection, service_scope, &profile)?;
-            if let Some(saved) = results::lookup(&store.connection, &cache_key)? {
-                return Ok(saved);
-            }
-        }
+        let cache_key = request_key(service_scope, input)?;
         let _permit = self.admission.try_chat().ok_or_else(|| {
             AppError::new(
                 ErrorCode::AdmissionHeld,
@@ -129,14 +120,14 @@ impl Application {
         }
         // Once submitted, settlement is independent of consumer cancellation.
         let completed = retry::run(
-            || audio::synthesize_profiled(&client, target, &key, input, install, &profile),
+            || audio::synthesize(&client, target, &key, input, install),
             || self.speech_authority(target, install),
             |error| results::record_retry(&self.lock()?.connection, id, error),
         )
         .await;
         let metadata = json!({"requestedModel":target.model,"route":target.route.label(),"actualModel":completed.actual_model,"providerId":completed.provider_id,
             "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,
-            "synthesisProfile":completed.synthesis_profile,"finishReason":completed.finish_reason,
+            "finishReason":completed.finish_reason,
             "diagnostics":completed.diagnostics,"error":completed.audio.as_ref().err()});
         {
             let store = self.lock()?;
@@ -175,9 +166,6 @@ impl Application {
 pub(super) fn reused_outcome(saved: Retained) -> audio::SpeechOutcome {
     // Provider billing stays on the shared execution, never copied into a consumer attempt.
     let mut outcome = audio::SpeechOutcome::empty();
-    outcome.synthesis_profile = saved.metadata["synthesisProfile"]
-        .as_str()
-        .map(str::to_owned);
     outcome.diagnostics = Some(
         json!({"sourceExecutionId":saved.execution,"cacheHit":saved.cached,"sourceReceipt":saved.metadata}),
     );
