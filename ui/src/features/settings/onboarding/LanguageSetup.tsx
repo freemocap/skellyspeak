@@ -58,7 +58,7 @@ function LanguageForm({ choice, setChoice, explanation, locale, busy, setExplana
   return <form className="onboarding-languages" dir={UI_LOCALE_METADATA[locale].direction} lang={UI_LOCALE_METADATA[locale].tag} onSubmit={event => { event.preventDefault(); onSave() }}>
     <fieldset disabled={busy} className="onboarding-fields">
       <div className="onboarding-languages-head">
-        <h1 className="onboarding-languages-title">{tr('Languages')}</h1>
+        <h1 className="onboarding-languages-title">{tr('Welcome to SkellySpeak')}</h1>
         <div className="onboarding-languages-actions">
           <label className="onboarding-start-field"><span>{tr('Start in')}</span>
             <select value={choice.start} disabled={!chosen.length} onChange={event => makeStart(event.target.value)}>
@@ -69,6 +69,7 @@ function LanguageForm({ choice, setChoice, explanation, locale, busy, setExplana
           <button className="btn primary" disabled={!selected || busy} type="submit">{tr('Continue')}</button>
         </div>
       </div>
+      <p className="onboarding-languages-intro">{tr('Choose the languages you want to practise. You can add more later.')}</p>
 
       <div className="language-choices" role="group" aria-label={tr('Languages')}>
         {catalog.map(item => {

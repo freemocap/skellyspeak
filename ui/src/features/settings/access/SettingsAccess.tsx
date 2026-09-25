@@ -16,10 +16,13 @@ function credentialPreview(value: string): string {
 }
 
 /** Native configuration owns revisions and returns only masked saved credentials. */
-export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
+export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0, primaryAction = false }: {
   onBusyChange: (busy: boolean) => void
   onChanged: () => Promise<void>
   refreshKey?: number
+  /// Onboarding's sign-in step is the one screen where signing in is the whole
+  /// point; Settings keeps this control at its ordinary weight.
+  primaryAction?: boolean
 }) {
   const tr = useI18n()
   const customHealth = useConnectionHealth(state => state.routes.custom)
@@ -201,7 +204,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0 }: {
       aria-labelledby={`access-tab-${connection.route}`} tabIndex={0}>
     {connection.route === 'hosted' && <div className="form-row">
       <label>{tr("SkellySpeak account")}</label><p>{connection.signedIn ? connection.email : tr("Not signed in")}</p>
-      <button className="btn" disabled={locked} onClick={() => void run(async () => {
+      <button className={primaryAction && !connection.signedIn ? 'btn primary' : 'btn'} disabled={locked} onClick={() => void run(async () => {
         if (connection.signedIn) { await invoke('hosted_sign_out', { expectedRevision: connection.revision }); setAccount(null) }
         else {
           pendingSignIn.current = true; setSigningIn(true)

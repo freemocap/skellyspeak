@@ -17,6 +17,7 @@ vi.mock('../../../platform/ipc/tauri', () => ({
   })),
 }))
 vi.mock('../access/SettingsAccess', () => ({ SettingsAccess: () => <div>Existing access controls</div> }))
+vi.mock('@tauri-apps/plugin-opener', () => ({ openUrl: vi.fn() }))
 const save = vi.fn(), finish = vi.fn(), back = vi.fn()
 const initial: Preferences = {
   theme: 'light', appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false,
@@ -30,7 +31,7 @@ beforeEach(() => {
 })
 it('starts in the selected interface language and requires a starting language', async () => {
   render(<I18nProvider locale="spanish"><OnboardingSetup /></I18nProvider>)
-  expect(screen.getByRole('heading', { name: 'Idiomas' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Bienvenido a SkellySpeak' })).toBeInTheDocument()
   const next = screen.getByRole('button', { name: 'Continuar' })
   expect(next).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: /spanish-greeting/ }))
@@ -70,6 +71,15 @@ it('names each language in its own script and says who the learner will meet', (
   expect(screen.queryByText(/spanish-partner/)).not.toBeInTheDocument()
   fireEvent.click(choice)
   expect(screen.getByText(/spanish-partner/)).toBeInTheDocument()
+})
+it('keeps the sign-in control primary and the cost, funding and free-software notes secondary', async () => {
+  const { openUrl } = await import('@tauri-apps/plugin-opener')
+  useOnboardingStore.setState({ preferences: { ...initial, onboarding: 'in_progress' } })
+  render(<OnboardingSetup />)
+  expect(screen.getByRole('heading', { name: 'AI access' })).toBeInTheDocument()
+  expect(screen.getByText('Existing access controls')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'free software' }))
+  await waitFor(() => expect(openUrl).toHaveBeenCalledExactlyOnceWith('https://www.gnu.org/philosophy/free-sw.html'))
 })
 it('resumes at access and permits deferral without claiming a connection', async () => {
   useOnboardingStore.setState({ preferences: { ...initial, onboarding: 'in_progress' } })

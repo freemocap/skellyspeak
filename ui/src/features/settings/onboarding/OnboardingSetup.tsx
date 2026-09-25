@@ -4,8 +4,11 @@ import { useI18n } from '../../../components/localization/i18n'
 import { useOnboardingStore } from '../../../state/settings/onboarding'
 import { useSessionStore } from '../../../state/session/session'
 import { nativeError } from '../../../platform/ipc/workspace'
+import { openExternalLink } from '../../../platform/ipc/external-link'
 import { SettingsAccess } from '../access/SettingsAccess'
 import { LanguageSetup } from './LanguageSetup'
+
+const FREE_SOFTWARE_URL = 'https://www.gnu.org/philosophy/free-sw.html'
 
 /// First run: two steps, each one screen, with the app's own face on them.
 ///
@@ -45,9 +48,14 @@ export function OnboardingSetup() {
       </header>
       {access ? <>
         <h1>{tr('AI access')}</h1>
-        <p>{tr('Connect for conversations and feedback, or set up access later.')}</p>
-        <SettingsAccess onBusyChange={setAccessBusy} onChanged={useSessionStore.getState().refresh} />
-        <p className="field-note">{tr('Voice availability depends on your AI access settings. Microphone permission is requested when you record.')}</p>
+        <p>{tr('Conversations, feedback and speech use AI models on the SkellySpeak server. Signing in includes a free daily allowance.')}</p>
+        <SettingsAccess primaryAction onBusyChange={setAccessBusy} onChanged={useSessionStore.getState().refresh} />
+        <div className="onboarding-secondary">
+          <p className="field-note">{tr('Each AI request costs money; the server charges for use beyond the free daily allowance.')}</p>
+          <p className="field-note">{tr('Payments pay for the server and fund development and the FreeMoCap Foundation.')}</p>
+          <p className="field-note">{tr('SkellySpeak is')} <button type="button" className="md-term" onClick={() => void openExternalLink(FREE_SOFTWARE_URL)}>{tr('free software')}</button>{tr(': you can use, study, change and share it, and run your own server.')}</p>
+          <p className="field-note">{tr('Voice availability depends on your AI access settings. Microphone permission is requested when you record.')}</p>
+        </div>
         <div className="onboarding-actions">
           <button className="btn primary" disabled={busy || !connection?.configured} onClick={() => void run(() => useOnboardingStore.getState().finish(false))}>{tr('Continue')}</button>
           <button className="btn" disabled={busy} onClick={() => void run(useOnboardingStore.getState().back)}>{tr('Back')}</button>
