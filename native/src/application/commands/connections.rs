@@ -41,12 +41,12 @@ pub(in crate::application) fn select_route(
     store.connection_config()
 }
 
-// Experimental adapters remain testable internally but are not selectable by the app.
+// Presence assessment has one supported strategy.
 fn available_assessment(adapter: AssessmentAdapter) -> Result<()> {
-    if adapter == AssessmentAdapter::JevChoice {
+    if adapter != AssessmentAdapter::JevChoice {
         return Err(AppError::new(
             ErrorCode::Validation,
-            "Jev assessment is disabled. Use Chat model assessment.",
+            "Skill presence uses Jev Choice.",
         ));
     }
     Ok(())
@@ -56,8 +56,8 @@ fn available_assessment(adapter: AssessmentAdapter) -> Result<()> {
 mod assessment_availability_tests {
     use super::*;
     #[test]
-    fn settings_reject_shelved_jev_and_accept_chat() {
-        assert!(available_assessment(AssessmentAdapter::JevChoice).is_err());
-        assert!(available_assessment(AssessmentAdapter::ChatModel).is_ok());
+    fn settings_accept_jev_and_reject_chat() {
+        assert!(available_assessment(AssessmentAdapter::JevChoice).is_ok());
+        assert!(available_assessment(AssessmentAdapter::ChatModel).is_err());
     }
 }

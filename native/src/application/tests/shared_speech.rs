@@ -47,6 +47,7 @@ async fn invalid_independent_input_fails_before_execution() {
     let directory = tempfile::tempdir().unwrap();
     let state = Application::start(&directory.path().join("speech.sqlite3"), None);
     let target = access::ResolvedTarget {
+        audio_resolution: None,
         route: crate::model::ConnectionRoute::Custom,
         revision: 1,
         url: "http://127.0.0.1:1/v1/audio/speech".into(),
@@ -57,6 +58,7 @@ async fn invalid_independent_input_fails_before_execution() {
         .shared_speech(
             target,
             audio::SpeechInput {
+                language_tag: "en".into(),
                 text: String::new(),
                 language: "en".into(),
                 voice: "unused".into(),
@@ -98,6 +100,7 @@ async fn paused_speech_has_an_undispatched_shared_receipt() {
             .shared_speech(
                 target,
                 audio::SpeechInput {
+                    language_tag: "en".into(),
                     text: "PRIVATE-UNSENT".into(),
                     language: "en".into(),
                     voice: "unused".into(),
@@ -163,7 +166,8 @@ async fn cancellation(cancel_all: bool, reject_blob: bool) {
         assert!(wire.starts_with("POST /v1/audio/speech "));
         let body: serde_json::Value =
             serde_json::from_str(wire.split_once("\r\n\r\n").unwrap().1).unwrap();
-        assert_eq!(body.as_object().unwrap().len(), 3);
+        assert_eq!(body.as_object().unwrap().len(), 4);
+        assert_eq!(body["language_tag"], "en");
         started.send(()).unwrap();
         released.recv_timeout(Duration::from_secs(10)).unwrap();
         let mut wav = std::io::Cursor::new(Vec::new());
@@ -188,6 +192,7 @@ async fn cancellation(cancel_all: bool, reject_blob: bool) {
     });
     let active = AtomicBool::new(true);
     let input = audio::SpeechInput {
+        language_tag: "en".into(),
         text: "shared source".into(),
         language: "en".into(),
         voice: "unused".into(),

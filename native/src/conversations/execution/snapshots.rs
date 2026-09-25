@@ -119,7 +119,7 @@ impl Store {
                 "Conversation no longer exists.",
             ));
         }
-        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind IN ('persona_reply','persona_opening')) AND sequence<?2 ORDER BY sequence DESC LIMIT 100")?.query_map(params![conversation,before.unwrap_or(i32::MAX)],|r|Ok(ChatMessage{feedback_context:None,reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         messages.reverse();
         for message in &mut messages {
             let saved: Option<String> = db.query_row("SELECT json_extract(t.context,?2) FROM turns t JOIN messages m ON m.turn_id=t.id WHERE m.id=?1", params![message.id, if message.role=="user" { "$.coachFeedback" } else { "$.coachReplies" }], |r|r.get(0))?;
@@ -144,6 +144,10 @@ impl Store {
                     |r| r.get(0),
                 )?;
                 let captured: serde_json::Value = serde_json::from_str(&captured)?;
+                message.feedback_context = captured
+                    .get("feedbackContext")
+                    .and_then(|v| v.as_str())
+                    .map(str::to_owned);
                 message.conversation_feedback = captured
                     .get("conversation_feedback")
                     .cloned()
@@ -155,7 +159,7 @@ impl Store {
                     .cloned()
                     .map(serde_json::from_value)
                     .transpose()?;
-                (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,coalesce(json_extract(t.context,'$.conversation_feedbackError'),json_extract(t.context,'$.coach_feedbackError'),json_extract(t.context,'$.coach_retry_checkError')) FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind IN ('conversation_feedback','coach_feedback','coach_retry_check') WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
+                (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,coalesce(json_extract(t.context,'$.coach_feedbackError'),json_extract(t.context,'$.coach_retry_checkError'),json_extract(t.context,'$.conversation_feedbackError')) FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind IN ('coach_feedback','coach_retry_check') WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
             } else {
                 let reaction: Option<String> = db.query_row(
                     "SELECT json_extract(context,'$.partnerReaction') FROM turns WHERE id=?1",
@@ -231,7 +235,7 @@ impl Store {
             .into_iter()
             .map(|(id, state, paused, route, hold)| turn_view(db, id, state, paused, route, hold))
             .collect::<Result<Vec<_>>>()?;
-        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        let mut coach_messages=db.prepare("SELECT id,sequence,role,text,created_at,turn_id,(SELECT replaces_turn_id FROM turns WHERE id=m.turn_id),(SELECT id FROM turns WHERE replaces_turn_id=m.turn_id) FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 100")?.query_map([conversation],|r|Ok(ChatMessage{feedback_context:None,reply_brief:None,brief_state:None,brief_error:None,reading_scope:None,conversation_feedback:None,reply_assistance:None,reply_explanations:None,explanations_state:None,explanations_error:None,reaction:None,reaction_error:None,coach_decision:None,turn_id:r.get(5)?,replaces_turn_id:r.get(6)?,replaced_by:r.get(7)?,feedback_state:None,feedback_error:None,feedback:None,suggested_replies:None,suggestions_state:None,suggestions_error:None,gloss_error:None,word_gloss:None,gloss_state:None,gloss_operation_id:None,translation_state:None,translation:None,id:r.get(0)?,sequence:r.get(1)?,role:r.get(2)?,text:r.get(3)?,created_at:r.get(4)?}))?.collect::<rusqlite::Result<Vec<_>>>()?;
         coach_messages.reverse();
         let snapshot = self.snapshot()?;
         // Starter content is named in the languages of THIS conversation, not in

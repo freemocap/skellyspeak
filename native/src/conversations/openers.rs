@@ -13,15 +13,6 @@ pub(crate) fn selected(db: &Connection, conversation: &str) -> Result<Option<Ope
     raw.map(|s| serde_json::from_str(&s).map_err(Into::into))
         .transpose()
 }
-pub(crate) fn band(difficulty: &Difficulty) -> &'static str {
-    match difficulty {
-        Difficulty::AbsoluteZero => "PreA1",
-        Difficulty::Beginner => "A1",
-        Difficulty::Intermediate => "B1",
-        Difficulty::Advanced => "B2",
-        Difficulty::Fluent => "C1",
-    }
-}
 /// The starter cards for one conversation: each scene named in the target
 /// language, transliterated where that variety resolves to a romanization
 /// scheme, and named again in the explanation language.

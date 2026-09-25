@@ -1,3 +1,4 @@
+import { AddToDrillButton } from './AddToDrillButton'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GlossSegment } from '../../generated/contracts'
 import { errorDetails, errorMessage } from '../../platform/diagnostics/error-details'
@@ -5,7 +6,7 @@ import { ErrorDetails } from '../feedback/ErrorDetails'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
-import { useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
+import { speechKey, useReadingActions, useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
 import { useReadingPreferences } from './ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 import { TargetText } from './TargetText'
@@ -13,8 +14,8 @@ import { useSavedReading } from './SavedReadingProvider'
 import { TranslationStatus, translationPending } from './TranslationStatus'
 
 /// Where the message sits. `bubble` is a message in a thread with its actions
-/// inside the bubble; `passage` is a standalone bubble with actions beneath it;
-/// `compact` is inline text with actions beneath it.
+/// inside the bubble; `passage` is that same bubble with standalone spacing;
+/// `compact` uses the same bubble without outer passage spacing.
 export type TargetMessageLayout = 'bubble' | 'passage' | 'compact'
 
 export interface TargetMessageSpeech {
@@ -53,6 +54,9 @@ export interface TargetMessageProps {
   translationState?: string | null
   /// Optional actions supplied by the owning surface, without feature coupling.
   extraActions?: ReactNode
+  /** Already saved Drill phrases use their owning reference controls. */
+  addToDrill?: boolean
+  readAloud?: boolean
   /// Owner-supplied content shown directly under the text.
   annotation: ReactNode
   speech: TargetMessageSpeech | null
@@ -66,12 +70,21 @@ export interface TargetMessageProps {
  *  consumer supplies its own data and actions; the tools behave identically. */
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
-  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, extraActions,
+  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, extraActions, addToDrill = true, readAloud = true,
 }: TargetMessageProps) {
   const tr = useI18n()
   const uiDirection = useUiDirection()
   const preferences = useReadingPreferences()
   const scope = useReadingScope(), saved = useSavedReading(), peek = useReadingPeek(), lookup = useReadingLookup()
+  const readingActions = useReadingActions()
+  const selection = scope ? { text, start: 0, end: text.length, scope } : null
+  const sharedSpeaking = selection !== null && readingActions?.speaking === speechKey(selection)
+  // Owners supply playback behavior, never an alternative playback button.
+  const playback = speech ?? (readAloud && selection && readingActions ? {
+    speaking: sharedSpeaking,
+    onToggle: () => sharedSpeaking ? readingActions.stop() : readingActions.speak(selection),
+    error: null,
+  } : null)
   // Saved, cached and requested meanings come from the reading services only
   // when the owner allows lookup and a reading scope is present.
   const readingScope = lookupWords ? scope : null
@@ -144,30 +157,29 @@ export function TargetMessage({
     {translationState !== undefined && <TranslationStatus state={translationState} shown={translationOpen && shownTranslation === null} />}
     {soundOpen && sound && !(wordsOpen && known.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
     {status}
-    {speech && <button type="button" className="bubble-corner-control speak-btn" title={speech.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={speech.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); speech.onToggle() }}><span aria-hidden="true">{speech.speaking ? '⏹' : '🔊'}</span></button>}
-    {speech?.error && <ErrorDetails label={tr("Speech")} errorKey={speech.error.text} explanation={speech.error.text}><ResponseDetails value={speech.error.details} /></ErrorDetails>}
+    {playback && <button type="button" className="bubble-corner-control speak-btn" title={playback.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={playback.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); playback.onToggle() }}><span aria-hidden="true">{playback.speaking ? '⏹' : '🔊'}</span></button>}
+    {playback?.error && <ErrorDetails onRetry={() => playback.onToggle()} label={tr("Speech")} errorKey={playback.error.text} explanation={playback.error.text}><ResponseDetails value={playback.error.details} /></ErrorDetails>}
   </>
-  const actions = <div className="message-actions" dir={layout === 'bubble' ? uiDirection : undefined} onDoubleClick={stop}>
+  const actions = <div className="message-actions" dir={uiDirection} onDoubleClick={stop}>
     {sound && <button type="button" className="message-translate" aria-expanded={soundOpen} aria-pressed={soundOpen} onClick={event => { stop(event); setSoundOverride(!soundOpen) }}>{tr('Pronunciation')}</button>}
     {(shownTranslation || canLookup || translationWorking) && <button type="button" className={translating.pending || translationWorking ? 'message-translate is-hydrating' : 'message-translate'} disabled={translating.pending} aria-label={translateLabel ?? undefined} aria-expanded={translationShown} aria-pressed={translationShown} onKeyDown={stop} onClick={event => { stop(event); void toggleTranslation() }}>{tr("Translate")}</button>}
     <button type="button" className={segmentsPending || words.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={words.pending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
     {analysis && <button type="button" className={analysis.pending ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={event => { stop(event); analysis.onOpen() }}>{tr("Analysis")}</button>}
+    {addToDrill && <AddToDrillButton text={text} />}
     {extraActions}
   </div>
   const failure = <>
-    {words.error != null && <ErrorDetails label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
-    {translating.error != null && <ErrorDetails label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
+    {words.error != null && <ErrorDetails onRetry={toggleWords} label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
+    {translating.error != null && <ErrorDetails onRetry={toggleTranslation} label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
   </>
 
   // Meanings that are set to show and still being produced keep their line pitch.
   const aidsReserved = aidsEnabled && known.length === 0 && segmentsPending
-  if (layout === 'bubble') return <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${speech ? ' with-corner-control' : ''}${aidsReserved ? ' aids-reserved' : ''}`}>
+  const bubble = <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${playback ? ' with-corner-control' : ''}${aidsReserved ? ' aids-reserved' : ''}`}>
     {body}{actions}{failure}
   </div>
-  return <div className={`reading-passage${layout === 'compact' ? ' reading-passage-compact' : ''}`}>
-    <div className={layout === 'compact' ? 'reading-passage-text' : 'msg chat-message bot'} dir="auto">{body}</div>
-    {actions}{failure}
-  </div>
+  if (layout === 'bubble') return bubble
+  return <div className={`reading-passage${layout === 'compact' ? ' reading-passage-compact' : ''}`}>{bubble}</div>
 }
 
 /// One explicit reading request at a time for one source. A different source

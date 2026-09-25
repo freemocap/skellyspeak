@@ -1,0 +1,71 @@
+status: draft
+review: Author-proposed expectations; not independently reviewed gold labels.
+split: development
+language: Spanish
+variety: Mexico
+target_skill: possession_relationships
+
+cases:
+  - id: explicit_relationship
+    input:
+      preceding_partner: ¿De quién es este libro?
+      learner: Es de mi hermana.
+    expected: {evidence: direct, expression: successful}
+
+  - id: no_relationship
+    input:
+      preceding_partner: ¿De quién es este libro?
+      learner: Hola.
+    expected: {evidence: absent, expression: not_applicable}
+
+  - id: incomplete_relationship
+    input:
+      preceding_partner: ¿De quién es este libro?
+      learner: Es de…
+    expected: {evidence: direct, expression: partial}
+
+  - id: unresolved_person
+    input:
+      learner: Es de ella.
+    expected: {evidence: direct, expression: successful}
+    review_note: The person referred to remains unknown; the relationship construction itself is interpretable.
+
+  - id: name_with_context
+    input:
+      preceding_partner: ¿De quién es este libro?
+      learner: Ana.
+    expected: {evidence: contextual, expression: successful}
+
+  - id: same_name_without_context
+    input:
+      learner: Ana.
+    expected: {evidence: absent, expression: not_applicable}
+    review_note: Naming a person alone is not evidence of possession.
+
+  - id: assisted_retry
+    input:
+      preceding_partner: ¿De quién es este libro?
+      learner: Es de mi hermana.
+    attempt_record:
+      id: possession_retry
+      revision: 2
+      previous_learner: Es de…
+      assistance:
+        offered_text: Es de mi hermana.
+        action: inserted_and_submitted
+    expected: {evidence: direct, expression: successful}
+    review_note: Correctness expectation matches the unassisted wording; later credit may differ.
+
+  - id: combined_negation
+    input:
+      preceding_partner: ¿Es tuyo este libro?
+      learner: No, es de mi hermana.
+    expected: {evidence: direct, expression: successful}
+    review_note: Negation also occurs, but this fixture scores only the focal possession skill.
+
+  - id: partner_only_relationship
+    input:
+      preceding_partner: Este libro es de mi hermana. ¿Quieres leerlo?
+      learner: Hola.
+    expected: {evidence: absent, expression: not_applicable}
+    review_note: The partner's possession expression must not become learner evidence.

@@ -80,7 +80,10 @@
   overflow-wrap: anywhere;
 }
 
+/* Source size applies everywhere; emphasis only distinguishes target-language
+   forms embedded in explanatory prose, never standalone reading bubbles. */
 .w, .target-text { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); }
+.target-inline .w, .target-inline .target-text { color: var(--interaction-ink); font-weight: var(--weight-bold); font-style: italic; }
 
 .w.preserve-space { white-space: pre-wrap; }
 
@@ -96,7 +99,7 @@
   line-height: calc(var(--leading-normal) * 1em + var(--type-meta) * var(--reading-scale) * var(--leading-tight));
 }
 
-.wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); }
+.wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); font-weight: var(--weight-regular); font-style: normal; }
 
 .trans { font-size: calc(var(--type-ui) * var(--reading-scale)); color: var(--ink-3); font-style: italic;
   margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--border-width) dashed var(--line-soft); }
@@ -220,3 +223,6 @@
 
 /* Saved and unresolved source words use reading-word and inherit the sentence
    baseline. Only visible annotations introduce a column; hover never does. */
+
+/* Complete inline phrases retain visible, keyboard-accessible phrase actions. */
+.target-phrase-actions { display: inline-flex; vertical-align: middle; gap: var(--space-2); margin-inline-start: var(--space-3); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); }

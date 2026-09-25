@@ -72,7 +72,7 @@ pub(super) fn isolate_coaching(store: &mut Store) {
     isolate_user_reading(store);
     // Dedicated lifecycle suites isolate their subject; coaching graph overlap is
     // exercised separately below with both automatic operations retained.
-    store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction','skill_assessment','skill_evidence','conversation_feedback','reply_brief','reply_assistance','reply_explanations') AND state='waiting_dependencies'", []).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE kind IN ('coach_feedback','coach_suggestions','coach_reaction','skill_attribution','skill_assessment','skill_evidence','conversation_feedback','reply_brief','reply_assistance','reply_explanations') AND state='waiting_dependencies'", []).unwrap();
 }
 
 pub(super) fn isolate_translation(store: &mut Store) {
@@ -242,24 +242,62 @@ pub(super) fn finish_fixture_exchange(store: &mut Store, turn: &str, text: &str)
         .unwrap();
 }
 
-pub(super) fn fixture_evidence(store: &Store, turn: &str, wording: &str) {
-    retained_observation(store, turn, "coach_feedback");
-    let value = serde_json::json!({"meaning_recovered":"full","items":[{"construct":"question","quote":wording,"outcome":"demonstrated","error":null,"rationale":"Requests information."}]});
-    let validated = crate::learning::coaching::validate(
-        &store.connection,
-        turn,
-        crate::learning::coaching::FEEDBACK,
-        &reply(&value.to_string()),
+pub(super) fn fixture_evidence(store: &Store, turn: &str, _wording: &str) {
+    let tx = store.connection.unchecked_transaction().unwrap();
+    let operation: String = tx
+        .query_row(
+            "SELECT id FROM operations WHERE turn_id=?1 AND kind='skill_assessment'",
+            [turn],
+            |r| r.get(0),
+        )
+        .unwrap();
+    let attempt = format!("evidence-{turn}");
+    tx.execute("INSERT OR IGNORE INTO attempts(id,operation_id,state,requested_model) VALUES(?1,?2,'running','fixture')",params![attempt,operation]).unwrap();
+    tx.execute(
+        "UPDATE operations SET state='running' WHERE id=?1",
+        [&operation],
     )
     .unwrap();
-    crate::learning::coaching::publish(
-        &store.connection,
+    tx.execute("UPDATE turns SET state='assisting' WHERE id=?1", [turn])
+        .unwrap();
+    let presence: std::collections::BTreeMap<_, _> = store
+        .config
+        .shared_skills()
+        .skills
+        .iter()
+        .map(|s| {
+            (
+                s.id.clone(),
+                if s.id == "questions_answers" {
+                    crate::learning::practice::Presence::Direct
+                } else {
+                    crate::learning::practice::Presence::Absent
+                },
+            )
+        })
+        .collect();
+    crate::learning::practice::publish(
+        &tx,
         turn,
-        crate::learning::coaching::FEEDBACK,
-        &validated,
-        &format!("evidence-{turn}"),
+        &attempt,
+        presence.clone(),
+        &presence.keys().cloned().collect(),
     )
     .unwrap();
+    let value = serde_json::json!({"adapter":"jev_choice","answers":{"questions_answers":{"choice":"direct","confidence":1.0,"probabilities":{"direct":1.0,"contextual":0.0,"absent":0.0,"unclear":0.0}}}});
+    tx.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3),state='succeeded' WHERE id=?1",params![turn,value.to_string(),attempt]).unwrap();
+    crate::learning::rewards::publish(&tx, turn, &attempt).unwrap();
+    tx.execute(
+        "UPDATE operations SET state='succeeded' WHERE id=?1",
+        [&operation],
+    )
+    .unwrap();
+    tx.execute(
+        "UPDATE attempts SET state='succeeded' WHERE id=?1",
+        [&attempt],
+    )
+    .unwrap();
+    tx.commit().unwrap();
 }
 
 pub(super) fn wave2_context(store: &Store, turn: &str) -> serde_json::Value {
@@ -273,7 +311,7 @@ pub(super) fn wave2_context(store: &Store, turn: &str) -> serde_json::Value {
 }
 
 pub(super) fn wave2_error(quote: &str) -> serde_json::Value {
-    serde_json::json!({"construct":"question","quote":quote,"outcome":"partial","rationale":"Use está to ask how someone is.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"","elicitation":"","metalinguistic":""}})
+    serde_json::json!({"construct":"questions_answers","quote":quote,"outcome":"partial","rationale":"Use está to ask how someone is.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"","elicitation":"","metalinguistic":""}})
 }
 
 pub(super) fn wave2_observe(

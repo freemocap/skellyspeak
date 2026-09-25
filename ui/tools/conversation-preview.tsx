@@ -58,7 +58,7 @@ const initialStart: ConversationStartConfig = {
 }
 // Existing ConversationFeedbackCard.test.tsx fixture, reproduced verbatim.
 // These are test judgments, not an assessment of a live conversation.
-const feedback: ConversationFeedback = { remark: 'Your meaning is clear.', usedTarget: ['Ayer'], usedNative: ['go'], grammar: 3, conversation: 5, corrections: [{ said: 'go', corrected: 'fui', explanation: 'Use [[past tense]] for yesterday.', kind: 'missing_expression' }] }
+const feedback: ConversationFeedback = { grammar: 3, conversation: 5, answers: {} }
 // Exact word and saved fields visible in the user's token-help screenshot.
 // Regression fixture only; this does not generate or assess language data.
 const arabicText = 'البيوت'
@@ -111,7 +111,7 @@ function Preview() {
               formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
             } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady={false} speaking={false} rtl onBubbleTap={() => setNotice('Message analysis')} />
           </ReadingPreferencesContext></div>
-          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onOpenCoach={() => { setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
+          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onAddContext={async note => { setNotice(note); setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
         </>}</div>
         <div className="composer">
           {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}

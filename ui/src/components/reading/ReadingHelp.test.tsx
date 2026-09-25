@@ -2,7 +2,7 @@ import { SavedReadingProvider } from './SavedReadingProvider'
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ReadingPreferencesContext } from './ReadingPreferences'
 import { ReadingHelp } from './ReadingHelp'
 import { useReadingActions, ReadingScopeContext, type ReadingServices } from './ReadingContext'
@@ -26,6 +26,28 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') }
 })
 function app(children: React.ReactNode) { return render(<ReadingPreferencesContext value={{autoTranslate:true, alwaysRomanize:true, alwaysPronunciation:true}}><ReadingScopeContext value={scope}><ReadingHelp services={services} languages={languages}>{children}</ReadingHelp></ReadingScopeContext></ReadingPreferencesContext>) }
+
+it('keeps an inspector request alive when unrelated saved meanings update', async () => {
+  let finish!: (value: ReadingResult) => void
+  vi.mocked(services.read).mockImplementation(() => new Promise(resolve => { finish = resolve }))
+  function Controls() {
+    const actions = useReadingActions()
+    const [updated, setUpdated] = useState(false)
+    const sources = useMemo(() => updated ? [{ scope, text:'casa', segments:[{start:0,end:4,kind:'gloss' as const,gloss:'house'}] }] : [], [updated])
+    return <><button onClick={() => actions?.inspect({scope, text:'Hola', start:0, end:4})}>Inspect</button>
+      <button onClick={() => setUpdated(true)}>Update saved meanings</button>
+      <SavedReadingProvider sources={sources}>{null}</SavedReadingProvider></>
+  }
+  app(<Controls />)
+  fireEvent.click(screen.getByRole('button', {name:'Inspect'}))
+  await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
+  const signal = vi.mocked(services.read).mock.calls[0][1]
+  fireEvent.click(screen.getByRole('button', {name:'Update saved meanings'}))
+  expect(signal.aborted).toBe(false)
+  expect(services.read).toHaveBeenCalledOnce()
+  await act(async () => finish(result))
+  expect(screen.getByRole('dialog', {name:'Word help'})).toHaveTextContent('hello')
+})
 
 it('requests help only on explicit actions and delegates reuse to the local service', async () => {
   app(<TargetText text="Hola" />)

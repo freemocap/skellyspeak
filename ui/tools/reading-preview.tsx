@@ -79,7 +79,7 @@ createRoot(document.getElementById('root')!).render(<I18nProvider locale="englis
         <div><p className="msg chat-message bot"><SavedGlossText text="هٰذا بَيْتٌ قَدِيمٌ في عَمّان. كَيْف حالُك؟" segments={[{start:0,end:4,kind:'gloss',gloss:'this'},{start:5,end:11,kind:'gloss',gloss:'house'},{start:12,end:19,kind:'gloss',gloss:'old',romanization:'qadīm',pronunciation:'qa-deem'}]} /></p>
           <ReplyHelp brief="Reply ideas" opened={['replies']} replies={[{text:'أَنا بِحِبّ الْبُيُوت الْقَدِيمَة كَمان.',translation:'I like old houses too.',romanization:'',pronunciation:''},{text:'أَنا بَفَضّل الْبُيُوت الْجَدِيدَة.',translation:'I prefer new houses.',romanization:'',pronunciation:''}]} busy={false} errors={[]} onUse={()=>{}} />
         </div>
-        <ConversationFeedbackCard feedback={{remark:'Use the correct verb form when asking a male if he likes something.',usedTarget:['بتحب البيوت القديمة'],usedNative:[],corrections:[{kind:'grammar',said:'بتحب البيوت القديمة',corrected:'بتحب البيوت القديمة',explanation:'To ask “Do you like…?” use this form.'}],grammar:3,conversation:3}} />
+        <ConversationFeedbackCard feedback={{grammar:3,conversation:3,answers:{}}} />
       </div>
     </section></ReadingLanguageScope>
     <h2>Same saved word in another surface</h2><p><TargetText text="Otra playa." /></p>

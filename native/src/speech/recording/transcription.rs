@@ -18,7 +18,15 @@ pub fn permitted(db: &Connection, owner: &RecordingOwner, target: &ResolvedTarge
     })?;
     if !valid
         || current.route != target.route
-        || current.model != target.model
+        || current.model
+            != target
+                .audio_resolution
+                .as_ref()
+                .map_or(target.model.as_str(), |r| r.requested_model.as_str())
+        || target
+            .audio_resolution
+            .as_ref()
+            .is_some_and(|r| r.model != target.model)
         || current.url != target.url
         || current.credential != target.credential
     {

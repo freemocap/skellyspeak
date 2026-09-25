@@ -31,10 +31,7 @@ export const CHAT_REPLY: GuidedTurnResult = {
   user_tokens: [], translation: 'How nice! What did you buy?', user_translation: 'Yesterday go to the market.',
   mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [],
 }
-export const CHAT_FEEDBACK: ConversationFeedback = {
-  remark: 'Your meaning is clear.', usedTarget: ['Ayer'], usedNative: ['go'], grammar: 3, conversation: 5,
-  corrections: [{ said: 'go', corrected: 'fui', explanation: 'Use [[past tense]] for yesterday.', kind: 'missing_expression' }],
-}
+export const CHAT_FEEDBACK: ConversationFeedback = { grammar: 3, conversation: 5, answers: {} }
 export const CHAT_READING_SCOPE = { language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }
 
 // ── Drill ────────────────────────────────────────────────────────────────

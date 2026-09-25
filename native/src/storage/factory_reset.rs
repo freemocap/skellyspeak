@@ -155,8 +155,32 @@ pub(crate) fn finish_pending(directory: &Path, trusted_logs: &Path) -> Result<()
             ));
         }
     }
-    clear_directory(trusted_logs, &[])
-        .map_err(|error| storage_error(format!("Could not finish clearing logs: {error}")))?;
+    // Development logs share a root with independently running servers and
+    // launchers. Reset owns only the native process run directories.
+    let mut keep = Vec::new();
+    if trusted_logs.is_dir() {
+        for entry in std::fs::read_dir(trusted_logs)
+            .map_err(|error| storage_error(format!("Could not list logs: {error}")))?
+        {
+            let entry =
+                entry.map_err(|error| storage_error(format!("Could not inspect logs: {error}")))?;
+            let name = entry
+                .file_name()
+                .into_string()
+                .map_err(|_| storage_error("Invalid log entry name."))?;
+            let owned = name
+                .strip_prefix("native-")
+                .is_some_and(|id| uuid::Uuid::parse_str(id).is_ok());
+            if !owned {
+                keep.push(name);
+            }
+        }
+    }
+    clear_directory(
+        trusted_logs,
+        &keep.iter().map(String::as_str).collect::<Vec<_>>(),
+    )
+    .map_err(|error| storage_error(format!("Could not finish clearing logs: {error}")))?;
     clear_pending(directory)
 }
 
@@ -397,7 +421,9 @@ mod tests {
         let data = tempfile::tempdir().unwrap();
         let logs = data.path().join("logs");
         std::fs::create_dir(&logs).unwrap();
-        let log_path = logs.join("native.jsonl");
+        let run = logs.join(format!("native-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&run).unwrap();
+        let log_path = run.join("native.jsonl");
         let mut log = std::fs::File::create(&log_path).unwrap();
         let guard = ownership(data.path());
         record_pending(data.path()).unwrap();
@@ -435,7 +461,9 @@ mod tests {
         let index = credentials::index_path(data.path());
         credentials::remember(&index, "orphan-id").unwrap();
         record_pending(data.path()).unwrap();
-        std::fs::write(logs.path().join("private"), "secret").unwrap();
+        let run = logs.path().join(format!("native-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir(&run).unwrap();
+        std::fs::write(run.join("native.jsonl"), "private fixture").unwrap();
         let mut removed = Vec::new();
         erase(
             data.path(),
@@ -499,6 +527,33 @@ mod tests {
         finish_pending(data.path(), &logs).unwrap();
         assert!(!pending(data.path()).unwrap());
         finish_pending(data.path(), &logs).unwrap();
+    }
+
+    #[test]
+    fn reset_cleans_only_native_runs_and_leaves_running_server_logs_alone() {
+        let data = tempfile::tempdir().unwrap();
+        let logs = tempfile::tempdir().unwrap();
+        let native = logs.path().join(format!("native-{}", uuid::Uuid::new_v4()));
+        let server = logs.path().join("server-running");
+        std::fs::create_dir(&native).unwrap();
+        std::fs::create_dir(&server).unwrap();
+        std::fs::write(native.join("native.jsonl"), "app log").unwrap();
+        let server_file = server.join("server-logging.jsonl");
+        std::fs::write(&server_file, "server log").unwrap();
+        let mut options = std::fs::OpenOptions::new();
+        options.read(true);
+        #[cfg(windows)]
+        {
+            use std::os::windows::fs::OpenOptionsExt;
+            options.share_mode(0);
+        }
+        let open_server = options.open(&server_file).unwrap();
+        record_pending(data.path()).unwrap();
+        finish_pending(data.path(), logs.path()).unwrap();
+        assert!(!native.exists());
+        assert!(!pending(data.path()).unwrap());
+        drop(open_server);
+        assert_eq!(std::fs::read_to_string(server_file).unwrap(), "server log");
     }
 
     #[test]

@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/learning-map.json
+# yaml-language-server: $schema=../schemas/learning-map.yaml
 - id: experience
   parent: null
   label: Experience

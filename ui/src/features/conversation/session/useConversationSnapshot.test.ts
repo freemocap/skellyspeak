@@ -104,3 +104,23 @@ it('bridges multiple live pages while an older-page request remains in flight', 
   await act(async () => { old.resolve(page(1, 100)); await loading })
   expect(hook.result.current.snapshot?.messages.map(item => item.sequence)).toEqual(Array.from({ length: 500 }, (_, i) => i + 1))
 })
+
+// Audit characterization, not the desired publication behavior: a live update
+// currently waits for the entire previously revealed history range to reload.
+it('characterizes live snapshot publication waiting for a delayed history refresh', async () => {
+  const update = deferred<ConversationSnapshot>()
+  const history = deferred<ConversationSnapshot>()
+  watch.mockResolvedValueOnce(page(102, 201)).mockImplementationOnce(() => update.promise)
+  const hook = renderHook(() => useConversationSnapshot('chat'))
+  await waitFor(() => expect(hook.result.current.snapshot?.revision).toBe(1))
+  watch.mockResolvedValueOnce(page(2, 101))
+  await act(async () => { await hook.result.current.loadOlder() })
+  watch.mockImplementationOnce(() => history.promise).mockResolvedValueOnce(page(1, 3, 2))
+  await act(async () => { update.resolve(page(104, 203, 2)) })
+  await waitFor(() => expect(watch).toHaveBeenCalledWith('chat', -1, 104))
+  expect(hook.result.current.snapshot?.revision).toBe(1)
+  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(201)
+  await act(async () => { history.resolve(page(4, 103, 2)) })
+  await waitFor(() => expect(hook.result.current.snapshot?.revision).toBe(2))
+  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(203)
+})

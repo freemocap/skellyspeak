@@ -1,3 +1,5 @@
+import { AiRetryContext } from '../../../components/feedback/AiRetry'
+import { executeAction, readWorkspace } from '../../../platform/ipc/workspace'
 import type { ReactNode } from 'react'
 import type { TurnView } from '../../../generated/contracts'
 import { ErrorInspectionContext } from '../../../components/feedback/ErrorDetails'
@@ -14,8 +16,10 @@ export function errorOperation(turn: TurnView, error: string) {
 export function ConversationErrorScope({ conversationId, turn, onInspect, children }: {
   conversationId?: string; turn?: TurnView; onInspect?: () => void; children: ReactNode
 }) {
-  return <ErrorInspectionContext value={conversationId && turn ? error => {
+  const retry = turn && turn.operations.some(operation => ['failed', 'unknown'].includes(operation.state))
+    ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.id, control:'retry'}) } : null
+  return <AiRetryContext value={retry}><ErrorInspectionContext value={conversationId && turn ? error => {
     onInspect?.()
     useNavigationStore.getState().inspectAi({ conversationId, turnId: turn.id, operationKind: errorOperation(turn, error)?.kind ?? null })
-  } : null}>{children}</ErrorInspectionContext>
+  } : null}>{children}</ErrorInspectionContext></AiRetryContext>
 }

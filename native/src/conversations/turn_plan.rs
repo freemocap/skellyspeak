@@ -19,10 +19,24 @@ pub struct Declaration {
 }
 pub const PLAN: &[Declaration] = &[
     Declaration {
-        kind: "skill_evidence",
+        kind: "skill_attribution",
         activation: Activation::Automatic,
         dependencies: &["skill_assessment"],
         role: "fast",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "coach_feedback",
+        activation: Activation::Automatic,
+        dependencies: &["persona_context"],
+        role: "standard",
+        contract_version: 3,
+    },
+    Declaration {
+        kind: "coach_reaction",
+        activation: Activation::Automatic,
+        dependencies: &["persona_reply"],
+        role: "classifier",
         contract_version: 1,
     },
     Declaration {
@@ -56,8 +70,8 @@ pub const PLAN: &[Declaration] = &[
     Declaration {
         kind: "conversation_feedback",
         activation: Activation::Automatic,
-        dependencies: &["persona_reply"],
-        role: crate::learning::coaching::conversation_support::ROLE,
+        dependencies: &["persona_context"],
+        role: "classifier",
         contract_version: 1,
     },
     Declaration {
@@ -195,26 +209,10 @@ pub const OPENING_PLAN: &[Declaration] = &[
 ];
 
 // Explicit operations and retained observations; never automatically created.
-pub const RETAINED: &[Declaration] = &[
-    Declaration {
-        kind: "coach_feedback",
-        activation: Activation::Explicit,
-        dependencies: &["persona_context"],
-        role: "standard",
-        contract_version: 3,
-    },
-    Declaration {
-        kind: "coach_suggestions",
-        activation: Activation::Explicit,
-        dependencies: &[],
-        role: "standard",
-        contract_version: 3,
-    },
-    Declaration {
-        kind: "coach_reaction",
-        activation: Activation::Explicit,
-        dependencies: &["persona_reply"],
-        role: "fast",
-        contract_version: 1,
-    },
-];
+pub const RETAINED: &[Declaration] = &[Declaration {
+    kind: "coach_suggestions",
+    activation: Activation::Explicit,
+    dependencies: &[],
+    role: "standard",
+    contract_version: 3,
+}];

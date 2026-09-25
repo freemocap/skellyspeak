@@ -6,6 +6,7 @@ use crate::model::{AppError, Result};
 
 #[derive(Clone)]
 pub struct SpeechInput {
+    pub language_tag: String,
     pub text: String,
     pub voice: String,
     pub language: String,
@@ -119,6 +120,16 @@ pub(crate) fn speech_input(
         ));
     }
     let input = crate::ai::audio::SpeechInput {
+        language_tag: context
+            .external_tags
+            .get("language_tag")
+            .cloned()
+            .ok_or_else(|| {
+                AppError::new(
+                    crate::model::ErrorCode::Validation,
+                    "Speech requires a language tag.",
+                )
+            })?,
         text,
         voice,
         language: format!("{} — {}", context.target_name, context.variety_name),

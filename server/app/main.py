@@ -898,7 +898,7 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
             "accepts_other_text_models": True,
             "decisions": {"version": 1, "models": [decisions.MODEL]},
             "transcription_model": "whisper-large-v3",
-            "audio": {"version": 1, "transcription_provider": "groq",
+            "audio": {"version": 1, "routing": audio_service.availability(CFG), "transcription_provider": "groq",
                       "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"] + (["scribe_v2"] if CFG.elevenlabs_key else []),
                       "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,
                       "speech_ready": bool(CFG.elevenlabs_key and CFG.elevenlabs_voice_id)}}

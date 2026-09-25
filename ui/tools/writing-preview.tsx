@@ -15,6 +15,7 @@ useSettingsStore.setState({ settings: PREVIEW_SETTINGS, saveScriptScale: async (
   useSettingsStore.setState({settings:{...settings,script_scales}})
 } })
 const report = {
+  guides:[],
   language:{id:'arabic',fontScale:1.5,languageTag:'ar',direction:'rtl'},
   review:'needs_review',family:'Sample data',
   values:Object.entries({script:'arabic',direction:'rtl',font_scale:'1.5',word_spacing:'true',romanization:'arabic:ala-lc-arabic'}).map(([field,value])=>({field,value,source:'Sample data'})),

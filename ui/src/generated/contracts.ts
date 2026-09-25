@@ -35,7 +35,7 @@ export type ListeningTake = { recordingId: string, number: number, startSeconds:
 export type LiveSpectrogram = { data: InspectionSpectrogram, endSeconds: number, };
 export type ListeningTakeState = "queued" | "processing" | "completed" | "failed";
 export type Theme = "light" | "dark" | "system";
-export type RewardEvent = { id: string, attemptId: string, constructId: string, kind: string, tier: number, xp: number, quote: string, support: string, difficulty: string, novelty: string, policyHash: string, atSecs: bigint, claimed: boolean, };
+export type RewardEvent = { id: string, attemptId: string, constructId: string, kind: string, tier: number, xp: number, experience: number, effort: number, quote: string, support: string, difficulty: string, novelty: string, policyHash: string, atSecs: bigint, claimed: boolean, };
 export type LearnerState = { learnerId: string, languageId: string, asOfSecs: number, configHash: string, constructRegistryHash: string, estimatorHash: string, estimatorVersion: number, calibration: string, choices: unknown, observations: unknown[], constructs: Array<ConstructState>, };
 export type ConstructState = { constructId: string, varietyId: string, rating: number, uncertainty: number, lastSeen: number, halfLifeDays: number, n: number, independentN: number, effectiveN: number, recall: number, dueAt: number, due: boolean, insufficientEvidence: boolean, evidenceAttemptIds: Array<string>, };
 export type ConnectionRoute = "hosted" | "custom";
@@ -78,14 +78,14 @@ export type ErrorTag = { op: ErrorOp, category: string, source: ErrorSource, blo
 export type ObservedItem = { construct: string, quote: string, outcome: Outcome, error: ErrorTag | null, rationale: string, };
 export type CoachObservation = { meaning_recovered: MeaningLevel, items: Array<ObservedItem>, };
 export type ObservedItemSummary = { construct: string, quote: string, outcome: Outcome, rationale: string, };
-export type CoachObservationView = { meaningRecovered: MeaningLevel, items: Array<ObservedItemSummary>, candidatesSent: number, itemsReturned: number, };
+export type CoachObservationView = { corrections: Array<Correction>, notes: Array<string>, meaningRecovered: MeaningLevel, items: Array<ObservedItemSummary>, candidatesSent: number, itemsReturned: number, };
 export type CoachMove = "partner_clarify" | "hint" | "elicit" | "metalinguistic" | "explicit";
 export type Correction = { construct: string, quote: string, move: CoachMove, text: string, explanation?: string, };
 export type CoachDecision = { exposedMove: CoachMove | null, repairStatus: RepairStatus | null, shown: Correction | null, retryInvited: boolean, fixed: string | null, alsoNoticed: Array<ObservedItemSummary>, keptGoing: boolean, };
 export type CoachControl = "open_card" | "show_answer" | "keep_going";
 export type RetryCheck = { repaired: boolean, meaning_recovered: MeaningLevel, items: Array<ObservedItem>, };
-export type PartnerReaction = { kind: ReactionKind, interpretation: string, explanation: string, };
-export type ReactionKind = "happy" | "sad" | "angry" | "understood" | "confused" | "curious" | "surprised" | "concerned";
+export type PartnerReaction = { kind: ReactionKind, answer: ChoiceAssessment, };
+export type ReactionKind = "understood" | "confused";
 export type RepairStatus = "repaired" | "not_repaired" | "uncertain";
 export type Opening = { "kind": "learner" } | { "kind": "partner" };
 export type TopicCard = { id: string,
@@ -110,13 +110,15 @@ romanized: string | null,
 translation: string, };
 export type SavedTopic = { id: string, text: string, };
 export type TimeReference = "any" | "past" | "future";
-export type TopicChoice = { "kind": "builtin", id: string, } | { "kind": "custom", text: string, };
+export type RecommendationMode = "explore" | "continuePracticing" | "coachChoice";
+export type TopicChoice = { "kind": "builtin", id: string, } | { "kind": "coach", mode: RecommendationMode, } | { "kind": "custom", text: string, };
 export type ConversationDirection = { topic: TopicChoice | null, timeReference: TimeReference, usePersonaDetails: boolean, };
 export type ConversationStartConfig = { difficulty: Difficulty, varietyId: string, direction: ConversationDirection, };
-export type PromptPreview = { configuration: ConversationStartConfig, yaml: string, systemPrompt: string, difficultyPrompts: Array<[Difficulty, string]>, };
+export type PromptPreview = { coachFocus: CoachFocusPreview | null, configuration: ConversationStartConfig, yaml: string, systemPrompt: string, difficultyPrompts: Array<[Difficulty, string]>, };
+export type CoachFocusPreview = { skillId: string, name: string, mode: RecommendationMode, experience: number, effort: number, };
 export type SuggestedReply = { text: string, segments: Array<GlossSegment>, };
-export type ConversationFeedback = { remark: string, usedTarget: Array<string>, usedNative: Array<string>, corrections: Array<ConversationCorrection>, grammar: number, conversation: number, };
-export type ConversationCorrection = { said: string, corrected: string, explanation: string, kind: string, };
+export type ConversationFeedback = { grammar: number | null, conversation: number | null, answers: { [key in string]: ChoiceAssessment }, };
+export type ChoiceAssessment = { choice: string, probabilities: { [key in string]: number }, confidence: number, };
 export type AssistedReply = { text: string, translation: string, romanization: string, pronunciation: string, };
 export type ReplyAssistance = { replies: Array<AssistedReply>, frames: Array<string>, starters: Array<string>, };
 export type ReplyBrief = { explanation: string, };
@@ -124,7 +126,7 @@ export type ReplyHelpKind = "brief" | "grammar" | "replies";
 export type ReadingScope = { language: string, variety: string | null, explanation: string, explanationVariety: string | null, };
 export type ReplyExplanation = { quote: string, title: string, body: string, example: string, contrast: string, };
 export type ReplyExplanations = { cards: Array<ReplyExplanation>, };
-export type ChatMessage = { conversationFeedback?: ConversationFeedback, replyBrief?: ReplyBrief, briefState?: string, briefError?: string, readingScope?: ReadingScope, replyAssistance?: ReplyAssistance, replyExplanations?: ReplyExplanations, explanationsState?: string, explanationsError?: string, reaction?: PartnerReaction, reactionError?: string, coachDecision: CoachDecision | null, turnId: string, replacesTurnId: string | null, replacedBy: string | null, feedback?: CoachObservationView, feedbackState?: string, feedbackError?: string, suggestedReplies?: Array<SuggestedReply>, suggestionsState?: string, suggestionsError?: string, wordGloss: WordGlossView | null, glossState: string | null, glossError: string | null, glossOperationId: string | null, translationState: string | null, translation: string | null, id: string, sequence: number, role: string, text: string, createdAt: string, };
+export type ChatMessage = { feedbackContext?: string, conversationFeedback?: ConversationFeedback, replyBrief?: ReplyBrief, briefState?: string, briefError?: string, readingScope?: ReadingScope, replyAssistance?: ReplyAssistance, replyExplanations?: ReplyExplanations, explanationsState?: string, explanationsError?: string, reaction?: PartnerReaction, reactionError?: string, coachDecision: CoachDecision | null, turnId: string, replacesTurnId: string | null, replacedBy: string | null, feedback?: CoachObservationView, feedbackState?: string, feedbackError?: string, suggestedReplies?: Array<SuggestedReply>, suggestionsState?: string, suggestionsError?: string, wordGloss: WordGlossView | null, glossState: string | null, glossError: string | null, glossOperationId: string | null, translationState: string | null, translation: string | null, id: string, sequence: number, role: string, text: string, createdAt: string, };
 export type OperationView = { replyHelpKind?: ReplyHelpKind, sourceMessageId: string | null, id: string, kind: string, contractVersion: number, dependencies: Array<string>, role: string, state: string, };
 export type AttemptView = { diagnostics?: unknown, id: string, operationId: string, state: string, requestedModel: string, actualModel: string | null, providerId: string | null, startedAt: string, finishedAt: string | null, inputTokens: number | null, outputTokens: number | null, error: string | null,
 /**
@@ -184,7 +186,20 @@ greeting: StarterGreeting,
  * starter persona to introduce them, not the whole profile.
  */
 partner: LanguagePartner, };
-export type LanguageInspection = { fingerprint: string, language: Language, varietyId: string, review: string, family: string, values: Array<ContentValue>, rules: Array<ContentRule>, schemes: Array<SchemeInspection>, sources: Array<ContentSource>, partner: PersonaDetails, schemaJson: string, resolvedJson: string, learningJson: string, conversationJson: string, };
+export type LanguageInspection = { guides: Array<GuideInspection>, fingerprint: string, language: Language, varietyId: string, review: string, family: string, values: Array<ContentValue>, rules: Array<ContentRule>, schemes: Array<SchemeInspection>, sources: Array<ContentSource>, partner: PersonaDetails, schemaJson: string, resolvedJson: string, learningJson: string, conversationJson: string, };
+export type GuideInspection = { guide: TeachingGuide, fingerprint: string,
+/**
+ * The UI and later assessment projection compose this supplement with the core.
+ */
+selectedVariety: string | null, source: string, explanationName: string, explanationTag: string | null, explanationDirection: string, };
+export type TeachingGuide = { id: string, target: { "kind": "script", script: string, } | { "kind": "reading", language: string, } | { "kind": "skill", language: string, skill: string, }, explanation_language: string, title: string, summary: string, sections: Array<GuideSection>, examples: Array<GuideExample>,
+/**
+ * Compact authored guidance; not automatically added to existing prompts.
+ */
+guidance: string, shared_guides: Array<string>, variants: Array<GuideVariant>, sources: Array<string>, review: "needs_review" | "reviewed", origin: "human" | "ai" | "mixed", authorship: string, };
+export type GuideSection = { title: string, text: string, };
+export type GuideExample = { text: string, meaning: string, note: string, };
+export type GuideVariant = { variety: string, summary: string, sections: Array<GuideSection>, examples: Array<GuideExample>, guidance: string, sources: Array<string>, review: "needs_review" | "reviewed", origin: "human" | "ai" | "mixed", authorship: string, };
 export type ContentSource = { path: string, yaml: string, };
 export type ContentRule = { scope: string, text: string, source: string, };
 export type ContentValue = { field: string, value: string, source: string, };
@@ -200,7 +215,7 @@ refusal: AppError | null,
  * The app is usable; that leftover data is not cleared.
  */
 cleanup: AppError | null, credentialCleanup: AppError | null, };
-export type Action = { "kind": "startConversation", conversationId: string, configuration: ConversationStartConfig, message: string | null, input: InputEvidence | null, expectedRevision: number, } | { "kind": "updateConversationPrompt", conversationId: string, configuration: ConversationStartConfig, additions: Array<string>, deletions: Array<string>, expectedRevision: number, expectedSettingsRevision: number, } | { "kind": "saveTopics", additions: Array<string>, deletions: Array<string>, expectedRevision: number, } | { "kind": "coachControl", turnId: string, control: CoachControl, expectedRevision: number, } | { "kind": "reviseTurn", conversationId: string, turnId: string, text: string, input: InputEvidence, expectedRevision: number, } | { "kind": "askCoach", conversationId: string, text: string, expectedRevision: number, } | { "kind": "startChat", languageId: string, } | { "kind": "sendMessage", input: InputEvidence, conversationId: string, text: string, expectedRevision: number, } | { "kind": "requestMessageSpeech", messageId: string, } | { "kind": "cancelMessageSpeech", operationId: string, } | { "kind": "requestSuggestions", messageId: string, } | { "kind": "requestExplanations", messageId: string, } | { "kind": "retryReplyHelp", messageId: string, helpKind: ReplyHelpKind, } | { "kind": "retryGloss", operationId: string, } | { "kind": "controlTurn", turnId: string, control: TurnControl, } | { "kind": "setPaused", paused: boolean, } | { "kind": "recoverAiAccess", holdId: string, expectedGeneration: string, } | { "kind": "createContact", languageId: string, details: PersonaDetails, } | { "kind": "updatePersona", personaId: string, expectedRevision: number, details: PersonaDetails, } | { "kind": "setContactArchived", contactId: string, expectedRevision: number, archived: boolean, } | { "kind": "deleteContact", contactId: string, expectedRevision: number, } | { "kind": "createConversation", contactId: string, title: string, } | { "kind": "openConversation", conversationId: string, } | { "kind": "updateConversation", conversationId: string, expectedRevision: number, title: string, archived: boolean, } | { "kind": "updateSettings", conversationId: string, expectedRevision: number, settings: PracticeSettings, } | { "kind": "deleteConversation", conversationId: string, expectedRevision: number, } | { "kind": "updateLearner", expectedRevision: number, name: string, preferences: Preferences, };
+export type Action = { "kind": "startConversation", conversationId: string, configuration: ConversationStartConfig, message: string | null, input: InputEvidence | null, expectedRevision: number, } | { "kind": "updateConversationPrompt", conversationId: string, configuration: ConversationStartConfig, additions: Array<string>, deletions: Array<string>, expectedRevision: number, expectedSettingsRevision: number, } | { "kind": "saveTopics", additions: Array<string>, deletions: Array<string>, expectedRevision: number, } | { "kind": "coachControl", turnId: string, control: CoachControl, expectedRevision: number, } | { "kind": "reviseTurn", conversationId: string, turnId: string, text: string, input: InputEvidence, expectedRevision: number, } | { "kind": "askCoach", conversationId: string, text: string, expectedRevision: number, } | { "kind": "startChat", languageId: string, } | { "kind": "sendMessage", input: InputEvidence, conversationId: string, text: string, expectedRevision: number, } | { "kind": "requestMessageSpeech", messageId: string, } | { "kind": "cancelMessageSpeech", operationId: string, } | { "kind": "requestSuggestions", messageId: string, } | { "kind": "requestExplanations", messageId: string, } | { "kind": "reassessFeedback", turnId: string, note: string, } | { "kind": "retryReplyHelp", messageId: string, helpKind: ReplyHelpKind, } | { "kind": "retryGloss", operationId: string, } | { "kind": "controlTurn", turnId: string, control: TurnControl, } | { "kind": "setPaused", paused: boolean, } | { "kind": "recoverAiAccess", holdId: string, expectedGeneration: string, } | { "kind": "createContact", languageId: string, details: PersonaDetails, } | { "kind": "updatePersona", personaId: string, expectedRevision: number, details: PersonaDetails, } | { "kind": "setContactArchived", contactId: string, expectedRevision: number, archived: boolean, } | { "kind": "deleteContact", contactId: string, expectedRevision: number, } | { "kind": "createConversation", contactId: string, title: string, } | { "kind": "openConversation", conversationId: string, } | { "kind": "updateConversation", conversationId: string, expectedRevision: number, title: string, archived: boolean, } | { "kind": "updateSettings", conversationId: string, expectedRevision: number, settings: PracticeSettings, } | { "kind": "deleteConversation", conversationId: string, expectedRevision: number, } | { "kind": "updateLearner", expectedRevision: number, name: string, preferences: Preferences, };
 export type Command = { sessionId: string, actionId: string, action: Action, };
 export type Receipt = { actionId: string, entityId: string, revision: number, };
 export type ErrorCode = "validation" | "conflict" | "not_found" | "session_expired" | "storage" | "provider" | "admission_held" | "pending_turn" | "config_load" | "unknown_outcome" | "credential" | "internal";
@@ -215,8 +230,13 @@ export type RecordingOwner = { "kind": "conversation", "id": string } | { "kind"
 export type ConversationDrillInput = { scope: ReadingScope, cursor: string | null, limit: number, };
 export type ConversationDrillPage = { preview: DrillGenerationPreview, nextCursor: string | null, };
 export type DrillLength = "word" | "shortPhrase" | "sentence" | "severalSentences";
-export type DrillGenerationInput = { language: string, variety: string | null, explanation: string, explanationVariety: string | null, topic: string | null, count: number, difficulty: Difficulty, length: DrillLength, };
-export type DrillSource = { "kind": "own" } | { "kind": "generated", requestId: string, candidateId: string, topic: string | null, difficulty: Difficulty, length: DrillLength, } | { "kind": "conversation", sourceRef: DrillConversationRef, revision: string, };
+export type DrillGenerationInput = { skillTarget?: DrillSkillTarget, language: string, variety: string | null, explanation: string, explanationVariety: string | null, topic: string | null, count: number, difficulty: Difficulty, length: DrillLength, };
+export type DrillSkillTarget = { "kind": "skill", skillId: string, } | { "kind": "coach", mode: RecommendationMode, };
+export type DrillSkillFocus = { skill: SkillPrompt, recommendation: Recommendation | null, };
+export type SkillPrompt = { id: string, name: string, overview: string, boundary: string, language_guidance: string, };
+export type Candidate = { skillId: string, experience: number, effort: number, };
+export type Recommendation = { policy: string, requested: RecommendationMode, selected: RecommendationMode, skill: Candidate, eligibleSkills: number, };
+export type DrillSource = { "kind": "own" } | { "kind": "generated", skillFocus?: DrillSkillFocus, requestId: string, candidateId: string, topic: string | null, difficulty: Difficulty, length: DrillLength, } | { "kind": "conversation", sourceRef: DrillConversationRef, revision: string, };
 export type DrillConversationRef = { conversationId: string, messageId: string, turnId: string, role: string, startByte: number, endByte: number, };
 export type DrillReportedLabels = { difficulty: string | null, tags: Array<string>, };
 export type DrillVerifiedProperties = { scopeMatchesRequest: boolean, lengthOk: boolean, nonEmpty: boolean, duplicate: boolean, };
@@ -264,7 +284,7 @@ export type SavedGlossSource = { sourceId: string, operationId: string | null, a
 export type CacheSettings = { capacityBytes: number, usedBytes: number, resultCount: number, };
 export type AppError = { diagnostics?: unknown, code: ErrorCode, message: string, refusal: Refusal | null, };
 export const PERSONA_LIMITS = { nameMax: 80, ageMin: 18, ageMax: 100, locationMax: 120, occupationMax: 120, backgroundMax: 2000, currentSituationMax: 600, mannerMax: 600, itemMax: 120, interestsMax: 12, opinionsMax: 12, factsMax: 12, booksMax: 8, moviesMax: 8, quirksMax: 8, vibeMin: 2, vibeMax: 4, briefMax: 200 } as const
-export const SKILL_CATALOG_VERSION = 2393616038 as const
+export const SKILL_CATALOG_VERSION = 1758121769 as const
 export const TEXT_SIZE = { default: 85, min: 75, max: 160, step: 5 } as const
 export const DEFAULT_APPEARANCE: AppearancePreferences = {"palette":"cool","controlDensity":"standard","layoutSpacing":"tight","depth":"subtle","glowEnabled":false,"glowColor":"#7c5cff","glowStrength":30}
 export const DIFFICULTY_LEVELS: readonly Difficulty[] = ["absolute_zero","beginner","intermediate","advanced","fluent"] as const

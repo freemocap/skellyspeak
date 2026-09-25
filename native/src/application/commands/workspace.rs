@@ -253,12 +253,54 @@ pub(in crate::application) fn preview_conversation_prompt(
         _=>return Err(AppError::new(ErrorCode::Validation,"Supply a configuration or at most 16 KB of YAML.")),
     };
     let store = state.lock()?;
-    crate::conversations::conversation_prompt::preview(
+    let snapshot = store.snapshot()?;
+    let mut preview = crate::conversations::conversation_prompt::preview(
         &store.config,
-        &store.snapshot()?,
+        &snapshot,
         &conversation_id,
         &configuration,
-    )
+    )?;
+    let mut conversation = snapshot
+        .conversations
+        .iter()
+        .find(|c| c.id == conversation_id)
+        .cloned()
+        .ok_or_else(|| AppError::new(ErrorCode::NotFound, "Conversation not found."))?;
+    conversation.settings = crate::conversations::direction::settings(
+        &store.config,
+        &conversation.language_id,
+        &conversation.settings,
+        &configuration,
+    )?;
+    let recommendation = crate::learning::recommendations::capture(
+        &store.connection,
+        &store.config,
+        &snapshot.session_id,
+        &conversation,
+        &configuration.direction,
+    )?;
+    crate::learning::recommendations::append_prompt(
+        &mut preview.system_prompt,
+        &store.config,
+        recommendation.as_ref(),
+    )?;
+    preview.coach_focus = recommendation
+        .as_ref()
+        .map(|value| {
+            let selection: crate::learning::recommendations::Recommendation =
+                serde_json::from_value(value["selection"].clone())?;
+            let skill: crate::learning::practice_assessment::SkillPrompt =
+                serde_json::from_value(value["skill"].clone())?;
+            Ok::<_, AppError>(crate::conversations::direction::CoachFocusPreview {
+                skill_id: skill.id,
+                name: skill.name,
+                mode: selection.selected,
+                experience: selection.skill.experience,
+                effort: selection.skill.effort,
+            })
+        })
+        .transpose()?;
+    Ok(preview)
 }
 
 /// Application blueprints, available without a selected conversation or AI access.

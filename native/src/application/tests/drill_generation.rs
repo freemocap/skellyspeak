@@ -4,6 +4,7 @@ use crate::drill::generation::DrillGenerationInput;
 use serde_json::json;
 fn input() -> DrillGenerationInput {
     DrillGenerationInput {
+        skill_target: None,
         language: "spanish".into(),
         variety: None,
         explanation: "english".into(),
@@ -13,6 +14,99 @@ fn input() -> DrillGenerationInput {
         difficulty: model::Difficulty::Beginner,
         length: crate::drill::generation::DrillLength::ShortPhrase,
     }
+}
+
+#[tokio::test]
+async fn skill_target_reaches_generation_and_survives_acceptance_without_xp() {
+    use crate::drill::{previews::DrillSource, skill_focus::DrillSkillTarget};
+    let (url, worker) = structured_server(|content| {
+        let data: serde_json::Value = serde_json::from_str(content).unwrap();
+        assert_eq!(data["skillFocus"]["skill"]["id"], "past_reference");
+        assert!(
+            !data["skillFocus"]["skill"]["language_guidance"]
+                .as_str()
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(data["length"], "sentence");
+        json!({"candidates":[candidate("Ayer preparé la cena.")]}).to_string()
+    });
+    let (_dir, app) = app(&url);
+    let mut request = input();
+    request.variety = Some("spanish-spain".into());
+    request.length = crate::drill::generation::DrillLength::Sentence;
+    request.skill_target = Some(DrillSkillTarget::Skill {
+        skill_id: "past_reference".into(),
+    });
+    let id = reserve(&app, request).unwrap();
+    let captured = previews::input(&app.lock().unwrap().connection, &id).unwrap();
+    assert_eq!(captured.skill_focus.unwrap().skill.id, "past_reference");
+    let preview = run(&app, &id).await.unwrap();
+    worker.join().unwrap();
+    let items = app
+        .lock()
+        .unwrap()
+        .accept_drill_items(&id, &[preview.candidates[0].candidate_id.clone()])
+        .unwrap();
+    let DrillSource::Generated {
+        skill_focus: Some(focus),
+        ..
+    } = &items[0].source
+    else {
+        panic!("Missing captured skill target")
+    };
+    assert_eq!(focus.skill.id, "past_reference");
+    let store = app.lock().unwrap();
+    let saved = store.drill_items("spanish").unwrap();
+    assert_eq!(
+        serde_json::to_value(&saved[0].source).unwrap()["skillFocus"]["skill"]["id"],
+        "past_reference"
+    );
+    assert_eq!(
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
+        0
+    );
+}
+
+#[test]
+fn coach_skill_selection_is_captured_and_invalid_targets_do_not_reserve_work() {
+    use crate::{
+        drill::skill_focus::DrillSkillTarget, learning::recommendations::RecommendationMode,
+    };
+    let (_dir, app) = app("http://127.0.0.1:9/v1");
+    let mut request = input();
+    request.variety = Some("spanish-spain".into());
+    for mode in [RecommendationMode::Explore, RecommendationMode::CoachChoice] {
+        request.skill_target = Some(DrillSkillTarget::Coach { mode });
+        let id = reserve(&app, request.clone()).unwrap();
+        let captured = previews::input(&app.lock().unwrap().connection, &id).unwrap();
+        let focus = captured.skill_focus.unwrap();
+        let selection = focus.recommendation.unwrap();
+        assert_eq!(selection.requested, mode);
+        assert_eq!(selection.selected, RecommendationMode::Explore);
+        assert_eq!(selection.skill.experience, 0);
+        assert_eq!(selection.skill.skill_id, focus.skill.id);
+    }
+    request.skill_target = Some(DrillSkillTarget::Coach {
+        mode: RecommendationMode::ContinuePracticing,
+    });
+    assert!(
+        reserve(&app, request.clone())
+            .unwrap_err()
+            .message
+            .contains("No retry effort")
+    );
+    request.skill_target = Some(DrillSkillTarget::Skill {
+        skill_id: "not_a_skill".into(),
+    });
+    assert!(reserve(&app, request).is_err());
+    let count: i64 = app
+        .lock()
+        .unwrap()
+        .connection
+        .query_row("SELECT count(*) FROM drill_previews", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(count, 2);
 }
 fn app(base: &str) -> (tempfile::TempDir, Arc<Application>) {
     let dir = tempfile::tempdir().unwrap();

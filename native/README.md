@@ -79,6 +79,16 @@ The app does not discover hidden server voice or processing changes. To discard
 retained audio, set cache capacity to zero, then restore the desired capacity;
 execution receipts survive. Accepted text and original recordings keep their
 existing durable owners.
+
+Scheduled correction feedback and repair checks use the same retained result store
+through `application/coaching_results.rs`. Exact request payloads, response schemas,
+validation inputs and access identity determine reuse; consumer attempt IDs do not.
+Concurrent consumers share one execution and each publishes through its own existing
+turn transaction. Successful results remain reusable until eviction; invalid responses
+and provider failures remain inspectable but are not reusable. An explicit retry may
+make a new request when no usable result exists. This path adds no automatic retry.
+Shared execution receipts count provider usage once across associated attempts.
+Other scheduled text tasks retain their existing grouped execution behavior.
 Generated reading text and transcription also use the shared local repository and
 pending subscriptions. Proposal generation uses shared execution receipts while
 remaining fresh for each explicit request; proposal text is not reusable cache data.
@@ -350,10 +360,34 @@ revalidates their source before adoption. Schema 36 uses fresh development data.
 
 ### Development data
 
-Schema 40 is the only supported format. Do not keep old DDL, format converters,
+Workspace format 41 is the only supported format. The version covers persisted
+JSON as well as SQL tables: bump `SCHEMA_VERSION` when either becomes incompatible.
+Startup rejects incompatible formats before loading product records and shows
+the existing Factory Reset action. Reset deletes local app data and closes the
+app; reopening creates a current workspace. Do not keep old DDL, format converters,
 versioned upgrade chains, persistent upgrade notices, or obsolete route variants.
 When a change invalidates stored development data, remove the affected feature's
 data rather than converting it. Review foreign keys, files and credential ownership
 first. A code/UI change alone does not require a reset. Keep workspace locking and
 explicit schema/integrity errors. Use a full reset only when a smaller cleanup is
 impractical; this is development authorization, not silent production data loss.
+
+### Speech configuration and captured routes
+
+`configuration/speech.rs` resolves language/variety preferences, learner model
+defaults and the shared speech capability catalog. `ai/connections/speech_routing.rs`
+combines that decision with the existing service access route. Recording, automatic
+persona speech, explicit message playback and reading/Drill reference speech all
+capture the selected model through this boundary; adapters do not select alternatives.
+Listed language matches take priority over models configured with
+`allow_unlisted_languages`. If no listed match is available, those models can be
+selected with reason `unlisted_language_attempt`, preserving the canonical tag.
+This is a best-effort request, not a claim of verified language support.
+
+`recording/preflight.rs` checks configured service availability before single or
+continuous capture. It holds no workspace lock during network or credential work,
+and revalidates the access revision and language context before opening the mic.
+The availability check is metadata-only, with no inference or quota reservation.
+Read-aloud validates the canonical language before queuing; the service checks its
+voice and credentials before inference. Provider failure does not trigger rerouting.
+See [speech content](../content/README.md#speech-routing) for authoring and precedence.

@@ -11,6 +11,7 @@ pub const DELIVERY_BYTES: usize = 16 * 1024 * 1024;
 
 #[derive(Debug, Clone)]
 pub struct Source {
+    pub language_tag: String,
     pub message_id: String,
     pub text: String,
     pub language: String,

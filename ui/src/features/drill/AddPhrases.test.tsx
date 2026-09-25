@@ -5,6 +5,9 @@ import { I18nProvider } from '../../components/localization/i18n'
 import { AddPhrases } from './AddPhrases'
 import type { DrillCandidate, DrillGenerationPreview } from '../../generated/contracts'
 
+const profiles = vi.hoisted(() => ({ getLearnerProfile: vi.fn() }))
+vi.mock('../../platform/ipc/learner-profile', () => profiles)
+
 const api = vi.hoisted(() => ({
   previewDrillItems: vi.fn(), acceptDrillItems: vi.fn(), discardDrillPreview: vi.fn(),
   conversationDrillCandidates: vi.fn(), getDrillPreview: vi.fn(), drillGenerationActivity: vi.fn(),
@@ -46,6 +49,24 @@ const open = (onAdded = vi.fn(async () => {}), onClose = vi.fn()) => {
   return onAdded
 }
 const generate = () => fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
+
+it('labels a nested rate limit and retries only the failed part of the saved batch', async () => {
+  api.previewDrillItems.mockResolvedValueOnce(preview())
+    .mockRejectedValueOnce({message:'Generation failed',diagnostics:{response:{choices:[{error:{code:429,message:'Temporarily limited'}}]}}})
+    .mockResolvedValueOnce(preview({requestId:'retried',candidates:[candidate({candidateId:'retried-phrase'})]}))
+  open()
+  fireEvent.click(screen.getByRole('checkbox', {name:'Word'}))
+  generate()
+  await screen.findByRole('button', {name:'Retry'})
+  expect(screen.getByRole('alert')).toHaveTextContent('Sorry, rate limited. Try again shortly.')
+  expect(api.previewDrillItems).toHaveBeenCalledTimes(2)
+  fireEvent.change(screen.getByLabelText('Topic (optional)'), {target:{value:'different topic'}})
+  fireEvent.click(screen.getByRole('button', {name:'Retry'}))
+  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledTimes(3))
+  expect(api.previewDrillItems.mock.calls[2][0]).toEqual(api.previewDrillItems.mock.calls[1][0])
+  expect(api.previewDrillItems.mock.calls[2][0].length).toBe('shortPhrase')
+  expect(screen.queryByRole('alert')).toBeNull()
+})
 
 it('never generates until asked, then sends length and difficulty as separate choices', async () => {
   open()
@@ -209,3 +230,23 @@ function conversationPreview(): DrillGenerationPreview {
 function fetchCalls() {
   return api.previewDrillItems.mock.calls.length + api.conversationDrillCandidates.mock.calls.length
 }
+
+it('sends a selected skill only after Generate and keeps the length choice', async () => {
+  profiles.getLearnerProfile.mockResolvedValue({ evidence: { catalog: [{id:'past_reference',label:'Refer to the past',kind:'skill'},{id:'root',label:'Root',kind:'root'}] } })
+  open()
+  fireEvent.change(screen.getByLabelText('Skill focus'), { target: { value: 'skill' } })
+  expect(screen.getByRole('button', { name: 'Generate' })).toBeDisabled()
+  await screen.findByRole('option', { name: 'Refer to the past' })
+  fireEvent.change(screen.getByLabelText('Skills'), { target: { value: 'past_reference' } })
+  expect(fetchCalls()).toBe(0)
+  generate()
+  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledWith(expect.objectContaining({skillTarget:{kind:'skill',skillId:'past_reference'},length:'shortPhrase'}),expect.any(AbortSignal)))
+})
+it('sends coach mode through the normal preview request without evaluating skills in the UI', async () => {
+  open()
+  fireEvent.change(screen.getByLabelText('Skill focus'), { target: { value: 'explore' } })
+  expect(fetchCalls()).toBe(0)
+  expect(profiles.getLearnerProfile).not.toHaveBeenCalled()
+  generate()
+  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledWith(expect.objectContaining({skillTarget:{kind:'coach',mode:'explore'}}),expect.any(AbortSignal)))
+})

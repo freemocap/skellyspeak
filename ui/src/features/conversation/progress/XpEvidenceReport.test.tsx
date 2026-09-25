@@ -22,11 +22,11 @@ function fixture() {
     chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english',
     source: 'Esa taza.', input: unreportedInput(), at_secs: 100, model: 'test', provider_mode: 'custom',
     catalog_version: snapshot.catalog_version, prompt_version: 'test', status: 'complete', error: null,
-    assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Esa', 'taza'], rationale: 'Identifies the cup.' }] },
+    assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Esa', 'taza'], rationale: 'Identifies the cup.' }] },
   }
   snapshot.records = [record, { ...record, attempt_id: 'other', chat_id: 'other', source: 'Otra taza.' }]
-  snapshot.profile.credits = snapshot.records.map(record => ({ attempt_id: record.attempt_id, skill_id: 'referent', xp: 10 }))
-  snapshot.profile.skills.find(skill => skill.skill_id === 'referent')!.xp = 20
+  snapshot.profile.credits = snapshot.records.map(record => ({ attempt_id: record.attempt_id, skill_id: 'identify_describe', xp: 10 }))
+  snapshot.profile.skills.find(skill => skill.skill_id === 'identify_describe')!.xp = 20
   snapshot.profile.xp = 20
   return snapshot
 }
@@ -47,22 +47,22 @@ it('reports whole-message evidence and excludes invalidated or uncredited attemp
   const snapshot = fixture()
   snapshot.records[0].assessment!.judgments[0].evidence_kind = 'whole_message'
   snapshot.records[0].assessment!.judgments[0].quotes = []
-  expect(xpReportCredits(snapshot, 'referent')).toHaveLength(2)
+  expect(xpReportCredits(snapshot, 'identify_describe')).toHaveLength(2)
   snapshot.profile.choices.excluded_attempts = ['a']
   snapshot.records[1].status = 'superseded'
-  expect(xpReportCredits(snapshot, 'referent')).toEqual([])
+  expect(xpReportCredits(snapshot, 'identify_describe')).toEqual([])
 })
 
 it('puts the skill list inside the scroll region and opens only that conversation’s examples', () => {
   const snapshot = fixture()
   const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selected: null, selectionVersion: 0, select: vi.fn() }}><ConversationProgress chatId="chat" /></PracticeContext></SkillEvidenceContext>)
-  const bar = screen.getByRole('progressbar', { name: 'Identify a referent practice XP' })
+  const bar = screen.getByRole('progressbar', { name: 'Identify and describe practice XP' })
   expect(bar.closest('.analysis-scroll')).toBe(view.container.querySelector('.conversation-evidence'))
   fireEvent.click(bar)
-  const report = screen.getByRole('dialog', { name: 'Identify a referent' })
+  const report = screen.getByRole('dialog', { name: 'Identify and describe' })
   expect(within(report).getByText('Esa taza.')).toBeVisible()
   expect(within(report).queryByText('Otra taza.')).toBeNull()
-  fireEvent.click(within(report).getByRole('button', { name: 'Close Identify a referent' }))
-  fireEvent.click(screen.getByRole('progressbar', { name: 'Greet and say goodbye practice XP' }))
-  expect(within(screen.getByRole('dialog', { name: 'Greet and say goodbye' })).getByText('No credited messages.')).toBeVisible()
+  fireEvent.click(within(report).getByRole('button', { name: 'Close Identify and describe' }))
+  fireEvent.click(screen.getByRole('progressbar', { name: 'Express quantity practice XP' }))
+  expect(within(screen.getByRole('dialog', { name: 'Express quantity' })).getByText('No credited messages.')).toBeVisible()
 })

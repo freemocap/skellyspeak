@@ -222,7 +222,7 @@
   --dur-base: 200ms;
   --dur-slow: 320ms;
   --dur-deliberate: 800ms;
-  --dur-xp-card-hold: 2s;     /* Fast mode XP card lifetime; XP_CARD_HOLD_MS in XpArrivalCard.tsx */
+  --dur-xp-payout: 650ms;     /* One point burst; XP_PAYOUT_LIFETIME_MS in RewardPresentation.tsx */
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-spin: 800ms;

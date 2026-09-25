@@ -12,6 +12,7 @@ pub(crate) mod reference;
 pub mod reliability;
 pub mod retention;
 pub mod sessions;
+pub mod skill_focus;
 
 use crate::model::*;
 use crate::speech::recording::owner::RecordingOwner;

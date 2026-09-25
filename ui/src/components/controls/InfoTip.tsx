@@ -2,9 +2,10 @@ import { useI18n } from '../localization/i18n'
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 /** A top-layer popover escapes scroll clipping and remains usable by touch/keyboard. */
-export function InfoTip({ children }: { children: ReactNode }) {
+export function InfoTip({ children, onOpenChange }: { children: ReactNode; onOpenChange?: (open: boolean) => void }) {
   const tr = useI18n()
   const [open, setOpen] = useState(false)
+  useEffect(() => { onOpenChange?.(open) }, [open, onOpenChange])
   const anchor = useRef<HTMLButtonElement>(null)
   const tip = useRef<HTMLSpanElement>(null)
   const shown = useRef(false)
@@ -31,7 +32,7 @@ export function InfoTip({ children }: { children: ReactNode }) {
     element.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))}px`
     const height = element.getBoundingClientRect().height
     element.style.top = `${Math.max(8, rect.bottom + height + 8 > window.innerHeight ? rect.top - height - 4 : rect.bottom + 4)}px`
-  }, [open])
+  }, [open, children])
   return <span className="info-tip" onMouseEnter={() => setOpen(true)} onMouseLeave={() => { if (!pinned.current) setOpen(false) }}>
     <button ref={anchor} type="button" aria-label={tr("Information")} aria-describedby={open ? id : undefined} aria-expanded={open} onFocus={() => setOpen(true)} onBlur={event => { if (!tip.current?.contains(event.relatedTarget as Node)) close() }} onClick={() => { pinned.current = !pinned.current; setOpen(pinned.current) }} onKeyDown={event => { if (event.key === 'Escape') close() }}>ⓘ</button>
     <span ref={tip} id={id} className="info-tip-content" role="tooltip" popover="manual">{children}</span>

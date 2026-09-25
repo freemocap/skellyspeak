@@ -1,0 +1,191 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  GuideExample:
+    additionalProperties: false
+    properties:
+      meaning:
+        type: string
+      note:
+        type: string
+      text:
+        type: string
+    required:
+    - meaning
+    - note
+    - text
+    type: object
+  GuideOrigin:
+    enum:
+    - human
+    - ai
+    - mixed
+    type: string
+  GuideSection:
+    additionalProperties: false
+    properties:
+      text:
+        type: string
+      title:
+        type: string
+    required:
+    - text
+    - title
+    type: object
+  GuideTarget:
+    oneOf:
+    - additionalProperties: false
+      properties:
+        kind:
+          enum:
+          - script
+          type: string
+        script:
+          type: string
+      required:
+      - kind
+      - script
+      type: object
+    - additionalProperties: false
+      properties:
+        kind:
+          enum:
+          - reading
+          type: string
+        language:
+          type: string
+      required:
+      - kind
+      - language
+      type: object
+    - additionalProperties: false
+      properties:
+        kind:
+          enum:
+          - skill
+          type: string
+        language:
+          type: string
+        skill:
+          type: string
+      required:
+      - kind
+      - language
+      - skill
+      type: object
+  GuideVariant:
+    additionalProperties: false
+    description: A connected realization of the language-wide core, never a replacement guide.
+    properties:
+      authorship:
+        type: string
+      examples:
+        items:
+          $ref: '#/definitions/GuideExample'
+        type: array
+      guidance:
+        type: string
+      origin:
+        $ref: '#/definitions/GuideOrigin'
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sections:
+        items:
+          $ref: '#/definitions/GuideSection'
+        type: array
+      sources:
+        items:
+          type: string
+        type: array
+      summary:
+        type: string
+      variety:
+        type: string
+    required:
+    - authorship
+    - examples
+    - guidance
+    - origin
+    - review
+    - sections
+    - sources
+    - summary
+    - variety
+    type: object
+  ReviewStatus:
+    enum:
+    - needs_review
+    - reviewed
+    type: string
+  TeachingGuide:
+    additionalProperties: false
+    properties:
+      authorship:
+        type: string
+      examples:
+        items:
+          $ref: '#/definitions/GuideExample'
+        type: array
+      explanation_language:
+        type: string
+      guidance:
+        description: Compact authored guidance; not automatically added to existing prompts.
+        type: string
+      id:
+        type: string
+      origin:
+        $ref: '#/definitions/GuideOrigin'
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sections:
+        items:
+          $ref: '#/definitions/GuideSection'
+        type: array
+      shared_guides:
+        items:
+          type: string
+        type: array
+      sources:
+        items:
+          type: string
+        type: array
+      summary:
+        type: string
+      target:
+        $ref: '#/definitions/GuideTarget'
+      title:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/GuideVariant'
+        type: array
+    required:
+    - authorship
+    - examples
+    - explanation_language
+    - guidance
+    - id
+    - origin
+    - review
+    - sections
+    - shared_guides
+    - sources
+    - summary
+    - target
+    - title
+    - variants
+    type: object
+properties:
+  guides:
+    items:
+      $ref: '#/definitions/TeachingGuide'
+    type: array
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+required:
+- guides
+- schema_version
+title: GuideDocument
+type: object

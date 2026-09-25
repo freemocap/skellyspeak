@@ -767,6 +767,7 @@ mod tests {
                 decisions: None,
 
                 target: crate::ai::connections::access::ResolvedTarget {
+                    audio_resolution: None,
                     route,
                     revision: 1,
                     url,
@@ -1019,6 +1020,7 @@ mod delta_tests {
         crate::ai::transport::text_request::TextRequest {
             temperature: 0.7,
             target: crate::ai::connections::access::ResolvedTarget {
+                audio_resolution: None,
                 route: crate::model::ConnectionRoute::Custom,
                 revision: 1,
                 url,

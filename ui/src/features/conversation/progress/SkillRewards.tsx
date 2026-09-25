@@ -52,13 +52,12 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     setQueue(items => [...items.filter(item => snapshot.profile.credits.some(credit => `${credit.attempt_id}:${credit.skill_id}` === item.id)), ...accepted])
     }
     if (!rewards.length) return
-    if (snapshot.profile.rules_version === 2) {
-      const finishClaim = beginClaim?.()
-      void claimRewardEvents(snapshot.target, rewards.map(r=>r.id)).then(events => {
-        setClaimError(null)
-        present(rewards.filter(reward=>events.some(event=>event.id===reward.id)))
-      }).catch(reason=>setClaimError(nativeError(reason))).finally(() => finishClaim?.())
-    } else present(rewards)
+    if (snapshot.profile.rules_version !== 3) throw new Error('Unsupported practice reward rules')
+    const finishClaim = beginClaim?.()
+    void claimRewardEvents(snapshot.target, rewards.map(r=>r.id)).then(events => {
+      setClaimError(null)
+      present(rewards.filter(reward=>events.some(event=>event.id===reward.id)))
+    }).catch(reason=>setClaimError(nativeError(reason))).finally(() => finishClaim?.())
 
   }, [snapshot, chatId, error, active, arrive, beginClaim])
   const reward = queue[0]

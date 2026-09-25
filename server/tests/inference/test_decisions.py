@@ -33,7 +33,7 @@ def test_invalid_requests_rejected_before_admission(change):
     body = fixture()
     if change == 'model': body['model'] = 'arbitrary/provider'
     elif change == 'extra': body['provider'] = {'allow_fallbacks': True}
-    elif change == 'coverage': body['questions'].pop(next(iter(body['questions'])))
+    elif change == 'coverage': body['questions'].clear()
     elif change == 'nan': body['state']['input']['suggestion'] = float('nan')
     elif change == 'large': body['state']['currentLearnerMessage'] = 'x' * 30_000
     else: body['state']['precedingExchange'] = [{'role': [], 'content': 'x'}]
@@ -94,3 +94,16 @@ def test_context_limit_uses_native_compact_utf8_byte_count():
     body['state']['currentLearnerMessage'] += 'x'
     with pytest.raises(HTTPException):
         decisions.request(body)
+
+
+@pytest.mark.parametrize('count', [0, 1, 12, 64, 65])
+def test_presence_question_count_is_bounded_without_a_fixed_catalog(count):
+    body = fixture()
+    question = next(iter(body['questions'].values()))
+    question['instructions'] = 'Assess this skill.'
+    body['questions'] = {f'skill_{i}': question for i in range(count)}
+    if 1 <= count <= 64:
+        assert len(decisions.request(body).payload['questions']) == count
+    else:
+        with pytest.raises(HTTPException):
+            decisions.request(body)

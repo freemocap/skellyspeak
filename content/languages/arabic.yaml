@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: arabic
@@ -15,64 +15,65 @@ definitions:
     arabic-vocalized:
       script: arabic
       guidance:
-      - scope: target_writing
-        text: Write all newly generated Arabic in Arabic script with full vowel marks
-          (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and
-          tanwin wherever appropriate to the selected variety and intended pronunciation; do not
-          default to unvocalized text. For Levantine, vocalize the spoken dialect without adding
-          Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
-          grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
-          exactly as written; this exception does not apply to newly generated replies, examples or
-          corrections.
-        sources:
-        - unicode17_arabic
-      - scope: explanation_writing
-        text: Write all newly generated Arabic in Arabic script with full vowel marks
-          (tashkil/harakat) at every difficulty level. Include short vowels, shadda, sukun and
-          tanwin wherever appropriate to the selected variety and intended pronunciation; do not
-          default to unvocalized text. For Levantine, vocalize the spoken dialect without adding
-          Modern Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
-          grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
-          exactly as written; this exception does not apply to newly generated replies, examples or
-          corrections.
-        sources:
-        - unicode17_arabic
+        - scope: target_writing
+          text: Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at
+            every difficulty level. Include short vowels, shadda, sukun and tanwin wherever
+            appropriate to the selected variety and intended pronunciation; do not default to
+            unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern
+            Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
+            grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+            exactly as written; this exception does not apply to newly generated replies, examples
+            or corrections.
+          sources:
+            - unicode17_arabic
+        - scope: explanation_writing
+          text: Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at
+            every difficulty level. Include short vowels, shadda, sukun and tanwin wherever
+            appropriate to the selected variety and intended pronunciation; do not default to
+            unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern
+            Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
+            grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+            exactly as written; this exception does not apply to newly generated replies, examples
+            or corrections.
+          sources:
+            - unicode17_arabic
   romanization_schemes:
     ala-lc-arabic:
       label: ALA-LC Arabic
-      instructions: Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use
-        th, kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct
-        signs); omit initial hamzah. Retain al- before sun letters without assimilation; after inseparable
-        prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside construct state,
-        t in construct state, tan in adverbial use. Omit noun/adjective case vowels except before pronominal
-        suffixes or in verse. Normally omit tanwīn, retaining it for indefinite defective-root nouns and
-        adverbials. Retain verb final inflections except in pause. For shaddah use ūw or aww over wāw,
-        medial īy or ayy over yā’, and final ī for the nisbah; otherwise double the consonant or digraph.
-        Use ʹ to separate adjacent consonants that could be mistaken for a digraph. These are transliteration
-        rules, not a pronunciation respelling. Never alter the Arabic source.
+      instructions: Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th,
+        kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct
+        signs); omit initial hamzah. Retain al- before sun letters without assimilation; after
+        inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside
+        construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels
+        except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for
+        indefinite defective-root nouns and adverbials. Retain verb final inflections except in
+        pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the
+        nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants
+        that could be mistaken for a digraph. These are transliteration rules, not a pronunciation
+        respelling. Never alter the Arabic source.
       examples:
-      - original: كتاب
-        romanized: kitāb
-      - original: صورة
-        romanized: ṣūrah
-      - original: على
-        romanized: ‘alá
-      - original: مسألة
-        romanized: mas’alah
-      - original: إيمان
-        romanized: īmān
-      - original: الشمس
-        romanized: al-shams
-      - original: وزارة التربية
-        romanized: Wizārat al-Tarbiyah
-      - original: فجأةً
-        romanized: faj’atan
-      - original: قاضٍ
-        romanized: qāḍin
-      - original: أدهم
-        romanized: Adʹham
+        - original: كتاب
+          romanized: kitāb
+        - original: صورة
+          romanized: ṣūrah
+        - original: على
+          romanized: ‘alá
+        - original: مسألة
+          romanized: mas’alah
+        - original: إيمان
+          romanized: īmān
+        - original: الشمس
+          romanized: al-shams
+        - original: وزارة التربية
+          romanized: Wizārat al-Tarbiyah
+        - original: فجأةً
+          romanized: faj’atan
+        - original: قاضٍ
+          romanized: qāḍin
+        - original: أدهم
+          romanized: Adʹham
       sources:
-      - ala_lc_arabic
+        - ala_lc_arabic
       review: needs_review
 defaults:
   variety: arabic-levantine
@@ -85,37 +86,473 @@ defaults:
     scheme:
       local: ala-lc-arabic
   supported_romanizations:
-  - local: ala-lc-arabic
+    - local: ala-lc-arabic
 traits:
-- abjad-vowel-omission
-- construct-state
+  - abjad-vowel-omission
+  - construct-state
 varieties:
-- id: arabic-levantine
-  name: Levantine
-  description: Conversational Levantine Arabic; regional coverage remains under review.
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
-- id: arabic-modern-standard
-  name: Modern Standard
-  description: Modern Standard Arabic
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: arabic-levantine
+    name: Levantine
+    description: Conversational Levantine Arabic; regional coverage remains under review.
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
+  - id: arabic-modern-standard
+    name: Modern Standard
+    description: Modern Standard Arabic
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 guidance:
-- scope: assessment
-  text: 'For Arabic learner evidence, copy quotes character-for-character: never add diacritics, normalize
-    letters, correct spelling, or translate quotes. Put corrections only in correction.'
-  sources:
-  - ryding2005
+  - scope: assessment
+    text: 'For Arabic learner evidence, copy quotes character-for-character: never add diacritics,
+      normalize letters, correct spelling, or translate quotes. Put corrections only in correction.'
+    sources:
+      - ryding2005
 learning:
+  skill_guides:
+    past_reference:
+      core:
+        assessment: Judge the expressed time relationship in context, including past states and ongoing
+          activities. A form alone does not establish past reference.
+        explanation: Arabic can locate an event in the past with a verb form, a time expression, or an
+          already established context. A past scene can include both completed events and ongoing
+          states.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine Arabic past meaning can come from verb forms, time expressions such as مبارح,
+            and conversation context. Past states or ongoing activities can use كان constructions. A
+            past-looking form alone is insufficient in hypothetical contexts; assess the meaning in
+            the selected spoken variety.
+          explanation: >-
+            ### Report an event, then describe the background
+
+
+            Use a past verb to report what happened. A time word such as `مبارح` (yesterday) makes
+            the time explicit. For a state that held then, a form of `كان` can set it in the past.
+
+
+            ### The speaker matters
+
+
+            In these examples the endings identify the speaker as “I.” The waiting example uses a
+            masculine speaker's form; a woman would use `ناطرة`.
+          examples:
+            - text: مبارح رحت عالسوق.
+              translation: Yesterday I went to the market.
+              context: A past event.
+            - text: كنت ناطر التاكسي.
+              translation: I was waiting for the taxi.
+              context: A past state, said by a male speaker.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources:
+        - nassraLevantinePast20260924
+    possession_relationships:
+      core:
+        assessment: Arabic expresses possession and other relationships through constructions whose forms
+          depend on the selected variety. Interpret ownership, kinship, assignment and use in
+          context.
+        explanation: Arabic connects people and things by placing nouns together or attaching a pronoun to a
+          noun. These relationships include family and association as well as ownership.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine Arabic can express ownership, kinship, assignment or use with noun
+            relationships, attached pronouns and expressions such as إلو or تبع. Interpret the
+            relationship in context, not only physical ownership. Short replies can rely on the
+            preceding question.
+          explanation: >-
+            ### Attach the owner to the noun
+
+
+            An ending can do the work of English “my”: compare the book and sister examples. The
+            relationship comes from the meaning of the noun; a family relationship is not ownership.
+
+
+            ### Say what you have
+
+
+            Use `عندي` for “I have.” It can introduce something available to you, including time,
+            rather than only an object you own.
+          examples:
+            - text: كتابي هون.
+              translation: My book is here.
+              context: The ending on book means my.
+            - text: أختي هون.
+              translation: My sister is here.
+              context: The same relationship pattern with a person.
+            - text: عندي وقت.
+              translation: I have time.
+              context: Describe what is available.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    identify_describe:
+      core:
+        assessment: Arabic identifies and describes people and things through noun phrases, modifiers and
+          predication; the concrete forms depend on the variety.
+        explanation: A present description can join a person or thing directly to a quality or location.
+          Arabic does not always need a separate word corresponding to English “is.” Adjectives
+          normally follow the noun they describe.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, a present nominal description need not contain a verb corresponding to
+            English is.
+          explanation: >-
+            ### A description without “is”
+
+
+            In Levantine conversation, put the person or thing before its description. Compare the
+            two examples: the first describes a room; the second locates a person. Neither needs an
+            extra present-tense “is.”
+
+
+            ### Match the description
+
+
+            Many adjectives change for masculine and feminine nouns. Here the room is grammatically
+            feminine, so its adjective has a feminine ending.
+          examples:
+            - text: الغرفة كبيرة.
+              translation: The room is large.
+              context: Describe the room.
+            - text: أحمد بالبيت.
+              translation: Ahmad is at home.
+              context: Say where someone is.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Arabic expresses amounts and portions through numerals, quantifiers and noun
+          constructions whose forms vary by variety.
+        explanation: Arabic distinguishes counts from amounts. Nouns can also carry number information
+          themselves, including forms that refer specifically to two.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, singular, dual and plural forms can contribute quantity; numeral agreement
+            is not a condition for presence.
+          explanation: >-
+            ### One, two, or an amount
+
+
+            In Levantine, a dual noun can mean two without adding a separate word for “two.” Learn
+            the dual together with its singular. For an uncounted amount, `شوي` can mean “a little.”
+
+
+            ### Learn number phrases together
+
+
+            Larger numbers interact with the noun's form. Start with complete phrases you actually
+            need, rather than assuming the noun stays unchanged after every number.
+          examples:
+            - text: عندي كتابين.
+              translation: I have two books.
+              context: The noun ending expresses two.
+            - text: بدي شوي مي.
+              translation: I want a little water.
+              context: An amount rather than separate items.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Arabic expresses current states, activities and habits through constructions interpreted
+          in their time context.
+        explanation: Arabic distinguishes states, habits and activities underway through the construction
+          and the surrounding context. A description of a current state need not use an action verb.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, b-prefixed verbs, عم constructions and some active participles can
+            contribute present meaning.
+          explanation: >-
+            ### Routine and action in progress
+
+
+            A verb with `بـ` commonly describes a habit or ordinary present activity. `عم` can draw
+            attention to an action underway. Listen for the whole phrase: the form used after `عم`
+            varies within Levantine.
+
+
+            ### Do not add a verb unnecessarily
+
+
+            A current location or description can stand without an equivalent of “am” or “is.” Use
+            the action pattern when there is an action to describe.
+          examples:
+            - text: بشتغل هون.
+              translation: I work here.
+              context: An ordinary working arrangement.
+            - text: عم بشتغل.
+              translation: I am working.
+              context: Focus on the activity underway.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources:
+        - nassraLevantinePresentFuture20260924
+        - aldrichLevantineVerbs20260925
+    future_reference:
+      core:
+        assessment: Arabic future reference can be established by a construction, a time expression or the
+          conversation context.
+        explanation: Arabic can talk about a later time through a future construction, a time expression or
+          a plan already established in conversation. The spoken form depends on the variety.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine رح can mark future reference; context can also establish future time. Do not
+            require MSA سـ or سوف.
+          explanation: >-
+            ### Put the plan after رح
+
+
+            A common Levantine future pattern uses `رح` before the verb. The following verb normally
+            does not carry the ordinary present `بـ` prefix. Compare working as a routine with
+            working tomorrow.
+
+
+            ### Make the time explicit
+
+
+            A word such as `بكرا` (tomorrow) makes a useful starting point when arranging a time.
+            Pronunciation and spelling vary across Levantine communities.
+          examples:
+            - text: بشتغل هون.
+              translation: I work here.
+              context: Present routine.
+            - text: رح اشتغل هون بكرا.
+              translation: I will work here tomorrow.
+              context: Future plan.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources:
+        - nassraLevantinePresentFuture20260924
+        - aldrichLevantineVerbs20260925
+    wants_preferences:
+      core:
+        assessment: Arabic can express desires, likes and preferences; identify the person and the desired
+          or preferred thing.
+        explanation: Arabic distinguishes wanting something from liking it. Both can be followed by a thing
+          or by an activity, using the patterns of the spoken variety.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine بدي expresses wanting. Distinguish the desire from a prediction or an implied
+            request.
+          explanation: >-
+            ### Wanting and liking
+
+
+            `بدي` expresses “I want”; `بحب` can express “I like” or “I love.” The context tells you
+            how strong the feeling is. A want can concern an object or an action.
+
+
+            ### Follow a want with an action
+
+
+            After `بدي`, use the action verb without the ordinary present `بـ` prefix. The two verbs
+            are part of one pattern, not two independent statements.
+          examples:
+            - text: بدي أشرب قهوة.
+              translation: I want to drink coffee.
+              context: A desired action.
+            - text: بحب القهوة.
+              translation: I like coffee.
+              context: A general preference.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Arabic can express ability, permission and necessity with variety-specific expressions;
+          these are distinct meanings within this skill.
+        explanation: Being able to act, being allowed to act and having to act are different meanings.
+          Arabic has expressions for each, and context helps distinguish ability from permission.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, بقدر can express ability and لازم necessity. Interpret permission from the
+            utterance in context.
+          explanation: >-
+            ### Ability and necessity
+
+
+            Use `بقدر` for “I can” and `لازم` for something necessary. The following action normally
+            uses a verb without the ordinary present `بـ` prefix.
+
+
+            ### Ask for permission
+
+
+            A question beginning with `ممكن` can ask whether an action is allowed or possible. In a
+            real conversation, tone and the setting tell the listener which you mean.
+          examples:
+            - text: بقدر أجي بكرا.
+              translation: I can come tomorrow.
+              context: Ability or availability.
+            - text: لازم أروح.
+              translation: I have to go.
+              context: Necessity.
+            - text: ممكن أفوت؟
+              translation: May I come in?
+              context: Permission at a doorway.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Arabic affirmation and negation depend on the proposition and its scope, with
+          variety-specific constructions.
+        explanation: To negate a statement, Arabic uses a negative construction suited to the kind of
+          statement. The negative word used with a verb may differ from the one used with a
+          description.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine uses ما for verbal negation and مو or مش in other constructions, with regional
+            variation. Do not demand one regional form.
+          explanation: >-
+            ### Negate an action or a description
+
+
+            A common Levantine pattern puts `ما` before a verb and `مش` before a description. Learn
+            these as two patterns rather than inserting the same negative word everywhere.
+
+
+            ### Expect regional forms
+
+
+            You will also hear `مو` in descriptions, especially in northern Levantine speech. The
+            examples use `مش`; that does not make other local forms incorrect.
+          examples:
+            - text: ما بعرف.
+              translation: I do not know.
+              context: Negate a verb.
+            - text: أنا مش جاهز.
+              translation: I am not ready.
+              context: Negate a description; male speaker.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources:
+        - aldrichLevantineVerbs20260925
+    questions_answers:
+      core:
+        assessment: Arabic information questions and their answers can be explicit or context-dependent;
+          question words differ across varieties.
+        explanation: Arabic questions can ask for a missing person, place, time or reason. A short reply can
+          supply only that missing information when the question has already established the rest.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Levantine شو, مين and وين are possible question words. A relevant short answer can
+            express this skill without repeating the question.
+          explanation: >-
+            ### Ask for a place or a reason
+
+
+            In Levantine, `وين` asks “where?” and `ليش` asks “why?” Place the question word in a
+            natural question phrase; you do not need to translate the English auxiliary “do.”
+
+
+            ### Answer only what is needed
+
+
+            A place phrase can answer a location question. Repeating the entire sentence is
+            possible, but not required for a useful conversational answer.
+          examples:
+            - text: وين المحطة؟
+              translation: Where is the station?
+              context: Ask for a location.
+            - text: جنب الفندق.
+              translation: Next to the hotel.
+              context: Answer the location question.
+            - text: ليش تأخرت؟
+              translation: Why were you late?
+              context: Ask one male addressee for a reason.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Arabic requests and responses can use direct commands, question-shaped requests,
+          acceptance, refusal or negotiation.
+        explanation: A request asks someone to do something. Questions about possibility and direct action
+          forms can both function as requests; politeness depends on phrasing, tone and the
+          relationship.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: Interpret the action in the Levantine exchange. A question about capability is not
+            always a request to act.
+          explanation: >-
+            ### Ask for an action
+
+
+            `ممكن` followed by an action is a useful request pattern. `لو سمحت` adds “please” or “if
+            you would.” The action verb changes for the person you address.
+
+
+            ### Listen for the response
+
+
+            A request invites an action, not just a statement about someone's ability. In the first
+            example, the expected response is slower speech.
+          examples:
+            - text: ممكن تحكي شوي شوي؟
+              translation: Could you speak slowly?
+              context: Address one male speaker.
+            - text: افتح الباب، لو سمحت.
+              translation: Open the door, please.
+              context: A direct request to one male addressee.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Arabic can connect situations through reasons or conditions, using constructions
+          appropriate to the selected variety.
+        explanation: A reason explains why something happens. A condition says that one situation depends on
+          another. Arabic can connect clauses to express either relationship.
+        examples: []
+      varieties:
+        arabic-levantine:
+          assessment: In Levantine, لأنو can introduce a reason and إذا a condition. A sequence of events
+            alone supplies neither relation.
+          explanation: >-
+            ### Because and if
+
+
+            Use `لأنّ` for a reason and `إذا` for a condition. Compare a reason for staying with a
+            plan that depends on having time.
+
+
+            ### Keep the dependency clear
+
+
+            The part after “if” is the condition, not a claim that it has already happened. Begin
+            with ordinary possibilities before tackling hypothetical situations.
+          examples:
+            - text: رح ضل هون لأنّي تعبان.
+              translation: I will stay here because I am tired.
+              context: A reason; male speaker.
+            - text: إذا عندي وقت، رح أجي.
+              translation: If I have time, I will come.
+              context: A condition on the plan.
+      review: needs_review
+      authorship: AI-authored teaching draft. Original examples; speaker review pending.
+      sources: []
   goal_material:
     courtesy:
       tokens:
-      - شكرًا
-      - شكرا
+        - شكرًا
+        - شكرا
 conversation:
   greeting:
     text: مَرْحَبًا
@@ -127,30 +564,30 @@ conversation:
     age: 29
     location: Amman, Jordan
     occupation: Architect at a firm that restores old buildings
-    background: Studied in Amman and spent a year in Tunis. Lives with her grandmother, who does most
-      of the cooking and all of the opinions.
-    currentSituation: Documenting a 1930s house before it is renovated, and learning to make her grandmother's
-      maqluba.
+    background: Studied in Amman and spent a year in Tunis. Lives with her grandmother, who does most of
+      the cooking and all of the opinions.
+    currentSituation: Documenting a 1930s house before it is renovated, and learning to make her
+      grandmother's maqluba.
     interests:
-    - sketching doorways
-    - old maps
-    - oud music
-    - walking the same hill every Friday
+      - sketching doorways
+      - old maps
+      - oud music
+      - walking the same hill every Friday
     opinions:
-    - New buildings should be shorter.
-    - Mint belongs in almost everything.
+      - New buildings should be shorter.
+      - Mint belongs in almost everything.
     interestingFacts:
-    - Can read the decade a building was built from its stonework.
+      - Can read the decade a building was built from its stonework.
     favoriteBooks:
-    - Season of Migration to the North — Tayeb Salih
-    - The Cairo Trilogy — Naguib Mahfouz
+      - Season of Migration to the North — Tayeb Salih
+      - The Cairo Trilogy — Naguib Mahfouz
     favoriteMovies:
-    - Theeb (2014)
-    - Cairo Station (1958)
+      - Theeb (2014)
+      - Cairo Station (1958)
     manner: Curious and direct. Asks precise questions and laughs easily.
     quirks:
-    - Photographs doors wherever she goes.
+      - Photographs doors wherever she goes.
     vibe:
-    - 🏛️
-    - 🎻
-    - 🌿
+      - 🏛️
+      - 🎻
+      - 🌿

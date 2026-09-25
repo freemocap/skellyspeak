@@ -1,3 +1,4 @@
+import { MessageSkillAnalysis } from './MessageSkillAnalysis'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { MixedText } from '../../../components/reading/MixedText'
 import { Markdown } from '../../../components/reading/Markdown'
@@ -8,7 +9,7 @@ import { ReadingExample } from '../../../components/reading/ReadingExample'
 import { SavedReadingProvider } from '../../../components/reading/SavedReadingProvider'
 import { useReadingScope } from '../../../components/reading/ReadingContext'
 import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useEffect, useRef } from 'react'
 import { HelpStatus, useHelpRequest } from '../composer/HelpRequest'
 import { requestReplyHelp } from '../composer/TurnReplyHelp'
 import { MessageReadingScope } from './MessageReadingScope'
@@ -44,6 +45,14 @@ export const AnalysisContent = memo(function AnalysisContent({
   const lane = a?.help?.lanes.grammar ?? { state: a?.explanationsState ?? null }
   const eligible = a?.messageId && conversationId && !['cancelled','invalidated'].includes(lane.state ?? '')
   const request = useHelpRequest(lane, eligible ? () => requestReplyHelp(conversationId!, a!.messageId!, 'grammar') : undefined)
+  const requested = useRef('')
+  useEffect(() => {
+    if (!eligible || lane.state !== null || request.pending || request.failure || a?.mechanics.length) return
+    const key = `${conversationId}:${a!.messageId}`
+    if (requested.current === key) return
+    requested.current = key
+    request.submit(() => requestReplyHelp(conversationId!, a!.messageId!, 'grammar'))
+  }, [eligible, lane.state, request.pending, request.failure, request.submit, conversationId, a])
   const sources = useMemo(() => scope && a ? [
     {scope:a.help?.scope ?? scope, text:a.reply, segments:a.savedGloss?.segments ?? anchoredTokenGlosses(a.reply,a.tokens)},
     ...(turn.user ? [{scope:a.help?.scope ?? scope,text:turn.user,segments:turn.userSavedGloss?.segments ?? anchoredTokenGlosses(turn.user,a.user_tokens)}] : []),
@@ -75,13 +84,13 @@ export const AnalysisContent = memo(function AnalysisContent({
         </div>
       )}
 
-      {a.help && <>
-        {eligible && lane.state === null && <button className="btn" disabled={request.pending} onClick={request.toggle}>{tr('Explain grammar')}</button>}
+      {(a.help || eligible) && <>
         <HelpStatus lane={lane} pending={request.pending} failure={request.failure} label={tr('Working out the grammar…')}
           onRetry={eligible ? () => request.submit(() => requestReplyHelp(conversationId!, a.messageId!, 'grammar', true)) : undefined}
           onInspect={conversationId ? () => useNavigationStore.getState().inspectAi({conversationId, turnId:turn.turnId ?? null, operationKind:'reply_explanations'}) : undefined} />
-        {a.help.grammar?.cards.length === 0 && lane.state === 'succeeded' && <p>{tr('Nothing to flag in this reply.')}</p>}
+        {a.help?.grammar?.cards.length === 0 && lane.state === 'succeeded' && <p>{tr('Nothing to flag in this reply.')}</p>}
       </>}
+      {turn.user && <MessageSkillAnalysis messageId={turn.id} source={turn.user} conversationId={conversationId} />}
       {a.mechanics.length > 0 && (
         <>
           <p className="sect-k">{tr("What's happening")}</p>

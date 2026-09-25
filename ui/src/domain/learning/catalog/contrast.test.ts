@@ -75,7 +75,7 @@ for (const theme of Object.keys(themes)) {
   })
   it(`keeps evidence and XP badge text readable in ${theme}`, async () => {
     const { domainColors } = await import('./skill-domains')
-    for (const domain of ['social', 'properties', 'reference', 'time', 'operators', 'connections']) {
+    for (const domain of ['people_things', 'time_events', 'wants_choices', 'questions_conversation']) {
       const palette = domainColors(domain)
       for (const background of ['sheet', 'bubble-learner-bg']) {
         expect(contrast(c(palette.ink), c(background)), `${domain} on ${background}`).toBeGreaterThanOrEqual(4.5)

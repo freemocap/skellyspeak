@@ -74,7 +74,9 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     return stop
   }, [stop, scope?.language, scope?.variety, scope?.explanation, scope?.explanationVariety])
   const inspect = useCallback((next: ReadingSelection) => { stop(); setSelection(next) }, [stop])
+  const lastSpeech = useRef<ReadingSelection | null>(null)
   const speak = useCallback((next: ReadingSelection) => {
+    lastSpeech.current = next
     stop(); setSpeechError(null); setSpeechReceipt(null); setLoadingAudio(true)
     const controller = new AbortController(); speech.current = controller
     setSpeaking(speechKey(next))
@@ -97,7 +99,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} services={services} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
     {(speechError != null || speechReceipt != null || speaking != null) && <div ref={audioStatus} popover="manual" className="reading-audio-status" data-reading-tools>
       {speaking && <><span role="status">{tr(loadingAudio ? 'Loading speech…' : 'Reading aloud…')}</span><button className="btn" onClick={stop}>{tr('Stop reading')}</button></>}
-      {speechError != null && <ErrorNotice error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
+      {speechError != null && <ErrorNotice onRetry={() => { if (lastSpeech.current) speak(lastSpeech.current) }} error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
       {speechReceipt != null && <ResponseDetails value={speechReceipt} />}
       {!speaking && <button className="btn" onClick={() => { setSpeechError(null); setSpeechReceipt(null) }}>{tr('Close')}</button>}
     </div>}
@@ -108,6 +110,10 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   const tr = useI18n()
   const lookup = useContext(ReadingLookupContext)!
   const peek = useContext(ReadingPeekContext)
+  // Saved-source refreshes replace these functions without changing the question.
+  // They must not cancel an in-flight request for the open inspector.
+  const readers = useRef({ lookup, peek })
+  readers.current = { lookup, peek }
   const [scope, setScope] = useState(selection.scope)
   const [result, setResult] = useState<ReadingResult | null>(null)
   const [failure, setFailure] = useState<unknown>(null)
@@ -116,6 +122,7 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   const [activity, setActivity] = useState<unknown>(null)
   const lastRequest = useRef<string | null>(null)
   useEffect(() => {
+    const { lookup, peek } = readers.current
     const requestKey = JSON.stringify([scope, selection.text, attempt])
     const saved = peek({...scope, text:selection.text, aid:'word_gloss'})
     if (saved && (attempt === 0 || lastRequest.current === requestKey)) { setResult(saved); setFailure(null); setPending(false); return }
@@ -129,7 +136,7 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
       .catch(error => { if (!controller.signal.aborted) setFailure(error) })
       .finally(() => { if (!controller.signal.aborted) setPending(false) })
     return () => controller.abort()
-  }, [scope, attempt, selection.text, lookup, peek])
+  }, [scope, attempt, selection.text, selection.start, selection.end])
   const language = languages.find(item => item.code === scope.language)
   return <DetailDialog title={tr('Word help')} onClose={onClose}><div data-reading-tools>
     <h2>{tr('Word help')}</h2>

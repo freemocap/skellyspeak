@@ -223,7 +223,6 @@
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
   font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
 }
-.message-actions > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
 .message-actions > .feedback-badge:hover { border-color: currentColor; }
 
@@ -255,7 +254,6 @@
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-.feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
 }

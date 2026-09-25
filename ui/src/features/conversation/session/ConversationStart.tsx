@@ -1,5 +1,5 @@
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
-import { TargetText } from '../../../components/reading/TargetText'
+import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { PersonaAvatar } from '../../../components/media/PersonaAvatar'
 import { useI18n } from '../../../components/localization/i18n'
 import type { ConversationStartConfig, Snapshot, StarterGreeting, TopicCard } from '../../../generated/contracts'
@@ -66,7 +66,7 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
       <div className="invitation-header">
         <div className="invitation-partner">
           <PersonaAvatar symbol={partnerSymbol} />
-          {partnerName && <h2><bdi lang={targetTag} dir={targetDir}><TargetText text={partnerName} /></bdi></h2>}
+          {partnerName && <h2><bdi lang={targetTag} dir={targetDir}>{partnerName}</bdi></h2>}
         </div>
         {(onSwitchPartner || onEditPersona) && <div className="invitation-partner-actions">
           {onSwitchPartner && <button type="button" className="btn" disabled={disabled} onClick={onSwitchPartner}>{tr('All partners')}</button>}
@@ -82,11 +82,11 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
       </div>
       {error && <ErrorNotice as="p" error={error} className="start-error">{error}</ErrorNotice>}
     </div>
-    <ConversationChoices value={value} topics={topics} disabled={disabled} targetTag={targetTag} targetDir={targetDir} onChange={onChange} topicsDisabled={disabled || !canPartnerStart} onChooseTopic={configuration => { onChange(configuration); void start(configuration) }} onCustom={() => setCustom(true)} />
+    <ConversationChoices conversationId={conversationId} value={value} topics={topics} disabled={disabled} targetTag={targetTag} targetDir={targetDir} onChange={onChange} topicsDisabled={disabled || !canPartnerStart} onChooseTopic={configuration => { onChange(configuration); void start(configuration) }} onCustom={() => setCustom(true)} />
     <div className="prompt-actions">
       <button type="button" className="btn" disabled={disabled} onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>{tr('Customize…')}</button>
     </div>
-    {value.direction.topic?.kind === 'custom' && <p className="prompt-topic-summary"><TargetText text={value.direction.topic.text} /></p>}
+    {value.direction.topic?.kind === 'custom' && <p className="prompt-topic-summary"><TargetPhrase text={value.direction.topic.text} /></p>}
     {workspace && persona && language && <ConversationPromptCreator conversationId={conversationId} initial={value} topics={topics} savedTopics={workspace.savedTopics} language={language} persona={persona.details} onClose={() => setWorkspace(null)} onApply={async (configuration, additions, deletions) => { await saveTopics(additions, deletions); onChange(configuration) }} />}
     {custom && <CustomTopicDialog initial={value.direction.topic?.kind === 'custom' ? value.direction.topic.text : ''} onClose={() => setCustom(false)} onUse={async (text, save) => { if (save) await saveTopics([text], []); const configuration: ConversationStartConfig = { ...value, direction: { ...value.direction, topic: { kind: 'custom', text } } }; onChange(configuration); await start(configuration) }} />}
   </section>

@@ -1,3 +1,4 @@
+import { DrillSkillSelection } from './DrillSkillSelection'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
@@ -6,7 +7,7 @@ import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { DifficultySelect } from '../../components/controls/DifficultySelect'
 import { ReadingScopeContext } from '../../components/reading/ReadingContext'
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
-import { DRILL_LENGTHS, type Difficulty, type DrillGenerationInput, type DrillLength, type ReadingScope } from '../../generated/contracts'
+import { DRILL_LENGTHS, type Difficulty, type DrillGenerationInput, type DrillSkillTarget, type DrillLength, type ReadingScope } from '../../generated/contracts'
 import { CandidateList, RequestedCaption, lengthLabel } from './CandidateList'
 import { useDrillPreview } from './useDrillPreview'
 
@@ -26,6 +27,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
   const tr = useI18n()
   const [lengths, setLengths] = useState<DrillLength[]>(['shortPhrase'])
   const [chats, setChats] = useState(false)
+  const [skillTarget, setSkillTarget] = useState<DrillSkillTarget | null>(null)
   const [topic, setTopic] = useState('')
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner')
   const [count, setCount] = useState('8')
@@ -33,7 +35,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
 
   const quantity = /^\d+$/.test(count.trim()) ? Number(count.trim()) : null
   const counted = quantity !== null && quantity >= COUNT_MIN && quantity <= COUNT_MAX
-  const askable = (lengths.length > 0 && counted) || (lengths.length === 0 && chats)
+  const askable = (lengths.length > 0 && counted && (skillTarget?.kind !== 'skill' || !!skillTarget.skillId)) || (lengths.length === 0 && chats)
   const keepable = offer.offered.filter(entry =>
     !offer.added.includes(entry.candidate.candidateId) && !entry.candidate.verified.duplicate)
 
@@ -43,6 +45,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
     // ask is several requests sharing out the quantity between them.
     const inputs: DrillGenerationInput[] = lengths.map((length, index) => ({
       ...scope,
+      ...(skillTarget ? { skillTarget } : {}),
       topic: topic.trim() || null,
       count: Math.floor((quantity ?? 0) / lengths.length) + (index < (quantity ?? 0) % lengths.length ? 1 : 0),
       difficulty,
@@ -83,6 +86,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
               </div>
             </fieldset>
 
+            <DrillSkillSelection scope={scope} value={skillTarget} disabled={offer.running || lengths.length === 0} onChange={setSkillTarget} />
             <div className="form-row">
               <label htmlFor="drill-topic">{tr("Topic (optional)")}</label>
               <input id="drill-topic" type="search" value={topic} disabled={offer.running}
@@ -111,7 +115,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
 
           <div className="drill-add-results">
             {offer.running && <p role="status">{tr("Asking for phrases…")}</p>}
-            {offer.failure != null && <ErrorNotice as="p" error={offer.failure}>{errorMessage(offer.failure)}</ErrorNotice>}
+            {offer.failure != null && <ErrorNotice as="p" onRetry={offer.retry} error={offer.failure}>{errorMessage(offer.failure)}</ErrorNotice>}
             {offer.shortfall !== null && <p role="status">{tr("Asked for {value0}, got {value1}: {value2}", {
               value0: String(offer.shortfall.requested), value1: String(offer.shortfall.produced), value2: offer.shortfall.reason,
             })}</p>}

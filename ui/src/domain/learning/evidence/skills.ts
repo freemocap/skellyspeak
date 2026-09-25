@@ -17,17 +17,23 @@ export interface InputEvidence {
 export const unreportedInput = (): InputEvidence => ({ modality: 'text', suggestion: false, scaffold: false, revision: false })
 export type SkillOutcome = import('../../../generated/contracts').Outcome
 export interface SkillJudgment {
+  spans?: { quote: string; start: number; end: number }[]
+  attribution_reason?: string | null
   evidence_kind?: 'quoted' | 'whole_message'
   scores?: { evidence: number; full: number } | null
   answer?: { choice: string; confidence: number; probabilities: Record<string, number> } | null
   skill_id: string
-  outcome: SkillOutcome
+  presence?: 'absent' | 'contextual' | 'direct' | 'unclear'
+  outcome?: SkillOutcome
   quotes: string[]
   rationale: string
 }
 export interface SkillRecord {
+  attribution_state?: string | null
+  attribution_error?: string | null
+  attribution_attempt?: string | null
   assessment_adapter?: 'jev_choice' | 'chat_model'
-  decision_policy?: { version: string; evidenceThreshold: number; fullThreshold: number } | null
+  decision_policy?: { version: string; minimumPositiveProbability?: number; evidenceThreshold?: number; fullThreshold?: number } | null
   variety?: string | null
   construct_registry_hash: string | null
   mapping_error: string | null
@@ -62,6 +68,7 @@ export function requireCatalogVersion(snapshot: SkillSnapshot, record: SkillReco
 }
 
 export interface SkillSnapshot {
+  guides?: { id: string; name: string; skills: Record<string, string | null> }[]
   construct_registry_hash: string
   catalog: TreeNode[]
   catalog_version: number
@@ -81,14 +88,14 @@ export interface ProfileChoices {
 }
 export interface SkillProgress {
   skill_id: string
-  successes: number
-  assisted: number
+  experience: number
+  effort: number
   xp: number
   checked: boolean
   star: boolean
 }
 export interface LearnerProfile {
-  credits: { attempt_id: string; skill_id: string; xp: number; event?: import('../../../generated/contracts').RewardEvent }[]
+  credits: { attempt_id: string; skill_id: string; xp: number; experience?: number; effort?: number; event?: import('../../../generated/contracts').RewardEvent }[]
   rules_version: number
   choices: ProfileChoices
   xp: number
@@ -108,10 +115,9 @@ export function conversationEvidence(snapshot: SkillSnapshot, chatId: string): S
   const credits = snapshot.profile.credits.filter(credit => ids.has(credit.attempt_id))
   const skills = snapshot.profile.skills.map(skill => {
     const own = credits.filter(credit => credit.skill_id === skill.skill_id)
-    const demonstrated = own.filter(credit => records.some(record => record.attempt_id === credit.attempt_id && record.assessment?.judgments.some(j => j.skill_id === credit.skill_id && j.outcome === 'demonstrated')))
-    const successes = snapshot.profile.rules_version === 2 ? demonstrated.filter(credit => credit.event?.support === 'none').length : own.filter(credit => credit.xp === 10).length
-    const assisted = snapshot.profile.rules_version === 2 ? demonstrated.filter(credit => credit.event?.support !== 'none').length : own.filter(credit => credit.xp === 2).length
-    return { ...skill, xp: own.reduce((sum, credit) => sum + credit.xp, 0), successes, assisted, checked: successes > 0, star: successes >= 3 }
+    const experience = own.reduce((sum, credit) => sum + (credit.experience ?? credit.event?.experience ?? 0), 0)
+    const effort = own.reduce((sum, credit) => sum + (credit.effort ?? credit.event?.effort ?? 0), 0)
+    return { ...skill, xp: own.reduce((sum, credit) => sum + credit.xp, 0), experience, effort, checked: experience > 0, star: false }
   })
   return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0) } }
 }

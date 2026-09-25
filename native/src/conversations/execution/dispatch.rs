@@ -33,6 +33,21 @@ impl Store {
                 "Ready operation has unsatisfied declared dependencies.",
             ));
         }
+        if kind == "skill_attribution" {
+            let captured: serde_json::Value = serde_json::from_str(&context)?;
+            if crate::learning::coaching::skill_attribution::selected(&captured)?.is_empty() {
+                tx.execute(
+                    "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",
+                    [&operation],
+                )?;
+                tx.execute("UPDATE turns SET context=json_set(context,'$.skillAttribution',json(?2)) WHERE id=?1", [&turn, &serde_json::json!({"skills":{}}).to_string()])?;
+                super::graph::release_dependents(&tx, &turn)?;
+                refresh_turn(&tx, &turn)?;
+                bump(&tx)?;
+                tx.commit()?;
+                return Ok(None);
+            }
+        }
         let attempt = id();
         if kind == "persona_context" || kind == "coach_context" {
             let captured: serde_json::Value = serde_json::from_str(&context)?;
@@ -75,30 +90,6 @@ impl Store {
             tx.commit()?;
             return Ok(None);
         }
-        if kind == "skill_evidence" {
-            let captured: serde_json::Value = serde_json::from_str(&context)?;
-            let chat = captured["skillAssessment"]["adapter"] == "chat_model";
-            if chat || crate::learning::coaching::skill_evidence::implicated(&captured)?.is_empty()
-            {
-                if !chat {
-                    crate::learning::coaching::skill_evidence::publish(
-                        &tx,
-                        &turn,
-                        &captured["skillDecisions"],
-                    )?;
-                }
-                tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) VALUES(?1,?2,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now'))", params![attempt,operation])?;
-                tx.execute(
-                    "UPDATE operations SET state='succeeded',permit=0 WHERE id=?1",
-                    [&operation],
-                )?;
-                super::graph::release_dependents(&tx, &turn)?;
-                refresh_turn(&tx, &turn)?;
-                bump(&tx)?;
-                tx.commit()?;
-                return Ok(None);
-            }
-        }
         if kind == "persona_speech" {
             let result = prepare_speech(&tx, &operation, &turn, &context);
             match result {
@@ -127,8 +118,9 @@ impl Store {
             }
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
+            && !crate::learning::coaching::message_assessment::owns(&kind)
+            && kind != "skill_attribution"
             && kind != "skill_assessment"
-            && kind != "skill_evidence"
             && kind != "persona_reply"
             && kind != "persona_opening"
             && kind != "coach_retry_check"
@@ -160,14 +152,13 @@ impl Store {
             let jev = kind == "skill_assessment"
                 && crate::learning::coaching::assessment_adapter::selected(&captured)?
                     == AssessmentAdapter::JevChoice;
-            let coaching_schema = if kind == "skill_evidence" {
-                Some(crate::learning::coaching::skill_evidence::schema(
-                    &captured,
-                )?)
-            } else if kind == "skill_assessment" && !jev {
-                Some(crate::learning::coaching::skill_assessment::schema(
-                    &captured,
-                )?)
+            let rating = crate::learning::coaching::message_assessment::owns(&kind);
+            let coaching_schema = if kind == "skill_attribution" {
+                Some(crate::learning::coaching::skill_attribution::schema(
+                    &crate::learning::coaching::skill_attribution::selected(&captured)?,
+                ))
+            } else if rating {
+                None
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 Some(
                     crate::learning::coaching::conversation_support::schema_for_context(
@@ -175,9 +166,7 @@ impl Store {
                     ),
                 )
             } else if kind.starts_with("coach_") && kind != "coach_reply" {
-                Some(if kind == "coach_reaction" {
-                    crate::partners::partner_reaction::schema()
-                } else if kind == crate::learning::coaching::SUGGESTIONS {
+                Some(if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::schema(&kind)
                 } else {
                     crate::learning::coaching::coach_observation::schema(
@@ -188,16 +177,16 @@ impl Store {
             } else {
                 None
             };
-            let messages = if kind == "skill_evidence" {
-                crate::learning::coaching::skill_evidence::prompt(&tx, &turn, &captured)?
+            let messages = if kind == "skill_attribution" {
+                crate::learning::coaching::skill_attribution::prompt(&tx, &turn, &captured)?
+            } else if rating {
+                crate::learning::coaching::message_assessment::prompt(&tx, &turn, &kind, &captured)?
             } else if kind == "skill_assessment" {
                 crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 crate::learning::coaching::conversation_support::prompt(
                     &tx, &turn, &kind, &captured,
                 )?
-            } else if kind == "coach_reaction" {
-                crate::partners::partner_reaction::prompt(&tx, &turn, &captured)?
             } else if coaching_schema.is_some() {
                 crate::learning::coaching::prompt(&tx, &turn, &kind, &captured)?
             } else if matches!(kind.as_str(), "persona_word_gloss" | "user_word_gloss") {
@@ -308,7 +297,12 @@ impl Store {
                 } else {
                     coaching_schema
                 };
-            let decisions = if jev {
+            let decisions = if rating {
+                target.model = crate::learning::coaching::message_assessment::model().into();
+                Some(crate::learning::coaching::message_assessment::request(
+                    &messages, &kind,
+                )?)
+            } else if jev {
                 target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
                 Some(crate::learning::coaching::assessment_adapter::request(
                     &messages, &captured,
@@ -376,6 +370,14 @@ impl Store {
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {
+            structured_output_tokens: if matches!(
+                kind.as_str(),
+                "coach_feedback" | "coach_retry_check"
+            ) {
+                8192
+            } else {
+                2048
+            },
             decisions,
             temperature: if matches!(kind.as_str(), "persona_opening" | "persona_reply") {
                 1.1

@@ -7,7 +7,7 @@ import { skillIndex } from '../../domain/learning/catalog/skill-index'
 
 it('shows uncertainty instead of an empty proficiency bar without credited observations', () => {
   render(<DomainEvidenceTree snapshot={skillDemo} onSelect={vi.fn()} />)
-  expect(screen.getAllByText('Not enough evidence to estimate')).toHaveLength(8)
+  expect(screen.getAllByText('Not enough evidence to estimate')).toHaveLength(4)
   expect(screen.queryByRole('meter')).toBeNull()
 })
 it('counts an attempt once per domain even when it credits multiple skills', () => {

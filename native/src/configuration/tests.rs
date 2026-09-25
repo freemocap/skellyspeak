@@ -123,11 +123,7 @@ fn export_schemas() {
     if std::env::var_os("SKELLY_WRITE_CONFIG_SCHEMAS").is_some() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../content/schemas");
         for (name, value) in &schemas {
-            fs::write(
-                root.join(name),
-                format!("{}\n", serde_json::to_string_pretty(value).unwrap()),
-            )
-            .unwrap();
+            fs::write(root.join(name), serde_yaml_ng::to_string(value).unwrap()).unwrap();
         }
     }
     for (name, value) in schemas {
@@ -135,7 +131,7 @@ fn export_schemas() {
             .join("../content/schemas")
             .join(name);
         let actual: serde_json::Value =
-            serde_json::from_str(&fs::read_to_string(&path).unwrap()).unwrap();
+            serde_yaml_ng::from_str(&fs::read_to_string(&path).unwrap()).unwrap();
         assert_eq!(actual, value, "{}", path.display());
     }
 }

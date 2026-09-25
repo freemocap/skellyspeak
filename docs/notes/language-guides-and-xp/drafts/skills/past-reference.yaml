@@ -1,0 +1,39 @@
+status: draft
+review_status: needs_review
+applicability: shared
+category: Time and events
+
+skill:
+  id: past_reference
+  name: Refer to the past
+  overview: Express that a situation or event occurred before now or an established reference time.
+  boundary: Judge the expressed time relationship, not the verb form alone.
+
+meaning:
+  template: before(time(event), reference_time)
+  reading: A completed event happened before now or another time being discussed.
+  roles:
+    event: The completed event being described.
+    time(event): When it happened.
+    reference_time: Now or another time established in the conversation.
+
+examples:
+  - text: Ana arrived yesterday.
+    language: English
+    interpretation: before(time(arrival), now)
+    note: The event is located before the current day in the ordinary reading.
+  - text: I was reading when Ana arrived.
+    language: English
+    note: Reading was in progress when Ana arrived. The simple formula above does not capture this overlap.
+  - text: By next Friday, I will have finished.
+    language: English
+    note: Finishing is earlier than a future reference time; the sentence does not establish completion before now.
+  - text: Tomorrow.
+    context: When will you arrive?
+    language: English
+    note: Places arrival in the future in this context; provides no past-reference evidence.
+
+provenance:
+  authorship: ai_authored
+  sources:
+    - winter_zwarts_event_semantics

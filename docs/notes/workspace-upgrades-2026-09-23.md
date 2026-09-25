@@ -6,4 +6,5 @@ steps and related tests. This document is not a specification.
 
 Follow `AGENTS.md`: delete incompatible development data in the smallest practical
 scope, without conversion or backwards compatibility. Code/UI changes alone do not
-justify a reset. The current app supports only schema 40.
+justify a reset. The current workspace format is defined by `SCHEMA_VERSION` in
+`native/src/storage/store/schema.rs`, including the stored JSON contracts.

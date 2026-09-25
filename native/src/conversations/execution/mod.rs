@@ -13,7 +13,9 @@ mod admission;
 mod assistance;
 mod connections;
 mod dispatch;
+mod feedback_context;
 mod graph;
+pub use feedback_context::reassess_feedback;
 mod holds;
 mod publication;
 mod reading;
@@ -57,7 +59,9 @@ pub use turns::control_turn;
 
 use crate::ai::connections::model_routing::TASK_TEMPERATURE;
 
+#[derive(Clone)]
 pub struct Dispatch {
+    pub structured_output_tokens: i32,
     pub decisions: Option<serde_json::Value>,
     pub temperature: f64,
     pub target: crate::ai::connections::access::ResolvedTarget,

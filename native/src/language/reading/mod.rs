@@ -128,7 +128,11 @@ impl Request {
             &input.explanation,
             input.explanation_variety.as_deref(),
         )?;
-        let target = access::resolve(&store.connection, input.aid.capability())?;
+        let target = crate::ai::connections::speech_routing::resolve(
+            &store.connection,
+            input.aid.capability(),
+            &context,
+        )?;
         // The model a request runs on follows the same task roles as conversation
         // turns; access validation still compares against the resolved target.
         let model = crate::ai::connections::model_routing::target(
@@ -183,7 +187,11 @@ impl Request {
         if self.config_hash != store.config.hash() {
             return Err(self.stopped("configuration_changed"));
         }
-        let current = access::resolve(&store.connection, self.input.aid.capability())?;
+        let current = crate::ai::connections::speech_routing::resolve(
+            &store.connection,
+            self.input.aid.capability(),
+            &self.context,
+        )?;
         let config = crate::ai::connections::configuration::config(&store.connection)?;
         let model = crate::ai::connections::model_routing::target(
             &current,

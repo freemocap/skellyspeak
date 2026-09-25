@@ -1,3 +1,5 @@
+import { ExperienceProfile } from './learner/ExperienceProfile'
+import { useSettingsStore } from '../../state/settings/settings'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { useI18n } from '../../components/localization/i18n'
@@ -16,34 +18,37 @@ import type { ProfileChoices, SkillSnapshot } from '../../domain/learning/eviden
 export default function SkillsPage({ onPractice }: { onPractice: () => void }) {
   const tr = useI18n()
   const evidence = useSkillEvidence()
+  const variety = useSettingsStore(state => state.settings?.target_variety)
   if (isTauri && evidence.error) return <ErrorNotice as="div" error={evidence.error}>{evidence.error}<button onClick={evidence.reload}>{tr('Retry')}</button></ErrorNotice>
   if (isTauri && !evidence.snapshot) return <p role="status">{tr('Loading your language profile…')}</p>
-  return <SkillListView languageTag={isTauri && evidence.snapshot ? languageFor(evidence.snapshot.target)?.languageTag : undefined} snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.reload} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
+  return <SkillListView initialVariety={variety} languageTag={isTauri && evidence.snapshot ? languageFor(evidence.snapshot.target)?.languageTag : undefined} snapshot={isTauri ? evidence.snapshot! : skillDemo} demonstration={!isTauri} refresh={evidence.reload} save={evidence.save} saving={evidence.saving} onPractice={onPractice} />
 }
-export function SkillListView({ languageTag, snapshot, demonstration, refresh, save, saving, onPractice }: {
-  languageTag?: string; snapshot: SkillSnapshot; demonstration: boolean; refresh: () => void; save: (choices: ProfileChoices) => Promise<void>; saving: boolean; onPractice: () => void
+export function SkillListView({ initialVariety, languageTag, snapshot, demonstration, save, saving, onPractice }: {
+  initialVariety?: string; languageTag?: string; snapshot: SkillSnapshot; demonstration: boolean; refresh: () => void; save: (choices: ProfileChoices) => Promise<void>; saving: boolean; onPractice: () => void
 }) {
   const tr = useI18n()
   const picked = useSkillNavigationStore(state => state.selected)
   const select = useSkillNavigationStore(state => state.select)
+  const [inspectedVariety, setInspectedVariety] = useState<string | undefined>(initialVariety)
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const selected = picked?.target === snapshot.target ? picked.skillId : undefined
   const node = snapshot.catalog.find(n => n.kind === 'skill' && n.id === selected)
-  function inspect(id: string) { select({target:snapshot.target,skillId:id}); setOpen(true) }
+  function inspect(id: string, variety?: string) { setInspectedVariety(variety); select({target:snapshot.target,skillId:id}); setOpen(true) }
   async function update(choices: ProfileChoices, practice = false) {
     setError(null)
     try { await save(choices); if (practice) onPractice() } catch (e) { setError(errorMessage(e)) }
   }
   return <main className="skills-page">
-    <header className="tree-header"><h1>{tr('Skills')} · {snapshot.target}</h1><strong>{tr.number(snapshot.profile.xp)} XP</strong><button onClick={refresh}>{tr('Refresh')}</button></header>
+    <header className="tree-header"><h1>{tr('Skills')} · {snapshot.target}</h1><strong>{tr.number(snapshot.profile.xp)} XP</strong></header>
     {demonstration && <p>{tr('DEMO · SAMPLE DATA')}</p>}
     <EvidenceMappingNotice snapshot={snapshot} />
     {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
-    <SkillList key={snapshot.target} snapshot={snapshot} selected={selected} onSelect={inspect} />
+    <ExperienceProfile snapshot={snapshot} initialVariety={initialVariety} onInspect={inspect} />
+    <SkillList key={snapshot.target} snapshot={snapshot} selected={selected} onSelect={id => inspect(id, initialVariety)} />
     <ProgressRules />
     {open && node && <DetailDialog title={tr(node.label)} onClose={() => setOpen(false)}>
-      <SkillDetailContent languageTag={languageTag} node={node} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}
+      <SkillDetailContent variety={inspectedVariety} languageTag={languageTag} node={node} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}
         controls={<button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,focus:node.id},true)}>{tr('Practise this in conversation')}</button>}
         recordControls={record => <button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,excluded_attempts:snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? snapshot.profile.choices.excluded_attempts.filter(id => id !== record.attempt_id) : [...snapshot.profile.choices.excluded_attempts,record.attempt_id]})}>{snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Excluded · restore attempt') : tr('Exclude attempt from progress')}</button>} />
     </DetailDialog>}

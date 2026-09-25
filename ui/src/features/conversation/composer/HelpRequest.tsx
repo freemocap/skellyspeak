@@ -39,7 +39,7 @@ export function HelpStatus({ lane, pending, failure, label, onRetry, onInspect }
     {pending && <ActivityIndicator label={label} />}
     {lane.state === 'held' && <p role="status">{tr('AI work is paused or held.')}</p>}
     {['cancelled', 'invalidated'].includes(lane.state ?? '') && <p role="status">{tr('Reply help is unavailable for this message.')}</p>}
-    {(error != null || failed) && <ErrorDetails label={tr('Reply help')} errorKey={JSON.stringify(error ?? lane.state)} explanation={error != null ? nativeError(error) : undefined}>
+    {(error != null || failed) && <ErrorDetails onRetry={null} label={tr('Reply help')} errorKey={JSON.stringify(error ?? lane.state)} explanation={error != null ? nativeError(error) : undefined}>
       {lane.state === 'unknown' && <p>{tr('The outcome is unknown. This request may have incurred usage.')}</p>}
       <ResponseDetails value={failure ?? lane.details} />
     </ErrorDetails>}

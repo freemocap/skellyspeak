@@ -1,45 +1,62 @@
-# Language content
+# Content
 
-These are app-owned teaching definitions bundled into each build. They are not
-learner preferences, API keys or workspace data. Editing this directory and
-rebuilding updates the app's content; no workspace configuration copy is created.
+This folder holds authored language definitions, shared teaching rules and prompts,
+together with generated validation schemas. Structured content and schemas use YAML; this
+guide uses Markdown. The sections
+below follow the **same folder names and order as the files on disk**.
 
-## Shared language behavior
+```text
+content/
+├── languages/         One YAML file per language, including its varieties
+├── prompts/           Authored instructions grouped by feature
+│   ├── conversation/
+│   ├── drill/
+│   └── skills/
+├── schemas/           Generated schemas stored as YAML
+├── shared/            Definitions and policies used across languages
+└── README.md          This guide
+```
 
-Follow the repository's [language-independent behavior rule](../AGENTS.md#language-independent-behavior).
-Implement one general policy using Unicode properties and shared capabilities;
-do not add language-specific code paths or character lists to solve a general
-problem. Declarative language-config overrides are a documented last resort,
-only after the shared approach has been shown insufficient. Preserve original
-text; normalization belongs only to the operation that requires it.
+Go to [languages](#languages), [prompts](#prompts), [schemas](#schemas), or
+[shared](#shared).
+[Working with these files](#working-with-these-files) covers editing and checks.
 
-## Ownership
+These are app-owned sources, not learner preferences, credentials or workspace
+data. Rebuilding incorporates source changes into the app; editing a file does
+not update an already running build.
 
-| Document | Owns |
+## languages/
+
+**Purpose:** describe each language and its connected varieties. Each
+`<language>.yaml` owns its identity, integrations, local writing definitions,
+defaults, variety settings, guidance, learning hints and default partner.
+
+Start with [Spanish](languages/spanish.yaml) or [Arabic](languages/arabic.yaml).
+[Hindi](languages/hindi.yaml) and [Malayalam](languages/malayalam.yaml) illustrate
+Indic writing and local transliteration definitions.
+
+### Inside a language file
+
+| Field | What belongs here |
 | --- | --- |
-| `languages/<full-name>.yaml` | Identity, varieties, integrations, local writing/romanization definitions, instructions, script scale, learning material and default partner |
-| `shared/language-foundations.yaml` | Shared script facts, family metadata, trait identities and explicitly shared definitions |
-| `shared/learning-goals.yaml` | Shared skill identities, criteria, prerequisites and opportunities |
-| `shared/learning-map.yaml` | Navigation hierarchy, display codes and colors; skill text is projected from its goal |
-| `shared/teaching-policy.yaml` | General guidance, feedback, learner estimation and reward policy |
-| `shared/conversation-topics.yaml` | Topic identities, localized interface labels and language-independent subjects |
-| `prompts/conversation/instructions.yaml` | Authored conversation prose, all five difficulty instructions, persona and time-reference guidance |
-| `schemas/` | Generated JSON schemas for the exact Rust authoring models |
+| `identity` | Language ID, display names, family and review status |
+| `integrations` | External language tags and service mappings |
+| `definitions` | Language-owned orthographies and romanization schemes |
+| `defaults` | Default variety, writing choices, scalars and optional speech preferences |
+| `traits` | References to shared language traits |
+| `varieties` | Related variety identities, guidance and explicit overrides |
+| `guidance` | Language-wide instructions |
+| `learning.goal_material` | Lexical hints associated with universal skills |
+| `learning.skills` | Optional language-owned skills using the same terse structure as shared skills |
+| `learning.skill_guides` | Skill-keyed language cores and explicit variety sections; compact assessment text and human explanations |
+| `conversation` | Greeting and `default_partner` definition |
 
-Start with [Arabic](languages/arabic.yaml) or [Spanish](languages/spanish.yaml).
-[Hindi](languages/hindi.yaml) and [Malayalam](languages/malayalam.yaml) demonstrate
-Indic scripts with local writing and orthographic transliteration definitions.
-Each YAML includes an editor schema association. Rust authoring models live in
-[native/src/configuration/documents.rs](../native/src/configuration/documents.rs);
-loading, linking, resolution and inspection have separate modules there.
-
-## Authoring contract
+### Identities, references and inheritance
 
 - Use readable lowercase identifiers such as `spanish` and `spanish-mexico`.
   IDs are not browser locales. `integrations` optionally supplies standard tags
-  and transcription mappings. The service uses ElevenLabs Scribe v2 and takes its
-  ISO language code from `language_tag`. The separate `transcription` mapping
-  belongs to the OpenRouter speech route; missing mappings do not invalidate a language.
+  and transcription mappings. Speech routing uses the canonical `language_tag`;
+  the older `transcription` mapping does not control current model selection.
 - `definitions` owns local orthographies and romanization schemes. References
   explicitly use `{local: name}` or `{shared: name}`. Local names are scoped to
   their language. Shared definitions have exactly one owner in the foundations
@@ -69,36 +86,52 @@ loading, linking, resolution and inspection have separate modules there.
   Do not copy a multilingual list into every language. Optional matches have a
   separate allowance of 25 beyond required goals.
   These hints are not a curriculum, tokenizer, or evidence of proficiency.
-- Topics are available for every language, variety and difficulty. They contain
-  subject matter, not prewritten dialogue. Labels use the interface locale;
-  dialect affects language instructions only. New languages need no topic pack.
-- Bibliography `review` fields accept only `abstract`, `full-text`, or `reviewed`.
-  Put explanatory review prose in `note`, and the supported claim in `claim`.
-  Startup validates the entire bibliography, including exploration-only entries.
-- Root `references.bib` remains authoritative. Existing linguistic material is
-  `needs_review`; schema validation does not establish linguistic correctness.
-  Conflicting prose under different identities still requires human review.
 
-Unknown fields, malformed values, duplicate YAML keys, missing references,
-invalid policy semantics and unsupported schema versions fail. Generated JSON
-schemas describe document shapes, typed identities and closed enum fields;
-Rust semantic validation additionally checks cross-document relationships,
-numeric bounds, citation review, policy protections and coverage.
+Speech preferences use the shared capability catalog described under
+[shared/speech-routing.yaml](#speech-routingyaml).
 
-UI translations remain under `ui/src/domain/localization/locales/` and do not
-need to exist for every learning language. The learner chooses an interface
-locale independently. Interface number/date formatting uses explicit external
-locale mappings; proper language names can come directly from content.
+### Skill content coverage
 
-## Adding a learning language
+The native registry loads the twelve-skill catalog and the conversation assessor
+uses its compact language/variety guidance. `learning.skill_guides` covers all
+twelve skills for Spanish/Mexico, Spanish/Spain, Arabic/Levantine and
+Mandarin/Mainland China. Missing coverage fails assessment explicitly without
+blocking the partner reply or selecting another variety. Arabic's shared core is
+not Modern Standard Arabic. Pilot material is marked `needs_review`, not a
+completed or linguistically validated grammar guide.
+
+Each guide has `core` and `varieties` sections with compact `assessment` text,
+human-readable `explanation` Markdown, and optional `examples`. The assessor uses
+only the skill name, overview, boundary, shared instructions and core/selected
+variety assessment text. Markdown composition retains explanations and examples.
+`learning.skills` adds language-owned definitions without overriding shared IDs or
+introducing prerequisites. All IDs must be unique across the registry; categories
+refer to the shared browsing groups.
+
+Inspect the same content through the native composer without provider calls:
+
+```sh
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skills
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skill-coverage arabic arabic-levantine
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skill-markdown arabic arabic-levantine past_reference
+cargo run --manifest-path native/Cargo.toml --bin inspect-content -- --skill-prompt arabic arabic-levantine past_reference
+```
+
+`--skill-prompt` shows the compact skill input. The shared presence question and
+criteria live in `prompts/skills/presence.yaml`. A full-catalog request additionally
+requires guidance for every applicable skill. Uncovered varieties cannot
+silently become a smaller live assessment.
+
+### Adding a learning language
 
 Author identity, an explicitly scoped default variety, orthography, reading scheme
 (or explicit disabled state), and a default partner.
 Add shared script/family facts only when absent. New language files are discovered
 by both the build bundler and repository loader; no hardcoded language list or UI
 translation is required. Verify every supported target/explanation pairing.
-The service forwards ISO language identities to ElevenLabs, including Irish and
-Scottish Gaelic. OpenRouter uses its separately configured transcription mapping.
+A valid language identity does not guarantee speech-model support. The shared
+capability catalog supports Irish through Scribe and Eleven v3; its current
+models do not declare Scottish Gaelic support.
 See the [addition and phrase-matching audit](../docs/notes/italian-irish-scottish-gaelic-2026-09-17.md).
 
 Preserve source text exactly: native gloss spans use Unicode grapheme boundaries,
@@ -113,7 +146,178 @@ ALA-LC Hindi and Malayalam are spelling-based reading aids, not phonetic
 transcriptions. Pronunciation remains a separate output. Speaker review of
 generated conversation language, romanization quality and device rendering is still required.
 
-## Inspection and checks
+### Interface language is separate
+
+UI translations remain under `ui/src/domain/localization/locales/` and do not
+need to exist for every learning language. The learner chooses an interface
+locale independently. Interface number/date formatting uses explicit external
+locale mappings; proper language names can come directly from content.
+## prompts/
+
+**Purpose:** hold authored AI instructions, grouped by the feature that uses them.
+Language facts stay in `languages/` and reusable policies stay in `shared/`.
+
+### conversation/
+
+[instructions.yaml](prompts/conversation/instructions.yaml) contains the
+conversation's base instructions, interaction and persona guidance, examples,
+opening angles, and five difficulty instructions.
+
+The native composer adds the selected language and variety, optional persona,
+topic and time reference. Preview and execution use that same composer. Shared
+relationship behavior and difficulty instructions are written in English for all
+target languages; resolved language and writing guidance determine the response
+language. The shared behavior layer is not translated into per-language prompts.
+
+[ratings.yaml](prompts/conversation/ratings.yaml) defines two 0–10 rating
+questions and a separate partner-understanding question. Each includes its
+instructions, category labels and anchors. Both ratings allow insufficient
+evidence; understanding distinguishes understood, partial, misunderstood,
+clarification requested, unclear, and no reply. Message ratings use the preceding
+partner message, while understanding also receives the actual reply. Neither
+result awards learning credit. Explanations are requested separately through the
+coach. These definitions are shared across languages and receive the selected
+language and variety as input.
+
+### drill/
+
+[instructions.yaml](prompts/drill/instructions.yaml) contains the instructions
+for generating spoken-practice candidates. It separates requested length from
+difficulty, uses the supplied language and variety, and describes candidate
+output and labeling requirements. This file is a YAML text block, rather than the
+structured conversation-prompt mapping.
+
+Other prompt assembly and execution still live with their code owners; see
+[code connections](#code-connections) below.
+
+### skills/
+
+[presence.yaml](prompts/skills/presence.yaml) owns the shared presence question,
+instructions and four categories: absent, contextual, direct and unclear. These
+are evidence categories, not success grades or XP weights. The native content
+composer validates this source; conversation dispatch cutover is still pending.
+
+## schemas/
+
+**Purpose:** describe the shapes accepted by the current authoring models.
+**These files are generated; do not edit them by hand.** They use JSON Schema
+rules expressed in YAML. In the workbench, **Schema shape** shows an illustrative
+instance with its keys, types and required/optional fields.
+
+| Schema | Describes |
+| --- | --- |
+| [language.yaml](schemas/language.yaml) | Files in `languages/` |
+| [conversation-prompt.yaml](schemas/conversation-prompt.yaml) | `prompts/conversation/instructions.yaml` |
+| [language-foundations.yaml](schemas/language-foundations.yaml) | `shared/language-foundations.yaml` |
+| [conversation-topics.yaml](schemas/conversation-topics.yaml) | `shared/conversation-topics.yaml` |
+| [learning-goals.yaml](schemas/learning-goals.yaml) | `shared/learning-goals.yaml` |
+| [learning-map.yaml](schemas/learning-map.yaml) | `shared/learning-map.yaml` |
+| [skills.yaml](schemas/skills.yaml) | New terse shared skill catalog and browsing categories |
+| [skill-presence.yaml](schemas/skill-presence.yaml) | Shared presence question and instructions |
+| [speech-routing.yaml](schemas/speech-routing.yaml) | `shared/speech-routing.yaml` |
+| [teaching-policy.yaml](schemas/teaching-policy.yaml) | `shared/teaching-policy.yaml` |
+| [teaching-guides.yaml](schemas/teaching-guides.yaml) | Preliminary guide model; see the draft status below |
+
+Generated schemas describe document shapes, identities and closed enum fields.
+Native semantic validation additionally checks cross-document relationships,
+numeric bounds, citation review, policy protections and coverage. Unknown fields,
+malformed values, duplicate YAML keys, missing references, invalid policy semantics
+and unsupported schema versions fail validation. A schema pass is not a review of
+linguistic accuracy.
+
+**Teaching-guide status:** the guide schema and initial loader code were created
+prematurely during design discussion. They do not establish an approved content
+contract. There is currently no `content/guides/` folder. The readable pilot and
+proposed language-core/variety structure remain in the
+[planning notes](../docs/notes/language-guides-and-xp/README.md); app integration is
+deferred. Do not infer a settled folder structure from that preliminary schema.
+
+## shared/
+
+**Purpose:** keep reusable definitions and policies in one place, referenced by
+languages and feature prompts.
+
+| File | What it owns |
+| --- | --- |
+| [conversation-topics.yaml](shared/conversation-topics.yaml) | Topic identities, localized interface labels and language-independent subjects |
+| [language-foundations.yaml](shared/language-foundations.yaml) | Scripts, families, traits and explicitly shared writing definitions |
+| [learning-goals.yaml](shared/learning-goals.yaml) | Older coaching/learner goal definitions; no longer the live skill/XP catalog |
+| [learning-map.yaml](shared/learning-map.yaml) | Older goal navigation; live skill browsing is projected from skills.yaml |
+| [skills.yaml](shared/skills.yaml) | Twelve accepted terse definitions; four browsing categories, no progression or scoring rules |
+| [speech-routing.yaml](shared/speech-routing.yaml) | Provider/model capabilities, language-code mappings and ordered speech alternatives |
+| [teaching-policy.yaml](shared/teaching-policy.yaml) | General guidance, feedback, learner estimation and reward policy |
+
+### Shared language behavior
+
+Follow the repository's
+[language-independent behavior rule](../AGENTS.md#language-independent-behavior).
+Solve general behavior with Unicode properties, shared algorithms and declared
+capabilities. Language-specific processing branches and hand-maintained character
+lists are not substitutes for a shared policy. A declarative language override is
+a last resort requiring evidence and review. Preserve source text; normalization
+belongs only to the operation that requires it.
+
+Topics are available across languages, varieties and difficulties. They describe
+subject matter, not prewritten dialogue. Topic labels follow the interface
+locale; the selected variety informs language instructions. Adding a language
+does not require a separate topic pack.
+
+### speech-routing.yaml
+
+`shared/speech-routing.yaml` is the authored source for provider/model capabilities,
+provider language-code mappings, and ordered alternatives for `transcription` and
+`speech`. These are independent tasks. Model support is a declared capability,
+not a claim about recognition quality or pronunciation accuracy.
+
+Languages need no speech configuration. `defaults.speech_routes` optionally contains
+`transcription` and/or `speech` lists of preferred model IDs. A variety may supply
+`overrides.speech_routes`; each present task replaces that task's language list,
+while omitted tasks inherit. Preferences must be nonempty lists of distinct,
+declared models for the appropriate task. Unknown references fail content loading.
+Use a preference only for a justified language/variety need, documented in notes;
+Irish needs none because the shared capability policy already selects Scribe.
+
+Resolution order is the effective language/variety preference list, the learner's
+saved global model default, then the shared task alternatives. Incompatible models
+are skipped. Recording also filters against the selected service's configured model
+inventory before opening the microphone. No compatible model or missing service
+configuration produces an explicit error. Access route, endpoint and credentials
+are independent of model selection. A custom unrecognized model retains explicit
+forwarding and is marked `custom_model_unverified`, not claimed as supported.
+
+The Rust resolver captures the selected model, provider, language code, global
+default and decision reason. Adapters validate this choice without replacing it.
+`npm run contracts` generates the server capability data from this source;
+`contracts:check` detects stale output. Add a provider adapter and its availability
+checks before advertising a new model. Current synthesis has one adapter/model,
+ElevenLabs Eleven v3; the resolver does not imply that another synthesis provider
+has been implemented. Provider voice selection remains service-owned.
+
+## Working with these files
+
+### Read and edit
+
+Run the standalone [content workbench](../tools/content-workbench/README.md):
+
+```sh
+npm run content:workbench
+```
+
+Its folder tree mirrors this directory. Use Read, Tree or source view to inspect
+files, follow references and edit authored content. Save checks YAML/JSON syntax
+and refuses to overwrite external edits; it does not run application-semantic or
+linguistic validation. VS Code remains an alternative for editing the same files.
+
+### Sources and review
+
+- Bibliography `review` fields accept only `abstract`, `full-text`, or `reviewed`.
+  Put explanatory review prose in `note`, and the supported claim in `claim`.
+  Startup validates the entire bibliography, including exploration-only entries.
+- Root `references.bib` remains authoritative. Existing linguistic material is
+  `needs_review`; schema validation does not establish linguistic correctness.
+  Conflicting prose under different identities still requires human review.
+
+### Inspect the running app
 
 In the app, choose **Browse languages** beside the compact selector or in **More**.
 Browsing is read-only. **Use this language and variety** explicitly saves a choice.
@@ -123,6 +327,8 @@ for YAML, schemas and resolved models. The main document shows language-owned gu
 romanization examples, shared topic subjects and the default partner. Shared teaching policy
 and complete assembled instructions remain in the source/model viewer, alongside
 resolved model, validation schema and the running build's content fingerprint.
+
+### Check repository content
 
 Repository inspection uses the same loader without opening a workspace:
 
@@ -138,13 +344,9 @@ After changing authoring models, regenerate schemas with
 Ordinary tests check schema drift without writing. Generate UI contracts with
 `npm run contracts`; never edit generated outputs by hand.
 
-The development database schema is 22. Older databases require explicit reset;
-there is no ID migration or silent data deletion. Obsolete workspace `config/`
-files are neither loaded nor included in current workspace exports.
+### Code connections
 
-## AI behavior still implemented in code
-
-Conversation prose is authored in `prompts/conversation/instructions.yaml`; its pure native composer supplies selected language, optional persona, topic, time reference and named difficulty. Preview and execution use that same composer. Shared Relationship behavior and difficulty instructions are written in English for every target language. Resolved language, variety and writing-system guidance determine the response language; there are no per-language translations of the shared behavior layer. Other feature prompts keep their existing owners.
+These are implementation references, not additional content folders.
 
 | Responsibility | Current owner |
 | --- | --- |

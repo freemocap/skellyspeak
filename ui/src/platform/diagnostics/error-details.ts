@@ -117,5 +117,26 @@ export function errorMessage(error: unknown): string {
     }
   }
   visit(details.cause); visit(details.fields)
-  return [...new Set(messages)].join(' — ')
+  const text = [...new Set(messages)].join(' — ')
+  return isRateLimited(details.fields) && !text.startsWith('Sorry, rate limited.')
+    ? `Sorry, rate limited. Try again shortly. ${text}` : text
+}
+
+/** Inspect known error envelopes only; 429 in request content is not a status. */
+export function isRateLimited(error: unknown): boolean {
+  let limited = false, quota = false
+  const seen = new WeakSet<object>()
+  const visit = (value: unknown, depth = 0) => {
+    if (!value || typeof value !== 'object' || depth > 12 || seen.has(value)) return
+    seen.add(value)
+    if (Array.isArray(value)) { value.slice(0, 64).forEach(item => visit(item, depth + 1)); return }
+    for (const key of ['status', 'code', 'reason']) {
+      const code = field(value, key)
+      limited ||= [429, '429', 'rate_limit', 'rate_limit_exceeded', 'too_many_requests'].includes(code as string | number)
+      quota ||= ['quota_exceeded', 'insufficient_quota', 'billing_hard_limit_reached', 'credit_balance_too_low', 'daily_limit', 'spending_paused'].includes(String(code))
+    }
+    for (const key of ['error','response','diagnostics','http','choices','provider_error','detail','refusal']) visit(field(value, key), depth + 1)
+  }
+  visit(error)
+  return limited && !quota
 }

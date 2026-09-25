@@ -102,6 +102,8 @@ document!(RomanizationExample {
     romanized: String
 });
 document!(LanguageDefaults {
+    #[serde(default)]
+    speech_routes: super::speech::Preferences,
     variety: VarietyId,
     orthography: DefinitionRef,
     scalars: ScalarOverrides,
@@ -112,6 +114,8 @@ document!(VarietyDocument { id: VarietyId, name: String, description: String, re
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct VarietyOverrides {
+    #[serde(default)]
+    pub speech_routes: super::speech::Preferences,
     pub orthography: Option<DefinitionRef>,
     pub romanization: Option<RomanizationSelection>,
     pub supported_romanizations: Option<Vec<DefinitionRef>>,
@@ -120,7 +124,13 @@ pub struct VarietyOverrides {
     #[serde(default)]
     pub integrations: Integrations,
 }
-document!(LearningContent { goal_material: BTreeMap<String, GoalMaterial> });
+document!(LearningContent {
+    goal_material: BTreeMap<String, GoalMaterial>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    skills: Vec<super::skills::Skill>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    skill_guides: BTreeMap<String, super::skills::Guide>
+});
 document!(GoalMaterial { tokens: Vec<String> });
 document!(ConversationContent {
     default_partner: crate::model::PersonaDetails,
@@ -163,5 +173,5 @@ document!(ConversationPromptContent {
     base: String, persona: String, interaction: String,
     examples_intro: String, examples: BTreeMap<String, String>, opening_angles: Vec<String>,
     difficulty: BTreeMap<String,String>, ceiling: String,
-    past: String, future: String, opening: String, response: String, subject: String
+    coach_focus: String, past: String, future: String, opening: String, response: String, subject: String
 });

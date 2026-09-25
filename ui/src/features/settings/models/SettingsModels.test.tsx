@@ -7,7 +7,7 @@ const native = vi.hoisted(() => vi.fn())
 vi.mock('../../../platform/ipc/native', () => ({ invoke: native }))
 // Explicit native-response fixtures; no live account or credential data.
 const connection = { route: 'custom', signedIn: false, email: '', revision: 7,
-  configured: true, assessmentAdapter: 'chat_model' as const, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
+  configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'fixture-standard', fastModel: 'fixture-fast', audio: { transcription: { model: 'fixture-transcription' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false }
 beforeEach(() => {
   native.mockReset()
   native.mockImplementation(async (command: string) => {
@@ -62,30 +62,20 @@ it('offers only model fields and no capability access selectors', async () => {
   render(<SettingsModels onBusyChange={vi.fn()} onChanged={vi.fn()} />)
   await screen.findByLabelText('Transcription model')
   expect(screen.getAllByRole('textbox')).toHaveLength(4)
-  expect(screen.getByRole('combobox', { name: 'Skill assessment' })).toHaveValue('chat_model')
+  expect(screen.getByLabelText('Skill assessment')).toHaveTextContent('Jev Choice')
   expect(screen.queryByLabelText('Transcription access')).toBeNull()
   expect(screen.queryByLabelText('Read-aloud access')).toBeNull()
 })
 
-it('disables Jev selection and explains the retained adapters', async () => {
+it('shows the fixed presence assessor and explains experience and effort', async () => {
   HTMLElement.prototype.showPopover = vi.fn()
   HTMLElement.prototype.hidePopover = vi.fn()
-  let saved = { ...connection }
-  native.mockImplementation(async (command, args) => {
-    if (command === 'get_connection') return saved
-    if (command === 'save_models') { saved = { ...saved, ...args, revision: 8 }; return saved }
-    throw new Error(command)
-  })
+  native.mockResolvedValue(connection)
   render(<SettingsModels onBusyChange={vi.fn()} onChanged={vi.fn()} />)
-  const select = await screen.findByRole('combobox', { name: 'Skill assessment' })
-  expect(select).toHaveValue('chat_model')
+  expect(await screen.findByLabelText('Skill assessment')).toHaveTextContent('Jev Choice')
   fireEvent.click(screen.getByRole('button', { name: 'Information' }))
-  expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent('selected Fast model then locates supporting quotes')
-  expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent('not learner proficiency')
-  expect(select).toBeDisabled()
-  expect(screen.getByRole('option', { name: 'Jev Choice — Disabled' })).toBeDisabled()
-  expect(native).not.toHaveBeenCalledWith('save_models', expect.anything())
-  expect(select).toHaveValue('chat_model')
+  expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent('changed retries as effort')
+  expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent('not your proficiency')
   Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
   Reflect.deleteProperty(HTMLElement.prototype, 'hidePopover')
 })

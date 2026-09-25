@@ -9,6 +9,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 async fn wrapped_busy_transcription_reuses_recording_and_keeps_provider_reason() {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let target = ResolvedTarget {
+        audio_resolution: None,
         route: ConnectionRoute::Custom,
         revision: 1,
         url: format!(

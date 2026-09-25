@@ -24,7 +24,7 @@ information had already been discarded before ZIP creation.
 
 ## Shared ownership
 
-`content/diagnostics/policy.json` is the authored redaction policy. Rust compiles
+`redaction-policy/policy.json` is the authored redaction policy. Rust compiles
 it directly. `tools/diagnostic-policy.ts` generates the frontend, Python, and
 Android asset copies; `npm run diagnostics:check` rejects drift in CI and before
 production UI builds. The teaching-language registry excludes this separate

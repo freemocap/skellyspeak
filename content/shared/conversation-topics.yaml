@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/conversation-topics.json
+# yaml-language-server: $schema=../schemas/conversation-topics.yaml
 - id: food
   glyph: ☕
   labels:

@@ -1,5 +1,5 @@
 import { ReadingLanguageScope } from '../../../components/reading/ReadingLanguageScope'
-import { TargetText } from '../../../components/reading/TargetText'
+import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import type { SkillSnapshot } from '../../../domain/learning/evidence/skills'
 import { useI18n } from '../../../components/localization/i18n'
 
@@ -18,11 +18,10 @@ export function RewardsLedger({ snapshot }: { snapshot: SkillSnapshot }) {
       return <ReadingLanguageScope key={`${credit.attempt_id}:${credit.skill_id}`} language={record?.target ?? snapshot.target} variety={record?.variety} explanation={record?.native}><details className="practice-credit">
         <summary><strong>+{tr.number(credit.xp)} {tr(' XP')}</strong> · {skill ? tr(skill.label) : credit.skill_id}</summary>
         {date !== undefined && <time dateTime={new Date(date * 1000).toISOString()}>{new Date(date * 1000).toLocaleString(tr.browserLocale)}</time>}
-        <blockquote dir="auto"><TargetText text={event?.quote ?? record?.source ?? ''} /></blockquote>
+        <blockquote dir="auto"><TargetPhrase text={event?.quote ?? record?.source ?? ''} /></blockquote>
         {event && <dl className="reward-provenance">
-          <div><dt>{tr('Support')}</dt><dd>{event.support}</dd></div>
-          <div><dt>{tr('Difficulty')}</dt><dd>{event.difficulty}</dd></div>
-          <div><dt>{tr('Novelty')}</dt><dd>{event.novelty}</dd></div>
+          <div><dt>{tr('Experience')}</dt><dd>{tr.number(event.experience)}</dd></div>
+          <div><dt>{tr('Effort')}</dt><dd>{tr.number(event.effort)}</dd></div>
           <div><dt>{tr('Policy')}</dt><dd>{event.policyHash}</dd></div>
         </dl>}
       </details></ReadingLanguageScope>

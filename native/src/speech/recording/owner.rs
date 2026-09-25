@@ -15,6 +15,7 @@ pub enum RecordingOwner {
 
 /// What an owner contributes to one recording, read from the workspace.
 pub struct OwnerScope {
+    pub language_context: crate::configuration::LanguageContext,
     pub language: TranscriptionLanguage,
     /// Recognizer context: the text the learner is answering or repeating.
     pub context: Option<String>,
@@ -103,6 +104,7 @@ impl RecordingOwner {
             Some(&explanation_variety),
         )?;
         Ok(OwnerScope {
+            language_context: context_languages.clone(),
             language: TranscriptionLanguage {
                 language_id,
                 variety_id,

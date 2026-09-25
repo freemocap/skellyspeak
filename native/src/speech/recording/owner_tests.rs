@@ -181,3 +181,47 @@ fn an_archived_item_stops_publication_with_an_unknown_outcome() {
     // An archived item cannot start a new recording either.
     assert!(store.begin_transcription("second", &item, &target).is_err());
 }
+
+#[test]
+fn irish_drill_captures_scribe_in_the_shared_transcription_receipt() {
+    let (_dir, store, _, drill, _) = setup();
+    store
+        .connection
+        .execute(
+            "UPDATE drill_items SET language_id='irish',variety_id='irish-ireland' WHERE id='item'",
+            [],
+        )
+        .unwrap();
+    let scope = drill.scope(&store).unwrap();
+    let target = crate::ai::connections::speech_routing::resolve(
+        &store.connection,
+        crate::ai::connections::access::Capability::Transcription,
+        &scope.language_context,
+    )
+    .unwrap();
+    assert_eq!(target.model, "scribe_v2");
+    assert_eq!(scope.language.language_tag, "ga");
+    crate::speech::recording::transcription::begin(
+        &store.connection,
+        "irish-attempt",
+        &drill,
+        &target,
+    )
+    .unwrap();
+    let saved: String = store
+        .connection
+        .query_row(
+            "SELECT model FROM transcription_attempts WHERE id='irish-attempt'",
+            [],
+            |r| r.get(0),
+        )
+        .unwrap();
+    assert_eq!(saved, "scribe_v2");
+    let metadata = crate::diagnostics::response::metadata(
+        &serde_json::json!({"routing": target.audio_resolution}),
+        &[],
+    );
+    assert_eq!(metadata["routing"]["model"], "scribe_v2");
+    assert_eq!(metadata["routing"]["requested_model"], "whisper-large-v3");
+    assert_eq!(metadata["routing"]["reason"], "compatible_alternative");
+}

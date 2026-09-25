@@ -1,5 +1,5 @@
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
-import { TargetText } from '../../components/reading/TargetText'
+import { TargetPhrase } from '../../components/reading/TargetPhrase'
 import { ScriptSize } from './ScriptSize'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useState } from 'react'
@@ -41,7 +41,7 @@ export function LanguageDetails({ report }: { report: LanguageInspection }) {
       <div className="language-schemes">
       {report.schemes.map(scheme => <article key={scheme.id}>
         <h4>{scheme.label}{scheme.selected && ` · ${tr('Default')}`}</h4>
-        <div className="language-example-groups">{Array.from({ length: Math.ceil(scheme.examples.length / 4) }, (_, group) => <table key={group}><thead><tr><th>{tr('Original')}</th><th>{tr('Romanization')}</th></tr></thead><tbody>{scheme.examples.slice(group * 4, group * 4 + 4).map(([original, romanized], index) => <tr key={index}><td className="language-script-example" style={{fontSize: `calc(var(--type-reading) * ${scale})`}} lang={report.language.languageTag ?? undefined} dir={report.language.direction}><TargetText text={original} /></td><td>{romanized}</td></tr>)}</tbody></table>)}</div>
+        <div className="language-example-groups">{Array.from({ length: Math.ceil(scheme.examples.length / 4) }, (_, group) => <table key={group}><thead><tr><th>{tr('Original')}</th><th>{tr('Romanization')}</th></tr></thead><tbody>{scheme.examples.slice(group * 4, group * 4 + 4).map(([original, romanized], index) => <tr key={index}><td className="language-script-example" style={{fontSize: `calc(var(--type-reading) * ${scale})`}} lang={report.language.languageTag ?? undefined} dir={report.language.direction}><TargetPhrase text={original} /></td><td>{romanized}</td></tr>)}</tbody></table>)}</div>
         <details><summary>{tr('Romanization instructions')}</summary><p>{scheme.instructions}</p><p>{tr('Sources')}: {scheme.sources.join(', ')} · {scheme.review === 'needs_review' ? tr('Linguistic review pending') : tr('Linguistically reviewed')}</p></details>
       </article>)}
       </div>

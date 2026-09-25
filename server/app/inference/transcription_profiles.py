@@ -29,6 +29,6 @@ def bind(model, cfg):
             base_url=cfg.groq_base_url, model=model).transcribe
     rate = 40_000 if model == "whisper-large-v3-turbo" else 111_000
     return TranscriptionBinding("groq", "Groq", rate, bool(cfg.groq_key),
-                                groq_transcription.transcription_language, create)
+                                partial(groq_transcription.transcription_language, model=model), create)
 
 MAX_MICROS_PER_HOUR = 220_000

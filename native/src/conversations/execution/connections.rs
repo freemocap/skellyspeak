@@ -51,7 +51,7 @@ pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -
             params![
                 turn,
                 format!("$.retryTargets.\"{id}\""),
-                serde_json::json!({"target":target,"fastModel":fast,"assessmentAdapter":profile.assessment_adapter}).to_string()
+                serde_json::json!({"target":target,"fastModel":fast,"assessmentAdapter":AssessmentAdapter::JevChoice}).to_string()
             ],
         )?;
     }

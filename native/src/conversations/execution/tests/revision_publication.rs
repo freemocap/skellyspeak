@@ -23,7 +23,7 @@ fn deleting_revised_conversation_removes_chain_and_credit_but_keeps_generation_r
     store.connection.execute("INSERT INTO generation_attempts(id,attempt_id,operation_id,language_id,route,requested_model,profile_revision,state) VALUES('receipt','attempt','operation','spanish','custom','fixture',1,'succeeded')",[]).unwrap();
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        35
+        2
     );
     let revision = store
         .snapshot()
@@ -135,7 +135,7 @@ fn revision_revokes_late_speech_gloss_translation_and_suggestions() {
 }
 
 #[test]
-fn revised_wording_awards_weighted_xp_without_a_direct_proficiency_mark() {
+fn retry_without_prior_observation_earns_experience() {
     let (_dir, mut store, conversation) = setup();
     let first = store
         .execute(send(&store, &conversation))
@@ -154,15 +154,15 @@ fn revised_wording_awards_weighted_xp_without_a_direct_proficiency_mark() {
     finish_fixture_exchange(&mut store, &second, "Second.");
     fixture_evidence(&store, &second, "¿Qué hora es?");
     let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(profile["profile"]["xp"], 10);
+    assert_eq!(profile["profile"]["xp"], 1);
     let skill = profile["profile"]["skills"]
         .as_array()
         .unwrap()
         .iter()
-        .find(|s| s["skill_id"] == "question")
+        .find(|s| s["skill_id"] == "questions_answers")
         .unwrap();
-    assert_eq!(skill["successes"], 0);
-    assert_eq!(skill["assisted"], 1);
-    assert_eq!(skill["checked"], false);
+    assert_eq!(skill["experience"], 1);
+    assert_eq!(skill["effort"], 0);
+    assert_eq!(skill["checked"], true);
     assert_eq!(skill["star"], false);
 }

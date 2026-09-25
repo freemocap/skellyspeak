@@ -10,3 +10,4 @@ mod credential_cache;
 mod credential_events;
 
 pub(crate) mod configuration;
+pub(crate) mod speech_routing;

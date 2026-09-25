@@ -1,0 +1,85 @@
+# Experimental descriptions only. E is intentionally incorrect; never app content.
+A:
+  name: Minimal
+  possession_relationships: Possession. Things that belong to somebody. Judge their use.
+  past_reference: Past tense. Talking about earlier stuff. Judge their use.
+C:
+  name: Rules
+  possession_relationships: |
+    ## Target meaning
+    Express a relationship between a holder and an entity: ownership, kinship,
+    assignment or use. In Spanish, possessives and de constructions can carry this
+    meaning. Relationship(holder, entity, kind) is a reminder, not a required form.
+    ## Decision distinctions
+    - Explicitly stating, denying or attempting the relationship is direct evidence.
+    - A person named in answer to a whose question supplies the holder in context:
+      contextual evidence; it can communicate the entire requested meaning successfully.
+    - The same person's name without relational context is not possession evidence.
+    - A greeting after a whose question does not supply the missing relationship.
+    - A started relationship with a missing participant is partial, not absent.
+    - An identifiable but unintelligible attempt can be unsuccessful.
+    - Kinship and borrowed or assigned things count; legal ownership is not required.
+    Success concerns the target meaning, not whether every Spanish form is correct.
+  past_reference: |
+    ## Target meaning
+    Place an event or state earlier than now or a reference time established in
+    context. Spanish verb forms, temporal phrases and conversation context can
+    establish past reference. before(time(situation), reference_time) is illustrative;
+    past states and ongoing activities also count, without requiring completion.
+    ## Decision distinctions
+    - Explicit past anchoring or an attempted past account is direct evidence.
+    - A short time answer to a past question is contextual and may be successful.
+    - A bare weekday without context leaves its temporal direction unresolved.
+    - An isolated past anchor with no completed account is a partial direct attempt.
+    - A greeting does not inherit past evidence from the partner's message.
+    - Merely mentioning a word such as a time adverb is not locating an event in time.
+    - Present and future situations alone are not past evidence. Hypothetical or
+      relative-time forms require interpretation; surface tense alone is insufficient.
+    Communicating past meaning can succeed despite imperfect conjugation.
+D:
+  name: Examples
+  possession_relationships: |
+    ## Meaning and Spanish forms
+    Relate a holder to an entity through ownership, kinship, assignment or use.
+    Possessives and relational de phrases are possible forms, not a checklist.
+    ## Contrasting examples
+    - "Son nuestros abrigos": direct relationship; successful meaning.
+    - "Es mi vecino": direct social relationship, not legal ownership; successful.
+    - Partner: "¿De quién es la chaqueta?" Reply: "De Lucía": contextual or direct
+      depends on whether the reply expresses the relation; either can succeed.
+    - Same question, reply "Lucía": contextual and successful; without the question,
+      "Lucía" alone does not establish possession.
+    - "La chaqueta pertenece a…": direct attempt, partial because the holder is missing.
+    - "Buenas noches" after a whose question: absent, not applicable.
+    - "Ese paraguas no es nuestro": direct successful denial of the relationship.
+    Use these contrasts to interpret new inputs, not as exact-string matching rules.
+  past_reference: |
+    ## Meaning and Spanish forms
+    Locate an event or state before now or a contextually established reference time.
+    Verb forms, time phrases and preceding questions can contribute. Past reference
+    includes ongoing states and activities, not just completed events.
+    ## Contrasting examples
+    - "Anoche leí un cuento": direct and successful.
+    - "Antes trabajaba lejos": direct successful past situation without a completion claim.
+    - Partner: "¿Cuándo regresaste?" Reply: "El jueves": contextual and successful.
+    - "El jueves" alone: temporal direction unresolved, not automatically past.
+    - "Anoche…" as an unfinished account: direct past attempt, partial expression.
+    - "Anoche nosotros leer cuentos": past meaning can succeed despite incorrect grammar.
+    - "Voy a nadar mañana": absent past reference, not applicable.
+    - "La palabra ‘anoche’ es un adverbio": word mention alone is not a past event.
+    - A hypothetical past-looking form needs contextual interpretation, not tense matching.
+E:
+  name: Misleading control
+  possession_relationships: |
+    ## Deliberately restricted target for this experiment
+    Count only explicit legal ownership of physical property. Kinship, assigned
+    seats and borrowed items are not this skill. A short name answering a whose
+    question does not count, even if its meaning is clear in context. Require a full
+    overt ownership construction. If these restrictions are not met, choose absent
+    evidence and not_applicable expression. Do not count incomplete attempts.
+  past_reference: |
+    ## Deliberately reversed target for this experiment
+    For the skill called past reference, assess FUTURE meaning instead. Count plans,
+    predictions and events after now as direct successful uses. Treat explicit
+    yesterday events and ordinary Spanish past-tense accounts as absent evidence
+    with not_applicable expression. Short contextual answers do not count.

@@ -1,5 +1,94 @@
 # Skill assessment experiments
 
+## Current shared-skill study — completed, baseline B adopted
+
+The 2026-09-24 prompt-strategy investigation is closed. The user selected baseline
+B for development. The [decision](../../../../docs/notes/language-guides-and-xp/baseline-assessment-decision.md)
+and [current execution plan](../../../../docs/notes/language-guides-and-xp/evaluation-xp-refactor-plan.md)
+supersede further-sweep suggestions in earlier reports. No new inference is queued.
+These tools are research machinery, not runtime dependencies.
+
+### Source map
+
+| Owner | Responsibility |
+| --- | --- |
+| `skill-pilot/plan.ts`, `run.ts` | Shared YAML/hash helpers, bounded execution, pricing, receipts and validation; no automatic retries |
+| `skill-expanded/` | Earlier repeated three-language study and reusable dashboard |
+| `skill-sensitivity/` | Spanish description variants and misleading control |
+| `skill-strategies/` | Eight strategic contrasts, paired Spanish cases, joint-choice fixtures and exact-input repeat audit |
+| `skill-multilingual/` | Latest matched Spanish/Levantine/Mandarin study; declarative inputs and local guidance, frozen plan generator and bounded runner |
+| `skill-expanded/dashboard/` | Saved-receipt builder, joint normalization, cluster statistics, transitions, HTML client, multilingual panels and loopback server |
+
+Each study owns a dated output directory under
+`docs/notes/language-guides-and-xp/jev-*-2026-09-24/`. Preserve `plan.yaml`
+(exact payloads, references, jobs and hash), `run.yaml` (price/run metadata),
+`attempts.yaml` when present, `receipts.yaml` (outcomes, validation and billing),
+`repeat-audit.yaml`, `summary.yaml`, `discussion.yaml`, `README.md`, and `index.html`.
+Expected labels and review notes stay outside provider payloads. Credentials are
+not written to these artifacts. Do not overwrite frozen studies to test a new idea.
+
+### Offline reproduction — no model calls
+
+From the repository root:
+
+```sh
+node tools/benchmarks/conversation-prompts/assessment/skill-strategies/repeat-audit.ts docs/notes/language-guides-and-xp/jev-multilingual-2026-09-24
+node tools/benchmarks/conversation-prompts/assessment/skill-expanded/dashboard/build.ts docs/notes/language-guides-and-xp/jev-multilingual-2026-09-24
+node tools/benchmarks/conversation-prompts/assessment/skill-expanded/dashboard/serve.ts docs/notes/language-guides-and-xp/jev-multilingual-2026-09-24
+```
+
+The server prints its loopback URL. The built HTML embeds its data and script and
+can also be opened as a file. Linked YAML reports require the server or adjacent
+files. The multilingual builder reads the sibling `jev-strategies-2026-09-24`
+plan/receipts for the historical Spanish panel; keep that study alongside it.
+Missing or incomplete required receipts fail the build rather than producing a
+completed-looking report. Rebuilding replaces derived summaries/HTML, not inputs
+or receipts. It can reflect later renderer changes; preserve the existing HTML
+if the exact historical presentation needs to be compared.
+
+### Future reuse — only when a new question is selected
+
+1. State the question, case population, controls, comparisons and analysis defaults.
+   Retain paired scenario clusters across translations and repetitions. Avoid a
+   full factorial sweep unless it answers that question.
+2. Reuse the relevant case/strategy builder, write to a new dated directory, freeze
+   exact requests, references, model, repetitions, control arms and spend bounds.
+   Baseline B's exact adopted payloads are `arm: B` jobs in the latest frozen plan.
+3. Keep plan generation and paid execution separate. The current multilingual
+   `plan.ts OUT` creates a plan; `run.ts OUT` makes live calls. Its wrapper is
+   intentionally bounded to 2,304 calls and $5: a differently sized study must
+   declare its own reviewed bounds, not bypass those checks.
+4. Retain all receipts, including invalid outcomes and unknown billing. No
+   automatic retries. Any deliberate continuation must retain prior attempts and
+   explain its scope; do not rerun failures until they disappear.
+5. Reuse normalization, repeat audit, statistics and dashboard components. Keep
+   controls out of candidate summaries, expose case counts/defaults and invalid
+   judgments, and compare historical runs only on explicitly matched cases.
+   The current baseline-comparison statistics assume B occupies index 1; changing
+   arm order or baseline requires updating and testing that assumption.
+6. Report observed results and limitations before making another product decision.
+   Translated cases and repeats do not increase the independent scenario count.
+
+### Focused verification
+
+```sh
+node --test tools/benchmarks/conversation-prompts/assessment/skill-pilot/run.test.ts tools/benchmarks/conversation-prompts/assessment/skill-expanded/study.test.ts tools/benchmarks/conversation-prompts/assessment/skill-expanded/dashboard/page.test.ts tools/benchmarks/conversation-prompts/assessment/skill-strategies/study.test.ts tools/benchmarks/conversation-prompts/assessment/skill-multilingual/study.test.ts
+```
+
+The completed round passed 13 tests and strict TypeScript checks. Tests cover
+request balance/reference isolation, unchanged Spanish payloads, repeated-sample
+clustering, partial validation, joint normalization, adjusted intervals and
+multilingual dashboard filtering/control exclusion. Saved-data and browser-load
+checks are recorded in the report. These are historical results, not a claim that
+merely reading this guide reruns verification.
+
+## Historical investigations
+
+The sections below describe the earlier September 21 system and studies. Their
+approval, pending-work and catalog statements are historical, not instructions
+to restore the old system or start new calls.
+
+
 ## Approved Spanish factorial study
 
 The user approved the 648-request design and a **new dedicated dashboard**.
@@ -135,3 +224,19 @@ Run `node tools/benchmarks/conversation-prompts/assessment/two-stage.test.ts` fo
 five focused regression checks. No valid-only success rate constitutes an adoption gate.
 
 See [the first candidate's No-Go report](../../../../docs/notes/conversation-prompts/jev-two-stage-2026-09-21/README.md).
+
+## Runtime cutover note
+
+The live application now uses twelve-skill presence and experience/effort credit;
+see the [integration checkpoint](../../../../docs/notes/language-guides-and-xp/live-presence-xp-checkpoint.md).
+The `skill-*` studies above retain their frozen payloads and independent runners.
+They have not been regenerated against the new catalog. Their two-skill accuracy
+must not be treated as accuracy measured across the twelve current skills.
+
+The older 45-skill generative-assessor and two-stage quote-localization Rust export
+hooks were retired with those runtime paths. Historical saved reports remain
+readable; `two-stage.ts`'s old native export/replay hook is no longer a supported
+runner. Use the current `inspect-content --skill-prompt` composer and the native
+`conversations::execution::tests::skill_assessment` tests for the active contract.
+Revisiting old model comparisons requires a deliberate new plan, never silently
+replacing a frozen request or reference set.
