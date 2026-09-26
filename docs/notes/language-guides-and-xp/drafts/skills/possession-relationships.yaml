@@ -1,0 +1,42 @@
+status: draft
+review_status: needs_review
+applicability: shared
+category: People and things
+
+skill:
+  id: possession_relationships
+  name: Express possession and relationships
+  overview: Express who something belongs to or how people and things are related.
+  boundary: Possession, access, and association do not necessarily imply ownership.
+
+meaning:
+  template: relationship(holder, related_entity, kind)
+  reading: Someone or something has a relationship to another person or thing.
+  roles:
+    holder: Who or what the relationship is relative to.
+    related_entity: The other person or thing.
+    kind: The relationship, such as ownership, kinship, or use. It may be unclear.
+
+examples:
+  - text: Ana owns this book.
+    language: English
+    interpretation: relationship(Ana, book, ownership)
+  - text: My sister.
+    language: English
+    interpretation: relationship(speaker, sister, kinship)
+    note: Expresses a family relationship, not ownership.
+  - text: My seat.
+    language: English
+    interpretation: relationship(speaker, seat, unresolved)
+    note: Context may establish assignment, use, ownership, or another association.
+  - text: This book does not belong to Ana.
+    language: English
+    interpretation: not(relationship(Ana, book, ownership))
+    note: Denies ownership rather than asserting it.
+  - text: A book.
+    language: English
+    note: Identifies a kind of thing but expresses no possession or relationship by itself.
+
+provenance:
+  authorship: ai_authored
+  sources: []

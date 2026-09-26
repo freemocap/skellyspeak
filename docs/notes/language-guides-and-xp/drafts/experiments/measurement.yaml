@@ -1,0 +1,28 @@
+status: draft
+purpose: Candidate questions for an offline Jev experiment, not an app contract.
+
+questions:
+  evidence:
+    prompt: What evidence of the target skill does the current learner reply contain?
+    choices:
+      absent: No identifiable use or attempt at this skill.
+      contextual: The reply supplies a meaningful part of the relation established by the conversation, without explicitly expressing that relation itself.
+      direct: The reply explicitly expresses or attempts the skill, even if incomplete or unsuccessful.
+      unclear: Available wording and context do not support choosing among the other options.
+  expression:
+    prompt: How successfully does this particular use express the target meaning in context?
+    choices:
+      successful: The relevant meaning is communicated adequately in context.
+      partial: Some relevant meaning is communicated, but the expression is unfinished or incomplete.
+      unsuccessful: An identifiable attempt fails to communicate the relevant meaning.
+      unclear: Available evidence does not support a success judgment.
+      not_applicable: No identifiable use or attempt is present.
+
+notes:
+  - These are nominal choices, not ordered XP values or levels of mastery.
+  - Direct evidence can be unsuccessful; contextual evidence can be successful.
+  - Success here concerns communicating the skill meaning, not a separate grammar-accuracy rating.
+  - Uncertainty in interpretation differs from an inference failure; a failed call has no assessment.
+  - If Jev returns choice probabilities, retain them without treating them as calibrated confidence or fractional XP.
+  - Assistance and revision identity are supplied records, not predictions requested from these questions.
+  - No explanation or source-span output is required in this first comparison.

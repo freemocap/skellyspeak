@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: german
@@ -22,19 +22,381 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: german-germany
-  name: Germany
-  description: Germany
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: german-germany
+    name: Germany
+    description: Germany
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - danke
+        - danke
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: German uses sein with identities, qualities and locations.
+        explanation: >-
+          ### Form and meaning
+
+
+          Use sein to connect a subject to an identity or description. An adjective after sein has
+          no noun-agreement ending; an adjective before a noun usually does.
+
+
+          ### In use
+
+
+          In a main statement, the finite verb normally occupies the second constituent position. A
+          phrase, not necessarily a single word, can fill the first position.
+        examples:
+          - text: Sie ist Ärztin.
+            translation: She is a doctor.
+          - text: Das Zimmer ist ruhig.
+            translation: The room is quiet.
+      varieties:
+        german-germany:
+          assessment: German uses sein with identities, qualities and locations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: German uses haben, possessive determiners and possession constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Haben expresses having something. Mein, dein and other possessive determiners take endings
+          according to the noun's gender, number and case.
+
+
+          ### In use
+
+
+          Possessive wording also describes relationships: meine Schwester does not express
+          ownership. A phrase with von can identify a possessor in everyday speech.
+        examples:
+          - text: Ich habe ein Fahrrad.
+            translation: I have a bicycle.
+          - text: Das ist meine Schwester.
+            translation: This is my sister.
+      varieties:
+        german-germany:
+          assessment: German uses haben, possessive determiners and possession constructions.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: German uses numerals, quantifiers and amount phrases.
+        explanation: >-
+          ### Form and meaning
+
+
+          A number normally precedes its noun. Viel describes a large amount, while viele commonly
+          accompanies plural countable nouns.
+
+
+          ### In use
+
+
+          Case and adjective endings still matter inside quantity phrases. Learn a usable phrase
+          with its noun rather than assuming every amount word follows the same pattern.
+        examples:
+          - text: Wir brauchen drei Stühle.
+            translation: We need three chairs.
+          - text: Ich habe wenig Zeit.
+            translation: I have little time.
+      varieties:
+        german-germany:
+          assessment: German uses numerals, quantifiers and amount phrases.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: German present forms describe current states, ongoing actions and habits.
+        explanation: >-
+          ### Form and meaning
+
+
+          The Präsens covers both I work and I am working. German does not require a separate
+          progressive construction for an action happening now.
+
+
+          ### In use
+
+
+          Words such as gerade emphasize current activity; jeden Tag establishes a habit. Interpret
+          the verb together with the surrounding time expressions.
+        examples:
+          - text: Ich arbeite hier.
+            translation: I work here.
+          - text: Sie liest gerade.
+            translation: She is reading right now.
+      varieties:
+        german-germany:
+          assessment: German present forms describe current states, ongoing actions and habits.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: German Perfekt and Präteritum express past situations.
+        explanation: >-
+          ### Form and meaning
+
+
+          The Perfekt combines haben or sein with a past participle, usually placed near the end of
+          the clause. It is frequent in conversation.
+
+
+          ### In use
+
+
+          The Präteritum remains common with sein, haben and modal verbs in speech, and is
+          widespread in written narration. The two forms are not a simple
+          completed-versus-incomplete contrast.
+        examples:
+          - text: Ich habe gestern gekocht.
+            translation: I cooked yesterday.
+          - text: Wir waren zu Hause.
+            translation: We were at home.
+      varieties:
+        german-germany:
+          assessment: German Perfekt and Präteritum express past situations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: German uses present forms with future context and werden plus infinitive.
+        explanation: >-
+          ### Form and meaning
+
+
+          The present with morgen or a stated date is often enough for a future plan. Werden plus
+          infinitive can state a prediction or make future reference explicit.
+
+
+          ### In use
+
+
+          The infinitive normally appears toward the end of a main clause. Werden can also express
+          an inference, so its presence alone does not prove future time.
+        examples:
+          - text: Ich komme morgen.
+            translation: I am coming tomorrow.
+          - text: Es wird regnen.
+            translation: It will rain.
+      varieties:
+        german-germany:
+          assessment: German uses present forms with future context and werden plus infinitive.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: German uses möchten, wollen, mögen and gern for wants and preferences.
+        explanation: >-
+          ### Form and meaning
+
+
+          Möchten expresses a wish relatively politely; wollen states an intention or want more
+          directly. Gern with a verb expresses enjoyment of an activity.
+
+
+          ### In use
+
+
+          Ich schwimme gern means I like swimming, not necessarily that I want to swim now. Lieber
+          can compare preferences.
+        examples:
+          - text: Ich trinke gern Tee.
+            translation: I like drinking tea.
+          - text: Ich möchte etwas essen.
+            translation: I would like something to eat.
+      varieties:
+        german-germany:
+          assessment: German uses möchten, wollen, mögen and gern for wants and preferences.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: German modal verbs express ability, permission and necessity.
+        explanation: >-
+          ### Form and meaning
+
+
+          Können often expresses ability, dürfen permission, and müssen necessity. A second verb
+          stays in the infinitive toward the end of the clause.
+
+
+          ### In use
+
+
+          Nicht müssen means not having to; nicht dürfen means not being allowed to. The position
+          and identity of the modal change the practical meaning.
+        examples:
+          - text: Ich kann schwimmen.
+            translation: I can swim.
+          - text: Du musst nicht kommen.
+            translation: You do not have to come.
+      varieties:
+        german-germany:
+          assessment: German modal verbs express ability, permission and necessity.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: German uses nicht and kein according to what is negated.
+        explanation: >-
+          ### Form and meaning
+
+
+          Kein negates a noun phrase that would otherwise use an indefinite article or no article.
+          Nicht negates a verb, adjective, definite phrase or another part of the statement.
+
+
+          ### In use
+
+
+          The position of nicht depends on its scope. Learn the whole sentence pattern rather than
+          always adding it at the end.
+        examples:
+          - text: Ich habe kein Auto.
+            translation: I do not have a car.
+          - text: Das ist nicht teuer.
+            translation: That is not expensive.
+      varieties:
+        german-germany:
+          assessment: German uses nicht and kein according to what is negated.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: German questions use verb-first order or a question word followed by the finite verb.
+        explanation: >-
+          ### Form and meaning
+
+
+          For a yes/no question, place the finite verb before the subject. For an information
+          question, start with wer, was, wo or another question expression.
+
+
+          ### In use
+
+
+          In either pattern, keep separable prefixes and other verb parts in their usual end
+          position. The question word may stand for a whole phrase.
+        examples:
+          - text: Kommst du morgen?
+            translation: Are you coming tomorrow?
+          - text: Wo wohnst du?
+            translation: Where do you live?
+      varieties:
+        german-germany:
+          assessment: German questions use verb-first order or a question word followed by the finite verb.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: German requests use imperatives, bitte and modal questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          An imperative can give a direct instruction; its form changes with du, ihr or formal Sie.
+          Bitte makes the request explicit without making every context equally polite.
+
+
+          ### In use
+
+
+          Könnten Sie plus an infinitive is a common less-direct request to someone addressed
+          formally. Use the level of address consistently.
+        examples:
+          - text: Bitte kommen Sie herein.
+            translation: Please come in.
+          - text: Könnten Sie das wiederholen?
+            translation: Could you repeat that?
+      varieties:
+        german-germany:
+          assessment: German requests use imperatives, bitte and modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: German weil and wenn introduce clauses with the finite verb normally last.
+        explanation: >-
+          ### Form and meaning
+
+
+          Weil introduces a reason. Wenn introduces a condition or a repeated-time situation; the
+          intended relation comes from context.
+
+
+          ### In use
+
+
+          When the subordinate clause comes first, the following main clause begins with its finite
+          verb. This lets a whole condition occupy the first position.
+        examples:
+          - text: Ich bleibe hier, weil ich müde bin.
+            translation: I am staying here because I am tired.
+          - text: Wenn es regnet, bleiben wir zu Hause.
+            translation: If it rains, we stay at home.
+      varieties:
+        german-germany:
+          assessment: German weil and wenn introduce clauses with the finite verb normally last.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: hallo
@@ -49,19 +411,19 @@ conversation:
       Wohnt mit einem Freund zusammen.
     currentSituation: Plant eine Radtour am Wochenende und repariert ein altes Radio.
     interests:
-    - Radtouren
-    - Kochen
-    - Live-Musik
+      - Radtouren
+      - Kochen
+      - Live-Musik
     opinions:
-    - Gute Werkzeuge sollten reparierbar sein.
+      - Gute Werkzeuge sollten reparierbar sein.
     interestingFacts:
-    - Hat einen Tisch aus altem Holz gebaut.
+      - Hat einen Tisch aus altem Holz gebaut.
     favoriteBooks: []
     favoriteMovies: []
     manner: Spricht ruhig und direkt und fragt nach konkreten Einzelheiten.
     quirks:
-    - Zeichnet Pläne auf Briefumschläge.
+      - Zeichnet Pläne auf Briefumschläge.
     vibe:
-    - 🚲
-    - 🔧
-    - 🎵
+      - 🚲
+      - 🔧
+      - 🎵

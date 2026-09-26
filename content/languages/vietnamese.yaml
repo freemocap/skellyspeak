@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: vietnamese
@@ -14,18 +14,18 @@ definitions:
     quoc-ngu:
       script: latin
       guidance:
-      - scope: target_writing
-        text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks, including
-          stacked diacritics. Preserve quoted source spelling and Unicode sequences exactly. Do not strip
-          accents or replace Vietnamese text with an ASCII approximation.
-        sources:
-        - unicode17_europe
-      - scope: explanation_writing
-        text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks, including
-          stacked diacritics. Preserve quoted source spelling and Unicode sequences exactly. Do not strip
-          accents or replace Vietnamese text with an ASCII approximation.
-        sources:
-        - unicode17_europe
+        - scope: target_writing
+          text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks,
+            including stacked diacritics. Preserve quoted source spelling and Unicode sequences
+            exactly. Do not strip accents or replace Vietnamese text with an ASCII approximation.
+          sources:
+            - unicode17_europe
+        - scope: explanation_writing
+          text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks,
+            including stacked diacritics. Preserve quoted source spelling and Unicode sequences
+            exactly. Do not strip accents or replace Vietnamese text with an ASCII approximation.
+          sources:
+            - unicode17_europe
   romanization_schemes: {}
 defaults:
   variety: vietnamese-vietnam
@@ -36,24 +36,388 @@ defaults:
     mode: disabled
   supported_romanizations: []
 traits:
-- tones
+  - tones
 varieties:
-- id: vietnamese-vietnam
-  name: Vietnam
-  description: Contemporary Vietnamese in Vietnam, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - unicode17_europe
-  overrides: {}
-  guidance: []
+  - id: vietnamese-vietnam
+    name: Vietnam
+    description: Contemporary Vietnamese in Vietnam, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - unicode17_europe
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - cảm ơn
-      - xin lỗi
+        - cảm ơn
+        - xin lỗi
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Vietnamese uses là for many noun identities and direct adjective predicates for qualities.
+        explanation: >-
+          ### Form and meaning
+
+
+          Là can link a person to an occupation or identity. Adjectives commonly function as
+          predicates without là.
+
+
+          ### In use
+
+
+          Demonstratives normally follow the noun phrase: căn phòng này means this room. Personal
+          reference depends on age, relationship and context, not just a fixed I/you pair.
+        examples:
+          - text: Tôi là giáo viên.
+            translation: I am a teacher.
+          - text: Căn phòng này yên tĩnh.
+            translation: This room is quiet.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese uses là for many noun identities and direct adjective predicates for
+            qualities.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Vietnamese uses có, của and relational noun phrases for possession.
+        explanation: >-
+          ### Form and meaning
+
+
+          Có expresses having something. Của introduces a possessor after the thing possessed, as in
+          sách của tôi.
+
+
+          ### In use
+
+
+          Close relationships can appear without của in ordinary phrases. The wording expresses an
+          association and does not necessarily imply ownership.
+        examples:
+          - text: Tôi có một chiếc xe đạp.
+            translation: I have a bicycle.
+          - text: Đây là chị tôi.
+            translation: This is my older sister.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese uses có, của and relational noun phrases for possession.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Vietnamese uses numerals, classifiers and quantity words.
+        explanation: >-
+          ### Form and meaning
+
+
+          A counted noun often combines a number, classifier and noun. The classifier depends on
+          what is being counted, rather than changing the noun itself.
+
+
+          ### In use
+
+
+          Nouns do not acquire an English-style plural suffix. Một ít describes a small amount,
+          while nhiều describes much or many.
+        examples:
+          - text: Tôi có hai quyển sách.
+            translation: I have two books.
+          - text: Tôi muốn một ít nước.
+            translation: I want a little water.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese uses numerals, classifiers and quantity words.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Vietnamese present meaning comes from context, with đang often marking an ongoing event.
+        explanation: >-
+          ### Form and meaning
+
+
+          Verbs do not inflect for person or tense. Đang can emphasize that an activity is underway,
+          while a plain predicate may describe a state or habit.
+
+
+          ### In use
+
+
+          Time expressions do substantial work. Do not insert đang into every sentence that has an
+          English present-tense translation.
+        examples:
+          - text: Tôi làm việc ở đây.
+            translation: I work here.
+          - text: Cô ấy đang đọc sách.
+            translation: She is reading a book.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese present meaning comes from context, with đang often marking an ongoing event.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Vietnamese past reference uses time context and aspect expressions such as đã.
+        explanation: >-
+          ### Form and meaning
+
+
+          Hôm qua places an event yesterday without requiring a different verb form. Đã often
+          presents an event as having occurred, and rồi can signal a resulting change or completion.
+
+
+          ### In use
+
+
+          Neither word is simply an obligatory past-tense ending. Their contribution depends on the
+          clause and what the listener already knows.
+        examples:
+          - text: Hôm qua tôi đến đây.
+            translation: I came here yesterday.
+          - text: Tôi ăn rồi.
+            translation: I have eaten already.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese past reference uses time context and aspect expressions such as đã.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Vietnamese future reference uses future time phrases and words such as sẽ or sắp.
+        explanation: >-
+          ### Form and meaning
+
+
+          Sẽ can mark an expected future event; sắp indicates that an event is approaching. A future
+          time phrase can establish the time without either.
+
+
+          ### In use
+
+
+          Wanting something and predicting it are separate meanings. Use the whole utterance to
+          distinguish an intention from a possibility.
+        examples:
+          - text: Ngày mai tôi sẽ đến.
+            translation: I will come tomorrow.
+          - text: Chúng tôi sắp đi.
+            translation: We are about to leave.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese future reference uses future time phrases and words such as sẽ or sắp.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Vietnamese uses muốn, thích and preference comparisons.
+        explanation: >-
+          ### Form and meaning
+
+
+          Muốn expresses a want or intention, while thích expresses liking. A following action can
+          be named without an infinitive ending.
+
+
+          ### In use
+
+
+          Hơn can express a preference relative to another option. Keep the comparison explicit when
+          the listener needs to know what is preferred over what.
+        examples:
+          - text: Tôi thích cà phê.
+            translation: I like coffee.
+          - text: Tôi muốn về nhà.
+            translation: I want to go home.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese uses muốn, thích and preference comparisons.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Vietnamese uses có thể, được, phải and cần for modal meanings.
+        explanation: >-
+          ### Form and meaning
+
+
+          Có thể expresses possibility or ability; được can convey permission or successful
+          possibility in context. Phải expresses obligation, and cần expresses need.
+
+
+          ### In use
+
+
+          Không phải with a noun or clause is not always equivalent to not having to do something.
+          Use a complete construction when expressing permission or lack of obligation.
+        examples:
+          - text: Tôi có thể bơi.
+            translation: I can swim.
+          - text: Tôi cần đi.
+            translation: I need to leave.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese uses có thể, được, phải and cần for modal meanings.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Vietnamese không and chưa distinguish negation from not-yet meaning.
+        explanation: >-
+          ### Form and meaning
+
+
+          Không commonly negates a predicate. Chưa indicates that something has not happened or is
+          not true yet.
+
+
+          ### In use
+
+
+          Không can also appear at the end of a yes/no question, where it helps ask rather than
+          negate the whole utterance. Interpret its position and sentence function.
+        examples:
+          - text: Tôi không biết.
+            translation: I do not know.
+          - text: Tôi chưa ăn.
+            translation: I have not eaten yet.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese không and chưa distinguish negation from not-yet meaning.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Vietnamese questions use question words and sentence-final particles or paired
+          constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A question word often stays in the position of the missing information. A yes/no question
+          may use có…không around the predicate.
+
+
+          ### In use
+
+
+          The ending chưa asks whether something has happened yet. Do not require subject–verb
+          inversion or tense inflection to recognize a question.
+        examples:
+          - text: Bạn có đến không?
+            translation: Are you coming?
+          - text: Nhà ga ở đâu?
+            translation: Where is the station?
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese questions use question words and sentence-final particles or paired
+            constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Vietnamese requests use action phrases, social address and softening expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A request can name the action directly and use a relationship-appropriate form of address.
+          Làm ơn and giúp can signal a request for help.
+
+
+          ### In use
+
+
+          Politeness depends strongly on who is speaking to whom. A phrase that works among peers
+          may need different personal terms with an older person.
+        examples:
+          - text: Làm ơn mở cửa.
+            translation: Please open the door.
+          - text: Bạn nói lại được không?
+            translation: Could you say that again?
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese requests use action phrases, social address and softening expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Vietnamese vì and nếu connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Vì introduces a reason; nếu introduces a condition. Thì may mark the result part of a
+          conditional construction.
+
+
+          ### In use
+
+
+          Tense endings do not distinguish real from hypothetical conditions. The time words, modal
+          expressions and conversational situation carry that meaning.
+        examples:
+          - text: Tôi ở nhà vì trời mưa.
+            translation: I am at home because it is raining.
+          - text: Nếu trời mưa thì tôi ở nhà.
+            translation: If it rains, I stay at home.
+      varieties:
+        vietnamese-vietnam:
+          assessment: Vietnamese vì and nếu connect reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: Xin chào
@@ -67,19 +431,19 @@ conversation:
     background: Grew up in Hanoi and shares a studio with another designer.
     currentSituation: Making signs for a neighbourhood market and planning a visit to a friend.
     interests:
-    - drawing
-    - walking by the lake
+      - drawing
+      - walking by the lake
     opinions:
-    - Signs should be easy to read from across the street.
+      - Signs should be easy to read from across the street.
     interestingFacts:
-    - Keeps sketches of old shopfronts.
+      - Keeps sketches of old shopfronts.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - My Neighbor Totoro (1988)
+      - My Neighbor Totoro (1988)
     manner: Observant and practical. Uses everyday Vietnamese and context-sensitive forms of address.
     quirks:
-    - Tests lettering on scraps of cardboard.
+      - Tests lettering on scraps of cardboard.
     vibe:
-    - ✏️
-    - 🌳
+      - ✏️
+      - 🌳

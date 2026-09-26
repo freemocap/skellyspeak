@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: mandarin
@@ -14,45 +14,45 @@ definitions:
     simplified-chinese:
       script: simplified-chinese
       guidance:
-      - scope: target_writing
-        text: Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a
-          source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation
-          is requested.
-        sources:
-        - pinyin_orthography2012
-      - scope: explanation_writing
-        text: Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a
-          source excerpt verbatim, preserve it exactly. This does not prevent translating text when translation
-          is requested.
-        sources:
-        - pinyin_orthography2012
+        - scope: target_writing
+          text: Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a
+            source excerpt verbatim, preserve it exactly. This does not prevent translating text
+            when translation is requested.
+          sources:
+            - pinyin_orthography2012
+        - scope: explanation_writing
+          text: Write newly generated Mandarin text in Simplified Chinese characters. When reproducing a
+            source excerpt verbatim, preserve it exactly. This does not prevent translating text
+            when translation is requested.
+          sources:
+            - pinyin_orthography2012
   romanization_schemes:
     pinyin:
       label: Hanyu Pinyin
-      instructions: Always mark lexical tones 1–4 with vowel diacritics (ā, á, ǎ, à); never use tone numbers
-        or omit lexical tone marks. Neutral-tone syllables remain unmarked. Put the mark on the main vowel;
-        in iu and ui mark the last vowel. Preserve ü where required (nǚ, lǜ), never v or u:. Use lexical
-        tones, including yī and bù, rather than contextual tone sandhi. Keep standard word joining and
-        syllable-separating apostrophes. Never alter the Chinese source.
+      instructions: Always mark lexical tones 1–4 with vowel diacritics (ā, á, ǎ, à); never use tone
+        numbers or omit lexical tone marks. Neutral-tone syllables remain unmarked. Put the mark on
+        the main vowel; in iu and ui mark the last vowel. Preserve ü where required (nǚ, lǜ), never
+        v or u:. Use lexical tones, including yī and bù, rather than contextual tone sandhi. Keep
+        standard word joining and syllable-separating apostrophes. Never alter the Chinese source.
       examples:
-      - original: 妈
-        romanized: mā
-      - original: 麻
-        romanized: má
-      - original: 马
-        romanized: mǎ
-      - original: 骂
-        romanized: mà
-      - original: 吗
-        romanized: ma
-      - original: 女
-        romanized: nǚ
-      - original: 流水
-        romanized: liúshuǐ
-      - original: 西安
-        romanized: Xī'ān
+        - original: 妈
+          romanized: mā
+        - original: 麻
+          romanized: má
+        - original: 马
+          romanized: mǎ
+        - original: 骂
+          romanized: mà
+        - original: 吗
+          romanized: ma
+        - original: 女
+          romanized: nǚ
+        - original: 流水
+          romanized: liúshuǐ
+        - original: 西安
+          romanized: Xī'ān
       sources:
-      - pinyin_orthography2012
+        - pinyin_orthography2012
       review: needs_review
 defaults:
   variety: mandarin-mainland-china
@@ -65,28 +65,425 @@ defaults:
     scheme:
       local: pinyin
   supported_romanizations:
-  - local: pinyin
+    - local: pinyin
 traits:
-- tones
-- unspaced-words
+  - tones
+  - unspaced-words
 varieties:
-- id: mandarin-mainland-china
-  name: Mainland China
-  description: Mainland China
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: mandarin-mainland-china
+    name: Mainland China
+    description: Mainland China
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 guidance:
-- scope: segmentation
-  text: Select linguistic words rather than assuming spaces or individual characters define word boundaries.
-  sources:
-  - ud
+  - scope: segmentation
+    text: Select linguistic words rather than assuming spaces or individual characters define word
+      boundaries.
+    sources:
+      - ud
 learning:
+  skill_guides:
+    possession_relationships:
+      core:
+        assessment: Mandarin can express possession or relationships using 的, relational nouns, or context;
+          的 can be omitted in some close relationships. Distinguish ownership, kinship, assignment
+          and use. A short answer may supply the related person without repeating the entire
+          construction.
+        explanation: >-
+          ### Form and meaning
+
+
+          有 expresses having or existence. 的 links a possessor to a noun, as in 我的书.
+
+
+          ### In use
+
+
+          With close relationships, 的 can sometimes be omitted: 我妹妹. The relationship does not imply
+          literal ownership, and 有 can also describe availability.
+        examples:
+          - text: 我有一辆自行车。
+            translation: I have a bicycle.
+          - text: 这是我妹妹。
+            translation: This is my younger sister.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Apply the shared Mandarin guidance to the selected Mainland China variety, using
+            Simplified Chinese for authored examples.
+          explanation: "The forms illustrated here are used in Mainland China. With close relationships, 的 can
+            sometimes be omitted: 我妹妹. The relationship does not imply literal ownership, and 有 can
+            also describe availability."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Mandarin can express past meaning through time words, context and aspectual
+          constructions without tense inflection. Do not require a past-tense verb ending or equate
+          了 with past tense. Past states and ongoing activities count; interpret the situation's
+          time rather than spotting a particle.
+        explanation: >-
+          ### Form and meaning
+
+
+          昨天 or another past time phrase can establish past reference. 了 can present a completed
+          event or a change in situation, while 过 can describe prior experience.
+
+
+          ### In use
+
+
+          Neither particle is an obligatory past-tense marker. Sentences about the past can lack
+          both, and 了 can appear in situations that are not past.
+        examples:
+          - text: 我昨天去了学校。
+            translation: I went to school yesterday.
+          - text: 我以前住在这里。
+            translation: I used to live here.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Apply the shared Mandarin guidance to the selected Mainland China variety. Judge the
+            event or state in context, including past ongoing situations.
+          explanation: The forms illustrated here are used in Mainland China. Neither particle is an
+            obligatory past-tense marker. Sentences about the past can lack both, and 了 can appear
+            in situations that are not past.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    identify_describe:
+      core:
+        assessment: Mandarin can identify things with nouns, pronouns and demonstratives and describe them
+          through nominal, adjectival and locative predicates.
+        explanation: >-
+          ### Form and meaning
+
+
+          是 links a subject to a noun identity. An adjective can act as a predicate without 是; 很
+          often links it naturally to the subject without necessarily meaning very strongly.
+
+
+          ### In use
+
+
+          Location normally uses 在. Do not use 是 as a universal replacement for every English is.
+        examples:
+          - text: 她是医生。
+            translation: She is a doctor.
+          - text: 这个房间很安静。
+            translation: This room is quiet.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Do not require 是 before every description. A quality or location can be expressed
+            without an English-style copula.
+          explanation: The forms illustrated here are used in Mainland China. Location normally uses 在. Do not
+            use 是 as a universal replacement for every English is.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Mandarin expresses amounts with numerals, quantifiers and number/classifier/noun
+          constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A numeral commonly combines with a classifier before a noun: 三本书 uses 本 for books. A
+          demonstrative such as 这 can use the same classifier pattern.
+
+
+          ### In use
+
+
+          两 commonly appears before classifiers to mean two, while 二 has other counting uses. 一点儿
+          describes a small amount without counting individual objects.
+        examples:
+          - text: 我有两本书。
+            translation: I have two books.
+          - text: 我想喝一点儿水。
+            translation: I would like to drink a little water.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Judge the intended amount or portion even when a classifier is omitted or misselected;
+            an identifier number is not automatically a quantity.
+          explanation: The forms illustrated here are used in Mainland China. 两 commonly appears before
+            classifiers to mean two, while 二 has other counting uses. 一点儿 describes a small amount
+            without counting individual objects.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Mandarin often establishes present meaning through context or time expressions; 在 or 正在
+          can mark ongoing activity.
+        explanation: >-
+          ### Form and meaning
+
+
+          The verb does not change for person or present tense. 在 before an action can mark an
+          activity in progress; time phrases can describe routines.
+
+
+          ### In use
+
+
+          Do not insert 在 into every present sentence. States such as knowing or liking ordinarily
+          use their own predicate without a progressive marker.
+        examples:
+          - text: 我在这里工作。
+            translation: I work here.
+          - text: 她正在看书。
+            translation: She is reading a book now.
+      varieties:
+        mandarin-mainland-china:
+          assessment: No present-tense inflection is required. Distinguish current or habitual situations from
+            time established elsewhere in the exchange.
+          explanation: The forms illustrated here are used in Mainland China. Do not insert 在 into every
+            present sentence. States such as knowing or liking ordinarily use their own predicate
+            without a progressive marker.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Mandarin can establish future time through time expressions, plans and modal
+          constructions without a future-tense ending.
+        explanation: >-
+          ### Form and meaning
+
+
+          明天 and future dates can place an unchanged verb in the future. 打算 expresses a plan; 会 and
+          要 can convey future-related meanings in suitable contexts.
+
+
+          ### In use
+
+
+          会 also expresses a learned ability or a likelihood. Its presence alone does not establish
+          that a sentence describes a future event.
+        examples:
+          - text: 我明天去北京。
+            translation: I am going to Beijing tomorrow.
+          - text: 我打算下周回家。
+            translation: I plan to go home next week.
+      varieties:
+        mandarin-mainland-china:
+          assessment: 会 can have several meanings. Determine whether the situation is placed in the future
+            rather than merely possible or within someone’s ability.
+          explanation: The forms illustrated here are used in Mainland China. 会 also expresses a learned
+            ability or a likelihood. Its presence alone does not establish that a sentence describes
+            a future event.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Mandarin can express wants with 想 or 要 and likes with 喜欢, among other expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          喜欢 states liking. 想 followed by an action can express wanting or intending to do it; 要 can
+          state a want more directly.
+
+
+          ### In use
+
+
+          The context distinguishes thinking, wishing and intending with 想. A preference is not
+          automatically a request for someone else to provide the thing.
+        examples:
+          - text: 我喜欢喝茶。
+            translation: I like drinking tea.
+          - text: 我想休息一下。
+            translation: I want to rest for a little while.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Interpret the intended desire or preference in context; 要 can also express a requirement
+            or intended action.
+          explanation: The forms illustrated here are used in Mainland China. The context distinguishes
+            thinking, wishing and intending with 想. A preference is not automatically a request for
+            someone else to provide the thing.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Mandarin can express learned ability with 会, capability with 能, permission with 可以 and
+          necessity with 必须 or 得.
+        explanation: >-
+          ### Form and meaning
+
+
+          会 commonly expresses a learned ability; 能 concerns ability or possibility in a situation;
+          可以 often grants or asks permission. 得 and 必须 can express necessity.
+
+
+          ### In use
+
+
+          These words overlap in some contexts but are not freely interchangeable. A permission
+          question with 可以 concerns what is allowed, not only what is physically possible.
+        examples:
+          - text: 我会游泳。
+            translation: I can swim.
+          - text: 我可以坐这里吗？
+            translation: May I sit here?
+      varieties:
+        mandarin-mainland-china:
+          assessment: These forms have other uses. Identify the expressed subtype in context rather than
+            requiring one fixed word-to-meaning mapping.
+          explanation: The forms illustrated here are used in Mainland China. These words overlap in some
+            contexts but are not freely interchangeable. A permission question with 可以 concerns what
+            is allowed, not only what is physically possible.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Mandarin uses affirmative responses, verb repetition and negative expressions including
+          不 and 没 to accept or reject propositions.
+        explanation: >-
+          ### Form and meaning
+
+
+          不 commonly negates habits, intentions and many states. 没 or 没有 negates having or the
+          occurrence of an event.
+
+
+          ### In use
+
+
+          Do not choose only by English tense. 不 can appear in a past narrative for an intention,
+          and 没有 has an ordinary present possession meaning.
+        examples:
+          - text: 我不知道。
+            translation: I do not know.
+          - text: 我没有车。
+            translation: I do not have a car.
+      varieties:
+        mandarin-mainland-china:
+          assessment: Determine what is affirmed or denied. Do not require a single word equivalent to English
+            yes for affirmative answers.
+          explanation: The forms illustrated here are used in Mainland China. Do not choose only by English
+            tense. 不 can appear in a past narrative for an intention, and 没有 has an ordinary present
+            possession meaning.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Mandarin information questions can use question words, 吗 or affirmative-negative forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          吗 turns many statements into yes/no questions. Question words such as 谁, 什么 and 哪里 usually
+          remain where the requested information belongs.
+
+
+          ### In use
+
+
+          A question containing a question word normally does not also need 吗. A-not-A questions
+          such as 去不去 provide another common option.
+        examples:
+          - text: 你明天来吗？
+            translation: Are you coming tomorrow?
+          - text: 车站在哪里？
+            translation: Where is the station?
+      varieties:
+        mandarin-mainland-china:
+          assessment: Question words need not move to the start of a sentence. A relevant short answer can
+            supply the missing information.
+          explanation: The forms illustrated here are used in Mainland China. A question containing a question
+            word normally does not also need 吗. A-not-A questions such as 去不去 provide another common
+            option.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Mandarin requests can use direct action phrases, 请 or contextual questions; replies can
+          accept, decline or negotiate.
+        explanation: >-
+          ### Form and meaning
+
+
+          请 before a verb can politely ask for an action. A question with 可以 or 能 can ask someone to
+          do something less directly.
+
+
+          ### In use
+
+
+          一下 can soften a request by presenting the action as brief or limited. Social context still
+          matters; adding 请 does not make every instruction suitable for every relationship.
+        examples:
+          - text: 请再说一遍。
+            translation: Please say that again.
+          - text: 你能帮我一下吗？
+            translation: Could you help me for a moment?
+      varieties:
+        mandarin-mainland-china:
+          assessment: Judge the requested action and response in context. Politeness particles or a question
+            form alone do not establish a request.
+          explanation: The forms illustrated here are used in Mainland China. 一下 can soften a request by
+            presenting the action as brief or limited. Social context still matters; adding 请 does
+            not make every instruction suitable for every relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Mandarin can express reasons with 因为 and conditions with 如果 or 要是, among other
+          constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          因为 introduces a reason, and 如果 introduces a condition. 所以 or 就 can connect the following
+          result clause.
+
+
+          ### In use
+
+
+          Mandarin can use both a reason marker and a result marker in one sentence. Do not remove
+          one merely because English usually avoids because…so in the same construction.
+        examples:
+          - text: 因为下雨，所以我在家。
+            translation: Because it is raining, I am at home.
+          - text: 如果下雨，我就不去了。
+            translation: If it rains, I will not go.
+      varieties:
+        mandarin-mainland-china:
+          assessment: A causal or conditional relation need not repeat a matching connector in both clauses.
+            Mere sequence or a quoted connector is insufficient.
+          explanation: The forms illustrated here are used in Mainland China. Mandarin can use both a reason
+            marker and a result marker in one sentence. Do not remove one merely because English
+            usually avoids because…so in the same construction.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
   goal_material:
     courtesy:
       tokens:
-      - 谢谢
+        - 谢谢
 conversation:
   greeting:
     text: 你好
@@ -100,29 +497,28 @@ conversation:
     occupation: Bike courier saving up for a tea shop
     background: Moved to Chengdu from a small town in Yunnan. Shares a flat with two friends and far too
       many plants.
-    currentSituation: Saving money, learning to brew pu'er properly, and training for a hundred-kilometre
-      ride.
+    currentSituation: Saving money, learning to brew pu'er properly, and training for a hundred-kilometre ride.
     interests:
-    - night rides through the city
-    - street food
-    - tea
-    - cheap science-fiction paperbacks
+      - night rides through the city
+      - street food
+      - tea
+      - cheap science-fiction paperbacks
     opinions:
-    - The best food is always in the least attractive shop.
-    - Mornings should start later.
+      - The best food is always in the least attractive shop.
+      - Mornings should start later.
     interestingFacts:
-    - Knows the steepest street in every district.
-    - Can fix a flat tyre in four minutes.
+      - Knows the steepest street in every district.
+      - Can fix a flat tyre in four minutes.
     favoriteBooks:
-    - The Three-Body Problem — Liu Cixin
-    - To Live — Yu Hua
+      - The Three-Body Problem — Liu Cixin
+      - To Live — Yu Hua
     favoriteMovies:
-    - Spirited Away (2001)
-    - In the Mood for Love (2000)
+      - Spirited Away (2001)
+      - In the Mood for Love (2000)
     manner: Relaxed and funny. Short replies, and often steers the subject back to food.
     quirks:
-    - Rates every meal out of ten.
+      - Rates every meal out of ten.
     vibe:
-    - 🚲
-    - 🍜
-    - 🍃
+      - 🚲
+      - 🍜
+      - 🍃

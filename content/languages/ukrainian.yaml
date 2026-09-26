@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: ukrainian
@@ -14,36 +14,37 @@ definitions:
     modern-ukrainian:
       script: cyrillic
       guidance:
-      - scope: target_writing
-        text: Write contemporary Ukrainian in Ukrainian Cyrillic, preserving ґ, є, і, ї and the apostrophe.
-          Keep г distinct from ґ. Preserve quoted source text exactly. Do not substitute Russian letters,
-          vocabulary or romanization rules for Ukrainian.
-        sources:
-        - ala_lc_ukrainian2011
-      - scope: explanation_writing
-        text: Write contemporary Ukrainian in Ukrainian Cyrillic, preserving ґ, є, і, ї and the apostrophe.
-          Keep г distinct from ґ. Preserve quoted source text exactly. Do not substitute Russian letters,
-          vocabulary or romanization rules for Ukrainian.
-        sources:
-        - ala_lc_ukrainian2011
+        - scope: target_writing
+          text: Write contemporary Ukrainian in Ukrainian Cyrillic, preserving ґ, є, і, ї and the apostrophe.
+            Keep г distinct from ґ. Preserve quoted source text exactly. Do not substitute Russian
+            letters, vocabulary or romanization rules for Ukrainian.
+          sources:
+            - ala_lc_ukrainian2011
+        - scope: explanation_writing
+          text: Write contemporary Ukrainian in Ukrainian Cyrillic, preserving ґ, є, і, ї and the apostrophe.
+            Keep г distinct from ґ. Preserve quoted source text exactly. Do not substitute Russian
+            letters, vocabulary or romanization rules for Ukrainian.
+          sources:
+            - ala_lc_ukrainian2011
   romanization_schemes:
     ala-lc-ukrainian:
       label: ALA-LC Ukrainian
-      instructions: Use the ALA-LC Ukrainian table as a spelling-based reading aid. Distinguish г h from
-        ґ g, и y from і i, ї ï and й ĭ. Use tied i͡e, z͡h, t͡s, i͡u and i͡a for є, ж, ц, ю and я; use
-        kh, ch, sh and shch. Retain ь as ʹ and preserve the source apostrophe. Do not use Russian letter
-        mappings. Keep case and word boundaries; pronunciation and stress require separate explanation.
+      instructions: Use the ALA-LC Ukrainian table as a spelling-based reading aid. Distinguish г h from ґ
+        g, и y from і i, ї ï and й ĭ. Use tied i͡e, z͡h, t͡s, i͡u and i͡a for є, ж, ц, ю and я; use
+        kh, ch, sh and shch. Retain ь as ʹ and preserve the source apostrophe. Do not use Russian
+        letter mappings. Keep case and word boundaries; pronunciation and stress require separate
+        explanation.
       examples:
-      - original: Україна
-        romanized: Ukraïna
-      - original: ґанок
-        romanized: ganok
-      - original: гора
-        romanized: hora
-      - original: дякую
-        romanized: di͡akui͡u
+        - original: Україна
+          romanized: Ukraïna
+        - original: ґанок
+          romanized: ganok
+        - original: гора
+          romanized: hora
+        - original: дякую
+          romanized: di͡akui͡u
       sources:
-      - ala_lc_ukrainian2011
+        - ala_lc_ukrainian2011
       review: needs_review
 defaults:
   variety: ukrainian-ukraine
@@ -55,25 +56,388 @@ defaults:
     scheme: &id001
       local: ala-lc-ukrainian
   supported_romanizations:
-  - *id001
+    - *id001
 traits: []
 varieties:
-- id: ukrainian-ukraine
-  name: Ukraine
-  description: Contemporary Ukrainian in Ukraine, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - ala_lc_ukrainian2011
-  overrides: {}
-  guidance: []
+  - id: ukrainian-ukraine
+    name: Ukraine
+    description: Contemporary Ukrainian in Ukraine, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - ala_lc_ukrainian2011
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - дякую
-      - спасибі
+        - дякую
+        - спасибі
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Ukrainian often omits the present copula in identity and description.
+        explanation: >-
+          ### Form and meaning
+
+
+          A noun or adjective predicate can describe the subject without an expressed equivalent of
+          is. Adjectives agree with nouns in gender, number and case.
+
+
+          ### In use
+
+
+          Є can explicitly assert existence or identity in suitable contexts, but is not required in
+          every present description. Location usually uses a place phrase.
+        examples:
+          - text: Вона лікарка.
+            translation: She is a doctor.
+          - text: Ця кімната тиха.
+            translation: This room is quiet.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian often omits the present copula in identity and description.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Ukrainian uses у or в possession phrases, є and possessive forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          У мене є expresses having something. Мій, моя and моє agree with the noun referred to,
+          rather than with the owner.
+
+
+          ### In use
+
+
+          Relationships use possessive wording too. The alternation between у and в is influenced by
+          pronunciation and context, not by a difference in ownership.
+        examples:
+          - text: У мене є велосипед.
+            translation: I have a bicycle.
+          - text: Це моя сестра.
+            translation: This is my sister.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian uses у or в possession phrases, є and possessive forms.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Ukrainian numbers and quantifiers select particular noun forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          Numerals precede nouns, and the noun's form changes with the number and case. Basic
+          combinations such as два стільці and п'ять стільців use different forms.
+
+
+          ### In use
+
+
+          A phrase describing an amount, such as мало часу, behaves differently from a counted list
+          of objects. Learn quantities with their noun form.
+        examples:
+          - text: Нам потрібні два стільці.
+            translation: We need two chairs.
+          - text: У мене мало часу.
+            translation: I have little time.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian numbers and quantifiers select particular noun forms.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Ukrainian imperfective present verbs express current activity and habits.
+        explanation: >-
+          ### Form and meaning
+
+
+          An imperfective present form can describe what happens regularly or what is happening now.
+          A separate progressive auxiliary is not required.
+
+
+          ### In use
+
+
+          Perfective verbs with nonpast endings generally refer to future events. Aspect and context
+          must be considered alongside the visible ending.
+        examples:
+          - text: Я працюю тут.
+            translation: I work here.
+          - text: Вона зараз читає.
+            translation: She is reading now.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian imperfective present verbs express current activity and habits.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Ukrainian past verbs distinguish gender or number and aspect.
+        explanation: >-
+          ### Form and meaning
+
+
+          Past forms commonly distinguish masculine, feminine, neuter and plural reference.
+          Imperfective and perfective verbs provide different views of the event.
+
+
+          ### In use
+
+
+          A completed whole and an ongoing process can both be in the past. The aspect choice
+          concerns that distinction, not just the event's date.
+        examples:
+          - text: Я читала вчора.
+            translation: I was reading yesterday, said by a woman.
+          - text: Вона прочитала книжку.
+            translation: She read the book through.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian past verbs distinguish gender or number and aspect.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Ukrainian uses several future constructions according to aspect.
+        explanation: >-
+          ### Form and meaning
+
+
+          An imperfective future can use буду plus an infinitive or a synthetic form such as
+          читатиму. Perfective verbs express future bounded events with their own nonpast endings.
+
+
+          ### In use
+
+
+          These alternatives do not all imply the same event structure. Choose whether to describe
+          an activity or its completion before selecting the form.
+        examples:
+          - text: Я буду працювати завтра.
+            translation: I will be working tomorrow.
+          - text: Я прочитаю цю книжку.
+            translation: I will read this book through.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian uses several future constructions according to aspect.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Ukrainian uses хотіти, подобатися and preference expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Хотіти expresses wanting a thing or action. Подобатися uses a dative experiencer, such as
+          мені, and agrees with what is liked.
+
+
+          ### In use
+
+
+          The person who likes something is not the grammatical subject of подобатися. Compare мені
+          подобається чай with мені подобаються книжки.
+        examples:
+          - text: Мені подобається чай.
+            translation: I like tea.
+          - text: Я хочу додому.
+            translation: I want to go home.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian uses хотіти, подобатися and preference expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Ukrainian expresses ability with могти or уміти and necessity with constructions such as
+          треба.
+        explanation: >-
+          ### Form and meaning
+
+
+          Уміти expresses knowing how to do something; могти can express practical ability or
+          possibility. Можна is common for permission and треба for necessity.
+
+
+          ### In use
+
+
+          Не треба means there is no need, while не можна can express prohibition. Avoid treating
+          both as the same negative obligation.
+        examples:
+          - text: Я вмію плавати.
+            translation: I can swim.
+          - text: Мені треба йти.
+            translation: I need to go.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian expresses ability with могти or уміти and necessity with constructions such as
+            треба.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Ukrainian uses не for predicate negation and немає for absence.
+        explanation: >-
+          ### Form and meaning
+
+
+          Не normally comes before the negated verb or other expression. Немає expresses absence,
+          with the absent thing generally in the genitive.
+
+
+          ### In use
+
+
+          Negative pronouns can occur with a negative verb. Their combination remains a negative
+          statement, rather than cancelling the negation.
+        examples:
+          - text: Я не знаю.
+            translation: I do not know.
+          - text: У мене немає часу.
+            translation: I do not have time.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian uses не for predicate negation and немає for absence.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Ukrainian questions use question words, intonation and optional чи.
+        explanation: >-
+          ### Form and meaning
+
+
+          Чи can introduce a yes/no question. Information questions use words such as де, коли and
+          хто in the place appropriate to the requested information.
+
+
+          ### In use
+
+
+          A question does not require an English-style auxiliary. Context and intonation can make an
+          otherwise statement-shaped clause a question.
+        examples:
+          - text: Ти прийдеш завтра?
+            translation: Will you come tomorrow?
+          - text: Де вокзал?
+            translation: Where is the railway station?
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian questions use question words, intonation and optional чи.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Ukrainian requests use imperatives, будь ласка and modal questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Imperatives have familiar singular and plural or respectful forms. Будь ласка marks a
+          request, while a modal question can make it less direct.
+
+
+          ### In use
+
+
+          Match the address and verb form to the person. A request for repetition is an action
+          request even when phrased as a question about ability.
+        examples:
+          - text: Відчиніть вікно, будь ласка.
+            translation: Open the window, please.
+          - text: Можете повторити?
+            translation: Can you repeat that?
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian requests use imperatives, будь ласка and modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Ukrainian бо or тому що and якщо connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Бо and тому що introduce reasons. Якщо introduces a condition; hypothetical patterns can
+          use якби with corresponding verb forms.
+
+
+          ### In use
+
+
+          Future reference inside a possible condition need not follow English tense choices.
+          Express the intended relationship using a complete Ukrainian clause.
+        examples:
+          - text: Я вдома, бо хворію.
+            translation: I am at home because I am ill.
+          - text: Якщо буде дощ, ми залишимося вдома.
+            translation: If it rains, we will stay at home.
+      varieties:
+        ukrainian-ukraine:
+          assessment: Ukrainian бо or тому що and якщо connect reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: Добрий день
@@ -88,19 +452,19 @@ conversation:
     background: Grew up in Lviv and learned bookbinding while helping at a local library.
     currentSituation: Repairing a family photo album and planning a walk with a friend.
     interests:
-    - bookbinding
-    - urban sketching
+      - bookbinding
+      - urban sketching
     opinions:
-    - A repaired book should remain comfortable to use.
+      - A repaired book should remain comfortable to use.
     interestingFacts:
-    - Makes small notebooks from leftover paper.
+      - Makes small notebooks from leftover paper.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - My Neighbor Totoro (1988)
+      - My Neighbor Totoro (1988)
     manner: Attentive and direct. Uses everyday Ukrainian and concrete examples.
     quirks:
-    - Dates every sketch.
+      - Dates every sketch.
     vibe:
-    - 📖
-    - ✏️
+      - 📖
+      - ✏️

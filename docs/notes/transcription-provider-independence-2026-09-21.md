@@ -3,6 +3,10 @@
 Status: implemented in source, uncommitted and undeployed. No live-provider calls,
 application restart, workspace reset or recording deletion was performed.
 
+> Update: the server capability-selection policy is superseded by
+> [language routing](transcription-language-routing-2026-09-23.md); the historical
+> verification results below describe the September 21 implementation.
+
 ## Agreed boundary and implementation
 
 Transcription model and AI access route are independent settings. Recording captures

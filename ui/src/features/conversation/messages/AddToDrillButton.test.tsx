@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ReadingScopeContext } from '../../../components/reading/ReadingContext'
 import { createDrillItem, deleteDrillItem } from '../../../platform/ipc/drill'
-import { AddToDrillButton } from './AddToDrillButton'
+import { AddToDrillButton } from '../../../components/reading/AddToDrillButton'
 import { TurnView } from './TurnView'
 
 vi.mock('../../../platform/ipc/tauri', async importOriginal => ({ ...await importOriginal<typeof import('../../../platform/ipc/tauri')>(), languageFor: () => ({ languageTag: 'es', direction: 'ltr', fontScale: 1 }) }))

@@ -98,3 +98,38 @@
 .prompt-creator .prompt-yaml { min-height: 260px; font-family: monospace; }
 .prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
 .prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }
+
+/* All four choices share one grid row and equal widths; the coach label spans
+   its three choices without a nested fieldset shifting their button baseline. */
+.coach-choices {
+  display: block;
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--chrome);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.coach-choices legend { padding-inline: var(--space-2); margin: 0; }
+.coach-choices-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: stretch;
+}
+.coach-choices-label {
+  grid-column: 2 / -1;
+  color: var(--ink-2);
+  font-size: var(--type-ui);
+}
+.coach-choices .scene-card {
+  grid-row: 2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--type-ui);
+  padding: var(--space-3) var(--space-4);
+}
+@media (max-width: 480px) {
+  .coach-choices-grid { grid-template-columns: minmax(0, 1fr); }
+  .coach-choices-label { grid-column: 1; grid-row: 2; }
+  .coach-choices .scene-card { grid-row: auto; }
+}

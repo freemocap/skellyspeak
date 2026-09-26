@@ -174,6 +174,7 @@ mod tests {
         db.execute_batch(include_str!("../../storage/schemas/schema.sql"))
             .unwrap();
         let target = ResolvedTarget {
+            audio_resolution: None,
             route: ConnectionRoute::Hosted,
             revision: 1,
             url: "https://api.groq.com/openai/v1/audio/transcriptions".into(),

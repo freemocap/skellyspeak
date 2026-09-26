@@ -54,6 +54,7 @@ pub(super) fn prepare_speech(
         [turn],
     )?;
     Ok(Dispatch {
+        structured_output_tokens: 2048,
         temperature: super::TASK_TEMPERATURE,
         credential: target.credential.clone().unwrap_or_default(),
         model: target.model.clone(),
@@ -67,6 +68,7 @@ pub(super) fn prepare_speech(
         coaching_schema: None,
         gloss_source: None,
         speech_source: Some(crate::speech::delivery::Source {
+            language_tag: input.language_tag,
             message_id,
             text: input.text,
             language: input.language,
@@ -95,9 +97,12 @@ pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -
     }
     // A click authorizes synthesis of this saved text using today's settings.
     // Completed audio and active requests above need no new connection at all.
-    let target = crate::ai::connections::access::resolve(
+    let context: crate::configuration::LanguageContext =
+        serde_json::from_value(captured["languageContext"].clone())?;
+    let target = crate::ai::connections::speech_routing::resolve(
         db,
         crate::ai::connections::access::Capability::Speech,
+        &context,
     )?;
     captured["speechTarget"] = serde_json::to_value(&target)?;
     speech_binding(db, message_id, &text, &captured)?;

@@ -1,3 +1,4 @@
+import { CoachChoices } from './CoachChoices'
 import type { ConversationStartConfig, TopicCard } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
 import { DifficultySelect } from '../../../components/controls/DifficultySelect'
@@ -7,7 +8,8 @@ import { DifficultySelect } from '../../../components/controls/DifficultySelect'
 ///
 /// On the starter, topics begin an exchange. The detailed editor instead uses
 /// them to configure its draft. Difficulty and grammar always update the draft.
-export function ConversationChoices({ value, topics, disabled, targetTag, targetDir, onChange, onCustom, onChooseTopic, topicsDisabled = disabled }: {
+export function ConversationChoices({ conversationId, value, topics, disabled, targetTag, targetDir, onChange, onCustom, onChooseTopic, topicsDisabled = disabled }: {
+  conversationId?: string
   value: ConversationStartConfig; topics: TopicCard[]; disabled: boolean
   /// The target language's tag and direction. A card names its scene in the
   /// target language and again in the explanation language, so each run carries
@@ -19,8 +21,9 @@ export function ConversationChoices({ value, topics, disabled, targetTag, target
 }) {
   const tr = useI18n()
   const choose = (topic: ConversationStartConfig['direction']['topic']) =>
-    (onChooseTopic ?? onChange)({ ...value, direction: { ...value.direction, topic } })
+    (onChooseTopic ?? onChange)({ ...value, direction: { ...value.direction, topic, usePersonaDetails: topic === null ? true : value.direction.usePersonaDetails } })
   return <>
+    <CoachChoices conversationId={conversationId} configuration={value} selected={value.direction.topic?.kind === 'coach' ? value.direction.topic.mode : value.direction.topic === null ? null : undefined} disabled={topicsDisabled} onChoose={mode => choose(mode ? { kind: 'coach', mode } : null)} />
     <fieldset className="start-scenes" disabled={topicsDisabled}><legend>{tr('Topic')}</legend>
       <div className="scene-grid">
         {topics.map(topic => <button type="button" className="scene-card" key={topic.id}

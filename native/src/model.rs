@@ -328,6 +328,10 @@ pub enum Action {
     RequestExplanations {
         message_id: String,
     },
+    ReassessFeedback {
+        turn_id: String,
+        note: String,
+    },
     RetryReplyHelp {
         message_id: String,
         help_kind: crate::learning::coaching::conversation_support::ReplyHelpKind,
@@ -467,10 +471,25 @@ impl AppError {
         }
     }
     pub fn with_diagnostics(mut self, value: serde_json::Value) -> Self {
+        let limited = crate::ai::policy::rate_limit::detected(&value);
         self.diagnostics = Some(value);
+        if limited
+            && !self.message.starts_with("Sorry, rate limited.")
+            && matches!(
+                self.code,
+                ErrorCode::Provider | ErrorCode::UnknownOutcome | ErrorCode::AdmissionHeld
+            )
+        {
+            self.message = format!("Sorry, rate limited. Try again shortly. {}", self.message);
+        }
         self
     }
     pub fn with_refusal(mut self, refusal: Refusal) -> Self {
+        if matches!(refusal.reason, RefusalReason::RateLimit)
+            && !self.message.starts_with("Sorry, rate limited.")
+        {
+            self.message = format!("Sorry, rate limited. Try again shortly. {}", self.message);
+        }
         self.refusal = Some(refusal);
         self
     }
@@ -607,13 +626,15 @@ pub fn bindings() -> String {
         crate::conversations::direction::TopicCard::decl(&config),
         crate::conversations::direction::SavedTopic::decl(&config),
         crate::conversations::direction::TimeReference::decl(&config),
+        crate::learning::recommendations::RecommendationMode::decl(&config),
         crate::conversations::direction::TopicChoice::decl(&config),
         crate::conversations::direction::ConversationDirection::decl(&config),
         crate::conversations::direction::ConversationStartConfig::decl(&config),
         crate::conversations::direction::PromptPreview::decl(&config),
+        crate::conversations::direction::CoachFocusPreview::decl(&config),
         crate::learning::coaching::SuggestedReply::decl(&config),
         crate::learning::coaching::conversation_support::ConversationFeedback::decl(&config),
-        crate::learning::coaching::conversation_support::ConversationCorrection::decl(&config),
+        crate::learning::coaching::message_assessment::ChoiceAssessment::decl(&config),
         crate::learning::coaching::conversation_support::AssistedReply::decl(&config),
         crate::learning::coaching::conversation_support::ReplyAssistance::decl(&config),
         crate::learning::coaching::conversation_support::ReplyBrief::decl(&config),
@@ -654,6 +675,11 @@ pub fn bindings() -> String {
         Variety::decl(&config),
         Language::decl(&config),
         crate::configuration::LanguageInspection::decl(&config),
+        crate::configuration::guides::GuideInspection::decl(&config),
+        crate::configuration::guides::TeachingGuide::decl(&config),
+        crate::configuration::guides::GuideSection::decl(&config),
+        crate::configuration::guides::GuideExample::decl(&config),
+        crate::configuration::guides::GuideVariant::decl(&config),
         crate::configuration::ContentSource::decl(&config),
         crate::configuration::ContentRule::decl(&config),
         crate::configuration::ContentValue::decl(&config),
@@ -676,6 +702,11 @@ pub fn bindings() -> String {
         crate::drill::conversation_source::ConversationDrillPage::decl(&config),
         crate::drill::generation::DrillLength::decl(&config),
         crate::drill::generation::DrillGenerationInput::decl(&config),
+        crate::drill::skill_focus::DrillSkillTarget::decl(&config),
+        crate::drill::skill_focus::DrillSkillFocus::decl(&config),
+        crate::learning::practice_assessment::SkillPrompt::decl(&config),
+        crate::learning::recommendations::Candidate::decl(&config),
+        crate::learning::recommendations::Recommendation::decl(&config),
         crate::drill::previews::DrillSource::decl(&config),
         crate::drill::previews::DrillConversationRef::decl(&config),
         crate::drill::previews::DrillReportedLabels::decl(&config),
@@ -851,6 +882,8 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    #[ts(optional)]
+    pub feedback_context: Option<String>,
     #[ts(optional)]
     pub conversation_feedback:
         Option<crate::learning::coaching::conversation_support::ConversationFeedback>,

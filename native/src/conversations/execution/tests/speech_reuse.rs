@@ -11,6 +11,7 @@ fn conversation_reuses_independent_result_while_paused_and_reopens_without_crede
     }
     let source = speech.speech_source.as_ref().unwrap();
     let input = crate::ai::audio::SpeechInput {
+        language_tag: source.language_tag.clone(),
         text: source.text.clone(),
         language: source.language.clone(),
         voice: source.voice.clone(),

@@ -1,0 +1,536 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  ConversationContent:
+    additionalProperties: false
+    properties:
+      default_partner:
+        $ref: '#/definitions/PersonaDetails'
+      greeting:
+        $ref: '#/definitions/GreetingContent'
+    required:
+    - default_partner
+    - greeting
+    type: object
+  DefinitionRef:
+    anyOf:
+    - additionalProperties: false
+      properties:
+        local:
+          type: string
+      required:
+      - local
+      type: object
+    - additionalProperties: false
+      properties:
+        shared:
+          type: string
+      required:
+      - shared
+      type: object
+  Definitions:
+    additionalProperties: false
+    properties:
+      orthographies:
+        additionalProperties:
+          $ref: '#/definitions/OrthographyDefinition'
+        type: object
+      romanization_schemes:
+        additionalProperties:
+          $ref: '#/definitions/RomanizationDefinition'
+        type: object
+    required:
+    - orthographies
+    - romanization_schemes
+    type: object
+  Example:
+    additionalProperties: false
+    properties:
+      context:
+        type:
+        - string
+        - 'null'
+      text:
+        type: string
+      translation:
+        type: string
+    required:
+    - text
+    - translation
+    type: object
+  GoalMaterial:
+    additionalProperties: false
+    properties:
+      tokens:
+        items:
+          type: string
+        type: array
+    required:
+    - tokens
+    type: object
+  GreetingContent:
+    additionalProperties: false
+    description: The greeting the start surface offers as a first thing to say. Display content with one canonical wording, kept apart from `goal_material`, which is retrieval data for the learning system and whose token order means nothing here.
+    properties:
+      romanizations:
+        additionalProperties:
+          type: string
+        description: Keyed by romanization scheme key, as ConversationTopic::romanizations is.
+        type: object
+      text:
+        type: string
+    required:
+    - romanizations
+    - text
+    type: object
+  Guidance:
+    additionalProperties: false
+    properties:
+      scope:
+        $ref: '#/definitions/GuidanceScope'
+      sources:
+        items:
+          type: string
+        type: array
+      text:
+        type: string
+    required:
+    - scope
+    - sources
+    - text
+    type: object
+  Guidance2:
+    additionalProperties: false
+    properties:
+      assessment:
+        type: string
+      examples:
+        default: []
+        items:
+          $ref: '#/definitions/Example'
+        type: array
+      explanation:
+        description: Human-readable Markdown; excluded from the assessor projection.
+        type: string
+    required:
+    - assessment
+    - explanation
+    type: object
+  GuidanceScope:
+    enum:
+    - target_writing
+    - explanation_writing
+    - segmentation
+    - reading
+    - romanization
+    - assessment
+    - pragmatics
+    type: string
+  Guide:
+    additionalProperties: false
+    properties:
+      authorship:
+        type: string
+      core:
+        $ref: '#/definitions/Guidance2'
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sources:
+        items:
+          type: string
+        type: array
+      varieties:
+        additionalProperties:
+          $ref: '#/definitions/Guidance2'
+        description: Explicit coverage. Missing varieties never inherit another variety's guide.
+        type: object
+    required:
+    - authorship
+    - core
+    - review
+    - sources
+    - varieties
+    type: object
+  Integrations:
+    additionalProperties: false
+    properties:
+      language_tag:
+        type:
+        - string
+        - 'null'
+      transcription:
+        description: A mapping for the current transcription adapters, not a language identity.
+        type:
+        - string
+        - 'null'
+    type: object
+  LanguageDefaults:
+    additionalProperties: false
+    properties:
+      orthography:
+        $ref: '#/definitions/DefinitionRef'
+      romanization:
+        $ref: '#/definitions/RomanizationSelection'
+      scalars:
+        $ref: '#/definitions/ScalarOverrides'
+      speech_routes:
+        allOf:
+        - $ref: '#/definitions/Preferences'
+        default: {}
+      supported_romanizations:
+        items:
+          $ref: '#/definitions/DefinitionRef'
+        type: array
+      variety:
+        type: string
+    required:
+    - orthography
+    - romanization
+    - scalars
+    - supported_romanizations
+    - variety
+    type: object
+  LanguageIdentity:
+    additionalProperties: false
+    properties:
+      family:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      native_name:
+        type: string
+      review:
+        $ref: '#/definitions/ReviewStatus'
+    required:
+    - family
+    - id
+    - name
+    - native_name
+    - review
+    type: object
+  LearningContent:
+    additionalProperties: false
+    properties:
+      goal_material:
+        additionalProperties:
+          $ref: '#/definitions/GoalMaterial'
+        type: object
+      skill_guides:
+        additionalProperties:
+          $ref: '#/definitions/Guide'
+        type: object
+      skills:
+        items:
+          $ref: '#/definitions/Skill'
+        type: array
+    required:
+    - goal_material
+    type: object
+  OrthographyDefinition:
+    additionalProperties: false
+    properties:
+      guidance:
+        items:
+          $ref: '#/definitions/Guidance'
+        type: array
+      script:
+        type: string
+    required:
+    - guidance
+    - script
+    type: object
+  PersonaDetails:
+    additionalProperties: false
+    properties:
+      age:
+        description: Left blank until someone chooses one.
+        format: uint8
+        minimum: 0.0
+        type:
+        - integer
+        - 'null'
+      background:
+        type: string
+      currentSituation:
+        type: string
+      favoriteBooks:
+        items:
+          type: string
+        type: array
+      favoriteMovies:
+        items:
+          type: string
+        type: array
+      interestingFacts:
+        items:
+          type: string
+        type: array
+      interests:
+        items:
+          type: string
+        type: array
+      location:
+        type: string
+      manner:
+        type: string
+      name:
+        type: string
+      occupation:
+        type: string
+      opinions:
+        items:
+          type: string
+        type: array
+      quirks:
+        items:
+          type: string
+        type: array
+      romanizedName:
+        description: The name in Latin letters, present exactly when the persona's language has a romanization system.
+        type:
+        - string
+        - 'null'
+      vibe:
+        items:
+          type: string
+        type: array
+    required:
+    - background
+    - currentSituation
+    - favoriteBooks
+    - favoriteMovies
+    - interestingFacts
+    - interests
+    - location
+    - manner
+    - name
+    - occupation
+    - opinions
+    - quirks
+    - vibe
+    type: object
+  Preferences:
+    additionalProperties: false
+    properties:
+      speech:
+        items:
+          type: string
+        type:
+        - array
+        - 'null'
+      transcription:
+        items:
+          type: string
+        type:
+        - array
+        - 'null'
+    type: object
+  ReviewStatus:
+    enum:
+    - needs_review
+    - reviewed
+    type: string
+  RomanizationDefinition:
+    additionalProperties: false
+    properties:
+      examples:
+        items:
+          $ref: '#/definitions/RomanizationExample'
+        type: array
+      instructions:
+        type: string
+      label:
+        type: string
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sources:
+        items:
+          type: string
+        type: array
+    required:
+    - examples
+    - instructions
+    - label
+    - review
+    - sources
+    type: object
+  RomanizationExample:
+    additionalProperties: false
+    properties:
+      original:
+        type: string
+      romanized:
+        type: string
+    required:
+    - original
+    - romanized
+    type: object
+  RomanizationSelection:
+    oneOf:
+    - additionalProperties: false
+      properties:
+        mode:
+          enum:
+          - disabled
+          type: string
+      required:
+      - mode
+      type: object
+    - additionalProperties: false
+      properties:
+        mode:
+          enum:
+          - scheme
+          type: string
+        scheme:
+          $ref: '#/definitions/DefinitionRef'
+      required:
+      - mode
+      - scheme
+      type: object
+  ScalarOverrides:
+    additionalProperties: false
+    properties:
+      direction:
+        type:
+        - string
+        - 'null'
+      font_scale:
+        format: double
+        type:
+        - number
+        - 'null'
+      word_spacing:
+        type:
+        - boolean
+        - 'null'
+    type: object
+  Skill:
+    additionalProperties: false
+    properties:
+      boundary:
+        type: string
+      category:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      overview:
+        type: string
+    required:
+    - boundary
+    - category
+    - id
+    - name
+    - overview
+    type: object
+  VarietyDocument:
+    additionalProperties: false
+    properties:
+      description:
+        type: string
+      guidance:
+        items:
+          $ref: '#/definitions/Guidance'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      overrides:
+        $ref: '#/definitions/VarietyOverrides'
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sources:
+        items:
+          type: string
+        type: array
+    required:
+    - description
+    - guidance
+    - id
+    - name
+    - overrides
+    - review
+    - sources
+    type: object
+  VarietyOverrides:
+    additionalProperties: false
+    properties:
+      integrations:
+        allOf:
+        - $ref: '#/definitions/Integrations'
+        default:
+          language_tag: null
+          transcription: null
+      orthography:
+        anyOf:
+        - $ref: '#/definitions/DefinitionRef'
+        - type: 'null'
+      romanization:
+        anyOf:
+        - $ref: '#/definitions/RomanizationSelection'
+        - type: 'null'
+      scalars:
+        allOf:
+        - $ref: '#/definitions/ScalarOverrides'
+        default:
+          direction: null
+          font_scale: null
+          word_spacing: null
+      speech_routes:
+        allOf:
+        - $ref: '#/definitions/Preferences'
+        default: {}
+      supported_romanizations:
+        items:
+          $ref: '#/definitions/DefinitionRef'
+        type:
+        - array
+        - 'null'
+    type: object
+properties:
+  conversation:
+    $ref: '#/definitions/ConversationContent'
+  defaults:
+    $ref: '#/definitions/LanguageDefaults'
+  definitions:
+    $ref: '#/definitions/Definitions'
+  guidance:
+    items:
+      $ref: '#/definitions/Guidance'
+    type: array
+  identity:
+    $ref: '#/definitions/LanguageIdentity'
+  integrations:
+    $ref: '#/definitions/Integrations'
+  learning:
+    $ref: '#/definitions/LearningContent'
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+  traits:
+    items:
+      type: string
+    type: array
+  varieties:
+    items:
+      $ref: '#/definitions/VarietyDocument'
+    type: array
+required:
+- conversation
+- defaults
+- definitions
+- guidance
+- identity
+- integrations
+- learning
+- schema_version
+- traits
+- varieties
+title: LanguageDocument
+type: object

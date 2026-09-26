@@ -27,6 +27,7 @@ it('does not count help as viewed in a hidden mobile coach panel', () => {
 it('shows direct correction and explanation without an answer-reveal step', async () => {
   const control = vi.fn().mockResolvedValue(undefined)
   const turn = makeTurn(3, '¿Qué te gusta cocinar?')
+  turn.conversationFeedback = { grammar: 4, conversation: 8, answers: {} }
   turn.coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'event_roles', quote: 'Yo gusta', move: 'explicit', text: 'Me gusta', explanation: 'Use me gusta to say what you like.' }, retryInvited: false, fixed: null, alsoNoticed: [], keptGoing: false }
   const view = render(<LiveCoachReview turn={turn} visible onControl={control} nativeLanguageName="English" rtl={false} />)
   await waitFor(() => expect(control).toHaveBeenCalledExactlyOnceWith('open_card'))

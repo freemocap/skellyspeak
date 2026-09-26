@@ -1,3 +1,4 @@
+import { PhraseActions } from '../../../components/reading/PhraseActions'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { SavedGlossText } from '../../../components/reading/SavedGlossText'
 import type { WordGlossView } from '../../../generated/contracts'
@@ -6,17 +7,12 @@ import { TargetText } from '../../../components/reading/TargetText'
 import { useEffect, useRef, useState } from 'react'
 import { playRewardSound } from '../../../platform/audio/reward-sounds'
 import type { PersonaReaction as Reaction } from '../../../types'
+import { AskCoachButton } from '../../../components/learning/AskCoachButton'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 
 const reactions: Record<Reaction['kind'], { icon: string; label: string }> = {
-  happy: { icon: '😊', label: 'Partner seems happy' },
-  sad: { icon: '😔', label: 'Partner seems sad' },
-  angry: { icon: '😠', label: 'Partner seems angry' },
-  confused: { icon: '🤔?', label: 'Partner seems unsure' },
-  understood: { icon: '🙂', label: 'Partner seems to understand' },
-  curious: { icon: '🧐', label: 'Partner seems curious' },
-  surprised: { icon: '😮', label: 'Partner seems surprised' },
-  concerned: { icon: '😟', label: 'Partner seems concerned' },
+  understood: { icon: '🙂', label: 'Partner understood' },
+  confused: { icon: '😕', label: 'Partner misunderstood' },
 }
 
 export function PersonaReaction({ reaction, error, message, reply, onEdit, userGloss, replyGloss }: {
@@ -35,27 +31,27 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit, userG
   useEffect(() => {
     const fresh = reaction && JSON.stringify(reaction) !== previous.current
     previous.current = JSON.stringify(reaction)
-    if (fresh && !error && button.current && (reaction.kind === 'confused' || reaction.kind === 'understood' || reaction.kind === 'happy')) {
-      playRewardSound({ kind: reaction.kind === 'happy' ? 'understood' : reaction.kind }, button.current)
+    if (fresh && !error && button.current && reaction.kind === 'understood') {
+      playRewardSound({ kind: 'understood' }, button.current)
     }
   }, [reaction, error])
   if (!reaction && !error) return null
   const display = error ? { icon: '⚠', label: 'Partner reaction unavailable' } : reactions[reaction!.kind]
   return <>
-    <button ref={button} type="button" className={`persona-reaction${reaction?.kind === 'confused' ? ' is-confused' : ''}`} aria-label={display.label} title={display.label} aria-haspopup="dialog" aria-expanded={open}
+    <button ref={button} type="button" className="persona-reaction" aria-label={tr(display.label)} title={tr(display.label)} aria-haspopup="dialog" aria-expanded={open}
       onDoubleClick={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setOpen(true) }}>
       <span aria-hidden="true">{display.icon}</span>
     </button>
     {open && <DetailDialog title={tr("Partner reaction")} onClose={() => setOpen(false)}>
       <div className="reaction-details">
-        <h2><span aria-hidden="true">{display.icon} </span>{display.label}</h2>
+        <h2><span aria-hidden="true">{display.icon} </span>{tr(display.label)}</h2>
         <section className="reaction-exchange" aria-label={tr("Conversation exchange")}>
-          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto">{userGloss ? <SavedGlossText text={message} segments={userGloss.segments} /> : <TargetText text={message} />}</div></div>
-          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto">{replyGloss ? <SavedGlossText text={reply} segments={replyGloss.segments} /> : <TargetText text={reply} />}</div></div>
+          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto">{userGloss ? <SavedGlossText text={message} segments={userGloss.segments} /> : <TargetText text={message} />}<PhraseActions text={message} /></div></div>
+          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto">{replyGloss ? <SavedGlossText text={reply} segments={replyGloss.segments} /> : <TargetText text={reply} />}<PhraseActions text={reply} /></div></div>
         </section>
         {error ? <ErrorNotice as="p" error={error}>{error}</ErrorNotice> : <>
-          <h3>{tr("How your message came across")}</h3><p dir="auto">{reaction!.interpretation}</p>
-          <h3>{reaction!.kind === 'confused' ? tr("What was unclear") : tr("Why this reaction")}</h3><p dir="auto">{reaction!.explanation}</p>
+          <AskCoachButton onClose={()=>setOpen(false)} question={`Explain the saved understanding category for this exchange. My message: ${message}. Partner reply: ${reply}. Assessment: ${JSON.stringify(reaction)}`} />
+          <details><summary>{tr('Assessment details')}</summary><pre>{JSON.stringify(reaction!.answer, null, 2)}</pre></details>
         </>}
         <button type="button" className="detail-action" disabled={!onEdit} onClick={() => { setOpen(false); onEdit?.() }}>{tr("Edit & try again")}</button>
         <p className="detail-meta">{tr("This is an interpretation of the reply, not a measured emotion.")}</p>

@@ -1,0 +1,40 @@
+/* This standalone viewer must scroll independently of the fixed app shell. */
+body:has(.payout-preview) { overflow: auto; }
+#root:has(.payout-preview) { height: auto; min-height: 100%; }
+.payout-preview { max-width: 1100px; margin: 0 auto; padding: var(--space-4); }
+.sound-lab { display: flex; flex-direction: column; padding: var(--space-4); margin-bottom: var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); }
+.sound-lab header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.sound-lab h2 { margin: 0; font-size: var(--type-body); }
+.sound-lab footer { order: 1; position: sticky; top: 0; z-index: var(--z-raised); background: var(--sheet); padding-block: var(--space-3); border-bottom: var(--border-width) solid var(--line); }
+.sound-lab-grid { order: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-block: var(--space-3); }
+.sound-lab fieldset { display: grid; align-content: start; gap: var(--space-3); min-width: 0; margin: 0; padding: var(--space-3); background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); font-size: var(--type-meta); }
+.sound-lab legend { font-weight: var(--weight-semibold); padding-inline: var(--space-2); }
+.sound-lab-field { display: grid; gap: var(--space-1); font-size: var(--type-meta); }
+.sound-lab-field > span { display: flex; justify-content: space-between; gap: var(--space-2); }
+.sound-lab output { font-family: var(--font-mono); color: var(--interaction-ink); white-space: nowrap; }
+.sound-lab select, .sound-lab input[type=range], .sound-lab input[type=number] { width: 100%; min-width: 0; box-sizing: border-box; margin: 0; }
+.sound-lab select, .sound-lab input[type=number] { background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-2); color: var(--ink); font: inherit; }
+.sound-lab input[type=range] { height: 20px; }
+.sound-lab-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--type-meta); }
+.sound-lab .btn { min-height: 28px; padding: var(--space-2) var(--space-3); font-size: var(--type-meta); }
+.sound-lab details { order: 3; font-size: var(--type-meta); }
+.sound-lab textarea { width: 100%; margin-top: var(--space-3); font-family: var(--font-mono); }
+.sound-lab-autoplay { display: inline-flex; align-items: center; gap: var(--space-2); }
+.sound-lab-grid .sound-lab-wide { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; }
+.sound-lab-grid .sound-lab-wide:last-child { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.payout-demo { position: relative; margin-top: var(--space-3); }
+.payout-demo .chat-head { min-height: 0; padding: var(--space-2); }
+.payout-demo .stream { min-height: 0; max-height: 210px; padding: var(--space-3); gap: var(--space-3); overflow: auto; }
+.payout-evidence { margin-top: var(--space-3); border-top: var(--border-width) solid var(--line); padding-top: var(--space-3); }
+@media (max-width: 600px) {
+  .sound-lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sound-lab-grid .sound-lab-wide, .sound-lab-grid .sound-lab-wide:last-child { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (pointer: coarse) {
+  .sound-lab .btn, .sound-lab select, .sound-lab input[type=range], .sound-lab input[type=number] { min-height: var(--touch-target); }
+}
+
+.sound-lab-play, .sound-lab-count { display: inline-flex; align-items: center; gap: var(--space-2); }
+.sound-lab-count input[type=number] { width: 4em; }
+
+.sound-lab .payout-candidates { order: -1; margin-bottom: var(--space-3); background: var(--sheet); }

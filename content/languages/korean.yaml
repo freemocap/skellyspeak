@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: korean
@@ -14,34 +14,37 @@ definitions:
     standard-korean:
       script: hangul
       guidance:
-      - scope: target_writing
-        text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
-          source text exactly, including jamo sequences; do not replace the source with romanization.
-        sources:
-        - nikl_romanization
-      - scope: explanation_writing
-        text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
-          source text exactly, including jamo sequences; do not replace the source with romanization.
-        sources:
-        - nikl_romanization
+        - scope: target_writing
+          text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
+            source text exactly, including jamo sequences; do not replace the source with
+            romanization.
+          sources:
+            - nikl_romanization
+        - scope: explanation_writing
+          text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
+            source text exactly, including jamo sequences; do not replace the source with
+            romanization.
+          sources:
+            - nikl_romanization
   romanization_schemes:
     revised-romanization:
       label: Revised Romanization
       instructions: Use the National Institute of Korean Language Revised Romanization based on standard
-        pronunciation, including its assimilation and aspiration rules and exceptions for names. Use eo
-        and eu, distinguish tense consonants, and use r or l by position. Keep word boundaries and never
-        rewrite the Hangul source. This reading aid does not encode all pronunciation detail.
+        pronunciation, including its assimilation and aspiration rules and exceptions for names. Use
+        eo and eu, distinguish tense consonants, and use r or l by position. Keep word boundaries
+        and never rewrite the Hangul source. This reading aid does not encode all pronunciation
+        detail.
       examples:
-      - original: 한국어
-        romanized: hangugeo
-      - original: 서울
-        romanized: Seoul
-      - original: 음악
-        romanized: eumak
-      - original: 감사합니다
-        romanized: gamsahamnida
+        - original: 한국어
+          romanized: hangugeo
+        - original: 서울
+          romanized: Seoul
+        - original: 음악
+          romanized: eumak
+        - original: 감사합니다
+          romanized: gamsahamnida
       sources:
-      - nikl_romanization
+        - nikl_romanization
       review: needs_review
 defaults:
   variety: korean-south-korea
@@ -53,25 +56,390 @@ defaults:
     scheme: &id001
       local: revised-romanization
   supported_romanizations:
-  - *id001
+    - *id001
 traits: []
 varieties:
-- id: korean-south-korea
-  name: South Korea
-  description: Contemporary Korean in South Korea, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - nikl_romanization
-  overrides: {}
-  guidance: []
+  - id: korean-south-korea
+    name: South Korea
+    description: Contemporary Korean in South Korea, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - nikl_romanization
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - 감사합니다
-      - 고마워요
+        - 감사합니다
+        - 고마워요
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Korean uses 이다, descriptive verbs and existence predicates for identification and
+          description.
+        explanation: >-
+          ### Form and meaning
+
+
+          A noun identity takes a form of 이다, such as 이에요 or 예요. Qualities are often expressed by
+          descriptive verbs that can form a predicate directly.
+
+
+          ### In use
+
+
+          은/는 marks a topic and 이/가 commonly marks a subject. Their choice concerns the information
+          structure as well as the noun's role.
+        examples:
+          - text: 저는 학생이에요.
+            translation: I am a student.
+          - text: 방이 조용해요.
+            translation: The room is quiet.
+      varieties:
+        korean-south-korea:
+          assessment: Korean uses 이다, descriptive verbs and existence predicates for identification and
+            description.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Korean uses 의 and 있다 constructions for possession and relationships.
+        explanation: >-
+          ### Form and meaning
+
+
+          의 can link a possessor to a noun. A construction with 있다 can say that someone has
+          something, with the possessor often presented as a topic.
+
+
+          ### In use
+
+
+          의 is frequently omitted in close, contextually clear relationships. 우리 can refer to a
+          shared family relationship where English often uses my.
+        examples:
+          - text: 저는 자전거가 있어요.
+            translation: I have a bicycle.
+          - text: 제 동생이에요.
+            translation: This is my younger sibling.
+      varieties:
+        korean-south-korea:
+          assessment: Korean uses 의 and 있다 constructions for possession and relationships.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Korean uses counters and two number systems for quantity.
+        explanation: >-
+          ### Form and meaning
+
+
+          A counted phrase commonly combines a noun, a number and a counter. Native Korean and
+          Sino-Korean numbers are used in different counting contexts.
+
+
+          ### In use
+
+
+          Some native number forms shorten before a counter: 하나 becomes 한 and 둘 becomes 두. Learn the
+          counter with the kind of item it counts.
+        examples:
+          - text: 책이 두 권 있어요.
+            translation: There are two books.
+          - text: 물을 조금 주세요.
+            translation: Please give me a little water.
+      varieties:
+        korean-south-korea:
+          assessment: Korean uses counters and two number systems for quantity.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Korean present endings, context and 고 있다 express present situations.
+        explanation: >-
+          ### Form and meaning
+
+
+          A polite present predicate ending in 아요 or 어요 can describe a state, habit or current
+          activity. 고 있어요 can emphasize an action in progress.
+
+
+          ### In use
+
+
+          Not every English progressive needs 고 있다. Descriptive verbs and certain result-state
+          constructions behave differently from ordinary activity verbs.
+        examples:
+          - text: 여기에서 일해요.
+            translation: I work here.
+          - text: 지금 책을 읽고 있어요.
+            translation: I am reading a book now.
+      varieties:
+        korean-south-korea:
+          assessment: Korean present endings, context and 고 있다 express present situations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Korean past marking and context express past situations.
+        explanation: >-
+          ### Form and meaning
+
+
+          The past marker 았/었 appears before the speech-level ending. Common polite forms therefore
+          end in 았어요 or 었어요.
+
+
+          ### In use
+
+
+          Verb and adjective stems interact with the ending and can contract. A past form can
+          describe an event or a resulting experience depending on context.
+        examples:
+          - text: 어제 왔어요.
+            translation: I came yesterday.
+          - text: 어제는 추웠어요.
+            translation: It was cold yesterday.
+      varieties:
+        korean-south-korea:
+          assessment: Korean past marking and context express past situations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Korean expresses future meaning through constructions such as 을 거예요 and contextual present.
+        explanation: >-
+          ### Form and meaning
+
+
+          The construction -(으)ㄹ 거예요 can express a plan or prediction. A future time word can also
+          make a present-form statement refer to an arrangement.
+
+
+          ### In use
+
+
+          Other endings express intention, commitment or conjecture with different interpersonal
+          meanings. Do not treat 겠 as a universal future-tense replacement.
+        examples:
+          - text: 내일 갈 거예요.
+            translation: I am going to go tomorrow.
+          - text: 다음 주에 만나요.
+            translation: We will meet next week.
+      varieties:
+        korean-south-korea:
+          assessment: Korean expresses future meaning through constructions such as 을 거예요 and contextual
+            present.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Korean uses 좋다, 좋아하다 and 고 싶다 for preferences and wants.
+        explanation: >-
+          ### Form and meaning
+
+
+          좋아하다 expresses liking, while 좋다 describes something as good or pleasing in a different
+          grammatical pattern. A verb plus 고 싶어요 expresses wanting to do it.
+
+
+          ### In use
+
+
+          Direct statements with 고 싶다 commonly concern the speaker's desire. Reporting someone
+          else's desire can use other wording or a quoted statement.
+        examples:
+          - text: 커피를 좋아해요.
+            translation: I like coffee.
+          - text: 집에 가고 싶어요.
+            translation: I want to go home.
+      varieties:
+        korean-south-korea:
+          assessment: Korean uses 좋다, 좋아하다 and 고 싶다 for preferences and wants.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Korean ability, permission and necessity use distinct verb constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          -(으)ㄹ 수 있어요 expresses being able or having the possibility to act. -아/어도 돼요 grants
+          permission, while -아/어야 해요 expresses necessity.
+
+
+          ### In use
+
+
+          못 can express inability rather than a simple choice not to act. Preserve that distinction
+          when interpreting a negative sentence.
+        examples:
+          - text: 수영할 수 있어요.
+            translation: I can swim.
+          - text: 지금 가야 해요.
+            translation: I have to go now.
+      varieties:
+        korean-south-korea:
+          assessment: Korean ability, permission and necessity use distinct verb constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Korean uses 안, 지 않다 and distinct negative predicates.
+        explanation: >-
+          ### Form and meaning
+
+
+          안 before a predicate and -지 않다 after a stem can negate many verbs. 아니다 negates a noun
+          identity, and 없다 expresses nonexistence or not having.
+
+
+          ### In use
+
+
+          못 commonly marks inability. It should not be flattened into the same meaning as ordinary 안
+          negation.
+        examples:
+          - text: 오늘 안 가요.
+            translation: I am not going today.
+          - text: 시간이 없어요.
+            translation: I do not have time.
+      varieties:
+        korean-south-korea:
+          assessment: Korean uses 안, 지 않다 and distinct negative predicates.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Korean questions use question words, endings and intonation.
+        explanation: >-
+          ### Form and meaning
+
+
+          In polite 해요 speech, a statement and a yes/no question may share the written ending and
+          differ by intonation or punctuation. Question words normally stay in the position of the
+          missing information.
+
+
+          ### In use
+
+
+          The final speech level matters socially, but a question does not require English-style
+          subject–verb inversion.
+        examples:
+          - text: 내일 와요?
+            translation: Are you coming tomorrow?
+          - text: 역이 어디예요?
+            translation: Where is the station?
+      varieties:
+        korean-south-korea:
+          assessment: Korean questions use question words, endings and intonation.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Korean requests use 아/어 주세요 and related polite constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A verb in the 아/어 form followed by 주세요 asks someone to do something for the speaker or
+          another beneficiary. A noun plus 주세요 asks for an item.
+
+
+          ### In use
+
+
+          좀 can soften a request without literally meaning only a small quantity. Choose the address
+          and speech level for the person you are speaking to.
+        examples:
+          - text: 다시 말해 주세요.
+            translation: Please say that again.
+          - text: 물 좀 주세요.
+            translation: Please give me some water.
+      varieties:
+        korean-south-korea:
+          assessment: Korean requests use 아/어 주세요 and related polite constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Korean clause endings express reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          -아/어서 can connect a cause with a result. -(으)면 marks a condition, and -(으)니까 provides
+          another reason construction with different usage constraints.
+
+
+          ### In use
+
+
+          Do not assume every English because clause can use the same ending. In particular, request
+          and suggestion contexts often favor different reason patterns.
+        examples:
+          - text: 피곤해서 쉬어요.
+            translation: I am resting because I am tired.
+          - text: 비가 오면 집에 있을 거예요.
+            translation: If it rains, I will stay at home.
+      varieties:
+        korean-south-korea:
+          assessment: Korean clause endings express reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: 안녕하세요
@@ -86,19 +454,19 @@ conversation:
     background: Grew up in Suwon and moved to Seoul for work. Shares a flat with a cousin.
     currentSituation: Preparing a listening evening with friends and repairing an old radio.
     interests:
-    - field recording
-    - weekend walks
+      - field recording
+      - weekend walks
     opinions:
-    - A repair is better when its owner understands what changed.
+      - A repair is better when its owner understands what changed.
     interestingFacts:
-    - Keeps a notebook of interesting sounds.
+      - Keeps a notebook of interesting sounds.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - Little Forest (2018)
+      - Little Forest (2018)
     manner: Practical and curious. Uses polite everyday Korean with new acquaintances.
     quirks:
-    - Labels spare parts by hand.
+      - Labels spare parts by hand.
     vibe:
-    - 📻
-    - 🌿
+      - 📻
+      - 🌿

@@ -63,7 +63,7 @@ describe('durable conversation projection', () => {
 
 it('passes native feedback through unchanged and projects suggestion state and failure', () => {
   const user: ChatMessage = { ...message(1, 'user', 'Yo fue ayer'), feedbackState: 'succeeded',
-    feedback: { meaningRecovered: 'full', items: [], candidatesSent: 18, itemsReturned: 0 } }
+    feedback: { corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 18, itemsReturned: 0 } }
   const reply: ChatMessage = { ...message(2, 'assistant', '¿Adónde fuiste?'), suggestedReplies: [{ text: 'Fui al mercado.', segments: [] }], suggestionsState: 'failed', suggestionsError: 'Coach feedback rejected: suggestions_schema.' }
   const [turn] = conversationTurns(snapshot([user, reply]))
   expect(turn.coach).toBe(user.feedback)
@@ -128,14 +128,14 @@ it('groups by durable identity despite interleaving and retains repeated revisio
 it('retains reply failure and pause state independently of successful saved assistance', () => {
   const source = snapshot([message(1, 'user', 'Question')])
   source.turns = [{ id: 'turn-1', state: 'failed', paused: false, hold: null, route: 'hosted', replacesTurnId: null, replacedBy: null, operations: [{ id: 'reply', kind: 'persona_reply', state: 'failed', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }], attempts: [] }]
-  source.messages[0].feedback = { meaningRecovered: 'full', items: [], candidatesSent: 1, itemsReturned: 0 }
+  source.messages[0].feedback = { corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 1, itemsReturned: 0 }
   expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', assistant: null, replyState: { state: 'failed', control: 'retry' } })
   source.turns[0].state = 'pending'; source.turns[0].operations[0].state = 'ready'; source.turns[0].paused = true
   expect(conversationTurns(source)[0]).toMatchObject({ analysisState: 'done', replyState: { state: 'paused', control: 'resume' } })
 })
 
 it('projects independent support on its own exchange without manufacturing skill evidence', () => {
-  const feedback={remark:'Clear meaning.',corrections:[],usedTarget:['Hola'],usedNative:[],grammar:5,conversation:5}
+  const feedback={answers:{},grammar:10,conversation:10}
   const assistance={explanation:'A greeting.',replies:[],frames:['Soy ___.'],starters:['Hola…']}
   const cards={cards:[{quote:'Hola',title:'Greeting',body:'A greeting.',example:'Hola, Ana.',contrast:''}]}
   const turns=conversationTurns(snapshot([
@@ -145,7 +145,7 @@ it('projects independent support on its own exchange without manufacturing skill
   ]))
   expect(turns[0].conversationFeedback).toEqual(feedback)
   expect(turns[0].coach).toBeUndefined()
-  expect(turns[0].analysisState).toBe('done')
+  expect(turns[0].analysisState).toBeNull()
   expect(turns[0].assistant?.assistance).toEqual(assistance)
   expect(turns[0].assistant?.mechanics[0].quote).toBe('Hola')
   expect(turns[1].conversationFeedback).toBeUndefined()

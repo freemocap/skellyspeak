@@ -19,17 +19,11 @@ impl Application {
                 "Workspace changed during transcription.",
             ));
         }
-        let current = access::resolve(&store.connection, access::Capability::Transcription)?;
-        if current.route != target.route
-            || current.url != target.url
-            || current.model != target.model
-            || current.credential != target.credential
-        {
-            return Err(AppError::new(
-                ErrorCode::Conflict,
-                "Transcription access changed before execution.",
-            ));
-        }
+        crate::ai::connections::speech_routing::validate_access(
+            &store.connection,
+            access::Capability::Transcription,
+            target,
+        )?;
         if crate::ai::connections::configuration::config(&store.connection)?.paused {
             return Err(AppError::new(
                 ErrorCode::AdmissionHeld,

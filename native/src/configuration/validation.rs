@@ -523,8 +523,7 @@ impl Registry {
             "metalinguistic",
             "explicit",
         ];
-        if p.max_corrections_per_turn != 1
-            || !["focus_and_meaning_blocking", "useful_language"].contains(&p.correct_only.as_str())
+        if !["focus_and_meaning_blocking", "useful_language"].contains(&p.correct_only.as_str())
             || p.ladder != ladder.iter().map(|s| s.to_string()).collect::<Vec<_>>()
         {
             return Err(error(
@@ -587,6 +586,7 @@ impl Registry {
             "conversation prompt",
             &[
                 &prompt.base,
+                &prompt.coach_focus,
                 &prompt.persona,
                 &prompt.interaction,
                 &prompt.examples_intro,

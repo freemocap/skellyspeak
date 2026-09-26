@@ -24,7 +24,7 @@ function props(): Props {
 }
 it('places the persona reaction on the reply', () => {
   const input = props()
-  input.turn.reaction = { kind: 'confused', interpretation: 'Uncertain meaning', explanation: 'Please clarify the reference.' }
+  input.turn.reaction = { kind: 'confused', answer: {choice:'confused',probabilities:{confused:1},confidence:1} }
   const view = render(<TurnView {...input} />)
   expect(view.container.querySelector('.msg.bot .persona-reaction')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .persona-reaction')).toBeNull()
@@ -452,8 +452,8 @@ it('preserves source text and reading controls without inline XP tags', async ()
   const { skillDemo } = await import('../../../domain/learning/catalog/skillDemo')
   const { unreportedInput } = await import('../../../domain/learning/evidence/skills')
   const snapshot = structuredClone(skillDemo)
-  snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
-  snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'referent', xp: 10 }]
+  snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
+  snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'identify_describe', xp: 10 }]
   const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
   expect(view.container.querySelector('.message-evidence')).toHaveTextContent('Hola')
   expect(view.container.querySelector('.message-credit-badges')).toBeNull()

@@ -40,6 +40,9 @@ pub(in crate::ai) async fn transcribe(
     };
     let metadata = diagnostics.get_or_insert_with(|| serde_json::json!({}));
     metadata["requested_model"] = serde_json::json!(target.model);
+    if let Some(resolution) = &target.audio_resolution {
+        metadata["routing"] = serde_json::json!(resolution);
+    }
     outcome
 }
 
@@ -172,6 +175,7 @@ mod tests {
             .unwrap();
         });
         let target = ResolvedTarget {
+            audio_resolution: None,
             route: ConnectionRoute::Custom,
             revision: 1,
             url,

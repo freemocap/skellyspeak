@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { errorDetails, scrubErrorText } from './error-details'
+import { errorDetails, scrubErrorText, errorMessage, isRateLimited } from './error-details'
 
 it('preserves a plain-string IPC contract error in the structured details', () => {
   const message = 'invalid args `input` for command `begin_reading`: unknown field `aid`, expected one of `text`, `language`, `variety`, `explanation`, `explanationVariety`, `speech`'
@@ -92,4 +92,12 @@ it('preserves novel reasons and quoted validation descriptions while removing su
   expect(clean).toContain('Field "language" failed validation: "must be a supported language code"')
   expect(clean).not.toContain('private-utterance')
   expect(clean).not.toContain('short-secret')
+})
+
+it('labels explicit nested rate limits while retaining provider details and excluding quota', () => {
+  const error = {message:'Generation failed',diagnostics:{response:{id:'request-17',choices:[{error:{code:429,message:'Temporarily limited'}}]}}}
+  expect(errorMessage(error)).toContain('Sorry, rate limited. Try again shortly.')
+  expect(errorDetails(error).metadata).toMatchObject({response:{id:'request-17'}})
+  expect(isRateLimited({status:429,response:{error:{code:'insufficient_quota'}}})).toBe(false)
+  expect(isRateLimited({message:'429',content:{code:429}})).toBe(false)
 })

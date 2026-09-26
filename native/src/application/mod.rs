@@ -41,6 +41,7 @@ use zeroize::Zeroizing;
 
 mod commands;
 use crate::ai::policy::retry;
+mod coaching_results;
 mod reading_results;
 mod scheduler;
 mod speech_results;

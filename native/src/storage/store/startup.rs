@@ -81,7 +81,7 @@ impl Store {
             return Err(AppError::new(
                 ErrorCode::Storage,
                 format!(
-                    "Unsupported development schema {version}; this build requires {SCHEMA_VERSION}. No data was changed. Clear incompatible development data before reopening, or use Factory Reset to clear this app workspace. No format conversion is provided."
+                    "This workspace uses an incompatible data format ({version}); this build requires {SCHEMA_VERSION}. Use Factory Reset to delete this app's local data, then reopen the app. No data was changed."
                 ),
             ));
         }
@@ -105,7 +105,6 @@ impl Store {
         store.snapshot()?;
         store.reconcile_execution()?;
         crate::drill::sessions::recover(&store.connection)?;
-        store.shelve_jev_assessment()?;
         crate::ai::generation::generation_receipts::recover(&store.connection)?;
         crate::language::reading::recover(&store.connection)?;
         // Audio an interrupted save or deletion left with no attempt to claim it.

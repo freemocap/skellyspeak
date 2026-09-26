@@ -1,0 +1,21 @@
+status: draft
+review_status: needs_review
+skill_id: possession_relationships
+language: Spanish
+core:
+  overview: Spanish uses possessives and relational de phrases for ownership, kinship, access and other relationships.
+  assessment: Interpret the relationship in context; a possessive does not necessarily establish legal ownership. A short answer can supply a participant in a relationship established by the partner.
+varieties:
+  Mexico:
+    assessment: Spanish possessives and relational de phrases can express ownership, kinship or use. Interpret the relationship in context; do not equate every possessive with ownership. Short answers may rely on a relationship established by the question.
+    explanation: A possessive or a phrase with de can identify the related person. Context determines what the relationship is. These examples apply to Mexican Spanish without claiming the constructions are exclusive to it.
+    examples:
+      - text: Es el libro de mi hermana.
+        translation: It is my sister's book.
+      - text: Ana.
+        context: ¿De quién es el libro?
+        translation: Ana.
+coverage: This specimen supplies a Mexico section. Other variety sections remain connected to the Spanish core and require explicit coverage.
+provenance:
+  authorship: ai_authored
+  sources: []

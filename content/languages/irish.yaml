@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: irish
@@ -14,20 +14,20 @@ definitions:
     caighdean-oifigiuil:
       script: latin
       guidance:
-      - scope: target_writing
-        text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
-          (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required. Preserve
-          quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not substitute Scottish
-          Gaelic vocabulary or grave-accent conventions.
-        sources:
-        - irish_caighdean_2017
-      - scope: explanation_writing
-        text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
-          (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required. Preserve
-          quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not substitute Scottish
-          Gaelic vocabulary or grave-accent conventions.
-        sources:
-        - irish_caighdean_2017
+        - scope: target_writing
+          text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
+            (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required.
+            Preserve quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not
+            substitute Scottish Gaelic vocabulary or grave-accent conventions.
+          sources:
+            - irish_caighdean_2017
+        - scope: explanation_writing
+          text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
+            (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required.
+            Preserve quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not
+            substitute Scottish Gaelic vocabulary or grave-accent conventions.
+          sources:
+            - irish_caighdean_2017
   romanization_schemes: {}
 defaults:
   variety: irish-ireland
@@ -39,29 +39,394 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: irish-ireland
-  name: Ireland
-  description: Contemporary Irish in Ireland. An Caighdeán Oifigiúil guides writing; this selection does
-    not prescribe a single spoken dialect.
-  review: needs_review
-  sources:
-  - irish_caighdean_2017
-  overrides: {}
-  guidance: []
+  - id: irish-ireland
+    name: Ireland
+    description: Contemporary Irish in Ireland. An Caighdeán Oifigiúil guides writing; this selection
+      does not prescribe a single spoken dialect.
+    review: needs_review
+    sources:
+      - irish_caighdean_2017
+    overrides: {}
+    guidance: []
 guidance:
-- scope: assessment
-  text: The written standard is not a single spoken dialect. Recognise valid Connacht, Munster and Ulster
-    forms without treating every departure from the written standard as an error. Do not infer pronunciation
-    from spelling alone.
-  sources:
-  - irish_caighdean_2017
-  - irish_spoken_dialects
+  - scope: assessment
+    text: The written standard is not a single spoken dialect. Recognise valid Connacht, Munster and
+      Ulster forms without treating every departure from the written standard as an error. Do not
+      infer pronunciation from spelling alone.
+    sources:
+      - irish_caighdean_2017
+      - irish_spoken_dialects
 learning:
   goal_material:
     courtesy:
       tokens:
-      - go raibh maith agat
-      - go raibh maith agaibh
+        - go raibh maith agat
+        - go raibh maith agaibh
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Irish distinguishes copular identity from states expressed with bí.
+        explanation: >-
+          ### Form and meaning
+
+
+          Use the copula is for many classifications and identities. Use tá, the present of bí, for
+          states and locations; the two are not freely interchangeable.
+
+
+          ### In use
+
+
+          An occupation can be introduced with is, while an adjective describing a state commonly
+          follows tá and its subject. Irish often puts the verb before the subject.
+        examples:
+          - text: Is múinteoir mé.
+            translation: I am a teacher.
+          - text: Tá an seomra ciúin.
+            translation: The room is quiet.
+      varieties:
+        irish-ireland:
+          assessment: Irish distinguishes copular identity from states expressed with bí.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Irish uses bí with ag for having and possessive determiners or le for other relationships.
+        explanation: >-
+          ### Form and meaning
+
+
+          Tá leabhar agam literally places a book at me and means I have a book. Ag combines with
+          pronouns: agam, agat and other forms.
+
+
+          ### In use
+
+
+          Belonging can instead use le, while mo and do mark possessive relationships and can change
+          the following consonant. These are related constructions, not one interchangeable have
+          verb.
+        examples:
+          - text: Tá rothar agam.
+            translation: I have a bicycle.
+          - text: Seo mo dheirfiúr.
+            translation: This is my sister.
+      varieties:
+        irish-ireland:
+          assessment: Irish uses bí with ag for having and possessive determiners or le for other
+            relationships.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Irish numerals interact with noun forms and initial mutations.
+        explanation: >-
+          ### Form and meaning
+
+
+          A number and its noun form a construction with particular rules. Dhá means two and
+          commonly triggers lenition on the following noun.
+
+
+          ### In use
+
+
+          Counting people has additional forms and conventions. Do not assume that a noun simply
+          becomes plural after every number, or that the same form counts objects and people.
+        examples:
+          - text: Tá dhá leabhar agam.
+            translation: I have two books.
+          - text: Tá beagán uisce ann.
+            translation: There is a little water there.
+      varieties:
+        irish-ireland:
+          assessment: Irish numerals interact with noun forms and initial mutations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Irish distinguishes ordinary present verbs from bí plus a verbal noun.
+        explanation: >-
+          ### Form and meaning
+
+
+          A simple present verb can describe a habit. Tá with ag and a verbal noun describes an
+          activity in progress.
+
+
+          ### In use
+
+
+          The ag plus verbal noun construction has its own syntax, including changes when an object
+          is added. It is not merely an English -ing ending attached to the verb.
+        examples:
+          - text: Oibrím anseo.
+            translation: I work here.
+          - text: Tá sí ag léamh.
+            translation: She is reading.
+      varieties:
+        irish-ireland:
+          assessment: Irish distinguishes ordinary present verbs from bí plus a verbal noun.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Irish past reference uses past verb forms, including irregular forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          Regular past forms commonly show lenition, while frequent verbs such as bí have irregular
+          forms. Bhí supplies the past of tá.
+
+
+          ### In use
+
+
+          Questions and negatives can use dependent forms, especially with irregular verbs. Learn
+          the affirmative, question and negative as a small set rather than assuming one particle
+          fits every verb.
+        examples:
+          - text: Tháinig mé inné.
+            translation: I came yesterday.
+          - text: Bhí mé sa bhaile.
+            translation: I was at home.
+      varieties:
+        irish-ireland:
+          assessment: Irish past reference uses past verb forms, including irregular forms.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Irish future reference uses future verb forms and time expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Future endings differ across verb classes, and common irregular verbs have their own
+          forms. Beidh is the future of bí.
+
+
+          ### In use
+
+
+          A future time word such as amárach helps specify the event. A wish construction by itself
+          should not be read as a promise that an event will occur.
+        examples:
+          - text: Tiocfaidh mé amárach.
+            translation: I will come tomorrow.
+          - text: Beidh mé sa bhaile.
+            translation: I will be at home.
+      varieties:
+        irish-ireland:
+          assessment: Irish future reference uses future verb forms and time expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Irish expresses liking with copular le constructions and wants with idiomatic phrases.
+        explanation: >-
+          ### Form and meaning
+
+
+          Is maith liom expresses liking; the form liom identifies the person who likes something.
+          Ba mhaith liom expresses a wish politely.
+
+
+          ### In use
+
+
+          The literal pieces do not map directly to English subject–verb–object order. Treat the
+          complete expression as the starting pattern and change the personal form as needed.
+        examples:
+          - text: Is maith liom tae.
+            translation: I like tea.
+          - text: Ba mhaith liom dul abhaile.
+            translation: I would like to go home.
+      varieties:
+        irish-ireland:
+          assessment: Irish expresses liking with copular le constructions and wants with idiomatic phrases.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Irish expresses ability, permission and necessity with distinct idiomatic constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Is féidir liom expresses that I can do something. Caithfidh mé followed by an action
+          expresses obligation, while other constructions ask or grant permission.
+
+
+          ### In use
+
+
+          Personal prepositional forms such as liom matter to who can act. An ability expression in
+          a question may function as a request for permission or assistance in context.
+        examples:
+          - text: Is féidir liom snámh.
+            translation: I can swim.
+          - text: Caithfidh mé imeacht.
+            translation: I have to leave.
+      varieties:
+        irish-ireland:
+          assessment: Irish expresses ability, permission and necessity with distinct idiomatic constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Irish negative particles and dependent verb forms express negation.
+        explanation: >-
+          ### Form and meaning
+
+
+          Ní negates many present statements, but irregular verbs can require a special form. Níl is
+          the negative counterpart of tá.
+
+
+          ### In use
+
+
+          A negative answer commonly repeats an appropriate verb form rather than relying on one
+          universal word for no. Initial mutations are part of the construction.
+        examples:
+          - text: Níl mé réidh.
+            translation: I am not ready.
+          - text: Ní thuigim.
+            translation: I do not understand.
+      varieties:
+        irish-ireland:
+          assessment: Irish negative particles and dependent verb forms express negation.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Irish questions use interrogative particles, dependent verb forms and question expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          An introduces many yes/no questions, and bí uses an bhfuil in the present. Cá and other
+          expressions ask for particular information.
+
+
+          ### In use
+
+
+          Answers commonly use the relevant affirmative or negative verb form. Do not require
+          English subject–verb inversion to recognize the question.
+        examples:
+          - text: An bhfuil tú réidh?
+            translation: Are you ready?
+          - text: Cá bhfuil an stáisiún?
+            translation: Where is the station?
+      varieties:
+        irish-ireland:
+          assessment: Irish questions use interrogative particles, dependent verb forms and question
+            expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Irish requests use imperatives and idiomatic politeness expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          An imperative can ask someone to act. Le do thoil accompanies familiar singular address;
+          le bhur dtoil addresses more than one person.
+
+
+          ### In use
+
+
+          Verb forms distinguish singular and plural commands. A request may also use an ability
+          question when a less direct form is appropriate.
+        examples:
+          - text: Suigh síos, le do thoil.
+            translation: Sit down, please.
+          - text: Abair arís é, le do thoil.
+            translation: Say it again, please.
+      varieties:
+        irish-ireland:
+          assessment: Irish requests use imperatives and idiomatic politeness expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Irish reason and conditional constructions use conjunctions and specific verb forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          Mar can introduce a reason. Má introduces an open condition, while dá belongs to a
+          different conditional pattern.
+
+
+          ### In use
+
+
+          With bí, an open condition can use má tá. Do not substitute dá mechanically: it changes
+          the kind of condition and the following verb pattern.
+        examples:
+          - text: Fanfaidh mé anseo mar tá mé tuirseach.
+            translation: I will stay here because I am tired.
+          - text: Má tá tú réidh, is féidir linn imeacht.
+            translation: If you are ready, we can leave.
+      varieties:
+        irish-ireland:
+          assessment: Irish reason and conditional constructions use conjunctions and specific verb forms.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: dia duit
@@ -76,25 +441,25 @@ conversation:
       worked in a bookshop in Galway.
     currentSituation: Sorting out a timetable clash between a craft class and a film evening.
     interests:
-    - gardening in small spaces
-    - photography
+      - gardening in small spaces
+      - photography
     opinions:
-    - Public timetables should be easy to read.
-    - Borrowing equipment makes more sense than buying it for one job.
+      - Public timetables should be easy to read.
+      - Borrowing equipment makes more sense than buying it for one job.
     interestingFacts:
-    - Grows herbs in reused containers.
-    - Takes photographs of changing shopfronts.
+      - Grows herbs in reused containers.
+      - Takes photographs of changing shopfronts.
     favoriteBooks:
-    - Cré na Cille — Máirtín Ó Cadhain
-    - Small Things Like These — Claire Keegan
+      - Cré na Cille — Máirtín Ó Cadhain
+      - Small Things Like These — Claire Keegan
     favoriteMovies:
-    - An Cailín Ciúin (2022)
-    - The Straight Story (1999)
+      - An Cailín Ciúin (2022)
+      - The Straight Story (1999)
     manner: Practical and attentive. Uses everyday Irish and asks follow-up questions without turning
       the conversation into a lesson.
     quirks:
-    - Writes reminders on the backs of envelopes.
-    - Checks the weather before making weekend plans.
+      - Writes reminders on the backs of envelopes.
+      - Checks the weather before making weekend plans.
     vibe:
-    - 🌱
-    - 📷
+      - 🌱
+      - 📷

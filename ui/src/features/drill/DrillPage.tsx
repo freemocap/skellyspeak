@@ -331,7 +331,8 @@ export function DrillPage({ active }: { active: boolean }) {
 
   const dock = selected && (
         <div className="drill-pane drill-dock-pane" ref={element => { panes.current.dock = element }}>
-          {mic.failure != null && <ErrorNotice as="div" error={mic.failure}><strong>{tr('Microphone')}</strong><p>{errorMessage(mic.failure)}</p><ResponseDetails value={mic.failure} /></ErrorNotice>}
+          {mic.failure != null && <ErrorNotice as="div" error={mic.failure}><strong>{tr('Microphone')}</strong><p>{errorMessage(mic.failure)}</p><ResponseDetails value={mic.failure} />
+            <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={() => void mic.toggleMic()}>{tr('Record again')}</button></ErrorNotice>}
           <RecordDock phase={phase} mode={mode} onMode={setMode} settings={listening} onSettings={changeListening}
             listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} liveSpectrum={mic.liveSpectrum}
             onToggle={() => void mic.toggleMic()} onCancel={mode === 'auto' ? mic.discardCurrent : mic.cancel}
@@ -340,6 +341,7 @@ export function DrillPage({ active }: { active: boolean }) {
   )
   const liveTakes = [...mic.pendingRecordings, ...(mic.listeningStatus?.takes ?? [])].filter(take => !removedRecordings.has(take.recordingId))
   const queue = <TakeQueue takes={liveTakes} attempts={history.attempts} rtl={rtl}
+    onRecordAgain={() => void mic.toggleMic()} recordingBusy={mic.recording || mic.transcribing}
     onSelect={setChosenAttemptId} onDelete={deleteTake} deleting={deletingTakes || holdingAudio} />
   const report = selected && (
       <aside className="drill-log" aria-label={tr("Attempts")} ref={element => { panes.current.report = element }}>
@@ -375,7 +377,7 @@ export function DrillPage({ active }: { active: boolean }) {
 
         <DrillComparison target={<DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
             {analysis => (
-              <TargetMessage layout="bubble" text={selected.text} segments={[]} segmentsKey={selected.id}
+              <TargetMessage readAloud={false} addToDrill={false} layout="bubble" text={selected.text} segments={[]} segmentsKey={selected.id}
                 translation={null} romanization={null} pronunciation={null} translateLabel={tr("Translate")}
                 segmentsPending={false} lookupWords status={null} annotation={null} analysis={analysis}
                 speech={null} focused={false} rtl={locale?.direction === 'rtl'} />

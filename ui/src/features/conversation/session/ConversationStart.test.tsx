@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { ConversationStart } from './ConversationStart'
 import type { ConversationStartConfig, TopicCard } from '../../../generated/contracts'
@@ -75,4 +75,12 @@ it('blocks duplicate starts and setting changes while in flight', () => {
   expect(screen.getByRole('button', { name: /الطعام والشراب/ })).toBeDisabled()
   expect(screen.getByRole('combobox', { name: 'Difficulty' })).toBeDisabled()
   expect(start).toHaveBeenCalledOnce()
+})
+
+it('starts an explicitly coach-led conversation with the chosen mode', async () => {
+  const start = vi.fn().mockResolvedValue(undefined)
+  render(<ConversationStart {...props} onStart={start} />)
+  fireEvent.click(screen.getByText('Let the coach decide'))
+  fireEvent.click(screen.getByRole('button', { name: 'Explore' }))
+  await waitFor(() => expect(start).toHaveBeenCalledWith({ ...value, direction: { ...value.direction, topic: { kind: 'coach', mode: 'explore' } } }))
 })

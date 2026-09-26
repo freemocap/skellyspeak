@@ -35,6 +35,8 @@ impl Registry {
         Self::from_files(files)
     }
     pub(super) fn from_files(files: BTreeMap<String, String>) -> Result<Self> {
+        let speech: speech::Catalog = parse(&files, "shared/speech-routing.yaml")?;
+        speech.validate()?;
         let foundations: Foundations = parse(&files, "shared/language-foundations.yaml")?;
         let policy: TeachingPolicy = parse(&files, "shared/teaching-policy.yaml")?;
         let topics: Vec<ConversationTopic> = parse(&files, "shared/conversation-topics.yaml")?;
@@ -57,6 +59,8 @@ impl Registry {
             romanizations: vec![],
             universal: policy.guidance,
             constructs: parse(&files, "shared/learning-goals.yaml")?,
+            skills: parse(&files, "shared/skills.yaml")?,
+            presence_instructions: parse(&files, "prompts/skills/presence.yaml")?,
             navigation: parse(&files, "shared/learning-map.yaml")?,
             feedback: policy.feedback,
             estimator: policy.estimator,
@@ -68,6 +72,7 @@ impl Registry {
             documents: BTreeMap::new(),
             source_files: files.clone(),
             goal_material: BTreeMap::new(),
+            guides: BTreeMap::new(),
         };
         if registry.drill_instruction.trim().is_empty() || registry.drill_instruction.len() > 16000
         {
@@ -83,8 +88,14 @@ impl Registry {
             &foundations.romanization_schemes,
         )?;
         for name in files.keys() {
-            if name.starts_with("languages/") && name.ends_with(".yaml") {
+            if name.starts_with("guides/") && name.ends_with(".yaml") {
+                registry.guides.insert(name.clone(), parse(&files, name)?);
+            } else if name.starts_with("languages/") && name.ends_with(".yaml") {
                 let document: LanguageDocument = parse(&files, name)?;
+                speech.validate_preferences(&document.defaults.speech_routes)?;
+                for variety in &document.varieties {
+                    speech.validate_preferences(&variety.overrides.speech_routes)?;
+                }
                 let expected = format!("languages/{}.yaml", document.identity.id);
                 if *name != expected {
                     return Err(error(
@@ -96,12 +107,16 @@ impl Registry {
                 registry.add_language(name, document)?;
             } else if ![
                 "shared/language-foundations.yaml",
+                "shared/speech-routing.yaml",
                 "shared/learning-goals.yaml",
+                "shared/skills.yaml",
                 "shared/learning-map.yaml",
                 "shared/teaching-policy.yaml",
                 "shared/conversation-topics.yaml",
                 "prompts/conversation/instructions.yaml",
                 "prompts/drill/instructions.yaml",
+                "prompts/conversation/ratings.yaml",
+                "prompts/skills/presence.yaml",
                 "references.bib",
             ]
             .contains(&name.as_str())
@@ -136,8 +151,15 @@ impl Registry {
             e
         })?;
         let citations = citations::parse_bib(bib).map_err(|e| error("references.bib", "bib", e))?;
+        registry.validate_guides(&citations.keys().cloned().collect())?;
+        registry.validate_skills(&citations.keys().cloned().collect())?;
+        for source in &speech.sources {
+            if !citations.contains_key(source) {
+                return Err(error("shared/speech-routing.yaml", "citation", source));
+            }
+        }
         // Hash typed authored content as well as runtime projections, including unused definitions.
-        registry.hash = fingerprint(&(&registry, &registry.documents, citations));
+        registry.hash = fingerprint(&(&registry, &registry.documents, &speech, citations));
         Ok(registry)
     }
 }

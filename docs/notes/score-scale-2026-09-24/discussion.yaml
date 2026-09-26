@@ -1,0 +1,7 @@
+findings:
+  - Both rating scales agreed with provisional ranges on 94.4% of grammar and conversational-fit ratings (95% cluster interval 86.1–100%). This is not comparable with the earlier skills study because the cases, task and metric differ.
+  - The wider scale has not demonstrated better discrimination. Grammar used only three numeric labels in the wide arm, and 58 of 66 numeric responses were at the maximum. More labels alone did not produce nuanced ratings.
+  - Partner-understanding categories matched every authored reference in this small pilot. The bootstrap interval collapses to 100–100% because every observed cluster matched; it does not establish perfect population accuracy.
+  - Repeated requests were nearly invariant. One grammar pair changed in the narrow arm and one conversational-fit pair changed in the wide arm; no understanding labels changed. Repeats measure service consistency, not additional independent examples.
+  - Median request time was about 172 milliseconds for each arm. The whole study cost $0.00808. These sequential request timings include transport and do not measure application concurrency or user-visible latency.
+  - Keep 0–10 as the proposed display scale, with explicit insufficient evidence. Before runtime replacement, review the incorrect cases and add independently reviewed, less obvious examples. Keep understanding separate from emotion and keep these scores outside XP.

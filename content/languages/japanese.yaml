@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: japanese
@@ -14,38 +14,39 @@ definitions:
     modern-japanese:
       script: japanese
       guidance:
-      - scope: target_writing
-        text: Write contemporary Japanese using kanji, hiragana and katakana as appropriate, with ordinary
-          Japanese punctuation. Preserve quoted source text exactly. Do not insert spaces between all
-          characters or replace kanji with Chinese readings.
-        sources:
-        - ala_lc_japanese2022
-      - scope: explanation_writing
-        text: Write contemporary Japanese using kanji, hiragana and katakana as appropriate, with ordinary
-          Japanese punctuation. Preserve quoted source text exactly. Do not insert spaces between all
-          characters or replace kanji with Chinese readings.
-        sources:
-        - ala_lc_japanese2022
+        - scope: target_writing
+          text: Write contemporary Japanese using kanji, hiragana and katakana as appropriate, with ordinary
+            Japanese punctuation. Preserve quoted source text exactly. Do not insert spaces between
+            all characters or replace kanji with Chinese readings.
+          sources:
+            - ala_lc_japanese2022
+        - scope: explanation_writing
+          text: Write contemporary Japanese using kanji, hiragana and katakana as appropriate, with ordinary
+            Japanese punctuation. Preserve quoted source text exactly. Do not insert spaces between
+            all characters or replace kanji with Chinese readings.
+          sources:
+            - ala_lc_japanese2022
   romanization_schemes:
     hepburn-reading:
       label: Hepburn reading aid
-      instructions: Use Hepburn readings with shi, chi, tsu and fu. Read kanji in context, honoring supplied
-        readings. Render grammatical particles は, へ and を as wa, e and o. Mark long vowels with macrons;
-        retain ei and ii when spelled that way, and keep vowels across morpheme boundaries distinct. Represent
-        small っ by the following consonant, using t before ch; separate syllabic n from a following vowel
-        or y with an apostrophe. Use readable word divisions. This conversational convention draws on
-        ALA-LC but is not its full cataloging standard. Preserve the source.
+      instructions: Use Hepburn readings with shi, chi, tsu and fu. Read kanji in context, honoring
+        supplied readings. Render grammatical particles は, へ and を as wa, e and o. Mark long vowels
+        with macrons; retain ei and ii when spelled that way, and keep vowels across morpheme
+        boundaries distinct. Represent small っ by the following consonant, using t before ch;
+        separate syllabic n from a following vowel or y with an apostrophe. Use readable word
+        divisions. This conversational convention draws on ALA-LC but is not its full cataloging
+        standard. Preserve the source.
       examples:
-      - original: 日本語
-        romanized: nihongo
-      - original: 学校
-        romanized: gakkō
-      - original: お茶
-        romanized: ocha
-      - original: 音楽
-        romanized: ongaku
+        - original: 日本語
+          romanized: nihongo
+        - original: 学校
+          romanized: gakkō
+        - original: お茶
+          romanized: ocha
+        - original: 音楽
+          romanized: ongaku
       sources:
-      - ala_lc_japanese2022
+        - ala_lc_japanese2022
       review: needs_review
 defaults:
   variety: japanese-japan
@@ -57,26 +58,392 @@ defaults:
     scheme: &id001
       local: hepburn-reading
   supported_romanizations:
-  - *id001
+    - *id001
 traits:
-- unspaced-words
+  - unspaced-words
 varieties:
-- id: japanese-japan
-  name: Japan
-  description: Contemporary Japanese in Japan, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - ala_lc_japanese2022
-  overrides: {}
-  guidance: []
+  - id: japanese-japan
+    name: Japan
+    description: Contemporary Japanese in Japan, with standard writing and context-appropriate everyday
+      conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - ala_lc_japanese2022
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - ありがとう
-      - ありがとうございます
+        - ありがとう
+        - ありがとうございます
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Japanese identifies and describes with noun, adjective and location predicates.
+        explanation: >-
+          ### Form and meaning
+
+
+          A noun predicate can end in です for polite identification. Adjectives divide into different
+          patterns: い-adjectives predicate directly, while な-adjectives use a copular ending in a
+          polite sentence.
+
+
+          ### In use
+
+
+          は marks a topic, not an English-style subject in every use. Information already clear from
+          context can be left unspoken.
+        examples:
+          - text: 私は学生です。
+            translation: I am a student.
+          - text: この部屋は静かです。
+            translation: This room is quiet.
+      varieties:
+        japanese-japan:
+          assessment: Japanese identifies and describes with noun, adjective and location predicates.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Japanese uses の for noun relationships and existential constructions for having.
+        explanation: >-
+          ### Form and meaning
+
+
+          の links a possessor or associated person to a noun: 私の本 means my book. Having something is
+          often expressed with あります or います, according to the referent.
+
+
+          ### In use
+
+
+          います is used for people and animals in basic existence patterns; あります for inanimate things.
+          The relationship expressed by の need not be literal ownership.
+        examples:
+          - text: これは私の本です。
+            translation: This is my book.
+          - text: 妹がいます。
+            translation: I have a younger sister.
+      varieties:
+        japanese-japan:
+          assessment: Japanese uses の for noun relationships and existential constructions for having.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Japanese combines numbers with counters and uses quantity expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A counter identifies the kind of thing counted. 人 counts people and 冊 counts bound books;
+          pronunciation can change with the number.
+
+
+          ### In use
+
+
+          Do not attach the same counter to every noun. A quantity phrase can appear after the noun
+          and its particle, rather than always directly before the noun.
+        examples:
+          - text: 本が三冊あります。
+            translation: There are three books.
+          - text: 水を少しください。
+            translation: Please give me a little water.
+      varieties:
+        japanese-japan:
+          assessment: Japanese combines numbers with counters and uses quantity expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Japanese nonpast and ている constructions express present states, habits and ongoing or
+          resultant situations.
+        explanation: >-
+          ### Form and meaning
+
+
+          A polite nonpast verb ending in ます can describe a habit. The て-form plus います can describe
+          an ongoing activity.
+
+
+          ### In use
+
+
+          The same ている construction can express a resulting state, as in being married or knowing
+          something. It is not always equivalent to English -ing.
+        examples:
+          - text: 毎日ここで働きます。
+            translation: I work here every day.
+          - text: 今、本を読んでいます。
+            translation: I am reading a book now.
+      varieties:
+        japanese-japan:
+          assessment: Japanese nonpast and ている constructions express present states, habits and ongoing or
+            resultant situations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Japanese past forms and context establish past reference.
+        explanation: >-
+          ### Form and meaning
+
+
+          Polite verbs commonly use ました for affirmative past reference. Plain past forms have
+          several endings determined by the verb group.
+
+
+          ### In use
+
+
+          Adjectives and noun predicates have their own past patterns. A verb's past form can
+          interact with clause context, so read the whole utterance rather than just its last
+          syllable.
+        examples:
+          - text: 昨日、映画を見ました。
+            translation: I watched a film yesterday.
+          - text: 昨日は寒かったです。
+            translation: It was cold yesterday.
+      varieties:
+        japanese-japan:
+          assessment: Japanese past forms and context establish past reference.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Japanese nonpast verbs with context and expressions of intention convey future meaning.
+        explanation: >-
+          ### Form and meaning
+
+
+          Japanese has no separate obligatory future-tense ending. A nonpast verb plus 明日 or another
+          future time expression can describe a plan or prediction.
+
+
+          ### In use
+
+
+          つもりです expresses an intention. An intention is different from an established arrangement,
+          even when both refer to the future.
+        examples:
+          - text: 明日、東京に行きます。
+            translation: I am going to Tokyo tomorrow.
+          - text: 来年、日本語を勉強するつもりです。
+            translation: I intend to study Japanese next year.
+      varieties:
+        japanese-japan:
+          assessment: Japanese nonpast verbs with context and expressions of intention convey future meaning.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Japanese uses 好き, 欲しい and verbal たい forms for preferences and desires.
+        explanation: >-
+          ### Form and meaning
+
+
+          好き expresses liking in an adjective-like construction, often with が. 欲しい describes wanting
+          a thing; the verb stem plus たい describes wanting to do something.
+
+
+          ### In use
+
+
+          These forms commonly express the speaker's own desire directly. Reporting another person's
+          private desire may need a different construction or explicit evidence.
+        examples:
+          - text: コーヒーが好きです。
+            translation: I like coffee.
+          - text: 少し休みたいです。
+            translation: I want to rest a little.
+      varieties:
+        japanese-japan:
+          assessment: Japanese uses 好き, 欲しい and verbal たい forms for preferences and desires.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Japanese potential forms and permission or necessity constructions express modal meanings.
+        explanation: >-
+          ### Form and meaning
+
+
+          A potential verb or ことができます expresses ability. The て-form plus もいい asks or states
+          permission.
+
+
+          ### In use
+
+
+          Necessity uses other constructions, such as なければなりません. Permission and ability must be
+          distinguished from a prediction that something will happen.
+        examples:
+          - text: 日本語を話すことができます。
+            translation: I can speak Japanese.
+          - text: ここに座ってもいいですか。
+            translation: May I sit here?
+      varieties:
+        japanese-japan:
+          assessment: Japanese potential forms and permission or necessity constructions express modal
+            meanings.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Japanese negation changes predicates according to their type.
+        explanation: >-
+          ### Form and meaning
+
+
+          Polite verbs can use ません. A noun predicate can use ではありません, while an い-adjective changes
+          to a negative form such as 高くない.
+
+
+          ### In use
+
+
+          じゃない is common in less formal noun and な-adjective negatives. Do not add a single negative
+          word to every predicate without changing its form.
+        examples:
+          - text: 分かりません。
+            translation: I do not understand.
+          - text: これは高くないです。
+            translation: This is not expensive.
+      varieties:
+        japanese-japan:
+          assessment: Japanese negation changes predicates according to their type.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Japanese questions use question words, sentence endings and intonation.
+        explanation: >-
+          ### Form and meaning
+
+
+          か after a polite sentence explicitly marks a question. Words such as どこ, 何 and 誰 occupy
+          the position of the missing information.
+
+
+          ### In use
+
+
+          Conversation can ask questions through intonation without か. Subject–verb inversion is not
+          required, and omitted information can remain recoverable from context.
+        examples:
+          - text: 駅はどこですか。
+            translation: Where is the station?
+          - text: 明日、来ますか。
+            translation: Are you coming tomorrow?
+      varieties:
+        japanese-japan:
+          assessment: Japanese questions use question words, sentence endings and intonation.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Japanese requests use てください and other request constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          The て-form plus ください asks for an action. A noun plus をください asks for something to be
+          provided.
+
+
+          ### In use
+
+
+          Polite grammar does not make every direct request appropriate in every relationship. A
+          more indirect request may be suitable when the action imposes on someone.
+        examples:
+          - text: もう一度言ってください。
+            translation: Please say that again.
+          - text: 水をください。
+            translation: Please give me some water.
+      varieties:
+        japanese-japan:
+          assessment: Japanese requests use てください and other request constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Japanese connects reasons with から or ので and conditions with several distinct forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          から and ので can introduce a reason. Conditional forms including と, たら, ば and なら differ in
+          how the condition is presented.
+
+
+          ### In use
+
+
+          Learn a specific whole-clause pattern before treating all conditional endings as
+          interchangeable. A たら condition can present a possible event that comes before the result.
+        examples:
+          - text: 雨なので、家にいます。
+            translation: Because it is raining, I am staying at home.
+          - text: 雨が降ったら、家にいます。
+            translation: If it rains, I will stay at home.
+      varieties:
+        japanese-japan:
+          assessment: Japanese connects reasons with から or ので and conditions with several distinct forms.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: こんにちは
@@ -91,19 +458,19 @@ conversation:
     background: Grew up nearby and enjoys finding quiet walking routes around the city.
     currentSituation: Organizing a small book exchange and learning to repair a worn backpack.
     interests:
-    - walking
-    - bookbinding
+      - walking
+      - bookbinding
     opinions:
-    - A useful book need not be a new book.
+      - A useful book need not be a new book.
     interestingFacts:
-    - Draws simple maps for visiting friends.
+      - Draws simple maps for visiting friends.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - Our Little Sister (2015)
+      - Our Little Sister (2015)
     manner: Thoughtful and concrete. Uses polite everyday Japanese without excessive formality.
     quirks:
-    - Keeps ticket stubs as bookmarks.
+      - Keeps ticket stubs as bookmarks.
     vibe:
-    - 📚
-    - 🚶
+      - 📚
+      - 🚶

@@ -7,7 +7,8 @@ use base64::{Engine, engine::general_purpose::STANDARD};
 use serde::Deserialize;
 
 pub(in crate::ai) fn validate(input: &SpeechInput) -> Result<()> {
-    if input.text.trim().is_empty()
+    if crate::configuration::speech::primary(&input.language_tag).is_none()
+        || input.text.trim().is_empty()
         || input.text.len() > 16_384
         || input.text.contains('\0')
         || input.language.trim().is_empty()
@@ -135,7 +136,7 @@ pub(in crate::ai) async fn synthesize(
         validate(input)?;
         let mut request = client
             .post(&target.url)
-            .json(&serde_json::json!({"model": target.model, "text": input.text, "language": input.language}));
+            .json(&serde_json::json!({"model": target.model, "text": input.text, "language": input.language, "language_tag": input.language_tag}));
         if !key.is_empty() {
             request = request.bearer_auth(key);
         }
@@ -174,6 +175,18 @@ pub(in crate::ai) async fn synthesize(
         result
     }
     .await;
+    if let Some(resolution) = &target.audio_resolution {
+        outcome
+            .diagnostics
+            .get_or_insert_with(|| serde_json::json!({}))["routing"] =
+            serde_json::json!(resolution);
+        if let Err(error) = &mut outcome.audio {
+            error
+                .diagnostics
+                .get_or_insert_with(|| serde_json::json!({}))["routing"] =
+                serde_json::json!(resolution);
+        }
+    }
     outcome.diagnostics = outcome
         .diagnostics
         .as_ref()
@@ -193,6 +206,7 @@ mod tests {
     use super::*;
     fn target() -> ResolvedTarget {
         ResolvedTarget {
+            audio_resolution: None,
             route: ConnectionRoute::Custom,
             revision: 1,
             url: "http://localhost/v1/audio/speech".into(),
@@ -303,7 +317,7 @@ mod tests {
                 serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
             assert_eq!(
                 value,
-                serde_json::json!({"model":"eleven_v3","text":"Gracias.","language":"Spanish — Mexico"})
+                serde_json::json!({"model":"eleven_v3","text":"Gracias.","language":"Spanish — Mexico","language_tag":"es-MX"})
             );
             write!(
                 socket,
@@ -318,6 +332,7 @@ mod tests {
             &target,
             "server-token",
             &SpeechInput {
+                language_tag: "es-MX".into(),
                 text: "Gracias.".into(),
                 voice: "alloy".into(),
                 language: "Spanish — Mexico".into(),

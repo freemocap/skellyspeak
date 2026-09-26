@@ -165,6 +165,7 @@ fn speech_identity_preserves_exact_inputs_and_effective_access_scope() {
     use crate::ai::{audio::SpeechInput, connections::access::ResolvedTarget};
     use crate::model::ConnectionRoute;
     let target = ResolvedTarget {
+        audio_resolution: None,
         route: ConnectionRoute::Custom,
         revision: 1,
         url: "http://localhost/v1/audio/speech".into(),
@@ -173,11 +174,15 @@ fn speech_identity_preserves_exact_inputs_and_effective_access_scope() {
     };
     let scope = speech::scope(&target, "workspace").unwrap();
     let input = SpeechInput {
+        language_tag: "en".into(),
         text: "\u{00e9}".into(),
         language: "fr".into(),
         voice: "unused".into(),
     };
     let key = speech::request_key(&scope, &input).unwrap();
+    let mut tagged = input.clone();
+    tagged.language_tag = "en-GB".into();
+    assert_ne!(key, speech::request_key(&scope, &tagged).unwrap());
     let mut changed = input.clone();
     for text in [
         "e\u{0301}",

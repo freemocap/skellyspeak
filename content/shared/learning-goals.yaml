@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/learning-goals.json
+# yaml-language-server: $schema=../schemas/learning-goals.yaml
 - id: courtesy
   label: Thank, apologize or respond politely
   criterion: Use an appropriate conventional thanks, apology, welcome or polite response.

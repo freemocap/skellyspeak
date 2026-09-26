@@ -10,7 +10,7 @@ function privateDirectory(path: string): void {
   chmodSync(path, 0o700)
 }
 
-const privacy = JSON.parse(readFileSync(new URL('../content/diagnostics/policy.json', import.meta.url), 'utf8')) as {
+const privacy = JSON.parse(readFileSync(new URL('../redaction-policy/policy.json', import.meta.url), 'utf8')) as {
   secretTag: string; contentTag: string; rules: { pattern: string; flags: string; kind: string; prefix?: boolean; terminal?: boolean }[]
 }
 /** Interactive output is not a diagnostic export. Keep useful content and locations. */

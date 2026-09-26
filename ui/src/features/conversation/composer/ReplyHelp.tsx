@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import type { ReplyExplanation, AssistedReply, ReplyHelpKind } from '../../../generated/contracts'
 import { Markdown } from '../../../components/reading/Markdown'
-import { TargetText } from '../../../components/reading/TargetText'
+import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { TargetMessage } from '../../../components/reading/TargetMessage'
 import { ReadingExample } from '../../../components/reading/ReadingExample'
 import { MixedText } from '../../../components/reading/MixedText'
@@ -94,7 +94,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
       {starters && starters.length > 0 && <div className="help-starters">
         <span className="help-starters-label">{tr("Sentence starters")}</span>
         <ul>{starters.map(text => <li key={text}>
-          <span className="help-starter"><TargetText text={text} /><button type="button" className="help-insert" disabled={busy}
+          <span className="help-starter"><TargetPhrase text={text} /><button type="button" className="help-insert" disabled={busy}
             aria-label={tr("Insert starter: {value0}", { value0: text })}
             onClick={() => onUse(text, 'scaffold')}><span aria-hidden="true">↗</span></button></span>
         </li>)}</ul>

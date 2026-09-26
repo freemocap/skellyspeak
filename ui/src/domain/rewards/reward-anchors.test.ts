@@ -14,7 +14,7 @@ it('rejects clipped, hidden and other-workspace anchors and finds visible overla
   clip.getBoundingClientRect = () => new DOMRect(0, 100, 300, 100)
   hidden.getBoundingClientRect = () => new DOMRect(0, 20, 100, 20)
   visible.getBoundingClientRect = () => new DOMRect(0, 180, 100, 40)
-  for (const element of [hidden, visible]) element.dataset.rewardEvidence = JSON.stringify(['a:referent', 'a:property'])
+  for (const element of [hidden, visible]) element.dataset.rewardEvidence = JSON.stringify(['a:identify_describe', 'a:property'])
   expect(visibleRewardRect(hidden, scope)).toBeNull()
   expect(rewardAnchor(scope, 'evidence', 'a:property')).toEqual(new DOMRect(0, 180, 100, 20))
   expect(visibleRewardRect(visible, document.createElement('div'))).toBeNull()

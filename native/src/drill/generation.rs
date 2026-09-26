@@ -42,6 +42,9 @@ impl DrillLength {
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct DrillGenerationInput {
+    #[ts(optional)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skill_target: Option<super::skill_focus::DrillSkillTarget>,
     pub language: String,
     pub variety: Option<String>,
     pub explanation: String,
@@ -82,6 +85,7 @@ pub(crate) fn messages(
     store: &Store,
     request: &Request,
     input: &DrillGenerationInput,
+    focus: Option<&super::skill_focus::DrillSkillFocus>,
 ) -> Vec<PromptMessage> {
     let difficulty = crate::configuration::difficulty::instruction(
         store.config.conversation_prompt(),
@@ -107,7 +111,7 @@ pub(crate) fn messages(
         },
         PromptMessage {
             role: "user".into(),
-            content: json!({"topic":input.topic,"count":input.count,"length":input.length,"maxUtf16Units":input.length.max_units()}).to_string(),
+            content: json!({"skillFocus":focus,"topic":input.topic,"count":input.count,"length":input.length,"maxUtf16Units":input.length.max_units()}).to_string(),
         },
     ]
 }
@@ -121,6 +125,7 @@ pub(crate) fn candidates(
     request: &Request,
     input: &DrillGenerationInput,
     completed: &Completion,
+    focus: Option<&super::skill_focus::DrillSkillFocus>,
 ) -> Result<Vec<DrillCandidate>> {
     #[derive(Deserialize)]
     #[serde(deny_unknown_fields)]
@@ -190,6 +195,7 @@ pub(crate) fn candidates(
                 duplicate: false,
             },
             source: DrillSource::Generated {
+                skill_focus: focus.cloned(),
                 request_id: request.id.clone(),
                 candidate_id: id,
                 topic: input.topic.clone(),

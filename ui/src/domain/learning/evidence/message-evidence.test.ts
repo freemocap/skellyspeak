@@ -6,14 +6,14 @@ import { messageEvidence } from './message-evidence'
 
 function reviewed() {
   const snapshot = structuredClone(skillDemo)
-  snapshot.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'referent', outcome: 'demonstrated', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
-  snapshot.profile.credits = [{ attempt_id: 'a', skill_id: 'referent', xp: 2 }]
+  snapshot.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
+  snapshot.profile.credits = [{ attempt_id: 'a', skill_id: 'identify_describe', xp: 2 }]
   return snapshot
 }
 it('ties a source range and explanation to actual credited XP', () => {
   const spans = messageEvidence(reviewed(), 'chat', 1, 'Ese café.')
   expect(spans).toHaveLength(1)
-  expect(spans[0]).toMatchObject({ start: 0, end: 8, id: 'a:referent' })
+  expect(spans[0]).toMatchObject({ start: 0, end: 8, id: 'a:identify_describe' })
   expect(spans[0].explanation).toContain('2 XP for this message')
 })
 it('never paints stale, failed, excluded or uncredited evidence', () => {
@@ -72,4 +72,13 @@ it('does not fabricate a highlighted span for whole-message classifications', ()
   judgment.evidence_kind = 'whole_message'; judgment.quotes = []
   expect(messageEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([])
   expect(messageRewardEvidence(snapshot, 'chat', 1, 'Ese café.')).toEqual([expect.objectContaining({ evidenceKind: 'whole_message', quote: 'Ese café.' })])
+})
+
+it('uses the validated occurrence without highlighting other identical phrases', () => {
+  const snapshot = reviewed()
+  snapshot.records[0].source = '🙂 Ese café. Ese café.'
+  snapshot.records[0].assessment!.judgments[0].spans = [{ quote: 'Ese café', start: 13, end: 21 }]
+  const spans = messageEvidence(snapshot, 'chat', 1, snapshot.records[0].source)
+  expect(spans).toHaveLength(1)
+  expect(spans[0]).toMatchObject({ start: 13, end: 21, ambiguous: false, xp: 2 })
 })

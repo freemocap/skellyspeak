@@ -128,3 +128,18 @@ async def test_decodable_transcript_does_not_require_correct_mime_metadata(provi
     assert result.text == 'Hello'
     assert result.words is None
     assert 'text/plain' in json.dumps(result.receipt.diagnostics)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('provider,tag', [('groq', 'ga'), ('groq', 'gd'),
+    ('elevenlabs', 'chr'), ('elevenlabs', 'gd'), ('elevenlabs', 'gd_invalid'), ('elevenlabs', 'CHR'), ('elevenlabs', '')])
+async def test_unsupported_language_never_reaches_provider(provider, tag):
+    def respond(_request):
+        pytest.fail('Unsupported language must fail before submission')
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
+        adapter = (GroqTranscription(client, api_key='key', base_url='https://groq.invalid/v1')
+                   if provider == 'groq' else ElevenLabs(client, api_key='key'))
+        with pytest.raises(AudioFailure) as error:
+            await adapter.transcribe(TranscriptionRequest(bytes(32000), tag))
+    assert error.value.code == 'AUDIO_INPUT_INVALID'
+    assert not error.value.unknown_outcome

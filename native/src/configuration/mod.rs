@@ -4,6 +4,10 @@ pub mod appearance;
 mod citations;
 pub mod difficulty;
 mod documents;
+pub mod guides;
+mod skill_navigation;
+pub mod skills;
+pub mod speech;
 pub(crate) use documents::ConversationPromptContent;
 mod identity;
 mod inspection;
@@ -56,6 +60,8 @@ pub struct Registry {
     pub families: Vec<Family>,
     pub universal: Vec<Guidance>,
     constructs: Vec<Construct>,
+    skills: skills::Catalog,
+    presence_instructions: crate::learning::practice_assessment::Instructions,
     navigation: Vec<NavigationNode>,
     feedback: FeedbackPolicy,
     estimator: EstimatorPolicy,
@@ -69,6 +75,7 @@ pub struct Registry {
     #[serde(skip)]
     source_files: BTreeMap<String, String>,
     goal_material: BTreeMap<String, BTreeMap<String, documents::GoalMaterial>>,
+    guides: BTreeMap<String, guides::GuideDocument>,
 }
 include!(concat!(env!("OUT_DIR"), "/config_seeds.rs"));
 
@@ -77,7 +84,13 @@ impl Registry {
         &self.hash
     }
     pub fn learning_content_hash(&self) -> String {
-        fingerprint(&(&self.constructs, &self.goal_material))
+        fingerprint(&(
+            &self.skills,
+            self.documents
+                .iter()
+                .map(|(id, d)| (id, &d.learning.skills))
+                .collect::<Vec<_>>(),
+        ))
     }
     pub fn constructs(&self) -> &[Construct] {
         &self.constructs
@@ -577,3 +590,9 @@ mod latin_language_tests;
 
 #[cfg(test)]
 mod added_language_tests;
+
+#[cfg(test)]
+mod speech_tests;
+
+#[cfg(test)]
+mod guides_tests;

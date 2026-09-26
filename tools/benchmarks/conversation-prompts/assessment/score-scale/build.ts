@@ -1,0 +1,11 @@
+import{readFileSync,writeFileSync,existsSync}from'node:fs';import{parseAllDocuments,stringify}from'yaml';import{build}from'esbuild';import{readYaml}from'../skill-pilot/plan.ts';import{analyze}from'./analysis.ts';
+const out=process.argv[2],plan=readYaml(out+'/plan.yaml');
+const receipts=parseAllDocuments(readFileSync(out+'/receipts.yaml','utf8')).map(d=>{if(d.errors.length||d.warnings.length)throw Error('Invalid receipts');return d.toJS();});
+if(receipts.length!==plan.calls||new Set(receipts.map(r=>r.id)).size!==plan.calls||receipts.some(r=>r.httpStatus!==200||typeof r.costUsd!=='number'||!plan.jobs.some((j:any)=>j.id===r.id)))throw Error('Study incomplete');
+const summary={calls:receipts.length,costUsd:receipts.reduce((n,r)=>n+r.costUsd,0),invalidResponses:receipts.filter(r=>r.status!=='complete').length,grammar:analyze(plan.cases,receipts,'grammar'),conversation:analyze(plan.cases,receipts,'conversation')};
+writeFileSync(out+'/summary.yaml',stringify(summary,{aliasDuplicateObjects:false}));
+const data={plan,receipts,summary,findings:existsSync(out+'/discussion.yaml')?readYaml(out+'/discussion.yaml').findings:[]};
+if(!data.findings.every((s:unknown)=>typeof s==='string'))throw Error('Findings must be text');
+const compiled=await build({entryPoints:[new URL('./view.ts',import.meta.url).pathname],bundle:true,write:false,format:'iife',target:'es2022'});
+const html=readFileSync(new URL('./page.html',import.meta.url),'utf8').replace('/* DATA */',()=>JSON.stringify(data).replace(/</g,'\\u003c')).replace('/* CODE */',()=>compiled.outputFiles[0].text.replace(/<\/script/gi,'<\\/script'));
+writeFileSync(out+'/index.html',html);console.log(JSON.stringify(summary));

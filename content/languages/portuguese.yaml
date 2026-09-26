@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: portuguese
@@ -22,20 +22,386 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: portuguese-brazil
-  name: Brazil
-  description: Brazil
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: portuguese-brazil
+    name: Brazil
+    description: Brazil
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - obrigado
-      - obrigada
+        - obrigado
+        - obrigada
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Portuguese uses ser and estar, noun phrases and adjectives for identification and
+          description.
+        explanation: >-
+          ### Form and meaning
+
+
+          Ser commonly identifies someone or expresses a characteristic; estar commonly presents a
+          state or location. Adjectives usually agree in gender and number.
+
+
+          ### In use
+
+
+          Do not reduce the distinction to permanent versus temporary. Location and the particular
+          adjective matter, and changing the verb can change the meaning.
+        examples:
+          - text: Ela é médica.
+            translation: She is a doctor.
+          - text: A porta está aberta.
+            translation: The door is open.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese uses ser and estar, noun phrases and adjectives for identification and
+            description.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Portuguese uses ter, possessive determiners and de phrases for possession and
+          relationships.
+        explanation: >-
+          ### Form and meaning
+
+
+          Ter states that someone has something. Meu, minha, meus and minhas agree with what is
+          referred to, not with the speaker.
+
+
+          ### In use
+
+
+          Seu can be ambiguous about who possesses something. Dele or dela can identify that
+          relationship more explicitly.
+        examples:
+          - text: Tenho uma bicicleta.
+            translation: I have a bicycle.
+          - text: Esta é minha irmã.
+            translation: This is my sister.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese uses ter, possessive determiners and de phrases for possession and
+            relationships.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Portuguese expresses quantities with numbers and amount words.
+        explanation: >-
+          ### Form and meaning
+
+
+          A numeral counts items, while muito, pouco and other amount words describe quantity. Many
+          of these words agree with their noun.
+
+
+          ### In use
+
+
+          Pouca água and poucos copos distinguish an amount of liquid from a number of cups. A
+          number used as a room label is not a quantity.
+        examples:
+          - text: Precisamos de três cadeiras.
+            translation: We need three chairs.
+          - text: Tenho pouco tempo.
+            translation: I have little time.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese expresses quantities with numbers and amount words.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Portuguese present forms and estar plus gerund can describe current situations.
+        explanation: >-
+          ### Form and meaning
+
+
+          The simple present describes habits and states. In Brazilian Portuguese, estar plus a
+          gerund is a common way to describe an action in progress.
+
+
+          ### In use
+
+
+          A current situation does not always require a gerund: sei and preciso are ordinary present
+          verbs. Use time expressions to distinguish a habit from this moment.
+        examples:
+          - text: Trabalho aqui.
+            translation: I work here.
+          - text: Estou lendo.
+            translation: I am reading.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese present forms and estar plus gerund can describe current situations.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Portuguese past reference includes pretérito perfeito and imperfeito.
+        explanation: >-
+          ### Form and meaning
+
+
+          The pretérito perfeito commonly presents a completed event. The imperfeito commonly
+          supplies background, a repeated activity or a state in the past.
+
+
+          ### In use
+
+
+          Choose the form for the viewpoint you need. A past event can be placed against ongoing
+          weather or another background situation.
+        examples:
+          - text: Cheguei ontem.
+            translation: I arrived yesterday.
+          - text: Chovia quando saí.
+            translation: It was raining when I left.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese past reference includes pretérito perfeito and imperfeito.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Portuguese uses ir plus infinitive, future forms and contextual present.
+        explanation: >-
+          ### Form and meaning
+
+
+          Ir in the present followed by an infinitive is common for plans and predictions. A future
+          time expression can also place a present form in the future.
+
+
+          ### In use
+
+
+          A desire alone is not a schedule. Make the intended time clear when the listener cannot
+          infer it from the conversation.
+        examples:
+          - text: Vou sair amanhã.
+            translation: I am going to leave tomorrow.
+          - text: A reunião começa segunda-feira.
+            translation: The meeting starts on Monday.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese uses ir plus infinitive, future forms and contextual present.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Portuguese uses querer, gostar de and preferir for wants and preferences.
+        explanation: >-
+          ### Form and meaning
+
+
+          Querer states a want. Gostar normally takes de before the thing or activity liked.
+          Preferir identifies a preference or a choice between alternatives.
+
+
+          ### In use
+
+
+          Keep de when the object is an activity: gosto de cozinhar. Queria can soften a request
+          without necessarily describing a past desire.
+        examples:
+          - text: Gosto de cozinhar.
+            translation: I like cooking.
+          - text: Queria um café.
+            translation: I would like a coffee.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese uses querer, gostar de and preferir for wants and preferences.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Portuguese uses poder, saber and necessity expressions for modal meanings.
+        explanation: >-
+          ### Form and meaning
+
+
+          Poder can express ability, permission or possibility. Saber plus an infinitive expresses
+          knowing how to do something. Precisar de a thing contrasts with precisar plus an
+          infinitive.
+
+
+          ### In use
+
+
+          Tenho que and tenho de express necessity. Being able to do something and being required to
+          do it are different meanings even when both use an infinitive.
+        examples:
+          - text: Sei nadar.
+            translation: I can swim.
+          - text: Preciso sair.
+            translation: I need to leave.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese uses poder, saber and necessity expressions for modal meanings.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Portuguese usually places não before the verb and also uses negative words.
+        explanation: >-
+          ### Form and meaning
+
+
+          Não normally precedes the verb. Nunca expresses never, while nada and ninguém refer to
+          nothing and nobody.
+
+
+          ### In use
+
+
+          Two negative elements can reinforce a single negative meaning: não vi ninguém means I did
+          not see anybody. Interpret the phrase as Portuguese, not by English word-for-word logic.
+        examples:
+          - text: Não sei.
+            translation: I do not know.
+          - text: Não vi ninguém.
+            translation: I did not see anybody.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese usually places não before the verb and also uses negative words.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Portuguese questions use intonation, question words and flexible conversational order.
+        explanation: >-
+          ### Form and meaning
+
+
+          A yes/no question can keep statement order. Onde, quando, quem and other question words
+          ask for a particular missing element.
+
+
+          ### In use
+
+
+          In Brazilian conversation, você mora onde? is also possible. Keep the intended question
+          clear rather than requiring English-style do support.
+        examples:
+          - text: Você vem amanhã?
+            translation: Are you coming tomorrow?
+          - text: Onde fica a estação?
+            translation: Where is the station?
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese questions use intonation, question words and flexible conversational order.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Portuguese requests use imperatives, por favor and modal questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A direct command can become a request in context. Pode or poderia plus an infinitive is
+          useful when asking someone to do something.
+
+
+          ### In use
+
+
+          Brazilian spoken command forms vary with region and address conventions. A modal question
+          avoids assuming that a single imperative pattern fits every relationship.
+        examples:
+          - text: Pode abrir a janela, por favor?
+            translation: Can you open the window, please?
+          - text: Você poderia repetir?
+            translation: Could you repeat that?
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese requests use imperatives, por favor and modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Portuguese porque and se connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Porque introduces an explanation. Se introduces a condition whose realization affects
+          another situation.
+
+
+          ### In use
+
+
+          For future possibilities, Portuguese often uses the future subjunctive after se. In se
+          chover, the form describes possible future rain rather than a fact already established.
+        examples:
+          - text: Fiquei em casa porque estava cansado.
+            translation: I stayed at home because I was tired, said by a man.
+          - text: Se chover, vou ficar em casa.
+            translation: If it rains, I am going to stay at home.
+      varieties:
+        portuguese-brazil:
+          assessment: Portuguese porque and se connect reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: olá
@@ -50,19 +416,19 @@ conversation:
       uma amiga.
     currentSituation: Está organizando uma troca de livros e aprendendo a fazer pão.
     interests:
-    - caminhadas
-    - música ao vivo
-    - horta na varanda
+      - caminhadas
+      - música ao vivo
+      - horta na varanda
     opinions:
-    - Bibliotecas deveriam abrir aos domingos.
+      - Bibliotecas deveriam abrir aos domingos.
     interestingFacts:
-    - Consertou a própria bicicleta.
+      - Consertou a própria bicicleta.
     favoriteBooks: []
     favoriteMovies: []
     manner: Conversa de forma direta e faz perguntas curtas sobre o cotidiano.
     quirks:
-    - Anota receitas em papéis soltos.
+      - Anota receitas em papéis soltos.
     vibe:
-    - 📚
-    - 🚲
-    - 🌿
+      - 📚
+      - 🚲
+      - 🌿

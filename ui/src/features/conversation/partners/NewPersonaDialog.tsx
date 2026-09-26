@@ -46,8 +46,10 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
   const objection = personaObjection(draft, romanized, tr)
   const locked = busy || generating
   const replace = (next: PersonaDetails) => { setDraft(next); setRevision(value => value + 1) }
+  const lastGeneration = useRef('')
   const generate = async (text: string) => {
     if (locked || pending.current) return
+    lastGeneration.current = text
     const request = { id: null as string | null }
     pending.current = request
     setGenerating(true); setGenerationError(null)
@@ -84,7 +86,7 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
         {generating && <ActivityIndicator compact label={tr("Generating a persona…")} />}
       </div>
     </div>
-    {generationError && <ErrorDetails label={tr("Generating a persona")} errorKey={generationError}>{generationError}</ErrorDetails>}
+    {generationError && <ErrorDetails onRetry={() => generate(lastGeneration.current)} label={tr("Generating a persona")} errorKey={generationError}>{generationError}</ErrorDetails>}
     <form className="persona-profile" aria-label={tr("New persona")} onSubmit={event => { event.preventDefault(); create() }}>
       <fieldset disabled={locked}>
         <PersonaForm ref={form} key={revision} draft={draft} romanized={romanized} onChange={setDraft} onCommit={setDraft} />

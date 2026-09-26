@@ -1,0 +1,20 @@
+status: draft
+review_status: needs_review
+skill_id: past_reference
+language: Arabic
+core:
+  overview: Arabic expresses past reference through grammatical constructions, time expressions and context. The applicable forms depend on the selected variety.
+  assessment: Judge the expressed time relationship in context, including past states and ongoing activities. A form alone does not establish past reference.
+varieties:
+  Levantine:
+    assessment: Levantine Arabic past meaning can come from verb forms, time expressions such as مبارح, and conversation context. Past states or ongoing activities can use كان constructions. A past-looking form alone is insufficient in hypothetical contexts; assess the meaning in the selected spoken variety.
+    explanation: Time expressions and the preceding conversation can establish the past. A past state or ongoing activity need not be a completed event. The examples here illustrate Levantine usage; they are not a rule for all Arabic varieties.
+    examples:
+      - text: مبارح رحت عالسوق.
+        translation: Yesterday I went to the market.
+      - text: كنت ناطر التاكسي.
+        translation: I was waiting for the taxi.
+coverage: This specimen supplies Levantine material only. Additional variety sections attach to the same Arabic core; none silently inherits Levantine or MSA examples.
+provenance:
+  authorship: ai_authored
+  sources: [nassraLevantinePast20260924]

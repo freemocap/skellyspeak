@@ -9,7 +9,6 @@ mod compact_coaching;
 mod connections;
 mod grouped_transport;
 mod language_context;
-mod live_provider;
 mod partner_feedback;
 mod practice_feedback;
 mod practice_openings;
@@ -36,4 +35,13 @@ mod reply_help;
 
 mod graph;
 
-mod skill_evidence;
+mod message_ratings;
+
+mod practice_counts;
+
+mod practice_recommendations;
+
+mod feedback_context;
+
+mod local_feedback;
+mod skill_attribution;

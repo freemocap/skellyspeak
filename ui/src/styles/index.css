@@ -34,6 +34,7 @@
 @import './components/reading.css';
 @import './components/activity.css';
 @import './components/skill-list.css';
+@import './components/skill-guide.css';
 @import './components/errors.css';
 @import './components/waveform.css';
 @import './shell/notices.css';

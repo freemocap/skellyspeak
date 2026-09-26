@@ -183,12 +183,16 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   display: flex;
   gap: var(--space-3);
   overflow-x: auto;
-  padding: var(--space-1) 0 var(--space-2);
-  margin: var(--space-8) 0 var(--space-4);
+  padding: var(--space-1) 0 0;
+  margin: 0;
+  min-width: 0;
   border: 0;
 }
 
-/* Language pills: the selected one is solid ink, the rest are quiet outlines. */
+/* Included languages form the tabs of one sheet; catalog access stays beside them. */
+.practice-language-tabbar { display: flex; align-items: stretch; gap: var(--space-3); margin-top: var(--space-8); border-bottom: var(--border-width) solid var(--line); }
+.practice-language-add { flex: none; align-self: center; min-width: var(--control-height); min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); color: var(--ink); cursor: pointer; }
+
 .practice-language-tabs > button {
   flex: none;
   display: inline-flex;
@@ -196,8 +200,8 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   gap: var(--space-3);
   min-height: 34px;
   border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-pill);
-  background: transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--chrome);
   color: var(--ink-2);
   padding: var(--space-2) var(--space-7);
   font-size: var(--type-ui);
@@ -208,9 +212,10 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .practice-language-tabs > button:hover { color: var(--ink); border-color: var(--ink-3); }
 
 .practice-language-tabs > button[aria-selected=true] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--sheet);
+  border-top-color: var(--interaction-ink);
+  border-bottom-color: var(--sheet);
+  background: var(--sheet);
+  color: var(--ink);
   font-weight: var(--weight-medium);
 }
 
@@ -223,8 +228,10 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .conversation-evidence .practice-credit { padding: var(--space-3); }
 
 #practice-language-panel {
-  border: 0;
-  padding: var(--space-2) 0;
+  border: var(--border-width) solid var(--line);
+  border-top: 0;
+  background: var(--sheet);
+  padding: var(--space-6);
 }
 
 .practice-statistics-header { display: flex; align-items: center; gap: var(--space-2); margin: 0; }

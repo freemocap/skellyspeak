@@ -1,7 +1,14 @@
 use super::*;
 
+type Scheduled = (
+    execution::Dispatch,
+    tokio::sync::OwnedSemaphorePermit,
+    u32,
+    Option<super::coaching_results::Request>,
+);
+
 impl Application {
-    fn check_dispatches(&self, dispatches: &[execution::Dispatch]) -> Result<()> {
+    pub(super) fn check_dispatches(&self, dispatches: &[execution::Dispatch]) -> Result<()> {
         let store = self.lock()?;
         for dispatch in dispatches {
             if !store.attempt_active(&dispatch.attempt)? {
@@ -54,8 +61,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
     };
     loop {
         // Each dispatch carries the stream generation it was registered under.
-        let mut groups: Vec<Vec<(execution::Dispatch, tokio::sync::OwnedSemaphorePermit, u32)>> =
-            Vec::new();
+        let mut groups: Vec<Vec<Scheduled>> = Vec::new();
         // Bounded local planning pass; no timer or artificial batch-fill delay.
         for _ in 0..128 {
             let Some(permit) = state.admission.try_chat() else {
@@ -69,30 +75,41 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                 }
                 break;
             };
-            let dispatch = match state.lock().and_then(|mut store| store.dispatch()) {
+            let dispatch = match state.lock().and_then(|mut store| {
+                store
+                    .dispatch()?
+                    .map(|dispatch| {
+                        let coaching =
+                            super::coaching_results::Request::capture(&store, &dispatch)?;
+                        Ok((dispatch, coaching))
+                    })
+                    .transpose()
+            }) {
                 Ok(value) => value,
                 Err(error) => {
                     state.stop(error);
                     return;
                 }
             };
-            if let Some(dispatch) = dispatch {
+            if let Some((dispatch, coaching)) = dispatch {
                 let generation = if dispatch.speech_source.is_none() {
                     state.register_stream(&dispatch)
                 } else {
                     0
                 };
-                if dispatch.speech_source.is_none()
+                if coaching.is_none()
+                    && dispatch.speech_source.is_none()
                     && let Some(group) = groups.iter_mut().find(|g| {
                         g.len() < grouped::MAX_ITEMS
+                            && g[0].3.is_none()
                             && g[0].0.speech_source.is_none()
                             && grouped::compatible(&g[0].0.text_request(), &dispatch.text_request())
                     })
                 {
-                    group.push((dispatch, permit, generation));
+                    group.push((dispatch, permit, generation, coaching));
                     continue;
                 }
-                groups.push(vec![(dispatch, permit, generation)]);
+                groups.push(vec![(dispatch, permit, generation, coaching)]);
             } else {
                 drop(permit);
                 match state.lock().and_then(|store| store.has_ready_work()) {
@@ -113,7 +130,11 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                 let mut dispatches = Vec::new();
                 let mut permits = Vec::new();
                 let mut generations = Vec::new();
-                for (dispatch, permit, generation) in group {
+                let mut coaching = None;
+                for (dispatch, permit, generation, request) in group {
+                    if request.is_some() {
+                        coaching = request;
+                    }
                     dispatches.push(dispatch);
                     permits.push(permit);
                     generations.push(generation);
@@ -122,9 +143,13 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                 let mut finished = vec![false; dispatches.len()];
                 let result: Result<()> = async {
                     let first = &dispatches[0];
-                    if let Some(source) = &first.speech_source {
+                    if let Some(request) = coaching {
+                        let output = state.shared_coaching(request, first, permits[0].take().ok_or_else(internal)?).await;
+                        state.finish_attempt(&app, generations[0], first, output)?;
+                        finished[0] = true;
+                    } else if let Some(source) = &first.speech_source {
                         permits[0].take();
-                        let input = audio::SpeechInput { text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
+                        let input = audio::SpeechInput { language_tag: source.language_tag.clone(), text: source.text.clone(), voice: source.voice.clone(), language: source.language.clone() };
                         let saved = state.shared_speech(first.target.clone(),input,first.install_id.clone(),&first.attempt, || {
                             if state.lock()?.attempt_active(&first.attempt)? { Ok(()) }
                             else { Err(AppError::new(ErrorCode::Conflict,"Speech consumer was cancelled.")) }
@@ -142,7 +167,7 @@ pub(super) async fn scheduler(state: Arc<Application>, app: tauri::AppHandle) {
                     state.check_dispatches(&dispatches)?;
                     let outputs: Vec<_> = dispatches.iter().map(|dispatch| {
                         if let Some(schema) = dispatch.coaching_schema.as_ref() {
-                            Ok(provider::structured_output(schema))
+                            Ok(provider::RequestOutput::JsonSchema { max_output_tokens: dispatch.structured_output_tokens, name: "coaching", schema })
                         } else if dispatch.gloss_source.is_some() {
                             let schema = dispatch.gloss_schema.as_ref().ok_or_else(gloss::validation_error)?;
                             Ok(gloss::request_output(dispatch.gloss_source.as_ref(), schema))

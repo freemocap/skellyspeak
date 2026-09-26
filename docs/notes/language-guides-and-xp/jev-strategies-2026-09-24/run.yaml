@@ -1,0 +1,10 @@
+startedAt: 2026-09-24T19:18:04.492Z
+planHash: a45bda0cca920695666bf7c1c56a4473e8274cb0a27cc74ff369e96f3b77b822
+pricing:
+  - tag: typesafe
+    model_id: typesafe/jev-1.13
+    pricing:
+      prompt: "0.000000042"
+      completion: "0"
+      discount: 0
+retries: 0

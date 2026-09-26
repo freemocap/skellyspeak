@@ -34,7 +34,7 @@ mockIPC((command, args) => {
   if (command === 'get_snapshot') return {languages:catalog}
   if (command === 'inspect_language') {
     const language = catalog.find(item => item.id === (args as {language:string}).language)!
-    return {language,varietyId:language.defaultVariety,review:'needs_review',family:'Sample data',values:[{field:'script',value:language.id === 'arabic' ? 'arabic' : 'latin',source:'Sample data'},{field:'direction',value:language.direction,source:'Sample data'},{field:'font_scale',value:String(language.fontScale),source:'Sample data'}],rules:[],schemes:[],partner:{name:'Sample partner'},sources:[],schemaJson:'{}',resolvedJson:'{}',learningJson:'{}',conversationJson:'{}',fingerprint:'preview'} as unknown as LanguageInspection
+    return {guides:[],language,varietyId:language.defaultVariety,review:'needs_review',family:'Sample data',values:[{field:'script',value:language.id === 'arabic' ? 'arabic' : 'latin',source:'Sample data'},{field:'direction',value:language.direction,source:'Sample data'},{field:'font_scale',value:String(language.fontScale),source:'Sample data'}],rules:[],schemes:[],partner:{name:'Sample partner'},sources:[],schemaJson:'{}',resolvedJson:'{}',learningJson:'{}',conversationJson:'{}',fingerprint:'preview'} as unknown as LanguageInspection
   }
   throw new Error(`Unexpected preview command: ${command}`)
 })

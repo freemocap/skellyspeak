@@ -18,7 +18,8 @@ it('passes an explicit retry as fresh native work', async () => {
   native.invoke.mockClear()
   native.invoke.mockImplementation((command: string) => Promise.resolve(command === 'begin_reading' ? 'fresh-request' : {}))
   const input = {text:'Hola',language:'spanish',variety:null,explanation:'english',explanationVariety:null,aid:'word_gloss' as const}
-  await readSelection(input, new AbortController().signal, { retry: true })
+  const signal = new AbortController().signal
+  await readSelection(input, signal, { retry: true })
   expect(native.invoke).toHaveBeenCalledWith('begin_reading', {input, fresh:true})
-  expect(native.invoke).toHaveBeenCalledWith('run_reading', {id:'fresh-request'})
+  expect(native.invoke).toHaveBeenCalledWith('run_reading', {id:'fresh-request'}, signal)
 })

@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../schemas/skills.yaml
+# Accepted shared definitions. Categories are browsing groups, not prerequisites.
+categories:
+  - id: people_things
+    name: People and things
+  - id: time_events
+    name: Time and events
+  - id: wants_choices
+    name: Wants and choices
+  - id: questions_conversation
+    name: Questions and conversation
+skills:
+  - id: identify_describe
+    name: "Identify and describe"
+    overview: "Identify a person or thing, or express its qualities, state, or location."
+    boundary: "Naming something does not by itself demonstrate describing it."
+    category: people_things
+  - id: possession_relationships
+    name: "Express possession and relationships"
+    overview: "Express who something belongs to or how people and things are related."
+    boundary: "Possession, access, and association do not necessarily imply ownership."
+    category: people_things
+  - id: quantity
+    name: "Express quantity"
+    overview: "Express how many, how much, or which portion of a group or amount is meant."
+    boundary: "Distinguish quantities from numbers used as names, dates, or identifiers."
+    category: people_things
+  - id: present_situations
+    name: "Describe present situations"
+    overview: "Express what happens, holds, or happens regularly in the current time frame."
+    boundary: "Present meaning does not require a particular verb form or an explicit time word."
+    category: time_events
+  - id: past_reference
+    name: "Refer to the past"
+    overview: "Express that a situation or event occurred before now or an established reference time."
+    boundary: "Judge the expressed time relationship, not the verb form alone."
+    category: time_events
+  - id: future_reference
+    name: "Refer to the future"
+    overview: "Express that a situation or event is expected, intended, or placed after now or an established reference time."
+    boundary: "A wish or possibility alone does not establish future reference."
+    category: time_events
+  - id: wants_preferences
+    name: "Express wants and preferences"
+    overview: "Express what someone wants, likes, dislikes, or prefers."
+    boundary: "Distinguish a desire from a prediction, requirement, or request."
+    category: wants_choices
+  - id: ability_permission_necessity
+    name: "Express ability, permission, and necessity"
+    overview: "Express what someone can do, is allowed to do, or needs or is required to do."
+    boundary: "Distinguish these meanings from one another and from likelihood or inference."
+    category: wants_choices
+  - id: affirm_negate
+    name: "Affirm and negate"
+    overview: "Affirm or deny a proposition, making clear what is accepted or rejected."
+    boundary: "Determine what the affirmation or negation applies to; a negative word alone is insufficient."
+    category: wants_choices
+  - id: questions_answers
+    name: "Ask and answer questions"
+    overview: "Request information or provide an answer that addresses the information sought."
+    boundary: "A question-shaped request for action is not necessarily a request for information."
+    category: questions_conversation
+  - id: requests
+    name: "Make and respond to requests"
+    overview: "Ask someone to act, or accept, decline, or negotiate a request."
+    boundary: "Distinguish requesting an action from merely describing a desire or asking about ability."
+    category: questions_conversation
+  - id: reasons_conditions
+    name: "Explain reasons and conditions"
+    overview: "Express why something happens or holds, or under what circumstances it would happen or hold."
+    boundary: "Distinguish a reason from a condition; sequence alone establishes neither."
+    category: questions_conversation

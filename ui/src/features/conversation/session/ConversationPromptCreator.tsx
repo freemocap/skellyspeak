@@ -49,7 +49,7 @@ export function ConversationPromptCreator({ conversationId, initial, topics, sav
     {saveError && <ErrorNotice as="p" error={saveError}>{saveError}</ErrorNotice>}
     <section role="tabpanel" id="creator-panel-form" aria-labelledby="creator-form" hidden={view !== 'form'}>
       <label>{tr('Variety')}<select className="field" value={draft.varietyId} disabled={saving} onChange={event => change({ ...draft, varietyId: event.target.value })}>{language.varieties.map(variety => <option value={variety.id} key={variety.id}>{variety.name}</option>)}</select></label>
-      <ConversationChoices value={draft} topics={topics} disabled={saving} onChange={change} onCustom={() => setCustom(true)} />
+      <ConversationChoices conversationId={conversationId} value={draft} topics={topics} disabled={saving} onChange={change} onCustom={() => setCustom(true)} />
       <label><input type="checkbox" checked={draft.direction.usePersonaDetails} disabled={saving} onChange={event => change({ ...draft, direction: { ...draft.direction, usePersonaDetails: event.target.checked } })} /> {tr('Use persona details')}</label>
       <details><summary>{tr('Persona background')}</summary><pre>{JSON.stringify(persona, null, 2)}</pre></details>
       {draft.direction.topic?.kind === 'custom' && <p className="prompt-topic-summary">{draft.direction.topic.text}</p>}

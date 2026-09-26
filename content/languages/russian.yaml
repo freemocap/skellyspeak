@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../schemas/language.json
+# yaml-language-server: $schema=../schemas/language.yaml
 schema_version: 1
 identity:
   id: russian
@@ -14,36 +14,36 @@ definitions:
     modern-russian:
       script: cyrillic
       guidance:
-      - scope: target_writing
-        text: Write modern Russian in Cyrillic. Preserve ё when it is present and use it in new text where
-          needed to make the intended word clear. Retain ъ and ь; never silently rewrite quoted spelling,
-          add stress marks to source text, or replace Russian with Latin letters.
-        sources:
-        - ala_lc_russian2012
-      - scope: explanation_writing
-        text: Write modern Russian in Cyrillic. Preserve ё when it is present and use it in new text where
-          needed to make the intended word clear. Retain ъ and ь; never silently rewrite quoted spelling,
-          add stress marks to source text, or replace Russian with Latin letters.
-        sources:
-        - ala_lc_russian2012
+        - scope: target_writing
+          text: Write modern Russian in Cyrillic. Preserve ё when it is present and use it in new text where
+            needed to make the intended word clear. Retain ъ and ь; never silently rewrite quoted
+            spelling, add stress marks to source text, or replace Russian with Latin letters.
+          sources:
+            - ala_lc_russian2012
+        - scope: explanation_writing
+          text: Write modern Russian in Cyrillic. Preserve ё when it is present and use it in new text where
+            needed to make the intended word clear. Retain ъ and ь; never silently rewrite quoted
+            spelling, add stress marks to source text, or replace Russian with Latin letters.
+          sources:
+            - ala_lc_russian2012
   romanization_schemes:
     ala-lc-russian:
       label: ALA-LC Russian
       instructions: Use the ALA-LC Russian table as a spelling-based aid, not a phonetic transcription.
-        Preserve е as e, ё as ë, й as ĭ, ы as y, э as ė, ъ as ʺ and ь as ʹ. Use zh, kh, ch, sh and shch;
-        use tied t͡s, i͡u and i͡a for ц, ю and я. Preserve case and word boundaries. Do not add unmarked
-        stress or rewrite the Cyrillic source.
+        Preserve е as e, ё as ë, й as ĭ, ы as y, э as ė, ъ as ʺ and ь as ʹ. Use zh, kh, ch, sh and
+        shch; use tied t͡s, i͡u and i͡a for ц, ю and я. Preserve case and word boundaries. Do not
+        add unmarked stress or rewrite the Cyrillic source.
       examples:
-      - original: спасибо
-        romanized: spasibo
-      - original: ёлка
-        romanized: ëlka
-      - original: семья
-        romanized: semʹi͡a
-      - original: чай
-        romanized: chaĭ
+        - original: спасибо
+          romanized: spasibo
+        - original: ёлка
+          romanized: ëlka
+        - original: семья
+          romanized: semʹi͡a
+        - original: чай
+          romanized: chaĭ
       sources:
-      - ala_lc_russian2012
+        - ala_lc_russian2012
       review: needs_review
 defaults:
   variety: russian-russia
@@ -55,25 +55,391 @@ defaults:
     scheme: &id001
       local: ala-lc-russian
   supported_romanizations:
-  - *id001
+    - *id001
 traits: []
 varieties:
-- id: russian-russia
-  name: Russia
-  description: Contemporary Russian in Russia, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - ala_lc_russian2012
-  overrides: {}
-  guidance: []
+  - id: russian-russia
+    name: Russia
+    description: Contemporary Russian in Russia, with standard writing and context-appropriate everyday
+      conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - ala_lc_russian2012
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - спасибо
-      - благодарю
+        - спасибо
+        - благодарю
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Russian commonly omits a present copula in noun and adjective descriptions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A present statement can place a description directly after its subject. Adjectives change
+          for gender, number and case when they modify a noun.
+
+
+          ### In use
+
+
+          A noun identity may be written with a dash, but punctuation alone is not the grammatical
+          skill. Location uses a separate phrase and often a preposition.
+        examples:
+          - text: Она врач.
+            translation: She is a doctor.
+          - text: Эта комната тихая.
+            translation: This room is quiet.
+      varieties:
+        russian-russia:
+          assessment: Russian commonly omits a present copula in noun and adjective descriptions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Russian uses у plus genitive with есть, possessives and genitive relationships.
+        explanation: >-
+          ### Form and meaning
+
+
+          У меня есть presents something as in my possession or available to me. Мой, моя and моё
+          agree with the thing possessed.
+
+
+          ### In use
+
+
+          The noun after у is in the genitive. A negative possession construction normally uses нет
+          and a genitive noun for what is absent.
+        examples:
+          - text: У меня есть велосипед.
+            translation: I have a bicycle.
+          - text: Это моя сестра.
+            translation: This is my sister.
+      varieties:
+        russian-russia:
+          assessment: Russian uses у plus genitive with есть, possessives and genitive relationships.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Russian numerals and quantifiers govern different noun forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          A number precedes its noun, but the noun form depends on the number and case. In basic
+          counting, два стула contrasts with пять стульев.
+
+
+          ### In use
+
+
+          Compound numerals follow the pattern of their ending, with special treatment for the
+          teens. Learn a complete number–noun phrase rather than adding a plural ending
+          mechanically.
+        examples:
+          - text: Нам нужны два стула.
+            translation: We need two chairs.
+          - text: У меня мало времени.
+            translation: I have little time.
+      varieties:
+        russian-russia:
+          assessment: Russian numerals and quantifiers govern different noun forms.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Russian present forms of imperfective verbs express habits and ongoing situations.
+        explanation: >-
+          ### Form and meaning
+
+
+          An imperfective present verb can describe an activity now or a routine. There is no
+          obligatory separate progressive auxiliary.
+
+
+          ### In use
+
+
+          A perfective verb's nonpast-looking form normally refers to the future. Identify the
+          verb's aspect before assuming an ending means present time.
+        examples:
+          - text: Я работаю здесь.
+            translation: I work here.
+          - text: Она сейчас читает.
+            translation: She is reading now.
+      varieties:
+        russian-russia:
+          assessment: Russian present forms of imperfective verbs express habits and ongoing situations.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Russian past verbs mark gender or number and retain an aspect distinction.
+        explanation: >-
+          ### Form and meaning
+
+
+          A singular past form commonly changes for masculine, feminine or neuter reference; a
+          plural form ends differently. Aspect presents the activity as a process or as a bounded
+          event.
+
+
+          ### In use
+
+
+          The past form does not mark person in the same way as the present. Я читал and я читала
+          differ with the speaker's grammatical gender.
+        examples:
+          - text: Я читал вчера.
+            translation: I was reading yesterday, said by a man.
+          - text: Она прочитала книгу.
+            translation: She read the book through.
+      varieties:
+        russian-russia:
+          assessment: Russian past verbs mark gender or number and retain an aspect distinction.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Russian future reference uses perfective nonpast forms or быть plus imperfective
+          infinitive.
+        explanation: >-
+          ### Form and meaning
+
+
+          Буду plus an imperfective infinitive presents a future activity or process. A perfective
+          verb can express a future bounded event without that auxiliary.
+
+
+          ### In use
+
+
+          Choose the aspect for the intended event, not just to make a sentence future. Time
+          expressions can further specify when it will happen.
+        examples:
+          - text: Я буду работать завтра.
+            translation: I will be working tomorrow.
+          - text: Я прочитаю эту книгу.
+            translation: I will read this book through.
+      varieties:
+        russian-russia:
+          assessment: Russian future reference uses perfective nonpast forms or быть plus imperfective
+            infinitive.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Russian uses хотеть, нравиться and любить for wants and preferences.
+        explanation: >-
+          ### Form and meaning
+
+
+          Хотеть can take an infinitive to express wanting an action. Нравиться places the person
+          who likes something in the dative, while the liked thing controls agreement.
+
+
+          ### In use
+
+
+          Любить can express liking a recurring activity or loving someone. Нравится and нравятся
+          differ according to what is liked, not who likes it.
+        examples:
+          - text: Мне нравится чай.
+            translation: I like tea.
+          - text: Я хочу домой.
+            translation: I want to go home.
+      varieties:
+        russian-russia:
+          assessment: Russian uses хотеть, нравиться and любить for wants and preferences.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Russian uses мочь, уметь and impersonal permission or necessity expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Мочь expresses being able in a situation; уметь expresses knowing how to do something.
+          Можно can grant or ask permission, and нужно expresses need.
+
+
+          ### In use
+
+
+          Нельзя can mean that something is prohibited or impossible in context. Distinguish it from
+          не нужно, which says something is unnecessary.
+        examples:
+          - text: Я умею плавать.
+            translation: I can swim.
+          - text: Мне нужно идти.
+            translation: I need to go.
+      varieties:
+        russian-russia:
+          assessment: Russian uses мочь, уметь and impersonal permission or necessity expressions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Russian не negates predicates, while нет expresses absence and negative answers.
+        explanation: >-
+          ### Form and meaning
+
+
+          Не normally comes before the word or phrase being negated. Нет can answer no or express
+          absence with a following genitive noun.
+
+
+          ### In use
+
+
+          Никто and other negative pronouns commonly occur with a negative verb. This is normal
+          negative agreement, not a positive statement.
+        examples:
+          - text: Я не знаю.
+            translation: I do not know.
+          - text: У меня нет времени.
+            translation: I do not have time.
+      varieties:
+        russian-russia:
+          assessment: Russian не negates predicates, while нет expresses absence and negative answers.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Russian questions use intonation and question words without do support.
+        explanation: >-
+          ### Form and meaning
+
+
+          A yes/no question can retain ordinary statement order. Где, когда, кто and other question
+          words identify what the listener should supply.
+
+
+          ### In use
+
+
+          Word order can highlight the focus of a question. Do not rely on punctuation alone when
+          interpreting a spoken utterance.
+        examples:
+          - text: Ты придёшь завтра?
+            translation: Will you come tomorrow?
+          - text: Где вокзал?
+            translation: Where is the railway station?
+      varieties:
+        russian-russia:
+          assessment: Russian questions use intonation and question words without do support.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Russian requests use imperatives, пожалуйста and modal questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Imperative forms distinguish familiar singular address from plural or respectful address.
+          Пожалуйста can accompany a direct request.
+
+
+          ### In use
+
+
+          Вы and the matching verb form are suitable for respectful address. A modal question offers
+          a less direct way to ask for help.
+        examples:
+          - text: Откройте окно, пожалуйста.
+            translation: Open the window, please.
+          - text: Вы можете повторить?
+            translation: Can you repeat that?
+      varieties:
+        russian-russia:
+          assessment: Russian requests use imperatives, пожалуйста and modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Russian потому что and если connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Потому что introduces a reason. Если introduces a condition, while бы is used in a
+          different pattern for many hypothetical situations.
+
+
+          ### In use
+
+
+          A possible future condition can use a future form, unlike the usual English
+          if-plus-present pattern. Translate the relationship rather than copying English tense
+          placement.
+        examples:
+          - text: Я дома, потому что болею.
+            translation: I am at home because I am ill.
+          - text: Если будет дождь, мы останемся дома.
+            translation: If it rains, we will stay at home.
+      varieties:
+        russian-russia:
+          assessment: Russian потому что and если connect reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: Здравствуйте
@@ -88,19 +454,19 @@ conversation:
     background: Grew up nearby and learned instrument repair at a small workshop.
     currentSituation: Restoring a violin and arranging a weekend walk with friends.
     interests:
-    - instrument repair
-    - walking
+      - instrument repair
+      - walking
     opinions:
-    - A careful repair should preserve what makes an instrument distinctive.
+      - A careful repair should preserve what makes an instrument distinctive.
     interestingFacts:
-    - Keeps notes about the sound of each repair.
+      - Keeps notes about the sound of each repair.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - My Neighbor Totoro (1988)
+      - My Neighbor Totoro (1988)
     manner: Matter-of-fact and curious. Uses respectful everyday Russian with new acquaintances.
     quirks:
-    - Checks the weather before choosing a walking route.
+      - Checks the weather before choosing a walking route.
     vibe:
-    - 🎻
-    - 📓
+      - 🎻
+      - 📓

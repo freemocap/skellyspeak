@@ -136,6 +136,7 @@ pub(crate) fn preview(
         Some(&settings.explanation_variety_id),
     )?;
     Ok(PromptPreview {
+        coach_focus: None,
         configuration: configuration.clone(),
         yaml: serde_yaml_ng::to_string(configuration).map_err(|_| {
             AppError::new(

@@ -8,14 +8,13 @@ use serde_json::{Value, json};
 pub(crate) mod types;
 pub use types::*;
 
-pub const FEEDBACK: &str = "conversation_feedback";
 pub const BRIEF: &str = "reply_brief";
 pub const ASSISTANCE: &str = "reply_assistance";
 pub const EXPLANATIONS: &str = "reply_explanations";
 /// Model role for conversation support tasks, in turns and explicit reading requests.
 pub(crate) const ROLE: &str = "standard";
 pub fn owns(kind: &str) -> bool {
-    matches!(kind, FEEDBACK | BRIEF | ASSISTANCE | EXPLANATIONS)
+    matches!(kind, BRIEF | ASSISTANCE | EXPLANATIONS)
 }
 fn rejected(message: &str) -> AppError {
     AppError::new(
@@ -44,9 +43,6 @@ fn array(items: Value, min: usize, max: usize) -> Value {
 pub fn schema(kind: &str) -> Value {
     match kind {
         BRIEF => object(json!({"explanation":text(900)})),
-        FEEDBACK => object(
-            json!({"remark":text(900),"usedTarget":array(text(240),0,12),"usedNative":array(text(240),0,12),"corrections":array(object(json!({"said":text(240),"corrected":text(400),"explanation":text(600),"kind":{"type":"string","enum":["grammar","wording","missing_expression"]}})),0,3),"grammar":{"type":"integer","minimum":1,"maximum":5},"conversation":{"type":"integer","minimum":1,"maximum":5}}),
-        ),
         ASSISTANCE => object(
             json!({"replies":array(object(json!({"text":described(500,"The reply itself, written in the target language and its own script. Never the explanation language."),"translation":described(700,"Meaning of text, written in the learner's explanation language. Never the target language."),"romanization":described(700,"text transliterated into Latin letters only; empty when the target language is written in Latin script."),"pronunciation":described(700,"Readable pronunciation guide for text, written for explanation-language readers.")})),2,2),"frames":array(text(300),2,2),"starters":array(text(160),2,2)}),
         ),
@@ -123,9 +119,6 @@ pub(crate) fn prompt_for_exchange(
     let history = captured["messages"]
         .as_array()
         .ok_or_else(|| rejected("missing exchange"))?;
-    if kind == FEEDBACK && latest.is_none() {
-        return Err(rejected("learner source unavailable"));
-    }
     let preceding: Vec<_> = history
         .iter()
         .skip(1)
@@ -140,14 +133,11 @@ pub(crate) fn prompt_for_exchange(
         BRIEF => {
             "Explain what actualPartnerReply means or asks in one or two concise sentences. Do not prescribe a reply or invent facts about the learner."
         }
-        FEEDBACK => {
-            "Assess only latestLearnerInput. Give a useful 1–3 sentence remark, and 0–3 direct corrections (said, corrected, explanation, kind). said must quote the learner verbatim. Explain a better way to express their intention, without changing their opinion or topic. When the learner mixes words or phrases from their native/explanation language into target-language speech or typed text, assume those spans are implicit requests for help saying that meaning in the target language, even without an explicit translation question. Supply natural target-language wording that fits the surrounding sentence and preserves their intention with kind missing_expression, including when the missing expression is a verb. Explain the wording briefly; do not reprimand the learner for switching languages. If the intended meaning is unclear, ask a brief clarification in the remark rather than guessing a translation. Do not invent errors in correct or ambiguous wording. Correct messages may have no corrections and a brief specific remark. usedTarget and usedNative are short verbatim fragments of the learner source, not exhaustive token lists. Judge this message's grammar and conversational fit separately from 1 to 5; justify judgments in the remark. Conversation fit measures relevance and comprehensibility: do not lower it merely because a grammar error already reduced the grammar score. These are informal model judgments, not proficiency or XP. A transcript is text evidence only: never infer acoustic pronunciation, accent or fluency. If the transcription is ambiguous, say so instead of inventing a correction."
-        }
         ASSISTANCE => {
             "Help the learner understand and answer actualPartnerReply. Supply exactly two different plausible replies. In each reply, text is the reply written in the target language and its own script (never the explanation language); translation is its meaning written in the explanation language (never the target language); romanization is text transliterated into Latin letters only (never the target script; empty when the target language uses Latin script); and pronunciation is a readable guide for explanation-language readers. Also give two target-language sentence frames containing ___ and two short target-language starters. Match the topic and selected difficulty. These are optional draft choices, not claims about the learner's life. Do not redirect to a lesson."
         }
         EXPLANATIONS => {
-            "Explain zero to two useful grammar or usage patterns in actualPartnerReply. Each card must quote actual partner wording verbatim and give a short title, explanation, target-language example, and a useful contrast with the explanation language (empty if none). Contrast languages, not two forms in the target language. No forced filler for simple/repeated language. Do not assess the learner here."
+            "Explain zero to two useful grammar or usage patterns in actualPartnerReply. Each card must quote actual partner wording verbatim and give a short title, explanation, target-language example, and a useful contrast with the explanation language (empty if none). Contrast languages, not two forms in the target language. No forced filler for simple/repeated language. Do not assess the learner here. When a pattern illustrates a supplied skill definition, mention that skill by its readable name in the explanation. Reference skills only when the quoted partner wording supports the connection. learnerSkillEvidence describes the learner message only; never treat partner wording as learner achievement or award XP."
         }
         _ => return Err(rejected("unknown task")),
     };
@@ -195,6 +185,10 @@ pub(crate) fn prompt_for_exchange(
         )
     };
     let mut data = json!({"precedingExchange":preceding,"latestLearnerInput":latest,"actualPartnerReply":partner,"difficulty":captured["practiceSettings"]["difficulty"],"input":captured["input"]});
+    if kind == EXPLANATIONS {
+        data["skillDefinitions"] = json!(captured["presenceSkills"].as_array().map(|skills| skills.iter().map(|skill| json!({"id":skill["id"],"name":skill["name"],"overview":skill["overview"]})).collect::<Vec<_>>()).unwrap_or_default());
+        data["learnerSkillEvidence"] = json!(captured["skillAssessment"]["presence"].as_object().map(|presence| presence.iter().filter(|(_, value)| matches!(value.as_str(), Some("direct" | "contextual"))).map(|(id,_)| json!({"skillId":id,"source":"latestLearnerInput","spans":captured["skillAttribution"]["skills"][id]["spans"]})).collect::<Vec<_>>()).unwrap_or_default());
+    }
     // Drop only whole old exchanges; never truncate the evaluated source or reply.
     while instruction.len() + data.to_string().len() > 12000 {
         let preceding = data["precedingExchange"]
@@ -241,14 +235,7 @@ fn quoted(source: &str, quote: &str, max: usize) -> Result<()> {
 pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) -> Result<Value> {
     let source: String = db.query_row(
         "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
-        params![
-            turn,
-            if kind == FEEDBACK {
-                "user"
-            } else {
-                "assistant"
-            }
-        ],
+        params![turn, "assistant"],
         |r| r.get(0),
     )?;
     validate_source(&source, kind, output)
@@ -266,38 +253,6 @@ pub(crate) fn validate_source(source: &str, kind: &str, output: &Completion) -> 
         )
     })?;
     match kind {
-        FEEDBACK => {
-            let v: ConversationFeedback =
-                serde_json::from_value(value.clone()).map_err(|cause| {
-                    crate::diagnostics::response::json_context(
-                        &cause,
-                        "conversation_support_decode",
-                        rejected("invalid feedback fields"),
-                    )
-                })?;
-            prose(&v.remark, 900, true)?;
-            if !(1..=5).contains(&v.grammar) || !(1..=5).contains(&v.conversation) {
-                return Err(rejected("feedback bounds"));
-            }
-            for fragment in v.used_target.iter().chain(&v.used_native) {
-                quoted(source, fragment, 240)?;
-            }
-            // Multiple suggestions may discuss the same phrase. An unchanged
-            // rewrite can accompany an explanation; neither invalidates feedback.
-            for (index, c) in v.corrections.iter().enumerate() {
-                quoted(source, &c.said, 240)?;
-                prose(&c.corrected, 400, true)?;
-                prose(&c.explanation, 600, true)?;
-                if !matches!(
-                    c.kind.as_str(),
-                    "grammar" | "wording" | "missing_expression"
-                ) {
-                    return Err(rejected(&format!("corrections[{index}].kind must be grammar, wording or missing_expression"))
-                        .with_diagnostics(json!({"stage":"conversation_feedback_validation", "path":format!("corrections[{index}].kind"),
-                            "expected":"grammar | wording | missing_expression"})));
-                }
-            }
-        }
         BRIEF => {
             let v: ReplyBrief = serde_json::from_value(value.clone()).map_err(|cause| {
                 crate::diagnostics::response::json_context(
@@ -365,41 +320,43 @@ pub fn publish(db: &Connection, turn: &str, kind: &str, value: &Value) -> Result
 }
 
 #[cfg(test)]
-mod tests {
+mod skill_context_tests {
     use super::*;
-    fn feedback(corrections: Value) -> Completion {
-        Completion {
-            text: json!({"remark":"The meaning is clear.","usedTarget":[],"usedNative":[],
-            "grammar":4,"conversation":5,"corrections":corrections})
-            .to_string(),
-            diagnostics: None,
-            finish_reason: "stop".into(),
-            actual_model: "test".into(),
-            provider_id: "test".into(),
-            input_tokens: None,
-            output_tokens: None,
-        }
-    }
     #[test]
-    fn overlapping_and_unchanged_suggestions_do_not_discard_feedback() {
-        let db = Connection::open_in_memory().unwrap();
-        db.execute_batch("CREATE TABLE messages(turn_id TEXT,role TEXT,text TEXT); INSERT INTO messages VALUES('edited','user','Hola amiga');").unwrap();
-        let corrections = json!([
-            {"said":"Hola","corrected":"Hola","explanation":"This greeting is already correct.","kind":"wording"},
-            {"said":"Hola","corrected":"Buenas","explanation":"Another greeting.","kind":"wording"},
-            {"said":"Hola","corrected":"Buenas","explanation":"Another greeting.","kind":"wording"}
-        ]);
-        let value = validate(&db, "edited", FEEDBACK, &feedback(corrections.clone())).unwrap();
-        assert_eq!(value["corrections"], corrections);
-        let invalid = feedback(
-            json!([{"said":"Hola","corrected":"Buenas","explanation":"Greeting","kind":"unknown"}]),
+    fn grammar_gets_compact_skills_and_separately_owned_learner_evidence() {
+        let context = json!({"messages":[],"presenceSkills":[
+            {"id":"past","name":"Past events","overview":"Locate an event before now.","language_guidance":"Detailed content omitted."},
+            {"id":"future","name":"Future events","overview":"Locate an event after now."}
+        ],"skillAssessment":{"presence":{"past":"direct","future":"absent"}},
+        "skillAttribution":{"skills":{"past":{"spans":[{"quote":"ayer","start":0,"end":4}]}}}});
+        let messages = prompt_for_exchange(
+            "Hoy descansamos.".into(),
+            Some("ayer trabajé".into()),
+            EXPLANATIONS,
+            &context,
+        )
+        .unwrap();
+        let data: Value = serde_json::from_str(&messages[1].content).unwrap();
+        assert_eq!(data["skillDefinitions"].as_array().unwrap().len(), 2);
+        assert!(
+            data["skillDefinitions"][0]
+                .get("language_guidance")
+                .is_none()
         );
-        let error = validate(&db, "edited", FEEDBACK, &invalid).unwrap_err();
-        assert!(error.message.contains("corrections[0].kind"));
-        assert_eq!(error.diagnostics.unwrap()["path"], "corrections[0].kind");
-        let unrelated = feedback(
-            json!([{"said":"Not in the message","corrected":"Hola","explanation":"Greeting","kind":"wording"}]),
+        assert_eq!(data["learnerSkillEvidence"].as_array().unwrap().len(), 1);
+        assert_eq!(
+            data["learnerSkillEvidence"][0]["source"],
+            "latestLearnerInput"
         );
-        assert!(validate(&db, "edited", FEEDBACK, &unrelated).is_err());
+        assert_eq!(data["learnerSkillEvidence"][0]["spans"][0]["quote"], "ayer");
+        assert_eq!(data["actualPartnerReply"], "Hoy descansamos.");
+        assert!(
+            messages[0]
+                .content
+                .contains("never treat partner wording as learner achievement")
+        );
+        let brief = prompt_for_exchange("Hoy descansamos.".into(), None, BRIEF, &context).unwrap();
+        let data: Value = serde_json::from_str(&brief[1].content).unwrap();
+        assert!(data.get("skillDefinitions").is_none());
     }
 }

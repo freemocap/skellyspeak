@@ -18,10 +18,12 @@ impl Application {
                 "Workspace changed during speech execution.",
             ));
         }
-        let current = access::resolve(&store.connection, access::Capability::Speech)?;
-        if scope(&current, install)? != scope(target, install)?
-            || crate::ai::connections::configuration::config(&store.connection)?.paused
-        {
+        crate::ai::connections::speech_routing::validate_access(
+            &store.connection,
+            access::Capability::Speech,
+            target,
+        )?;
+        if crate::ai::connections::configuration::config(&store.connection)?.paused {
             return Err(AppError::new(
                 ErrorCode::Conflict,
                 "Speech access changed before execution.",

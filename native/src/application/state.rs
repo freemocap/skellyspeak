@@ -1,6 +1,8 @@
 use super::*;
 
 pub(crate) struct Application {
+    pub(super) coaching_pending:
+        crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) reading_pending: crate::ai::results::pending::Registry<crate::ai::results::Retained>,
     pub(super) transcription_pending:
         crate::ai::results::pending::Registry<crate::ai::results::Retained>,
@@ -60,6 +62,7 @@ impl Application {
             speech_pending: Default::default(),
             transcription_pending: Default::default(),
             reading_pending: Default::default(),
+            coaching_pending: Default::default(),
             admission: admission::Admission::new(),
             reading: Default::default(),
             generations: generation::Registry::default(),
@@ -203,6 +206,10 @@ impl Application {
 #[cfg(test)]
 #[path = "tests/capture.rs"]
 mod capture_tests;
+
+#[cfg(test)]
+#[path = "tests/startup_format.rs"]
+mod startup_format_tests;
 
 #[cfg(test)]
 #[path = "tests/credential_io.rs"]

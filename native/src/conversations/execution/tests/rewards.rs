@@ -1,13 +1,13 @@
 use super::*;
 
 #[test]
-fn reward_difficulty_and_calendar_week_novelty_use_captured_evidence() {
+fn difficulty_and_calendar_week_do_not_weight_experience() {
     let (_dir, mut store, conversation) = setup();
     store.connection.execute("UPDATE conversation_settings SET settings=json_set(settings,'$.difficulty','advanced') WHERE conversation_id=?1",[&conversation]).unwrap();
     for (wording, date, expected) in [
-        ("¿Dónde está Ana?", "2026-09-07T12:00:00Z", 42),
-        ("¿Dónde está Luis?", "2026-09-08T12:00:00Z", 21),
-        ("¿Dónde está Juan?", "2026-09-14T12:00:00Z", 25),
+        ("¿Dónde está Ana?", "2026-09-07T12:00:00Z", 1),
+        ("¿Dónde está Luis?", "2026-09-08T12:00:00Z", 1),
+        ("¿Dónde está Juan?", "2026-09-14T12:00:00Z", 1),
     ] {
         let mut command = send(&store, &conversation);
         if let Action::SendMessage { text, .. } = &mut command.action {
@@ -43,7 +43,7 @@ fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
     finish_fixture_exchange(&mut store, &first, "Hello.");
     fixture_evidence(&store, &first, "¿cómo estás?");
     let before = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
-    assert_eq!(before["profile"]["xp"], 30);
+    assert_eq!(before["profile"]["xp"], 1);
     let id = before["profile"]["credits"][0]["event"]["id"]
         .as_str()
         .unwrap()
@@ -80,14 +80,15 @@ fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
     fixture_evidence(&store, &duplicate, "¿cómo estás?");
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        30
+        2
     );
     // A changed current policy cannot rewrite a captured earned award.
     store.connection.execute("UPDATE turns SET context=json_set(context,'$.gamePolicy.base.demonstrated',99) WHERE id=?1",[&first]).unwrap();
-    crate::learning::rewards::publish(&store.connection, &first, "replay").unwrap();
+    crate::learning::rewards::publish(&store.connection, &first, &format!("evidence-{first}"))
+        .unwrap();
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
-        30
+        2
     );
     drop(store);
     let mut reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
@@ -98,7 +99,7 @@ fn reward_awards_and_claims_are_durable_source_bound_and_idempotent() {
     );
     assert_eq!(
         crate::learning::learner::progression::snapshot(&reopened, "spanish").unwrap()["profile"]["xp"],
-        30
+        2
     );
 }
 
@@ -112,8 +113,10 @@ fn learner_projection_reads_published_evidence_without_new_work_and_survives_res
     let revision = store.snapshot().unwrap().revision;
     let at = 2000000000;
     let before = crate::learning::learner::learner_state::snapshot(&store, "spanish", at).unwrap();
-    assert_eq!(before.constructs.len(), 1);
-    assert_eq!(before.constructs[0].independent_n, 1);
+    assert!(
+        before.constructs.is_empty(),
+        "Presence must not create a proficiency estimate"
+    );
     assert_eq!(revision, store.snapshot().unwrap().revision);
     drop(store);
     let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();

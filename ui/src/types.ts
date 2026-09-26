@@ -59,11 +59,7 @@ export interface OpenedConversation {
 
 export type AnalysisState = 'pending' | 'done' | null
 
-export interface PersonaReaction {
-  kind: 'confused' | 'understood' | 'curious' | 'surprised' | 'concerned' | 'happy' | 'sad' | 'angry'
-  interpretation: string
-  explanation: string
-}
+export type PersonaReaction = import('./generated/contracts').PartnerReaction
 
 /// One exchange, as stored. This is the canonical turn shape: the live turn in
 /// ConversationPage is this plus `pendingText`, the streaming buffer, which is
@@ -88,6 +84,7 @@ export interface StoredTurn {
   /// Saved feedback determines completion; operation errors remain independent
   /// in coachError and replyState, including when no reply exists.
   analysisState: AnalysisState
+  feedbackContext?: string
   conversationFeedback?: import('./generated/contracts').ConversationFeedback
   coach?: import('./generated/contracts').CoachObservationView
   coachDecision?: import('./generated/contracts').CoachDecision

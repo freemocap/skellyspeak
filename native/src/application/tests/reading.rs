@@ -69,7 +69,8 @@ async fn speech_request(reference: bool) {
         assert!(request.starts_with("POST /v1/audio/speech"));
         let payload: serde_json::Value =
             serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
-        assert_eq!(payload.as_object().unwrap().len(), 3);
+        assert_eq!(payload.as_object().unwrap().len(), 4);
+        assert_eq!(payload["language_tag"], "ar");
         assert_eq!(payload["text"], "كتاب");
         write!(
             socket,

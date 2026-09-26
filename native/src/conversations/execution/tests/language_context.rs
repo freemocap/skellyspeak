@@ -162,7 +162,7 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
     store
         .connection
         .execute(
-            "INSERT INTO skill_choices VALUES('spanish',1,'question','[]')",
+            "INSERT INTO skill_choices VALUES('spanish',1,'questions_answers','[]')",
             [],
         )
         .unwrap();
@@ -188,7 +188,10 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
     finish_fixture_exchange(&mut store, &turn, "Reply.");
     store
         .connection
-        .execute("UPDATE skill_choices SET focus='greeting',revision=2", [])
+        .execute(
+            "UPDATE skill_choices SET focus='identify_describe',revision=2",
+            [],
+        )
         .unwrap();
     for kind in [
         crate::learning::coaching::FEEDBACK,
@@ -199,7 +202,7 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
         if kind == crate::learning::coaching::FEEDBACK {
             assert!(!prompt[0].content.contains(&block));
             let data: serde_json::Value = serde_json::from_str(&prompt[1].content).unwrap();
-            assert_eq!(data["focus"], "question");
+            assert_eq!(data["focus"], "questions_answers");
         } else {
             assert!(prompt[0].content.contains(&block));
         }
@@ -220,8 +223,8 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
         })
         .unwrap();
     let next: serde_json::Value = serde_json::from_str(&next).unwrap();
-    assert_eq!(next["practiceFocus"]["id"], "greeting");
-    assert_eq!(captured["practiceFocus"]["id"], "question");
+    assert_eq!(next["practiceFocus"]["id"], "identify_describe");
+    assert_eq!(captured["practiceFocus"]["id"], "questions_answers");
 }
 
 #[test]
@@ -281,7 +284,7 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
         "not_observed",
         "uncertain",
     ] {
-        let body=serde_json::json!({"meaning_recovered":"full","items":[{"construct":"question","quote":"¿cómo estás?","outcome":outcome,"error":null,"rationale":"Fixture context."}]}).to_string();
+        let body=serde_json::json!({"meaning_recovered":"full","items":[{"construct":"questions_answers","quote":"¿cómo estás?","outcome":outcome,"error":null,"rationale":"Fixture context."}]}).to_string();
         let value = crate::learning::coaching::validate(
             &store.connection,
             &turn,
@@ -310,11 +313,7 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
         assert_eq!(
             crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
                 ["xp"],
-            match outcome {
-                "demonstrated" => 30,
-                "partial" => 12,
-                _ => 0,
-            }
+            0 // Coaching correctness never awards presence XP.
         );
     }
 }

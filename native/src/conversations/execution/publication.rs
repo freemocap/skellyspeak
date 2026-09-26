@@ -201,9 +201,12 @@ impl Store {
                     Ok(())
                 })()
             }
-            Ok(output) if kind == "skill_evidence" => {
-                crate::learning::coaching::skill_evidence::validate(&tx, &turn, output)
-                    .map(|v| coaching = Some(v))
+            Ok(output) if kind == "skill_attribution" => {
+                crate::learning::coaching::skill_attribution::validate(&tx, &turn, output).map(
+                    |value| {
+                        coaching = Some(value);
+                    },
+                )
             }
             Ok(output) if kind == "skill_assessment" => {
                 crate::learning::coaching::assessment_adapter::validate(
@@ -221,6 +224,10 @@ impl Store {
                     coaching = Some(value);
                 })
             }
+            Ok(output) if crate::learning::coaching::message_assessment::owns(&kind) => {
+                crate::learning::coaching::message_assessment::validate(&kind, output)
+                    .map(|v| coaching = Some(v))
+            }
             Ok(output) if crate::learning::coaching::conversation_support::owns(&kind) => {
                 crate::learning::coaching::conversation_support::validate(&tx, &turn, &kind, output)
                     .map(|v| {
@@ -228,17 +235,16 @@ impl Store {
                     })
             }
             Ok(output)
-                if kind == "skill_assessment"
-                    || kind == "skill_evidence"
+                if kind == "skill_attribution"
+                    || kind == "skill_assessment"
                     || crate::learning::coaching::conversation_support::owns(&kind)
+                    || crate::learning::coaching::message_assessment::owns(&kind)
                     || kind == "coach_feedback"
                     || kind == "coach_retry_check"
                     || kind == "coach_suggestions"
                     || kind == "coach_reaction" =>
             {
-                (if kind == "coach_reaction" {
-                    crate::partners::partner_reaction::validate(output)
-                } else if kind == crate::learning::coaching::SUGGESTIONS {
+                (if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::validate(&tx, &turn, &kind, output)
                 } else {
                     crate::learning::coaching::coach_observation::validate(
@@ -318,6 +324,17 @@ impl Store {
         if let Ok(output) = &result {
             tx.execute("UPDATE attempts SET actual_model=?2,provider_id=?3,input_tokens=?4,output_tokens=?5 WHERE id=?1",params![dispatch.attempt,output.actual_model,output.provider_id,output.input_tokens,output.output_tokens])?;
         }
+        if valid.is_ok() && kind == "skill_assessment" {
+            let value = coaching
+                .as_ref()
+                .ok_or_else(|| fail("Missing validated skill presence."))?;
+            let presence: std::collections::BTreeMap<String, crate::learning::practice::Presence> =
+                serde_json::from_value(value["presence"].clone())?;
+            let expected = presence.keys().cloned().collect();
+            crate::learning::practice::publish(&tx, &turn, &dispatch.attempt, presence, &expected)?;
+            tx.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3) WHERE id=?1",params![turn,value.to_string(),dispatch.attempt])?;
+            crate::learning::rewards::publish(&tx, &turn, &dispatch.attempt)?;
+        }
         let (state, error) = match valid {
             Ok(()) => ("succeeded", None),
             Err(error) => (
@@ -335,9 +352,10 @@ impl Store {
                 params![turn, error, gloss_error_path(&kind)],
             )?;
         }
-        if kind == "skill_assessment"
-            || kind == "skill_evidence"
+        if kind == "skill_attribution"
+            || kind == "skill_assessment"
             || crate::learning::coaching::conversation_support::owns(&kind)
+            || crate::learning::coaching::message_assessment::owns(&kind)
             || kind == "coach_feedback"
             || kind == "coach_retry_check"
             || kind == "coach_suggestions"
@@ -357,27 +375,14 @@ impl Store {
             super::graph::release_dependents(&tx, &turn)?;
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
-                if kind == "skill_evidence" {
-                    crate::learning::coaching::skill_evidence::publish(&tx, &turn, &value)?;
-                } else if kind == "skill_assessment" && value["adapter"] == "jev_choice" {
-                    crate::learning::coaching::skill_evidence::retain_decisions(
-                        &tx,
-                        &turn,
-                        &value,
-                        &dispatch.attempt,
-                    )?;
+                if kind == "skill_attribution" {
+                    tx.execute("UPDATE turns SET context=json_set(context,'$.skillAttribution',json(?2),'$.skillAttributionAttempt',?3) WHERE id=?1", params![turn,value.to_string(),dispatch.attempt])?;
                 } else if kind == "skill_assessment" {
-                    crate::learning::coaching::skill_assessment::publish(
-                        &tx,
-                        &turn,
-                        &value,
-                        &dispatch.attempt,
-                    )?;
-                    // The chat assessor already supplied exact quotes: record the
-                    // declared evidence node locally without another network call.
-                    tx.execute("INSERT INTO attempts(id,operation_id,state,requested_model,finished_at) SELECT ?1,id,'succeeded','local',strftime('%Y-%m-%dT%H:%M:%fZ','now') FROM operations WHERE turn_id=?2 AND kind='skill_evidence' AND state='ready'", params![id(),turn])?;
-                    tx.execute("UPDATE operations SET state='succeeded',permit=0 WHERE turn_id=?1 AND kind='skill_evidence' AND state='ready'", [&turn])?;
-                } else if crate::learning::coaching::conversation_support::owns(&kind) {
+                    // Presence and its deterministic award were published while the
+                    // owning attempt was still running, in this same transaction.
+                } else if kind == "conversation_feedback"
+                    || crate::learning::coaching::conversation_support::owns(&kind)
+                {
                     crate::learning::coaching::conversation_support::publish(
                         &tx, &turn, &kind, &value,
                     )?;

@@ -110,7 +110,8 @@ pub async fn mic_listen_start(
         .validate()
         .map_err(|message| AppError::new(ErrorCode::Validation, message))?;
     let state = state.inner().clone();
-    tauri::async_runtime::spawn_blocking(move || start(&state, owner, settings))
+    let prepared = super::preflight::prepare(&state, &owner).await?;
+    tauri::async_runtime::spawn_blocking(move || start(&state, owner, settings, prepared))
         .await
         .map_err(|e| {
             crate::diagnostics::failures::join(
@@ -125,6 +126,7 @@ fn start(
     state: &Arc<Application>,
     owner: RecordingOwner,
     settings: ListeningSettings,
+    prepared: super::preflight::Prepared,
 ) -> Result<RecordingStarted> {
     let mut held = state
         .listening
@@ -139,7 +141,7 @@ fn start(
             ));
         }
     }
-    let started = voice::start_capture(state, owner)?;
+    let started = voice::start_prepared_capture(state, owner, Some(prepared))?;
     let session = Arc::new(Session::new(started.recording_id.clone(), settings));
     if started.browser_capture {
         *session.browser.lock().expect("browser capture") = Some(Default::default());

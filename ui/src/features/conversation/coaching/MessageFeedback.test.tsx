@@ -9,12 +9,13 @@ beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function (): void { this.setAttribute('open', '') }
   HTMLDialogElement.prototype.close = function (): void { this.removeAttribute('open') }
 })
-const feedback: CoachObservationView = { meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
+const feedback: CoachObservationView = { corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
 const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
 const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
 it('shows a neutral feedback chip and the policy hint without grades or an invented answer', () => {
   render(<MessageFeedback {...base} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Which form goes with yo?')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).not.toHaveTextContent('Which form goes with yo?')
   fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
   expect(screen.getByRole('dialog')).toHaveTextContent('Which form goes with yo?')
   expect(screen.queryByText(/Correctness|Understanding|\/5/)).toBeNull()
@@ -44,7 +45,7 @@ it('renders only native Fixed text and keeps continuing optional', async () => {
   const control = vi.fn().mockResolvedValue(undefined)
   render(<MessageFeedback {...base} decision={{ ...decision, shown: null, retryInvited: false, fixed: 'Fixed: fui: first-person past', alsoNoticed: [] }} onControl={control} />)
   expect(screen.getByRole('status')).toHaveTextContent('Fixed: fui: first-person past')
-  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ })))
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Keep going' })))
   expect(screen.queryByRole('dialog')).toBeNull()
   expect(control).toHaveBeenCalledWith('keep_going')
@@ -93,14 +94,13 @@ it('keeps an unexposed hint hidden on a stale disclosure failure and allows expl
   expect(screen.getByRole('button', { name: 'Analyze your message' })).toBeEnabled()
 })
 
-it('keeps newly arrived coaching hidden in an already open pending-analysis dialog', async () => {
+it('records disclosure before showing newly arrived feedback in the open dialog', async () => {
   const control = vi.fn().mockResolvedValue(undefined)
   const view = render(<MessageFeedback {...base} decision={undefined} feedback={undefined} reviewing onControl={control} />)
   fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
   view.rerender(<MessageFeedback {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
-  expect(control).not.toHaveBeenCalled()
-  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'View coaching help' })))
+  await act(async () => {})
   expect(control).toHaveBeenCalledExactlyOnceWith('open_card')
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   view.rerender(<MessageFeedback {...base} onControl={control} />)
@@ -128,7 +128,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   const edit = vi.fn()
   render(<MessageFeedback {...base} decision={currentDecision} onEdit={edit} />)
   const chip = screen.getByRole('button', { name: 'Coach feedback for message 3' })
-  expect(chip).toHaveTextContent(currentDecision.shown ? 'Which form goes with yo?' : 'Feedback')
+  expect(chip).toHaveTextContent('Feedback')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Edit and resend message' }))
@@ -157,4 +157,41 @@ it('closes both feedback and nested token details when asking about a token', ()
   expect(screen.queryByRole('dialog')).toBeNull()
   expect(ask).toHaveBeenCalledTimes(1)
   expect(ask).toHaveBeenCalledWith(expect.stringContaining('Help me understand “Hola”'))
+})
+
+it('keeps rich corrections and clarification in the feedback window alongside scores', async () => {
+  const onAsk = vi.fn()
+  const onAddContext = vi.fn().mockResolvedValue(undefined)
+  const direct = { ...decision, exposedMove: 'explicit' as const, shown: { construct: 'past', quote: 'yo cocina', move: 'explicit' as const, text: 'yo cociné', explanation: 'Use cociné for a completed action yesterday.' } }
+  const view = render(<MessageFeedback {...base} decision={direct} conversationFeedback={{ grammar: 6, conversation: 10, answers: {} }} onAsk={onAsk} onAddContext={onAddContext} />)
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  expect(view.container.ownerDocument.querySelector('s')).toHaveTextContent('yo cocina')
+  expect(view.container.ownerDocument.querySelector('.cor-line strong')).toHaveTextContent('yo cociné')
+  expect(screen.getByText('Use cociné for a completed action yesterday.')).toBeVisible()
+  expect(screen.queryByText('Explain scores')).toBeNull()
+  const input = screen.getByRole('textbox', { name: 'Add context' })
+  expect(input).toBeVisible()
+  fireEvent.change(input, { target: { value: 'I meant yesterday.' } })
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Reassess with context' })))
+  expect(onAddContext).toHaveBeenCalledExactlyOnceWith('I meant yesterday.')
+  expect(onAsk).not.toHaveBeenCalled()
+  expect(screen.getByRole('dialog')).toBeVisible()
+})
+
+it('reveals feedback that finishes while its window is already open', async () => {
+  const control = vi.fn().mockResolvedValue(undefined)
+  const view = render(<MessageFeedback {...base} decision={undefined} feedback={undefined} reviewing onControl={control} />)
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  view.rerender(<MessageFeedback {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
+  await act(async () => {})
+  expect(control).toHaveBeenCalledExactlyOnceWith('open_card')
+})
+
+it('places skill details after coaching corrections', () => {
+  render(<MessageFeedback {...base} skills={<details><summary>Skills</summary>Evidence</details>} />)
+  fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
+  const hint = within(screen.getByRole('dialog')).getByText('Which form goes with yo?')
+  const skills = screen.getByText('Skills')
+  expect(hint.compareDocumentPosition(skills) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(skills.closest('details')).not.toHaveAttribute('open')
 })
