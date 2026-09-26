@@ -143,12 +143,13 @@
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
 /* The partner's reaction to the learner's message: a small status chip that
-   straddles the reply's top edge at the inline start. It stays a fixed size so
-   the line below it keeps its clearance in every density and pointer mode; the
-   bubble reserves --reaction-badge-gutter beside it (messages.css). */
+   rides on the reply's top edge at the inline start. It clears the line below it
+   by sitting higher, not by reserving a gutter: the reply keeps its full width
+   and the chip overlaps the bubble outline instead of the text. It stays a fixed
+   size so that clearance holds in every density and pointer mode. */
 .persona-reaction {
   position: absolute;
-  top: -17px;
+  top: calc(-1 * var(--space-11));
   inset-inline-start: 9px;
   width: var(--reaction-badge-gutter);
   min-width: var(--reaction-badge-gutter);

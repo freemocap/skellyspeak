@@ -247,8 +247,10 @@
 .language-dropdown-panel { position: absolute; inset-block-start: 100%; inset-inline-start: 0; z-index: var(--z-popover); width: 100%; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
 .language-dropdown-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); width: 100%; }
 .language-dropdown-row > span:last-child { flex: none; }
+/* A language name is an identity, not prose: it shortens with an ellipsis rather
+   than breaking mid-word into a column of characters. */
 .language-dropdown-check { flex: none; width: var(--space-8); color: var(--ink); font-weight: var(--weight-semibold); text-align: center; }
-.language-dropdown-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.language-dropdown-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .language-dropdown-varieties > button { display: flex; align-items: center; gap: var(--space-4); width: 100%; }
 .language-dropdown-row, .language-dropdown-add, .language-dropdown-varieties > button { min-height: var(--control-height); padding: var(--space-4); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); text-align: start; font-size: var(--type-body); cursor: pointer; }
 .language-dropdown-row:hover, .language-dropdown-row[aria-expanded=true], .language-dropdown-add:hover, .language-dropdown-varieties > button:hover { background: var(--interaction-tint); }
@@ -265,4 +267,16 @@
 .language-dropdown-info:hover { background: var(--interaction-tint); color: var(--interaction-ink); }
 @media (pointer: coarse) {
   .language-dropdown-info { min-width: var(--touch-target); min-height: var(--touch-target); }
+}
+
+/* Narrow bar: the trigger has only a few characters of room, so a panel sized to
+   it would break every language name into a column. The panel takes the width its
+   names need, clamped to the viewport. It stays absolutely positioned so the bar
+   remains its containing block. */
+@media (max-width: 860px) {
+  .topbar-language .language-dropdown-panel {
+    inline-size: max-content;
+    min-inline-size: 100%;
+    max-inline-size: calc(100vw - var(--space-8));
+  }
 }

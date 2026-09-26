@@ -47,13 +47,17 @@
 .composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin-top: var(--space-2); font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
 @media (max-width: 860px) { .composer-shortcuts { display: none; } }
 
-/* Record is the composer's primary action; Send is the quieter secondary one. */
+/* Record is the composer's primary action; Send is the quieter secondary one.
+   Its arrow keeps full opacity in both states — a disabled control is muted with
+   ink, not faded into the surface, and its outline stays crisp. */
 .send {
   flex: none; width: var(--touch-target); height: var(--touch-target); border: var(--border-width) solid var(--line);
   background: var(--field); color: var(--interaction-ink); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-title); border-radius: var(--radius-pill); min-height: var(--control-height-lg);
 }
 
-.send:disabled { opacity: 0.5; cursor: default; }
+.send:disabled { color: var(--ink-3); cursor: default; }
+
+.send:not(:disabled):hover { border-color: var(--interaction-ink); }
 
 .mic {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);

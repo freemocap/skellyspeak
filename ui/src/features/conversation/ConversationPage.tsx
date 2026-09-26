@@ -517,7 +517,7 @@ export default function ConversationPage({
           {isMobile && replyHelp}
           <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
-            targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguageName}
+            targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguage?.endonym ?? ''}
             onInput={setInput} onSend={text => { void send(text) }}
             onDiscardRecording={mic.cancel} onToggleRecording={toggleMic} />
         </div>

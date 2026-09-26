@@ -129,17 +129,6 @@
   padding-right: var(--space-6);
   padding-left: calc(var(--control-height) + var(--space-5));
 }
-/* A partner reaction straddles the bubble's top edge at the inline start, so
-   the reply reserves that chip's gutter beside it. */
-.msg.chat-message.with-corner-control:has(> .persona-reaction) {
-  padding-inline-start: calc(var(--reaction-badge-gutter) + var(--space-6));
-}
-
-/* RTL keeps its speech control in that same lead gutter, so there the chip sits
-   past the control and the reply clears both. */
-.msg.chat-message.with-corner-control.rtl:has(> .persona-reaction) {
-  padding-inline-start: calc(var(--control-height) + var(--reaction-badge-gutter) + var(--space-4));
-}
 .bubble-corner-control {
   position: absolute;
   top: var(--space-2);
