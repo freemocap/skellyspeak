@@ -11,7 +11,6 @@ fn added_languages_resolve_through_the_standard_registry() {
         ("turkish", "tr", "latin", false),
         ("russian", "ru", "cyrillic", true),
         ("ukrainian", "uk", "cyrillic", true),
-        ("cherokee", "chr", "cherokee", true),
     ] {
         let language = registry.language(id).unwrap();
         assert_eq!(language.language_tag.as_deref(), Some(tag));
@@ -70,7 +69,6 @@ fn courtesy_hints_preserve_unicode_and_language_specific_case() {
         ("turkish", "TEŞEKKÜR EDERİM"),
         ("russian", "СПАСИБО"),
         ("ukrainian", "ДЯКУЮ"),
-        ("cherokee", "ᏩᏙ"),
     ] {
         let context = registry.resolve(id, None, "english").unwrap();
         for spelling in [

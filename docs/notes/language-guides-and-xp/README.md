@@ -1,14 +1,16 @@
 # Language guides, writing-system guides and XP
 
-Status: **baseline assessment strategy adopted; content and XP design continue**, 2026-09-24. We are still agreeing on
-the content strategy. The standalone developer workbench is authorized and
-implemented. App integration, native contracts, skill-matching behavior and XP
-policy remain deferred. Earlier Rust/schema work in this checkout was premature;
-its existence does not settle the design or authorize further app integration.
-The Jev prompt-strategy experiments are complete and baseline B is selected; see
-[the adoption decision](baseline-assessment-decision.md). The current sequence and review gates are in
-[the evaluation and XP refactor plan](evaluation-xp-refactor-plan.md). Earlier
-verification sections below record historical checks, not fresh checkout validation.
+Status: **integrated skills/XP flow; full supported-language authoring pass complete**, 2026-09-25.
+The baseline assessment strategy, experience/effort rewards, coach selection,
+Drill skill targeting and learner guides are implemented. The latest authored
+coverage is 18 languages and 22 varieties; see
+[the coverage checkpoint](all-language-content-coverage.md). Speaker review and
+running-app review are separate from automated validation and remain explicit.
+
+The current sequence is maintained in
+[the evaluation and XP refactor plan](evaluation-xp-refactor-plan.md).
+Earlier design and verification entries below are historical; statements that
+bulk authoring or app integration are deferred are superseded by this checkpoint.
 
 ## Product direction under discussion
 

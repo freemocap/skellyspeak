@@ -22,26 +22,457 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: english-united-states
-  name: United States
-  description: United States
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
-- id: english-united-kingdom
-  name: United Kingdom
-  description: United Kingdom
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: english-united-states
+    name: United States
+    description: United States
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
+  - id: english-united-kingdom
+    name: United Kingdom
+    description: United Kingdom
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - thanks
+        - thanks
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: English uses be for identity, qualities and location; noun phrases can identify referents.
+        explanation: >-
+          ### Form and meaning
+
+
+          Use a noun to identify someone or something, and an adjective to describe a quality. With
+          a present description, use am, is or are between the subject and its description.
+
+
+          ### In use
+
+
+          A and an introduce one countable thing; the points to something identifiable in context.
+          An adjective normally comes before a noun but after be.
+        examples:
+          - text: She is a doctor.
+            translation: She is a doctor.
+          - text: The room is quiet.
+            translation: The room is quiet.
+      varieties:
+        english-united-states:
+          assessment: English uses be for identity, qualities and location; noun phrases can identify
+            referents.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English uses be for identity, qualities and location; noun phrases can identify
+            referents.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: English uses have, possessive determiners and possessive noun phrases for possession and
+          association.
+        explanation: >-
+          ### Form and meaning
+
+
+          Use have to say that someone has something. My, your, his, her, its, our and their
+          identify the person or group associated with a noun.
+
+
+          ### In use
+
+
+          My sister describes a relationship, not ownership. Compare my book with the book is mine:
+          mine stands without a following noun.
+        examples:
+          - text: I have a bicycle.
+            translation: I have a bicycle.
+          - text: This is my sister.
+            translation: This is my sister.
+      varieties:
+        english-united-states:
+          assessment: English uses have, possessive determiners and possessive noun phrases for possession and
+            association.
+          explanation: "Have is a common possession pattern in this variety. Have got also occurs. Gotten is
+            used for many past-participle meanings of get, but have got for possession does not
+            become have gotten automatically."
+          examples: []
+        english-united-kingdom:
+          assessment: English uses have, possessive determiners and possessive noun phrases for possession and
+            association.
+          explanation: "Have got is common for possession in conversation: I have got a bicycle. Have is also
+            standard. In a question, have you got and do you have use different auxiliary patterns."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: English expresses amounts with numbers and quantifiers; countability affects the form.
+        explanation: >-
+          ### Form and meaning
+
+
+          Put a number before a countable noun, usually with a plural ending after numbers other
+          than one. Use much with uncountable amounts and many with countable items.
+
+
+          ### In use
+
+
+          Some works with both plural nouns and uncountable nouns. A little water and a few bottles
+          describe small amounts in different ways.
+        examples:
+          - text: We need three chairs.
+            translation: We need three chairs.
+          - text: There is a little water.
+            translation: There is a little water.
+      varieties:
+        english-united-states:
+          assessment: English expresses amounts with numbers and quantifiers; countability affects the form.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English expresses amounts with numbers and quantifiers; countability affects the form.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: English simple present can mark habits and states; be plus ing can mark current activity.
+        explanation: >-
+          ### Form and meaning
+
+
+          Use the simple present for habits and many states. Add -s to a regular verb with he, she
+          or it. Use am, is or are plus the -ing form for an activity in progress.
+
+
+          ### In use
+
+
+          A present situation does not always need a progressive form: I know and I need are
+          ordinary present statements. Time and context determine the intended reading.
+        examples:
+          - text: I work here.
+            translation: I work here.
+          - text: She is reading.
+            translation: She is reading.
+      varieties:
+        english-united-states:
+          assessment: English simple present can mark habits and states; be plus ing can mark current activity.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        english-united-kingdom:
+          assessment: English simple present can mark habits and states; be plus ing can mark current activity.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: English refers to past events with past forms, auxiliaries and contextual time reference.
+        explanation: >-
+          ### Form and meaning
+
+
+          Many verbs form the simple past with -ed, but common verbs such as go have irregular
+          forms. Was and were are the past forms of be.
+
+
+          ### In use
+
+
+          After did or did not, use the base verb: did you go, not did you went. Was reading
+          presents an activity already in progress at a past time.
+        examples:
+          - text: We arrived yesterday.
+            translation: We arrived yesterday.
+          - text: I was reading when she called.
+            translation: I was reading when she called.
+      varieties:
+        english-united-states:
+          assessment: English refers to past events with past forms, auxiliaries and contextual time reference.
+          explanation: "The simple past is common with just, already and yet in American conversation: I just
+            ate. The present perfect is also available; the intended connection to the present
+            matters."
+          examples: []
+        english-united-kingdom:
+          assessment: English refers to past events with past forms, auxiliaries and contextual time reference.
+          explanation: "British usage often favors the present perfect with just, already and yet when the
+            event is relevant now: I have just eaten. The simple past remains normal with a finished
+            past time such as yesterday."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: English uses will, be going to and present forms with future context.
+        explanation: >-
+          ### Form and meaning
+
+
+          Will plus a base verb can make a prediction or an immediate commitment. Be going to often
+          expresses an intention or a prediction grounded in current evidence.
+
+
+          ### In use
+
+
+          Present forms also describe future arrangements and schedules. Tomorrow can establish
+          future meaning without will.
+        examples:
+          - text: I am going to cook tonight.
+            translation: I am going to cook tonight.
+          - text: The train leaves tomorrow.
+            translation: The train leaves tomorrow.
+      varieties:
+        english-united-states:
+          assessment: English uses will, be going to and present forms with future context.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English uses will, be going to and present forms with future context.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: English expresses desire and preference with want, like, prefer and related constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Want can take a noun or to plus a verb. Like can describe enjoyment of a thing or
+          activity; would like is a less direct way to express a wish.
+
+
+          ### In use
+
+
+          Liking an activity does not mean planning to do it now. Compare I like swimming with I
+          want to swim.
+        examples:
+          - text: I like coffee.
+            translation: I like coffee.
+          - text: I would like to sit down.
+            translation: I would like to sit down.
+      varieties:
+        english-united-states:
+          assessment: English expresses desire and preference with want, like, prefer and related
+            constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English expresses desire and preference with want, like, prefer and related
+            constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: English modals and related phrases express ability, permission and obligation.
+        explanation: >-
+          ### Form and meaning
+
+
+          Can can express ability or permission, depending on the situation. Must and have to
+          express necessity; should often offers advice rather than a strict requirement.
+
+
+          ### In use
+
+
+          After can, must or should, use the base verb without to. Not having to do something means
+          it is optional; must not means it is prohibited.
+        examples:
+          - text: I can swim.
+            translation: I can swim.
+          - text: You do not have to come.
+            translation: You do not have to come.
+      varieties:
+        english-united-states:
+          assessment: English modals and related phrases express ability, permission and obligation.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English modals and related phrases express ability, permission and obligation.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: English negation uses not with auxiliaries or be, and do support with many lexical verbs.
+        explanation: >-
+          ### Form and meaning
+
+
+          Put not after be or an auxiliary. With ordinary simple-present and simple-past verbs, use
+          do, does or did plus not and the base verb.
+
+
+          ### In use
+
+
+          Not changes the proposition, while no can answer a question or modify a noun. Contractions
+          such as don't are common in conversation.
+        examples:
+          - text: I do not know.
+            translation: I do not know.
+          - text: She is not here.
+            translation: She is not here.
+      varieties:
+        english-united-states:
+          assessment: English negation uses not with auxiliaries or be, and do support with many lexical verbs.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English negation uses not with auxiliaries or be, and do support with many lexical verbs.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: English questions use question words, auxiliary order or conversational intonation.
+        explanation: >-
+          ### Form and meaning
+
+
+          In many questions, put an auxiliary before the subject. With a simple lexical verb, use do
+          or does. Question words specify the information needed.
+
+
+          ### In use
+
+
+          A question about the subject often keeps ordinary order: who lives here? Spoken
+          confirmation questions can also use statement order.
+        examples:
+          - text: Where do you live?
+            translation: Where do you live?
+          - text: Who lives here?
+            translation: Who lives here?
+      varieties:
+        english-united-states:
+          assessment: English questions use question words, auxiliary order or conversational intonation.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        english-united-kingdom:
+          assessment: English questions use question words, auxiliary order or conversational intonation.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: English requests use imperatives, please and modal questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          A base verb can directly request action. Please can soften the wording, and could you or
+          would you can make the request less direct.
+
+
+          ### In use
+
+
+          Could you open the window? usually asks for action, not a report on physical ability. The
+          relationship and situation affect how direct a request sounds.
+        examples:
+          - text: Please sit down.
+            translation: Please sit down.
+          - text: Could you open the window?
+            translation: Could you open the window?
+      varieties:
+        english-united-states:
+          assessment: English requests use imperatives, please and modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        english-united-kingdom:
+          assessment: English requests use imperatives, please and modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: English because and if connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Because introduces a reason; if introduces a condition. The two clauses explain how
+          situations relate rather than merely placing them beside each other.
+
+
+          ### In use
+
+
+          For an ordinary possible future condition, use a present form after if: if it rains, we
+          will stay home. This does not mean the rain is happening now.
+        examples:
+          - text: I stayed home because I was tired.
+            translation: I stayed home because I was tired.
+          - text: If it rains, we will stay home.
+            translation: If it rains, we will stay home.
+      varieties:
+        english-united-states:
+          assessment: English because and if connect reasons and conditions.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        english-united-kingdom:
+          assessment: English because and if connect reasons and conditions.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: hello
@@ -52,30 +483,29 @@ conversation:
     age: 38
     location: Bristol, England
     occupation: Sound engineer for a small theatre
-    background: Grew up on the coast, moved inland for work, and has been meaning to move back for eleven
-      years.
-    currentSituation: Tech week for a play that opens on Friday, so sleeping badly and drinking too much
-      coffee.
+    background: Grew up on the coast, moved inland for work, and has been meaning to move back for
+      eleven years.
+    currentSituation: Tech week for a play that opens on Friday, so sleeping badly and drinking too much coffee.
     interests:
-    - repairing old radios
-    - cold water swimming
-    - folk music
-    - cooking one ambitious dish a month
+      - repairing old radios
+      - cold water swimming
+      - folk music
+      - cooking one ambitious dish a month
     opinions:
-    - Interval ice cream is the best part of theatre.
-    - A recipe that forbids substitutions is a recipe not worth following.
+      - Interval ice cream is the best part of theatre.
+      - A recipe that forbids substitutions is a recipe not worth following.
     interestingFacts:
-    - Can judge a room's size from a single hand clap.
+      - Can judge a room's size from a single hand clap.
     favoriteBooks:
-    - The Rings of Saturn — W. G. Sebald
-    - Cider with Rosie — Laurie Lee
+      - The Rings of Saturn — W. G. Sebald
+      - Cider with Rosie — Laurie Lee
     favoriteMovies:
-    - The Conversation (1974)
-    - Local Hero (1983)
+      - The Conversation (1974)
+      - Local Hero (1983)
     manner: Dry and understated. Explains things with comparisons rather than adjectives.
     quirks:
-    - Hums without noticing.
+      - Hums without noticing.
     vibe:
-    - 🎧
-    - 🌊
-    - 🛠️
+      - 🎧
+      - 🌊
+      - 🛠️

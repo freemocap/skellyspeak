@@ -556,13 +556,13 @@
       "provider": "elevenlabs",
       "task": "transcription",
       "languages": "scribe",
-      "allow_unlisted_languages": true
+      "allow_unlisted_languages": false
     },
     "eleven_v3": {
       "provider": "elevenlabs",
       "task": "speech",
       "languages": "eleven_v3",
-      "allow_unlisted_languages": true
+      "allow_unlisted_languages": false
     }
   },
   "sources": [

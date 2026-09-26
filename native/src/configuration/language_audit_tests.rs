@@ -74,7 +74,6 @@ fn courtesy_retrieval_uses_only_the_target_languages_material() {
         ("turkish", "teşekkür ederim"),
         ("russian", "спасибо"),
         ("ukrainian", "дякую"),
-        ("cherokee", "ᏩᏙ"),
         ("english", "thanks"),
         ("spanish", "gracias"),
         ("french", "merci"),
@@ -86,7 +85,6 @@ fn courtesy_retrieval_uses_only_the_target_languages_material() {
         ("malayalam", "നന്ദി"),
         ("italian", "grazie"),
         ("irish", "go raibh maith agat"),
-        ("scottish-gaelic", "tapadh leat"),
     ];
     for (language, local) in examples {
         let ctx = registry.resolve(language, None, "english").unwrap();

@@ -14,18 +14,18 @@ definitions:
     eyd-v:
       script: latin
       guidance:
-      - scope: target_writing
-        text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
-          including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted source
-          spelling exactly.
-        sources:
-        - indonesian_eyd_v
-      - scope: explanation_writing
-        text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
-          including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted source
-          spelling exactly.
-        sources:
-        - indonesian_eyd_v
+        - scope: target_writing
+          text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
+            including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted
+            source spelling exactly.
+          sources:
+            - indonesian_eyd_v
+        - scope: explanation_writing
+          text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
+            including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted
+            source spelling exactly.
+          sources:
+            - indonesian_eyd_v
   romanization_schemes: {}
 defaults:
   variety: indonesian-indonesia
@@ -37,22 +37,385 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: indonesian-indonesia
-  name: Indonesia
-  description: Contemporary Indonesian in Indonesia, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - indonesian_eyd_v
-  overrides: {}
-  guidance: []
+  - id: indonesian-indonesia
+    name: Indonesia
+    description: Contemporary Indonesian in Indonesia, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - indonesian_eyd_v
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - terima kasih
-      - maaf
+        - terima kasih
+        - maaf
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Indonesian noun and adjective predicates can identify and describe without a copula.
+        explanation: >-
+          ### Form and meaning
+
+
+          A noun phrase or adjective can follow the subject directly: dia guru and rumah itu besar.
+          Ini and itu help identify what is being discussed.
+
+
+          ### In use
+
+
+          Adalah appears in some definitions and formal statements but is not required in every
+          sentence corresponding to English be. Location commonly uses di.
+        examples:
+          - text: Dia guru.
+            translation: They are a teacher.
+          - text: Rumah itu besar.
+            translation: That house is big.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian noun and adjective predicates can identify and describe without a copula.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Indonesian expresses possession with punya, memiliki and possessor phrases.
+        explanation: >-
+          ### Form and meaning
+
+
+          Punya is common for having something in conversation. A possessor normally follows the
+          possessed noun: buku saya means my book.
+
+
+          ### In use
+
+
+          Possessive expressions can describe family relationships and association as well as
+          ownership. The suffix -nya can refer back to a possessor identified in context.
+        examples:
+          - text: Saya punya sepeda.
+            translation: I have a bicycle.
+          - text: Ini kakak saya.
+            translation: This is my older sibling.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian expresses possession with punya, memiliki and possessor phrases.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Indonesian uses numbers, quantifiers and optional classifiers for quantity.
+        explanation: >-
+          ### Form and meaning
+
+
+          A number usually precedes a noun. Classifiers such as orang for people and buah for many
+          objects can specify what is being counted.
+
+
+          ### In use
+
+
+          Nouns do not require a plural ending after numbers. Reduplication can express plurality or
+          other meanings, but is not needed merely because there are two things.
+        examples:
+          - text: Saya punya dua buku.
+            translation: I have two books.
+          - text: Masih ada sedikit air.
+            translation: There is still a little water.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian uses numbers, quantifiers and optional classifiers for quantity.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Indonesian present meaning is established through context and aspect words rather than
+          tense inflection.
+        explanation: >-
+          ### Form and meaning
+
+
+          The verb does not change for person or present tense. A plain verb can describe a state or
+          a habit, while sedang draws attention to an activity in progress.
+
+
+          ### In use
+
+
+          Sekarang means now and setiap hari means every day. Use them when context alone does not
+          distinguish a current action from a routine.
+        examples:
+          - text: Saya bekerja di sini.
+            translation: I work here.
+          - text: Dia sedang membaca.
+            translation: They are reading.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian present meaning is established through context and aspect words rather than
+            tense inflection.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Indonesian past reference uses time context and words such as sudah or dulu.
+        explanation: >-
+          ### Form and meaning
+
+
+          Kemarin and a past date place an event in the past without changing the verb. Sudah
+          presents something as already realized and can be relevant to the present.
+
+
+          ### In use
+
+
+          Sudah is not a universal past-tense marker. A past event can be described without it, and
+          its meaning concerns realization rather than just time.
+        examples:
+          - text: Saya datang kemarin.
+            translation: I came yesterday.
+          - text: Dulu saya tinggal di sini.
+            translation: I used to live here.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian past reference uses time context and words such as sudah or dulu.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Indonesian future reference uses future time expressions and words such as akan.
+        explanation: >-
+          ### Form and meaning
+
+
+          Besok places an event tomorrow; akan can explicitly mark a future or prospective
+          situation. The main verb keeps the same form.
+
+
+          ### In use
+
+
+          Mau can express a want or an impending intention depending on context. Do not assume that
+          every desire is a future prediction.
+        examples:
+          - text: Saya akan datang besok.
+            translation: I will come tomorrow.
+          - text: Kami berangkat minggu depan.
+            translation: We leave next week.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian future reference uses future time expressions and words such as akan.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Indonesian uses mau, ingin, suka and lebih suka for wants and preferences.
+        explanation: >-
+          ### Form and meaning
+
+
+          Mau and ingin express wanting. Suka states liking, and lebih suka makes a preference
+          explicit.
+
+
+          ### In use
+
+
+          A following verb names the desired or liked activity without an infinitive ending. Compare
+          liking coffee with wanting coffee now.
+        examples:
+          - text: Saya suka kopi.
+            translation: I like coffee.
+          - text: Saya ingin pulang.
+            translation: I want to go home.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian uses mau, ingin, suka and lebih suka for wants and preferences.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Indonesian bisa, boleh, harus and perlu express ability, permission and necessity.
+        explanation: >-
+          ### Form and meaning
+
+
+          Bisa commonly expresses ability, boleh permission, and harus obligation. Perlu states that
+          something is needed.
+
+
+          ### In use
+
+
+          Tidak harus means not being obliged; tidak boleh means not being allowed. A small change
+          in the modal has a large effect on what the listener should do.
+        examples:
+          - text: Saya bisa berenang.
+            translation: I can swim.
+          - text: Kamu tidak harus datang.
+            translation: You do not have to come.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian bisa, boleh, harus and perlu express ability, permission and necessity.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Indonesian distinguishes tidak, bukan and belum in negation.
+        explanation: >-
+          ### Form and meaning
+
+
+          Tidak generally negates verbs and adjectives. Bukan commonly rejects an identity or noun
+          phrase. Belum means not yet.
+
+
+          ### In use
+
+
+          Use belum when an expected event has not happened so far. It contributes a time-related
+          meaning that plain tidak does not.
+        examples:
+          - text: Saya tidak tahu.
+            translation: I do not know.
+          - text: Dia bukan dokter.
+            translation: They are not a doctor.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian distinguishes tidak, bukan and belum in negation.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Indonesian questions use intonation, question words and optional question marking.
+        explanation: >-
+          ### Form and meaning
+
+
+          A spoken yes/no question can keep ordinary statement order. Apa, siapa, kapan and di mana
+          identify different kinds of missing information.
+
+
+          ### In use
+
+
+          Apakah explicitly marks a yes/no question, especially in more formal wording. Questions do
+          not require a change to the verb's person or tense.
+        examples:
+          - text: Apakah kamu sudah makan?
+            translation: Have you eaten?
+          - text: Di mana stasiunnya?
+            translation: Where is the station?
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian questions use intonation, question words and optional question marking.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Indonesian requests use tolong, imperative wording and permission-style questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Tolong before an action asks for help doing it. Silakan often invites or permits someone
+          to act, rather than asking them to help the speaker.
+
+
+          ### In use
+
+
+          A question with bisa can function as a request. Choose wording according to the action and
+          relationship; not every invitation is a command.
+        examples:
+          - text: Tolong buka pintunya.
+            translation: Please open the door.
+          - text: Bisa ulangi sekali lagi?
+            translation: Could you repeat that once more?
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian requests use tolong, imperative wording and permission-style questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Indonesian karena and kalau or jika connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Karena introduces a reason. Kalau and jika introduce a condition; kalau is common in
+          conversation.
+
+
+          ### In use
+
+
+          The verbs need not change form to mark a future condition. Time words and the relation
+          between clauses establish when the situation applies.
+        examples:
+          - text: Saya tinggal di rumah karena sakit.
+            translation: I am staying at home because I am ill.
+          - text: Kalau hujan, kita tinggal di rumah.
+            translation: If it rains, we stay at home.
+      varieties:
+        indonesian-indonesia:
+          assessment: Indonesian karena and kalau or jika connect reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: Halo
@@ -66,19 +429,19 @@ conversation:
     background: Grew up in Bandung and learned printing from a neighbour.
     currentSituation: Preparing posters for a community event and trying a new cycling route.
     interests:
-    - printmaking
-    - cycling
+      - printmaking
+      - cycling
     opinions:
-    - A poster should make its main information easy to find.
+      - A poster should make its main information easy to find.
     interestingFacts:
-    - Collects unusual paper offcuts.
+      - Collects unusual paper offcuts.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - Laskar Pelangi (2008)
+      - Laskar Pelangi (2008)
     manner: Direct and good-humoured. Uses everyday Indonesian and explains unfamiliar local terms.
     quirks:
-    - Writes reminders on the backs of test prints.
+      - Writes reminders on the backs of test prints.
     vibe:
-    - 🎨
-    - 🚲
+      - 🎨
+      - 🚲

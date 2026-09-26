@@ -26,29 +26,6 @@ fn capabilities_select_without_language_specific_overrides() {
     }
     for task in [Task::Transcription, Task::Speech] {
         for tag in ["chr", "gd"] {
-            let resolution = catalog
-                .resolve(
-                    task,
-                    tag,
-                    &Preferences::default(),
-                    if task == Task::Speech {
-                        "eleven_v3"
-                    } else {
-                        "whisper-large-v3"
-                    },
-                    None,
-                )
-                .unwrap();
-            assert_eq!(
-                resolution.model,
-                if task == Task::Speech {
-                    "eleven_v3"
-                } else {
-                    "scribe_v2"
-                }
-            );
-            assert_eq!(resolution.language_code, tag);
-            assert_eq!(resolution.reason, "unlisted_language_attempt");
             assert!(
                 catalog
                     .resolve(
@@ -60,7 +37,7 @@ fn capabilities_select_without_language_specific_overrides() {
                         } else {
                             "whisper-large-v3"
                         },
-                        Some(&[])
+                        None
                     )
                     .is_err()
             );
@@ -77,7 +54,7 @@ fn capabilities_select_without_language_specific_overrides() {
             )
             .is_ok()
     );
-    // Listed recognition support and synthesis attempts are distinct.
+    // Recognition support does not imply synthesis support.
     assert!(
         catalog
             .resolve(
@@ -98,7 +75,7 @@ fn capabilities_select_without_language_specific_overrides() {
                 "eleven_v3",
                 None
             )
-            .is_ok()
+            .is_err()
     );
 }
 
@@ -221,5 +198,34 @@ fn malformed_tags_do_not_become_provider_defaults() {
                 )
                 .is_err()
         );
+    }
+}
+
+#[test]
+fn every_offered_language_has_listed_recognition_and_synthesis() {
+    let catalog = Catalog::bundled();
+    let registry = Registry::bundled().unwrap();
+    for language in &registry.languages {
+        let tag = language
+            .external_tags
+            .get("language_tag")
+            .expect("language tag");
+        for task in [Task::Transcription, Task::Speech] {
+            let resolution = catalog
+                .resolve(
+                    task,
+                    tag,
+                    &Preferences::default(),
+                    if task == Task::Speech {
+                        "eleven_v3"
+                    } else {
+                        "whisper-large-v3"
+                    },
+                    None,
+                )
+                .unwrap_or_else(|error| panic!("{}: {error:?}", language.id));
+            assert_ne!(resolution.reason, "unlisted_language_attempt");
+            assert_ne!(resolution.reason, "custom_model_unverified");
+        }
     }
 }

@@ -147,6 +147,14 @@ learning:
             - text: كنت ناطر التاكسي.
               translation: I was waiting for the taxi.
               context: A past state, said by a male speaker.
+        arabic-modern-standard:
+          assessment: Standard Arabic perfect forms and كان constructions express past reference.
+          explanation: A perfect-form verb often presents a past event. كَانَ with an imperfect verb can
+            describe an ongoing or habitual past activity. The verb forms interact with context; the
+            perfect is not simply a label for every possible past meaning.
+          examples:
+            - text: وَصَلْتُ أَمْسِ.
+              translation: I arrived yesterday.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
@@ -188,6 +196,15 @@ learning:
             - text: عندي وقت.
               translation: I have time.
               context: Describe what is available.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses possessive suffixes, construct phrases and existential possession.
+          explanation: The construct phrase places two nouns together to express a relationship, and
+            possessive suffixes attach to a noun. With عِنْدِي, something is available to or
+            possessed by the speaker. These standard forms should not replace Levantine forms in a
+            conversational guide.
+          examples:
+            - text: عِنْدِي كِتَابٌ.
+              translation: I have a book.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -224,6 +241,16 @@ learning:
             - text: أحمد بالبيت.
               translation: Ahmad is at home.
               context: Say where someone is.
+        arabic-modern-standard:
+          assessment: Standard Arabic present nominal clauses often omit a copula; modifiers agree with their
+            nouns.
+          explanation: A present noun sentence can identify or describe without an equivalent of is.
+            Adjectives normally follow the noun; in careful standard forms they agree in gender,
+            number, definiteness and case. A definite noun followed by an indefinite adjective can
+            form a statement rather than a single noun phrase.
+          examples:
+            - text: هٰذِهِ الْغُرْفَةُ كَبِيرَةٌ.
+              translation: This room is big.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -258,6 +285,15 @@ learning:
             - text: بدي شوي مي.
               translation: I want a little water.
               context: An amount rather than separate items.
+        arabic-modern-standard:
+          assessment: Standard Arabic numerals and quantity expressions interact with noun form and gender.
+          explanation: Numbers have several agreement patterns rather than one rule for all quantities. With
+            many numerals from three to ten, the numeral's gender contrasts with that of the counted
+            noun, and the noun is plural in the genitive. Start with a complete number–noun phrase
+            and keep its form together.
+          examples:
+            - text: عِنْدِي ثَلَاثَةُ كُتُبٍ.
+              translation: I have three books.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -293,6 +329,15 @@ learning:
             - text: عم بشتغل.
               translation: I am working.
               context: Focus on the activity underway.
+        arabic-modern-standard:
+          assessment: Standard Arabic imperfect forms and nominal clauses can describe current states and
+            habits.
+          explanation: An imperfect verb can describe a present activity or habit without a separate
+            progressive auxiliary. Nominal clauses describe many states. Time expressions establish
+            whether the activity is happening now or regularly.
+          examples:
+            - text: أَعْمَلُ هُنَا.
+              translation: I work here.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
@@ -330,6 +375,14 @@ learning:
             - text: رح اشتغل هون بكرا.
               translation: I will work here tomorrow.
               context: Future plan.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses سـ or سوف with imperfect verbs and future context.
+          explanation: The prefix سَـ and the particle سَوْفَ can place an imperfect verb in the future. A
+            future time phrase can make the reference explicit. These are standard-language options;
+            the Levantine section describes its own future constructions.
+          examples:
+            - text: سَأَذْهَبُ غَدًا.
+              translation: I will go tomorrow.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
@@ -366,6 +419,14 @@ learning:
             - text: بحب القهوة.
               translation: I like coffee.
               context: A general preference.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses أراد, أحب and preference expressions.
+          explanation: أُرِيدُ states a want, while أُحِبُّ can state liking. A wanted action can follow أَنْ
+            in a subordinate verb construction. Liking something is not itself a claim that the
+            speaker intends to do it next.
+          examples:
+            - text: أُحِبُّ الْقَهْوَةَ.
+              translation: I like coffee.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -403,6 +464,14 @@ learning:
             - text: ممكن أفوت؟
               translation: May I come in?
               context: Permission at a doorway.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses استطاع, permission expressions and necessity constructions.
+          explanation: أَسْتَطِيعُ expresses ability, often followed by أَنْ and a verb. يَجِبُ expresses
+            obligation in a different construction. A question about possibility can be used
+            socially to ask permission, so the intended meaning depends on the situation.
+          examples:
+            - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
+              translation: I can swim.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -438,6 +507,14 @@ learning:
             - text: أنا مش جاهز.
               translation: I am not ready.
               context: Negate a description; male speaker.
+        arabic-modern-standard:
+          assessment: Standard Arabic selects negators according to tense, predicate and intended scope.
+          explanation: لَا can negate an imperfect verb, لَمْ negates a past event using a jussive imperfect
+            form, and لَنْ negates future reference with a subjunctive imperfect form. لَيْسَ is
+            used for many nominal predicates. Do not apply a single negator to every clause.
+          examples:
+            - text: لَا أَعْرِفُ.
+              translation: I do not know.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources:
@@ -476,6 +553,14 @@ learning:
             - text: ليش تأخرت؟
               translation: Why were you late?
               context: Ask one male addressee for a reason.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses هل, interrogative أ and question words.
+          explanation: هَلْ and interrogative أَ can introduce yes/no questions. أَيْنَ asks about place,
+            مَتَى about time, and مَنْ about a person. A question need not have English-style
+            auxiliary inversion.
+          examples:
+            - text: أَيْنَ الْمَحَطَّةُ؟
+              translation: Where is the station?
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -511,6 +596,14 @@ learning:
             - text: افتح الباب، لو سمحت.
               translation: Open the door, please.
               context: A direct request to one male addressee.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses imperatives and polite request expressions.
+          explanation: An imperative changes according to who is addressed. مِنْ فَضْلِكَ addresses one man
+            politely; its suffix changes for other addressees. Modal questions can make a request
+            less direct. Keep address agreement consistent.
+          examples:
+            - text: اِفْتَحِ الْبَابَ مِنْ فَضْلِكَ.
+              translation: Open the door, please, addressed to one man.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []
@@ -545,6 +638,14 @@ learning:
             - text: إذا عندي وقت، رح أجي.
               translation: If I have time, I will come.
               context: A condition on the plan.
+        arabic-modern-standard:
+          assessment: Standard Arabic uses reason clauses and several conditional particles.
+          explanation: لِأَنَّ introduces a reason. إِذَا commonly introduces an expected or possible
+            condition, while إِنْ and لَوْ have different patterns and uses. A past-form verb after
+            إِذَا can refer to a future condition, so form alone does not establish past time.
+          examples:
+            - text: سَأَبْقَى هُنَا لِأَنِّي مُتْعَبٌ.
+              translation: I will stay here because I am tired, said by a man.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
       sources: []

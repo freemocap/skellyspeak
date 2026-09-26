@@ -14,18 +14,18 @@ definitions:
     standard-turkish:
       script: latin
       guidance:
-      - scope: target_writing
-        text: Use contemporary Turkish spelling, retaining ç, ğ, ı, ö, ş and ü. Keep dotted İ/i distinct
-          from dotless I/ı, including in capitals. Preserve quoted text exactly and retain required apostrophes
-          in proper-name suffixes.
-        sources:
-        - tdk_alphabet
-      - scope: explanation_writing
-        text: Use contemporary Turkish spelling, retaining ç, ğ, ı, ö, ş and ü. Keep dotted İ/i distinct
-          from dotless I/ı, including in capitals. Preserve quoted text exactly and retain required apostrophes
-          in proper-name suffixes.
-        sources:
-        - tdk_alphabet
+        - scope: target_writing
+          text: Use contemporary Turkish spelling, retaining ç, ğ, ı, ö, ş and ü. Keep dotted İ/i distinct
+            from dotless I/ı, including in capitals. Preserve quoted text exactly and retain
+            required apostrophes in proper-name suffixes.
+          sources:
+            - tdk_alphabet
+        - scope: explanation_writing
+          text: Use contemporary Turkish spelling, retaining ç, ğ, ı, ö, ş and ü. Keep dotted İ/i distinct
+            from dotless I/ı, including in capitals. Preserve quoted text exactly and retain
+            required apostrophes in proper-name suffixes.
+          sources:
+            - tdk_alphabet
   romanization_schemes: {}
 defaults:
   variety: turkish-turkiye
@@ -37,22 +37,389 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: turkish-turkiye
-  name: Türkiye
-  description: Contemporary Turkish in Türkiye, with standard writing and context-appropriate everyday
-    conversation; no single regional accent is prescribed.
-  review: needs_review
-  sources:
-  - tdk_alphabet
-  overrides: {}
-  guidance: []
+  - id: turkish-turkiye
+    name: Türkiye
+    description: Contemporary Turkish in Türkiye, with standard writing and context-appropriate everyday
+      conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - tdk_alphabet
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - teşekkür ederim
-      - sağ ol
+        - teşekkür ederim
+        - sağ ol
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Turkish uses noun and adjective predicates with person marking for description.
+        explanation: >-
+          ### Form and meaning
+
+
+          A noun or adjective can serve as the predicate. First- and second-person predicates
+          commonly take a person ending; a third-person present description often has no separate
+          copula.
+
+
+          ### In use
+
+
+          Adjectives before nouns do not agree in grammatical gender, and Turkish has no gendered
+          he/she distinction in o.
+        examples:
+          - text: Ben öğretmenim.
+            translation: I am a teacher.
+          - text: Bu oda sessiz.
+            translation: This room is quiet.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses noun and adjective predicates with person marking for description.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Turkish uses possessive suffixes, genitive phrases and var for having.
+        explanation: >-
+          ### Form and meaning
+
+
+          A possessive ending attaches to the thing possessed: kitabım is my book. An explicit
+          possessor can take the genitive ending.
+
+
+          ### In use
+
+
+          Having something is often expressed as a possessed noun plus var. Yok states the absence
+          of that possession; the construction also works for relationships.
+        examples:
+          - text: Bir bisikletim var.
+            translation: I have a bicycle.
+          - text: Bu benim kardeşim.
+            translation: This is my sibling.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses possessive suffixes, genitive phrases and var for having.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Turkish uses numerals and quantity expressions; counted nouns normally remain singular.
+        explanation: >-
+          ### Form and meaning
+
+
+          Put a number before the noun without adding the ordinary plural ending: üç kitap means
+          three books. Biraz expresses a small amount.
+
+
+          ### In use
+
+
+          Çok can describe many items or a large amount, depending on its noun. Number suffixes and
+          vowel harmony should be learned with the whole phrase.
+        examples:
+          - text: Üç sandalye lazım.
+            translation: Three chairs are needed.
+          - text: Biraz su istiyorum.
+            translation: I want a little water.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses numerals and quantity expressions; counted nouns normally remain singular.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Turkish uses present progressive and aorist forms with different habitual and current
+          readings.
+        explanation: >-
+          ### Form and meaning
+
+
+          The -iyor form commonly describes an action underway and also appears in broad current
+          situations. The aorist often describes habits, general truths or characteristic behavior.
+
+
+          ### In use
+
+
+          These forms do not map one-to-one to English tenses. A time phrase and the speaker's
+          intended viewpoint help determine which form fits.
+        examples:
+          - text: Burada çalışıyorum.
+            translation: I work here.
+          - text: Her gün kitap okurum.
+            translation: I read books every day.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses present progressive and aorist forms with different habitual and current
+            readings.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Turkish past reference includes direct past and reported or inferential forms.
+        explanation: >-
+          ### Form and meaning
+
+
+          The -di past commonly reports a past event directly. The -miş form can present information
+          as learned indirectly, inferred or newly discovered.
+
+
+          ### In use
+
+
+          The choice can communicate how the speaker knows, not only when the event happened. Vowel
+          harmony and consonant changes alter the suffix's written shape.
+        examples:
+          - text: Dün geldim.
+            translation: I came yesterday.
+          - text: Ali gelmiş.
+            translation: Ali has apparently arrived.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish past reference includes direct past and reported or inferential forms.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Turkish uses future suffixes and contextual present forms for future reference.
+        explanation: >-
+          ### Form and meaning
+
+
+          The future suffix has variants including -acak and -ecek, followed by person marking.
+          Future time expressions can also accompany an -iyor form for an arrangement.
+
+
+          ### In use
+
+
+          A plan, expectation and desire are different commitments. Include a time phrase when the
+          intended future point is not otherwise clear.
+        examples:
+          - text: Yarın geleceğim.
+            translation: I will come tomorrow.
+          - text: Yarın gidiyoruz.
+            translation: We are going tomorrow.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses future suffixes and contextual present forms for future reference.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Turkish uses istemek, sevmek and preference expressions for wants and likes.
+        explanation: >-
+          ### Form and meaning
+
+
+          İstemek expresses wanting a thing or an action. Sevmek expresses liking or loving; an
+          activity can be packaged as a verbal noun.
+
+
+          ### In use
+
+
+          Do not copy an English to-infinitive word for word. The form and case of the activity
+          expression depend on the following verb.
+        examples:
+          - text: Kahve istiyorum.
+            translation: I want coffee.
+          - text: Yüzmeyi seviyorum.
+            translation: I like swimming.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses istemek, sevmek and preference expressions for wants and likes.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Turkish expresses ability with verbal suffixes and necessity or permission with several
+          constructions.
+        explanation: >-
+          ### Form and meaning
+
+
+          The -(y)abil suffix expresses ability or possibility. Necessity can use -malı/-meli or
+          lazım; a question about permission can also use an ability form.
+
+
+          ### In use
+
+
+          Context distinguishes being able from being allowed. A negative necessity statement and a
+          prohibition are not the same thing.
+        examples:
+          - text: Yüzebilirim.
+            translation: I can swim.
+          - text: Gitmem lazım.
+            translation: I need to go.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish expresses ability with verbal suffixes and necessity or permission with several
+            constructions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Turkish negates verbs with suffixes, nominal predicates with değil, and existence with yok.
+        explanation: >-
+          ### Form and meaning
+
+
+          The verbal negative is built into the verb rather than supplied by an English-style
+          auxiliary. Değil negates a noun or adjective predicate.
+
+
+          ### In use
+
+
+          Yok states that something does not exist or is not available. Keep these three
+          constructions separate when forming a negative sentence.
+        examples:
+          - text: Bilmiyorum.
+            translation: I do not know.
+          - text: Bu pahalı değil.
+            translation: This is not expensive.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish negates verbs with suffixes, nominal predicates with değil, and existence with
+            yok.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Turkish uses the separate question particle mı and question words.
+        explanation: >-
+          ### Form and meaning
+
+
+          The yes/no particle changes vowel according to harmony: mı, mi, mu or mü. It is written
+          separately, although person endings may attach to it.
+
+
+          ### In use
+
+
+          Where the particle appears can indicate what is being questioned. Information questions
+          use words such as kim, nerede and ne zaman.
+        examples:
+          - text: Geliyor musun?
+            translation: Are you coming?
+          - text: İstasyon nerede?
+            translation: Where is the station?
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish uses the separate question particle mı and question words.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Turkish requests use imperative forms, lütfen and ability questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          The bare verb can address one person directly. Other imperative forms signal plural or
+          respectful address. Lütfen marks a request politely.
+
+
+          ### In use
+
+
+          An ability question such as açabilir misiniz can ask someone to perform an action, not
+          merely describe their capacity.
+        examples:
+          - text: Lütfen oturun.
+            translation: Please sit down.
+          - text: Pencereyi açabilir misiniz?
+            translation: Could you open the window?
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish requests use imperative forms, lütfen and ability questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Turkish connects reasons and conditions with conjunctions and verb endings.
+        explanation: >-
+          ### Form and meaning
+
+
+          Çünkü introduces a reason. A conditional ending such as -sa or -se can express the
+          condition inside the verb, without a separate word corresponding to if.
+
+
+          ### In use
+
+
+          Turkish also uses participial and nominalized clauses for these relationships. Start with
+          a whole, usable pattern before adding more complex clause types.
+        examples:
+          - text: Yorgunum çünkü çok çalıştım.
+            translation: I am tired because I worked a lot.
+          - text: Yağmur yağarsa evde kalırız.
+            translation: If it rains, we will stay at home.
+      varieties:
+        turkish-turkiye:
+          assessment: Turkish connects reasons and conditions with conjunctions and verb endings.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: Merhaba
@@ -66,19 +433,19 @@ conversation:
     background: Grew up near İzmir and learned woodworking from family members.
     currentSituation: Restoring a small table and planning a ferry trip with friends.
     interests:
-    - woodworking
-    - photography
+      - woodworking
+      - photography
     opinions:
-    - Old furniture deserves a useful second life.
+      - Old furniture deserves a useful second life.
     interestingFacts:
-    - Can identify several woods by their smell.
+      - Can identify several woods by their smell.
     favoriteBooks:
-    - The Little Prince — Antoine de Saint-Exupéry
+      - The Little Prince — Antoine de Saint-Exupéry
     favoriteMovies:
-    - Kedi (2016)
+      - Kedi (2016)
     manner: Calm and candid. Uses everyday Turkish and asks specific follow-up questions.
     quirks:
-    - Keeps small wood samples in a tin.
+      - Keeps small wood samples in a tin.
     vibe:
-    - 🪵
-    - 📷
+      - 🪵
+      - 📷

@@ -2,6 +2,33 @@ use super::*;
 use crate::learning::practice_assessment;
 
 #[test]
+fn every_offered_variety_has_composable_skill_guides() {
+    let registry = Registry::bundled().unwrap();
+    for language in &registry.languages {
+        for variety in &language.varieties {
+            let coverage = registry.skill_coverage(&language.id, &variety.id).unwrap();
+            assert_eq!(coverage.len(), 12, "{} / {}", language.id, variety.id);
+            assert!(coverage.iter().all(|skill| skill.guide_available));
+            registry
+                .skill_presence_request(&language.id, &variety.id, serde_json::json!({}))
+                .unwrap();
+            for skill in coverage {
+                let markdown = registry
+                    .skill_markdown(&language.id, &variety.id, &skill.skill_id)
+                    .unwrap();
+                assert!(
+                    markdown.contains("## Examples"),
+                    "{} / {} / {}",
+                    language.id,
+                    variety.id,
+                    skill.skill_id
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn twelve_shared_skills_and_explicit_pilot_coverage() {
     let registry = Registry::bundled().unwrap();
     assert_eq!(registry.shared_skills().skills.len(), 12);

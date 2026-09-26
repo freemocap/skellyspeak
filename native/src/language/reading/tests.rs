@@ -107,12 +107,6 @@ fn reading_speech_uses_language_capability_and_keeps_canonical_tag() {
     );
     assert_eq!(request.speech_input().unwrap().language_tag, "ga");
     request.validate_execution(&store).unwrap();
-    source.language = "scottish-gaelic".into();
-    let request = Request::capture(&store, source).unwrap();
-    assert_eq!(request.speech_input().unwrap().language_tag, "gd");
-    assert_eq!(
-        request.target.audio_resolution.as_ref().unwrap().reason,
-        "unlisted_language_attempt"
-    );
-    request.validate_execution(&store).unwrap();
+    source.language = "unsupported-language".into();
+    assert!(Request::capture(&store, source).is_err());
 }

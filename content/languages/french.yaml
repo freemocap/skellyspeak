@@ -22,26 +22,460 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: french-france
-  name: France
-  description: France
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
-- id: french-canada
-  name: Canada
-  description: Canada
-  review: needs_review
-  sources: []
-  overrides: {}
-  guidance: []
+  - id: french-france
+    name: France
+    description: France
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
+  - id: french-canada
+    name: Canada
+    description: Canada
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
 guidance: []
 learning:
   goal_material:
     courtesy:
       tokens:
-      - merci
+        - merci
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: French uses être and noun or adjective phrases for identity and description.
+        explanation: >-
+          ### Form and meaning
+
+
+          Use être with a description or identity: je suis, tu es, il or elle est. Adjectives often
+          change for gender and number, and many follow the noun.
+
+
+          ### In use
+
+
+          Profession names commonly have no article after être: elle est médecin. C'est introduces
+          or identifies someone or something in a different sentence pattern.
+        examples:
+          - text: Elle est médecin.
+            translation: She is a doctor.
+          - text: La maison est grande.
+            translation: The house is big.
+      varieties:
+        french-france:
+          assessment: French uses être and noun or adjective phrases for identity and description.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        french-canada:
+          assessment: French uses être and noun or adjective phrases for identity and description.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: French uses avoir, possessive determiners and de phrases for possession and relationships.
+        explanation: >-
+          ### Form and meaning
+
+
+          Avoir says that someone has something. Mon, ma and mes agree with the thing or person
+          being referred to, not with the gender of its owner.
+
+
+          ### In use
+
+
+          Mon amie uses mon before a vowel even though amie is feminine. A de phrase can name the
+          possessor: le livre de Paul.
+        examples:
+          - text: J'ai un vélo.
+            translation: I have a bicycle.
+          - text: C'est ma sœur.
+            translation: This is my sister.
+      varieties:
+        french-france:
+          assessment: French uses avoir, possessive determiners and de phrases for possession and
+            relationships.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        french-canada:
+          assessment: French uses avoir, possessive determiners and de phrases for possession and
+            relationships.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: French expresses quantity with numerals, partitive articles and amount phrases.
+        explanation: >-
+          ### Form and meaning
+
+
+          Numbers precede nouns. Du, de la and de l' introduce unspecified amounts; des introduces
+          an unspecified plural. Beaucoup de and un peu de express relative amounts.
+
+
+          ### In use
+
+
+          After beaucoup, use de rather than copying the noun's ordinary article. Negation often
+          changes an indefinite or partitive article to de, though the construction matters.
+        examples:
+          - text: Il y a trois chaises.
+            translation: There are three chairs.
+          - text: Je voudrais un peu d'eau.
+            translation: I would like a little water.
+      varieties:
+        french-france:
+          assessment: French expresses quantity with numerals, partitive articles and amount phrases.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        french-canada:
+          assessment: French expresses quantity with numerals, partitive articles and amount phrases.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: French present forms describe states, habits and current activities.
+        explanation: >-
+          ### Form and meaning
+
+
+          The présent can describe both a routine and an activity happening now. There is no
+          requirement to add a separate progressive form whenever English uses -ing.
+
+
+          ### In use
+
+
+          Être en train de plus an infinitive emphasizes that an activity is underway. Use it when
+          that emphasis is useful, not as a default for every present verb.
+        examples:
+          - text: Je travaille ici.
+            translation: I work here.
+          - text: Elle lit en ce moment.
+            translation: She is reading at the moment.
+      varieties:
+        french-france:
+          assessment: French present forms describe states, habits and current activities.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        french-canada:
+          assessment: French present forms describe states, habits and current activities.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: French past reference uses forms including passé composé and imparfait.
+        explanation: >-
+          ### Form and meaning
+
+
+          The passé composé combines avoir or être with a past participle and commonly presents an
+          event. The imparfait commonly supplies background, a state or a repeated past activity.
+
+
+          ### In use
+
+
+          The choice concerns the way an event is presented, not simply whether it happened long
+          ago. A completed arrival can interrupt a situation described with the imparfait.
+        examples:
+          - text: Je suis arrivé hier.
+            translation: I arrived yesterday, said by a man.
+          - text: Il pleuvait quand nous sommes partis.
+            translation: It was raining when we left.
+      varieties:
+        french-france:
+          assessment: French past reference uses forms including passé composé and imparfait.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        french-canada:
+          assessment: French past reference uses forms including passé composé and imparfait.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: French uses aller plus infinitive, the future tense and contextual present for future
+          reference.
+        explanation: >-
+          ### Form and meaning
+
+
+          Aller in the present plus an infinitive is a common way to state an intention or
+          near-future event. The futur simple is also used for predictions and plans.
+
+
+          ### In use
+
+
+          A present form with a future time expression can describe an arrangement. A wish alone
+          does not tell the listener when an event will happen.
+        examples:
+          - text: Je vais partir demain.
+            translation: I am going to leave tomorrow.
+          - text: Nous arriverons lundi.
+            translation: We will arrive on Monday.
+      varieties:
+        french-france:
+          assessment: French uses aller plus infinitive, the future tense and contextual present for future
+            reference.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        french-canada:
+          assessment: French uses aller plus infinitive, the future tense and contextual present for future
+            reference.
+          explanation: Aller plus infinitive is common in spoken Canadian French, alongside the simple future.
+            Pronunciation and informal spellings can vary, but the standard written examples remain
+            usable.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: French uses vouloir, aimer and préférer to express wants and preferences.
+        explanation: >-
+          ### Form and meaning
+
+
+          Vouloir states a want; aimer states liking or affection. Before an activity, use an
+          infinitive after these verbs.
+
+
+          ### In use
+
+
+          Je voudrais expresses a wish less directly than je veux and is useful when ordering or
+          asking for something. Préférer compares alternatives.
+        examples:
+          - text: J'aime cuisiner.
+            translation: I like cooking.
+          - text: Je voudrais un café.
+            translation: I would like a coffee.
+      varieties:
+        french-france:
+          assessment: French uses vouloir, aimer and préférer to express wants and preferences.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        french-canada:
+          assessment: French uses vouloir, aimer and préférer to express wants and preferences.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: French pouvoir, devoir and related expressions distinguish ability, permission and
+          necessity.
+        explanation: >-
+          ### Form and meaning
+
+
+          Pouvoir can express being able or being allowed to do something. Devoir often expresses
+          obligation; il faut presents a necessity without naming its subject in the same way.
+
+
+          ### In use
+
+
+          Use an infinitive after pouvoir and devoir. For a learned ability, savoir can be more
+          appropriate: savoir nager means knowing how to swim.
+        examples:
+          - text: Je sais nager.
+            translation: I can swim.
+          - text: Il faut partir.
+            translation: We need to leave.
+      varieties:
+        french-france:
+          assessment: French pouvoir, devoir and related expressions distinguish ability, permission and
+            necessity.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        french-canada:
+          assessment: French pouvoir, devoir and related expressions distinguish ability, permission and
+            necessity.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: French negation includes ne…pas and related negative expressions.
+        explanation: >-
+          ### Form and meaning
+
+
+          In careful writing, ne comes before the finite verb and pas usually follows it. Before a
+          vowel, ne becomes n'. Other words such as jamais express more specific negatives.
+
+
+          ### In use
+
+
+          Conversational speech frequently omits ne. Recognize that as an ordinary spoken pattern;
+          do not mistake the absence of ne for a positive statement.
+        examples:
+          - text: Je ne sais pas.
+            translation: I do not know.
+          - text: Elle n'est pas ici.
+            translation: She is not here.
+      varieties:
+        french-france:
+          assessment: French negation includes ne…pas and related negative expressions.
+          explanation: Conversational speech often omits ne, while careful written French normally retains it.
+            The examples show the written construction so its two parts remain visible.
+          examples: []
+        french-canada:
+          assessment: French negation includes ne…pas and related negative expressions.
+          explanation: As in other conversational varieties, ne is often absent in speech. Listen for pas and
+            other negative words rather than assuming that a missing ne makes the statement
+            affirmative.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: French questions can use intonation, est-ce que, inversion and question words.
+        explanation: >-
+          ### Form and meaning
+
+
+          A statement with rising intonation can ask for confirmation. Est-ce que marks a question
+          without changing the subject–verb order, and inversion is another option.
+
+
+          ### In use
+
+
+          Question words identify the missing information. In conversation, where the word appears
+          can vary: tu habites où? and où habites-tu? differ in style.
+        examples:
+          - text: Est-ce que tu viens ?
+            translation: Are you coming?
+          - text: Où est la gare ?
+            translation: Where is the station?
+      varieties:
+        french-france:
+          assessment: French questions can use intonation, est-ce que, inversion and question words.
+          explanation: "Intonation and est-ce que questions are common in conversation. Inversion remains
+            available, particularly in more formal settings; a learner need not use inversion for
+            every ordinary question."
+          examples: []
+        french-canada:
+          assessment: French questions can use intonation, est-ce que, inversion and question words.
+          explanation: "Informal Quebec French can add a question particle pronounced tu after the verb, as in
+            tu viens-tu? This particle does not add a second subject. Est-ce que and intonation
+            questions are also used; the particle is regional rather than a requirement for all
+            Canadian French."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: French requests use imperative forms and polite conditional questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          The imperative gives a direct instruction without an expressed subject. S'il vous plaît or
+          s'il te plaît matches the form of address.
+
+
+          ### In use
+
+
+          Pourriez-vous plus an infinitive makes a less direct request. Choose tu or vous according
+          to the relationship rather than treating one as a different meaning of the action.
+        examples:
+          - text: Fermez la porte, s'il vous plaît.
+            translation: Close the door, please.
+          - text: Pourriez-vous répéter ?
+            translation: Could you repeat that?
+      varieties:
+        french-france:
+          assessment: French requests use imperative forms and polite conditional questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+        french-canada:
+          assessment: French requests use imperative forms and polite conditional questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: French parce que and si connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Parce que introduces a reason. Si introduces a condition, followed by the situation that
+          depends on it.
+
+
+          ### In use
+
+
+          For an ordinary possible future condition, use the present after si, not the future: si tu
+          viens, nous parlerons. Hypothetical conditions use other tense pairings.
+        examples:
+          - text: Je reste parce que je suis fatigué.
+            translation: I am staying because I am tired, said by a man.
+          - text: Si tu viens, nous parlerons.
+            translation: If you come, we will talk.
+      varieties:
+        french-france:
+          assessment: French parce que and si connect reasons and conditions.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+        french-canada:
+          assessment: French parce que and si connect reasons and conditions.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: bonjour
@@ -52,31 +486,30 @@ conversation:
     age: 41
     location: Lyon, France
     occupation: Runs a small bookshop that hosts evening readings
-    background: Grew up in Nantes, studied history, and took over the bookshop from a retiring neighbour.
-      Lives in the flat above it.
-    currentSituation: Preparing a reading night for a local author and arguing with a printer about the
-      posters.
+    background: Grew up in Nantes, studied history, and took over the bookshop from a retiring
+      neighbour. Lives in the flat above it.
+    currentSituation: Preparing a reading night for a local author and arguing with a printer about the posters.
     interests:
-    - bookbinding
-    - long train journeys
-    - cooking for too many people
-    - documentaries about mountains
+      - bookbinding
+      - long train journeys
+      - cooking for too many people
+      - documentaries about mountains
     opinions:
-    - E-readers are fine and paper is better.
-    - Anyone who dislikes soup is not to be trusted.
+      - E-readers are fine and paper is better.
+      - Anyone who dislikes soup is not to be trusted.
     interestingFacts:
-    - Keeps a notebook of sentences overheard on the tram.
-    - Has read the same novel every winter for ten years.
+      - Keeps a notebook of sentences overheard on the tram.
+      - Has read the same novel every winter for ten years.
     favoriteBooks:
-    - L'Étranger — Albert Camus
-    - Les Misérables — Victor Hugo
+      - L'Étranger — Albert Camus
+      - Les Misérables — Victor Hugo
     favoriteMovies:
-    - Amélie (2001)
-    - Les Quatre Cents Coups (1959)
+      - Amélie (2001)
+      - Les Quatre Cents Coups (1959)
     manner: Measured and precise. Enjoys a well-argued disagreement and rarely uses exclamation marks.
     quirks:
-    - Quotes a line from whatever she is currently reading.
+      - Quotes a line from whatever she is currently reading.
     vibe:
-    - 📚
-    - ☕
-    - 🌧️
+      - 📚
+      - ☕
+      - 🌧️

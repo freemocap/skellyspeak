@@ -13,12 +13,12 @@ from server.tests.inference.test_audio_service import configured, records
     ('whisper-large-v3', 'ga-IE', 'transcription', None),
     ('scribe_v2', 'ga-IE', 'transcription', 'ga'),
     ('scribe_v2', 'gle', 'transcription', 'gle'),
-    ('scribe_v2', 'gd', 'transcription', 'gd'),
-    ('scribe_v2', 'chr', 'transcription', 'chr'),
-    ('eleven_v3', 'chr', 'speech', 'chr'),
+    ('scribe_v2', 'gd', 'transcription', None),
+    ('scribe_v2', 'chr', 'transcription', None),
+    ('eleven_v3', 'chr', 'speech', None),
     ('whisper-large-v3', 'chr', 'transcription', None),
     ('eleven_v3', 'ga-IE', 'speech', 'ga'),
-    ('eleven_v3', 'ast', 'speech', 'ast'),
+    ('eleven_v3', 'ast', 'speech', None),
     ('scribe_v2', 'ast', 'transcription', 'ast'),
     ('whisper-large-v3', 'zh-Hans', 'transcription', 'zh'),
     ('whisper-large-v3', 'eng', 'transcription', 'en'),
@@ -83,18 +83,12 @@ def test_generated_catalog_matches_authored_source(line_ending):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('tag', ['chr', 'gd'])
-async def test_unlisted_synthesis_reaches_captured_model(proxy, ledger, monkeypatch, tag):
-    import base64
-    import json
-    calls = []
-    def respond(request):
-        calls.append(request)
-        assert json.loads(request.read())['model_id'] == 'eleven_v3'
-        return httpx.Response(200, json={'audio_base64': base64.b64encode(bytes(48000)).decode()},
-                              headers={'request-id': 'speech-unlisted'})
+async def test_unlisted_synthesis_is_rejected_before_dispatch(proxy, ledger, monkeypatch, tag):
+    def respond(_request):
+        pytest.fail('Unlisted language must not reach synthesis')
     upstream(monkeypatch, respond)
     response = await proxy.post('/v1/audio/speech', json={
         'model': 'eleven_v3', 'language': 'Fixture variety', 'language_tag': tag, 'text': 'fixture'})
-    assert response.status_code == 200, response.text
-    assert len(calls) == 1
-    assert response.json()['usage']['request_id'] == 'speech-unlisted'
+    assert response.status_code == 400
+    assert response.json()['code'] == 'AUDIO_LANGUAGE_UNSUPPORTED'
+    assert not records(ledger)

@@ -14,18 +14,18 @@ definitions:
     standard-italian:
       script: latin
       guidance:
-      - scope: target_writing
-        text: Use standard Italian spelling, retaining required accents such as è, perché and città and
-          distinguishing apostrophes from accents, as in un po’. Preserve quoted source spelling exactly;
-          do not substitute an apostrophe for an accented capital letter.
-        sources:
-        - treccani_italian_accents
-      - scope: explanation_writing
-        text: Use standard Italian spelling, retaining required accents such as è, perché and città and
-          distinguishing apostrophes from accents, as in un po’. Preserve quoted source spelling exactly;
-          do not substitute an apostrophe for an accented capital letter.
-        sources:
-        - treccani_italian_accents
+        - scope: target_writing
+          text: Use standard Italian spelling, retaining required accents such as è, perché and città and
+            distinguishing apostrophes from accents, as in un po’. Preserve quoted source spelling
+            exactly; do not substitute an apostrophe for an accented capital letter.
+          sources:
+            - treccani_italian_accents
+        - scope: explanation_writing
+          text: Use standard Italian spelling, retaining required accents such as è, perché and città and
+            distinguishing apostrophes from accents, as in un po’. Preserve quoted source spelling
+            exactly; do not substitute an apostrophe for an accented capital letter.
+          sources:
+            - treccani_italian_accents
   romanization_schemes: {}
 defaults:
   variety: italian-italy
@@ -37,25 +37,387 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
-- id: italian-italy
-  name: Italy
-  description: Contemporary Italian in Italy, using standard written Italian without prescribing one regional accent.
-  review: needs_review
-  sources:
-  - treccani_italian_accents
-  overrides: {}
-  guidance: []
+  - id: italian-italy
+    name: Italy
+    description: Contemporary Italian in Italy, using standard written Italian without prescribing one
+      regional accent.
+    review: needs_review
+    sources:
+      - treccani_italian_accents
+    overrides: {}
+    guidance: []
 guidance:
-- scope: assessment
-  text: Distinguish standard written Italian from regional usage. Do not infer a pronunciation error from
-    spelling alone.
-  sources:
-  - treccani_italian_accents
+  - scope: assessment
+    text: Distinguish standard written Italian from regional usage. Do not infer a pronunciation error
+      from spelling alone.
+    sources:
+      - treccani_italian_accents
 learning:
   goal_material:
     courtesy:
       tokens:
-      - grazie
+        - grazie
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Italian uses essere and adjective or noun phrases for identity and qualities.
+        explanation: >-
+          ### Form and meaning
+
+
+          Essere links a person or thing to a description. Adjectives generally agree in gender and
+          number with the noun they describe.
+
+
+          ### In use
+
+
+          Subject pronouns are often omitted because the verb and context identify the subject.
+          Stare has particular uses and is not interchangeable with essere in every description.
+        examples:
+          - text: Sono medico.
+            translation: I am a doctor.
+          - text: La stanza è tranquilla.
+            translation: The room is quiet.
+      varieties:
+        italian-italy:
+          assessment: Italian uses essere and adjective or noun phrases for identity and qualities.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Italian uses avere, possessives and di phrases for possession and relationships.
+        explanation: >-
+          ### Form and meaning
+
+
+          Avere states that someone has something. Possessive adjectives agree with the thing or
+          person referred to: il mio libro but la mia casa.
+
+
+          ### In use
+
+
+          An article usually accompanies a possessive, but many singular, unmodified family terms
+          omit it: mia sorella. Learn exceptions with their noun phrase.
+        examples:
+          - text: Ho una bicicletta.
+            translation: I have a bicycle.
+          - text: Questa è mia sorella.
+            translation: This is my sister.
+      varieties:
+        italian-italy:
+          assessment: Italian uses avere, possessives and di phrases for possession and relationships.
+          explanation: "The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener."
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Italian expresses quantities with numerals, quantifiers and partitive phrases.
+        explanation: >-
+          ### Form and meaning
+
+
+          Numbers come before nouns. Molto and poco can change to match a noun; un po' di gives an
+          amount without counting separate units.
+
+
+          ### In use
+
+
+          Distinguish how many things from how much of a substance. Tre bottiglie counts bottles; un
+          po' d'acqua specifies an amount of water.
+        examples:
+          - text: Servono tre sedie.
+            translation: Three chairs are needed.
+          - text: Vorrei un po' d'acqua.
+            translation: I would like a little water.
+      varieties:
+        italian-italy:
+          assessment: Italian expresses quantities with numerals, quantifiers and partitive phrases.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Italian present forms cover states, habits and activities happening now.
+        explanation: >-
+          ### Form and meaning
+
+
+          The presente can describe a routine or an ongoing activity. Stare plus gerund emphasizes
+          an action in progress.
+
+
+          ### In use
+
+
+          Do not translate every English -ing form with a gerund. The simple present is often the
+          natural choice when context already makes the timing clear.
+        examples:
+          - text: Lavoro qui.
+            translation: I work here.
+          - text: Sto leggendo.
+            translation: I am reading.
+      varieties:
+        italian-italy:
+          assessment: Italian present forms cover states, habits and activities happening now.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Italian passato prossimo and imperfetto provide different views of the past.
+        explanation: >-
+          ### Form and meaning
+
+
+          The passato prossimo commonly presents completed events and combines avere or essere with
+          a participle. The imperfetto supplies background, states and habitual past situations.
+
+
+          ### In use
+
+
+          With essere, the participle normally agrees with the subject. Choose the past form for the
+          intended viewpoint, not simply for how distant the event is.
+        examples:
+          - text: Sono arrivata ieri.
+            translation: I arrived yesterday, said by a woman.
+          - text: Pioveva quando siamo partiti.
+            translation: It was raining when we left.
+      varieties:
+        italian-italy:
+          assessment: Italian passato prossimo and imperfetto provide different views of the past.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Italian uses future forms and contextual present for future reference.
+        explanation: >-
+          ### Form and meaning
+
+
+          A present verb with domani or a future date can state a plan. The futuro also expresses
+          future events and predictions.
+
+
+          ### In use
+
+
+          The future can express a present-time guess, so consider the whole sentence. Sarà a casa
+          can mean that someone is probably at home now.
+        examples:
+          - text: Parto domani.
+            translation: I am leaving tomorrow.
+          - text: Arriveremo lunedì.
+            translation: We will arrive on Monday.
+      varieties:
+        italian-italy:
+          assessment: Italian uses future forms and contextual present for future reference.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Italian uses volere, preferire and piacere for wants and preferences.
+        explanation: >-
+          ### Form and meaning
+
+
+          Volere takes a noun or infinitive. Vorrei is a less direct expression of wanting. With
+          piacere, the thing liked determines whether the verb is piace or piacciono.
+
+
+          ### In use
+
+
+          Mi piace il libro and mi piacciono i libri differ because the liked thing is singular or
+          plural. Mi identifies the person who likes it.
+        examples:
+          - text: Mi piace cucinare.
+            translation: I like cooking.
+          - text: Vorrei un caffè.
+            translation: I would like a coffee.
+      varieties:
+        italian-italy:
+          assessment: Italian uses volere, preferire and piacere for wants and preferences.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Italian potere, dovere and sapere express modal meanings.
+        explanation: >-
+          ### Form and meaning
+
+
+          Potere expresses possibility or permission; dovere commonly expresses necessity. Sapere
+          with an infinitive expresses a learned ability.
+
+
+          ### In use
+
+
+          After these verbs, use an infinitive without inserting an English-style to. Context
+          distinguishes being allowed from being able.
+        examples:
+          - text: So nuotare.
+            translation: I can swim.
+          - text: Devo partire.
+            translation: I have to leave.
+      varieties:
+        italian-italy:
+          assessment: Italian potere, dovere and sapere express modal meanings.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Italian non usually precedes the verb; negative words can add scope.
+        explanation: >-
+          ### Form and meaning
+
+
+          Put non before the finite verb. Other negative expressions include mai for ever or never
+          in negative contexts, and niente for nothing.
+
+
+          ### In use
+
+
+          Non…mai negates occurrence over time. The combination of negative words is normal Italian,
+          not automatically a logical double negative.
+        examples:
+          - text: Non lo so.
+            translation: I do not know.
+          - text: Non bevo mai caffè.
+            translation: I never drink coffee.
+      varieties:
+        italian-italy:
+          assessment: Italian non usually precedes the verb; negative words can add scope.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Italian questions often retain statement order and use intonation or question words.
+        explanation: >-
+          ### Form and meaning
+
+
+          A yes/no question can use the same word order as a statement. Question words such as dove,
+          quando and perché specify what is being asked.
+
+
+          ### In use
+
+
+          Perché can ask why or introduce a reason. Context and sentence function distinguish the
+          two uses.
+        examples:
+          - text: Vieni domani?
+            translation: Are you coming tomorrow?
+          - text: Dov'è la stazione?
+            translation: Where is the station?
+      varieties:
+        italian-italy:
+          assessment: Italian questions often retain statement order and use intonation or question words.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Italian requests use imperatives and polite modal questions.
+        explanation: >-
+          ### Form and meaning
+
+
+          An imperative requests action directly. Formal address changes the verb form, so
+          distinguish a request to a friend from one to a stranger.
+
+
+          ### In use
+
+
+          Potrebbe plus an infinitive is a common formal request. Per favore is useful but does not
+          erase the difference between informal and formal address.
+        examples:
+          - text: Apri la finestra, per favore.
+            translation: Open the window, please, to someone addressed informally.
+          - text: Potrebbe ripetere?
+            translation: Could you repeat that?, formal address.
+      varieties:
+        italian-italy:
+          assessment: Italian requests use imperatives and polite modal questions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Italian perché and se connect reasons and conditions.
+        explanation: >-
+          ### Form and meaning
+
+
+          Perché introduces a reason, and se introduces a condition. Each clause contributes a
+          situation and the connector tells the listener how they relate.
+
+
+          ### In use
+
+
+          Simple possible conditions can use present forms. More remote or counterfactual conditions
+          require different verb combinations.
+        examples:
+          - text: Resto qui perché sono stanco.
+            translation: I am staying here because I am tired, said by a man.
+          - text: Se piove, restiamo a casa.
+            translation: If it rains, we stay at home.
+      varieties:
+        italian-italy:
+          assessment: Italian perché and se connect reasons and conditions.
+          explanation: The core patterns and examples apply to this variety. Use the forms of address
+            appropriate to the speaker and listener.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
 conversation:
   greeting:
     text: ciao
@@ -66,28 +428,28 @@ conversation:
     age: 36
     location: Bologna, Italy
     occupation: Repairs bicycles at a neighbourhood workshop
-    background: Grew up near Modena and moved to Bologna for work. Shares a flat with a friend who studies
-      architecture.
+    background: Grew up near Modena and moved to Bologna for work. Shares a flat with a friend who
+      studies architecture.
     currentSituation: Reorganising the workshop and planning a short train trip to visit her sister.
     interests:
-    - repairing old tools
-    - walking in city parks
+      - repairing old tools
+      - walking in city parks
     opinions:
-    - Repairs should come with an explanation of what failed.
-    - A short trip can be as satisfying as a long holiday.
+      - Repairs should come with an explanation of what failed.
+      - A short trip can be as satisfying as a long holiday.
     interestingFacts:
-    - Keeps a sketchbook of unusual bicycle frames.
-    - Learned to sew to mend her work clothes.
+      - Keeps a sketchbook of unusual bicycle frames.
+      - Learned to sew to mend her work clothes.
     favoriteBooks:
-    - Il barone rampante — Italo Calvino
-    - Lessico famigliare — Natalia Ginzburg
+      - Il barone rampante — Italo Calvino
+      - Lessico famigliare — Natalia Ginzburg
     favoriteMovies:
-    - Il posto (1961)
-    - Paterson (2016)
+      - Il posto (1961)
+      - Paterson (2016)
     manner: Direct and curious. Asks concrete questions and admits when she does not know something.
     quirks:
-    - Sketches ideas on scrap paper.
-    - Remembers places by their street trees.
+      - Sketches ideas on scrap paper.
+      - Remembers places by their street trees.
     vibe:
-    - 🚲
-    - 📓
+      - 🚲
+      - 📓

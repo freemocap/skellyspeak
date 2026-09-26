@@ -94,11 +94,11 @@ Speech preferences use the shared capability catalog described under
 
 The native registry loads the twelve-skill catalog and the conversation assessor
 uses its compact language/variety guidance. `learning.skill_guides` covers all
-twelve skills for Spanish/Mexico, Spanish/Spain, Arabic/Levantine and
-Mandarin/Mainland China. Missing coverage fails assessment explicitly without
-blocking the partner reply or selecting another variety. Arabic's shared core is
-not Modern Standard Arabic. Pilot material is marked `needs_review`, not a
-completed or linguistically validated grammar guide.
+twelve skills for every offered language and variety: 18 languages and 22 varieties.
+Each has a shared language core and an explicit selected-variety section. Arabic's
+shared core is not Modern Standard Arabic; Levantine and standard sections remain
+separate. All teaching drafts remain marked `needs_review`; complete coverage and
+schema validation do not constitute linguistic review.
 
 Each guide has `core` and `varieties` sections with compact `assessment` text,
 human-readable `explanation` Markdown, and optional `examples`. The assessor uses
@@ -129,10 +129,10 @@ Author identity, an explicitly scoped default variety, orthography, reading sche
 Add shared script/family facts only when absent. New language files are discovered
 by both the build bundler and repository loader; no hardcoded language list or UI
 translation is required. Verify every supported target/explanation pairing.
-A valid language identity does not guarantee speech-model support. The shared
-capability catalog supports Irish through Scribe and Eleven v3; its current
-models do not declare Scottish Gaelic support.
-See the [addition and phrase-matching audit](../docs/notes/italian-irish-scottish-gaelic-2026-09-17.md).
+Every offered language must have declared support for both recognition and synthesis
+in the shared capability catalog. Unlisted-language attempts are disabled.
+The catalog coverage test enforces this requirement; a valid identity alone is
+insufficient. See the [coverage checkpoint](../docs/notes/language-guides-and-xp/all-language-content-coverage.md).
 
 Preserve source text exactly: native gloss spans use Unicode grapheme boundaries,
 then convert to UTF-16 for the UI. Arabic, Devanagari and Malayalam annotation

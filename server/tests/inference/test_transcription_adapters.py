@@ -131,28 +131,8 @@ async def test_decodable_transcript_does_not_require_correct_mime_metadata(provi
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('tag', ['chr', 'gd'])
-async def test_unlisted_transcription_preserves_language_and_timing(tag):
-    calls = []
-    def respond(request):
-        calls.append(request)
-        message = BytesParser(policy=policy.default).parsebytes(
-            f"Content-Type: {request.headers['content-type']}\r\nMIME-Version: 1.0\r\n\r\n".encode() + request.read())
-        fields = {part.get_param('name', header='content-disposition'): part.get_payload(decode=True) for part in message.iter_parts()}
-        assert fields['language_code'] == tag.encode()
-        assert fields['model_id'] == b'scribe_v2'
-        return httpx.Response(200, json={'text': 'fixture', 'language_code': tag,
-            'words': [{'type': 'word', 'text': 'fixture', 'start': .1, 'end': .8}]})
-    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ElevenLabs(client, api_key='key').transcribe(TranscriptionRequest(bytes(32000), tag))
-    assert len(calls) == 1
-    assert result.text == 'fixture'
-    assert result.words is not None
-
-
-@pytest.mark.asyncio
 @pytest.mark.parametrize('provider,tag', [('groq', 'ga'), ('groq', 'gd'),
-    ('elevenlabs', 'gd_invalid'), ('elevenlabs', 'CHR'), ('elevenlabs', '')])
+    ('elevenlabs', 'chr'), ('elevenlabs', 'gd'), ('elevenlabs', 'gd_invalid'), ('elevenlabs', 'CHR'), ('elevenlabs', '')])
 async def test_unsupported_language_never_reaches_provider(provider, tag):
     def respond(_request):
         pytest.fail('Unsupported language must fail before submission')

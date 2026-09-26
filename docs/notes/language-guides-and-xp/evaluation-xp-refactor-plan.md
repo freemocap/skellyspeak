@@ -12,7 +12,7 @@ language guides. Jev receives compact baseline content. The twelve-skill pilot
 content and presence → experience/effort → displayed XP flow are now implemented
 and tested. See [the integrated checkpoint](live-presence-xp-checkpoint.md).
 Coach-led conversation selection is now implemented; see [its checkpoint](coach-selection-checkpoint.md). The live profile and guide inspectors are implemented. The next gate is the interactive Spanish pilot.
-Bulk teaching-guide generation and further prompt sweeps remain deferred.
+Bulk teaching-guide generation is required for this PR. The authored coverage pass now covers all 18 supported languages and 22 varieties; linguistic and running-app review remain distinct checks. Further prompt sweeps remain deferred. See [the coverage checkpoint](all-language-content-coverage.md).
 Implemented source slice: [the live experience profile](saved-experience-assessment.md):
 deterministic counts from current records, updated when viewed and when evidence
 changes. No AI call, saved write-up or explicit refresh. The live Skills count table is
@@ -275,17 +275,17 @@ Replace obsolete feature code and contracts directly. No migration or compatibil
 layer. Inspect ownership before resetting affected development records; unrelated
 work and unrelated data are not part of a learning reset by default.
 
-## Bulk generation gate
+## Bulk generation — required completion scope (2026-09-25)
 
-Do not generate all guides merely because twelve names have been chosen. Begin
-when skill boundaries, composition, evaluator guidance needs and the pilot flow
-have survived review. Plan the language/variety coverage inventory explicitly.
+The user explicitly included full supported-language guide coverage in this PR.
+The authored pass now provides twelve shared-skill guides for every retained
+language and explicit coverage for every offered variety. See the
+[coverage checkpoint](all-language-content-coverage.md) for inventory and checks.
 
-Generate offline in small inspectable batches. Track authorship, source review,
-human edits and content identity; validate links, required sections and readable
-composition. Linguistic review is distinct from schema validation. Shared script
-material and language reading guidance have their own coverage inventory and do
-not create a Read app surface or reading XP by implication.
+Generation is not linguistic approval. Keep review labels honest, preserve edited
+pilot content, validate compact assessor and Markdown projections, and review
+rendered examples in the running app. Shared script material and a future Read
+surface remain separate from the skill-guide coverage count.
 
 ## Source and verification checkpoint
 

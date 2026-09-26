@@ -241,13 +241,13 @@ fn support_reports_embedded_provider_error_and_retains_partial_response() {
 }
 
 #[test]
-fn cherokee_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
+fn hindi_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
     use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
-    let turn = support_turn(&mut store, &conversation, "ᎣᏏᏲ.");
+    let turn = support_turn(&mut store, &conversation, "नमस्ते।");
     let context = crate::configuration::Registry::bundled()
         .unwrap()
-        .resolve("cherokee", None, "english")
+        .resolve("hindi", None, "english")
         .unwrap();
     store
         .connection
@@ -268,14 +268,14 @@ fn cherokee_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
         schema["properties"]["replies"]["items"]["properties"]["romanization"]["description"]
             .as_str()
             .unwrap();
-    assert!(description.contains("cherokee:traditional-syllabary"));
-    assert!(description.contains("ᎣᏏᏲ → osiyo"));
+    assert!(description.contains("hindi:ala-lc-hindi"));
+    assert!(description.contains("नमस्ते → namaste"));
     assert!(description.contains("RIGHT of the arrow"));
 
     let mut value = serde_json::json!({"replies":[
-        {"text":"ᎣᏏᏲ. ᎦᏙ ᎤᏍᏗᎭ?","translation":"Hello. What is he/she/it doing?","romanization":"ᎣᏏᏲ. ᎦᏙ ᎤᏍᏗᎭ?","pronunciation":"Osiyo. Gado usdiha?"},
-        {"text":"ᎣᏏᏲ. ᎦᏙ ᎤᏍᏗ?","translation":"Hello. What is it?","romanization":"ᎣᏏᏲ. ᎦᏙ ᎤᏍᏗ?","pronunciation":"Osiyo. Gado usdi?"}],
-        "frames":["ᎦᏙ ___?","ᎣᏏᏲ. ___"],"starters":["ᎣᏏᏲ","ᏩᏙ"]});
+        {"text":"नमस्ते।","translation":"Hello.","romanization":"नमस्ते।","pronunciation":"Namaste."},
+        {"text":"धन्यवाद।","translation":"Thank you.","romanization":"धन्यवाद।","pronunciation":"Dhanyavaad."}],
+        "frames":["क्या ___?","नमस्ते। ___"],"starters":["नमस्ते","धन्यवाद"]});
     let check = |v: &serde_json::Value| {
         support::validate(
             &store.connection,
@@ -285,8 +285,8 @@ fn cherokee_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
         )
     };
     assert_eq!(check(&value).unwrap(), value);
-    value["replies"][0]["romanization"] = serde_json::json!("osiyo. gado usdiha?");
-    value["replies"][1]["romanization"] = serde_json::json!("osiyo. gado usdi?");
+    value["replies"][0]["romanization"] = serde_json::json!("namaste");
+    value["replies"][1]["romanization"] = serde_json::json!("dhanyavāda");
     assert!(check(&value).is_ok());
 }
 
