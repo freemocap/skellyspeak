@@ -15,11 +15,11 @@ and remaining limits.
 ## Status
 
 - This repository map and the layer READMEs describe the new folder layout.
-- `website/` contains the existing documentation website, moved intact. Its prose
+- `docs-site` contains the existing documentation website, moved intact. Its prose
   has **not been audited against current code**. It mixes implemented behavior,
   proposals, and obsolete descriptions. In particular, its architecture page
   describes nonexistent modules and JSON persistence; current native code uses SQLite.
-- `website/docs/coaching-plan.md`, `coaching-work-plan.md`, and
+- `docs-site`, `coaching-work-plan.md`, and
   `coaching-contracts.md` retain their designated planning role. A plan is not
   evidence that its behavior has been implemented.
 - [Historical notes](../old/notes/) are preserved for reference. They are likely
@@ -34,9 +34,9 @@ material, checking claims against source and relevant verification.
 From the repository root:
 
 ```sh
-npm ci --prefix docs/website
+npm ci --prefix docs/docs-site
 npm run docs:test
-npm run build --prefix docs/website
+npm run build --prefix docs/docs-site
 ```
 
 A local build does not publish the website. Deployment requires explicit authorization.

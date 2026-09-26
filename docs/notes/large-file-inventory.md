@@ -43,7 +43,7 @@ Status: scan snapshot, 2026-09-15, refreshed after the execution, store, applica
 | 722 | [ui/src/features/conversation/ConversationPage.tsx](../../ui/src/features/conversation/ConversationPage.tsx) |
 | 714 | [native/src/configuration/validation.rs](../../native/src/configuration/validation.rs) |
 | 713 | [native/src/ai/hosted/mod.rs](../../native/src/ai/hosted/mod.rs) |
-| 687 | [docs/website/static/coaching-plan.html](../../docs/website/static/coaching-plan.html) |
+| 687 | [docs/website/static/coaching-plan.html](../docs-site/static/coaching-plan.html) |
 | 672 | [native/src/ai/transport/grouped.rs](../../native/src/ai/transport/grouped.rs) |
 | 666 | [ui/src/features/settings/SettingsModal.tsx](../../ui/src/features/settings/SettingsModal.tsx) |
 | 642 | [ui/src/styles/foundations/tokens.css](../../ui/src/styles/foundations/tokens.css) |
@@ -52,7 +52,7 @@ Status: scan snapshot, 2026-09-15, refreshed after the execution, store, applica
 | 601 | [native/src/diagnostics/mod.rs](../../native/src/diagnostics/mod.rs) |
 | 596 | [native/src/learning/learner/learner_state.rs](../../native/src/learning/learner/learner_state.rs) |
 | 585 | [server/tests/accounting/test_quota.py](../../server/tests/accounting/test_quota.py) |
-| 565 | [docs/website/src/pages/download.css](../../docs/website/src/pages/download.css) |
+| 565 | [docs/website/src/pages/download.css](../docs-site/src/pages/download.css) |
 | 552 | [ui/src/features/conversation/ConversationPage.conversation.test.tsx](../../ui/src/features/conversation/ConversationPage.conversation.test.tsx) |
 | 541 | [native/src/learning/coaching/mod.rs](../../native/src/learning/coaching/mod.rs) |
 | 541 | [native/src/speech/analysis/fluency.rs](../../native/src/speech/analysis/fluency.rs) |
@@ -67,7 +67,7 @@ These are not automatic code-refactoring targets. Generated output must be chang
 
 | Lines | Category | File |
 | ---: | --- | --- |
-| 19,668 | lockfile or vendor wrapper | [docs/website/package-lock.json](../../docs/website/package-lock.json) |
+| 19,668 | lockfile or vendor wrapper | [docs/website/package-lock.json](../docs-site/package-lock.json) |
 | 6,722 | lockfile or vendor wrapper | [native/Cargo.lock](../../native/Cargo.lock) |
 | 3,587 | lockfile or vendor wrapper | [package-lock.json](../../package-lock.json) |
 | 1,205 | lockfile or vendor wrapper | [server/uv.lock](../../server/uv.lock) |
@@ -80,7 +80,7 @@ These are not automatic code-refactoring targets. Generated output must be chang
 | 842 | data or configuration | [ui/src/domain/localization/locales/pt.json](../../ui/src/domain/localization/locales/pt.json) |
 | 842 | data or configuration | [ui/src/domain/localization/locales/zh.json](../../ui/src/domain/localization/locales/zh.json) |
 | 796 | data or configuration | [native/src/language/linguistics/fixtures/GraphemeBreakTest-17.0.0.txt](../../native/src/language/linguistics/fixtures/GraphemeBreakTest-17.0.0.txt) |
-| 700 | documentation or bibliography | [docs/website/docs/coaching-plan.md](../../docs/website/docs/coaching-plan.md) |
+| 700 | documentation or bibliography | [docs/website/docs/coaching-plan.md](../docs-site/docs/coaching-plan.md) |
 | 661 | data or configuration | [LICENSE](../../LICENSE) |
 | 558 | documentation or bibliography | [README.md](../../README.md) |
 | 542 | generated | [ui/src/generated/skill-catalogs/catalog.json](../../ui/src/generated/skill-catalogs/catalog.json) |

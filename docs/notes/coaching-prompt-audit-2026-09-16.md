@@ -451,7 +451,7 @@ The examples describe proposed behavior; they are not captured model responses.
 - [Visible coaching cards](../../ui/src/features/conversation/coaching/CoachEntry.tsx)
 - [Automatic card exposure](../../ui/src/features/conversation/coaching/LiveCoachReview.tsx)
 - [Lesson prompts](../../native/src/learning/lessons/prompts.rs)
-- [Plan and later coach-role clarification](../website/docs/coaching-plan.md)
+- [Plan and later coach-role clarification](../docs-site/docs/coaching-plan.md)
 
 The plan's historical type examples and 15–25 candidate description differ from
 current code. This report uses the live source and saved turn as implementation

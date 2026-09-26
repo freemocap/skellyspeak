@@ -25,7 +25,7 @@ Paths below are relative to the repository root.
 | `native/src/conversations/openers.rs` | Start admission saves reviewed settings and creates the learner-first or partner-first turn atomically. Rejects occupied/already-started conversations. |
 | `native/src/conversations/execution/snapshots.rs` | Currently resolves topic labels from interface locale. Must instead project authored content for the selected conversation's target/explanation context. |
 
-The September 18 section of [coaching contracts](../website/docs/coaching-contracts.md#conversation-direction-and-lesson-removal-18-september-2026) is the current start contract. Older notes describing topic clicks that immediately start, lesson handoffs, or mandatory hint ladders are historical. Preserve current restored coaching; see [restoration contract](v0-conversation-assistance-restoration.md).
+The September 18 section of [coaching contracts](../docs-site/docs/coaching-contracts.md#conversation-direction-and-lesson-removal-18-september-2026) is the current start contract. Older notes describing topic clicks that immediately start, lesson handoffs, or mandatory hint ladders are historical. Preserve current restored coaching; see [restoration contract](v0-conversation-assistance-restoration.md).
 
 ## Proposed placement and layout
 

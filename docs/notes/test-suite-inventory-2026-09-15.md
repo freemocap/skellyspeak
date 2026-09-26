@@ -241,5 +241,5 @@ Source inspection covered runner/CI configuration and cross-suite patterns; deta
 
 | File | Lines | Structural signals |
 | --- | ---: | --- |
-| [docs/website/scripts/image-size-patch.test.mts](../../docs/website/scripts/image-size-patch.test.mts) | 156 | Node; reads files |
-| [docs/website/src/lib/downloads.test.ts](../../docs/website/src/lib/downloads.test.ts) | 88 | Node |
+| [docs/website/scripts/image-size-patch.test.mts](../docs-site/scripts/image-size-patch.test.mts) | 156 | Node; reads files |
+| [docs/website/src/lib/downloads.test.ts](../docs-site/src/lib/downloads.test.ts) | 88 | Node |

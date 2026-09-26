@@ -356,7 +356,14 @@
      only; the practice switch keeps only its icons. */
   .topbar .hamburger, .topbar .app-home, .topbar .theme-toggle { display: none; }
   .topbar-language { flex: 1 1 0; min-width: 0; }
-  .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); }
+  .topbar-language .language-dropdown { min-width: 0; }
+  .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); grid-template-columns: minmax(0, 1fr) auto; }
+  /* The language name is the first thing to give up room, and it gives it up by
+     shortening — never by wrapping into a column or running under the controls
+     beside it. */
+  .topbar-language .learning-picker-identity,
+  .topbar-language .learning-picker-identity > span:first-child { min-width: 0; }
+  .topbar-language .learning-picker-identity > span:first-child { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .topbar-language .language-dropdown .learning-picker small { display: none; }
   /* A visible outline marks the switch as one control among the top bar's buttons. */
   .topbar .practice-switch { flex: none; margin-inline: 0; border: var(--border-width-strong) solid var(--line); }

@@ -60,10 +60,10 @@ checkout**. Its top section documents the subsequent reduction correctly.
 
 ### What the design is based on
 
-The [coaching plan](../website/docs/coaching-plan.md) combines conversational
+The [coaching plan](../docs-site/docs/coaching-plan.md) combines conversational
 agency, CEFR/ACTFL skill descriptions, corrective-feedback research, graduated
 help, heuristic learner estimation, and game rules. The
-[contracts](../website/docs/coaching-contracts.md) explicitly preserve mandatory
+[contracts](../docs-site/docs/coaching-contracts.md) explicitly preserve mandatory
 function/interaction candidates even beyond the nominal size target. Thus the
 large candidate list is partly a design decision, not simply a coding accident.
 

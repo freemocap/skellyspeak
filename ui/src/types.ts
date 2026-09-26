@@ -202,7 +202,7 @@ export type Level = 'beginner' | 'intermediate' | 'advanced' | 'fluent'
 
 
 // ─── Observability: one Run per agent execution ──────────────────────────
-// Mirrors native/src/trace.rs. See docs/website/docs/observability.md.
+// Mirrors native/src/trace.rs. See docs/docs-site/docs/observability.md.
 
 /// Who a unit of work belongs to. Mirrors ontology.rs::Actor.
 /// Only two agents exist — `chat` and `coach`. Everything else is the Runner.

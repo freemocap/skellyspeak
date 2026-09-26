@@ -40,7 +40,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm ci --prefix docs/website
+      - run: npm ci --prefix docs/docs-site
       - run: npm run diagnostics:check
       - run: npm test
       - run: npm run localization:test
@@ -187,11 +187,11 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: docs/website/package-lock.json
+          cache-dependency-path: docs/docs-site/package-lock.json
       - run: npm ci
-        working-directory: docs/website
+        working-directory: docs/docs-site
       - run: npm run build
-        working-directory: docs/website
+        working-directory: docs/docs-site
 
   # The Android resource merger parses these, but only 4 minutes into a release
   # build. Catch malformed XML (e.g. "--" inside a comment, which the XML spec

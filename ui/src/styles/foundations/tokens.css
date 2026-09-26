@@ -46,6 +46,11 @@
   /* A bubble's tail: a curved spur below the speaker-side corner. */
   --bubble-tail-width: 9px;
   --bubble-tail-height: 10px;
+  /* The partner-reaction chip straddling a reply's top edge, and the bubble
+     gutter that keeps the reply's first line clear of it. Fixed in every
+     density and pointer mode: the chip sits beside the line, never over it. */
+  --reaction-badge-gutter: 35px;
+  --reaction-badge-size: 28px;
 
   /* ══ Colour: interaction ═════════════════════════════════════════════════
      The one accent: links, selection, active tabs, XP, focus. */

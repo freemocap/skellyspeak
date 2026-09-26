@@ -51,9 +51,16 @@ local.env.*
 **/native/gen/schemas/
 **/src-tauri/gen/schemas/
 
-# Local Jev experiment runs: expanded requests, receipts and generated viewers.
-# Keep authored Markdown reports, reviewed CSVs and tooling/fixtures in Git.
-/docs/notes/conversation-prompts/jev-*/**/*.json
-/docs/notes/conversation-prompts/jev-*/**/*.jsonl
-/docs/notes/conversation-prompts/jev-*/**/*.html
-/docs/notes/conversation-prompts/jev-*/**/quote-candidates-review.csv
+# Generated experiment run output under docs/notes.
+# Convention: one experiment run per "<name>-YYYY-MM-DD/" directory. Machine-written
+# run artifacts (plans, receipts, embeddings, generated viewers) are local-only and
+# reproducible; do not add per-experiment paths here when a new run starts.
+# Authored Markdown reports, reviewed CSVs and tooling fixtures stay in Git.
+/docs/notes/**/*-????-??-??/**
+!/docs/notes/**/*-????-??-??/**/
+!/docs/notes/**/*-????-??-??/**/*.md
+!/docs/notes/**/*-????-??-??/**/*.csv
+!/docs/notes/**/*-????-??-??/**/*.ts
+
+# Throwaway local review tooling and its browser profile.
+ui/tools/.layout-harness/

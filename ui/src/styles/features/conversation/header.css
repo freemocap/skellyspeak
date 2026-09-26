@@ -58,9 +58,23 @@
 }
 
 @media (max-width: 860px) {
-  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-3); }
-  .chat > .chat-head .conversation-title { flex: 1; min-width: 0; }
-  .chat-heading-actions { margin-inline-start: auto; }
+  /* min-width lets the row resolve at the width it has, instead of growing to
+     its content and pushing the control row over the name. */
+  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-3); min-width: 0; }
+  /* The partner name is what gives up room, by shortening, and it may shrink to
+     nothing. The control row keeps its natural width: squeezed, its own buttons
+     would clip and overlap the name. */
+  .chat > .chat-head .conversation-title { flex: 1 1 0; min-width: 0; }
+  .chat-head .partner-identity { min-width: 0; }
+  .chat-head .partner-identity strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chat-heading-actions { flex: 0 0 auto; margin-inline-start: var(--space-3); }
+}
+
+/* A narrow header keeps whole controls rather than squeezing them. The settings
+   button already carries its summary in its accessible name, so the secondary
+   line goes and the control row stays short enough for the name beside it. */
+@media (max-width: 600px) {
+  .chat-heading-actions .chat-config-summary { display: none; }
 }
 
 .chat-head .conversation-title { flex: 1; }

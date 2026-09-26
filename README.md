@@ -67,7 +67,7 @@ Use Node.js 24, npm, Rust and the platform's Tauri prerequisites. Install and ru
 nvm install
 nvm use
 npm ci
-npm ci --prefix docs/website
+npm ci --prefix docs/docs-site
 npm run macos:dev
 ```
 

@@ -9,7 +9,7 @@ Internal module organization is a separate follow-up. Deployment requires explic
 
 Historical `DESIGN.md` and `BUILD-PLAN.md` files are archived under `old/notes/`;
 they are not current specifications. Existing website documentation under
-`docs/website/` is pending a content audit. Keep proposals, decisions, implemented
+`docs/docs-site` is pending a content audit. Keep proposals, decisions, implemented
 behavior, verification results and unresolved questions distinct.
 Discuss ownership and user behavior before choosing storage,
 frameworks, IPC or provider contracts. Do not present plans as working features.
@@ -283,6 +283,9 @@ stale clone. Before editing, read the current file and diff; preserve changes ma
 by another agent. A successful copy or clean type-check does not prove feature
 wiring survived. Verify the affected user flow and regression tests.
 
+When you ask the user a question and they do not answer it, stop and ask again.
+Do not treat a non-response as permission to proceed on your own judgment.
+
 Keep communication concrete and concise. Product UI uses plain functional labels:
 no marketing copy, slogans, saccharine encouragement or filler. This rule governs
 text. Reward presentation (tiered sound, animation and haptics defined in the
@@ -312,9 +315,9 @@ a generative LLM call per observation.
 ## Coaching plan and research
 
 Coaching, learner-model, new-chat and game-layer work follows
-`docs/website/docs/coaching-plan.md`, executed per
-`docs/website/docs/coaching-work-plan.md`, with the seams between work areas in
-`docs/website/docs/coaching-contracts.md`. Cite research through
+`docs/docs-site`, executed per
+`docs/docs-site`, with the seams between work areas in
+`docs/docs-site`. Cite research through
 `references.bib` keys at the repo root (`sources: [key]` in YAML, `// [@key]` in
 code, `[@key]` in docs). When research informs a change, add its entry with `url`,
 `review` and `claim` in the same change.

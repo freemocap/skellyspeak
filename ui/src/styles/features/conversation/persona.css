@@ -142,12 +142,18 @@
 
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
+/* The partner's reaction to the learner's message: a small status chip that
+   straddles the reply's top edge at the inline start. It stays a fixed size so
+   the line below it keeps its clearance in every density and pointer mode; the
+   bubble reserves --reaction-badge-gutter beside it (messages.css). */
 .persona-reaction {
   position: absolute;
   top: -17px;
   inset-inline-start: 9px;
-  min-width: var(--control-height);
-  height: 28px;
+  width: var(--reaction-badge-gutter);
+  min-width: var(--reaction-badge-gutter);
+  min-height: 0;
+  height: var(--reaction-badge-size);
   padding: var(--space-hairline) var(--space-3);
   border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-lg);
@@ -157,6 +163,10 @@
   line-height: var(--leading-none);
   cursor: pointer;
 }
+
+/* A right-to-left reply keeps its speech control in the lead gutter, so the
+   chip starts past that control instead of under it. */
+.msg.rtl > .persona-reaction { inset-inline-start: calc(var(--control-height) + var(--space-2)); }
 
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }

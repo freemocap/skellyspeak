@@ -7,7 +7,7 @@
     "build": "npm run build --workspace @skellyspeak/ui --",
     "preview": "npm run preview --workspace @skellyspeak/ui --",
     "test": "npm run test --workspace @skellyspeak/ui --",
-    "docs:test": "vitest run --config tools/vitest.docs.config.ts && npm run security:test --prefix docs/website",
+    "docs:test": "vitest run --config tools/vitest.docs.config.ts && npm run security:test --prefix docs/docs-site",
     "tauri": "node tools/tauri.ts",
     "ios:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/ios-release.test.ts",
     "ios:test": "node --test tools/ios-release.test.ts",
