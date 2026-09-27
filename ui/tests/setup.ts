@@ -38,6 +38,9 @@ if (typeof document !== 'undefined') {
 
   // Nothing under test scrolls, but the chat stream asks the DOM to.
   Element.prototype.scrollIntoView ??= vi.fn()
+  // Model dialog visibility for all modal consumers; geometry stays browser-tested.
+  HTMLDialogElement.prototype.showModal ??= function () { this.setAttribute('open', '') }
+  HTMLDialogElement.prototype.close ??= function () { this.removeAttribute('open') }
   // jsdom has no top-layer popover implementation; layout is verified in-browser.
   HTMLElement.prototype.showPopover ??= function () { this.style.display = 'block' }
   HTMLElement.prototype.hidePopover ??= function () { this.style.display = 'none' }

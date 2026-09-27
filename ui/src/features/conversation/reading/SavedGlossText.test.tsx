@@ -147,13 +147,13 @@ it('reveals saved meaning and romanization without redundant pronunciation whene
   expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
 })
 
-it('opens anchored help on narrow screens instead of a bottom sheet', () => {
+it('opens full word details in a modal on touch screens', () => {
   const original = window.matchMedia
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }))
   try {
     render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
     fireEvent.click(screen.getByRole('button', { name: '你' }))
-    const sheet = document.querySelector('.saved-word-help')
+    const sheet = screen.getByRole('dialog', { name: 'Word help' })
     expect(sheet).not.toHaveAttribute('popover')
     expect(sheet).toHaveTextContent('you')
     expect(sheet).toHaveTextContent('nǐ')
