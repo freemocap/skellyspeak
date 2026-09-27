@@ -212,4 +212,3 @@ pub(in crate::application) fn drill_attempts(
         .lock()?
         .drill_attempts(&item_id, cursor.as_deref(), limit)
 }
-

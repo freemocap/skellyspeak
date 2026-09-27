@@ -110,7 +110,11 @@ pub enum Theme {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, TS, PartialEq, Eq, Default)]
 #[serde(rename_all = "camelCase")]
-pub enum PracticeView { #[default] Chat, Drill }
+pub enum PracticeView {
+    #[default]
+    Chat,
+    Drill,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
