@@ -25,6 +25,7 @@
 }
 
 .info-tip-content {
+  z-index: var(--z-popover);
   position: fixed;
   inset: auto;
   margin: 0;

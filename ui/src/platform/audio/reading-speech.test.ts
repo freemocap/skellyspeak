@@ -42,3 +42,26 @@ it('prepares the spectrum before playback and does not play if preparation is su
   await expect(pending).rejects.toThrow()
   expect(api.play).not.toHaveBeenCalled()
 })
+
+
+it('forwards cancellation and its reason without AbortSignal.any', async () => {
+  const any = Object.getOwnPropertyDescriptor(AbortSignal, 'any')
+  Object.defineProperty(AbortSignal, 'any', { configurable: true, value: undefined })
+  try {
+    let complete!: (value: unknown) => void
+    api.read.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const controller = new AbortController()
+    const pending = speakSelection({ text: 'go', language: 'english', variety: null, explanation: 'english', explanationVariety: null, aid: 'speech' }, controller.signal, vi.fn(), 1, 1)
+    const lifetime = api.read.mock.calls[0][1] as AbortSignal
+    const reason = new DOMException('Stopped', 'AbortError')
+    controller.abort(reason)
+    expect(lifetime.aborted).toBe(true)
+    expect(lifetime.reason).toBe(reason)
+    complete({ audioBase64: 'late', receipt: {} })
+    await expect(pending).rejects.toBe(reason)
+    expect(api.play).not.toHaveBeenCalled()
+  } finally {
+    if (any) Object.defineProperty(AbortSignal, 'any', any)
+    else Reflect.deleteProperty(AbortSignal, 'any')
+  }
+})

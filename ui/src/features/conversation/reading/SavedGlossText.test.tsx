@@ -147,13 +147,15 @@ it('reveals saved meaning and romanization without redundant pronunciation whene
   expect(screen.queryByRole('button', { name: /^(More|Less)$/ })).toBeNull()
 })
 
-it('opens full word details in a modal on touch screens', () => {
+it('opens an unclipped anchored card on touch screens', () => {
   const original = window.matchMedia
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ ...original(query), matches: true }))
   try {
     render(<SavedGlossText text="你" segments={[{ start: 0, end: 1, kind: 'gloss', gloss: 'you', romanization: 'nǐ' }]} />)
     fireEvent.click(screen.getByRole('button', { name: '你' }))
-    const sheet = screen.getByRole('dialog', { name: 'Word help' })
+    const sheet = screen.getByRole('group', { name: 'Word help' })
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(sheet.parentElement).toBe(document.body)
     expect(sheet).not.toHaveAttribute('popover')
     expect(sheet).toHaveTextContent('you')
     expect(sheet).toHaveTextContent('nǐ')

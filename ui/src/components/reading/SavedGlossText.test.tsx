@@ -85,7 +85,7 @@ it('does not substitute pronunciation for existing unsupported romanization', ()
   expect(help).not.toHaveTextContent(/Romanization|Pronunciation/)
 })
 
-it.each([false, true])('opens full details on touch and retains desktop hover help (mobile=%s)', mobile => {
+it.each([false, true])('opens anchored help before explicit full details (mobile=%s)', mobile => {
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({
     matches: mobile, addEventListener: vi.fn(), removeEventListener: vi.fn(),
   } as unknown as MediaQueryList)
@@ -100,9 +100,10 @@ it.each([false, true])('opens full details on touch and retains desktop hover he
     ]} />)
     const word = screen.getByRole('button', { name: 'الأكلة' })
     fireEvent.click(word)
-    if (!mobile) {
+    {
       const help = screen.getByRole('button', { name: 'Word help' })
-      expect(help.parentElement).toHaveAttribute('popover', 'manual')
+      if (mobile) expect(help.parentElement).not.toHaveAttribute('popover')
+      else expect(help.parentElement).toHaveAttribute('popover', 'manual')
       expect(help.parentElement!.style.top).toBe('226px')
       expect(screen.queryByRole('dialog')).toBeNull()
       fireEvent.click(help)
@@ -116,7 +117,7 @@ it.each([false, true])('opens full details on touch and retains desktop hover he
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(word).toHaveFocus()
     fireEvent.keyDown(word, { key: 'Enter' })
-    if (!mobile) fireEvent.keyDown(screen.getByRole('button', { name: 'Word help' }), { key: 'Enter' })
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Word help' }), { key: 'Enter' })
     expect(screen.getByRole('dialog', { name: 'Word help' })).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Close Word help' }))
     expect(screen.queryByRole('dialog')).toBeNull()

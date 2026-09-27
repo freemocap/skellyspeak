@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom'
+import { supportsPopover } from '../controls/popover-support'
 import { ErrorNotice } from '../feedback/ErrorNotice'
 import { errorMessage as message, errorDetails as details } from '../../platform/diagnostics/error-details'
 import { readingWords } from '../../domain/reading/word-boundaries'
@@ -67,6 +69,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     signal.throwIfAborted()
     return result
   }, [services, peek])
+  const nativePopover = supportsPopover()
   const audioStatus = useRef<HTMLDivElement>(null)
   const stop = useCallback(() => { speech.current?.abort(); speech.current = null; setSpeaking(null) }, [])
   useEffect(() => {
@@ -87,7 +90,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   }, [services, stop])
   useLayoutEffect(() => {
     const node = audioStatus.current
-    if (node) { node.showPopover(); return () => { if (node.isConnected) node.hidePopover() } }
+    if (node && nativePopover) { node.showPopover(); return () => { if (node.isConnected) node.hidePopover() } }
   }, [speaking, speechError, speechReceipt])
   useEffect(() => {
     const hide = () => { if (document.visibilityState === 'hidden') { stop(); setSelection(null) } }
@@ -97,12 +100,12 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   return <SavedReadingRegistryContext value={registerSources}><SavedReadingContext value={savedIndex}><ReadingActionsContext value={{ inspect, speak, stop, speaking }}>
     <ReadingPeekContext value={peek}><ReadingLookupContext value={lookup}>{children}
     {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} services={services} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
-    {(speechError != null || speechReceipt != null || speaking != null) && <div ref={audioStatus} popover="manual" className="reading-audio-status" data-reading-tools>
+    {(speechError != null || speechReceipt != null || speaking != null) && createPortal(<div ref={audioStatus} popover={nativePopover ? "manual" : undefined} className="reading-audio-status" data-reading-tools>
       {speaking && <><span role="status">{tr(loadingAudio ? 'Loading speech…' : 'Reading aloud…')}</span><button className="btn" onClick={stop}>{tr('Stop reading')}</button></>}
       {speechError != null && <ErrorNotice onRetry={() => { if (lastSpeech.current) speak(lastSpeech.current) }} error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
       {speechReceipt != null && <ResponseDetails value={speechReceipt} />}
       {!speaking && <button className="btn" onClick={() => { setSpeechError(null); setSpeechReceipt(null) }}>{tr('Close')}</button>}
-    </div>}
+    </div>, document.body)}
   </ReadingLookupContext></ReadingPeekContext></ReadingActionsContext></SavedReadingContext></SavedReadingRegistryContext>
 }
 

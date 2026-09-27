@@ -9,8 +9,12 @@ async function withPlayback<T>(signal: AbortSignal, work: (lifetime: AbortSignal
   if (!permit) throw new Error('Speech playback is currently unavailable.')
   const interrupted = new AbortController()
   const stopListening = onSpeechInterrupted(() => interrupted.abort())
-  const lifetime = AbortSignal.any([signal, interrupted.signal])
-  try { return await work(lifetime, permit) } finally { stopListening() }
+  const cancel = () => interrupted.abort(signal.reason)
+  signal.addEventListener('abort', cancel, { once: true })
+  try { return await work(interrupted.signal, permit) } finally {
+    signal.removeEventListener('abort', cancel)
+    stopListening()
+  }
 }
 
 async function play(base64: string, signal: AbortSignal, permit: object, onPlayback: () => void, rate: number, volume: number, observer?: PlaybackObserver, alignment?: SpeechAlignment | null): Promise<void> {

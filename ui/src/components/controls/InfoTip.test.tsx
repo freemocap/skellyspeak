@@ -42,3 +42,19 @@ it('pins on click and dismisses on a second click or outside pointer', () => {
   Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
   Reflect.deleteProperty(HTMLElement.prototype, 'hidePopover')
 })
+
+
+it('uses an unclipped fixed tooltip when the WebView has no popover API', () => {
+  Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
+  Reflect.deleteProperty(HTMLElement.prototype, 'hidePopover')
+  const view = render(<InfoTip>Calculation details</InfoTip>)
+  expect(screen.queryByRole('tooltip')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Information' }))
+  const tip = screen.getByRole('tooltip')
+  expect(tip.parentElement).toBe(document.body)
+  expect(tip).not.toHaveAttribute('popover')
+  expect(tip).toBeVisible()
+  fireEvent.pointerDown(document.body)
+  expect(screen.queryByRole('tooltip')).toBeNull()
+  view.unmount()
+})

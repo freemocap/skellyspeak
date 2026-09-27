@@ -1,9 +1,12 @@
+import { createPortal } from 'react-dom'
+import { supportsPopover } from './popover-support'
 import { useI18n } from '../localization/i18n'
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 /** A top-layer popover escapes scroll clipping and remains usable by touch/keyboard. */
 export function InfoTip({ children, onOpenChange }: { children: ReactNode; onOpenChange?: (open: boolean) => void }) {
   const tr = useI18n()
+  const nativePopover = supportsPopover()
   const [open, setOpen] = useState(false)
   useEffect(() => { onOpenChange?.(open) }, [open, onOpenChange])
   const anchor = useRef<HTMLButtonElement>(null)
@@ -24,17 +27,18 @@ export function InfoTip({ children, onOpenChange }: { children: ReactNode; onOpe
   const id = useId()
   useLayoutEffect(() => {
     const element = tip.current!
-    if (!open) { if (shown.current) element.hidePopover(); shown.current = false; return }
+    if (!open) { if (shown.current && nativePopover) element.hidePopover(); shown.current = false; return }
     const rect = anchor.current!.getBoundingClientRect()
-    element.showPopover()
+    if (nativePopover) element.showPopover()
     shown.current = true
     const width = element.getBoundingClientRect().width
     element.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))}px`
     const height = element.getBoundingClientRect().height
     element.style.top = `${Math.max(8, rect.bottom + height + 8 > window.innerHeight ? rect.top - height - 4 : rect.bottom + 4)}px`
   }, [open, children])
+  const content = <span ref={tip} id={id} className="info-tip-content" role="tooltip" popover={nativePopover ? "manual" : undefined} hidden={!nativePopover && !open}>{children}</span>
   return <span className="info-tip" onMouseEnter={() => setOpen(true)} onMouseLeave={() => { if (!pinned.current) setOpen(false) }}>
     <button ref={anchor} type="button" aria-label={tr("Information")} aria-describedby={open ? id : undefined} aria-expanded={open} onFocus={() => setOpen(true)} onBlur={event => { if (!tip.current?.contains(event.relatedTarget as Node)) close() }} onClick={() => { pinned.current = !pinned.current; setOpen(pinned.current) }} onKeyDown={event => { if (event.key === 'Escape') close() }}>ⓘ</button>
-    <span ref={tip} id={id} className="info-tip-content" role="tooltip" popover="manual">{children}</span>
+    {nativePopover || !open ? content : createPortal(content, anchor.current?.closest('dialog[open]') ?? document.body)}
   </span>
 }

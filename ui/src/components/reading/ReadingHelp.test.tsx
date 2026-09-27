@@ -349,3 +349,44 @@ it('each passage requests generated help explicitly, and Chat-style owners never
   expect(screen.queryByRole('button', { name: 'Translate' })).toBeNull()
   expect(services.read).toHaveBeenCalledTimes(2)
 })
+
+
+it('keeps word help and speech status usable without WebView popover methods', async () => {
+  const show = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'showPopover')
+  const hide = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'hidePopover')
+  Reflect.deleteProperty(HTMLElement.prototype, 'showPopover')
+  Reflect.deleteProperty(HTMLElement.prototype, 'hidePopover')
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: false } as MediaQueryList)
+  function Speak() {
+    const actions = useReadingActions()
+    return <button onClick={() => actions?.speak({ scope, text: 'Hola', start: 0, end: 4 })}>Speak</button>
+  }
+  let view: ReturnType<typeof render> | undefined
+  try {
+    view = app(<><TargetText text="Hola" /><SavedGlossText text="casa" segments={[{ start: 0, end: 4, kind: 'gloss', gloss: 'house' }]} /><Speak /></>)
+    fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
+    const help = await screen.findByRole('group', { name: 'Word help' })
+    await waitFor(() => expect(help).toHaveTextContent('hello'))
+    expect(help.parentElement).toBe(document.body)
+    expect(help).not.toHaveAttribute('popover')
+    fireEvent.pointerDown(document.body)
+    fireEvent.click(screen.getByRole('button', { name: 'casa' }))
+    const saved = screen.getByRole('group', { name: 'Word help' })
+    expect(saved.parentElement).toBe(document.body)
+    expect(saved).toHaveTextContent('house')
+    expect(saved).not.toHaveAttribute('popover')
+    fireEvent.pointerDown(document.body)
+    vi.mocked(services.speak).mockRejectedValue(new Error('Speech unavailable'))
+    fireEvent.click(screen.getByRole('button', { name: 'Speak' }))
+    await screen.findByText('Speech unavailable')
+    const status = document.querySelector('.reading-audio-status')!
+    expect(status.parentElement).toBe(document.body)
+    expect(status).not.toHaveAttribute('popover')
+    expect(screen.queryByRole('dialog')).toBeNull()
+  } finally {
+    view?.unmount()
+    media.mockRestore()
+    if (show) Object.defineProperty(HTMLElement.prototype, 'showPopover', show)
+    if (hide) Object.defineProperty(HTMLElement.prototype, 'hidePopover', hide)
+  }
+})

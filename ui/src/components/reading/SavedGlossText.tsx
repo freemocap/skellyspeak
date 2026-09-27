@@ -31,7 +31,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   const helper = useRef<HTMLSpanElement>(null)
   const helperId = useId()
   const layer = wordHelpLayer(hoveredWord.current)
-  const renderHelp = (node: ReactNode) => layer.touch ? createPortal(node, layer.host) : node
+  const renderHelp = (node: ReactNode) => layer.popover ? node : createPortal(node, layer.host)
   const hoverExit = useRef<ReturnType<typeof setTimeout> | null>(null)
   const keepHover = () => { if (hoverExit.current !== null) clearTimeout(hoverExit.current); hoverExit.current = null }
   const leaveHover = () => { keepHover(); hoverExit.current = setTimeout(() => setHovered(null), 200) }
@@ -87,9 +87,6 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     const hovering = hovered === segment.start && !open
     const toggle = () => {
       setHovered(null)
-      if (wordHelpLayer(hoveredWord.current).touch) {
-        setRevealed(new Set()); setExpanded(segment.start); return
-      }
       setRevealed(previous => {
       return previous.has(segment.start) ? new Set<number>() : new Set([segment.start])
     })
@@ -102,7 +99,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
             onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() } }}>
             {source}
           </span>
-          {expanded === null && (open || hovering) && renderHelp(<span id={helperId} ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover={layer.touch ? undefined : "manual"} data-word-help-layer={layer.touch ? "portal" : undefined}
+          {expanded === null && (open || hovering) && renderHelp(<span id={helperId} ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined}
             role="group" aria-label={tr("Word help")}
             onPointerEnter={keepHover} onPointerLeave={leaveHover}
             onClick={event => event.stopPropagation()}>

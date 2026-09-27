@@ -67,7 +67,6 @@ it.each([false, true])('accepts only the selected source disclosure (touch=%s)',
   fireEvent.click(screen.getAllByRole('button', { name: 'sí' })[0])
   expect(disclosureOpened(before, readDisclosure(document, 'selected', '4'))).toBe(false)
   expect(disclosureOpened(before, readDisclosure(document, 'selected', '0'))).toBe(false)
-  if (touch) fireEvent.click(screen.getByRole('button', { name: 'Close Word help' }))
   fireEvent.click(screen.getAllByRole('button', { name: 'sí' })[1])
   expect(disclosureOpened(before, readDisclosure(document, 'selected', '4'))).toBe(true)
   const inPage = new Function('root', 'before', `return (${disclosureOpened.toString()})(before, (${readDisclosure.toString()})(root, 'selected', '4'))`)

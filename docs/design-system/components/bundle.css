@@ -1365,6 +1365,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 }
 
 .info-tip-content {
+  z-index: var(--z-popover);
   position: fixed;
   inset: auto;
   margin: 0;
@@ -1608,6 +1609,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .reading-language-controls label { display: flex; flex-direction: column; gap: var(--space-1); }
 .reading-selected-word { display: flex; align-items: center; gap: var(--space-2); }
 .reading-audio-status {
+  z-index: var(--z-popover);
   position: fixed;
   inset: auto var(--space-3) var(--space-3) auto;
   max-width: min(90vw, 32rem);

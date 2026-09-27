@@ -1,8 +1,9 @@
-/** Touch word help uses the shared modal instead of WebView popover positioning.
- * Desktop helpers keep their existing top-layer host. */
+import { supportsPopover } from '../controls/popover-support'
+
+/** Keep touch word help outside message clipping without invoking WebView top-layer scaling. */
 export function wordHelpLayer(anchor: HTMLElement | null) {
-  const touch = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
-  return { touch, host: anchor?.closest('dialog[open]') ?? document.body }
+  const touch = anchor !== null && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
+  return { popover: !touch && supportsPopover(), host: anchor?.closest('dialog[open]') ?? document.body }
 }
 
 export function positionWordHelp(card: HTMLElement, word: HTMLElement) {
