@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, expect, it, vi } from 'vitest'
 import { installPlaybackLifecycle } from './playback-lifecycle'
-import { setPlaybackAllowed, speechPlaybackPermit } from './speech'
+import { beginCapture, endCapture, setPlaybackAllowed, speechPlaybackPermit } from './speech'
 
 vi.mock('./reward-sounds', () => ({ setRewardPlaybackAllowed: vi.fn(), unlockRewardAudio: vi.fn() }))
 afterEach(() => { vi.restoreAllMocks(); setPlaybackAllowed(true) })
@@ -61,4 +61,27 @@ it('blur, visibility, and native suspension independently prohibit late speech',
   expect(speechPlaybackPermit()).toBeNull()
   window.dispatchEvent(new Event('focus'))
   expect(speechPlaybackPermit()).toBeNull()
+})
+
+it('keeps visible capture through focus loss but stops it on actual suspension', () => {
+  vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+  const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
+  const lifecycle = installPlaybackLifecycle()
+  const stop = vi.fn()
+  const token = beginCapture(stop)
+  try {
+    window.dispatchEvent(new Event('blur'))
+    lifecycle.focus(false)
+    expect(stop).not.toHaveBeenCalled()
+    expect(speechPlaybackPermit()).toBeNull()
+    lifecycle.focus(true)
+    visibility.mockReturnValue('hidden')
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(stop).toHaveBeenCalledOnce()
+    stop.mockClear()
+    visibility.mockReturnValue('visible')
+    document.dispatchEvent(new Event('visibilitychange'))
+    lifecycle.suspend()
+    expect(stop).toHaveBeenCalledOnce()
+  } finally { endCapture(token); lifecycle.dispose() }
 })

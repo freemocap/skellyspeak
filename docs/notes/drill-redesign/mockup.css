@@ -1,0 +1,374 @@
+/* Drill page redesign — mockup styles.
+ *
+ * Self-contained: no imports, no build step, no remote assets. The token values
+ * are copied from ui/src/styles/foundations/tokens.css so the mockup looks like
+ * the application, but this file is a proposal and must not become a second
+ * production style system. Proposed rules are marked PROPOSED.
+ *
+ * The live pair and the heat-map ribbon reproduce arrangements that already
+ * exist in the app — components/media/LiveRecording.tsx with components/waveform.css,
+ * and PhraseProgress.tsx with the .drill-word-* rules in features/drill/drill.css.
+ * They are copied here for review, not reinvented.
+ */
+
+/* ── fonts, from the repository's own ui/public/fonts/ ───────────────────── */
+@font-face { font-family: 'IBM Plex Sans'; font-weight: 400; font-display: swap; src: url('../../../ui/public/fonts/ibm-plex-sans-400.ttf'); }
+@font-face { font-family: 'IBM Plex Sans'; font-weight: 500; font-display: swap; src: url('../../../ui/public/fonts/ibm-plex-sans-500.ttf'); }
+@font-face { font-family: 'IBM Plex Sans'; font-weight: 600; font-display: swap; src: url('../../../ui/public/fonts/ibm-plex-sans-600.ttf'); }
+@font-face { font-family: 'IBM Plex Sans'; font-weight: 700; font-display: swap; src: url('../../../ui/public/fonts/ibm-plex-sans-700.ttf'); }
+@font-face { font-family: 'Newsreader'; font-weight: 400; font-display: swap; src: url('../../../ui/public/fonts/newsreader-400.ttf'); }
+@font-face { font-family: 'Newsreader'; font-weight: 500; font-display: swap; src: url('../../../ui/public/fonts/newsreader-500.ttf'); }
+@font-face { font-family: 'IBM Plex Mono'; font-weight: 400; font-display: swap; src: url('../../../ui/public/fonts/ibm-plex-mono-400.ttf'); }
+@font-face { font-family: 'IBM Plex Mono'; font-weight: 500; font-display: swap; src: url('../../../ui/public/fonts/ibm-plex-mono-500.ttf'); }
+
+/* ── tokens, copied from tokens.css ──────────────────────────────────────── */
+:root {
+  --bg: #ede8dc; --chrome: #f7f4ec; --sheet: #fffdf8; --field: #ffffff; --chip: #dbd4c5;
+  --line: #cfc5b0; --line-soft: #e6dfcf;
+  --ink: #1f1c17; --ink-2: #3a3630; --ink-3: #5c564b; --ink-on-fill: #ffffff;
+  --bubble-partner-bg: #ffefd6; --bubble-partner-line: #e2bd83;
+  --interaction-ink: #1f4785; --interaction-fill: #1f4785; --interaction-tint: color-mix(in srgb, #6f9bff 15%, transparent);
+  --success-ink: #086581; --success-line: #79c9e2; --success-tint: #def4fc;
+  --warning-ink: #8a4e0a; --warning-line: #c78a2f; --warning-tint: #fbebd6;
+  --danger-ink: #922c2a; --danger-line: #d84a4a; --danger-tint: #f7e0de;
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --shadow-surface: 0 1px 2px rgb(31 28 23 / 8%), 0 8px 24px rgb(31 28 23 / 6%);
+  --shadow-sm: 0 1px 2px rgb(31 28 23 / 10%);
+  --radius-xs: 3px; --radius-sm: 5px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-pill: 999px;
+  --space-1: 2px; --space-2: 4px; --space-3: 6px; --space-4: 8px; --space-5: 10px;
+  --space-6: 12px; --space-7: 16px; --space-8: 20px; --space-9: 24px; --space-10: 28px;
+  --type-meta: 11px; --type-ui: 13px; --type-body: 15px; --type-title: 17px; --type-reading: 20px;
+  --control-height-sm: 32px; --touch-target: 44px;
+  --drill-report-width: 24rem;   /* the app's own default (tokens.css:267), not a proposal */
+  /* PROPOSED: the ring that separates one word's cell from the next. It has to
+     give out on its own as the cells compress, or accumulated ring ink swallows
+     the colour — see the container queries on .cell below. */
+  --cell-ring: color-mix(in srgb, var(--ink) 26%, transparent);
+  --flow: 620ms;                 /* the clip's cut, and the row's travel into the stack */
+  --ease-out: cubic-bezier(.22, .9, .3, 1);
+}
+
+[data-theme='dark'] {
+  --bg: #141517; --chrome: #1b1d20; --sheet: #24262a; --field: #111214; --chip: #131416;
+  --line: #454b53; --line-soft: #343a41;
+  --ink: #f0f1f3; --ink-2: #d3d6da; --ink-3: #a3a8af;
+  --bubble-partner-bg: #30343b; --bubble-partner-line: #626c79;
+  --interaction-ink: #6fa3ea; --interaction-fill: #1f4785;
+  --success-ink: #75d6f5; --success-line: #75d6f5; --success-tint: color-mix(in srgb, #75d6f5 16%, transparent);
+  --warning-ink: #f0a957; --warning-line: #f0a957; --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);
+  --danger-ink: #f07a72; --danger-line: #f07a72; --danger-tint: color-mix(in srgb, #f07a72 16%, transparent);
+  --shadow-surface: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 30%);
+}
+
+/* ── the canvas ──────────────────────────────────────────────────────────── */
+body { margin: 0; padding: var(--space-7); background: #b9b4a8; color: #1f1c17;
+  font-family: var(--font-sans); font-size: var(--type-ui); }
+[data-theme='dark'] body { background: #0d0e10; color: #f0f1f3; }
+.canvas { display: flex; flex-direction: column; gap: var(--space-10); }
+.artboard { display: flex; flex-direction: column; gap: var(--space-4); margin: 0; }
+.artboard > figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-5);
+  max-width: 1180px; font-family: var(--font-mono); font-size: var(--type-meta); }
+.artboard > figcaption b { font-weight: 600; }
+.artboard > figcaption span { opacity: .78; }
+.frame { background: var(--bg); color: var(--ink); border-radius: var(--radius-lg); box-shadow: var(--shadow-surface); overflow: hidden; }
+.frame-wide { width: 1440px; }
+.frame-phone { width: 390px; }
+.trigger { align-self: start; display: inline-flex; align-items: center; gap: var(--space-4);
+  height: var(--control-height-sm); padding: 0 var(--space-6); background: var(--field);
+  border: 1px solid var(--interaction-ink); border-radius: var(--radius-md); color: var(--interaction-ink);
+  font: inherit; font-size: var(--type-ui); font-weight: 600; cursor: pointer; }
+.trigger:disabled { opacity: .5; cursor: default; }
+.note { margin: 0 0 var(--space-3); font-size: var(--type-meta); color: var(--ink-3); }
+.muted { color: var(--ink-3); font-size: var(--type-meta); }
+
+/* ── app shell ───────────────────────────────────────────────────────────── */
+.topbar { display: flex; align-items: center; gap: var(--space-6); padding: 0 var(--space-6);
+  height: 44px; background: var(--chrome); border-bottom: 1px solid var(--line-soft); font-size: var(--type-ui); }
+.mark { width: 22px; height: 22px; border-radius: var(--radius-sm); background: #3f8f8a; flex: none; }
+.wordmark { font-weight: 600; color: var(--ink); }
+.lang { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); height: var(--control-height-sm);
+  background: var(--field); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-2); }
+.switch { display: flex; gap: var(--space-2); }
+.switch button { display: flex; align-items: center; height: var(--control-height-sm); padding: 0 var(--space-6);
+  border: 1px solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font: inherit; }
+.switch button[aria-pressed='true'] { background: var(--field); border-color: var(--interaction-ink); color: var(--ink); font-weight: 600; }
+.spacer { flex: 1 1 auto; }
+.pill { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-5); height: var(--control-height-sm);
+  border-radius: var(--radius-pill); background: var(--sheet); border: 1px solid var(--line-soft); color: var(--ink-2); }
+.xp-bar { width: 74px; height: 5px; border-radius: var(--radius-pill); background: var(--chip); overflow: hidden; }
+.xp-bar i { display: block; height: 100%; width: 42%; background: var(--interaction-fill); }
+
+/* ── the page ────────────────────────────────────────────────────────────── */
+.page { display: grid; grid-template-columns: minmax(0, 1fr) var(--drill-report-width);
+  grid-template-rows: max-content minmax(0, 1fr);
+  gap: var(--space-4); padding: var(--space-4); height: 980px; }
+.stage { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; overflow-y: auto; }
+.report { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; overflow-y: auto;
+  padding: var(--space-2); background: var(--chrome); border: 1px solid var(--line-soft); border-radius: var(--radius-lg); }
+.rail-strip { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--space-4);
+  font-size: var(--type-meta); color: var(--ink-3); }
+.rail-strip button { display: flex; align-items: center; gap: var(--space-3); height: var(--control-height-sm);
+  padding: 0 var(--space-5); background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius-md);
+  color: var(--ink-2); font: inherit; cursor: pointer; }
+
+/* ── phrase bar ──────────────────────────────────────────────────────────── */
+/* PROPOSED: the stepper sits beside the phrase it steps through, not adrift at
+   the far end of the bar. */
+.phrase-bar { display: flex; align-items: center; gap: var(--space-3); }
+.phrase-bar .btn { display: inline-flex; align-items: center; gap: var(--space-3); height: var(--control-height-sm);
+  padding: 0 var(--space-5); background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius-md);
+  color: var(--ink); font: inherit; white-space: nowrap; cursor: pointer; }
+.phrase-bar .btn.grow { flex: 1 1 auto; justify-content: flex-start; }
+.phrase-bar .btn.strong { border-color: var(--interaction-ink); color: var(--interaction-ink); font-weight: 600; }
+.phrase-bar .count { font-family: var(--font-mono); color: var(--ink-3); }
+.phrase-bar .icon { width: var(--control-height-sm); justify-content: center; padding: 0; }
+.stepper { display: inline-flex; gap: var(--space-1); margin-inline-start: var(--space-3); }
+.stepper .btn { width: 26px; height: 24px; padding: 0; justify-content: center; font-size: var(--type-body); }
+
+/* ── the target ──────────────────────────────────────────────────────────── */
+.target { padding: var(--space-5) var(--space-6); background: var(--bubble-partner-bg);
+  border: 1px solid var(--bubble-partner-line); border-radius: var(--radius-xl);
+  border-end-start-radius: var(--radius-sm); box-shadow: var(--shadow-sm); }
+.target p { margin: 0; font-family: var(--font-serif); font-size: var(--type-reading); line-height: 1.4; color: var(--ink); }
+.target .aids { display: flex; gap: var(--space-6); margin-top: var(--space-4); }
+.target .aids button { background: none; border: 0; padding: 0; color: var(--ink-3); font: inherit; font-size: var(--type-meta); cursor: pointer; }
+
+/* ── one transport row ───────────────────────────────────────────────────── */
+.transport { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+.transport .play { display: inline-flex; align-items: center; gap: var(--space-3); height: var(--control-height-sm);
+  padding: 0 var(--space-6); background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius-md);
+  color: var(--ink); font: inherit; font-weight: 500; flex: none; cursor: pointer; }
+.transport select { height: var(--control-height-sm); padding: 0 var(--space-4); background: var(--field);
+  border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink); font: inherit; flex: none; }
+.transport .seek { flex: 1 1 80px; min-width: 60px; accent-color: var(--interaction-ink); }
+.transport .time { font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink-2); white-space: nowrap; flex: none; }
+.options { position: relative; flex: none; }
+.options > summary { list-style: none; cursor: pointer; display: grid; place-items: center;
+  width: var(--control-height-sm); height: var(--control-height-sm); background: var(--sheet);
+  border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-2); font-size: var(--type-body); }
+.options > summary::-webkit-details-marker { display: none; }
+.options[open] > summary { border-color: var(--interaction-ink); color: var(--interaction-ink); }
+.options .menu { position: absolute; inset-inline-end: 0; top: calc(100% + var(--space-2)); z-index: 5;
+  display: grid; gap: var(--space-4); padding: var(--space-5); min-width: 15rem;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-surface); }
+.options .menu h3 { margin: 0; font-size: var(--type-meta); color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+.segmented { display: inline-flex; gap: var(--space-2); }
+.segmented button { height: 26px; padding: 0 var(--space-5); background: var(--sheet); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); color: var(--ink-2); font: inherit; font-size: var(--type-meta); cursor: pointer; }
+.segmented button[aria-pressed='true'] { background: var(--interaction-tint); border-color: var(--interaction-ink); color: var(--interaction-ink); font-weight: 600; }
+.segmented button.quiet[aria-pressed='true'] { background: var(--chip); border-color: var(--line); color: var(--ink); }
+
+/* ── the comparison ──────────────────────────────────────────────────────── */
+/* In the app each track is `--drill-plot-height: clamp(64px, 22vh, 280px)` and
+   drag-resizable, with a ResizeHandle between the reference and the take. Here
+   the plots take the room the stage has left, which a fixed-height frame can
+   reproduce; the real heights are stored learner settings. */
+.plots { flex: 1 1 auto; min-height: 0; display: grid; gap: var(--space-2);
+  grid-template-rows: minmax(74px, 1.2fr) auto auto minmax(74px, 1fr); }
+.plot { min-height: 74px; border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--line-soft);
+  background-image: repeating-linear-gradient(90deg, #5b4a8a 0 3px, #7d6bb0 3px 6px, #40809c 6px 9px, #2f5f7d 9px 12px, #8a6fae 12px 15px);
+  opacity: .82; position: relative; }
+[data-theme='dark'] .plot { background-image: repeating-linear-gradient(90deg, #7a68c4 0 3px, #9a8adb 3px 6px, #5590b0 3px 6px, #3f7c9e 9px 12px, #8a72c0 12px 15px); opacity: .72; }
+.plot.take { opacity: .62; }
+[data-theme='dark'] .plot.take { opacity: .55; }
+.plot .hz { position: absolute; inset-inline-end: var(--space-3); top: var(--space-3); font-family: var(--font-mono);
+  font-size: 10px; color: color-mix(in srgb, var(--ink) 55%, transparent); }
+.plot .seg { position: absolute; inset-block: 0; border-inline: 1px dashed var(--ink-on-fill); opacity: .5; }
+.plot .cursor { position: absolute; inset-block: 0; width: 1px; background: var(--ink-on-fill); opacity: .8; }
+
+.lane { display: flex; gap: var(--space-1); height: 24px; align-items: center; overflow: hidden; }
+.lane span { flex: none; padding: 0 var(--space-3); font-family: var(--font-serif); font-size: var(--type-meta);
+  color: var(--ink-2); background: var(--sheet); border: 1px solid var(--line-soft); border-radius: var(--radius-xs); white-space: nowrap; }
+.take-media { display: flex; align-items: center; gap: var(--space-5); }
+.take-media .time { font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink-2); }
+
+/* ── the record dock ─────────────────────────────────────────────────────── */
+/* PROPOSED: the controls become a narrow column and the live pair gets its own
+   space beside it. The app stacks a control row above the stream
+   (.drill-dock-row then .live-recording); giving the stream a column instead
+   makes the panel taller and lets the log-mel be read rather than stay the 28px
+   sliver the dock currently caps it at (drill.css:177-180). The record control
+   and the mode switch stop looking alike: one is a solid pill, the other a quiet
+   segmented control. */
+.dock { margin-top: auto; display: grid; grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--space-7); padding: var(--space-5) var(--space-6);
+  background: var(--sheet); border: 1px solid var(--line-soft); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.dock-side { display: grid; gap: var(--space-4); align-content: start; min-width: 11rem; }
+.dock-tools { display: flex; align-items: center; gap: var(--space-4); }
+.dock .record { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
+  width: 100%; height: var(--touch-target); padding: 0 var(--space-7);
+  background: var(--interaction-fill); color: var(--ink-on-fill);
+  border: 0; border-radius: var(--radius-pill); font: inherit; font-size: var(--type-body); font-weight: 600;
+  box-shadow: var(--shadow-sm); cursor: pointer; }
+.dock .record i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink-on-fill); }
+.dock .status { display: grid; gap: 2px; min-width: 0; }
+.dock .status strong { font-size: var(--type-body); font-weight: 600; color: var(--ink); }
+.dock .status span { font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink-3); }
+.dock .icon { width: var(--control-height-sm); height: var(--control-height-sm); display: grid; place-items: center;
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; }
+
+/* Level against the threshold a take must cross (the app's LevelMeter). */
+.meter { position: relative; flex: 1 1 8rem; min-width: 4rem; height: var(--space-8); }
+.meter-fill, .meter-noise { position: absolute; inset-inline-start: 0; top: calc(50% - var(--space-3)); height: var(--space-6); }
+.meter-fill { background: var(--success-line); border-radius: var(--radius-pill); }
+.meter-noise { border-inline-end: 2px dashed var(--ink-3); }
+.meter-threshold { position: absolute; inset-block: 0; width: var(--space-5); margin-inline-start: calc(var(--space-5) / -2); }
+.meter-threshold::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: calc(50% - 1px); width: 2px; background: var(--interaction-ink); }
+.meter-threshold::after { content: ""; position: absolute; top: calc(50% - var(--space-3)); inset-inline-start: calc(50% - var(--space-3));
+  width: var(--space-6); height: var(--space-6); border-radius: 50%; background: var(--interaction-fill); border: 2px solid var(--sheet); }
+
+/* the live pair: waveform above log-mel, one bordered box, one clip box over both */
+.live { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--space-1); min-width: 0; }
+.live-head { display: flex; align-items: center; justify-content: space-between; height: 16px;
+  font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink-3); }
+.notice { color: var(--interaction-ink); font-weight: 500; }
+.live-plots { position: relative; overflow: hidden; display: grid; grid-template-rows: 48px minmax(0, 1fr);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.wave-strip { background: var(--field); }
+.wave-strip svg { display: block; width: 100%; height: 100%; }
+.wave-path { fill: var(--ink-3); fill-opacity: .6; }
+/* The waveform and the mel scroll on one clock and by the same fraction of
+   their width — they share a time axis and have to look like it. */
+.wave-scroll { animation: wave-scroll 6s linear infinite; }
+@keyframes wave-scroll { from { transform: translateX(0); } to { transform: translateX(-140px); } }
+.mel-strip { min-height: 28px; background-color: var(--bg);
+  background-image: repeating-linear-gradient(90deg, #5b4a8a 0 2px, #7d6bb0 2px 4px, #40809c 4px 6px, #8a6fae 6px 8px);
+  background-size: 200% 100%; background-position: 33.333% 0; }
+[data-theme='dark'] .mel-strip { background-image: repeating-linear-gradient(90deg, #7a68c4 0 2px, #9a8adb 2px 4px, #5590b0 4px 6px, #8a72c0 6px 8px); }
+.mel-strip.streaming { animation: mel-scroll 6s linear infinite; }
+@keyframes mel-scroll { from { background-position: 33.333% 0; } to { background-position: 0 0; } }
+/* The cut edge of a detected clip, drawn once across both plots. It is made on
+   the waveform first and then grows down over the log-mel, so the box that marks
+   the clip is the box that spans both — neither plot is covered or emptied to
+   make room for it. The take boxes ride the timeline, as they do in the app,
+   where their offsets come from startSeconds/endSeconds against the rolling
+   window; here they are drawn at fixed offsets. */
+.take-region { position: absolute; inset-block-start: 0; height: 100%; display: flex; align-items: flex-start; justify-content: flex-end;
+  pointer-events: none; border-inline-end: 2px solid var(--interaction-ink); border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); animation: cut-flash 900ms var(--ease-out); }
+.take-region b { margin: var(--space-1) var(--space-2) 0 0; padding: 0 var(--space-3); font-family: var(--font-mono);
+  font-size: 10px; font-weight: 500; color: var(--ink-on-fill); background: var(--interaction-ink); border-radius: var(--radius-xs); }
+@keyframes cut-flash { from { background: color-mix(in srgb, var(--interaction-ink) 34%, transparent); } }
+
+/* ── the report: the open take, then the ribbon underneath ───────────────── */
+.summary { display: flex; align-items: baseline; gap: var(--space-5); flex-wrap: wrap;
+  padding: var(--space-2) var(--space-3); background: var(--sheet); border: 1px solid var(--line-soft); border-radius: var(--radius-md); }
+.summary h2 { margin: 0; font-size: var(--type-ui); font-weight: 600; }
+.summary dl { display: flex; gap: var(--space-5); margin: 0; }
+.summary dl div { display: flex; align-items: baseline; gap: var(--space-2); }
+.summary dt { color: var(--ink-3); font-size: var(--type-meta); font-weight: 600; }
+.summary dd { margin: 0; font-family: var(--font-mono); font-size: var(--type-ui); font-weight: 600; }
+.summary .spark { flex: 1 1 100%; width: 100%; height: 26px; }
+
+/* The open take's detail. It is a grid item inside .stack, spanning the shared
+   columns — which is what makes its row and every other row agree about where
+   the columns are. `container-type` gives it inline-size containment, so the
+   panel's contents cannot inflate the max-content number and score columns. */
+.attempt { grid-column: 1 / -1; container-type: inline-size; display: grid; gap: var(--space-2);
+  margin-block: var(--space-2); padding: var(--space-3); background: var(--sheet);
+  border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.attempt-head { display: flex; align-items: center; gap: var(--space-3); font-size: var(--type-meta); color: var(--ink-3); }
+.attempt-head button { margin-inline-start: auto; background: none; border: 0; padding: 0; color: var(--ink-3); font: inherit; cursor: pointer; }
+.spinner { display: inline-block; width: 14px; height: 14px; flex: none; border: 2px solid var(--line);
+  border-top-color: var(--interaction-ink); border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Every section reserves its height in both states. The measures are the only
+   genuinely missing data, so they are the only thing that waits — and they wait
+   inside the space they will occupy, so nothing below moves. */
+.attempt-body { display: grid; gap: var(--space-2); }
+.attempt-pairs { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-3);
+  align-items: start; min-height: 4.4rem; }
+.pairs-labels { display: grid; grid-template-rows: auto auto; gap: 2px; font-size: var(--type-meta); color: var(--ink-3); }
+.pairs-labels span { display: flex; align-items: center; line-height: 1.4; }
+.pairs { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); min-width: 0; }
+.pairs.pending { display: grid; gap: var(--space-2); align-content: start; }
+.pair { display: grid; grid-template-rows: auto auto; gap: 2px; min-width: 0; }
+.pair b, .pair em { padding: 0 var(--space-3); border-radius: var(--radius-xs); line-height: 1.4; white-space: nowrap; }
+.pair b { font-family: var(--font-serif); font-weight: 400; font-size: var(--type-body); color: var(--ink);
+  background: var(--success-tint); box-shadow: inset 0 -2px 0 var(--success-line); }
+.pair em { font-family: var(--font-mono); font-style: normal; font-size: var(--type-meta); color: var(--ink-3); }
+.pair[data-o='substituted'] b { background: var(--warning-tint); box-shadow: inset 0 -2px 0 var(--warning-line); }
+.pair[data-o='substituted'] em { color: var(--warning-ink); }
+.pair[data-o='missing'] b { background: var(--danger-tint); box-shadow: inset 0 -2px 0 var(--danger-line); }
+.pair[data-o='missing'] em { color: var(--danger-ink); font-weight: 500; }
+.skeleton { display: block; height: 1.35rem; border-radius: var(--radius-xs); background: var(--chip); opacity: .55; }
+
+.measures { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-5); margin: 0; min-height: 1.35rem; font-size: var(--type-meta); }
+.measures div { display: flex; align-items: baseline; gap: var(--space-2); }
+.measures dt { color: var(--ink-3); }
+.measures dd { margin: 0; font-family: var(--font-mono); color: var(--ink-2); }
+.measures .waiting { color: var(--ink-3); }
+.attempt-details { min-height: 1.35rem; font-size: var(--type-meta); color: var(--ink-3); }
+.attempt-details summary { cursor: pointer; }
+.attempt-details p { margin: var(--space-2) 0 0; }
+
+/* ── the ribbon ──────────────────────────────────────────────────────────── */
+/* The strip is a fixed width: the report column's, never the phrase's. Its
+   columns are `repeat(N, minmax(0, 1fr))` with no minimum, so N cells tile that
+   width exactly at any N. The grid cannot overflow, so there is nothing to
+   scroll, in either axis — the guarantee is structural, not a rule the markup
+   has to obey. Cells compress until the row is a colour ribbon; a row is opened
+   by clicking it, which is why it never needs to be wider. */
+.stack { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: 0 var(--space-1); min-width: 0; }
+.row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; gap: 0 var(--space-1); align-items: center;
+  min-width: 0; width: 100%; min-height: var(--control-height-sm); padding: 0 var(--space-1);
+  background: var(--sheet); color: var(--ink); text-align: start; border: 0; border-radius: 0; cursor: pointer; }
+.row:hover { background: var(--field); }
+.row[aria-current='true'] { outline: 2px solid var(--interaction-ink); outline-offset: -2px; }
+.row .n, .row .score { font-family: var(--font-mono); font-size: var(--type-meta); color: var(--ink-2); white-space: nowrap; }
+.row .score { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+.cells { display: grid; align-items: stretch; align-self: stretch; min-width: 0; }
+
+.cell { --cell-bg: var(--chrome); --cell-ink: var(--ink);
+  position: relative; min-width: 0; overflow: hidden; container-type: inline-size; }
+.cell[data-o='same'] { --cell-bg: var(--success-tint); --cell-ink: var(--success-ink); }
+.cell[data-o='substituted'] { --cell-bg: var(--warning-tint); --cell-ink: var(--warning-ink); }
+.cell[data-o='missing'] { --cell-bg: var(--danger-tint); --cell-ink: var(--danger-ink); }
+.cell .fill { position: absolute; inset: 0; border-radius: 1px; background: var(--cell-bg); }
+/* The word is drawn in the cell and clipped by it, not ellipsised: at fourteen
+   pixels a three-letter prefix is the point, and the full word is on the title.
+   The font scales with the cell so more of the word survives as it narrows. */
+.cell bdi { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  overflow: hidden; white-space: nowrap; color: var(--cell-ink); font-family: var(--font-serif);
+  font-size: clamp(8px, 62cqw, var(--type-ui)); line-height: 1; }
+/* The ring is what makes the splits legible while the cells are wide enough to
+   carry one. Below that it would be most of the cell and the row would read as
+   a grid of borders with the colour squeezed out, so it gives out on its own —
+   which is the same threshold at which the row becomes a ribbon. */
+@container (min-width: 5px) { .cell .fill { box-shadow: inset 0 0 0 1px var(--cell-ring); } }
+@container (min-width: 13px) { .cell bdi { display: flex; } }
+
+/* The previous take's row, in flight from the card down into the stack. Same
+   row, same columns, moved. */
+.row-travel { position: fixed; z-index: 40; pointer-events: none; transition: transform var(--flow) var(--ease-out); }
+
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-5); margin: 0; padding: 0 var(--space-2);
+  color: var(--ink-2); font-size: var(--type-meta); list-style: none; }
+.legend li { display: flex; align-items: center; gap: var(--space-3); }
+.legend i { width: var(--space-5); height: var(--space-5); border-radius: var(--radius-xs); }
+.more { align-self: flex-start; height: var(--control-height-sm); padding: 0 var(--space-5); background: var(--sheet);
+  border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-2); font: inherit; cursor: pointer; }
+
+/* ── the phone ───────────────────────────────────────────────────────────── */
+.phone { display: flex; flex-direction: column; height: 560px; }
+.phone .page { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--space-3); padding: var(--space-3); height: auto; flex: 1 1 auto; }
+.phone .report { display: none; }
+.phone-body { display: grid; gap: var(--space-3); align-content: start; min-height: 0; overflow: hidden; }
+/* The panel folds back to one column, and the stream is the waveform alone. */
+.phone .dock { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+.phone .dock-side { grid-template-columns: max-content minmax(0, 1fr); align-items: center; min-width: 0; }
+.phone .dock .record { width: auto; }
+.phone .live-plots { grid-template-rows: minmax(0, 1fr); }
+.peek { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-5);
+  background: var(--sheet); border: 1px solid var(--line-soft); border-radius: var(--radius-md); }
+.peek .score { margin-inline-start: auto; font-family: var(--font-mono); font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-scroll, .mel-strip.streaming, .spinner { animation: none; }
+  .row-travel { transition: none; }
+}

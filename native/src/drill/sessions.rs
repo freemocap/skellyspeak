@@ -50,6 +50,16 @@ pub(crate) fn active_visit(db: &Connection, item: &str) -> Result<String> {
 }
 
 impl Store {
+    /// Restore navigation from durable visits, including closed/interrupted sessions.
+    /// Webview storage is not the authority for which workspace phrase was visited.
+    pub fn last_drill_item(&self, language: &str) -> Result<Option<String>> {
+        use rusqlite::OptionalExtension;
+        Ok(self.connection.query_row(
+            "SELECT i.id FROM drill_visits v JOIN drill_items i ON i.id=v.drill_item_id WHERE i.language_id=?1 AND i.archived=0 ORDER BY v.rowid DESC LIMIT 1",
+            [language], |row| row.get(0),
+        ).optional()?)
+    }
+
     pub fn start_drill_session(&mut self, language: &str) -> Result<String> {
         // Resolve a real supported practice language without trusting a label.
         self.config.resolve_pair(language, None, "english", None)?;

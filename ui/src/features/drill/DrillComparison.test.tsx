@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import { I18nProvider } from '../../components/localization/i18n'
 import type { AudioInspection } from '../../generated/contracts'
@@ -57,7 +57,7 @@ it('disables alignment without word timing and shows no timing error', () => {
   expect(screen.queryByText(/Word timings unavailable/)).not.toBeInTheDocument()
 })
 
-it('aligns the word track, preserves playback, and resets the view when timing disappears', () => {
+it('aligns the word track, preserves playback, and resets the view when timing disappears', async () => {
   const timed = (duration: number, start: number, end: number): AudioInspection => ({ ...inspection, duration,
     wordTiming: { status: 'available', reason: null, unsupported: [], words: [
       { index: 0, word: 'Hola', start, end, providerStart: start, providerEnd: end, clipped: false },
@@ -71,12 +71,22 @@ it('aligns the word track, preserves playback, and resets the view when timing d
   expect(onTimeScale).toHaveBeenCalledWith('words')
   rerender(view({ ...props, timeScale: 'words', attemptTime: 2 }))
   const cursor = container.querySelectorAll<HTMLElement>('.audio-spectrum-cursor')[1]
-  expect(parseFloat(cursor.style.left)).toBeCloseTo(30)
-  expect(container.querySelector('.inspection-token-label')).toHaveStyle({ left: '10%', width: '40%' })
+  await waitFor(() => expect(parseFloat(cursor.style.left)).toBeCloseTo(40))
+  await waitFor(() => expect(container.querySelectorAll('.drill-word-overlay')[1].firstElementChild).toHaveStyle({ left: '10%' }))
+  expect(container.querySelectorAll('.drill-word-marker[data-outcome="same"]')).toHaveLength(2)
+  expect(container.querySelector('.drill-word-slot')).toBeNull()
   expect(screen.getByText(/Word-aligned display; playback uses original timing/)).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
   expect(onPlayAttempt).toHaveBeenCalledOnce()
   rerender(view({ ...props, attempt: inspection, timeScale: 'words' }))
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
   expect(screen.queryByText(/Word-aligned display; playback uses original timing/)).not.toBeInTheDocument()
+})
+
+it('leaves uncertain recognition orange and never warps its timing', () => {
+  const timed = { ...inspection, wordTiming: { status: 'available' as const, reason: null, unsupported: [],
+    words: [{ index: 0, word: 'Hola', start: 0.1, end: 0.8, providerStart: 0.1, providerEnd: 0.8, clipped: false }] } }
+  const { container } = render(view({ reference: timed, attempt: timed, attemptLabel: 'Take 1', comparisonAccepted: false, timeScale: 'words' }))
+  expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
+  expect(container.querySelectorAll('.drill-word-marker[data-outcome="unknown"]')).toHaveLength(2)
 })

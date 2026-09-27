@@ -47,22 +47,31 @@ export function Spectrogram({ data, duration, zoom, scale, startSeconds = 0, map
       // data, never a convincing stretch of quiet.
       const absent = channels('--spectrogram-unavailable')
       const pixels = context.createImageData(element.width, element.height)
+      const palette = Array.from({ length: 256 }, (_, index) => {
+        const level = index / 255 * 2
+        const lower = Math.min(1, Math.floor(level)), mix = level - lower
+        return stops[lower].map((value, channel) => Math.round(value * (1 - mix) + stops[lower + 1][channel] * mix))
+      })
       data.bins.forEach((frame, index) => {
         const start = data.frameStartSeconds[index]
         const end = start + data.windowSeconds
         const left = ((mapTime ? mapTime(start) : start) - startSeconds) / duration * element.width
-        const right = ((mapTime ? mapTime(end) : Math.min(end, startSeconds + duration)) - startSeconds) / duration * element.width
-        const width = right - left
+        const right = ((mapTime ? mapTime(end) : end) - startSeconds) / duration * element.width
+        // Later frames replace overlapping FFT windows. Paint each time column
+        // once, stopping where the next frame would overwrite this one.
+        const next = data.frameStartSeconds[index + 1]
+        const nextLeft = next === undefined ? Infinity
+          : Math.floor(((mapTime ? mapTime(next) : next) - startSeconds) / duration * element.width)
+        const first = Math.max(0, Math.floor(left))
+        const last = Math.min(element.width, Math.ceil(right), nextLeft)
+        if (first >= last) return
         frame.forEach((db, band) => {
-          let color = absent
-          if (db !== null) {
-            const level = Math.max(0, Math.min(1, (db - dbMin) / (dbMax - dbMin))) * 2
-            const lower = Math.min(1, Math.floor(level)); const mix = level - lower
-            color = stops[lower].map((value, channel) => Math.round(value * (1 - mix) + stops[lower + 1][channel] * mix))
-          }
-          for (let pixel = Math.max(0, Math.floor(left)); pixel < Math.min(element.width, Math.ceil(left + width)); pixel++) {
-            const offset = ((element.height - 1 - band) * element.width + pixel) * 4
-            color.forEach((value, channel) => { pixels.data[offset + channel] = value })
+          const color = db === null ? absent : palette[Math.round(Math.max(0, Math.min(1, (db - dbMin) / (dbMax - dbMin))) * 255)]
+          let offset = ((element.height - 1 - band) * element.width + first) * 4
+          for (let pixel = first; pixel < last; pixel++, offset += 4) {
+            pixels.data[offset] = color[0]
+            pixels.data[offset + 1] = color[1]
+            pixels.data[offset + 2] = color[2]
             pixels.data[offset + 3] = 255
           }
         })

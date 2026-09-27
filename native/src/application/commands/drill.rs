@@ -19,6 +19,14 @@ pub(in crate::application) fn get_drill_items(
 }
 
 #[tauri::command]
+pub(in crate::application) fn get_last_drill_item(
+    state: tauri::State<'_, Arc<Application>>,
+    language: String,
+) -> Result<Option<String>> {
+    state.lock()?.last_drill_item(&language)
+}
+
+#[tauri::command]
 pub(in crate::application) fn delete_drill_item(
     state: tauri::State<'_, Arc<Application>>,
     item_id: String,
@@ -204,3 +212,4 @@ pub(in crate::application) fn drill_attempts(
         .lock()?
         .drill_attempts(&item_id, cursor.as_deref(), limit)
 }
+

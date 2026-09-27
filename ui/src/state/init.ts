@@ -1,3 +1,4 @@
+import { useNavigationStore } from './navigation/navigation'
 import { useOnboardingStore } from './settings/onboarding'
 import { configureAudioVolumes } from '../platform/audio/audio-volume'
 import { reportFault } from '../platform/diagnostics/faults'
@@ -28,6 +29,7 @@ export async function initStores(): Promise<void> {
   await useOnboardingStore.getState().initialize()
 
   await Promise.all([
+    useNavigationStore.getState().restorePracticeView().catch((error: unknown) => reportFault('Restoring practice destination', error)),
     useSettingsStore.getState().load().catch((error: unknown) => reportFault('Loading settings', error)),
     useSessionStore.getState().refresh().catch((error: unknown) => reportFault('Loading AI access', error)),
   ])

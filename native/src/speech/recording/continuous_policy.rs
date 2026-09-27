@@ -1,6 +1,15 @@
 //! Versioned bounds shared by native capture and its controls.
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
+/// Microphone ownership is independent of how clips are made.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase")]
+pub enum ListeningMode {
+    #[default]
+    Auto,
+    Monitor,
+    Manual,
+}
 #[derive(Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ContinuousRecordingPolicy {

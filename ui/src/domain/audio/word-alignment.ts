@@ -1,10 +1,11 @@
 import type { InspectionWordTiming } from '../../generated/contracts'
 
-/** Visual time mapping only. Require the same word sequence (canonical Unicode
- * equivalence, case, punctuation and surrounding whitespace); never infer pronunciation or
- * invent correspondence for missing, substituted or differently split words. */
-export function wordAlignment(reference: InspectionWordTiming, take: InspectionWordTiming,
-  referenceDuration: number, takeDuration: number): ((seconds: number) => number) | null {
+export type WordMatch = 'same' | 'missing' | 'unknown'
+
+/** Display-only correspondence: canonical equivalence, case and punctuation.
+ * Marks remain significant. Original labels and playback times are untouched. */
+export function matchTimedWords(reference: InspectionWordTiming, take: InspectionWordTiming,
+  referenceDuration: number, takeDuration: number) {
   const valid = (timing: InspectionWordTiming, duration: number) => {
     let end = 0
     return Number.isFinite(duration) && duration > 0 && timing.status === 'available'
@@ -15,35 +16,38 @@ export function wordAlignment(reference: InspectionWordTiming, take: InspectionW
         return okay
       })
   }
-  if (!valid(reference, referenceDuration) || !valid(take, takeDuration)
-    || reference.words.length !== take.words.length) return null
+  if (!valid(reference, referenceDuration) || !valid(take, takeDuration)) return null
   const key = (word: string) => word.normalize('NFC').toLowerCase().replace(/[\p{P}\p{White_Space}]/gu, '')
-  const anchors: { from: number; to: number }[] = []
-  for (let index = 0; index < take.words.length; index++) {
-    const a = take.words[index], b = reference.words[index]
-    if (!key(a.word) || key(a.word) !== key(b.word)) return null
-    anchors.push({ from: a.start, to: b.start }, { from: a.end, to: b.end })
+  const a = reference.words.map(word => key(word.word)), b = take.words.map(word => key(word.word))
+  // Ordered correspondence handles repeated words without crossing time anchors.
+  const lengths = Array.from({ length: a.length + 1 }, () => new Uint32Array(b.length + 1))
+  for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--)
+    lengths[i][j] = a[i] && a[i] === b[j] ? 1 + lengths[i + 1][j + 1] : Math.max(lengths[i + 1][j], lengths[i][j + 1])
+  const pairs: { reference: number; take: number }[] = []
+  for (let i = 0, j = 0; i < a.length && j < b.length;) {
+    if (a[i] && a[i] === b[j]) { pairs.push({ reference: i++, take: j++ }) }
+    else if (lengths[i + 1][j] >= lengths[i][j + 1]) i++
+    else j++
   }
-  // Keep leading/trailing padding when it exists; a word at the file edge
-  // must not conflict with an invented silence anchor at that same instant.
-  if (anchors[0].from > 0) anchors.unshift({ from: 0, to: 0 })
-  if (anchors[anchors.length - 1].from < takeDuration) anchors.push({ from: takeDuration, to: referenceDuration })
-  const points = [anchors[0]]
-  for (const point of anchors.slice(1)) {
-    const previous = points[points.length - 1]
-    if (point.from === previous.from) {
-      // Adjacent source words share an instant; place it midway in the
-      // reference gap instead of inventing extra time in the source audio.
-      previous.to = (previous.to + point.to) / 2
-      continue
-    }
-    if (point.from < previous.from || point.to < previous.to) return null
-    points.push(point)
+  return {
+    pairs,
+    reference: a.map((_, index): WordMatch => pairs.some(pair => pair.reference === index) ? 'same' : 'missing'),
+    take: b.map((_, index): WordMatch => pairs.some(pair => pair.take === index) ? 'same' : 'unknown'),
   }
+}
+
+/** Piecewise linear display warp through matched starts. Missing words never
+ * create timestamps; playback continues to use the original recording. */
+export function wordAlignment(reference: InspectionWordTiming, take: InspectionWordTiming,
+  referenceDuration: number, takeDuration: number): ((seconds: number) => number) | null {
+  const matches = matchTimedWords(reference, take, referenceDuration, takeDuration)
+  if (!matches?.pairs.length) return null
+  const points = matches.pairs.map(pair => ({ from: take.words[pair.take].start, to: reference.words[pair.reference].start }))
+  if (points[0].from > 0) points.unshift({ from: 0, to: 0 })
+  points.push({ from: takeDuration, to: referenceDuration })
   return seconds => {
     const time = Math.max(0, Math.min(takeDuration, seconds))
     const index = points.findIndex(point => point.from >= time)
-    if (index < 0) return points[points.length - 1].to
     if (index === 0) return points[0].to
     const left = points[index - 1], right = points[index]
     return left.to + (time - left.from) / (right.from - left.from) * (right.to - left.to)

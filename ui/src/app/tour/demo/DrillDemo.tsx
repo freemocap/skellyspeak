@@ -5,7 +5,7 @@ import { PhraseRail } from '../../../features/drill/PhraseRail'
 import { RecordDock } from '../../../features/drill/RecordDock'
 import { DrillComparison } from '../../../features/drill/DrillComparison'
 import { AttemptInspection } from '../../../features/drill/AttemptInspection'
-import { PhraseProgress } from '../../../features/drill/PhraseProgress'
+import { AttemptRows } from '../../../features/drill/AttemptRows'
 import { DRILL_ATTEMPT_AUDIO, DRILL_ATTEMPTS, DRILL_PHRASE, DRILL_REFERENCE_AUDIO, DRILL_SECOND_PHRASE } from './fixtures'
 
 const noop = () => {}
@@ -27,15 +27,16 @@ export function DrillDemo() {
     <TopBar />
     <section className="drill-page">
       <DrillLayout items={items} selectedId={DRILL_PHRASE.id} locked={false} onSelect={noop} attempt={attempt} rtl
-        railResize={<div />} reportResize={<div />}
-        progress={<PhraseProgress attempts={DRILL_ATTEMPTS} compact selectedId={attempt.id} onSelect={noop} />}
-        rail={<PhraseRail items={items} selectedId={DRILL_PHRASE.id} languageTag="ar" busy={false} locked={false}
-          onSelect={noop} onAdd={asyncNoop} onDelete={asyncNoop} onAskForMore={noop}>{null}</PhraseRail>}
-        dock={<div className="drill-pane drill-dock-pane"><RecordDock phase="ready" mode="auto" onMode={noop} settings={{ pauseMs: 900, thresholdDb: -40, minTakeMs: 400, silenceTimeoutMs: 1800 }}
-          onSettings={noop} listeningStatus={null} waveSource={null} liveSpectrum={null} onToggle={noop} onCancel={noop} onHoldStart={noop} onHoldEnd={noop} /></div>}
+        reportResize={<div />}
+        rail={<PhraseRail items={items} selectedId={DRILL_PHRASE.id} busy={false} locked={false}
+          onSelect={noop} onDelete={asyncNoop}>{null}</PhraseRail>}
+        onAddPhrases={noop}
+        dock={<div className="drill-pane drill-dock-pane"><RecordDock phase="ready" mode="live" onMode={noop} settings={{ pauseMs: 900, thresholdDb: -40, minTakeMs: 400, silenceTimeoutMs: 1800 }}
+          onSettings={noop} listeningStatus={null} waveSource={null} liveSpectrum={null} onToggle={noop} onHoldStart={noop} onHoldEnd={noop} /></div>}
         report={<aside className="drill-log" aria-label={tr('Attempts')}>
-          <div className="drill-pane drill-progress-pane"><PhraseProgress attempts={DRILL_ATTEMPTS} /></div>
-          <div className="drill-pane drill-inspection-pane"><AttemptInspection attempt={attempt} audio={DRILL_ATTEMPT_AUDIO} reference={DRILL_REFERENCE_AUDIO} rtl onDelete={noop} deleting={false} /></div>
+          <div className="drill-pane drill-attempts-pane">
+            <AttemptRows attempts={DRILL_ATTEMPTS} selectedId={attempt.id} onSelect={noop} rtl renderDetails={take => <AttemptInspection attempt={take} audio={DRILL_ATTEMPT_AUDIO} reference={DRILL_REFERENCE_AUDIO} rtl onDelete={noop} deleting={false} />} />
+          </div>
         </aside>}>
         <main className="drill-stage">
           <DrillComparison

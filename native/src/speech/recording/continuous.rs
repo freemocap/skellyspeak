@@ -1,6 +1,6 @@
 //! One live capture feeds bounded utterances into the existing transcription path.
 use super::{
-    continuous_policy::{ListeningSettings, POLICY},
+    continuous_policy::{ListeningMode, ListeningSettings, POLICY},
     voice,
 };
 use crate::{application::Application, model::*, speech::recording::owner::RecordingOwner};
@@ -59,6 +59,13 @@ pub(crate) struct Session {
     spectrum: Mutex<Option<crate::speech::analysis::spectrogram::LiveAnalysis>>,
     status: Mutex<ListeningStatus>,
     settings: Mutex<ListeningSettings>,
+    mode: Mutex<ListeningMode>,
+    previews: Mutex<
+        std::collections::VecDeque<(
+            String,
+            crate::speech::analysis::spectrogram::LiveSpectrogram,
+        )>,
+    >,
     discard: AtomicBool,
     stop: AtomicU8, // 0 listen, 1 finish current, 2 discard current
     lease: Mutex<Instant>,
@@ -84,6 +91,8 @@ impl Session {
                 ignored_takes: 0,
             }),
             settings: Mutex::new(settings),
+            mode: Mutex::new(ListeningMode::Auto),
+            previews: Mutex::new(std::collections::VecDeque::new()),
             discard: AtomicBool::new(false),
             stop: AtomicU8::new(0),
             lease: Mutex::new(Instant::now()),
@@ -105,21 +114,30 @@ pub async fn mic_listen_start(
     state: tauri::State<'_, Arc<Application>>,
     owner: RecordingOwner,
     settings: ListeningSettings,
+    capture_mode: Option<ListeningMode>,
 ) -> Result<RecordingStarted> {
     settings
         .validate()
         .map_err(|message| AppError::new(ErrorCode::Validation, message))?;
     let state = state.inner().clone();
     let prepared = super::preflight::prepare(&state, &owner).await?;
-    tauri::async_runtime::spawn_blocking(move || start(&state, owner, settings, prepared))
-        .await
-        .map_err(|e| {
-            crate::diagnostics::failures::join(
-                &e,
-                "continuous_start",
-                AppError::new(ErrorCode::Conflict, "Listening could not start."),
-            )
-        })?
+    tauri::async_runtime::spawn_blocking(move || {
+        start(
+            &state,
+            owner,
+            settings,
+            prepared,
+            capture_mode.unwrap_or_default(),
+        )
+    })
+    .await
+    .map_err(|e| {
+        crate::diagnostics::failures::join(
+            &e,
+            "continuous_start",
+            AppError::new(ErrorCode::Conflict, "Listening could not start."),
+        )
+    })?
 }
 
 fn start(
@@ -127,6 +145,7 @@ fn start(
     owner: RecordingOwner,
     settings: ListeningSettings,
     prepared: super::preflight::Prepared,
+    mode: ListeningMode,
 ) -> Result<RecordingStarted> {
     let mut held = state
         .listening
@@ -143,6 +162,7 @@ fn start(
     }
     let started = voice::start_prepared_capture(state, owner, Some(prepared))?;
     let session = Arc::new(Session::new(started.recording_id.clone(), settings));
+    *session.mode.lock().expect("capture mode") = mode;
     if started.browser_capture {
         *session.browser.lock().expect("browser capture") = Some(Default::default());
     }
@@ -207,6 +227,7 @@ pub fn mic_listen_spectrogram(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
     after_seconds: Option<f64>,
+    take_id: Option<String>,
 ) -> Result<Option<crate::speech::analysis::spectrogram::LiveSpectrogram>> {
     if after_seconds.is_some_and(|n| !n.is_finite() || n < 0.0) {
         return Err(AppError::new(
@@ -215,6 +236,21 @@ pub fn mic_listen_spectrogram(
         ));
     }
     let session = session(&state, &recording_id)?;
+    if let Some(take_id) = take_id {
+        return session
+            .previews
+            .lock()
+            .expect("clip previews")
+            .iter()
+            .find(|(id, _)| *id == take_id)
+            .map(|(_, spectrum)| Some(spectrum.clone()))
+            .ok_or_else(|| {
+                AppError::new(
+                    ErrorCode::Conflict,
+                    "The clip preview is no longer available.",
+                )
+            });
+    }
     let spectrum = session
         .spectrum
         .lock()
@@ -252,6 +288,7 @@ pub fn mic_listen_tune(
     state: tauri::State<'_, Arc<Application>>,
     recording_id: String,
     settings: ListeningSettings,
+    capture_mode: Option<ListeningMode>,
 ) -> Result<()> {
     settings
         .validate()
@@ -262,6 +299,9 @@ pub fn mic_listen_tune(
         .lock()
         .map_err(|_| AppError::new(ErrorCode::Conflict, "Listening settings unavailable."))? =
         settings;
+    if let Some(mode) = capture_mode {
+        *session.mode.lock().expect("capture mode") = mode;
+    }
     Ok(())
 }
 
@@ -277,7 +317,7 @@ pub fn mic_listen_discard(
 }
 
 async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
-    use super::{segmentation::Segmenter, wav};
+    use super::{clip_capture::ClipCapture, wav};
     let (tx, mut rx) = tokio::sync::mpsc::channel::<(voice::Transcription, Vec<u8>)>(
         POLICY.max_pending_takes as usize,
     );
@@ -322,7 +362,7 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
             }
         }
     });
-    let mut detector: Option<Segmenter> = None;
+    let mut detector: Option<ClipCapture> = None;
     // Ignored bursts from detectors already replaced by a discard.
     let mut ignored_before = 0;
     let began = Instant::now();
@@ -394,7 +434,13 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
             let mut spectrum = session.spectrum.lock().expect("live spectrum");
             spectrum
                 .get_or_insert_with(|| {
-                    crate::speech::analysis::spectrogram::LiveAnalysis::new(rate)
+                    crate::speech::analysis::spectrogram::LiveAnalysis::new(
+                        rate,
+                        f64::from(POLICY.max_take_seconds)
+                            + f64::from(*POLICY.pause_options_ms.last().expect("pause options"))
+                                / 1000.0
+                            + 1.0,
+                    )
                 })
                 .push(&pcm);
         }
@@ -403,15 +449,14 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
             break;
         }
         if session.discard.swap(false, Ordering::SeqCst) {
-            ignored_before += detector.as_ref().map_or(0, Segmenter::ignored);
+            ignored_before += detector.as_ref().map_or(0, ClipCapture::ignored);
             detector = None;
             continue;
         }
         let settings = *session.settings.lock().expect("listening settings");
         if detector.is_none() {
-            match Segmenter::new(rate, settings) {
-                Ok(mut value) => {
-                    value.set_offset(received_samples - pcm.len());
+            match ClipCapture::new(rate, settings, received_samples - pcm.len()) {
+                Ok(value) => {
                     detector = Some(value);
                 }
                 Err(error) => {
@@ -421,11 +466,8 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
             }
         }
         let detector = detector.as_mut().expect("detector initialized");
-        if let Err(error) = detector.tune(settings) {
-            session.fail(&error);
-            break;
-        }
-        let mut clips = match detector.push(&pcm) {
+        let mode = *session.mode.lock().expect("capture mode");
+        let mut clips = match detector.push(&pcm, mode, settings) {
             Ok(clips) => clips,
             Err(error) => {
                 session.fail(&error);
@@ -438,11 +480,11 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
                 .compare_exchange(0, 1, Ordering::SeqCst, Ordering::SeqCst);
         }
         let stopping = session.stop.load(Ordering::SeqCst) == 1;
-        if stopping && let Some(clip) = detector.finish_on_stop() {
+        if stopping && let Some(clip) = detector.finish() {
             clips.push(clip);
         }
         {
-            let levels = detector.levels();
+            let levels = detector.detector.levels();
             let mut status = session.status.lock().expect("listening status");
             status.speaking = detector.speaking();
             status.settings = settings;
@@ -459,6 +501,15 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
                 session.fail("Listening reached its 100-take limit. Start again to continue.");
                 break;
             }
+            let Some(clip) = super::clip_trim::trim(clip, rate, settings.threshold_db) else {
+                ignored_before += 1;
+                session
+                    .status
+                    .lock()
+                    .expect("listening status")
+                    .ignored_takes = ignored_before + detector.ignored();
+                continue;
+            };
             let wav = match wav::encode_wav(&clip.samples, rate) {
                 Ok(wav) => wav,
                 Err(error) => {
@@ -469,6 +520,22 @@ async fn listen(state: Arc<Application>, session: Arc<Session>, id: String) {
             let mut request = template.clone();
             request.id = uuid::Uuid::new_v4().to_string();
             let recording_id = request.id.clone();
+            // Reuse live analysis here: recomputing a complete spectrogram on
+            // this capture loop stalls the stream exactly when a take is cut.
+            let preview = session
+                .spectrum
+                .lock()
+                .expect("live spectrum")
+                .as_ref()
+                .expect("live analysis initialized before clip detection")
+                .clip(clip.start_seconds, clip.end_seconds);
+            {
+                let mut previews = session.previews.lock().expect("clip previews");
+                previews.push_back((recording_id.clone(), preview));
+                while previews.len() > POLICY.max_pending_takes as usize + 1 {
+                    previews.pop_front();
+                }
+            }
             let mut status = session.status.lock().expect("listening status");
             // Hold the counter lock while sending so the consumer cannot underflow.
             if status.queued + u32::from(status.processing) >= POLICY.max_pending_takes

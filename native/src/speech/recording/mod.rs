@@ -1,6 +1,8 @@
 #[cfg(desktop)]
 pub(crate) mod audio;
 mod browser_capture;
+mod clip_capture;
+mod clip_trim;
 pub(crate) mod continuous;
 pub(crate) mod continuous_policy;
 pub(crate) mod microphone;

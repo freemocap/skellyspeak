@@ -16,6 +16,12 @@ export default defineConfig({
     watch: {
       // These directories do not feed the frontend bundle. Ignoring them
       // prevents unrelated builds from reloading the active webview.
+      // Atomic writers publish through a private staging directory placed beside
+      // the destination (`.<name>.<pid>.<uuid>.tmpdir/<name>.tmp`), so an edit
+      // briefly exposes those paths inside the source tree. Watching a staging
+      // file that is still locked, and is then renamed away, makes `fs.watch`
+      // fail with EBUSY; that error has no listener on the watcher, so it ends
+      // the dev server and aborts `tauri dev`.
       ignored: [
         '**/docs/docs-site/**',
         '**/old/**',
@@ -23,6 +29,9 @@ export default defineConfig({
         '**/native/gen/**',
         '**/.build-artifacts/**',
         '**/.local/**',
+        '**/*.tmpdir',
+        '**/*.tmpdir/**',
+        '**/*.tmp',
       ],
     },
   },

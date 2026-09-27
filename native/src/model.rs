@@ -108,9 +108,16 @@ pub enum Theme {
     System,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, TS, PartialEq, Eq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum PracticeView { #[default] Chat, Drill }
+
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Preferences {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub practice_view: Option<PracticeView>,
     #[serde(default)]
     pub theme: Theme,
     #[serde(default)]
@@ -565,6 +572,7 @@ pub fn bindings() -> String {
         RecordingStarted::decl(&config),
         crate::speech::recording::continuous_policy::ContinuousRecordingPolicy::decl(&config),
         crate::speech::recording::continuous_policy::ListeningSettings::decl(&config),
+        crate::speech::recording::continuous_policy::ListeningMode::decl(&config),
         crate::speech::recording::continuous::ListeningStatus::decl(&config),
         crate::speech::recording::continuous::ListeningTake::decl(&config),
         crate::speech::analysis::spectrogram::LiveSpectrogram::decl(&config),
@@ -665,6 +673,7 @@ pub fn bindings() -> String {
         SpeechUnavailableReason::decl(&config),
         SpeechAudioState::decl(&config),
         OnboardingStatus::decl(&config),
+        PracticeView::decl(&config),
         Preferences::decl(&config),
         Learner::decl(&config),
         LanguageProfile::decl(&config),

@@ -1,49 +1,24 @@
-import { useState, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import type { DrillItemView } from '../../generated/contracts'
 
-/** The learner's own phrases: add one, pick one, delete one.
- *
- * A phrase cannot be edited, so deleting is the only correction and the rail
- * says what deleting takes with it. */
-export function PhraseRail({ items, selectedId, languageTag, busy, locked, onAdd, onSelect, onDelete, onAskForMore, children }: {
+/** Select or delete existing phrases. Creation belongs to the full Add phrases dialog. */
+export function PhraseRail({ items, selectedId, busy, locked, onSelect, onDelete, children }: {
   items: DrillItemView[]
   selectedId: string | null
-  languageTag: string | undefined
   busy: boolean
   locked: boolean
-  onAdd: (text: string) => Promise<void>
   onSelect: (id: string) => void
   onDelete: (item: DrillItemView) => Promise<void>
-  onAskForMore: () => void
   children: ReactNode
 }) {
   const tr = useI18n()
-  const [phrase, setPhrase] = useState('')
-  const submit = async () => {
-    if (!phrase.trim() || locked || busy) return
-    await onAdd(phrase)
-    setPhrase('')
-  }
-
   return (
-    <aside className="drill-rail" aria-label={tr("Your phrases")}>
-      <form className="drill-entry" onSubmit={event => { event.preventDefault(); void submit() }}>
-        <label htmlFor="drill-phrase">{tr("Practise a phrase")}</label>
-        <div className="drill-entry-row">
-          <input id="drill-phrase" className="field" dir="auto" lang={languageTag} value={phrase} disabled={busy || locked}
-            placeholder={tr("Type a line to say out loud")} onChange={event => setPhrase(event.target.value)} />
-          <button className="btn" type="submit" disabled={busy || locked || !phrase.trim()}>{tr("Add")}</button>
-        </div>
-      </form>
-      <button type="button" className="btn drill-ask-more" disabled={busy || locked} onClick={onAskForMore}>
-        {tr("Add phrases…")}
-      </button>
-
+    <aside className="drill-rail" aria-label={tr("Your drill targets")}>
       {items.length === 0
-        ? <p className="drill-rail-empty">{tr("Nothing to practise yet. Type a line you want to be able to say, or ask for some.")}</p>
-        : <ul className="drill-items" aria-label={tr("Phrases")}>
+        ? <p className="drill-rail-empty">{tr("Nothing to practise yet")}</p>
+        : <ul className="drill-items" aria-label={tr("Drill targets")}>
           {items.map(item => (
             <li key={item.id}>
               <button type="button" className="drill-item" aria-current={item.id === selectedId} disabled={locked}

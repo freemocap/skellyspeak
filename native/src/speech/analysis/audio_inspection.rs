@@ -339,7 +339,7 @@ mod tests {
         let (inspection, _) =
             inspect_wav(&wav(&vec![0; 8000 * 120], 8000, 1), "r", &owner()).unwrap();
         assert!(inspection.waveform.min.len() <= 1200);
-        assert!(inspection.spectrogram.bins.len() <= 1200);
+        assert!(inspection.spectrogram.bins.len() <= 2400);
         assert!(inspection.spectrogram.bins.iter().all(|row| {
             row.len() == MEL_BANDS && row.iter().all(|db| db.is_none() || *db == Some(-100.0))
         }));
@@ -425,7 +425,7 @@ mod tests {
                 "{rate}: 1000 Hz outside {band:?}"
             );
             assert!((-15.0..-8.0).contains(&power), "{rate}: {power}");
-            assert!(spectrum.bins.len() <= 1200);
+            assert!(spectrum.bins.len() <= 2400);
             assert_eq!(spectrum.bins[0].len(), MEL_BANDS);
             // Every rate reports the same grid; only what it could measure differs.
             assert_eq!(spectrum.max_frequency_hz, MEL_MAX_HZ);

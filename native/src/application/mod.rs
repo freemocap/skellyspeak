@@ -1,4 +1,5 @@
 //! Application composition and shared runtime entry points.
+mod navigation;
 use crate::ai::audio;
 use crate::ai::connections::access;
 use crate::ai::connections::credentials;

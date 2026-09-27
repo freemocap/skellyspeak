@@ -14,7 +14,9 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
   const blocked = new Set<string>()
   const update = (): void => {
     const allowed = blocked.size === 0 && document.visibilityState !== 'hidden'
-    setPlaybackAllowed(allowed)
+    // Visible focus loss stops speakers, not an explicitly started microphone.
+    const stopCapture = document.visibilityState === 'hidden' || [...blocked].some(reason => reason !== 'focus')
+    setPlaybackAllowed(allowed, stopCapture)
     setRewardPlaybackAllowed(allowed)
   }
   const setBlocked = (reason: string, value: boolean): void => {

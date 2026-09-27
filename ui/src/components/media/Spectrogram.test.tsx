@@ -78,3 +78,26 @@ it('says when a recording could not measure the whole grid', () => {
   // The grid itself is unchanged, so the axis still lines up with the other panel.
   expect(melAxisTicks(limited, 4)).toEqual(melAxisTicks(analysis(), 4))
 })
+
+it('keeps the latest overlapping frame and leaves true gaps transparent', () => {
+  const token = vi.spyOn(appearance, 'cssToken').mockImplementation(value => value)
+  const putImageData = vi.fn()
+  const context = {
+    fillStyle: '', fillRect: vi.fn(),
+    getImageData: () => ({ data: new Uint8ClampedArray([
+      context.fillStyle === '--spectrogram-high' ? 255 : context.fillStyle === '--spectrogram-mid' ? 128 : 0, 0, 0, 255,
+    ]) }),
+    createImageData: (width: number, height: number) => ({ data: new Uint8ClampedArray(width * height * 4) }),
+    putImageData,
+  }
+  const mock = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D)
+  try {
+    app(<Spectrogram data={analysis({ frameStartSeconds: [0, 0.25, 0.9], windowSeconds: 0.5, bins: [[0], [-100], [0]] })} duration={1} zoom={1} />)
+    const pixels = putImageData.mock.calls[0][0].data as Uint8ClampedArray
+    expect(pixels[249 * 4]).toBe(255)
+    expect(pixels[250 * 4]).toBe(0)
+    expect(pixels[749 * 4 + 3]).toBe(255)
+    expect(pixels[750 * 4 + 3]).toBe(0)
+    expect(pixels[900 * 4]).toBe(255)
+  } finally { mock.mockRestore(); token.mockRestore() }
+})

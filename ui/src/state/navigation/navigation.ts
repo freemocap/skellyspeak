@@ -1,3 +1,6 @@
+import { getPracticeView, savePracticeView } from '../../platform/ipc/navigation'
+import { isTauri } from '../../platform/ipc/tauri'
+import { reportFault } from '../../platform/diagnostics/faults'
 import type { AiViewSelection } from '../../generated/contracts'
 import { create } from 'zustand'
 
@@ -12,7 +15,8 @@ import { create } from 'zustand'
 export type Page = 'guided' | 'skills'
 /// Which practice surface the guided page is showing: the conversation, or the
 /// drill. One replaces the other; they are never side by side.
-export type PracticeView = 'chat' | 'drill'
+export type { PracticeView } from '../../generated/contracts'
+import type { PracticeView } from '../../generated/contracts'
 export type WorkspaceMode = 'practice' | 'review'
 
 /// Where the narrow-window layout puts the learner: the conversation or the
@@ -30,6 +34,7 @@ interface NavigationState {
   page: Page
   practiceView: PracticeView
   setPracticeView: (view: PracticeView) => void
+  restorePracticeView: () => Promise<void>
   mode: WorkspaceMode
   setMode: (mode: WorkspaceMode) => void
   mobileSurface: MobileLocation
@@ -80,6 +85,8 @@ interface NavigationState {
 }
 
 // Remember only the practice destination, not open dialogs or transient work.
+let selectionRevision = 0
+let pendingSave: Promise<void> = Promise.resolve()
 const practiceViewKey = 'skellyspeak.practice-view'
 const savedPracticeView = typeof window === 'undefined' ? null : window.localStorage.getItem(practiceViewKey)
 
@@ -104,7 +111,18 @@ export const useNavigationStore = create<NavigationState>((set) => ({
   readingQuestion: null,
   draftReadingQuestion: readingQuestion => set({ readingQuestion }),
 
+  restorePracticeView: async () => {
+    if (!isTauri) return
+    const revision = selectionRevision
+    const practiceView = await getPracticeView()
+    if (revision === selectionRevision) set({ practiceView })
+  },
   setPracticeView: (practiceView) => {
+    selectionRevision++
+    if (isTauri) {
+      pendingSave = pendingSave.then(() => savePracticeView(practiceView))
+        .catch(error => { reportFault('Saving practice destination', error) })
+    }
     window.localStorage.setItem(practiceViewKey, practiceView)
     set({ practiceView, mode: 'practice', page: 'guided', overlay: null })
   },

@@ -10,10 +10,9 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useState } from 'react'
 import { I18nProvider } from '../src/components/localization/i18n'
 import { RecordDock, type RecordMode } from '../src/features/drill/RecordDock'
-import { AttemptLog } from '../src/features/drill/AttemptLog'
 import { AttemptInspection } from '../src/features/drill/AttemptInspection'
 import { DrillComparison, type TimeDirection, type TimeScale } from '../src/features/drill/DrillComparison'
-import { PhraseProgress } from '../src/features/drill/PhraseProgress'
+import { AttemptRows } from '../src/features/drill/AttemptRows'
 import { ClearTakes } from '../src/features/drill/ClearTakes'
 import { CONTINUOUS_RECORDING_POLICY } from '../src/generated/contracts'
 import { DrillLayout } from '../src/features/drill/DrillLayout'
@@ -46,12 +45,12 @@ useNavigationStore.setState({ page: 'guided', practiceView: 'drill' })
 const firstVisit = params.has('first')
 const [reference, spoken] = fixture as unknown as AudioInspection[]
 const target = ['أنا', 'بفهم', 'الخرايط', 'القديمة', 'شوية']
-const timed = (inspection: AudioInspection): AudioInspection => ({
+const timed = (inspection: AudioInspection, words = target): AudioInspection => ({
   ...inspection,
   wordTiming: {
     status: 'available', reason: null, unsupported: [],
-    words: target.map((word, index) => {
-      const width = inspection.duration / target.length
+    words: words.map((word, index) => {
+      const width = inspection.duration / words.length
       return { index, word, providerStart: index * width, providerEnd: (index + 0.9) * width, start: index * width, end: (index + 0.9) * width, clipped: false }
     }),
   },
@@ -83,10 +82,12 @@ const attempts: DrillAttemptView[] = outcomes.map((kinds, index) => ({
 } as unknown as DrillAttemptView)).reverse()
 
 function Preview() {
-  const [mode, setMode] = useState<RecordMode>('auto')
+  const [autoDetect, setAutoDetect] = useState(true)
+  const [mode, setMode] = useState<RecordMode>('live')
+  const [live, setLive] = useState(!firstVisit)
   const [direction, setDirection] = useState<TimeDirection>('ltr')
   const [speed, setSpeed] = useState(1)
-  const [timeScale, setTimeScale] = useState<TimeScale>('fit')
+  const [timeScale, setTimeScale] = useState<TimeScale>('words')
   const [selected, setSelected] = useState<string | null>(null)
   const [settings, setSettings] = useState<ListeningSettings>({
     pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,
@@ -123,28 +124,26 @@ function Preview() {
     <div className="app">
     <TopBar />
     <div className="content"><div className="page-holder"><section className="drill-page">
-      <DrillLayout items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} railResize={<div />} reportResize={<div />} attempt={firstVisit ? null : attempt} rtl
-        progress={<PhraseProgress attempts={firstVisit ? [] : attempts} compact selectedId={attempt.id} onSelect={setSelected} />}
-        rail={<PhraseRail items={[phrase]} selectedId="fixture" languageTag="ar" busy={false} locked={false} onSelect={() => {}} onAdd={async () => {}} onDelete={async () => {}} onAskForMore={() => {}}>
+      <DrillLayout items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />} attempt={firstVisit ? null : attempt} rtl
+        rail={<PhraseRail items={[phrase]} selectedId="fixture" busy={false} locked={false} onSelect={() => {}} onDelete={async () => {}}>
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
-          <div className="drill-actions">{(['tap', 'hold', 'auto'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
+          <div className="drill-actions">{(['tap', 'hold', 'live'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
         </PhraseRail>}
-        dock={<div className="drill-dock-pane">        <RecordDock phase={!firstVisit && mode === 'auto' ? 'recording' : 'ready'} mode={mode} onMode={setMode} settings={settings} onSettings={setSettings}
-          listeningStatus={!firstVisit && mode === 'auto' ? status : null} waveSource={firstVisit ? null : source} liveSpectrum={!firstVisit && mode === 'auto' ? { data, endSeconds: 9 } : null}
-          onToggle={() => {}} onCancel={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} /></div>}
+        dock={<div className="drill-dock-pane">        <RecordDock phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
+          listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} liveSpectrum={firstVisit ? null : { data, endSeconds: 9 }}
+          onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div>}
         report={      <aside className="drill-log" aria-label="Attempts">
         <ClearTakes disabled={false} onClear={() => {}} />
-        <div className="drill-progress-pane"><PhraseProgress attempts={attempts} /></div>
-        <div className="drill-inspection-pane"><AttemptInspection key={attempt.id} attempt={attempt} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} /></div>
-        <AttemptLog rtl onDelete={() => {}} deleting={false} attempts={attempts} liveTakes={[]} loading={false} hasMore={false} failure={null} selectedId={attempt.id}
-          onSelect={setSelected} onLoadMore={() => {}} onRetry={() => {}} />
+        <div className="drill-pane drill-attempts-pane">
+          <AttemptRows attempts={attempts} selectedId={attempt.id} onSelect={setSelected} rtl renderDetails={take => <AttemptInspection attempt={take} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />} />
+        </div>
       </aside>}>
       <main className="drill-stage">
         <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
             <div className="message-actions"><button type="button" className="message-translate">Translate</button><button type="button" className="message-translate">Word by word</button><button type="button" className="message-translate">Analysis</button></div></div>}
           playbackSpeed={<label className="drill-playback-speed"><span>Voice speed</span><select className="field" aria-label="Voice speed" value={speed} onChange={event => setSpeed(Number(event.target.value))}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></label>}
           onPlayReference={() => {}} playingReference={false} referenceNote="Fixture"
-          reference={firstVisit ? null : timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={firstVisit ? null : timed(spoken)}
+          reference={firstVisit ? null : timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={firstVisit ? null : timed(spoken, attempt.comparison.words.flatMap(word => word.transcript ? [word.transcript] : []))}
           attemptLabel={firstVisit ? null : `Attempt ${attempt.sequence}`} attemptFailure={null} onRetryAttempt={() => {}} attemptUnavailable={null}
           direction={direction} onDirection={setDirection} timeScale={timeScale} onTimeScale={setTimeScale} holding={false} playingAttempt={false} onPlayAttempt={() => {}} />
       </main>

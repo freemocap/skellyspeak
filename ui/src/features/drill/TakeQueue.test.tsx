@@ -10,9 +10,9 @@ const attempt: DrillAttemptView = {
   comparison: { policy: 'drill-comparison-v1', target: 'hola', transcript: 'hola', normalizations: [], normalizedTarget: 'hola', normalizedTranscript: 'hola', referenceGraphemes: 4, characterErrorRate: 0, edits: 0, matchRatio: 1, scriptNote: 'matches', words: [{ kind: 'same', target: 'hola', transcript: 'hola', similarity: null }] },
 }
 function view(takes: ListeningTake[], attempts: DrillAttemptView[] = []) {
-  return <I18nProvider locale="english"><TakeQueue rtl={false} onDelete={() => {}} deleting={false} takes={takes} attempts={attempts} onSelect={() => {}} /></I18nProvider>
+  return <I18nProvider locale="english"><TakeQueue takes={takes} attempts={attempts} /></I18nProvider>
 }
-it('creates the take card at the cut and preserves its element through processing and publication', () => {
+it('keeps the pending card through processing and removes it when the main list owns publication', () => {
   const { rerender } = render(view([take]))
   const card = screen.getByText('Take 1').closest('li')
   expect(screen.getByText('Queued')).toBeInTheDocument()
@@ -20,8 +20,8 @@ it('creates the take card at the cut and preserves its element through processin
   expect(screen.getByText('Transcribing…')).toBeInTheDocument()
   expect(screen.getByText('Take 1').closest('li')).toBe(card)
   rerender(view([{ ...take, state: 'completed' }], [attempt]))
-  expect(screen.getByText('hola').closest('li')).toBe(card)
-  expect(screen.getAllByRole('listitem')).toHaveLength(1)
+  expect(screen.queryByText('hola')).toBeNull()
+  expect(screen.queryAllByRole('listitem')).toHaveLength(0)
   expect(screen.queryByText('Transcribing…')).not.toBeInTheDocument()
 })
 it('leaves a failed take visible without a perpetual processing indicator', () => {
@@ -30,25 +30,10 @@ it('leaves a failed take visible without a perpetual processing indicator', () =
   expect(screen.getByRole('article')).toHaveAttribute('aria-busy', 'false')
 })
 
-it('separates recognition confidence from similarity using shared status tones', () => {
-  const low = { ...attempt, comparison: { ...attempt.comparison, matchRatio: null,
-    reliability: { policy: 1, accepted: false, confidence: .2, minimumConfidence: .6, speechSeconds: 1,
-      noSpeechProbability: null, source: 'word_logprobs', reason: 'low_confidence' } } }
-  const { rerender } = render(view([{ ...take, state: 'completed' }], [low]))
-  expect(screen.getByText('Recognition confidence: 20%')).toHaveAttribute('data-tone', 'danger')
-  expect(screen.getByText('Not scored')).toBeInTheDocument()
-  expect(screen.queryByText('Exact')).toBeNull()
-  expect(document.querySelector('.drill-attempt-words')?.childElementCount).toBe(0)
-  const high = { ...attempt, comparison: { ...attempt.comparison,
-    reliability: { ...low.comparison.reliability, accepted: true, confidence: .9, reason: 'accepted' } } }
-  rerender(view([{ ...take, state: 'completed' }], [high]))
-  expect(screen.getByText('Recognition confidence: 90%')).toHaveAttribute('data-tone', 'success')
-  expect(screen.getByText('100%')).toBeInTheDocument()
-})
-it('holds the first row with an idle take slot so a new take does not push the report down', () => {
+it('omits idle slots and shows only in-flight takes', () => {
   const { rerender } = render(view([]))
-  expect(screen.getByText('No take in progress')).toBeInTheDocument()
-  expect(screen.getAllByRole('listitem')).toHaveLength(1)
+  expect(screen.queryByText('No take in progress')).toBeNull()
+  expect(screen.queryAllByRole('listitem')).toHaveLength(0)
   rerender(view([take]))
   expect(screen.queryByText('No take in progress')).toBeNull()
   expect(screen.getAllByRole('listitem')).toHaveLength(1)

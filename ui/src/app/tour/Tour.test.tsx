@@ -51,7 +51,7 @@ it('a map number jumps straight to that stop, over the same demo', async () => {
   fireEvent.click(pin)
   expect(screen.getByRole('heading', { name: 'Record a take' })).toBeInTheDocument()
   expect(screen.getByText('Drill · 3 of 6')).toBeInTheDocument()
-  expect(screen.getByText('This phrase')).toBeInTheDocument()
+  expect(screen.getByText('#1')).toBeInTheDocument()
 })
 
 it('Continue on the map starts Chat at its first stop', () => {

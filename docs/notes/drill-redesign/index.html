@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Drill page redesign — mockup</title>
+<link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ══ 1. the page ══ -->
+  <figure class="artboard">
+    <figcaption><b>1 · The page</b> <span>1440 × 980 · light · the 20-word sentence · the dock is the app's own arrangement, not a proposal · press <em>Simulate a take</em></span></figcaption>
+    <button class="trigger" id="trigger">▶ Simulate a take</button>
+    <div class="frame frame-wide" data-theme="light">
+      <div class="topbar">
+        <span class="mark"></span><span class="wordmark">SkellySpeak</span>
+        <span class="lang">Español (Spanish) Mexico ▾</span>
+        <span class="spacer"></span>
+        <span class="switch"><button>Chat</button><button aria-pressed="true">Drill</button></span>
+        <span class="pill">★ 6 XP <span class="xp-bar"><i></i></span></span>
+        <span class="pill">◍ AI connected</span><span class="pill">⚙ Settings</span>
+      </div>
+
+      <div class="page">
+        <div class="rail-strip">
+          <button aria-expanded="false">▸ Your phrases <span class="count">9</span></button>
+          <span>the phrase list folds away and leaves a way back</span>
+        </div>
+
+        <div class="stage">
+          <div class="phrase-bar">
+            <button class="btn grow">Phrases <span class="count">2 / 9</span>
+              <span class="stepper">
+                <button class="btn icon" aria-label="Previous phrase">‹</button>
+                <button class="btn icon" aria-label="Next phrase">›</button>
+              </span>
+            </button>
+            <button class="btn" aria-label="Random phrase">⤨ Random</button>
+            <button class="btn strong">＋ Add phrases…</button>
+          </div>
+
+          <div class="target">
+            <p>Esa pequeña cafetería está escondida en una calle lateral, casi imperceptible si no sabes buscarla, pero su café es excepcional.</p>
+            <div class="aids"><button>Translate</button><button>Word by word</button><button>Analysis</button></div>
+          </div>
+
+          <div class="transport">
+            <button class="play">▶ Hear it</button>
+            <select aria-label="Voice speed"><option>1×</option></select>
+            <input class="seek" type="range" min="0" max="100" value="38" aria-label="Seek reference audio">
+            <span class="time">Reference · 3.50 s / 9.20 s</span>
+            <details class="options">
+              <summary aria-label="Comparison settings">⋯</summary>
+              <div class="menu">
+                <h3>Time scale</h3>
+                <div class="segmented"><button aria-pressed="true">Fit</button><button aria-pressed="false">Same scale</button><button aria-pressed="false">Align words</button></div>
+                <h3>Time direction</h3>
+                <div class="segmented"><button aria-pressed="true">Time →</button><button aria-pressed="false">← Time</button></div>
+              </div>
+            </details>
+          </div>
+
+          <div class="plots">
+            <div class="plot"><span class="hz">7836 Hz</span><span class="cursor" style="inset-inline-start:38%"></span></div>
+            <div class="lane">
+              <span>Esa</span><span>pequeña</span><span>cafetería</span><span>está</span><span>escondida</span><span>en</span><span>una</span><span>calle</span><span>lateral</span><span>casi</span><span>imperceptible</span><span>si</span><span>no</span><span>sabes</span><span>buscarla</span><span>pero</span><span>su</span><span>café</span><span>es</span><span>excepcional.</span>
+            </div>
+            <div class="take-media">
+              <button class="play">▶ Play yours</button>
+              <span class="time" id="take-label">You · Attempt 7 · 8.94 s · 3 speech segments</span>
+            </div>
+            <!-- Never blanked. The recording exists from the moment the clip is
+                 cut, so this plot is drawn in every state; only the words and the
+                 measures wait for the recognizer, and they wait in the report. -->
+            <div class="plot take"><span class="hz">7836 Hz</span><span class="seg" style="inset-inline-start:22%"></span><span class="seg" style="inset-inline-start:64%"></span></div>
+          </div>
+
+          <!-- The dock: a narrow panel of controls, and the live pair given its
+               own space beside it. The waveform sits above the log-mel in a
+               single bordered box and the clip box spans both, which is the
+               arrangement the app already has (components/media/LiveRecording.tsx,
+               waveform.css) — what changes here is only that the controls stop
+               being a horizontal strip and the stream stops sharing its row. -->
+          <div class="dock">
+            <div class="dock-side">
+              <button class="record"><i></i> Record</button>
+              <div class="status" role="status">
+                <strong>Listening</strong>
+                <span>Take 7 · 0 queued · 2 ignored</span>
+              </div>
+              <span class="meter" aria-hidden="true">
+                <i class="meter-fill" style="width:58%"></i>
+                <i class="meter-noise" style="width:14%"></i>
+                <i class="meter-threshold" style="inset-inline-start:44%"></i>
+              </span>
+              <div class="dock-tools">
+                <span class="segmented">
+                  <button class="quiet" aria-pressed="false">Tap</button>
+                  <button class="quiet" aria-pressed="false">Hold</button>
+                  <button class="quiet" aria-pressed="true">Auto</button>
+                </span>
+                <button class="icon" aria-label="Recording settings">⚙</button>
+              </div>
+            </div>
+            <div class="live">
+              <div class="live-head"><span class="notice" id="cut-notice" hidden>Take 8 clipped →</span></div>
+              <div class="live-plots" id="live-plots">
+                <div class="wave-strip">
+                  <svg viewBox="0 0 420 56" preserveAspectRatio="none" aria-hidden="true">
+                    <g class="wave-scroll"><path class="wave-path" d=""/></g>
+                  </svg>
+                </div>
+                <div class="mel-strip streaming" aria-hidden="true"></div>
+                <span class="take-region" id="clip" hidden><b>Take 8</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report">
+          <div class="summary">
+            <h2>This phrase</h2>
+            <dl>
+              <div><dt>Best</dt><dd>100%</dd></div>
+              <div><dt>Latest</dt><dd id="sum-latest">50%</dd></div>
+              <div><dt>Last 3</dt><dd>70%</dd></div>
+              <div><dt>Exact</dt><dd>1/7</dd></div>
+            </dl>
+            <svg class="spark" viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true">
+              <line x1="0" x2="300" y1="3" y2="3" style="stroke:var(--line-soft)"></line>
+              <line x1="0" x2="300" y1="13" y2="13" style="stroke:var(--line-soft)"></line>
+              <line x1="0" x2="300" y1="23" y2="23" style="stroke:var(--line-soft)"></line>
+              <polyline points="6,9 54,5 102,11 150,7 198,10 246,6 294,13" style="fill:none;stroke:var(--interaction-ink);stroke-width:2;stroke-linejoin:round"></polyline>
+              <circle cx="294" cy="13" r="3" style="fill:var(--interaction-ink)"></circle>
+            </svg>
+          </div>
+
+          <!-- one list: the open take is the first row of the stack, with its
+               detail hanging below that row inside the same grid — which is what
+               keeps its word columns identical to every other row's. The rows
+               never scroll: the columns divide the width they are given. -->
+          <div id="report-list" class="stack"></div>
+          <ul class="legend">
+            <li><i style="background:var(--success-line)"></i>same</li>
+            <li><i style="background:var(--warning-line)"></i>letters differ</li>
+            <li><i style="background:var(--danger-line)"></i>not detected</li>
+          </ul>
+          <button class="more">Show older attempts</button>
+        </div>
+      </div>
+    </div>
+  </figure>
+
+  <!-- ══ 2. the stack ══ -->
+  <figure class="artboard">
+    <figcaption><b>2 · The stack</b> <span>drawn at the report column's true width (24rem) · the columns always divide that width exactly · the row never scrolls, in either axis</span></figcaption>
+    <div class="frame" style="width:384px;padding:5px" data-theme="light">
+      <div style="display:grid;gap:24px">
+        <div id="map-short"></div>
+        <div id="map-long"></div>
+        <div id="map-xlong"></div>
+        <div id="map-paragraph"></div>
+      </div>
+    </div>
+  </figure>
+
+  <!-- ══ 3. the phone ══ -->
+  <figure class="artboard">
+    <figcaption><b>3 · The phone</b> <span>390 wide · the dock drops the log-mel below 860px, as it does today · waveform only</span></figcaption>
+    <div class="frame frame-phone" data-theme="light">
+      <div class="phone">
+        <div class="topbar" style="height:40px">
+          <span class="mark"></span><span class="switch" style="margin:0"><button>Chat</button><button aria-pressed="true">Drill</button></span>
+          <span class="spacer"></span><span class="pill">More</span>
+        </div>
+        <div class="page">
+          <div class="phrase-bar">
+            <button class="btn grow">Phrases <span class="count">2 / 9</span>
+              <span class="stepper"><button class="btn icon" aria-label="Previous phrase">‹</button><button class="btn icon" aria-label="Next phrase">›</button></span>
+            </button>
+          </div>
+          <div class="phone-body">
+            <div class="target"><p>Esa pequeña cafetería está escondida en una calle lateral…</p></div>
+            <div class="transport">
+              <button class="play">▶ Hear it</button>
+              <input class="seek" type="range" min="0" max="100" value="38" aria-label="Seek">
+              <details class="options"><summary aria-label="Comparison settings">⋯</summary></details>
+            </div>
+            <div class="plot"></div>
+            <div class="plot take"></div>
+            <div class="peek"><strong>Take 7</strong><span class="score">50%</span><span class="muted">Full report</span></div>
+          </div>
+          <div class="dock">
+            <div class="dock-side">
+              <button class="record"><i></i> Record</button>
+              <span class="status"><strong>Listening</strong><span>Take 7</span></span>
+              <span class="segmented"><button class="quiet" aria-pressed="true">Auto</button></span>
+            </div>
+            <div class="live">
+              <div class="live-plots">
+                <div class="wave-strip">
+                  <svg viewBox="0 0 420 56" preserveAspectRatio="none" aria-hidden="true">
+                    <g class="wave-scroll"><path class="wave-path" d=""/></g>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </figure>
+
+  <!-- ══ 4. dark ══ -->
+  <figure class="artboard">
+    <figcaption><b>4 · The page, dark</b> <span>same arrangement; the record control is still the only solid accent</span></figcaption>
+    <div class="frame frame-wide" data-theme="dark">
+      <div class="topbar">
+        <span class="mark"></span><span class="wordmark">SkellySpeak</span>
+        <span class="lang">Español (Spanish) Mexico ▾</span>
+        <span class="spacer"></span>
+        <span class="switch"><button>Chat</button><button aria-pressed="true">Drill</button></span>
+        <span class="pill">★ 6 XP <span class="xp-bar"><i></i></span></span><span class="pill">◍ AI connected</span>
+      </div>
+      <div class="page">
+        <div class="rail-strip"><button aria-expanded="false">▸ Your phrases <span class="count">9</span></button></div>
+        <div class="stage">
+          <div class="phrase-bar">
+            <button class="btn grow">Phrases <span class="count">2 / 9</span>
+              <span class="stepper">
+                <button class="btn icon" aria-label="Previous phrase">‹</button>
+                <button class="btn icon" aria-label="Next phrase">›</button>
+              </span>
+            </button>
+            <button class="btn">⤨ Random</button><button class="btn strong">＋ Add phrases…</button>
+          </div>
+          <div class="target"><p>Esa pequeña cafetería está escondida en una calle lateral, casi imperceptible si no sabes buscarla, pero su café es excepcional.</p>
+            <div class="aids"><button>Translate</button><button>Word by word</button><button>Analysis</button></div>
+          </div>
+          <div class="transport">
+            <button class="play">▶ Hear it</button>
+            <select aria-label="Voice speed"><option>1×</option></select>
+            <input class="seek" type="range" min="0" max="100" value="38" aria-label="Seek reference audio">
+            <span class="time">Reference · 3.50 s / 9.20 s</span>
+            <details class="options"><summary aria-label="Comparison settings">⋯</summary></details>
+          </div>
+          <div class="plots"><div class="plot"></div><div class="plot take"></div></div>
+          <div class="dock">
+            <div class="dock-side">
+              <button class="record"><i></i> Record</button>
+              <div class="status"><strong>Listening</strong><span>Take 7 · 0 queued · 2 ignored</span></div>
+              <span class="meter" aria-hidden="true">
+                <i class="meter-fill" style="width:58%"></i>
+                <i class="meter-noise" style="width:14%"></i>
+                <i class="meter-threshold" style="inset-inline-start:44%"></i>
+              </span>
+              <div class="dock-tools">
+                <span class="segmented">
+                  <button class="quiet" aria-pressed="false">Tap</button>
+                  <button class="quiet" aria-pressed="false">Hold</button>
+                  <button class="quiet" aria-pressed="true">Auto</button>
+                </span>
+                <button class="icon" aria-label="Recording settings">⚙</button>
+              </div>
+            </div>
+            <div class="live">
+              <div class="live-head"></div>
+              <div class="live-plots">
+                <div class="wave-strip">
+                  <svg viewBox="0 0 420 56" preserveAspectRatio="none" aria-hidden="true">
+                    <g class="wave-scroll"><path class="wave-path" d=""/></g>
+                  </svg>
+                </div>
+                <div class="mel-strip streaming" aria-hidden="true"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="report">
+          <div class="summary"><h2>This phrase</h2>
+            <dl><div><dt>Best</dt><dd>100%</dd></div><div><dt>Latest</dt><dd>50%</dd></div><div><dt>Last 3</dt><dd>70%</dd></div><div><dt>Exact</dt><dd>1/7</dd></div></dl>
+          </div>
+          <div id="report-list-dark" class="stack"></div>
+        </div>
+      </div>
+    </div>
+  </figure>
+
+</div>
+
+<script>
+/* ?board=N shows one artboard alone; ?part=report|stage drops the other column
+   so it can be read at full size. No parameter shows the whole canvas. */
+const params = new URLSearchParams(location.search);
+const only = params.get('board');
+if (only) document.querySelectorAll('.artboard').forEach((el, i) => { if (i + 1 !== Number(only)) el.remove(); });
+const part = params.get('part');
+if (part) document.querySelectorAll(part === 'report' ? '.stage, .rail-strip' : '.report').forEach(el => el.remove());
+
+/* ── the data ────────────────────────────────────────────────────────────── */
+const WORDS = ('Esa pequeña cafetería está escondida en una calle lateral casi imperceptible si no sabes buscarla pero su café es excepcional').split(' ');
+/* 's' same, 'b' letters differ, 'm' not detected. `marks` names the positions
+   that are not 'same', so a row can never disagree with its word count. */
+const outcomes = (n, marks = {}) => Array.from({ length: n }, (_, i) => marks[i] ?? 's').join('');
+const LONG = { 2: 'b', 3: 'm', 4: 'm', 5: 'm', 8: 'b', 10: 'm', 13: 'm', 14: 'b', 17: 'b', 18: 'm' };
+const TAKE8 = { 1: 'b', 3: 'm', 6: 'b', 9: 'm', 12: 'b', 15: 'b', 18: 'm' };
+const LABEL = { same: 'same', substituted: 'letters differ', missing: 'not detected' };
+/* What the recognizer heard, for the words that differed. null = nothing heard. */
+const PAIRS = [
+  { w: 'cafetería', heard: 'cafeteria', o: 'substituted' },
+  { w: 'está', heard: null, o: 'missing' },
+  { w: 'escondida', heard: null, o: 'missing' },
+  { w: 'lateral', heard: 'literal', o: 'substituted' },
+  { w: 'imperceptible', heard: null, o: 'missing' },
+  { w: 'buscarla', heard: 'buscar', o: 'substituted' },
+  { w: 'café', heard: 'cafe', o: 'substituted' },
+  { w: 'es', heard: null, o: 'missing' },
+];
+
+let takes = [
+  { n: 7, o: outcomes(20, LONG), at: '9:47 AM' },
+  { n: 6, o: outcomes(20), at: '9:41 AM' },
+  { n: 5, o: outcomes(20, { 3: 'b', 16: 'b', 17: 'b' }), at: '9:36 AM' },
+  { n: 4, o: outcomes(20, { 2: 'b', 4: 'm', 9: 'b', 13: 'b', 17: 'b' }), at: '9:30 AM' },
+  { n: 3, o: outcomes(20, { 1: 'b', 3: 'b', 4: 'm', 9: 'b', 11: 'm', 15: 'b' }), at: '9:22 AM' },
+  { n: 2, o: outcomes(20, { 3: 'b', 16: 'b' }), at: '9:15 AM' },
+];
+let expanded = 7;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const pct = o => Math.round(o.split('').filter(c => c === 's').length / o.length * 100);
+const kindOf = c => c === 's' ? 'same' : c === 'b' ? 'substituted' : 'missing';
+
+/* ── the ribbon: one cell per word, all of them dividing one fixed width ──── */
+/* The columns are `repeat(N, minmax(0, 1fr))` with no minimum, so N cells
+   always tile the strip exactly. The grid cannot overflow, so there is nothing
+   to scroll — that is the whole guarantee. Each cell is a container, so the
+   border and the word inside scale themselves to the width the cell was given:
+   wide cell, the word and a hairline ring; narrow cell, the ring alone; below
+   that, colour only. */
+function cellsHTML(outcome, words, known = true) {
+  return outcome.split('').map((c, i) => {
+    const kind = known ? kindOf(c) : null;
+    const word = known ? (words[i] ?? '') : '';
+    const title = word ? ` title="${esc(word)}: ${LABEL[kind]}"` : '';
+    const attr = kind ? ` data-o="${kind}"` : '';
+    return `<span class="cell"${attr}${title}><span class="fill"></span><bdi>${esc(word)}</bdi></span>`;
+  }).join('');
+}
+const cellsRow = (outcome, words, known) =>
+  `<span class="cells" style="grid-template-columns:repeat(${words.length},minmax(0,1fr))">${cellsHTML(outcome, words, known)}</span>`;
+
+function rowHTML(t, words, current, score) {
+  return `<button class="row" data-take="${t.n}" aria-current="${current}">
+    <span class="n">#${t.n}</span>${cellsRow(t.o, words)}
+    <span class="score">${score === undefined ? `${pct(t.o)}%` : score}</span>
+  </button>`;
+}
+
+/* ── the open take's detail, hanging below its row ───────────────────────── */
+/* No section of this panel changes height between waiting and settled, so
+   nothing below it moves while the answer is in flight. The measures are the
+   only thing here that is genuinely missing, so they are the only thing that
+   waits — and the score waits in the row's own score column, where it will
+   appear, rather than somewhere else. */
+function attemptHTML(t, state) {
+  const settled = state === 'settled';
+  const differing = settled ? PAIRS.filter(p => p.o !== 'same') : [];
+  return `<section class="attempt" aria-label="Attempt ${t.n} detail">
+    <div class="attempt-head">
+      <span>${t.at}</span>
+      <button aria-label="Delete take ${t.n}">🗑</button>
+    </div>
+    <div class="attempt-body">
+      <div class="attempt-pairs">
+        <div class="pairs-labels"><span>Target</span><span>Heard</span></div>
+        ${settled
+          ? `<div class="pairs">${differing.map(p => `<span class="pair" data-o="${p.o}"><b>${esc(p.w)}</b><em>${p.heard ? esc(p.heard) : '?'}</em></span>`).join('')}</div>`
+          : `<div class="pairs pending"><i class="skeleton" style="width:82%"></i><i class="skeleton" style="width:64%"></i><i class="skeleton" style="width:71%"></i></div>`}
+      </div>
+      ${settled ? `<dl class="measures">
+        <div><dt>Length</dt><dd>8.94 / 9.20 s</dd></div>
+        <div><dt>Speaking</dt><dd>6.81 / 7.84 s</dd></div>
+        <div><dt>Pace</dt><dd>2.9 / 2.6 w/s</dd></div>
+        <div><dt>Pauses</dt><dd>3 / 2</dd></div>
+        <div><dt>Exact</dt><dd>10 / 20</dd></div>
+      </dl>` : `<dl class="measures"><div class="waiting">Comparing the words…</div></dl>`}
+      ${settled
+        ? `<details class="attempt-details"><summary>Comparison details</summary><p>Character error rate 0.41 of 96 · minimum recognition confidence 60% · model likelihood is not a calibrated probability of correctness.</p></details>`
+        : `<div class="attempt-details"><i class="skeleton" style="width:38%"></i></div>`}
+    </div>
+  </section>`;
+}
+
+function renderReport(listId, words, state) {
+  const list = document.getElementById(listId);
+  /* ?board=N removes the artboards it is not showing, so their lists are gone. */
+  if (!list) return;
+  const t = takes.find(x => x.n === expanded);
+  const rest = takes.filter(x => x.n !== expanded);
+  const score = state === 'settled' ? undefined : '<span class="spinner" role="status" aria-label="Comparing the words"></span>';
+  /* The detail comes first and its own row sits directly beneath it, at the head
+     of the stack — so the open take's stripe is the first of the ribbons, right
+     on top of the previous attempts, rather than a separate row above the card. */
+  list.innerHTML = (t ? attemptHTML(t, state) + rowHTML(t, words, true, score) : '')
+    + rest.map(x => rowHTML(x, words, false)).join('');
+}
+function renderAll(state) {
+  renderReport('report-list', WORDS, state);
+  renderReport('report-list-dark', WORDS, state);
+}
+
+/* Clicking an older row opens it at the top; the open one drops back into the stack. */
+document.addEventListener('click', event => {
+  const row = event.target.closest('.row');
+  if (!row) return;
+  expanded = Number(row.dataset.take);
+  renderAll('settled');
+});
+
+/* ── the live waveform ───────────────────────────────────────────────────── */
+/* Four copies of one 140-unit period across a 420-unit window, so translating
+   by exactly one period loops without a seam. The log-mel scrolls on the same
+   clock and by the same fraction of its width, because they share one time
+   axis and have to look like it. Real plots are native canvases; this is a
+   drawn stand-in. */
+const amp = i => {
+  const p = i % 70;
+  const env = Math.exp(-Math.pow((p - 14) / 6.5, 2)) * .95
+    + Math.exp(-Math.pow((p - 34) / 9, 2)) * .72
+    + Math.exp(-Math.pow((p - 57) / 6, 2)) * .5;
+  return env * (.34 + .66 * Math.abs(Math.sin(p * .83) * Math.cos(p * .29)));
+};
+{
+  const mid = 28, top = [], bottom = [];
+  for (let i = 0; i < 280; i += 1) {
+    const x = i * 2;
+    top.push(`${x},${(mid - amp(i) * 22).toFixed(1)}`);
+    bottom.push(`${x},${(mid + amp(i) * 22).toFixed(1)}`);
+  }
+  const d = `M${top.join(' L')} L${bottom.reverse().join(' L')} Z`;
+  document.querySelectorAll('.wave-path').forEach(el => el.setAttribute('d', d));
+}
+
+/* ── the arrival ─────────────────────────────────────────────────────────── */
+/* A clip is cut and boxed in the live pair; the box spans the waveform and the
+   mel. The take's own recording is now in hand, so its plot is drawn at once
+   and never blanks. The open card gives way to the new take, and the previous
+   take's row travels from the card down into the stack — the same row, the same
+   columns, moved. Only the words and the measures wait. */
+const FLOW = 620;                 /* the row's travel from the card into the stack */
+const CUT_MS = 420;               /* the clip box being made, then growing over the mel */
+const WAVE_H = 48;                /* the waveform's height inside the live pair */
+let timers = [];
+const after = (ms, fn) => timers.push(setTimeout(fn, ms));
+const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+const trigger = document.getElementById('trigger');
+const clip = document.getElementById('clip');
+const cutNotice = document.getElementById('cut-notice');
+const takeLabel = document.getElementById('take-label');
+
+function reset() {
+  clearTimers();
+  document.querySelectorAll('.row-travel').forEach(el => el.remove());
+  takes = takes.filter(t => t.n <= 7);
+  expanded = 7;
+  trigger.disabled = false;
+  cutNotice.hidden = true;
+  /* Kill the transition before resetting the width. Without this the second
+     press reverse-animates from wherever the first one left the box. */
+  clip.hidden = true;
+  clip.style.transition = 'none';
+  clip.style.width = '0%';
+  clip.style.height = `${WAVE_H}px`;
+  clip.style.insetInlineStart = '26%';
+  void clip.offsetWidth;
+  takeLabel.textContent = 'You · Attempt 7 · 8.94 s · 3 speech segments';
+  document.getElementById('sum-latest').textContent = '50%';
+  renderAll('settled');
+}
+
+if (trigger && clip && takeLabel) trigger.addEventListener('click', () => {
+  reset();
+  trigger.disabled = true;
+
+  /* 1. the clip is cut and boxed on the waveform, and then that same box grows
+        down over the log-mel. The mel is drawn underneath the whole time; the
+        box is never a reason to empty it. */
+  clip.hidden = false;
+  clip.style.transition = 'none';
+  clip.style.width = '0%';
+  clip.style.height = `${WAVE_H}px`;
+  void clip.offsetWidth;
+  clip.style.transition = `width ${CUT_MS}ms var(--ease-out), height ${CUT_MS}ms var(--ease-out) ${CUT_MS}ms`;
+  clip.style.width = '21%';
+  clip.style.height = '100%';
+  cutNotice.hidden = false;
+
+  /* 2. the card opens for the new take and the previous take's stripe moves down */
+  after(CUT_MS * 2 + 60, () => {
+    const from = document.querySelector('#report-list .row[aria-current="true"] .cells');
+    const rect = from ? from.getBoundingClientRect() : null;
+    const html = from ? from.innerHTML : '';
+    takes = [{ n: 8, o: 's'.repeat(WORDS.length), at: 'now' }, ...takes];
+    expanded = 8;
+    takeLabel.textContent = 'You · Attempt 8 · 9.10 s · 4 speech segments';
+    renderAll('pending');
+    if (!rect) return;
+    const to = document.querySelector('#report-list .row[data-take="7"] .cells');
+    if (!to) return;
+    const target = to.getBoundingClientRect();
+    const ghost = document.createElement('span');
+    ghost.className = 'cells row-travel';
+    ghost.style.gridTemplateColumns = `repeat(${WORDS.length},minmax(0,1fr))`;
+    ghost.innerHTML = html;
+    ghost.style.left = `${rect.left}px`;
+    ghost.style.top = `${rect.top}px`;
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
+    document.body.appendChild(ghost);
+    requestAnimationFrame(() => {
+      ghost.style.transform = `translate(${target.left - rect.left}px, ${target.top - rect.top}px) scale(${target.height / rect.height})`;
+    });
+    after(FLOW, () => ghost.remove());
+  });
+
+  /* 3. the answer arrives and fills the places that were waiting */
+  after(2900, () => {
+    const t8 = takes.find(t => t.n === 8);
+    if (!t8) return;
+    t8.o = outcomes(WORDS.length, TAKE8);
+    t8.at = '9:52 AM';
+    document.getElementById('sum-latest').textContent = `${pct(t8.o)}%`;
+    renderAll('settled');
+    cutNotice.hidden = true;
+    trigger.disabled = false;
+  });
+});
+
+/* ── the stack at four lengths, on its own artboard ──────────────────────── */
+function block(words, list, expandedId) {
+  return list.map(t => rowHTML(t, words, t.n === expandedId)).join('');
+}
+function drawBlock(id, words, list, expandedId, lead) {
+  const host = document.getElementById(id);
+  if (!host) return;
+  host.innerHTML = `<p class="note">${lead}</p><div class="stack">${block(words, list, expandedId)}</div>`;
+  /* Report what the cells actually came out at, rather than asserting it. */
+  const cells = host.querySelector('.cells');
+  if (!cells) return;
+  const width = cells.getBoundingClientRect().width / cells.children.length;
+  host.querySelector('.note').textContent += ` → ${width.toFixed(1)} px per word`;
+}
+
+const SHORT = 'Quisiera un café por favor'.split(' ');
+const MEDIUM = ('Cuando llegamos a la estación el tren ya había salido y tuvimos que esperar una hora entera en el andén '
+  + 'mirando los carteles luminosos y bebiendo un café malísimo de la máquina y luego un taxi nos llevó a casa').split(' ').slice(0, 37);
+const PARAGRAPH = ('Ayer por la tarde fui al mercado del barrio con mi hermana pequeña y compramos unas naranjas y un pan '
+  + 'muy rico y después volvimos a casa caminando despacio porque hacía mucho calor y nos reímos juntos mientras el sol '
+  + 'se ponía detrás de los tejados de la plaza vieja y las golondrinas cruzaban el cielo y cuando llegamos a casa mi '
+  + 'madre nos esperaba con la cena ya preparada').split(' ');
+
+drawBlock('map-short', SHORT, [
+  { n: 5, o: outcomes(5, { 3: 'b' }) }, { n: 4, o: outcomes(5) }, { n: 3, o: outcomes(5, { 1: 'b' }) },
+], 5, `5 words — every cell is wide, so the whole word fits and the ring is a clear split`);
+
+drawBlock('map-long', WORDS, [
+  { n: 7, o: takes.find(t => t.n === 7).o }, { n: 6, o: outcomes(20) }, { n: 5, o: outcomes(20, { 3: 'b', 16: 'b', 17: 'b' }) },
+], 7, `20 words — the words shorten to two or three letters and the ring still separates them`);
+
+drawBlock('map-xlong', MEDIUM, [
+  { n: 3, o: outcomes(MEDIUM.length, { 3: 'b', 7: 'm', 12: 'b', 15: 'm', 21: 'b', 26: 'm', 30: 'b', 34: 'm' }) },
+  { n: 2, o: outcomes(MEDIUM.length, { 5: 'b', 22: 'm' }) },
+], null, `${MEDIUM.length} words — no letter fits, so the cells are colour and a hairline ring, and the row still fills the column`);
+
+drawBlock('map-paragraph', PARAGRAPH, [
+  { n: 3, o: outcomes(PARAGRAPH.length, { 3: 'b', 7: 'm', 12: 'b', 15: 'm', 21: 'b', 26: 'm', 30: 'b', 34: 'm', 41: 'b' }) },
+  { n: 2, o: outcomes(PARAGRAPH.length, { 5: 'b', 22: 'm', 38: 'b' }) },
+], null, `${PARAGRAPH.length} words — the ring gives out and the row is a colour ribbon`);
+
+renderAll('settled');
+/* ?auto runs the arrival on load, so the flow can be captured or watched
+   without pressing anything. */
+if (params.has('auto') && trigger) trigger.click();
+</script>
+</body>
+</html>

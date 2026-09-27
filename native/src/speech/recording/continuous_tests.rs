@@ -159,6 +159,21 @@ async fn queue_saturation_stops_capture_and_finishes_only_accepted_takes() {
         assert!(began.elapsed().as_secs() < 5);
         tokio::time::sleep(std::time::Duration::from_millis(10)).await;
     }
+    // Local plots exist while the provider response is still deliberately held.
+    assert_eq!(session.status.lock().unwrap().completed, 0);
+    {
+        let previews = session.previews.lock().unwrap();
+        let status = session.status.lock().unwrap();
+        for take in &status.takes {
+            let (_, preview) = previews
+                .iter()
+                .find(|(id, _)| id == &take.recording_id)
+                .unwrap();
+            assert!(!preview.data.bins.is_empty());
+            assert_eq!(preview.data.frame_start_seconds[0], 0.0);
+            assert!((preview.end_seconds - (take.end_seconds - take.start_seconds)).abs() < 1e-9);
+        }
+    }
     gate.store(true, Ordering::SeqCst);
     worker.await.unwrap();
     server.join().unwrap();

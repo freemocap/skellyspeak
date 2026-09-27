@@ -3,7 +3,6 @@ import { useState, useRef, type KeyboardEvent, type PointerEvent } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { LiveRecording } from '../../components/media/LiveRecording'
-import { WaveformStrip } from '../../components/media/WaveformStrip'
 import { CONTINUOUS_RECORDING_POLICY } from '../../generated/contracts'
 import type { ListeningSettings, ListeningStatus, LiveSpectrogram } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
@@ -12,8 +11,8 @@ import type { WaveSource } from '../../domain/audio/waveform'
 export type DockPhase = 'preparing' | 'ready' | 'recording' | 'working'
 
 /** How a take begins and ends: one press each, held down, or cut at silence. */
-export type RecordMode = 'tap' | 'hold' | 'auto'
-const RECORD_MODES: readonly RecordMode[] = ['tap', 'hold', 'auto']
+export type RecordMode = 'tap' | 'hold' | 'live'
+const RECORD_MODES: readonly RecordMode[] = ['tap', 'hold', 'live']
 
 export function dockPhase({ ready, recording, transcribing }: {
   ready: boolean; recording: boolean; transcribing: boolean
@@ -31,7 +30,8 @@ const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR
  *
  * Capture and playback share one authority, so the dock says when playback is
  * held rather than letting a disabled button explain itself. */
-export function RecordDock({ phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, liveSpectrum, onToggle, onCancel, onHoldStart, onHoldEnd }: {
+export function RecordDock({ starting = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, liveSpectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+  starting?: boolean
   phase: DockPhase
   mode: RecordMode
   onMode: (mode: RecordMode) => void
@@ -41,7 +41,8 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
   waveSource: WaveSource | null
   liveSpectrum: LiveSpectrogram | null
   onToggle: () => void
-  onCancel: () => void
+  autoDetect?: boolean
+  onAutoDetect?: (enabled: boolean) => void
   onHoldStart: () => void
   onHoldEnd: () => void
 }) {
@@ -49,25 +50,25 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
   const [settingsOpen, setSettingsOpen] = useState(false)
   const seconds = (ms: number) => tr('{value0} s', { value0: tr.number(ms / 1000, { maximumFractionDigits: 1 }) })
   const decibels = (db: number) => tr('{value0} dB', { value0: tr.number(db, { maximumFractionDigits: 0 }) })
-  const auto = mode === 'auto'
-  const busy = phase === 'recording' || phase === 'working'
+  const auto = mode === 'live' && autoDetect
+  const busy = phase === 'working' || phase === 'preparing'
 
   const copy = {
     preparing: { headline: tr("Preparing the session"), detail: tr("Recording starts once the practice session is open.") },
     ready: {
       tap: { headline: tr("Ready to record"), detail: tr("Tap to start, tap again to stop.") },
       hold: { headline: tr("Hold to talk"), detail: tr("Hold the button, or focus it and hold Space. Letting go ends the take.") },
-      auto: { headline: tr("Ready to listen"), detail: tr("Say the phrase, pause, and say it again. Each pause ends a take.") },
+      live: { headline: tr("Ready to listen"), detail: auto ? tr("Say the drill target, pause, and say it again. Each pause ends a take.") : tr("Live audio without creating takes.") },
     }[mode],
     recording: {
-      tap: { headline: tr("Recording"), detail: tr("Stop when you finish. Discard throws this attempt away.") },
-      hold: { headline: tr("Recording"), detail: tr("Let go when you finish.") },
-      auto: {
+      tap: { headline: tr("Recording a take"), detail: tr("Tap to start, tap again to stop.") },
+      hold: { headline: tr("Recording a take"), detail: tr("Let go when you finish.") },
+      live: {
         headline: listeningStatus?.speaking ? tr("Recording a take") : tr("Listening"),
-        detail: tr("Repeat the phrase with pauses. Stop finishes the current take; queued takes keep processing."),
+        detail: auto ? tr("Repeat the drill target with pauses. Stop finishes the current take; queued takes keep processing.") : tr("Live audio without creating takes."),
       },
     }[mode],
-    working: { headline: tr("Transcribing"), detail: tr("You can leave this phrase; the attempt is stored by the app.") },
+    working: { headline: tr("Transcribing"), detail: tr("You can leave this drill target; the attempt is stored by the app.") },
   }[phase]
 
   const holdKeys = {
@@ -82,53 +83,53 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
     },
     onPointerUp: onHoldEnd,
     onPointerCancel: onHoldEnd,
+    onLostPointerCapture: onHoldEnd,
+    onBlur: onHoldEnd,
   }
 
   return (
     <section className="drill-dock" data-phase={phase} data-mode={mode} aria-label={tr("Record an attempt")}>
-      <div className="drill-dock-row">
-        {mode === 'hold'
-          ? <button type="button" className="drill-dock-button" aria-label={tr("Hold to record")} aria-pressed={phase === 'recording'}
-            disabled={phase === 'preparing' || phase === 'working'} {...holdKeys}>
-            <ToolbarIcon name="mic" size={20} /><span aria-hidden="true">{tr("Hold")}</span>
-          </button>
-          : <button type="button" className="drill-dock-button" aria-label={phase === 'recording' ? tr("Stop recording") : tr("Start recording")}
-            aria-pressed={phase === 'recording'} disabled={phase === 'preparing' || phase === 'working'} onClick={onToggle}>
-            <ToolbarIcon name={phase === 'recording' ? 'stop' : 'mic'} size={20} />
-            <span aria-hidden="true">{phase === 'recording' ? tr("Stop") : tr("Record")}</span>
-          </button>}
+      <div className="drill-dock-side">
+        <button type="button" className="drill-dock-button" aria-label={mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")}
+          aria-pressed={phase === 'recording'} disabled={busy || (starting && mode !== 'hold')} {...(mode === 'hold' ? holdKeys : { onClick: onToggle })}>
+          <ToolbarIcon name={phase === 'recording' ? 'stop' : 'mic'} size={20} />
+          <span aria-hidden="true">{tr(mode === "hold" ? "Hold to record" : phase === "recording" ? "Stop" : "Record")}</span>
+        </button>
         {/* The phase changes without the learner acting — a transcription
             finishing, a session opening — so it is announced, not just drawn.
             The longer instruction sits in the settings panel and the tooltip. */}
         <div className="drill-dock-copy" role="status" aria-live="polite" title={copy.detail}>
           <p className="drill-dock-headline">{copy.headline}</p>
-          {auto && listeningStatus && <p className="drill-dock-counts">{tr("Take {value0} · {value1} queued · {value2} ignored", {
-            value0: String(listeningStatus.takes.length + (listeningStatus.speaking ? 1 : 0)),
-            value1: String(listeningStatus.queued + (listeningStatus.processing ? 1 : 0)),
-            value2: String(listeningStatus.ignoredTakes),
-          })}</p>}
+          <p className="drill-dock-counts">{tr("Take {value0} · {value1} queued · {value2} ignored", {
+            value0: String((listeningStatus?.takes.length ?? 0) + (listeningStatus?.speaking ? 1 : 0)),
+            value1: String((listeningStatus?.queued ?? 0) + (listeningStatus?.processing ? 1 : 0)),
+            value2: String(listeningStatus?.ignoredTakes ?? 0),
+          })}</p>
         </div>
-        {auto && <LevelMeter level={listeningStatus?.levelDb ?? null} noise={listeningStatus?.noiseFloorDb ?? null}
+        <LevelMeter level={listeningStatus?.levelDb ?? null} noise={listeningStatus?.noiseFloorDb ?? null}
           threshold={settings.thresholdDb} decibels={decibels}
-          onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />}
-        {phase === 'recording' && mode !== 'hold' && <button type="button" className="btn drill-dock-discard" onClick={onCancel}
-          aria-label={auto ? tr("Discard current take") : tr("Discard")} title={auto ? tr("Discard current take") : tr("Discard")}>
-          <ToolbarIcon name="trash" size={16} />
-        </button>}
-        <div className="drill-segmented" role="radiogroup" aria-label={tr("Recording mode")}>
-          {RECORD_MODES.map(option => {
-            const name = { tap: tr("Tap to record"), hold: tr("Hold to talk"), auto: tr("Auto-detect") }[option]
-            return <button key={option} type="button" role="radio" aria-checked={mode === option} aria-label={name} title={name}
-              disabled={busy} onClick={() => onMode(option)}>
-              {{ tap: tr("Tap"), hold: tr("Hold"), auto: tr("Auto") }[option]}
-            </button>
-          })}
+          onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />
+        <div className="drill-recording-controls">
+          <label className="drill-auto-detect"><input type="checkbox" checked={auto}
+            disabled={busy || starting || mode !== 'live'} onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Auto detect takes")}</label>
+          <button type="button" className="btn drill-dock-settings" aria-label={tr("Recording settings")}
+            title={tr("Recording settings")} aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}><ToolbarIcon name="settings" size={17} /></button>
         </div>
-        {mode !== 'tap' && <button type="button" className="btn drill-dock-settings" aria-label={tr("Recording settings")}
-          title={tr("Recording settings")} aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}><ToolbarIcon name="settings" size={17} /></button>}
         {settingsOpen && <DetailDialog title={tr("Recording settings")} capture="preserve" onClose={() => setSettingsOpen(false)}>
           <div className="drill-dock-panel">
             <h2>{tr("Recording settings")}</h2>
+            <div className="drill-dock-modes"><div className="drill-segmented" role="radiogroup" aria-label={tr("Recording mode")}>
+          {RECORD_MODES.map(option => {
+            const name = { tap: tr("Tap to record"), hold: tr("Hold to talk"), live: tr("Live") }[option]
+            return <button key={option} type="button" role="radio" aria-checked={mode === option} aria-label={name} title={name}
+              disabled={busy || starting || phase === 'recording'} onClick={() => onMode(option)}>
+              {{ tap: tr("Tap"), hold: tr("Hold"), live: tr("Live") }[option]}
+            </button>
+          })}
+        </div>
+
+        </div>
+            <p className="drill-dock-detail">{tr("Auto detection applies to Live mode.")}</p>
             <p className="drill-dock-detail">{copy.detail}</p>
             {auto && <>
               <Choice label={tr("Stop listening after silence of")} value={settings.silenceTimeoutMs} options={CONTINUOUS_RECORDING_POLICY.silenceTimeoutOptionsMs}
@@ -145,9 +146,8 @@ export function RecordDock({ phase, mode, onMode, settings, onSettings, listenin
         </DetailDialog>}
       </div>
 
-      {auto && (waveSource || liveSpectrum)
-        ? <LiveRecording active={phase === 'recording'} source={waveSource} spectrum={liveSpectrum} takes={listeningStatus?.takes ?? []} />
-        : waveSource && <WaveformStrip source={waveSource} height={32} />}
+      <div className="drill-recording-container"><LiveRecording active={phase === 'recording'} source={waveSource} spectrum={liveSpectrum} takes={listeningStatus?.takes ?? []} />
+      </div>
     </section>
   )
 }

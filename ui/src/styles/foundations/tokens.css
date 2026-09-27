@@ -113,6 +113,7 @@
   --ink-on-domain: #ffffff;
 
   /* Recording spectrum intensity; independent of skill-domain colours. */
+  --spectrogram-cursor: #46ff9a;
   --spectrogram-low: #171b36;
   --spectrogram-mid: #8056b5;
   --spectrogram-high: #ffe071;
@@ -256,6 +257,7 @@
        --word-spacing    preference.text_spacing  components/reading/TargetText.tsx
        --chat-share      guided split width       features/conversation/messages/PracticeDivider.tsx
        --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
+       --live-wave-height  live waveform height    components/media/LiveRecording.tsx
        --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx */
   --reading-scale: 1;
   --script-scale: 1;
@@ -263,11 +265,11 @@
   --ai-inspector-width: 40%;
   --chat-share: calc(100% - 360px);
   --node-color: var(--interaction-ink);
+  --live-wave-height: 48px;
   --drill-rail-width: 15rem;
   --drill-report-width: 24rem;
   --drill-dock-height: auto;
-  --drill-progress-height: auto;
-  --drill-inspection-height: auto;
+  --drill-attempts-height: auto;
   --drill-plot-height: clamp(64px, 22vh, 280px);
 }
 

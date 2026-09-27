@@ -54,3 +54,9 @@ export function setDrillStorage(limitMb: number): Promise<DrillStorageView> { re
 export function drillAttempts(itemId: string, cursor: string | null = null, limit = 20): Promise<DrillAttemptPage> {
   return invoke('drill_attempts', { itemId, cursor, limit })
 }
+
+/** Most recently visited surviving phrase in this workspace and language. */
+export function lastDrillItem(language: string): Promise<string | null> {
+  return invoke('get_last_drill_item', { language })
+}
+

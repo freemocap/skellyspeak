@@ -309,3 +309,12 @@ pub(in crate::application) fn get_ai_graph_definitions()
 -> Result<Vec<crate::diagnostics::ai_graphs::AiGraphDefinition>> {
     crate::diagnostics::ai_graphs::definitions()
 }
+
+#[tauri::command]
+pub(in crate::application) fn get_practice_view(state: tauri::State<'_, Arc<Application>>) -> Result<crate::model::PracticeView> {
+    state.lock()?.practice_view()
+}
+#[tauri::command]
+pub(in crate::application) fn set_practice_view(state: tauri::State<'_, Arc<Application>>, view: crate::model::PracticeView) -> Result<()> {
+    state.lock()?.set_practice_view(view)
+}

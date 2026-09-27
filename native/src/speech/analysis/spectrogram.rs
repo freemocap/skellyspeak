@@ -43,7 +43,11 @@ fn fft(real: &mut [f64], imag: &mut [f64]) {
 /// Analysis parameters, stated once and reported with every result.
 /// Mel bands, not linear FFT bins: speech detail sits in the lowest couple of
 /// kHz, and a mel axis spends its rows there instead of on 6 kHz of hiss.
-pub(super) const MEL_BANDS: usize = 128;
+pub(super) const MEL_BANDS: usize = 256;
+// Live preview trades display detail for bounded capture and rendering work.
+// Completed clips always use MEL_BANDS and the 10 ms offline hop above.
+const LIVE_MEL_BANDS: usize = 128;
+const LIVE_FRAMES_PER_SECOND: usize = 50;
 pub(super) const MEL_MIN_HZ: f64 = 50.0;
 pub(super) const MEL_MAX_HZ: f64 = 8000.0;
 pub(super) const MEL_SCALE: &str = "htk: mel = 2595 * log10(1 + hz / 700)";
@@ -60,10 +64,10 @@ pub(super) fn from_mel(mel: f64) -> f64 {
 /// Triangular filter edges, evenly spaced on the mel scale between `low` and
 /// `high`. Adjacent filters overlap by half a band, so every frequency in range
 /// is covered.
-fn mel_bands(low: f64, high: f64) -> Vec<InspectionMelBand> {
+fn mel_bands(low: f64, high: f64, count: usize) -> Vec<InspectionMelBand> {
     let (low_mel, high_mel) = (to_mel(low), to_mel(high));
-    let step = (high_mel - low_mel) / (MEL_BANDS + 1) as f64;
-    (0..MEL_BANDS)
+    let step = (high_mel - low_mel) / (count + 1) as f64;
+    (0..count)
         .map(|band| InspectionMelBand {
             low_hz: from_mel(low_mel + step * band as f64),
             center_hz: from_mel(low_mel + step * (band + 1) as f64),
@@ -83,6 +87,9 @@ struct Kernel {
 }
 impl Kernel {
     fn new(rate: u32) -> Self {
+        Self::with_bands(rate, MEL_BANDS)
+    }
+    fn with_bands(rate: u32, band_count: usize) -> Self {
         let n = ((rate as usize * 50 / 1000).max(256))
             .next_power_of_two()
             .min(8192);
@@ -92,7 +99,7 @@ impl Kernel {
         // the top of it: those bands are reported as unavailable, never as silence.
         let nyquist = rate as f64 / 2.0;
         let measured = MEL_MAX_HZ.min(nyquist);
-        let bands = mel_bands(MEL_MIN_HZ, MEL_MAX_HZ);
+        let bands = mel_bands(MEL_MIN_HZ, MEL_MAX_HZ, band_count);
         // A band is measured only when its whole triangle is below Nyquist;
         // a half-covered filter would understate its own energy.
         // The tolerance absorbs the mel round trip: a band whose edge lands on
@@ -127,7 +134,7 @@ impl Kernel {
             .collect();
         let normalization = window.iter().sum::<f64>().powi(2);
         let description = InspectionSpectrogram {
-            frame_seconds: 0.02,
+            frame_seconds: 0.01,
             frame_start_seconds: vec![],
             window_seconds: n as f64 / rate as f64,
             fft_size: n,
@@ -191,9 +198,9 @@ impl Kernel {
             .collect()
     }
 }
-pub(super) fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
+pub(crate) fn spectrogram(samples: &[i16], rate: u32) -> InspectionSpectrogram {
     let kernel = Kernel::new(rate);
-    let hop = (rate as usize / 50).max(samples.len().div_ceil(1200));
+    let hop = (rate as usize / 100).max(samples.len().div_ceil(2400));
     let mut data = kernel.description.clone();
     data.frame_seconds = hop as f64 / rate as f64;
     for start in (0..samples.len()).step_by(hop) {
@@ -215,11 +222,14 @@ pub(crate) struct LiveAnalysis {
     pending: Vec<i16>,
     offset: usize,
     received: usize,
+    history_seconds: f64,
     view: LiveSpectrogram,
 }
 impl LiveAnalysis {
-    pub fn new(rate: u32) -> Self {
-        let kernel = Kernel::new(rate);
+    pub fn new(rate: u32, history_seconds: f64) -> Self {
+        let mut kernel = Kernel::with_bands(rate, LIVE_MEL_BANDS);
+        kernel.description.frame_seconds =
+            (rate as usize / LIVE_FRAMES_PER_SECOND).max(1) as f64 / rate as f64;
         let view = LiveSpectrogram {
             data: kernel.description.clone(),
             end_seconds: 0.0,
@@ -230,6 +240,7 @@ impl LiveAnalysis {
             pending: vec![],
             offset: 0,
             received: 0,
+            history_seconds: history_seconds.max(12.0),
             view,
         }
     }
@@ -240,7 +251,7 @@ impl LiveAnalysis {
                 .iter()
                 .map(|s| (s.clamp(-1.0, 1.0) * i16::MAX as f32) as i16),
         );
-        let hop = self.rate as usize / 50;
+        let hop = (self.rate as usize / LIVE_FRAMES_PER_SECOND).max(1);
         let mut used = 0;
         while used + self.kernel.n <= self.pending.len() {
             self.view
@@ -256,7 +267,7 @@ impl LiveAnalysis {
         self.pending.drain(..used);
         self.offset += used;
         self.view.end_seconds = self.received as f64 / self.rate as f64;
-        let before = self.view.end_seconds - 12.0;
+        let before = self.view.end_seconds - self.history_seconds;
         let remove = self
             .view
             .data
@@ -266,11 +277,9 @@ impl LiveAnalysis {
         self.view.data.bins.drain(..remove);
     }
     pub fn snapshot_since(&self, after: Option<f64>) -> LiveSpectrogram {
-        let start = after.map_or(0, |time| {
-            self.view
-                .data
-                .frame_start_seconds
-                .partition_point(|t| *t <= time)
+        let start = self.view.data.frame_start_seconds.partition_point(|time| {
+            *time + self.view.data.window_seconds < self.view.end_seconds - 12.0
+                || after.is_some_and(|after| *time <= after)
         });
         let mut data = self.kernel.description.clone();
         data.frame_start_seconds = self.view.data.frame_start_seconds[start..].to_vec();
@@ -278,6 +287,31 @@ impl LiveAnalysis {
         LiveSpectrogram {
             data,
             end_seconds: self.view.end_seconds,
+        }
+    }
+    /// Reuse measured live frames for immediate clip display. Full-resolution
+    /// inspection is computed later from the saved audio by the analysis stage.
+    pub fn clip(&self, start: f64, end: f64) -> LiveSpectrogram {
+        let mut data = self.kernel.description.clone();
+        for (time, frame) in self
+            .view
+            .data
+            .frame_start_seconds
+            .iter()
+            .zip(&self.view.data.bins)
+        {
+            if *time >= end {
+                break;
+            }
+            if *time < start {
+                continue;
+            }
+            data.frame_start_seconds.push(*time - start);
+            data.bins.push(frame.clone());
+        }
+        LiveSpectrogram {
+            data,
+            end_seconds: end - start,
         }
     }
     #[cfg(test)]
@@ -290,24 +324,32 @@ impl LiveAnalysis {
 mod tests {
     use super::*;
     #[test]
-    fn streaming_frames_match_offline_and_history_is_bounded() {
+    fn streaming_uses_preview_resolution_and_preserves_the_audio_clock() {
         let rate = 48000;
         let pcm: Vec<f32> = (0..rate * 2)
             .map(|i| (i as f32 * std::f32::consts::TAU * 440.0 / rate as f32).sin() * 0.3)
             .collect();
         let encoded: Vec<i16> = pcm.iter().map(|s| (s * i16::MAX as f32) as i16).collect();
         let offline = spectrogram(&encoded, rate);
-        let mut live = LiveAnalysis::new(rate);
+        let mut live = LiveAnalysis::new(rate, 31.0);
         for chunk in pcm.chunks(713) {
             live.push(chunk);
         }
         let snapshot = live.snapshot();
         assert_eq!(snapshot.data.bins[0].len(), 128);
-        assert_eq!(snapshot.data.bins, offline.bins[..snapshot.data.bins.len()]);
-        assert_eq!(
-            snapshot.data.frame_start_seconds,
-            offline.frame_start_seconds[..snapshot.data.bins.len()]
-        );
+        assert_eq!(snapshot.data.frame_seconds, 0.02);
+        assert_eq!(offline.bands.len(), 256);
+        assert_eq!(offline.frame_seconds, 0.01);
+        assert_eq!(offline.bins.len(), 200);
+        let kernel = Kernel::with_bands(rate, LIVE_MEL_BANDS);
+        for (index, frame) in snapshot.data.bins.iter().enumerate() {
+            let offset = index * rate as usize / LIVE_FRAMES_PER_SECOND;
+            assert_eq!(*frame, kernel.frame(&encoded[offset..]));
+            assert_eq!(
+                snapshot.data.frame_start_seconds[index],
+                offset as f64 / rate as f64
+            );
+        }
         let began = std::time::Instant::now();
         for _ in 0..10 {
             for chunk in pcm.chunks(2400) {
@@ -318,6 +360,20 @@ mod tests {
         let snapshot = live.snapshot();
         assert!(snapshot.data.bins.len() <= 610);
         assert!(snapshot.data.frame_start_seconds[0] >= snapshot.end_seconds - 12.1);
+        // A long take still has its beginning even though the visible strip
+        // only publishes the last twelve seconds.
+        let preview = live.clip(0.25, 20.0);
+        assert_eq!(preview.data.bands.len(), 128);
+        assert_eq!(preview.end_seconds, 19.75);
+        assert!(preview.data.frame_start_seconds[0] < 0.021);
+        assert!(preview.data.frame_start_seconds.last().unwrap() > &19.7);
+        assert!(
+            preview
+                .data
+                .frame_start_seconds
+                .iter()
+                .all(|time| *time >= 0.0 && *time < preview.end_seconds)
+        );
         let cursor = snapshot.data.frame_start_seconds.last().copied();
         assert!(live.snapshot_since(cursor).data.bins.is_empty());
         live.push(&pcm[..9600]);
@@ -340,3 +396,7 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+#[path = "spectrogram_benchmark.rs"]
+mod benchmark;

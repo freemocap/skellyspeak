@@ -66,9 +66,14 @@ export function registerSpeechPlayback(playback: ActiveSpeechPlayback | null): v
 /** Lifecycle suspension stops the active utterance; returning never resumes it. */
 export function suspendCapture(): void { captureSuspension?.() }
 
-export function setPlaybackAllowed(allowed: boolean): void {
+export function setPlaybackAllowed(allowed: boolean, stopCapture = true): void {
   lifecycleAllowed = allowed
-  if (!allowed) { suspendCapture(); permit = null; active?.suspend(); notifyInterrupted() }
+  if (!allowed) {
+    if (stopCapture) suspendCapture()
+    permit = null
+    active?.suspend()
+    notifyInterrupted()
+  }
   // A recording still holds the microphone: the app returning does not hand
   // playback back until that recording ends.
   else if (!capturing) permit ??= {}

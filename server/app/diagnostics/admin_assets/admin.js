@@ -49,6 +49,8 @@ var diagnosticPolicy = {
     "protocol",
     "provider",
     "providerId",
+    "provider_error_code",
+    "provider_error_type",
     "provider_name",
     "ratelimit_",
     "read_error",

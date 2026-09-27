@@ -11,7 +11,7 @@ export function ClearTakes({ disabled, onClear }: { disabled: boolean; onClear: 
   return <details className="drill-clear">
     <summary>{tr("Clear takes…")}</summary>
     <div className="drill-clear-panel" role="group" aria-label={tr("Clear takes…")}>
-      <p>{tr("Deletes the takes and their recordings for this phrase. This cannot be undone.")}</p>
+      <p>{tr("Deletes the takes and their recordings for this drill target. This cannot be undone.")}</p>
       <div className="drill-clear-actions">
         {WINDOWS.map(minutes => <button key={minutes ?? 'all'} type="button" className="btn danger" disabled={disabled}
           onClick={event => {

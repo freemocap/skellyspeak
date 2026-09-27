@@ -4,7 +4,7 @@ import { reportFault } from '../diagnostics/faults'
 import { startBrowserRecording, type BrowserRecording } from './browser-recording'
 import { recordingPublished } from './recording-events'
 import { beginCapture, endCapture } from './speech'
-import type { LiveSpectrogram, ListeningSettings, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
+import type { LiveSpectrogram, ListeningMode, ListeningSettings, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
 
 /** A stopped manual clip exists before capture delivery or transcription returns. */
@@ -17,13 +17,14 @@ export interface PendingRecording {
 interface MicRecorderOptions {
   /** What this recording belongs to: a conversation, a drill item, or nothing yet. */
   owner: RecordingOwner | null
-  /** Present for hands-free takes cut at silence; absent for one take per Start/Stop. */
+  /** Present for a continuous microphone with independently controlled clip boundaries. */
   listening?: ListeningSettings
+  captureMode?: ListeningMode
   onTranscribe: (text: string) => void
 }
 
-/** Recording is native-owned and bound to its owner. Only explicit Stop transcribes. */
-export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOptions) {
+/** Recording is native-owned and bound to its owner. Native clip receipts precede transcription. */
+export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: MicRecorderOptions) {
   // The owner identity drives every effect; the value itself is read when a
   // recording actually starts, so a caller need not memoize the object.
   const ownerKey = owner ? `${owner.kind}:${owner.id}` : null
@@ -37,6 +38,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
   const [failure, setFailure] = useState<unknown>(null)
   const continuous = useRef(false)
   const publications = useRef(0)
+  const [starting, setStarting] = useState(false)
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const [waveSource, setWaveSource] = useState<WaveSource | null>(null)
@@ -50,6 +52,8 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
   // Read when listening starts; later changes go to native through `tune`.
   const listeningSettings = useRef(listening)
   listeningSettings.current = listening
+  const captureModeRef = useRef(captureMode)
+  captureModeRef.current = captureMode
 
   // The microphone and the speakers are one authority: a recording stops
   // playback and holds it off until the recording ends, whatever owns it.
@@ -150,7 +154,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
         if (active.current !== recordingId) return
         setFailure(error); reportFault('Microphone spectrum', error); cancel()
       }).finally(() => { polling = false })
-    }, 200)
+    }, 50)
     return () => clearInterval(timer)
   }, [recording, cancel])
 
@@ -195,6 +199,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
         setLastTranscription(result)
         if (result.text.trim()) callback.current(result.text)
       } else {
+        setStarting(true)
         const owner = current.current
         if (!owner) throw new Error('Open a conversation or a drill item before recording.')
         setFailure(null); setListeningStatus(null); setLiveSpectrum(null); spectrumSnapshot.current = null; publications.current = 0
@@ -208,7 +213,7 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
           if (id) void invoke('mic_cancel', { recordingId: id }).catch(error => { setFailure(error); reportFault('Stopping listening', error) })
           else cancel()
         })
-        const { recordingId, samplesPerSecond, browserCapture, browserDeviceId } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings } : { owner })
+        const { recordingId, samplesPerSecond, browserCapture, browserDeviceId } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings, ...(captureModeRef.current ? { captureMode: captureModeRef.current } : {}) } : { owner })
         if (generation.current !== scope) {
           await stopNative(recordingId)
           return
@@ -239,10 +244,15 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
     }
     finally {
       working.current = false
+      setStarting(false)
       if (!active.current) release()
       if (!continuous.current) setTranscribing(false)
     }
   }, [ownerKey, cancel, release, stopNative])
+
+  const stopMic = useCallback(async () => {
+    if (active.current) await toggleMic()
+  }, [toggleMic])
 
   const discardCurrent = useCallback(() => {
     const recordingId = active.current
@@ -252,11 +262,11 @@ export function useMicRecorder({ owner, onTranscribe, listening }: MicRecorderOp
   }, [cancel])
 
   /** Move the pause, threshold or shortest take of the run in progress. */
-  const tune = useCallback((settings: ListeningSettings) => {
+  const tune = useCallback((settings: ListeningSettings, captureMode?: ListeningMode) => {
     const recordingId = active.current
     if (!recordingId || !continuous.current) throw new Error('Listening settings can only be tuned while listening.')
-    void invoke('mic_listen_tune', { recordingId, settings }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
+    void invoke('mic_listen_tune', { recordingId, settings, ...(captureMode ? { captureMode } : {}) }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
   }, [])
 
-  return { pendingRecordings, tune, liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, cancel }
+  return { starting, pendingRecordings, tune, liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, cancel }
 }

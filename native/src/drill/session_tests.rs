@@ -134,3 +134,27 @@ fn closing_an_old_session_does_not_close_its_replacement_and_restart_marks_inter
     assert_eq!(sessions[1].end_reason.as_deref(), Some("replaced"));
     assert!(active_visit(&store.connection, &a).is_err());
 }
+
+#[test]
+fn last_phrase_survives_reopen_and_ignores_other_languages_and_archived_items() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("practice.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    let a = item(&mut store, "spanish");
+    let b = item(&mut store, "spanish");
+    assert_eq!(store.last_drill_item("spanish").unwrap(), None);
+    let session = store.start_drill_session("spanish").unwrap();
+    store.enter_drill_visit(&session, &a).unwrap();
+    store.enter_drill_visit(&session, &b).unwrap();
+    store.end_drill_session(&session).unwrap();
+    drop(store);
+    let mut store = Store::open(&path).unwrap();
+    assert_eq!(store.last_drill_item("spanish").unwrap(), Some(b.clone()));
+    let foreign = item(&mut store, "french");
+    let session = store.start_drill_session("french").unwrap();
+    store.enter_drill_visit(&session, &foreign).unwrap();
+    assert_eq!(store.last_drill_item("spanish").unwrap(), Some(b.clone()));
+    assert_eq!(store.last_drill_item("french").unwrap(), Some(foreign));
+    store.delete_drill_item(&b).unwrap();
+    assert_eq!(store.last_drill_item("spanish").unwrap(), Some(a));
+}

@@ -38,6 +38,7 @@ const preview = (overrides: Partial<DrillGenerationPreview> = {}): DrillGenerati
 
 beforeEach(() => {
   vi.resetAllMocks()
+  profiles.getLearnerProfile.mockResolvedValue({ evidence: { catalog: [] } })
   api.previewDrillItems.mockResolvedValue(preview())
   api.acceptDrillItems.mockResolvedValue([])
   api.discardDrillPreview.mockResolvedValue(undefined)
@@ -234,19 +235,15 @@ function fetchCalls() {
 it('sends a selected skill only after Generate and keeps the length choice', async () => {
   profiles.getLearnerProfile.mockResolvedValue({ evidence: { catalog: [{id:'past_reference',label:'Refer to the past',kind:'skill'},{id:'root',label:'Root',kind:'root'}] } })
   open()
-  fireEvent.change(screen.getByLabelText('Skill focus'), { target: { value: 'skill' } })
-  expect(screen.getByRole('button', { name: 'Generate' })).toBeDisabled()
   await screen.findByRole('option', { name: 'Refer to the past' })
-  fireEvent.change(screen.getByLabelText('Skills'), { target: { value: 'past_reference' } })
+  fireEvent.change(screen.getByLabelText('Skill'), { target: { value: 'past_reference' } })
   expect(fetchCalls()).toBe(0)
   generate()
   await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledWith(expect.objectContaining({skillTarget:{kind:'skill',skillId:'past_reference'},length:'shortPhrase'}),expect.any(AbortSignal)))
 })
-it('sends coach mode through the normal preview request without evaluating skills in the UI', async () => {
+it('omits skill focus when no skill is selected', async () => {
   open()
-  fireEvent.change(screen.getByLabelText('Skill focus'), { target: { value: 'explore' } })
-  expect(fetchCalls()).toBe(0)
-  expect(profiles.getLearnerProfile).not.toHaveBeenCalled()
   generate()
-  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledWith(expect.objectContaining({skillTarget:{kind:'coach',mode:'explore'}}),expect.any(AbortSignal)))
+  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledOnce())
+  expect(api.previewDrillItems.mock.calls[0][0]).not.toHaveProperty('skillTarget')
 })
