@@ -67,7 +67,7 @@ it('speaks an exact saved source occurrence without fetching glosses or opening 
   app(<div onClick={parent}><SavedGlossText text="sí, sí" segments={[{start:0,end:2,kind:'gloss',gloss:'yes'}, {start:4,end:6,kind:'gloss',gloss:'indeed'}]} /></div>)
   fireEvent.click(screen.getAllByRole('button', { name: 'sí' })[1])
   fireEvent.click(screen.getByRole('button', { name: 'Read aloud: sí' }))
-  await waitFor(() => expect(services.speak).toHaveBeenCalledWith({ ...scope, text: 'sí', aid:'speech' }, expect.any(AbortSignal), expect.any(Function)))
+  await waitFor(() => expect(services.speak).toHaveBeenCalledWith({ ...scope, text: 'sí', aid:'speech' }, expect.any(AbortSignal), expect.any(Function), expect.objectContaining({ text: expect.any(String), start: expect.any(Number), end: expect.any(Number) })))
   expect(services.read).not.toHaveBeenCalled(); expect(parent).not.toHaveBeenCalled()
 })
 

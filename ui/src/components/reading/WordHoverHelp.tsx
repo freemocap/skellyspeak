@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom'
 import { useI18n } from '../localization/i18n'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { TokenAudio } from './TokenAudio'
+import { SpeechFollowText } from './SpeechFollowText'
 import { GlossHelpParts } from './GlossHelpParts'
 import { useReadingActions, useReadingLookup, useReadingPeek, type ReadingSelection } from './ReadingContext'
 import { useReadingPreferences } from './ReadingPreferences'
@@ -82,7 +83,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   return createPortal(<span ref={helper} popover={layer.touch ? undefined : "manual"} data-word-help-layer={layer.touch ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
     onPointerEnter={onEnter} onPointerLeave={() => { if (!pinned) onLeave() }} onClick={event => event.stopPropagation()}>
     <TokenAudio text={selection.text} start={selection.start} end={selection.end} />
-    <span className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span>
+    <SpeechFollowText text={selection.text.slice(selection.start, selection.end)} source={{ text: selection.text, start: selection.start }}><span data-speech-source className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span></SpeechFollowText>
     {!parts.length && !result && !failure && <span role="status">{tr('Finding word meanings…')}</span>}
     <GlossHelpParts text={selection.text} parts={parts} showRomanization={supportsRomanization} />
     {failure != null && <ErrorNotice error={failure}>{errorMessage(failure)}<ResponseDetails value={errorDetails(failure)} /></ErrorNotice>}

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Pink Trombone sequencing demo</title>
+        <style>
+            :root {
+                --bg: #14161a;
+                --sheet: #1c1f25;
+                --field: #23272e;
+                --line: #343a43;
+                --ink: #e8eaee;
+                --ink-2: #a8b0bb;
+                --ink-3: #6f7883;
+                --accent: #d98cb3;
+            }
+
+            * { box-sizing: border-box; }
+
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--ink);
+                font: 14px/1.5 system-ui, "Segoe UI", Roboto, sans-serif;
+            }
+
+            body, button, input, select {
+                font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+            }
+
+            header {
+                padding: 20px 24px 16px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            h1 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+
+            header p {
+                margin: 0;
+                max-width: 78ch;
+                color: var(--ink-2);
+                font-size: 13px;
+            }
+
+            header code {
+                background: var(--field);
+                padding: 1px 5px;
+                border-radius: 3px;
+                font-size: 12px;
+            }
+
+            main {
+                display: grid;
+                grid-template-columns: 260px minmax(0, 1fr) 250px;
+                gap: 1px;
+                background: var(--line);
+                min-height: calc(100vh - 116px);
+            }
+
+            main > * { background: var(--bg); padding: 16px; }
+
+            h2 {
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--ink-3);
+                margin: 0 0 10px;
+            }
+
+            /* library */
+            .group { margin-bottom: 18px; }
+
+            .group-title {
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--ink-3);
+                margin-bottom: 6px;
+            }
+
+            .item {
+                display: block;
+                width: 100%;
+                text-align: left;
+                background: none;
+                border: 1px solid transparent;
+                border-radius: 5px;
+                color: var(--ink-2);
+                padding: 6px 8px;
+                cursor: pointer;
+                font-size: 13px;
+            }
+
+            .item:hover { background: var(--field); color: var(--ink); }
+
+            .item[aria-current="true"] {
+                background: var(--field);
+                border-color: var(--line);
+                color: var(--ink);
+            }
+
+            .item .ipa {
+                color: var(--ink-3);
+                font-size: 12px;
+                margin-left: 6px;
+            }
+
+            /* stage */
+            .controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin-bottom: 14px;
+            }
+
+            button.primary, button.plain {
+                border-radius: 5px;
+                border: 1px solid var(--line);
+                background: var(--field);
+                color: var(--ink);
+                padding: 7px 14px;
+                cursor: pointer;
+                font-size: 13px;
+            }
+
+            button.primary { border-color: var(--accent); color: var(--accent); }
+            button:disabled { opacity: 0.4; cursor: default; }
+            button:not(:disabled):hover { border-color: var(--accent); }
+
+            .speed {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-left: auto;
+                color: var(--ink-3);
+                font-size: 12px;
+            }
+
+            .speed input { width: 130px; }
+
+            .utterance-note {
+                color: var(--ink-2);
+                font-size: 13px;
+                margin: 0 0 12px;
+                min-height: 20px;
+            }
+
+            canvas {
+                width: 100%;
+                max-width: 520px;
+                aspect-ratio: 1;
+                background: var(--sheet);
+                border: 1px solid var(--line);
+                border-radius: 6px;
+                display: block;
+            }
+
+            .chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-top: 14px;
+            }
+
+            .chip {
+                border: 1px solid var(--line);
+                background: var(--field);
+                color: var(--ink-2);
+                border-radius: 999px;
+                padding: 4px 12px;
+                font-size: 13px;
+                cursor: pointer;
+            }
+
+            .chip[data-live="true"] {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            /* readout */
+            table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+
+            td {
+                padding: 4px 0;
+                border-bottom: 1px solid var(--line);
+                font-size: 12px;
+            }
+
+            td:last-child { text-align: right; color: var(--ink); }
+            td:first-child { color: var(--ink-3); }
+
+            .status {
+                margin-top: 14px;
+                font-size: 12px;
+                color: var(--ink-3);
+                min-height: 34px;
+            }
+
+            .error { color: #e5827f; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Pink Trombone sequencing demo</h1>
+            <p>
+                A vocal tract model driven from a list of articulatory targets, to test
+                whether it can speak on request. The synthesizer is vendored third-party
+                code (<code>vendor/</code>, MIT). The targets are authored by hand
+                (<code>utterances.js</code>) and none of them are validated against a
+                phonetic source. This is a spike, not app behaviour.
+            </p>
+        </header>
+
+        <main>
+            <nav id="library">
+                <h2>Library</h2>
+            </nav>
+
+            <section>
+                <div class="controls">
+                    <button id="enable" class="primary">Enable audio</button>
+                    <button id="play" disabled>Play</button>
+                    <button id="stop" disabled>Stop</button>
+                    <label class="speed">
+                        tract speed
+                        <input id="speed" type="range" min="4" max="60" step="1" value="15" />
+                        <span id="speed-value">15</span>
+                    </label>
+                </div>
+
+                <p class="utterance-note" id="note"></p>
+
+                <canvas id="tract" width="600" height="600"></canvas>
+
+                <div class="chips" id="chips"></div>
+            </section>
+
+            <aside>
+                <h2>Current target</h2>
+                <table id="readout"></table>
+                <div class="status" id="status">Audio is off.</div>
+            </aside>
+        </main>
+
+        <script type="module" src="demo.js"></script>
+    </body>
+</html>

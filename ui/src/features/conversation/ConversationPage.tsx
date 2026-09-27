@@ -493,7 +493,7 @@ export default function ConversationPage({
     </ConversationErrorScope>
   )
   const chatComposer = (
-        <div className="composer" ref={composer}>
+        <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}>
           {editingTurnId !== null && (
             <div className="edit-banner">
               <span>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("✎ Editing your message — send to replace it")}</span>

@@ -886,3 +886,98 @@ merged list. Dropping the handle *between* those two panes — keeping the one
 below — is the minimal change that makes the movement possible, at the cost of
 sizing those two panes independently. This mockup draws the merged result; the
 plan needs that decision recorded before implementation.
+
+
+## Narrow stacked layout: implemented 2026-09-27
+
+The narrow layout (up to 860px) now places the target, both comparison plots,
+recording controls and live timeline above the shared attempt history. It uses
+one scrolling surface; the plots have explicit usable heights instead of
+competing for the remaining height. Desktop retains its resizable arrangement.
+The older mobile summary card and separate report modal are removed.
+
+Target navigation keeps the picker and previous/next buttons visible; random
+selection and adding targets live under More. Voice speed joins the comparison
+settings disclosure. Record/Stop, recording status and the settings button stay
+on one row; the threshold and automatic detection toggle move into recording
+settings on narrow screens. Word overlays start visible.
+
+Verification: 54 focused Drill component tests pass, including inline history
+selection and recording after target changes. TypeScript and style checks pass.
+Visual review in a running app remains outstanding: browser automation had no
+available connection and the native UI connection was unavailable. Review at
+phone width and with enlarged reading text before considering this visually
+approved. The historical mockup discussion above is not the current layout.
+
+
+### Compact follow-up
+
+Narrow comparison controls now share each plot's grid area rather than adding
+separate rows: Target/Attempt play controls and elapsed/total times match, and
+both use the existing draggable plot cursor for seeking/scrubbing. The redundant
+narrow reference range slider is removed. Playback keeps the current position;
+the narrow controls show pause while cached audio plays. Reference loading
+retains stop/cancel.
+
+Alignment explanations and detection details are available under an overlapping
+info disclosure on both widths. The narrow recorder controls overlay the live
+timeline; its redundant heading and standing status copy no longer consume rows.
+Narrow history starts collapsed, opens in place on selection, and has a Close
+control. Desktop expansion behavior is unchanged. New narrow takes remain
+compact instead of automatically consuming space with a report.
+
+Verification: 61 focused component tests pass, including initially collapsed
+history, opening/closing it, and explanations hidden until requested. Visual
+review is still pending in the running app; this follow-up responds to the
+provided screenshot rather than a new automated screenshot.
+
+
+### Modal controls correction
+
+Comparison settings on narrow screens now use the shared native DetailDialog.
+Its top layer and dimmed backdrop make the surrounding spectrograms inert while
+open; capture is preserved, matching recording settings. A regression test
+checks modal opening, changing scale without seeking either recording, and
+closing. Previous and Next are visible text labels, and random selection is
+labeled Random target in every interface locale. The focused comparison/page
+suite passes (53 tests); TypeScript and style checks pass.
+
+
+### Playback visibility
+
+Drill now supplies reference playback to TargetMessage's existing chat speaker
+button, inside the target bubble, instead of duplicating it in the media strip.
+The shared speech control accepts a disabled state to preserve the recording
+lock. Drill gives that corner control a primary blue treatment and uses the
+same primary fill for attempt playback. Focused playback/reading tests pass
+(69 tests), including stopping, seeking and capture locks; TypeScript, styles
+and preview checks pass. Running-app visual review remains pending.
+
+
+### Playback progress, direction and shared surface polish
+
+Target playback is available both in the bubble and beside its timeline; Target
+and Attempt now have matching buttons and progress controls. Each progress
+control shares the spectrogram's time map, playback state and scrub controller,
+including inverse seeking under word alignment and right-to-left direction.
+Shared-scale progress also uses the shared span. The timer is layered over a
+filled track rather than occupying a separate label area.
+
+Time defaults to the configured script direction, with the existing explicit
+override retained. The live waveform, spectrogram and clip markers mirror
+together; text labels are counter-mirrored. The recorder uses existing learner
+surface colors and raised shadow tokens.
+
+Shared simple buttons use the chrome surface and small shadow; shared dialogs
+use chrome against their existing scrim. Native select open states use a scrim
+shadow (platform support for :open still needs visual checking). Language and
+contact menus have dismissible scrims and chrome surfaces. Drill target picking
+and target actions use DetailDialog. Message-edit mode is a raised, bordered
+chrome panel. No provider or recording contracts changed.
+
+Verification: 96 focused Drill, language-picker, live-recording, and conversation
+tests pass, plus 17 waveform/contact-picker tests. Progress tests cover mirrored
+inverse seeking, fill position and ending previews once; the page test verifies
+comparison and live directions change together. TypeScript, previews and styles
+pass. Running-app visual review remains outstanding, especially native select
+popups and menu stacking.

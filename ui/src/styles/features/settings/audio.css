@@ -1,6 +1,6 @@
 /* Audio settings layout: channel volumes, device selection and playback controls. */
 
-.microphone-row { display: flex; gap: var(--space-3); }
+
 
 .speech-speed { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--type-ui); }
 

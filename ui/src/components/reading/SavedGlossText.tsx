@@ -3,6 +3,7 @@ import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { TokenAudio } from './TokenAudio'
 import { GlossHelpParts } from './GlossHelpParts'
 import { UnannotatedText } from './UnannotatedText'
+import { SpeechFollowText } from './SpeechFollowText'
 import { AskCoachButton } from '../learning/AskCoachButton'
 import { useOverlayLayer } from '../dialogs/useOverlayLayer'
 import { DetailDialog } from '../dialogs/DetailDialog'
@@ -92,7 +93,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     }
     const piece = interactive && annotations.length > 0
       ? <span className="wu saved-word" key={segment.start} data-source-start={segment.start} data-source-end={segment.end} onPointerEnter={event => { keepHover(); if (event.pointerType === 'mouse' && revealed.size === 0) { hoveredWord.current = event.currentTarget; setHovered(segment.start) } }} onPointerLeave={leaveHover}>
-          <span className={`reading-word${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open} aria-controls={open || hovering ? helperId : undefined}
+          <span data-speech-source className={`reading-word${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open} aria-controls={open || hovering ? helperId : undefined}
             onClick={event => { event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() }}
             onDoubleClick={event => event.stopPropagation()}
             onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() } }}>
@@ -111,7 +112,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
           </span>)}
           {expanded === segment.start && <DetailDialog title={tr("Word help")} onClose={() => { setExpanded(null); hoveredWord.current?.focus() }}>
             <div className="saved-word-details" dir={uiDirection}>
-              <h2 dir="auto">{source}<TokenAudio text={text} start={segment.start} end={segment.end} /></h2>
+              <h2 dir="auto"><SpeechFollowText text={source} source={{ text, start: segment.start }}><span data-speech-source>{source}</span></SpeechFollowText><TokenAudio text={text} start={segment.start} end={segment.end} /></h2>
               <GlossHelpParts text={text} parts={annotations} />
               <div className="detail-actions"><AskCoachButton
                 question={`Help me understand “${source}” in this sentence: “${text}”. Saved word details: ${JSON.stringify(annotations.map(part => ({ text: text.slice(part.start, part.end), gloss: part.gloss, romanization: part.romanization, pronunciation: part.pronunciation })))}`}
@@ -130,5 +131,5 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   }
   if (cursor < text.length) pieces.push(<Fragment key={`gap-${cursor}`}><UnannotatedText inline text={text.slice(cursor)} interactive={interactive} /></Fragment>)
   if (afterSegment && cursor < text.length) pieces.push(<Fragment key="credit-tail">{afterSegment(cursor, text.length)}</Fragment>)
-  return <span className="w preserve-space" dir="auto">{pieces}</span>
+  return <SpeechFollowText text={text}><span className="w preserve-space" dir="auto">{pieces}</span></SpeechFollowText>
 }

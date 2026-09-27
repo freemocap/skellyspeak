@@ -1251,7 +1251,6 @@
   "Resize the report column": "Resize the report column",
   "Drag to resize; double-click to reset": "Drag to resize; double-click to reset",
   "Takes start above {value0}": "Takes start above {value0}",
-  "Full report": "Full report",
   "Comparison settings": "Comparison settings",
   "Stop listening after silence of": "Stop listening after silence of",
   "Not scored": "Not scored",
@@ -1438,5 +1437,10 @@
   "Deletes the takes and their recordings for this drill target. This cannot be undone.": "Deletes the takes and their recordings for this drill target. This cannot be undone.",
   "Sounds": "Sounds",
   "Short": "Short",
-  "Long": "Long"
+  "Long": "Long",
+  "Previous": "Previous",
+  "Next": "Next",
+  "Random target": "Random target",
+  "AI": "AI",
+  "Seek attempt audio": "Seek attempt audio"
 }

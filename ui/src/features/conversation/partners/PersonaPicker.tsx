@@ -38,13 +38,13 @@ export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCr
       {current ? <><PersonaAvatar symbol={current.symbol} /><span className="partner-identity"><strong>{current.name}</strong></span></> : <span>{tr("No persona")}</span>}
       <span aria-hidden="true">▾</span>
     </button>
-    {open && <div className="persona-picker-menu" role="menu" aria-label={tr("Contacts")}>
+    {open && <><div className="menu-scrim" aria-hidden="true" onPointerDown={() => setOpen(false)} /><div className="persona-picker-menu" role="menu" aria-label={tr("Contacts")}>
       {choices.map(choice => <button type="button" role="menuitemradio" aria-checked={choice.id === currentId} key={choice.id}
         className="persona-picker-item" onClick={() => { setOpen(false); if (choice.id !== currentId) onSelect(choice.id) }}>
         <PersonaAvatar symbol={choice.symbol} /><span>{choice.name}</span>{choice.id === currentId && <span aria-hidden="true">✓</span>}
       </button>)}
       <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>{tr("Edit persona")}</button>
       <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>{tr("+ New persona…")}</button>
-    </div>}
+    </div></>}
   </div>
 }

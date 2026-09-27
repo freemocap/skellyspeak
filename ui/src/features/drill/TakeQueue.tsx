@@ -5,15 +5,22 @@ import type { DrillAttemptView, ListeningTake } from '../../generated/contracts'
 import type { PendingRecording } from '../../platform/audio/useMicRecorder'
 
 /** Keep the recording identity (and its row) while native publishes the result. */
-export function TakeQueue({ takes, attempts, onRecordAgain, recordingBusy }: {
+export function TakeQueue({ takes, attempts, onRecordAgain, recordingBusy, compact = false }: {
   takes: (ListeningTake | PendingRecording)[]
   attempts: DrillAttemptView[]
   onRecordAgain?: () => void
+  compact?: boolean
   recordingBusy?: boolean
 }) {
   const tr = useI18n()
   const pending = takes.filter(take => !attempts.some(item => item.transcriptionAttemptId === take.recordingId))
   if (!pending.length) return null
+  if (compact) {
+    const take = pending[pending.length - 1]
+    return <div className="drill-take-compact" data-recording-id={take.recordingId} role="status">
+      {take.state === 'queued' ? tr('Queued') : take.state === 'processing' ? tr('Transcribing…') : take.state === 'failed' ? tr('Take failed') : tr('Loading result…')}
+    </div>
+  }
   return <ol className="drill-attempts" aria-label={tr('Attempts')}>
     {[...pending].reverse().map(take => {
       const busy = take.state === 'queued' || take.state === 'processing'

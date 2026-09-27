@@ -2,10 +2,11 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { createScrubPlayer } from './scrub-player'
 import { beginCapture, endCapture, setPlaybackAllowed } from './speech'
+import { getSpeechFollow } from './speech-follow'
 
 function fixture(deferred = false) {
   let resolve!: (value: typeof buffer) => void
-  const buffer = { sampleRate: 48000, numberOfChannels: 1, getChannelData: () => new Float32Array(48000) }
+  const buffer = { duration: 1, sampleRate: 48000, numberOfChannels: 1, getChannelData: () => new Float32Array(48000) }
   const decode = deferred ? new Promise<typeof buffer>(done => { resolve = done }) : Promise.resolve(buffer)
   const gain = { gain: { value: 0 }, connect: vi.fn(), disconnect: vi.fn() }
   const context = { resume: vi.fn().mockResolvedValue(undefined), close: vi.fn().mockResolvedValue(undefined),
@@ -18,6 +19,20 @@ function fixture(deferred = false) {
 }
 const ready = async () => { for (let i = 0; i < 6; i++) await Promise.resolve() }
 afterEach(() => { setPlaybackAllowed(false); setPlaybackAllowed(true); vi.unstubAllGlobals() })
+
+it('follows scrub movement in either direction and clears the reading highlight on release', async () => {
+  fixture()
+  const player = createScrubPlayer('AA==', vi.fn(), { text: 'go go' })
+  player.start(0, 0)
+  await ready()
+  player.move(0.8, 20)
+  expect(getSpeechFollow()?.word.start).toBe(3)
+  player.move(0.2, 40)
+  expect(getSpeechFollow()?.word.start).toBe(0)
+  player.end()
+  expect(getSpeechFollow()).toBeNull()
+  player.dispose()
+})
 
 it('decodes once and sends positions to one connected worklet across gestures', async () => {
   const { context, node, gain } = fixture()

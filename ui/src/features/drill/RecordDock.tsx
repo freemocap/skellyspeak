@@ -1,5 +1,6 @@
+import { useIsMobile } from '../../components/layout/useIsMobile'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
-import { useState, useRef, type KeyboardEvent, type PointerEvent } from 'react'
+import { useState, useRef, type ReactNode, type KeyboardEvent, type PointerEvent } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { LiveRecording } from '../../components/media/LiveRecording'
@@ -30,7 +31,9 @@ const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR
  *
  * Capture and playback share one authority, so the dock says when playback is
  * held rather than letting a disabled button explain itself. */
-export function RecordDock({ starting = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, liveSpectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+export function RecordDock({ microphoneSelector, direction = 'ltr', starting = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, liveSpectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+  microphoneSelector?: ReactNode
+  direction?: 'ltr' | 'rtl'
   starting?: boolean
   phase: DockPhase
   mode: RecordMode
@@ -47,6 +50,7 @@ export function RecordDock({ starting = false, phase, mode, onMode, settings, on
   onHoldEnd: () => void
 }) {
   const tr = useI18n()
+  const mobile = useIsMobile()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const seconds = (ms: number) => tr('{value0} s', { value0: tr.number(ms / 1000, { maximumFractionDigits: 1 }) })
   const decibels = (db: number) => tr('{value0} dB', { value0: tr.number(db, { maximumFractionDigits: 0 }) })
@@ -87,9 +91,15 @@ export function RecordDock({ starting = false, phase, mode, onMode, settings, on
     onBlur: onHoldEnd,
   }
 
+  const meter = <LevelMeter level={listeningStatus?.levelDb ?? null} noise={listeningStatus?.noiseFloorDb ?? null}
+          threshold={settings.thresholdDb} decibels={decibels}
+          onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />
+  const detection = <label className="drill-auto-detect"><input type="checkbox" checked={auto}
+            disabled={busy || starting || mode !== 'live'} onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Auto detect takes")}</label>
+
   return (
-    <section className="drill-dock" data-phase={phase} data-mode={mode} aria-label={tr("Record an attempt")}>
-      <div className="drill-dock-side">
+    <section className="drill-dock" dir={direction} data-phase={phase} data-mode={mode} aria-label={tr("Record an attempt")}>
+      <div className="drill-dock-side" dir={direction}>
         <button type="button" className="drill-dock-button" aria-label={mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")}
           aria-pressed={phase === 'recording'} disabled={busy || (starting && mode !== 'hold')} {...(mode === 'hold' ? holdKeys : { onClick: onToggle })}>
           <ToolbarIcon name={phase === 'recording' ? 'stop' : 'mic'} size={20} />
@@ -106,18 +116,17 @@ export function RecordDock({ starting = false, phase, mode, onMode, settings, on
             value2: String(listeningStatus?.ignoredTakes ?? 0),
           })}</p>
         </div>
-        <LevelMeter level={listeningStatus?.levelDb ?? null} noise={listeningStatus?.noiseFloorDb ?? null}
-          threshold={settings.thresholdDb} decibels={decibels}
-          onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />
+        {!mobile && meter}
         <div className="drill-recording-controls">
-          <label className="drill-auto-detect"><input type="checkbox" checked={auto}
-            disabled={busy || starting || mode !== 'live'} onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Auto detect takes")}</label>
+          {!mobile && detection}
           <button type="button" className="btn drill-dock-settings" aria-label={tr("Recording settings")}
             title={tr("Recording settings")} aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}><ToolbarIcon name="settings" size={17} /></button>
         </div>
         {settingsOpen && <DetailDialog title={tr("Recording settings")} capture="preserve" onClose={() => setSettingsOpen(false)}>
           <div className="drill-dock-panel">
             <h2>{tr("Recording settings")}</h2>
+            {microphoneSelector}
+            {mobile && <>{detection}{meter}</>}
             <div className="drill-dock-modes"><div className="drill-segmented" role="radiogroup" aria-label={tr("Recording mode")}>
           {RECORD_MODES.map(option => {
             const name = { tap: tr("Tap to record"), hold: tr("Hold to talk"), live: tr("Live") }[option]
@@ -146,7 +155,7 @@ export function RecordDock({ starting = false, phase, mode, onMode, settings, on
         </DetailDialog>}
       </div>
 
-      <div className="drill-recording-container"><LiveRecording active={phase === 'recording'} source={waveSource} spectrum={liveSpectrum} takes={listeningStatus?.takes ?? []} />
+      <div className="drill-recording-container"><LiveRecording direction={direction} active={phase === 'recording'} source={waveSource} spectrum={liveSpectrum} takes={listeningStatus?.takes ?? []} />
       </div>
     </section>
   )

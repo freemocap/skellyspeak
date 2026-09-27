@@ -9,8 +9,7 @@ import { useI18n } from '../../components/localization/i18n'
 import { InfoTip } from '../../components/controls/InfoTip'
 import { configureAudioVolumes } from '../../platform/audio/audio-volume'
 import { configureRewardSounds } from '../../platform/audio/reward-sounds'
-import { listMicrophones } from '../../platform/audio/microphones'
-import type { MicrophoneList } from '../../generated/contracts'
+import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { Settings, Shortcuts } from '../../types'
 import { logInfo, languages } from '../../platform/ipc/tauri'
@@ -188,14 +187,6 @@ export function SettingsModal({
   const accessBusy = routeBusy || modelsBusy
   const [configurationRevision, setConfigurationRevision] = useState(0)
   const [appVersion, setAppVersion] = useState<string | null>(null)
-  const [mics, setMics] = useState<MicrophoneList | null>(null)
-  const [micError, setMicError] = useState<unknown>(null)
-  // Refreshing may ask for microphone access so the browser reveals device labels.
-  const listMics = useCallback(async (requestAccess: boolean) => {
-    try { setMics(await listMicrophones(requestAccess)); setMicError(null) }
-    catch (error) { setMicError(error); reportFault('Listing microphones', error) }
-  }, [])
-  useEffect(() => { void listMics(false) }, [listMics])
   const [section, setSection] = useState<SectionId>('keys')
   const [search, setSearch] = useState('')
   const isMobile = useIsMobile()
@@ -302,11 +293,6 @@ export function SettingsModal({
   // ── Row registry: adding a setting = one entry here ──────────────────────
   // Display labels localize via the settings.row.<id> convention (English
   // fallbacks double as the search index).
-  // Name what "System default" currently resolves to, and keep a saved device
-  // that is no longer listed visible instead of silently showing another one.
-  const systemMicrophone = mics?.devices.find(device => device.isDefault)
-  const missingMicrophone = mics && settings.microphone_device_id !== null && !mics.devices.some(device => device.id === settings.microphone_device_id)
-    ? settings.microphone_device_id : null
   const rows: Record<string, RowDef> = {
     conversation_help: {
       section: 'languages', label: tr('Restart onboarding'), kw: 'onboarding tutorial help guide',
@@ -415,35 +401,7 @@ export function SettingsModal({
       label: tr('Microphone'),
       kw: 'microphone input device recording yeti',
       node: (
-        <div className="form-row">
-          <label>{tr("Microphone")}</label>
-          <div className="microphone-row">
-            <select
-              value={settings.microphone_device_id ?? ''}
-              onChange={(e) =>
-                setSettings({
-                  ...settings,
-                  microphone_device_id: e.target.value || null,
-                })
-              }
-            >
-              <option value="">{systemMicrophone ? tr("System default · {value0}", { value0: systemMicrophone.label }) : tr("System default")}</option>
-              {mics?.devices.map((d, index) => {
-                const label = d.label || tr("Microphone {value0}", { value0: index + 1 })
-                return <option key={d.id} value={d.id}>
-                  {d.channels !== null && d.sampleRate !== null
-                    ? tr("{value0} · {value1} ch · {value2} Hz", { value0: label, value1: d.channels, value2: d.sampleRate.toLocaleString(tr.browserLocale) })
-                    : label}
-                </option>
-              })}
-              {missingMicrophone !== null && <option value={missingMicrophone}>{tr("{value0} (not connected)", { value0: missingMicrophone })}</option>}
-            </select>
-            <button type="button" className="btn" aria-label={tr("Refresh microphones")} title={tr("Refresh microphones")} onClick={() => void listMics(true)}>
-              ↻
-            </button>
-          </div>
-          {micError !== null && <ErrorNotice as="p" error={micError}>{errorMessage(micError)}</ErrorNotice>}
-        </div>
+        <MicrophoneSelector value={settings.microphone_device_id} onChange={microphone_device_id => setSettings({ ...settings, microphone_device_id })} />
       ),
     },
     tts_rate: {

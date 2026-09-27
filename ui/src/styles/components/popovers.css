@@ -43,3 +43,5 @@
 @media (pointer: coarse) {
   .info-tip > button { min-width: 44px; min-height: 44px; }
 }
+
+.menu-scrim { position: fixed; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }

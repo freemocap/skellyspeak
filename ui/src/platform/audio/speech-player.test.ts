@@ -2,6 +2,7 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { playSpeechAudio } from './speech-player'
 import { setPlaybackAllowed, setVoiceVolume } from './speech'
+import { getSpeechFollow } from './speech-follow'
 
 const audio0 = { status: 'ready', operationId: 'op', messageId: 'message', attemptId: 'attempt', mime: 'audio/mpeg', audioBase64: 'AA==', alignment: null } as const
 
@@ -10,6 +11,7 @@ interface Media {
   removeAttribute: ReturnType<typeof vi.fn>; onended: (() => void) | null; onerror: (() => void) | null
   currentTime: number; duration: number; onloadedmetadata: (() => void) | null
   playbackRate: number; volume: number; preservesPitch: boolean
+  paused?: boolean; seeking?: boolean; readyState?: number
 }
 
 function stubAudio(): { media: Media[]; revoke: ReturnType<typeof vi.fn> } {
@@ -27,6 +29,43 @@ function stubAudio(): { media: Media[]; revoke: ReturnType<typeof vi.fn> } {
 
 // Playback authority is module state, so every test restores it.
 afterEach(() => { setPlaybackAllowed(true); vi.unstubAllGlobals() })
+
+it('follows timestamps on the media clock, clears gaps, and ignores an older player stopping', async () => {
+  const { media } = stubAudio()
+  let tick: FrameRequestCallback = () => {}
+  vi.stubGlobal('requestAnimationFrame', vi.fn((callback: FrameRequestCallback) => { tick = callback; return 42 }))
+  vi.stubGlobal('cancelAnimationFrame', vi.fn())
+  const aligned = { ...audio0, alignment: { sourceText: 'go go', original: { characters: ['g', 'o', ' ', 'g', 'o'], starts: [0, 0.1, 0.2, 0.8, 0.9], ends: [0.1, 0.2, 0.8, 0.9, 1] }, normalized: null } }
+  const player = playSpeechAudio(aligned, vi.fn(), vi.fn(), 0.5)
+  Object.assign(media[0], { paused: false, seeking: false, readyState: 4, currentTime: 0.1 })
+  await player.play(); tick(0)
+  expect(getSpeechFollow()?.word.start).toBe(0)
+  media[0].currentTime = 0.5; tick(0)
+  expect(getSpeechFollow()).toBeNull()
+  player.seek(0.85); tick(0)
+  expect(getSpeechFollow()?.word.start).toBe(3)
+  media[0].paused = true; tick(0)
+  expect(getSpeechFollow()).toBeNull()
+  const newer = playSpeechAudio(aligned, vi.fn(), vi.fn())
+  Object.assign(media[1], { paused: false, readyState: 4, currentTime: 0.85 }); tick(0)
+  player.stop()
+  expect(getSpeechFollow()?.word.start).toBe(3)
+  newer.stop()
+  expect(getSpeechFollow()).toBeNull()
+})
+
+it('estimates missing timing and anchors a selected repeated word in its sentence', () => {
+  const { media } = stubAudio()
+  let tick: FrameRequestCallback = () => {}
+  vi.stubGlobal('requestAnimationFrame', vi.fn((callback: FrameRequestCallback) => { tick = callback; return 42 }))
+  vi.stubGlobal('cancelAnimationFrame', vi.fn())
+  const player = playSpeechAudio(audio0, vi.fn(), vi.fn(), 1, 1, { sourceText: 'go', followSource: { text: 'go go', start: 3 } })
+  Object.assign(media[0], { paused: false, readyState: 4, currentTime: 1 }); tick(0)
+  expect(getSpeechFollow()).toMatchObject({ text: 'go go', word: { start: 3, end: 5 } })
+  media[0].onerror?.()
+  expect(getSpeechFollow()).toBeNull()
+  player.stop()
+})
 
 it('owns the blob URL and releases playback resources once on stop', async () => {
   const { media, revoke } = stubAudio()

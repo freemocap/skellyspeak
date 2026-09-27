@@ -1,4 +1,4 @@
-import type { ReadingInput, ReadingResult } from '../../generated/contracts'
+import type { ReadingInput, ReadingResult, SpeechAlignment } from '../../generated/contracts'
 import { readSelection } from '../ipc/reading'
 import { playSpeechAudio, type PlaybackObserver } from './speech-player'
 import { interruptSpeech, onSpeechInterrupted, speechPlaybackPermit } from './speech'
@@ -13,14 +13,14 @@ async function withPlayback<T>(signal: AbortSignal, work: (lifetime: AbortSignal
   try { return await work(lifetime, permit) } finally { stopListening() }
 }
 
-async function play(base64: string, signal: AbortSignal, permit: object, onPlayback: () => void, rate: number, volume: number, observer?: PlaybackObserver): Promise<void> {
+async function play(base64: string, signal: AbortSignal, permit: object, onPlayback: () => void, rate: number, volume: number, observer?: PlaybackObserver, alignment?: SpeechAlignment | null): Promise<void> {
   signal.throwIfAborted()
   if (speechPlaybackPermit() !== permit) throw new DOMException('Speech was stopped', 'AbortError')
   onPlayback()
   await new Promise<void>((resolve, reject) => {
     const finish = () => { signal.removeEventListener('abort', cancel); resolve() }
     const fail = (error: Error) => { signal.removeEventListener('abort', cancel); reject(error) }
-    const player = playSpeechAudio({ mime: 'audio/wav', audioBase64: base64 }, finish, fail, rate, volume, observer)
+    const player = playSpeechAudio({ mime: 'audio/wav', audioBase64: base64, alignment }, finish, fail, rate, volume, observer)
     const cancel = () => { player.stop(); finish() }
     signal.addEventListener('abort', cancel, { once: true })
     if (signal.aborted) cancel()
@@ -30,8 +30,8 @@ async function play(base64: string, signal: AbortSignal, permit: object, onPlayb
 }
 
 /** Replay retained audio with the same cancellation and exclusion as fetched speech. */
-export function replaySelectionAudio(base64: string, signal: AbortSignal, onPlayback: () => void, rate: number, volume: number, observer?: PlaybackObserver): Promise<void> {
-  return withPlayback(signal, (lifetime, permit) => play(base64, lifetime, permit, onPlayback, rate, volume, observer))
+export function replaySelectionAudio(base64: string, signal: AbortSignal, onPlayback: () => void, rate: number, volume: number, observer?: PlaybackObserver, alignment?: SpeechAlignment | null): Promise<void> {
+  return withPlayback(signal, (lifetime, permit) => play(base64, lifetime, permit, onPlayback, rate, volume, observer, alignment))
 }
 
 /** Fetch once; callers may keep the result and replay it without another request. */
@@ -42,7 +42,7 @@ export function speakSelection(input: ReadingInput, signal: AbortSignal, onPlayb
     if (!result.audioBase64) throw new Error('The speech service returned no audio.')
     await observer?.onAudio?.(result)
     lifetime.throwIfAborted()
-    await play(result.audioBase64, lifetime, permit, onPlayback, rate, volume, observer)
+    await play(result.audioBase64, lifetime, permit, onPlayback, rate, volume, { ...observer, sourceText: input.text }, result.audioAlignment)
     return result
   })
 }

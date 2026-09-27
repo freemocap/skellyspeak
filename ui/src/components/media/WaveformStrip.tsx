@@ -8,6 +8,7 @@ interface WaveformStripProps {
   height?: number
   timelineSeconds?: number
   endSeconds?: number
+  mirrored?: boolean
 }
 
 /// Compact scrolling oscilloscope for the composer — adapted from the
@@ -19,6 +20,7 @@ export function WaveformStrip({
   height = 44,
   timelineSeconds = 6,
   endSeconds,
+  mirrored = false,
 }: WaveformStripProps) {
   const clock = useRef(endSeconds)
   clock.current = endSeconds
@@ -138,8 +140,11 @@ export function WaveformStrip({
       ctx2d.globalAlpha = 0.55
       ctx2d.fillStyle = labelColor
       ctx2d.font = '9px monospace'
+      ctx2d.save()
+      if (mirrored) { ctx2d.translate(width, 0); ctx2d.scale(-1, 1) }
       ctx2d.fillText(`● rec ${elapsed}s`, 6, 12)
 
+      ctx2d.restore()
       rafRef.current = requestAnimationFrame(draw)
     }
 
@@ -151,11 +156,11 @@ export function WaveformStrip({
       window.removeEventListener('resize', resize)
       historyRef.current = []
     }
-  }, [source, height, timelineSeconds])
+  }, [source, height, timelineSeconds, mirrored])
 
   return (
-    <div ref={containerRef} className="wave-strip">
-      <canvas ref={canvasRef} />
+    <div ref={containerRef} className="wave-strip" style={{ height }}>
+      <canvas ref={canvasRef} style={{ height }} />
     </div>
   )
 }

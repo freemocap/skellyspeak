@@ -80,7 +80,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     stop(); setSpeechError(null); setSpeechReceipt(null); setLoadingAudio(true)
     const controller = new AbortController(); speech.current = controller
     setSpeaking(speechKey(next))
-    void services.speak({ ...next.scope, text: next.text.slice(next.start, next.end), aid:'speech' }, controller.signal, () => { if (!controller.signal.aborted) setLoadingAudio(false) })
+    void services.speak({ ...next.scope, text: next.text.slice(next.start, next.end), aid:'speech' }, controller.signal, () => { if (!controller.signal.aborted) setLoadingAudio(false) }, next)
       .then(receipt => { if (!controller.signal.aborted) setSpeechReceipt(receipt) })
       .catch(error => { if (!controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) setSpeechError(error) })
       .finally(() => { if (speech.current === controller) { speech.current = null; setSpeaking(null) } })

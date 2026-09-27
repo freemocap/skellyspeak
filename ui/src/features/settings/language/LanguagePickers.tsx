@@ -105,7 +105,7 @@ export function LearningPicker() {
         </span>
         <span aria-hidden="true">▾</span>
       </button>
-      {open && <div id={id} className="language-dropdown-panel" onScroll={() => setExpanded(null)}>
+      {open && <><div className="menu-scrim" aria-hidden="true" onPointerDown={event => { event.preventDefault(); setOpen(false); trigger.current?.focus() }} /><div id={id} className="language-dropdown-panel" onScroll={() => setExpanded(null)}>
         {catalog.filter(item => settings.my_languages.includes(item.code) || item.code === settings.target_language).map(item => {
           const remembered = item.code === settings.target_language ? settings.target_variety : settings.target_varieties[item.code] ?? item.defaultVariety
           return <div className="language-dropdown-group" key={item.code}>
@@ -151,7 +151,7 @@ export function LearningPicker() {
           setOpen(false); useNavigationStore.getState().showOverlay('languages')
         }}>{tr('Add language…')}</button>
         {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
-      </div>}
+      </div></>}
     </div>
     {saving && <span role="status" className="learning-saving">{tr('Saving…')}</span>}
   </>

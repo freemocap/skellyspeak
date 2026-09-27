@@ -2,6 +2,7 @@
 .wave-strip canvas { display: block; width: 100%; }
 
 .wave-strip {
+  position: relative; background: var(--field);
   margin: var(--space-1) var(--space-1) var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -11,7 +12,7 @@
 .live-recording-head, .live-recording-axis { display: flex; justify-content: space-between; gap: var(--space-3); font-size: var(--type-meta); color: var(--ink-2); font-family: var(--font-mono); }
 .live-recording-plots { position: relative; overflow: hidden; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
 .live-recording-plots .wave-strip { margin: 0; border: 0; border-radius: 0; }
-.live-take-region { position: absolute; inset-block-start: 0; height: 100%; pointer-events: none; border-inline-end: var(--border-width-thick) solid var(--success-line); background: color-mix(in srgb, var(--success-line) 10%, transparent); animation: live-cut-grow var(--dur-slow) var(--ease-out); }
+.live-take-region { position: absolute; inset-block-start: 0; height: 100%; pointer-events: none; box-sizing: border-box; border-inline: var(--border-width-thick) solid var(--success-line); background: color-mix(in srgb, var(--success-line) 10%, transparent); animation: live-cut-grow var(--dur-slow) var(--ease-out); }
 .live-take-region span { position: absolute; inset-inline-end: var(--space-1); top: var(--space-2); padding: var(--space-1) var(--space-2); background: var(--chrome); color: var(--ink); font-size: var(--type-meta); white-space: nowrap; }
 .live-cut-notice { color: var(--success-line); animation: live-cut-send var(--dur-slow) var(--ease-out); }
 /* The cut box is made on the waveform and then opens down over the log-mel, so
@@ -23,3 +24,10 @@
 @media (prefers-reduced-motion: reduce) { .live-take-region, .live-cut-notice { animation: none; } }
 
 .live-recording-plots > .inspection-plot { min-height: 64px; background: var(--spectrogram-low); }
+
+.live-recording[data-time="ltr"] .live-recording-plots { transform: scaleX(-1); }
+.live-recording[data-time="ltr"] :is(.inspection-frequency-scale span, .live-take-region span) { transform: scaleX(-1); }
+.live-recording[data-time="ltr"] .live-recording-axis { flex-direction: row-reverse; }
+
+/* A stable idle baseline remains beneath the live canvas. */
+.wave-strip::before { content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: var(--border-width) solid var(--interaction-ink); pointer-events: none; }

@@ -18,12 +18,14 @@ export function useClipArrival(recordingId?: string) {
     copy.className = 'drill-clip-flight'
     Object.assign(copy.style, { left: `${to.left}px`, top: `${to.top}px`, width: `${to.width}px`, height: `${to.height}px` })
     document.body.append(copy)
+    destination.dataset.clipFlightUntil = String(performance.now() + 1000)
     const animation = copy.animate([
       { transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`, opacity: 0.8 },
+      { transform: 'none', opacity: 0.8, offset: 0.85 },
       { transform: 'none', opacity: 0 },
-    ], { duration: 400, easing: 'cubic-bezier(.2,.8,.2,1)' })
+    ], { duration: 1000, easing: 'ease-in-out' })
     animation.onfinish = () => copy.remove()
-    return () => { animation.cancel(); copy.remove() }
+    return () => { animation.cancel(); copy.remove(); delete destination.dataset.clipFlightUntil }
   }, [recordingId])
   return target
 }

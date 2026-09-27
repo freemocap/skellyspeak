@@ -337,7 +337,7 @@
 .connection-state[data-busy=true]::before { background: var(--interaction-ink); animation: inside-pulse var(--dur-loop) ease-in-out infinite; }
 .connection-state[aria-expanded=true] { border-color: var(--interaction-ink); }
 @media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::before { animation: none; } }
-.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
+.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
 .connection-setup:hover { color: var(--ink); background: var(--line-soft); }
 /* The menu icon and its accessible name identify the conversation list. */
 .hamburger > span { display: none; }
@@ -375,7 +375,10 @@
   .topbar-actions .gear.app-settings { display: none; }
   .topbar .profile-meter { display: none; }
   .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
-  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
+  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: var(--space-3); }
+  .connection-setup .connection-short-label { display: inline; }
   .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .connection-state[data-configured=false] { background: transparent; }
 }
+
+.connection-short-label { display: none; }

@@ -10,6 +10,7 @@ import { InfoTip } from '../../src/components/controls/InfoTip'
 import { ActivityIndicator } from '../../src/components/feedback/ActivityIndicator'
 import { ErrorDetails } from '../../src/components/feedback/ErrorDetails'
 import { SavedGlossText } from '../../src/components/reading/SavedGlossText'
+import { SpeechFollowText } from '../../src/components/reading/SpeechFollowText'
 import { ReadingPreferencesContext } from '../../src/components/reading/ReadingPreferences'
 import { ComposerInput } from '../../src/features/conversation/composer/ComposerInput'
 import { ReplyHelp } from '../../src/features/conversation/composer/ReplyHelp'
@@ -21,6 +22,7 @@ export type Preview = { name: string; group: string; height: number; element: Re
 const noop = () => {}
 
 export const previews: Preview[] = [
+  { name: 'SpeechFollowText', group: 'Reading', height: 180, element: <SpeechFollowText text="Follow the spoken words."><span data-speech-source>Follow the spoken words.</span></SpeechFollowText> },
   { name: 'ErrorNotice', group: 'Feedback', height: 120, element: <ErrorNotice error="sample"><strong>Microphone</strong><p>Listening stopped because the app was suspended or another view opened. Start again to continue.</p></ErrorNotice> },
   {name:'ReplyHelp',group:'Conversation',height:600,element:<div className="ds-stack">
     <ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={noop} />

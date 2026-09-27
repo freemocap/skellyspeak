@@ -1,3 +1,28 @@
+/* Playback overlays follow measured source glyphs without reflowing the text. */
+.speech-follow-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-popover);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.speech-follow-overlay[data-active='true'] { opacity: 1; }
+.speech-follow-word {
+  position: fixed;
+  pointer-events: none;
+  z-index: var(--z-popover);
+  /* Existing interaction ink supplies the light/dark blue; keep glyphs visible. */
+  background: color-mix(in srgb, var(--interaction-ink) 24%, transparent);
+  border-radius: var(--radius-xs);
+  transition: left var(--dur-fast) var(--ease-out), top var(--dur-fast) var(--ease-out), width var(--dur-fast) var(--ease-out), height var(--dur-fast) var(--ease-out);
+}
+/* Scrolling and resizing must stay attached to the text without motion lag. */
+.speech-follow-overlay[data-motion='layout'] .speech-follow-word { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .speech-follow-overlay, .speech-follow-word { transition: none; }
+}
+
 .line {
   min-width: 0;
   max-width: 100%;

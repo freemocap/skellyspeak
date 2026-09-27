@@ -75,6 +75,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
         aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={openAiView}
         aria-expanded={connected ? overlay === 'activity' || aiWindowOpen : undefined} aria-controls={connected ? 'ai-activity' : undefined} data-busy={connected && aiBusy ? true : undefined}>
+        <span className="connection-short-label" aria-hidden="true">{tr("AI")}</span>
         <span className="connection-label">{connected ? tr('AI Connected') : tr('AI Not Connected')}</span>
       </button>
 

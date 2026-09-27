@@ -6,7 +6,7 @@ export interface ReadingSelection { text: string; start: number; end: number; sc
 export interface ReadingServices {
   read: (input: ReadingInput, signal: AbortSignal, options?: ReadingLookupOptions) => Promise<ReadingHelpResult>
   saved?: (input: ReadingInput, signal: AbortSignal) => Promise<ReadingHelpResult | null>
-  speak: (input: ReadingInput, signal: AbortSignal, onPlayback: () => void) => Promise<unknown>
+  speak: (input: ReadingInput, signal: AbortSignal, onPlayback: () => void, source?: ReadingSelection) => Promise<unknown>
   activity: () => Promise<unknown>
 }
 export const ReadingScopeContext = createContext<ReadingScope | null>(null)

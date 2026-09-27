@@ -13,7 +13,7 @@
 }
 
 .modal {
-  max-width: 100%; width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
+  max-width: 100%; width: min(480px, 100%); background: var(--chrome); border: 0; box-shadow: var(--shadow-floating);
   border-radius: var(--radius-xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
 }
 
@@ -45,7 +45,7 @@
   border: 0;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-floating), var(--appearance-glow);
-  background: var(--sheet);
+  background: var(--chrome);
   color: var(--ink);
   font: var(--type-body)/1.55 var(--font-sans);
 }

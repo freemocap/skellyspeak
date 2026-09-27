@@ -19,6 +19,7 @@ import { TranslationStatus, translationPending } from './TranslationStatus'
 export type TargetMessageLayout = 'bubble' | 'passage' | 'compact'
 
 export interface TargetMessageSpeech {
+  disabled?: boolean
   speaking: boolean
   onToggle: () => void
   error: { text: string; details: unknown } | null
@@ -157,7 +158,7 @@ export function TargetMessage({
     {translationState !== undefined && <TranslationStatus state={translationState} shown={translationOpen && shownTranslation === null} />}
     {soundOpen && sound && !(wordsOpen && known.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
     {status}
-    {playback && <button type="button" className="bubble-corner-control speak-btn" title={playback.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={playback.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); playback.onToggle() }}><span aria-hidden="true">{playback.speaking ? '⏹' : '🔊'}</span></button>}
+    {playback && <button type="button" className="bubble-corner-control speak-btn" disabled={playback.disabled} title={playback.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={playback.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); playback.onToggle() }}><span aria-hidden="true">{playback.speaking ? '⏹' : '🔊'}</span></button>}
     {playback?.error && <ErrorDetails onRetry={() => playback.onToggle()} label={tr("Speech")} errorKey={playback.error.text} explanation={playback.error.text}><ResponseDetails value={playback.error.details} /></ErrorDetails>}
   </>
   const actions = <div className="message-actions" dir={uiDirection} onDoubleClick={stop}>

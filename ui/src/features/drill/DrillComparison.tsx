@@ -1,3 +1,5 @@
+import { PlaybackProgress } from './PlaybackProgress'
+import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { PlaybackCursor } from './PlaybackCursor'
 import { useAnimatedAlignment } from './useAnimatedAlignment'
 import { useClipArrival } from './useClipArrival'
@@ -5,7 +7,7 @@ import type { ClipPreview } from './useClipPreview'
 import { WordOverlay } from './WordOverlay'
 import { matchTimedWords, wordAlignment } from '../../domain/audio/word-alignment'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
@@ -69,11 +71,10 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   onSeekAttempt?: (seconds: number) => void
   onPlayAttempt: () => void
 }) {
-  const rangeDragging = useRef(false)
-  const endRangeDrag = () => { rangeDragging.current = false; referenceScrub?.end() }
   const tr = useI18n()
   const mobile = useIsMobile()
-  const [showTiming, setShowTiming] = useState(false)
+  const [controlsOpen, setControlsOpen] = useState(false)
+  const [showTiming, setShowTiming] = useState(true)
   const alignment = useMemo(() => comparisonAccepted && reference && attempt
     ? wordAlignment(reference.wordTiming, attempt.wordTiming, reference.duration, attempt.duration) : null,
   [comparisonAccepted, reference, attempt])
@@ -122,18 +123,17 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       <div className="drill-reference">
       <div className="drill-target-card">{target}</div>
 
-      <div className="drill-media">
-        <button type="button" className="btn drill-play" disabled={holding} onClick={onPlayReference} title={referenceNote}>
-          <ToolbarIcon name={playingReference ? "stop" : "play"} size={14} />{tr(playingReference ? "Stop" : "Hear it")}
+      <div className="drill-media" dir={direction}>
+        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Hear it")} disabled={holding} onClick={onPlayReference} title={referenceNote}>
+          <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Target")}
         </button>
-        {playbackSpeed}
-        <input className="drill-seek" type="range" dir={direction} aria-label={tr('Seek reference audio')} min={0} max={reference?.duration ?? 1} step={0.01}
-          value={reference ? Math.min(referenceTime, reference.duration) : 0} disabled={holding || !reference} onPointerDown={event => { rangeDragging.current = true; referenceScrub?.start(Number(event.currentTarget.value), event.timeStamp); event.currentTarget.setPointerCapture?.(event.pointerId) }} onPointerUp={endRangeDrag} onPointerCancel={endRangeDrag} onLostPointerCapture={endRangeDrag} onBlur={endRangeDrag}
-          onChange={event => { const time = Number(event.target.value); onSeekReference(time); if (rangeDragging.current) referenceScrub?.move(time, event.timeStamp) }} />
-        <span className="drill-media-time">{reference
-          ? `${tr("Target")} · ${seconds(Math.min(referenceTime, reference.duration))} / ${seconds(reference.duration)}`
-          : tr("Target")}</span>
-        {mobile ? <details className="drill-media-options"><summary aria-label={tr('Comparison settings')}>⋯</summary><div>{controls}</div></details> : controls}
+        {!mobile && playbackSpeed}
+        <PlaybackProgress time={referenceTime} duration={reference?.duration ?? 0} displayDuration={effectiveScale === "shared" ? span : reference?.duration ?? 0} direction={direction} label={tr("Seek reference audio")}
+          onSeek={holding || !reference ? undefined : onSeekReference} scrub={referenceScrub} />
+        {mobile ? <button type="button" className="btn drill-media-options" aria-label={tr('Comparison settings')} aria-haspopup="dialog" aria-expanded={controlsOpen} onClick={() => setControlsOpen(true)}><ToolbarIcon name="settings" size={18} /></button> : controls}
+        {controlsOpen && <DetailDialog title={tr("Comparison settings")} capture="preserve" onClose={() => setControlsOpen(false)}>
+          <div className="drill-comparison-settings"><h2>{tr("Comparison settings")}</h2>{playbackSpeed}{controls}</div>
+        </DetailDialog>}
       </div>
 
       <div className="drill-timelines" data-time={direction}>
@@ -155,16 +155,16 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       </div>
       <div className="drill-timelines" data-time={direction}>
         <>
-          <div className="drill-media drill-media-take">
-            <button type="button" className="btn drill-play" disabled={!attempt || holding} onClick={onPlayAttempt}>
-              <ToolbarIcon name={playingAttempt ? "stop" : "play"} size={14} />{tr(playingAttempt ? "Stop" : "Play yours")}
+          <div className="drill-media drill-media-take" dir={direction}>
+            <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingAttempt ? (mobile ? "Pause" : "Stop") : "Play yours")} disabled={!attempt || holding} onClick={onPlayAttempt}>
+              <ToolbarIcon name={playingAttempt ? (mobile ? "pause" : "stop") : "play"} size={14} />{tr("Attempt")}
             </button>
-            <span className="drill-media-time">{attempt ? `${tr("Attempt")} · ${attemptLabel} · ${seconds(attempt.duration)}${attempt.activity.regions.length > 1
-              ? tr(" · {value0} speech segments", { value0: String(attempt.activity.regions.length) }) : ''}` : `${tr("Attempt")} · ${attemptLabel ?? tr("No attempts yet. Record one to compare.")}`}</span>
+            <PlaybackProgress time={attemptTime} duration={attempt?.duration ?? 0} displayDuration={effectiveScale === "shared" ? span : attemptDuration} mapTime={mapTime} direction={direction}
+              label={tr("Seek attempt audio")} onSeek={holding || !attempt ? undefined : onSeekAttempt} scrub={attemptScrub} />
           </div>
           {attemptSpectrum && scale
             ? <div className="drill-track">
-              <div className="inspection-plot" ref={arrival} style={{ width: width(attemptDuration) }}>
+              <div className="inspection-plot" data-attempt-spectrum="" ref={arrival} style={{ width: width(attemptDuration) }}>
                 <Spectrogram data={attemptSpectrum} duration={attemptDuration} mapTime={mapTime} zoom={1} scale={scale} />
                 <SpectrogramFrequencyScale data={attemptSpectrum} count={3} />
                 {showWords && attempt && <WordOverlay timing={attempt.wordTiming} duration={attemptDuration} outcomes={matches?.take} mapTime={mapTime} />}
@@ -183,12 +183,13 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
 
       {attemptFailure != null && <ErrorNotice as="p" error={attemptFailure}>{errorMessage(attemptFailure)}
         <button type="button" className="btn" onClick={onRetryAttempt}>{tr("Try again")}</button></ErrorNotice>}
-      <div className="drill-comparison-foot">{attempt && <>
+      <div className="drill-comparison-foot" dir={direction}>{attempt && <details className="drill-info"><summary aria-label={tr("Detection details")}><span aria-hidden="true">i</span></summary><div dir="auto">
         {matches && <p>{aligned && <>{tr("Word-aligned display; playback uses original timing.")}{' '}</>}{tr("Alignment matching ignores case and punctuation.")}</p>}
+        {attempt.activity.regions.length > 1 && <p>{tr(" · {value0} speech segments", { value0: String(attempt.activity.regions.length) })}</p>}
         <DetectionDetails activity={attempt.activity} spectrogram={attempt.spectrogram}>
           <p>{tr("This recording is kept until the storage limit removes it.")}</p>
         </DetectionDetails>
-      </>}</div>
+      </div></details>}</div>
     </section>
   )
 }

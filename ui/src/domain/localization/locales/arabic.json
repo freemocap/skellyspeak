@@ -1251,7 +1251,6 @@
   "Resize the report column": "تغيير حجم عمود التقرير",
   "Drag to resize; double-click to reset": "اسحب لتغيير الحجم؛ انقر مرتين للإعادة",
   "Takes start above {value0}": "تبدأ التسجيلات فوق {value0}",
-  "Full report": "التقرير الكامل",
   "Comparison settings": "إعدادات المقارنة",
   "Stop listening after silence of": "إيقاف الاستماع بعد صمت لمدة",
   "Not scored": "بلا تقييم",
@@ -1438,5 +1437,10 @@
   "Deletes the takes and their recordings for this drill target. This cannot be undone.": "يحذف المحاولات وتسجيلاتها لهدف التدريب هذا. لا يمكن التراجع عن ذلك.",
   "Sounds": "أصوات",
   "Short": "قصير",
-  "Long": "طويل"
+  "Long": "طويل",
+  "Previous": "السابق",
+  "Next": "التالي",
+  "Random target": "هدف عشوائي",
+  "AI": "AI",
+  "Seek attempt audio": "التنقل في صوت المحاولة"
 }

@@ -26,6 +26,7 @@ const PATHS = {
   chat: <path d="M4 5h16v11H9l-5 4z" />,
   cards: <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /></>,
   mic: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></>,
+  pause: <path d="M8 5v14M16 5v14" />,
   stop: <rect x="7" y="7" width="10" height="10" rx="2" />,
   play: <path d="M8 5.5v13l10.5-6.5z" />,
   trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />,

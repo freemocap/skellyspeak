@@ -356,3 +356,11 @@ Word helpers include token read-aloud. `app/ReadingTools.tsx` injects the native
 reading service and shared audio player; shared controls must not import feature
 state. The inspector and AI activity expose retained reading-request receipts.
 `/tools/reading-preview.html` is an offline fixture with no live speech or AI.
+
+Target text shares playback highlighting through the same reading renderers.
+Chat replies, reading sentences and word help, and Drill reference playback use
+the shared audio clock; reference scrubbing follows its pointer position.
+Retained timing is preferred, with estimated pacing when timing cannot be mapped.
+The highlight is a reading aid, not pronunciation or assessment evidence.
+`/tools/speech-follow-preview.html` exercises this with silent local audio,
+including speed, seeking, reading aids and dialogs.

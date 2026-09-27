@@ -59,6 +59,7 @@
   --interaction-fill-hover: #12395e;
   --interaction-tint: color-mix(in srgb, #6f9bff 15%, transparent);
   --focus-ring: var(--interaction-ink);
+  --recording-accent: #d53fa8; /* capture control outline, distinct from playback */
 
   /* ══ Colour: status ══════════════════════════════════════════════════════
      Success, warning and danger, each with an ink for text, a line for

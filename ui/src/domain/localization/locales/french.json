@@ -1251,7 +1251,6 @@
   "Resize the report column": "Redimensionner la colonne du rapport",
   "Drag to resize; double-click to reset": "Faites glisser pour redimensionner ; double-cliquez pour réinitialiser",
   "Takes start above {value0}": "Les prises commencent au-dessus de {value0}",
-  "Full report": "Rapport complet",
   "Comparison settings": "Réglages de comparaison",
   "Stop listening after silence of": "Arrêter l’écoute après un silence de",
   "Not scored": "Non évalué",
@@ -1438,5 +1437,10 @@
   "Deletes the takes and their recordings for this drill target. This cannot be undone.": "Supprime les prises et leurs enregistrements pour cette cible d’entraînement. Cette action est irréversible.",
   "Sounds": "Sons",
   "Short": "Court",
-  "Long": "Long"
+  "Long": "Long",
+  "Previous": "Précédent",
+  "Next": "Suivant",
+  "Random target": "Cible aléatoire",
+  "AI": "IA",
+  "Seek attempt audio": "Naviguer dans l’audio de la tentative"
 }

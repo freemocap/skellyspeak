@@ -1251,7 +1251,6 @@
   "Resize the report column": "调整报告栏宽度",
   "Drag to resize; double-click to reset": "拖动以调整大小；双击恢复默认",
   "Takes start above {value0}": "高于 {value0} 时开始录音",
-  "Full report": "完整报告",
   "Comparison settings": "比较设置",
   "Stop listening after silence of": "连续静音多久后停止聆听",
   "Not scored": "不计分",
@@ -1438,5 +1437,10 @@
   "Deletes the takes and their recordings for this drill target. This cannot be undone.": "删除此练习目标的尝试及其录音。此操作无法撤销。",
   "Sounds": "语音",
   "Short": "短",
-  "Long": "长"
+  "Long": "长",
+  "Previous": "上一个",
+  "Next": "下一个",
+  "Random target": "随机目标",
+  "AI": "AI",
+  "Seek attempt audio": "定位尝试音频"
 }

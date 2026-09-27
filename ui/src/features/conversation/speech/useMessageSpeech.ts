@@ -50,7 +50,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       const finish = () => { if (scope === generation.current) { current.current = null; setMessageId(null) } }
       const player = playSpeechAudio(audio, finish, error => {
         if (scope === generation.current) { setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech playback', error); finish() }
-      }, playback.current.rate, playback.current.volume)
+      }, playback.current.rate, playback.current.volume, { sourceText: latest.current?.messages.find(message => message.id === sourceId)?.text })
       current.current = { messageId: sourceId, operationId, sessionId, stop: player.stop }
       try { await player.play() } catch (error) { player.stop(); throw error }
       return

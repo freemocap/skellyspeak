@@ -72,6 +72,11 @@
   /* A bubble's tail: a curved spur below the speaker-side corner. */
   --bubble-tail-width: 9px;
   --bubble-tail-height: 10px;
+  /* The partner-reaction chip straddling a reply's top edge, and the bubble
+     gutter that keeps the reply's first line clear of it. Fixed in every
+     density and pointer mode: the chip sits beside the line, never over it. */
+  --reaction-badge-gutter: 35px;
+  --reaction-badge-size: 28px;
 
   /* ══ Colour: interaction ═════════════════════════════════════════════════
      The one accent: links, selection, active tabs, XP, focus. */
@@ -80,6 +85,7 @@
   --interaction-fill-hover: #12395e;
   --interaction-tint: color-mix(in srgb, #6f9bff 15%, transparent);
   --focus-ring: var(--interaction-ink);
+  --recording-accent: #d53fa8; /* capture control outline, distinct from playback */
 
   /* ══ Colour: status ══════════════════════════════════════════════════════
      Success, warning and danger, each with an ink for text, a line for
@@ -134,6 +140,7 @@
   --ink-on-domain: #ffffff;
 
   /* Recording spectrum intensity; independent of skill-domain colours. */
+  --spectrogram-cursor: #46ff9a;
   --spectrogram-low: #171b36;
   --spectrogram-mid: #8056b5;
   --spectrogram-high: #ffe071;
@@ -248,7 +255,7 @@
   --dur-base: 200ms;
   --dur-slow: 320ms;
   --dur-deliberate: 800ms;
-  --dur-xp-card-hold: 2s;     /* Fast mode XP card lifetime; XP_CARD_HOLD_MS in XpArrivalCard.tsx */
+  --dur-xp-payout: 650ms;     /* One point burst; XP_PAYOUT_LIFETIME_MS in RewardPresentation.tsx */
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dur-spin: 800ms;
@@ -277,6 +284,7 @@
        --word-spacing    preference.text_spacing  components/reading/TargetText.tsx
        --chat-share      guided split width       features/conversation/messages/PracticeDivider.tsx
        --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
+       --live-wave-height  live waveform height    components/media/LiveRecording.tsx
        --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx */
   --reading-scale: 1;
   --script-scale: 1;
@@ -284,11 +292,11 @@
   --ai-inspector-width: 40%;
   --chat-share: calc(100% - 360px);
   --node-color: var(--interaction-ink);
+  --live-wave-height: 48px;
   --drill-rail-width: 15rem;
   --drill-report-width: 24rem;
   --drill-dock-height: auto;
-  --drill-progress-height: auto;
-  --drill-inspection-height: auto;
+  --drill-attempts-height: auto;
   --drill-plot-height: clamp(64px, 22vh, 280px);
 }
 
@@ -1022,7 +1030,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .connection-state[data-busy=true]::before { background: var(--interaction-ink); animation: inside-pulse var(--dur-loop) ease-in-out infinite; }
 .connection-state[aria-expanded=true] { border-color: var(--interaction-ink); }
 @media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::before { animation: none; } }
-.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
+.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
 .connection-setup:hover { color: var(--ink); background: var(--line-soft); }
 /* The menu icon and its accessible name identify the conversation list. */
 .hamburger > span { display: none; }
@@ -1041,7 +1049,14 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
      only; the practice switch keeps only its icons. */
   .topbar .hamburger, .topbar .app-home, .topbar .theme-toggle { display: none; }
   .topbar-language { flex: 1 1 0; min-width: 0; }
-  .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); }
+  .topbar-language .language-dropdown { min-width: 0; }
+  .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); grid-template-columns: minmax(0, 1fr) auto; }
+  /* The language name is the first thing to give up room, and it gives it up by
+     shortening — never by wrapping into a column or running under the controls
+     beside it. */
+  .topbar-language .learning-picker-identity,
+  .topbar-language .learning-picker-identity > span:first-child { min-width: 0; }
+  .topbar-language .learning-picker-identity > span:first-child { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .topbar-language .language-dropdown .learning-picker small { display: none; }
   /* A visible outline marks the switch as one control among the top bar's buttons. */
   .topbar .practice-switch { flex: none; margin-inline: 0; border: var(--border-width-strong) solid var(--line); }
@@ -1053,10 +1068,13 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   .topbar-actions .gear.app-settings { display: none; }
   .topbar .profile-meter { display: none; }
   .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
-  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: 0; }
+  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: var(--space-3); }
+  .connection-setup .connection-short-label { display: inline; }
   .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .connection-state[data-configured=false] { background: transparent; }
 }
+
+.connection-short-label { display: none; }
 
 /* ── components/panels.css ── */
 /* Shared panel headers and empty-state copy. */
@@ -1114,7 +1132,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 }
 
 .btn {
-  border: var(--border-width) solid var(--line); background: var(--sheet); color: var(--ink);
+  border: var(--border-width) solid var(--line); background: var(--chrome); color: var(--ink); box-shadow: var(--shadow-sm);
   border-radius: var(--radius-md); padding: var(--space-4) var(--space-8); cursor: pointer; font-weight: var(--weight-medium);
 }
 
@@ -1233,6 +1251,13 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   .field, .form-row input:not([type='checkbox']):not([type='range']), .form-row select { min-height: var(--touch-target); }
 }
 
+/* Native select popups keep their platform behavior, with a dimmed open state. */
+select.field, .form-row select { background: var(--chrome); box-shadow: var(--shadow-sm); }
+select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
+
+.microphone-row { display: flex; gap: var(--space-3); min-width: 0; }
+.microphone-row select { flex: 1; min-width: 0; }
+
 /* ── components/dialogs.css ── */
 .modal-backdrop {
   position: fixed; inset: 0; background: var(--scrim-strong); z-index: var(--z-modal);
@@ -1249,7 +1274,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 }
 
 .modal {
-  max-width: 100%; width: min(480px, 100%); background: var(--sheet); border: 0; box-shadow: var(--shadow-floating);
+  max-width: 100%; width: min(480px, 100%); background: var(--chrome); border: 0; box-shadow: var(--shadow-floating);
   border-radius: var(--radius-xl); padding: var(--space-10) var(--space-11); max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
 }
 
@@ -1281,7 +1306,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   border: 0;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-floating), var(--appearance-glow);
-  background: var(--sheet);
+  background: var(--chrome);
   color: var(--ink);
   font: var(--type-body)/1.55 var(--font-sans);
 }
@@ -1359,7 +1384,34 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   .info-tip > button { min-width: 44px; min-height: 44px; }
 }
 
+.menu-scrim { position: fixed; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
+
 /* ── components/reading.css ── */
+/* Playback overlays follow measured source glyphs without reflowing the text. */
+.speech-follow-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-popover);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.speech-follow-overlay[data-active='true'] { opacity: 1; }
+.speech-follow-word {
+  position: fixed;
+  pointer-events: none;
+  z-index: var(--z-popover);
+  /* Existing interaction ink supplies the light/dark blue; keep glyphs visible. */
+  background: color-mix(in srgb, var(--interaction-ink) 24%, transparent);
+  border-radius: var(--radius-xs);
+  transition: left var(--dur-fast) var(--ease-out), top var(--dur-fast) var(--ease-out), width var(--dur-fast) var(--ease-out), height var(--dur-fast) var(--ease-out);
+}
+/* Scrolling and resizing must stay attached to the text without motion lag. */
+.speech-follow-overlay[data-motion='layout'] .speech-follow-word { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .speech-follow-overlay, .speech-follow-word { transition: none; }
+}
+
 .line {
   min-width: 0;
   max-width: 100%;
@@ -1442,7 +1494,10 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   overflow-wrap: anywhere;
 }
 
+/* Source size applies everywhere; emphasis only distinguishes target-language
+   forms embedded in explanatory prose, never standalone reading bubbles. */
 .w, .target-text { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); }
+.target-inline .w, .target-inline .target-text { color: var(--interaction-ink); font-weight: var(--weight-bold); font-style: italic; }
 
 .w.preserve-space { white-space: pre-wrap; }
 
@@ -1458,7 +1513,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   line-height: calc(var(--leading-normal) * 1em + var(--type-meta) * var(--reading-scale) * var(--leading-tight));
 }
 
-.wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); }
+.wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); font-weight: var(--weight-regular); font-style: normal; }
 
 .trans { font-size: calc(var(--type-ui) * var(--reading-scale)); color: var(--ink-3); font-style: italic;
   margin-top: var(--space-3); padding-top: var(--space-3); border-top: var(--border-width) dashed var(--line-soft); }
@@ -1582,6 +1637,9 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 /* Saved and unresolved source words use reading-word and inherit the sentence
    baseline. Only visible annotations introduce a column; hover never does. */
+
+/* Complete inline phrases retain visible, keyboard-accessible phrase actions. */
+.target-phrase-actions { display: inline-flex; vertical-align: middle; gap: var(--space-2); margin-inline-start: var(--space-3); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); }
 
 /* ── components/activity.css ── */
 /* activity — conversation style owner. */
@@ -1713,6 +1771,17 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .skill-list-row progress::-moz-progress-bar { background: currentColor; border-radius: var(--radius-pill); }
 @media (prefers-reduced-motion: reduce) { .skill-list-row progress::-webkit-progress-value { transition: none; } }
 
+/* ── components/skill-guide.css ── */
+/* Authored lessons share the app's reading controls and surface tokens. */
+.skill-guide-document { color: var(--ink); font: var(--type-body)/var(--leading-normal) var(--font-sans); padding: var(--space-6); }
+.skill-guide-document h3 { font-size: var(--type-title); margin-block: var(--space-4) var(--space-6); }
+.skill-guide-document h4 { font-size: var(--type-title); margin-block: var(--space-10) var(--space-4); border-bottom: var(--border-width) solid var(--line); padding-bottom: var(--space-3); }
+.skill-guide-document h5 { font-size: var(--type-body); margin-block: var(--space-8) var(--space-3); }
+.skill-guide-document blockquote { background: var(--field); border: var(--border-width) solid var(--line); border-inline-start: var(--border-width-strong) solid var(--interaction-ink); border-radius: var(--radius-md); margin: var(--space-8) 0 var(--space-3); padding: var(--space-6); font-size: var(--type-reading); }
+.skill-guide-document blockquote + .md-p { margin-top: var(--space-3); color: var(--ink-2); }
+.skill-guide-editorial { margin-top: var(--space-10); padding-top: var(--space-4); border-top: var(--border-width) solid var(--line-soft); color: var(--ink-2); font-size: var(--type-meta); }
+.skill-guide-editorial summary { cursor: pointer; }
+
 /* ── components/errors.css ── */
 /* Shared error details: expandable diagnostics and dismissal, also used in coaching. */
 
@@ -1769,6 +1838,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .wave-strip canvas { display: block; width: 100%; }
 
 .wave-strip {
+  position: relative; background: var(--field);
   margin: var(--space-1) var(--space-1) var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -1778,12 +1848,25 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .live-recording-head, .live-recording-axis { display: flex; justify-content: space-between; gap: var(--space-3); font-size: var(--type-meta); color: var(--ink-2); font-family: var(--font-mono); }
 .live-recording-plots { position: relative; overflow: hidden; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
 .live-recording-plots .wave-strip { margin: 0; border: 0; border-radius: 0; }
-.live-take-region { position: absolute; inset-block: 0; pointer-events: none; border-inline-end: var(--border-width-thick) solid var(--interaction-ink); background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); animation: live-cut-flash var(--dur-deliberate) var(--ease-out); }
+.live-take-region { position: absolute; inset-block-start: 0; height: 100%; pointer-events: none; box-sizing: border-box; border-inline: var(--border-width-thick) solid var(--success-line); background: color-mix(in srgb, var(--success-line) 10%, transparent); animation: live-cut-grow var(--dur-slow) var(--ease-out); }
 .live-take-region span { position: absolute; inset-inline-end: var(--space-1); top: var(--space-2); padding: var(--space-1) var(--space-2); background: var(--chrome); color: var(--ink); font-size: var(--type-meta); white-space: nowrap; }
-.live-cut-notice { color: var(--interaction-ink); animation: live-cut-send var(--dur-slow) var(--ease-out); }
-@keyframes live-cut-flash { from { background: color-mix(in srgb, var(--interaction-ink) 40%, transparent); } to { background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); } }
+.live-cut-notice { color: var(--success-line); animation: live-cut-send var(--dur-slow) var(--ease-out); }
+/* The cut box is made on the waveform and then opens down over the log-mel, so
+   the box that marks the clip becomes the box that spans both plots. The
+   waveform's own height reaches CSS as --live-wave-height, so the two cannot
+   drift apart; without it the box simply spans both from the start. */
+@keyframes live-cut-grow { from { height: var(--live-wave-height); } to { height: 100%; } }
 @keyframes live-cut-send { from { opacity: 0; transform: translateX(calc(-1 * var(--space-8))); } to { opacity: 1; transform: translateX(0); } }
 @media (prefers-reduced-motion: reduce) { .live-take-region, .live-cut-notice { animation: none; } }
+
+.live-recording-plots > .inspection-plot { min-height: 64px; background: var(--spectrogram-low); }
+
+.live-recording[data-time="ltr"] .live-recording-plots { transform: scaleX(-1); }
+.live-recording[data-time="ltr"] :is(.inspection-frequency-scale span, .live-take-region span) { transform: scaleX(-1); }
+.live-recording[data-time="ltr"] .live-recording-axis { flex-direction: row-reverse; }
+
+/* A stable idle baseline remains beneath the live canvas. */
+.wave-strip::before { content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: var(--border-width) solid var(--interaction-ink); pointer-events: none; }
 
 /* ── shell/notices.css ── */
 .err-action {
@@ -2163,7 +2246,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
   font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
 }
-.message-actions > .feedback-badge.has-correction { border-color: color-mix(in srgb, var(--warning-line) 45%, transparent); background: var(--warning-tint); color: var(--warning-ink); }
 
 .message-actions > .feedback-badge:hover { border-color: currentColor; }
 
@@ -2195,7 +2277,6 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   border-block-start: var(--border-width) solid var(--line-soft);
   gap: var(--space-2);
 }
-.feedback-badge.has-correction > span[dir] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (pointer: coarse) {
   .message-actions .message-translate { min-height: 44px; }
 }
@@ -2267,13 +2348,17 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin-top: var(--space-2); font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
 @media (max-width: 860px) { .composer-shortcuts { display: none; } }
 
-/* Record is the composer's primary action; Send is the quieter secondary one. */
+/* Record is the composer's primary action; Send is the quieter secondary one.
+   Its arrow keeps full opacity in both states — a disabled control is muted with
+   ink, not faded into the surface, and its outline stays crisp. */
 .send {
   flex: none; width: var(--touch-target); height: var(--touch-target); border: var(--border-width) solid var(--line);
   background: var(--field); color: var(--interaction-ink); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-title); border-radius: var(--radius-pill); min-height: var(--control-height-lg);
 }
 
-.send:disabled { opacity: 0.5; cursor: default; }
+.send:disabled { color: var(--ink-3); cursor: default; }
+
+.send:not(:disabled):hover { border-color: var(--interaction-ink); }
 
 .mic {
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
@@ -2326,6 +2411,8 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* Optional guidance shares the composer surface and never overlays its controls. */
 
 .crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }
+
+.composer[data-editing] { background: var(--chrome); border: var(--border-width) solid var(--interaction-ink); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
 
 /* ── features/conversation/reply-help.css ── */
 /* Reply help — conversation style owner.
@@ -2665,9 +2752,23 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 }
 
 @media (max-width: 860px) {
-  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-3); }
-  .chat > .chat-head .conversation-title { flex: 1; min-width: 0; }
-  .chat-heading-actions { margin-inline-start: auto; }
+  /* min-width lets the row resolve at the width it has, instead of growing to
+     its content and pushing the control row over the name. */
+  .chat > .chat-head { flex-wrap: nowrap; padding: var(--space-1) var(--space-3); min-width: 0; }
+  /* The partner name is what gives up room, by shortening, and it may shrink to
+     nothing. The control row keeps its natural width: squeezed, its own buttons
+     would clip and overlap the name. */
+  .chat > .chat-head .conversation-title { flex: 1 1 0; min-width: 0; }
+  .chat-head .partner-identity { min-width: 0; }
+  .chat-head .partner-identity strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chat-heading-actions { flex: 0 0 auto; margin-inline-start: var(--space-3); }
+}
+
+/* A narrow header keeps whole controls rather than squeezing them. The settings
+   button already carries its summary in its accessible name, so the secondary
+   line goes and the control row stays short enough for the name beside it. */
+@media (max-width: 600px) {
+  .chat-heading-actions .chat-config-summary { display: none; }
 }
 
 .chat-head .conversation-title { flex: 1; }
@@ -2837,16 +2938,18 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .learning-picker-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-4); min-width: 0; }
 .language-dropdown .learning-picker small { font-size: var(--type-ui); font-weight: var(--weight-regular); color: var(--ink-2); }
 .language-dropdown .learning-picker > span:last-child { grid-column: 2; align-self: center; }
-.language-dropdown-panel { position: absolute; inset-block-start: 100%; inset-inline-start: 0; z-index: var(--z-popover); width: 100%; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
+.language-dropdown-panel { position: absolute; inset-block-start: 100%; inset-inline-start: 0; z-index: var(--z-popover); width: 100%; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
 .language-dropdown-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); width: 100%; }
 .language-dropdown-row > span:last-child { flex: none; }
+/* A language name is an identity, not prose: it shortens with an ellipsis rather
+   than breaking mid-word into a column of characters. */
 .language-dropdown-check { flex: none; width: var(--space-8); color: var(--ink); font-weight: var(--weight-semibold); text-align: center; }
-.language-dropdown-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.language-dropdown-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .language-dropdown-varieties > button { display: flex; align-items: center; gap: var(--space-4); width: 100%; }
 .language-dropdown-row, .language-dropdown-add, .language-dropdown-varieties > button { min-height: var(--control-height); padding: var(--space-4); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); text-align: start; font-size: var(--type-body); cursor: pointer; }
 .language-dropdown-row:hover, .language-dropdown-row[aria-expanded=true], .language-dropdown-add:hover, .language-dropdown-varieties > button:hover { background: var(--interaction-tint); }
 .language-dropdown-add { width: 100%; border-top: var(--border-width) solid var(--line-soft); border-radius: 0; }
-.language-dropdown-varieties { position: fixed; z-index: var(--z-popover); display: grid; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
+.language-dropdown-varieties { position: fixed; z-index: var(--z-popover); display: grid; max-height: 70vh; overflow-y: auto; padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
 .language-dropdown-varieties > button[aria-pressed=true] { background: var(--interaction-tint); color: var(--interaction-ink); }
 [dir=rtl] .language-dropdown-row > span:last-child { transform: rotate(180deg); }
 @media (pointer: coarse) {
@@ -2858,6 +2961,18 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .language-dropdown-info:hover { background: var(--interaction-tint); color: var(--interaction-ink); }
 @media (pointer: coarse) {
   .language-dropdown-info { min-width: var(--touch-target); min-height: var(--touch-target); }
+}
+
+/* Narrow bar: the trigger has only a few characters of room, so a panel sized to
+   it would break every language name into a column. The panel takes the width its
+   names need, clamped to the viewport. It stays absolutely positioned so the bar
+   remains its containing block. */
+@media (max-width: 860px) {
+  .topbar-language .language-dropdown-panel {
+    inline-size: max-content;
+    min-inline-size: 100%;
+    max-inline-size: calc(100vw - var(--space-8));
+  }
 }
 
 /* ── features/conversation/start.css ── */
@@ -2962,6 +3077,41 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
 .prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }
 
+/* All four choices share one grid row and equal widths; the coach label spans
+   its three choices without a nested fieldset shifting their button baseline. */
+.coach-choices {
+  display: block;
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--chrome);
+  border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.coach-choices legend { padding-inline: var(--space-2); margin: 0; }
+.coach-choices-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  align-items: stretch;
+}
+.coach-choices-label {
+  grid-column: 2 / -1;
+  color: var(--ink-2);
+  font-size: var(--type-ui);
+}
+.coach-choices .scene-card {
+  grid-row: 2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--type-ui);
+  padding: var(--space-3) var(--space-4);
+}
+@media (max-width: 480px) {
+  .coach-choices-grid { grid-template-columns: minmax(0, 1fr); }
+  .coach-choices-label { grid-column: 1; grid-row: 2; }
+  .coach-choices .scene-card { grid-row: auto; }
+}
+
 /* ── features/conversation/reading-evidence.css ── */
 /* reading evidence — conversation style owner. */
 .sentence.rtl { direction: rtl; font-size: var(--type-display); }
@@ -3006,10 +3156,8 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* Analysis quotes/examples reuse chat bubbles and their reading actions. */
 .reading-passage { margin-block: var(--space-4); }
 
-/* Reply help uses the same passage controls in a compact card, without a chat bubble. */
+/* Compact cards change outer spacing only; the bubble and controls stay shared. */
 .reading-passage-compact { margin: 0; min-width: 0; }
-.reading-passage-text { font: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)) / var(--leading-normal) var(--font-serif); overflow-wrap: anywhere; }
-.reading-passage-compact .trans { font: var(--type-ui) / var(--leading-normal) var(--font-sans); }
 
 /* ── features/conversation/coach.css ── */
 /* Private coach conversation beside the conversation. */
@@ -3206,6 +3354,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* The reply card is the insert target and the under-bubble links are secondary,
    so only the primary composer controls take the full touch size. */
 @media (pointer: coarse) { .mic, .send, .coach-send { min-width: var(--touch-target); min-height: var(--touch-target); } }
+.feedback-context textarea.field { display: block; width: 100%; margin-top: var(--space-3); resize: vertical; }
 
 /* ── features/conversation/coaching-dock.css ── */
 /* Resizable coaching dock. Collapsed and narrow-layout variants alter layout only. */
@@ -4090,7 +4239,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* ── features/settings/audio.css ── */
 /* Audio settings layout: channel volumes, device selection and playback controls. */
 
-.microphone-row { display: flex; gap: var(--space-3); }
+
 
 .speech-speed { display: inline-flex; align-items: center; gap: var(--space-3); font-size: var(--type-ui); }
 
@@ -4214,14 +4363,14 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   position: absolute;
   top: calc(100% + 4px);
   inset-inline-start: 0;
-  z-index: var(--z-dropdown);
+  z-index: var(--z-popover);
   display: flex;
   flex-direction: column;
   min-width: 190px;
   padding: var(--space-2);
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--sheet);
+  background: var(--chrome);
   box-shadow: var(--shadow-menu);
 }
 
@@ -4324,12 +4473,19 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
+/* The partner's reaction to the learner's message: a small status chip that
+   rides on the reply's top edge at the inline start. It clears the line below it
+   by sitting higher, not by reserving a gutter: the reply keeps its full width
+   and the chip overlaps the bubble outline instead of the text. It stays a fixed
+   size so that clearance holds in every density and pointer mode. */
 .persona-reaction {
   position: absolute;
-  top: -17px;
+  top: calc(-1 * var(--space-11));
   inset-inline-start: 9px;
-  min-width: var(--control-height);
-  height: 28px;
+  width: var(--reaction-badge-gutter);
+  min-width: var(--reaction-badge-gutter);
+  min-height: 0;
+  height: var(--reaction-badge-size);
   padding: var(--space-hairline) var(--space-3);
   border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-lg);
@@ -4340,7 +4496,10 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   cursor: pointer;
 }
 
-.persona-reaction.is-confused { border-color: var(--interaction-ink); box-shadow: 0 0 0 1px var(--interaction-ink); }
+/* A right-to-left reply keeps its speech control in the lead gutter, so the
+   chip starts past that control instead of under it. */
+.msg.rtl > .persona-reaction { inset-inline-start: calc(var(--control-height) + var(--space-2)); }
+
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
 
@@ -4394,9 +4553,7 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 
 /* ── features/conversation/reward-presentation.css ── */
-/* XP presentation: a fixed-size header chip, an arrival card that overlays the
-   conversation beneath it, and a list of this conversation's awards. Nothing
-   here takes space in the conversation layout. */
+/* Message-local XP payouts and user-opened reward reports. */
 
 .skill-reward-status { position: absolute; width: 0; height: 0; }
 
@@ -4469,9 +4626,8 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .xp-chip svg { color: var(--interaction-ink); flex: none; }
 .xp-chip-value { flex: 1; text-align: end; white-space: nowrap; }
 .xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--interaction-ink); color: var(--interaction-ink); }
-.xp-chip.is-arriving { border-color: var(--interaction-ink); background: var(--interaction-tint); color: var(--interaction-ink); }
 
-.xp-arrival-card, .xp-ledger {
+.xp-ledger {
   position: absolute;
   top: calc(100% + var(--space-4));
   inset-inline-end: 0;
@@ -4489,78 +4645,11 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
   text-transform: none;
   letter-spacing: normal;
   transform-origin: top right;
-  animation: xp-card-open var(--dur-base) var(--ease-out);
+  animation: xp-ledger-open var(--dur-base) var(--ease-out);
 }
-[dir="rtl"] .xp-arrival-card, [dir="rtl"] .xp-ledger { transform-origin: top left; }
+[dir="rtl"] .xp-ledger { transform-origin: top left; }
 
-.xp-arrival-card { display: grid; gap: var(--space-5); padding: var(--space-6) var(--space-7); }
-.xp-arrival-card.is-milestone { border-width: var(--border-width-strong); border-color: var(--interaction-ink); }
-.xp-arrival-milestone {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--interaction-ink);
-  font-weight: var(--weight-semibold);
-}
-.xp-arrival-skill { display: grid; gap: var(--space-3); }
-.xp-arrival-heading { display: flex; align-items: center; gap: var(--space-4); padding-inline-end: var(--space-12); }
-.xp-arrival-heading strong { flex: none; margin-inline-start: auto; color: var(--interaction-ink); font: var(--weight-semibold) var(--type-ui) var(--font-mono); }
-.xp-arrival-skill blockquote { margin: 0; font: var(--type-body)/var(--leading-normal) var(--font-serif); }
 .xp-domain-dot { flex: none; width: 9px; height: 9px; border-radius: var(--radius-circle); }
-
-.xp-skill-link {
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font: var(--weight-semibold) var(--type-ui)/var(--leading-snug) var(--font-sans);
-  text-align: start;
-  cursor: pointer;
-}
-.xp-skill-link:hover { text-decoration: underline; }
-
-.xp-meter { display: grid; gap: var(--space-2); }
-.xp-meter-track { display: flex; height: 6px; overflow: hidden; border-radius: var(--radius-pill); background: var(--track); }
-.xp-meter-track > span { height: 100%; background: currentColor; }
-.xp-meter-earlier { opacity: .5; }
-.xp-meter-added { animation: xp-meter-fill var(--dur-deliberate) var(--ease-out); transform-origin: left; }
-[dir="rtl"] .xp-meter-added { transform-origin: right; }
-.xp-meter-caption { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
-
-.xp-arrival-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-3); }
-.xp-arrival-remaining { margin-inline-end: auto; color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
-
-.xp-arrival-close {
-  position: absolute;
-  top: var(--space-3);
-  inset-inline-end: var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height-xs);
-  height: var(--control-height-xs);
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--ink-3);
-  cursor: pointer;
-}
-.xp-arrival-close:hover { background: var(--chrome); color: var(--ink); }
-
-/* Fast mode countdown; restarts whenever hover or focus releases the card. */
-.xp-arrival-timer {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 3px;
-  background: var(--interaction-ink);
-  transform-origin: left;
-  animation: xp-card-timer var(--dur-xp-card-hold) linear forwards;
-}
-[dir="rtl"] .xp-arrival-timer { transform-origin: right; }
 
 .xp-ledger-heading { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-6) var(--space-7); }
 .xp-ledger-heading h2 { flex: 1; margin: 0; font: var(--weight-semibold) var(--type-body) var(--font-sans); }
@@ -4591,17 +4680,27 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 .xp-ledger-quote { grid-column: 2; font: var(--type-body)/var(--leading-snug) var(--font-serif); color: var(--ink-2); }
 .xp-ledger-rows time { color: var(--ink-3); font: var(--weight-semibold) var(--type-meta) var(--font-mono); }
 
-@keyframes xp-card-open { from { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes xp-meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes xp-card-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes xp-ledger-open { from { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(.96); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .xp-arrival-card, .xp-ledger, .xp-meter-added { animation: none; }
+  .xp-ledger { animation: none; }
 }
 
 @media (pointer: coarse) {
   .xp-chip { min-height: var(--touch-target); }
-  .xp-arrival-close { width: var(--touch-target); height: var(--touch-target); }
+}
+
+.message-xp-anchor { position: relative; display: inline-flex; overflow: visible; }
+.message-xp-payout { position: absolute; inset: 0; pointer-events: none; z-index: var(--z-reward); }
+.message-xp-coin { position: absolute; inset-inline-end: 0; bottom: 100%; color: var(--interaction-ink); background: var(--sheet); border: var(--border-width) solid var(--interaction-ink); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3); font: var(--weight-bold) var(--type-ui) var(--font-mono); box-shadow: var(--shadow-floating); animation: message-xp-coin var(--dur-xp-payout) var(--ease-out) both; }
+@keyframes message-xp-coin {
+  0% { opacity: 0; transform: translateY(0) scale(.6); }
+  20% { opacity: 1; transform: translateY(calc(-1 * var(--space-3))) scale(1.15); }
+  65% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(calc(-1 * var(--space-13))) scale(.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .message-xp-coin { animation: none; }
 }
 
 /* ── features/conversation/progress-report.css ── */
@@ -4790,12 +4889,16 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   display: flex;
   gap: var(--space-3);
   overflow-x: auto;
-  padding: var(--space-1) 0 var(--space-2);
-  margin: var(--space-8) 0 var(--space-4);
+  padding: var(--space-1) 0 0;
+  margin: 0;
+  min-width: 0;
   border: 0;
 }
 
-/* Language pills: the selected one is solid ink, the rest are quiet outlines. */
+/* Included languages form the tabs of one sheet; catalog access stays beside them. */
+.practice-language-tabbar { display: flex; align-items: stretch; gap: var(--space-3); margin-top: var(--space-8); border-bottom: var(--border-width) solid var(--line); }
+.practice-language-add { flex: none; align-self: center; min-width: var(--control-height); min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); color: var(--ink); cursor: pointer; }
+
 .practice-language-tabs > button {
   flex: none;
   display: inline-flex;
@@ -4803,8 +4906,8 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   gap: var(--space-3);
   min-height: 34px;
   border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-pill);
-  background: transparent;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--chrome);
   color: var(--ink-2);
   padding: var(--space-2) var(--space-7);
   font-size: var(--type-ui);
@@ -4815,9 +4918,10 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .practice-language-tabs > button:hover { color: var(--ink); border-color: var(--ink-3); }
 
 .practice-language-tabs > button[aria-selected=true] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--sheet);
+  border-top-color: var(--interaction-ink);
+  border-bottom-color: var(--sheet);
+  background: var(--sheet);
+  color: var(--ink);
   font-weight: var(--weight-medium);
 }
 
@@ -4830,8 +4934,10 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .conversation-evidence .practice-credit { padding: var(--space-3); }
 
 #practice-language-panel {
-  border: 0;
-  padding: var(--space-2) 0;
+  border: var(--border-width) solid var(--line);
+  border-top: 0;
+  background: var(--sheet);
+  padding: var(--space-6);
 }
 
 .practice-statistics-header { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
@@ -4905,7 +5011,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .inspection-spectrogram { display: block; width: 100%; height: 160px; }
 /* The mel frequency axis, over the canvas's trailing edge: highest band on top. */
 .inspection-frequency-scale { position: absolute; inset-block: var(--space-2); inset-inline-end: var(--space-2); z-index: var(--z-raised); display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; pointer-events: none; font-family: var(--font-mono); font-size: var(--type-meta); }
-.inspection-frequency-scale span { padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); }
+.inspection-frequency-scale span { color: var(--ink-on-fill); text-shadow: 0 0 var(--space-1) var(--spectrogram-low), 0 0 var(--space-1) var(--spectrogram-low); }
 @media (max-width: 600px) {
   .inspection-spectrogram { height: 120px; }
 }
@@ -4976,15 +5082,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 /* Three columns that fit the window: pick a phrase, practise it, read the
    report. The middle column never scrolls at desktop sizes; the report may. */
-.drill-page { width: 100%; min-width: 0; display: grid; grid-template-columns: var(--drill-rail-width) auto minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
+.drill-page { position: relative; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
 .drill-rail, .drill-log { min-height: 0; overflow-y: auto; }
 
 /* The rail: add a phrase, pick one, and the storage control kept out of the way. */
 .drill-rail { display: grid; grid-template-rows: auto auto 1fr auto; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
-.drill-entry { display: grid; gap: var(--space-2); }
-.drill-entry label { color: var(--ink-2); font-size: var(--type-meta); }
-.drill-entry-row { display: flex; gap: var(--space-2); }
-.drill-entry-row .field { flex: 1 1 auto; min-width: 0; }
 .drill-rail-empty { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
 
 .drill-items { display: grid; align-content: start; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
@@ -5004,7 +5106,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-storage-limit { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .drill-storage-limit .field { width: 6rem; font-family: var(--font-mono); }
 
-.drill-ask-more { justify-self: start; }
 
 /* Asking for phrases happens in a raised dialog over the page, so the practice
    columns stay where they are. The request is on the left, whatever came back
@@ -5012,8 +5113,14 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-add { display: grid; grid-template-columns: 22rem minmax(0, 1fr); gap: var(--space-7); align-items: start; }
 .drill-add-ask { display: grid; align-content: start; }
 .drill-add-ask p { margin: var(--space-3) 0 0; color: var(--ink-2); font-size: var(--type-meta); }
-.drill-add-results { display: grid; align-content: start; gap: var(--space-3); min-width: 0; }
+.drill-add-results { display: grid; align-content: start; gap: var(--space-3); min-width: 0; min-height: 20rem; }
 .drill-add-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+
+/* Before the first request the results column shows the shape it will fill:
+   phrase cards land in a place that already exists, not into blank space. */
+.drill-add-await { display: grid; gap: var(--space-3); }
+.drill-add-await-line { height: 3.25rem; border: var(--border-width) dashed var(--line); border-radius: var(--radius-sm); background: var(--bg); }
+.drill-add-skill { gap: var(--space-2); }
 
 /* One list of what to add, with past chats as a source beside the lengths
    rather than a section of its own. */
@@ -5033,19 +5140,32 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* The stage: what to say, the reference against the take, and the control
    that records. It is a column that fills the height: the comparison takes
    whatever the phrase and the dock leave. */
-.drill-stage { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; overflow-y: auto; }
-.drill-stage-alone { grid-column: 3 / -1; }
+.drill-stage { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; overflow: hidden; }
+.drill-stage-alone { grid-column: 1 / -1; }
 .drill-pane { min-height: 0; overflow: auto; }
-.drill-dock-pane { flex: none; height: var(--drill-dock-height); min-height: max-content; overflow: visible; }
-.drill-progress-pane { flex: none; height: var(--drill-progress-height); }
-.drill-inspection-pane { flex: none; height: var(--drill-inspection-height); }
-.drill-history-pane { flex: 1 1 auto; min-height: var(--control-height-lg); }
+.drill-dock-pane { flex: none; height: var(--drill-dock-height); max-height: 45%; min-height: 12rem; overflow: hidden; }
+.drill-attempts-pane { flex: none; height: auto; }
 .drill-stage > * { flex: none; }
+.drill-stage > .drill-comparison-panel { position: relative; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto minmax(0, 1fr) auto auto; gap: var(--space-2); padding: var(--space-3); background: transparent; border: 0; overflow: hidden; }
 /* The phrase sits in the same partner bubble as Chat, its reading aids inside
    it. It is what the page is for, so it is set well above reading size. */
 .drill-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .drill-actions .btn { display: inline-flex; align-items: center; gap: var(--space-2); }
-.drill-empty { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
+
+/* An empty drill page shows the practice frame it is about to fill: the phrase
+   to say, the reference beside the learner's take, and the attempt record. The
+   grid is the same reading order as the working page, so nothing moves when the
+   first phrase arrives. */
+.drill-prepare { display: grid; gap: var(--space-6); align-content: start; }
+.drill-prepare-head { display: grid; gap: var(--space-2); justify-items: start; max-width: 44ch; }
+.drill-prepare-head h2 { margin: 0; font-size: var(--type-title); color: var(--ink); }
+.drill-prepare-head p { margin: 0; color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-normal); }
+.drill-prepare-head .btn { margin-top: var(--space-3); }
+.drill-prepare-frame { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(10rem, 1fr); gap: var(--space-3); min-height: 12rem; }
+.drill-prepare-frame > * { display: grid; place-items: center; border: var(--border-width) dashed var(--line); border-radius: var(--radius-md); background: var(--bg); }
+.drill-prepare-frame span { color: var(--ink-3); font-size: var(--type-meta); letter-spacing: var(--tracking-tag); text-transform: uppercase; }
+.drill-prepare-compare { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); padding: var(--space-2); }
+.drill-prepare-compare > div { display: grid; place-items: center; width: 100%; height: 100%; border: var(--border-width) dashed var(--line-soft); border-radius: var(--radius-sm); }
 
 /* A row of mutually exclusive choices, all visible: recording mode, pause
    length, time direction. The checked one is filled. */
@@ -5067,58 +5187,54 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-media-take { margin-top: var(--space-2); }
 .drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
 .drill-comparison-panel { flex: 1 1 auto; min-height: 16rem; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); overflow-y: auto; }
-.drill-reference { display: flex; flex-direction: column; gap: var(--space-2); }
-.drill-timelines { display: grid; gap: var(--space-1); }
+.drill-reference { display: contents; }
+.drill-timelines { display: contents; }
 /* A recording that is not drawn yet keeps the plot's frame: empty, loading and
    failed states draw inside it, so the drawing arriving moves nothing. */
-.drill-plot-frame { display: flex; flex-direction: column; justify-content: center; height: var(--drill-plot-height); box-sizing: border-box; padding: var(--space-3) var(--space-5); overflow: auto; background: var(--bg); border: var(--border-width) dashed var(--line); border-radius: var(--radius-sm); color: var(--ink-3); font-size: var(--type-ui); }
+.drill-plot-frame { display: flex; flex-direction: column; justify-content: center; height: 100%; min-height: 0; box-sizing: border-box; padding: var(--space-3) var(--space-5); overflow: auto; background: var(--bg); border: var(--border-width) dashed var(--line); border-radius: var(--radius-sm); color: var(--ink-3); font-size: var(--type-ui); }
 .drill-plot-frame > p { margin: 0; }
 .drill-plot-frame[data-state="loading"] { border-style: solid; }
 .drill-plot-frame[data-state="failed"] { border-style: solid; border-color: var(--danger-line); background: var(--danger-tint); color: var(--danger-ink); }
 .drill-plot-frame > [role="alert"] p { margin: var(--space-1) 0; }
 .drill-plot-frame > [role="alert"] .btn { margin-inline-end: var(--space-2); }
-/* Word timing keeps its row even for a recording without recognised words. */
-.drill-word-slot { min-height: 36px; }
-.drill-track { display: grid; gap: var(--space-1); }
-.drill-timelines .inspection-spectrogram { height: var(--drill-plot-height); }
-.drill-timelines .inspection-token-track { height: 36px; }
-.drill-timelines .inspection-token-track button { height: 28px; top: var(--space-1); }
+.drill-track { display: grid; gap: var(--space-1); min-height: 0; }
+.drill-timelines .inspection-spectrogram { position: absolute; inset: 0; height: 100%; min-height: 0; }
 .drill-seek { accent-color: var(--interaction-ink); }
-.drill-axis { position: relative; height: var(--space-8); }
+.drill-axis { grid-row: 6; position: relative; height: var(--space-8); }
 .drill-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
 .drill-axis span:first-child { transform: none; }
 /* Right-to-left time mirrors each track as a whole, so the start of every
    recording sits on the right. Text inside is turned back to read normally. */
 .drill-timelines[data-time="rtl"] .drill-track { transform: scaleX(-1); }
 .drill-timelines[data-time="rtl"] .drill-track :is(bdi, .inspection-frequency-scale span, .inspection-segment-mark span) { display: inline-block; transform: scaleX(-1); }
-.drill-comparison-foot { display: grid; gap: var(--space-2); color: var(--ink-3); font-size: var(--type-meta); }
+.drill-comparison-foot { position: absolute; inset-inline-end: var(--space-2); bottom: var(--space-2); z-index: var(--z-popover); display: grid; gap: var(--space-1); line-height: var(--leading-snug); color: var(--ink-3); font-size: var(--type-meta); }
 .drill-comparison-foot p { margin: 0; }
 
-/* The dock is one row and a thin timeline: it records, it never competes with
-   the comparison for height. Tuning lives in a panel that opens above it.
-   The dock states differ in what the control does, so each says so in words;
-   colour repeats the sentence rather than carrying it alone. */
-.drill-dock { position: relative; display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
-.drill-dock-pane > .drill-dock { box-sizing: border-box; min-height: 100%; align-content: start; }
-.drill-dock[data-phase="ready"] { border: var(--border-width-thick) solid var(--interaction-ink); box-shadow: var(--shadow-sm); }
+/* The dock is a narrow panel of controls beside the live pair, not a strip above
+   it: the controls keep a column of their own and the stream gets the rest, which
+   is what gives the log-mel room to be read instead of a 28px sliver. Tuning lives
+   in a panel that opens above it. The dock states differ in what the control does,
+   so each says so in words; colour repeats the sentence rather than carrying it
+   alone. The panel column is a fixed width rather than max-content so that a long
+   status line ellipsises instead of eating the stream. */
+.drill-dock { position: relative; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: var(--space-5) var(--space-7); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); box-shadow: var(--shadow-surface); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
+.drill-dock-pane > .drill-dock { box-sizing: border-box; height: 100%; min-height: 14rem; align-content: stretch; }
+.drill-dock[data-phase="ready"] { border-color: var(--interaction-ink); }
 .drill-dock[data-phase="recording"] { background: var(--danger-tint); border-color: var(--danger-line); }
 .drill-dock[data-phase="working"] { background: var(--chrome); }
-.drill-dock-row { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
-.drill-dock-row .drill-segmented { flex: none; flex-wrap: nowrap; }
-/* Same size and shape as the conversation composer's Record button. */
-.drill-dock-button { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: var(--space-4); height: var(--touch-target); padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: 0; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
+.drill-dock-side { display: grid; grid-template-rows: minmax(var(--touch-target), 1fr) auto auto auto; gap: var(--space-2); min-width: 0; }
+/* Drill gives recording its own large control area. */
+.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid var(--recording-accent); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
 .drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
 .drill-dock-button:disabled { opacity: 0.5; cursor: default; }
-.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); }
-.drill-dock[data-phase="recording"] .drill-dock-button:hover { background: var(--danger-fill-hover); }
-.drill-dock-copy { flex: 0 1 auto; min-width: 0; display: grid; }
+.drill-dock-copy { min-width: 0; display: grid; }
 .drill-dock-headline { margin: 0; overflow: hidden; font-size: var(--type-body); font-weight: var(--weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
-.drill-dock-discard { flex: none; padding: 0 var(--space-4); }
 .drill-dock-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
 .drill-dock-detail { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 
 /* Native dialog supplies the scrim, elevation and inert background. */
-.drill-dock-settings { flex: none; display: grid; place-items: center; min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; }
+.drill-dock-settings, .drill-media-options { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; width: var(--touch-target); height: var(--touch-target); min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; box-shadow: var(--shadow-sm); }
+.drill-dock-settings svg, .drill-media-options svg { display: block; flex: none; }
 .drill-dock-panel { display: grid; gap: var(--space-4); }
 .drill-dock-panel h2 { margin: 0; font-size: var(--type-title); }
 
@@ -5126,11 +5242,14 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-choice .drill-segmented { justify-self: start; }
 .drill-choice .drill-segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
 
-/* The live timeline: waveform and a sliver of spectrum, no axis row. */
-.drill-dock .live-recording { gap: var(--space-1); }
+/* The live timeline: the waveform, and the log-mel beneath it taking whatever
+   height the panel has left. The mel keeps its frequency scale — a tall plot
+   with no labels is a texture, not a measurement. Only the clock row is dropped,
+   because the panel's head already says what the window is. */
+.drill-dock .live-recording { grid-template-rows: auto minmax(0, 1fr); gap: var(--space-1); }
 .drill-dock .live-recording-axis { display: none; }
-.drill-dock .inspection-spectrogram { height: 28px; }
-.drill-dock .inspection-frequency-scale { display: none; }
+.drill-dock .live-recording-plots { display: grid; grid-template-rows: var(--live-wave-height) minmax(0, 1fr); }
+.drill-dock .inspection-spectrogram { height: 100%; }
 
 
 /* Level against the threshold a take must cross. */
@@ -5147,13 +5266,13 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* Clearing the recent past: a quiet control that opens to explicit choices. */
 .drill-clear { flex: none; align-self: flex-end; font-size: var(--type-ui); }
 .drill-clear summary { color: var(--ink-2); cursor: pointer; }
-.drill-clear-panel { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); }
+.drill-clear-panel { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3); background: var(--chrome); box-shadow: var(--shadow-menu); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); }
 .drill-clear-panel p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 .drill-clear-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* The report column: the phrase over time, the selected take in full, then
    every other take as one line. */
-.drill-log { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); }
+.drill-log { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); border: 0; border-radius: var(--radius-xl); box-shadow: var(--shadow-recessed); }
 
 .drill-progress { display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
 .drill-progress-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
@@ -5167,14 +5286,43 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-spark-rule { stroke: var(--line-soft); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .drill-spark-line { fill: none; stroke: var(--interaction-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .drill-spark-point { fill: var(--interaction-ink); }
-.drill-word-grid { display: grid; gap: var(--space-hairline); }
-.drill-word-row { display: grid; align-items: center; gap: var(--space-1); }
-.drill-word-grid-label { overflow: hidden; font-family: var(--font-serif); font-size: var(--type-ui); line-height: var(--leading-tight); text-align: end; text-overflow: ellipsis; white-space: nowrap; padding-inline-end: var(--space-3); }
-.drill-word-cell { height: var(--space-5); border-radius: var(--radius-xs); }
-[data-outcome="same"].drill-word-cell, .drill-attempt-words [data-outcome="same"] { background: var(--success-line); }
-[data-outcome="substituted"].drill-word-cell, .drill-attempt-words [data-outcome="substituted"] { background: var(--warning-line); }
-[data-outcome="missing"].drill-word-cell, .drill-attempt-words [data-outcome="missing"] { background: var(--danger-line); }
-.drill-word-legend { display: flex; flex-wrap: wrap; gap: var(--space-5); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+.drill-word-grid { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: var(--space-4) var(--space-1); min-width: 0; }
+/* Shared columns keep word boundaries aligned when take numbers gain digits. */
+.drill-word-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; min-width: 0; width: 100%; min-height: 20px; padding: 0 var(--space-1); background: transparent; color: var(--ink); text-align: start; border: 0; border-radius: 0; }
+.drill-history-entry { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; min-width: 0; border-radius: var(--radius-md); }
+.drill-history-entry[data-expanded] { background: var(--sheet); box-shadow: var(--shadow-surface); border: var(--border-width-thick) solid var(--line); animation: drill-card-open calc(var(--dur-slow) * 1.5) var(--ease-out); }
+.drill-history-entry[data-expanded][data-result="matched"] { border-color: var(--success-line); }
+.drill-history-entry[data-expanded][data-result="unmatched"] { border-color: var(--danger-line); }
+.drill-history-entry[data-expanded][data-result="uncertain"] { border-color: var(--warning-line); }
+.drill-history-entry:not([data-expanded]) { background: var(--chrome); box-shadow: var(--shadow-recessed); }
+.drill-word-row[hidden] { display: none; }
+@keyframes drill-card-open { from { opacity: 0; transform: translateY(var(--space-7)) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.drill-history-details { grid-column: 1 / -1; min-width: 0; }
+/* The expanded entry owns the surface around its header and inspection. */
+.drill-history-details .drill-inspection { background: transparent; border: 0; }
+.drill-word-row:is(:hover, :focus-visible) { background: var(--interaction-tint); box-shadow: inset var(--border-width-thick) 0 var(--interaction-ink); }
+.drill-word-row-number, .drill-word-row-score { font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
+.drill-word-row-score { text-align: end; }
+/* One cell per target word, and they divide the width they are given with no
+   minimum: N of them always tile the strip exactly, so the row cannot overflow
+   and there is nothing to scroll in either direction. Each cell is its own
+   container, so what it shows can follow from how wide it was made. */
+.drill-word-row-cells { display: grid; align-self: center; align-items: stretch; min-width: 0; height: 20px; gap: 0; }
+.drill-word-cell { display: grid; place-items: center; min-width: 0; overflow: hidden; padding: 0; text-align: center; font-family: var(--font-serif); background: var(--chrome); color: var(--ink); border-bottom: var(--border-width-thick) solid var(--line); border-radius: var(--radius-xs); box-sizing: border-box; container-type: inline-size; }
+/* Keep readable prefixes; narrow cells retain only their outcome color. */
+.drill-word-cell bdi { display: block; width: 100%; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: start; font-size: var(--type-ui); }
+/* Hide the label when there is no room for a useful prefix. */
+@container (max-width: 20px) { .drill-word-cell bdi { display: none; } }
+/* A take arriving moves the takes it displaces rather than replacing them: the
+   rows already in the list step down by exactly one row to make room, and the
+   new row fades into the place they left at the top. */
+@keyframes drill-row-make-room { from { transform: translateY(calc(-1 * var(--control-height-sm))); } }
+.drill-word-grid[data-arriving] .drill-history-entry:not([data-arrival]) { animation: drill-row-make-room var(--dur-slow) var(--ease-out); }
+[data-outcome="same"]:is(.drill-word-cell, .drill-word-preview) { background: var(--success-tint); color: var(--success-ink); border-bottom-color: var(--success-line); }
+[data-outcome="substituted"]:is(.drill-word-cell, .drill-word-preview) { background: var(--warning-tint); color: var(--warning-ink); border-bottom-color: var(--warning-line); }
+[data-outcome="missing"]:is(.drill-word-cell, .drill-word-preview) { background: var(--danger-tint); color: var(--danger-ink); border-bottom-color: var(--danger-line); }
+.drill-history-footer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+.drill-word-legend { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 .drill-word-legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
 .drill-word-legend span::before { content: ""; width: var(--space-5); height: var(--space-5); border-radius: var(--radius-xs); }
 .drill-word-legend [data-outcome="same"]::before { background: var(--success-line); }
@@ -5184,36 +5332,18 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-progress-note { margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
 
 .drill-attempts { display: grid; align-content: start; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
-.drill-attempt:hover { border-color: var(--interaction-ink); }
-.drill-attempt-number { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
-.drill-attempt-words { display: inline-flex; gap: var(--space-1); }
 .drill-attempt-when { color: var(--ink-3); font-size: var(--type-meta); }
 
-/* Earlier takes: a sunken list, visibly apart from the selected take above it.
-   Each take is one line: number, word marks, what was heard, time, match. */
-.drill-history { display: grid; gap: var(--space-1); padding: var(--space-2); background: var(--bg); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-recessed); }
-.drill-history-head { margin: 0; padding: 0 var(--space-1); color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); text-transform: uppercase; letter-spacing: var(--tracking-label); }
-.drill-attempt-row { display: flex; align-items: center; gap: var(--space-1); }
-.drill-attempt { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-3); text-align: start; background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .drill-attempt-head { display: contents; }
-.drill-attempt-words span { width: var(--space-4); height: var(--space-3); border-radius: var(--radius-xs); }
-.drill-attempt-transcript { order: 1; flex: 1 1 auto; min-width: 0; overflow: hidden; font-family: var(--font-serif); font-size: var(--type-ui); color: var(--ink-2); text-overflow: ellipsis; white-space: nowrap; }
-.drill-attempt .drill-attempt-when { order: 2; }
-.drill-attempt-score { order: 3; font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
-.drill-history .drill-remove { padding: 0 var(--space-2); min-height: var(--control-height-sm); }
 
-/* A take joins the log the moment it is cut, before anything has been
-   transcribed, and its result card replaces it in place when one arrives. */
+/* Pending takes retain their status until the selectable list owns the result. */
 .drill-take-arrival { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
-/* The idle slot holds the first row's place until a recording starts. */
-.drill-take-pending[data-state="idle"] { border-style: dashed; background: transparent; }
-.drill-take-pending[data-state="idle"] strong { color: var(--ink-3); }
 .drill-take-pending { display: grid; gap: var(--space-2); padding: var(--space-3) var(--space-4); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .drill-take-pending[data-state="failed"] { border-color: var(--danger-line); }
 .drill-take-pending p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 .drill-take-progress { overflow: hidden; height: var(--space-2); background: var(--chrome); border-radius: var(--radius-xs); }
 .drill-take-progress span { display: block; width: 25%; height: 100%; background: var(--interaction-ink); animation: take-progress var(--dur-deliberate) var(--ease-in-out) infinite; }
-@media (prefers-reduced-motion: reduce) { .drill-take-arrival, .drill-take-progress span { animation: none; } .drill-meter-fill { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .drill-take-arrival, .drill-take-progress span, .drill-history-entry { animation: none; } .drill-meter-fill { transition: none; } }
 .drill-more { width: 100%; margin-top: var(--space-3); }
 
 /* A chip states something the comparison established mechanically. There is no
@@ -5224,13 +5354,13 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning-ink); }
 
 /* The selected take in full: its words, then what was measured. */
-.drill-inspection { display: grid; gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--sheet); border: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+.drill-inspection { min-width: 0; grid-template-columns: minmax(0, 1fr); overflow-wrap: anywhere; display: grid; align-content: start; line-height: var(--leading-snug); gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
 .drill-inspection-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); }
 .drill-inspection-score { font-family: var(--font-mono); font-size: var(--type-body); font-weight: var(--weight-bold); color: var(--interaction-ink); }
 .drill-inspection-words { color: var(--ink-2); font-size: var(--type-meta); }
 .drill-inspection-head h2 { margin: 0; font-size: var(--type-body); }
 .drill-inspection-spacer { flex: 1 1 auto; }
-.drill-inspection-note { margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
+.drill-inspection-note { line-height: var(--leading-snug); margin: 0; color: var(--ink-3); font-size: var(--type-meta); }
 
 
 /* The phrase as written, one mark per word: the colour under a word names its
@@ -5240,71 +5370,77 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* Aligned pairs wrap together so long phrases retain target/heard ownership. */
 .drill-word-pairs { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: start; }
 .drill-word-pair, .drill-word-labels { display: grid; gap: var(--space-2); max-width: 100%; min-width: 0; }
-.drill-word-labels { color: var(--ink-3); font-size: var(--type-meta); }
+.drill-word-labels { color: var(--ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
 .drill-word-pair > span:not(.drill-word-outcome) { padding: 0 var(--space-2); overflow-wrap: anywhere; background: var(--success-tint); border-bottom: var(--border-width-thick) solid var(--success-line); border-radius: var(--radius-xs); font-family: var(--font-serif); font-size: calc(var(--type-body) * var(--reading-scale) * var(--script-scale)); line-height: var(--leading-snug); }
 .drill-word-pair[data-outcome="substituted"] > span { background: var(--warning-tint); border-color: var(--warning-line); }
 .drill-word-pair[data-outcome="missing"] > span { background: var(--danger-tint); border-color: var(--danger-line); }
 .drill-word-pair[data-outcome="extra"] > span { background: var(--chip); border-color: var(--ink-3); border-bottom-style: dashed; }
 
 /* What was measured, you against the reference, one row per measure. */
-.drill-measures { width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
-.drill-measures th, .drill-measures td { padding: 0 var(--space-2); text-align: start; white-space: nowrap; }
+.drill-measures { table-layout: fixed; line-height: var(--leading-snug); width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
+.drill-measures th, .drill-measures td { padding: 0 var(--space-2); text-align: start; white-space: normal; overflow-wrap: anywhere; }
 .drill-measures thead th { color: var(--ink-3); font-weight: var(--weight-semibold); border-bottom: var(--border-width) solid var(--line-soft); }
 .drill-measures tbody th { color: var(--ink-2); font-weight: var(--weight-medium); }
 .drill-measures td { font-family: var(--font-mono); color: var(--ink); }
 
 .drill-comparison { font-size: var(--type-ui); }
-.drill-comparison dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
+.drill-comparison dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
 .drill-comparison dd { margin: 0; font-family: var(--font-mono); }
 
 /* Desktop retains its resizable columns; only the central stage scrolls. */
-.drill-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.drill-workspace { background: var(--sheet); border-radius: var(--radius-xl); box-shadow: var(--shadow-surface), var(--surface-glow); padding: var(--space-2); overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .drill-workspace > .drill-stage { flex: 1 1 auto; }
 .drill-stage > [role="alert"] { margin: 0; padding-block: var(--space-3); padding-inline-start: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
 .drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }
 
-/* Phone navigation and reports are disclosures, leaving the recording dock
-   outside the scrolling practice area. Its height follows content and zoom. */
+/* Narrow practice and history scroll above a persistent recording dock. */
 @media (max-width: 860px) {
-  .drill-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
+  .drill-page { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
   .drill-page .resize-handle, .drill-sheet .resize-handle { display: none; }
   .drill-phrase-bar { display: flex; gap: var(--space-2); }
   .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
   .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
-  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-title); }
+  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-ui); }
   [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
-  .drill-mobile-content { overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-2); }
+  .drill-mobile-content { flex: 1 1 0; overflow-y: auto; overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow-x: hidden; display: flex; flex-direction: column; gap: var(--space-2); }
   /* All practice content scrolls above the dock. A pinned reference can cover
      most of a short viewport and make lower reports impossible to inspect. */
-  .drill-stage:not(.drill-stage-alone), .drill-comparison-panel { display: contents; }
-  .drill-reference { position: relative; flex: none; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-surface); }
-  .drill-stage { overflow: visible; flex: none; }
+  .drill-stage:not(.drill-stage-alone) { display: flex; flex: none; overflow: visible; }
+  .drill-reference { display: contents; }
+  .drill-stage { overflow: visible; }
   .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
-  .drill-comparison-panel { min-height: 0; overflow: visible; padding: var(--space-2); }
-  .drill-timelines :is(.inspection-spectrogram, .drill-plot-frame) { height: 72px; }
+  .drill-prepare-frame { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+  .drill-prepare-frame > * { min-height: 4.5rem; }
+  .drill-stage > .drill-comparison-panel { flex: none; padding: 0; overflow: visible; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(8rem, 18dvh) minmax(8rem, 18dvh) auto; }
+  .drill-workspace-stacked { flex: none; overflow: visible; gap: var(--space-2); }
+  .drill-mobile-content .drill-word-grid { row-gap: var(--space-1); }
+  .drill-page .drill-attempts-pane { overflow: visible; height: auto; max-height: none; }
+  .drill-comparison-foot { min-height: 0; }
+  .drill-workspace-stacked .drill-phrase-bar { flex-wrap: nowrap; }
+  .drill-timelines :is(.inspection-spectrogram, .drill-plot-frame) { height: 100%; min-height: 0; }
   .drill-media { flex-wrap: wrap; gap: var(--space-2); position: relative; }
   .drill-media-time { white-space: normal; flex-shrink: 1; }
   .drill-media .drill-seek { min-width: 3rem; width: 3rem; }
   .drill-play { min-height: var(--touch-target); }
   .drill-media-options { margin-inline-start: auto; }
-  .drill-media-options summary { min-width: var(--touch-target); min-height: var(--touch-target); display: grid; place-content: center; list-style: none; cursor: pointer; }
-  .drill-media-options summary::-webkit-details-marker { display: none; }
-  .drill-media-options > div { position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
-  .drill-dock-pane { height: auto; min-height: 0; }
-  .drill-dock { box-shadow: var(--shadow-surface); padding: var(--space-2); }
-  .drill-dock-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-2); }
-  .drill-dock-copy { grid-row: 1; grid-column: 1; }
+  .drill-dock-pane { height: auto; min-height: 0; max-height: none; overflow: visible; }
+  .drill-dock-pane > .drill-dock { min-height: 0; height: auto; }
+  .drill-dock .drill-recording-container { height: clamp(11rem, 25dvh, 16rem); padding: var(--space-1); }
+  /* The persistent capture surface sits above the compact, recessed history. */
+  .drill-dock { flex: none; z-index: var(--z-raised); box-shadow: var(--shadow-floating); border-width: var(--border-width-strong); border-color: var(--interaction-ink); padding: var(--space-6); grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+  .drill-dock-side { position: absolute; inset-inline: var(--space-6); top: var(--space-6); z-index: var(--z-raised); grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto; gap: var(--space-2); }
+  .drill-dock-copy { visibility: hidden; grid-row: 1; grid-column: 2; min-width: 0; }
+  .drill-dock-side > .drill-recording-controls { grid-row: 1; grid-column: 3; }
+  .drill-dock-counts { display: none; }
   .drill-dock-headline { font-size: var(--type-ui); }
-  .drill-dock-row > .drill-segmented { grid-row: 1; grid-column: 2; justify-self: end; }
-  .drill-dock-row > .drill-segmented button { padding-inline: var(--space-2); }
-  .drill-dock .live-recording-plots > .inspection-plot { display: none; }
-  .drill-dock-settings { grid-row: 1; grid-column: 3; }
-  .drill-dock-button { grid-row: 2; grid-column: 1; }
+  .drill-dock .live-recording-plots > .inspection-plot { min-height: 0; }
+  .drill-dock .live-recording-head { display: none; }
+  .drill-dock .live-recording { grid-template-rows: minmax(0, 1fr); }
+  .drill-dock-button { grid-row: 1; grid-column: 1; height: var(--touch-target); }
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
-  .drill-dock-discard { grid-row: 2; grid-column: 3; }
   .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
-  .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width-thick) solid var(--interaction-ink); border-radius: var(--radius-md); }
+  .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
   .drill-peek-open { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--touch-target); padding: 0; margin-bottom: var(--space-2); background: transparent; border: 0; color: var(--ink); text-align: start; }
   .drill-peek-open > :last-child { margin-inline-start: auto; color: var(--interaction-ink); }
   .drill-add { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
@@ -5321,14 +5457,12 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-sheet :is(.drill-log, .drill-rail, .drill-pane) { height: auto; overflow: visible; min-width: 0; }
 .drill-sheet .drill-rail { grid-template-rows: auto auto auto auto; }
 .drill-sheet .drill-measures :is(th, td) { white-space: normal; overflow-wrap: anywhere; }
-.drill-sheet .drill-inspection-pane { order: -1; }
 .drill-sheet .drill-clear { order: 1; }
-.drill-sheet .drill-history-pane { order: 2; }
 
 /* Touch keeps every control at the minimum target, including the icon-only
    delete and the cards that carry selection. */
 @media (pointer: coarse) {
-  .drill-remove, .drill-item, .drill-attempt, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
+  .drill-remove, .drill-item, .drill-word-row, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
 }
 
 /* The Chat/Drill switch in the top bar: one surface replaces the other. It is
@@ -5351,19 +5485,149 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-recent-takes button > span { color: var(--ink-3); }
 
 /* Recording modes remain distinct controls even when none is hovered. */
-.drill-dock-row > .drill-segmented { gap: var(--space-2); background: transparent; }
-.drill-dock-row > .drill-segmented button { min-width: var(--touch-target); border: var(--border-width) solid var(--line); background: var(--sheet); }
-.drill-dock-row > .drill-segmented button[aria-checked="true"] { background: var(--interaction-fill); color: var(--ink-on-fill); border-color: var(--interaction-fill); }
+.drill-dock-modes > .drill-segmented { padding: 0; gap: var(--space-1); background: transparent; }
+.drill-dock-modes > .drill-segmented button { padding-inline: var(--space-2); min-width: var(--touch-target); border: var(--border-width) solid var(--line); background: var(--sheet); }
+.drill-dock-modes > .drill-segmented button[aria-checked="true"] { background: var(--interaction-tint); color: var(--interaction-ink); border-color: var(--line); }
 .drill-playback-speed { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-meta); }
 .drill-playback-speed select { padding-inline: var(--space-3); min-height: var(--touch-target); width: auto; font-size: var(--type-ui); }
 
 @media (max-width: 860px) {
-  .drill-reference > .drill-media { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; }
-  .drill-reference > .drill-media .drill-media-time { grid-column: 1 / -1; }
-  .drill-reference > .drill-media .drill-media-options { grid-column: 4; grid-row: 1; }
-  .drill-reference > .drill-media .drill-seek { width: 100%; min-width: 0; }
+  .drill-reference > .drill-media { grid-row: 2; }
+  .drill-reference > .drill-timelines > .drill-track { grid-row: 2; grid-column: 1; }
+  .drill-comparison-panel > .drill-timelines > .drill-track:not(.drill-axis) { grid-row: 3; grid-column: 1; }
+  .drill-comparison-panel .drill-media-take { grid-row: 3; margin: 0; padding-inline-end: var(--touch-target); }
+  .drill-comparison-panel .drill-media { grid-column: 1; align-self: end; align-items: center; padding-block: var(--space-1); display: flex; flex-wrap: nowrap; z-index: var(--z-raised); background: var(--sheet); border-radius: var(--radius-sm); gap: var(--space-2); }
+  .drill-comparison-panel .drill-media-time { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .drill-comparison-panel .drill-track > .inspection-plot { margin-bottom: calc(var(--touch-target) + 2 * var(--space-1)); }
+  .drill-axis { grid-row: 4; }
   .drill-playback-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+
+/* Phrase selection floats over the workspace without changing its geometry. */
+.drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; gap: var(--space-2); padding-bottom: var(--space-2); }
+.drill-dock-modes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.drill-recording-container { display: grid; min-width: 0; min-height: 0; padding: var(--space-3); background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-md); }
+.drill-recording-container .live-recording-plots { min-height: 8rem; background: var(--spectrogram-low); }
+.drill-dock .inspection-plot { position: relative; min-height: 0; }
+.drill-dock .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; }
+/* Colored starts share one renderer, over the measured pixels. */
+.drill-word-overlay { animation: drill-words-arrive var(--dur-base) var(--ease-out); position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.drill-word-marker { position: absolute; top: 0; bottom: 0; border-left: var(--border-width) solid currentColor; color: var(--warning-line); }
+.drill-word-marker[data-outcome="same"] { color: var(--success-line); }
+.drill-word-marker[data-outcome="missing"] { color: var(--danger-line); }
+.drill-word-marker > bdi, .drill-word-marker button { position: relative; display: inline-block; margin-top: var(--space-3); padding-inline: var(--space-2); white-space: nowrap; font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); font-family: var(--font-serif); text-shadow: 0 1px 3px var(--spectrogram-low), 0 0 5px var(--spectrogram-low); }
+.drill-word-marker button { pointer-events: auto; background: transparent; border: 0; color: inherit; }
+/* Both plots share the available rows; dock resizing changes their common height. */
+.drill-track > .inspection-plot { position: relative; min-height: 0; }
+.drill-track > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; }
+.drill-track > .drill-plot-frame { height: 100%; min-height: 0; }
+@media (width > 860px) { .drill-media { flex-wrap: wrap; } }
+@media (max-width: 860px) {
+  .drill-recording-container .live-recording-plots { min-height: 0; }
+  .drill-dock .live-recording-plots { grid-template-rows: var(--live-wave-height) minmax(0, 1fr); }
+}
+
+.drill-error-overlay { position: absolute; inset-block-start: 0; inset-inline: 0; z-index: var(--z-popover); pointer-events: none; }
+.drill-error-overlay > .error-notice { pointer-events: auto; margin: 0; padding: var(--space-3) var(--touch-target) var(--space-3) var(--space-4); background: var(--danger-tint); color: var(--danger-ink); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
+.drill-error-overlay p { margin: var(--space-1) 0; }
+.drill-unscored { margin-inline-start: auto; white-space: nowrap; display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
+
+/* A transient copy connects native clip bounds to the stable comparison plot. */
+.drill-clip-flight { box-sizing: border-box; border: var(--border-width) solid var(--success-line); position: fixed; pointer-events: none; z-index: var(--z-popover); transform-origin: top left; }
+.drill-timelines .inspection-plot { min-height: 0; overflow: hidden; transition: width var(--dur-base) var(--ease-out); }
+
+.drill-timelines .drill-track:not(.drill-axis) { flex: 1 1 auto; }
+@media (prefers-reduced-motion: reduce) {
+  .drill-timelines .inspection-plot { transition: none; }
+}
+
+@keyframes drill-words-arrive { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .drill-word-overlay { animation: none; } }
+
+.drill-comparison-panel > .error-notice { position: absolute; inset: auto 0 0; z-index: var(--z-popover); }
+
+
+/* Expanded words float over adjacent cells without shifting any history rows. */
+.drill-word-preview { position: fixed; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: var(--space-2) var(--space-4); width: max-content; box-sizing: border-box; z-index: var(--z-popover); pointer-events: none; padding: var(--space-3) var(--space-4); overflow-wrap: anywhere; font-family: var(--font-serif); font-size: var(--type-body); line-height: var(--leading-normal); background: var(--chrome); color: var(--ink); border: var(--border-width) solid currentColor; border-radius: var(--radius-xs); box-shadow: var(--shadow-floating); }
+
+/* Keep both timing choices together when the media toolbar wraps. */
+.drill-timing-controls { display: flex; align-items: center; gap: var(--space-2); flex-wrap: nowrap; }
+.drill-playback-cursor { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; z-index: var(--z-raised); cursor: ew-resize; touch-action: none; }
+.drill-playback-cursor .audio-spectrum-cursor { background: var(--spectrogram-cursor); width: var(--space-2); box-shadow: 0 0 var(--space-3) var(--spectrogram-cursor), 0 0 var(--space-2) var(--spectrogram-low); }
+.drill-playback-cursor:focus-visible { outline: var(--border-width) solid var(--spectrogram-cursor); }
+@media (prefers-reduced-motion: reduce) { .drill-history-entry[data-expanded] { animation: none; } }
+
+
+.drill-recording-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.drill-auto-detect { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-ui); }
+.drill-auto-detect:has(input:disabled) { color: var(--ink-3); }
+@media (max-width: 860px) { .drill-recording-controls { grid-row: 1; grid-column: 2 / -1; } }
+
+
+.drill-info summary { display: grid; place-items: center; width: var(--touch-target); height: var(--touch-target); list-style: none; cursor: pointer; background: transparent; color: var(--ink-2); font-style: italic; }
+.drill-info summary > span { display: grid; place-items: center; box-sizing: border-box; width: var(--space-9); height: var(--space-9); border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); background: var(--sheet); }
+
+.drill-info summary::-webkit-details-marker { display: none; }
+.drill-info > div { position: absolute; inset-inline-end: 0; bottom: 100%; width: min(28rem, calc(100vw - var(--space-8))); max-height: 60dvh; overflow: auto; padding: var(--space-3); background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
+.drill-history-collapse { display: block; margin-inline-start: auto; min-height: var(--touch-target); }
+
+.drill-comparison-settings { display: grid; gap: var(--space-4); }
+.drill-comparison-settings h2 { margin: 0; font-size: var(--type-title); }
+.drill-comparison-settings .drill-timing-controls { flex-wrap: wrap; }
+
+/* Playback is outlined; capture keeps the filled treatment. */
+.drill-target-card .speak-btn, .drill-media .drill-play { background: var(--sheet); border-color: var(--interaction-fill); color: var(--interaction-ink); }
+.drill-target-card .speak-btn:hover:not(:disabled), .drill-media .drill-play:hover:not(:disabled) { background: var(--field); border-color: var(--interaction-fill-hover); }
+
+.drill-dropdown-actions { padding: var(--space-2); border-top: var(--border-width) solid var(--line-soft); }
+
+.drill-playback-progress { position: relative; flex: 1 1 auto; min-width: 0; height: var(--touch-target); }
+.drill-playback-progress-track { position: absolute; inset: var(--space-1) 0; overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+.drill-playback-progress-track[data-time="rtl"] { transform: scaleX(-1); }
+.drill-playback-progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--interaction-tint); pointer-events: none; }
+.drill-playback-progress-time { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-playback-progress .audio-spectrum-cursor { width: var(--border-width); background: var(--interaction-ink); box-shadow: none; }
+
+/* The icon leads the label in playback direction; its triangle points that way. */
+.drill-play[dir="rtl"] > svg { transform: scaleX(-1); }
+
+.drill-word-preview-label { font-family: var(--font-sans); font-size: var(--type-meta); }
+.drill-word-cell:hover { outline: var(--border-width) solid currentColor; outline-offset: calc(-1 * var(--border-width)); }
+
+/* Capture stays visibly active between detected takes in live mode. */
+.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
+.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--danger-fill); }
+@keyframes drill-record-pulse {
+  0%, 100% { background: var(--danger-fill); }
+  50% { background: var(--danger-fill-hover); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drill-dock[data-phase="recording"] .drill-dock-button { animation: none; }
+}
+
+.drill-history-preview { direction: ltr; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); box-shadow: var(--shadow-recessed); border-radius: var(--radius-md); flex: none; }
+.drill-history-preview-rows { flex: 1; min-width: 0; height: calc(var(--touch-target) + var(--space-1)); display: flex; flex-direction: column; gap: var(--space-1); }
+.drill-history-preview-rows .drill-history-footer { display: none; }
+.drill-history-preview-rows .drill-word-grid { row-gap: var(--space-1); }
+
+.drill-history-expand { display: grid; place-items: center; flex: none; width: var(--touch-target); height: var(--touch-target); padding: 0; background: transparent; border: 0; box-shadow: none; color: var(--ink-3); border-radius: var(--radius-sm); }
+.drill-history-expand:hover { background: var(--field); color: var(--ink); }
+.drill-take-compact { height: calc(var(--touch-target) / 2); flex: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--type-meta); color: var(--ink-2); }
+
+.drill-word-flight { position: fixed; pointer-events: none; z-index: var(--z-popover); padding: var(--space-1) var(--space-2); background: var(--sheet); border: var(--border-width) solid currentColor; border-radius: var(--radius-sm); box-shadow: var(--shadow-floating); font-size: var(--type-body); }
+
+/* Reserve the same desktop card geometry from transcription through hydration.
+   Only content animates; history rows must never scale over the active card. */
+@media (width > 860px) {
+  .drill-history-entry[data-expanded] { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; animation: none; overflow: hidden; }
+  .drill-history-details { min-height: 0; overflow-y: auto; }
+  .drill-word-grid[data-arriving] .drill-history-entry:not([data-arrival]), .drill-history-entry.drill-take-arrival { animation: none; }
+  .drill-take-pending { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; overflow-y: auto; align-content: start; }
+}
+
+.drill-report-status { min-height: calc(var(--touch-target) / 2); }
+
+.drill-history-preview-rows .drill-word-row { height: calc(var(--touch-target) / 2); min-height: calc(var(--touch-target) / 2); }
 
 /* ── features/skills/skills.css ── */
 /* Skills page frame, toolbar, navigation and list view. Graph and inspector variants have separate owners. */

@@ -129,7 +129,7 @@ function Preview() {
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
           <div className="drill-actions">{(['tap', 'hold', 'live'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
         </PhraseRail>}
-        dock={<div className="drill-dock-pane">        <RecordDock phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
+        dock={<div className="drill-dock-pane">        <RecordDock direction={direction} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
           listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} liveSpectrum={firstVisit ? null : { data, endSeconds: 9 }}
           onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div>}
         report={      <aside className="drill-log" aria-label="Attempts">

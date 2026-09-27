@@ -51,7 +51,7 @@ const inspection: AudioInspection = {
 
 it('disables alignment without word timing and shows no timing error', () => {
   const { container } = render(view({ reference: inspection, attempt: inspection, attemptLabel: 'Take 1', timeScale: 'words' }))
-  expect(container.querySelectorAll('.audio-spectrum-cursor')[1]).toHaveStyle({ left: '0%' })
+  expect(container.querySelectorAll('.drill-track .audio-spectrum-cursor')[1]).toHaveStyle({ left: '0%' })
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
   expect(screen.getByRole('radio', { name: 'Fit' })).toHaveAttribute('aria-checked', 'true')
   expect(screen.queryByText(/Word timings unavailable/)).not.toBeInTheDocument()
@@ -70,11 +70,13 @@ it('aligns the word track, preserves playback, and resets the view when timing d
   fireEvent.click(screen.getByRole('radio', { name: 'Align words' }))
   expect(onTimeScale).toHaveBeenCalledWith('words')
   rerender(view({ ...props, timeScale: 'words', attemptTime: 2 }))
-  const cursor = container.querySelectorAll<HTMLElement>('.audio-spectrum-cursor')[1]
+  const cursor = container.querySelectorAll<HTMLElement>('.drill-track .audio-spectrum-cursor')[1]
   await waitFor(() => expect(parseFloat(cursor.style.left)).toBeCloseTo(40))
   await waitFor(() => expect(container.querySelectorAll('.drill-word-overlay')[1].firstElementChild).toHaveStyle({ left: '10%' }))
   expect(container.querySelectorAll('.drill-word-marker[data-outcome="same"]')).toHaveLength(2)
   expect(container.querySelector('.drill-word-slot')).toBeNull()
+  expect(screen.getByText(/Word-aligned display; playback uses original timing/)).not.toBeVisible()
+  fireEvent.click(screen.getAllByText('i')[0])
   expect(screen.getByText(/Word-aligned display; playback uses original timing/)).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
   expect(onPlayAttempt).toHaveBeenCalledOnce()
@@ -89,4 +91,27 @@ it('leaves uncertain recognition orange and never warps its timing', () => {
   const { container } = render(view({ reference: timed, attempt: timed, attemptLabel: 'Take 1', comparisonAccepted: false, timeScale: 'words' }))
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
   expect(container.querySelectorAll('.drill-word-marker[data-outcome="unknown"]')).toHaveLength(2)
+})
+
+
+it('opens narrow comparison controls in a native modal above the scrub surfaces', () => {
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', '') }
+  HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') }
+  const modal = vi.spyOn(HTMLDialogElement.prototype, 'showModal')
+  const onTimeScale = vi.fn(), onSeekReference = vi.fn(), onSeekAttempt = vi.fn()
+  const rendered = render(view({ reference: inspection, attempt: inspection, onTimeScale, onSeekReference, onSeekAttempt }))
+  fireEvent.click(screen.getByRole('button', { name: 'Comparison settings' }))
+  const dialog = screen.getByRole('dialog', { name: 'Comparison settings' })
+  expect(modal).toHaveBeenCalled()
+  expect(dialog).toHaveAttribute('open')
+  fireEvent.click(screen.getByRole('radio', { name: 'Same scale' }))
+  expect(onTimeScale).toHaveBeenCalledWith('shared')
+  expect(onSeekReference).not.toHaveBeenCalled()
+  expect(onSeekAttempt).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'Close Comparison settings' }))
+  expect(screen.queryByRole('dialog', { name: 'Comparison settings' })).toBeNull()
+  rendered.unmount()
+  media.mockRestore()
+  modal.mockRestore()
 })

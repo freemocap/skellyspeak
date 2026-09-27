@@ -128,7 +128,7 @@
    recording sits on the right. Text inside is turned back to read normally. */
 .drill-timelines[data-time="rtl"] .drill-track { transform: scaleX(-1); }
 .drill-timelines[data-time="rtl"] .drill-track :is(bdi, .inspection-frequency-scale span, .inspection-segment-mark span) { display: inline-block; transform: scaleX(-1); }
-.drill-comparison-foot { grid-row: 7; min-height: var(--space-10); display: grid; gap: var(--space-1); line-height: var(--leading-snug); color: var(--ink-3); font-size: var(--type-meta); }
+.drill-comparison-foot { position: absolute; inset-inline-end: var(--space-2); bottom: var(--space-2); z-index: var(--z-popover); display: grid; gap: var(--space-1); line-height: var(--leading-snug); color: var(--ink-3); font-size: var(--type-meta); }
 .drill-comparison-foot p { margin: 0; }
 
 /* The dock is a narrow panel of controls beside the live pair, not a strip above
@@ -138,25 +138,24 @@
    so each says so in words; colour repeats the sentence rather than carrying it
    alone. The panel column is a fixed width rather than max-content so that a long
    status line ellipsises instead of eating the stream. */
-.drill-dock { position: relative; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: var(--space-5) var(--space-7); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
+.drill-dock { position: relative; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: var(--space-5) var(--space-7); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); box-shadow: var(--shadow-surface); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
 .drill-dock-pane > .drill-dock { box-sizing: border-box; height: 100%; min-height: 14rem; align-content: stretch; }
-.drill-dock[data-phase="ready"] { border-color: var(--interaction-ink); box-shadow: var(--shadow-sm); }
+.drill-dock[data-phase="ready"] { border-color: var(--interaction-ink); }
 .drill-dock[data-phase="recording"] { background: var(--danger-tint); border-color: var(--danger-line); }
 .drill-dock[data-phase="working"] { background: var(--chrome); }
 .drill-dock-side { display: grid; grid-template-rows: minmax(var(--touch-target), 1fr) auto auto auto; gap: var(--space-2); min-width: 0; }
 /* Drill gives recording its own large control area. */
-.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: 0; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
+.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid var(--recording-accent); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
 .drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
 .drill-dock-button:disabled { opacity: 0.5; cursor: default; }
-.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); }
-.drill-dock[data-phase="recording"] .drill-dock-button:hover { background: var(--danger-fill-hover); }
 .drill-dock-copy { min-width: 0; display: grid; }
 .drill-dock-headline { margin: 0; overflow: hidden; font-size: var(--type-body); font-weight: var(--weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
 .drill-dock-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
 .drill-dock-detail { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 
 /* Native dialog supplies the scrim, elevation and inert background. */
-.drill-dock-settings { display: grid; place-items: center; min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; }
+.drill-dock-settings, .drill-media-options { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; width: var(--touch-target); height: var(--touch-target); min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; box-shadow: var(--shadow-sm); }
+.drill-dock-settings svg, .drill-media-options svg { display: block; flex: none; }
 .drill-dock-panel { display: grid; gap: var(--space-4); }
 .drill-dock-panel h2 { margin: 0; font-size: var(--type-title); }
 
@@ -170,7 +169,7 @@
    because the panel's head already says what the window is. */
 .drill-dock .live-recording { grid-template-rows: auto minmax(0, 1fr); gap: var(--space-1); }
 .drill-dock .live-recording-axis { display: none; }
-.drill-dock .live-recording-plots { display: grid; grid-template-rows: 48px minmax(0, 1fr); }
+.drill-dock .live-recording-plots { display: grid; grid-template-rows: var(--live-wave-height) minmax(0, 1fr); }
 .drill-dock .inspection-spectrogram { height: 100%; }
 
 
@@ -188,7 +187,7 @@
 /* Clearing the recent past: a quiet control that opens to explicit choices. */
 .drill-clear { flex: none; align-self: flex-end; font-size: var(--type-ui); }
 .drill-clear summary { color: var(--ink-2); cursor: pointer; }
-.drill-clear-panel { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); }
+.drill-clear-panel { display: grid; gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-3); background: var(--chrome); box-shadow: var(--shadow-menu); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); }
 .drill-clear-panel p { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 .drill-clear-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
@@ -276,7 +275,7 @@
 .drill-chip[data-tone="warning"] { background: var(--warning-tint); color: var(--warning-ink); }
 
 /* The selected take in full: its words, then what was measured. */
-.drill-inspection { display: grid; align-content: start; line-height: var(--leading-snug); gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-inspection { min-width: 0; grid-template-columns: minmax(0, 1fr); overflow-wrap: anywhere; display: grid; align-content: start; line-height: var(--leading-snug); gap: var(--space-2); padding: var(--space-2) var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
 .drill-inspection-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); }
 .drill-inspection-score { font-family: var(--font-mono); font-size: var(--type-body); font-weight: var(--weight-bold); color: var(--interaction-ink); }
 .drill-inspection-words { color: var(--ink-2); font-size: var(--type-meta); }
@@ -299,14 +298,14 @@
 .drill-word-pair[data-outcome="extra"] > span { background: var(--chip); border-color: var(--ink-3); border-bottom-style: dashed; }
 
 /* What was measured, you against the reference, one row per measure. */
-.drill-measures { line-height: var(--leading-snug); width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
-.drill-measures th, .drill-measures td { padding: 0 var(--space-2); text-align: start; white-space: nowrap; }
+.drill-measures { table-layout: fixed; line-height: var(--leading-snug); width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
+.drill-measures th, .drill-measures td { padding: 0 var(--space-2); text-align: start; white-space: normal; overflow-wrap: anywhere; }
 .drill-measures thead th { color: var(--ink-3); font-weight: var(--weight-semibold); border-bottom: var(--border-width) solid var(--line-soft); }
 .drill-measures tbody th { color: var(--ink-2); font-weight: var(--weight-medium); }
 .drill-measures td { font-family: var(--font-mono); color: var(--ink); }
 
 .drill-comparison { font-size: var(--type-ui); }
-.drill-comparison dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
+.drill-comparison dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-2) var(--space-5); margin: 0; }
 .drill-comparison dd { margin: 0; font-family: var(--font-mono); }
 
 /* Desktop retains its resizable columns; only the central stage scrolls. */
@@ -315,44 +314,50 @@
 .drill-stage > [role="alert"] { margin: 0; padding-block: var(--space-3); padding-inline-start: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
 .drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }
 
-/* Phone navigation and reports are disclosures, leaving the recording dock
-   outside the scrolling practice area. Its height follows content and zoom. */
+/* Narrow practice and history scroll above a persistent recording dock. */
 @media (max-width: 860px) {
-  .drill-page { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
+  .drill-page { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
   .drill-page .resize-handle, .drill-sheet .resize-handle { display: none; }
   .drill-phrase-bar { display: flex; gap: var(--space-2); }
   .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
   .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
-  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-title); }
+  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-ui); }
   [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
-  .drill-mobile-content { overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; gap: var(--space-2); }
+  .drill-mobile-content { flex: 1 1 0; overflow-y: auto; overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow-x: hidden; display: flex; flex-direction: column; gap: var(--space-2); }
   /* All practice content scrolls above the dock. A pinned reference can cover
      most of a short viewport and make lower reports impossible to inspect. */
-  .drill-stage:not(.drill-stage-alone) { display: flex; flex: 1 1 0; overflow: hidden; }
+  .drill-stage:not(.drill-stage-alone) { display: flex; flex: none; overflow: visible; }
   .drill-reference { display: contents; }
-  .drill-stage { overflow: hidden; }
+  .drill-stage { overflow: visible; }
   .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
   .drill-prepare-frame { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .drill-prepare-frame > * { min-height: 4.5rem; }
-  .drill-comparison-panel { padding: var(--space-2); }
+  .drill-stage > .drill-comparison-panel { flex: none; padding: 0; overflow: visible; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(8rem, 18dvh) minmax(8rem, 18dvh) auto; }
+  .drill-workspace-stacked { flex: none; overflow: visible; gap: var(--space-2); }
+  .drill-mobile-content .drill-word-grid { row-gap: var(--space-1); }
+  .drill-page .drill-attempts-pane { overflow: visible; height: auto; max-height: none; }
+  .drill-comparison-foot { min-height: 0; }
+  .drill-workspace-stacked .drill-phrase-bar { flex-wrap: nowrap; }
   .drill-timelines :is(.inspection-spectrogram, .drill-plot-frame) { height: 100%; min-height: 0; }
   .drill-media { flex-wrap: wrap; gap: var(--space-2); position: relative; }
   .drill-media-time { white-space: normal; flex-shrink: 1; }
   .drill-media .drill-seek { min-width: 3rem; width: 3rem; }
   .drill-play { min-height: var(--touch-target); }
   .drill-media-options { margin-inline-start: auto; }
-  .drill-media-options summary { min-width: var(--touch-target); min-height: var(--touch-target); display: grid; place-content: center; list-style: none; cursor: pointer; }
-  .drill-media-options summary::-webkit-details-marker { display: none; }
-  .drill-media-options > div { position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; gap: var(--space-2); padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
-  .drill-dock-pane { height: auto; min-height: 0; }
-  /* The panel folds to one column, and the controls take the two-row grid the
-     row itself used to have. */
-  .drill-dock { box-shadow: var(--shadow-surface); padding: var(--space-2); grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
-  .drill-dock-side { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: var(--space-2); }
-  .drill-dock-copy { grid-row: 1; grid-column: 1; }
+  .drill-dock-pane { height: auto; min-height: 0; max-height: none; overflow: visible; }
+  .drill-dock-pane > .drill-dock { min-height: 0; height: auto; }
+  .drill-dock .drill-recording-container { height: clamp(11rem, 25dvh, 16rem); padding: var(--space-1); }
+  /* The persistent capture surface sits above the compact, recessed history. */
+  .drill-dock { flex: none; z-index: var(--z-raised); box-shadow: var(--shadow-floating); border-width: var(--border-width-strong); border-color: var(--interaction-ink); padding: var(--space-6); grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+  .drill-dock-side { position: absolute; inset-inline: var(--space-6); top: var(--space-6); z-index: var(--z-raised); grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto; gap: var(--space-2); }
+  .drill-dock-copy { visibility: hidden; grid-row: 1; grid-column: 2; min-width: 0; }
+  .drill-dock-side > .drill-recording-controls { grid-row: 1; grid-column: 3; }
+  .drill-dock-counts { display: none; }
   .drill-dock-headline { font-size: var(--type-ui); }
-  .drill-dock .live-recording-plots > .inspection-plot { min-height: 64px; }
-  .drill-dock-button { grid-row: 2; grid-column: 1; height: var(--touch-target); }
+  .drill-dock .live-recording-plots > .inspection-plot { min-height: 0; }
+  .drill-dock .live-recording-head { display: none; }
+  .drill-dock .live-recording { grid-template-rows: minmax(0, 1fr); }
+  .drill-dock-button { grid-row: 1; grid-column: 1; height: var(--touch-target); }
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
   .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
@@ -408,17 +413,21 @@
 .drill-playback-speed select { padding-inline: var(--space-3); min-height: var(--touch-target); width: auto; font-size: var(--type-ui); }
 
 @media (max-width: 860px) {
-  .drill-reference > .drill-media { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; }
-  .drill-reference > .drill-media .drill-media-time { grid-column: 1 / -1; }
-  .drill-reference > .drill-media .drill-media-options { grid-column: 4; grid-row: 1; }
-  .drill-reference > .drill-media .drill-seek { width: 100%; min-width: 0; }
+  .drill-reference > .drill-media { grid-row: 2; }
+  .drill-reference > .drill-timelines > .drill-track { grid-row: 2; grid-column: 1; }
+  .drill-comparison-panel > .drill-timelines > .drill-track:not(.drill-axis) { grid-row: 3; grid-column: 1; }
+  .drill-comparison-panel .drill-media-take { grid-row: 3; margin: 0; padding-inline-end: var(--touch-target); }
+  .drill-comparison-panel .drill-media { grid-column: 1; align-self: end; align-items: center; padding-block: var(--space-1); display: flex; flex-wrap: nowrap; z-index: var(--z-raised); background: var(--sheet); border-radius: var(--radius-sm); gap: var(--space-2); }
+  .drill-comparison-panel .drill-media-time { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .drill-comparison-panel .drill-track > .inspection-plot { margin-bottom: calc(var(--touch-target) + 2 * var(--space-1)); }
+  .drill-axis { grid-row: 4; }
   .drill-playback-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
 /* Phrase selection floats over the workspace without changing its geometry. */
 .drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; gap: var(--space-2); padding-bottom: var(--space-2); }
 .drill-dock-modes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-.drill-recording-container { display: grid; min-width: 0; min-height: 0; padding: var(--space-3); background: var(--bg); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
+.drill-recording-container { display: grid; min-width: 0; min-height: 0; padding: var(--space-3); background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-md); }
 .drill-recording-container .live-recording-plots { min-height: 8rem; background: var(--spectrogram-low); }
 .drill-dock .inspection-plot { position: relative; min-height: 0; }
 .drill-dock .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; }
@@ -436,18 +445,16 @@
 @media (width > 860px) { .drill-media { flex-wrap: wrap; } }
 @media (max-width: 860px) {
   .drill-recording-container .live-recording-plots { min-height: 0; }
-  .drill-dock .live-recording-plots { grid-template-rows: auto; }
+  .drill-dock .live-recording-plots { grid-template-rows: var(--live-wave-height) minmax(0, 1fr); }
 }
 
-.drill-dropdown { position: absolute; inset-block-start: 100%; inset-inline-start: 0; z-index: var(--z-popover); width: min(32rem, 100%); max-height: 65dvh; overflow: auto; background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-menu); }
-.drill-dropdown .drill-rail { grid-template-rows: auto; border: 0; background: var(--sheet); }
 .drill-error-overlay { position: absolute; inset-block-start: 0; inset-inline: 0; z-index: var(--z-popover); pointer-events: none; }
 .drill-error-overlay > .error-notice { pointer-events: auto; margin: 0; padding: var(--space-3) var(--touch-target) var(--space-3) var(--space-4); background: var(--danger-tint); color: var(--danger-ink); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
 .drill-error-overlay p { margin: var(--space-1) 0; }
 .drill-unscored { margin-inline-start: auto; white-space: nowrap; display: flex; align-items: center; gap: var(--space-2); padding-block: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
 
 /* A transient copy connects native clip bounds to the stable comparison plot. */
-.drill-clip-flight { position: fixed; pointer-events: none; z-index: var(--z-popover); transform-origin: top left; }
+.drill-clip-flight { box-sizing: border-box; border: var(--border-width) solid var(--success-line); position: fixed; pointer-events: none; z-index: var(--z-popover); transform-origin: top left; }
 .drill-timelines .inspection-plot { min-height: 0; overflow: hidden; transition: width var(--dur-base) var(--ease-out); }
 
 .drill-timelines .drill-track:not(.drill-axis) { flex: 1 1 auto; }
@@ -460,10 +467,9 @@
 
 .drill-comparison-panel > .error-notice { position: absolute; inset: auto 0 0; z-index: var(--z-popover); }
 
-.drill-comparison-foot > details[open] { position: absolute; inset-inline: var(--space-3); bottom: var(--space-3); z-index: var(--z-popover); max-height: 70%; overflow: auto; padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
 
 /* Expanded words float over adjacent cells without shifting any history rows. */
-.drill-word-preview { position: fixed; width: max-content; box-sizing: border-box; z-index: var(--z-popover); pointer-events: none; padding: 0 var(--space-3); overflow-wrap: anywhere; font-family: var(--font-serif); font-size: var(--type-ui); line-height: var(--leading-normal); background: var(--chrome); color: var(--ink); border-bottom: var(--border-width-thick) solid var(--line); border-radius: var(--radius-xs); box-shadow: var(--shadow-floating); }
+.drill-word-preview { position: fixed; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: var(--space-2) var(--space-4); width: max-content; box-sizing: border-box; z-index: var(--z-popover); pointer-events: none; padding: var(--space-3) var(--space-4); overflow-wrap: anywhere; font-family: var(--font-serif); font-size: var(--type-body); line-height: var(--leading-normal); background: var(--chrome); color: var(--ink); border: var(--border-width) solid currentColor; border-radius: var(--radius-xs); box-shadow: var(--shadow-floating); }
 
 /* Keep both timing choices together when the media toolbar wraps. */
 .drill-timing-controls { display: flex; align-items: center; gap: var(--space-2); flex-wrap: nowrap; }
@@ -478,3 +484,68 @@
 .drill-auto-detect:has(input:disabled) { color: var(--ink-3); }
 @media (max-width: 860px) { .drill-recording-controls { grid-row: 1; grid-column: 2 / -1; } }
 
+
+.drill-info summary { display: grid; place-items: center; width: var(--touch-target); height: var(--touch-target); list-style: none; cursor: pointer; background: transparent; color: var(--ink-2); font-style: italic; }
+.drill-info summary > span { display: grid; place-items: center; box-sizing: border-box; width: var(--space-9); height: var(--space-9); border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); background: var(--sheet); }
+
+.drill-info summary::-webkit-details-marker { display: none; }
+.drill-info > div { position: absolute; inset-inline-end: 0; bottom: 100%; width: min(28rem, calc(100vw - var(--space-8))); max-height: 60dvh; overflow: auto; padding: var(--space-3); background: var(--sheet); color: var(--ink); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-floating); }
+.drill-history-collapse { display: block; margin-inline-start: auto; min-height: var(--touch-target); }
+
+.drill-comparison-settings { display: grid; gap: var(--space-4); }
+.drill-comparison-settings h2 { margin: 0; font-size: var(--type-title); }
+.drill-comparison-settings .drill-timing-controls { flex-wrap: wrap; }
+
+/* Playback is outlined; capture keeps the filled treatment. */
+.drill-target-card .speak-btn, .drill-media .drill-play { background: var(--sheet); border-color: var(--interaction-fill); color: var(--interaction-ink); }
+.drill-target-card .speak-btn:hover:not(:disabled), .drill-media .drill-play:hover:not(:disabled) { background: var(--field); border-color: var(--interaction-fill-hover); }
+
+.drill-dropdown-actions { padding: var(--space-2); border-top: var(--border-width) solid var(--line-soft); }
+
+.drill-playback-progress { position: relative; flex: 1 1 auto; min-width: 0; height: var(--touch-target); }
+.drill-playback-progress-track { position: absolute; inset: var(--space-1) 0; overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+.drill-playback-progress-track[data-time="rtl"] { transform: scaleX(-1); }
+.drill-playback-progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--interaction-tint); pointer-events: none; }
+.drill-playback-progress-time { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-playback-progress .audio-spectrum-cursor { width: var(--border-width); background: var(--interaction-ink); box-shadow: none; }
+
+/* The icon leads the label in playback direction; its triangle points that way. */
+.drill-play[dir="rtl"] > svg { transform: scaleX(-1); }
+
+.drill-word-preview-label { font-family: var(--font-sans); font-size: var(--type-meta); }
+.drill-word-cell:hover { outline: var(--border-width) solid currentColor; outline-offset: calc(-1 * var(--border-width)); }
+
+/* Capture stays visibly active between detected takes in live mode. */
+.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
+.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--danger-fill); }
+@keyframes drill-record-pulse {
+  0%, 100% { background: var(--danger-fill); }
+  50% { background: var(--danger-fill-hover); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drill-dock[data-phase="recording"] .drill-dock-button { animation: none; }
+}
+
+.drill-history-preview { direction: ltr; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); box-shadow: var(--shadow-recessed); border-radius: var(--radius-md); flex: none; }
+.drill-history-preview-rows { flex: 1; min-width: 0; height: calc(var(--touch-target) + var(--space-1)); display: flex; flex-direction: column; gap: var(--space-1); }
+.drill-history-preview-rows .drill-history-footer { display: none; }
+.drill-history-preview-rows .drill-word-grid { row-gap: var(--space-1); }
+
+.drill-history-expand { display: grid; place-items: center; flex: none; width: var(--touch-target); height: var(--touch-target); padding: 0; background: transparent; border: 0; box-shadow: none; color: var(--ink-3); border-radius: var(--radius-sm); }
+.drill-history-expand:hover { background: var(--field); color: var(--ink); }
+.drill-take-compact { height: calc(var(--touch-target) / 2); flex: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--type-meta); color: var(--ink-2); }
+
+.drill-word-flight { position: fixed; pointer-events: none; z-index: var(--z-popover); padding: var(--space-1) var(--space-2); background: var(--sheet); border: var(--border-width) solid currentColor; border-radius: var(--radius-sm); box-shadow: var(--shadow-floating); font-size: var(--type-body); }
+
+/* Reserve the same desktop card geometry from transcription through hydration.
+   Only content animates; history rows must never scale over the active card. */
+@media (width > 860px) {
+  .drill-history-entry[data-expanded] { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; animation: none; overflow: hidden; }
+  .drill-history-details { min-height: 0; overflow-y: auto; }
+  .drill-word-grid[data-arriving] .drill-history-entry:not([data-arrival]), .drill-history-entry.drill-take-arrival { animation: none; }
+  .drill-take-pending { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; overflow-y: auto; align-content: start; }
+}
+
+.drill-report-status { min-height: calc(var(--touch-target) / 2); }
+
+.drill-history-preview-rows .drill-word-row { height: calc(var(--touch-target) / 2); min-height: calc(var(--touch-target) / 2); }

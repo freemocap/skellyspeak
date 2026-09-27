@@ -1251,7 +1251,6 @@
   "Resize the report column": "Cambiar el ancho de la columna del informe",
   "Drag to resize; double-click to reset": "Arrastra para cambiar el tamaño; doble clic para restablecer",
   "Takes start above {value0}": "Las tomas empiezan por encima de {value0}",
-  "Full report": "Informe completo",
   "Comparison settings": "Ajustes de comparación",
   "Stop listening after silence of": "Dejar de escuchar tras un silencio de",
   "Not scored": "Sin puntuación",
@@ -1438,5 +1437,10 @@
   "Deletes the takes and their recordings for this drill target. This cannot be undone.": "Elimina las tomas y sus grabaciones de este objetivo de práctica. Esta acción no se puede deshacer.",
   "Sounds": "Sonidos",
   "Short": "Corto",
-  "Long": "Largo"
+  "Long": "Largo",
+  "Previous": "Anterior",
+  "Next": "Siguiente",
+  "Random target": "Objetivo aleatorio",
+  "AI": "IA",
+  "Seek attempt audio": "Buscar en el audio del intento"
 }

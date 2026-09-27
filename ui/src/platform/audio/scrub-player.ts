@@ -2,9 +2,12 @@ import workletUrl from './scrub-worklet.ts?worker&url'
 import type { ScrubCommand } from './scrub-worklet'
 import { interruptSpeech, registerSpeechPlayback, speechPlaybackPermit } from './speech'
 import { mediaError } from './media-error'
+import { createSpeechFollower, type SpeechFollowSource } from './speech-follow'
 
 /** Decode once; the audio thread owns the only read head and output stream. */
-export function createScrubPlayer(audio: string, onError: (error: unknown) => void) {
+export function createScrubPlayer(audio: string, onError: (error: unknown) => void, source?: SpeechFollowSource) {
+  const follower = createSpeechFollower(source)
+  let duration = 0
   let context: AudioContext | null = null
   let node: AudioWorkletNode | null = null
   let output: GainNode | null = null
@@ -14,6 +17,7 @@ export function createScrubPlayer(audio: string, onError: (error: unknown) => vo
   let permit: object | null = null
   const send = (command: ScrubCommand) => node?.port.postMessage(command)
   const end = () => {
+    follower.clear()
     active = false
     send({ type: 'stop' })
     if (output) output.gain.value = 0
@@ -37,6 +41,7 @@ export function createScrubPlayer(audio: string, onError: (error: unknown) => vo
         current.decodeAudioData(bytes.buffer), current.audioWorklet.addModule(workletUrl),
       ])
       if (disposed) return
+      duration = buffer.duration
       node = new AudioWorkletNode(current, 'skellyspeak-scrub', {
         numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [buffer.numberOfChannels],
       })
@@ -71,6 +76,7 @@ export function createScrubPlayer(audio: string, onError: (error: unknown) => vo
       const elapsed = Math.max(0, (stamp - timestamp) / 1000)
       position = seconds; timestamp = stamp
       send({ type: 'move', seconds, elapsed })
+      if (node) follower.update(seconds, duration)
     },
     end, setVolume,
     dispose: () => {

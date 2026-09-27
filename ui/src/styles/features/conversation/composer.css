@@ -110,3 +110,5 @@
 /* Optional guidance shares the composer surface and never overlays its controls. */
 
 .crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }
+
+.composer[data-editing] { background: var(--chrome); border: var(--border-width) solid var(--interaction-ink); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }

@@ -16,8 +16,9 @@ export function ReadingTools({ settings, defaultScope, onAsk, children }: { sett
   const services = useMemo<ReadingServices>(() => ({
     read: readSelection, saved: readSavedGloss, activity: readingActivity,
     // Reading tools show the receipt, never the audio it came with.
-    speak: (input, signal, onPlayback) => speakSelection(input, signal, onPlayback,
-      playback.current?.tts_rate ?? 1, (playback.current?.master_volume ?? 100) * (playback.current?.voice_volume ?? 100) / 10000)
+    speak: (input, signal, onPlayback, source) => speakSelection(input, signal, onPlayback,
+      playback.current?.tts_rate ?? 1, (playback.current?.master_volume ?? 100) * (playback.current?.voice_volume ?? 100) / 10000,
+      { followSource: source })
       .then(result => result.receipt),
   }), [])
   const reading = <ReadingHelp key={settings?.scope?.sessionId ?? "startup"} services={services} languages={settings || defaultScope ? languages() : []}>{children}</ReadingHelp>

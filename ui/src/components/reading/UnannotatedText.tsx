@@ -1,4 +1,5 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { SpeechFollowText } from './SpeechFollowText'
 import { useReadingActions, useReadingScope, type ReadingSelection } from './ReadingContext'
 import { languageFor } from '../../platform/ipc/tauri'
 import { readingWords, readingPassage } from '../../domain/reading/word-boundaries'
@@ -15,7 +16,7 @@ function ReadingWord({ text, selection }: { text: string; selection: ReadingSele
   const enter = () => { cancel(); if (!open) timer.current = setTimeout(() => setOpen(true), 300) }
   const leave = () => { cancel(); if (!pinned) timer.current = setTimeout(close, 200) }
   const toggle = () => { cancel(); if (pinned) close(); else { setPinned(true); setOpen(true) } }
-  return <><span ref={anchor} className="reading-word" role="button" tabIndex={0} aria-expanded={open}
+  return <><span data-speech-source ref={anchor} className="reading-word" role="button" tabIndex={0} aria-expanded={open}
     onPointerEnter={event => { if (event.pointerType === 'mouse') enter() }} onPointerLeave={leave}
     onPointerDown={cancel}
     onClick={event => {
@@ -34,8 +35,8 @@ export function UnannotatedText({ text, interactive = true, inline = false }: { 
   const scope = useReadingScope()
   const locale = scope ? languageFor(scope.language, scope.variety ?? undefined)?.languageTag : undefined
   const parts = useMemo(() => readingWords(text, locale).map(part => ({ ...part, selection: scope ? { ...readingPassage(text, part.start, part.end, locale), scope } : null })), [text, locale, scope])
-  if (!interactive || !actions || !scope) return <span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale}>{text}</span>
-  return <span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale} data-reading-language={scope.language} data-reading-variety={scope.variety ?? undefined}>{parts.map(part => part.word
+  if (!interactive || !actions || !scope) return <SpeechFollowText text={text}><span data-speech-source className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale}>{text}</span></SpeechFollowText>
+  return <SpeechFollowText text={text}><span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale} data-reading-language={scope.language} data-reading-variety={scope.variety ?? undefined}>{parts.map(part => part.word
     ? <ReadingWord key={part.start} text={text.slice(part.start, part.end)} selection={part.selection!} />
-    : <Fragment key={part.start}>{text.slice(part.start, part.end)}</Fragment>)}</span>
+    : <span data-speech-source key={part.start}>{text.slice(part.start, part.end)}</span>)}</span></SpeechFollowText>
 }
