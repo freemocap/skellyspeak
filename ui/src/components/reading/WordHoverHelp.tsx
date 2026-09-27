@@ -1,3 +1,4 @@
+import { DetailDialog } from '../dialogs/DetailDialog'
 import { ErrorNotice } from '../feedback/ErrorNotice'
 import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { errorMessage, errorDetails } from '../../platform/diagnostics/error-details'
@@ -60,6 +61,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
       .catch(error => { if (request.current === controller) setFailure(error) })
   }, [lookup, requestKey, selection.scope, selection.text])
   useLayoutEffect(() => {
+    if (layer.touch) return
     const card = helper.current, word = anchor.current
     if (!card || !word) return
     if (card.hasAttribute('popover')) card.showPopover()
@@ -78,9 +80,9 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
       document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', dismiss)
       if (card.isConnected && card.hasAttribute('popover')) card.hidePopover()
     }
-  }, [anchor, onClose])
+  }, [anchor, onClose, layer.touch])
   const parts = localParts.length ? localParts : result?.gloss?.segments.filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss') ?? []
-  return createPortal(<span ref={helper} popover={layer.touch ? undefined : "manual"} data-word-help-layer={layer.touch ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
+  const content = <span ref={helper} popover={layer.touch ? undefined : "manual"} data-word-help-layer={layer.touch ? "dialog" : undefined} className={layer.touch ? "saved-word-details reading-word-help" : "saved-word-help reading-word-help"} role="group" aria-label={tr('Word help')} data-reading-tools
     onPointerEnter={onEnter} onPointerLeave={() => { if (!pinned) onLeave() }} onClick={event => event.stopPropagation()}>
     <TokenAudio text={selection.text} start={selection.start} end={selection.end} />
     <SpeechFollowText text={selection.text.slice(selection.start, selection.end)} source={{ text: selection.text, start: selection.start }}><span data-speech-source className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span></SpeechFollowText>
@@ -89,5 +91,8 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     {failure != null && <ErrorNotice error={failure}>{errorMessage(failure)}<ResponseDetails value={errorDetails(failure)} /></ErrorNotice>}
     {(failure != null || result && !parts.length) && <button className="reading-help-action" onClick={() => setAttempt(value => value + 1)}>{tr('Retry word meanings')}</button>}
     <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr('Word help')}</button>
-  </span>, layer.host)
+  </span>
+  return layer.touch
+    ? <DetailDialog title={tr('Word help')} onClose={onClose}>{content}</DetailDialog>
+    : createPortal(content, layer.host)
 }

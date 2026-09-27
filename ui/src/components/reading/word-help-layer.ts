@@ -1,8 +1,7 @@
-/** Touch WebViews can composite top-layer popovers at the wrong viewport scale.
- * Keep touch helpers in the document's coordinate system, outside scroll clips.
- * Inside a modal they must stay in that modal's layer to remain interactive. */
+/** Touch word help uses the shared modal instead of WebView popover positioning.
+ * Desktop helpers keep their existing top-layer host. */
 export function wordHelpLayer(anchor: HTMLElement | null) {
-  const touch = anchor !== null && window.matchMedia('(pointer: coarse)').matches
+  const touch = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
   return { touch, host: anchor?.closest('dialog[open]') ?? document.body }
 }
 

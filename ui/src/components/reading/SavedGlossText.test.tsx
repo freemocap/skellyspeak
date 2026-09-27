@@ -85,7 +85,7 @@ it('does not substitute pronunciation for existing unsupported romanization', ()
   expect(help).not.toHaveTextContent(/Romanization|Pronunciation/)
 })
 
-it.each([false, true])('anchors first tap and expands all saved fields on second tap (mobile=%s)', mobile => {
+it.each([false, true])('opens full details on touch and retains desktop hover help (mobile=%s)', mobile => {
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({
     matches: mobile, addEventListener: vi.fn(), removeEventListener: vi.fn(),
   } as unknown as MediaQueryList)
@@ -100,12 +100,13 @@ it.each([false, true])('anchors first tap and expands all saved fields on second
     ]} />)
     const word = screen.getByRole('button', { name: 'الأكلة' })
     fireEvent.click(word)
-    const help = screen.getByRole('button', { name: 'Word help' })
-    if (mobile) expect(help.parentElement).not.toHaveAttribute('popover')
-    else expect(help.parentElement).toHaveAttribute('popover', 'manual')
-    expect(help.parentElement!.style.top).toBe('226px')
-    expect(screen.queryByRole('dialog')).toBeNull()
-    fireEvent.click(help)
+    if (!mobile) {
+      const help = screen.getByRole('button', { name: 'Word help' })
+      expect(help.parentElement).toHaveAttribute('popover', 'manual')
+      expect(help.parentElement!.style.top).toBe('226px')
+      expect(screen.queryByRole('dialog')).toBeNull()
+      fireEvent.click(help)
+    }
     const dialog = screen.getByRole('dialog', { name: 'Word help' })
     expect(view.container.querySelector('[popover]')).toBeNull()
     for (const value of ['the', 'dish', 'al-', 'aklah']) {
@@ -115,7 +116,7 @@ it.each([false, true])('anchors first tap and expands all saved fields on second
     expect(screen.queryByRole('dialog')).toBeNull()
     expect(word).toHaveFocus()
     fireEvent.keyDown(word, { key: 'Enter' })
-    fireEvent.keyDown(screen.getByRole('button', { name: 'Word help' }), { key: 'Enter' })
+    if (!mobile) fireEvent.keyDown(screen.getByRole('button', { name: 'Word help' }), { key: 'Enter' })
     expect(screen.getByRole('dialog', { name: 'Word help' })).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Close Word help' }))
     expect(screen.queryByRole('dialog')).toBeNull()

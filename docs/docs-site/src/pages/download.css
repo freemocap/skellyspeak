@@ -13,8 +13,6 @@
   --accent-teal: #46807f;
 }
 .skellyspeak-download p { margin: 0; }
-.dl-prealpha { padding: .8rem 0; background: #f0c674; color: #30230c; border-bottom: 1px solid #b68b3e; font-size: .85rem; line-height: 1.5; }
-.dl-prealpha strong { font-weight: 700; }
 .skellyspeak-download .dl-access { margin-bottom: 1rem; color: var(--text-secondary); font-size: .85rem; line-height: 1.6; }
 .skellyspeak-download a { color: var(--accent-teal); }
 .skellyspeak-download .dl-container { margin: 0 auto; padding: 0 20px; width: 100%; }

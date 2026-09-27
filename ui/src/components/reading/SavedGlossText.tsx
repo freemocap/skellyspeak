@@ -87,6 +87,9 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     const hovering = hovered === segment.start && !open
     const toggle = () => {
       setHovered(null)
+      if (wordHelpLayer(hoveredWord.current).touch) {
+        setRevealed(new Set()); setExpanded(segment.start); return
+      }
       setRevealed(previous => {
       return previous.has(segment.start) ? new Set<number>() : new Set([segment.start])
     })

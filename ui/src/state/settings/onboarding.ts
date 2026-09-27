@@ -1,3 +1,4 @@
+import { useNavigationStore } from '../navigation/navigation'
 import { create } from 'zustand'
 import type { Preferences } from '../../generated/contracts'
 import { preferredUiLocale } from '../../domain/localization/preferred-locale'
@@ -5,6 +6,9 @@ import { readWorkspace } from '../../platform/ipc/workspace'
 import { deviceLanguages, updateOnboarding } from '../../platform/ipc/onboarding'
 import { getSettings, languages } from '../../platform/ipc/tauri'
 import { useSettingsStore } from './settings'
+
+// Temporarily disabled while the guided tour is revised. Language/access setup stays enabled.
+export const TOUR_ENABLED = false
 
 interface OnboardingState {
   preferences: Preferences | null
@@ -71,7 +75,9 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
           native_language: preferences.explanationLanguage, native_variety: preferences.explanationVarietyId,
         }, current)
         const saved = await updateOnboarding(fresh => ({ ...fresh, onboardingRequired: false,
-          onboardingLanguage: null, onboarding: skip ? 'skipped' : 'completed', onboardingHelp: true }))
+          onboardingLanguage: null, onboarding: skip ? 'skipped' : 'completed', onboardingHelp: false }))
+        useNavigationStore.getState().showPage('guided')
+        useNavigationStore.getState().setPracticeView('chat')
         set({ preferences: saved })
       } finally { set({ busy: false }) }
     },

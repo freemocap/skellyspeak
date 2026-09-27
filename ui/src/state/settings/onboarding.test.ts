@@ -2,7 +2,8 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { DEFAULT_APPEARANCE, type Preferences, type Snapshot } from '../../generated/contracts'
 import { useOnboardingStore } from './onboarding'
 
-const mocks = vi.hoisted(() => ({ read: vi.fn(), update: vi.fn(), device: vi.fn(), refresh: vi.fn(), select: vi.fn(), save: vi.fn(), settings: vi.fn() }))
+const mocks = vi.hoisted(() => ({ read: vi.fn(), update: vi.fn(), device: vi.fn(), refresh: vi.fn(), select: vi.fn(), save: vi.fn(), settings: vi.fn(), practice: vi.fn(), page: vi.fn() }))
+vi.mock('../navigation/navigation', () => ({ useNavigationStore: { getState: () => ({ setPracticeView: mocks.practice, showPage: mocks.page }) } }))
 vi.mock('../../platform/ipc/workspace', () => ({ readWorkspace: mocks.read }))
 vi.mock('../../platform/ipc/onboarding', () => ({ updateOnboarding: mocks.update, deviceLanguages: mocks.device }))
 vi.mock('../../platform/ipc/tauri', () => ({
@@ -70,7 +71,9 @@ it('records skipping separately from optional help, and preserves unrelated pref
   expect(preferences.onboardingRequired).toBe(false)
   expect(preferences.onboardingLanguage).toBe(null)
   expect(preferences.onboarding).toBe('skipped')
-  expect(preferences.onboardingHelp).toBe(true)
+  expect(mocks.practice).toHaveBeenCalledWith('chat')
+  expect(mocks.page).toHaveBeenCalledWith('guided')
+  expect(preferences.onboardingHelp).toBe(false)
   await useOnboardingStore.getState().showHelp(false)
   expect(preferences.onboardingHelp).toBe(false)
   expect(preferences.myLanguages).toEqual(['spanish'])

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from '@docusaurus/Link';
 import Head from '@docusaurus/Head';
 import Layout from '@theme/Layout';
-import { architectureLabel, detectSystem, hintedArchitecture, installers, matchingInstallers, OS_LABELS, parseRelease, recommend, RELEASE_API, RELEASES_URL } from '../lib/downloads';
+import { architectureLabel, detectSystem, hintedArchitecture, installers, OS_LABELS, parseRelease, recommend, RELEASE_API, RELEASES_URL } from '../lib/downloads';
 import type { Architecture, ClientHints, Installer, OperatingSystem, Release, System } from '../lib/downloads';
 import './download.css';
 
@@ -54,10 +54,10 @@ export default function DownloadPage() {
         if (active && !manuallySelected.current) {
           const arch = hintedArchitecture(values);
           setSystem({ ...detected, arch });
-          setDetection(arch === 'unknown' ? 'Your browser does not report your processor. Compare the labeled downloads below.' : `Detected ${OS_LABELS[detected.os]} · ${architectureLabel(arch, detected.os)}.`);
+          setDetection(arch === 'unknown' ? 'Your browser does not report your processor. A suggested installer is shown; other processors are available below.' : `Detected ${OS_LABELS[detected.os]} · ${architectureLabel(arch, detected.os)}.`);
         }
       }).catch((error: unknown) => {
-        if (active && !manuallySelected.current) setDetection(`Processor detection failed: ${String(error)}. Choose your processor below.`);
+        if (active && !manuallySelected.current) setDetection(`Processor detection failed: ${String(error)}. A suggested installer is shown; other processors are available below.`);
       });
     }
     return () => { active = false; };
@@ -78,13 +78,11 @@ export default function DownloadPage() {
 
   const available = state.status === 'ready' ? installers(state.release) : [];
   const recommended = recommend(available, system);
-  const matching = matchingInstallers(available, system);
   const needsProcessor = ['macos', 'windows', 'linux'].includes(system.os) && system.arch === 'unknown';
-  const alternatives = matching.filter(item => item !== recommended);
+  const alternatives = available.filter(item => item.os === system.os && item !== recommended);
   const choices: { value: string; label: string }[] = [
     { value: 'windows:x64', label: 'Windows (x64)' },
     { value: 'windows:arm64', label: 'Windows (ARM64)' },
-    { value: 'macos:unknown', label: 'Mac (both processors)' },
     { value: 'macos:arm64', label: 'Mac (Apple Silicon)' },
     { value: 'macos:x64', label: 'Mac (Intel)' },
     { value: 'linux:x64', label: 'Linux x64' },
@@ -97,9 +95,6 @@ export default function DownloadPage() {
   return <Layout>
     <Head><title>Download SkellySpeak</title><meta name="description" content="Download SkellySpeak for desktop and Android. Choose your system and get the latest installer." /></Head>
     <main className="skellyspeak-download">
-      <aside className="dl-prealpha" aria-label="Pre-alpha notice">
-        <div className="dl-container"><strong>Pre-alpha — expect things to break.</strong> SkellySpeak is a new project in active development. You’re welcome to try it, but it probably won’t work reliably yet. Hosted login is limited to known parties at this time.</div>
-      </aside>
       <header className="dl-hero">
         <h1>Download SkellySpeak</h1>
         <p>A multilingual conversation tutor.</p>
@@ -107,7 +102,7 @@ export default function DownloadPage() {
       </header>
       <div className="dl-page"><div className="dl-container">
         <section className="dl-section-block" aria-labelledby="app-installer">
-          <p className="dl-access">For AI access, use our hosted login (limited to known parties at this time), or enter your own API keys for <strong>OpenRouter</strong> and <strong>Groq</strong> (G-R-O-Q, not G-R-O-K) in Settings.</p>
+          <p className="dl-access">Sign in with Google to use hosted access, or run your own local server and connect through Custom URL in Settings.</p>
           <p className="dl-access">Revisit this page on an Android phone to download the APK. iPhone testing is limited to known parties at this time.</p>
           <div className="dl-section-header">
             <h2 className="dl-section-title" id="app-installer">App Installer</h2>
@@ -122,7 +117,7 @@ export default function DownloadPage() {
                     setSystem({ os, arch });
                     setDetection('Showing your selected system.');
                   }}>
-                    {!choices.some(choice => choice.value === selected) && <option value={selected}>{system.os === 'unknown' ? 'Choose your system' : `${OS_LABELS[system.os]} — choose processor`}</option>}
+                    {!choices.some(choice => choice.value === selected) && <option value={selected}>{system.os === 'unknown' ? 'Choose your system' : `${OS_LABELS[system.os]} — automatic recommendation`}</option>}
                     {choices.map(choice => <option key={choice.value} value={choice.value}>{choice.label}</option>)}
                   </select>
                 </label>
@@ -135,14 +130,14 @@ export default function DownloadPage() {
             {state.status === 'ready' && <>
               {system.os === 'ios' ? <div className="dl-section-details-content"><p>iPhone testing is limited to known parties at this time. Install through your TestFlight invitation. The release IPA is not a direct-install download.</p><Link to="/docs/platforms#ios">iOS distribution details →</Link></div>
                 : <>
-                  {needsProcessor && <div className="dl-no-detect" role="status"><p>Both processor options are shown until your processor is detected or selected. Check the labels below; neither architecture is recommended without that information.</p>{system.os === 'macos' && <p>Open Apple menu → <strong>About This Mac</strong>. Choose <strong>Mac (Intel)</strong> for an Intel processor, or <strong>Mac (Apple Silicon)</strong> for an Apple M-series chip.</p>}</div>}
+                  {needsProcessor && recommended && <p className="dl-no-detect">Suggested: {architectureLabel(recommended.arch, system.os)}. Your browser does not expose the processor; choose another installer below if needed.</p>}
                   {recommended && <div className="dl-downloads"><DownloadCard installer={recommended} primary /></div>}
-                  {!recommended && !needsProcessor && <p className="dl-no-detect">{system.os === 'unknown' ? 'Could not detect your OS. All available downloads are shown below with their system and processor labels.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
-                  {alternatives.length > 0 && <>
-                    {recommended && <div className="dl-alt-format-label">Also available for your system:</div>}
+                  {!recommended && <p className="dl-no-detect">{system.os === 'unknown' ? 'Could not detect your OS. All available downloads are shown below with their system and processor labels.' : `No matching installer for ${OS_LABELS[system.os]} in this release.`}</p>}
+                  {alternatives.length > 0 && <details className="dl-details">
+                    <summary className="dl-toggle">Other installers for {OS_LABELS[system.os]}</summary>
                     <div className="dl-downloads">{alternatives.map(installer => <DownloadCard key={installer.asset.name} installer={installer} primary={false} />)}</div>
-                  </>}
-                  {matching.length > 0 && <div className="dl-section-details-content">{matching.filter((installer, index) => matching.findIndex(item => item.format === installer.format) === index).map(installer => <InstallSteps key={installer.format} installer={installer} />)}</div>}
+                  </details>}
+                  {recommended && <div className="dl-section-details-content"><InstallSteps installer={recommended} /></div>}
                 </>}
             </>}
           </div>

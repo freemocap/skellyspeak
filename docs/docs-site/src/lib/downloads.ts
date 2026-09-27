@@ -96,8 +96,9 @@ export function matchingInstallers(available: Installer[], system: System): Inst
 
 export function recommend(available: Installer[], system: System): Installer | null {
   const formats: Installer['format'][] = ['EXE', 'DMG', 'AppImage', 'DEB', 'RPM', 'MSI', 'APK'];
-  return matchingInstallers(available, system)
-    .filter(item => system.os !== 'unknown' && (system.arch !== 'unknown' || item.arch === 'universal'))
+  const preferred = system.arch === 'unknown' ? { ...system, arch: system.os === 'macos' ? 'arm64' as const : 'x64' as const } : system;
+  return matchingInstallers(available, preferred)
+    .filter(item => system.os !== 'unknown' && (preferred.arch !== 'unknown' || item.arch === 'universal'))
     .sort((a, b) => formats.indexOf(a.format) - formats.indexOf(b.format))[0] ?? null;
 }
 
