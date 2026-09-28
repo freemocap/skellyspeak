@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
+import { useSyncExternalStore, type CSSProperties } from 'react'
 import type { ListeningTake, LiveSpectrogram } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
+import type { SpectrumFeed } from '../../domain/audio/spectrum-feed'
 import { useI18n } from '../localization/i18n'
 import { Spectrogram, SpectrogramFrequencyScale } from './Spectrogram'
 import { WaveformStrip } from './WaveformStrip'
@@ -26,7 +27,7 @@ export function LiveRecording({ source, spectrum, takes, active = true, directio
       {latest && <span key={latest.recordingId} className="live-cut-notice" role="status">{tr('Attempt {value0} clipped →', { value0: latest.number })}</span>}
     </div>
     <div className="live-recording-plots" style={{ '--live-wave-height': `${WAVE_HEIGHT}px` } as CSSProperties}>
-      <WaveformStrip mirrored={direction === "ltr"} source={source} height={WAVE_HEIGHT} timelineSeconds={seconds} endSeconds={spectrum?.endSeconds} />
+      <WaveformStrip source={source} height={WAVE_HEIGHT} timelineSeconds={seconds} endSeconds={spectrum?.endSeconds} />
       <div className="inspection-plot">{spectrum && <>
         <Spectrogram data={spectrum.data} duration={seconds} startSeconds={end - seconds} zoom={1} />
         <SpectrogramFrequencyScale data={spectrum.data} />
@@ -41,4 +42,15 @@ export function LiveRecording({ source, spectrum, takes, active = true, directio
     </div>
     <div className="live-recording-axis"><span>{tr('Last {value0} seconds', { value0: seconds })}</span><span>{tr('Now')}</span></div>
   </div>
+}
+
+const NO_TAKES: ListeningTake[] = []
+
+/** A single recording's stream, drawn from the recorder's spectrum feed. Only
+ * this subscribes, so the page around the recorder does not re-render per frame. */
+export function LiveRecordingFeed({ spectrum, source, direction }: {
+  spectrum: SpectrumFeed; source: WaveSource | null; direction?: 'ltr' | 'rtl'
+}) {
+  const data = useSyncExternalStore(spectrum.subscribe, spectrum.get)
+  return <LiveRecording source={source} spectrum={data} takes={NO_TAKES} direction={direction} />
 }

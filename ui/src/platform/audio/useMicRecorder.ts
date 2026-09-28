@@ -6,6 +6,7 @@ import { recordingPublished } from './recording-events'
 import { beginCapture, endCapture } from './speech'
 import type { LiveSpectrogram, ListeningMode, ListeningSettings, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
+import { createSpectrumFeed, mergeSpectrum } from '../../domain/audio/spectrum-feed'
 
 /** A stopped manual clip exists before capture delivery or transcription returns. */
 export interface PendingRecording {
@@ -31,8 +32,9 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
   const current = useRef(owner)
   current.current = owner
   const [lastTranscription, setLastTranscription] = useState<TranscriptionInspectionResult | null>(null)
-  const [liveSpectrum, setLiveSpectrum] = useState<LiveSpectrogram | null>(null)
-  const spectrumSnapshot = useRef<LiveSpectrogram | null>(null)
+  // Every recording shows its live spectrogram: a listening run reports it through its
+  // session, a single recording through its own analysis. Only the stream subscribes.
+  const [spectrum] = useState(createSpectrumFeed)
   const [listeningStatus, setListeningStatus] = useState<ListeningStatus | null>(null)
   const [pendingRecordings, setPendingRecordings] = useState<PendingRecording[]>([])
   const [failure, setFailure] = useState<unknown>(null)
@@ -80,7 +82,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     else if (!working.current) release()
   }, [release, stopNative])
   useEffect(() => () => cancel(), [ownerKey, cancel])
-  useEffect(() => { setRecording(false); setTranscribing(false); setWaveSource(null); setLastTranscription(null); setListeningStatus(null); setPendingRecordings([]); setLiveSpectrum(null); spectrumSnapshot.current = null; setFailure(null) }, [ownerKey])
+  useEffect(() => { setRecording(false); setTranscribing(false); setWaveSource(null); setLastTranscription(null); setListeningStatus(null); setPendingRecordings([]); spectrum.set(null); setFailure(null) }, [ownerKey, spectrum])
 
 
   // Drain native samples once into the copied time-axis renderer.
@@ -132,31 +134,26 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
 
   // Spectrogram computation can be slow. Never let it hold up take receipts.
   useEffect(() => {
-    if (!recording || !continuous.current) return
+    if (!recording) return
     let polling = false
     const timer = setInterval(() => {
       const recordingId = active.current
       if (!recordingId || polling) return
       polling = true
       void (async () => {
-        const spectrum = await invoke<LiveSpectrogram | null>('mic_listen_spectrogram', { recordingId, afterSeconds: spectrumSnapshot.current?.data.frameStartSeconds.at(-1) ?? null })
+        const afterSeconds = spectrum.get()?.data.frameStartSeconds.at(-1) ?? null
+        const next = continuous.current
+          ? await invoke<LiveSpectrogram | null>('mic_listen_spectrogram', { recordingId, afterSeconds })
+          : await invoke<LiveSpectrogram | null>('mic_spectrogram', { recordingId, afterSeconds })
         if (active.current !== recordingId) return
-        if (spectrum) {
-          const previous = spectrumSnapshot.current
-          const times = [...(previous?.data.frameStartSeconds ?? []), ...spectrum.data.frameStartSeconds]
-          const bins = [...(previous?.data.bins ?? []), ...spectrum.data.bins]
-          const first = times.findIndex(time => time + spectrum.data.windowSeconds >= spectrum.endSeconds - 12)
-          const merged = { ...spectrum, data: { ...spectrum.data, frameStartSeconds: times.slice(Math.max(0, first)), bins: bins.slice(Math.max(0, first)) } }
-          spectrumSnapshot.current = merged
-          setLiveSpectrum(merged)
-        }
+        if (next) spectrum.set(mergeSpectrum(spectrum.get(), next))
       })().catch(error => {
         if (active.current !== recordingId) return
         setFailure(error); reportFault('Microphone spectrum', error); cancel()
       }).finally(() => { polling = false })
     }, 50)
     return () => clearInterval(timer)
-  }, [recording, cancel])
+  }, [recording, cancel, spectrum])
 
   const toggleMic = useCallback(async () => {
     if (working.current) return
@@ -202,7 +199,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
         setStarting(true)
         const owner = current.current
         if (!owner) throw new Error('Open a conversation or a drill item before recording.')
-        setFailure(null); setListeningStatus(null); setLiveSpectrum(null); spectrumSnapshot.current = null; publications.current = 0
+        setFailure(null); setListeningStatus(null); spectrum.set(null); publications.current = 0
         const settings = listeningSettings.current
         continuous.current = settings !== undefined
         capture.current = beginCapture(() => {
@@ -224,8 +221,11 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
         }
         if (browserCapture) {
           try {
+            // A listening run hands native all of its audio; a single recording keeps its
+            // WAV and sends native copies only for the live spectrogram.
             const capture = await startBrowserRecording(error => { setFailure(error); reportFault('Microphone', error); cancel() }, settings
-              ? (samples, sampleRate, sequence) => invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence }) : undefined, browserDeviceId)
+              ? (samples, sampleRate, sequence) => invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence }) : undefined, browserDeviceId,
+              settings ? undefined : (samples, sampleRate, sequence) => invoke('mic_push', { recordingId, samples, sampleRate, sequence }))
             if (generation.current !== scope) { capture.cancel(); await stopNative(recordingId); return }
             browser.current = capture
           } catch (error) { await stopNative(recordingId); throw error }
@@ -248,7 +248,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
       if (!active.current) release()
       if (!continuous.current) setTranscribing(false)
     }
-  }, [ownerKey, cancel, release, stopNative])
+  }, [ownerKey, cancel, release, stopNative, spectrum])
 
   const stopMic = useCallback(async () => {
     if (active.current) await toggleMic()
@@ -268,5 +268,5 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     void invoke('mic_listen_tune', { recordingId, settings, ...(captureMode ? { captureMode } : {}) }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
   }, [])
 
-  return { starting, pendingRecordings, tune, liveSpectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, cancel }
+  return { starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, cancel }
 }

@@ -5,6 +5,7 @@ mod clip_capture;
 mod clip_trim;
 pub(crate) mod continuous;
 pub(crate) mod continuous_policy;
+mod live_view;
 pub(crate) mod microphone;
 pub(crate) mod owner;
 pub(crate) mod results;

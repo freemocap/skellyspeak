@@ -6,7 +6,7 @@ import { WaveformStrip } from './WaveformStrip'
 let now: number
 let frames: Map<number, FrameRequestCallback>
 let frameId: number
-const context = { save: vi.fn(), restore: vi.fn(), translate: vi.fn(), scale: vi.fn(), setTransform: vi.fn(), fillRect: vi.fn(), beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), stroke: vi.fn(), fillText: vi.fn() }
+const context = { setTransform: vi.fn(), fillRect: vi.fn(), beginPath: vi.fn(), moveTo: vi.fn(), lineTo: vi.fn(), stroke: vi.fn(), fillText: vi.fn() }
 beforeEach(() => {
   now = 0; frames = new Map(); frameId = 0
   vi.clearAllMocks()
@@ -21,7 +21,7 @@ beforeEach(() => {
   vi.stubGlobal('cancelAnimationFrame', vi.fn((id: number) => { frames.delete(id) }))
   // The strip paints with design tokens, and jsdom loads no stylesheet, so
   // declare the ones it reads.
-  for (const [name, value] of [['--interaction-ink', '#6f9bff'], ['--field', '#0c1420'], ['--ink-on-fill', '#ffffff'], ['--warning-ink', '#e6b357'], ['--ink', '#e8eef7']])
+  for (const [name, value] of [['--interaction-ink', '#6f9bff'], ['--field', '#0c1420'], ['--ink-on-fill', '#ffffff'], ['--recording-mark', '#f04a56']])
     document.documentElement.style.setProperty(name, value)
 })
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals() })
@@ -32,16 +32,17 @@ function advance(milliseconds: number) {
   act(() => { current.forEach(callback => callback(now)) })
 }
 
-it('polls without redrawing unchanged history, but updates the elapsed second', () => {
+it('polls without redrawing unchanged history and draws no text over the stream', () => {
   let reads = 0
   render(<WaveformStrip source={{ samplesPerSecond: 750, read: () => reads++ === 0 ? Array(7500).fill(0.25) : [] }} timelineSeconds={10} />)
   for (let i = 1; i < 60; i++) advance(i * 1000 / 60)
   expect(reads).toBe(60)
   expect(context.fillRect).toHaveBeenCalledTimes(1)
   expect(context.lineTo).toHaveBeenCalledTimes(591)
+  // The elapsed time is the voice panel's chip; a new second alone repaints nothing.
   advance(1000)
-  expect(context.fillRect).toHaveBeenCalledTimes(2)
-  expect(context.fillText).toHaveBeenLastCalledWith('● rec 1s', 6, 12)
+  expect(context.fillRect).toHaveBeenCalledTimes(1)
+  expect(context.fillText).not.toHaveBeenCalled()
   expect(frames.size).toBe(1)
 })
 
@@ -124,14 +125,6 @@ it.each([0, 0.0001])('keeps silence and very low noise near the center (%f)', le
   const waveY = context.lineTo.mock.calls[1]![1]
   expect(waveY).toBeGreaterThanOrEqual(22)
   expect(waveY).toBeLessThan(22.2)
-})
-
-it('counter-mirrors only the timer label inside an RTL live plot', () => {
-  render(<WaveformStrip source={{ samplesPerSecond: 750, read: () => [] }} mirrored />)
-  expect(context.translate).toHaveBeenCalledWith(590, 0)
-  expect(context.scale).toHaveBeenCalledWith(-1, 1)
-  expect(context.save).toHaveBeenCalledOnce()
-  expect(context.restore).toHaveBeenCalledOnce()
 })
 
 it('reserves the same waveform height before recording begins', () => {

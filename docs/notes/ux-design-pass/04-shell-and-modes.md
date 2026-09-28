@@ -1,8 +1,8 @@
 # Stage 4 — shell and modes
 
-Status: **Chat and Practice tabs and three widths agreed, 2026-09-27; not
-implemented;** step 3 of the [build plan](build-plan.md). The rest of Stage 4 is
-not started. Part of the [UX design pass](README.md). Findings S1–S6 are in the
+Status: **Chat and Practice tabs and three widths agreed, 2026-09-27;
+implemented in build step 3 (see [Implemented](#implemented-build-step-3)).** The
+rest of Stage 4 is not started. Part of the [UX design pass](README.md). Findings S1–S6 are in the
 README. Review page sections W, 1c, Va and Vb:
 `/tools/design-pass-preview.html#dp-tiers`. Practice was called Drill until the
 sixth review; the findings and current-state notes use the code's names.
@@ -85,3 +85,49 @@ In the build, the side panels are new containers for existing content: the
 coach panel holds today's Coach and Experience tabs unchanged (their content is
 Stage 2), and the cards panel holds today's phrase list with its delete action.
 Previous, Next and Random stay on the Practice stage.
+
+## Implemented (build step 3)
+
+2026-09-27, branch `ux-design-pass`, uncommitted.
+
+- **Width tiers.** `components/layout/useWidthTier.ts` returns `full` (above
+  860px), `compact` (401–860px) or `narrow` (400px and below). `useIsMobile` now
+  means “not full”, so existing phone behaviour covers Compact and Narrow. The style
+  checker allows the 400px breakpoint.
+- **Tabs.** `app/shell/ModeTabs.tsx` renders Chat and Practice at the top of the
+  window at Full and as the bottom tab bar in Compact and Narrow, in both places
+  (the bottom bar used to hide in Practice). Each tab carries its place's colour,
+  and the band under the top bar takes the colour of the place on screen
+  (`.app[data-place]`). The tabs are a navigation landmark (“Main navigation”)
+  with `aria-current`, rather than a tab list: they switch places, not panels
+  within a page.
+- **Top bar.** The Conversations button moved to the start of the chat header. The
+  theme toggle is gone from the bar; the theme is set in Settings → Appearance.
+  `PracticeSwitch.tsx` and the now-unused `useSystemDark.ts` are removed.
+- **Coach.** At Full, the open coach has a 2px coach-coloured edge facing the
+  conversation, and folds to an edge tab with the coach icon. In Compact and Narrow
+  a Coach button in the chat header opens it. It is a drawer from the inline end
+  in Compact and a sheet from the bottom in Narrow, over a scrim; the conversation
+  stays mounted underneath. The scrim, its close control, Escape and Android Back
+  close it.
+- **Cards.** At Full, Practice has a Cards panel beside the stage (today's card
+  list, delete and storage, plus Add cards), open by default and folding to an edge
+  tab with the count. It appears once there are cards. The toolbar's “Cards n / m”
+  button folds it. In Compact and Narrow the same button opens the cards as a
+  drawer from the inline start or a sheet from the bottom, through the shared
+  `DetailDialog` (new `placement` option). In step 4 Jon renamed the panel, the
+  toolbar button and Add cards to “Practice cards” and “Add practice cards”; one
+  card is still a “card”.
+- **Resizing (step 4).** Every divider shares one grip. Practice's stacked panes
+  (reference, attempt, attempt list, recording panel) and Chat's recording panel
+  resize vertically; see [voice input](voice-input.md#implemented-build-step-4).
+
+**Where this differs from the reviewed page:**
+
+- In Compact the coach opens from the header button, as in Narrow, rather than an
+  edge tab. An edge tab needs its own column beside the conversation, which costs
+  a phone about 30px of message width.
+- Add cards moved from the Practice toolbar into the Cards panel at Full, so it
+  appears once. Previous, Next and Random card stay in the toolbar.
+- The cards drawer and sheet have no heading of their own, as the dialog before
+  them had none.

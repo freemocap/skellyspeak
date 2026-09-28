@@ -7,16 +7,18 @@ import { PREVIEW_SETTINGS } from './preview-settings'
 import { TopBar } from '../src/app/shell/TopBar'
 import { useNavigationStore } from '../src/state/navigation/navigation'
 import { createRoot } from 'react-dom/client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { I18nProvider } from '../src/components/localization/i18n'
 import { RecordDock, type RecordMode } from '../src/features/drill/RecordDock'
 import { AttemptInspection } from '../src/features/drill/AttemptInspection'
 import { DrillComparison, type TimeDirection, type TimeScale } from '../src/features/drill/DrillComparison'
 import { AttemptRows } from '../src/features/drill/AttemptRows'
+import { MobileAttemptHistory } from '../src/features/drill/MobileAttemptHistory'
 import { ClearTakes } from '../src/features/drill/ClearTakes'
 import { CONTINUOUS_RECORDING_POLICY } from '../src/generated/contracts'
 import { DrillLayout } from '../src/features/drill/DrillLayout'
 import { PhraseRail } from '../src/features/drill/PhraseRail'
+import { ResizeHandle, useStoredSize } from '../src/components/layout/ResizeHandle'
 import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSettings, ListeningStatus, ListeningTake, WordComparison, WordOutcome } from '../src/generated/contracts'
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
@@ -109,6 +111,9 @@ function Preview() {
       offset += values.length; return values
     } }
   }, [])
+  // The same stored recording-panel height as the page, with its divider.
+  const [dockHeight, setDockHeight] = useStoredSize('drill-dock')
+  const dockPane = useRef<HTMLDivElement>(null)
   const takes: ListeningTake[] = [{ recordingId: 'take-8', number: 8, startSeconds: 2, endSeconds: 4, cutSeconds: 4.8, state: 'processing', failure: null }]
   const status: ListeningStatus = {
     recordingId: 'fixture', listening: true, speaking: level > -40, queued: 0, processing: true, completed: 7, failure: null, takes,
@@ -123,21 +128,25 @@ function Preview() {
   return <I18nProvider locale={locale}>
     <div className="app">
     <TopBar />
-    <div className="content"><div className="page-holder"><section className="drill-page">
-      <DrillLayout items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />} attempt={firstVisit ? null : attempt} rtl
+    <div className="content"><div className="page-holder"><section className="drill-page" style={{ '--drill-dock-height': dockHeight === null ? undefined : `${Math.round(dockHeight)}px` } as CSSProperties}>
+      <DrillLayout items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />}
+        dockResize={<ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={() => dockPane.current?.getBoundingClientRect().height ?? 0} onResize={setDockHeight} />} attempt={firstVisit ? null : attempt} rtl
         rail={<PhraseRail items={[phrase]} selectedId="fixture" busy={false} locked={false} onSelect={() => {}} onDelete={async () => {}}>
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
           <div className="drill-actions">{(['tap', 'hold', 'live'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
         </PhraseRail>}
-        dock={<div className="drill-dock-pane">        <RecordDock direction={direction} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
+        dock={<div className="drill-dock-pane" ref={dockPane}>        <RecordDock direction={direction} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
           listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} liveSpectrum={firstVisit ? null : { data, endSeconds: 9 }}
           onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div>}
-        report={      <aside className="drill-log" aria-label="Attempts">
+        // Stacked, the page shows its compact attempt strip; the full list opens from it.
+        report={<MobileAttemptHistory detail={id => <AttemptInspection attempt={attempts.find(entry => entry.id === id)!} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />}
+          preview={openAttempt => <AttemptRows attempts={attempts} selectedId={attempt.id} onSelect={id => { setSelected(id); openAttempt(id) }} rtl />}>
+      <aside className="drill-log" aria-label="Attempts">
         <ClearTakes disabled={false} onClear={() => {}} />
         <div className="drill-pane drill-attempts-pane">
           <AttemptRows attempts={attempts} selectedId={attempt.id} onSelect={setSelected} rtl renderDetails={take => <AttemptInspection attempt={take} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />} />
         </div>
-      </aside>}>
+      </aside></MobileAttemptHistory>}>
       <main className="drill-stage">
         <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
             <div className="message-actions"><button type="button" className="message-translate">Translate</button><button type="button" className="message-translate">Word by word</button><button type="button" className="message-translate">Analysis</button></div></div>}

@@ -11,6 +11,10 @@
   .split > .chat, .split > .break { border: 0; border-radius: var(--radius-xl); }
   .split > .chat { box-shadow: var(--shadow-surface), var(--surface-glow); }
   .split > .break { box-shadow: var(--shadow-recessed); }
+  /* The open coach carries the coach's colour on the edge that faces the conversation. */
+  .split > .break:not(.collapsed) { border-inline-start: var(--border-width-strong) solid var(--coach-mark); }
+  /* Folded, only its edge tab remains. */
+  .split > .break.collapsed { background: transparent; box-shadow: none; }
 }
 
 .stream {
@@ -58,6 +62,7 @@
 @media (max-width: 860px) {
   .chat { flex: 1 1 auto; min-height: 0; }
   .mobile-conversation {
+    position: relative;
     overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
@@ -81,16 +86,31 @@
   }
   .mobile-conversation .break { flex: 0 1 35%; overflow: hidden; min-height: 0; display: none; }
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
-  .mobile-conversation.mobile-coach > .chat { display: none; }
-  .mobile-conversation.mobile-coach .break { display: flex; flex: 1; min-height: 0; overflow-y: auto; }
-  /* A switch slides the incoming surface in from the side its tab sits on:
-     Coach from the end, Chat from the start. Opening the page does not slide. */
+  /* Compact: the coach is a drawer over the conversation from the inline end,
+     with the coach's colour on the edge that faces the conversation. The
+     conversation stays in place underneath the scrim. */
+  .mobile-conversation.mobile-coach .break {
+    position: absolute; inset-block: 0; inset-inline-end: 0; z-index: var(--z-drawer);
+    display: flex; width: min(24rem, 88%); min-height: 0; overflow-y: auto;
+    border-inline-start: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-drawer);
+  }
+  .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
+  /* Opening slides the drawer in from its edge; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
-  .mobile-conversation.surface-switched:not(.mobile-coach) > .chat { animation: surface-in-from-left var(--dur-slow) var(--ease-out); }
   .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }
-  .mobile-conversation.surface-switched:not(.mobile-coach) > .chat:dir(rtl) { animation-name: surface-in-from-right; }
+}
+
+/* Narrow: the coach is a sheet from the bottom, its colour on the top edge. */
+@media (max-width: 400px) {
+  .mobile-conversation.mobile-coach .break {
+    inset-block: auto 0; inset-inline: 0; width: auto; height: 85%;
+    border-inline-start: 0; border-top: var(--border-width-strong) solid var(--coach-mark);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+  .mobile-conversation.surface-switched.mobile-coach .break, .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-bottom; }
+  .mobile-coach .coach-collapse { transform: rotate(90deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mobile-conversation.surface-switched .break, .mobile-conversation.surface-switched > .chat { animation: none; }
+  .mobile-conversation.surface-switched .break { animation: none; }
 }

@@ -27,9 +27,13 @@ export function encodeRecording(buffer: AudioBuffer): Uint8Array {
   return bytes
 }
 
+type PcmSink = (samples: number[], sampleRate: number, sequence: number) => Promise<void>
+
 /** `deviceId` is the stored selection; null records from the system default.
- * A selected device that is gone fails instead of recording from another one. */
-export async function startBrowserRecording(onError: (error: unknown) => void, push?: (samples: number[], sampleRate: number, sequence: number) => Promise<void>, deviceId: string | null = null): Promise<BrowserRecording> {
+ * A selected device that is gone fails instead of recording from another one.
+ * `push` hands every sample to native instead of keeping a WAV; `analyse`
+ * receives ordered copies for the live spectrogram while the WAV keeps them. */
+export async function startBrowserRecording(onError: (error: unknown) => void, push?: PcmSink, deviceId: string | null = null, analyse?: PcmSink): Promise<BrowserRecording> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: deviceId === null ? true : { deviceId: { exact: deviceId } } }).catch((error: unknown) => {
     if (deviceId !== null && error instanceof Error && (error.name === 'OverconstrainedError' || error.name === 'NotFoundError')) {
       throw Object.assign(new Error('The selected microphone is not connected. Pick another one in Settings, or choose System default.'), { cause: error })
@@ -50,10 +54,12 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
   let length = 0
   const wave = new WaveBuffer(context.sampleRate)
   let delivery: PcmDelivery | undefined
+  let copies: PcmDelivery | undefined
   const cleanup = () => {
     if (stopped) return
     stopped = true
     delivery?.cancel()
+    copies?.cancel()
     clearTimeout(timer)
     stream.getTracks().forEach(track => track.stop())
     source?.disconnect()
@@ -62,6 +68,7 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
   }
   const fail = (error: unknown) => { if (stopped) return; cleanup(); rejectFinish?.(error as Error); onError(error) }
   if (push) delivery = new PcmDelivery(context.sampleRate, push, fail)
+  else if (analyse) copies = new PcmDelivery(context.sampleRate, analyse, fail)
   const cancel = () => { cleanup(); rejectFinish?.(new Error('Recording was cancelled.')) }
   try {
     await context.audioWorklet.addModule(recordingWorkletUrl)
@@ -82,6 +89,7 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
         delivery!.enqueue(samples)
         return
       }
+      copies?.enqueue(samples)
       length += samples.length
       if (length > context.sampleRate * 120) { fail(new Error('Recording exceeded two minutes.')); return }
       chunks.push(samples)

@@ -28,8 +28,10 @@ const STEP = 16
  * `grow` says which way enlarges the controlled pane: +1 when it lies before
  * the divider (left, or above), -1 when it lies after it. Horizontal movement
  * follows the reading direction, so a right-to-left interface mirrors it. */
-export function ResizeHandle({ label, axis, size, min, max, grow, measure, onResize }: {
+export function ResizeHandle({ label, axis, size, min, max, grow, measure, onResize, className }: {
   label: string
+  /** A placement variant, for a divider that takes its own row instead of overlapping its panes. */
+  className?: string
   axis: 'x' | 'y'
   size: number | null
   min: number
@@ -73,7 +75,7 @@ export function ResizeHandle({ label, axis, size, min, max, grow, measure, onRes
     onResize(clamp(next))
   }
 
-  return <div className="resize-handle" data-axis={axis} role="separator" tabIndex={0}
+  return <div className={className ? `resize-handle ${className}` : 'resize-handle'} data-axis={axis} role="separator" tabIndex={0}
     aria-label={label} title={tr("Drag to resize; double-click to reset")}
     aria-orientation={axis === 'x' ? 'vertical' : 'horizontal'}
     aria-valuemin={min} aria-valuemax={max} aria-valuenow={size === null ? undefined : Math.round(size)}

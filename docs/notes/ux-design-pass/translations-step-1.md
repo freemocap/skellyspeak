@@ -200,3 +200,27 @@ unchanged.
 | **Explain in** (was “My native language”, “Explanation language”, “Native language”) | لغة الشرح | Expliquer en | Erklärungssprache | 解释语言 | Explicar em | Explicar en |
 | **AI activity** (was “AI activity & tools”) | existing string, unchanged |  |  |  |  |  |
 | **AI activity view** (was “AI view mode”) | عرض نشاط الذكاء الاصطناعي | Vue de l’activité IA | Ansicht der KI-Aktivität | AI 活动视图 | Visualização da atividade de IA | Vista de la actividad de IA |
+
+## Added in step 4
+
+Drafts for native review, like the tables above. Plural labels for the list
+and panel became “Practice cards” at Jon's request; a single card stays “card”
+(Previous card, Next card, Random card, This card, “Card 1 / 2”). Removed: ““Detect
+attempts” applies to Auto mode.”, now shown by the control's place in the panel.
+
+| English (was) | Arabic | French | German | Mandarin | Portuguese | Spanish |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Type** (new) | كتابة | Écrire | Schreiben | 输入 | Digitar | Escribir |
+| **Press the microphone to start** (new) | اضغط على الميكروفون للبدء | Appuyez sur le micro pour commencer | Drücke auf das Mikrofon, um zu beginnen | 按下麦克风开始 | Pressione o microfone para começar | Pulsa el micrófono para empezar |
+| **Coming soon** (new) | قريبًا | Bientôt disponible | Demnächst verfügbar | 即将推出 | Em breve | Próximamente |
+| **Resize the reference** (new) | تغيير حجم المرجع | Redimensionner la référence | Referenzbereich anpassen | 调整参考区域大小 | Redimensionar a referência | Cambiar el tamaño de la referencia |
+| **Resize the attempt** (new) | تغيير حجم المحاولة | Redimensionner la tentative | Versuchsbereich anpassen | 调整尝试区域大小 | Redimensionar a tentativa | Cambiar el tamaño del intento |
+| **Practice cards** (was “Cards”) | بطاقات التدريب | Cartes d’entraînement | Übungskarten | 练习卡片 | Cartões de treino | Tarjetas de práctica |
+| **Add practice cards…** (was “Add cards…”) | إضافة بطاقات تدريب… | Ajouter des cartes d’entraînement… | Übungskarten hinzufügen… | 添加练习卡片… | Adicionar cartões de treino… | Añadir tarjetas de práctica… |
+| **Add practice cards** (was “Add cards”) | إضافة بطاقات تدريب | Ajouter des cartes d’entraînement | Übungskarten hinzufügen | 添加练习卡片 | Adicionar cartões de treino | Añadir tarjetas de práctica |
+| **Your practice cards** (was “Your cards”) | بطاقات تدريبك | Vos cartes d’entraînement | Deine Übungskarten | 你的练习卡片 | Seus cartões de treino | Tus tarjetas de práctica |
+| **Your saved practice cards. Select one to practise.** (was “Your saved cards. Select one to practise.”) | بطاقات تدريبك المحفوظة. اختر واحدة للتدريب. | Vos cartes d’entraînement enregistrées. Sélectionnez-en une pour vous entraîner. | Deine gespeicherten Übungskarten. Wähle eine zum Üben. | 你保存的练习卡片。选择一张开始练习。 | Seus cartões de treino salvos. Selecione um para praticar. | Tus tarjetas de práctica guardadas. Selecciona una para practicar. |
+| **Aim new practice cards at a recorded skill, or leave unset for general practice.** (was “Aim new cards at a recorded skill, or leave unset for general practice.”) | وجّه بطاقات التدريب الجديدة إلى مهارة مسجلة، أو اترك الخيار فارغًا للتدريب العام. | Orientez les nouvelles cartes d’entraînement vers une compétence enregistrée, ou laissez ce choix vide pour un entraînement général. | Richte neue Übungskarten auf eine erfasste Fähigkeit aus oder lasse die Auswahl für allgemeine Übungen leer. | 选择已记录的技能作为新练习卡片的重点，或留空进行一般练习。 | Direcione os novos cartões de treino a uma habilidade registrada ou deixe em branco para praticar em geral. | Orienta las nuevas tarjetas de práctica a una habilidad registrada o deja la opción vacía para una práctica general. |
+| **Ask for between {value0} and {value1} practice cards.** (was “Ask for between {value0} and {value1} cards.”) | اطلب بين {value0} و{value1} بطاقة تدريب. | Demandez entre {value0} et {value1} cartes d’entraînement. | Fordere zwischen {value0} und {value1} Übungskarten an. | 请要求 {value0} 到 {value1} 张练习卡片。 | Peça entre {value0} e {value1} cartões de treino. | Pide entre {value0} y {value1} tarjetas de práctica. |
+| **Asking for practice cards…** (was “Asking for cards…”) | جارٍ طلب بطاقات التدريب… | Demande de cartes d’entraînement… | Übungskarten werden angefordert… | 正在请求练习卡片… | Pedindo cartões de treino… | Pidiendo tarjetas de práctica… |
+| **Already in your practice cards** (was “Already in your cards”) | موجودة في بطاقات تدريبك | Déjà dans vos cartes d’entraînement | Bereits in deinen Übungskarten | 已在你的练习卡片中 | Já está nos seus cartões de treino | Ya está en tus tarjetas de práctica |

@@ -30,7 +30,8 @@ import { RewardPresentationProvider } from './progress/RewardPresentation'
 import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
 import { TurnReplyHelp } from './composer/TurnReplyHelp'
 import { useSkillNavigationStore } from '../../state/navigation/skill-navigation'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { openOverlay } from '../../domain/input/back'
 import { createContact as createContactRequest, executeAction, readWorkspace, nativeError } from '../../platform/ipc/workspace'
 import type { Settings } from '../../types'
 import type { PersonaDetails } from '../../generated/contracts'
@@ -48,7 +49,10 @@ import { useSessionStore } from '../../state/session/session'
 import type { MobileLocation } from '../../state/navigation/navigation'
 import { useMessageSpeech } from './speech/useMessageSpeech'
 import { comboFromEvent } from '../../domain/input/keyboard'
-import { WaveformStrip } from '../../components/media/WaveformStrip'
+import { LiveRecordingFeed } from '../../components/media/LiveRecording'
+import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
+import { useUiDirection } from '../../components/localization/useUiDirection'
+import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
 import { EditFeedback } from './coaching/EditFeedback'
 import { TurnView } from './messages/TurnView'
 import { LatestTurnActivity } from './messages/TurnActivityLine'
@@ -461,15 +465,44 @@ export default function ConversationPage({
   const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
   stopSpeechRef.current = () => { speech.stop(); interruptSpeech() }
   const toggleMic = () => { stopSpeechRef.current(); void mic.toggleMic() }
+  // Tap or Hold: in Hold the microphone records while the pad is held down.
+  const [voiceMode, setVoiceMode] = useState<'tap' | 'hold'>('tap')
+  const holdSession = useRef<{ ready: Promise<void>; released: boolean } | null>(null)
+  const holdStart = () => {
+    if (holdSession.current || mic.recording || mic.transcribing) return
+    stopSpeechRef.current()
+    holdSession.current = { ready: mic.toggleMic(), released: false }
+  }
+  const holdEnd = () => {
+    const session = holdSession.current
+    if (!session || session.released) return
+    session.released = true
+    void session.ready.then(async () => {
+      if (holdSession.current !== session) return
+      await mic.stopMic()
+      holdSession.current = null
+    })
+  }
   toggleMicRef.current = toggleMic
+  // The recording panel keeps the height the learner drags it to; the stream takes the rest.
+  const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
+  const uiDirection = useUiDirection()
 
   const aiBusy = replyActive
 
 
+  // In the compact and narrow layouts the coach covers the conversation as a
+  // drawer or a sheet: Back, Escape, the scrim and its close control fold it away.
+  const coachCovers = isMobile && mobileSurface === 'panel'
+  const closeCoach = useCallback(() => useNavigationStore.getState().openPractice('chat'), [])
   useEffect(() => {
-    if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
-  }, [isMobile, mobileSurface, panelTab])
-  // Chat and Coach slide only after the learner switches between them, not on first open.
+    if (!coachCovers) return
+    const release = openOverlay(closeCoach)
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeCoach() }
+    window.addEventListener('keydown', onKey)
+    return () => { release(); window.removeEventListener('keydown', onKey) }
+  }, [coachCovers, closeCoach])
+  // The coach slides in only after the learner opens it, not on first open of the page.
   const [surfaceSwitched, setSurfaceSwitched] = useState(false)
   const shownSurface = useRef(mobileSurface)
   useEffect(() => {
@@ -493,7 +526,10 @@ export default function ConversationPage({
     </ConversationErrorScope>
   )
   const chatComposer = (
-        <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}>
+        <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}
+          data-voice-sized={voiceHeight === null ? undefined : ""} style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as CSSProperties}>
+          <ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={voiceHeight} min={150} max={640}
+            measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           {editingTurnId !== null && (
             <div className="edit-banner">
               <span>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("✎ Editing your message — send to replace it")}</span>
@@ -513,9 +549,12 @@ export default function ConversationPage({
             <p>{nativeError(mic.failure)}</p>
             <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
           </ErrorNotice>}
-          {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
           {isMobile && replyHelp}
-          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
+          {/* The pad sits at the inline end, so new audio enters beside it. */}
+          <ComposerInput stream={mic.recording ? <LiveRecordingFeed source={mic.waveSource} spectrum={mic.spectrum} direction={uiDirection === 'rtl' ? 'ltr' : 'rtl'} /> : null}
+            mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
+            settings={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
+              onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguage?.endonym ?? ''}
             onInput={setInput} onSend={text => { void send(text) }}
@@ -528,7 +567,7 @@ export default function ConversationPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${coachCovers ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`}
     >
       <ChatHistory
         open={historyOpen}
@@ -543,9 +582,14 @@ export default function ConversationPage({
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
-        <ConversationHeader persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
+        <ConversationHeader leading={<button type="button" className="chat-conversations" aria-label={tr("Conversations")} title={tr("Conversations")}
+            aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}><ToolbarIcon name="menu" size={17} /></button>}
+          persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
           <div className="chat-heading-actions">
+          {/* In the compact and narrow layouts the coach opens from here, over the conversation. */}
+          {isMobile && <button type="button" className="chat-coach" aria-expanded={mobileSurface === 'panel'} onClick={() => openCoach()}>
+            <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button>}
           <XpChip chatId={currentChatId} />
           {/* The settings summary rides on the button that changes them; under the
               persona it invited a click that only offered persona choices. */}
@@ -628,13 +672,14 @@ export default function ConversationPage({
       {!isMobile && breakOpen && <PracticeDivider workspace={workspace} />}
 
       {isMobile && <div className="chat mobile-composer">{chatComposer}</div>}
+      {coachCovers && <div className="coach-scrim" aria-hidden="true" onClick={closeCoach} />}
 
       {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
       <section
         className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
         ref={breakRef}
       >
-        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>{tr("Coach")}</button>}
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}><ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
 
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
@@ -646,7 +691,7 @@ export default function ConversationPage({
           }} /></>}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
-          onCollapse={!isMobile ? toggleBreak : undefined}
+          onCollapse={isMobile ? closeCoach : toggleBreak}
           tab={panelTab}
           onTab={setPanelTab}
           autoSendDraft

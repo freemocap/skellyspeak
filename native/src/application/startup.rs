@@ -159,6 +159,8 @@ pub fn run() {
             crate::speech::recording::continuous::mic_listen_discard,
             crate::speech::recording::continuous::mic_listen_tune,
             voice::mic_wave,
+            voice::mic_spectrogram,
+            voice::mic_push,
             voice::mic_cancel,
             voice::mic_transcribe,
             voice::get_transcription_result,

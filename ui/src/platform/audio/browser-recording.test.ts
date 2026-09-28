@@ -98,6 +98,41 @@ it('streams ordered chunks without encoding a WAV and flushes acknowledged deliv
   } finally { vi.unstubAllGlobals() }
 })
 
+it('sends ordered copies for the live spectrogram and still finishes the whole WAV', async () => {
+  const { vi } = await import('vitest')
+  const { startBrowserRecording } = await import('./browser-recording')
+  let port!: { onmessage: ((event: { data: Float32Array | string }) => void) | null; postMessage: () => void; close: () => void }
+  const stop = vi.fn()
+  vi.stubGlobal('navigator', { mediaDevices: { getUserMedia: async () => ({ getTracks: () => [{ stop }] }) } })
+  vi.stubGlobal('AudioContext', class {
+    sampleRate = 48000; close = vi.fn(async () => {})
+    audioWorklet = { addModule: async () => {} }; resume = async () => {}
+    createMediaStreamSource = () => ({ connect() {}, disconnect() {} })
+    createBuffer = (_channels: number, length: number, sampleRate: number) => {
+      const data = new Float32Array(length)
+      return { length, sampleRate, duration: length / sampleRate, numberOfChannels: 1, getChannelData: () => data }
+    }
+  })
+  vi.stubGlobal('AudioWorkletNode', class {
+    port = { onmessage: null as typeof port.onmessage, postMessage: () => { this.port.onmessage?.({ data: 'finished' }) }, close() {} }
+    constructor() { port = this.port }
+    connect() {} disconnect() {}
+  })
+  try {
+    const analyse = vi.fn().mockResolvedValue(undefined)
+    const recording = await startBrowserRecording(vi.fn(), undefined, null, analyse)
+    // Copies go one request at a time; each acknowledgement lets the next chunk through.
+    port.onmessage!({ data: new Float32Array([.25]) })
+    await new Promise(resolve => setTimeout(resolve, 0))
+    port.onmessage!({ data: new Float32Array([-.5]) })
+    await new Promise(resolve => setTimeout(resolve, 0))
+    const bytes = Uint8Array.from(atob(await recording.finish()), char => char.charCodeAt(0))
+    expect([44, 46].map(offset => new DataView(bytes.buffer).getInt16(offset, true))).toEqual([Math.round(.25 * 32767), -16384])
+    expect(analyse.mock.calls).toEqual([[[.25], 48000, 0], [[-.5], 48000, 1]])
+    expect(stop).toHaveBeenCalledOnce()
+  } finally { vi.unstubAllGlobals() }
+})
+
 it('records from the selected browser device and refuses to substitute another one', async () => {
   const { vi } = await import('vitest')
   const { startBrowserRecording } = await import('./browser-recording')

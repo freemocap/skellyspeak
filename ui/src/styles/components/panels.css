@@ -12,12 +12,22 @@
 
 .detail-meta { color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-normal); }
 
-/* A draggable divider between two panes. The hit area is wider than the line
-   it draws, so it is easy to grab without taking visible space. */
+/* A draggable divider between two panes: a line across the boundary with a grip
+   in its middle, so it reads as something to drag. The hit area is wider than
+   what it draws and overlaps both panes, so it takes no layout space. */
 .resize-handle { position: relative; flex: none; z-index: var(--z-raised); touch-action: none; user-select: none; }
-.resize-handle[data-axis="x"] { width: var(--space-3); margin-inline: calc(var(--space-3) / -2); cursor: col-resize; }
-.resize-handle[data-axis="y"] { height: var(--space-3); margin-block: calc(var(--space-3) / -2); cursor: row-resize; }
-.resize-handle::after { content: ""; position: absolute; border-radius: var(--radius-pill); background: var(--line); transition: background var(--dur-fast) var(--ease-out); }
+.resize-handle[data-axis="x"] { width: var(--space-8); margin-inline: calc(var(--space-8) / -2); cursor: col-resize; }
+.resize-handle[data-axis="y"] { height: var(--space-8); margin-block: calc(var(--space-8) / -2); cursor: row-resize; }
+.resize-handle::before, .resize-handle::after { content: ""; position: absolute; border-radius: var(--radius-pill); transition: background var(--dur-fast) var(--ease-out); }
+.resize-handle::after { background: var(--line); }
+.resize-handle::before { z-index: var(--z-raised); background: var(--ink-3); }
 .resize-handle[data-axis="x"]::after { inset-block: 0; inset-inline-start: calc(50% - var(--space-hairline)); width: var(--border-width-thick); }
 .resize-handle[data-axis="y"]::after { inset-inline: 0; top: calc(50% - var(--space-hairline)); height: var(--border-width-thick); }
-.resize-handle:hover::after, .resize-handle:focus-visible::after, .resize-handle:active::after { background: var(--interaction-ink); }
+.resize-handle[data-axis="x"]::before { top: calc(50% - var(--space-12) / 2); inset-inline-start: calc(50% - var(--space-1)); width: var(--space-2); height: var(--space-12); }
+.resize-handle[data-axis="y"]::before { top: calc(50% - var(--space-1)); inset-inline-start: calc(50% - var(--space-12) / 2); width: var(--space-12); height: var(--space-2); }
+.resize-handle:hover::after, .resize-handle:focus-visible::after, .resize-handle:active::after,
+.resize-handle:hover::before, .resize-handle:focus-visible::before, .resize-handle:active::before { background: var(--interaction-ink); }
+@media (pointer: coarse) {
+  .resize-handle[data-axis="y"] { height: var(--space-11); margin-block: calc(var(--space-11) / -2); }
+  .resize-handle[data-axis="x"] { width: var(--space-11); margin-inline: calc(var(--space-11) / -2); }
+}

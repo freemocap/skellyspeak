@@ -1,8 +1,7 @@
-/* Composer layout and recording controls.
-   .field is the shared form-field base; .composer-input adds reading typography
-   and composer geometry. Input text uses body size with script scaling; the
-   learner reading-size multiplier applies to conversation content. Recording/stop
-   controls retain their distinct states. */
+/* Composer layout: the edit banner, the status line and the voice panel
+   (components/voice.css). .field is the shared form-field base; .composer-input
+   adds reading typography to the draft. Input text uses body size with script
+   scaling; the learner reading-size multiplier applies to conversation content. */
 .field.composer-input {
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
@@ -40,65 +39,14 @@
   cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
 }
 
-.crow { display: flex; flex-direction: column; gap: var(--space-2); margin-top: 0; padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4); background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); transition: border-color var(--dur-fast) var(--ease-out); }
-.crow:focus-within { border-color: var(--interaction-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--interaction-ink) 14%, transparent); }
-.composer-field-row { display: flex; align-items: flex-end; gap: var(--space-4); width: 100%; }
-.crow .field.composer-input { flex: 1; resize: none; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-height: var(--touch-target); max-height: 160px; padding: var(--space-2); line-height: var(--leading-normal); font-size: calc(var(--type-body) * var(--script-scale)); word-spacing: var(--word-spacing); }
-.composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin-top: var(--space-2); font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
-@media (max-width: 860px) { .composer-shortcuts { display: none; } }
-
-/* Record is the composer's primary action; Send is the quieter secondary one.
-   Its arrow keeps full opacity in both states — a disabled control is muted with
-   ink, not faded into the surface, and its outline stays crisp. */
-.send {
-  flex: none; width: var(--touch-target); height: var(--touch-target); border: var(--border-width) solid var(--line);
-  background: var(--field); color: var(--interaction-ink); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-title); border-radius: var(--radius-pill); min-height: var(--control-height-lg);
-}
-
-.send:disabled { color: var(--ink-3); cursor: default; }
-
-.send:not(:disabled):hover { border-color: var(--interaction-ink); }
-
-.mic {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
-  flex: none; min-width: 0; height: var(--touch-target); padding: 0 var(--space-9) 0 var(--space-7); border: 0;
-  background: var(--interaction-fill); color: var(--ink-on-fill); cursor: pointer; font-family: var(--font-sans); font-size: var(--type-body); font-weight: var(--weight-semibold); border-radius: var(--radius-pill); min-height: var(--control-height-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.mic:hover:not(:disabled) { background: var(--interaction-fill-hover); }
-
-/* Red means recording and nothing else: the microphone is blue until it records. */
-.mic.recording { background: var(--recording-fill); color: var(--ink-on-fill); box-shadow: 0 0 0 var(--space-2) var(--recording-glow); }
-
-.mic.recording:hover:not(:disabled) { background: var(--recording-fill); }
-
-.mic:disabled { opacity: 0.5; cursor: default; }
-
-.mic-cancel {
-  flex: none; width: 28px; height: 28px; border-radius: var(--radius-circle);
-  border: var(--border-width) solid var(--danger-line); background: var(--field); color: var(--danger-line);
-  cursor: pointer; font-size: var(--type-ui);
-}
-
-.mic-cancel:hover { background: var(--danger-line); color: var(--ink-on-fill); }
-
-.crow .mic-cancel {
-  width: auto;
-  min-height: 38px;
-  padding: 0 var(--space-4);
-  flex: none;
-  font-size: var(--type-ui);
-  color: var(--danger-ink);
-  border-color: var(--danger-ink);
-  border-radius: var(--radius-md);
-}
-
-.crow .mic-cancel:hover { background: var(--danger-ink); color: var(--ink-on-fill); }
-
-@media (pointer: coarse) { .crow .mic-cancel { min-height: var(--touch-target); } }
-
 .composer > .activity-indicator { margin-inline: var(--space-5); }
+
+/* The voice panel sits inside the composer's own padding and surface. */
+.composer-voice { padding: 0; background: transparent; }
+/* Dragged to a height, the recording panel gives the change to its face (the
+   stream or the draft) and the conversation above takes the rest. */
+.composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
+.composer[data-voice-sized] > .composer-voice > .voice-grid { grid-template-rows: minmax(4.75rem, 1fr) auto; }
 
 /* One fixed status line above the input: transcription, reply and follow-on
    AI work all report here, so their arrival never moves the input. */
@@ -107,9 +55,5 @@
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
 
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
-
-/* Optional guidance shares the composer surface and never overlays its controls. */
-
-.crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }
 
 .composer[data-editing] { background: var(--chrome); border: var(--border-width) solid var(--interaction-ink); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }

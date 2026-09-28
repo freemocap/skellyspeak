@@ -1,21 +1,9 @@
-import { useI18n } from '../../components/localization/i18n'
 import { useIsMobile } from '../../components/layout/useIsMobile'
-import { useNavigationStore } from '../../state/navigation/navigation'
-import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
+import { ModeTabs } from './ModeTabs'
 
-/** Narrow windows show one workspace surface at a time. */
+/** The compact and narrow layouts keep Chat and Practice in a tab bar at the
+ * bottom of the window, in both places; the coach opens from the chat itself. */
 export function MobileNav() {
-  const tr = useI18n()
-  const drilling = useNavigationStore(state => state.practiceView === 'drill' && state.page === 'guided')
-  const mode = useNavigationStore(state => state.mode)
-  const surface = useNavigationStore(state => state.mobileSurface)
-  const openPractice = useNavigationStore(state => state.openPractice)
   const isMobile = useIsMobile()
-  if (!isMobile || drilling) return null
-  return <nav className="mobile-nav" aria-label={tr("Main navigation")}>
-    {(['chat', 'panel'] as const).map(item => <button key={item} type="button"
-      className={`mobile-nav-item ${mode === 'practice' && surface === item ? 'active' : ''}`}
-      aria-current={mode === 'practice' && surface === item ? 'page' : undefined}
-      onClick={() => openPractice(item)}><ToolbarIcon name={item === 'chat' ? 'chat' : 'idea'} size={20} />{tr(item === 'chat' ? 'Chat' : 'Coach')}</button>)}
-  </nav>
+  return isMobile ? <ModeTabs placement="bottom" /> : null
 }

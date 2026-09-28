@@ -6,9 +6,10 @@ import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@te
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../../generated/contracts'
 import type { Settings } from '../../types'
+import { createSpectrumFeed, type SpectrumFeed } from '../../domain/audio/spectrum-feed'
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
-const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {} }))
+const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null }))
 const chrome = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc.invoke }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: ipc.fault }))
@@ -21,7 +22,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
   languageFor: (code: string) => code === 'english' ? { code: 'english', name: 'English', endonym: 'English' } : { code: 'spanish', name: 'Spanish', endonym: 'Español' },
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
-vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: false, transcribing: false, waveSource: null, toggleMic: vi.fn(), cancel: vi.fn() } } }))
+vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('./coaching/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'coaching' ? coachingContent : null }))
 vi.mock('./progress/RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('./progress/XpChip', () => ({ XpChip: () => null }))
@@ -31,6 +32,7 @@ import ConversationPage from './ConversationPage'
 import { useConversation } from './session/useConversation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
+import { useNavigationStore } from '../../state/navigation/navigation'
 
 const SETTINGS: Settings = {
   my_languages: [], target_varieties: {},
@@ -215,9 +217,65 @@ describe('native conversation ownership', () => {
   })
 })
 
+/** The draft opens from Type, or by itself once there is text in it. */
+async function draftField() {
+  const existing = screen.queryByPlaceholderText(/Write in/)
+  if (existing) return existing
+  fireEvent.click(await screen.findByRole('button', { name: 'Type' }))
+  return screen.getByPlaceholderText(/Write in/)
+}
 function page() {
   return <ConversationPage nativePicker={null} mobileSurface="chat" active />
 }
+it('opens the conversation list from the chat header and lets the coach cover the chat on phones', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  const onHistory = vi.fn()
+  useNavigationStore.getState().openPractice('panel')
+  const view = render(<ConversationPage nativePicker={null} mobileSurface="panel" active onHistoryOpenChange={onHistory} />)
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(snapshot()))
+  fireEvent.click(screen.getByRole('button', { name: 'Conversations' }))
+  expect(onHistory).toHaveBeenCalledWith(true)
+  // The coach opens from the header and covers the conversation, which stays mounted beneath it.
+  expect(screen.getByRole('button', { name: 'Coach' })).toHaveAttribute('aria-expanded', 'true')
+  expect(document.querySelector('.split.mobile-coach .coach-scrim')).not.toBeNull()
+  expect((await draftField())).toBeInTheDocument()
+  fireEvent.keyDown(window, { key: 'Escape' })
+  expect(useNavigationStore.getState().mobileSurface).toBe('chat')
+  view.unmount()
+  media.mockRestore()
+})
+it('keeps a dragged recording panel height and draws the live spectrogram while recording', async () => {
+  const fixture = (await import('../../../tools/spectrogram-fixture.json')).default[0].spectrogram
+  const feed = createSpectrumFeed()
+  feed.set({ endSeconds: 1, data: fixture } as never)
+  microphone.recording = true
+  microphone.spectrum = feed
+  try {
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot()))
+    // The stream is the same waveform-over-spectrogram as Practice.
+    const face = document.querySelector('.composer .voice-face')!
+    expect(face.querySelector('.live-recording')).not.toBeNull()
+    expect(face.querySelector('.inspection-spectrogram')).not.toBeNull()
+    // The divider above the panel sets its height and keeps it.
+    const divider = screen.getByRole('separator', { name: 'Resize the recording panel' })
+    const composer = divider.closest('.composer')!
+    expect(composer).not.toHaveAttribute('data-voice-sized')
+    fireEvent.keyDown(divider, { key: 'ArrowUp' })
+    expect(composer).toHaveAttribute('data-voice-sized')
+    expect((composer as HTMLElement).style.getPropertyValue('--chat-voice-height')).toBe('150px')
+    expect(localStorage.getItem('skellyspeak_pane_chat-voice')).toBe('150')
+    // Recording inspection opens from the message bubble, not a button above the panel.
+    expect(screen.queryByRole('button', { name: 'Inspect recording' })).toBeNull()
+    view.unmount()
+  } finally {
+    microphone.recording = false
+    microphone.spectrum = null
+  }
+})
+
 it('offers AI access settings alongside hosted sign-in on an unconfigured conversation', async () => {
   useSessionStore.setState({ connection: {
     route: 'custom', signedIn: false, email: '', revision: 1,
@@ -239,7 +297,7 @@ describe('native composer admission', () => {
     submit = () => pending.promise
     render(page())
     await waitFor(() => expect(watches).toHaveLength(1))
-    const composer = await screen.findByPlaceholderText(/Write in/)
+    const composer = await draftField()
     await user.click(composer)
     await user.type(composer, 'Hola, ¿cómo estás?')
     expect(composer).toHaveFocus()
@@ -260,7 +318,7 @@ describe('native composer admission', () => {
     submit = () => pending.promise
     render(page())
     await waitFor(() => expect(watches).toHaveLength(1))
-    const composer = await screen.findByPlaceholderText(/Write in/)
+    const composer = await draftField()
     fireEvent.change(composer, { target: { value: 'Earlier attempted message' } })
     fireEvent.click(screen.getByRole('button', { name: 'Send' }))
     await waitFor(() => expect(commands()).toHaveLength(1))
@@ -289,7 +347,7 @@ describe('native composer admission', () => {
     submit = () => pending.promise
     render(page())
     await waitFor(() => expect(watches).toHaveLength(1))
-    const composer = await screen.findByPlaceholderText(/Write in/)
+    const composer = await draftField()
     fireEvent.change(composer, { target: { value: 'Keep this unsent text' } })
     const button = screen.getByRole('button', { name: 'Send' })
     fireEvent.click(button)
@@ -311,7 +369,7 @@ it('auto-sends one native transcript and retains a later transcript while a repl
   chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
-  const input = await screen.findByPlaceholderText(/Write in/)
+  const input = await draftField()
   act(() => microphone.transcribe('Primera frase'))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toMatchObject({ kind: 'sendMessage', text: 'Primera frase' })
@@ -338,7 +396,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   expect(edit).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit and resend message' }))
-  const composer = screen.getByPlaceholderText(/Write in/)
+  const composer = (await draftField())
   expect(composer).toHaveValue('Yo fue ayer')
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
@@ -373,7 +431,7 @@ it('confirms native suffix scope and retains the edit draft after a stale admiss
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot(true)))
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
-  const composer = screen.getByPlaceholderText(/Write in/)
+  const composer = (await draftField())
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   expect(screen.getByRole('dialog', { name: 'Revise earlier message' })).toHaveTextContent('1 later conversation turns. Your edited message replaces the original; private coach history is kept.')
@@ -410,7 +468,7 @@ it.each(['resolve', 'reject'] as const)('ignores late revision %s after switchin
   await waitFor(() => expect(commands()).toHaveLength(1))
   await act(async () => newChat!())
   await waitFor(() => expect(watches.some(watch => watch.conversationId === 'b')).toBe(true))
-  const composer = screen.getByPlaceholderText(/Write in/)
+  const composer = (await draftField())
   fireEvent.change(composer, { target: { value: 'New conversation draft' } })
   await act(async () => outcome === 'resolve' ? pending.resolve({ actionId: 'revision', entityId: 'repair', revision: 41 }) : pending.reject(new Error('Old conversation failed')))
   expect(composer).toHaveValue('New conversation draft')
@@ -427,7 +485,7 @@ it('retains a repair draft after a genuine connection failure', async () => {
   await waitFor(() => expect(commands()).toHaveLength(1))
   fireEvent.click(await screen.findByText('⚠ Request failed'))
   expect(screen.getByText('The connection is unavailable.')).toBeVisible()
-  expect(screen.getByPlaceholderText(/Write in/)).toHaveValue('Yo fue ayer')
+  expect((await draftField())).toHaveValue('Yo fue ayer')
   expect(commands()).toHaveLength(1)
 })
 
@@ -437,7 +495,7 @@ it('clicks a topic to start a partner-first exchange while the composer remains 
   const value = snapshot('a', 41)
   value.topicChoices = [{ id: 'food', glyph: '☕', target: 'Ordering food', romanized: null, translation: 'Ordering food' }]
   await act(async () => watches[0].resolve(value))
-  expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
+  expect((await draftField())).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: /Ordering food/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: workspace.revision, configuration: { difficulty: 'beginner', varietyId: '', direction: { topic: { kind: 'builtin', id: 'food' }, timeReference: 'any', usePersonaDetails: true } }, message: null, input: null })
@@ -458,7 +516,7 @@ it('shows a failed partner start without blocking the composer', async () => {
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: workspace.revision, configuration: { difficulty: 'beginner', varietyId: '', direction: { topic: null, timeReference: 'any', usePersonaDetails: true } }, message: null, input: null })
   expect(await screen.findByRole('alert')).toHaveTextContent('This conversation already started.')
-  expect(screen.getByPlaceholderText(/Write in/)).toBeEnabled()
+  expect((await draftField())).toBeEnabled()
 })
 
 it('persists Show answer through the real handler and renders only the returned native correction', async () => {
@@ -583,7 +641,7 @@ it('captures tense and difficulty with the real first learner message', async ()
   fireEvent.click(screen.getByRole('button', { name: 'Past events' }))
   fireEvent.change(screen.getByRole('combobox', { name: 'Difficulty' }), { target: { value: 'absolute_zero' } })
   expect(commands()).toHaveLength(0)
-  fireEvent.change(screen.getByPlaceholderText(/Write in/), { target: { value: 'Comí arroz.' } })
+  fireEvent.change((await draftField()), { target: { value: 'Comí arroz.' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toMatchObject({ kind: 'startConversation', conversationId: 'a', message: 'Comí arroz.', input: { scaffold: false }, configuration: { difficulty: 'absolute_zero', direction: { topic: null, timeReference: 'past' } } })

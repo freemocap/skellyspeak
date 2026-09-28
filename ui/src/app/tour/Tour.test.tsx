@@ -42,7 +42,7 @@ it('opens on the map, with every view and its stop count pinned over its own dem
     await waitFor(() => expect(within(section).getAllByRole('button', { name: /^Stop \d/ })).toHaveLength(view === 'Chat' ? 9 : view === 'Practice' ? 6 : 4))
   }
   // Each view's own demo content is really mounted, not a stand-in graphic.
-  expect(within(screen.getByRole('group', { name: 'Chat' })).getByPlaceholderText('Write in Español…')).toBeInTheDocument()
+  expect(within(screen.getByRole('group', { name: 'Chat' })).getByLabelText('Record audio')).toBeInTheDocument()
 })
 
 it('a map number jumps straight to that stop, over the same demo', async () => {
@@ -58,7 +58,7 @@ it('Continue on the map starts Chat at its first stop', () => {
   render(<Tour />)
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }))
   expect(screen.getByRole('heading', { name: 'Tap a word' })).toBeInTheDocument()
-  expect(screen.getByPlaceholderText('Write in Español…')).toBeInTheDocument()
+  expect(screen.getByLabelText('Record audio')).toBeInTheDocument()
 })
 
 it('steps through a view with Continue and back to the map on the first stop', () => {

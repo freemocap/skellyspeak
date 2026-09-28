@@ -37,6 +37,9 @@ import { useAppShortcuts } from './shortcuts/useAppShortcuts'
 /// is copied into component state and nothing can go stale behind a store update.
 export function AppShell() {
   const page = useNavigationStore((state) => state.page)
+  // The place on screen colours the band under the top bar: Chat, Practice, or
+  // neither (the skill tree).
+  const place = useNavigationStore((state) => state.page === 'skills' ? 'skills' : state.practiceView === 'drill' ? 'practice' : 'chat')
   const languageInfo = useNavigationStore(state => state.languageInfo)
   const overlay = useNavigationStore((state) => state.overlay)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
@@ -86,7 +89,7 @@ export function AppShell() {
   if (onboarding?.onboardingRequired) return <I18nProvider locale={onboarding.interfaceLocale}><ReadingTools settings={settings} onAsk={null} defaultScope={{ language: onboarding.onboardingLanguage ?? 'english', variety: null, explanation: onboarding.explanationLanguage, explanationVariety: onboarding.explanationVarietyId }}><OnboardingSetup /></ReadingTools></I18nProvider>
 
   return (
-    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><div className="app">
+    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><div className="app" data-place={place}>
       <UpdateBanner />
 
       <TopBar />

@@ -109,12 +109,51 @@ Needs native work (deferred, see the README):
   transcript to the interface, route it to the draft or send it, and coordinate
   with partner speech: capture and playback are one authority, so read-aloud
   must pause listening.
-- **A10 Spectrogram and level meter in Chat.** These come from the listening
-  session. Chat gets them when it records through that session (manual capture
-  mode), which depends on A9 returning transcripts. Until then Chat shows the
-  waveform only.
+- **A10 Spectrogram and level meter in Chat.** *Spectrogram done 2026-09-27 at
+  Jon's request, by a different route than proposed here; see “Implemented”
+  below.* The level meter belongs to Auto, so it waits for Chat's Auto (A9).
 - **A11 Remember recorder settings** (mode, timing, auto-send placement) as
   learner preferences; today Drill's mode and timing are page state (A2).
+
+## Implemented (build step 4)
+
+Implemented 2026-09-27, uncommitted. Source:
+`ui/src/components/media/VoicePanel.tsx` and `ui/src/styles/components/voice.css`;
+Chat's `ComposerInput` and Practice's `RecordDock` render it. `useMicRecorder`
+still owns recording, and Practice keeps every control in the build plan's
+preserve list.
+
+- **Chat.** Type opens the draft; Enter sends and Shift+Enter adds a line (both
+  are tooltips now, not a hint row). Hold works in Chat. Recording settings holds
+  the microphone choice. While recording, the face shows the same `LiveRecording`
+  as Practice: the waveform over the spectrogram, a time chip and Discard
+  recording.
+- **Practice.** Timings moved into Recording settings. The session's counts
+  (“Attempt n · n queued · n ignored”) sit beside the attempt list.
+- **Chat's spectrogram (A10).** The proposal above was to move Chat onto the
+  listening session. That session trims silence, ignores short bursts and caps
+  takes at 30 seconds, so Chat's recording would have behaved differently. Instead,
+  a single recording keeps its own live analysis: the same `LiveAnalysis` a
+  listening run uses. Native `mic_spectrogram` analyses the desktop capture's new
+  samples when polled; on phones the browser recorder sends ordered copies with
+  `mic_push`. The recording, its WAV and transcription are unchanged. The
+  spectrum is a small external store (`domain/audio/spectrum-feed.ts`), so only
+  the stream re-renders per frame, not the chat page.
+- **Resizing (Jon's request).** One grip style for every divider
+  (`components/panels.css`). Chat's recording panel has a grip above it; a dragged
+  height goes to the face. Practice has a grip under the reference plot at every
+  width, one under the attempt plot when stacked, and the recording panel's grip
+  at every width. Stacked, the attempt list fills the space between the plots and
+  the recording panel and holds every take, scrolling, instead of stopping at two.
+  Heights are kept per device (`useStoredSize`); a double click resets one.
+- **Removed at Jon's request:** the unstyled “Inspect recording” button above the
+  Chat panel. The microphone icon on the message bubble opens the same inspector.
+- **Found in the browser and fixed:** hover masked the recording red after a
+  press, because the pointer is still over the pad; the waveform drew its own
+  “● rec” clock under the panel's time chip; the prompt showed while the pad was
+  disabled, and while recording before the stream arrived.
+- **Still to check:** a real recording in the desktop app (native capture feeding
+  the spectrogram), and phones.
 
 ## Review
 
@@ -138,6 +177,11 @@ Detect attempts, with today's recording settings.
 
 Decided 2026-09-27: Chat's Auto stays visible and shows “Coming soon” (fifth
 review). No open questions remain for this panel.
+
+2026-09-27, Jon, during step 4: Chat must show the spectrogram as well as the
+waveform; the recording panels, Practice's history and reference must resize
+vertically; the “Inspect recording” button above the Chat panel is vestigial. All
+made; see “Implemented” above.
 
 ## Words (decided 2026-09-27)
 

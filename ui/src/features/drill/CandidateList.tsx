@@ -53,7 +53,7 @@ export function CandidateList({ offered, added, adding, onKeep }: {
             {isAdded
               ? <span className="drill-chip" data-tone="success">{tr("Added")}</span>
               : candidate.verified.duplicate
-                ? <span className="drill-chip">{tr("Already in your cards")}</span>
+                ? <span className="drill-chip">{tr("Already in your practice cards")}</span>
                 : <button type="button" className="btn" disabled={adding} onClick={() => onKeep(entry)}
                   aria-label={tr("Keep “{value0}”", { value0: candidate.text })}>{tr("Keep")}</button>}
           </li>

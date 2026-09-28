@@ -1,9 +1,40 @@
 /* Drill: the phrase rail, the practice stage and the attempt log. The target
    card, spectrogram and waveform bring their own styles from shared components. */
 
-/* Three columns that fit the window: pick a phrase, practise it, read the
-   report. The middle column never scrolls at desktop sizes; the report may. */
-.drill-page { position: relative; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
+/* Columns that fit the window: the cards, the stage, the report. The stage
+   never scrolls at desktop sizes; the report may. The stage keeps the second
+   column whether or not there are cards to show beside it. */
+.drill-page { position: relative; width: 100%; min-width: 0; display: grid; grid-template-columns: auto minmax(0, 1fr) auto var(--drill-report-width); align-items: stretch; gap: var(--space-2); padding: var(--space-2); height: 100%; min-height: 0; box-sizing: border-box; }
+.drill-page > .drill-workspace { grid-column: 2; }
+
+/* Full width: the cards beside the stage, with Practice's colour on the edge
+   that faces it. Folded, an edge tab with the card count. */
+.drill-cards {
+  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--space-3); width: var(--drill-rail-width); min-height: 0; padding: var(--space-3);
+  background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-inline-end: var(--border-width-strong) solid var(--practice-mark);
+  border-radius: var(--radius-xl); box-shadow: var(--shadow-recessed);
+}
+.drill-cards-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.drill-cards-head h2 { display: inline-flex; align-items: center; gap: var(--space-3); margin: 0; font-size: var(--type-ui); color: var(--practice-ink); }
+.drill-cards-head svg { color: var(--practice-mark); }
+.drill-cards-fold { display: grid; place-items: center; width: var(--control-height-sm); height: var(--control-height-sm); padding: 0; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--practice-ink); cursor: pointer; }
+.drill-cards-fold:hover { background: var(--sheet); }
+.drill-cards-fold svg { transform: rotate(90deg); }
+.drill-cards-fold:dir(rtl) svg { transform: rotate(-90deg); }
+.drill-cards > .drill-rail { padding: 0; background: transparent; border: 0; }
+.drill-cards-edge {
+  align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-3);
+  border: var(--border-width) solid var(--line-soft); border-inline-end: var(--border-width-strong) solid var(--practice-mark); border-radius: var(--radius-lg);
+  background: var(--sheet); color: var(--ink-2); box-shadow: var(--shadow-sm); font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
+}
+.drill-cards-edge span:first-of-type { writing-mode: vertical-rl; }
+.drill-cards-edge svg { color: var(--practice-mark); }
+.drill-cards-edge:hover { color: var(--practice-ink); background: color-mix(in srgb, var(--practice-tint) 50%, var(--sheet)); }
+.drill-cards-count { font: var(--weight-medium) var(--type-meta) var(--font-mono); color: var(--ink-2); }
+/* Compact and narrow: the same cards as a drawer or a sheet, Practice's colour
+   on the edge that faces the stage. */
+.drill-cards-dialog.dialog-drawer { border-inline-end: var(--border-width-strong) solid var(--practice-mark); }
+.drill-cards-dialog.dialog-sheet { border-top: var(--border-width-strong) solid var(--practice-mark); }
 .drill-rail, .drill-log { min-height: 0; overflow-y: auto; }
 
 /* The rail: add a phrase, pick one, and the storage control kept out of the way. */
@@ -64,10 +95,22 @@
 .drill-stage { display: flex; flex-direction: column; gap: var(--space-2); min-height: 0; overflow: hidden; }
 .drill-stage-alone { grid-column: 1 / -1; }
 .drill-pane { min-height: 0; overflow: auto; }
-.drill-dock-pane { flex: none; height: var(--drill-dock-height); max-height: 45%; min-height: 12rem; overflow: hidden; }
+/* The recording panel keeps a dragged height; the stage above keeps at least room for the phrase and a plot. */
+.drill-dock-pane { flex: none; height: var(--drill-dock-height); max-height: calc(100% - 12rem); min-height: 12rem; overflow: hidden; }
+/* The recording pane holds the voice panel; its stream takes the height the pane is given. */
+.drill-dock-pane > .drill-voice { box-sizing: border-box; height: 100%; border-radius: var(--radius-lg); border: var(--border-width) solid var(--line-soft); }
+.drill-dock-pane .voice-grid { grid-template-rows: minmax(5.5rem, 1fr) auto; height: 100%; }
+/* The listening session's counts, beside the attempt list. */
+.drill-attempt-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
 .drill-attempts-pane { flex: none; height: auto; }
 .drill-stage > * { flex: none; }
-.drill-stage > .drill-comparison-panel { position: relative; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto minmax(0, 1fr) auto auto; gap: var(--space-2); padding: var(--space-3); background: transparent; border: 0; overflow: hidden; }
+/* Rows: phrase, reference controls, reference plot, its divider, attempt
+   controls, attempt plot, axis, notices. The reference keeps a dragged height;
+   the attempt takes what it leaves. */
+.drill-stage > .drill-comparison-panel { position: relative; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, var(--drill-reference-row)) auto auto minmax(0, 1fr) auto auto; gap: var(--space-2); padding: var(--space-3); background: transparent; border: 0; overflow: hidden; }
+/* Dividers between the plots take their own row, so they never cover a play control. */
+.drill-plot-resize { margin-block: 0; }
+.drill-attempt-resize { display: none; }
 /* The phrase sits in the same partner bubble as Chat, its reading aids inside
    it. It is what the page is for, so it is set well above reading size. */
 .drill-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
@@ -131,46 +174,15 @@
 .drill-comparison-foot { position: absolute; inset-inline-end: var(--space-2); bottom: var(--space-2); z-index: var(--z-popover); display: grid; gap: var(--space-1); line-height: var(--leading-snug); color: var(--ink-3); font-size: var(--type-meta); }
 .drill-comparison-foot p { margin: 0; }
 
-/* The dock is a narrow panel of controls beside the live pair, not a strip above
-   it: the controls keep a column of their own and the stream gets the rest, which
-   is what gives the log-mel room to be read instead of a 28px sliver. Tuning lives
-   in a panel that opens above it. The dock states differ in what the control does,
-   so each says so in words; colour repeats the sentence rather than carrying it
-   alone. The panel column is a fixed width rather than max-content so that a long
-   status line ellipsises instead of eating the stream. */
-.drill-dock { position: relative; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: var(--space-5) var(--space-7); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); box-shadow: var(--shadow-surface); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
-.drill-dock-pane > .drill-dock { box-sizing: border-box; height: 100%; min-height: 14rem; align-content: stretch; }
-.drill-dock[data-phase="ready"] { border-color: var(--interaction-ink); }
-.drill-dock[data-phase="recording"] { background: var(--recording-tint); border-color: var(--recording-line); }
-.drill-dock[data-phase="working"] { background: var(--chrome); }
-.drill-dock-side { display: grid; grid-template-rows: minmax(var(--touch-target), 1fr) auto auto auto; gap: var(--space-2); min-width: 0; }
-/* Drill gives recording its own large control area. */
-.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
-.drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
-.drill-dock-button:disabled { opacity: 0.5; cursor: default; }
-.drill-dock-copy { min-width: 0; display: grid; }
-.drill-dock-headline { margin: 0; overflow: hidden; font-size: var(--type-body); font-weight: var(--weight-semibold); text-overflow: ellipsis; white-space: nowrap; }
-.drill-dock-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
-.drill-dock-detail { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
 
 /* Native dialog supplies the scrim, elevation and inert background. */
-.drill-dock-settings, .drill-media-options { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; width: var(--touch-target); height: var(--touch-target); min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; box-shadow: var(--shadow-sm); }
-.drill-dock-settings svg, .drill-media-options svg { display: block; flex: none; }
-.drill-dock-panel { display: grid; gap: var(--space-4); }
-.drill-dock-panel h2 { margin: 0; font-size: var(--type-title); }
+.drill-media-options { display: inline-flex; align-items: center; justify-content: center; flex: none; box-sizing: border-box; width: var(--touch-target); height: var(--touch-target); min-width: var(--touch-target); min-height: var(--touch-target); padding: 0; box-shadow: var(--shadow-sm); }
+.drill-media-options svg { display: block; flex: none; }
 
 .drill-choice { display: grid; gap: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
 .drill-choice .drill-segmented { justify-self: start; }
 .drill-choice .drill-segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
 
-/* The live timeline: the waveform, and the log-mel beneath it taking whatever
-   height the panel has left. The mel keeps its frequency scale — a tall plot
-   with no labels is a texture, not a measurement. Only the clock row is dropped,
-   because the panel's head already says what the window is. */
-.drill-dock .live-recording { grid-template-rows: auto minmax(0, 1fr); gap: var(--space-1); }
-.drill-dock .live-recording-axis { display: none; }
-.drill-dock .live-recording-plots { display: grid; grid-template-rows: var(--live-wave-height) minmax(0, 1fr); }
-.drill-dock .inspection-spectrogram { height: 100%; }
 
 
 /* Level against the threshold a take must cross. */
@@ -317,7 +329,7 @@
 /* Narrow practice and history scroll above a persistent recording dock. */
 @media (max-width: 860px) {
   .drill-page { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
-  .drill-page .resize-handle, .drill-sheet .resize-handle { display: none; }
+  .drill-sheet .resize-handle { display: none; }
   .drill-phrase-bar { display: flex; gap: var(--space-2); }
   .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
   .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
@@ -332,7 +344,8 @@
   .drill-stage-alone { grid-column: auto; padding: var(--space-4); }
   .drill-prepare-frame { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .drill-prepare-frame > * { min-height: 4.5rem; }
-  .drill-stage > .drill-comparison-panel { flex: none; padding: 0; overflow: visible; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(8rem, 18dvh) minmax(8rem, 18dvh) auto; }
+  /* Stacked, each plot keeps its own dragged height: phrase, reference, divider, attempt, divider, axis. */
+  .drill-stage > .drill-comparison-panel { flex: none; padding: 0; overflow: visible; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto var(--drill-reference-row) auto var(--drill-attempt-row) auto auto; }
   .drill-workspace-stacked { flex: none; overflow: visible; gap: var(--space-2); }
   .drill-mobile-content .drill-word-grid { row-gap: var(--space-1); }
   .drill-page .drill-attempts-pane { overflow: visible; height: auto; max-height: none; }
@@ -344,20 +357,7 @@
   .drill-media .drill-seek { min-width: 3rem; width: 3rem; }
   .drill-play { min-height: var(--touch-target); }
   .drill-media-options { margin-inline-start: auto; }
-  .drill-dock-pane { height: auto; min-height: 0; max-height: none; overflow: visible; }
-  .drill-dock-pane > .drill-dock { min-height: 0; height: auto; }
-  .drill-dock .drill-recording-container { height: clamp(11rem, 25dvh, 16rem); padding: var(--space-1); }
-  /* The persistent capture surface sits above the compact, recessed history. */
-  .drill-dock { flex: none; z-index: var(--z-raised); box-shadow: var(--shadow-floating); border-width: var(--border-width-strong); border-color: var(--interaction-ink); padding: var(--space-6); grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
-  .drill-dock-side { position: absolute; inset-inline: var(--space-6); top: var(--space-6); z-index: var(--z-raised); grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: auto; gap: var(--space-2); }
-  .drill-dock-copy { visibility: hidden; grid-row: 1; grid-column: 2; min-width: 0; }
-  .drill-dock-side > .drill-recording-controls { grid-row: 1; grid-column: 3; }
-  .drill-dock-counts { display: none; }
-  .drill-dock-headline { font-size: var(--type-ui); }
-  .drill-dock .live-recording-plots > .inspection-plot { min-height: 0; }
-  .drill-dock .live-recording-head { display: none; }
-  .drill-dock .live-recording { grid-template-rows: minmax(0, 1fr); }
-  .drill-dock-button { grid-row: 1; grid-column: 1; height: var(--touch-target); }
+  .drill-dock-pane { height: var(--drill-dock-height); min-height: 0; max-height: 70dvh; overflow: visible; }
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
   .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
@@ -386,15 +386,6 @@
   .drill-remove, .drill-item, .drill-word-row, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
 }
 
-/* The Chat/Drill switch in the top bar: one surface replaces the other. It is
-   the largest control in the bar, centred, so the two surfaces read as peers. */
-.practice-switch { display: inline-flex; gap: var(--space-1); margin-inline: auto; padding: var(--space-1); background: var(--chip); border-radius: var(--radius-pill); }
-.practice-switch button { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height); padding: 0 var(--space-7); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-pill); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
-.practice-switch button:hover { color: var(--ink); }
-.practice-switch button[aria-pressed="true"] { background: var(--sheet); color: var(--interaction-ink); box-shadow: var(--shadow-sm); }
-
-@media (max-width: 860px) { .practice-switch button { padding-inline: var(--space-3); gap: var(--space-2); } }
-
 /* Compact progress shares the report calculations and plot. Recent takes select
    the existing comparison; the full word history stays in the report. */
 .drill-progress-compact { flex: none; }
@@ -405,32 +396,25 @@
 .drill-recent-takes button[aria-pressed=true] { border-color: var(--interaction-ink); background: var(--interaction-tint); }
 .drill-recent-takes button > span { color: var(--ink-3); }
 
-/* Recording modes remain distinct controls even when none is hovered. */
-.drill-dock-modes > .drill-segmented { padding: 0; gap: var(--space-1); background: transparent; }
-.drill-dock-modes > .drill-segmented button { padding-inline: var(--space-2); min-width: var(--touch-target); border: var(--border-width) solid var(--line); background: var(--sheet); }
-.drill-dock-modes > .drill-segmented button[aria-checked="true"] { background: var(--interaction-tint); color: var(--interaction-ink); border-color: var(--line); }
 .drill-playback-speed { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-meta); }
 .drill-playback-speed select { padding-inline: var(--space-3); min-height: var(--touch-target); width: auto; font-size: var(--type-ui); }
 
 @media (max-width: 860px) {
   .drill-reference > .drill-media { grid-row: 2; }
   .drill-reference > .drill-timelines > .drill-track { grid-row: 2; grid-column: 1; }
-  .drill-comparison-panel > .drill-timelines > .drill-track:not(.drill-axis) { grid-row: 3; grid-column: 1; }
-  .drill-comparison-panel .drill-media-take { grid-row: 3; margin: 0; padding-inline-end: var(--touch-target); }
+  .drill-reference-resize { grid-row: 3; grid-column: 1; }
+  .drill-comparison-panel > .drill-timelines > .drill-track:not(.drill-axis) { grid-row: 4; grid-column: 1; }
+  .drill-comparison-panel .drill-media-take { grid-row: 4; margin: 0; padding-inline-end: var(--touch-target); }
+  .drill-attempt-resize { display: block; grid-row: 5; grid-column: 1; }
   .drill-comparison-panel .drill-media { grid-column: 1; align-self: end; align-items: center; padding-block: var(--space-1); display: flex; flex-wrap: nowrap; z-index: var(--z-raised); background: var(--sheet); border-radius: var(--radius-sm); gap: var(--space-2); }
   .drill-comparison-panel .drill-media-time { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .drill-comparison-panel .drill-track > .inspection-plot { margin-bottom: calc(var(--touch-target) + 2 * var(--space-1)); }
-  .drill-axis { grid-row: 4; }
+  .drill-axis { grid-row: 6; }
   .drill-playback-speed > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
 /* Phrase selection floats over the workspace without changing its geometry. */
 .drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; gap: var(--space-2); padding-bottom: var(--space-2); }
-.drill-dock-modes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
-.drill-recording-container { display: grid; min-width: 0; min-height: 0; padding: var(--space-3); background: var(--bubble-learner-bg); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-md); }
-.drill-recording-container .live-recording-plots { min-height: 8rem; background: var(--spectrogram-low); }
-.drill-dock .inspection-plot { position: relative; min-height: 0; }
-.drill-dock .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; }
 /* Colored starts share one renderer, over the measured pixels. */
 .drill-word-overlay { animation: drill-words-arrive var(--dur-base) var(--ease-out); position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .drill-word-marker { position: absolute; top: 0; bottom: 0; border-left: var(--border-width) solid currentColor; color: var(--warning-line); }
@@ -444,8 +428,6 @@
 .drill-track > .drill-plot-frame { height: 100%; min-height: 0; }
 @media (width > 860px) { .drill-media { flex-wrap: wrap; } }
 @media (max-width: 860px) {
-  .drill-recording-container .live-recording-plots { min-height: 0; }
-  .drill-dock .live-recording-plots { grid-template-rows: var(--live-wave-height) minmax(0, 1fr); }
 }
 
 .drill-error-overlay { position: absolute; inset-block-start: 0; inset-inline: 0; z-index: var(--z-popover); pointer-events: none; }
@@ -479,10 +461,6 @@
 @media (prefers-reduced-motion: reduce) { .drill-history-entry[data-expanded] { animation: none; } }
 
 
-.drill-recording-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
-.drill-auto-detect { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-ui); }
-.drill-auto-detect:has(input:disabled) { color: var(--ink-3); }
-@media (max-width: 860px) { .drill-recording-controls { grid-row: 1; grid-column: 2 / -1; } }
 
 
 .drill-info summary { display: grid; place-items: center; width: var(--touch-target); height: var(--touch-target); list-style: none; cursor: pointer; background: transparent; color: var(--ink-2); font-style: italic; }
@@ -515,24 +493,16 @@
 .drill-word-preview-label { font-family: var(--font-sans); font-size: var(--type-meta); }
 .drill-word-cell:hover { outline: var(--border-width) solid currentColor; outline-offset: calc(-1 * var(--border-width)); }
 
-/* Capture stays visibly active between detected attempts in Auto: red with a
-   red outline and a glow that breathes. Red means recording and nothing else. */
-.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--recording-fill); border-color: var(--recording-mark); box-shadow: 0 0 0 var(--space-2) var(--recording-glow); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
-.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--recording-fill); }
-@keyframes drill-record-pulse {
-  0%, 100% { box-shadow: 0 0 0 var(--space-2) var(--recording-glow); }
-  50% { box-shadow: 0 0 0 var(--space-4) var(--recording-glow); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .drill-dock[data-phase="recording"] .drill-dock-button { animation: none; }
-}
 
-.drill-history-preview { direction: ltr; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); box-shadow: var(--shadow-recessed); border-radius: var(--radius-md); flex: none; }
-.drill-history-preview-rows { flex: 1; min-width: 0; height: calc(var(--touch-target) + var(--space-1)); display: flex; flex-direction: column; gap: var(--space-1); }
+/* Stacked, the attempt list fills the space between the attempt plot and the
+   recording panel, so dragging either divider resizes it; below two rows the
+   whole column scrolls instead. */
+.drill-history-preview { direction: ltr; display: flex; align-items: stretch; gap: var(--space-2); padding: var(--space-2); background: var(--chrome); box-shadow: var(--shadow-recessed); border-radius: var(--radius-md); flex: 1 1 0; min-height: calc(var(--touch-target) + var(--space-1) + 2 * var(--space-2)); box-sizing: border-box; }
+.drill-history-preview-rows { flex: 1; min-width: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-1); }
 .drill-history-preview-rows .drill-history-footer { display: none; }
 .drill-history-preview-rows .drill-word-grid { row-gap: var(--space-1); }
 
-.drill-history-expand { display: grid; place-items: center; flex: none; width: var(--touch-target); height: var(--touch-target); padding: 0; background: transparent; border: 0; box-shadow: none; color: var(--ink-3); border-radius: var(--radius-sm); }
+.drill-history-expand { display: grid; place-items: center; flex: none; align-self: center; width: var(--touch-target); height: var(--touch-target); padding: 0; background: transparent; border: 0; box-shadow: none; color: var(--ink-3); border-radius: var(--radius-sm); }
 .drill-history-expand:hover { background: var(--field); color: var(--ink); }
 .drill-take-compact { height: calc(var(--touch-target) / 2); flex: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--type-meta); color: var(--ink-2); }
 

@@ -14,7 +14,7 @@ it('sends with Enter while preserving Shift+Enter and IME composition', () => {
   fireEvent.keyDown(field, {key:'Enter'})
   expect(input.onSend).toHaveBeenCalledExactlyOnceWith('Hola')
 })
-it.each(['sending','recording','transcribing'] as const)('blocks keyboard and form sends during %s', state => {
+it.each(['sending','transcribing'] as const)('blocks keyboard and form sends during %s', state => {
   const input=props()
   render(<ComposerInput {...input} {...{[state]:true}} />)
   const field=screen.getByRole('textbox', {name:'Message'})
@@ -22,6 +22,30 @@ it.each(['sending','recording','transcribing'] as const)('blocks keyboard and fo
   fireEvent.submit(field.closest('form')!)
   expect(input.onSend).not.toHaveBeenCalled()
   expect(screen.getByRole('button',{name:'Send'})).toBeDisabled()
+})
+it('shows the stream instead of the draft while recording, and the draft again after', () => {
+  const input=props()
+  const view=render(<ComposerInput {...input} recording stream={<p>Live stream</p>} />)
+  expect(screen.getByText('Live stream')).toBeInTheDocument()
+  expect(screen.queryByRole('textbox', {name:'Message'})).toBeNull()
+  expect(screen.queryByRole('button', {name:'Send'})).toBeNull()
+  expect(screen.getByRole('button', {name:'Type'})).toBeDisabled()
+  view.rerender(<ComposerInput {...input} />)
+  expect(screen.getByRole('textbox', {name:'Message'})).toHaveValue('Hola')
+})
+it('opens an empty draft from Type and offers Chat Auto as coming soon', () => {
+  const input={...props(), input:''}
+  const onMode=vi.fn()
+  render(<ComposerInput {...input} onMode={onMode} />)
+  expect(screen.queryByRole('textbox', {name:'Message'})).toBeNull()
+  expect(screen.getByText('Press the microphone to start')).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', {name:'Type'}))
+  expect(screen.getByRole('textbox', {name:'Message'})).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('radio', {name:'Auto'}))
+  expect(screen.getByText('Coming soon')).toBeInTheDocument()
+  expect(onMode).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('radio', {name:'Hold to talk'}))
+  expect(onMode).toHaveBeenCalledExactlyOnceWith('hold')
 })
 it('retains distinct stop and discard controls without submitting the draft', () => {
   const input=props()

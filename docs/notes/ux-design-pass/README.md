@@ -203,13 +203,14 @@ internal and inspection views may keep technical terms.
 | One thread with a partner | conversation | chat (as a noun) |
 | The two tabs | **Chat**, **Practice** | Chat, Drill |
 | One thing you practise saying | **card** | drill target, target, phrase, line |
+| The list and panel of them | **Practice cards** (Jon, during step 4) | Cards |
 | The computer voice you copy | **reference** | target, example |
 | Each recording of you saying a card | **attempt** | take, recording |
 | How close an attempt came | match (“86% match”) | proposed |
 | The three ways to record | Tap, Hold, Auto | Tap to record, Hold to talk, Live |
 | Listening in Auto without making attempts | Detect attempts (off) | Auto detect takes |
 | Saving a chat line for practice | Add to Practice | Add to Drill |
-| Making new cards | Add cards | Add drill targets…, Add phrases |
+| Making new cards | Add practice cards | Add drill targets…, Add phrases, Add cards |
 | The language explanations use | Explain in | Explanation language, My native language |
 | Progress counters | XP, skills | experience, effort (kept inside the Progress report) |
 | The pop-ups that show XP earned | XP badges | XP cards (card now means a Practice card) |
@@ -269,8 +270,13 @@ seventh review):
 - **A9** Chat Auto (pause to finish) and hands-free talking: a listening take
   returns no transcript to the interface, and read-aloud must pause listening.
   See [voice input](voice-input.md).
-- **A10** Spectrogram and level meter in Chat come from the listening session;
-  Chat gets them once it records through that session, which depends on A9.
+- **A10** ~~Spectrogram and level meter in Chat come from the listening session;
+  Chat gets them once it records through that session, which depends on A9.~~
+  Spectrogram done 2026-09-27 at Jon's request: a single recording keeps its own
+  live analysis (`mic_spectrogram`, and `mic_push` copies on phones), so Chat's
+  recording and transcription are unchanged. See
+  [voice input](voice-input.md#implemented-build-step-4). The level meter belongs
+  to Auto and waits for A9.
 - **A11** Remember recorder settings (mode, timing) as learner preferences;
   generalises A2 to both surfaces.
 - **A12** The persona-generation prompt often writes persona details in the target
@@ -432,4 +438,21 @@ Made 2026-09-27 (seventh review):
   as the base palette with its own chip and track (T3), and the brand book. Found
   while doing it: recording borrowed the danger family, and the design system
   documented warm as the light theme. The preview's `vite` entry now attaches to
-  the running dev server instead of starting a second copy on port 1420. No commit.
+  the running dev server instead of starting a second copy on port 1420. Steps 1
+  and 2 committed by Jon.
+- 2026-09-27 — Step 3 implemented: width tiers, Chat and Practice tabs at the top
+  and bottom, the place band, Conversations in the chat header, the theme only in
+  Settings, the coach drawer and sheet on phones, and the Cards panel. Two
+  differences from the reviewed page, both recorded in
+  [Stage 4](04-shell-and-modes.md#implemented-build-step-3): the Compact coach opens
+  from the header button, and Add cards moved into the Cards panel. No commit.
+- 2026-09-27 — Step 4 implemented: one voice panel behind Chat's composer and
+  Practice's recorder. Jon's requests during the step were also made:
+  - “Practice cards” for the plural labels.
+  - The spectrogram in Chat. This took native work (A10), done without moving
+    Chat onto the listening session.
+  - Vertical resizing for Chat's recording panel and for Practice's reference,
+    attempt, attempt list and recording panel.
+  - The “Inspect recording” button above the Chat panel removed.
+  Details are in [voice input](voice-input.md#implemented-build-step-4); the
+  checks are in the build plan's step results. No commit.

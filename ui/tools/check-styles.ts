@@ -9,8 +9,9 @@ const manifest = "index.css";
 const tokens = "foundations/tokens.css";
 
 /// Media queries cannot read custom properties, so the breakpoint set lives
-/// here. A query on any other width or height fails the check.
-const BREAKPOINTS = { width: [380, 480, 600, 860], height: [550] };
+/// here. A query on any other width or height fails the check. 860 and 400
+/// are the width tiers (components/layout/useWidthTier.ts).
+const BREAKPOINTS = { width: [380, 400, 480, 600, 860], height: [550] };
 
 /// Runtime color data: the skill-domain palette and Rust-generated appearance
 /// defaults. Literal stylesheet colors still belong in tokens.css.

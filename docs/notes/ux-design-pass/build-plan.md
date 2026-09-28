@@ -1,8 +1,8 @@
 # Build plan — first batch
 
-Status: **agreed 2026-09-27; steps 1 and 2 implemented on branch
-`ux-design-pass`, uncommitted; step 3 next.** Part of the
-[UX design pass](README.md).
+Status: **agreed 2026-09-27; steps 1 and 2 committed on branch
+`ux-design-pass`; steps 3 and 4 implemented, uncommitted; step 5 next.** Part of
+the [UX design pass](README.md).
 
 The design decisions below are settled in the stage notes and the review page
 (`/tools/design-pass-preview.html`). This note turns them into ordered, reviewable
@@ -96,10 +96,14 @@ Each step is one reviewable change, verified before the next starts.
    “mobile” behaviour for Compact and Narrow; a 400px breakpoint in the style
    checker (A13); top and bottom tabs with the mode band; Conversations into the
    chat header and the theme toggle into Settings; one side-panel component holding
-   today's coach tabs and today's phrase list as cards.
+   today's coach tabs and today's phrase list as cards. *Implemented 2026-09-27;
+   see [Stage 4](04-shell-and-modes.md#implemented-build-step-3), including where it
+   differs from the reviewed page.*
 4. **Voice panel.** One component replacing the looks of `ComposerInput` and
    `RecordDock`; recording logic stays in `useMicRecorder`, and Practice keeps every
-   control listed above.
+   control listed above. *Implemented 2026-09-27, with Jon's requests during the
+   step (Chat spectrogram, resizable panes, the Inspect recording button removed);
+   see [voice input](voice-input.md#implemented-build-step-4).*
 5. **First run** (1a, 1b).
 6. **Conversation start** (1c). Partner facts on the card wait for A5; until then
    the card shows the name and avatar, as today.
@@ -156,3 +160,64 @@ and after for light and dark with no palette, cool and warm (only the intended
 changes); the chat microphone and the Practice record button measured idle and
 recording in light and dark; the Practice demo screenshot while recording; the
 review page reads the production tokens.
+
+**Step 3, shell, widths and side panels (2026-09-27).** Width tiers; Chat and
+Practice tabs at the top and at the bottom; the place colour on the top bar's band;
+Conversations in the chat header; the theme toggle only in Settings; the coach's
+edge, edge tab, drawer and sheet; the Cards panel, edge tab, drawer and sheet.
+Three strings that were no longer used were removed from all seven dictionaries
+(1,366 → 1,363 messages). Checks: `npm test` 1,382 passed, including new tests
+for the chat header's Conversations button, the phone coach and Escape, the top
+bar's tabs and the Cards panel; `npm run build`, `npm run localization:test`,
+`npm run localization:audit` (0 candidates), `npm run styles:check`,
+`npm run previews:check`, `npm run design-system:check` and the architecture tests
+passed. Browser: the conversation preview at 1120, 430 and 375px (tabs, band,
+header buttons, coach drawer and sheet opening and closing, folded edge tab); the
+Practice demo at full width (Cards panel), 430px (drawer) and 375px (sheet); the
+real app shell switching tabs and band colour.
+
+**Step 4, voice panel (2026-09-27).** One `VoicePanel` behind Chat's composer and
+Practice's recorder, as recorded in
+[voice input](voice-input.md#implemented-build-step-4), with Jon's requests during
+the step:
+
+- “Practice cards” for the plural labels; a single one stays “card”.
+- The spectrogram in Chat, from the recording's own live analysis. This adds two
+  native commands, `mic_spectrogram` and `mic_push`, plus `live_view.rs`.
+- Vertical resizing for Chat's recording panel and for Practice's reference,
+  attempt, attempt list and recording panel.
+- The “Inspect recording” button above the Chat panel removed.
+
+Strings: +5 and −1, giving 1,367 messages. Draft translations are listed in
+[translations-step-1.md](translations-step-1.md#added-in-step-4).
+
+UI checks: `npm test` 1,386 passed, including new tests for:
+
+- the grips and their stored heights;
+- the Chat stream with a spectrogram;
+- the single recording's spectrogram polling;
+- phone copies alongside the WAV;
+- the removed button.
+
+These also passed: `npm run build`, `npm run contracts`, `npm run localization:test`, `npm run localization:audit` (0 candidates), `npm run styles:check`, `npm run previews:check`, `npm run design-system:check` and the architecture tests.
+
+Native checks:
+
+- `cargo fmt --check` passed, and the new native tests pass.
+- `cargo test --lib`: 673 passed and 1 failed. The failure is
+  `practice_feedback::guidance_updates_reach_capture_without_erasing_experience`.
+  It copies every entry of `content/shared` and stops at an empty, untracked
+  folder, `content/shared/letter-inventories`; it is unrelated to this step.
+- `cargo clippy --lib --tests -D warnings` stops on an existing
+  `single_element_loop` in `configuration/latin_language_tests.rs`, and reports
+  nothing in this step's code.
+
+Browser:
+
+- The Chat fixture at 961 and 529px: the recording face (waveform over the
+  spectrogram), the red pad under hover, and dragging the grip.
+- The Practice fixture at 540px (stacked: three grips, and the attempt list
+  growing to all seven takes) and at 1280px (the reference and recording grips;
+  the attempt grip hidden).
+
+Not yet checked: a real recording in the desktop app, and phones.

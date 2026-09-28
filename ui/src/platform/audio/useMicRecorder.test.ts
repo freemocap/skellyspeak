@@ -22,6 +22,7 @@ beforeEach(() => {
   invoke.mockImplementation(async (command: string) => {
     if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 689 }
     if (command === 'mic_wave') return []
+    if (command === 'mic_spectrogram') return null
     if (command === 'mic_transcribe') return transcript
     if (command === 'mic_cancel') return
     throw new Error(`Unexpected native command: ${command}`)
@@ -32,6 +33,8 @@ it('uses browser capture when native requires it even with a desktop user agent'
   browserStart.mockResolvedValue(capture)
   invoke.mockImplementation(async (command: string) => {
     if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 750, browserCapture: true, browserDeviceId: 'usb-mic' }
+    if (command === 'mic_spectrogram') return null
+    if (command === 'mic_push') return
     if (command === 'mic_transcribe') return transcript
     throw new Error(`Unexpected native command: ${command}`)
   })
@@ -40,6 +43,10 @@ it('uses browser capture when native requires it even with a desktop user agent'
   expect(browserStart).toHaveBeenCalledOnce()
   expect(browserStart.mock.calls[0][2]).toBe('usb-mic')
   expect(result.current.waveSource).toBe(capture.wave)
+  // The WAV stays in the browser; native receives copies only for the live spectrogram.
+  expect(browserStart.mock.calls[0][1]).toBeUndefined()
+  await browserStart.mock.calls[0][3]([0.1, 0.2], 48000, 0)
+  expect(invoke).toHaveBeenCalledWith('mic_push', { recordingId: 'fixture-recording', samples: [0.1, 0.2], sampleRate: 48000, sequence: 0 })
   await act(async () => { await result.current.toggleMic() })
   expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording', audioBase64: 'wav-base64' })
 })
@@ -114,7 +121,7 @@ it('uses the native waveform rate and drains each sample once', async () => {
   const { result } = setup()
   await act(async () => { await result.current.toggleMic() })
   expect(result.current.waveSource?.samplesPerSecond).toBe(689)
-  invoke.mockResolvedValue([0.1, -0.2])
+  invoke.mockImplementation(async (command: string) => command === 'mic_wave' ? [0.1, -0.2] : null)
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_wave', { recordingId: 'fixture-recording' }))
   expect(result.current.waveSource?.read()).toEqual([0.1, -0.2])
   expect(result.current.waveSource?.read()).toEqual([])
@@ -279,11 +286,35 @@ it('requests only newer spectral frames, merges them and clears history on owner
   })
   const { result, rerender, unmount } = renderHook(({ id }) => useMicRecorder({ owner: { kind: 'drillItem', id }, listening: { pauseMs: 1000, thresholdDb: -50, minTakeMs: 300, silenceTimeoutMs: 10000 }, onTranscribe: vi.fn() }), { initialProps: { id: 'first' } })
   await act(async () => { await result.current.toggleMic() })
-  await waitFor(() => expect(result.current.liveSpectrum?.data.frameStartSeconds.length).toBeGreaterThanOrEqual(2))
-  expect(result.current.liveSpectrum?.data.frameStartSeconds.slice(0, 2)).toEqual([0, .2])
+  await waitFor(() => expect(result.current.spectrum.get()?.data.frameStartSeconds.length).toBeGreaterThanOrEqual(2))
+  expect(result.current.spectrum.get()?.data.frameStartSeconds.slice(0, 2)).toEqual([0, .2])
   expect(invoke).toHaveBeenCalledWith('mic_listen_spectrogram', { recordingId: 'live', afterSeconds: 0 })
   rerender({ id: 'second' })
-  expect(result.current.liveSpectrum).toBeNull()
+  expect(result.current.spectrum.get()).toBeNull()
+  unmount()
+})
+
+it('draws a single recording’s live spectrogram from its own analysis', async () => {
+  const fixture = (await import('../../../tools/spectrogram-fixture.json')).default[0].spectrogram
+  let cursor = 0
+  invoke.mockImplementation(async (command: string) => {
+    if (command === 'mic_start') return { recordingId: 'fixture-recording', samplesPerSecond: 689 }
+    if (command === 'mic_wave') return []
+    if (command === 'mic_spectrogram') {
+      const time = cursor++ * .2
+      return { endSeconds: time + .2, data: { ...fixture, frameStartSeconds: [time], bins: [fixture.bins[0]] } }
+    }
+    if (command === 'mic_transcribe') return transcript
+    throw new Error(`Unexpected native command: ${command}`)
+  })
+  const { result, unmount } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  await waitFor(() => expect(result.current.spectrum.get()?.data.frameStartSeconds.length).toBeGreaterThanOrEqual(2))
+  expect(invoke).toHaveBeenCalledWith('mic_spectrogram', { recordingId: 'fixture-recording', afterSeconds: 0 })
+  expect(invoke).not.toHaveBeenCalledWith('mic_listen_spectrogram', expect.anything())
+  await act(async () => { await result.current.toggleMic() })
+  expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording' })
+  expect(result.current.failure).toBeNull()
   unmount()
 })
 

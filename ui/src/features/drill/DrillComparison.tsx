@@ -7,8 +7,9 @@ import type { ClipPreview } from './useClipPreview'
 import { WordOverlay } from './WordOverlay'
 import { matchTimedWords, wordAlignment } from '../../domain/audio/word-alignment'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { useIsMobile } from '../../components/layout/useIsMobile'
+import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
@@ -96,6 +97,14 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   const width = (duration: number) => `${effectiveScale === 'shared' ? duration / span * 100 : 100}%`
   // Mobile can hide labels while preserving the measured plot.
   const showWords = !mobile || showTiming
+  // Each plot keeps the height the learner drags it to. At full width the attempt
+  // takes what the reference leaves; stacked, both plots have their own height.
+  const [referenceHeight, setReferenceHeight] = useStoredSize('drill-reference')
+  const [attemptHeight, setAttemptHeight] = useStoredSize('drill-attempt')
+  const referenceTrack = useRef<HTMLDivElement>(null)
+  const attemptTrack = useRef<HTMLDivElement>(null)
+  const heightOf = (track: RefObject<HTMLDivElement | null>) => () => track.current?.getBoundingClientRect().height ?? 0
+  const px = (size: number | null) => size === null ? undefined : `${Math.round(size)}px`
 
   const controls = <>
     {mobile && <label><input type="checkbox" checked={showTiming} onChange={event => setShowTiming(event.target.checked)} />{tr("Word timing overlays")}</label>}
@@ -119,7 +128,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   </>
 
   return (
-    <section className="drill-comparison-panel" aria-label={tr("Reference and your attempt")}>
+    <section className="drill-comparison-panel" aria-label={tr("Reference and your attempt")}
+      style={{ '--drill-reference-row': px(referenceHeight), '--drill-attempt-row': px(attemptHeight) } as CSSProperties}>
       <div className="drill-reference">
       <div className="drill-target-card">{target}</div>
 
@@ -137,20 +147,21 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       </div>
 
       <div className="drill-timelines" data-time={direction}>
-        {reference && scale ? <div className="drill-track">
+        {reference && scale ? <div className="drill-track" ref={referenceTrack}>
           <div className="inspection-plot" style={{ width: width(reference.duration) }}>
             <Spectrogram data={reference.spectrogram} duration={reference.duration} zoom={1} scale={scale} />
             <SpectrogramFrequencyScale data={reference.spectrogram} count={3} />
             {showWords && <WordOverlay timing={reference.wordTiming} duration={reference.duration} outcomes={matches?.reference} onSeek={holding ? undefined : onSeekReference} />}
             <PlaybackCursor time={referenceTime} duration={reference.duration} direction={direction} label={tr("Reference")} onScrubStart={referenceScrub?.start} onScrub={referenceScrub?.move} onScrubEnd={referenceScrub?.end} onSeek={holding ? undefined : onSeekReference} />
           </div>
-        </div> : <div className="drill-track">
+        </div> : <div className="drill-track" ref={referenceTrack}>
           <div className="drill-plot-frame" data-state={referenceFailure ? 'failed' : playingReference ? 'loading' : 'empty'}>
             {referenceFailure ?? <p role="status">{playingReference ? tr("Loading reference…")
               : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Play the reference once to draw it here.")}</p>}
           </div>
         </div>}
-
+        <ResizeHandle className="drill-plot-resize drill-reference-resize" label={tr("Resize the reference")} axis="y" grow={1}
+          size={referenceHeight} min={96} max={800} measure={heightOf(referenceTrack)} onResize={setReferenceHeight} />
       </div>
       </div>
       <div className="drill-timelines" data-time={direction}>
@@ -163,7 +174,7 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
               label={tr("Seek attempt audio")} onSeek={holding || !attempt ? undefined : onSeekAttempt} scrub={attemptScrub} />
           </div>
           {attemptSpectrum && scale
-            ? <div className="drill-track">
+            ? <div className="drill-track" ref={attemptTrack}>
               <div className="inspection-plot" data-attempt-spectrum="" ref={arrival} style={{ width: width(attemptDuration) }}>
                 <Spectrogram data={attemptSpectrum} duration={attemptDuration} mapTime={mapTime} zoom={1} scale={scale} />
                 <SpectrogramFrequencyScale data={attemptSpectrum} count={3} />
@@ -171,9 +182,11 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
                 <PlaybackCursor time={attemptTime} duration={rawDuration} displayDuration={attemptDuration} mapTime={mapTime} direction={direction} label={tr("Attempt")} onScrubStart={attemptScrub?.start} onScrub={attemptScrub?.move} onScrubEnd={attemptScrub?.end} onSeek={holding ? undefined : onSeekAttempt} />
               </div>
             </div>
-            : <div className="drill-track">
+            : <div className="drill-track" ref={attemptTrack}>
               <div className="drill-plot-frame" data-state={attemptUnavailable ? 'empty' : 'loading'}><p role="status">{attemptUnavailable ?? tr(attemptLabel ? "Loading…" : "No attempts yet. Record one to compare.")}</p></div>
             </div>}
+          <ResizeHandle className="drill-plot-resize drill-attempt-resize" label={tr("Resize the attempt")} axis="y" grow={1}
+            size={attemptHeight} min={96} max={800} measure={heightOf(attemptTrack)} onResize={setAttemptHeight} />
         </>
 
         {effectiveScale === 'shared' && spectra.length > 0 && <div className="drill-track drill-axis" aria-hidden="true">

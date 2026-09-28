@@ -73,5 +73,17 @@
 }
 .detail-dialog.dialog-wide { width: min(1080px, calc(100vw - 24px)); padding: var(--space-10) var(--space-12); }
 
+/* Side panels in the compact and narrow layouts: a drawer from the inline
+   start that fills the height, or a sheet from the bottom that fills the width. */
+.detail-dialog.dialog-drawer {
+  margin-block: 0; margin-inline: 0 auto; width: min(22rem, 88vw); height: 100dvh; max-height: 100dvh;
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0; padding: var(--space-8);
+}
+.detail-dialog.dialog-drawer:dir(rtl) { border-radius: var(--radius-xl) 0 0 var(--radius-xl); }
+.detail-dialog.dialog-sheet {
+  margin-block: auto 0; margin-inline: 0; width: 100vw; max-width: 100vw; max-height: 85dvh;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: var(--space-8);
+}
+
 /* Shared dialogs can expand to the viewport rather than fixing reports to their initial width. */
 .modal, .detail-dialog { resize: both; min-width: min(280px, 100%); min-height: 100px; }

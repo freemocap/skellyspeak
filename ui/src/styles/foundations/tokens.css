@@ -293,7 +293,10 @@
        --chat-share      guided split width       features/conversation/messages/PracticeDivider.tsx
        --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
        --live-wave-height  live waveform height    components/media/LiveRecording.tsx
-       --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx */
+       --chat-voice-height dragged recording panel features/conversation/ConversationPage.tsx
+       --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx
+                         (the plot rows are grid track sizes: the reference shares
+                         the stage at full width and has its own height stacked) */
   --reading-scale: 1;
   --script-scale: 1;
   --word-spacing: 0px;
@@ -303,7 +306,10 @@
   --live-wave-height: 48px;
   --drill-rail-width: 15rem;
   --drill-report-width: 24rem;
+  --chat-voice-height: auto;
   --drill-dock-height: auto;
+  --drill-reference-row: 1fr;
+  --drill-attempt-row: minmax(8rem, 18dvh);
   --drill-attempts-height: auto;
   --drill-plot-height: clamp(64px, 22vh, 280px);
 }
@@ -417,7 +423,8 @@
 /* Phones: a 20px reading size times a script scale (1.5 for Arabic) filled the
    screen with a few words. The learner's own text-size setting still applies. */
 @media (max-width: 860px) {
-  :root { --type-reading: 17px; --type-title: 16px; --type-display: 21px; }
+  /* Stacked, the reference plot has its own height rather than a share of the stage. */
+  :root { --type-reading: 17px; --type-title: 16px; --type-display: 21px; --drill-reference-row: minmax(8rem, 18dvh); }
 }
 
 @font-face {
