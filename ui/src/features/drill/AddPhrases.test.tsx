@@ -119,7 +119,7 @@ it('asks once per ticked length, sharing the quantity out between them', async (
 it('refuses a quantity outside the supported range before any request', async () => {
   open()
   fireEvent.change(screen.getByLabelText('How many'), { target: { value: '99' } })
-  expect(await screen.findByRole('alert')).toHaveTextContent('Ask for between 1 and 20 phrases.')
+  expect(await screen.findByRole('alert')).toHaveTextContent('Ask for between 1 and 20 cards.')
   expect(screen.getByRole('button', { name: 'Generate' })).toBeDisabled()
   expect(fetchCalls()).toBe(0)
 })
@@ -157,7 +157,7 @@ it('gives back whatever was not kept when the dialog closes', async () => {
   render(<I18nProvider locale="english"><AddPhrases scope={scope} onAdded={vi.fn(async () => {})} onClose={onClose} /></I18nProvider>)
   generate()
   await screen.findByText('Un café, por favor.')
-  fireEvent.click(screen.getByRole('button', { name: 'Close Add phrases' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Close Add cards' }))
   expect(api.discardDrillPreview).toHaveBeenCalledWith('request-1')
   expect(onClose).toHaveBeenCalledOnce()
 })
@@ -187,7 +187,7 @@ it('marks a phrase already in practice and refuses to add it again', async () =>
   }))
   open()
   generate()
-  expect(await screen.findByText('Already in your phrases')).toBeVisible()
+  expect(await screen.findByText('Already in your cards')).toBeVisible()
   expect(screen.queryByRole('button', { name: /^Keep/ })).not.toBeInTheDocument()
 })
 
@@ -195,10 +195,10 @@ it('reads lines out of past chats without any generation request', async () => {
   api.conversationDrillCandidates.mockResolvedValue({ preview: conversationPreview(), nextCursor: null })
   open()
   fireEvent.click(screen.getByRole('checkbox', { name: 'Short phrase' }))
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Lines from your chats' }))
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Lines from your conversations' }))
   generate()
   expect(await screen.findByText('¿Dónde está el baño?')).toBeVisible()
-  expect(screen.getByText('Taken from your chats, exactly as written there.')).toBeVisible()
+  expect(screen.getByText('Taken from your conversations, exactly as written there.')).toBeVisible()
   expect(api.previewDrillItems).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', { name: 'Keep “¿Dónde está el baño?”' }))
   await waitFor(() => expect(api.acceptDrillItems).toHaveBeenCalledWith('conversation-1', ['span-1']))
@@ -207,13 +207,13 @@ it('reads lines out of past chats without any generation request', async () => {
 it('offers written phrases and chat lines together when both are ticked', async () => {
   api.conversationDrillCandidates.mockResolvedValue({ preview: conversationPreview(), nextCursor: null })
   open()
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Lines from your chats' }))
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Lines from your conversations' }))
   generate()
   expect(await screen.findByText('¿Dónde está el baño?')).toBeVisible()
   expect(screen.getByText('Un café, por favor.')).toBeVisible()
   // Each source is captioned as what it is, rather than one standing for both.
   expect(screen.getByText('Asked for 2 × short phrase at beginner.')).toBeVisible()
-  expect(screen.getByText('Taken from your chats, exactly as written there.')).toBeVisible()
+  expect(screen.getByText('Taken from your conversations, exactly as written there.')).toBeVisible()
 })
 
 function conversationPreview(): DrillGenerationPreview {

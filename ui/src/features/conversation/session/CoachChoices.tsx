@@ -10,7 +10,7 @@ export function CoachChoices({ conversationId, configuration, disabled, selected
     <legend>{tr('Practice selection')} {conversationId && configuration ? <CoachIntentTip conversationId={conversationId} configuration={configuration} /> : <InfoTip>{tr('Choose from recorded experience and retry effort, not correctness.')} {tr('Explore uses skills with little recorded experience. Continue practicing uses skills with retry effort. Coach’s choice mixes both.')}</InfoTip>}</legend>
     <div className="coach-choices-grid">
       <span className="coach-choices-label">{tr('Let the coach decide')}</span>
-      <button type="button" className="scene-card" aria-pressed={selected === null} onClick={() => onChoose(null)}>{tr('Let the persona decide')}</button>
+      <button type="button" className="scene-card" aria-pressed={selected === null} onClick={() => onChoose(null)}>{tr('Let the partner decide')}</button>
         <button type="button" className="scene-card" aria-pressed={selected === 'explore'} onClick={() => onChoose('explore')}>{tr('Explore')}</button>
         <button type="button" className="scene-card" aria-pressed={selected === 'continuePracticing'} onClick={() => onChoose('continuePracticing')}>{tr('Continue practicing')}</button>
         <button type="button" className="scene-card" aria-pressed={selected === 'coachChoice'} onClick={() => onChoose('coachChoice')}>{tr('Coach’s choice')}</button>

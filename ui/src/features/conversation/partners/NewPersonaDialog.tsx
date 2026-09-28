@@ -74,8 +74,8 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
     if (!personaObjection(next, romanized, tr)) void onCreate(next)
   }
   const clear = () => { replace(blankPersona(romanized)); setBrief(''); setGenerationError(null) }
-  return <DetailDialog title={tr("New persona")} onClose={close}>
-    <h2>{tr("New persona")}</h2>
+  return <DetailDialog title={tr("New partner")} onClose={close}>
+    <h2>{tr("New partner")}</h2>
     <div className="persona-generate">
       <textarea className="field" rows={3} aria-label={tr("Describe them")} maxLength={PERSONA_LIMITS.briefMax} value={brief} disabled={locked} dir="auto"
         placeholder={tr("Describe them (optional), e.g. retired fisherman who distrusts tourists")}
@@ -83,11 +83,11 @@ export function NewPersonaDialog({ language, romanized, busy, onCreate, onClose 
       <div className="persona-generate-actions">
         <button type="button" className="btn" disabled={locked || !brief.trim()} onClick={() => void generate(brief)}>{tr("Generate")}</button>
         <button type="button" className="btn" disabled={locked} onClick={() => void generate('')}>{tr("Surprise me")}</button>
-        {generating && <ActivityIndicator compact label={tr("Generating a persona…")} />}
+        {generating && <ActivityIndicator compact label={tr("Generating a partner…")} />}
       </div>
     </div>
-    {generationError && <ErrorDetails onRetry={() => generate(lastGeneration.current)} label={tr("Generating a persona")} errorKey={generationError}>{generationError}</ErrorDetails>}
-    <form className="persona-profile" aria-label={tr("New persona")} onSubmit={event => { event.preventDefault(); create() }}>
+    {generationError && <ErrorDetails onRetry={() => generate(lastGeneration.current)} label={tr("Generating a partner")} errorKey={generationError}>{generationError}</ErrorDetails>}
+    <form className="persona-profile" aria-label={tr("New partner")} onSubmit={event => { event.preventDefault(); create() }}>
       <fieldset disabled={locked}>
         <PersonaForm ref={form} key={revision} draft={draft} romanized={romanized} onChange={setDraft} onCommit={setDraft} />
       </fieldset>

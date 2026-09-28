@@ -18,10 +18,10 @@ export function ProgressDemo() {
     <div className="practice-overview">
       <header className="practice-statistics-header"><h2>{tr('App activity')}</h2></header>
       <dl className="practice-metrics">
-        <div><dt>{tr('Total practice XP')}</dt><dd>{PROGRESS_SNAPSHOT.profile.xp}</dd></div>
+        <div><dt>{tr('Total XP')}</dt><dd>{PROGRESS_SNAPSHOT.profile.xp}</dd></div>
         <div><dt>{tr('Saved conversations')}</dt><dd>{PROGRESS_SNAPSHOT.conversation_count}</dd></div>
-        <div><dt>{tr('Recorded attempts')}</dt><dd>{PROGRESS_SNAPSHOT.records.length}</dd></div>
-        <div><dt>{tr('Practice dates (UTC)')}</dt><dd>1</dd></div>
+        <div><dt>{tr('Assessed messages')}</dt><dd>{PROGRESS_SNAPSHOT.records.length}</dd></div>
+        <div><dt>{tr('Dates with assessments (UTC)')}</dt><dd>1</dd></div>
       </dl>
       <div className="practice-language-tabs" role="tablist" aria-label={tr('Language experience')}>
         {PROGRESS_LANGUAGES.map(language => <button key={language.name} type="button" role="tab" aria-selected={selected === language.name}

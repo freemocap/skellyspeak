@@ -1,4 +1,5 @@
 import { InspectText } from '../../../components/reading/InspectText'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 import { t, formatDate, formatRelativeTime } from '../../../domain/localization'
 import { useI18n } from '../../../components/localization/i18n'
 import { useEffect, useState } from 'react'
@@ -70,7 +71,7 @@ export function ChatHistory({
         <div className="chat-history-head">
           <span className="chat-history-lang">{languageName}</span>
           <button type="button" className="chat-history-new" onClick={onNewChat}>
-            {tr("✚ New chat")}</button>
+            <ToolbarIcon name="plus" size={14} />{tr("New conversation")}</button>
         </div>
 
         {chats.length === 0 ? (

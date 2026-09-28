@@ -18,24 +18,24 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
   const [sheet, setSheet] = useState<'phrases' | 'actions' | null>(null)
   useEffect(() => { setSheet(null) }, [selectedId, mobile])
   const index = items.findIndex(item => item.id === selectedId)
-  const addTargets = onAddPhrases && <button type="button" className="btn" disabled={locked} aria-haspopup="dialog" onClick={() => { setSheet(null); onAddPhrases() }}>{tr("Add drill targets…")}</button>
+  const addTargets = onAddPhrases && <button type="button" className="btn" disabled={locked} aria-haspopup="dialog" onClick={() => { setSheet(null); onAddPhrases() }}>{tr("Add cards…")}</button>
   const actions = <>
     <button className="btn" type="button" disabled={locked || items.length < 2} onClick={() => {
       const choices = items.filter(item => item.id !== selectedId)
       onSelect(choices[Math.floor(Math.random() * choices.length)].id)
-    }}>{tr('Random target')}</button>
+    }}>{tr('Random card')}</button>
     {addTargets}
   </>
-  const navigation = <nav className="drill-phrase-bar" aria-label={tr('Drill targets')}>
+  const navigation = <nav className="drill-phrase-bar" aria-label={tr('Cards')}>
     <button className="btn" type="button" aria-haspopup="dialog" aria-expanded={sheet === 'phrases'}
-      onClick={() => setSheet(sheet === 'phrases' ? null : 'phrases')} aria-label={mobile ? tr('Drill targets') : undefined}>{mobile ? tr('Target') : tr('Drill targets')} {index + 1} / {items.length}</button>
-    <button className="btn" type="button" aria-label={tr('Previous drill target')} disabled={locked || index <= 0}
+      onClick={() => setSheet(sheet === 'phrases' ? null : 'phrases')} aria-label={mobile ? tr('Cards') : undefined}>{mobile ? tr('Card') : tr('Cards')} {index + 1} / {items.length}</button>
+    <button className="btn" type="button" aria-label={tr('Previous card')} disabled={locked || index <= 0}
       onClick={() => onSelect(items[index - 1].id)}>{tr('Previous')}</button>
-    <button className="btn" type="button" aria-label={tr('Next drill target')} disabled={locked || index < 0 || index >= items.length - 1}
+    <button className="btn" type="button" aria-label={tr('Next card')} disabled={locked || index < 0 || index >= items.length - 1}
       onClick={() => onSelect(items[index + 1].id)}>{tr('Next')}</button>
     {mobile ? <button type="button" className="btn" aria-label={tr('More')} aria-haspopup="dialog" aria-expanded={sheet === 'actions'} onClick={() => setSheet('actions')}><ToolbarIcon name="more" size={18} /></button> : actions}
-    {sheet === 'actions' && <DetailDialog title={tr('Drill targets')} capture="preserve" onClose={() => setSheet(null)}><div className="drill-actions" onClick={event => { if ((event.target as Element).closest('button:not(:disabled)')) setSheet(null) }}>{actions}</div></DetailDialog>}
-    {sheet === 'phrases' && <DetailDialog capture="preserve" title={tr('Drill targets')} onClose={() => setSheet(null)}>
+    {sheet === 'actions' && <DetailDialog title={tr('Cards')} capture="preserve" onClose={() => setSheet(null)}><div className="drill-actions" onClick={event => { if ((event.target as Element).closest('button:not(:disabled)')) setSheet(null) }}>{actions}</div></DetailDialog>}
+    {sheet === 'phrases' && <DetailDialog capture="preserve" title={tr('Cards')} onClose={() => setSheet(null)}>
       <div onClick={event => { if ((event.target as Element).closest('.drill-item:not(:disabled)')) setSheet(null) }}>{rail}</div>
       {addTargets && <div className="drill-dropdown-actions">{addTargets}</div>}
     </DetailDialog>}

@@ -37,9 +37,9 @@ beforeEach(() => {
 it('opens on the map, with every view and its stop count pinned over its own demo', async () => {
   render(<Tour />)
   expect(screen.getByRole('heading', { name: 'Chat' })).toBeInTheDocument()
-  for (const view of ['Chat', 'Drill', 'Progress', 'AI panel']) {
+  for (const view of ['Chat', 'Practice', 'Progress', 'AI panel']) {
     const section = screen.getByRole('group', { name: view })
-    await waitFor(() => expect(within(section).getAllByRole('button', { name: /^Stop \d/ })).toHaveLength(view === 'Chat' ? 9 : view === 'Drill' ? 6 : 4))
+    await waitFor(() => expect(within(section).getAllByRole('button', { name: /^Stop \d/ })).toHaveLength(view === 'Chat' ? 9 : view === 'Practice' ? 6 : 4))
   }
   // Each view's own demo content is really mounted, not a stand-in graphic.
   expect(within(screen.getByRole('group', { name: 'Chat' })).getByPlaceholderText('Write in Español…')).toBeInTheDocument()
@@ -47,10 +47,10 @@ it('opens on the map, with every view and its stop count pinned over its own dem
 
 it('a map number jumps straight to that stop, over the same demo', async () => {
   render(<Tour />)
-  const pin = await within(screen.getByRole('group', { name: 'Drill' })).findByRole('button', { name: 'Stop 3: Record a take' })
+  const pin = await within(screen.getByRole('group', { name: 'Practice' })).findByRole('button', { name: 'Stop 3: Record an attempt' })
   fireEvent.click(pin)
-  expect(screen.getByRole('heading', { name: 'Record a take' })).toBeInTheDocument()
-  expect(screen.getByText('Drill · 3 of 6')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Record an attempt' })).toBeInTheDocument()
+  expect(screen.getByText('Practice · 3 of 6')).toBeInTheDocument()
   expect(screen.getByText('#1')).toBeInTheDocument()
 })
 

@@ -61,18 +61,18 @@ export function RecordDock({ microphoneSelector, direction = 'ltr', starting = f
     preparing: { headline: tr("Preparing the session"), detail: tr("Recording starts once the practice session is open.") },
     ready: {
       tap: { headline: tr("Ready to record"), detail: tr("Tap to start, tap again to stop.") },
-      hold: { headline: tr("Hold to talk"), detail: tr("Hold the button, or focus it and hold Space. Letting go ends the take.") },
-      live: { headline: tr("Ready to listen"), detail: auto ? tr("Say the drill target, pause, and say it again. Each pause ends a take.") : tr("Live audio without creating takes.") },
+      hold: { headline: tr("Hold to talk"), detail: tr("Hold the button, or focus it and hold Space. Letting go ends the attempt.") },
+      live: { headline: tr("Ready to listen"), detail: auto ? tr("Say the card, pause, and say it again. Each pause ends an attempt.") : tr("Listening without making attempts.") },
     }[mode],
     recording: {
-      tap: { headline: tr("Recording a take"), detail: tr("Tap to start, tap again to stop.") },
-      hold: { headline: tr("Recording a take"), detail: tr("Let go when you finish.") },
+      tap: { headline: tr("Recording an attempt"), detail: tr("Tap to start, tap again to stop.") },
+      hold: { headline: tr("Recording an attempt"), detail: tr("Let go when you finish.") },
       live: {
-        headline: listeningStatus?.speaking ? tr("Recording a take") : tr("Listening"),
-        detail: auto ? tr("Repeat the drill target with pauses. Stop finishes the current take; queued takes keep processing.") : tr("Live audio without creating takes."),
+        headline: listeningStatus?.speaking ? tr("Recording an attempt") : tr("Listening"),
+        detail: auto ? tr("Repeat the card with pauses. Stop finishes the current attempt; queued attempts keep processing.") : tr("Listening without making attempts."),
       },
     }[mode],
-    working: { headline: tr("Transcribing"), detail: tr("You can leave this drill target; the attempt is stored by the app.") },
+    working: { headline: tr("Transcribing"), detail: tr("You can leave this card; the attempt is stored by the app.") },
   }[phase]
 
   const holdKeys = {
@@ -95,7 +95,7 @@ export function RecordDock({ microphoneSelector, direction = 'ltr', starting = f
           threshold={settings.thresholdDb} decibels={decibels}
           onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />
   const detection = <label className="drill-auto-detect"><input type="checkbox" checked={auto}
-            disabled={busy || starting || mode !== 'live'} onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Auto detect takes")}</label>
+            disabled={busy || starting || mode !== 'live'} onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Detect attempts")}</label>
 
   return (
     <section className="drill-dock" dir={direction} data-phase={phase} data-mode={mode} aria-label={tr("Record an attempt")}>
@@ -110,7 +110,7 @@ export function RecordDock({ microphoneSelector, direction = 'ltr', starting = f
             The longer instruction sits in the settings panel and the tooltip. */}
         <div className="drill-dock-copy" role="status" aria-live="polite" title={copy.detail}>
           <p className="drill-dock-headline">{copy.headline}</p>
-          <p className="drill-dock-counts">{tr("Take {value0} · {value1} queued · {value2} ignored", {
+          <p className="drill-dock-counts">{tr("Attempt {value0} · {value1} queued · {value2} ignored", {
             value0: String((listeningStatus?.takes.length ?? 0) + (listeningStatus?.speaking ? 1 : 0)),
             value1: String((listeningStatus?.queued ?? 0) + (listeningStatus?.processing ? 1 : 0)),
             value2: String(listeningStatus?.ignoredTakes ?? 0),
@@ -129,24 +129,24 @@ export function RecordDock({ microphoneSelector, direction = 'ltr', starting = f
             {mobile && <>{detection}{meter}</>}
             <div className="drill-dock-modes"><div className="drill-segmented" role="radiogroup" aria-label={tr("Recording mode")}>
           {RECORD_MODES.map(option => {
-            const name = { tap: tr("Tap to record"), hold: tr("Hold to talk"), live: tr("Live") }[option]
+            const name = { tap: tr("Tap to record"), hold: tr("Hold to talk"), live: tr("Auto") }[option]
             return <button key={option} type="button" role="radio" aria-checked={mode === option} aria-label={name} title={name}
               disabled={busy || starting || phase === 'recording'} onClick={() => onMode(option)}>
-              {{ tap: tr("Tap"), hold: tr("Hold"), live: tr("Live") }[option]}
+              {{ tap: tr("Tap"), hold: tr("Hold"), live: tr("Auto") }[option]}
             </button>
           })}
         </div>
 
         </div>
-            <p className="drill-dock-detail">{tr("Auto detection applies to Live mode.")}</p>
+            <p className="drill-dock-detail">{tr("“Detect attempts” applies to Auto mode.")}</p>
             <p className="drill-dock-detail">{copy.detail}</p>
             {auto && <>
               <Choice label={tr("Stop listening after silence of")} value={settings.silenceTimeoutMs} options={CONTINUOUS_RECORDING_POLICY.silenceTimeoutOptionsMs}
                 format={seconds} onChange={silenceTimeoutMs => onSettings({ ...settings, silenceTimeoutMs })} />
               <p className="drill-dock-detail">{listeningStatus?.noiseFloorDb != null
-                ? tr("Room noise {value0} · takes start above {value1}", { value0: decibels(listeningStatus.noiseFloorDb), value1: decibels(settings.thresholdDb) })
-                : tr("Takes start above {value0}", { value0: decibels(settings.thresholdDb) })}</p>
-              <Choice label={tr("End a take after silence of")} value={settings.pauseMs} options={CONTINUOUS_RECORDING_POLICY.pauseOptionsMs}
+                ? tr("Room noise {value0} · attempts start above {value1}", { value0: decibels(listeningStatus.noiseFloorDb), value1: decibels(settings.thresholdDb) })
+                : tr("Attempts start above {value0}", { value0: decibels(settings.thresholdDb) })}</p>
+              <Choice label={tr("End an attempt after silence of")} value={settings.pauseMs} options={CONTINUOUS_RECORDING_POLICY.pauseOptionsMs}
                 format={seconds} onChange={pauseMs => onSettings({ ...settings, pauseMs })} />
             </>}
             <Choice label={tr("Ignore sounds shorter than")} value={settings.minTakeMs} options={CONTINUOUS_RECORDING_POLICY.minTakeOptionsMs}
@@ -185,8 +185,8 @@ function LevelMeter({ level, noise, threshold, decibels, onThreshold }: {
     onThreshold(clamp(METER_FLOOR_DB + fraction * -METER_FLOOR_DB))
   }
   const summary = level === null
-    ? tr("Takes start above {value0}", { value0: decibels(threshold) })
-    : tr("{value0}; takes start above {value1}", { value0: decibels(level), value1: decibels(threshold) })
+    ? tr("Attempts start above {value0}", { value0: decibels(threshold) })
+    : tr("{value0}; attempts start above {value1}", { value0: decibels(level), value1: decibels(threshold) })
   return <div ref={track} className="drill-meter" data-above={level !== null && level > threshold} title={summary}
     onPointerDown={event => {
       if (event.button !== 0) return

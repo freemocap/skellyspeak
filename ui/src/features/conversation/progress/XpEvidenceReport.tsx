@@ -57,7 +57,7 @@ export function XpEvidenceReport({ snapshot, skillId, message, onClose }: {
         {judgment.rationale && <p>{judgment.rationale}</p>}
         <details><summary>{tr('Evidence details')}</summary>
           {record.decision_policy?.minimumPositiveProbability !== undefined && <p>{tr('Positive evidence threshold')}: {record.decision_policy.minimumPositiveProbability}</p>}
-          <p>{tr('Model: ')}{record.model} {tr(' · Rubric ')}{record.catalog_version} {tr(' · Prompt ')}{record.prompt_version}<br />{tr('Chat ')}{record.chat_id} {tr(' · Message ')}{record.message_id} {tr(' · Attempt ')}{record.attempt_id}</p>
+          <p>{tr('Model: ')}{record.model} {tr(' · Rubric ')}{record.catalog_version} {tr(' · Prompt ')}{record.prompt_version}<br />{tr('Conversation ')}{record.chat_id} {tr(' · Message ')}{record.message_id} {tr(' · Attempt ')}{record.attempt_id}</p>
           {credit.event && <dl className="reward-provenance">
             <div><dt>{tr('Support')}</dt><dd>{credit.event.support}</dd></div>
             <div><dt>{tr('Difficulty')}</dt><dd>{credit.event.difficulty}</dd></div>

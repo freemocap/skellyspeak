@@ -168,6 +168,7 @@
 }
 
 .chat-history-new {
+  display: inline-flex; align-items: center; gap: var(--space-2);
   background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm);
   color: var(--ink); cursor: pointer; padding: var(--space-2) var(--space-5); font-size: var(--type-ui);
 }

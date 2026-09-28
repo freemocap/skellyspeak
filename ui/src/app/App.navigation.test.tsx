@@ -59,7 +59,7 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
-  fireEvent.click(screen.getByRole('button', { name: 'AI activity & tools' }))
+  fireEvent.click(screen.getByRole('button', { name: 'AI activity' }))
   expect(screen.getByText('Live operations')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Close AI activity' }))
   expect(screen.queryByText('Live operations')).not.toBeInTheDocument()
@@ -71,7 +71,7 @@ vi.mock('../features/activity/AiView', () => ({ AiView: () => <p role="status">L
 it('switches the practice page and saves the selected destination', async () => {
   render(<App />)
   const switcher = screen.getByRole('group', { name: 'Practice surface' })
-  fireEvent.click(within(switcher).getByRole('button', { name: 'Drill' }))
+  fireEvent.click(within(switcher).getByRole('button', { name: 'Practice' }))
   expect(await screen.findByText('Drill surface')).toBeInTheDocument()
   expect(screen.queryByLabelText('Draft')).not.toBeInTheDocument()
   expect(localStorage.getItem('skellyspeak.practice-view')).toBe('drill')

@@ -6,9 +6,9 @@ import type { WordComparison } from '../../generated/contracts'
 export function WordPairs({ words, rtl }: { words: WordComparison[]; rtl: boolean }) {
   const tr = useI18n()
   return <div role="group" className="drill-word-pairs" dir={rtl ? 'rtl' : 'ltr'} aria-label={tr('Word by word')}>
-    <div className="drill-word-labels" aria-hidden="true"><span>{tr('Target')}</span><span>{tr('Attempt')}</span></div>
+    <div className="drill-word-labels" aria-hidden="true"><span>{tr('Card')}</span><span>{tr('Attempt')}</span></div>
     {words.map((word, index) => <div className="drill-word-pair" key={index} data-outcome={word.kind}>
-      <span><span className="drill-word-outcome">{tr('Target')}: </span>{word.target === null ? tr('—') : <TargetText text={word.target} interactive={false} />}</span>
+      <span><span className="drill-word-outcome">{tr('Card')}: </span>{word.target === null ? tr('—') : <TargetText text={word.target} interactive={false} />}</span>
       <span><span className="drill-word-outcome">{tr('Attempt')}: </span><bdi>{word.transcript ?? tr('—')}</bdi></span>
       <span className="drill-word-outcome">{{ same: tr('Matched'), substituted: tr('Uncertain'), missing: tr('Not matched'), extra: tr('extra') }[word.kind]}</span>
     </div>)}

@@ -35,11 +35,11 @@ it('keeps the control rows and record node mounted when capture starts and stops
 it('keeps only the record action, auto toggle and settings outside the dialog', () => {
   const { container } = render(view('ready'))
   expect(screen.queryByRole('radio')).toBeNull()
-  expect(screen.getByRole('checkbox', { name: 'Auto detect takes' })).toBeChecked()
+  expect(screen.getByRole('checkbox', { name: 'Detect attempts' })).toBeChecked()
   expect(container.querySelectorAll('.drill-dock-button')).toHaveLength(1)
   expect(screen.queryByRole('button', { name: 'Discard current take' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Recording settings' }))
   const group = screen.getByRole('radiogroup', { name: 'Recording mode' })
   expect(within(group).getAllByRole('radio')).toHaveLength(3)
-  expect(within(group).getByRole('radio', { name: 'Live' })).toHaveAttribute('aria-checked', 'true')
+  expect(within(group).getByRole('radio', { name: 'Auto' })).toHaveAttribute('aria-checked', 'true')
 })

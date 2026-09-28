@@ -70,7 +70,7 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
         </div>
         {(onSwitchPartner || onEditPersona) && <div className="invitation-partner-actions">
           {onSwitchPartner && <button type="button" className="btn" disabled={disabled} onClick={onSwitchPartner}>{tr('All partners')}</button>}
-          {onEditPersona && <button type="button" className="btn" disabled={disabled} onClick={onEditPersona}>{tr('Edit persona')}</button>}
+          {onEditPersona && <button type="button" className="btn" disabled={disabled} onClick={onEditPersona}>{tr('Edit partner')}</button>}
         </div>}
       </div>
       <div className="prompt-actions">

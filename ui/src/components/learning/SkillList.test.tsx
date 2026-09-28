@@ -11,6 +11,6 @@ it('updates the meter while preserving row order during reward presentation', ()
   const after = structuredClone(before)
   after.profile.skills.find(skill => skill.skill_id === 'quantity')!.xp = 32
   view.rerender(<SkillList snapshot={after} presenting onSelect={vi.fn()} />)
-  expect(screen.getByRole('progressbar', { name: 'Express quantity practice XP' })).toHaveAttribute('value', '32')
+  expect(screen.getByRole('progressbar', { name: 'Express quantity XP' })).toHaveAttribute('value', '32')
   expect([...view.container.querySelectorAll('[data-reward-skill]')].map(node => node.getAttribute('data-reward-skill'))).toEqual(order)
 })

@@ -25,7 +25,7 @@ function ScopedAddToDrill({ text }: { text: string }) {
   const [failure, setFailure] = useState<{ action: 'add' | 'remove'; error: unknown } | null>(null)
   if (!scope || !text.trim()) return null
   const saved = link.kind === 'saved' || link.kind === 'removing'
-  const label = saved ? tr('Remove from Drill') : tr('Add to Drill')
+  const label = saved ? tr('Remove from Practice') : tr('Add to Practice')
   async function toggle() {
     if (!scope || busy.current) return
     busy.current = true
@@ -58,7 +58,7 @@ function ScopedAddToDrill({ text }: { text: string }) {
       onClick={event => { event.stopPropagation(); void toggle() }}>
       <ToolbarIcon name={saved ? 'deck-added' : 'deck-add'} size={20} />
     </button>
-    {failure != null && <ErrorDetails label={failure.action === 'add' ? tr('Add to Drill') : tr('Remove from Drill')} errorKey={errorMessage(failure.error)} explanation={errorMessage(failure.error)}>
+    {failure != null && <ErrorDetails label={failure.action === 'add' ? tr('Add to Practice') : tr('Remove from Practice')} errorKey={errorMessage(failure.error)} explanation={errorMessage(failure.error)}>
       <ResponseDetails value={failure.error} />
     </ErrorDetails>}
   </>

@@ -25,7 +25,7 @@ it('opens without the shared snapshot and renders all zero-credit skills from na
   await act(async () => resolve({ languages: [{ name: 'Spanish', endonym: 'Español', snapshot: structuredClone(skillDemo) }] }))
   expect(screen.getByRole('heading', { name: 'Spanish progress' })).toBeVisible()
   expect(document.querySelectorAll('[data-reward-skill]')).toHaveLength(12)
-  expect(screen.getByText('Practice XP').parentElement).toHaveTextContent('0')
+  expect(screen.getByText('XP').parentElement).toHaveTextContent('0')
 })
 it('reports an actual read failure instead of inventing a zero history', async () => {
   api.getPracticeOverview.mockRejectedValue(new Error('Database read failed'))

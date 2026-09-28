@@ -16,7 +16,7 @@ it('draws every reference state inside the same frame', () => {
   const { container, rerender } = render(view())
   const frame = container.querySelector('.drill-plot-frame')
   expect(frame).toHaveAttribute('data-state', 'empty')
-  expect(screen.getByText('Hear it once to draw the reference here.')).toBeInTheDocument()
+  expect(screen.getByText('Play the reference once to draw it here.')).toBeInTheDocument()
   expect(screen.getByRole('slider', { name: 'Seek reference audio' })).toBeDisabled()
   rerender(view({ playingReference: true }))
   expect(container.querySelector('.drill-plot-frame')).toBe(frame)
@@ -50,7 +50,7 @@ const inspection: AudioInspection = {
 }
 
 it('disables alignment without word timing and shows no timing error', () => {
-  const { container } = render(view({ reference: inspection, attempt: inspection, attemptLabel: 'Take 1', timeScale: 'words' }))
+  const { container } = render(view({ reference: inspection, attempt: inspection, attemptLabel: 'Attempt 1', timeScale: 'words' }))
   expect(container.querySelectorAll('.drill-track .audio-spectrum-cursor')[1]).toHaveStyle({ left: '0%' })
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
   expect(screen.getByRole('radio', { name: 'Fit' })).toHaveAttribute('aria-checked', 'true')
@@ -65,7 +65,7 @@ it('aligns the word track, preserves playback, and resets the view when timing d
   })
   const reference = timed(2, 0.2, 1), attempt = timed(4, 1, 3)
   const onTimeScale = vi.fn(), onPlayAttempt = vi.fn()
-  const props = { reference, attempt, attemptLabel: 'Take 1', onTimeScale, onPlayAttempt }
+  const props = { reference, attempt, attemptLabel: 'Attempt 1', onTimeScale, onPlayAttempt }
   const { container, rerender } = render(view(props))
   fireEvent.click(screen.getByRole('radio', { name: 'Align words' }))
   expect(onTimeScale).toHaveBeenCalledWith('words')
@@ -88,7 +88,7 @@ it('aligns the word track, preserves playback, and resets the view when timing d
 it('leaves uncertain recognition orange and never warps its timing', () => {
   const timed = { ...inspection, wordTiming: { status: 'available' as const, reason: null, unsupported: [],
     words: [{ index: 0, word: 'Hola', start: 0.1, end: 0.8, providerStart: 0.1, providerEnd: 0.8, clipped: false }] } }
-  const { container } = render(view({ reference: timed, attempt: timed, attemptLabel: 'Take 1', comparisonAccepted: false, timeScale: 'words' }))
+  const { container } = render(view({ reference: timed, attempt: timed, attemptLabel: 'Attempt 1', comparisonAccepted: false, timeScale: 'words' }))
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
   expect(container.querySelectorAll('.drill-word-marker[data-outcome="unknown"]')).toHaveLength(2)
 })

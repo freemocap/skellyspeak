@@ -185,7 +185,7 @@ export const TurnView = memo(function TurnView({
             segmentsPending={assistant.glossState === 'running'}
             lookupWords={false}
             translation={assistant.translation}
-            translateLabel={tr("Translate persona message")}
+            translateLabel={tr("Translate partner message")}
             romanization={null}
             pronunciation={null}
             annotation={turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}

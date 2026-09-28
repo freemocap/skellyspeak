@@ -360,8 +360,8 @@ export function DrillPage({ active }: { active: boolean }) {
   const rtl = locale?.direction === 'rtl'
   const direction = chosenDirection ?? (rtl ? 'rtl' : 'ltr')
   const attemptUnavailable = !attempt ? null
-    : attempt.audioPrunedAt !== null ? tr("This take's recording was removed by the storage limit.")
-    : attempt.audioBytes === null ? tr("This take's recording was not kept.")
+    : attempt.audioPrunedAt !== null ? tr("This attempt's recording was removed by the storage limit.")
+    : attempt.audioBytes === null ? tr("This attempt's recording was not kept.")
     : null
 
   const dock = selected && (
@@ -443,7 +443,7 @@ export function DrillPage({ active }: { active: boolean }) {
           referenceNote={holdingAudio ? tr("Playback waits until the attempt is stored.") : tr("Replays reuse the saved reference; no new request is made.")}
           reference={shown?.inspection ?? null} referenceTime={referenceTime} onSeekReference={seekReference} referenceScrub={referenceScrub} attemptScrub={attemptScrub}
           attempt={shownAttemptAudio?.inspection ?? null} preview={preview} attemptTime={attemptTime}
-          attemptLabel={preview ? tr("Take {value0}", { value0: preview.number }) : attempt ? tr("Attempt {value0}", { value0: String(attempt.sequence) }) : null}
+          attemptLabel={preview ? tr("Attempt {value0}", { value0: preview.number }) : attempt ? tr("Attempt {value0}", { value0: String(attempt.sequence) }) : null}
           attemptFailure={clip.failure ?? attemptAudio.failure} onRetryAttempt={() => { if (clip.failure) clip.retry(); else attemptAudio.retry() }} attemptUnavailable={preview ? null : attemptUnavailable}
           onSeekAttempt={seconds => {
             if (!shownAttemptAudio || holdingAudio) return
@@ -462,7 +462,7 @@ export function DrillPage({ active }: { active: boolean }) {
 
   return (
     <ReadingScopeContext value={scope ?? creating}><ReadingLanguageScope language={scope?.language ?? creating.language} variety={scope?.variety ?? creating.variety}>
-    <section className="drill-page" aria-label={tr("Drill")} ref={page} style={{
+    <section className="drill-page" aria-label={tr("Practice")} ref={page} style={{
       '--drill-report-width': px(reportWidth), '--drill-dock-height': px(dockHeight),
     } as CSSProperties}>
       <div className="drill-error-overlay">
@@ -487,15 +487,15 @@ export function DrillPage({ active }: { active: boolean }) {
           : <div className="drill-prepare">
             <header className="drill-prepare-head">
               <h2>{tr("Nothing to practise yet")}</h2>
-              <p>{tr("Add a drill target to start practising.")}</p>
+              <p>{tr("Add a card to start practising.")}</p>
               <button type="button" className="btn primary" disabled={busy || holdingAudio} onClick={() => setAsking(true)}>
-                {tr("Add drill targets…")}</button>
+                {tr("Add cards…")}</button>
             </header>
             <div className="drill-prepare-frame" aria-hidden="true">
-              <div className="drill-prepare-reference"><span>{tr("Drill target")}</span></div>
+              <div className="drill-prepare-reference"><span>{tr("Card")}</span></div>
               <div className="drill-prepare-compare">
                 <div><span>{tr("Reference")}</span></div>
-                <div><span>{tr("Your take")}</span></div>
+                <div><span>{tr("Your attempt")}</span></div>
               </div>
               <div className="drill-prepare-report"><span>{tr("Attempts")}</span></div>
             </div>

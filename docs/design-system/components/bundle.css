@@ -43,20 +43,21 @@
   /* Native menus and controls follow the resolved app theme, including System. */
   color-scheme: light;
   /* ══ Colour: surfaces and text ═══════════════════════════════════════════
-     Warm light is the default palette. Palettes and the dark theme override
-     these eleven roles and nothing else in this group. */
-  --bg: #ede8dc;              /* the ground behind every sheet */
-  --chrome: #f7f4ec;          /* top bar, panel tabs, hover on sheet */
-  --sheet: #fffdf8;           /* the raised surface: chat, cards, dialogs */
+     Cool light is the base and the default palette: a neutral ground that
+     leaves room for the identity colours. The warm palette and the dark theme
+     override these roles, except ink-on-fill, and nothing else in this group. */
+  --bg: #eceef0;              /* the ground behind every sheet */
+  --chrome: #f3f4f5;          /* top bar, panel tabs, hover on sheet */
+  --sheet: #ffffff;           /* the raised surface: chat, cards, dialogs */
   --field: #ffffff;           /* inputs and the active tab */
-  --chip: #dbd4c5;            /* chips, selected rows, recessed wells */
-  --track: #e2dac6;           /* the unfilled part of meters and rails */
-  --line: #cfc5b0;            /* default borders */
-  --line-soft: #e6dfcf;       /* dividers inside a surface */
-  --ink: #1f1c17;             /* primary text */
-  --ink-2: #3a3630;           /* labels, supporting text */
-  --ink-3: #5c564b;           /* metadata, glosses, placeholders; ≥4.5:1 on sheet and bg */
-  --ink-on-fill: #ffffff;     /* text on interaction-fill and danger-fill */
+  --chip: #dadee3;            /* chips, selected rows, recessed wells */
+  --track: #dde1e6;           /* the unfilled part of meters and rails */
+  --line: #cdd2d8;            /* default borders */
+  --line-soft: #e1e4e8;       /* dividers inside a surface */
+  --ink: #1c1f24;             /* primary text */
+  --ink-2: #454a52;           /* labels, supporting text */
+  --ink-3: #565d66;           /* metadata, glosses, placeholders; ≥4.5:1 on sheet, bg and chip */
+  --ink-on-fill: #ffffff;     /* text on interaction-fill, danger-fill and recording-fill */
 
   /* Reply ideas sit in a tinted tray so suggestions never read as conversation. */
   --reply-tray: color-mix(in srgb, var(--track) 45%, var(--sheet));
@@ -79,13 +80,46 @@
   --reaction-badge-size: 28px;
 
   /* ══ Colour: interaction ═════════════════════════════════════════════════
-     The one accent: links, selection, active tabs, XP, focus. */
+     The one accent: links, selection, active tabs, XP, focus, and every
+     control you can press. It is also “you” among the identity colours. */
   --interaction-ink: #1f4785;
   --interaction-fill: #1f4785;
   --interaction-fill-hover: #12395e;
   --interaction-tint: color-mix(in srgb, #6f9bff 15%, transparent);
+  --interaction-mark: #3d74c9;   /* small marks for your choices: selected edges, score bars */
+  --interaction-line: #a9bfe3;   /* borders of selected and ready controls */
   --focus-ring: var(--interaction-ink);
-  --recording-accent: #d53fa8; /* capture control outline, distinct from playback */
+
+  /* ══ Colour: identity ════════════════════════════════════════════════════
+     Places and voices, one meaning each: the partner and the Chat tab, the
+     coach, the Practice tab and its cards, progress and rewards, and the
+     microphone while it records. Identity colours mark; they never fill a
+     button, so blue stays the only action colour. The one exception is
+     recording-fill, the control that is recording right now.
+     mark: small saturated marks (tab edges, dots, rings). tint: pale areas.
+     line: borders. ink: text, ≥5.6:1 on sheet, bg, chrome and its own tint. */
+  --partner-mark: #e08a3c;
+  --partner-tint: #fff0df;
+  --partner-line: #e8bf8a;
+  --partner-ink: #8a4f12;
+  --coach-mark: #3f9a6a;
+  --coach-tint: #e6f3eb;
+  --coach-line: #9fd0b3;
+  --coach-ink: #22613f;
+  --practice-mark: #7a5cd6;
+  --practice-tint: #eeeafc;
+  --practice-line: #c3b3ef;
+  --practice-ink: #4e3590;
+  --progress-mark: #d9a21b;
+  --progress-tint: #fdf3d6;
+  --progress-line: #e8c766;
+  --progress-ink: #7a5600;
+  --recording-mark: #d92d3a;
+  --recording-fill: #d92d3a;     /* the control while it records; ink-on-fill 4.8:1 */
+  --recording-tint: #fde8e9;
+  --recording-line: #f0a3a8;
+  --recording-ink: #a01d28;
+  --recording-glow: color-mix(in srgb, #d92d3a 30%, transparent);
 
   /* ══ Colour: status ══════════════════════════════════════════════════════
      Success, warning and danger, each with an ink for text, a line for
@@ -300,6 +334,15 @@
   --drill-plot-height: clamp(64px, 22vh, 280px);
 }
 
+/* The warm palette: paper surfaces and brown inks. It comes before the dark
+   theme so dark wins where both apply; warm dark is a palette variant below. */
+:root[data-palette='warm'] {
+  --bg: #ede8dc; --chrome: #f7f4ec; --sheet: #fffdf8; --field: #ffffff;
+  --chip: #dbd4c5; --track: #e2dac6;
+  --line: #cfc5b0; --line-soft: #e6dfcf;
+  --ink: #1f1c17; --ink-2: #3a3630; --ink-3: #5c564b;
+}
+
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
 :root[data-theme='dark'] {
   color-scheme: dark;
@@ -320,6 +363,30 @@
   --bubble-learner-bg: #213350;
   --bubble-learner-line: #41618f;
   --interaction-ink: #6fa3ea;
+  --interaction-mark: #6fa3ea;
+  --interaction-line: #41618f;
+  --partner-mark: #f0a35e;
+  --partner-tint: #3a2e22;
+  --partner-line: #8a6238;
+  --partner-ink: #f3bd85;
+  --coach-mark: #6cc995;
+  --coach-tint: #1f3329;
+  --coach-line: #3f7d5a;
+  --coach-ink: #8fdcb0;
+  --practice-mark: #a58cf0;
+  --practice-tint: #2b2645;
+  --practice-line: #6a58a8;
+  --practice-ink: #c3b1f5;
+  --progress-mark: #f2c14e;
+  --progress-tint: #352d17;
+  --progress-line: #8a7430;
+  --progress-ink: #f2cd6b;
+  --recording-mark: #f04a56;
+  --recording-fill: #d23543;
+  --recording-tint: #3b1c20;
+  --recording-line: #9e3d45;
+  --recording-ink: #ff9aa2;
+  --recording-glow: color-mix(in srgb, #f04a56 38%, transparent);
   --success-ink: #75d6f5;
   --success-line: #75d6f5;
   --success-tint: color-mix(in srgb, #75d6f5 16%, transparent);
@@ -343,12 +410,7 @@
   --ink-on-domain: var(--bg);
 }
 
-/* Palettes: alternative surfaces and inks for each theme. */
-:root[data-palette='cool'] {
-  --bg: #eceef0; --chrome: #f3f4f5; --sheet: #ffffff; --field: #ffffff;
-  --line: #cdd2d8; --line-soft: #e1e4e8;
-  --ink: #1c1f24; --ink-2: #454a52; --ink-3: #565d66;
-}
+/* Palette variants of the dark theme. */
 :root[data-theme='dark'][data-palette='cool'] {
   --bg: #141517; --chrome: #1b1d20; --sheet: #24262a; --field: #111214;
   --line: #59616b; --line-soft: #3b4149;
@@ -861,6 +923,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 }
 
 .chat-history-new {
+  display: inline-flex; align-items: center; gap: var(--space-2);
   background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm);
   color: var(--ink); cursor: pointer; padding: var(--space-2) var(--space-5); font-size: var(--type-ui);
 }
@@ -2371,9 +2434,10 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .mic:hover:not(:disabled) { background: var(--interaction-fill-hover); }
 
-.mic.recording { background: var(--danger-fill); color: var(--ink-on-fill); border-color: var(--danger-fill); }
+/* Red means recording and nothing else: the microphone is blue until it records. */
+.mic.recording { background: var(--recording-fill); color: var(--ink-on-fill); box-shadow: 0 0 0 var(--space-2) var(--recording-glow); }
 
-.mic.recording:hover:not(:disabled) { background: var(--danger-fill-hover); border-color: var(--danger-fill-hover); }
+.mic.recording:hover:not(:disabled) { background: var(--recording-fill); }
 
 .mic:disabled { opacity: 0.5; cursor: default; }
 
@@ -5222,11 +5286,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-dock { position: relative; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: var(--space-5) var(--space-7); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); box-shadow: var(--shadow-surface); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
 .drill-dock-pane > .drill-dock { box-sizing: border-box; height: 100%; min-height: 14rem; align-content: stretch; }
 .drill-dock[data-phase="ready"] { border-color: var(--interaction-ink); }
-.drill-dock[data-phase="recording"] { background: var(--danger-tint); border-color: var(--danger-line); }
+.drill-dock[data-phase="recording"] { background: var(--recording-tint); border-color: var(--recording-line); }
 .drill-dock[data-phase="working"] { background: var(--chrome); }
 .drill-dock-side { display: grid; grid-template-rows: minmax(var(--touch-target), 1fr) auto auto auto; gap: var(--space-2); min-width: 0; }
 /* Drill gives recording its own large control area. */
-.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid var(--recording-accent); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
+.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
 .drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
 .drill-dock-button:disabled { opacity: 0.5; cursor: default; }
 .drill-dock-copy { min-width: 0; display: grid; }
@@ -5596,12 +5660,13 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-word-preview-label { font-family: var(--font-sans); font-size: var(--type-meta); }
 .drill-word-cell:hover { outline: var(--border-width) solid currentColor; outline-offset: calc(-1 * var(--border-width)); }
 
-/* Capture stays visibly active between detected takes in live mode. */
-.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
-.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--danger-fill); }
+/* Capture stays visibly active between detected attempts in Auto: red with a
+   red outline and a glow that breathes. Red means recording and nothing else. */
+.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--recording-fill); border-color: var(--recording-mark); box-shadow: 0 0 0 var(--space-2) var(--recording-glow); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
+.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--recording-fill); }
 @keyframes drill-record-pulse {
-  0%, 100% { background: var(--danger-fill); }
-  50% { background: var(--danger-fill-hover); }
+  0%, 100% { box-shadow: 0 0 0 var(--space-2) var(--recording-glow); }
+  50% { box-shadow: 0 0 0 var(--space-4) var(--recording-glow); }
 }
 @media (prefers-reduced-motion: reduce) {
   .drill-dock[data-phase="recording"] .drill-dock-button { animation: none; }

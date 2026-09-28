@@ -66,7 +66,7 @@ export const previews: Preview[] = [
   </div> },
   { name: 'InfoTip', group: 'Feedback', height: 56, element: <p className="ds-text">Estimate <InfoTip>Assessments are model judgments, not independent human validation.</InfoTip></p> },
   { name: 'ActivityIndicator', group: 'Feedback', height: 56, element: <div className="ds-row">
-    <ActivityIndicator label="Generating a persona…" />
+    <ActivityIndicator label="Generating a partner…" />
     <ActivityIndicator label="Saving…" compact />
   </div> },
   { name: 'ErrorDetails', group: 'Feedback', height: 64, element: <ErrorDetails label="Request failed" errorKey="sample">

@@ -19,7 +19,7 @@ export function MoreDialog() {
         <button className="btn" onClick={() => showOverlay('settings')}>{tr("Settings")}</button>
         <button className="btn" onClick={() => showOverlay('languages')}>{tr("Browse languages")}</button>
         <button className="btn" onClick={() => { closeOverlay(); openSkills() }}>{tr("Skill tree")}</button>
-        <button className="btn" onClick={() => showOverlay('activity')}>{tr("AI activity & tools")}</button>
+        <button className="btn" onClick={() => showOverlay('activity')}>{tr("AI activity")}</button>
         <button className="btn" onClick={() => window.location.reload()}>{tr("Reload app")}</button>
       </div>
     </DetailDialog>

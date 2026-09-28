@@ -540,7 +540,7 @@ it('keeps the committed contact selection after failed navigation and follows an
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot()))
   const partner = (name: string) => {
-    if (!screen.queryByRole('menu', { name: 'Contacts' })) fireEvent.click(document.querySelector('.persona-picker-toggle')!)
+    if (!screen.queryByRole('menu', { name: 'Partners' })) fireEvent.click(document.querySelector('.persona-picker-toggle')!)
     return screen.getByRole('menuitemradio', { name: new RegExp(`^${name}`) })
   }
   expect(partner('A')).toHaveAttribute('aria-checked', 'true')

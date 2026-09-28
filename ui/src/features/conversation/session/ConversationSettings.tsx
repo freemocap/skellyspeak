@@ -74,8 +74,8 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
       ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
     ]],
     ['Rewards', [
-      ['xp_effects', messageKey('XP effects'), messageKey('Show XP cards, progress bars and reward sounds')],
-      ['fast_mode', 'Fast mode', messageKey('Automatically dismiss new XP cards')],
+      ['xp_effects', messageKey('XP effects'), messageKey('Show XP badges, progress bars and reward sounds')],
+      ['fast_mode', 'Fast mode', messageKey('Automatically dismiss new XP badges')],
     ]],
   ]
 
@@ -120,7 +120,7 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
 
   return <>
     <button ref={toggleButton} type="button" className="chat-config-toggle" aria-expanded={open} aria-controls="chat-settings"
-      aria-label={summary ? `${tr("Conversation settings")}: ${summary}` : tr("Conversation settings")} title={open ? tr("Hide chat settings") : tr("Show chat settings")}
+      aria-label={summary ? `${tr("Conversation settings")}: ${summary}` : tr("Conversation settings")} title={open ? tr("Hide conversation settings") : tr("Show conversation settings")}
       onClick={() => onOpenChange(!open)}>
       <ToolbarIcon name="settings" size={17} />
       <span className="chat-config-text"><span className="chat-config-label">{tr("Conversation settings")}</span>{summary && <small className="chat-config-summary">{summary}</small>}</span>

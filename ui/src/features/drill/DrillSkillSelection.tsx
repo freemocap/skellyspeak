@@ -28,7 +28,7 @@ export function DrillSkillSelection({ scope, value, disabled, onChange }: {
   }, [scope.language])
   return <>
     <label className="form-row drill-add-skill">{tr('Skill')}
-      <InfoTip>{tr('Aim new drill targets at a recorded skill, or leave unset for general practice.')}</InfoTip>
+      <InfoTip>{tr('Aim new cards at a recorded skill, or leave unset for general practice.')}</InfoTip>
       <select className="field" aria-label={tr('Skill')} value={chosen} disabled={disabled || !catalog.length}
         onChange={event => onChange(event.target.value ? { kind: 'skill', skillId: event.target.value } : null)}>
         <option value="">{tr('Any skill')}</option>

@@ -5,7 +5,7 @@ import { CoachChoices } from './CoachChoices'
 it('keeps persona selection separate and exposes all three coach modes', () => {
   const choose = vi.fn()
   render(<CoachChoices disabled={false} onChoose={choose} />)
-  fireEvent.click(screen.getByRole('button',{name:'Let the persona decide'}))
+  fireEvent.click(screen.getByRole('button',{name:'Let the partner decide'}))
   expect(choose).toHaveBeenLastCalledWith(null)
   for (const [label, mode] of [['Explore','explore'],['Continue practicing','continuePracticing'],['Coach’s choice','coachChoice']]) {
     fireEvent.click(screen.getByRole('button',{name:label}))
@@ -14,7 +14,7 @@ it('keeps persona selection separate and exposes all three coach modes', () => {
 })
 it('disables all starting actions while recording or submitting', () => {
   render(<CoachChoices disabled onChoose={vi.fn()} />)
-  for (const name of ['Let the persona decide', 'Explore', 'Continue practicing', 'Coach’s choice']) {
+  for (const name of ['Let the partner decide', 'Explore', 'Continue practicing', 'Coach’s choice']) {
     expect(screen.getByRole('button', { name })).toBeDisabled()
   }
   expect(screen.getByRole('button', { name: 'Information' })).toBeEnabled()

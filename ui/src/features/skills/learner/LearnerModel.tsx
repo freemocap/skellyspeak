@@ -85,7 +85,7 @@ function LiveLearnerProfile({ target, onClose }: { target: string; onClose: () =
       {visible && <>
         <ExperienceProfile snapshot={visible.evidence} selectedVariety={variety} onVarietyChange={setVariety} onInspect={select} />
         {node && <SkillDetailContent variety={variety === '*' ? undefined : variety} node={node} snapshot={visible.evidence} chatId={null} explanation={null} controls={null} onSelect={select}
-          recordControls={record => <button className="inspection-action" disabled={saving} onClick={() => void exclude(record.attempt_id)}>{visible.evidence.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Restore attempt') : tr('Exclude attempt')}</button>} />}
+          recordControls={record => <button className="inspection-action" disabled={saving} onClick={() => void exclude(record.attempt_id)}>{visible.evidence.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Restore assessment') : tr('Exclude assessment')}</button>} />}
       </>}
     </section>
   </DetailDialog>

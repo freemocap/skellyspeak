@@ -119,13 +119,13 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   </>
 
   return (
-    <section className="drill-comparison-panel" aria-label={tr("Reference and your take")}>
+    <section className="drill-comparison-panel" aria-label={tr("Reference and your attempt")}>
       <div className="drill-reference">
       <div className="drill-target-card">{target}</div>
 
       <div className="drill-media" dir={direction}>
-        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Hear it")} disabled={holding} onClick={onPlayReference} title={referenceNote}>
-          <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Target")}
+        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Play reference")} disabled={holding} onClick={onPlayReference} title={referenceNote}>
+          <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Reference")}
         </button>
         {!mobile && playbackSpeed}
         <PlaybackProgress time={referenceTime} duration={reference?.duration ?? 0} displayDuration={effectiveScale === "shared" ? span : reference?.duration ?? 0} direction={direction} label={tr("Seek reference audio")}
@@ -142,12 +142,12 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
             <Spectrogram data={reference.spectrogram} duration={reference.duration} zoom={1} scale={scale} />
             <SpectrogramFrequencyScale data={reference.spectrogram} count={3} />
             {showWords && <WordOverlay timing={reference.wordTiming} duration={reference.duration} outcomes={matches?.reference} onSeek={holding ? undefined : onSeekReference} />}
-            <PlaybackCursor time={referenceTime} duration={reference.duration} direction={direction} label={tr("Target")} onScrubStart={referenceScrub?.start} onScrub={referenceScrub?.move} onScrubEnd={referenceScrub?.end} onSeek={holding ? undefined : onSeekReference} />
+            <PlaybackCursor time={referenceTime} duration={reference.duration} direction={direction} label={tr("Reference")} onScrubStart={referenceScrub?.start} onScrub={referenceScrub?.move} onScrubEnd={referenceScrub?.end} onSeek={holding ? undefined : onSeekReference} />
           </div>
         </div> : <div className="drill-track">
           <div className="drill-plot-frame" data-state={referenceFailure ? 'failed' : playingReference ? 'loading' : 'empty'}>
             {referenceFailure ?? <p role="status">{playingReference ? tr("Loading reference…")
-              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Hear it once to draw the reference here.")}</p>}
+              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Play the reference once to draw it here.")}</p>}
           </div>
         </div>}
 

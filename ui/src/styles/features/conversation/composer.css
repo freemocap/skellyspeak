@@ -68,9 +68,10 @@
 
 .mic:hover:not(:disabled) { background: var(--interaction-fill-hover); }
 
-.mic.recording { background: var(--danger-fill); color: var(--ink-on-fill); border-color: var(--danger-fill); }
+/* Red means recording and nothing else: the microphone is blue until it records. */
+.mic.recording { background: var(--recording-fill); color: var(--ink-on-fill); box-shadow: 0 0 0 var(--space-2) var(--recording-glow); }
 
-.mic.recording:hover:not(:disabled) { background: var(--danger-fill-hover); border-color: var(--danger-fill-hover); }
+.mic.recording:hover:not(:disabled) { background: var(--recording-fill); }
 
 .mic:disabled { opacity: 0.5; cursor: default; }
 

@@ -141,11 +141,11 @@
 .drill-dock { position: relative; display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: var(--space-5) var(--space-7); padding: var(--space-2) var(--space-4); background: var(--bubble-learner-bg); box-shadow: var(--shadow-surface); border: var(--border-width) solid var(--bubble-learner-line); border-radius: var(--radius-lg); }
 .drill-dock-pane > .drill-dock { box-sizing: border-box; height: 100%; min-height: 14rem; align-content: stretch; }
 .drill-dock[data-phase="ready"] { border-color: var(--interaction-ink); }
-.drill-dock[data-phase="recording"] { background: var(--danger-tint); border-color: var(--danger-line); }
+.drill-dock[data-phase="recording"] { background: var(--recording-tint); border-color: var(--recording-line); }
 .drill-dock[data-phase="working"] { background: var(--chrome); }
 .drill-dock-side { display: grid; grid-template-rows: minmax(var(--touch-target), 1fr) auto auto auto; gap: var(--space-2); min-width: 0; }
 /* Drill gives recording its own large control area. */
-.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid var(--recording-accent); border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
+.drill-dock-button { justify-self: stretch; display: flex; align-items: center; justify-content: center; gap: var(--space-4); min-height: var(--touch-target); height: 100%; padding: 0 var(--space-9) 0 var(--space-7); background: var(--interaction-fill); color: var(--ink-on-fill); border: var(--border-width) solid transparent; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); font-size: var(--type-body); font-weight: var(--weight-semibold); touch-action: none; user-select: none; }
 .drill-dock-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
 .drill-dock-button:disabled { opacity: 0.5; cursor: default; }
 .drill-dock-copy { min-width: 0; display: grid; }
@@ -515,12 +515,13 @@
 .drill-word-preview-label { font-family: var(--font-sans); font-size: var(--type-meta); }
 .drill-word-cell:hover { outline: var(--border-width) solid currentColor; outline-offset: calc(-1 * var(--border-width)); }
 
-/* Capture stays visibly active between detected takes in live mode. */
-.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--danger-fill); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
-.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--danger-fill); }
+/* Capture stays visibly active between detected attempts in Auto: red with a
+   red outline and a glow that breathes. Red means recording and nothing else. */
+.drill-dock[data-phase="recording"] .drill-dock-button { background: var(--recording-fill); border-color: var(--recording-mark); box-shadow: 0 0 0 var(--space-2) var(--recording-glow); animation: drill-record-pulse var(--dur-loop) ease-in-out infinite; }
+.drill-dock[data-phase="recording"] .drill-dock-button:hover:not(:disabled) { background: var(--recording-fill); }
 @keyframes drill-record-pulse {
-  0%, 100% { background: var(--danger-fill); }
-  50% { background: var(--danger-fill-hover); }
+  0%, 100% { box-shadow: 0 0 0 var(--space-2) var(--recording-glow); }
+  50% { box-shadow: 0 0 0 var(--space-4) var(--recording-glow); }
 }
 @media (prefers-reduced-motion: reduce) {
   .drill-dock[data-phase="recording"] .drill-dock-button { animation: none; }

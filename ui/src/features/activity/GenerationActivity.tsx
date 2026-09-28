@@ -31,7 +31,7 @@ export function GenerationActivity() {
   }, [refresh])
 
   return <details className="generation-activity" open>
-    <summary>{tr("Persona generation · Global")}</summary>
+    <summary>{tr("Partner generation · Global")}</summary>
     {error && <ErrorNotice as="p" error={error}>{error} <button type="button" className="btn" onClick={() => setRefresh(value => value + 1)}>{tr("Retry generation activity")}</button></ErrorNotice>}
     {!snapshot && !error && <p role="status">{tr("Loading generation activity…")}</p>}
     {snapshot && <>
@@ -42,7 +42,7 @@ export function GenerationActivity() {
         <tr><th scope="row">{tr("Attempts with unknown usage")}</th><td>{snapshot.usage.unknownUsage}</td></tr>
       </tbody></table>
       <p>{tr("Recent generation receipts · Up to 50")}</p>
-      {snapshot.attempts.length === 0 && <p>{tr("No recorded persona generations.")}</p>}
+      {snapshot.attempts.length === 0 && <p>{tr("No recorded partner generations.")}</p>}
       {snapshot.attempts.slice(0, 50).map(attempt => <details key={attempt.id}>
         <summary>{attempt.state} · {attempt.languageId} · {attempt.createdAt}</summary>
         <dl>

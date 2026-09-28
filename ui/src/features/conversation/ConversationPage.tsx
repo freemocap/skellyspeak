@@ -662,7 +662,7 @@ export default function ConversationPage({
 
     </div>
 
-      {contactError && <ErrorDetails label={tr("Contact")} errorKey={contactError}>{contactError}</ErrorDetails>}
+      {contactError && <ErrorDetails label={tr("Partner")} errorKey={contactError}>{contactError}</ErrorDetails>}
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}

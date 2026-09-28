@@ -60,9 +60,9 @@ export function AddPhrases({ scope, onAdded, onClose }: {
   const leave = () => { offer.discard(); onClose() }
 
   return (
-    <DetailDialog title={tr("Add phrases")} size="wide" onClose={leave}>
+    <DetailDialog title={tr("Add cards")} size="wide" onClose={leave}>
       <ReadingScopeContext value={scope}><ReadingLanguageScope language={scope.language} variety={scope.variety}>
-        <h2>{tr("Add phrases")}</h2>
+        <h2>{tr("Add cards")}</h2>
         <div className="drill-add">
 
           <div className="drill-add-ask">
@@ -81,7 +81,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
                 <label className="check-label">
                   <input type="checkbox" checked={chats} disabled={offer.running}
                     onChange={() => setChats(current => !current)} />
-                  {tr("Lines from your chats")}
+                  {tr("Lines from your conversations")}
                 </label>
               </div>
             </fieldset>
@@ -107,14 +107,14 @@ export function AddPhrases({ scope, onAdded, onClose }: {
                 {tr(offer.asked ? "Generate again" : "Generate")}
               </button>}
             {lengths.length > 0 && !counted && count.trim() !== ''
-              && <p role="alert">{tr("Ask for between {value0} and {value1} phrases.", {
+              && <p role="alert">{tr("Ask for between {value0} and {value1} cards.", {
                 value0: String(COUNT_MIN), value1: String(COUNT_MAX),
               })}</p>}
             {lengths.length === 0 && !chats && <p role="alert">{tr("Pick at least one thing to add.")}</p>}
           </div>
 
           <div className="drill-add-results">
-            {offer.running && <p role="status">{tr("Asking for phrases…")}</p>}
+            {offer.running && <p role="status">{tr("Asking for cards…")}</p>}
             {offer.failure != null && <ErrorNotice as="p" onRetry={offer.retry} error={offer.failure}>{errorMessage(offer.failure)}</ErrorNotice>}
             {offer.shortfall !== null && <p role="status">{tr("Asked for {value0}, got {value1}: {value2}", {
               value0: String(offer.shortfall.requested), value1: String(offer.shortfall.produced), value2: offer.shortfall.reason,

@@ -44,7 +44,7 @@ export function CandidateList({ offered, added, adding, onKeep }: {
               {candidate.translation !== null && <span className="drill-candidate-translation">{candidate.translation}</span>}
               <span className="drill-candidate-notes">
                 {candidate.source.kind === 'conversation'
-                  && <span className="drill-chip">{tr("From your chats")}</span>}
+                  && <span className="drill-chip">{tr("From your conversations")}</span>}
                 {candidate.reported.difficulty !== null
                   && <span className="drill-chip">{tr("Model says {value0}", { value0: candidate.reported.difficulty })}</span>}
                 {candidate.reported.tags.map(tag => <span key={tag} className="drill-chip">{tr("Model says {value0}", { value0: tag })}</span>)}
@@ -53,7 +53,7 @@ export function CandidateList({ offered, added, adding, onKeep }: {
             {isAdded
               ? <span className="drill-chip" data-tone="success">{tr("Added")}</span>
               : candidate.verified.duplicate
-                ? <span className="drill-chip">{tr("Already in your phrases")}</span>
+                ? <span className="drill-chip">{tr("Already in your cards")}</span>
                 : <button type="button" className="btn" disabled={adding} onClick={() => onKeep(entry)}
                   aria-label={tr("Keep “{value0}”", { value0: candidate.text })}>{tr("Keep")}</button>}
           </li>
@@ -80,7 +80,7 @@ export function RequestedCaption({ requested, chats }: { requested: DrillGenerat
   return (
     <p className="drill-candidates-note">
       {requested.map(one => <span key={one.length}>{said(one)}</span>)}
-      {chats && <span>{tr("Taken from your chats, exactly as written there.")}</span>}
+      {chats && <span>{tr("Taken from your conversations, exactly as written there.")}</span>}
     </p>
   )
 }

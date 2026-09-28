@@ -36,7 +36,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
       <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: null, selectionVersion: 0, selected: domain?.skills[0]?.skill_id ?? focus.id, select: id => { const match = stats.domains.find(item => item.skills.some(skill => skill.skill_id === id)); setDomainId(match?.node.id ?? null) } }}><ConversationMap /></PracticeContext></SkillEvidenceContext>
       <RewardsLedger snapshot={snapshot} />
       <dl className="practice-metrics">
-        <div><dt>{tr("Practice XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.browserLocale)}</dd></div>
+        <div><dt>{tr("XP")}</dt><dd>{snapshot.profile.xp.toLocaleString(tr.browserLocale)}</dd></div>
         <div><dt>{tr("Skills with credit")}</dt><dd>{tr.number(stats.practiced)}<small> / {snapshot.profile.skills.length}</small></dd></div>
         <div><dt>{tr("Contributing messages")}</dt><dd>{tr.number(stats.contributingMessages)}</dd></div>
       </dl>
@@ -50,7 +50,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
         <div className="practice-section-title"><h3 id="practice-skills-title">{domain ? tr(domain.node.label) : tr("All domains")} {tr(" · skill evidence")}</h3>{domainId && <button className="detail-action" onClick={() => setDomainId(null)}>{tr("All domains")}</button>}</div>
         <label className="practice-unpracticed"><input type="checkbox" checked={includeUnpracticed} onChange={event => setIncludeUnpracticed(event.target.checked)} />{tr("Include skills without credit")}</label>
         <InfoTip>{tr("Open a skill to inspect its contributing messages and assessment provenance.")}</InfoTip>
-        {skills.length === 0 && <p>{tr("No recorded practice in this selection yet.")}</p>}
+        {skills.length === 0 && <p>{tr("Nothing recorded in this selection yet.")}</p>}
         <div className="practice-skill-list">{skills.map(skill => {
           const node = snapshot.catalog.find(item => item.id === skill.skill_id)
           if (!node) throw new Error(`Missing skill ${skill.skill_id}`)
@@ -69,7 +69,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
               return <article key={credit.attempt_id} className="practice-credit">
                 <header><strong>{tr.number(credit.xp)} {tr(" XP · ")}{effort ? tr("Effort") : tr("Experience")}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{new Date(record.at_secs * 1000).toISOString().slice(0, 16).replace('T', ' ')} {tr(" UTC")}</time></header>
                 <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}><blockquote dir="auto"><TargetPhrase text={record.source} /></blockquote></ReadingLanguageScope><p>{judgment.rationale}</p>
-                <small>{tr("Model: ")}{record.model} {tr(" · Rubric ")}{record.catalog_version} {tr(" · Prompt ")}{record.prompt_version}<br />{tr("Chat ")}{record.chat_id} {tr(" · Message ")}{record.message_id} {tr(" · Attempt ")}{record.attempt_id}</small>
+                <small>{tr("Model: ")}{record.model} {tr(" · Rubric ")}{record.catalog_version} {tr(" · Prompt ")}{record.prompt_version}<br />{tr("Conversation ")}{record.chat_id} {tr(" · Message ")}{record.message_id} {tr(" · Attempt ")}{record.attempt_id}</small>
               </article>
             })}
           </details>
@@ -118,7 +118,7 @@ export function ProgressSummary({ snapshot, target, onClose, onLearning }: { sna
   const conversations = snapshots.reduce((total, item) => total + item.conversation_count, 0)
   const records = snapshots.flatMap(item => item.records)
   const practiceDates = new Set(records.map(record => new Date(record.at_secs * 1000).toISOString().slice(0, 10)))
-  return <DetailDialog size="wide" title={tr("Practice progress")} onClose={onClose}>
+  return <DetailDialog size="wide" title={tr("Progress")} onClose={onClose}>
     <div className="practice-overview">
       <header className="practice-statistics-header"><h2>{tr("App activity")}</h2>{onLearning && selectedTarget && <button onClick={() => onLearning(selectedTarget!)}>{tr("Your learning evidence")}</button>}</header>
       {loaded.status === 'loading' && <p role="status">{tr("Loading language profiles…")}</p>}
@@ -126,12 +126,12 @@ export function ProgressSummary({ snapshot, target, onClose, onLearning }: { sna
       {!overview && <SkillCatalogBrowser />}
       {overview && <>
         <dl className="practice-metrics">
-          <div><dt>{tr("Total practice XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>
+          <div><dt>{tr("Total XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>
           <div><dt>{tr("Saved conversations")}</dt><dd>{tr.number(conversations)}</dd></div>
-          <div><dt>{tr("Recorded attempts")}</dt><dd>{tr.number(records.length)}</dd></div>
-          <div><dt>{tr("Practice dates (UTC)")}</dt><dd>{tr.number(practiceDates.size)}</dd></div>
+          <div><dt>{tr("Assessed messages")}</dt><dd>{tr.number(records.length)}</dd></div>
+          <div><dt>{tr("Dates with assessments (UTC)")}</dt><dd>{tr.number(practiceDates.size)}</dd></div>
         </dl>
-        <InfoTip>{tr("Global XP is the sum of separate language accounts, not a combined proficiency score. Activity counts cover retained records: conversations with learner text, assessment attempts, and distinct UTC dates with attempts. Deleted records can reduce these counts.")}</InfoTip>
+        <InfoTip>{tr("Global XP is the sum of separate language accounts, not a combined proficiency score. Activity counts cover retained records: conversations with learner text, assessed messages, and distinct UTC dates with assessments. Deleted records can reduce these counts.")}</InfoTip>
 
         <div className="practice-language-tabbar"><div className="practice-language-tabs" role="tablist" aria-label={tr("Language experience")}>{visibleLanguages.map(language => <button key={language.snapshot.target} id={`practice-tab-${language.snapshot.target}`} role="tab" aria-label={tr("{value0} {value1} XP", { value0: String(language.name), value1: language.snapshot.profile.xp })} aria-selected={selectedTarget === language.snapshot.target} aria-controls="practice-language-panel" tabIndex={selectedTarget === language.snapshot.target ? 0 : -1} onClick={() => setSelected(language.snapshot.target)} onKeyDown={event => {
           const index = visibleLanguages.findIndex(item => item.snapshot.target === selectedTarget)

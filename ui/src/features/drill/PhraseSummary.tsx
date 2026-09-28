@@ -31,10 +31,10 @@ export function PhraseSummary({ attempts, compact = false, selectedId, onSelect 
   const last = progress.ratios.length - 1
 
   return (
-    <section className={`drill-progress${compact ? ' drill-progress-compact' : ''}`} aria-label={tr("This drill target")}>
+    <section className={`drill-progress${compact ? ' drill-progress-compact' : ''}`} aria-label={tr("This card")}>
       <div className="drill-progress-head">
-        <h2>{tr("This drill target")}</h2>
-        <span>{tr("Last {value0} takes", { value0: String(progress.takes.length) })}</span>
+        <h2>{tr("This card")}</h2>
+        <span>{tr("Last {value0} attempts", { value0: String(progress.takes.length) })}</span>
       </div>
       <dl className="drill-progress-stats">
         <div><dt>{tr("Best")}</dt><dd>{percent(progress.best)}</dd></div>
@@ -43,7 +43,7 @@ export function PhraseSummary({ attempts, compact = false, selectedId, onSelect 
         <div><dt>{tr("Exact")}</dt><dd>{tr("{value0}/{value1}", { value0: String(progress.exact), value1: String(progress.takes.length) })}</dd></div>
       </dl>
       <svg className="drill-spark" viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`} preserveAspectRatio="none" role="img"
-        aria-label={tr("Transcript match by take, oldest to newest: {value0}", { value0: progress.ratios.map(percent).join(', ') })}>
+        aria-label={tr("Transcript match by attempt, oldest to newest: {value0}", { value0: progress.ratios.map(percent).join(', ') })}>
         <line x1={0} x2={SPARK_WIDTH} y1={y(1)} y2={y(1)} className="drill-spark-rule" />
         <line x1={0} x2={SPARK_WIDTH} y1={y(0.5)} y2={y(0.5)} className="drill-spark-rule" />
         <line x1={0} x2={SPARK_WIDTH} y1={y(0)} y2={y(0)} className="drill-spark-rule" />
@@ -54,12 +54,12 @@ export function PhraseSummary({ attempts, compact = false, selectedId, onSelect 
       {compact && onSelect && <div className="drill-recent-takes" aria-label={tr('Attempts')}>
         {progress.takes.slice(-6).reverse().map(take => <button type="button" key={take.id}
           aria-pressed={take.id === selectedId} onClick={() => onSelect(take.id)}
-          aria-label={`${tr('Take {value0}', { value0: String(take.sequence) })} · ${percent(take.comparison.matchRatio)}`}
+          aria-label={`${tr('Attempt {value0}', { value0: String(take.sequence) })} · ${percent(take.comparison.matchRatio)}`}
           title={tr.dateTime(new Date(take.createdAt))}>
           <span>#{String(take.sequence)}</span><strong>{percent(take.comparison.matchRatio)}</strong>
         </button>)}
       </div>}
-      {progress.trouble && <p className="drill-trouble">{tr("Most often different: {value0}, in {value1} of {value2} takes.", {
+      {progress.trouble && <p className="drill-trouble">{tr("Most often different: {value0}, in {value1} of {value2} attempts.", {
         value0: progress.trouble.word, value1: String(progress.trouble.misses), value2: String(progress.trouble.outcomes.length),
       })}</p>}
     </section>

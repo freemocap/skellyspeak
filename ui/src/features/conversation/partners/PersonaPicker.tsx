@@ -34,17 +34,17 @@ export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCr
   const current = choices.find(choice => choice.id === currentId)
   return <div className="persona-picker" ref={panel}>
     <button type="button" className="persona-picker-toggle" aria-haspopup="menu" aria-expanded={open} disabled={busy}
-      title={current ? tr("Talking with {value0}", { value0: String(current.name) }) : tr("No contact for this language yet")} onClick={() => setOpen(value => !value)}>
-      {current ? <><PersonaAvatar symbol={current.symbol} /><span className="partner-identity"><strong>{current.name}</strong></span></> : <span>{tr("No persona")}</span>}
+      title={current ? tr("Talking with {value0}", { value0: String(current.name) }) : tr("No partner for this language yet")} onClick={() => setOpen(value => !value)}>
+      {current ? <><PersonaAvatar symbol={current.symbol} /><span className="partner-identity"><strong>{current.name}</strong></span></> : <span>{tr("No partner")}</span>}
       <span aria-hidden="true">▾</span>
     </button>
-    {open && <><div className="menu-scrim" aria-hidden="true" onPointerDown={() => setOpen(false)} /><div className="persona-picker-menu" role="menu" aria-label={tr("Contacts")}>
+    {open && <><div className="menu-scrim" aria-hidden="true" onPointerDown={() => setOpen(false)} /><div className="persona-picker-menu" role="menu" aria-label={tr("Partners")}>
       {choices.map(choice => <button type="button" role="menuitemradio" aria-checked={choice.id === currentId} key={choice.id}
         className="persona-picker-item" onClick={() => { setOpen(false); if (choice.id !== currentId) onSelect(choice.id) }}>
         <PersonaAvatar symbol={choice.symbol} /><span>{choice.name}</span>{choice.id === currentId && <span aria-hidden="true">✓</span>}
       </button>)}
-      <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>{tr("Edit persona")}</button>
-      <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>{tr("+ New persona…")}</button>
+      <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>{tr("Edit partner")}</button>
+      <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>{tr("+ New partner…")}</button>
     </div></>}
   </div>
 }

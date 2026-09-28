@@ -14,11 +14,11 @@ function view(takes: ListeningTake[], attempts: DrillAttemptView[] = []) {
 }
 it('keeps the pending card through processing and removes it when the main list owns publication', () => {
   const { rerender } = render(view([take]))
-  const card = screen.getByText('Take 1').closest('li')
+  const card = screen.getByText('Attempt 1').closest('li')
   expect(screen.getByText('Queued')).toBeInTheDocument()
   rerender(view([{ ...take, state: 'processing' }]))
   expect(screen.getByText('Transcribing…')).toBeInTheDocument()
-  expect(screen.getByText('Take 1').closest('li')).toBe(card)
+  expect(screen.getByText('Attempt 1').closest('li')).toBe(card)
   rerender(view([{ ...take, state: 'completed' }], [attempt]))
   expect(screen.queryByText('hola')).toBeNull()
   expect(screen.queryAllByRole('listitem')).toHaveLength(0)
@@ -26,7 +26,7 @@ it('keeps the pending card through processing and removes it when the main list 
 })
 it('leaves a failed take visible without a perpetual processing indicator', () => {
   render(view([{ ...take, state: 'failed' }]))
-  expect(screen.getByText('Take failed')).toBeInTheDocument()
+  expect(screen.getByText('Attempt failed')).toBeInTheDocument()
   expect(screen.getByRole('article')).toHaveAttribute('aria-busy', 'false')
 })
 

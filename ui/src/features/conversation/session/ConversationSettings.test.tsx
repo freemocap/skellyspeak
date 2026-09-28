@@ -18,7 +18,7 @@ it.each(Object.keys(LOCALES))('opens and closes conversation settings in %s with
   render(<I18nProvider locale={locale}><Fixture /></I18nProvider>)
   fireEvent.click(screen.getByRole('button', { name: t(locale, 'Conversation settings') }))
   const panel = screen.getByRole('dialog', { name: t(locale, 'Conversation settings') })
-  expect(within(panel).getByText(t(locale, 'Automatically dismiss new XP cards'))).toBeVisible()
+  expect(within(panel).getByText(t(locale, 'Automatically dismiss new XP badges'))).toBeVisible()
   expect(within(panel).getAllByRole('switch')).toHaveLength(7)
   fireEvent.click(within(panel).getByRole('button', { name: t(locale, 'Close') }))
   expect(screen.queryByRole('dialog')).toBeNull()

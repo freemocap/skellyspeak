@@ -45,10 +45,10 @@ it('choosing the current contact again does nothing', () => {
 it('opens the new persona dialog and the editor from the menu', () => {
   const { onCreate, onEdit } = renderPicker()
   fireEvent.click(screen.getByRole('button', { name: /小林/ }))
-  fireEvent.click(screen.getByRole('menuitem', { name: '+ New persona…' }))
+  fireEvent.click(screen.getByRole('menuitem', { name: '+ New partner…' }))
   expect(onCreate).toHaveBeenCalledOnce()
   fireEvent.click(screen.getByRole('button', { name: /小林/ }))
-  fireEvent.click(screen.getByRole('menuitem', { name: 'Edit persona' }))
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Edit partner' }))
   expect(onEdit).toHaveBeenCalledOnce()
 })
 

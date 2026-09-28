@@ -15,10 +15,10 @@ export function PhraseRail({ items, selectedId, busy, locked, onSelect, onDelete
 }) {
   const tr = useI18n()
   return (
-    <aside className="drill-rail" aria-label={tr("Your drill targets")}>
+    <aside className="drill-rail" aria-label={tr("Your cards")}>
       {items.length === 0
         ? <p className="drill-rail-empty">{tr("Nothing to practise yet")}</p>
-        : <ul className="drill-items" aria-label={tr("Drill targets")}>
+        : <ul className="drill-items" aria-label={tr("Cards")}>
           {items.map(item => (
             <li key={item.id}>
               <button type="button" className="drill-item" aria-current={item.id === selectedId} disabled={locked}

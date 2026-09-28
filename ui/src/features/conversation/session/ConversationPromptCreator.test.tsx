@@ -30,7 +30,7 @@ it('shares choices with the native preview and applies without inference', async
   await waitFor(() => expect(screen.getByRole('button', { name: 'Apply' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Food' }))
   fireEvent.click(screen.getByRole('button', { name: 'Past events' }))
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Use persona details' }))
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Use partner details' }))
   fireEvent.click(screen.getByRole('tab', { name: 'Prompt preview' }))
   await screen.findByText('beginner past conversation')
   expect(screen.getByText('Opening request preview · no conversation history or model call')).toBeVisible()

@@ -9,16 +9,16 @@ const WINDOWS: readonly (number | null)[] = [5, 60, null]
 export function ClearTakes({ disabled, onClear }: { disabled: boolean; onClear: (since: Date | null) => void }) {
   const tr = useI18n()
   return <details className="drill-clear">
-    <summary>{tr("Clear takes…")}</summary>
-    <div className="drill-clear-panel" role="group" aria-label={tr("Clear takes…")}>
-      <p>{tr("Deletes the takes and their recordings for this drill target. This cannot be undone.")}</p>
+    <summary>{tr("Clear attempts…")}</summary>
+    <div className="drill-clear-panel" role="group" aria-label={tr("Clear attempts…")}>
+      <p>{tr("Deletes the attempts and their recordings for this card. This cannot be undone.")}</p>
       <div className="drill-clear-actions">
         {WINDOWS.map(minutes => <button key={minutes ?? 'all'} type="button" className="btn danger" disabled={disabled}
           onClick={event => {
             event.currentTarget.closest('details')?.removeAttribute('open')
             onClear(minutes === null ? null : new Date(Date.now() - minutes * 60_000))
           }}>
-          {minutes === null ? tr("All takes") : minutes === 60 ? tr("Last hour") : tr("Last {value0} minutes", { value0: String(minutes) })}
+          {minutes === null ? tr("All attempts") : minutes === 60 ? tr("Last hour") : tr("Last {value0} minutes", { value0: String(minutes) })}
         </button>)}
       </div>
     </div>

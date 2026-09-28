@@ -23,7 +23,7 @@ export function LiveRecording({ source, spectrum, takes, active = true, directio
   // new audio enters at the left and older audio travels right, away from Record.
   return <div className="live-recording" dir="ltr" data-time={direction}>
     <div className="live-recording-head"><span>{tr(active ? 'Microphone · live' : 'Recording timeline')}</span>
-      {latest && <span key={latest.recordingId} className="live-cut-notice" role="status">{tr('Take {value0} clipped →', { value0: latest.number })}</span>}
+      {latest && <span key={latest.recordingId} className="live-cut-notice" role="status">{tr('Attempt {value0} clipped →', { value0: latest.number })}</span>}
     </div>
     <div className="live-recording-plots" style={{ '--live-wave-height': `${WAVE_HEIGHT}px` } as CSSProperties}>
       <WaveformStrip mirrored={direction === "ltr"} source={source} height={WAVE_HEIGHT} timelineSeconds={seconds} endSeconds={spectrum?.endSeconds} />
@@ -35,7 +35,7 @@ export function LiveRecording({ source, spectrum, takes, active = true, directio
         const left = Math.max(0, (take.startSeconds - end + seconds) / seconds * 100)
         const right = Math.min(100, (take.endSeconds - end + seconds) / seconds * 100)
         return <div key={take.recordingId} className="live-take-region" data-clip-id={take.recordingId} style={{ left: `${left}%`, width: `${Math.max(0, right - left)}%` }}>
-          <span>{tr('Take {value0}', { value0: take.number })}</span>
+          <span>{tr('Attempt {value0}', { value0: take.number })}</span>
         </div>
       })}
     </div>
