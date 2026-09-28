@@ -34,7 +34,10 @@ fn repeated_skills_keep_distinct_evidence_and_collapse_exact_repeats() {
     // A quote that is not verbatim from the message is kept, not a failure.
     output["items"][2]["quote"] = json!("not in the learner message");
     let loose = validate(&store, &turn, &output).unwrap();
-    assert_eq!(loose["observation"]["items"][2]["quote"], "not in the learner message");
+    assert_eq!(
+        loose["observation"]["items"][2]["quote"],
+        "not in the learner message"
+    );
     output["items"][2] = first.clone();
     // An item for a skill that was not asked about is dropped; the rest stays.
     output["items"][2]["construct"] = json!("unknown_skill");

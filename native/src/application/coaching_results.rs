@@ -200,12 +200,8 @@ impl Application {
         }
         let valid = completed.as_ref().map_err(Clone::clone).and_then(|output| {
             request.authority(&store)?;
-            coach_observation::validate_captured(
-                &request.captured,
-                &request.kind,
-                output,
-            )
-            .map(|_| ())
+            coach_observation::validate_captured(&request.captured, &request.kind, output)
+                .map(|_| ())
         });
         if let Err(error) = &valid {
             metadata["error"] =

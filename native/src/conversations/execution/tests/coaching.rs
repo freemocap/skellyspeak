@@ -88,9 +88,7 @@ fn assistance_preserves_model_text_despite_script_heuristics() {
         )
         .unwrap();
     let check = |value: &serde_json::Value| {
-        support::validate(support::ASSISTANCE,
-            &reply(&value.to_string()),
-        )
+        support::validate(support::ASSISTANCE, &reply(&value.to_string()))
     };
     let valid = serde_json::json!({"replies":[{"text":"أنا بحب آكل المنسف.","translation":"I like to eat mansaf.","romanization":"ana baḥibb ākul il-mansaf.","pronunciation":"AH-na ba-HIBB AH-kul il-MAN-saf"},{"text":"بحب الفلافل.","translation":"I like falafel.","romanization":"baḥibb il-falāfil.","pronunciation":"ba-HIBB il-fa-LAH-fil"}],"frames":["بحب ___.","ما بحب ___."],"starters":["أنا…","بحب…"]});
     assert!(check(&valid).is_ok());
@@ -134,12 +132,7 @@ fn latin_assistance_requests_empty_romanization_without_rejecting_extra_help() {
     );
     let mut value = assistance();
     value["replies"][0]["romanization"] = serde_json::json!("Fui con mi hermana.");
-    assert!(
-        support::validate(support::ASSISTANCE,
-            &reply(&value.to_string())
-        )
-        .is_ok()
-    );
+    assert!(support::validate(support::ASSISTANCE, &reply(&value.to_string())).is_ok());
 }
 
 #[test]
@@ -270,11 +263,8 @@ fn hindi_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
         {"text":"नमस्ते।","translation":"Hello.","romanization":"नमस्ते।","pronunciation":"Namaste."},
         {"text":"धन्यवाद।","translation":"Thank you.","romanization":"धन्यवाद।","pronunciation":"Dhanyavaad."}],
         "frames":["क्या ___?","नमस्ते। ___"],"starters":["नमस्ते","धन्यवाद"]});
-    let check = |v: &serde_json::Value| {
-        support::validate(support::ASSISTANCE,
-            &reply(&v.to_string()),
-        )
-    };
+    let check =
+        |v: &serde_json::Value| support::validate(support::ASSISTANCE, &reply(&v.to_string()));
     assert_eq!(check(&value).unwrap(), value);
     value["replies"][0]["romanization"] = serde_json::json!("namaste");
     value["replies"][1]["romanization"] = serde_json::json!("dhanyavāda");
@@ -291,9 +281,6 @@ fn useful_help_does_not_require_exactly_two_choices_or_short_display_fields() {
     value["frames"] = serde_json::json!([]);
     value["starters"] = serde_json::json!(["One", "Two", "Three"]);
     value["replies"][0]["translation"] = serde_json::json!("x".repeat(900));
-    let result = support::validate(support::ASSISTANCE,
-        &reply(&value.to_string()),
-    )
-    .unwrap();
+    let result = support::validate(support::ASSISTANCE, &reply(&value.to_string())).unwrap();
     assert_eq!(result, value);
 }

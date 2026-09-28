@@ -229,10 +229,9 @@ impl Store {
                     .map(|v| coaching = Some(v))
             }
             Ok(output) if crate::learning::coaching::conversation_support::owns(&kind) => {
-                crate::learning::coaching::conversation_support::validate(&kind, output)
-                    .map(|v| {
-                        coaching = Some(v);
-                    })
+                crate::learning::coaching::conversation_support::validate(&kind, output).map(|v| {
+                    coaching = Some(v);
+                })
             }
             Ok(output)
                 if kind == "skill_attribution"

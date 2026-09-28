@@ -109,7 +109,9 @@ impl Store {
                 &deletions,
                 expected_revision,
             )?,
-            Action::CoachControl { turn_id, control } => handlers.coach_control(turn_id, control)?,
+            Action::CoachControl { turn_id, control } => {
+                handlers.coach_control(turn_id, control)?
+            }
             Action::ReviseTurn {
                 conversation_id,
                 turn_id,

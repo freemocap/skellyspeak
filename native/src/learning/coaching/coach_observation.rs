@@ -144,7 +144,8 @@ pub(crate) fn validate_captured(
                 };
                 let usable = prose("target_hypothesis", &error.target_hypothesis).is_ok()
                     && prose("error category", &error.category).is_ok()
-                    && (help_move != CoachMove::Explicit || prose("rationale", &item.rationale).is_ok())
+                    && (help_move != CoachMove::Explicit
+                        || prose("rationale", &item.rationale).is_ok())
                     && cue.is_none_or(|text| prose("cue", text).is_ok());
                 if !usable {
                     return None;
@@ -237,8 +238,7 @@ mod text_contract_tests {
                     output_tokens: None,
                     diagnostics: None,
                 };
-                let result =
-                    validate_captured(&context, "coach_retry_check", &output).unwrap();
+                let result = validate_captured(&context, "coach_retry_check", &output).unwrap();
                 assert_eq!(result["repaired"], reported);
                 assert_eq!(result["observation"]["items"], json!(items));
                 assert_eq!(result["decision"]["shown"]["construct"], "possession");

@@ -110,8 +110,10 @@ pub(crate) fn read(db: &Connection, digest: &str) -> Result<Option<AudioSignal>>
         )
         .optional()?;
     data.map(|data| {
-        serde_json::from_slice(&data).map_err(|_| AppError::new(ErrorCode::Storage, "Saved audio analysis is invalid."))
-    }).transpose()
+        serde_json::from_slice(&data)
+            .map_err(|_| AppError::new(ErrorCode::Storage, "Saved audio analysis is invalid."))
+    })
+    .transpose()
 }
 
 pub(crate) fn save(db: &Connection, digest: &str, signal: &AudioSignal) -> Result<()> {
