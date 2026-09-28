@@ -51,6 +51,16 @@ it('renders highlights inside the owning dialog top layer', () => {
   expect(view.container.querySelector('dialog .speech-follow-word')).not.toBeNull()
 })
 
+it('positions a speech highlight in a scrolled dialog without applying its viewport offset twice', () => {
+  measureRanges()
+  const view = render(<dialog open style={{ position: 'fixed' }}><TargetText text="hello" /></dialog>)
+  const dialog = view.container.querySelector('dialog')!
+  vi.spyOn(dialog, 'getBoundingClientRect').mockReturnValue(new DOMRect(5, 10, 200, 200))
+  dialog.scrollTop = 8
+  act(() => publishSpeechFollow({ text: 'hello', word: { start: 0, end: 5, from: 0, to: 1 } }))
+  expect(dialog.querySelector('.speech-follow-word')).toHaveStyle({ left: '5px', top: '18px' })
+})
+
 it('follows the selected repeated occurrence inside an independent helper', () => {
   const selected = measureRanges()
   render(<SpeechFollowText text="go go"><span data-speech-source>go go</span>

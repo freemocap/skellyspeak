@@ -2,6 +2,7 @@ import { createContext, useContext, useLayoutEffect, useRef, useState, useSyncEx
 import { createPortal } from 'react-dom'
 import { getSpeechFollow, subscribeSpeechFollow } from '../../platform/audio/speech-follow'
 import { spokenRangeInText } from '../../domain/audio/speech-follow'
+import { readingLayerOrigin } from './reading-layer'
 
 const InsideFollowText = createContext(false)
 
@@ -59,7 +60,8 @@ function FollowText({ text, children, source }: { text: string; children: ReactN
         if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) { left = Math.max(left, bounds.left); right = Math.min(right, bounds.right) }
         if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) { top = Math.max(top, bounds.top); bottom = Math.min(bottom, bounds.bottom) }
       }
-      const next = boxes.map(box => new DOMRect(Math.max(left, box.left), Math.max(top, box.top), Math.min(right, box.right) - Math.max(left, box.left), Math.min(bottom, box.bottom) - Math.max(top, box.top))).filter(box => box.width > 0 && box.height > 0)
+      const origin = readingLayerOrigin(root.closest('dialog, [popover]') ?? document.body)
+      const next = boxes.map(box => new DOMRect(Math.max(left, box.left) - origin.left, Math.max(top, box.top) - origin.top, Math.min(right, box.right) - Math.max(left, box.left), Math.min(bottom, box.bottom) - Math.max(top, box.top))).filter(box => box.width > 0 && box.height > 0)
       setGeometry(previous => {
         if (previous.rects.length === next.length && previous.rects.every((box, i) => box.x === next[i].x && box.y === next[i].y && box.width === next[i].width && box.height === next[i].height)) return previous
         return { rects: next, motion: animate ? 'word' : 'layout' }

@@ -648,7 +648,7 @@ export function SettingsModal({
             {searching && visibleRows.length === 0 && (
               <p className="center-note">{t(ui, "Nothing matches “{q}”.", { q: search.trim() })}</p>
             )}
-            {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id} open={group.id === 'appearance'}>
+            {stacked ? SECTIONS.map(group => <details className="settings-section" key={group.id}>
               <summary>{t(ui, group.labelKey)}</summary>
               {allRows.filter(([, row]) => row.section === group.id).map(([id, row]) => <div key={id} className="settings-entry">{row.node}</div>)}
             </details>) : renderRows.map(({ id, row, heading }) => (

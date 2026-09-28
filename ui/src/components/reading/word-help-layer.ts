@@ -1,6 +1,7 @@
 import { supportsPopover } from '../controls/popover-support'
+import { readingLayerOrigin } from './reading-layer'
 
-/** Keep touch word help outside message clipping without invoking WebView top-layer scaling. */
+/** Keep touch word help outside message clipping and software WebView fixed layers. */
 export function wordHelpLayer(anchor: HTMLElement | null) {
   const touch = anchor !== null && (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0)
   return { popover: !touch && supportsPopover(), host: anchor?.closest('dialog[open]') ?? document.body }
@@ -15,8 +16,9 @@ export function positionWordHelp(card: HTMLElement, word: HTMLElement) {
   const style = getComputedStyle(word)
   for (const name of ['--reading-scale', '--script-scale']) card.style.setProperty(name, style.getPropertyValue(name))
   const box = word.getBoundingClientRect(), size = card.getBoundingClientRect()
+  const origin = card.hasAttribute('popover') ? { left: 0, top: 0 } : readingLayerOrigin(card.parentElement ?? document.body)
   const start = getComputedStyle(word).direction === 'rtl' ? box.right - size.width : box.left
-  card.style.left = `${Math.max(left + 8, Math.min(start, left + width - size.width - 8))}px`
+  card.style.left = `${Math.max(left + 8, Math.min(start, left + width - size.width - 8)) - origin.left}px`
   const above = box.top - size.height - 4
-  card.style.top = `${Math.max(top + 8, Math.min(above >= top + 8 ? above : box.bottom + 4, top + height - size.height - 8))}px`
+  card.style.top = `${Math.max(top + 8, Math.min(above >= top + 8 ? above : box.bottom + 4, top + height - size.height - 8)) - origin.top}px`
 }

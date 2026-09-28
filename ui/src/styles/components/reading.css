@@ -1,7 +1,11 @@
-/* Playback overlays follow measured source glyphs without reflowing the text. */
+/* Absolute layers avoid distorted fixed-layer painting in software WebViews.
+   Geometry is measured in the owning document/dialog without reflowing text. */
 .speech-follow-overlay {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
   pointer-events: none;
   z-index: var(--z-popover);
   opacity: 0;
@@ -9,7 +13,7 @@
 }
 .speech-follow-overlay[data-active='true'] { opacity: 1; }
 .speech-follow-word {
-  position: fixed;
+  position: absolute;
   pointer-events: none;
   z-index: var(--z-popover);
   /* Existing interaction ink supplies the light/dark blue; keep glyphs visible. */
@@ -161,6 +165,9 @@
 }
 
 .saved-word-help > span, .saved-word-help > span > span { display: block; }
+/* Portal coordinates include document/dialog scrolling; desktop top-layer
+   popovers retain viewport coordinates. Software WebViews shrink fixed cards. */
+.saved-word-help[data-word-help-layer='portal'] { position: absolute; }
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-reading-aid); color: var(--ink-3); }
