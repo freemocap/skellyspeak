@@ -202,7 +202,6 @@ impl Application {
             request.authority(&store)?;
             coach_observation::validate_captured(
                 &request.captured,
-                &request.source,
                 &request.kind,
                 output,
             )

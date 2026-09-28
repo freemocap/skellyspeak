@@ -15,7 +15,7 @@ beforeEach(() => { create.mockReset(); remove.mockReset() })
 
 it('puts one add action on each bubble and saves the AI reply with its captured language scope', async () => {
   create.mockResolvedValue({ id: 'phrase-1' } as Awaited<ReturnType<typeof createDrillItem>>)
-  const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: {
+  const { container } = render(<ReadingScopeContext value={scope}><TurnView editing={false} turn={{ id: 1, user: 'Hola', pendingText: '', assistant: {
     reply: 'Buenos días.', tokens: [], user_tokens: [], translation: '', user_translation: '', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [],
   } }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
   expect(within(container.querySelector('.msg.me') as HTMLElement).getAllByRole('button', { name: 'Add to Practice' })).toHaveLength(1)
@@ -60,7 +60,7 @@ it('does not guess a language when the conversation scope is unavailable', () =>
 
 it('saves the learner message from its own bubble', async () => {
   create.mockResolvedValue({ id: 'phrase-2' } as Awaited<ReturnType<typeof createDrillItem>>)
-  const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
+  const { container } = render(<ReadingScopeContext value={scope}><TurnView editing={false} turn={{ id: 1, user: 'Hola', pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
   fireEvent.click(within(container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Add to Practice' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Remove from Practice' })).toHaveAttribute('data-state', 'saved'))
   expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Hola', ...scope })

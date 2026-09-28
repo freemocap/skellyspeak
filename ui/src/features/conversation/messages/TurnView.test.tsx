@@ -25,7 +25,7 @@ beforeEach(() => {
 
 function props(): Props {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
-  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onBubbleTap: vi.fn(), onSpeak: vi.fn(), onAskCoach: vi.fn() }
+  return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onBubbleTap: vi.fn(), onSpeak: vi.fn(), onAskCoach: vi.fn(), editing: false }
 }
 it('places the persona reaction on the reply', () => {
   const input = props()
@@ -480,7 +480,8 @@ it('preserves source text and reading controls without inline XP tags', async ()
   snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
   snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'identify_describe', xp: 10 }]
   const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
-  expect(view.container.querySelector('.message-evidence')).toHaveTextContent('Hola')
+  expect(view.container.querySelector('.msg.me')).toHaveTextContent('Hola')
+  expect(view.container.querySelector('.message-evidence')).toBeNull()
   expect(view.container.querySelector('.message-credit-badges')).toBeNull()
   expect(screen.queryByRole('button', { name: /Inspect .* XP/ })).toBeNull()
   fireEvent.click(screen.getAllByRole('button', { name: 'Hola' })[0])
@@ -524,7 +525,7 @@ it('keeps the feedback line under the learner message in every feedback state wi
   expect(message).toHaveClass('with-actions')
   const badge = screen.getByRole('button', { name: 'Coach feedback for message 1' })
   expect(badge.closest('.learner-turn')).toBe(message.closest('.learner-turn'))
-  expect(badge).toHaveTextContent(/Grammar.*4\/10.*Conversation fit.*3\/10/)
+  expect(badge).toHaveTextContent('Good job')
   expect(badge.querySelector('.coach-meter')).toBeNull()
 })
 
@@ -562,4 +563,30 @@ it('inspects the learner message only when that message owns the recording, clos
   expect(button).toHaveAttribute('aria-pressed', 'false')
   expect(screen.queryByRole('region', { name: 'Recording inspection' })).toBeNull()
   expect(bubble).not.toHaveBeenCalled()
+})
+
+it('marks the message being fixed and leaves other turns unmarked', () => {
+  const input = props()
+  const view = render(<TurnView {...input} editing />)
+  expect(screen.getByText('Fixing this message')).toBeVisible()
+  expect(view.container.querySelector('.turn-stack')).toHaveAttribute('data-editing')
+  view.rerender(<TurnView {...input} editing={false} />)
+  expect(screen.queryByText('Fixing this message')).toBeNull()
+  expect(view.container.querySelector('.turn-stack')).not.toHaveAttribute('data-editing')
+})
+
+it('squiggles the phrases the coach flagged and leaves the edit to Fix it', () => {
+  const input = props()
+  input.onEditUser = vi.fn()
+  input.turn.user = 'Me gustan son los tacos'
+  input.turn.assistant!.user_tokens = []
+  input.turn.coach = { corrections: [], notes: [], meaningRecovered: 'full', candidatesSent: 1, itemsReturned: 2, items: [
+    { construct: 'a', quote: 'son', outcome: 'not_demonstrated', rationale: '' },
+    { construct: 'b', quote: 'los tacos', outcome: 'partial', rationale: '' },
+  ] }
+  const view = render(<TurnView {...input} />)
+  const flagged = [...view.container.querySelectorAll('.coach-flag')].map(node => [node.textContent, node.getAttribute('data-severity')])
+  expect(flagged).toEqual([['son', 'error'], ['los tacos', 'partial']])
+  expect(screen.getByRole('button', { name: 'Fix it' })).toBeVisible()
+  expect(screen.queryByRole('button', { name: 'Edit message' })).toBeNull()
 })

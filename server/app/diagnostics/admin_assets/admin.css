@@ -36,8 +36,9 @@
 
   /* Reply ideas sit in a tinted tray so suggestions never read as conversation. */
   --reply-tray: color-mix(in srgb, var(--track) 45%, var(--sheet));
-  /* The coach sits recessed behind the chat, sunk below the ground. */
-  --coach-surface: color-mix(in srgb, var(--bg) 90%, rgb(0 0 0));
+  /* The coach sits recessed behind the chat: the grey below the ground with a
+     faint cast of the coach's green; its green outlines say what it is. */
+  --coach-surface: color-mix(in srgb, color-mix(in srgb, var(--bg) 90%, rgb(0 0 0)) 92%, var(--coach-mark));
 
   /* ══ Colour: the conversation ════════════════════════════════════════════
      The partner's side is warm; the learner's side is cool. */
@@ -173,11 +174,6 @@
   --shadow-recessed: inset 0 2px 6px rgb(0 0 0 / 16%), inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent); /* the coach, inspectors */
   --scrim: rgb(0 0 0 / 38%);                                                   /* behind dialogs */
   --scrim-strong: rgb(5 9 15 / 72%);                                           /* behind drawers and destructive confirmations */
-  --surface-bg: var(--sheet);
-  /* Written by useAppearance when a glow colour is chosen. */
-  --appearance-glow: 0 0 0 transparent;
-  --appearance-glow-inset: inset 0 0 0 transparent;
-  --surface-glow: var(--appearance-glow);
 
   /* ══ Scales ══════════════════════════════════════════════════════════════
      Every scale is complete on purpose, including steps no rule uses yet. */
@@ -220,8 +216,8 @@
   --tracking-caps: 0.14em;
 
   /* ── Space ──────────────────────────────────────────────────────────────
-     A 2px grid up to 20px, then wider steps. Every step is multiplied by the
-     spacing preference, so their order holds at every density. Hairlines,
+     A 2px grid up to 20px, then wider steps. Every step is multiplied by
+     --layout-scale, so the whole scale tightens or loosens together. Hairlines,
      reading size and control minimums are independent. */
   --layout-scale: .75;
   --space-hairline: 1px;
@@ -250,8 +246,8 @@
 
   /* ── Controls and lines ───────────────────────────────────────────────── */
   --control-height-xs: 28px;
-  --control-height-sm: 26px;
-  --control-height: 32px;
+  --control-height-sm: 32px;
+  --control-height: 40px;
   --control-height-lg: 40px;
   --touch-target: 44px;
   --border-width: 1px;
@@ -409,22 +405,9 @@
   --ink: #f5f0e6; --ink-2: #ded6c8; --ink-3: #b8ad9b;
 }
 
-/* Spacing: named densities sit one step roomier than raw multipliers; at .5 the
-   whole app collapsed into a flat, cramped sheet with no room for hierarchy. */
-:root[data-spacing='roomy'] { --layout-scale: 1.25; }
-:root[data-spacing='balanced'] { --layout-scale: 1; }
-:root[data-spacing='tight'] { --layout-scale: .75; }
-:root[data-spacing='extra_tight'] { --layout-scale: .5; }
-:root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
-:root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
-:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-bubble: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
-:root[data-depth='raised'] { --shadow-surface: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --shadow-floating: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --scrim: rgb(0 0 0 / 55%); }
-:root[data-depth='recessed'] { --shadow-surface: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
-
-/* Density never reduces touch targets below the platform minimum. */
+/* Controls never go below the platform touch minimum. */
 @media (pointer: coarse) {
-  :root[data-density='standard'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
-  :root[data-density='compact'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
+  :root { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
 }
 
 /* Phones: a 20px reading size times a script scale (1.5 for Arabic) filled the

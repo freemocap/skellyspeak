@@ -239,7 +239,7 @@ it('saves an explicit target variety as the per-language default', async () => {
 
 it('saves appearance on the learner without changing conversation settings', async () => {
   const settings = await getSettings()
-  const appearance = { ...DEFAULT_APPEARANCE, depth: 'recessed' as const, glowEnabled: true }
+  const appearance = { ...DEFAULT_APPEARANCE, palette: 'warm' as const }
   await saveSettings({ ...settings, appearance })
   expect(commands()).toHaveLength(1)
   expect(commands()[0].action).toEqual({

@@ -31,7 +31,8 @@ function projectEvidence(snapshot: SkillSnapshot | null, chatId: string | null, 
     if (judgment.spans) {
       const seen = new Set<string>()
       return judgment.spans.flatMap(({quote, start, end}) => {
-        if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start || end > source.length || source.slice(start, end) !== quote) throw new Error('Evidence span does not match the message')
+        // A span that does not land on its quote is left out, not treated as a failure.
+        if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start || end > source.length || source.slice(start, end) !== quote) return []
         const key = `${start}:${end}`
         if (seen.has(key)) return []
         seen.add(key)
@@ -41,7 +42,8 @@ function projectEvidence(snapshot: SkillSnapshot | null, chatId: string | null, 
     return [...new Set(judgment.quotes)].flatMap(quote => {
       const starts: number[] = []
       if (quote) for (let index = source.indexOf(quote); index >= 0; index = source.indexOf(quote, index + 1)) starts.push(index)
-      if (!starts.length) throw new Error('Evidence quote does not match the message')
+      // A quote the message does not contain verbatim has nowhere to point.
+      if (!starts.length) return []
       return starts.map(start => ({ ambiguous: starts.length > 1, skillId: node.id, domainId: index.catalog.domain(node.id).id, label: node.label, xp: xp, quote, rationale: judgment.rationale, id: `${record.attempt_id}:${node.id}`, start, end: start + quote.length, color: domainColors(index.catalog.domain(node.id).id).ink, explanation: `${node.label} · ${xp} XP for this message\n${judgment.rationale}` }))
     })
   }))

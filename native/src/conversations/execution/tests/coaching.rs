@@ -88,10 +88,7 @@ fn assistance_preserves_model_text_despite_script_heuristics() {
         )
         .unwrap();
     let check = |value: &serde_json::Value| {
-        support::validate(
-            &store.connection,
-            &turn,
-            support::ASSISTANCE,
+        support::validate(support::ASSISTANCE,
             &reply(&value.to_string()),
         )
     };
@@ -138,10 +135,7 @@ fn latin_assistance_requests_empty_romanization_without_rejecting_extra_help() {
     let mut value = assistance();
     value["replies"][0]["romanization"] = serde_json::json!("Fui con mi hermana.");
     assert!(
-        support::validate(
-            &store.connection,
-            &turn,
-            support::ASSISTANCE,
+        support::validate(support::ASSISTANCE,
             &reply(&value.to_string())
         )
         .is_ok()
@@ -277,10 +271,7 @@ fn hindi_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
         {"text":"धन्यवाद।","translation":"Thank you.","romanization":"धन्यवाद।","pronunciation":"Dhanyavaad."}],
         "frames":["क्या ___?","नमस्ते। ___"],"starters":["नमस्ते","धन्यवाद"]});
     let check = |v: &serde_json::Value| {
-        support::validate(
-            &store.connection,
-            &turn,
-            support::ASSISTANCE,
+        support::validate(support::ASSISTANCE,
             &reply(&v.to_string()),
         )
     };
@@ -294,16 +285,13 @@ fn hindi_assistance_keeps_scheme_guidance_without_rejecting_model_output() {
 fn useful_help_does_not_require_exactly_two_choices_or_short_display_fields() {
     use crate::learning::coaching::conversation_support as support;
     let (_dir, mut store, conversation) = setup();
-    let turn = support_turn(&mut store, &conversation, "Hola.");
+    support_turn(&mut store, &conversation, "Hola.");
     let mut value = assistance();
     value["replies"].as_array_mut().unwrap().truncate(1);
     value["frames"] = serde_json::json!([]);
     value["starters"] = serde_json::json!(["One", "Two", "Three"]);
     value["replies"][0]["translation"] = serde_json::json!("x".repeat(900));
-    let result = support::validate(
-        &store.connection,
-        &turn,
-        support::ASSISTANCE,
+    let result = support::validate(support::ASSISTANCE,
         &reply(&value.to_string()),
     )
     .unwrap();

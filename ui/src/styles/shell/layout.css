@@ -277,6 +277,21 @@
    name stays in the label and tooltip), XP a number, and AI a status dot. */
 .topbar-actions .gear.app-settings > span { display: none; }
 
+/* The theme switch, when the bar has room: one control, the sun/moon with a small
+   arrow joined to it that opens Cool/Warm. Under 860px it lives in Settings only. */
+.topbar-theme { position: relative; display: inline-flex; align-items: stretch; height: var(--control-height); margin-inline-end: var(--space-2); border-radius: var(--radius-md); }
+.topbar-theme > button { display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.topbar-theme > button:hover { color: var(--ink); background: var(--line-soft); }
+.topbar-theme-toggle { width: var(--control-height); border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.topbar-theme-more { width: var(--space-10); padding: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.topbar-theme-more[aria-expanded=true] { color: var(--ink); background: var(--line-soft); }
+.topbar-theme-menu { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-dropdown); display: grid; min-width: max-content; padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); box-shadow: var(--shadow-menu); }
+.topbar-theme-menu button { display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-5) 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); font: var(--weight-medium) var(--type-ui) var(--font-sans); text-align: start; cursor: pointer; }
+.topbar-theme-menu button:hover { background: var(--line-soft); }
+.topbar-theme-menu button[aria-checked=false] svg { visibility: hidden; }
+@media (max-width: 860px) { .topbar-theme { display: none; } }
+@media (pointer: coarse) { .topbar-theme-menu button { min-height: var(--touch-target); } }
+
 .app-home {
   display: inline-flex;
   align-items: center;

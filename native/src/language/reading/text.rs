@@ -120,8 +120,7 @@ impl Request {
                 )?)
             }
             ReadingAid::Explanations => {
-                stored.explanations = Some(serde_json::from_value(support::validate_source(
-                    &self.input.text,
+                stored.explanations = Some(serde_json::from_value(support::validate(
                     support::EXPLANATIONS,
                     completion,
                 )?)?)

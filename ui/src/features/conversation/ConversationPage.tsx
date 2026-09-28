@@ -4,7 +4,7 @@ import { ConversationReadingProvider } from './reading/ConversationReadingProvid
 import { interruptSpeech } from '../../platform/audio/speech'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
 import { useAttemptStreamSync } from '../../state/session/attempt-streams'
-import type { ConversationStartConfig } from '../../generated/contracts'
+import type { CoachControl, ConversationStartConfig } from '../../generated/contracts'
 import { AskCoachContext } from '../../components/learning/AskCoachButton'
 import { useI18n } from '../../components/localization/i18n'
 import { TranscriptionInspector } from './speech/TranscriptionInspector'
@@ -55,7 +55,7 @@ import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandl
 import { useUiDirection } from '../../components/localization/useUiDirection'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
 import { EditFeedback } from './coaching/EditFeedback'
-import { TurnView } from './messages/TurnView'
+import { TurnView, type TurnShape } from './messages/TurnView'
 import { LatestTurnActivity } from './messages/TurnActivityLine'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { AnalysisContent } from './reading/AnalysisContent'
@@ -63,6 +63,7 @@ import { CoachAnalysisPanel } from './coaching/CoachAnalysisPanel'
 import { logInfo, logWarn } from '../../platform/diagnostics/log'
 import { ChatHistory } from './session/ChatHistory'
 import { latestAnswered } from '../../domain/conversation/turns'
+import { revisionChanges } from '../../domain/conversation/revision-changes'
 import { useConversation } from './session/useConversation'
 import { useConversationScroll } from './messages/useConversationScroll'
 import { useMicRecorder } from '../../platform/audio/useMicRecorder'
@@ -435,6 +436,25 @@ export default function ConversationPage({
 
   const activeTurns = turns.filter(turn => !turn.replacedBy)
   const editingTurn = turns.find((turn) => turn.id === editingTurnId)
+  /** Coach controls act on the turn's decision as it is when they run. */
+  const coachControl = async (turnId: string, control: CoachControl): Promise<void> => {
+    if (!snapshot) throw new Error('Coaching is unavailable.')
+    await executeAction(snapshot, { kind: 'coachControl', turnId, control })
+  }
+  const editChanges = editingTurn?.user != null ? revisionChanges(editingTurn.user, input) : 0
+  const coachedTurn = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
+  const editBlocked = acceptingSend.current || acceptedEditSource !== null
+  const canEdit = (turn: TurnShape): boolean => Boolean(turn.turnId) && turn.user !== null
+  /** Puts a sent message in the composer; sending replaces it. */
+  const startEdit = (selected: TurnShape): void => {
+    setEditingTurnId(selected.id)
+    setEditRevision(snapshot?.revision ?? null)
+    setInput(selected.user ?? '')
+    setError(null)
+    inputEvidence.current = unreportedInput()
+    // On phones, leave the microphone visible until the learner taps to type.
+    if (!isMobile) composer.current?.querySelector('textarea')?.focus()
+  }
   const latestAssistantId = latestAnswered(activeTurns)?.id ?? null
 
   // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
@@ -561,14 +581,15 @@ export default function ConversationPage({
             measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           {editingTurnId !== null && (
             <div className="edit-banner">
-              <span>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("✎ Editing your message — send to replace it")}</span>
+              <ToolbarIcon name="edit" size={15} />
+              <strong>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("Fix your message")}</strong>
+              {!acceptedEditSource && editingTurn?.user != null && <span className="edit-banner-changes">{editChanges === 0
+                ? tr("Sending replaces your message") : tr("Changes from your original", { count: editChanges })}</span>}
               <button type="button" disabled={acceptedEditSource !== null} onClick={cancelEdit}>
                 {tr("Cancel")}</button>
             </div>
           )}
-          {editingTurn && !acceptedEditSource && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
-            await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
-          } : undefined} conversationFeedback={editingTurn.conversationFeedback} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
+          {editingTurn && !acceptedEditSource && <EditFeedback onControl={editingTurn.turnId ? control => coachControl(editingTurn.turnId!, control) : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           {!isMobile && composerActivity}
           {mic.failure != null && <ErrorNotice error={mic.failure}>
             <p>{nativeError(mic.failure)}</p>
@@ -625,7 +646,7 @@ export default function ConversationPage({
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
-        <div className="stream" ref={streamRef} onScroll={streamScroll.onScroll}>
+        <div className="stream" data-editing={editingTurnId !== null ? '' : undefined} ref={streamRef} onScroll={streamScroll.onScroll}>
           {readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
           {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}
           {olderError && <ErrorNotice as="p" error={olderError}>{olderError}</ErrorNotice>}
@@ -645,6 +666,7 @@ export default function ConversationPage({
           {activeTurns.map((turn) => (
             <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
               turn={turn}
+              editing={turn.id === editingTurnId}
               onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
@@ -671,20 +693,12 @@ export default function ConversationPage({
               onBubbleTap={onBubbleTap}
               onAddContext={turn.turnId && !turn.replacedBy ? async note => { await executeAction(await readWorkspace(), {kind:'reassessFeedback', turnId:turn.turnId!, note}) } : undefined}
               onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
-              onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
+              onCoachControl={turn.turnId ? async (selected, control) => {
                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
-                await executeAction(snapshot, { kind: 'coachControl', turnId: selected.turnId, control, expectedRevision: snapshot.revision })
+                await coachControl(selected.turnId, control)
               } : undefined}
-              editDisabled={acceptingSend.current || acceptedEditSource !== null}
-              onEditUser={turn.turnId && turn.user !== null ? selected => {
-                setEditingTurnId(selected.id)
-                setEditRevision(snapshot?.revision ?? null)
-                setInput(selected.user ?? '')
-                setError(null)
-                inputEvidence.current = unreportedInput()
-                // On phones, leave the microphone visible until the learner taps to type.
-                if (!isMobile) composer.current?.querySelector('textarea')?.focus()
-              } : undefined}
+              editDisabled={editBlocked}
+              onEditUser={canEdit(turn) ? startEdit : undefined}
             />
             </ConversationErrorScope>
           ))}
@@ -722,10 +736,9 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
-            const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
-            if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
-            await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
+          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+            if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')
+            await coachControl(coachedTurn.turnId, control)
           }} /></>}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}

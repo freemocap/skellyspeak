@@ -5,15 +5,8 @@ impl Handlers<'_> {
         &mut self,
         turn_id: String,
         control: crate::learning::coaching::CoachControl,
-        expected_revision: i32,
     ) -> Result<String> {
-        let id = crate::learning::coaching::coach_policy::control(
-            self.tx,
-            self.snapshot,
-            &turn_id,
-            control,
-            expected_revision,
-        )?;
+        let id = crate::learning::coaching::coach_policy::control(self.tx, &turn_id, control)?;
         self.conversation_scope = Some(self.tx.query_row(
             "SELECT conversation_id FROM turns WHERE id=?1",
             [&turn_id],

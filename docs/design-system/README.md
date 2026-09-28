@@ -35,12 +35,12 @@ SkellySpeak is a convivial tool for learning languages through welcoming convers
 ### Space, shape, depth
 
 - **Every length is a token.** Stylesheets may not hard-code colours, font sizes, weights, line heights (`leading-*`), spacing (`space-*`), border widths (`border-width*`), radii, durations or layers; `npm run styles:check` enforces it.
-- **Spacing is one ordered scale** (`space-1` 2px … `space-13` 40px) that the app multiplies by a density factor (tight .75 by default). Use steps, never raw pixels, so density settings keep working.
+- **Spacing is one ordered scale** (`space-1` 2px … `space-13` 40px) that the app multiplies by one fixed `--layout-scale` (.75). Use steps, never raw pixels, so the scale can change in one place.
 - **Dense by default.** SkellySpeak is chat-first and compact: modest padding (`space-4` × `space-6` in a bubble), no airy hero sections.
 - **Radii:** `radius-md` buttons and fields, `radius-lg` cards, `radius-xl` chat bubbles, the composer frame and dialogs, `radius-pill` chips. A chat bubble has one small corner (`radius-sm`) on the speaker's side — bottom-left for the partner, bottom-right for the learner.
 - **Depth says what a surface is for:** raised is where you work, recessed is what you pick from or refer to, floating is what needs an answer now.
-- **Depth is quiet** and a learner preference: `shadow-surface` lifts the chat off `bg`, `shadow-floating` carries dialogs, popovers and rewards, `shadow-sm` lifts bubbles and cards, `shadow-recessed` sinks the coach below the ground. Dialogs sit on `scrim`; drawers and destructive confirmations on `scrim-strong`. Prefer borders to shadows inside a surface.
-- **Controls** are `control-height` (32px compact / 40px standard) and never below `touch-target` 44px on touch screens.
+- **Depth is quiet** and fixed: `shadow-surface` lifts the chat off `bg`, `shadow-floating` carries dialogs, popovers and rewards, `shadow-sm` lifts bubbles and cards, `shadow-recessed` sinks the coach below the ground. Dialogs sit on `scrim`; drawers and destructive confirmations on `scrim-strong`. Prefer borders to shadows inside a surface.
+- **Controls** are `control-height` (40px; `control-height-sm` 32px) and never below `touch-target` 44px on touch screens.
 - **Focus:** one ring everywhere: `focus-width` (2px) solid `focus-ring`, offset 2px, from the global rule. Components don't restyle it; only rings that would be clipped move inside (negative offset). Never remove it with `outline: none`.
 
 ### Motion

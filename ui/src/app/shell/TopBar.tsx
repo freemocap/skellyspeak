@@ -12,10 +12,12 @@ import { useAiBusyStore } from '../../state/session/ai-busy'
 import { openAiWindow } from '../../platform/ipc/window'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { ModeTabs } from './ModeTabs'
+import { ThemeControls } from './ThemeControls'
 
 /** The global bar: the wordmark, the language, the Chat and Practice tabs at full
  * width, progress, AI status, Settings and More. Controls that belong to a place
- * live in that place (Conversations in the chat header); the theme is in Settings.
+ * live in that place (Conversations in the chat header). The theme and palette
+ * sit here when the bar has room, and always in Settings.
  * The injected picker supports the local layout fixture; production selection
  * uses the shared settings writer. */
 export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker?: ReactNode }) {
@@ -54,6 +56,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <ModeTabs />
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
+      <ThemeControls />
       <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)}<span className="profile-unit"> XP</span></strong></> : tr("Progress")}</button>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
         aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={openAiView}

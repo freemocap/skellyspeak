@@ -62,8 +62,9 @@
 
   /* Reply ideas sit in a tinted tray so suggestions never read as conversation. */
   --reply-tray: color-mix(in srgb, var(--track) 45%, var(--sheet));
-  /* The coach sits recessed behind the chat, sunk below the ground. */
-  --coach-surface: color-mix(in srgb, var(--bg) 90%, rgb(0 0 0));
+  /* The coach sits recessed behind the chat: the grey below the ground with a
+     faint cast of the coach's green; its green outlines say what it is. */
+  --coach-surface: color-mix(in srgb, color-mix(in srgb, var(--bg) 90%, rgb(0 0 0)) 92%, var(--coach-mark));
 
   /* ══ Colour: the conversation ════════════════════════════════════════════
      The partner's side is warm; the learner's side is cool. */
@@ -199,11 +200,6 @@
   --shadow-recessed: inset 0 2px 6px rgb(0 0 0 / 16%), inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent); /* the coach, inspectors */
   --scrim: rgb(0 0 0 / 38%);                                                   /* behind dialogs */
   --scrim-strong: rgb(5 9 15 / 72%);                                           /* behind drawers and destructive confirmations */
-  --surface-bg: var(--sheet);
-  /* Written by useAppearance when a glow colour is chosen. */
-  --appearance-glow: 0 0 0 transparent;
-  --appearance-glow-inset: inset 0 0 0 transparent;
-  --surface-glow: var(--appearance-glow);
 
   /* ══ Scales ══════════════════════════════════════════════════════════════
      Every scale is complete on purpose, including steps no rule uses yet. */
@@ -246,8 +242,8 @@
   --tracking-caps: 0.14em;
 
   /* ── Space ──────────────────────────────────────────────────────────────
-     A 2px grid up to 20px, then wider steps. Every step is multiplied by the
-     spacing preference, so their order holds at every density. Hairlines,
+     A 2px grid up to 20px, then wider steps. Every step is multiplied by
+     --layout-scale, so the whole scale tightens or loosens together. Hairlines,
      reading size and control minimums are independent. */
   --layout-scale: .75;
   --space-hairline: 1px;
@@ -276,8 +272,8 @@
 
   /* ── Controls and lines ───────────────────────────────────────────────── */
   --control-height-xs: 28px;
-  --control-height-sm: 26px;
-  --control-height: 32px;
+  --control-height-sm: 32px;
+  --control-height: 40px;
   --control-height-lg: 40px;
   --touch-target: 44px;
   --border-width: 1px;
@@ -435,22 +431,9 @@
   --ink: #f5f0e6; --ink-2: #ded6c8; --ink-3: #b8ad9b;
 }
 
-/* Spacing: named densities sit one step roomier than raw multipliers; at .5 the
-   whole app collapsed into a flat, cramped sheet with no room for hierarchy. */
-:root[data-spacing='roomy'] { --layout-scale: 1.25; }
-:root[data-spacing='balanced'] { --layout-scale: 1; }
-:root[data-spacing='tight'] { --layout-scale: .75; }
-:root[data-spacing='extra_tight'] { --layout-scale: .5; }
-:root[data-density='standard'] { --control-height: 40px; --control-height-sm: 32px; }
-:root[data-density='compact'] { --control-height: 32px; --control-height-sm: 26px; }
-:root[data-depth='flat'] { --shadow-surface: 0 0 0 transparent; --shadow-bubble: 0 0 0 transparent; --shadow-input: inset 0 0 0 transparent; --shadow-floating: 0 0 0 transparent; --scrim: rgb(0 0 0 / 25%); }
-:root[data-depth='raised'] { --shadow-surface: 0 2px 4px rgb(0 0 0 / 12%), 0 8px 22px rgb(0 0 0 / 16%); --shadow-floating: 0 8px 24px rgb(0 0 0 / 25%), 0 24px 70px rgb(0 0 0 / 30%); --scrim: rgb(0 0 0 / 55%); }
-:root[data-depth='recessed'] { --shadow-surface: inset 0 3px 8px rgb(0 0 0 / 25%), inset 0 1px 2px rgb(0 0 0 / 15%); --surface-bg: var(--chrome); --surface-glow: var(--appearance-glow-inset); }
-
-/* Density never reduces touch targets below the platform minimum. */
+/* Controls never go below the platform touch minimum. */
 @media (pointer: coarse) {
-  :root[data-density='standard'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
-  :root[data-density='compact'] { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
+  :root { --control-height: var(--touch-target); --control-height-sm: var(--touch-target); }
 }
 
 /* Phones: a 20px reading size times a script scale (1.5 for Arabic) filled the
@@ -1046,6 +1029,21 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
    name stays in the label and tooltip), XP a number, and AI a status dot. */
 .topbar-actions .gear.app-settings > span { display: none; }
 
+/* The theme switch, when the bar has room: one control, the sun/moon with a small
+   arrow joined to it that opens Cool/Warm. Under 860px it lives in Settings only. */
+.topbar-theme { position: relative; display: inline-flex; align-items: stretch; height: var(--control-height); margin-inline-end: var(--space-2); border-radius: var(--radius-md); }
+.topbar-theme > button { display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.topbar-theme > button:hover { color: var(--ink); background: var(--line-soft); }
+.topbar-theme-toggle { width: var(--control-height); border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.topbar-theme-more { width: var(--space-10); padding: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.topbar-theme-more[aria-expanded=true] { color: var(--ink); background: var(--line-soft); }
+.topbar-theme-menu { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-dropdown); display: grid; min-width: max-content; padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); box-shadow: var(--shadow-menu); }
+.topbar-theme-menu button { display: flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-5) 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); font: var(--weight-medium) var(--type-ui) var(--font-sans); text-align: start; cursor: pointer; }
+.topbar-theme-menu button:hover { background: var(--line-soft); }
+.topbar-theme-menu button[aria-checked=false] svg { visibility: hidden; }
+@media (max-width: 860px) { .topbar-theme { display: none; } }
+@media (pointer: coarse) { .topbar-theme-menu button { min-height: var(--touch-target); } }
+
 .app-home {
   display: inline-flex;
   align-items: center;
@@ -1409,7 +1407,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   padding: var(--space-11) var(--space-12);
   border: 0;
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
   background: var(--chrome);
   color: var(--ink);
   font: var(--type-body)/1.55 var(--font-sans);
@@ -1466,7 +1464,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
 }
 
 .info-tip { display: inline-block; position: relative; margin-inline: var(--space-2); vertical-align: middle; }
@@ -1494,7 +1492,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   background: var(--chrome);
   color: var(--ink);
   font: var(--type-ui)/1.4 var(--font-sans);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
 }
 
 @media (pointer: coarse) {
@@ -1663,7 +1661,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   border-radius: var(--radius-xs);
   background: var(--sheet);
   color: var(--ink);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
 }
 
 .saved-word-help > span, .saved-word-help > span > span { display: block; }
@@ -2280,7 +2278,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 @media not all and (max-width: 860px) {
   .split > .chat, .split > .break { border: 0; border-radius: var(--radius-xl); }
-  .split > .chat { box-shadow: var(--shadow-surface), var(--surface-glow); }
+  .split > .chat { box-shadow: var(--shadow-surface); }
   .split > .break { box-shadow: var(--shadow-recessed); }
   /* The open coach carries the coach's colour on the edge that faces the conversation. */
   .split > .break:not(.collapsed) { border-inline-start: var(--border-width-strong) solid var(--coach-mark); }
@@ -2478,14 +2476,11 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   border-color: var(--danger-line);
 }
 
-.message-evidence {
-  border-bottom: var(--border-width-thick) solid;
-  border-radius: var(--radius-xs);
-  background: var(--field);
-  cursor: pointer;
-}
-
-.evidence-phrase { font: inherit; padding: 0; border: 0; border-bottom: var(--border-width-thick) solid; }
+/* A phrase the coach flagged in your message: a wavy underline, red for an
+   error and yellow for partly right. Word-by-word tokens are inline blocks, so
+   each carries its own line. */
+.coach-flag, .coach-flag .w { text-decoration: underline wavy var(--danger-line); text-decoration-thickness: var(--border-width); text-underline-offset: var(--space-2); text-decoration-skip-ink: none; }
+.coach-flag[data-severity=partial], .coach-flag[data-severity=partial] .w { text-decoration-color: var(--warning-line); }
 
 .message-translate {
   display: inline-block;
@@ -2548,10 +2543,6 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .msg.plain, .msg.pending { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); }
 
-.message-evidence.token-evidence { border: 0; background: none; }
-
-.message-evidence.token-evidence .w { display: inline-block; border-bottom: var(--border-width-thick) solid; }
-
 /* Stream bubbles end in a tail on the speaker's side: the square corner meets a
    curved spur. ::before draws the spur in the border colour; ::after fills it
    one border width inside and covers the bubble's own border where they join.
@@ -2576,10 +2567,10 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
 
 
-/* The learner's message and, under it, one quiet line: the coach's feedback on
-   that message (its scores once they exist) and the message's XP. Both open
-   their details. The line keeps its place in every state from "Analyzing…" to
-   scores; a long correction truncates here and reads in full in its dialog. */
+/* The learner's message and, under it, one quiet line: the coach's verdict on
+   that message (how many errors it flagged), Fix it, and the message's XP. The
+   verdict and XP open their details; the scores live in the coach panel. The
+   line keeps its place in every state from "Analyzing…" to the verdict. */
 .learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); }
 .learner-turn > .msg.chat-message.me { margin-bottom: 0; }
 .message-feedback-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); max-width: 80%; min-width: 0; font: var(--type-meta)/var(--leading-snug) var(--font-sans); }
@@ -2591,21 +2582,31 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .message-feedback-line > .feedback-badge:hover { color: var(--ink); background: var(--line-soft); }
 .message-feedback-line > .feedback-badge.feedback-error { color: var(--danger-ink); }
 /* Compact scores open the full assessment. */
-.message-feedback-line > .feedback-badge.has-scores {
-  flex-wrap: wrap; justify-content: flex-end; column-gap: var(--space-5); row-gap: var(--space-1); padding: var(--space-1) var(--space-4);
-  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg);
+.message-feedback-line > .feedback-badge[data-verdict] {
+  flex-wrap: wrap; justify-content: flex-end; column-gap: var(--space-3); row-gap: var(--space-1); padding: var(--space-1) var(--space-5);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill);
   background: var(--coach-tint); color: var(--coach-ink); cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
-.message-feedback-line > .feedback-badge.has-scores:hover { border-color: var(--coach-mark); background: var(--coach-tint); box-shadow: var(--shadow-sm); }
-.feedback-line-score { display: inline-flex; align-items: center; gap: var(--space-3); white-space: nowrap; }
-.feedback-line-score .feedback-score { color: var(--coach-ink); font-weight: var(--weight-semibold); }
+.message-feedback-line > .feedback-badge[data-verdict]:hover { border-color: var(--coach-mark); background: var(--coach-tint); box-shadow: var(--shadow-sm); }
+/* A line with nothing to fix reads as success; one with a fix stays in the coach's green. */
+.message-feedback-line > .feedback-badge[data-verdict=clear] { border-color: var(--success-line); background: var(--success-tint); color: var(--success-ink); }
+.message-feedback-line > .feedback-badge[data-verdict=clear]:hover { border-color: var(--success-ink); }
+.message-feedback-line > .feedback-badge[data-verdict] > svg:not(:last-child) { color: var(--coach-mark); transform: none; }
+.message-feedback-line > .feedback-badge[data-verdict=clear] > svg:not(:last-child) { color: var(--success-ink); }
+.feedback-verdict { font-weight: var(--weight-semibold); }
+/* Fix it opens the message in the composer: an outlined action in the interaction colour. */
+.feedback-fix { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-xs); padding: 0 var(--space-4); border: var(--border-width) solid var(--interaction-line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--interaction-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); cursor: pointer; }
+.feedback-fix:hover:not(:disabled) { border-color: var(--interaction-ink); background: var(--interaction-tint); }
+.feedback-fix:disabled { opacity: .5; cursor: default; }
 .message-feedback-line > .feedback-badge > svg { transform: rotate(-90deg); }
 .message-feedback-line[dir="rtl"] > .feedback-badge > svg { transform: rotate(90deg); }
-.feedback-score { font-family: var(--font-mono); color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.message-feedback-line .message-translate { min-height: var(--control-height-xs); padding: 0 var(--space-3); border-color: transparent; color: var(--interaction-ink); font-family: var(--font-mono); font-weight: var(--weight-medium); }
+/* XP is quiet: an outline star and the amount in the progress colour, no fill. */
+.message-xp { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-xs); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--progress-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-mono); font-variant-numeric: tabular-nums; cursor: pointer; }
+.message-xp svg { color: var(--progress-mark); }
+.message-xp:hover { background: var(--progress-tint); }
 .message-feedback-line .message-fixed { margin: 0; }
-@media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-feedback-line .message-translate { min-height: var(--touch-target); } }
+@media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-xp, .feedback-fix { min-height: var(--touch-target); } }
 
 .message-fixed {
   display: block;
@@ -2638,6 +2639,13 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .msg.chat-message .message-tools { gap: var(--space-1); margin-block-start: var(--space-3); padding-block-start: 0; border-block-start: 0; }
 
+/* While a message is being fixed, it carries a dashed coach outline and a tag;
+   the rest of the thread fades so the message in question stands out. */
+.stream[data-editing] .turn-stack:not([data-editing]),
+.stream[data-editing] .turn-stack[data-editing] > :not(.learner-turn) { opacity: .5; transition: opacity var(--dur-fast) var(--ease-out); }
+.turn-stack[data-editing] .learner-turn .msg.chat-message.me { outline: var(--border-width-strong) dashed var(--coach-mark); outline-offset: var(--space-2); }
+.learner-turn-editing { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: var(--coach-ink); color: var(--sheet); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); }
+
 /* ── features/conversation/composer.css ── */
 /* Composer layout: the edit banner, the status line and the voice panel
    (components/voice.css). .field is the shared form-field base; .composer-input
@@ -2668,17 +2676,26 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   padding: var(--space-3) var(--space-8) var(--space-4);
 }
 
+/* Fixing a message is a coach mode: a solid coach-green header names it, says
+   how far the draft has moved from the original, and holds Cancel. */
 .edit-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
-  margin: var(--space-2) var(--space-1) var(--space-3); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md);
-  background: var(--field); border: var(--border-width) solid var(--interaction-ink);
-  font-family: var(--font-sans); font-size: var(--type-ui); color: var(--ink);
+  display: flex; align-items: center; gap: var(--space-4);
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-8)) var(--space-4); padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--coach-ink); color: var(--sheet);
+  font-family: var(--font-sans); font-size: var(--type-ui);
 }
+.edit-banner strong { font-weight: var(--weight-semibold); }
+.edit-banner-changes { color: color-mix(in srgb, var(--sheet) 80%, var(--coach-ink)); }
 
 .edit-banner button {
-  flex: none; border: none; background: none; color: var(--interaction-ink);
-  cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
+  flex: none; margin-inline-start: auto; min-height: var(--control-height-xs); padding: 0 var(--space-5);
+  border: var(--border-width) solid color-mix(in srgb, var(--sheet) 50%, var(--coach-ink)); border-radius: var(--radius-md);
+  background: none; color: var(--sheet); cursor: pointer; font: var(--weight-medium) var(--type-meta) var(--font-sans);
 }
+.edit-banner button:hover:not(:disabled) { background: color-mix(in srgb, var(--sheet) 15%, var(--coach-ink)); }
+.edit-banner button:disabled { opacity: .6; cursor: default; }
+@media (pointer: coarse) { .edit-banner button { min-height: var(--touch-target); } }
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
 
@@ -2721,7 +2738,8 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
-.composer[data-editing] { background: var(--chrome); border: var(--border-width) solid var(--interaction-ink); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
+.composer[data-editing] { background: var(--coach-tint); border: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
+.composer[data-editing] .field { border-color: var(--coach-mark); }
 
 /* ── features/conversation/reply-help.css ── */
 /* Reply help — conversation style owner.
@@ -3520,7 +3538,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .coach-input-row {
   display: flex; gap: var(--space-3); align-items: flex-end;
-  padding: var(--space-6) var(--space-8); border-top: var(--border-width) solid var(--line-soft); flex: none;
+  padding: var(--space-6) var(--space-8); border-top: var(--border-width) solid var(--coach-line); flex: none;
 }
 
 .coach-input {
@@ -3539,11 +3557,12 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .coach-send:disabled { opacity: 0.5; cursor: default; }
 
-/* A coaching card is a white card on the panel sheet. Its kind shows in the
-   content (a struck-out → corrected pair, a quoted phrase), not a side stripe. */
+/* A coaching card is a white card on the green coach surface, outlined in the
+   coach's line. Its kind shows in the content (a struck-out → corrected pair, a
+   quoted phrase), not a side stripe. */
 .coach-card {
   display: grid; gap: var(--space-5);
-  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg);
   padding: var(--space-7) var(--space-8); background: var(--field); box-shadow: var(--shadow-sm);
 }
 
@@ -3551,10 +3570,17 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .cor-why { font-size: var(--type-body); color: var(--ink-2); line-height: var(--leading-normal); margin: 0; }
 
-.cor-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
-.cor-original, .cor-replacement { flex: 1 1 12rem; min-width: 0; }
-.cor-original .msg.chat-message { border-color: var(--danger-line); }
-.cor-replacement .msg.chat-message { border-color: var(--success-line); }
+/* The correction reads as one line of the learner's language: the words to drop
+   struck through with a thin line so they stay legible, then the replacement on a
+   pale success wash with its reading tools. Neither is drawn as a chat bubble. */
+.cor-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
+.cor-removed { padding: 0 var(--space-3); border-radius: var(--radius-sm); background: var(--danger-tint); color: var(--danger-ink); text-decoration: line-through var(--border-width) var(--danger-line); }
+.cor-arrow { color: var(--ink-3); font-family: var(--font-sans); font-size: var(--type-body); }
+.cor-replacement { flex: 1 1 12rem; min-width: 0; }
+.cor-replacement .reading-passage { margin: 0; }
+.cor-replacement .msg.chat-message { max-width: 100%; margin: 0; border: 0; border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); box-shadow: inset 0 calc(-1 * var(--border-width-strong)) 0 var(--success-line); }
+.cor-replacement .msg.chat-message::before, .cor-replacement .msg.chat-message::after { content: none; }
+.cor-line .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .coach-card .md-p { color: var(--ink-2); line-height: var(--leading-normal); }
 
 /* Coach feed: a persistent scrollback of one entry per coached message,
@@ -3592,17 +3618,20 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .edit-feedback {
   background: var(--field);
   color: var(--ink);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--coach-line);
+  border-radius: var(--radius-lg);
   margin: var(--space-2) 0 var(--space-4);
   font-size: var(--type-ui);
 }
 
 .edit-feedback > p {
+  display: flex; align-items: center; gap: var(--space-2);
   margin: 0;
   padding: var(--space-3) var(--space-5);
   font-weight: var(--weight-semibold);
+  color: var(--coach-ink);
 }
+.edit-feedback > p svg { color: var(--coach-mark); }
 
 .edit-feedback-body {
   max-height: min(210px, 28dvh);
@@ -3629,7 +3658,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 /* The coach's overall read on the message leads, above the details, on its
    own card so it stands apart from the recessed coach surface. */
-.coach-verdict { padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); }
+.coach-verdict { padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); }
 .coach-verdict .md-p { font-size: calc(var(--type-body) * var(--reading-scale)); color: var(--ink); line-height: var(--leading-normal); }
 
 .coach-assessment { display: grid; gap: var(--space-6); }
@@ -3653,7 +3682,8 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .coach-wording[data-kind=native] li { background: var(--warning-tint); color: var(--warning-ink); }
 .live-coach-review { display: grid; gap: var(--space-6); }
 .live-coach-review > h3 { margin: 0; color: var(--interaction-ink); font-size: var(--type-body); }
-.live-coach-review > .detail-action { justify-self: start; }
+.live-coach-review > .detail-action, .live-coach-fix { justify-self: start; }
+.live-coach-fix { display: inline-flex; align-items: center; gap: var(--space-3); }
 .analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--interaction-tint); }
 .analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--interaction-ink); }
 .analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--interaction-ink); }
@@ -3670,7 +3700,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .coach-chat-history { min-height: 0; display: flex; overflow: hidden; background: var(--sheet); }
 .coach-chat-history[hidden] { display: none; }
 .coach-chat-footer { flex: none; background: var(--sheet); max-height: 50%; overflow-y: auto; }
-.coach-chat-divider { flex: none; display: flex; align-items: stretch; min-height: 24px; background: var(--chrome); border-block: var(--border-width) solid var(--line); }
+.coach-chat-divider { flex: none; display: flex; align-items: stretch; min-height: 24px; background: var(--chrome); border-block: var(--border-width) solid var(--coach-line); }
 .coach-chat-resize { flex: 1; display: grid; place-items: center; min-width: 0; cursor: row-resize; touch-action: none; user-select: none; }
 .coach-chat-resize > span { width: 48px; height: 4px; border-radius: var(--radius-pill); background: var(--ink-3); }
 .coach-chat-resize:hover > span, .coach-chat-resize.dragging > span { background: var(--interaction-ink); }
@@ -3697,7 +3727,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   display: flex;
   flex-direction: column;
   background: var(--coach-surface);
-  border-inline-start: var(--border-width) solid var(--line-soft);
+  border-inline-start: var(--border-width) solid var(--coach-line);
   position: relative;
   overflow: hidden;
 }
@@ -3746,7 +3776,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .coach-heading > .panel-tabs { min-height: 0; margin: 0; padding: var(--space-2); gap: var(--space-1); background: var(--line-soft); border: 0; border-radius: var(--radius-md); }
 .break .panel-tab { min-height: 30px; background: transparent; border: 0; border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: var(--type-ui); font-weight: var(--weight-medium); letter-spacing: normal; text-transform: none; padding: 0 var(--space-7); color: var(--ink-3); }
 .break .panel-tab:hover { color: var(--ink); }
-.break .panel-tab.active { color: var(--ink); background: var(--sheet); box-shadow: var(--shadow-sm); }
+.break .panel-tab.active { color: var(--coach-ink); background: var(--sheet); box-shadow: var(--shadow-sm); }
 @media (pointer: coarse) { .coach-heading .panel-tab, .coach-collapse, .break.collapsed .break-head { min-height: var(--touch-target); min-width: var(--touch-target); } }
 
 /* ── features/conversation/explanations.css ── */
@@ -4299,7 +4329,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .settings-modal {
   width: min(1000px, 100%); height: min(740px, 100%);
   display: flex; background: var(--sheet);
-  border: 0; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-floating), var(--appearance-glow);
+  border: 0; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-floating);
 }
 
 .settings-nav {
@@ -4659,19 +4689,11 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 /* Shared surface treatments, independent of the feature that fills a panel. */
 .appearance-settings { display: grid; gap: var(--space-8); }
 .appearance-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-8); }
-.appearance-options label { display: flex; flex-direction: column; gap: var(--space-3); font: var(--type-ui)/var(--leading-normal) var(--font-sans); color: var(--ink-2); }
-.appearance-options :is(select, input) { width: 100%; min-width: 0; min-height: var(--control-height); padding: var(--space-3) var(--space-4); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--field); color: var(--ink); font: var(--type-ui)/var(--leading-normal) var(--font-sans); box-shadow: var(--shadow-input); }
-.appearance-options input[type='color'] { padding: var(--space-2); }
-.appearance-options input:disabled { opacity: .5; }
-.appearance-glow-options summary { cursor: pointer; min-height: var(--control-height); font-size: var(--type-ui); }
-.appearance-check { display: flex; align-items: center; gap: var(--space-4); min-height: var(--control-height); margin-bottom: var(--space-6); font-size: var(--type-ui); }
-.appearance-sample { padding: var(--space-11); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--surface-bg); box-shadow: var(--shadow-surface), var(--surface-glow); }
+.appearance-choice { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); font: var(--type-ui)/var(--leading-normal) var(--font-sans); color: var(--ink-2); }
+.appearance-sample { padding: var(--space-11); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-surface); }
 .appearance-sample .target-text { margin-block: var(--space-6); }
 .appearance-sample small { font-size: var(--type-meta); color: var(--ink-3); }
 @media (max-width: 480px) { .appearance-options { grid-template-columns: 1fr; } }
-@media (pointer: coarse) {
-  .appearance-options :is(select, input), .appearance-glow-options summary, .appearance-check { min-height: var(--touch-target); }
-}
 
 /* ── features/conversation/persona.css ── */
 .persona-profile { padding: var(--space-2) var(--space-1); color: var(--ink); }
@@ -4952,9 +4974,9 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.xp-chip svg { color: var(--interaction-ink); flex: none; }
+.xp-chip svg { color: var(--progress-mark); flex: none; }
 .xp-chip-value { white-space: nowrap; }
-.xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--interaction-ink); color: var(--interaction-ink); }
+.xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--progress-line); color: var(--progress-ink); }
 
 .xp-ledger {
   position: absolute;
@@ -5767,7 +5789,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-comparison dd { margin: 0; font-family: var(--font-mono); }
 
 /* Desktop retains its resizable columns; only the central stage scrolls. */
-.drill-workspace { background: var(--sheet); border-radius: var(--radius-xl); box-shadow: var(--shadow-surface), var(--surface-glow); padding: var(--space-2); overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.drill-workspace { background: var(--sheet); border-radius: var(--radius-xl); box-shadow: var(--shadow-surface); padding: var(--space-2); overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .drill-workspace > .drill-stage { flex: 1 1 auto; }
 .drill-stage > [role="alert"] { margin: 0; padding-block: var(--space-3); padding-inline-start: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
 .drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }

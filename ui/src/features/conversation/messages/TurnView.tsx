@@ -23,7 +23,7 @@ import { useReplyStream } from '../../../state/session/attempt-streams'
 import { TranslationStatus, translationPending } from '../../../components/reading/TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
-import { createMessageEvidenceSelector, evidenceStyle } from '../../../domain/learning/evidence/message-evidence'
+import { coachFlags, coachMarks } from '../../../domain/conversation/coach-marks'
 import { memo, useContext, useEffect, useMemo, useState } from 'react'
 import { MessageFeedback } from '../coaching/MessageFeedback'
 import { PersonaReaction } from '../partners/PersonaReaction'
@@ -88,6 +88,8 @@ export interface TurnViewProps {
   onCoachControl?: (turn: TurnShape, control: CoachControl) => Promise<void>
   editDisabled?: boolean
   onEditUser?: (turn: TurnShape) => void
+  /** This turn's message is open in the composer to be fixed and resent. */
+  editing: boolean
 }
 
 /// Memoized: during streaming, every delta re-renders only the turn that
@@ -106,6 +108,7 @@ export const TurnView = memo(function TurnView({
   onSpeak,
   recording,
   onEditUser,
+  editing,
   onCoachControl,
   editDisabled,
   onRetryGloss,
@@ -130,17 +133,18 @@ export const TurnView = memo(function TurnView({
   useEffect(() => { setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation])
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
-  const selectEvidence = useMemo(createMessageEvidenceSelector, [])
-  const evidence = selectEvidence(snapshot, practice?.chatId ?? null, turn.id, turn.user ?? '')
   const [userTranslationOverride, setShowUserTranslation] = useState<boolean | null>(null)
   const showUserTranslation = userTranslationOverride ?? autoTranslate
   const source = turn.user ?? ''
-  const boundaries = [...new Set([0, source.length, ...evidence.flatMap(item => [item.start, item.end])])].sort((a, b) => a - b)
-  const plainEvidence = boundaries.slice(0, -1).map((start, index) => {
+  // Phrases the coach flagged carry a squiggle: red for errors, yellow for partly right.
+  const flags = coachFlags(turn.coach, turn.coachDecision)
+  const marks = coachMarks(source, flags)
+  const boundaries = [...new Set([0, source.length, ...marks.flatMap(mark => [mark.start, mark.end])])].sort((a, b) => a - b)
+  const plainMarked = boundaries.slice(0, -1).map((start, index) => {
     const end = boundaries[index + 1]
-    const matches = evidence.filter(item => item.start < end && item.end > start)
+    const mark = marks.find(item => item.start < end && item.end > start)
     const text = source.slice(start, end)
-    return matches.length ? <span key={start} className="message-evidence evidence-phrase" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify([...new Set(matches.map(item => item.id))])}><TargetText text={text} /></span> : <TargetText key={start} text={text} />
+    return mark ? <span key={start} className="coach-flag" data-severity={mark.severity}><TargetText text={text} /></span> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
   const userTranslation = turn.userTranslation ?? assistant?.user_translation
@@ -148,9 +152,9 @@ export const TurnView = memo(function TurnView({
   const userSegments = turn.userSavedGloss?.segments ?? (turn.user && assistant ? anchoredTokenGlosses(turn.user, assistant.user_tokens) : [])
   // Meanings set to show that may still arrive keep their line pitch reserved.
   const userAidsReserved = userWordsOpen && userSegments.length === 0 && !['failed', 'unknown', 'held', 'cancelled', 'invalidated'].includes(turn.userGlossState ?? '')
-  const decorateEvidence = (node: React.ReactNode, start: number, end: number) => {
-    const matches = evidence.filter(item => item.start < end && item.end > start)
-    return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
+  const decorateMarks = (node: React.ReactNode, start: number, end: number) => {
+    const mark = marks.find(item => item.start < end && item.end > start)
+    return mark ? <span className="coach-flag" data-severity={mark.severity}>{node}</span> : node
   }
 
   const readAloud = useReadAloud(source)
@@ -170,9 +174,10 @@ export const TurnView = memo(function TurnView({
   ]
 
   return (
-    <div className="turn-stack">
+    <div className="turn-stack" data-editing={editing ? '' : undefined}>
       {turn.user && (
         <div className="learner-turn">
+          {editing && <span className="learner-turn-editing"><ToolbarIcon name="edit" size={12} />{tr("Fixing this message")}</span>}
           <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
             reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
             bubble={analysisTool => (
@@ -181,8 +186,8 @@ export const TurnView = memo(function TurnView({
                 className={`msg chat-message me${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
               >
                 {userSegments.length > 0
-                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateEvidence} />
-                  : plainEvidence}
+                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
+                  : plainMarked}
                 {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
                 <TranslationStatus state={turn.userTranslationState} shown={showUserTranslation && !userTranslation} />
                 <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
@@ -193,7 +198,8 @@ export const TurnView = memo(function TurnView({
                   // BACKEND: only the latest recording is kept, in memory, so earlier messages have no audio to inspect (Deferred A16).
                   inspect={inspectable && { kind: 'available', open: inspectorOpen, onToggle: () => setInspectorOpen(!inspectorOpen) }}
                   actions={<>
-                    {onEditUser && <button type="button" className="message-tools-icon" disabled={editDisabled} aria-label={tr("Edit message")} title={tr("Edit message")}
+                    {/* With errors flagged, Fix it under the bubble is the edit action. */}
+                    {onEditUser && flags.length === 0 && <button type="button" className="message-tools-icon" disabled={editDisabled} aria-label={tr("Edit message")} title={tr("Edit message")}
                       onClick={event => { event.stopPropagation(); onEditUser(turn) }}><ToolbarIcon name="edit" /></button>}
                     <AddToDrillButton text={turn.user!} />
                   </>} />

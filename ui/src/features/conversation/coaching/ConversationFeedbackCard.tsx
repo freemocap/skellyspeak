@@ -12,6 +12,15 @@ export function ScoreBar({ label, value }: { label: string; value: number }) {
     {Array.from({length:10},(_,i)=>i+1).map(step => <span key={step} data-on={step <= value} />)}
   </span>
 }
+/** A 0–10 score as a small ring for the line under a message; its name and value are text elsewhere. */
+export function ScoreRing({ value }: { value: number | null }) {
+  // Circumference of r=7 is 2π·7; the arc is the score's share of it.
+  const circumference = 2 * Math.PI * 7
+  return <svg className="score-ring" data-level={value === null ? undefined : scoreLevel(value)} viewBox="0 0 20 20" aria-hidden="true">
+    <circle className="score-ring-track" cx="10" cy="10" r="7" />
+    {value !== null && <circle className="score-ring-arc" cx="10" cy="10" r="7" strokeDasharray={`${circumference * value / 10} ${circumference}`} transform="rotate(-90 10 10)" />}
+  </svg>
+}
 function ScoreMeter({ label, value }: { label: string; value: number | null }) {
   const tr = useI18n()
   if (value === null) return <div className="coach-score"><span>{label}</span><strong>{tr('Insufficient evidence')}</strong></div>

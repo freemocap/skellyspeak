@@ -9,7 +9,7 @@
 
 @media not all and (max-width: 860px) {
   .split > .chat, .split > .break { border: 0; border-radius: var(--radius-xl); }
-  .split > .chat { box-shadow: var(--shadow-surface), var(--surface-glow); }
+  .split > .chat { box-shadow: var(--shadow-surface); }
   .split > .break { box-shadow: var(--shadow-recessed); }
   /* The open coach carries the coach's colour on the edge that faces the conversation. */
   .split > .break:not(.collapsed) { border-inline-start: var(--border-width-strong) solid var(--coach-mark); }

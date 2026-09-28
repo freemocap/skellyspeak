@@ -31,11 +31,15 @@ fn repeated_skills_keep_distinct_evidence_and_collapse_exact_repeats() {
         2
     );
     assert_eq!(validated["decision"]["shown"]["quote"], "¿cómo estás?");
+    // A quote that is not verbatim from the message is kept, not a failure.
     output["items"][2]["quote"] = json!("not in the learner message");
-    assert!(validate(&store, &turn, &output).is_err());
-    output["items"][2] = first;
+    let loose = validate(&store, &turn, &output).unwrap();
+    assert_eq!(loose["observation"]["items"][2]["quote"], "not in the learner message");
+    output["items"][2] = first.clone();
+    // An item for a skill that was not asked about is dropped; the rest stays.
     output["items"][2]["construct"] = json!("unknown_skill");
-    assert!(validate(&store, &turn, &output).is_err());
+    let kept = validate(&store, &turn, &output).unwrap();
+    assert_eq!(kept["observation"]["items"], json!([first, second]));
 }
 
 #[test]
@@ -60,5 +64,5 @@ fn extra_help_longer_text_and_unused_cues_do_not_discard_coaching() {
     output["items"][0]["extra_provider_note"] = json!(true);
     assert!(validate(&store, &turn, &output).is_ok());
     output["items"][0]["quote"] = json!("not in the learner message");
-    assert!(validate(&store, &turn, &output).is_err());
+    assert!(validate(&store, &turn, &output).is_ok());
 }

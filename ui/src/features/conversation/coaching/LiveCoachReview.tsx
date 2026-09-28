@@ -8,9 +8,12 @@ import type { CoachControl } from '../../../generated/contracts'
 import type { StoredTurn } from '../../../types'
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../../platform/ipc/workspace'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
-export function LiveCoachReview({ turn, visible, onControl }: {
+export function LiveCoachReview({ turn, visible, onControl, onEdit }: {
   turn: StoredTurn | undefined; visible: boolean; onControl: (control: CoachControl) => Promise<void>; nativeLanguageName: string; rtl: boolean
+  /** Opens this message in the composer to fix and resend it; absent while editing is unavailable. */
+  onEdit: (() => void) | undefined
 }) {
   const tr = useI18n()
   const review = useRef<HTMLElement>(null)
@@ -36,5 +39,6 @@ export function LiveCoachReview({ turn, visible, onControl }: {
     {turn.conversationFeedback && <ConversationFeedbackCard feedback={turn.conversationFeedback} />}
     {error && <ErrorNotice as="p" onRetry={() => onControl('open_card')} error={error}>{error}</ErrorNotice>}
     {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" className="detail-action" onClick={() => { void onControl('show_answer').catch(reason => setError(nativeError(reason))) }}>{tr("Show answer")}</button>}
+    {onEdit && decision?.shown && decision.exposedMove === decision.shown.move && !decision.keptGoing && <button type="button" className="btn primary live-coach-fix" onClick={onEdit}><ToolbarIcon name="edit" size={15} />{tr("Fix and resend")}</button>}
   </section></AiRetryContext>
 }

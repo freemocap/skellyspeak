@@ -581,7 +581,7 @@ it('persists Show answer through the real handler and renders only the returned 
   value.messages[0].coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
   await act(async () => watches[0].resolve(value))
   await waitFor(() => expect(commands()).toHaveLength(1))
-  expect(commands()[0].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'open_card', expectedRevision: 31 })
+  expect(commands()[0].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'open_card' })
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   const exposed = structuredClone(value)
   exposed.revision++
@@ -591,7 +591,7 @@ it('persists Show answer through the real handler and renders only the returned 
   expect(screen.queryByText('Yo fui ayer.')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Show answer' }))
   await waitFor(() => expect(commands()).toHaveLength(2))
-  expect(commands()[1].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'show_answer', expectedRevision: 32 })
+  expect(commands()[1].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'show_answer' })
   expect(screen.queryByText('Yo fui ayer.')).toBeNull()
   const next = structuredClone(exposed)
   next.revision++

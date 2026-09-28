@@ -44,7 +44,7 @@
   padding: var(--space-11) var(--space-12);
   border: 0;
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
   background: var(--chrome);
   color: var(--ink);
   font: var(--type-body)/1.55 var(--font-sans);

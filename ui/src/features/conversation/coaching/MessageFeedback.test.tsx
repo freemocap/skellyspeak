@@ -18,7 +18,7 @@ const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown
 const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
 it('shows a neutral feedback chip and the policy hint without grades or an invented answer', () => {
   render(<MessageFeedback {...frame} {...base} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('1 error')
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).not.toHaveTextContent('Which form goes with yo?')
   fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
   expect(screen.getByRole('dialog')).toHaveTextContent('Which form goes with yo?')
@@ -88,12 +88,12 @@ it.each(['Coach feedback for message 3', 'Analyze your message'])('requires dura
 })
 
 it('keeps an unexposed hint hidden on a stale disclosure failure and allows explicit retry', async () => {
-  const control = vi.fn().mockRejectedValue(new Error('Coaching changed. Review the current advice.'))
+  const control = vi.fn().mockRejectedValue(new Error('Coaching is unavailable.'))
   render(<MessageFeedback {...frame} {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' })))
   expect(screen.getByRole('dialog')).toBeVisible()
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
-  expect(screen.getByRole('alert')).toHaveTextContent('Coaching changed')
+  expect(screen.getByRole('alert')).toHaveTextContent('Coaching is unavailable.')
   expect(control).toHaveBeenCalledOnce()
   expect(screen.getByRole('button', { name: 'Analyze your message' })).toBeEnabled()
 })
@@ -132,7 +132,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   const edit = vi.fn()
   render(<MessageFeedback {...frame} {...base} decision={currentDecision} onEdit={edit} />)
   const chip = screen.getByRole('button', { name: 'Coach feedback for message 3' })
-  expect(chip).toHaveTextContent('Feedback')
+  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 error' : currentDecision?.repairStatus === 'uncertain' ? 'Feedback' : 'Good job')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Edit and resend message' }))
@@ -169,7 +169,7 @@ it('keeps rich corrections and clarification in the feedback window alongside sc
   const direct = { ...decision, exposedMove: 'explicit' as const, shown: { construct: 'past', quote: 'yo cocina', move: 'explicit' as const, text: 'yo cociné', explanation: 'Use cociné for a completed action yesterday.' } }
   const view = render(<MessageFeedback {...frame} {...base} decision={direct} conversationFeedback={{ grammar: 6, conversation: 10, answers: {} }} onAsk={onAsk} onAddContext={onAddContext} />)
   fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
-  expect(view.container.ownerDocument.querySelector('.cor-original')).toHaveTextContent('yo cocina')
+  expect(view.container.ownerDocument.querySelector('del.cor-removed')).toHaveTextContent('yo cocina')
   expect(view.container.ownerDocument.querySelector('.cor-replacement')).toHaveTextContent('yo cociné')
   expect(screen.getByText('Use cociné for a completed action yesterday.')).toBeVisible()
   expect(screen.queryByText('Explain scores')).toBeNull()
@@ -198,4 +198,20 @@ it('places skill details after coaching corrections', () => {
   const skills = screen.getByText('Skills')
   expect(hint.compareDocumentPosition(skills) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   expect(skills.closest('details')).not.toHaveAttribute('open')
+})
+
+it('leads the scored line with a verdict and rings, and Fix it opens the message for editing', () => {
+  const onEdit = vi.fn()
+  const scores = { grammar: 6, conversation: 6, answers: {} } as never
+  const view = render(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} />)
+  const badge = screen.getByRole('button', { name: /Coach feedback for message/ })
+  expect(badge).toHaveTextContent('1 error')
+  fireEvent.click(screen.getByRole('button', { name: 'Fix it' }))
+  expect(onEdit).toHaveBeenCalledOnce()
+  view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }} />)
+  expect(badge).toHaveTextContent('Good job')
+  expect(screen.queryByRole('button', { name: 'Fix it' })).toBeNull()
+  view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }}
+    feedback={{ ...feedback, items: [{ construct: 'a', quote: 'Yo', outcome: 'partial', rationale: '' }, { construct: 'b', quote: 'ayer', outcome: 'not_demonstrated', rationale: '' }] }} />)
+  expect(badge).toHaveTextContent('2 errors')
 })

@@ -27,17 +27,26 @@
   padding: var(--space-3) var(--space-8) var(--space-4);
 }
 
+/* Fixing a message is a coach mode: a solid coach-green header names it, says
+   how far the draft has moved from the original, and holds Cancel. */
 .edit-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
-  margin: var(--space-2) var(--space-1) var(--space-3); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md);
-  background: var(--field); border: var(--border-width) solid var(--interaction-ink);
-  font-family: var(--font-sans); font-size: var(--type-ui); color: var(--ink);
+  display: flex; align-items: center; gap: var(--space-4);
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-8)) var(--space-4); padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--coach-ink); color: var(--sheet);
+  font-family: var(--font-sans); font-size: var(--type-ui);
 }
+.edit-banner strong { font-weight: var(--weight-semibold); }
+.edit-banner-changes { color: color-mix(in srgb, var(--sheet) 80%, var(--coach-ink)); }
 
 .edit-banner button {
-  flex: none; border: none; background: none; color: var(--interaction-ink);
-  cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
+  flex: none; margin-inline-start: auto; min-height: var(--control-height-xs); padding: 0 var(--space-5);
+  border: var(--border-width) solid color-mix(in srgb, var(--sheet) 50%, var(--coach-ink)); border-radius: var(--radius-md);
+  background: none; color: var(--sheet); cursor: pointer; font: var(--weight-medium) var(--type-meta) var(--font-sans);
 }
+.edit-banner button:hover:not(:disabled) { background: color-mix(in srgb, var(--sheet) 15%, var(--coach-ink)); }
+.edit-banner button:disabled { opacity: .6; cursor: default; }
+@media (pointer: coarse) { .edit-banner button { min-height: var(--touch-target); } }
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
 
@@ -80,4 +89,5 @@
 
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
-.composer[data-editing] { background: var(--chrome); border: var(--border-width) solid var(--interaction-ink); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
+.composer[data-editing] { background: var(--coach-tint); border: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
+.composer[data-editing] .field { border-color: var(--coach-mark); }

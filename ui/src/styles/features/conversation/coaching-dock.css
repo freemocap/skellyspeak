@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   background: var(--coach-surface);
-  border-inline-start: var(--border-width) solid var(--line-soft);
+  border-inline-start: var(--border-width) solid var(--coach-line);
   position: relative;
   overflow: hidden;
 }
@@ -56,5 +56,5 @@
 .coach-heading > .panel-tabs { min-height: 0; margin: 0; padding: var(--space-2); gap: var(--space-1); background: var(--line-soft); border: 0; border-radius: var(--radius-md); }
 .break .panel-tab { min-height: 30px; background: transparent; border: 0; border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: var(--type-ui); font-weight: var(--weight-medium); letter-spacing: normal; text-transform: none; padding: 0 var(--space-7); color: var(--ink-3); }
 .break .panel-tab:hover { color: var(--ink); }
-.break .panel-tab.active { color: var(--ink); background: var(--sheet); box-shadow: var(--shadow-sm); }
+.break .panel-tab.active { color: var(--coach-ink); background: var(--sheet); box-shadow: var(--shadow-sm); }
 @media (pointer: coarse) { .coach-heading .panel-tab, .coach-collapse, .break.collapsed .break-head { min-height: var(--touch-target); min-width: var(--touch-target); } }

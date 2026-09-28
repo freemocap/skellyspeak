@@ -1,6 +1,7 @@
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useI18n } from '../../../components/localization/i18n'
 import { TargetPassage } from '../../../components/reading/TargetPassage'
+import { TargetText } from '../../../components/reading/TargetText'
 import type { CoachDecision, CoachObservationView } from '../../../generated/contracts'
 
 /** Learner-facing explanations only. Native diagnostics never substitute for help. */
@@ -18,7 +19,12 @@ export function CoachEntry({ decision, feedback, source, error }: {
     {decision?.fixed && <p className="coach-fixed" role="status"><span dir="auto">{decision.fixed}</span></p>}
     {corrections.map((shown, index) => <section key={index} className="coach-card coach-card-help" aria-label={tr("Coaching suggestion")}>
       {shown.move === 'explicit' ? <>
-        <div className="cor-line"><div className="cor-original"><div className="detail-meta">{tr("Original")}</div><TargetPassage side="me" text={shown.quote} /></div><div className="cor-replacement"><div className="detail-meta">{tr("Coaching suggestion")}</div><TargetPassage text={shown.text} /></div></div>
+        {/* One line: your words struck out, then the replacement with its reading tools. */}
+        <div className="cor-line">
+          <del className="cor-removed"><span className="sr-only">{tr("Original")}: </span><TargetText text={shown.quote} interactive={false} /></del>
+          <span className="cor-arrow" aria-hidden="true">→</span>
+          <div className="cor-replacement"><span className="sr-only">{tr("Coaching suggestion")}: </span><TargetPassage text={shown.text} /></div>
+        </div>
         {shown.explanation && <p className="cor-why" dir="auto">{shown.explanation}</p>}
       </> : <>
         <blockquote><TargetPassage side="me" text={shown.quote} /></blockquote>

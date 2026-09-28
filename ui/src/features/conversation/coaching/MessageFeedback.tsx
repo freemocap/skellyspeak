@@ -1,14 +1,15 @@
 import { FeedbackContextForm } from './FeedbackContextForm'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { AskCoachButton, AskCoachContext } from '../../../components/learning/AskCoachButton'
-import { ConversationFeedbackCard, scoreText } from './ConversationFeedbackCard'
+import { ConversationFeedbackCard } from './ConversationFeedbackCard'
 import type { ConversationFeedback } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import type { CoachControl, CoachDecision, CoachObservationView } from '../../../generated/contracts'
 import { CoachEntry } from './CoachEntry'
+import { coachFlags } from '../../../domain/conversation/coach-marks'
 import { nativeError } from '../../../platform/ipc/workspace'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 import type { MessageTool } from '../../../components/reading/MessageTools'
@@ -16,8 +17,9 @@ import { useUiDirection } from '../../../components/localization/useUiDirection'
 
 /** The coach's feedback on one of the learner's messages. `bubble` draws the
  * message with its tools and receives the Analysis tool, which opens this
- * feedback; the scores then sit on one quiet line under the bubble, beside
- * `reward` (the message's XP), and open the same feedback. */
+ * feedback; under the bubble, one quiet line holds the verdict (how many
+ * errors the coach flagged, or Good job), Fix it and `reward` (the message's
+ * XP). The verdict opens the same feedback. */
 export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, bubble, reward, analysis, skills, onRetry, feedbackContext, onAddContext }: {
   feedbackContext?: string
   onAddContext?: (note: string) => Promise<void>
@@ -34,7 +36,6 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
 }) {
   const tr = useI18n()
   const uiDirection = useUiDirection()
-  const scoreId = useId()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const pending = useRef(false)
@@ -69,15 +70,22 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   const askCoach = (question: string) => { close(); onAsk(question) }
   const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
   const label = decision ? tr("Feedback") : null
+  // The badge counts the phrases the coach flagged; with none, and a message it fully understood, it says so.
+  const flags = coachFlags(feedback, decision)
+  const judged = Boolean(conversationFeedback || (decision && feedback))
+  const clear = flags.length === 0 && decision?.repairStatus !== 'uncertain' && (feedback?.meaningRecovered ?? 'full') === 'full'
+  const verdict = flags.length ? 'errors' : clear ? 'clear' : 'open'
   return <>
     {bubble({ key: 'analysis', label: tr("Analysis"), ariaLabel: tr("Analyze your message"), opensDialog: true, disabled: busy, onSelect: () => void openCard() })}
     <div className="message-feedback-line" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
-    <button type="button" data-feedback-state={error ? 'failed' : (conversationFeedback || (decision && feedback)) ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${conversationFeedback ? ' has-scores' : ''}${error ? ' feedback-error' : ''}`} aria-describedby={conversationFeedback ? `${scoreId}-grammar ${scoreId}-conversation` : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
-        {conversationFeedback ? <><LineScore id={`${scoreId}-grammar`} label={tr("Grammar")} value={conversationFeedback.grammar}
-          description={tr("Grammar: {value0}", { value0: conversationFeedback.grammar === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.grammar) })} /><LineScore id={`${scoreId}-conversation`} label={tr("Conversation fit")} value={conversationFeedback.conversation}
-          description={tr("Conversation fit: {value0}", { value0: conversationFeedback.conversation === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.conversation) })} /></> : error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
+    <button type="button" data-feedback-state={error ? 'failed' : judged ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${error ? ' feedback-error' : ''}`} data-verdict={judged && !error ? verdict : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
+        {error ? tr("Feedback failed") : judged ? <>
+          {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'thumbs-up'} size={14} />}
+          <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Good job") : tr("Feedback")}</span>
+        </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
       </button>
+    {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={13} />{tr("Fix it")}</button>}
     {reward}
     </div>
     {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
@@ -99,13 +107,4 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
       {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     </DetailDialog></AskCoachContext>}
   </>
-}
-
-/** One score on the feedback line: its name and value. The hidden text describes the line's button. */
-function LineScore({ id, label, value, description }: { id: string; label: string; value: number | null; description: string }) {
-  return <span className="feedback-line-score" title={label}>
-    <span aria-hidden="true">{label}</span>
-    <span aria-hidden="true" className="feedback-score">{scoreText(value)}</span>
-    <span hidden id={id}>{description}</span>
-  </span>
 }

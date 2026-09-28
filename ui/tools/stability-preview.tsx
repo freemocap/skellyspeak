@@ -64,7 +64,7 @@ function Moment({ label, turn, reviewing }: typeof moments[number]) {
     <div className="stream" style={{ overflow: 'visible' }}>
       <div ref={stack}>
         <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}>
-          <TurnView turn={turn} reviewing={reviewing} onAskCoach={() => {}} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => {}} onSpeak={() => {}} onEditUser={() => {}} onActivity={() => {}} />
+          <TurnView editing={false} turn={turn} reviewing={reviewing} onAskCoach={() => {}} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => {}} onSpeak={() => {}} onEditUser={() => {}} onActivity={() => {}} />
         </MessageReadingScope>
       </div>
     </div>

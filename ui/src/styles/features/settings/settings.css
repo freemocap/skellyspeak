@@ -3,7 +3,7 @@
 .settings-modal {
   width: min(1000px, 100%); height: min(740px, 100%);
   display: flex; background: var(--sheet);
-  border: 0; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-floating), var(--appearance-glow);
+  border: 0; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-floating);
 }
 
 .settings-nav {

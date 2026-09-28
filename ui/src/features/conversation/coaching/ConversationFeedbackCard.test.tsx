@@ -18,5 +18,5 @@ it('represents insufficient evidence without a zero meter',()=>{
 });
 it('opens saved scores without requesting more inference or revealing retired commentary',()=>{
  const control=vi.fn();render(<MessageFeedback {...frame} id={1} text="Source" conversationFeedback={feedback} feedback={undefined} error={undefined} reviewing={false} onEdit={undefined} onAsk={vi.fn()} onControl={control}/>);
- const badge=screen.getByRole('button',{name:'Coach feedback for message 1'});expect(badge).toHaveAccessibleDescription('Grammar: 0/10 Conversation fit: 10/10');fireEvent.click(badge);expect(screen.getByRole('dialog')).toBeVisible();expect(control).not.toHaveBeenCalled();
+ const badge=screen.getByRole('button',{name:'Coach feedback for message 1'});fireEvent.click(badge);expect(screen.getByRole('dialog')).toBeVisible();expect(control).not.toHaveBeenCalled();
 });

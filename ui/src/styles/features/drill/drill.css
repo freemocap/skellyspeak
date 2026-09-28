@@ -322,7 +322,7 @@
 .drill-comparison dd { margin: 0; font-family: var(--font-mono); }
 
 /* Desktop retains its resizable columns; only the central stage scrolls. */
-.drill-workspace { background: var(--sheet); border-radius: var(--radius-xl); box-shadow: var(--shadow-surface), var(--surface-glow); padding: var(--space-2); overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.drill-workspace { background: var(--sheet); border-radius: var(--radius-xl); box-shadow: var(--shadow-surface); padding: var(--space-2); overflow: hidden; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .drill-workspace > .drill-stage { flex: 1 1 auto; }
 .drill-stage > [role="alert"] { margin: 0; padding-block: var(--space-3); padding-inline-start: var(--space-3); border: var(--border-width) solid var(--danger-line); border-radius: var(--radius-md); background: var(--danger-tint); color: var(--danger-ink); overflow-wrap: anywhere; }
 .drill-stage > [role="alert"] .btn { margin-inline-start: var(--space-2); }

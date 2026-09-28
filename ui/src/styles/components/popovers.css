@@ -10,7 +10,7 @@
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
 }
 
 .info-tip { display: inline-block; position: relative; margin-inline: var(--space-2); vertical-align: middle; }
@@ -38,7 +38,7 @@
   background: var(--chrome);
   color: var(--ink);
   font: var(--type-ui)/1.4 var(--font-sans);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
 }
 
 @media (pointer: coarse) {

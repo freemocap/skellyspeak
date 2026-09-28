@@ -18,11 +18,11 @@ export function ChatDemo() {
       <section className="chat">
         <div className="stream">
           <MessageReadingScope scope={CHAT_READING_SCOPE}>
-            <TurnView turn={{ id: 0, user: null, pendingText: '', assistant: CHAT_QUESTION }}
+            <TurnView editing={false} turn={{ id: 0, user: null, pendingText: '', assistant: CHAT_QUESTION }}
               reviewing={false} onAskCoach={noop} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={noop} onSpeak={noop} />
           </MessageReadingScope>
           <MessageReadingScope scope={CHAT_READING_SCOPE}>
-            <TurnView turn={{ id: 1, user: 'Ayer go al mercado.', assistant: CHAT_REPLY, pendingText: '', conversationFeedback: CHAT_FEEDBACK }}
+            <TurnView editing={false} turn={{ id: 1, user: 'Ayer go al mercado.', assistant: CHAT_REPLY, pendingText: '', conversationFeedback: CHAT_FEEDBACK }}
               reviewing={false} onAskCoach={noop} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={noop} />
           </MessageReadingScope>
         </div>

@@ -27,7 +27,7 @@
 
 .coach-input-row {
   display: flex; gap: var(--space-3); align-items: flex-end;
-  padding: var(--space-6) var(--space-8); border-top: var(--border-width) solid var(--line-soft); flex: none;
+  padding: var(--space-6) var(--space-8); border-top: var(--border-width) solid var(--coach-line); flex: none;
 }
 
 .coach-input {
@@ -46,11 +46,12 @@
 
 .coach-send:disabled { opacity: 0.5; cursor: default; }
 
-/* A coaching card is a white card on the panel sheet. Its kind shows in the
-   content (a struck-out → corrected pair, a quoted phrase), not a side stripe. */
+/* A coaching card is a white card on the green coach surface, outlined in the
+   coach's line. Its kind shows in the content (a struck-out → corrected pair, a
+   quoted phrase), not a side stripe. */
 .coach-card {
   display: grid; gap: var(--space-5);
-  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg);
   padding: var(--space-7) var(--space-8); background: var(--field); box-shadow: var(--shadow-sm);
 }
 
@@ -58,10 +59,17 @@
 
 .cor-why { font-size: var(--type-body); color: var(--ink-2); line-height: var(--leading-normal); margin: 0; }
 
-.cor-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
-.cor-original, .cor-replacement { flex: 1 1 12rem; min-width: 0; }
-.cor-original .msg.chat-message { border-color: var(--danger-line); }
-.cor-replacement .msg.chat-message { border-color: var(--success-line); }
+/* The correction reads as one line of the learner's language: the words to drop
+   struck through with a thin line so they stay legible, then the replacement on a
+   pale success wash with its reading tools. Neither is drawn as a chat bubble. */
+.cor-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
+.cor-removed { padding: 0 var(--space-3); border-radius: var(--radius-sm); background: var(--danger-tint); color: var(--danger-ink); text-decoration: line-through var(--border-width) var(--danger-line); }
+.cor-arrow { color: var(--ink-3); font-family: var(--font-sans); font-size: var(--type-body); }
+.cor-replacement { flex: 1 1 12rem; min-width: 0; }
+.cor-replacement .reading-passage { margin: 0; }
+.cor-replacement .msg.chat-message { max-width: 100%; margin: 0; border: 0; border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); box-shadow: inset 0 calc(-1 * var(--border-width-strong)) 0 var(--success-line); }
+.cor-replacement .msg.chat-message::before, .cor-replacement .msg.chat-message::after { content: none; }
+.cor-line .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .coach-card .md-p { color: var(--ink-2); line-height: var(--leading-normal); }
 
 /* Coach feed: a persistent scrollback of one entry per coached message,
@@ -99,17 +107,20 @@
 .edit-feedback {
   background: var(--field);
   color: var(--ink);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-md);
+  border: var(--border-width) solid var(--coach-line);
+  border-radius: var(--radius-lg);
   margin: var(--space-2) 0 var(--space-4);
   font-size: var(--type-ui);
 }
 
 .edit-feedback > p {
+  display: flex; align-items: center; gap: var(--space-2);
   margin: 0;
   padding: var(--space-3) var(--space-5);
   font-weight: var(--weight-semibold);
+  color: var(--coach-ink);
 }
+.edit-feedback > p svg { color: var(--coach-mark); }
 
 .edit-feedback-body {
   max-height: min(210px, 28dvh);
@@ -136,7 +147,7 @@
 
 /* The coach's overall read on the message leads, above the details, on its
    own card so it stands apart from the recessed coach surface. */
-.coach-verdict { padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); }
+.coach-verdict { padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); }
 .coach-verdict .md-p { font-size: calc(var(--type-body) * var(--reading-scale)); color: var(--ink); line-height: var(--leading-normal); }
 
 .coach-assessment { display: grid; gap: var(--space-6); }
@@ -160,7 +171,8 @@
 .coach-wording[data-kind=native] li { background: var(--warning-tint); color: var(--warning-ink); }
 .live-coach-review { display: grid; gap: var(--space-6); }
 .live-coach-review > h3 { margin: 0; color: var(--interaction-ink); font-size: var(--type-body); }
-.live-coach-review > .detail-action { justify-self: start; }
+.live-coach-review > .detail-action, .live-coach-fix { justify-self: start; }
+.live-coach-fix { display: inline-flex; align-items: center; gap: var(--space-3); }
 .analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--interaction-tint); }
 .analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--interaction-ink); }
 .analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--interaction-ink); }
@@ -177,7 +189,7 @@
 .coach-chat-history { min-height: 0; display: flex; overflow: hidden; background: var(--sheet); }
 .coach-chat-history[hidden] { display: none; }
 .coach-chat-footer { flex: none; background: var(--sheet); max-height: 50%; overflow-y: auto; }
-.coach-chat-divider { flex: none; display: flex; align-items: stretch; min-height: 24px; background: var(--chrome); border-block: var(--border-width) solid var(--line); }
+.coach-chat-divider { flex: none; display: flex; align-items: stretch; min-height: 24px; background: var(--chrome); border-block: var(--border-width) solid var(--coach-line); }
 .coach-chat-resize { flex: 1; display: grid; place-items: center; min-width: 0; cursor: row-resize; touch-action: none; user-select: none; }
 .coach-chat-resize > span { width: 48px; height: 4px; border-radius: var(--radius-pill); background: var(--ink-3); }
 .coach-chat-resize:hover > span, .coach-chat-resize.dragging > span { background: var(--interaction-ink); }

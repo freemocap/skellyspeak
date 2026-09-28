@@ -29,7 +29,6 @@ fn wave2_explicit_answer_is_durable_terminal_and_retry_uncertainty_is_honest() {
         action: Action::CoachControl {
             turn_id: first.clone(),
             control: crate::learning::coaching::CoachControl::ShowAnswer,
-            expected_revision: store.snapshot().unwrap().revision,
         },
     };
     store.execute(control.clone()).unwrap();
@@ -123,13 +122,11 @@ fn direct_retry_and_keep_going_do_not_block_chat() {
         "coach_feedback",
         serde_json::json!({"meaning_recovered":"partial","items":[wave2_error("¿cómo estás?")]}),
     );
-    let revision = store.snapshot().unwrap().revision;
     apply(
         &mut store,
         Action::CoachControl {
             turn_id: first.clone(),
             control: crate::learning::coaching::CoachControl::OpenCard,
-            expected_revision: revision,
         },
     );
     let second = store
@@ -160,7 +157,6 @@ fn direct_retry_and_keep_going_do_not_block_chat() {
         action: Action::CoachControl {
             turn_id: second.clone(),
             control: crate::learning::coaching::CoachControl::KeepGoing,
-            expected_revision: store.snapshot().unwrap().revision,
         },
     };
     store.execute(command).unwrap();
@@ -308,13 +304,10 @@ fn direct_correction_is_not_hidden_by_speculative_error_cause() {
         wave2_context(&store, &turn)["coachDecision"]["shown"]["move"],
         "explicit"
     );
-    let snapshot = store.snapshot().unwrap();
     crate::learning::coaching::coach_policy::control(
         &store.connection,
-        &snapshot,
         &turn,
         crate::learning::coaching::CoachControl::OpenCard,
-        snapshot.revision,
     )
     .unwrap();
     let shown = wave2_context(&store, &turn);
@@ -323,13 +316,10 @@ fn direct_correction_is_not_hidden_by_speculative_error_cause() {
         shown["coachDecision"]["shown"]["explanation"],
         "Use está to ask how someone is."
     );
-    let snapshot = store.snapshot().unwrap();
     crate::learning::coaching::coach_policy::control(
         &store.connection,
-        &snapshot,
         &turn,
         crate::learning::coaching::CoachControl::ShowAnswer,
-        snapshot.revision,
     )
     .unwrap();
     assert_eq!(

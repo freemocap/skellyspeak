@@ -157,7 +157,7 @@
   border-radius: var(--radius-xs);
   background: var(--sheet);
   color: var(--ink);
-  box-shadow: var(--shadow-floating), var(--appearance-glow);
+  box-shadow: var(--shadow-floating);
 }
 
 .saved-word-help > span, .saved-word-help > span > span { display: block; }
