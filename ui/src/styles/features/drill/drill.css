@@ -22,15 +22,17 @@
 .drill-cards-fold svg { transform: rotate(90deg); }
 .drill-cards-fold:dir(rtl) svg { transform: rotate(-90deg); }
 .drill-cards > .drill-rail { padding: 0; background: transparent; border: 0; }
+/* The cards' edge tab matches the coach's: a full border in Practice's line, a
+   thicker edge in its colour facing the stage, and a soft glow in that colour. */
 .drill-cards-edge {
   align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-3);
-  border: var(--border-width) solid var(--line-soft); border-inline-end: var(--border-width-strong) solid var(--practice-mark); border-radius: var(--radius-lg);
-  background: var(--sheet); color: var(--ink-2); box-shadow: var(--shadow-sm); font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
+  border: var(--border-width) solid var(--practice-line); border-inline-end: var(--border-width-thick) solid var(--practice-mark); border-radius: var(--radius-lg);
+  background: var(--sheet); color: var(--ink-2); box-shadow: 0 0 var(--space-8) color-mix(in srgb, var(--practice-mark) 35%, transparent);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
 }
 .drill-cards-edge span:first-of-type { writing-mode: vertical-rl; }
 .drill-cards-edge svg { color: var(--practice-mark); }
 .drill-cards-edge:hover { color: var(--practice-ink); background: color-mix(in srgb, var(--practice-tint) 50%, var(--sheet)); }
-.drill-cards-count { font: var(--weight-medium) var(--type-meta) var(--font-mono); color: var(--ink-2); }
 /* Compact and narrow: the same cards as a drawer or a sheet, Practice's colour
    on the edge that faces the stage. */
 .drill-cards-dialog.dialog-drawer { border-inline-end: var(--border-width-strong) solid var(--practice-mark); }
@@ -98,7 +100,13 @@
 /* The recording panel keeps a dragged height; the stage above keeps at least room for the phrase and a plot. */
 .drill-dock-pane { flex: none; height: var(--drill-dock-height); max-height: calc(100% - 12rem); min-height: 12rem; overflow: hidden; }
 /* The recording pane holds the voice panel; its stream takes the height the pane is given. */
-.drill-dock-pane > .drill-voice { box-sizing: border-box; height: 100%; border-radius: var(--radius-lg); border: var(--border-width) solid var(--line-soft); }
+/* The recording panel is its own zone in Practice's colour, like the side
+   panels: a thin outline, the colour on the edge that faces the stage, and a
+   tint behind its controls. Chat's panel does the same in Chat's colour. */
+.drill-dock-pane > .drill-voice {
+  box-sizing: border-box; height: 100%; border-radius: var(--radius-lg); background: var(--practice-tint);
+  border: var(--border-width) solid var(--practice-line); border-top: var(--border-width-strong) solid var(--practice-mark);
+}
 .drill-dock-pane .voice-grid { grid-template-rows: minmax(5.5rem, 1fr) auto; height: 100%; }
 /* The listening session's counts, beside the attempt list. */
 .drill-attempt-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
@@ -331,10 +339,19 @@
   .drill-page { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
   .drill-sheet .resize-handle { display: none; }
   .drill-phrase-bar { display: flex; gap: var(--space-2); }
-  .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
+  /* Stacked, the card's position takes the room between Previous and Next. */
+  .drill-phrase-bar > .drill-card-position { flex: 1; min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; }
   .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
-  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-ui); }
-  [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
+  .drill-phrase-bar > .btn { font-size: var(--type-ui); }
+  .drill-cards-open { display: grid; place-items: center; padding: 0; color: var(--practice-ink); }
+  /* Compact: the cards' edge tab sits just inside the start of the scrolling
+     stage, and the stage keeps clear of it. */
+  .drill-mobile-body { position: relative; flex: 1 1 0; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+  .drill-mobile-body > .drill-cards-edge {
+    position: absolute; inset-inline-start: var(--space-2); top: 50%; translate: 0 -50%; z-index: var(--z-raised);
+    box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2));
+  }
+  .drill-mobile-body:has(> .drill-cards-edge) > .drill-mobile-content { padding-inline-start: calc(var(--control-height-xs) + 3 * var(--space-2)); }
   .drill-mobile-content { flex: 1 1 0; overflow-y: auto; overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow-x: hidden; display: flex; flex-direction: column; gap: var(--space-2); }
   /* All practice content scrolls above the dock. A pinned reference can cover
      most of a short viewport and make lower reports impossible to inspect. */
@@ -414,7 +431,8 @@
 }
 
 /* Phrase selection floats over the workspace without changing its geometry. */
-.drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; gap: var(--space-2); padding-bottom: var(--space-2); }
+.drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); }
+.drill-card-position { padding-inline: var(--space-4); color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap; }
 /* Colored starts share one renderer, over the measured pixels. */
 .drill-word-overlay { animation: drill-words-arrive var(--dur-base) var(--ease-out); position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .drill-word-marker { position: absolute; top: 0; bottom: 0; border-left: var(--border-width) solid currentColor; color: var(--warning-line); }
@@ -508,13 +526,15 @@
 
 .drill-word-flight { position: fixed; pointer-events: none; z-index: var(--z-popover); padding: var(--space-1) var(--space-2); background: var(--sheet); border: var(--border-width) solid currentColor; border-radius: var(--radius-sm); box-shadow: var(--shadow-floating); font-size: var(--type-body); }
 
-/* Reserve the same desktop card geometry from transcription through hydration.
-   Only content animates; history rows must never scale over the active card. */
+/* The open card fits its content up to a cap; past it (Comparison details
+   open) its details scroll. A transcribing card reserves a typical card's
+   height, so the rows below barely move when it fills in. Only content
+   animates; history rows must never scale over the active card. */
 @media (width > 860px) {
-  .drill-history-entry[data-expanded] { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; animation: none; overflow: hidden; }
-  .drill-history-details { min-height: 0; overflow-y: auto; }
+  .drill-history-entry[data-expanded] { box-sizing: border-box; animation: none; overflow: hidden; }
+  .drill-history-details { min-height: 0; max-height: clamp(18rem, 40dvh, 26rem); overflow-y: auto; }
   .drill-word-grid[data-arriving] .drill-history-entry:not([data-arrival]), .drill-history-entry.drill-take-arrival { animation: none; }
-  .drill-take-pending { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; overflow-y: auto; align-content: start; }
+  .drill-take-pending { min-height: 13rem; max-height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; overflow-y: auto; align-content: start; }
 }
 
 .drill-report-status { min-height: calc(var(--touch-target) / 2); }

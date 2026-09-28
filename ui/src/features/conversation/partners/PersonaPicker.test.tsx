@@ -57,3 +57,15 @@ it('a contact without a vibe emoji shows an empty avatar', () => {
   const toggle = screen.getByRole('button', { name: /美 \(Měi\)/ })
   expect(toggle.querySelector('.persona-avatar')).toHaveTextContent('')
 })
+
+it('opens from another control with focus on the current partner, and Escape returns to the toggle', () => {
+  const change = vi.fn()
+  const { rerender } = render(<PersonaPicker choices={choices} currentId="lin" busy={false} onSelect={vi.fn()} onEdit={vi.fn()} onCreate={vi.fn()} open={false} onOpenChange={change} />)
+  expect(screen.queryByRole('menu')).toBeNull()
+  // The start card's Change partner asks the owner to open this same menu.
+  rerender(<PersonaPicker choices={choices} currentId="lin" busy={false} onSelect={vi.fn()} onEdit={vi.fn()} onCreate={vi.fn()} open onOpenChange={change} />)
+  expect(screen.getByRole('menuitemradio', { name: /小林/ })).toHaveFocus()
+  fireEvent.keyDown(document, { key: 'Escape' })
+  expect(change).toHaveBeenLastCalledWith(false)
+  expect(screen.getByRole('button', { name: /小林/ })).toHaveFocus()
+})

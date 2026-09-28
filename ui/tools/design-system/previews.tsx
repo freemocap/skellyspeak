@@ -7,6 +7,7 @@ import type { ReactElement } from 'react'
 import { I18nProvider } from '../../src/components/localization/i18n'
 import { ToolbarIcon, type ToolbarIconName } from '../../src/components/controls/ToolbarIcon'
 import { InfoTip } from '../../src/components/controls/InfoTip'
+import { SegmentedChoice } from '../../src/components/controls/SegmentedChoice'
 import { ActivityIndicator } from '../../src/components/feedback/ActivityIndicator'
 import { ErrorDetails } from '../../src/components/feedback/ErrorDetails'
 import { SavedGlossText } from '../../src/components/reading/SavedGlossText'
@@ -34,6 +35,9 @@ export const previews: Preview[] = [
     <button className="btn danger">Delete this conversation</button>
     <button className="btn tiny">Retry failed</button>
     <button className="btn" disabled>Saving…</button>
+  </div> },
+  { name: 'SegmentedChoice', group: 'Forms', height: 72, element: <div className="ds-row">
+    <SegmentedChoice label="Time frame" value="any" onChange={noop} options={[['any', 'Any time'], ['past', 'Past events'], ['future', 'Future plans']]} />
   </div> },
   { name: 'PanelTabs', group: 'Navigation', height: 72, element: <div className="panel-tabs" role="tablist">
     <button className="panel-tab active" role="tab" aria-selected="true">Conversation</button>

@@ -26,6 +26,14 @@ export function createSpectrumFeed(): SpectrumFeed & { set: (value: LiveSpectrog
   }
 }
 
+/// A feed that never changes: a spectrum shown as it is, or none.
+export function fixedSpectrumFeed(value: LiveSpectrogram | null): SpectrumFeed {
+  return { get: () => value, subscribe: () => () => {} }
+}
+
+/// No spectrum yet, for a stream without an analysis.
+export const noSpectrum: SpectrumFeed = fixedSpectrumFeed(null)
+
 /// Append newly analysed frames and keep the last twelve seconds, the span the
 /// live stream shows.
 export function mergeSpectrum(previous: LiveSpectrogram | null, next: LiveSpectrogram): LiveSpectrogram {

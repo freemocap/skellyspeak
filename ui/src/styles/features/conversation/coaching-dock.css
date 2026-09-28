@@ -25,19 +25,22 @@
 
 .break-head .live { font-family: var(--font-sans); font-size: var(--type-meta); color: var(--ink-3); }
 
-.break.collapsed { flex: 0 0 auto; min-width: 0; }
+/* Folded, the column is only its edge tab, and the tab's glow shows past it. */
+.break.collapsed { flex: 0 0 auto; min-width: 0; overflow: visible; }
 
-/* Folded, the coach is an edge tab: neutral, with the coach's colour on the
-   edge that faces the conversation. */
-.break.collapsed .break-head {
+/* Folded, the coach is an edge tab of its own: a full border in the coach's
+   line, a thicker edge in its colour facing the conversation, and a soft glow in
+   that colour, as the top bar's tabs have. Compact's coach tab near the
+   conversation's edge (workspace.css) looks the same. */
+.break.collapsed .break-head, .chat-coach-edge {
   flex-direction: column; justify-content: flex-start; gap: var(--space-4); width: auto; min-height: 0; padding: var(--space-8) var(--space-3);
-  border: var(--border-width) solid var(--line-soft); border-inline-start: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-lg);
-  background: var(--sheet); color: var(--ink-2); box-shadow: var(--shadow-sm);
+  border: var(--border-width) solid var(--coach-line); border-inline-start: var(--border-width-thick) solid var(--coach-mark); border-radius: var(--radius-lg);
+  background: var(--sheet); color: var(--ink-2); box-shadow: 0 0 var(--space-8) color-mix(in srgb, var(--coach-mark) 35%, transparent);
   font: var(--weight-semibold) var(--type-ui) var(--font-sans); text-transform: none; letter-spacing: normal;
 }
-.break.collapsed .break-head span { writing-mode: vertical-rl; }
-.break.collapsed .break-head svg { color: var(--coach-mark); }
-.break.collapsed .break-head:hover { color: var(--coach-ink); background: color-mix(in srgb, var(--coach-tint) 50%, var(--sheet)); }
+.break.collapsed .break-head span, .chat-coach-edge span { writing-mode: vertical-rl; }
+.break.collapsed .break-head svg, .chat-coach-edge svg { color: var(--coach-mark); }
+.break.collapsed .break-head:hover, .chat-coach-edge:hover { color: var(--coach-ink); background: color-mix(in srgb, var(--coach-tint) 50%, var(--sheet)); }
 
 @media (max-width: 860px) {
   .break { flex: 1 1 auto; min-height: 0; overflow: hidden; border-inline-start: 0; }

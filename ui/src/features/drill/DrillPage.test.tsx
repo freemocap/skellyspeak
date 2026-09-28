@@ -163,7 +163,8 @@ const app = (lookup?: Lookup) => render(
   </I18nProvider>)
 
 async function openPhrases() {
-  // At full width the cards sit in a panel beside the stage, open by default.
+  // At full width the cards panel starts folded to its edge tab beside the stage.
+  if (!screen.queryByRole('complementary', { name: 'Your practice cards' })) fireEvent.click(await screen.findByRole('button', { name: 'Practice cards' }))
   await screen.findByRole('complementary', { name: 'Your practice cards' })
 }
 
@@ -683,18 +684,32 @@ it('records while held, and throws away a press shorter than the shortest take',
   clock.mockRestore()
 })
 
-it('defaults comparison and live recording time to the script direction and switches both together', async () => {
+it('defaults the comparison and the recorder to the script direction, and sets the recorder on its own', async () => {
   script.direction = 'rtl'
   items = [item({ attempts: [attempt()] })]
   app()
   const toLeft = await screen.findByRole('radio', { name: '← Time' })
   expect(toLeft).toHaveAttribute('aria-checked', 'true')
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'rtl')
-  // The recorder follows the same direction: its pad sits where time arrives.
-  expect(document.querySelector('.drill-voice')).toHaveAttribute('dir', 'rtl')
+  // Until chosen, the recorder follows the script: its button sits where time arrives.
+  const recorder = document.querySelector<HTMLElement>('.drill-voice')!
+  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  // The comparison's direction does not move the recorder.
   fireEvent.click(screen.getByRole('radio', { name: 'Time →' }))
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'ltr')
-  expect(document.querySelector('.drill-voice')).toHaveAttribute('dir', 'ltr')
+  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  // Recording settings set the button's side and the stream's time direction independently.
+  fireEvent.click(within(recorder).getByRole('button', { name: 'Recording settings' }))
+  const settings = await screen.findByRole('dialog', { name: 'Recording settings' })
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Microphone button' })).getByRole('radio', { name: 'Right' }))
+  expect(recorder).toHaveAttribute('data-pad-side', 'right')
+  const time = within(within(settings).getByRole('radiogroup', { name: 'Time direction' }))
+  expect(time.getByRole('radio', { name: '← Time' })).toHaveAttribute('aria-checked', 'true')
+  fireEvent.click(time.getByRole('radio', { name: 'Time →' }))
+  expect(time.getByRole('radio', { name: 'Time →' })).toHaveAttribute('aria-checked', 'true')
+  expect(recorder).toHaveAttribute('data-pad-side', 'right')
+  expect(localStorage.getItem('skellyspeak_recorder_practice_pad')).toBe('right')
+  expect(localStorage.getItem('skellyspeak_recorder_practice_time')).toBe('ltr')
 })
 
 it('expands the selected take within its history row without reordering the list', async () => {
@@ -774,6 +789,27 @@ it('stacks mobile practice and history with secondary controls in settings', asy
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await screen.findByRole('button', { name: 'Stop recording' })
   expect(screen.getByRole('button', { name: 'Previous card' })).toBeDisabled()
+  view.unmount()
+  media.mockRestore()
+})
+
+it('opens the cards from an edge tab on the stage in the compact layout', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  items = [item(), second()]
+  const view = app()
+  // Compact's one way to the cards is the tab on the start of the stage; the toolbar keeps moving through them.
+  const navigation = within(await screen.findByRole('navigation', { name: 'Practice cards' }))
+  expect(navigation.queryByRole('button', { name: 'Practice cards' })).toBeNull()
+  const edge = screen.getByRole('button', { name: 'Practice cards' })
+  expect(edge).toHaveClass('drill-cards-edge')
+  expect(edge.closest('.drill-mobile-body')).not.toBeNull()
+  fireEvent.click(edge)
+  const drawer = await screen.findByRole('dialog', { name: 'Practice cards' })
+  expect(drawer).toHaveClass('dialog-drawer')
+  expect(edge).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(within(drawer).getByRole('button', { name: /^Hasta luego/ }))
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  expect(screen.getByText('Card 2 of 2')).toBeInTheDocument()
   view.unmount()
   media.mockRestore()
 })
@@ -894,26 +930,25 @@ it('offers the shared ten-second Auto silence timeout and applies changes to cap
   view.unmount()
 })
 
-it('folds the cards panel from the toolbar while keeping next and random navigation accessible', async () => {
+it('starts with the cards folded and names the shown card between Previous and Next', async () => {
   items = [item(), second()]
   app()
   await screen.findByRole('button', { name: 'Speak reply' })
   const navigation = within(await screen.findByRole('navigation', { name: 'Practice cards' }))
-  const toggle = navigation.getByRole('button', { name: /^Practice cards/ })
-  expect(toggle).toHaveAttribute('aria-expanded', 'true')
-  expect(screen.getByRole('complementary', { name: 'Your practice cards' })).toBeVisible()
-  fireEvent.click(navigation.getByRole('button', { name: 'Next card' }))
-  await waitFor(() => expect(toggle).toHaveTextContent('2 / 2'))
-  fireEvent.click(navigation.getByRole('button', { name: 'Random card' }))
-  await waitFor(() => expect(toggle).toHaveTextContent('1 / 2'))
-  fireEvent.click(toggle)
-  expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  // At full width the side panel is the only way to the cards; the toolbar moves through them.
+  expect(navigation.queryByRole('button', { name: /^Practice cards/ })).toBeNull()
   expect(screen.queryByRole('complementary', { name: 'Your practice cards' })).toBeNull()
-  // Folded, an edge tab with the count brings the cards back.
+  expect(navigation.getByText('Card 1 of 2')).toBeInTheDocument()
+  fireEvent.click(navigation.getByRole('button', { name: 'Next card' }))
+  await waitFor(() => expect(navigation.getByText('Card 2 of 2')).toBeInTheDocument())
+  fireEvent.click(navigation.getByRole('button', { name: 'Random card' }))
+  await waitFor(() => expect(navigation.getByText('Card 1 of 2')).toBeInTheDocument())
+  // Folded, the edge tab names the cards without a count, opens them, and the panel remembers it.
   const edge = screen.getByRole('button', { name: 'Practice cards' })
-  expect(edge).toHaveTextContent('1/2')
+  expect(edge).toHaveTextContent(/^Practice cards$/)
   fireEvent.click(edge)
   expect(screen.getByRole('complementary', { name: 'Your practice cards' })).toBeVisible()
+  expect(localStorage.getItem('skellyspeak_cards_panel')).toBe('open')
   fireEvent.click(screen.getByRole('button', { name: 'Close Practice cards' }))
   expect(screen.queryByRole('complementary', { name: 'Your practice cards' })).toBeNull()
 })
@@ -980,13 +1015,13 @@ it('restores the selected phrase after remount and replaces a deleted selection'
   await waitFor(() => expect(localStorage.getItem('skellyspeak_drill_phrase_spanish')).toBe('item-2'))
   firstView.unmount()
   const refreshed = app()
-  await waitFor(() => expect(screen.getByRole('button', { name: /^Practice cards/ })).toHaveTextContent('2 / 2'))
+  await waitFor(() => expect(screen.getByText('Card 2 of 2')).toBeInTheDocument())
   expect(invoke).toHaveBeenCalledWith('get_cached_reading_audio', expect.objectContaining({ input: expect.objectContaining({ referenceItem: 'item-2' }) }))
   refreshed.unmount()
   items = [item()]
   app()
   await waitFor(() => expect(localStorage.getItem('skellyspeak_drill_phrase_spanish')).toBe('item-1'))
-  expect(screen.getByRole('button', { name: /^Practice cards/ })).toHaveTextContent('1 / 1')
+  expect(screen.getByText('Card 1 of 1')).toBeInTheDocument()
 })
 
 it('automatically expands a newly published take after selecting an older card', async () => {
@@ -1080,7 +1115,7 @@ it('restores the durable workspace phrase after startup even with stale webview 
   await waitFor(() => expect(finish).toBeDefined())
   expect(invoke.mock.calls.some(([command]) => command === 'enter_drill_visit')).toBe(false)
   await act(async () => finish('item-2'))
-  await waitFor(() => expect(screen.getByRole('button', { name: /^Practice cards/ })).toHaveTextContent('2 / 2'))
+  await waitFor(() => expect(screen.getByText('Card 2 of 2')).toBeInTheDocument())
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('enter_drill_visit', expect.objectContaining({ itemId: 'item-2' })))
   expect(localStorage.getItem('skellyspeak_drill_phrase_spanish')).toBe('item-2')
 })
@@ -1088,6 +1123,7 @@ it('restores the durable workspace phrase after startup even with stale webview 
 it('opens the full Add cards modal directly from the cards panel', async () => {
   items = [item()]
   app()
+  await openPhrases()
   const panel = await screen.findByRole('region', { name: 'Practice cards' })
   fireEvent.click(within(panel).getByRole('button', { name: 'Add practice cards…' }))
   const dialog = await screen.findByRole('dialog', { name: 'Add practice cards' })

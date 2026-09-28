@@ -7,7 +7,6 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
 import { ToolbarIcon } from '../src/components/controls/ToolbarIcon'
-import { MobileNav } from '../src/app/shell/MobileNav'
 import { ConversationHeader } from '../src/features/conversation/session/ConversationHeader'
 import { ConversationSettings } from '../src/features/conversation/session/ConversationSettings'
 import { ReadingPreferencesContext } from '../src/components/reading/ReadingPreferences'
@@ -16,6 +15,8 @@ import { ConversationStart } from '../src/features/conversation/session/Conversa
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
 import { MicrophoneSelector } from '../src/components/media/MicrophoneSelector'
 import { LiveRecording } from '../src/components/media/LiveRecording'
+import { useRecorderLayout } from '../src/components/media/useRecorderLayout'
+import { createSpectrumFeed, mergeSpectrum } from '../src/domain/audio/spectrum-feed'
 import { ResizeHandle, useStoredSize } from '../src/components/layout/ResizeHandle'
 import type { WaveSource } from '../src/domain/audio/waveform'
 import type { AudioInspection } from '../src/generated/contracts'
@@ -29,7 +30,7 @@ import { ConversationFeedbackCard } from '../src/features/conversation/coaching/
 import { ReadingProvider } from '../src/components/reading/TargetText'
 import { ReadingPreferencesProvider } from '../src/components/reading/ReadingPreferences'
 import { useAppearance } from '../src/platform/appearance/useAppearance'
-import { useIsMobile } from '../src/components/layout/useIsMobile'
+import { useWidthTier } from '../src/components/layout/useWidthTier'
 import { useNavigationStore } from '../src/state/navigation/navigation'
 import { PREVIEW_SETTINGS } from './preview-settings'
 import { DEFAULT_APPEARANCE } from '../src/generated/contracts'
@@ -50,7 +51,7 @@ const previewLanguages = [
 ]
 mockIPC((command) => {
   if (command === 'create_drill_item') return { id: 'preview-drill-copy' }
-  if (command === 'get_snapshot') return { languages: previewLanguages } as unknown
+  if (command === 'get_snapshot') return { languages: previewLanguages, savedTopics: [{ id: 'preview-saved', text: 'Mi barrio' }] } as unknown
   if (command === 'list_microphones') return { source: 'native', devices: [{ id: 'sample-microphone', label: 'Sample microphone', isDefault: true, channels: 1, sampleRate: 48000, unavailable: null }] }
   throw new Error('This layout preview does not support native actions. Use the running app for this control.')
 })
@@ -89,12 +90,9 @@ function sampleWave(): WaveSource {
     })
   } }
 }
-// A real native spectrogram from the shared fixture, repeated to fill the stream's
-// twelve seconds. It stands still; the running app scrolls it.
+// A real native spectrogram from the shared fixture, fed in 50 ms slices the way
+// the recorder's polling delivers live frames, through the same spectrum feed.
 const sample = (spectra as unknown as AudioInspection[])[1].spectrogram
-const sampleSpectrum = { endSeconds: 9, data: { ...sample,
-  frameStartSeconds: [0, 3, 6].flatMap(offset => sample.frameStartSeconds.map(frame => frame + offset)),
-  bins: [0, 3, 6].flatMap(() => sample.bins) } }
 function Preview() {
   const [input, setInput] = useState('')
   const [opening, setOpening] = useState(false)
@@ -104,6 +102,21 @@ function Preview() {
   const [autoSend, setAutoSend] = useState(true)
   const wave = useMemo(() => recording ? sampleWave() : null, [recording])
   const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
+  const [feed] = useState(createSpectrumFeed)
+  const recorder = useRecorderLayout('chat', document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr')
+  useEffect(() => {
+    if (!recording) return
+    feed.set(null)
+    let end = 0, index = 0
+    const timer = setInterval(() => {
+      const count = Math.max(1, Math.round(0.05 / sample.frameSeconds))
+      const frameStartSeconds: number[] = [], bins: typeof sample.bins = []
+      for (let i = 0; i < count; i++) { frameStartSeconds.push(end + i * sample.frameSeconds); bins.push(sample.bins[index++ % sample.bins.length]) }
+      end += count * sample.frameSeconds
+      feed.set(mergeSpectrum(feed.get(), { endSeconds: end, data: { ...sample, frameStartSeconds, bins } }))
+    }, 50)
+    return () => clearInterval(timer)
+  }, [recording, feed])
   const composer = useRef<HTMLDivElement>(null)
   const [coach, setCoach] = useState(true)
   const [dark, setDark] = useState(false)
@@ -112,9 +125,11 @@ function Preview() {
   const [notice, setNotice] = useState('')
   const [tab, setTab] = useState<'coaching' | 'evidence'>('coaching')
   const [configOpen, setConfigOpen] = useState(false)
+  const [partnerMenu, setPartnerMenu] = useState(false)
   const [quick, setQuick] = useState(PREVIEW_SETTINGS)
   const workspace = useRef<HTMLDivElement>(null)
-  const mobile = useIsMobile()
+  const tier = useWidthTier()
+  const mobile = tier !== 'full'
   const surface = useNavigationStore(state => state.mobileSurface)
   const [surfaceSwitched, setSurfaceSwitched] = useState(false)
   const shownSurface = useRef(surface)
@@ -137,13 +152,13 @@ function Preview() {
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`} ref={workspace}>
       <section className="chat">
-        <ConversationHeader error={null} leading={<button type="button" className="chat-conversations" aria-label="Conversations" title="Conversations" onClick={() => setNotice('Conversations')}><ToolbarIcon name="menu" size={17} /></button>} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}>
-          <div className="chat-heading-actions">{mobile && <button type="button" className="chat-coach" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={15} /><span>Coach</span></button>}<ConversationSettings summary={['Beginner', quick.auto_speak ? 'Reading aloud' : null].filter(Boolean).join(' · ')} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
+        <ConversationHeader error={null} leading={<button type="button" className="chat-conversations" aria-label="Conversations" title="Conversations" onClick={() => setNotice('Conversations')}><ToolbarIcon name="menu" size={17} /></button>} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} open={partnerMenu} onOpenChange={setPartnerMenu} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}>
+          <div className="chat-heading-actions"><ConversationSettings summary={['Beginner', quick.auto_speak ? 'Reading aloud' : null].filter(Boolean).join(' · ')} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
             onToggle={async (key, value) => setQuick(current => ({ ...current, [key]: value ?? !current[key] }))}
             nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>}
-            difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button className="chat-new" onClick={() => setOpening(true)}>＋ <span>New</span></button></div>
+            difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button type="button" className="chat-new" aria-label="New conversation" title="New conversation" onClick={() => setOpening(true)}><ToolbarIcon name="plus" size={17} /></button></div>
         </ConversationHeader>
-        <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} greeting={{ text: 'hola', romanized: null }} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onRecord={() => setRecording(!recording)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
+        <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onAboutPartner={() => setNotice('Partner profile')} onChangePartner={() => setPartnerMenu(true)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
           {/* Existing TurnView.test.tsx reply fixture, without generated feedback. */}
           <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView turn={{ id: 0, user: null, pendingText: '', assistant: { reply: 'Hola', tokens: [{ text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }], user_tokens: [], translation: 'Persona translation', user_translation: null, mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }} reviewing={false} onAskCoach={setNotice} focused={false} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only; no audio request')} /></MessageReadingScope>
           <div style={{ '--script-scale': 1.5 } as React.CSSProperties}><ReadingPreferencesContext value={{ autoTranslate: quick.auto_translate, alwaysRomanize: quick.always_romanize, alwaysPronunciation: quick.always_pronunciation, supportsRomanization: true }}>
@@ -158,13 +173,17 @@ function Preview() {
           style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as React.CSSProperties}>
           <ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={voiceHeight} min={150} max={640}
             measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
-          {mobile && !opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
-          <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend={autoSend} onAutoSend={setAutoSend}
+          {mobile && <div className="composer-assist">{!opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
+            <div className="composer-activity" aria-live="polite" />
+            {tier === 'narrow' && <button type="button" className="chat-coach" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={15} /><span>Coach</span></button>}</div>}
+          <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend={autoSend} onAutoSend={setAutoSend} layout={recorder}
             mode={voiceMode} onMode={setVoiceMode} onHoldStart={() => setRecording(true)} onHoldEnd={stopRecording}
-            stream={wave && <LiveRecording source={wave} spectrum={sampleSpectrum} takes={[]} direction={document.documentElement.dir === 'rtl' ? 'ltr' : 'rtl'} />}
+            stream={wave && <LiveRecording source={wave} spectrum={feed} time={recorder.time} />}
+            prompt={opening ? <>Say <b className="target-word" lang="es">hola</b> to start</> : undefined}
             settings={<MicrophoneSelector value={null} onChange={() => setNotice('Microphone choice — sample only')} />}
             targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => recording ? stopRecording() : setRecording(true)} onDiscardRecording={() => setRecording(false)} />
         </div>
+        {tier === 'compact' && <button type="button" className="chat-coach-edge" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={16} /><span>Coach</span></button>}
       </section>
       {coach && !mobile && <PracticeDivider workspace={workspace} />}
       {mobile && surface === 'panel' && <div className="coach-scrim" aria-hidden="true" onClick={() => useNavigationStore.getState().openPractice('chat')} />}
@@ -173,7 +192,7 @@ function Preview() {
         <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={mobile ? () => useNavigationStore.getState().openPractice('chat') : () => setCoach(false)} />
         <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <>{!mobile && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}<h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
       </section>
-    </div><MobileNav />
+    </div>
   </div></ReadingPreferencesProvider></ReadingProvider>
 }
 createRoot(document.getElementById('root')!).render(<Preview />)

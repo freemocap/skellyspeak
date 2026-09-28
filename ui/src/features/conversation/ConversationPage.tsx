@@ -49,7 +49,8 @@ import { useSessionStore } from '../../state/session/session'
 import type { MobileLocation } from '../../state/navigation/navigation'
 import { useMessageSpeech } from './speech/useMessageSpeech'
 import { comboFromEvent } from '../../domain/input/keyboard'
-import { LiveRecordingFeed } from '../../components/media/LiveRecording'
+import { LiveRecording } from '../../components/media/LiveRecording'
+import { useRecorderLayout } from '../../components/media/useRecorderLayout'
 import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
 import { useUiDirection } from '../../components/localization/useUiDirection'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
@@ -66,7 +67,7 @@ import { useConversation } from './session/useConversation'
 import { useConversationScroll } from './messages/useConversationScroll'
 import { useMicRecorder } from '../../platform/audio/useMicRecorder'
 import { usePersistentToggle } from '../../components/persistence/usePersistentToggle'
-import { useIsMobile } from '../../components/layout/useIsMobile'
+import { useWidthTier } from '../../components/layout/useWidthTier'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { needsProviderSetup } from '../../domain/access/providers'
 
@@ -263,7 +264,8 @@ export default function ConversationPage({
   const streamTail = (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
   const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
 
-  const isMobile = useIsMobile()
+  const tier = useWidthTier()
+  const isMobile = tier !== 'full'
   function openCoach(id?: number) {
     if (id !== undefined) setPinnedId(id)
     setPanelTab('coaching')
@@ -299,6 +301,8 @@ export default function ConversationPage({
     []
   )
   const [startDraft, setStartDraft] = useState<{ id: string; value: ConversationStartConfig } | null>(null)
+  // The header's partner menu, which the start card's Change partner also opens.
+  const [partnerMenuOpen, setPartnerMenuOpen] = useState(false)
   const startConfiguration = startDraft?.id === currentChatId ? startDraft.value : details.conversation ? {
     difficulty: details.conversation.settings.difficulty, varietyId: details.conversation.settings.varietyId, direction: details.conversation.settings.direction,
   } : null
@@ -487,6 +491,7 @@ export default function ConversationPage({
   // The recording panel keeps the height the learner drags it to; the stream takes the rest.
   const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
   const uiDirection = useUiDirection()
+  const recorder = useRecorderLayout('chat', uiDirection)
 
   const aiBusy = replyActive
 
@@ -525,6 +530,19 @@ export default function ConversationPage({
         }} />
     </ConversationErrorScope>
   )
+  // A new conversation's voice panel suggests the authored greeting to say.
+  const greeting = turns.length === 0 && snapshot && !snapshot.opening ? snapshot.starterGreeting : null
+  const greetingPrompt = greeting ? tr.rich('Say {greeting} to start', { greeting: <>
+    <b className="target-word" lang={targetLanguage?.languageTag}><bdi dir={rtl ? 'rtl' : 'ltr'}>{greeting.text}</bdi></b>
+    {greeting.romanized && <> (<bdi dir="ltr">{greeting.romanized}</bdi>)</>}
+  </> }) : undefined
+  const composerActivity = (
+    <div className="composer-activity" aria-live="polite">
+      {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} />
+        : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
+        : analysing}
+    </div>
+  )
   const chatComposer = (
         <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}
           data-voice-sized={voiceHeight === null ? undefined : ""} style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as CSSProperties}>
@@ -540,19 +558,17 @@ export default function ConversationPage({
           {editingTurn && !acceptedEditSource && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
             await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
           } : undefined} conversationFeedback={editingTurn.conversationFeedback} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
-          <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} />
-              : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
-              : analysing}
-          </div>
+          {!isMobile && composerActivity}
           {mic.failure != null && <ErrorNotice error={mic.failure}>
             <p>{nativeError(mic.failure)}</p>
             <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
           </ErrorNotice>}
-          {isMobile && replyHelp}
-          {/* The pad sits at the inline end, so new audio enters beside it. */}
-          <ComposerInput stream={mic.recording ? <LiveRecordingFeed source={mic.waveSource} spectrum={mic.spectrum} direction={uiDirection === 'rtl' ? 'ltr' : 'rtl'} /> : null}
-            mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
+          {/* Stacked, one row above the answer holds reply help, the status line and,
+              when narrow, the coach, instead of a row each. */}
+          {isMobile && <div className="composer-assist">{replyHelp}{composerActivity}{tier === 'narrow' && <button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
+            <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button>}</div>}
+          <ComposerInput stream={mic.recording ? <LiveRecording source={mic.waveSource} spectrum={mic.spectrum} time={recorder.time} /> : null} prompt={greetingPrompt}
+            layout={recorder} mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
             settings={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
               onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
@@ -584,12 +600,9 @@ export default function ConversationPage({
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
         <ConversationHeader leading={<button type="button" className="chat-conversations" aria-label={tr("Conversations")} title={tr("Conversations")}
             aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}><ToolbarIcon name="menu" size={17} /></button>}
-          persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
+          persona={<PersonaPicker choices={contactChoices} currentId={activeContactId} open={partnerMenuOpen} onOpenChange={setPartnerMenuOpen}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
           <div className="chat-heading-actions">
-          {/* In the compact and narrow layouts the coach opens from here, over the conversation. */}
-          {isMobile && <button type="button" className="chat-coach" aria-expanded={mobileSurface === 'panel'} onClick={() => openCoach()}>
-            <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button>}
           <XpChip chatId={currentChatId} />
           {/* The settings summary rides on the button that changes them; under the
               persona it invited a click that only offered persona choices. */}
@@ -597,7 +610,7 @@ export default function ConversationPage({
             nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
             promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />}
             difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />} />
-          <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /><span>{tr("New")}</span></button>
+          <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /></button>
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
@@ -616,7 +629,7 @@ export default function ConversationPage({
               </button>
             </div>
           ) : turns.length === 0 && !error && (
-            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} greeting={snapshot.starterGreeting} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onRecord={toggleMic} onSwitchPartner={() => setHistoryOpen(true)} onEditPersona={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
           {activeTurns.map((turn) => (
             <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
@@ -666,6 +679,9 @@ export default function ConversationPage({
           )}
         </div>
 
+        {/* Compact: the coach is an edge tab on the conversation's inline end, where its drawer opens. */}
+        {tier === 'compact' && <button type="button" className="chat-coach-edge" aria-expanded={coachCovers} onClick={() => openCoach()}>
+          <ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
         {!isMobile && chatComposer}
       </section>
 

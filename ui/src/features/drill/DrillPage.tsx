@@ -5,7 +5,7 @@ import { useAudibleScrub } from './useAudibleScrub'
 import { useClipPreview } from './useClipPreview'
 import { TakeQueue } from './TakeQueue'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { errorMessage } from '../../platform/diagnostics/error-details'
@@ -19,6 +19,7 @@ import { TargetMessage } from '../../components/reading/TargetMessage'
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
 import { ReadingScopeContext } from '../../components/reading/ReadingContext'
 import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
+import { useRecorderLayout } from '../../components/media/useRecorderLayout'
 import { languageFor } from '../../platform/ipc/tauri'
 import { useSettingsStore } from '../../state/settings/settings'
 import { clearDrillAttempts, deleteDrillAttempt, deleteDrillItem, drillItems, lastDrillItem, inspectDrillAudio } from '../../platform/ipc/drill'
@@ -171,7 +172,6 @@ export function DrillPage({ active }: { active: boolean }) {
   const visit = useDrillVisit(active, creating?.language ?? null, selected?.id ?? null)
   const owner = useMemo(() => active && visit.visitId && selected ? { kind: 'drillItem' as const, id: selected.id } : null, [active, selected?.id, visit.visitId])
   const mic = useMicRecorder({ owner, onTranscribe: () => {}, listening, captureMode: mode === 'live' ? (autoDetect ? 'auto' : 'monitor') : 'manual' })
-  const liveSpectrum = useSyncExternalStore(mic.spectrum.subscribe, mic.spectrum.get)
   const clip = useClipPreview(owner?.id ?? null, mic.listeningStatus)
   useEffect(() => { if (clip.preview) setChosenAttemptId(null) }, [clip.preview?.recordingId])
   const phase = dockPhase({ ready: visit.visitId !== null, recording: mic.recording, transcribing: mic.transcribing })
@@ -355,8 +355,10 @@ export function DrillPage({ active }: { active: boolean }) {
     active && !holdingAudio, playingAttempt, scrubVolume, setFailure,
     () => { attemptPlayback.current?.abort(); setPlayingAttempt(false) })
 
+  const locale = scope ? languageFor(scope.language, scope.variety) : creating ? languageFor(creating.language, creating.variety) : null
+  // Until the learner chooses, the recorder follows the card's script direction.
+  const recorder = useRecorderLayout('practice', locale?.direction === 'rtl' ? 'rtl' : 'ltr')
   if (!creating) return <p role="status">{tr("Loading…")}</p>
-  const locale = scope ? languageFor(scope.language, scope.variety) : languageFor(creating.language, creating.variety)
   const shown = reference?.itemId === selected?.id ? reference : null
   const rtl = locale?.direction === 'rtl'
   const direction = chosenDirection ?? (rtl ? 'rtl' : 'ltr')
@@ -370,8 +372,8 @@ export function DrillPage({ active }: { active: boolean }) {
           <RecordDock microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null}
             disabled={!settings || mic.starting || phase === 'recording' || savingPreference}
             onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />}
-            direction={direction} starting={mic.starting} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
-            listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} liveSpectrum={liveSpectrum}
+            layout={recorder} starting={mic.starting} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
+            listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} spectrum={mic.spectrum}
             onToggle={() => void mic.toggleMic()}
             onHoldStart={holdStart} onHoldEnd={holdEnd} />
         </div>

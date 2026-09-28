@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
 import { useI18n } from '../localization/i18n'
 import { ToolbarIcon } from '../controls/ToolbarIcon'
+import { SegmentedChoice } from '../controls/SegmentedChoice'
 import { DetailDialog } from '../dialogs/DetailDialog'
+import { useUiDirection } from '../localization/useUiDirection'
+import type { RecorderLayout } from './useRecorderLayout'
 
 /** How a recording begins and ends: one press each, held down, or cut at each pause. */
 export type VoiceMode = 'tap' | 'hold' | 'auto'
@@ -16,16 +19,21 @@ const MODES: readonly VoiceMode[] = ['tap', 'hold', 'auto']
 /** The one recorder, identical in Chat and Practice.
  *
  * A two-by-two grid: the face (the stream, a draft, or one arrow pointing at the
- * pad) with the microphone pad at its inline end, then one row of controls under
- * the face and the Tap / Hold / Auto toggle under the pad. The pad is only ever
+ * pad) beside the microphone pad, then one row of controls under the face and
+ * the Tap / Hold / Auto toggle under the pad. The pad's side is the learner's
+ * choice, independent of which way the stream runs. The pad is only ever
  * the microphone: calm blue when ready, red with a red outline and a glow while
  * recording, faded while it waits. There is no standing instruction; the phase is
  * announced to screen readers instead. Recording logic stays with the caller. */
-export function VoicePanel({ label, phase, face, mode, onMode, laterModes = [], modesDisabled = false, pad, controls, settings, status, faceTitle, onDiscard, direction, className }: {
+export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterModes = [], modesDisabled = false, pad, controls, settings, status, faceTitle, onDiscard, layout, className }: {
   label: string
   phase: VoicePhase
   /** The stream or a draft; null shows the prompt while the pad can start a recording. */
   face: ReactNode | null
+  /** What the prompt says beside its arrow, when it has something to add, such
+   * as the greeting to say; by default it only restates the pad, so screen
+   * readers skip it. */
+  prompt?: ReactNode
   mode: VoiceMode
   onMode: (mode: VoiceMode) => void
   /** Shown in the toggle but not available here yet: pressing one says “Coming soon”. */
@@ -41,7 +49,9 @@ export function VoicePanel({ label, phase, face, mode, onMode, laterModes = [], 
   faceTitle?: string
   /** Offered in the face while recording: throw the recording away. */
   onDiscard?: () => void
-  direction?: 'ltr' | 'rtl'
+  /** Where the pad sits and which way the stream runs, offered in the recording
+   * settings. Without it the pad sits at the end of the reading direction. */
+  layout?: RecorderLayout
   className?: string
 }) {
   const tr = useI18n()
@@ -49,6 +59,10 @@ export function VoicePanel({ label, phase, face, mode, onMode, laterModes = [], 
   const [soon, setSoon] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const elapsed = useElapsed(recording)
+  const reading = useUiDirection()
+  const padSide = layout?.padSide ?? (reading === 'rtl' ? 'left' : 'right')
+  // Grid areas follow the reading direction, so the physical side becomes start or end.
+  const padAt = (padSide === 'right') === (reading === 'ltr') ? 'end' : 'start'
   useEffect(() => {
     if (!soon) return
     const timer = setTimeout(() => setSoon(false), 1800)
@@ -75,11 +89,11 @@ export function VoicePanel({ label, phase, face, mode, onMode, laterModes = [], 
   const modeShort = { tap: tr('Tap'), hold: tr('Hold'), auto: tr('Auto') }
   const seconds = Math.floor(elapsed)
 
-  return <section className={['voice-panel', className].filter(Boolean).join(' ')} data-phase={phase} data-mode={mode} dir={direction} aria-label={label}>
+  return <section className={['voice-panel', className].filter(Boolean).join(' ')} data-phase={phase} data-mode={mode} data-pad={padAt} data-pad-side={padSide} aria-label={label}>
     <div className="voice-grid">
       <div className="voice-face" title={faceTitle}>
-        {face ?? (phase === 'ready' && !pad.disabled && <div className="voice-prompt" aria-hidden="true">
-          <span className="voice-prompt-text">{tr('Press the microphone to start')}</span>
+        {face ?? (phase === 'ready' && !pad.disabled && <div className="voice-prompt" aria-hidden={prompt ? undefined : true}>
+          <span className="voice-prompt-text">{prompt ?? tr('Press the microphone to start')}</span>
           <ToolbarIcon name="chevron" size={18} />
         </div>)}
         {recording && <span className="voice-chip"><span className="voice-dot" aria-hidden="true" />{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span>}
@@ -110,9 +124,25 @@ export function VoicePanel({ label, phase, face, mode, onMode, laterModes = [], 
       <div className="voice-settings">
         <h2>{tr('Recording settings')}</h2>
         {settings}
+        {layout && <>
+          <Choice label={tr('Microphone button')} value={layout.padSide} onChange={layout.onPadSide}
+            options={[['left', tr('Left')], ['right', tr('Right')]]} />
+          <Choice label={tr('Time direction')} value={layout.time} onChange={layout.onTime}
+            options={[['ltr', tr('Time →'), tr('Time runs left to right')], ['rtl', tr('← Time'), tr('Time runs right to left')]]} />
+        </>}
       </div>
     </DetailDialog>}
   </section>
+}
+
+/** One setting with two or more named values, as a segmented control. */
+function Choice<T extends string>({ label, value, options, onChange }: {
+  label: string; value: T; options: [T, string, string?][]; onChange: (value: T) => void
+}) {
+  return <div className="voice-choice">
+    <span className="voice-choice-label">{label}</span>
+    <SegmentedChoice label={label} value={value} options={options} onChange={onChange} />
+  </div>
 }
 
 /** Seconds since recording began, for the chip in the stream. */

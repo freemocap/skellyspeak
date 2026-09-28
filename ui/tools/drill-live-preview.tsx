@@ -10,10 +10,12 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { I18nProvider } from '../src/components/localization/i18n'
 import { RecordDock, type RecordMode } from '../src/features/drill/RecordDock'
+import { useRecorderLayout } from '../src/components/media/useRecorderLayout'
 import { AttemptInspection } from '../src/features/drill/AttemptInspection'
 import { DrillComparison, type TimeDirection, type TimeScale } from '../src/features/drill/DrillComparison'
 import { AttemptRows } from '../src/features/drill/AttemptRows'
 import { MobileAttemptHistory } from '../src/features/drill/MobileAttemptHistory'
+import { fixedSpectrumFeed } from '../src/domain/audio/spectrum-feed'
 import { ClearTakes } from '../src/features/drill/ClearTakes'
 import { CONTINUOUS_RECORDING_POLICY } from '../src/generated/contracts'
 import { DrillLayout } from '../src/features/drill/DrillLayout'
@@ -88,6 +90,8 @@ function Preview() {
   const [mode, setMode] = useState<RecordMode>('live')
   const [live, setLive] = useState(!firstVisit)
   const [direction, setDirection] = useState<TimeDirection>('ltr')
+  // The recorder keeps its own button side and time direction, as on the page.
+  const recorder = useRecorderLayout('practice', 'rtl')
   const [speed, setSpeed] = useState(1)
   const [timeScale, setTimeScale] = useState<TimeScale>('words')
   const [selected, setSelected] = useState<string | null>(null)
@@ -124,6 +128,7 @@ function Preview() {
     frameStartSeconds: [0, 3, 6].flatMap(offset => reference.spectrogram.frameStartSeconds.map(frame => frame + offset)),
     bins: [0, 3, 6].flatMap(() => reference.spectrogram.bins),
   }), [])
+  const liveSpectrum = useMemo(() => fixedSpectrumFeed({ data, endSeconds: 9 }), [data])
   const phrase: DrillItemView = { source: { kind: 'own' }, attempts: [], id: 'fixture', text: target.join(' '), language: 'arabic', variety: 'arabic-egyptian', explanation: 'english', explanationVariety: 'english-us', createdAt: attempts[0].createdAt, attemptCount: attempts.length, bestMatchRatio: .93, lastAttemptAt: attempts[0].createdAt }
   return <I18nProvider locale={locale}>
     <div className="app">
@@ -135,8 +140,8 @@ function Preview() {
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
           <div className="drill-actions">{(['tap', 'hold', 'live'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
         </PhraseRail>}
-        dock={<div className="drill-dock-pane" ref={dockPane}>        <RecordDock direction={direction} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
-          listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} liveSpectrum={firstVisit ? null : { data, endSeconds: 9 }}
+        dock={<div className="drill-dock-pane" ref={dockPane}>        <RecordDock layout={recorder} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
+          listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} spectrum={firstVisit ? null : liveSpectrum}
           onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div>}
         // Stacked, the page shows its compact attempt strip; the full list opens from it.
         report={<MobileAttemptHistory detail={id => <AttemptInspection attempt={attempts.find(entry => entry.id === id)!} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />}

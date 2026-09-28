@@ -236,12 +236,35 @@ it('opens the conversation list from the chat header and lets the coach cover th
   await act(async () => watches[0].resolve(snapshot()))
   fireEvent.click(screen.getByRole('button', { name: 'Conversations' }))
   expect(onHistory).toHaveBeenCalledWith(true)
-  // The coach opens from the header and covers the conversation, which stays mounted beneath it.
-  expect(screen.getByRole('button', { name: 'Coach' })).toHaveAttribute('aria-expanded', 'true')
+  // Narrow: the coach opens from the row just above the answer, not the header, and
+  // covers the conversation, which stays mounted beneath it.
+  const coach = screen.getByRole('button', { name: 'Coach' })
+  expect(coach).toHaveAttribute('aria-expanded', 'true')
+  expect(coach.closest('.composer-assist')).not.toBeNull()
+  expect(document.querySelector('.chat-head .chat-coach, .chat-coach-edge')).toBeNull()
   expect(document.querySelector('.split.mobile-coach .coach-scrim')).not.toBeNull()
   expect((await draftField())).toBeInTheDocument()
   fireEvent.keyDown(window, { key: 'Escape' })
   expect(useNavigationStore.getState().mobileSurface).toBe('chat')
+  view.unmount()
+  media.mockRestore()
+})
+it('opens the coach from an edge tab on the conversation in the compact layout', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  useNavigationStore.getState().openPractice('chat')
+  const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(snapshot()))
+  // One way to the coach: the tab on the conversation's edge, where the drawer opens.
+  const coach = screen.getByRole('button', { name: 'Coach' })
+  expect(coach).toHaveClass('chat-coach-edge')
+  expect(coach.closest('section.chat')).not.toBeNull()
+  expect(coach).toHaveAttribute('aria-expanded', 'false')
+  fireEvent.click(coach)
+  expect(useNavigationStore.getState().mobileSurface).toBe('panel')
+  view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+  expect(screen.getByRole('button', { name: 'Coach' })).toHaveAttribute('aria-expanded', 'true')
+  expect(document.querySelector('.split.mobile-coach .coach-scrim')).not.toBeNull()
   view.unmount()
   media.mockRestore()
 })
@@ -489,7 +512,7 @@ it('retains a repair draft after a genuine connection failure', async () => {
   expect(commands()).toHaveLength(1)
 })
 
-it('clicks a topic to start a partner-first exchange while the composer remains usable', async () => {
+it('starts a partner-first exchange from a topic in one press while the composer remains usable', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
@@ -512,7 +535,7 @@ it('shows a failed partner start without blocking the composer', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot('a', 41)))
-  fireEvent.click(screen.getByRole('button', { name: /Let .* start/ }))
+  fireEvent.click(screen.getByRole('button', { name: / starts$/ }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'startConversation', conversationId: 'a', expectedRevision: workspace.revision, configuration: { difficulty: 'beginner', varietyId: '', direction: { topic: null, timeReference: 'any', usePersonaDetails: true } }, message: null, input: null })
   expect(await screen.findByRole('alert')).toHaveTextContent('This conversation already started.')
@@ -567,7 +590,7 @@ it('hides starters after accepting an opening and surfaces failure without a lea
   value.opening = { kind: 'partner' }
   value.turns = [{ id: 'opening', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [], operations: [{ id: 'opening-operation', kind: 'persona_opening', state: 'ready', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
   await act(async () => watches[0].resolve(value))
-  expect(screen.queryByRole('button', { name: /Let .* start/ })).toBeNull()
+  expect(screen.queryByRole('button', { name: / starts$/ })).toBeNull()
   expect(screen.getByLabelText('Conversation opening')).toHaveTextContent('Starting conversation')
   const paused = structuredClone(value)
   paused.revision++
@@ -632,14 +655,28 @@ it('offers explicit read recovery in the chat without issuing inference', async 
   expect(commands()).toEqual([])
 })
 
+it('suggests the authored greeting in a new conversation, set apart as target-language text', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(snapshot('a', 41)))
+  const greeting = await screen.findByText('hola')
+  expect(greeting.closest('.target-word')).not.toBeNull()
+  expect(greeting.closest('.voice-prompt')).toHaveTextContent('Say hola to start')
+  // Once there is a conversation, the prompt is the plain one again.
+  await act(async () => watches[1].resolve(exchangeSnapshot()))
+  expect(screen.queryByText('Say hola to start')).toBeNull()
+})
+
 it('captures tense and difficulty with the real first learner message', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = snapshot('a', 41)
   value.topicChoices = [{ id: 'food', glyph: '☕', target: 'Ordering food', romanized: null, translation: 'Ordering food' }]
   await act(async () => watches[0].resolve(value))
-  fireEvent.click(screen.getByRole('button', { name: 'Past events' }))
-  fireEvent.change(screen.getByRole('combobox', { name: 'Difficulty' }), { target: { value: 'absolute_zero' } })
+  // The start card's options go with whichever way the conversation starts.
+  fireEvent.click(screen.getByRole('button', { name: /^Options/ }))
+  fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Time frame' })).getByRole('radio', { name: 'Past events' }))
+  fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Difficulty' })).getByRole('radio', { name: 'Absolute zero' }))
   expect(commands()).toHaveLength(0)
   fireEvent.change((await draftField()), { target: { value: 'Comí arroz.' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))

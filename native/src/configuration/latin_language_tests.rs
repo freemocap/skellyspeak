@@ -68,7 +68,8 @@ fn new_latin_languages_keep_identity_writing_and_provider_mapping_separate() {
 #[test]
 fn gaelic_courtesy_phrases_reach_production_candidates_without_false_fragments() {
     let registry = Registry::bundled().unwrap();
-    for (id, phrase, fragment) in [("irish", "Go raibh maith agaibh!", "maith")] {
+    {
+        let (id, phrase, fragment) = ("irish", "Go raibh maith agaibh!", "maith");
         let context = registry.resolve(id, None, "english").unwrap();
         let fragments = phrase
             .split_whitespace()

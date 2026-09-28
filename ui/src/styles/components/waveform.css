@@ -25,9 +25,10 @@
 
 .live-recording-plots > .inspection-plot { min-height: 64px; background: var(--spectrogram-low); }
 
-.live-recording[data-time="ltr"] .live-recording-plots { transform: scaleX(-1); }
-.live-recording[data-time="ltr"] :is(.inspection-frequency-scale span, .live-take-region span) { transform: scaleX(-1); }
-.live-recording[data-time="ltr"] .live-recording-axis { flex-direction: row-reverse; }
+/* Right-to-left time mirrors the native plots, keeping labels readable. */
+.live-recording[data-time="rtl"] .live-recording-plots { transform: scaleX(-1); }
+.live-recording[data-time="rtl"] :is(.inspection-frequency-scale span, .live-take-region span) { transform: scaleX(-1); }
+.live-recording[data-time="rtl"] .live-recording-axis { flex-direction: row-reverse; }
 
 /* A stable idle baseline remains beneath the live canvas. */
 .wave-strip::before { content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: var(--border-width) solid var(--interaction-ink); pointer-events: none; }

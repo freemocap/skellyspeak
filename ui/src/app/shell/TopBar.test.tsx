@@ -10,8 +10,6 @@ import type { Settings } from '../../types'
 import { useAiWindowStore } from '../../state/navigation/ai-window'
 import { useAiBusyStore } from '../../state/session/ai-busy'
 
-const viewport = vi.hoisted(() => ({ mobile: false }))
-vi.mock('../../components/layout/useIsMobile', () => ({ useIsMobile: () => viewport.mobile }))
 vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
 const windowApi = vi.hoisted(() => ({ openAiWindow: vi.fn() }))
 vi.mock('../../platform/ipc/window', () => ({ ...windowApi, aiWindowState: async () => ({ supported: true, open: false }) }))
@@ -20,7 +18,6 @@ vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
 ] }))
 beforeEach(() => {
   useConnectionHealth.setState({ routes: {} })
-  viewport.mobile = false
   useNavigationStore.setState(useNavigationStore.getInitialState())
   useSessionStore.setState(useSessionStore.getInitialState())
   useSettingsStore.setState({...useSettingsStore.getInitialState(), settings: {my_languages:['spanish','french'], target_varieties:{}, target_language:'spanish'} as Settings})
@@ -34,8 +31,7 @@ it.each(['hosted', 'custom'] as const)('opens AI access from the %s setup status
   fireEvent.click(screen.getByRole('button', { name: 'AI Not Connected' }))
   expect(useNavigationStore.getState().overlay).toBe('settings')
 })
-it.each([false, true])('keeps the target language reachable, with the Chat and Practice tabs only at full width, mobile=%s', mobile => {
-  viewport.mobile = mobile
+it('keeps the target language reachable, with the Chat and Practice tabs leading the bar', () => {
   const setLanguage = vi.fn().mockResolvedValue(undefined)
   useSettingsStore.setState({selectLanguageVariety:setLanguage})
   useNavigationStore.getState().openSkills()
@@ -48,10 +44,14 @@ it.each([false, true])('keeps the target language reachable, with the Chat and P
   // The conversation list opens from the chat header; the theme is in Settings.
   expect(screen.queryByRole('button', {name:'Conversations'})).toBeNull()
   expect(screen.queryByRole('button', {name:/Switch to (dark|light) mode/})).toBeNull()
-  // Phones keep Chat and Practice in the tab bar at the bottom instead.
-  const tabs = screen.queryByRole('navigation', {name:'Main navigation'})
-  if (mobile) expect(tabs).toBeNull()
-  else expect(within(tabs!).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
+  // Chat and Practice come straight after the wordmark, before the language and
+  // the bar's controls, in the one row the bar has at every width.
+  const tabs = screen.getByRole('navigation', {name:'Main navigation'})
+  expect(within(tabs).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
+  const following = (first: Element, second: Element) => Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
+  expect(following(screen.getByRole('button', {name:/SkellySpeak home/}), tabs)).toBe(true)
+  expect(following(tabs, screen.getByRole('button', {name:'Target language'}))).toBe(true)
+  expect(following(tabs, screen.getByRole('button', {name:'More'}))).toBe(true)
 })
 it('disables language switching during a save or settings edit', () => {
   useSettingsStore.setState({savingLanguage:true})

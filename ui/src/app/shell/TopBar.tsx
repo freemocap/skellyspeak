@@ -11,7 +11,6 @@ import { useAiWindowStore } from '../../state/navigation/ai-window'
 import { useAiBusyStore } from '../../state/session/ai-busy'
 import { openAiWindow } from '../../platform/ipc/window'
 import { reportFault } from '../../platform/diagnostics/faults'
-import { useIsMobile } from '../../components/layout/useIsMobile'
 import { ModeTabs } from './ModeTabs'
 
 /** The global bar: the wordmark, the language, the Chat and Practice tabs at full
@@ -34,7 +33,6 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
     ? health.error : health?.revision === connection?.revision && health?.checkedAt ? `${tr('Last checked')}: ${tr.dateTime(health.checkedAt)}` : tr('Connection not checked yet')
   const overlay = useNavigationStore((state) => state.overlay)
   const goHome = useNavigationStore((state) => state.goHome)
-  const isMobile = useIsMobile()
   const showOverlay = useNavigationStore((state) => state.showOverlay)
   const toggleOverlay = useNavigationStore((state) => state.toggleOverlay)
   const aiWindowOpen = useAiWindowStore((state) => state.open)
@@ -52,10 +50,11 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SkellySpeak</span>
       </button>
+      {/* Where you are comes first and leads the bar; the language and the rest follow. */}
+      <ModeTabs />
       <div className="topbar-language">{languagePicker}</div>
-      {!isMobile && <ModeTabs placement="top" />}
       <div className="topbar-actions">
-      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)} XP</strong><span className="profile-meter" aria-hidden="true"><span style={{ width: `${(profile.xp % 50) * 2}%` }} /></span></> : tr("Progress")}</button>
+      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)}<span className="profile-unit"> XP</span></strong></> : tr("Progress")}</button>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
         aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={openAiView}
         aria-expanded={connected ? overlay === 'activity' || aiWindowOpen : undefined} aria-controls={connected ? 'ai-activity' : undefined} data-busy={connected && aiBusy ? true : undefined}>

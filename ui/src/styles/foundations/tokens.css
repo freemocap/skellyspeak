@@ -21,7 +21,8 @@
      leaves room for the identity colours. The warm palette and the dark theme
      override these roles, except ink-on-fill, and nothing else in this group. */
   --bg: #eceef0;              /* the ground behind every sheet */
-  --chrome: #f3f4f5;          /* top bar, panel tabs, hover on sheet */
+  --chrome: #f3f4f5;          /* panel tabs, hover on sheet */
+  --bar: color-mix(in srgb, var(--bg) 96%, rgb(0 0 0)); /* the top bar: a touch darker than the ground, so the active tab and page read as one */
   --sheet: #ffffff;           /* the raised surface: chat, cards, dialogs */
   --field: #ffffff;           /* inputs and the active tab */
   --chip: #dadee3;            /* chips, selected rows, recessed wells */
@@ -63,6 +64,10 @@
   --interaction-mark: #3d74c9;   /* small marks for your choices: selected edges, score bars */
   --interaction-line: #a9bfe3;   /* borders of selected and ready controls */
   --focus-ring: var(--interaction-ink);
+  /* Target-language words set among interface text (topics, the greeting to
+     say), bold, so the language being learned scans apart from explanations.
+     Its own role so it can move apart from the controls' blue. */
+  --target-ink: #1a3d7c;
 
   /* ══ Colour: identity ════════════════════════════════════════════════════
      Places and voices, one meaning each: the partner and the Chat tab, the
@@ -345,6 +350,8 @@
   --interaction-ink: #6fa3ea;
   --interaction-mark: #6fa3ea;
   --interaction-line: #41618f;
+  --target-ink: #a3c6f7;
+  --bar: color-mix(in srgb, var(--chrome) 85%, rgb(0 0 0));
   --partner-mark: #f0a35e;
   --partner-tint: #3a2e22;
   --partner-line: #8a6238;

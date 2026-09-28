@@ -284,12 +284,24 @@ seventh review):
 - **A13** The three width tiers need one more breakpoint (400px) in the style
   checker’s allowed set (`ui/tools/check-styles.ts`) and a tier hook to replace
   the single `useIsMobile` breakpoint (860px). UI tooling, no native change.
+- **A14** A conversation's practice target, separate from its topic. Today a
+  skill focus is a kind of topic (`TopicChoice::Coach`), so pressing a topic on
+  the start card drops a focus set in Options, and a conversation cannot aim at a
+  skill the learner picks. The direction needs a target of its own, shaped like
+  Practice's `DrillSkillTarget` (`{ kind: 'coach', mode }` or
+  `{ kind: 'skill', skillId }`). `recommendations::capture` would then resolve a
+  chosen skill as `drill/skill_focus.rs::capture` does. The start card's “Skill”
+  select is built and disabled (“Coming soon”) until then; see
+  [Stage 1](01-first-run.md#implemented-build-step-6). Stored directions holding
+  a coach topic become incompatible, so that conversation data is reset rather
+  than converted.
 
 ## Decisions
 
 Made 2026-09-27 (first review):
 
-- Topics and practice modes select, then one Start.
+- Topics and practice modes select, then one Start. *(Superseded 2026-09-28: every
+  start is one press; see below.)*
 - First run chooses one language; more from Browse languages later.
 - The language list scrolls between a pinned heading and a pinned action bar, so
   Continue is always visible.
@@ -351,6 +363,20 @@ Made 2026-09-27 (seventh review):
 - **Nothing is removed in the build.** The mockups show only what changes; existing
   behaviour moves into the new layout. [build-plan.md](build-plan.md) lists it.
 - The build stage is close; the remaining questions are in the build plan.
+
+Made 2026-09-28 (review of build step 6):
+
+- **Every start is one press.** The partner's start, each topic and the learner's
+  own topic start the conversation directly; the options apply to all of them.
+  See [Stage 1](01-first-run.md#implemented-build-step-6).
+- **The interface leads the backend.** Where the native side cannot do something
+  yet, the UI is built as intended and that part is disabled with “Coming soon”
+  on hover. A `BACKEND:` comment at the control and an item under
+  [Deferred](#deferred-native-ai-content-or-state-model-work) say what it needs
+  (first: A14).
+- **Target-language words among interface text are bold in `target-ink`**, so the
+  language being learned scans apart from explanations. Translations keep the
+  interface style.
 
 ## Log
 
@@ -456,3 +482,109 @@ Made 2026-09-27 (seventh review):
   - The “Inspect recording” button above the Chat panel removed.
   Details are in [voice input](voice-input.md#implemented-build-step-4); the
   checks are in the build plan's step results. No commit.
+- 2026-09-28 — Jon's review of Practice, with changes made:
+  - **Cards panel.** At full width it starts folded to its edge tab, with no
+    count on the tab. The toolbar's "Practice cards 5/9" button is gone, because
+    it duplicated the panel. When the layout is stacked, a cards icon in the
+    toolbar opens the drawer or sheet.
+  - **Card position.** "5/9" read as progress, so the shown card is now named
+    "Card 5 of 9", between Previous and Next.
+  - **Attempt card.** It fits its content up to a cap instead of holding a fixed
+    height.
+  - **Recording panel.** It is its own zone in the place's colour, in Practice
+    and Chat. The microphone pad became opaque so a tint cannot muddy it.
+
+  No commit.
+- 2026-09-28 — Jon, with changes made:
+  - **Chat's place colour is the coach green.** Chat and its coach now share one
+    colour, so the split is green for Chat and purple for Practice. This covers
+    the top bar band, the Chat tabs and Chat's recording panel. The partner's
+    message bubbles and avatar keep the partner colour.
+  - **Recording settings in each panel set two things independently:** which side
+    the microphone button sits on (Left or Right), and which way time runs across
+    the stream (Time → or ← Time, the words the Practice comparison uses).
+  - **Choices are kept per panel on this device.** Until one is made, the button
+    sits at the end of the reading direction and time runs the same way: the
+    interface direction in Chat, the card's script in Practice.
+  - **The comparison's time direction no longer moves Practice's recorder.**
+  - **Live stream attribute fixed.** The live stream's `data-time` now means what
+    the comparison plots' does; it had the opposite meaning.
+  - **Labels:** "Microphone button", "Left" and "Right" are new, with drafts in all
+    seven languages.
+
+  No commit.
+- 2026-09-28 — The thick place-colour band under the top bar and the active tab's
+  thick outline became a thin tinted edge with a soft glow. The active tab, top or
+  bottom, is raised with a glow in its colour (Jon: the thick line was
+  overbearing). No commit.
+- 2026-09-28 — Tabs read as tabs:
+  - The active tab now opens straight into its page. The line under it came from
+    its lift shadow and the bar's glow; both are gone.
+  - The place colour is a thin line along the bar that rises around the active
+    tab. The tab's glow lights only its top and sides.
+  - At Jon's request, phones keep Chat and Practice at the top, in a second row of
+    the top bar. The bottom tab bar is removed.
+
+  No commit.
+- 2026-09-28 — Jon's review of the bar, the header and the widths, with changes
+  made:
+  - **The tabs lead the bar.** Chat and Practice come straight after the
+    wordmark, before the language, at every width. They are the largest type in
+    the bar: bold, at title size. The inactive tab is filled; the active one opens
+    into its page.
+  - **The bar is one row at every width.** The phones' second row for the tabs is
+    gone. To fit:
+    - the XP meter is removed;
+    - the language shows its endonym, and its English name only at full width;
+    - Settings is an icon;
+    - AI status is "AI" with its dot, and only the dot on narrow phones;
+    - narrow phones drop the "XP" unit from the total.
+  - **The chat header is condensed.** Conversation settings and New conversation
+    are icon buttons; their names and the settings summary are in their labels and
+    tooltips. The XP chip keeps its star beside its total. Coach left the header.
+  - **The three widths are now visibly different.** They existed (Full above
+    860px, Compact 401–860px, Narrow 400px and below), but Compact reused the
+    phone layout apart from drawers instead of sheets, so only two were visible.
+    - Full: the coach and cards panels open beside the work and fold to edge tabs.
+    - Compact: the coach and the cards are edge tabs on the work's edges, and open
+      as drawers from there. The coach is at the end of the conversation; the
+      cards are at the start of the stage.
+    - Narrow: Coach is a button at the end of the row above the answer, and the
+      cards open from the toolbar icon. Both open as sheets from the bottom.
+  - **One row above the answer (Compact and Narrow).** Reply help, the status
+    line and, when narrow, Coach share it, instead of taking a row each.
+  - **Message removed:** "New".
+
+  No commit.
+- 2026-09-28 — Build step 6, the conversation start (1c), ahead of step 5 at Jon's
+  request. The card has a partner card, topic chips that select, Options folded to
+  one line, one start button, and no static copy. Details are in
+  [Stage 1](01-first-run.md#implemented-build-step-6). No commit.
+- 2026-09-28 — Jon's review of the start card: starting took two presses. Every
+  start is now one press, with the large partner start beside the partner, topics
+  as action buttons, an open field for the learner's own topic, and Options as an
+  easing panel under them. Details are in
+  [Stage 1](01-first-run.md#implemented-build-step-6). No commit.
+- 2026-09-28 — Jon's third look at the start card:
+  - Options moved above the partner.
+  - The own-topic heading became the field's placeholder, “Enter your own
+    topic…”.
+  - The greeting moved into the empty voice panel: “Say hola to start”.
+  - Target-language words are bold in the new `target-ink`.
+  - The chosen option in every segmented control is filled. Tap / Hold / Auto
+    got the same fill.
+  - A “Skill” select is built as coming soon (A14).
+  - `tr.rich` places elements in translated sentences.
+
+  No commit.
+- 2026-09-28 — Jon's review of the top bar and edge tabs:
+  - The inactive tab no longer covers the place line.
+  - The bar is a touch darker (`--bar`).
+  - The line glows along its whole length, and the active tab's glow is
+    stronger.
+  - The logo stays at every width; its name folds away below 600px.
+  - The coach and cards edge tabs have a full border, a 3px coloured edge and a
+    glow.
+
+  Details are in [Stage 4](04-shell-and-modes.md) and
+  [colour and depth](colour-and-depth.md). No commit.

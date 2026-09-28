@@ -12,41 +12,52 @@
 .topbar {
   display: flex; align-items: center; flex-wrap: nowrap;
   min-height: 44px; padding: 0 var(--space-6) 0 var(--space-4);
-  border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome);
+  border-bottom: var(--border-width) solid var(--line-soft); background: var(--bar);
   flex: none; justify-content: flex-start; gap: var(--space-4);
 }
 
-/* The band under the top bar carries the colour of the place on screen: the
-   partner's for Chat, violet for Practice, none for the skill tree. */
-.app[data-place='chat'] .topbar { border-bottom: var(--border-width-thick) solid var(--partner-mark); }
-.app[data-place='practice'] .topbar { border-bottom: var(--border-width-thick) solid var(--practice-mark); }
+/* The place on screen shows as a line in its colour along the top bar's lower
+   edge, glowing into the bar along its whole length: green for Chat, violet for
+   Practice, none for the skill tree. The active tab rises from that line,
+   outlined and glowing in the same colour and open at the bottom, so tab and
+   page read as one surface. The glow shows through the inactive tab. */
+.app[data-place='chat'] .topbar {
+  border-bottom: var(--border-width-strong) solid color-mix(in srgb, var(--coach-mark) 75%, var(--line-soft));
+  background: linear-gradient(to top, color-mix(in srgb, var(--coach-mark) 28%, var(--bar)), var(--bar) var(--space-9));
+}
+.app[data-place='practice'] .topbar {
+  border-bottom: var(--border-width-strong) solid color-mix(in srgb, var(--practice-mark) 75%, var(--line-soft));
+  background: linear-gradient(to top, color-mix(in srgb, var(--practice-mark) 28%, var(--bar)), var(--bar) var(--space-9));
+}
 
-/* Full width: Chat and Practice as tabs in the top bar that open into the
-   surface. Each carries its place's colour: a dot while inactive, the tab's
-   outline and icon while active. The active tab covers the band under it and
-   takes the ground's colour, so tab and surface read as one object. */
-.mode-tabs-top { align-self: stretch; display: flex; align-items: flex-end; gap: var(--space-2); margin-inline: auto; margin-bottom: calc(-1 * var(--border-width-thick)); }
+/* Chat and Practice lead the top bar at every width: the largest, boldest
+   controls there. Both read as tabs; each icon carries its place's colour. The
+   active tab is raised by a glow in its colour, names its place in that colour,
+   and covers the line under it with the page's ground. The inactive tab stops
+   at the line, so the line runs unbroken under it. */
+.mode-tabs-top { flex: none; align-self: stretch; display: flex; align-items: flex-end; gap: var(--space-2); margin-inline: var(--space-2) var(--space-6); margin-bottom: calc(-1 * var(--border-width-strong)); }
 .mode-tabs-top .mode-tab {
-  display: inline-flex; align-items: center; gap: var(--space-4); min-height: var(--control-height); padding: var(--space-2) var(--space-10);
-  border: var(--border-width-thick) solid transparent; border-bottom: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  background: transparent; color: var(--ink-2); font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--space-4); min-height: calc(var(--control-height) + var(--space-2)); padding: var(--space-3) var(--space-11);
+  margin-bottom: var(--border-width-strong);
+  border: var(--border-width-strong) solid transparent; border-bottom: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: color-mix(in srgb, var(--chip) 70%, transparent); color: var(--ink-2); font: var(--weight-bold) var(--type-title) var(--font-sans); cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.mode-tabs-top .mode-tab::after { content: ''; width: var(--space-3); height: var(--space-3); border-radius: var(--radius-circle); }
-.mode-tabs-top .mode-tab[data-place='chat']::after { background: var(--partner-mark); }
-.mode-tabs-top .mode-tab[data-place='practice']::after { background: var(--practice-mark); }
+.mode-tabs-top .mode-tab[data-place='chat'] svg { color: var(--coach-mark); }
+.mode-tabs-top .mode-tab[data-place='practice'] svg { color: var(--practice-mark); }
 .mode-tabs-top .mode-tab:hover { color: var(--ink); }
-.mode-tabs-top .mode-tab[data-place='chat']:hover { background: color-mix(in srgb, var(--partner-mark) 10%, var(--chrome)); }
-.mode-tabs-top .mode-tab[data-place='practice']:hover { background: color-mix(in srgb, var(--practice-mark) 10%, var(--chrome)); }
+.mode-tabs-top .mode-tab[data-place='chat']:hover { background: color-mix(in srgb, var(--coach-mark) 14%, var(--chrome)); }
+.mode-tabs-top .mode-tab[data-place='practice']:hover { background: color-mix(in srgb, var(--practice-mark) 14%, var(--chrome)); }
 .mode-tabs-top .mode-tab[aria-current='page'] {
-  position: relative; z-index: var(--z-raised); color: var(--ink); background: var(--bg);
-  padding-bottom: calc(var(--space-2) + var(--border-width-thick));
+  position: relative; z-index: var(--z-raised); margin-bottom: 0; background: var(--bg);
+  padding-bottom: calc(var(--space-3) + var(--border-width-strong));
+  /* The glow lights the top and sides only; nothing crosses the open bottom into the page. */
+  clip-path: inset(calc(-1 * var(--space-12)) calc(-1 * var(--space-12)) 0 calc(-1 * var(--space-12)));
 }
-.mode-tabs-top .mode-tab[aria-current='page']::after { display: none; }
-.mode-tabs-top .mode-tab[data-place='chat'][aria-current='page'] { border-color: var(--partner-mark); }
-.mode-tabs-top .mode-tab[data-place='practice'][aria-current='page'] { border-color: var(--practice-mark); }
-.mode-tabs-top .mode-tab[data-place='chat'][aria-current='page'] svg { color: var(--partner-mark); }
-.mode-tabs-top .mode-tab[data-place='practice'][aria-current='page'] svg { color: var(--practice-mark); }
+/* Keyboard focus is drawn inside the tab, so it never closes the open bottom. */
+.mode-tabs-top .mode-tab:focus-visible { outline-offset: calc(-1 * var(--space-3)); }
+.mode-tabs-top .mode-tab[data-place='chat'][aria-current='page'] { color: var(--coach-ink); border-color: color-mix(in srgb, var(--coach-mark) 75%, var(--line-soft)); box-shadow: 0 calc(-1 * var(--space-1)) var(--space-11) color-mix(in srgb, var(--coach-mark) 60%, transparent); }
+.mode-tabs-top .mode-tab[data-place='practice'][aria-current='page'] { color: var(--practice-ink); border-color: color-mix(in srgb, var(--practice-mark) 75%, var(--line-soft)); box-shadow: 0 calc(-1 * var(--space-1)) var(--space-11) color-mix(in srgb, var(--practice-mark) 60%, transparent); }
 
 .wordmark { font-weight: var(--weight-semibold); font-size: var(--type-title); letter-spacing: var(--tracking-tight); }
 
@@ -127,31 +138,6 @@
 
 .nav-icon { width: 18px; text-align: center; }
 
-/* Compact and narrow: one surface at a time, with Chat and Practice in a tab
-   bar at the bottom. The current tab takes its place's colour. */
-
-.mode-tabs-bottom {
-  flex: none; display: grid; grid-template-columns: 1fr 1fr;
-  border-top: var(--border-width) solid var(--line); background: var(--chrome);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.mode-tabs-bottom .mode-tab {
-  min-width: 0; min-height: var(--touch-target);
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3);
-  padding: var(--space-3) var(--space-2);
-  border: 0; border-top: var(--border-width-thick) solid transparent; background: none;
-  color: var(--ink-2); cursor: pointer;
-  font-family: var(--font-sans); font-size: var(--type-body);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.mode-tabs-bottom .mode-tab[data-place='chat'] svg { color: var(--partner-mark); }
-.mode-tabs-bottom .mode-tab[data-place='practice'] svg { color: var(--practice-mark); }
-.mode-tabs-bottom .mode-tab[aria-current='page'] { background: var(--bg); }
-.mode-tabs-bottom .mode-tab[data-place='chat'][aria-current='page'] { color: var(--partner-ink); border-top-color: var(--partner-mark); }
-.mode-tabs-bottom .mode-tab[data-place='practice'][aria-current='page'] { color: var(--practice-ink); border-top-color: var(--practice-mark); }
 
 @media (max-width: 860px) {
   .split { flex-direction: column; padding: 0; gap: 0; }
@@ -287,7 +273,9 @@
 
 .topbar-actions .profile-trigger { width: auto; }
 
-.topbar-actions .gear.app-settings { width: auto; padding-inline: var(--space-4); gap: var(--space-3); font-size: var(--type-ui); }
+/* The rest of the bar is condensed so the tabs lead it: Settings is an icon (its
+   name stays in the label and tooltip), XP a number, and AI a status dot. */
+.topbar-actions .gear.app-settings > span { display: none; }
 
 .app-home {
   display: inline-flex;
@@ -307,9 +295,6 @@
   border-radius: var(--radius-xs);
 }
 
-@media (max-width: 380px) {
-  .topbar .app-home { display: none; }
-}
 
 /* Remaining motion owners; graph scope also wins over lazily loaded vendor CSS. */
 
@@ -340,8 +325,6 @@
 .profile-trigger strong { font-weight: var(--weight-semibold); }
 .profile-star { display: inline-flex; color: var(--warning-line); }
 .profile-star svg { fill: color-mix(in srgb, var(--warning-line) 45%, transparent); }
-.profile-meter { display: inline-flex; width: 48px; height: 6px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--warning-line) 22%, transparent); overflow: hidden; }
-.profile-meter > span { background: var(--warning-line); border-radius: inherit; }
 .connection-state { display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
 .connection-state::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); box-shadow: 0 0 0 3px var(--line-soft); }
 .connection-state[data-configured=false] { color: var(--danger-ink); border-color: var(--danger-tint); background: var(--danger-tint); }
@@ -351,22 +334,25 @@
 .connection-state[data-busy=true]::before { background: var(--interaction-ink); animation: inside-pulse var(--dur-loop) ease-in-out infinite; }
 .connection-state[aria-expanded=true] { border-color: var(--interaction-ink); }
 @media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::before { animation: none; } }
-.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
+.connection-setup { justify-content: center; min-width: var(--control-height); min-height: var(--control-height-lg); padding-inline: var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
 .connection-setup:hover { color: var(--ink); background: var(--line-soft); }
-@media (max-width: 480px) { .app-home > span { display: none; } }
+/* The logo stays at every width; below 600px its name gives up the room. */
+@media (max-width: 600px) { .app-home > span { display: none; } }
 
-.topbar-language { flex: 0 1 320px; min-width: 140px; display: flex; align-items: center; gap: var(--space-2); }
+.topbar-language { flex: 0 1 280px; min-width: 140px; display: flex; align-items: center; gap: var(--space-2); }
 .topbar-language .language-dropdown { flex: 1; }
-.topbar-language .learning-picker { min-height: var(--control-height); font-size: var(--type-body); font-weight: var(--weight-semibold); width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
-@media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button { min-height: var(--touch-target); } }
+.topbar-language .learning-picker { min-height: var(--control-height); font-size: var(--type-ui); font-weight: var(--weight-medium); width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
+@media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .mode-tabs-top .mode-tab { min-height: var(--touch-target); } }
 
 
 /* Keep compact overrides after the header controls they adapt. */
 @media (max-width: 860px) {
-  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
-  /* The language picker takes the room left over and shows the language name
-     only; Chat and Practice move to the tab bar at the bottom. */
-  .topbar .app-home { display: none; }
+  /* One row, the tabs first and smaller than at full width; the language picker
+     takes the room left over and shows the language's own name only. */
+  .topbar { padding: var(--space-1) var(--space-2) 0; gap: var(--space-2); }
+  .mode-tabs-top { margin-inline: 0; }
+  .mode-tabs-top .mode-tab { gap: var(--space-3); padding-inline: var(--space-6); font-size: var(--type-body); }
+  .topbar-language .learning-picker-name { display: none; }
   .topbar-language { flex: 1 1 0; min-width: 0; }
   .topbar-language .language-dropdown { min-width: 0; }
   .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); grid-template-columns: minmax(0, 1fr) auto; }
@@ -380,12 +366,16 @@
   .topbar-language .inspection-action { display: none; }
   .topbar-actions { gap: 0; }
   .topbar-actions .gear.app-settings { display: none; }
-  .topbar .profile-meter { display: none; }
   .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
-  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: var(--space-3); }
-  .connection-setup .connection-short-label { display: inline; }
-  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .connection-state[data-configured=false] { background: transparent; }
 }
 
 .connection-short-label { display: none; }
+.connection-setup .connection-short-label { display: inline; }
+.connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.connection-state.connection-setup[data-configured=false] { background: transparent; }
+/* Narrow: the tabs need the room, so XP loses its unit and AI keeps only its dot. */
+@media (max-width: 400px) {
+  .mode-tabs-top .mode-tab { padding-inline: var(--space-4); font-size: var(--type-ui); }
+  .topbar-actions .profile-unit, .connection-setup .connection-short-label { display: none; }
+  .connection-setup { min-width: 0; padding-inline: var(--space-3); }
+}

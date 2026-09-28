@@ -15,6 +15,7 @@ import { useAppearance } from '../src/platform/appearance/useAppearance'
 import { DEFAULT_APPEARANCE } from '../src/generated/contracts'
 import type { AudioInspection, InspectionSpectrogram, ListeningTake } from '../src/generated/contracts'
 import type { WaveSource } from '../src/domain/audio/waveform'
+import { createSpectrumFeed } from '../src/domain/audio/spectrum-feed'
 import { PREVIEW_SETTINGS } from './preview-settings'
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
@@ -697,6 +698,9 @@ function VoicePanel({ context, narrow, transcripts = TRANSCRIPTS, onSend, onTake
   const clock = useRecordingClock(recording)
   const source = useMemo(() => session > 0 ? syntheticMicrophone(clock.read) : null, [session, clock.read])
   const streamed = useMemo(() => session > 0 ? streamWindow(clock.seconds) : null, [session, clock.seconds])
+  // The stream reads its spectrum from a feed, as in the app.
+  const [feed] = useState(createSpectrumFeed)
+  useEffect(() => { feed.set(streamed ? { data: streamed, endSeconds: Math.max(clock.seconds, 0.01) } : null) }, [feed, streamed, clock.seconds])
   // Utterances a pause has finished. With Detect attempts off they pass uncut.
   const finished = mode === 'auto' ? UTTERANCES.filter(item => item.end + 0.6 <= clock.seconds).length : 0
   const autoTakes: ListeningTake[] = cut.map((index, number) => ({
@@ -765,9 +769,8 @@ function VoicePanel({ context, narrow, transcripts = TRANSCRIPTS, onSend, onTake
             </div>
           </div>
           : streamed
-            // Unmirrored in a left-to-right interface: the newest audio is at the
-            // inline end, next to the pad (LiveRecording mirrors only for 'ltr').
-            ? <LiveRecording direction="rtl" active={recording} source={recording ? source : null} spectrum={{ data: streamed, endSeconds: Math.max(clock.seconds, 0.01) }} takes={autoTakes} />
+            // Time runs left to right: the newest audio is at the inline end, next to the pad.
+            ? <LiveRecording time="ltr" active={recording} source={recording ? source : null} spectrum={feed} takes={autoTakes} />
             : <div className="dp-voice-prompt" aria-hidden="true"><span className="dp-voice-prompt-text">{VOICE_PROMPT}</span><ToolbarIcon name="chevron" size={18} /></div>}
         {recording && <span className="dp-voice-chip" role="status"><span className="dp-voice-dot" aria-hidden="true" />{time}</span>}
         {busy && <span className="dp-voice-overlay" role="status">Transcribing…</span>}

@@ -224,3 +224,57 @@ attempts” applies to Auto mode.”, now shown by the control's place in the pa
 | **Ask for between {value0} and {value1} practice cards.** (was “Ask for between {value0} and {value1} cards.”) | اطلب بين {value0} و{value1} بطاقة تدريب. | Demandez entre {value0} et {value1} cartes d’entraînement. | Fordere zwischen {value0} und {value1} Übungskarten an. | 请要求 {value0} 到 {value1} 张练习卡片。 | Peça entre {value0} e {value1} cartões de treino. | Pide entre {value0} y {value1} tarjetas de práctica. |
 | **Asking for practice cards…** (was “Asking for cards…”) | جارٍ طلب بطاقات التدريب… | Demande de cartes d’entraînement… | Übungskarten werden angefordert… | 正在请求练习卡片… | Pedindo cartões de treino… | Pidiendo tarjetas de práctica… |
 | **Already in your practice cards** (was “Already in your cards”) | موجودة في بطاقات تدريبك | Déjà dans vos cartes d’entraînement | Bereits in deinen Übungskarten | 已在你的练习卡片中 | Já está nos seus cartões de treino | Ya está en tus tarjetas de práctica |
+
+## Added after step 4
+
+Drafts for native review, as above.
+
+| English | Arabic | French | German | Mandarin | Portuguese | Spanish |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Card {value0} of {value1}** | البطاقة {value0} من {value1} | Carte {value0} sur {value1} | Karte {value0} von {value1} | 第 {value0} 张，共 {value1} 张 | Cartão {value0} de {value1} | Tarjeta {value0} de {value1} |
+| **Microphone button** | زر الميكروفون | Bouton du micro | Mikrofontaste | 麦克风按钮 | Botão do microfone | Botón del micrófono |
+| **Left** | يسار | Gauche | Links | 左侧 | Esquerda | Izquierda |
+| **Right** | يمين | Droite | Rechts | 右侧 | Direita | Derecha |
+
+Removed: “New”. The chat header's New conversation button is an icon; its label
+and tooltip remain “New conversation”.
+
+## Added in step 6
+
+Drafts for native review, as above. Arabic uses the masculine verb for the
+partner, as the earlier “Let {name} start” did; a native reviewer should check
+it for female partners. “{name} chooses” uses the noun “اختيار {name}” to avoid it.
+
+| English | Arabic | French | German | Mandarin | Portuguese | Spanish |
+| --- | --- | --- | --- | --- | --- | --- |
+| **{name} starts** (was “Let {name} start”) | يبدأ {name} | {name} commence | {name} beginnt | {name}先开始 | {name} começa | Empieza {name} |
+| **{name} chooses** (was “Let the partner decide”) | اختيار {name} | {name} choisit | {name} wählt | 由{name}选择 | {name} escolhe | Elige {name} |
+| **Your own topic** (was “Custom topic”) | موضوعك الخاص | Votre propre sujet | Eigenes Thema | 你自己的主题 | Seu próprio tema | Tu propio tema |
+| **Options** | الخيارات | Options | Optionen | 选项 | Opções | Opciones |
+| **Time frame** (was “Grammar practice”) | الإطار الزمني | Cadre temporel | Zeitbezug | 时间范围 | Referência temporal | Marco temporal |
+| **Any time** (was “No preference”) | أي وقت | Toute période | Beliebig | 不限时间 | Qualquer momento | Cualquier momento |
+| **No focus** | بلا مهارة مستهدفة | Aucune compétence ciblée | Kein Schwerpunkt | 不设重点 | Sem foco | Sin enfoque |
+| **Prompt details…** (was “Customize…” here) | تفاصيل التعليمات… | Détails des consignes… | Anweisungsdetails… | 提示词详情… | Detalhes das instruções… | Detalles de las instrucciones… |
+| **About {name}** | عن {name} | À propos de {name} | Über {name} | 关于{name} | Sobre {name} | Sobre {name} |
+| **Change partner** (was “All partners” here) | تغيير الشريك | Changer de partenaire | Gesprächspartner wechseln | 更换伙伴 | Trocar de parceiro | Cambiar de compañero |
+
+Removed: “Let {name} start”, “Say {greeting}”, “Custom topic”, “Grammar
+practice”, “No preference”, “Let the partner decide”, “Let the coach decide” and
+“Practice selection”. “Skill focus” was already translated for Practice and is
+reused.
+
+Added after Jon's review of the start card:
+
+| English | Arabic | French | German | Mandarin | Portuguese | Spanish |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Or pick a topic** | أو اختر موضوعًا | Ou choisissez un sujet | Oder wähle ein Thema | 或选择一个主题 | Ou escolha um tema | O elige un tema |
+| **Or your own topic** | أو موضوعك الخاص | Ou votre propre sujet | Oder ein eigenes Thema | 或你自己的主题 | Ou seu próprio tema | O tu propio tema |
+| **…or send a message to begin** | …أو أرسل رسالة للبدء | …ou envoyez un message pour commencer | …oder sende eine Nachricht, um zu beginnen | ……或发送一条消息开始 | …ou envie uma mensagem para começar | …o envía un mensaje para empezar |
+
+Added after Jon's third look (“Or your own topic” removed; the field's placeholder
+replaces it):
+
+| English | Arabic | French | German | Mandarin | Portuguese | Spanish |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Enter your own topic…** | أدخل موضوعك الخاص… | Saisissez votre propre sujet… | Eigenes Thema eingeben… | 输入你自己的主题… | Digite seu próprio tema… | Escribe tu propio tema… |
+| **Say {greeting} to start** | قل {greeting} للبدء | Dites {greeting} pour commencer | Sag {greeting}, um zu beginnen | 说“{greeting}”开始 | Diga {greeting} para começar | Di {greeting} para empezar |

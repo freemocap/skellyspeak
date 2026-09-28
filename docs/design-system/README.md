@@ -12,10 +12,10 @@ SkellySpeak is a convivial tool for learning languages through welcoming convers
 
 ### Colour
 
-- **A cool neutral ground.** Build screens from `bg` (the ground), `sheet` (the raised chat surface), `chrome` (top bar, tabs) and `field` (inputs). Borders are `line`; quiet dividers `line-soft`. The cool palette is the default and the values documented here; a warm palette is a learner preference over the same roles.
+- **A cool neutral ground.** Build screens from `bg` (the ground), `sheet` (the raised chat surface), `bar` (the top bar, a touch darker than the ground, so the active tab and its page read as one), `chrome` (panel tabs) and `field` (inputs). Borders are `line`; quiet dividers `line-soft`. The cool palette is the default and the values documented here; a warm palette is a learner preference over the same roles.
 - **Text:** `ink` for primary copy, `ink-2` for labels and supporting copy, `ink-3` for metadata, glosses and placeholders. All three hold 4.5:1 on `sheet`, `chrome` and `bg` in both themes.
 - **One accent.** `interaction-ink` is the only interaction colour: links, active tabs, selection, XP, the focus ring. Primary buttons fill with `interaction-fill` and `ink-on-fill` text. `interaction-mark` and `interaction-line` mark your choices: a selected card's edge, a ready control's border. Never introduce a second accent.
-- **Identity colours mark places and voices, one meaning each:** `partner-*` for your partner and the Chat tab, `coach-*` for the coach, `practice-*` for the Practice tab and its cards, `progress-*` for XP, skills and rewards, and `recording-*` for the microphone while it records. Each has a `-mark` for small saturated marks (tab edges, dots, avatar rings), a `-tint` for pale areas, a `-line` for borders and an `-ink` for text. Pale for areas, strong for marks: most of the screen stays neutral, and the colour always comes with a word or icon. Identity colours never fill a button.
+- **Identity colours mark places and voices, one meaning each:** `partner-*` for your partner, `coach-*` for the coach and the Chat tab (Chat and its coach share one green), `practice-*` for the Practice tab and its cards, `progress-*` for XP, skills and rewards, and `recording-*` for the microphone while it records. Each has a `-mark` for small saturated marks (tab edges, dots, avatar rings), a `-tint` for pale areas, a `-line` for borders and an `-ink` for text. Pale for areas, strong for marks: most of the screen stays neutral, and the colour always comes with a word or icon. Identity colours never fill a button.
 - **Red means recording.** The microphone is blue while it is ready. While it records, the control fills with `recording-fill`, takes a `recording-mark` outline and a `recording-glow`. Errors keep the danger family; recording never borrows it.
 - **The chat is warm vs cool.** The partner's bubbles are warm (`bubble-partner-bg` / `bubble-partner-line`), the learner's are cool (`bubble-learner-bg` / `bubble-learner-line`). Keep that split anywhere the two voices appear.
 - **Status is three families: success, warning and danger.** Each has an `-ink` for text, a `-line` for borders and marks, and a `-tint` to sit behind the ink (`success-ink` on `success-tint`, and so on). The same families cover system state (a failed request) and the coach's judgments (a correction). Always pair the colour with a word or icon.
@@ -27,6 +27,7 @@ SkellySpeak is a convivial tool for learning languages through welcoming convers
 
 - **IBM Plex Sans** is the interface (`type-hero` 30 → `type-meta` 11). Controls sit at `type-ui` 13px/500; default copy at `type-body` 15px.
 - **Newsreader (serif)** is for reading: target-language text at `type-reading` 20px, and the learner's own messages. Serif means "language you are learning".
+- **Target-language words among interface text** (a topic's name, the greeting to say) are also bold in `target-ink`: `.target-word` in `reading.css`. The learner can scan the language being learned apart from explanations; translations beside them keep the interface style.
 - **IBM Plex Mono** is for data: counts, model names, timings, YAML (`mono-meta`, `mono-ui`).
 - Reading text scales with the learner's text-size and the script (Arabic is set larger); never hard-code its size.
 - Headings are weight 600; body 400. Under 860px wide, `type-display`, `type-title` and `type-reading` step down (21 / 16 / 17px).
@@ -55,7 +56,7 @@ Short and functional: 80–200ms transitions with an ease-out curve; a blinking 
 ## Logo
 
 - The SkellySpeak mark is a teal skull with red sparkles and a speech bubble saying hello in many languages. Use the PNG as supplied (Logos group) — never recolour, crop, or redraw it.
-- In the app it sits at 28×28px at the left of the top bar, decorative (empty alt) beside the product name.
+- In the app it sits at 28×28px at the left of the top bar, decorative (empty alt) beside the product name. Below 600px the name folds away; the mark stays at every width.
 
 ## Components
 

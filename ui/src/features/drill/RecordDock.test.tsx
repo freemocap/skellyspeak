@@ -15,7 +15,7 @@ beforeEach(() => {
 const view = (phase: DockPhase) => <I18nProvider locale="english"><RecordDock phase={phase} mode="live"
   onMode={() => {}} settings={{ pauseMs: policy.defaultPauseMs, thresholdDb: policy.defaultThresholdDb,
     minTakeMs: policy.defaultMinTakeMs, silenceTimeoutMs: policy.defaultSilenceTimeoutMs }}
-  onSettings={() => {}} listeningStatus={null} waveSource={null} liveSpectrum={null}
+  onSettings={() => {}} listeningStatus={null} waveSource={null} spectrum={null}
   onToggle={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} /></I18nProvider>
 
 it('keeps the pad and the control row mounted when capture starts and stops', () => {
@@ -46,4 +46,24 @@ it('shows Tap, Hold and Auto under the pad, the Auto controls in the row, and ti
   expect(within(dialog).getByRole('radiogroup', { name: 'End an attempt after silence of' })).toBeInTheDocument()
   expect(within(dialog).getByRole('radiogroup', { name: 'Ignore sounds shorter than' })).toBeInTheDocument()
   expect(within(dialog).queryByRole('radiogroup', { name: 'Recording mode' })).toBeNull()
+})
+
+it('puts the button on the chosen side and offers both layout settings', async () => {
+  const layout = { padSide: 'left' as const, onPadSide: vi.fn(), time: 'rtl' as const, onTime: vi.fn() }
+  const { container } = render(<I18nProvider locale="english"><RecordDock phase="ready" mode="tap" layout={layout}
+    onMode={() => {}} settings={{ pauseMs: policy.defaultPauseMs, thresholdDb: policy.defaultThresholdDb,
+      minTakeMs: policy.defaultMinTakeMs, silenceTimeoutMs: policy.defaultSilenceTimeoutMs }}
+    onSettings={() => {}} listeningStatus={null} waveSource={null} spectrum={null}
+    onToggle={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} /></I18nProvider>)
+  const panel = container.querySelector('.drill-voice')!
+  // In a left-to-right interface the left side is the inline start.
+  expect(panel).toHaveAttribute('data-pad-side', 'left')
+  expect(panel).toHaveAttribute('data-pad', 'start')
+  fireEvent.click(screen.getByRole('button', { name: 'Recording settings' }))
+  const settings = await screen.findByRole('dialog', { name: 'Recording settings' })
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Microphone button' })).getByRole('radio', { name: 'Right' }))
+  expect(layout.onPadSide).toHaveBeenCalledExactlyOnceWith('right')
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Time direction' })).getByRole('radio', { name: 'Time →' }))
+  expect(layout.onTime).toHaveBeenCalledExactlyOnceWith('ltr')
+  expect(layout.onPadSide).toHaveBeenCalledOnce()
 })

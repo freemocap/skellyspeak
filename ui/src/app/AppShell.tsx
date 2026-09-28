@@ -22,7 +22,6 @@ import { ReadingTools } from './ReadingTools'
 import { SettingsModal } from '../features/settings/SettingsModal'
 import { UpdateBanner } from './shell/UpdateBanner'
 import { FaultBar } from './shell/FaultBar'
-import { MobileNav } from './shell/MobileNav'
 import { MoreDialog } from './shell/MoreDialog'
 import { ProfileOverlay } from './shell/ProfileOverlay'
 import { SurfaceHost } from './shell/SurfaceHost'
@@ -97,7 +96,6 @@ export function AppShell() {
       <CredentialCleanup />
       <ProfileOverlay />
       <SurfaceHost />
-      <MobileNav />
       <MoreDialog />
       {overlay === 'languages' && <LanguageBrowser key={languageInfo} initialLanguage={languageInfo} onClose={closeOverlay} />}
       <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />

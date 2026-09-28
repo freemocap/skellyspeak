@@ -1,10 +1,12 @@
-import { useRef, type ReactNode } from 'react'
+import { useRef, useSyncExternalStore, type ReactNode } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { LiveRecording } from '../../components/media/LiveRecording'
 import { VoicePanel } from '../../components/media/VoicePanel'
+import type { RecorderLayout } from '../../components/media/useRecorderLayout'
 import { CONTINUOUS_RECORDING_POLICY } from '../../generated/contracts'
-import type { ListeningSettings, ListeningStatus, LiveSpectrogram } from '../../generated/contracts'
+import type { ListeningSettings, ListeningStatus } from '../../generated/contracts'
 import type { WaveSource } from '../../domain/audio/waveform'
+import { noSpectrum, type SpectrumFeed } from '../../domain/audio/spectrum-feed'
 
 /** Which of the four things the microphone is doing right now. */
 export type DockPhase = 'preparing' | 'ready' | 'recording' | 'working'
@@ -32,9 +34,10 @@ const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR
  * each pause cuts an attempt, marked in the stream. The phase is announced to
  * screen readers; its longer explanation is the stream's tooltip. Capture and
  * playback share one authority, so playback waits while this records. */
-export function RecordDock({ microphoneSelector, direction = 'ltr', starting = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, liveSpectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+export function RecordDock({ microphoneSelector, layout, starting = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
   microphoneSelector?: ReactNode
-  direction?: 'ltr' | 'rtl'
+  /** The pad's side and the stream's direction, each set in the recording settings. */
+  layout?: RecorderLayout
   starting?: boolean
   phase: DockPhase
   mode: RecordMode
@@ -43,7 +46,8 @@ export function RecordDock({ microphoneSelector, direction = 'ltr', starting = f
   onSettings: (settings: ListeningSettings) => void
   listeningStatus: ListeningStatus | null
   waveSource: WaveSource | null
-  liveSpectrum: LiveSpectrogram | null
+  /** The live spectrum; the stream subscribes to it, so this panel does not re-render per frame. */
+  spectrum: SpectrumFeed | null
   onToggle: () => void
   autoDetect?: boolean
   onAutoDetect?: (enabled: boolean) => void
@@ -75,14 +79,14 @@ export function RecordDock({ microphoneSelector, direction = 'ltr', starting = f
     working: { headline: tr("Transcribing"), detail: tr("You can leave this card; the attempt is stored by the app.") },
   }[phase]
 
-  // The pad sits at the inline end of the time direction, and new audio enters
-  // beside it: LiveRecording's `direction` names the side new audio enters from.
-  const stream = phase === 'recording' || liveSpectrum
-    ? <LiveRecording direction={direction === 'ltr' ? 'rtl' : 'ltr'} active={phase === 'recording'} source={waveSource} spectrum={liveSpectrum} takes={listeningStatus?.takes ?? []} />
+  const feed = spectrum ?? noSpectrum
+  const hasSpectrum = useSyncExternalStore(feed.subscribe, () => feed.get() !== null)
+  const stream = phase === 'recording' || hasSpectrum
+    ? <LiveRecording time={layout?.time} active={phase === 'recording'} source={waveSource} spectrum={spectrum} takes={listeningStatus?.takes ?? []} />
     : null
   const padLabel = mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")
 
-  return <VoicePanel label={tr("Record an attempt")} className="drill-voice" direction={direction} phase={phase} face={stream}
+  return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} phase={phase} face={stream}
     faceTitle={copy.detail} status={copy.headline}
     mode={live ? 'auto' : mode} onMode={next => onMode(next === 'auto' ? 'live' : next)} modesDisabled={busy || starting || phase === 'recording'}
     pad={{ label: padLabel, disabled: busy || (starting && mode !== 'hold'),

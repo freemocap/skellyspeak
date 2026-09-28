@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
+import { Profiler } from 'react'
 import { expect, it, vi } from 'vitest'
 import { I18nProvider } from '../localization/i18n'
-import { Spectrogram, SpectrogramFrequencyScale, melAxisTicks, sharedScale } from './Spectrogram'
+import { LiveSpectrogram, Spectrogram, SpectrogramFrequencyScale, melAxisTicks, sharedScale } from './Spectrogram'
+import { createSpectrumFeed } from '../../domain/audio/spectrum-feed'
 import type { InspectionSpectrogram } from '../../generated/contracts'
 import * as appearance from '../../platform/appearance/css-token'
 
@@ -99,5 +101,31 @@ it('keeps the latest overlapping frame and leaves true gaps transparent', () => 
     expect(pixels[749 * 4 + 3]).toBe(255)
     expect(pixels[750 * 4 + 3]).toBe(0)
     expect(pixels[900 * 4]).toBe(255)
+  } finally { mock.mockRestore(); token.mockRestore() }
+})
+
+it('paints each live frame from the feed without a React render per frame', () => {
+  const token = vi.spyOn(appearance, 'cssToken').mockReturnValue('rgb(80, 90, 100)')
+  const putImageData = vi.fn()
+  const context = {
+    fillStyle: '', fillRect: vi.fn(),
+    getImageData: () => ({ data: new Uint8ClampedArray([80, 90, 100, 255]) }),
+    createImageData: (width: number, height: number) => ({ data: new Uint8ClampedArray(width * height * 4), width, height }),
+    putImageData,
+  }
+  const mock = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D)
+  try {
+    const feed = createSpectrumFeed()
+    const renders = vi.fn()
+    app(<Profiler id="live" onRender={renders}><LiveSpectrogram feed={feed} seconds={1} /></Profiler>)
+    act(() => feed.set({ endSeconds: 1, data: analysis() }))
+    const settled = renders.mock.calls.length
+    // Later frames repaint the canvas and reuse its pixel buffer; React is not involved.
+    act(() => feed.set({ endSeconds: 1.1, data: analysis({ frameStartSeconds: [0.05, 0.066] }) }))
+    act(() => feed.set({ endSeconds: 1.2, data: analysis({ frameStartSeconds: [0.1, 0.116] }) }))
+    expect(putImageData).toHaveBeenCalledTimes(3)
+    expect(renders).toHaveBeenCalledTimes(settled)
+    expect(putImageData.mock.calls[2][0]).toBe(putImageData.mock.calls[1][0])
+    expect(screen.getByRole('img')).toHaveAccessibleName('Spectrogram, 50 to 8,000 Hz on a mel scale, -100 to 0 dB')
   } finally { mock.mockRestore(); token.mockRestore() }
 })

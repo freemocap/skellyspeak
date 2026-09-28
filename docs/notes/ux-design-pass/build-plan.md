@@ -1,8 +1,8 @@
 # Build plan — first batch
 
 Status: **agreed 2026-09-27; steps 1 and 2 committed on branch
-`ux-design-pass`; steps 3 and 4 implemented, uncommitted; step 5 next.** Part of
-the [UX design pass](README.md).
+`ux-design-pass`; steps 3, 4 and 6 implemented, uncommitted (6 ahead of 5 at Jon's
+request); step 5 next.** Part of the [UX design pass](README.md).
 
 The design decisions below are settled in the stage notes and the review page
 (`/tools/design-pass-preview.html`). This note turns them into ordered, reviewable
@@ -106,7 +106,9 @@ Each step is one reviewable change, verified before the next starts.
    see [voice input](voice-input.md#implemented-build-step-4).*
 5. **First run** (1a, 1b).
 6. **Conversation start** (1c). Partner facts on the card wait for A5; until then
-   the card shows the name and avatar, as today.
+   the card shows the name and avatar, as today. *Implemented 2026-09-28, ahead of
+   step 5 at Jon's request; see
+   [Stage 1](01-first-run.md#implemented-build-step-6).*
 
 Later stages, not this batch: Chat's bubbles, help surfaces and coach content
 (Stage 2); the Practice comparison and report layout (Stage 3); Progress and
@@ -221,3 +223,68 @@ Browser:
   the attempt grip hidden).
 
 Not yet checked: a real recording in the desktop app, and phones.
+
+**Step 6, conversation start (2026-09-28).** The start card as recorded in
+[Stage 1](01-first-run.md#implemented-build-step-6). Strings: +10 and −8, giving
+1,372 messages. Draft translations are in
+[translations-step-1.md](translations-step-1.md#added-in-step-6).
+
+UI checks: `npm test` 1,393 passed, including new or rewritten tests for:
+
+- choosing a topic without starting, and the start carrying the chosen topic;
+- the folded Options summary, and options only updating the draft;
+- Skill focus appearing with recorded practice, sharing the topic slot, and
+  pressing a chosen option again changing nothing;
+- your own topic selecting without starting, and keeping its text;
+- the partner card's links, and the partner menu opening from outside with focus;
+- the learner's first message carrying the chosen topic, time frame and difficulty.
+
+These also passed: `npm run build`, `npm run localization:test`,
+`npm run localization:audit` (0 candidates), `npm run styles:check`,
+`npm run previews:check` and `npm run design-system:check` (with the new
+SegmentedChoice card).
+
+Browser, the conversation preview:
+
+- 280px (Narrow): the chips in one sideways-scrolling row, a full-width start.
+- 640px (Compact, dark, Options open).
+- 1280px (Full): the 40rem card; Change partner opening the header's menu, and
+  Escape returning focus to it.
+
+After Jon's review the same day (every start is one press): +3 strings, giving
+1,375. `npm test` 1,396 passed, with tests for:
+
+- starting from the partner, a topic, a saved topic and the learner's own topic
+  in one press;
+- saving an own topic once and refusing an invalid one;
+- the Options panel and its summary.
+
+`npm run build`, `localization:test`, `localization:audit` (0 candidates),
+`styles:check`, `previews:check` and `design-system:check` passed.
+
+Browser:
+
+- 640px: the new layout, and Options easing open over 0.32s while the starts
+  stay in place.
+- With the stream shortened, opening Options scrolled it into view.
+- 1280px, and 375px in dark mode: the start takes its own row, and the topics
+  scroll sideways.
+
+Not yet checked: the running app with a fresh conversation, with and without
+recorded practice; a right-to-left interface.
+
+After Jon's third look the same day: +2 strings and −1, giving 1,376. `npm test`
+1,400 passed, with tests for:
+
+- the card's order;
+- the placeholder-named field;
+- the Skill select shown as coming soon;
+- target-language names set apart from translations and saved topics;
+- the composer's greeting prompt, reachable by screen readers;
+- the page offering the greeting only before the conversation begins;
+- `tr.rich` in the localization tools.
+
+`npm run build`, `localization:test`, `localization:audit` (0 candidates),
+`styles:check`, `previews:check` and `design-system:check` passed. Browser, 640px
+in light and dark: the order, the filled selections, the disabled Skill select,
+the target words and “Say hola to start”.

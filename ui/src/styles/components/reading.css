@@ -252,3 +252,9 @@
 
 /* Complete inline phrases retain visible, keyboard-accessible phrase actions. */
 .target-phrase-actions { display: inline-flex; vertical-align: middle; gap: var(--space-2); margin-inline-start: var(--space-3); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); }
+
+/* Target-language words set among interface text, such as a topic's name or the
+   greeting to say: serif like all target text, and bold in target-ink, so the
+   language being learned scans apart from explanations. Translations beside
+   them keep the interface style. */
+.target-word { font-family: var(--font-serif); font-weight: var(--weight-bold); color: var(--target-ink); }

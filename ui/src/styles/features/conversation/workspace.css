@@ -95,6 +95,15 @@
     border-inline-start: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-drawer);
   }
   .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
+  /* Compact: the folded coach is an edge tab of its own just inside the
+     conversation's inline end, where its drawer opens. The stream keeps clear of
+     it rather than scrolling messages underneath. */
+  .mobile-conversation > .chat:has(> .chat-coach-edge) { position: relative; }
+  .mobile-conversation .chat-coach-edge {
+    position: absolute; inset-inline-end: var(--space-2); top: 50%; translate: 0 -50%; z-index: var(--z-raised);
+    display: flex; align-items: center; box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2)); cursor: pointer;
+  }
+  .chat:has(> .chat-coach-edge) .stream { padding-inline-end: calc(var(--control-height-xs) + 2 * var(--space-2) + var(--space-3)); }
   /* Opening slides the drawer in from its edge; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
   .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }

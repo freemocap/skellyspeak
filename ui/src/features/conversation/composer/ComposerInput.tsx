@@ -2,10 +2,14 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { useI18n } from '../../../components/localization/i18n'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 import { VoicePanel } from '../../../components/media/VoicePanel'
+import type { RecorderLayout } from '../../../components/media/useRecorderLayout'
 interface ComposerInputProps {
   transcriptionWarning?: string
   /** The live stream while recording, the waveform over the spectrogram; it fills the panel's face. */
   stream?: ReactNode
+  /** What the empty face says instead of “Press the microphone to start”, such
+   * as the greeting to say in a new conversation. */
+  prompt?: ReactNode
   micShortcut?: string
   input: string
   available: boolean
@@ -20,6 +24,8 @@ interface ComposerInputProps {
   onHoldEnd?: () => void
   /** The recording settings dialog's content, such as the microphone choice. */
   settings?: ReactNode
+  /** The pad's side and the stream's direction, each set in the recording settings. */
+  layout?: RecorderLayout
   targetLanguageTag?: string
   targetLanguageName: string
   onInput: (value: string) => void
@@ -32,8 +38,8 @@ interface ComposerInputProps {
  * in the face as an editable draft with its own Send; Auto-send skips the draft.
  * Recording and request ownership stay with the caller. Chat's Auto (pause to
  * finish each line) needs native work, so it is shown and marked “Coming soon”. */
-export function ComposerInput({ input, available, sending, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, settings,
-  transcriptionWarning, targetLanguageTag, targetLanguageName, stream, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
+export function ComposerInput({ input, available, sending, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, settings, layout,
+  transcriptionWarning, targetLanguageTag, targetLanguageName, stream, prompt, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -79,12 +85,12 @@ export function ComposerInput({ input, available, sending, recording, transcribi
   return (
     <>
       <VoicePanel label={tr("Message")} className="composer-voice" phase={recording ? 'recording' : transcribing ? 'working' : 'ready'}
-        face={recording ? stream ?? null : drafting ? draft : null}
+        face={recording ? stream ?? null : drafting ? draft : null} prompt={prompt}
         mode={mode} onMode={next => { if (next !== 'auto') onMode?.(next) }} laterModes={['auto']} modesDisabled={recording || transcribing || !onMode}
         onDiscard={onDiscardRecording}
         pad={{ label: padLabel, title: micShortcut ? `${padLabel} · ${micShortcut}` : padLabel, disabled: !available || sending || transcribing,
           action: mode === 'hold' && onHoldStart && onHoldEnd ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggleRecording } }}
-        settings={settings}
+        settings={settings} layout={layout}
         controls={<>
           <button type="button" className="voice-mini voice-type" aria-pressed={drafting} disabled={recording || !available}
             onClick={() => setTyping(value => !value)}><ToolbarIcon name="keyboard" size={15} /><span>{tr("Type")}</span></button>

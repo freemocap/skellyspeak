@@ -41,8 +41,13 @@
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
 
-/* The voice panel sits inside the composer's own padding and surface. */
-.composer-voice { padding: 0; background: transparent; }
+/* The recording panel is its own zone in Chat's colour, as Practice's is in
+   its own: a thin outline, the colour on the edge that faces the conversation,
+   and a tint behind its controls. */
+.composer-voice {
+  background: var(--coach-tint); border: var(--border-width) solid var(--coach-line);
+  border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-lg);
+}
 /* Dragged to a height, the recording panel gives the change to its face (the
    stream or the draft) and the conversation above takes the rest. */
 .composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
@@ -53,6 +58,25 @@
 .composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); padding: 0 var(--space-5); color: var(--ink); overflow: hidden; white-space: nowrap; }
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
+
+/* Compact and narrow: reply help, the status line and (narrow) the coach share
+   one row above the answer. In it, folded help and the status line drop their
+   own spacing; opened help takes the whole row and the rest wraps under it.
+   Help sits inside its reading scope (display: contents), so it is matched as
+   a descendant but laid out as an item of the row. */
+.composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block-end: var(--space-2); }
+.composer-assist .reply-help-folded { margin: 0; }
+.composer-assist .reply-help { flex: 1 1 100%; margin: 0; }
+.composer-assist > .composer-activity { flex: 1 1 0; min-width: 0; padding-inline: var(--space-2); }
+/* Narrow: the coach opens from the end of that row, in the coach's colours. */
+.chat-coach {
+  flex: none; margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-6);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.chat-coach svg { color: var(--coach-mark); }
+.chat-coach[aria-expanded='true'] { border-color: var(--coach-mark); }
+@media (pointer: coarse) { .chat-coach { min-height: var(--control-height); } }
 
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 

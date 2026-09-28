@@ -70,34 +70,7 @@
   .chat-heading-actions { flex: 0 0 auto; margin-inline-start: var(--space-3); }
 }
 
-/* A narrow header keeps whole controls rather than squeezing them. The settings
-   button already carries its summary in its accessible name, so the secondary
-   line goes and the control row stays short enough for the name beside it. */
-@media (max-width: 600px) {
-  .chat-heading-actions .chat-config-summary { display: none; }
-}
-
 .chat-head .conversation-title { flex: 1; }
-
-.chat-config-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--control-height);
-  padding: var(--space-2) var(--space-5);
-  gap: var(--space-3);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--field);
-  color: var(--ink);
-  font-size: var(--type-ui);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.chat-config-toggle:hover { border-color: var(--interaction-ink); }
-.chat-config-toggle[aria-expanded=true] { border-color: var(--interaction-ink); background: var(--bubble-learner-bg); color: var(--interaction-ink); }
 
 /* ── Conversation settings ──────────────────────────────────────────────
    Desktop: a panel on the inline end, below the top bar, beside the chat.
@@ -226,28 +199,14 @@
 .chat-head .persona-avatar { width: 32px; height: 32px; border-radius: var(--radius-circle); background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line); font-size: var(--type-title); }
 .partner-identity { white-space: normal; display: grid; gap: var(--space-2); text-align: start; min-width: 0; }
 .partner-identity strong { font-size: var(--type-body); font-weight: var(--weight-semibold); overflow: hidden; text-overflow: ellipsis; }
-.chat-new, .chat-conversations { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; white-space: nowrap; }
+/* The header's controls are icons of one size; their names are in their labels and tooltips. */
+.chat-new, .chat-conversations, .chat-config-toggle { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-width: var(--control-height); min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; white-space: nowrap; }
+.chat-config-toggle:hover { border-color: var(--interaction-ink); }
+.chat-config-toggle[aria-expanded=true] { border-color: var(--interaction-ink); background: var(--bubble-learner-bg); color: var(--interaction-ink); }
 /* The conversation list opens from the start of the header, beside the partner. */
 .chat-conversations { flex: none; margin-inline-end: var(--space-3); }
 .chat-conversations[aria-expanded='true'] { color: var(--ink); border-color: var(--line); background: var(--field); }
-/* Compact and narrow: the coach opens from the header, in the coach's colours. */
-.chat-coach {
-  display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height); padding: 0 var(--space-6);
-  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink);
-  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer; white-space: nowrap;
-}
-.chat-coach svg { color: var(--coach-mark); }
-.chat-coach[aria-expanded='true'] { border-color: var(--coach-mark); }
-/* The label names the button; the summary says what it is set to. A phone keeps
-   only the summary beside the icon. */
-.chat-config-text { display: flex; flex-direction: column; align-items: flex-start; gap: 0; line-height: var(--leading-tight); text-align: start; }
-.chat-config-summary { font-size: var(--type-meta); font-weight: var(--weight-regular); color: var(--ink-3); }
-.chat-config-toggle[aria-expanded=true] .chat-config-summary { color: inherit; }
-@media (max-width: 860px) {
-  .chat-config-label, .chat-new > span { display: none; }
-  .chat-config-summary { font-size: var(--type-ui); color: var(--ink-2); }
-}
-@media (pointer: coarse) { .chat-new, .chat-conversations, .chat-coach, .chat-config-toggle { min-width: var(--touch-target); min-height: var(--touch-target); } }
+@media (pointer: coarse) { .chat-new, .chat-conversations, .chat-config-toggle { min-width: var(--touch-target); min-height: var(--touch-target); } }
 
 /* Cascading language menu: the first panel matches its trigger; varieties float beside the row. */
 .language-dropdown { position: relative; min-width: 0; }

@@ -68,3 +68,13 @@ it('keeps recording enabled with a compact model-language warning', () => {
   view.rerender(<ComposerInput {...input} />)
   expect(screen.queryByRole('note')).toBeNull()
 })
+it('says what to say when the page offers it, where screen readers can reach it', () => {
+  const input={...props(), input:''}
+  const view=render(<ComposerInput {...input} prompt={<>Say <b className="target-word">hola</b> to start</>} />)
+  // Unlike the default, which only restates the pad, the greeting is content.
+  const prompt=screen.getByText('hola').closest('.voice-prompt')!
+  expect(prompt).toHaveTextContent('Say hola to start')
+  expect(prompt).not.toHaveAttribute('aria-hidden')
+  view.rerender(<ComposerInput {...input} />)
+  expect(screen.getByText('Press the microphone to start').closest('.voice-prompt')).toHaveAttribute('aria-hidden', 'true')
+})

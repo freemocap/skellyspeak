@@ -47,7 +47,8 @@
      leaves room for the identity colours. The warm palette and the dark theme
      override these roles, except ink-on-fill, and nothing else in this group. */
   --bg: #eceef0;              /* the ground behind every sheet */
-  --chrome: #f3f4f5;          /* top bar, panel tabs, hover on sheet */
+  --chrome: #f3f4f5;          /* panel tabs, hover on sheet */
+  --bar: color-mix(in srgb, var(--bg) 96%, rgb(0 0 0)); /* the top bar: a touch darker than the ground, so the active tab and page read as one */
   --sheet: #ffffff;           /* the raised surface: chat, cards, dialogs */
   --field: #ffffff;           /* inputs and the active tab */
   --chip: #dadee3;            /* chips, selected rows, recessed wells */
@@ -89,6 +90,10 @@
   --interaction-mark: #3d74c9;   /* small marks for your choices: selected edges, score bars */
   --interaction-line: #a9bfe3;   /* borders of selected and ready controls */
   --focus-ring: var(--interaction-ink);
+  /* Target-language words set among interface text (topics, the greeting to
+     say), bold, so the language being learned scans apart from explanations.
+     Its own role so it can move apart from the controls' blue. */
+  --target-ink: #1a3d7c;
 
   /* ══ Colour: identity ════════════════════════════════════════════════════
      Places and voices, one meaning each: the partner and the Chat tab, the
@@ -371,6 +376,8 @@
   --interaction-ink: #6fa3ea;
   --interaction-mark: #6fa3ea;
   --interaction-line: #41618f;
+  --target-ink: #a3c6f7;
+  --bar: color-mix(in srgb, var(--chrome) 85%, rgb(0 0 0));
   --partner-mark: #f0a35e;
   --partner-tint: #3a2e22;
   --partner-line: #8a6238;
@@ -774,41 +781,52 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .topbar {
   display: flex; align-items: center; flex-wrap: nowrap;
   min-height: 44px; padding: 0 var(--space-6) 0 var(--space-4);
-  border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome);
+  border-bottom: var(--border-width) solid var(--line-soft); background: var(--bar);
   flex: none; justify-content: flex-start; gap: var(--space-4);
 }
 
-/* The band under the top bar carries the colour of the place on screen: the
-   partner's for Chat, violet for Practice, none for the skill tree. */
-.app[data-place='chat'] .topbar { border-bottom: var(--border-width-thick) solid var(--partner-mark); }
-.app[data-place='practice'] .topbar { border-bottom: var(--border-width-thick) solid var(--practice-mark); }
+/* The place on screen shows as a line in its colour along the top bar's lower
+   edge, glowing into the bar along its whole length: green for Chat, violet for
+   Practice, none for the skill tree. The active tab rises from that line,
+   outlined and glowing in the same colour and open at the bottom, so tab and
+   page read as one surface. The glow shows through the inactive tab. */
+.app[data-place='chat'] .topbar {
+  border-bottom: var(--border-width-strong) solid color-mix(in srgb, var(--coach-mark) 75%, var(--line-soft));
+  background: linear-gradient(to top, color-mix(in srgb, var(--coach-mark) 28%, var(--bar)), var(--bar) var(--space-9));
+}
+.app[data-place='practice'] .topbar {
+  border-bottom: var(--border-width-strong) solid color-mix(in srgb, var(--practice-mark) 75%, var(--line-soft));
+  background: linear-gradient(to top, color-mix(in srgb, var(--practice-mark) 28%, var(--bar)), var(--bar) var(--space-9));
+}
 
-/* Full width: Chat and Practice as tabs in the top bar that open into the
-   surface. Each carries its place's colour: a dot while inactive, the tab's
-   outline and icon while active. The active tab covers the band under it and
-   takes the ground's colour, so tab and surface read as one object. */
-.mode-tabs-top { align-self: stretch; display: flex; align-items: flex-end; gap: var(--space-2); margin-inline: auto; margin-bottom: calc(-1 * var(--border-width-thick)); }
+/* Chat and Practice lead the top bar at every width: the largest, boldest
+   controls there. Both read as tabs; each icon carries its place's colour. The
+   active tab is raised by a glow in its colour, names its place in that colour,
+   and covers the line under it with the page's ground. The inactive tab stops
+   at the line, so the line runs unbroken under it. */
+.mode-tabs-top { flex: none; align-self: stretch; display: flex; align-items: flex-end; gap: var(--space-2); margin-inline: var(--space-2) var(--space-6); margin-bottom: calc(-1 * var(--border-width-strong)); }
 .mode-tabs-top .mode-tab {
-  display: inline-flex; align-items: center; gap: var(--space-4); min-height: var(--control-height); padding: var(--space-2) var(--space-10);
-  border: var(--border-width-thick) solid transparent; border-bottom: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  background: transparent; color: var(--ink-2); font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--space-4); min-height: calc(var(--control-height) + var(--space-2)); padding: var(--space-3) var(--space-11);
+  margin-bottom: var(--border-width-strong);
+  border: var(--border-width-strong) solid transparent; border-bottom: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: color-mix(in srgb, var(--chip) 70%, transparent); color: var(--ink-2); font: var(--weight-bold) var(--type-title) var(--font-sans); cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.mode-tabs-top .mode-tab::after { content: ''; width: var(--space-3); height: var(--space-3); border-radius: var(--radius-circle); }
-.mode-tabs-top .mode-tab[data-place='chat']::after { background: var(--partner-mark); }
-.mode-tabs-top .mode-tab[data-place='practice']::after { background: var(--practice-mark); }
+.mode-tabs-top .mode-tab[data-place='chat'] svg { color: var(--coach-mark); }
+.mode-tabs-top .mode-tab[data-place='practice'] svg { color: var(--practice-mark); }
 .mode-tabs-top .mode-tab:hover { color: var(--ink); }
-.mode-tabs-top .mode-tab[data-place='chat']:hover { background: color-mix(in srgb, var(--partner-mark) 10%, var(--chrome)); }
-.mode-tabs-top .mode-tab[data-place='practice']:hover { background: color-mix(in srgb, var(--practice-mark) 10%, var(--chrome)); }
+.mode-tabs-top .mode-tab[data-place='chat']:hover { background: color-mix(in srgb, var(--coach-mark) 14%, var(--chrome)); }
+.mode-tabs-top .mode-tab[data-place='practice']:hover { background: color-mix(in srgb, var(--practice-mark) 14%, var(--chrome)); }
 .mode-tabs-top .mode-tab[aria-current='page'] {
-  position: relative; z-index: var(--z-raised); color: var(--ink); background: var(--bg);
-  padding-bottom: calc(var(--space-2) + var(--border-width-thick));
+  position: relative; z-index: var(--z-raised); margin-bottom: 0; background: var(--bg);
+  padding-bottom: calc(var(--space-3) + var(--border-width-strong));
+  /* The glow lights the top and sides only; nothing crosses the open bottom into the page. */
+  clip-path: inset(calc(-1 * var(--space-12)) calc(-1 * var(--space-12)) 0 calc(-1 * var(--space-12)));
 }
-.mode-tabs-top .mode-tab[aria-current='page']::after { display: none; }
-.mode-tabs-top .mode-tab[data-place='chat'][aria-current='page'] { border-color: var(--partner-mark); }
-.mode-tabs-top .mode-tab[data-place='practice'][aria-current='page'] { border-color: var(--practice-mark); }
-.mode-tabs-top .mode-tab[data-place='chat'][aria-current='page'] svg { color: var(--partner-mark); }
-.mode-tabs-top .mode-tab[data-place='practice'][aria-current='page'] svg { color: var(--practice-mark); }
+/* Keyboard focus is drawn inside the tab, so it never closes the open bottom. */
+.mode-tabs-top .mode-tab:focus-visible { outline-offset: calc(-1 * var(--space-3)); }
+.mode-tabs-top .mode-tab[data-place='chat'][aria-current='page'] { color: var(--coach-ink); border-color: color-mix(in srgb, var(--coach-mark) 75%, var(--line-soft)); box-shadow: 0 calc(-1 * var(--space-1)) var(--space-11) color-mix(in srgb, var(--coach-mark) 60%, transparent); }
+.mode-tabs-top .mode-tab[data-place='practice'][aria-current='page'] { color: var(--practice-ink); border-color: color-mix(in srgb, var(--practice-mark) 75%, var(--line-soft)); box-shadow: 0 calc(-1 * var(--space-1)) var(--space-11) color-mix(in srgb, var(--practice-mark) 60%, transparent); }
 
 .wordmark { font-weight: var(--weight-semibold); font-size: var(--type-title); letter-spacing: var(--tracking-tight); }
 
@@ -889,31 +907,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .nav-icon { width: 18px; text-align: center; }
 
-/* Compact and narrow: one surface at a time, with Chat and Practice in a tab
-   bar at the bottom. The current tab takes its place's colour. */
-
-.mode-tabs-bottom {
-  flex: none; display: grid; grid-template-columns: 1fr 1fr;
-  border-top: var(--border-width) solid var(--line); background: var(--chrome);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.mode-tabs-bottom .mode-tab {
-  min-width: 0; min-height: var(--touch-target);
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3);
-  padding: var(--space-3) var(--space-2);
-  border: 0; border-top: var(--border-width-thick) solid transparent; background: none;
-  color: var(--ink-2); cursor: pointer;
-  font-family: var(--font-sans); font-size: var(--type-body);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.mode-tabs-bottom .mode-tab[data-place='chat'] svg { color: var(--partner-mark); }
-.mode-tabs-bottom .mode-tab[data-place='practice'] svg { color: var(--practice-mark); }
-.mode-tabs-bottom .mode-tab[aria-current='page'] { background: var(--bg); }
-.mode-tabs-bottom .mode-tab[data-place='chat'][aria-current='page'] { color: var(--partner-ink); border-top-color: var(--partner-mark); }
-.mode-tabs-bottom .mode-tab[data-place='practice'][aria-current='page'] { color: var(--practice-ink); border-top-color: var(--practice-mark); }
 
 @media (max-width: 860px) {
   .split { flex-direction: column; padding: 0; gap: 0; }
@@ -1049,7 +1042,9 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .topbar-actions .profile-trigger { width: auto; }
 
-.topbar-actions .gear.app-settings { width: auto; padding-inline: var(--space-4); gap: var(--space-3); font-size: var(--type-ui); }
+/* The rest of the bar is condensed so the tabs lead it: Settings is an icon (its
+   name stays in the label and tooltip), XP a number, and AI a status dot. */
+.topbar-actions .gear.app-settings > span { display: none; }
 
 .app-home {
   display: inline-flex;
@@ -1069,9 +1064,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   border-radius: var(--radius-xs);
 }
 
-@media (max-width: 380px) {
-  .topbar .app-home { display: none; }
-}
 
 /* Remaining motion owners; graph scope also wins over lazily loaded vendor CSS. */
 
@@ -1102,8 +1094,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .profile-trigger strong { font-weight: var(--weight-semibold); }
 .profile-star { display: inline-flex; color: var(--warning-line); }
 .profile-star svg { fill: color-mix(in srgb, var(--warning-line) 45%, transparent); }
-.profile-meter { display: inline-flex; width: 48px; height: 6px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--warning-line) 22%, transparent); overflow: hidden; }
-.profile-meter > span { background: var(--warning-line); border-radius: inherit; }
 .connection-state { display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
 .connection-state::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); box-shadow: 0 0 0 3px var(--line-soft); }
 .connection-state[data-configured=false] { color: var(--danger-ink); border-color: var(--danger-tint); background: var(--danger-tint); }
@@ -1113,22 +1103,25 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .connection-state[data-busy=true]::before { background: var(--interaction-ink); animation: inside-pulse var(--dur-loop) ease-in-out infinite; }
 .connection-state[aria-expanded=true] { border-color: var(--interaction-ink); }
 @media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::before { animation: none; } }
-.connection-setup { min-height: var(--control-height-lg); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
+.connection-setup { justify-content: center; min-width: var(--control-height); min-height: var(--control-height-lg); padding-inline: var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
 .connection-setup:hover { color: var(--ink); background: var(--line-soft); }
-@media (max-width: 480px) { .app-home > span { display: none; } }
+/* The logo stays at every width; below 600px its name gives up the room. */
+@media (max-width: 600px) { .app-home > span { display: none; } }
 
-.topbar-language { flex: 0 1 320px; min-width: 140px; display: flex; align-items: center; gap: var(--space-2); }
+.topbar-language { flex: 0 1 280px; min-width: 140px; display: flex; align-items: center; gap: var(--space-2); }
 .topbar-language .language-dropdown { flex: 1; }
-.topbar-language .learning-picker { min-height: var(--control-height); font-size: var(--type-body); font-weight: var(--weight-semibold); width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
-@media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button { min-height: var(--touch-target); } }
+.topbar-language .learning-picker { min-height: var(--control-height); font-size: var(--type-ui); font-weight: var(--weight-medium); width: 100%; border-color: var(--line); border-radius: var(--radius-md); background: var(--sheet); padding-inline: var(--space-6); }
+@media (pointer: coarse) { .topbar-language .learning-picker, .topbar-actions > button, .mode-tabs-top .mode-tab { min-height: var(--touch-target); } }
 
 
 /* Keep compact overrides after the header controls they adapt. */
 @media (max-width: 860px) {
-  .topbar { padding: var(--space-1) var(--space-2); gap: var(--space-1); }
-  /* The language picker takes the room left over and shows the language name
-     only; Chat and Practice move to the tab bar at the bottom. */
-  .topbar .app-home { display: none; }
+  /* One row, the tabs first and smaller than at full width; the language picker
+     takes the room left over and shows the language's own name only. */
+  .topbar { padding: var(--space-1) var(--space-2) 0; gap: var(--space-2); }
+  .mode-tabs-top { margin-inline: 0; }
+  .mode-tabs-top .mode-tab { gap: var(--space-3); padding-inline: var(--space-6); font-size: var(--type-body); }
+  .topbar-language .learning-picker-name { display: none; }
   .topbar-language { flex: 1 1 0; min-width: 0; }
   .topbar-language .language-dropdown { min-width: 0; }
   .topbar-language .learning-picker { min-height: var(--touch-target); padding-inline: var(--space-4); grid-template-columns: minmax(0, 1fr) auto; }
@@ -1142,15 +1135,19 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   .topbar-language .inspection-action { display: none; }
   .topbar-actions { gap: 0; }
   .topbar-actions .gear.app-settings { display: none; }
-  .topbar .profile-meter { display: none; }
   .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
-  .connection-setup { justify-content: center; min-width: var(--control-height); padding-inline: var(--space-3); }
-  .connection-setup .connection-short-label { display: inline; }
-  .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .connection-state[data-configured=false] { background: transparent; }
 }
 
 .connection-short-label { display: none; }
+.connection-setup .connection-short-label { display: inline; }
+.connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.connection-state.connection-setup[data-configured=false] { background: transparent; }
+/* Narrow: the tabs need the room, so XP loses its unit and AI keeps only its dot. */
+@media (max-width: 400px) {
+  .mode-tabs-top .mode-tab { padding-inline: var(--space-4); font-size: var(--type-ui); }
+  .topbar-actions .profile-unit, .connection-setup .connection-short-label { display: none; }
+  .connection-setup { min-width: 0; padding-inline: var(--space-3); }
+}
 
 /* ── components/panels.css ── */
 /* Shared panel headers and empty-state copy. */
@@ -1280,6 +1277,24 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .detail-action:disabled { opacity: .5; cursor: default; }
 
 .detail-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); }
+
+/* A segmented choice (SegmentedChoice): one of a few options as joined buttons,
+   the chosen one filled in the interaction colour so it reads at a glance. Rows
+   that label it own their own layout. */
+.segmented {
+  display: inline-flex; flex-wrap: wrap; padding: var(--space-1); gap: var(--space-1);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome);
+}
+.segmented button {
+  min-width: 0; min-height: var(--control-height-sm); padding: 0 var(--space-5); border: 0; border-radius: var(--radius-sm); background: transparent;
+  color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
+}
+.segmented button:hover:not(:disabled):not([aria-checked='true']) { color: var(--ink); background: var(--sheet); }
+.segmented button[aria-checked='true'] { background: var(--interaction-fill); color: var(--ink-on-fill); box-shadow: var(--shadow-sm); }
+.segmented button[aria-checked='true']:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+.segmented button:disabled { cursor: default; }
+.segmented button:disabled:not([aria-checked='true']) { opacity: 0.5; }
+@media (pointer: coarse) { .segmented button { min-height: var(--touch-target); } }
 
 /* ── components/fields.css ── */
 
@@ -1741,6 +1756,12 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 /* Complete inline phrases retain visible, keyboard-accessible phrase actions. */
 .target-phrase-actions { display: inline-flex; vertical-align: middle; gap: var(--space-2); margin-inline-start: var(--space-3); padding: var(--space-2); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); }
 
+/* Target-language words set among interface text, such as a topic's name or the
+   greeting to say: serif like all target text, and bold in target-ink, so the
+   language being learned scans apart from explanations. Translations beside
+   them keep the interface style. */
+.target-word { font-family: var(--font-serif); font-weight: var(--weight-bold); color: var(--target-ink); }
+
 /* ── components/activity.css ── */
 /* activity — conversation style owner. */
 .activity-indicator {
@@ -1961,9 +1982,10 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .live-recording-plots > .inspection-plot { min-height: 64px; background: var(--spectrogram-low); }
 
-.live-recording[data-time="ltr"] .live-recording-plots { transform: scaleX(-1); }
-.live-recording[data-time="ltr"] :is(.inspection-frequency-scale span, .live-take-region span) { transform: scaleX(-1); }
-.live-recording[data-time="ltr"] .live-recording-axis { flex-direction: row-reverse; }
+/* Right-to-left time mirrors the native plots, keeping labels readable. */
+.live-recording[data-time="rtl"] .live-recording-plots { transform: scaleX(-1); }
+.live-recording[data-time="rtl"] :is(.inspection-frequency-scale span, .live-take-region span) { transform: scaleX(-1); }
+.live-recording[data-time="rtl"] .live-recording-axis { flex-direction: row-reverse; }
 
 /* A stable idle baseline remains beneath the live canvas. */
 .wave-strip::before { content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: var(--border-width) solid var(--interaction-ink); pointer-events: none; }
@@ -1971,14 +1993,16 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 /* ── components/voice.css ── */
 /* voice — the one recorder, identical in Chat and Practice
    (components/media/VoicePanel.tsx). A two-by-two grid: the face (the stream, a
-   draft, or one arrow pointing at the pad) with the microphone pad at its inline
-   end, then one row of controls under the face and the Tap / Hold / Auto toggle
-   under the pad, at the pad's width. */
+   draft, or one arrow pointing at the pad) beside the microphone pad, then one
+   row of controls under the face and the Tap / Hold / Auto toggle under the pad,
+   at the pad's width. The pad sits on the side the learner chose. */
 .voice-panel { position: relative; display: grid; gap: var(--space-4); padding: var(--space-5) var(--space-7) var(--space-6); background: var(--sheet); }
 .voice-grid {
   display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; grid-template-rows: 5.5rem auto;
   grid-template-areas: "face pad" "controls modes"; gap: var(--space-4) var(--space-6); align-items: center;
 }
+/* The pad at the inline start: the same grid, mirrored. */
+.voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 7.5rem minmax(0, 1fr); grid-template-areas: "pad face" "modes controls"; }
 /* A draft gets room for a few lines; longer text scrolls inside the face. */
 .voice-panel:has(.voice-draft) .voice-grid { grid-template-rows: 7.5rem auto; }
 
@@ -2001,17 +2025,17 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .voice-face .live-recording-plots > .inspection-plot { position: relative; min-height: 0; }
 .voice-face .live-recording-plots > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* The empty stream is one arrow across its whole width, pointing at the pad,
-   with the same words in the middle everywhere. */
+/* The empty stream is one arrow across its whole width, pointing at the pad on
+   whichever side it sits, with the same words in the middle everywhere. */
 .voice-prompt { position: relative; display: grid; place-items: center; min-width: 0; color: var(--ink-3); }
 .voice-prompt::before {
-  content: ''; position: absolute; top: 50%; inset-inline: var(--space-8) calc(var(--space-8) + var(--space-2)); height: var(--border-width-strong);
+  content: ''; position: absolute; top: 50%; left: var(--space-8); right: var(--space-8); height: var(--border-width-strong);
   border-radius: var(--radius-pill); background: linear-gradient(to right, color-mix(in srgb, var(--ink-3) 15%, transparent), var(--ink-3));
 }
-.voice-prompt:dir(rtl)::before { background: linear-gradient(to left, color-mix(in srgb, var(--ink-3) 15%, transparent), var(--ink-3)); }
+.voice-panel[data-pad-side='left'] .voice-prompt::before { background: linear-gradient(to left, color-mix(in srgb, var(--ink-3) 15%, transparent), var(--ink-3)); }
 .voice-prompt-text { position: relative; padding-inline: var(--space-6); background: var(--field); color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap; }
-.voice-prompt svg { position: absolute; top: 50%; inset-inline-end: var(--space-6); transform: translateY(-50%) rotate(-90deg); color: var(--ink-3); }
-.voice-prompt:dir(rtl) svg { transform: translateY(-50%) rotate(90deg); }
+.voice-prompt svg { position: absolute; top: 50%; right: var(--space-6); transform: translateY(-50%) rotate(-90deg); color: var(--ink-3); }
+.voice-panel[data-pad-side='left'] .voice-prompt svg { right: auto; left: var(--space-6); transform: translateY(-50%) rotate(90deg); }
 
 /* Chat's draft: the transcript as editable text, with its own Discard and Send. */
 .voice-draft { display: grid; grid-template-columns: minmax(0, 1fr) auto; min-height: 0; height: 100%; }
@@ -2047,12 +2071,13 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .voice-pad {
   grid-area: pad; display: grid; place-items: center; width: 100%; height: 100%;
   border: var(--border-width-strong) solid var(--interaction-line); border-radius: var(--radius-xl);
-  background: var(--interaction-tint); color: var(--interaction-ink); box-shadow: var(--shadow-surface);
+  /* Opaque, so the panel's place tint behind it cannot muddy the blue. */
+  background: color-mix(in srgb, var(--interaction-mark) 12%, var(--sheet)); color: var(--interaction-ink); box-shadow: var(--shadow-surface);
   cursor: pointer; touch-action: none; user-select: none;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 /* Hover never masks recording: the pointer is still over the pad after a press. */
-.voice-pad:hover:not(:disabled, [data-live='true']) { background: color-mix(in srgb, var(--interaction-mark) 16%, var(--sheet)); border-color: var(--interaction-mark); }
+.voice-pad:hover:not(:disabled, [data-live='true']) { background: color-mix(in srgb, var(--interaction-mark) 20%, var(--sheet)); border-color: var(--interaction-mark); }
 .voice-pad:active:not(:disabled) { transform: scale(0.98); }
 .voice-pad[data-live='true'] {
   background: var(--recording-fill); border-color: var(--recording-mark); color: var(--ink-on-fill);
@@ -2089,8 +2114,9 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   min-width: 0; min-height: var(--control-height-sm); padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent;
   color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
 }
-.voice-modes button:hover:not(:disabled) { color: var(--ink); background: var(--sheet); }
-.voice-modes button[aria-checked='true'] { background: var(--sheet); color: var(--interaction-ink); box-shadow: var(--shadow-sm); }
+/* The chosen mode is filled, as a segmented choice's is (buttons.css). */
+.voice-modes button:hover:not(:disabled):not([aria-checked='true']) { color: var(--ink); background: var(--sheet); }
+.voice-modes button[aria-checked='true'] { background: var(--interaction-fill); color: var(--ink-on-fill); box-shadow: var(--shadow-sm); }
 .voice-modes button:disabled:not([aria-checked='true']) { opacity: 0.5; cursor: default; }
 .voice-modes button[data-later] { color: var(--ink-3); opacity: 0.7; }
 .voice-soon {
@@ -2106,6 +2132,11 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .voice-settings { display: grid; gap: var(--space-5); }
 .voice-settings h2 { margin: 0; font-size: var(--type-title); }
 .voice-settings-note { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+/* Where the button sits and which way the stream runs: a label and a segmented
+   choice (buttons.css), its two options of even width. */
+.voice-choice { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); }
+.voice-choice-label { color: var(--ink); font-size: var(--type-ui); }
+.voice-choice .segmented { display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(5rem, auto); }
 
 @keyframes voice-live {
   0%, 100% { box-shadow: 0 0 0 var(--space-2) var(--recording-glow), 0 0 var(--space-8) var(--recording-glow); }
@@ -2121,11 +2152,13 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 @media (max-width: 860px) {
   .voice-panel { padding: var(--space-4) var(--space-4) var(--space-5); gap: var(--space-3); }
   .voice-grid { grid-template-columns: minmax(0, 1fr) 7rem; gap: var(--space-3) var(--space-4); }
+  .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 7rem minmax(0, 1fr); }
   .voice-controls { gap: var(--space-3); }
   .voice-modes button { font-size: var(--type-meta); }
 }
 @media (max-width: 400px) {
   .voice-grid { grid-template-columns: minmax(0, 1fr) 6.25rem; grid-template-rows: 4.75rem auto; }
+  .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 6.25rem minmax(0, 1fr); }
   .voice-prompt-text { padding-inline: var(--space-4); font-size: var(--type-meta); }
 }
 @media (pointer: coarse) { .voice-mini, .voice-modes button { min-height: var(--touch-target); } }
@@ -2282,6 +2315,15 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
     border-inline-start: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-drawer);
   }
   .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
+  /* Compact: the folded coach is an edge tab of its own just inside the
+     conversation's inline end, where its drawer opens. The stream keeps clear of
+     it rather than scrolling messages underneath. */
+  .mobile-conversation > .chat:has(> .chat-coach-edge) { position: relative; }
+  .mobile-conversation .chat-coach-edge {
+    position: absolute; inset-inline-end: var(--space-2); top: 50%; translate: 0 -50%; z-index: var(--z-raised);
+    display: flex; align-items: center; box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2)); cursor: pointer;
+  }
+  .chat:has(> .chat-coach-edge) .stream { padding-inline-end: calc(var(--control-height-xs) + 2 * var(--space-2) + var(--space-3)); }
   /* Opening slides the drawer in from its edge; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
   .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }
@@ -2624,8 +2666,13 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
 
-/* The voice panel sits inside the composer's own padding and surface. */
-.composer-voice { padding: 0; background: transparent; }
+/* The recording panel is its own zone in Chat's colour, as Practice's is in
+   its own: a thin outline, the colour on the edge that faces the conversation,
+   and a tint behind its controls. */
+.composer-voice {
+  background: var(--coach-tint); border: var(--border-width) solid var(--coach-line);
+  border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-lg);
+}
 /* Dragged to a height, the recording panel gives the change to its face (the
    stream or the draft) and the conversation above takes the rest. */
 .composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
@@ -2636,6 +2683,25 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); padding: 0 var(--space-5); color: var(--ink); overflow: hidden; white-space: nowrap; }
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
+
+/* Compact and narrow: reply help, the status line and (narrow) the coach share
+   one row above the answer. In it, folded help and the status line drop their
+   own spacing; opened help takes the whole row and the rest wraps under it.
+   Help sits inside its reading scope (display: contents), so it is matched as
+   a descendant but laid out as an item of the row. */
+.composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block-end: var(--space-2); }
+.composer-assist .reply-help-folded { margin: 0; }
+.composer-assist .reply-help { flex: 1 1 100%; margin: 0; }
+.composer-assist > .composer-activity { flex: 1 1 0; min-width: 0; padding-inline: var(--space-2); }
+/* Narrow: the coach opens from the end of that row, in the coach's colours. */
+.chat-coach {
+  flex: none; margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-6);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.chat-coach svg { color: var(--coach-mark); }
+.chat-coach[aria-expanded='true'] { border-color: var(--coach-mark); }
+@media (pointer: coarse) { .chat-coach { min-height: var(--control-height); } }
 
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
@@ -2991,34 +3057,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   .chat-heading-actions { flex: 0 0 auto; margin-inline-start: var(--space-3); }
 }
 
-/* A narrow header keeps whole controls rather than squeezing them. The settings
-   button already carries its summary in its accessible name, so the secondary
-   line goes and the control row stays short enough for the name beside it. */
-@media (max-width: 600px) {
-  .chat-heading-actions .chat-config-summary { display: none; }
-}
-
 .chat-head .conversation-title { flex: 1; }
-
-.chat-config-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--control-height);
-  padding: var(--space-2) var(--space-5);
-  gap: var(--space-3);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--field);
-  color: var(--ink);
-  font-size: var(--type-ui);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.chat-config-toggle:hover { border-color: var(--interaction-ink); }
-.chat-config-toggle[aria-expanded=true] { border-color: var(--interaction-ink); background: var(--bubble-learner-bg); color: var(--interaction-ink); }
 
 /* ── Conversation settings ──────────────────────────────────────────────
    Desktop: a panel on the inline end, below the top bar, beside the chat.
@@ -3147,28 +3186,14 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .chat-head .persona-avatar { width: 32px; height: 32px; border-radius: var(--radius-circle); background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line); font-size: var(--type-title); }
 .partner-identity { white-space: normal; display: grid; gap: var(--space-2); text-align: start; min-width: 0; }
 .partner-identity strong { font-size: var(--type-body); font-weight: var(--weight-semibold); overflow: hidden; text-overflow: ellipsis; }
-.chat-new, .chat-conversations { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; white-space: nowrap; }
+/* The header's controls are icons of one size; their names are in their labels and tooltips. */
+.chat-new, .chat-conversations, .chat-config-toggle { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-width: var(--control-height); min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; white-space: nowrap; }
+.chat-config-toggle:hover { border-color: var(--interaction-ink); }
+.chat-config-toggle[aria-expanded=true] { border-color: var(--interaction-ink); background: var(--bubble-learner-bg); color: var(--interaction-ink); }
 /* The conversation list opens from the start of the header, beside the partner. */
 .chat-conversations { flex: none; margin-inline-end: var(--space-3); }
 .chat-conversations[aria-expanded='true'] { color: var(--ink); border-color: var(--line); background: var(--field); }
-/* Compact and narrow: the coach opens from the header, in the coach's colours. */
-.chat-coach {
-  display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height); padding: 0 var(--space-6);
-  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink);
-  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer; white-space: nowrap;
-}
-.chat-coach svg { color: var(--coach-mark); }
-.chat-coach[aria-expanded='true'] { border-color: var(--coach-mark); }
-/* The label names the button; the summary says what it is set to. A phone keeps
-   only the summary beside the icon. */
-.chat-config-text { display: flex; flex-direction: column; align-items: flex-start; gap: 0; line-height: var(--leading-tight); text-align: start; }
-.chat-config-summary { font-size: var(--type-meta); font-weight: var(--weight-regular); color: var(--ink-3); }
-.chat-config-toggle[aria-expanded=true] .chat-config-summary { color: inherit; }
-@media (max-width: 860px) {
-  .chat-config-label, .chat-new > span { display: none; }
-  .chat-config-summary { font-size: var(--type-ui); color: var(--ink-2); }
-}
-@media (pointer: coarse) { .chat-new, .chat-conversations, .chat-coach, .chat-config-toggle { min-width: var(--touch-target); min-height: var(--touch-target); } }
+@media (pointer: coarse) { .chat-new, .chat-conversations, .chat-config-toggle { min-width: var(--touch-target); min-height: var(--touch-target); } }
 
 /* Cascading language menu: the first panel matches its trigger; varieties float beside the row. */
 .language-dropdown { position: relative; min-width: 0; }
@@ -3214,70 +3239,157 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 }
 
 /* ── features/conversation/start.css ── */
-/* start — conversation style owner. */
+/* start — conversation style owner. The empty conversation: the partner with
+   the main start beside them, one-press topics, the learner's own topic, and the
+   options in a panel of their own under every start. */
 .conversation-start {
   color: var(--ink);
   display: grid;
-  justify-items: stretch;
-  gap: var(--space-6);
-  padding: var(--space-6); margin-block: 0;
+  gap: var(--space-9);
+  padding: var(--space-6) var(--space-2); margin-block: 0;
   min-width: 0;
 }
+/* Narrower than the thread, so the card reads as one block. */
+.chat .stream > .conversation-start { max-width: 40rem; }
 
 /* Grid and fieldset children both take a min-content floor by default, which
-   let the scene cluster push the whole stream wider than the chat column. */
+   let the topics push the whole stream wider than the chat column. */
 .conversation-start > * { min-width: 0; max-width: 100%; }
 
+/* The partner's side of the table, in the partner's colours, with the main
+   start beside them. */
+.start-partner {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-5) var(--space-7); padding: var(--space-6) var(--space-7);
+  background: var(--partner-tint); border: var(--border-width) solid var(--partner-line); border-radius: var(--radius-xl);
+}
+.start-partner .persona-avatar {
+  width: 3rem; height: 3rem; border-radius: var(--radius-circle);
+  background: var(--sheet); border: var(--border-width-strong) solid var(--partner-mark); font-size: var(--type-display);
+}
+.start-partner-text { display: grid; gap: var(--space-2); min-width: 0; }
+.start-partner h2 { margin: 0; font-size: var(--type-title); overflow-wrap: anywhere; }
+.start-partner-links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-7); }
+.start-link {
+  justify-self: start; min-height: var(--control-height-xs); padding: 0; border: 0; background: none; color: var(--interaction-ink); cursor: pointer;
+  font: var(--weight-medium) var(--type-ui) var(--font-sans); text-decoration: underline; text-underline-offset: var(--space-2); text-decoration-thickness: var(--border-width);
+}
+.start-link:hover:not(:disabled) { color: var(--interaction-fill-hover); }
+.start-link:disabled { opacity: .5; cursor: default; }
 .start-conversation-button {
-  min-height: var(--touch-target);
-  padding: var(--space-3) var(--space-5);
-  background: var(--interaction-fill);
-  color: var(--ink-on-fill);
-  border: var(--border-width) solid var(--interaction-fill);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-body);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
+  min-height: calc(var(--touch-target) + var(--space-2)); padding-inline: var(--space-11);
+  font: var(--weight-semibold) var(--type-title) var(--font-sans); box-shadow: var(--shadow-sm);
 }
 
-.start-conversation-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+/* Topics start the conversation when pressed: action buttons, each with an
+   arrow at its end. */
+.start-topics { margin: 0; padding: 0; border: 0; min-width: 0; }
+.start-topics legend { display: block; margin-bottom: var(--space-4); padding: 0; font: var(--weight-semibold) var(--type-ui) var(--font-sans); color: var(--ink-2); }
+.topic-starts { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.topic-start {
+  display: inline-flex; align-items: center; gap: var(--space-6); max-width: 100%; min-height: var(--touch-target);
+  padding-block: var(--space-3); padding-inline: var(--space-7) var(--space-5); text-align: start;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--field); color: var(--ink); box-shadow: var(--shadow-sm);
+  cursor: pointer; overflow-wrap: anywhere;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.topic-start:hover:not(:disabled) { border-color: var(--interaction-mark); background: var(--interaction-tint); }
+.topic-start:disabled { opacity: .5; cursor: default; }
+.topic-start > svg { flex: none; color: var(--interaction-ink); transform: rotate(-90deg); }
+.topic-start:dir(rtl) > svg { transform: rotate(90deg); }
+.topic-start-text { display: grid; min-width: 0; }
+/* The name is target-language text (.target-word in reading.css); a saved topic
+   is the learner's own words, in the interface style. */
+.topic-start-target { font-size: calc(var(--type-body) * var(--script-scale)); line-height: var(--leading-snug); }
+.topic-start-saved { font-size: var(--type-body); line-height: var(--leading-snug); }
+.topic-start-roman { font-size: var(--type-meta); font-style: italic; color: var(--ink-3); line-height: var(--leading-snug); }
+.topic-start-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+
+/* The learner's own topic: a field named by its placeholder, with its own start,
+   and saving it for later under it. */
+.start-own { display: grid; gap: var(--space-4); margin: 0; }
+.start-own-row { display: flex; gap: var(--space-3); }
+.start-own-row > .field { flex: 1; min-width: 0; min-height: var(--touch-target); }
+.start-own-row > .btn { flex: none; min-height: var(--touch-target); padding-inline: var(--space-9); }
+.start-own-save { display: inline-flex; align-items: center; gap: var(--space-3); justify-self: start; color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; }
+.start-own-save input { accent-color: var(--interaction-fill); }
+.start-or-message { margin: 0; color: var(--ink-3); font-size: var(--type-ui); }
+.start-error { margin: 0; color: var(--danger-ink); overflow-wrap: anywhere; }
+
+/* Options: a panel of their own above every start. Folded, one line says what
+   they are set to; opening eases the panel taller. */
+.start-options {
+  overflow: hidden;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--chrome); box-shadow: var(--shadow-sm);
+}
+.start-options-toggle {
+  display: flex; align-items: center; gap: var(--space-4); width: 100%; min-height: var(--touch-target); padding: 0 var(--space-7);
+  border: 0; background: transparent; color: var(--ink); font: var(--weight-semibold) var(--type-ui) var(--font-sans); text-align: start; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.start-options-toggle:hover { background: color-mix(in srgb, var(--interaction-tint) 60%, var(--chrome)); }
+/* The panel clips its corners, so the focus ring is drawn inside it. */
+.start-options-toggle:focus-visible { outline-offset: calc(-1 * var(--space-2)); }
+.start-options-toggle > svg:first-child { flex: none; color: var(--interaction-ink); }
+.start-options-toggle > svg:last-child { flex: none; color: var(--ink-2); transition: transform var(--dur-slow) var(--ease-out); }
+.start-options[data-open='true'] .start-options-toggle > svg:last-child { transform: rotate(180deg); }
+.start-options-title { flex: none; }
+.start-options-summary { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-regular); color: var(--ink-2); }
+.start-options-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--dur-slow) var(--ease-out); }
+.start-options[data-open='true'] .start-options-body { grid-template-rows: 1fr; }
+.start-options-content {
+  display: grid; gap: var(--space-7); min-height: 0; overflow: hidden; padding: 0 var(--space-7);
+  background: var(--sheet); opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out), padding var(--dur-slow) var(--ease-out);
+}
+.start-options[data-open='true'] .start-options-content { padding-block: var(--space-7) var(--space-8); border-top: var(--border-width) solid var(--line-soft); opacity: 1; }
+/* Each option's name, then its choices; the names share one column. The
+   prompt creator shows the same rows. */
+.start-options-rows { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: var(--space-5) var(--space-6); }
+.start-options-rows > .segmented { justify-self: start; }
+.start-option-label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-ui); color: var(--ink-2); }
+/* Shown ahead of the native support it needs: disabled, with “Coming soon” on
+   hover. The select lets the pointer through so the wrapper's tooltip shows. */
+.start-option-soon { justify-self: start; cursor: help; }
+.start-option-soon select { min-width: 12rem; pointer-events: none; }
+
+/* The prompt creator's topic chips: they select for the configuration it applies. */
+.topic-chips { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.topic-chip {
+  display: inline-grid; align-content: center; max-width: 100%; min-height: var(--touch-target); padding: var(--space-3) var(--space-8); text-align: start;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--field); color: var(--ink); cursor: pointer; overflow-wrap: anywhere;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.topic-chip:hover:not(:disabled) { border-color: var(--ink-3); }
+.topic-chip[aria-pressed='true'] { border-color: var(--interaction-mark); background: var(--interaction-tint); box-shadow: inset 0 0 0 var(--border-width) var(--interaction-mark); }
+.topic-chip:disabled { opacity: .5; cursor: default; }
+.topic-chip-label { display: inline-flex; align-items: center; gap: var(--space-3); font: var(--weight-medium) var(--type-ui) var(--font-sans); }
+.topic-chip-target { font-size: calc(var(--type-body) * var(--script-scale)); line-height: var(--leading-snug); }
+.topic-chip-roman { font-size: var(--type-meta); font-style: italic; color: var(--ink-3); line-height: var(--leading-snug); }
+.topic-chip-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+
+@media (prefers-reduced-motion: reduce) {
+  .start-options-body, .start-options-content, .start-options-toggle, .start-options-toggle > svg:last-child, .topic-start, .topic-chip { transition: none; }
+}
+@media (max-width: 480px) {
+  .conversation-start { gap: var(--space-8); padding-inline: 0; }
+  /* The start takes its own row under the partner. */
+  .start-partner { grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5) var(--space-6); }
+  .start-conversation-button { grid-column: 1 / -1; }
+  .start-options-rows { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+}
+/* Narrow: the topics keep one row and scroll sideways, edge to edge. */
+@media (max-width: 400px) {
+  .topic-starts { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--space-3)); padding: 0 var(--space-3) var(--space-2); scrollbar-width: none; }
+  .topic-start { flex: none; max-width: 80%; }
+}
 
 .opening-status { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-5); color: var(--ink); }
 
 .opening-status .btn { color: var(--ink); background: var(--field); border-color: var(--line); }
-.conversation-start .persona-avatar { width: 48px; height: 48px; flex: none; border-radius: var(--radius-circle); background: var(--sheet); border: var(--border-width) solid var(--bubble-partner-line); font-size: var(--type-display); }
-.conversation-start h2 { margin: 0; font-size: var(--type-title); overflow-wrap: anywhere; }
 
-/* The invitation reads as the partner's side of the table, so it borrows the
-   colours the partner's messages already use. */
-.invitation { display: grid; gap: var(--space-5);
-  width: 100%; padding: var(--space-6);
-  background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
-  border-radius: var(--radius-xl); }
-.invitation-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
-.invitation-partner { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
-.invitation-partner-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-.invitation-partner-actions .btn { background: var(--sheet); }
-
-/* Opening the microphone is the peer of letting the partner start, so it is the
-   same size and sits beside it rather than under it. */
-.start-greeting-button {
-  min-height: var(--touch-target);
-  display: inline-flex; align-items: center; gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
-  background: var(--sheet); color: var(--interaction-ink);
-  border: var(--border-width-strong) solid var(--interaction-fill);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-body); font-weight: var(--weight-semibold);
-  cursor: pointer;
-}
-.start-greeting-button:hover:not(:disabled) { background: var(--chrome); }
-.start-greeting-button:disabled { opacity: .5; cursor: default; }
-.start-greeting-dot { width: 10px; height: 10px; flex: none; border-radius: var(--radius-circle); background: var(--danger-fill); }
-
-/* A cluster of scenes, not a list: as many per row as the width allows. */
-.start-scenes { border: 0; padding: 0; margin: 0; min-width: 0; width: 100%; }
-.start-scenes legend { text-align: start; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
+/* Skill cards: a cluster, not a list, as many per row as the width allows. The
+   skill catalog browser (components/learning) uses them. */
 .scene-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--space-4);
   min-width: 0; }
 .scene-card { display: grid; justify-items: center; align-content: center; gap: var(--space-2);
@@ -3288,24 +3400,10 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .scene-card:hover:not(:disabled) { border-color: var(--ink-3); }
 .scene-card[aria-pressed=true] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
 .scene-card:disabled { opacity: .5; cursor: default; }
-.scene-glyph { font-size: var(--type-title); line-height: var(--leading-none); }
 .scene-label { font-size: var(--type-ui); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
-.scene-roman { font-size: var(--type-meta); color: var(--ink-3); font-style: italic; line-height: var(--leading-snug); }
-.scene-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
 
-/* Difficulty and grammar practice are ordinary settings; they stay on the
-   surface rather than behind a disclosure. */
-.start-controls { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-5) var(--space-8); }
-.start-conversation-button:disabled { opacity: .5; }
-@media (max-width: 480px) { .conversation-start { padding: var(--space-5); gap: var(--space-4); } }
-
-/* Compact start controls share one draft with the detailed prompt creator. */
-.start-choice-row { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
-.start-choice-row legend { text-align: start; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
-.start-choice-row .btn[aria-pressed=true], .prompt-tabs .btn[aria-selected=true] { background: var(--interaction-ink); color: var(--ink-on-fill); }
-.start-difficulty { display: grid; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-ui); }
-.start-difficulty .chat-language-picker { font-size: var(--type-ui); min-height: var(--control-height); }
-.start-error { margin: 0; color: var(--danger-ink); overflow-wrap: anywhere; }
+/* The prompt creator: the start choices unfolded, the YAML and the preview. */
+.prompt-tabs .btn[aria-selected=true] { background: var(--interaction-ink); color: var(--ink-on-fill); }
 .prompt-actions, .prompt-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .prompt-creator { display: grid; gap: var(--space-5); }
 .prompt-creator > section:not([hidden]) { display: grid; gap: var(--space-5); }
@@ -3314,41 +3412,6 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .prompt-creator .prompt-yaml { min-height: 260px; font-family: monospace; }
 .prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
 .prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }
-
-/* All four choices share one grid row and equal widths; the coach label spans
-   its three choices without a nested fieldset shifting their button baseline. */
-.coach-choices {
-  display: block;
-  min-width: 0;
-  padding: var(--space-4);
-  background: var(--chrome);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-lg);
-}
-.coach-choices legend { padding-inline: var(--space-2); margin: 0; }
-.coach-choices-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
-  align-items: stretch;
-}
-.coach-choices-label {
-  grid-column: 2 / -1;
-  color: var(--ink-2);
-  font-size: var(--type-ui);
-}
-.coach-choices .scene-card {
-  grid-row: 2;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-size: var(--type-ui);
-  padding: var(--space-3) var(--space-4);
-}
-@media (max-width: 480px) {
-  .coach-choices-grid { grid-template-columns: minmax(0, 1fr); }
-  .coach-choices-label { grid-column: 1; grid-row: 2; }
-  .coach-choices .scene-card { grid-row: auto; }
-}
 
 /* ── features/conversation/reading-evidence.css ── */
 /* reading evidence — conversation style owner. */
@@ -3622,19 +3685,22 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .break-head .live { font-family: var(--font-sans); font-size: var(--type-meta); color: var(--ink-3); }
 
-.break.collapsed { flex: 0 0 auto; min-width: 0; }
+/* Folded, the column is only its edge tab, and the tab's glow shows past it. */
+.break.collapsed { flex: 0 0 auto; min-width: 0; overflow: visible; }
 
-/* Folded, the coach is an edge tab: neutral, with the coach's colour on the
-   edge that faces the conversation. */
-.break.collapsed .break-head {
+/* Folded, the coach is an edge tab of its own: a full border in the coach's
+   line, a thicker edge in its colour facing the conversation, and a soft glow in
+   that colour, as the top bar's tabs have. Compact's coach tab near the
+   conversation's edge (workspace.css) looks the same. */
+.break.collapsed .break-head, .chat-coach-edge {
   flex-direction: column; justify-content: flex-start; gap: var(--space-4); width: auto; min-height: 0; padding: var(--space-8) var(--space-3);
-  border: var(--border-width) solid var(--line-soft); border-inline-start: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-lg);
-  background: var(--sheet); color: var(--ink-2); box-shadow: var(--shadow-sm);
+  border: var(--border-width) solid var(--coach-line); border-inline-start: var(--border-width-thick) solid var(--coach-mark); border-radius: var(--radius-lg);
+  background: var(--sheet); color: var(--ink-2); box-shadow: 0 0 var(--space-8) color-mix(in srgb, var(--coach-mark) 35%, transparent);
   font: var(--weight-semibold) var(--type-ui) var(--font-sans); text-transform: none; letter-spacing: normal;
 }
-.break.collapsed .break-head span { writing-mode: vertical-rl; }
-.break.collapsed .break-head svg { color: var(--coach-mark); }
-.break.collapsed .break-head:hover { color: var(--coach-ink); background: color-mix(in srgb, var(--coach-tint) 50%, var(--sheet)); }
+.break.collapsed .break-head span, .chat-coach-edge span { writing-mode: vertical-rl; }
+.break.collapsed .break-head svg, .chat-coach-edge svg { color: var(--coach-mark); }
+.break.collapsed .break-head:hover, .chat-coach-edge:hover { color: var(--coach-ink); background: color-mix(in srgb, var(--coach-tint) 50%, var(--sheet)); }
 
 @media (max-width: 860px) {
   .break { flex: 1 1 auto; min-height: 0; overflow: hidden; border-inline-start: 0; }
@@ -4859,7 +4925,6 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   align-items: center;
   gap: var(--space-3);
   box-sizing: border-box;
-  min-width: 104px;
   height: var(--control-height);
   padding: 0 var(--space-5);
   border: var(--border-width) solid var(--line);
@@ -4872,7 +4937,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
 .xp-chip svg { color: var(--interaction-ink); flex: none; }
-.xp-chip-value { flex: 1; text-align: end; white-space: nowrap; }
+.xp-chip-value { white-space: nowrap; }
 .xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--interaction-ink); color: var(--interaction-ink); }
 
 .xp-ledger {
@@ -5349,15 +5414,17 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-cards-fold svg { transform: rotate(90deg); }
 .drill-cards-fold:dir(rtl) svg { transform: rotate(-90deg); }
 .drill-cards > .drill-rail { padding: 0; background: transparent; border: 0; }
+/* The cards' edge tab matches the coach's: a full border in Practice's line, a
+   thicker edge in its colour facing the stage, and a soft glow in that colour. */
 .drill-cards-edge {
   align-self: start; display: flex; flex-direction: column; align-items: center; gap: var(--space-4); padding: var(--space-8) var(--space-3);
-  border: var(--border-width) solid var(--line-soft); border-inline-end: var(--border-width-strong) solid var(--practice-mark); border-radius: var(--radius-lg);
-  background: var(--sheet); color: var(--ink-2); box-shadow: var(--shadow-sm); font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
+  border: var(--border-width) solid var(--practice-line); border-inline-end: var(--border-width-thick) solid var(--practice-mark); border-radius: var(--radius-lg);
+  background: var(--sheet); color: var(--ink-2); box-shadow: 0 0 var(--space-8) color-mix(in srgb, var(--practice-mark) 35%, transparent);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer;
 }
 .drill-cards-edge span:first-of-type { writing-mode: vertical-rl; }
 .drill-cards-edge svg { color: var(--practice-mark); }
 .drill-cards-edge:hover { color: var(--practice-ink); background: color-mix(in srgb, var(--practice-tint) 50%, var(--sheet)); }
-.drill-cards-count { font: var(--weight-medium) var(--type-meta) var(--font-mono); color: var(--ink-2); }
 /* Compact and narrow: the same cards as a drawer or a sheet, Practice's colour
    on the edge that faces the stage. */
 .drill-cards-dialog.dialog-drawer { border-inline-end: var(--border-width-strong) solid var(--practice-mark); }
@@ -5425,7 +5492,13 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* The recording panel keeps a dragged height; the stage above keeps at least room for the phrase and a plot. */
 .drill-dock-pane { flex: none; height: var(--drill-dock-height); max-height: calc(100% - 12rem); min-height: 12rem; overflow: hidden; }
 /* The recording pane holds the voice panel; its stream takes the height the pane is given. */
-.drill-dock-pane > .drill-voice { box-sizing: border-box; height: 100%; border-radius: var(--radius-lg); border: var(--border-width) solid var(--line-soft); }
+/* The recording panel is its own zone in Practice's colour, like the side
+   panels: a thin outline, the colour on the edge that faces the stage, and a
+   tint behind its controls. Chat's panel does the same in Chat's colour. */
+.drill-dock-pane > .drill-voice {
+  box-sizing: border-box; height: 100%; border-radius: var(--radius-lg); background: var(--practice-tint);
+  border: var(--border-width) solid var(--practice-line); border-top: var(--border-width-strong) solid var(--practice-mark);
+}
 .drill-dock-pane .voice-grid { grid-template-rows: minmax(5.5rem, 1fr) auto; height: 100%; }
 /* The listening session's counts, beside the attempt list. */
 .drill-attempt-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
@@ -5658,10 +5731,19 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .drill-page { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); }
   .drill-sheet .resize-handle { display: none; }
   .drill-phrase-bar { display: flex; gap: var(--space-2); }
-  .drill-phrase-bar > :first-child { flex: 1; justify-content: space-between; display: flex; align-items: center; }
+  /* Stacked, the card's position takes the room between Previous and Next. */
+  .drill-phrase-bar > .drill-card-position { flex: 1; min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; }
   .drill-phrase-bar .btn { min-height: var(--touch-target); min-width: var(--touch-target); }
-  .drill-phrase-bar > :not(:first-child) { font-size: var(--type-ui); }
-  [dir="rtl"] .drill-phrase-bar > :not(:first-child) span { display: block; transform: scaleX(-1); }
+  .drill-phrase-bar > .btn { font-size: var(--type-ui); }
+  .drill-cards-open { display: grid; place-items: center; padding: 0; color: var(--practice-ink); }
+  /* Compact: the cards' edge tab sits just inside the start of the scrolling
+     stage, and the stage keeps clear of it. */
+  .drill-mobile-body { position: relative; flex: 1 1 0; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+  .drill-mobile-body > .drill-cards-edge {
+    position: absolute; inset-inline-start: var(--space-2); top: 50%; translate: 0 -50%; z-index: var(--z-raised);
+    box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2));
+  }
+  .drill-mobile-body:has(> .drill-cards-edge) > .drill-mobile-content { padding-inline-start: calc(var(--control-height-xs) + 3 * var(--space-2)); }
   .drill-mobile-content { flex: 1 1 0; overflow-y: auto; overscroll-behavior-y: contain; padding-bottom: var(--space-3); min-height: 0; min-width: 0; overflow-x: hidden; display: flex; flex-direction: column; gap: var(--space-2); }
   /* All practice content scrolls above the dock. A pinned reference can cover
      most of a short viewport and make lower reports impossible to inspect. */
@@ -5741,7 +5823,8 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 }
 
 /* Phrase selection floats over the workspace without changing its geometry. */
-.drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; gap: var(--space-2); padding-bottom: var(--space-2); }
+.drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); }
+.drill-card-position { padding-inline: var(--space-4); color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap; }
 /* Colored starts share one renderer, over the measured pixels. */
 .drill-word-overlay { animation: drill-words-arrive var(--dur-base) var(--ease-out); position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .drill-word-marker { position: absolute; top: 0; bottom: 0; border-left: var(--border-width) solid currentColor; color: var(--warning-line); }
@@ -5835,13 +5918,15 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .drill-word-flight { position: fixed; pointer-events: none; z-index: var(--z-popover); padding: var(--space-1) var(--space-2); background: var(--sheet); border: var(--border-width) solid currentColor; border-radius: var(--radius-sm); box-shadow: var(--shadow-floating); font-size: var(--type-body); }
 
-/* Reserve the same desktop card geometry from transcription through hydration.
-   Only content animates; history rows must never scale over the active card. */
+/* The open card fits its content up to a cap; past it (Comparison details
+   open) its details scroll. A transcribing card reserves a typical card's
+   height, so the rows below barely move when it fills in. Only content
+   animates; history rows must never scale over the active card. */
 @media (width > 860px) {
-  .drill-history-entry[data-expanded] { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; animation: none; overflow: hidden; }
-  .drill-history-details { min-height: 0; overflow-y: auto; }
+  .drill-history-entry[data-expanded] { box-sizing: border-box; animation: none; overflow: hidden; }
+  .drill-history-details { min-height: 0; max-height: clamp(18rem, 40dvh, 26rem); overflow-y: auto; }
   .drill-word-grid[data-arriving] .drill-history-entry:not([data-arrival]), .drill-history-entry.drill-take-arrival { animation: none; }
-  .drill-take-pending { height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; overflow-y: auto; align-content: start; }
+  .drill-take-pending { min-height: 13rem; max-height: clamp(18rem, 40dvh, 26rem); box-sizing: border-box; overflow-y: auto; align-content: start; }
 }
 
 .drill-report-status { min-height: calc(var(--touch-target) / 2); }

@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useRef, useState } from 'react'
 import { I18nProvider } from '../src/components/localization/i18n'
 import { VarietyField } from '../src/features/settings/language/VarietyField'
-import { ConversationChoices } from '../src/features/conversation/session/ConversationChoices'
+import { StartOptions, TopicChoices } from '../src/features/conversation/session/StartChoices'
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
 import { useAppearance } from '../src/platform/appearance/useAppearance'
 import type { ConversationStartConfig } from '../src/generated/contracts'
@@ -83,7 +83,8 @@ function Preview() {
           <p>Spanish · {varieties.find(v => v.id === config.varietyId)?.label} · Explanations in {explanation === 'english' ? 'English' : 'Spanish'}</p>
           <p><strong>Lucía</strong> · Your conversation partner</p>
           {!connected && <div className="review-note"><p>AI access is not connected. You can choose your conversation settings now.</p><button className="btn" onClick={() => go(1)}>Set up AI access</button></div>}
-          <ConversationChoices value={config} topics={topics} disabled={false} onChange={setConfig} onCustom={() => setCustom(true)} />
+          <TopicChoices value={config} topics={topics} partnerName="Lucía" disabled={false} onChange={setConfig} onCustom={() => setCustom(true)} />
+          <StartOptions value={config} disabled={false} skillFocus onChange={setConfig} />
           {custom && <div className="form-row"><label htmlFor="custom-topic">Custom topic</label><input className="field" id="custom-topic" value={customText} onChange={e => setCustomText(e.target.value)} /><button className="btn" disabled={!customText.trim()} onClick={() => { setConfig({ ...config, direction: { ...config.direction, topic: { kind: 'custom', text: customText.trim() } } }); setCustom(false) }}>Use topic</button></div>}
           <p className="field-note">Choose a comfortable difficulty. You can change it during the conversation.</p>
           <footer className="review-footer"><button className="btn" onClick={() => go(0)}>Change languages</button><button className="btn primary" disabled={!connected} onClick={() => go(3)}>Let Lucía start</button></footer>

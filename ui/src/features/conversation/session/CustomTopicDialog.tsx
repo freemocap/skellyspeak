@@ -3,6 +3,11 @@ import { useState } from 'react'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { useI18n } from '../../../components/localization/i18n'
 import { nativeError } from '../../../platform/ipc/workspace'
+/** A topic the native side accepts: 1–500 characters and no control characters. */
+export function validTopicText(text: string): boolean {
+  const clean = text.trim()
+  return Boolean(clean) && [...clean].length <= 500 && !/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]/u.test(clean)
+}
 export function CustomTopicDialog({ initial, onUse, onClose }: { initial: string; onUse: (text: string, save: boolean) => Promise<void>; onClose: () => void }) {
   const tr = useI18n()
   const [text, setText] = useState(initial)
@@ -13,7 +18,7 @@ export function CustomTopicDialog({ initial, onUse, onClose }: { initial: string
     event.preventDefault()
     if (busy) return
     const clean = text.trim()
-    if (!clean || [...clean].length > 500 || /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]/u.test(clean)) { setError(tr('Enter a topic of 1–500 characters.')); return }
+    if (!validTopicText(clean)) { setError(tr('Enter a topic of 1–500 characters.')); return }
     setBusy(true); setError(null)
     try { await onUse(clean, save); onClose() } catch (reason) { setError(nativeError(reason)) } finally { setBusy(false) }
   }}><h2>{tr('Suggest a topic')}</h2><label>{tr('Topic')}<textarea autoFocus className="field" value={text} disabled={busy} onChange={event => setText(event.target.value)} /></label>

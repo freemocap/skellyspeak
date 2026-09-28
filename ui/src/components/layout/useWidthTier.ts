@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react'
 /// The three layouts, chosen by the width the app has rather than the device, so
 /// a desktop window dragged narrow behaves like a phone:
 ///
-///   full     wider than 860px: monitors and laptops. Tabs at the top; side
-///            panels open beside the work.
-///   compact  401–860px: large phones, tablets, narrow windows. Tabs at the
-///            bottom; side panels open as drawers from their edge.
-///   narrow   400px and below: standard phones. Tabs at the bottom; side panels
-///            open as sheets from the bottom.
+///   full     wider than 860px: monitors and laptops. Side panels open beside
+///            the work and fold to edge tabs.
+///   compact  401–860px: large phones, tablets, narrow windows. Side panels are
+///            edge tabs on the work's edges and open as drawers from there.
+///   narrow   400px and below: standard phones. Side panels open from buttons
+///            as sheets from the bottom.
+///
+/// The Chat and Practice tabs lead the top bar in all three.
 ///
 /// Stylesheets use the same widths: `(max-width: 860px)` and `(max-width: 400px)`.
 export type WidthTier = 'full' | 'compact' | 'narrow'

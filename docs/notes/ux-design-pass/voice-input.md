@@ -137,8 +137,10 @@ preserve list.
   listening run uses. Native `mic_spectrogram` analyses the desktop capture's new
   samples when polled; on phones the browser recorder sends ordered copies with
   `mic_push`. The recording, its WAV and transcription are unchanged. The
-  spectrum is a small external store (`domain/audio/spectrum-feed.ts`), so only
-  the stream re-renders per frame, not the chat page.
+  spectrum is a small external store (`domain/audio/spectrum-feed.ts`); the
+  spectrogram paints each update itself, so nothing re-renders per frame in Chat
+  or Practice. Passing frames through props crashed the development renderer; see
+  [the crash note](../renderer-crash-2026-09-28.md).
 - **Resizing (Jon's request).** One grip style for every divider
   (`components/panels.css`). Chat's recording panel has a grip above it; a dragged
   height goes to the face. Practice has a grip under the reference plot at every

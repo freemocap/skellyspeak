@@ -174,3 +174,15 @@ card keeps the violet tint, so the strongest violet marks what you are practisin
 while recording, and the coach panel's green edge was too thick. Changed: the
 ready pad uses the “you” tint, line and ink; the coloured edges on side panels and
 edge tabs use `--border-width-strong` (2px) instead of `--border-width-thick`.
+
+## Changed at Jon's review, 2026-09-28
+
+- **Edge tabs stand out more** (the folded coach and cards tabs; the tabs were
+  too subtle). Each has a full border in its identity line colour, a
+  `--border-width-thick` (3px) edge in its colour facing the work, and a soft
+  glow in that colour. This reverses the seventh pass for edge tabs only; open
+  side panels keep their 2px edge.
+- **The top bar** has its own surface, `--bar`, a touch darker than the ground,
+  so the active tab and page read as one lighter surface. The place line is
+  stronger and glows into the bar along its whole length. The active tab's glow
+  is stronger too.

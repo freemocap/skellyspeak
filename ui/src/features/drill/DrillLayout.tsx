@@ -8,9 +8,10 @@ import type { DrillAttemptView, DrillItemView } from '../../generated/contracts'
 
 /** The same practice and history surfaces: side by side on desktop, stacked on
  * narrow screens. The cards sit in a side panel: beside the stage at full width
- * (folding to an edge tab), a drawer in the compact layout, a sheet in the
- * narrow one. The recording panel can be dragged taller at every width. Card
- * changes remain locked during capture. */
+ * (folding to an edge tab); in the compact layout an edge tab on the start of
+ * the stage opens them as a drawer; in the narrow one a toolbar button opens
+ * them as a sheet. The recording panel can be dragged taller at every width.
+ * Card changes remain locked during capture. */
 export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, report,
   children, onAddPhrases, reportResize, dockResize }: {
   items: DrillItemView[]; selectedId: string | null; locked: boolean; onSelect: (id: string) => void
@@ -21,7 +22,8 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
   const mobile = tier !== 'full'
   const tr = useI18n()
   const [sheet, setSheet] = useState<'phrases' | 'actions' | null>(null)
-  const { open: cardsOpen, toggle: toggleCards } = usePersistentToggle('skellyspeak_cards', true)
+  // The cards panel starts folded to its edge tab and remembers being opened, as the coach does.
+  const { open: cardsOpen, toggle: toggleCards } = usePersistentToggle('skellyspeak_cards_panel', false)
   useEffect(() => { setSheet(null) }, [selectedId, mobile])
   const index = items.findIndex(item => item.id === selectedId)
   const addTargets = onAddPhrases && <button type="button" className="btn" disabled={locked} aria-haspopup="dialog" onClick={() => { setSheet(null); onAddPhrases() }}>{tr("Add practice cards…")}</button>
@@ -30,11 +32,14 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
     onSelect(choices[Math.floor(Math.random() * choices.length)].id)
   }}>{tr('Random card')}</button>
   const navigation = <nav className="drill-phrase-bar" aria-label={tr('Practice cards')}>
-    {/* At full width this folds the cards panel; elsewhere it opens the cards as a drawer or sheet. */}
-    <button className="btn" type="button" aria-haspopup={mobile ? 'dialog' : undefined} aria-expanded={mobile ? sheet === 'phrases' : cardsOpen}
-      onClick={() => { if (mobile) setSheet(sheet === 'phrases' ? null : 'phrases'); else toggleCards() }} aria-label={mobile ? tr('Practice cards') : undefined}>{mobile ? tr('Card') : tr('Practice cards')} {index + 1} / {items.length}</button>
+    {/* At full width the cards are the side panel, and compact has their edge tab; narrow opens them from here. */}
+    {tier === 'narrow' && <button className="btn drill-cards-open" type="button" aria-haspopup="dialog" aria-expanded={sheet === 'phrases'}
+      aria-label={tr('Practice cards')} title={tr('Practice cards')} onClick={() => setSheet(sheet === 'phrases' ? null : 'phrases')}>
+      <ToolbarIcon name="cards" size={18} /></button>}
     <button className="btn" type="button" aria-label={tr('Previous card')} disabled={locked || index <= 0}
       onClick={() => onSelect(items[index - 1].id)}>{tr('Previous')}</button>
+    {/* Which card is shown, between the controls that move through them. */}
+    {index >= 0 && <span className="drill-card-position">{tr('Card {value0} of {value1}', { value0: index + 1, value1: items.length })}</span>}
     <button className="btn" type="button" aria-label={tr('Next card')} disabled={locked || index < 0 || index >= items.length - 1}
       onClick={() => onSelect(items[index + 1].id)}>{tr('Next')}</button>
     {mobile ? <button type="button" className="btn" aria-label={tr('More')} aria-haspopup="dialog" aria-expanded={sheet === 'actions'} onClick={() => setSheet('actions')}><ToolbarIcon name="more" size={18} /></button> : random}
@@ -56,14 +61,19 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
         {addTargets}
       </section>
       : <button type="button" className="drill-cards-edge" aria-label={tr('Practice cards')} aria-expanded={false} onClick={toggleCards}>
-        <ToolbarIcon name="cards" size={16} /><span>{tr('Practice cards')}</span><span className="drill-cards-count">{index + 1}/{items.length}</span>
+        <ToolbarIcon name="cards" size={16} /><span>{tr('Practice cards')}</span>
       </button>
     return <>{cards}<div className="drill-workspace">{navigation}{children}{dock && dockResize}{dock}</div>{reportResize}{report}</>
   }
   return <>
-    <div className="drill-mobile-content">
-      <div className="drill-workspace drill-workspace-stacked">{navigation}{children}</div>
-      {report}
+    <div className="drill-mobile-body">
+      {/* Compact: the cards are an edge tab on the start of the stage, where their drawer opens. */}
+      {tier === 'compact' && items.length > 0 && <button type="button" className="drill-cards-edge" aria-label={tr('Practice cards')} aria-haspopup="dialog"
+        aria-expanded={sheet === 'phrases'} onClick={() => setSheet('phrases')}><ToolbarIcon name="cards" size={16} /><span>{tr('Practice cards')}</span></button>}
+      <div className="drill-mobile-content">
+        <div className="drill-workspace drill-workspace-stacked">{navigation}{children}</div>
+        {report}
+      </div>
     </div>
     {dock && dockResize}
     {dock}

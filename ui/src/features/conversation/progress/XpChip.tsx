@@ -10,7 +10,9 @@ import { XpEvidenceReport, type XpMessageScope } from './XpEvidenceReport'
 type Report = { message: XpMessageScope } | { skillId: string }
 
 /**
- * Fixed-size header control; pressing it lists saved conversation awards.
+ * The conversation's XP beside its star in the header; pressing it lists saved
+ * conversation awards. Digits are tabular, so it widens only when the total
+ * gains a digit.
  */
 export function XpChip({ chatId }: { chatId: string | null }) {
   const tr = useI18n()

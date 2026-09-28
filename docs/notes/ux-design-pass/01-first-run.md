@@ -1,6 +1,8 @@
 # Stage 1 — first run to first conversation
 
-Status: **settled after seven reviews, 2026-09-27. Not implemented.** Steps 5
+Status: **settled after seven reviews, 2026-09-27. 1c implemented 2026-09-28
+(build step 6, ahead of step 5 at Jon's request; see
+[Implemented](#implemented-build-step-6)); 1a and 1b not implemented.** Steps 5
 (1a, 1b) and 6 (1c) of the [build plan](build-plan.md). Part of the
 [UX design pass](README.md). Decisions are under [Review](#review).
 
@@ -177,6 +179,128 @@ Paths are under `ui/src/features/`.
 - Verification: UI tests, `previews:check`, `styles:check`, localization checks,
   and a fresh-workspace walkthrough in the running app (language → sign in →
   start, and Set up later).
+
+## Implemented (build step 6)
+
+2026-09-28, branch `ux-design-pass`, uncommitted.
+
+- **One reading order.** The start card is the partner, the topic, the Options row
+  and one start button, at most 40rem wide, with no instructions of its own
+  (`session/ConversationStart.tsx`, `styles/features/conversation/start.css`).
+- **Partner card,** in the partner colours: the avatar in a partner-coloured ring,
+  and the name.
+  - “About {name}” opens the existing profile dialog.
+  - “Change partner” opens the chat header's partner menu. `PersonaPicker` gained
+    `open` and `onOpenChange`. It moves focus to the current partner when it
+    opens, and back to its toggle on Escape.
+  - Occupation and city wait for A5.
+- **Topic chips select; only the start button starts.** “{name} chooses” is the
+  default. Each built-in topic shows its target-language name, its romanization
+  where there is one, and its translation when that differs; the glyphs are gone.
+  “Your own topic” opens the existing dialog, and using a topic selects it; the
+  chip then shows the text. The choice goes with whichever start follows. The
+  page already sent the start configuration with the learner's own first message.
+- **Options** fold to one line that states their values (“Beginner · Any time”).
+  Open, they show segmented choices for Difficulty (all five levels) and Time
+  frame (was Grammar practice; “Any time” was “No preference”). Below them,
+  “Prompt details…” (was Customize…) opens the Conversation Prompt Creator.
+- **Skill focus** (was Practice selection) appears once the language has recorded
+  experience, or when a focus is already set. Its info tip keeps each mode's live
+  preview. A focus shares the configuration's topic slot (`TopicChoice`):
+  - choosing a focus shows “{name} chooses” as the topic;
+  - choosing a topic clears the focus;
+  - the summary line names a focus that is set.
+- **One start button,** “{name} starts”.
+- **The coach** on an empty conversation already showed only its tabs and Ask box
+  at Full. Compact's edge tab and Narrow's button came with the width work.
+- **Shared pieces:**
+  - `session/StartChoices.tsx` (the topic chips, the option rows and the summary)
+    replaces `ConversationChoices.tsx` and `CoachChoices.tsx`.
+  - The Prompt Creator shows the same pieces unfolded, with Skill focus always
+    offered.
+  - The segmented choice is a shared control,
+    `components/controls/SegmentedChoice.tsx` (`.segmented` in `buttons.css`, and
+    a SegmentedChoice card in the design system). The voice panel's Recording
+    settings use it too.
+- **Removed from the card:**
+  - “Say {greeting}”: the microphone below is the learner's start.
+  - “All partners”: it opened the conversation list (F13).
+  - The topic glyphs.
+  - The labels “Let the coach decide” and “Let the partner decide”.
+
+**Where this differs from the reviewed page:**
+
+- Topic chips are toggle buttons (`aria-pressed`) in a labelled group, like the
+  app's other choice buttons, rather than radio buttons.
+- Skill focus has a “No focus” choice for clearing it.
+- The authored starter greeting (“Say hola”) was not shown anywhere for a while.
+  *Settled at Jon's third look: it is in the voice panel's prompt; see below.*
+
+**Changed the same day at Jon's review: every start is one press.** Selecting a
+topic and then pressing start took two clicks. This reverses “topics select, then
+one Start” (first review); F10 is answered instead by making the topics look like
+actions.
+
+- **The partner box** is shorter, with a large “{name} starts” beside the name. In
+  the narrow layouts it takes its own row under the name.
+- **“Or pick a topic”**: each topic is an action button with an arrow at its end,
+  and starts the conversation. Topics saved for later are listed after the
+  built-in ones and start the same way. “{name} chooses” is gone from the card,
+  because the partner's own start is exactly that.
+- **“Or your own topic”** is an open text field with its own Start (Enter works
+  too) and a “Save for later” checkbox. A topic that is already saved is not
+  saved again. The dialog remains in the Prompt Creator.
+- **“…or send a message to begin”** closes the list, above the composer.
+- **Options** are a panel of their own, under every start: a bordered bar with
+  depth that names the current values. It eases open (0.32s, none under reduced
+  motion) without moving any start, then scrolls itself into view if it opened
+  below the fold. A topic set in Prompt details is named in its line, since the
+  partner's start and the first message use it.
+- The Prompt Creator keeps the selecting chips, including “{name} chooses”, for
+  the configuration it applies.
+- New strings: “Or pick a topic”, “Or your own topic”, “…or send a message to
+  begin”.
+
+**Open question (Jon): what the partner's start draws on.** Today:
+
+- The partner's own start, with no skill focus, has no coach involvement. The
+  opening prompt gets the partner's background and one of the authored opening
+  situations, chosen per conversation (`conversation_prompt::system`).
+- With a skill focus, the coach picks a skill from recorded experience and retry
+  effort (`recommendations::capture`), and the partner's instructions gain that
+  skill's guide.
+- A topic replaces the opening situation with that subject. A first message from
+  the learner is the first turn, with the same instructions.
+
+Undecided: whether the partner's start should default to the coach's choice once
+there is recorded practice.
+
+**Changed again at Jon's third look, 2026-09-28:**
+
+- **Options come first,** above the partner, still folded to one line. Opening
+  them pushes the starts down, eased as before.
+- **Your own topic** has no heading; the field's placeholder says “Enter your own
+  topic…” and names it (its label is “Your own topic”). “Save for later” stays
+  under it. “Or pick a topic” stays above the topics (kept from the previous round).
+- **The greeting is back, in the voice panel.** In a new conversation, the empty
+  face says “Say hola to start”, with the authored greeting and its romanization
+  where there is one. A new `tr.rich` places the styled greeting wherever each
+  language's sentence puts it; the localization tools check and count it like
+  `tr`. The open question about `starterGreeting` is settled.
+- **Target-language words scan apart:** a topic's name and the greeting are bold
+  serif in `target-ink` (`.target-word`, `components/reading.css`), a new token:
+  dark blue, or light blue in dark themes. Translations and romanization keep
+  their style. Saved topics stay in the interface style, because they are the
+  learner's own words in either language. The Prompt Creator's topic chips follow
+  the same rule.
+- **Selections are visible:** the chosen option of a segmented choice is filled in
+  `interaction-fill` with `ink-on-fill` text, as Practice's comparison toggles
+  already were. The voice panel's Tap / Hold / Auto matches.
+- **Skill, coming soon.** Under Skill focus, a “Skill” select like Practice's
+  Add practice cards (“Any skill”) is built but disabled, with “Coming soon” on
+  hover. It waits for A14 in the [README](README.md#deferred-native-ai-content-or-state-model-work)
+  (a practice target separate from the topic). The same change lets a topic start
+  keep a skill focus; `BACKEND:` comments mark both places.
 
 ## Review
 
