@@ -1,7 +1,8 @@
 import { useWordArrival } from './useWordArrival'
 import { MobileAttemptHistory } from './MobileAttemptHistory'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
-import { useAudibleScrub } from './useAudibleScrub'
+import { useAudibleScrub } from '../../components/media/useAudibleScrub'
+import { useRecordingPlayback } from '../../components/media/useRecordingPlayback'
 import { useClipPreview } from './useClipPreview'
 import { TakeQueue } from './TakeQueue'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
@@ -85,8 +86,6 @@ export function DrillPage({ active }: { active: boolean }) {
   // Follow script direction until the learner explicitly chooses a time direction.
   const [chosenDirection, setChosenDirection] = useState<TimeDirection | null>(null)
   const [timeScale, setTimeScale] = useState<TimeScale>('words')
-  const [playingAttempt, setPlayingAttempt] = useState(false)
-  const [attemptTime, setAttemptTime] = useState(0)
   // Every split on the page can be dragged; each size is kept for next time.
   const [reportWidth, setReportWidth] = useStoredSize('drill-report')
   const [dockHeight, setDockHeight] = useStoredSize('drill-dock')
@@ -99,9 +98,7 @@ export function DrillPage({ active }: { active: boolean }) {
   }
 
   const px = (size: number | null) => size === null ? undefined : `${Math.round(size)}px`
-  const attemptPlayback = useRef<AbortController | null>(null)
   const [referenceTime, setReferenceTime] = useState(0)
-  const attemptPlayer = useRef<PlaybackHandle | null>(null)
   const referencePlayer = useRef<PlaybackHandle | null>(null)
   const playbackRate = useRef(settings?.tts_rate ?? 1)
   playbackRate.current = settings?.tts_rate ?? 1
@@ -322,38 +319,13 @@ export function DrillPage({ active }: { active: boolean }) {
   useEffect(() => {
     if (attemptAudio.audio) inspectionCache.current.set(attemptAudio.audio.attemptId, attemptAudio.audio.inspection)
   }, [attemptAudio.audio])
-  useEffect(() => {
-    setAttemptTime(0); setPlayingAttempt(false)
-    return () => { attemptPlayback.current?.abort(); attemptPlayback.current = null }
-  }, [attempt?.id, active])
-  const playAttempt = async (base64: string, startSeconds = 0) => {
-    if (!active || holdingAudio) return
-    attemptPlayback.current?.abort()
-    const controller = new AbortController()
-    attemptPlayback.current = controller
-    setPlayingAttempt(true); setAttemptTime(startSeconds)
-    try {
-      await replaySelectionAudio(base64, controller.signal, () => {}, settings?.tts_rate ?? 1,
-        (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000, {
-          startSeconds,
-          onReady: player => { if (attemptPlayback.current === controller) attemptPlayer.current = player },
-          onTime: seconds => {
-            if (attemptPlayback.current === controller && !controller.signal.aborted) setAttemptTime(seconds)
-          },
-        })
-    } catch (error) {
-      if (attemptPlayback.current === controller && !controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError')) setFailure(error)
-    } finally { if (attemptPlayback.current === controller) setPlayingAttempt(false) }
-  }
-
   const scrubVolume = (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000
+  const attemptPlayback = useRecordingPlayback({ audio: shownAttemptAudio?.base64 ?? null, duration: shownAttemptAudio?.inspection.duration ?? 0,
+    enabled: active && !holdingAudio, rate: settings?.tts_rate ?? 1, volume: scrubVolume, onError: setFailure })
   const referenceScrub = useAudibleScrub(reference?.itemId === selected?.id ? reference?.audioBase64 ?? null : null,
     active && !holdingAudio, speaking, scrubVolume, setReferenceFailure,
     () => { referenceRequest.current?.abort(); setSpeaking(false) },
     selected ? { text: selected.text, alignment: reference?.alignment } : undefined)
-  const attemptScrub = useAudibleScrub(shownAttemptAudio?.base64 ?? null,
-    active && !holdingAudio, playingAttempt, scrubVolume, setFailure,
-    () => { attemptPlayback.current?.abort(); setPlayingAttempt(false) })
 
   const locale = scope ? languageFor(scope.language, scope.variety) : creating ? languageFor(creating.language, creating.variety) : null
   // Until the learner chooses, the recorder follows the card's script direction.
@@ -447,20 +419,13 @@ export function DrillPage({ active }: { active: boolean }) {
             <button type="button" className="btn" disabled={holdingAudio || speaking} onClick={() => void playReference(selected)}>{tr('Try again')}</button><ResponseDetails value={referenceFailure} /></ErrorNotice> : undefined}
           onPlayReference={toggleReference} playingReference={speaking}
           referenceNote={holdingAudio ? tr("Playback waits until the attempt is stored.") : tr("Replays reuse the saved reference; no new request is made.")}
-          reference={shown?.inspection ?? null} referenceTime={referenceTime} onSeekReference={seekReference} referenceScrub={referenceScrub} attemptScrub={attemptScrub}
-          attempt={shownAttemptAudio?.inspection ?? null} preview={preview} attemptTime={attemptTime}
+          reference={shown?.inspection ?? null} referenceTime={referenceTime} onSeekReference={seekReference} referenceScrub={referenceScrub} attemptScrub={attemptPlayback.scrub}
+          attempt={shownAttemptAudio?.inspection ?? null} preview={preview} attemptTime={attemptPlayback.time}
           attemptLabel={preview ? tr("Attempt {value0}", { value0: preview.number }) : attempt ? tr("Attempt {value0}", { value0: String(attempt.sequence) }) : null}
           attemptFailure={clip.failure ?? attemptAudio.failure} onRetryAttempt={() => { if (clip.failure) clip.retry(); else attemptAudio.retry() }} attemptUnavailable={preview ? null : attemptUnavailable}
-          onSeekAttempt={seconds => {
-            if (!shownAttemptAudio || holdingAudio) return
-            setAttemptTime(seconds)
-            if (playingAttempt) attemptPlayer.current?.seek(seconds)
-          }}
+          onSeekAttempt={attemptPlayback.seek}
           direction={direction} onDirection={setChosenDirection} timeScale={timeScale} onTimeScale={setTimeScale} holding={holdingAudio}
-          playingAttempt={playingAttempt} onPlayAttempt={() => {
-            if (playingAttempt) { attemptPlayback.current?.abort(); setPlayingAttempt(false) }
-            else if (shownAttemptAudio) void playAttempt(shownAttemptAudio.base64, attemptTime < shownAttemptAudio.inspection.duration ? attemptTime : 0)
-          }} />
+          playingAttempt={attemptPlayback.playing} onPlayAttempt={attemptPlayback.toggle} />
 
 
       </main>

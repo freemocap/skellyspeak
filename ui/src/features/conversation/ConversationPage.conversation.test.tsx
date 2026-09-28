@@ -4,12 +4,13 @@ import { StrictMode } from 'react'
 import userEvent from '@testing-library/user-event'
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Command, ConversationSnapshot, Receipt, Snapshot } from '../../generated/contracts'
+import type { Command, ConversationSnapshot, Receipt, Snapshot, TranscriptionInspectionResult } from '../../generated/contracts'
 import type { Settings } from '../../types'
 import { createSpectrumFeed, type SpectrumFeed } from '../../domain/audio/spectrum-feed'
+import spectra from '../../../tools/spectrogram-fixture.json'
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
-const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null }))
+const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null, lastTranscription: null as TranscriptionInspectionResult | null }))
 const chrome = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc.invoke }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: ipc.fault }))
@@ -22,7 +23,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
   languageFor: (code: string) => code === 'english' ? { code: 'english', name: 'English', endonym: 'English' } : { code: 'spanish', name: 'Spanish', endonym: 'Español' },
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
-vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string) => void }) => { microphone.transcribe = onTranscribe; return { recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, toggleMic: vi.fn(), cancel: vi.fn() } } }))
+vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string, result: TranscriptionInspectionResult) => void }) => { microphone.transcribe = text => onTranscribe(text, microphone.lastTranscription ?? { inspection: { recordingId: 'recording' } } as TranscriptionInspectionResult); return { lastTranscription: microphone.lastTranscription, recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('./coaching/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'coaching' ? coachingContent : null }))
 vi.mock('./progress/RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('./progress/XpChip', () => ({ XpChip: () => null }))
@@ -33,6 +34,10 @@ import { useConversation } from './session/useConversation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
 import { useNavigationStore } from '../../state/navigation/navigation'
+
+/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
+
 
 const SETTINGS: Settings = {
   my_languages: [], target_varieties: {},
@@ -104,6 +109,7 @@ beforeEach(async () => {
   HTMLDialogElement.prototype.showModal = function () { this.open = true }
   HTMLDialogElement.prototype.close = function () { this.open = false }
   vi.clearAllMocks()
+  microphone.lastTranscription = null
   useSessionStore.setState({ ...useSessionStore.getInitialState(), connection: snapshot().connection })
   localStorage.clear()
   workspace = directory()
@@ -403,6 +409,25 @@ it('auto-sends one native transcript and retains a later transcript while a repl
   expect(input).toHaveValue('Guardar esta frase')
 })
 
+it('binds recorded audio to the accepted turn even when a later message repeats its text', async () => {
+  chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(snapshot('a', 1, 'Earlier')))
+  microphone.lastTranscription = { text: 'Hola', audioBase64: '', diagnostics: null,
+    inspection: { ...spectra[0], recordingId: 'recording', owner: { kind: 'conversation', id: 'a' } } } as TranscriptionInspectionResult
+  act(() => microphone.transcribe('Hola'))
+  await waitFor(() => expect(commands().some(command => command.action.kind === 'sendMessage')).toBe(true))
+  const next = snapshot('a', 2, 'Hola')
+  next.messages[0].turnId = 'accepted'
+  next.messages.push({ ...next.messages[0], id: 'later-source', turnId: 'later', sequence: 2, text: 'Hola again' })
+  await act(async () => watches[1].resolve(next))
+  const bubbles = document.querySelectorAll('.msg.me')
+  expect(bubbles).toHaveLength(2)
+  expect(within(bubbles[0] as HTMLElement).getByRole('button', { name: 'Inspect recording' })).toBeEnabled()
+  expect(within(bubbles[1] as HTMLElement).queryByRole('button', { name: 'Inspect recording' })).toBeNull()
+})
+
 function exchangeSnapshot(earlier = false): ConversationSnapshot {
   const value = snapshot('a', 31, 'Yo fue ayer')
   value.messages.push({ ...value.messages[0], id: 'reply', sequence: 2, role: 'assistant', text: '¿Adónde fuiste?' })
@@ -415,6 +440,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   await waitFor(() => expect(watches).toHaveLength(1))
   const initial = exchangeSnapshot()
   await act(async () => watches[0].resolve(initial))
+  openMenus()
   const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
@@ -445,6 +471,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   expect(screen.queryByText('Edit saved — updating conversation…')).not.toBeInTheDocument()
   expect(screen.queryByText('Yo fue ayer')).not.toBeInTheDocument()
   expect(screen.queryByText('Earlier version')).not.toBeInTheDocument()
+  openMenus()
   expect(screen.getAllByRole('button', { name: 'Edit message' })).toHaveLength(1)
 })
 
@@ -453,6 +480,7 @@ it('confirms native suffix scope and retains the edit draft after a stale admiss
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot(true)))
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   const composer = (await draftField())
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
@@ -472,6 +500,7 @@ it('allows editing and replacing a pending partner reply', async () => {
   const value = exchangeSnapshot()
   value.turns = [{ id: 'pending', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, operations: [], attempts: [] }]
   await act(async () => watches[0].resolve(value))
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled()
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
@@ -486,6 +515,7 @@ it.each(['resolve', 'reject'] as const)('ignores late revision %s after switchin
   render(<ConversationPage nativePicker={null} mobileSurface="chat" active onNewChatReady={action => { if (action) newChat = action }} />)
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot()))
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
@@ -503,6 +533,7 @@ it('retains a repair draft after a genuine connection failure', async () => {
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(exchangeSnapshot()))
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
@@ -690,6 +721,7 @@ it('revises directly when only private coach turns follow the source', async () 
   const value = exchangeSnapshot(true)
   value.revisionSuffixCounts = value.revisionSuffixCounts.map(scope => ({...scope, exchangeCount:0, coachTurnCount:2}))
   await act(async () => watches[0].resolve(value))
+  openMenus()
   fireEvent.click(screen.getByRole('button', {name:'Edit message'}))
   fireEvent.click(screen.getByRole('button', {name:'Send'}))
   await waitFor(() => expect(commands()).toHaveLength(1))

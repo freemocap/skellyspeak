@@ -21,7 +21,7 @@ interface MicRecorderOptions {
   /** Present for a continuous microphone with independently controlled clip boundaries. */
   listening?: ListeningSettings
   captureMode?: ListeningMode
-  onTranscribe: (text: string) => void
+  onTranscribe: (text: string, result: TranscriptionInspectionResult) => void
 }
 
 /** Recording is native-owned and bound to its owner. Native clip receipts precede transcription. */
@@ -194,7 +194,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
         }
         setPendingRecordings(takes => takes.map(take => take.recordingId === recordingId ? { ...take, state: 'completed' } : take))
         setLastTranscription(result)
-        if (result.text.trim()) callback.current(result.text)
+        if (result.text.trim()) callback.current(result.text, result)
       } else {
         setStarting(true)
         const owner = current.current

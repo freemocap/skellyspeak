@@ -20,6 +20,8 @@ it('puts one add action on each bubble and saves the AI reply with its captured 
   } }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
   expect(within(container.querySelector('.msg.me') as HTMLElement).getAllByRole('button', { name: 'Add to Practice' })).toHaveLength(1)
   expect(within(container.querySelector('.msg.bot') as HTMLElement).getAllByRole('button', { name: 'Add to Practice' })).toHaveLength(1)
+  // Add to Practice is a top-level icon on both bubbles, never inside the ⋯ menu.
+  for (const button of screen.getAllByRole('button', { name: 'Add to Practice' })) expect(button.closest('.message-tools-actions')).not.toBeNull()
   fireEvent.click(within(container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Add to Practice' }))
   await screen.findByRole('button', { name: 'Remove from Practice' })
   expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Buenos días.', ...scope })

@@ -379,24 +379,9 @@ pub(super) async fn transcribe(
         super::transcription::permitted(&store.connection, &recording.owner, &recording.target)
     };
     validate()?;
-    let inspection_recording = recording.id.clone();
-    let inspection_owner = recording.owner.clone();
-    let (wav, mut inspection) = tauri::async_runtime::spawn_blocking(move || {
-        let (inspection, _) = crate::speech::analysis::audio_inspection::inspect_wav(
-            &wav,
-            &inspection_recording,
-            &inspection_owner,
-        )?;
-        Ok::<_, AppError>((wav, inspection))
-    })
-    .await
-    .map_err(|cause| {
-        crate::diagnostics::failures::join(
-            &cause,
-            "voice.rs",
-            fault("Audio inspection stopped unexpectedly."),
-        )
-    })??;
+    let mut inspection = state
+        .inspect_audio(wav.clone(), recording.id.clone(), recording.owner.clone())
+        .await?;
     {
         let mut store = state.lock()?;
         if store.snapshot()?.learner.id != recording.install {
@@ -494,6 +479,16 @@ pub(super) async fn transcribe(
             evidence,
         )?
     };
+    {
+        let store = state.lock()?;
+        let digest = crate::ai::results::digest(&input.wav);
+        crate::speech::analysis::signal_cache::save(
+            &store.connection,
+            &digest,
+            &crate::speech::analysis::audio_inspection::AudioSignal::from_inspection(&inspection),
+        )?;
+        store.prune_drill_audio()?;
+    }
     Ok(
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult {
             text,

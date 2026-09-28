@@ -4,11 +4,58 @@
 
 .inspection-activity { width: 100%; height: 24px; background: var(--sheet); }
 .inspection-activity rect { fill: var(--interaction-ink); }
-.inspection-token-track { position: relative; height: 48px; background: var(--chrome); }
-.inspection-token-track button { position: absolute; top: 4px; height: 36px; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
-.inspection-token-track button[aria-pressed=true], .inspection-token-track .inspection-token-active { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
-.inspection-token-track button:focus-visible { z-index: var(--z-sticky); min-width: max-content; }
 
-.inspection-token-label { position: absolute; top: var(--space-2); overflow: hidden; padding: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); white-space: nowrap; text-overflow: ellipsis; }
+/* A recording's stored amplitude envelope. */
+.inspection-wave { display: block; width: 100%; height: 80px; background: var(--sheet); }
+.inspection-wave path { stroke: var(--interaction-ink); stroke-width: 1; }
+
+/* Timed words, one component on every surface: laid over a plot, or in a row
+   of their own under the plots. */
+.timed-words { position: relative; }
+.timed-words[data-placement="overlay"] { position: absolute; inset: 0; pointer-events: none; overflow: hidden; animation: timed-words-arrive var(--dur-base) var(--ease-out); }
+.timed-words[data-placement="track"] { height: 48px; background: var(--chrome); }
+.timed-word { position: absolute; top: 0; bottom: 0; box-sizing: border-box; }
+.timed-words[data-placement="overlay"] .timed-word { border-left: var(--border-width) solid currentColor; color: var(--spectrogram-high); }
+.timed-words[data-placement="overlay"] .timed-word[data-outcome] { color: var(--warning-line); }
+.timed-words[data-placement="overlay"] .timed-word[data-outcome="same"] { color: var(--success-line); }
+.timed-words[data-placement="overlay"] .timed-word[data-outcome="missing"] { color: var(--danger-line); }
+.timed-words[data-placement="overlay"] .timed-word[data-selected] { background: color-mix(in srgb, var(--spectrogram-high) 22%, transparent); }
+.timed-words[data-placement="overlay"] .timed-word > :is(bdi, button) { position: relative; display: inline-block; margin-top: var(--space-3); padding-inline: var(--space-2); white-space: nowrap; font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); font-family: var(--font-serif); text-shadow: 0 1px 3px var(--spectrogram-low), 0 0 5px var(--spectrogram-low); }
+.timed-words[data-placement="overlay"] .timed-word > button { pointer-events: auto; background: transparent; border: 0; color: inherit; }
+.timed-words[data-placement="track"] .timed-word { top: 4px; bottom: auto; height: 36px; }
+.timed-words[data-placement="track"] .timed-word > button { width: 100%; height: 100%; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
+.timed-words[data-placement="track"] .timed-word > bdi { display: block; overflow: hidden; padding: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); white-space: nowrap; text-overflow: ellipsis; }
+.timed-words[data-placement="track"] .timed-word:is([data-active], [data-selected]) > button { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
+.timed-words[data-placement="track"] .timed-word:has(> button:focus-visible) { z-index: var(--z-sticky); min-width: max-content; }
+@keyframes timed-words-arrive { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .timed-words[data-placement="overlay"] { animation: none; } }
+
+/* The time axis under a set of plots. */
+.time-axis { position: relative; height: var(--space-8); }
+.time-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
+.time-axis span:first-child { transform: none; }
+
+/* The play cursor over a plot: a transparent slider across the whole plot,
+   drawn as one line at the playback position. */
+.playback-cursor { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; z-index: var(--z-raised); cursor: ew-resize; touch-action: none; }
+.playback-cursor .audio-spectrum-cursor { background: var(--spectrogram-cursor); width: var(--space-2); box-shadow: 0 0 var(--space-3) var(--spectrogram-cursor), 0 0 var(--space-2) var(--spectrogram-low); }
+.playback-cursor:focus-visible { outline: var(--border-width) solid var(--spectrogram-cursor); }
+
+/* One recording inspected inside its message bubble, drawn as Practice draws
+   a recording: the progress bar above the track, the track at a fixed height. */
+.compact-inspection { display: grid; gap: var(--space-2); margin-top: var(--space-3); font: var(--type-ui)/var(--leading-snug) var(--font-sans); }
+.compact-inspection-head { display: flex; align-items: center; gap: var(--space-2); }
+.compact-inspection-track > .inspection-plot { height: 120px; border-radius: var(--radius-sm); }
+.compact-inspection-track > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Expansion preserves bubble width and toolbar position; the dialog provides a larger plot. */
+.msg.chat-message.inspecting { outline: var(--border-width-strong) solid var(--interaction-ink); outline-offset: var(--space-1); }
+
+/* The transport's progress bar, with the same cursor and time map. */
+.playback-progress { position: relative; flex: 1 1 auto; min-width: 0; height: var(--touch-target); }
+.playback-progress-track { position: absolute; inset: var(--space-1) 0; overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+.playback-progress-track[data-time="rtl"] { transform: scaleX(-1); }
+.playback-progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--interaction-tint); pointer-events: none; }
+.playback-progress-time { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); }
+.playback-progress .audio-spectrum-cursor { width: var(--border-width); background: var(--interaction-ink); box-shadow: none; }
 .inspection-segment-mark { position: absolute; inset-block: 0; width: 0; border-inline-start: var(--border-width-thick) dashed var(--interaction-ink); }
 .inspection-segment-mark span { position: absolute; top: var(--space-1); inset-inline-start: var(--space-2); padding: 0 var(--space-2); background: var(--interaction-fill); color: var(--ink-on-fill); font-family: var(--font-mono); font-size: var(--type-meta); border-radius: var(--radius-xs); white-space: nowrap; }

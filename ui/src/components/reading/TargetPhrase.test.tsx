@@ -28,9 +28,9 @@ it('reads and saves the whole phrase in its own scope, resetting save state on t
 })
 it('adds phrase controls to standalone passages without an owner speech callback', () => {
   render(<ReadingScopeContext value={scope}><ReadingActionsContext value={{inspect:vi.fn(),speak:vi.fn(),stop:vi.fn(),speaking:null}}><TargetPassage text="Hola." /></ReadingActionsContext></ReadingScopeContext>)
-  const play = screen.getByRole('button', {name:'Speak reply'})
+  const play = screen.getByRole('button', {name:'Play'})
   expect(play).toBeEnabled()
-  expect(play).toHaveClass('bubble-corner-control')
+  expect(play.closest('.message-tools')).not.toBeNull()
   const bubble = play.closest('.msg.chat-message.with-actions')
   expect(bubble).not.toBeNull()
   expect(bubble).toContainElement(screen.getByRole('button', {name:'Add to Practice'}))

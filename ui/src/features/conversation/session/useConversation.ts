@@ -111,7 +111,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     const directory = await readWorkspace()
     const conversation = directory.conversations.find(c => c.id === owner.id)
     if (!conversation) throw new Error('Conversation is unavailable.')
-    await executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text, input })
+    return executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text, input })
   }, [])
 
   return { ...observation, turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,

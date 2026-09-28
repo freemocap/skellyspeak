@@ -1,9 +1,15 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import type { TranscriptionInspectionResult } from '../../../generated/contracts'
 import { I18nProvider } from '../../../components/localization/i18n'
 import { TranscriptionInspector } from './TranscriptionInspector'
+import { replaySelectionAudio } from '../../../platform/audio/reading-speech'
+
+vi.mock('../../../platform/audio/reading-speech', () => ({ replaySelectionAudio: vi.fn() }))
+vi.mock('../../../platform/audio/scrub-player', () => ({ createScrubPlayer: () => ({ start: vi.fn(), move: vi.fn(), end: vi.fn(), dispose: vi.fn(), setVolume: vi.fn() }) }))
+const replay = vi.mocked(replaySelectionAudio)
+const playback = { rate: 1, volume: 1, enabled: true }
 const transcript: TranscriptionInspectionResult = {
   text: 'fixture transcript', audioBase64: '', diagnostics: null,
   inspection: { recordingId: 'fixture-recording', owner: { kind: 'conversation', id: 'fixture-conversation' }, duration: 1, sampleRate: 16000,
@@ -17,92 +23,94 @@ beforeEach(() => {
   HTMLDialogElement.prototype.showModal = vi.fn(function(this: HTMLDialogElement) { this.setAttribute('open', '') })
   HTMLDialogElement.prototype.close = vi.fn()
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
+  replay.mockReset()
 })
+const position = () => screen.getByRole('slider', { name: 'Playback position' })
+
 it('shows original transcript and unavailable timings without invented words', () => {
-  render(<TranscriptionInspector result={transcript} onClose={() => {}} />)
+  render(<TranscriptionInspector result={transcript} {...playback} onClose={() => {}} />)
   expect(screen.getByText('fixture transcript')).toBeInTheDocument()
   expect(screen.getByText(/Word timings unavailable/)).toHaveTextContent('Word timings unavailable: Provider returned text only.')
   expect(screen.queryByLabelText('Word timing overlays')).not.toBeInTheDocument()
   expect(screen.getByRole('img', { name: 'Detected audio activity' })).toBeInTheDocument()
+  expect(screen.getByRole('img', { name: 'Recorded audio amplitude' })).toBeInTheDocument()
 })
-it('focuses a timed word on the plot and shows clipping without rewriting the transcript', () => {
+it('focuses a timed word on the plots and shows clipping without rewriting the transcript', () => {
   const result = structuredClone(transcript)
   result.inspection.wordTiming = { status: 'available', reason: null,
     words: [{ index: 0, word: 'Hola', providerStart: 0, providerEnd: 1, start: 0.1, end: 0.9, clipped: true }],
     unsupported: [{ index: 1, word: 'adiós', providerStart: 1, providerEnd: 2, reason: 'No overlapping activity' }] }
-  render(<TranscriptionInspector result={result} onClose={() => {}} />)
+  render(<TranscriptionInspector result={result} {...playback} onClose={() => {}} />)
   const word = screen.getByRole('button', { name: 'Hola' })
   fireEvent.focus(word)
   expect(word).toHaveAttribute('aria-pressed', 'true')
-  expect(document.querySelector('.inspection-plot-word')).toHaveTextContent('Hola')
+  expect(document.querySelectorAll('.timed-words[data-placement="overlay"] .timed-word[data-selected]')).toHaveLength(2)
   expect(screen.getByText(/clipped from/)).toHaveTextContent('0.10 s–0.90 s · clipped from 0.00 s–1.00 s')
   fireEvent.click(screen.getByLabelText('Word timing overlays'))
-  expect(document.querySelector('.inspection-plot-word')).toBeNull()
+  expect(document.querySelector('.timed-words[data-placement="overlay"]')).toBeNull()
   expect(screen.getByText('These words remain in the transcript.')).toBeInTheDocument()
   expect(screen.getByText('fixture transcript')).toBeInTheDocument()
 })
 it('closes through the same explicit dialog action', () => {
   const close = vi.fn()
-  render(<TranscriptionInspector result={transcript} onClose={close} />)
+  render(<TranscriptionInspector result={transcript} {...playback} onClose={close} />)
   fireEvent.click(screen.getByRole('button', { name: 'Close Recording inspection' }))
   expect(close).toHaveBeenCalledOnce()
 })
 
-it('seeks the recording from words and scrubber, and exposes segment rather than word confidence', () => {
+it('seeks the recording from words and the shared progress bar, and exposes segment rather than word confidence', () => {
   const result = structuredClone(transcript)
   result.audioBase64 = 'UklGRg=='
   result.diagnostics = { segment_evidence: [{ start: 0, end: 1, avg_logprob: -0.42, no_speech_prob: 0.01 }] }
   result.inspection.wordTiming = { status: 'available', reason: null, words: [{ index: 0, word: 'Hola', providerStart: 0.2, providerEnd: 0.8, start: 0.2, end: 0.8, clipped: false }], unsupported: [] }
-  const create = vi.fn(() => 'blob:inspection')
-  const revoke = vi.fn()
-  vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: create, revokeObjectURL: revoke }))
-  const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
-  const view = render(<TranscriptionInspector result={result} onClose={() => {}} />)
-  const audio = document.querySelector('audio')!
-  expect(audio.src).toBe('blob:inspection')
+  render(<TranscriptionInspector result={result} {...playback} onClose={() => {}} />)
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
-  expect(audio.currentTime).toBe(0.2)
+  expect(position()).toHaveAttribute('aria-valuenow', '0.2')
   expect(screen.getByText('Diagnostics')).toBeInTheDocument()
   expect(document.querySelector('pre')).toHaveTextContent('avg_logprob')
   expect(document.querySelector('pre')).toHaveTextContent('-0.42')
-  fireEvent.change(screen.getByRole('slider', { name: 'Playback position' }), { target: { value: '0.6' } })
-  expect(audio.currentTime).toBe(0.6)
+  fireEvent.keyDown(position(), { key: 'End' })
+  expect(position()).toHaveAttribute('aria-valuenow', '1')
   fireEvent.change(screen.getByRole('slider', { name: 'Zoom' }), { target: { value: '4' } })
   expect(document.querySelector('.inspection-timeline')).toHaveStyle({ width: '400%' })
   fireEvent.click(screen.getByRole('button', { name: 'Fit' }))
   expect(document.querySelector('.inspection-timeline')).toHaveStyle({ width: '100%' })
-  view.unmount()
-  expect(revoke).toHaveBeenCalledWith('blob:inspection')
-  expect(pause).toHaveBeenCalled()
 })
 
-it('surfaces playback failures and follows the real media clock on the zoomed timeline', async () => {
+it('plays through the shared speech player, surfaces its failures and follows its clock on the zoomed timeline', async () => {
   const result = { ...transcript, audioBase64: 'UklGRg==' }
-  vi.stubGlobal('URL', Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:inspection'), revokeObjectURL: vi.fn() }))
-  vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
-  const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockRejectedValue(new Error('Playback refused'))
-  render(<TranscriptionInspector result={result} onClose={() => {}} />)
+  let observed: ((seconds: number, duration: number) => void) | undefined
+  let fail: (error: Error) => void = () => {}
+  replay.mockImplementation((_audio, _signal, _onPlayback, _rate, _volume, observer) => {
+    observed = observer?.onTime
+    return new Promise<void>((_resolve, reject) => { fail = reject })
+  })
+  render(<TranscriptionInspector result={result} {...playback} onClose={() => {}} />)
   fireEvent.click(screen.getByRole('button', { name: 'Play' }))
-  await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Audio playback failed.'))
-  expect(play).toHaveBeenCalledOnce()
+  expect(replay).toHaveBeenCalledOnce()
+  expect(replay.mock.calls[0][0]).toBe('UklGRg==')
   const viewport = document.querySelector('.inspection-viewport')!
   Object.defineProperties(viewport, { clientWidth: { value: 200 }, scrollWidth: { value: 800 } })
-  const audio = document.querySelector('audio')!
-  audio.currentTime = 0.75
-  fireEvent.timeUpdate(audio)
+  act(() => observed!(0.75, 1))
   expect(viewport.scrollLeft).toBe(560)
   fireEvent.click(screen.getByRole('checkbox', { name: 'Follow playback' }))
-  audio.currentTime = 0.1
-  fireEvent.timeUpdate(audio)
+  act(() => observed!(0.1, 1))
   expect(viewport.scrollLeft).toBe(560)
+  await act(async () => fail(new Error('Playback refused')))
+  await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Audio playback failed.'))
   fireEvent.click(screen.getByRole('button', { name: 'Restart' }))
-  expect(audio.currentTime).toBe(0)
+  expect(position()).toHaveAttribute('aria-valuenow', '0')
+})
+
+it('does not play while the microphone holds the speakers', () => {
+  render(<TranscriptionInspector result={{ ...transcript, audioBase64: 'UklGRg==' }} {...playback} enabled={false} onClose={() => {}} />)
+  expect(screen.getByRole('button', { name: 'Play' })).toBeDisabled()
 })
 
 it('uses the interface locale for decimals while retaining a left-to-right scientific time axis', () => {
-  render(<I18nProvider locale="german"><TranscriptionInspector result={transcript} onClose={() => {}} /></I18nProvider>)
+  render(<I18nProvider locale="german"><TranscriptionInspector result={transcript} {...playback} onClose={() => {}} /></I18nProvider>)
   expect(screen.getAllByText(/1,00 s/).length).toBeGreaterThan(0)
-  expect(screen.getByText('0,3 s')).toBeVisible()
+  expect(screen.getByText('0,25 s')).toBeVisible()
   expect(document.querySelector('.inspection-viewport')).toHaveAttribute('dir', 'ltr')
   expect(screen.getByText('fixture transcript')).toBeVisible()
 })

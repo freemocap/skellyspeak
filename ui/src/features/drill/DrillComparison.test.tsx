@@ -72,8 +72,8 @@ it('aligns the word track, preserves playback, and resets the view when timing d
   rerender(view({ ...props, timeScale: 'words', attemptTime: 2 }))
   const cursor = container.querySelectorAll<HTMLElement>('.drill-track .audio-spectrum-cursor')[1]
   await waitFor(() => expect(parseFloat(cursor.style.left)).toBeCloseTo(40))
-  await waitFor(() => expect(container.querySelectorAll('.drill-word-overlay')[1].firstElementChild).toHaveStyle({ left: '10%' }))
-  expect(container.querySelectorAll('.drill-word-marker[data-outcome="same"]')).toHaveLength(2)
+  await waitFor(() => expect(container.querySelectorAll('.timed-words[data-placement="overlay"]')[1].firstElementChild).toHaveStyle({ left: '10%' }))
+  expect(container.querySelectorAll('.timed-word[data-outcome="same"]')).toHaveLength(2)
   expect(container.querySelector('.drill-word-slot')).toBeNull()
   expect(screen.getByText(/Word-aligned display; playback uses original timing/)).not.toBeVisible()
   fireEvent.click(screen.getAllByText('i')[0])
@@ -90,7 +90,7 @@ it('leaves uncertain recognition orange and never warps its timing', () => {
     words: [{ index: 0, word: 'Hola', start: 0.1, end: 0.8, providerStart: 0.1, providerEnd: 0.8, clipped: false }] } }
   const { container } = render(view({ reference: timed, attempt: timed, attemptLabel: 'Attempt 1', comparisonAccepted: false, timeScale: 'words' }))
   expect(screen.getByRole('radio', { name: 'Align words' })).toBeDisabled()
-  expect(container.querySelectorAll('.drill-word-marker[data-outcome="unknown"]')).toHaveLength(2)
+  expect(container.querySelectorAll('.timed-word[data-outcome="unknown"]')).toHaveLength(2)
 })
 
 

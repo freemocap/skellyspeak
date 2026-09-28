@@ -279,6 +279,15 @@ impl Store {
         operation: &str,
         cache: &crate::speech::delivery::DeliveryBuffer,
     ) -> Result<SpeechAudioState> {
+        let result = self.resolve_speech_audio(operation, cache)?;
+        self.remember_speech_delivery(&result)?;
+        Ok(result)
+    }
+    fn resolve_speech_audio(
+        &self,
+        operation: &str,
+        cache: &crate::speech::delivery::DeliveryBuffer,
+    ) -> Result<SpeechAudioState> {
         use base64::Engine;
         let (_, message, text, state, context) = speech_owner(&self.connection, operation)?;
         let captured: serde_json::Value = serde_json::from_str(&context)?;

@@ -258,3 +258,51 @@
    language being learned scans apart from explanations. Translations beside
    them keep the interface style. */
 .target-word { font-family: var(--font-serif); font-weight: var(--weight-bold); color: var(--target-ink); }
+
+/* Shared message tools: optional labels remain inline until their container
+   runs out of room. Play, inspection and owner actions remain directly available. */
+.message-tools { position: relative; align-items: center; }
+.message-tools-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2); cursor: pointer;
+}
+.message-tools-icon:hover:not(:disabled, [aria-disabled="true"]) { color: var(--ink); background: var(--line-soft); }
+.message-tools-icon[aria-pressed="true"] { color: var(--interaction-ink); background: var(--interaction-tint); }
+.message-tools-icon:is(:disabled, [aria-disabled="true"]) { opacity: 0.5; cursor: default; }
+.message-tools-divider { width: var(--border-width); height: var(--space-8); margin-inline: var(--space-2); background: var(--line); }
+.message-tools-actions { display: inline-flex; align-items: center; gap: var(--space-1); margin-inline-start: auto; }
+.message-tools .message-add-drill {
+  display: inline-flex; align-items: center; justify-content: center; width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs);
+  margin: 0; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2);
+}
+.message-tools .message-add-drill:hover:not(:disabled) { color: var(--ink); background: var(--line-soft); }
+.message-tools .message-add-drill[data-state="saved"] { color: var(--success-ink); }
+.message-tools .message-add-drill > svg { width: var(--space-10); height: var(--space-10); }
+.message-tools-more[aria-expanded="true"] { color: var(--ink); background: var(--line-soft); }
+.message-tools-panel {
+  position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; min-width: 12rem;
+  margin-top: var(--space-2); padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-menu);
+}
+.message-tools-panel[hidden] { display: none; }
+.message-tools-item {
+  display: flex; align-items: center; gap: var(--space-4); width: 100%; min-height: var(--control-height); padding: 0 var(--space-4);
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2); font: var(--weight-medium) var(--type-ui)/var(--leading-snug) var(--font-sans);
+  text-align: start; cursor: pointer;
+}
+.message-tools-item:hover:not(:disabled) { color: var(--ink); background: var(--chrome); }
+.message-tools-item[aria-pressed="true"] { color: var(--interaction-ink); }
+.message-tools-item:disabled { opacity: 0.5; cursor: default; }
+@media (pointer: coarse) {
+  .message-tools-icon, .message-tools .message-add-drill { width: var(--touch-target); height: var(--touch-target); min-height: var(--touch-target); }
+  .message-tools-item { min-height: var(--touch-target); }
+}
+
+/* Measure optional controls without contributing to the bubble's intrinsic width. */
+.message-tools-primary, .message-tools-fixed { display: inline-flex; align-items: center; gap: var(--space-1); flex: none; }
+.message-tools-measure { position: absolute; visibility: hidden; pointer-events: none; display: inline-flex; inline-size: 0; block-size: 0; overflow: hidden; white-space: nowrap; inset-block-start: 0; inset-inline-start: 0; }
+.message-tools-measure > * { display: inline-flex; flex: none; }
+.message-tools > .message-translate { flex: none; white-space: nowrap; }
+
+.message-tools-measure [data-label]::before { content: attr(data-label); }

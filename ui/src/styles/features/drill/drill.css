@@ -141,11 +141,6 @@
 
 /* A row of mutually exclusive choices, all visible: recording mode, pause
    length, time direction. The checked one is filled. */
-.drill-segmented { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-1); background: var(--chip); border-radius: var(--radius-md); }
-.drill-segmented button { min-height: var(--control-height-sm); padding: 0 var(--space-4); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-sm); font-size: var(--type-ui); font-weight: var(--weight-medium); }
-.drill-segmented button:hover:not(:disabled) { background: var(--sheet); color: var(--ink); }
-.drill-segmented button[aria-checked="true"] { background: var(--interaction-fill); color: var(--ink-on-fill); }
-.drill-segmented button:disabled { opacity: 0.6; }
 
 /* The target pairs a tinted container with the shared display size at regular
    weight. Reading/script scales remain learner-owned; annotations stay smaller. */
@@ -154,7 +149,7 @@
 .drill-target-card .msg :is(.w, .target-text) { font-size: calc(var(--type-display) * var(--reading-scale) * var(--script-scale)); }
 .drill-media { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .drill-media .drill-seek { flex: 1 1 auto; min-width: 4rem; }
-.drill-media .drill-segmented { flex: none; flex-wrap: nowrap; }
+.drill-media .segmented { flex: none; flex-wrap: nowrap; }
 .drill-media-time { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
 .drill-media-take { margin-top: var(--space-2); }
 .drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
@@ -172,9 +167,7 @@
 .drill-track { display: grid; gap: var(--space-1); min-height: 0; }
 .drill-timelines .inspection-spectrogram { position: absolute; inset: 0; height: 100%; min-height: 0; }
 .drill-seek { accent-color: var(--interaction-ink); }
-.drill-axis { grid-row: 6; position: relative; height: var(--space-8); }
-.drill-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
-.drill-axis span:first-child { transform: none; }
+.drill-axis { grid-row: 6; }
 /* Right-to-left time mirrors each track as a whole, so the start of every
    recording sits on the right. Text inside is turned back to read normally. */
 .drill-timelines[data-time="rtl"] .drill-track { transform: scaleX(-1); }
@@ -188,8 +181,8 @@
 .drill-media-options svg { display: block; flex: none; }
 
 .drill-choice { display: grid; gap: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
-.drill-choice .drill-segmented { justify-self: start; }
-.drill-choice .drill-segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-choice .segmented { justify-self: start; }
+.drill-choice .segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
 
 
 
@@ -377,7 +370,7 @@
   .drill-dock-pane { height: var(--drill-dock-height); min-height: 0; max-height: 70dvh; overflow: visible; }
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
-  .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
+  .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
   .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
   .drill-peek-open { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--touch-target); padding: 0; margin-bottom: var(--space-2); background: transparent; border: 0; color: var(--ink); text-align: start; }
   .drill-peek-open > :last-child { margin-inline-start: auto; color: var(--interaction-ink); }
@@ -400,7 +393,7 @@
 /* Touch keeps every control at the minimum target, including the icon-only
    delete and the cards that carry selection. */
 @media (pointer: coarse) {
-  .drill-remove, .drill-item, .drill-word-row, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
+  .drill-remove, .drill-item, .drill-word-row, .drill-more { min-height: var(--touch-target); }
 }
 
 /* Compact progress shares the report calculations and plot. Recent takes select
@@ -434,12 +427,6 @@
 .drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); }
 .drill-card-position { padding-inline: var(--space-4); color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap; }
 /* Colored starts share one renderer, over the measured pixels. */
-.drill-word-overlay { animation: drill-words-arrive var(--dur-base) var(--ease-out); position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.drill-word-marker { position: absolute; top: 0; bottom: 0; border-left: var(--border-width) solid currentColor; color: var(--warning-line); }
-.drill-word-marker[data-outcome="same"] { color: var(--success-line); }
-.drill-word-marker[data-outcome="missing"] { color: var(--danger-line); }
-.drill-word-marker > bdi, .drill-word-marker button { position: relative; display: inline-block; margin-top: var(--space-3); padding-inline: var(--space-2); white-space: nowrap; font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); font-family: var(--font-serif); text-shadow: 0 1px 3px var(--spectrogram-low), 0 0 5px var(--spectrogram-low); }
-.drill-word-marker button { pointer-events: auto; background: transparent; border: 0; color: inherit; }
 /* Both plots share the available rows; dock resizing changes their common height. */
 .drill-track > .inspection-plot { position: relative; min-height: 0; }
 .drill-track > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; }
@@ -462,8 +449,6 @@
   .drill-timelines .inspection-plot { transition: none; }
 }
 
-@keyframes drill-words-arrive { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .drill-word-overlay { animation: none; } }
 
 .drill-comparison-panel > .error-notice { position: absolute; inset: auto 0 0; z-index: var(--z-popover); }
 
@@ -473,9 +458,6 @@
 
 /* Keep both timing choices together when the media toolbar wraps. */
 .drill-timing-controls { display: flex; align-items: center; gap: var(--space-2); flex-wrap: nowrap; }
-.drill-playback-cursor { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; z-index: var(--z-raised); cursor: ew-resize; touch-action: none; }
-.drill-playback-cursor .audio-spectrum-cursor { background: var(--spectrogram-cursor); width: var(--space-2); box-shadow: 0 0 var(--space-3) var(--spectrogram-cursor), 0 0 var(--space-2) var(--spectrogram-low); }
-.drill-playback-cursor:focus-visible { outline: var(--border-width) solid var(--spectrogram-cursor); }
 @media (prefers-reduced-motion: reduce) { .drill-history-entry[data-expanded] { animation: none; } }
 
 
@@ -493,17 +475,11 @@
 .drill-comparison-settings .drill-timing-controls { flex-wrap: wrap; }
 
 /* Playback is outlined; capture keeps the filled treatment. */
-.drill-target-card .speak-btn, .drill-media .drill-play { background: var(--sheet); border-color: var(--interaction-fill); color: var(--interaction-ink); }
-.drill-target-card .speak-btn:hover:not(:disabled), .drill-media .drill-play:hover:not(:disabled) { background: var(--field); border-color: var(--interaction-fill-hover); }
+.drill-media .drill-play { background: var(--sheet); border-color: var(--interaction-fill); color: var(--interaction-ink); }
+.drill-media .drill-play:hover:not(:disabled) { background: var(--field); border-color: var(--interaction-fill-hover); }
 
 .drill-dropdown-actions { padding: var(--space-2); border-top: var(--border-width) solid var(--line-soft); }
 
-.drill-playback-progress { position: relative; flex: 1 1 auto; min-width: 0; height: var(--touch-target); }
-.drill-playback-progress-track { position: absolute; inset: var(--space-1) 0; overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
-.drill-playback-progress-track[data-time="rtl"] { transform: scaleX(-1); }
-.drill-playback-progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--interaction-tint); pointer-events: none; }
-.drill-playback-progress-time { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); }
-.drill-playback-progress .audio-spectrum-cursor { width: var(--border-width); background: var(--interaction-ink); box-shadow: none; }
 
 /* The icon leads the label in playback direction; its triangle points that way. */
 .drill-play[dir="rtl"] > svg { transform: scaleX(-1); }

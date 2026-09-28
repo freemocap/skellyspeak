@@ -9,6 +9,10 @@ import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { AnalysisContent, type AnalysedTurn } from './AnalysisContent'
 import { TargetText } from '../../../components/reading/TargetText'
 import { ReplyHelp } from '../composer/ReplyHelp'
+
+/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
+
 vi.mock('../../../platform/ipc/tauri',()=>({languageFor:()=>({languageTag:'es'})}))
 const scope={language:'spanish',variety:'spain',explanation:'english',explanationVariety:'us'}
 const conversation={id:'chat',languageId:'spanish',settings:{varietyId:'spain',explanationLanguage:'english',explanationVarietyId:'us'}} as Conversation
@@ -64,6 +68,7 @@ it('the actual analysis modal reuses pinned-turn words and exposes example trans
     expect(screen.getByText('your residence')).toBeVisible()
     fireEvent.click(button)
   }
+  openMenus()
   for (const button of screen.getAllByRole('button',{name:'Word by word'})) fireEvent.click(button)
   expect(await screen.findAllByText('your residence')).toHaveLength(3)
   for (const button of screen.getAllByRole('button',{name:'Translate'})) fireEvent.click(button)

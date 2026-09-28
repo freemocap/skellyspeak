@@ -156,6 +156,7 @@ impl Store {
                 "UPDATE drill_attempts SET audio_bytes=?2,pending_audio=NULL WHERE id=?1",
                 params![id, bytes as i64],
             )?;
+            crate::speech::analysis::signal_cache::retain(&self.connection, "recording", id, &wav)?;
             self.reclaim_drill_audio_pages()?;
         }
         Ok(())
@@ -180,7 +181,7 @@ impl Store {
         }
         self.flush_drill_audio(attempt_id)?;
         let path = self.drill_audio.join(format!("{attempt_id}.wav"));
-        std::fs::read(&path).map_err(|cause| {
+        let wav = std::fs::read(&path).map_err(|cause| {
             crate::diagnostics::response::io_context(
                 &cause,
                 "drill_audio_read",
@@ -189,7 +190,14 @@ impl Store {
                     "This attempt's audio is no longer on disk. Its transcript and scores remain.",
                 ),
             )
-        })
+        })?;
+        crate::speech::analysis::signal_cache::retain(
+            &self.connection,
+            "recording",
+            attempt_id,
+            &wav,
+        )?;
+        Ok(wav)
     }
 
     /// Delete one item with its attempts, their audio and their receipts.
@@ -309,7 +317,7 @@ impl Store {
                 }
             }
         }
-        Ok(())
+        crate::speech::analysis::signal_cache::release(&self.connection, "recording", attempt_id)
     }
 
     /// Audio files no attempt claims: what an interrupted save or a deletion
@@ -470,6 +478,9 @@ pub(crate) fn stage_attempt_with_reliability(
     }
     let comparison = comparison::record(&comparison)?;
     db.execute("INSERT INTO drill_attempts(id,drill_item_id,transcription_attempt_id,visit_id,sequence,transcript,comparison,pending_audio) VALUES(?1,?2,?3,(SELECT drill_visit_id FROM transcription_attempts WHERE id=?3),(SELECT COALESCE(MAX(sequence),0)+1 FROM drill_attempts WHERE drill_item_id=?2),?4,?5,?6)", params![id,item_id,receipt,transcript,comparison,wav])?;
+    if let Some(wav) = wav {
+        crate::speech::analysis::signal_cache::retain(db, "recording", &id, wav)?;
+    }
     db.execute("UPDATE metadata SET revision=revision+1", [])?;
     Ok(id)
 }

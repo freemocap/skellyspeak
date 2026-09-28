@@ -1,18 +1,15 @@
 import { useI18n } from '../localization/i18n'
 import { ToolbarIcon } from '../controls/ToolbarIcon'
-import { speechKey, useReadingActions, useReadingScope } from './ReadingContext'
+import { useReadAloud } from './useReadAloud'
 
 export function TokenAudio({ text, start = 0, end = text.length }: { text: string; start?: number; end?: number }) {
   const tr = useI18n()
-  const actions = useReadingActions()
-  const scope = useReadingScope()
-  if (!actions || !scope) return null
-  const selection = { text, start, end, scope }
-  const active = actions.speaking === speechKey(selection)
-  return <button type="button" className="token-audio" aria-label={active ? tr('Stop reading') : tr('Read aloud: {text}', { text: text.slice(start, end) })}
-    title={active ? tr('Stop reading') : tr('Read aloud')} aria-pressed={active}
+  const readAloud = useReadAloud(text, start, end)
+  if (!readAloud) return null
+  return <button type="button" className="token-audio" aria-label={readAloud.playing ? tr('Stop reading') : tr('Read aloud: {text}', { text: text.slice(start, end) })}
+    title={readAloud.playing ? tr('Stop reading') : tr('Read aloud')} aria-pressed={readAloud.playing}
     onPointerDown={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}
-    onClick={event => { event.stopPropagation(); if (active) actions.stop(); else actions.speak(selection) }}>
-    <ToolbarIcon name={active ? 'close' : 'voice'} size={16} />
+    onClick={event => { event.stopPropagation(); readAloud.onToggle() }}>
+    <ToolbarIcon name={readAloud.playing ? 'close' : 'voice'} size={16} />
   </button>
 }

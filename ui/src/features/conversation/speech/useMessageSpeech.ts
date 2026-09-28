@@ -1,11 +1,16 @@
 import { errorDetails, errorMessage } from '../../../platform/diagnostics/error-details'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { invoke } from '../../../platform/ipc/native'
+import { readMessageAudio } from '../../../platform/ipc/message-speech'
 import type { ConversationSnapshot, SpeechAudioState } from '../../../generated/contracts'
 import { executeAction } from '../../../platform/ipc/workspace'
 import { reportFault } from '../../../platform/diagnostics/faults'
 import { interruptSpeech, speechPlaybackPermit } from '../../../platform/audio/speech'
-import { playSpeechAudio } from '../../../platform/audio/speech-player'
+import { playSpeechAudio, type PlaybackHandle } from '../../../platform/audio/speech-player'
+
+export interface MessageAudio {
+  sessionId: string
+  audio: Extract<SpeechAudioState, { status: 'ready' }>
+}
 
 /** Snapshot observation reads audio only; generation is exclusive to explicit replay. */
 export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversationId: string | null, enabled: boolean, active: boolean, rate = 1, volume = 1) {
@@ -14,6 +19,10 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
   const generation = useRef(0)
   const current = useRef<{ messageId: string; operationId: string | null; sessionId: string; stop?: () => void } | null>(null)
   const [messageId, setMessageId] = useState<string | null>(null)
+  const [retained, setRetained] = useState<MessageAudio | null>(null)
+  const [time, setTime] = useState(0)
+  const playerRef = useRef<PlaybackHandle | null>(null)
+  const duration = useRef(0)
   const [failure, setFailure] = useState<{ messageId: string; text: string; details: unknown } | null>(null)
   const baseline = useRef<{ conversation: string; messages: Set<string>; eligible: Set<string>; operations: Set<string> } | null>(null)
 
@@ -26,6 +35,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
     const previous = current.current
     current.current = null
     previous?.stop?.()
+    playerRef.current = null
     if (previous?.operationId && !previous.stop) cancelOperation(previous.sessionId, previous.operationId)
     baseline.current?.eligible.clear()
     setMessageId(null)
@@ -34,30 +44,39 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
   useEffect(() => {
     baseline.current = null
     setFailure(null)
+    setRetained(null); setTime(0)
     return stop
   }, [conversationId, active, stop])
 
   useEffect(() => { if (!enabled) stop() }, [enabled, stop])
+  useEffect(() => { playerRef.current?.setRate(rate) }, [rate])
+  useEffect(() => { playerRef.current?.setVolume(volume) }, [volume])
 
-  const consume = useCallback(async (scope: number, permit: object, sessionId: string, operationId: string, sourceId: string) => {
+  const consume = useCallback(async (scope: number, permit: object, sessionId: string, operationId: string, sourceId: string, startSeconds = 0) => {
     while (scope === generation.current) {
-      const audio = await invoke<SpeechAudioState>('read_speech_audio', { sessionId, operationId })
+      const audio = await readMessageAudio(sessionId, operationId)
       if (scope !== generation.current) return
       if (speechPlaybackPermit() !== permit) { stop(); return }
       if (audio.operationId !== operationId || audio.messageId !== sourceId) throw new Error('Speech does not belong to this reply.')
       if (audio.status === 'pending') { await new Promise(resolve => setTimeout(resolve, 400)); continue }
       if (audio.status === 'unavailable') throw { message: audio.message, code: audio.reason, diagnostics: { ...audio.diagnostics as object, operationId, attemptId: audio.attemptId } }
+      setRetained({ sessionId, audio }); setTime(startSeconds)
       const finish = () => { if (scope === generation.current) { current.current = null; setMessageId(null) } }
       const player = playSpeechAudio(audio, finish, error => {
         if (scope === generation.current) { setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech playback', error); finish() }
-      }, playback.current.rate, playback.current.volume, { sourceText: latest.current?.messages.find(message => message.id === sourceId)?.text })
+      }, playback.current.rate, playback.current.volume, {
+        sourceText: latest.current?.messages.find(message => message.id === sourceId)?.text,
+        startSeconds,
+        onReady: handle => { if (scope === generation.current) playerRef.current = handle },
+        onTime: (seconds, total) => { if (scope === generation.current) { duration.current = total; setTime(seconds) } },
+      })
       current.current = { messageId: sourceId, operationId, sessionId, stop: player.stop }
       try { await player.play() } catch (error) { player.stop(); throw error }
       return
     }
   }, [stop])
 
-  const start = useCallback(async (sourceId: string, operationId?: string) => {
+  const start = useCallback(async (sourceId: string, operationId?: string, startSeconds = 0) => {
     const state = latest.current
     const permit = interruptSpeech()
     if (!permit || !state || state.conversationId !== conversationId || !active) return
@@ -74,7 +93,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
         current.current = { messageId: sourceId, operationId, sessionId: state.sessionId }
       }
       if (speechPlaybackPermit() !== permit) { stop(); return }
-      await consume(scope, permit, state.sessionId, operationId, sourceId)
+      await consume(scope, permit, state.sessionId, operationId, sourceId, startSeconds)
     } catch (error) {
       if (scope === generation.current) { current.current = null; setMessageId(null); setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech', error) }
     }
@@ -107,5 +126,15 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
     if (current.current?.messageId === sourceId) stop()
     else void start(sourceId)
   }, [start, stop])
-  return { messageId, failure, stop, toggle }
+  const seek = (sourceId: string, seconds: number) => {
+    if (retained?.audio.messageId !== sourceId || !Number.isFinite(seconds)) return
+    setTime(seconds)
+    if (current.current?.messageId === sourceId) playerRef.current?.seek(seconds)
+  }
+  const resume = (sourceId: string) => {
+    if (current.current?.messageId === sourceId) stop()
+    else if (retained?.audio.messageId === sourceId) void start(sourceId, retained.audio.operationId, time < duration.current ? time : 0)
+    else void start(sourceId)
+  }
+  return { messageId, failure, stop, toggle, retained, time, seek, resume }
 }

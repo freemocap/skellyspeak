@@ -7,6 +7,9 @@ import { useState } from 'react'
 import { TranscriptionInspector } from '../src/features/conversation/speech/TranscriptionInspector'
 import { I18nProvider } from '../src/components/localization/i18n'
 import { Spectrogram, SpectrogramFrequencyScale, sharedScale } from '../src/components/media/Spectrogram'
+import { TimeAxis } from '../src/components/media/InspectionTracks'
+import { CompactInspection } from '../src/components/media/CompactInspection'
+import { useRecordingPlayback } from '../src/components/media/useRecordingPlayback'
 import type { AudioInspection } from '../src/generated/contracts'
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
@@ -31,12 +34,18 @@ function Panel({ inspection }: { inspection: AudioInspection }) {
   )
 }
 
+/** The bubble inspector over the same analysis, with nothing to play. */
+function PreviewInspection() {
+  const playback = useRecordingPlayback({ audio: null, duration: inspections[0].duration, enabled: false, rate: 1, volume: 1, onError: error => { throw error } })
+  return <CompactInspection inspection={inspections[0]} playback={playback} enabled={false} onExpand={() => {}} />
+}
+
 /** Chat's own recording inspector, over the same analysis. */
 function ChatInspector() {
   const [open, setOpen] = useState(false)
   return <>
     <button className="btn" onClick={() => setOpen(true)}>Open the Chat recording inspector</button>
-    {open && <TranscriptionInspector onClose={() => setOpen(false)} result={{
+    {open && <TranscriptionInspector rate={1} volume={1} enabled onClose={() => setOpen(false)} result={{
       text: 'Quisiera un café, por favor.', audioBase64: '', diagnostics: null, inspection: inspections[0],
     }} />}
   </>
@@ -63,9 +72,12 @@ createRoot(document.getElementById('root')!).render(
       </div>
       <div className="inspection-row">
         <span>Time</span>
-        <div className="inspection-axis">
-          {Array.from({ length: 5 }, (_, tick) => <span key={tick}>{(duration * tick / 4).toFixed(1)} s</span>)}
-        </div>
+        <TimeAxis span={duration} />
+      </div>
+      <h2>The same recording inside its chat bubble</h2>
+      <div className="msg chat-message me with-actions inspecting" style={{ maxWidth: '36rem' }}>
+        <span className="target-text">Quisiera un café, por favor.</span>
+        <PreviewInspection />
       </div>
     </main>
   </I18nProvider>,

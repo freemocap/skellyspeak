@@ -9,6 +9,6 @@ export function AnalysisSentence({ text, translation, gloss, tokens = [], label,
 }) {
   return <section className={`analysis-sentence analysis-sentence-${side}`} aria-label={label}>
     <h4>{label}</h4>
-    <TargetMessage key={text} layout="passage" text={text} segments={gloss?.segments ?? anchoredTokenGlosses(text,tokens)} segmentsKey={text} translation={translation ?? null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />
+    <TargetMessage key={text} side={side} layout="passage" text={text} segments={gloss?.segments ?? anchoredTokenGlosses(text,tokens)} segmentsKey={text} translation={translation ?? null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />
   </section>
 }

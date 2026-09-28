@@ -1,5 +1,14 @@
 import type { SpeechAlignment, AudioInspection, DrillAttemptPage, DrillStorageView, DrillSessionView, DrillItemInput, DrillItemView } from '../../generated/contracts'
 import { invoke } from './native'
+import { inspectionResource, invalidateInspectionResources } from '../audio/inspection-resource'
+
+function invalidateAudio(itemId?: string, attemptId?: string) {
+  invalidateInspectionResources(key => {
+    if (!key.startsWith('["drill",')) return false
+    const [kind, input] = JSON.parse(key)
+    return kind === 'drill' && (!itemId || input.itemId === itemId) && (!attemptId || input.attemptId === attemptId)
+  })
+}
 
 /** Drill's own commands. Recording, transcription, reading aids and speech are
  * the shared ones; only the item, the attempt and the comparison live here. */
@@ -9,16 +18,20 @@ export function createDrillItem(input: DrillItemInput): Promise<DrillItemView> {
 export function drillItems(language: string): Promise<DrillItemView[]> {
   return invoke<DrillItemView[]>('get_drill_items', { language })
 }
-export function deleteDrillItem(itemId: string): Promise<void> {
-  return invoke<void>('delete_drill_item', { itemId })
+export async function deleteDrillItem(itemId: string): Promise<void> {
+  await invoke<void>('delete_drill_item', { itemId })
+  invalidateAudio(itemId)
 }
 /** Delete one take and its audio; the phrase and its other takes stay. */
-export function deleteDrillAttempt(attemptId: string): Promise<void> {
-  return invoke<void>('delete_drill_attempt', { attemptId })
+export async function deleteDrillAttempt(attemptId: string): Promise<void> {
+  await invoke<void>('delete_drill_attempt', { attemptId })
+  invalidateAudio(undefined, attemptId)
 }
 /** Delete a phrase's takes recorded at or after `since` (UTC, stored form), or all of them. */
-export function clearDrillAttempts(itemId: string, since: string | null): Promise<number> {
-  return invoke<number>('clear_drill_attempts', { itemId, since })
+export async function clearDrillAttempts(itemId: string, since: string | null): Promise<number> {
+  const count = await invoke<number>('clear_drill_attempts', { itemId, since })
+  invalidateAudio(itemId)
+  return count
 }
 /** The audio kept for one attempt, for replay. Rejects once it has been pruned. */
 export function drillAttemptAudio(attemptId: string): Promise<string> {
@@ -26,7 +39,8 @@ export function drillAttemptAudio(attemptId: string): Promise<string> {
 }
 /** Analyse audio belonging to this item: the reference, or a replayed attempt. */
 export function inspectDrillAudio(itemId: string, audioBase64: string, evidence?: { attemptId?: string; speechAlignment?: SpeechAlignment | null }): Promise<AudioInspection> {
-  return invoke<AudioInspection>('inspect_drill_audio', { itemId, audioBase64, ...evidence })
+  const input = { itemId, audioBase64, ...evidence }
+  return inspectionResource(JSON.stringify(['drill', input]), () => invoke<AudioInspection>('inspect_drill_audio', input))
 }
 
 export function startDrillSession(language: string): Promise<string> {
@@ -48,7 +62,11 @@ export function drillSessions(language: string): Promise<DrillSessionView[]> {
 }
 
 export function drillStorage(): Promise<DrillStorageView> { return invoke('get_drill_storage') }
-export function setDrillStorage(limitMb: number): Promise<DrillStorageView> { return invoke('set_drill_storage', { limitMb }) }
+export async function setDrillStorage(limitMb: number): Promise<DrillStorageView> {
+  const result = await invoke<DrillStorageView>('set_drill_storage', { limitMb })
+  invalidateAudio()
+  return result
+}
 
 /** Opaque, item-bound cursor; new recordings appear on a fresh first page. */
 export function drillAttempts(itemId: string, cursor: string | null = null, limit = 20): Promise<DrillAttemptPage> {

@@ -128,6 +128,17 @@
             button:disabled { opacity: 0.4; cursor: default; }
             button:not(:disabled):hover { border-color: var(--accent); }
 
+            .views {
+                display: flex;
+                gap: 4px;
+                margin-left: 8px;
+            }
+
+            .views button[aria-checked="true"] {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
             .speed {
                 display: flex;
                 align-items: center;
@@ -222,6 +233,10 @@
                     <button id="enable" class="primary">Enable audio</button>
                     <button id="play" disabled>Play</button>
                     <button id="stop" disabled>Stop</button>
+                    <div class="views" role="radiogroup" aria-label="Tract rendering">
+                        <button id="view-anatomy" class="plain" aria-checked="true" role="radio">Anatomy</button>
+                        <button id="view-tract" class="plain" aria-checked="false" role="radio">Model diagram</button>
+                    </div>
                     <label class="speed">
                         tract speed
                         <input id="speed" type="range" min="4" max="60" step="1" value="15" />

@@ -17,7 +17,8 @@ function Exchange({ id, state, reply = true }: { id: string; state: 'complete' |
     <div className="msg me" data-reward-message={id}>Hola</div>
     <MessageFeedback id={Number(id)} text="Hola" feedback={state === 'complete' ? observation : undefined}
       decision={state === 'complete' || state === 'missing-evidence' ? decision : undefined}
-      error={state === 'failed' ? 'Provider refused' : undefined} reviewing={state === 'pending'} onEdit={undefined} onAsk={() => {}} />
+      error={state === 'failed' ? 'Provider refused' : undefined} reviewing={state === 'pending'} onEdit={undefined} onAsk={() => {}}
+      bubble={() => null} reward={null} />
     {reply && <div className="msg bot">Buenas</div>}
   </div>
 }

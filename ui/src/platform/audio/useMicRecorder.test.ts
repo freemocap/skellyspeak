@@ -68,7 +68,7 @@ it('transcribes the recording ID once on explicit Stop', async () => {
   await act(async () => { await result.current.toggleMic() })
   await act(async () => { await result.current.toggleMic() })
   expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording' })
-  expect(onTranscribe).toHaveBeenCalledExactlyOnceWith('fixture transcript')
+  expect(onTranscribe).toHaveBeenCalledExactlyOnceWith('fixture transcript', transcript)
   expect(result.current.lastTranscription).toEqual(transcript)
 })
 it('cancels capture without transcription when the conversation changes', async () => {

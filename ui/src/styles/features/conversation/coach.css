@@ -59,9 +59,9 @@
 .cor-why { font-size: var(--type-body); color: var(--ink-2); line-height: var(--leading-normal); margin: 0; }
 
 .cor-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
-.cor-line > s { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--danger-tint); color: var(--danger-ink); text-decoration-thickness: 1.5px; }
-.cor-line > span[aria-hidden] { color: var(--ink-3); font-family: var(--font-sans); }
-.cor-line > strong { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); font-weight: var(--weight-medium); }
+.cor-original, .cor-replacement { flex: 1 1 12rem; min-width: 0; }
+.cor-original .msg.chat-message { border-color: var(--danger-line); }
+.cor-replacement .msg.chat-message { border-color: var(--success-line); }
 .coach-card .md-p { color: var(--ink-2); line-height: var(--leading-normal); }
 
 /* Coach feed: a persistent scrollback of one entry per coached message,
@@ -148,9 +148,9 @@
 .coach-score-row > strong { font-size: var(--type-ui); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
 .coach-meter { flex: 1; display: flex; gap: var(--space-2); }
 .coach-meter > span { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--line-soft); }
-.coach-score[data-level=low] .coach-meter > [data-on=true] { background: var(--danger-ink); }
-.coach-score[data-level=partial] .coach-meter > [data-on=true] { background: var(--warning-line); }
-.coach-score[data-level=strong] .coach-meter > [data-on=true] { background: var(--success-ink); }
+.coach-meter[data-level=low] > [data-on=true] { background: var(--danger-ink); }
+.coach-meter[data-level=partial] > [data-on=true] { background: var(--warning-line); }
+.coach-meter[data-level=strong] > [data-on=true] { background: var(--success-ink); }
 
 .coach-wording { display: grid; gap: var(--space-3); }
 .coach-wording > span { font-size: var(--type-ui); font-weight: var(--weight-semibold); color: var(--ink-2); }

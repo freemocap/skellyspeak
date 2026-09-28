@@ -63,6 +63,20 @@
 .topic-start-saved { font-size: var(--type-body); line-height: var(--leading-snug); }
 .topic-start-roman { font-size: var(--type-meta); font-style: italic; color: var(--ink-3); line-height: var(--leading-snug); }
 .topic-start-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+/* A saved topic's delete control sits on its top corner, shown while the
+   pointer is over the topic or the control has focus; always shown on touch. */
+.saved-topic { position: relative; display: inline-flex; max-width: 100%; }
+.saved-topic-delete {
+  position: absolute; inset-block-start: calc(var(--space-4) * -1); inset-inline-end: calc(var(--space-4) * -1);
+  display: grid; place-items: center; width: var(--control-height-xs); height: var(--control-height-xs); padding: 0;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); background: var(--field); color: var(--ink-3);
+  box-shadow: var(--shadow-sm); cursor: pointer; opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.saved-topic:hover > .saved-topic-delete, .saved-topic-delete:focus-visible, .saved-topic-delete[aria-busy="true"] { opacity: 1; }
+.saved-topic-delete:hover:not(:disabled) { color: var(--danger-ink); border-color: var(--danger-line); background: var(--danger-tint); }
+.saved-topic-delete:disabled { cursor: default; }
+@media (pointer: coarse) { .saved-topic-delete { opacity: 1; } }
 
 /* The learner's own topic: a field named by its placeholder, with its own start,
    and saving it for later under it. */

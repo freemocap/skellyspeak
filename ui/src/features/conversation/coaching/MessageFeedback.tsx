@@ -10,21 +10,30 @@ import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import type { CoachControl, CoachDecision, CoachObservationView } from '../../../generated/contracts'
 import { CoachEntry } from './CoachEntry'
 import { nativeError } from '../../../platform/ipc/workspace'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
+import type { MessageTool } from '../../../components/reading/MessageTools'
+import { useUiDirection } from '../../../components/localization/useUiDirection'
 
-export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, children, analysis, skills, onRetry, feedbackContext, onAddContext }: {
+/** The coach's feedback on one of the learner's messages. `bubble` draws the
+ * message with its tools and receives the Analysis tool, which opens this
+ * feedback; the scores then sit on one quiet line under the bubble, beside
+ * `reward` (the message's XP), and open the same feedback. */
+export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, bubble, reward, analysis, skills, onRetry, feedbackContext, onAddContext }: {
   feedbackContext?: string
   onAddContext?: (note: string) => Promise<void>
   conversationFeedback?: ConversationFeedback
   onRetry?: () => Promise<void>
   skills?: ReactNode
   analysis?: ReactNode
-  children?: ReactNode
+  bubble: (analysisTool: MessageTool) => ReactNode
+  reward: ReactNode
   id: number; text: string; feedback: CoachObservationView | undefined; decision?: CoachDecision; error: string | undefined
   reviewing: boolean
   onEdit: (() => void) | undefined; onAsk: (question: string) => void
   onControl?: (control: CoachControl) => Promise<void>
 }) {
   const tr = useI18n()
+  const uiDirection = useUiDirection()
   const scoreId = useId()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -61,11 +70,15 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
   const label = decision ? tr("Feedback") : null
   return <>
+    {bubble({ key: 'analysis', label: tr("Analysis"), ariaLabel: tr("Analyze your message"), opensDialog: true, disabled: busy, onSelect: () => void openCard() })}
+    <div className="message-feedback-line" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
-    <div className="message-actions" onDoubleClick={event => event.stopPropagation()}>{children}<button type="button" className="message-translate" aria-label={tr("Analyze your message")} aria-haspopup="dialog" disabled={busy} onClick={() => void openCard()}>{tr("Analysis")}</button>
     <button type="button" data-feedback-state={error ? 'failed' : (conversationFeedback || (decision && feedback)) ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${conversationFeedback ? ' has-scores' : ''}${error ? ' feedback-error' : ''}`} aria-describedby={conversationFeedback ? `${scoreId}-grammar ${scoreId}-conversation` : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
-        {conversationFeedback ? <><span title={tr("Grammar")}><span aria-hidden="true">✍️ {scoreText(conversationFeedback.grammar)}</span><span hidden id={`${scoreId}-grammar`}>{tr("Grammar: {value0}", { value0: conversationFeedback.grammar === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.grammar) })}</span></span><span title={tr("Conversation fit")}><span aria-hidden="true">🗣️ {scoreText(conversationFeedback.conversation)}</span><span hidden id={`${scoreId}-conversation`}>{tr("Conversation fit: {value0}", { value0: conversationFeedback.conversation === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.conversation) })}</span></span></> : error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))} <span aria-hidden="true">↗</span>
+        {conversationFeedback ? <><LineScore id={`${scoreId}-grammar`} label={tr("Grammar")} value={conversationFeedback.grammar}
+          description={tr("Grammar: {value0}", { value0: conversationFeedback.grammar === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.grammar) })} /><LineScore id={`${scoreId}-conversation`} label={tr("Conversation fit")} value={conversationFeedback.conversation}
+          description={tr("Conversation fit: {value0}", { value0: conversationFeedback.conversation === null ? tr("Insufficient evidence") : scoreText(conversationFeedback.conversation) })} /></> : error ? tr("Feedback failed") : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
       </button>
+    {reward}
     </div>
     {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     {open && <AskCoachContext value={askCoach}><DetailDialog title={tr("Feedback on your message")} onClose={close}>
@@ -77,7 +90,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
       <div className="detail-actions">
         {error && onRetry && <button type="button" className="detail-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>{tr("Retry failed help")}</button>}
         {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy} className="detail-action" onClick={() => void openCard()}>{tr("View coaching help")}</button>}
-        {onEdit && <button type="button" disabled={busy} className="detail-action" onClick={() => { close(); onEdit() }}><span aria-hidden="true">✏️</span> {tr("Edit and resend message")}</button>}
+        {onEdit && <button type="button" disabled={busy} className="detail-action" onClick={() => { close(); onEdit() }}><ToolbarIcon name="edit" size={15} /> {tr("Edit and resend message")}</button>}
         {onControl && decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('show_answer')}>{tr("Show answer")}</button>}
         {onControl && decision && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('keep_going')}>{tr("Keep going")}</button>}
         <AskCoachButton question={`Help me understand the feedback on my message: “${text}”. Saved feedback: ${JSON.stringify({ feedback, correction: shown })}`} />
@@ -86,4 +99,13 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
       {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     </DetailDialog></AskCoachContext>}
   </>
+}
+
+/** One score on the feedback line: its name and value. The hidden text describes the line's button. */
+function LineScore({ id, label, value, description }: { id: string; label: string; value: number | null; description: string }) {
+  return <span className="feedback-line-score" title={label}>
+    <span aria-hidden="true">{label}</span>
+    <span aria-hidden="true" className="feedback-score">{scoreText(value)}</span>
+    <span hidden id={id}>{description}</span>
+  </span>
 }

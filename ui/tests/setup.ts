@@ -1,9 +1,10 @@
+import { clearInspectionResources } from '../src/platform/audio/inspection-resource'
 // Testing Library's DOM matchers (toBeInTheDocument, toBeDisabled, ...). The
 // `/vitest` entry both extends `expect` and declares the matcher types, so
 // `tsc` sees them too. Harmless for the pure-function tests, which run in the
 // node environment and simply never call them.
 import '@testing-library/jest-dom/vitest'
-import { afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 
 // Zustand stores are module-level singletons. The shared mock resets every
 // store after each test and is registered explicitly so its location is independent
@@ -45,3 +46,5 @@ if (typeof document !== 'undefined') {
   HTMLElement.prototype.showPopover ??= function () { this.style.display = 'block' }
   HTMLElement.prototype.hidePopover ??= function () { this.style.display = 'none' }
 }
+
+beforeEach(() => clearInspectionResources())

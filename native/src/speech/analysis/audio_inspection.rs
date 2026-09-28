@@ -1,4 +1,5 @@
-//! Transient, bounded recording inspection. Audio is returned for temporary playback, never saved.
+//! Bounded audio signal analysis and owner-specific inspection responses.
+//! Signal retention is managed by the shared signal cache; timing evidence stays separate.
 use super::spectrogram::spectrogram;
 #[cfg(test)]
 use super::spectrogram::{
@@ -6,7 +7,7 @@ use super::spectrogram::{
 };
 use crate::model::*;
 use crate::speech::analysis::fluency;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 const MAX_BYTES: usize = 25 * 1024 * 1024;
 #[derive(Debug, Clone, Serialize, TS)]
@@ -30,14 +31,14 @@ pub struct AudioInspection {
     pub activity: InspectionActivity,
     pub word_timing: InspectionWordTiming,
 }
-#[derive(Debug, Clone, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InspectionWaveform {
     pub bin_seconds: f64,
     pub min: Vec<f32>,
     pub max: Vec<f32>,
 }
-#[derive(Debug, Clone, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InspectionSpectrogram {
     pub frame_seconds: f64,
@@ -70,26 +71,26 @@ pub struct InspectionSpectrogram {
 }
 // One triangular mel filter: it rises from `low_hz` to `center_hz` and falls
 // to `high_hz`.
-#[derive(Debug, Clone, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InspectionMelBand {
     pub low_hz: f64,
     pub center_hz: f64,
     pub high_hz: f64,
 }
-#[derive(Debug, Clone, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InspectionRegion {
     pub start: f64,
     pub end: f64,
 }
-#[derive(Debug, Clone, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InspectionPause {
     pub start: f64,
     pub duration: f64,
 }
-#[derive(Debug, Clone, Serialize, TS)]
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct InspectionActivity {
     pub algorithm: String,
@@ -142,11 +143,55 @@ fn invalid(message: &str) -> AppError {
 
 /// WAV decoding and STFT are called on a blocking worker before provider dispatch.
 /// Returned local timing is transient and stays paired with this recording.
+#[cfg(test)]
 pub(crate) fn inspect_wav(
     bytes: &[u8],
     recording_id: &str,
     owner: &crate::speech::recording::owner::RecordingOwner,
 ) -> Result<(AudioInspection, fluency::LocalTiming)> {
+    let (signal, local) = analyze_wav(bytes)?;
+    Ok((signal.inspection(recording_id, owner), local))
+}
+
+/// Signal-only data: independent of text, provider evidence and product owner.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct AudioSignal {
+    duration: f64,
+    sample_rate: u32,
+    waveform: InspectionWaveform,
+    spectrogram: InspectionSpectrogram,
+    activity: InspectionActivity,
+}
+
+impl AudioSignal {
+    pub(crate) fn from_inspection(value: &AudioInspection) -> Self {
+        Self {
+            duration: value.duration,
+            sample_rate: value.sample_rate,
+            waveform: value.waveform.clone(),
+            spectrogram: value.spectrogram.clone(),
+            activity: value.activity.clone(),
+        }
+    }
+    pub(crate) fn inspection(
+        &self,
+        recording_id: &str,
+        owner: &crate::speech::recording::owner::RecordingOwner,
+    ) -> AudioInspection {
+        AudioInspection {
+            recording_id: recording_id.into(), owner: owner.clone(), duration: self.duration,
+            sample_rate: self.sample_rate, waveform: self.waveform.clone(),
+            spectrogram: self.spectrogram.clone(), activity: self.activity.clone(),
+            word_timing: InspectionWordTiming {
+                status: InspectionTimingStatus::Unavailable,
+                reason: Some("Word timestamps are unavailable for this recording. Provider details are retained in diagnostics.".into()),
+                words: vec![], unsupported: vec![],
+            },
+        }
+    }
+}
+
+pub(crate) fn analyze_wav(bytes: &[u8]) -> Result<(AudioSignal, fluency::LocalTiming)> {
     if bytes.len() < 44 || bytes.len() > MAX_BYTES {
         return Err(invalid("WAV must contain audio and be at most 25 MB."));
     }
@@ -213,9 +258,7 @@ pub(crate) fn inspect_wav(
         limitations: local.limitations.iter().map(|s| (*s).into()).collect(),
     };
     Ok((
-        AudioInspection {
-            recording_id: recording_id.into(),
-            owner: owner.clone(),
+        AudioSignal {
             duration: local.duration,
             sample_rate: spec.sample_rate,
             waveform: InspectionWaveform {
@@ -225,14 +268,6 @@ pub(crate) fn inspect_wav(
             },
             spectrogram,
             activity,
-            word_timing: InspectionWordTiming {
-                status: InspectionTimingStatus::Unavailable,
-                reason: Some(
-                    "Word timestamps are unavailable for this recording. Provider details are retained in diagnostics.".into(),
-                ),
-                words: vec![],
-                unsupported: vec![],
-            },
         },
         local,
     ))

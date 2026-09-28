@@ -143,7 +143,10 @@ fn settlement_preserves_retry_metadata_and_explicit_unknown_cost() {
         "retrying",
         "key",
         &serde_json::json!({"costMicros":null}),
-        Some(b"audio"),
+        Some(
+            &serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(b"audio", None))
+                .unwrap(),
+        ),
         None,
     )
     .unwrap();
@@ -256,15 +259,21 @@ fn audio_only_development_cache_cleanup_preserves_receipts_and_complete_results(
     let db = Connection::open_in_memory().unwrap();
     initialize(&db).unwrap();
     begin(&db, "old-speech", "speech").unwrap();
-    finish(
-        &db,
-        "old-speech",
-        "old-key",
-        &serde_json::json!({}),
-        Some(b"RIFF1234WAVEpayload"),
-        None,
+    // Construct the retired on-disk format directly; current writers require
+    // a complete speech payload and must not emit that old representation.
+    db.execute(
+        "UPDATE inference_executions SET state='succeeded' WHERE id='old-speech'",
+        [],
     )
     .unwrap();
+    let old = b"RIFF1234WAVEpayload";
+    let hash = digest(old);
+    db.execute(
+        "INSERT INTO inference_blobs(digest,payload) VALUES(?1,?2)",
+        params![hash, old.as_slice()],
+    )
+    .unwrap();
+    db.execute("INSERT INTO inference_results(id,request_key,blob_digest,last_used) VALUES('old-speech','old-key',?1,1)", [hash]).unwrap();
     associate(&db, "old-consumer", "old-speech").unwrap();
     let complete_audio =
         serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(b"audio", None)).unwrap();

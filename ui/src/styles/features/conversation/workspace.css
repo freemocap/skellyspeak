@@ -22,6 +22,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Opening an inspector must not shift centered bubbles when scrolling becomes necessary. */
+  scrollbar-gutter: stable;
   padding: var(--space-5) var(--space-6) var(--space-3);
   display: flex;
   flex-direction: column;
@@ -95,15 +97,15 @@
     border-inline-start: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-drawer);
   }
   .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
-  /* Compact: the folded coach is an edge tab of its own just inside the
-     conversation's inline end, where its drawer opens. The stream keeps clear of
-     it rather than scrolling messages underneath. */
-  .mobile-conversation > .chat:has(> .chat-coach-edge) { position: relative; }
+  /* Compact: the folded coach is a rail down the conversation's inline end,
+     where its drawer opens. The stream keeps clear of it rather than scrolling
+     messages underneath. */
+  .mobile-conversation > .chat:has(> .chat-coach-edge) { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .mobile-conversation > .chat:has(> .chat-coach-edge) > :not(.stream, .chat-coach-edge) { grid-column: 1 / -1; }
   .mobile-conversation .chat-coach-edge {
-    position: absolute; inset-inline-end: var(--space-2); top: 50%; translate: 0 -50%; z-index: var(--z-raised);
+    grid-column: 2; grid-row: 2; align-self: stretch; margin: var(--space-2); z-index: var(--z-raised);
     display: flex; align-items: center; box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2)); cursor: pointer;
   }
-  .chat:has(> .chat-coach-edge) .stream { padding-inline-end: calc(var(--control-height-xs) + 2 * var(--space-2) + var(--space-3)); }
   /* Opening slides the drawer in from its edge; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
   .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }

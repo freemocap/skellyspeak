@@ -24,6 +24,7 @@ import { ResizeHandle, useStoredSize } from '../src/components/layout/ResizeHand
 import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSettings, ListeningStatus, ListeningTake, WordComparison, WordOutcome } from '../src/generated/contracts'
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
+import { MessageTools } from '../src/components/reading/MessageTools'
 
 // Exercise the production language menu with an isolated in-memory settings writer.
 mockIPC(command => {
@@ -154,7 +155,12 @@ function Preview() {
       </aside></MobileAttemptHistory>}>
       <main className="drill-stage">
         <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
-            <div className="message-actions"><button type="button" className="message-translate">Translate</button><button type="button" className="message-translate">Word by word</button><button type="button" className="message-translate">Analysis</button></div></div>}
+            <MessageTools play={{ playing: false, onToggle: () => {} }} inspect={null} actions={null}
+              tools={[{ key: 'translate', label: 'Translate', onSelect: () => {} }]}
+              more={[
+                { key: 'words', label: 'Word by word', onSelect: () => {} },
+                { key: 'analysis', label: 'Analysis', opensDialog: true, onSelect: () => {} },
+              ]} /></div>}
           playbackSpeed={<label className="drill-playback-speed"><span>Voice speed</span><select className="field" aria-label="Voice speed" value={speed} onChange={event => setSpeed(Number(event.target.value))}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></label>}
           onPlayReference={() => {}} playingReference={false} referenceNote="Fixture"
           reference={firstVisit ? null : timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={firstVisit ? null : timed(spoken, attempt.comparison.words.flatMap(word => word.transcript ? [word.transcript] : []))}

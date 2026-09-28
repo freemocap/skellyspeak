@@ -9,12 +9,6 @@
 .inspection-row { position: relative; min-width: 0; }
 .inspection-row > h3 { position: absolute; top: 4px; left: 4px; z-index: var(--z-raised); padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); pointer-events: none; }
 .inspection-row > h3 span { display: none; }
-.inspection-wave { display: block; width: 100%; height: 80px; background: var(--sheet); }
-.inspection-wave path { stroke: var(--interaction-ink); stroke-width: 1; }
-.inspection-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.inspection-word-band { fill: transparent; stroke: var(--spectrogram-high); stroke-width: 1; }
-.inspection-word-selected { fill: color-mix(in srgb, var(--spectrogram-high) 22%, transparent); stroke: var(--spectrogram-high); stroke-width: 3; }
-.inspection-axis { display: flex; justify-content: space-between; width: 100%; min-height: 28px; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
 .inspection-legend, .inspection-word-toggle { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; font-size: var(--type-ui); }
 .inspection-heatmap-key { width: 100px; height: 12px; background: linear-gradient(to right, var(--spectrogram-low), var(--spectrogram-mid), var(--spectrogram-high)); }
 .inspection-word-detail { padding: var(--space-4); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--sheet); }
@@ -25,16 +19,12 @@
   .inspection-row > h3 { font-size: var(--type-meta); }
 }
 
-.inspection-plot-word { position: absolute; top: 4px; max-width: 80%; overflow-wrap: anywhere; padding: 0 var(--space-2); background: var(--chip); color: var(--ink); font-size: var(--type-ui); border-radius: var(--radius-xs); }
-
 .inspection-row > h3 span:last-child { margin-top: auto; }
 
 .inspection-transport { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-4); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .inspection-transport label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-ui); }
 .inspection-transport input[type=range] { width: 100px; }
-.inspection-clock { font: var(--type-ui) var(--font-mono); font-variant-numeric: tabular-nums; margin-inline-end: auto; }
-.inspection-scrubber { width: 100%; margin: 0; }
+.inspection-transport .playback-progress { flex-basis: 12rem; }
 .inspection-track-labels { display: flex; flex-wrap: wrap; gap: var(--space-8); font-size: var(--type-meta); color: var(--ink-2); }
 .inspection-viewport { overflow-x: auto; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); overscroll-behavior-x: contain; }
-.inspection-timeline { position: relative; cursor: crosshair; }
-.inspection-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--spectrogram-high); box-shadow: 0 0 0 1px var(--spectrogram-low); z-index: var(--z-raised); pointer-events: none; }
+.inspection-timeline { position: relative; }

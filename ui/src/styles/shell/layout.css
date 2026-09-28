@@ -373,9 +373,12 @@
 .connection-setup .connection-short-label { display: inline; }
 .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .connection-state.connection-setup[data-configured=false] { background: transparent; }
-/* Narrow: the tabs need the room, so XP loses its unit and AI keeps only its dot. */
+/* Narrow: the language picker needs the room, so the tabs show their icons
+   only (their names stay as accessible labels), XP loses its unit and AI keeps
+   only its dot. */
 @media (max-width: 400px) {
   .mode-tabs-top .mode-tab { padding-inline: var(--space-4); font-size: var(--type-ui); }
+  .mode-tabs-top .mode-tab > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .topbar-actions .profile-unit, .connection-setup .connection-short-label { display: none; }
   .connection-setup { min-width: 0; padding-inline: var(--space-3); }
 }

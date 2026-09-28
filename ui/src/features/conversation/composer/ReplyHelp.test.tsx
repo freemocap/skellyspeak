@@ -7,6 +7,10 @@ import { ReadingScopeContext } from '../../../components/reading/ReadingContext'
 import { ReadingProvider } from '../../../components/reading/TargetText'
 import { replyHelpFixture } from './ReplyHelp.fixtures'
 
+/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
+
+
 const backend = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../../../platform/ipc/tauri', () => ({...backend,languageFor:() => ({languageTag:'zh',romanization:'pinyin'})}))
 beforeEach(() => { backend.invoke.mockReset() })
@@ -173,6 +177,7 @@ it('retains whole-passage translation and sound help without inserting or invent
   show({replies:[{text:'新词。',translation:'New word.',romanization:'xīn cí',pronunciation:'shin tsuh'}],opened:['replies'],onUse})
   fireEvent.click(screen.getByRole('button',{name:'Translate'}))
   expect(screen.getByText('New word.')).toBeVisible()
+  openMenus()
   fireEvent.click(screen.getByRole('button',{name:'Pronunciation'}))
   // The null settings fixture has no romanization-enabled language preference.
   expect(screen.getByText('shin tsuh')).toBeVisible()
@@ -188,6 +193,7 @@ it('splits saved mixed-script grammar examples into source and separate reading 
   fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
   expect(screen.getByText('What are you eating?')).toHaveAttribute('dir', 'auto')
   expect(passages[1].querySelector('.target-text')?.textContent).not.toContain('mādhā')
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Pronunciation' }))
   expect(screen.getByText('mādhā ta’kulu?')).toHaveAttribute('dir', 'auto')
 })

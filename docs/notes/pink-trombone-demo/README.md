@@ -9,13 +9,71 @@ word — so there was no way to judge it from the demo alone.
 
 ## What it demonstrates
 
-- A scriptable vocal tract: tongue body/tip, lips, velum, glottis, rendered as a
-  sagittal section that reshapes as it speaks.
+- A scriptable vocal tract: tongue, lips, velum, glottis, reshaping as it
+  speaks.
 - Single sounds (`ɑ`, `i`, `u`, `s`, `m`…), minimal-pair contrasts (`s`/`z`,
   `b`/`m`, which differ by exactly one parameter), and short words
   (`mama`, `papa`, `banana`, `sisi`, `wawa`, `haha`).
 - Playback from any segment, a live parameter readout, and a tract-speed slider
   that shows how movement speed alone affects intelligibility.
+- **Two renderers for the same data.** "Anatomy" draws a side-on head;
+  "Model diagram" draws the vendored exhibit's own output. Switching between
+  them is the point: the audio is identical, only the picture differs.
+
+## The two renderers
+
+The vendored exhibit draws its 44 tube cross-sections as a fan of spokes around
+a pivot. That is an impedance diagram — accurate to the physics, and not a mouth.
+`anatomy.js` draws the same 44 numbers as a tongue in a head. That works because
+the two are separable: the audio engine's job is to report an area function, and
+how you draw an area function is a separate decision.
+
+The trick is the one the "reference palate" articulatory models use. A path is
+laid down for the tract roof — posterior pharyngeal wall, soft palate, hard
+palate, alveolar ridge, upper lip — resampled to 44 stations, and at each
+station the floor is placed at `roof + normal * diameter`. The palate is bone,
+so it does not move, and the moving surface falls out of the area function.
+
+**What is honest, and what is scenery.** Modelled by the audio engine, and
+therefore real in the picture: the tongue surface, the constriction, the lip
+aperture, the velum, and voicing at the glottis. Not modelled, drawn as fixed
+decoration: the jaw does not rotate, there is no separate tongue tip and tongue
+body, the larynx does not move, and the skull, teeth and nasal cavity are
+illustration. This is an interpretation of a one-dimensional tube.
+
+**The illustration is spike quality.** It is drawn from hand-placed points, not
+traced from anatomy, and it shows. Doing it properly means tracing a
+permissively licensed anatomical plate — see Licensing below.
+
+### Existing options, and why each was not used
+
+There is no permissively licensed, anatomically drawn sagittal animation to
+adopt. What exists, and why it does not fit:
+
+| Resource | What it is | Why not |
+| --- | --- | --- |
+| [Seeing Speech](https://seeingspeech.ac.uk/) (Glasgow) | MRI and ultrasound of every IPA sound, plus 2D midsagittal animations | CC BY-NC-ND: no derivatives, non-commercial, and no AI training |
+| [eNunciate](https://oer.open.ubc.ca/enunciate/) (UBC) | Ultrasound overlaid on a face profile, ~91 IPA videos | CC BY-NC-ND, same problem |
+| Iowa *Sounds of Speech* | The classic animated sagittal diagrams | All rights reserved, sold as an app |
+| Interactive Sagittal Section (D. C. Hall) | Exactly the right look: labelled articulators driven by place, manner and voicing controls | No licence stated, and derived from a textbook figure |
+| [VocalTractLab](https://vocaltractlab.de/) | A genuine anatomical sagittal view with 17 control parameters, exportable contours | GPL, so licence-compatible, but a C++ desktop application; its renderer is not separable from it |
+| [ArtiSynth](https://github.com/artisynth/artisynth_core) | 3D biomechanical jaw, tongue and larynx | BSD, but a Java 3D research platform |
+
+**The base artwork is a different story.** Two usable sources for a proper
+illustration:
+
+- **Gray's Anatomy, 1918** — public domain, no conditions at all. Wikimedia
+  Commons has a category of
+  [SVG mid-sagittal sections of the human face and neck](https://commons.wikimedia.org/wiki/Category:SVG_mid-sagittal_section_of_the_human_face_and_neck),
+  24 files, plus `Sagittalmouth.png` (nose, mouth, pharynx and larynx). A plate
+  can be traced into clean vector paths and driven parametrically.
+- **OpenStax *Anatomy and Physiology*** — CC BY 4.0, attribution only, which an
+  AGPL application can satisfy. Figures 22.4 ("Anatomy of
+  Nose-Pharynx-Mouth-Larynx") and 23.7 ("Structures of the Mouth") both show
+  the sagittal region with the tongue and palate.
+
+Both are static, so either way the parametric tongue is drawn, not copied. That
+is a day of illustration work against a trace, not a research problem.
 
 ## Running it
 
@@ -42,6 +100,7 @@ this folder is arranged so that the two are visibly separate:
 | `vendor/` | Third-party synthesizer, MIT, unmodified | One-time fork |
 | `utterances.js` | Articulatory targets, authored by hand | **The ongoing work** |
 | `engine.js` | Turns targets into scheduled AudioParam ramps | Small, done |
+| `anatomy.js` | Draws the tract as a head, from the same diameters | Spike; needs a traced plate to be production art |
 | `demo.js`, `index.html` | Transport and readout | Throwaway |
 
 `utterances.js` holds 28 shapes and 18 utterances. Every number in it was tuned
@@ -92,10 +151,11 @@ existing ramp.
   grapheme-to-phoneme, rather than hand-authored tables.
 - Behaviour inside Tauri's custom protocol. The HTTP requirement above is a
   guess at what Tauri would need to satisfy, not a test of it.
-- Any app integration: replacing the vendored renderer with app-styled drawing,
-  the per-block `port.postMessage` traffic (roughly 375 messages/second), audio
-  device and latency handling, or how this sits beside the existing speech
-  playback authority in `ui/src/platform/audio/`.
+- Any app integration: the per-block `port.postMessage` traffic (roughly 375
+  messages/second), audio device and latency handling, or how this sits beside
+  the existing speech playback authority in `ui/src/platform/audio/`.
+- Whether the anatomical drawing reads correctly to anyone but its author. It
+  was iterated against headless screenshots, not reviewed.
 - Anything about licensing in a distributed build. This repository is AGPL-3.0;
   see below.
 

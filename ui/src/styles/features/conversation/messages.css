@@ -119,40 +119,6 @@
 
 .msg.with-actions { margin-bottom: var(--space-2); min-width: 140px; }
 
-/* Bubble-owned controls reserve a side gutter for every text renderer, including
-   saved glosses. RTL places the corner on the opposite side of the source. */
-.msg.chat-message.with-corner-control {
-  padding-right: calc(var(--control-height) + var(--space-5));
-  min-height: calc(var(--control-height) + var(--space-4));
-}
-.msg.chat-message.with-corner-control.rtl {
-  padding-right: var(--space-6);
-  padding-left: calc(var(--control-height) + var(--space-5));
-}
-.bubble-corner-control {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height);
-  height: var(--control-height);
-  min-height: var(--control-height);
-  padding: 0;
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-circle);
-  background: var(--sheet);
-  color: var(--ink);
-  font-size: var(--type-body);
-  line-height: var(--leading-none);
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-}
-.msg.rtl .bubble-corner-control { right: auto; left: var(--space-2); }
-.bubble-corner-control:hover:not(:disabled) { background: var(--field); border-color: var(--line); }
-.bubble-corner-control:disabled { opacity: 0.5; cursor: default; }
-
 .message-actions {
   display: flex;
   justify-content: flex-end;
@@ -210,27 +176,36 @@
 .msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
 
 
-/* Feedback is a status pill straddling your message's bottom border: neutral
-   when there is nothing to fix, amber when the coach has a correction waiting.
-   It keeps that place in every state from "Analyzing…" to scores, and the
-   bubble reserves the room below (with-actions), so feedback arriving never
-   changes the message's height. A long correction truncates here and reads in
-   full in its dialog. */
-.message-actions > .feedback-badge {
-  display: inline-flex; flex: 0 1 auto; margin-inline-start: auto;
-  height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0 var(--space-4); column-gap: var(--space-4);
-  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
-  background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
-  font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
+/* The learner's message and, under it, one quiet line: the coach's feedback on
+   that message (its scores once they exist) and the message's XP. Both open
+   their details. The line keeps its place in every state from "Analyzing…" to
+   scores; a long correction truncates here and reads in full in its dialog. */
+.learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); }
+.learner-turn > .msg.chat-message.me { margin-bottom: 0; }
+.message-feedback-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); max-width: 80%; min-width: 0; font: var(--type-meta)/var(--leading-snug) var(--font-sans); }
+.message-feedback-line > .feedback-badge {
+  display: inline-flex; align-items: center; column-gap: var(--space-2); min-width: 0; max-width: 100%; overflow: hidden;
+  min-height: var(--control-height-xs); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); text-align: start;
 }
-
-.message-actions > .feedback-badge:hover { border-color: currentColor; }
-
-.message-actions > .feedback-badge.feedback-error {
-  background: var(--sheet);
-  color: var(--danger-ink);
-  border-color: var(--danger-line);
+.message-feedback-line > .feedback-badge:hover { color: var(--ink); background: var(--line-soft); }
+.message-feedback-line > .feedback-badge.feedback-error { color: var(--danger-ink); }
+/* Compact scores open the full assessment. */
+.message-feedback-line > .feedback-badge.has-scores {
+  flex-wrap: wrap; justify-content: flex-end; column-gap: var(--space-5); row-gap: var(--space-1); padding: var(--space-1) var(--space-4);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg);
+  background: var(--coach-tint); color: var(--coach-ink); cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
+.message-feedback-line > .feedback-badge.has-scores:hover { border-color: var(--coach-mark); background: var(--coach-tint); box-shadow: var(--shadow-sm); }
+.feedback-line-score { display: inline-flex; align-items: center; gap: var(--space-3); white-space: nowrap; }
+.feedback-line-score .feedback-score { color: var(--coach-ink); font-weight: var(--weight-semibold); }
+.message-feedback-line > .feedback-badge > svg { transform: rotate(-90deg); }
+.message-feedback-line[dir="rtl"] > .feedback-badge > svg { transform: rotate(90deg); }
+.feedback-score { font-family: var(--font-mono); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.message-feedback-line .message-translate { min-height: var(--control-height-xs); padding: 0 var(--space-3); border-color: transparent; color: var(--interaction-ink); font-family: var(--font-mono); font-weight: var(--weight-medium); }
+.message-feedback-line .message-fixed { margin: 0; }
+@media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-feedback-line .message-translate { min-height: var(--touch-target); } }
 
 .message-fixed {
   display: block;
@@ -244,8 +219,11 @@
 
 /* Conversation assistance is a bubble-owned footer. Its divider and wrapping
    row share the same treatment on both sides, independent of source typography. */
-.partner-turn { display: flex; flex-direction: column; align-items: flex-start; max-width: 92%; gap: var(--space-1); }
-.partner-turn > .msg.chat-message.bot { max-width: 100%; margin-bottom: 0; }
+/* The partner's reply with its reaction to your message beside it, at the
+   bubble's foot, in a column that is kept whether or not there is a reaction. */
+.partner-turn { display: flex; align-items: flex-end; max-width: 92%; gap: var(--space-2); }
+.partner-turn > .msg.chat-message.bot { flex: 0 1 auto; min-width: 0; max-width: 100%; margin-bottom: 0; }
+.partner-reaction-slot { flex: none; display: flex; width: var(--reaction-badge-gutter); }
 .msg.chat-message .message-feedback { max-width: none; align-items: stretch; font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-align: start; }
 .msg.chat-message .message-actions {
   justify-content: flex-start;
@@ -258,19 +236,4 @@
   .message-actions .message-translate { min-height: 44px; }
 }
 
-/* Message actions stay outside reading text and share one compact row. */
-.message-xp-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
-@media (pointer: coarse) {
-  .message-xp-actions > button { min-height: 44px; min-width: 44px; }
-}
-
-/* Quiet bubble action, last in the row, with a full touch target despite its
-   small icon. Saved shows a success check. */
-.message-actions .message-add-drill { order: 1; margin-inline-start: auto; min-width: var(--control-height); display: inline-flex; align-items: center; justify-content: center; }
-.message-actions .message-translate.message-add-drill { color: var(--ink-3); }
-.message-actions .message-translate.message-add-drill[data-state=saved] { opacity: 1; color: var(--success-ink); }
-/* The corner control sits at the top of the bubble, so its gutter is free at the
-   bottom: the action row spans the full width and keeps one line. */
-.msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-.msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-@media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }
+.msg.chat-message .message-tools { gap: var(--space-1); margin-block-start: var(--space-3); padding-block-start: 0; border-block-start: 0; }

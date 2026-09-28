@@ -141,6 +141,7 @@ pub fn run() {
             updater::get_update_channel,
             updater::latest_github_release,
             commands::workspace::read_speech_audio,
+            commands::workspace::inspect_message_speech,
             commands::cache::get_inference_cache_settings,
             commands::cache::save_inference_cache_settings,
             diagnostics::record_frontend_diagnostic,

@@ -199,3 +199,25 @@ it('blocks duplicate starts and setting changes while one is in flight', async (
   fireEvent.click(screen.getByRole('button', { name: 'Nūr starts' }))
   expect(start).toHaveBeenCalledOnce()
 })
+it('deletes a saved topic from its corner control through the saved-topics action, without starting', async () => {
+  saved = [{ id: 'saved-1', text: 'Mi barrio' }]
+  const start = vi.fn().mockResolvedValue(undefined)
+  render(<ConversationStart {...props} onStart={start} />)
+  const remove = await screen.findByRole('button', { name: 'Delete Mi barrio' })
+  expect(remove.closest('.saved-topic')).toContainElement(screen.getByRole('button', { name: 'Mi barrio' }))
+  workspace.execute.mockImplementation(async () => { saved = []; return {} })
+  await act(async () => fireEvent.click(remove))
+  expect(workspace.execute).toHaveBeenCalledWith(expect.objectContaining({ revision: 4 }), { kind: 'saveTopics', additions: [], deletions: ['saved-1'], expectedRevision: 4 })
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Mi barrio' })).toBeNull())
+  expect(start).not.toHaveBeenCalled()
+})
+it('keeps a saved topic and shows the failure when deleting it fails', async () => {
+  saved = [{ id: 'saved-1', text: 'Mi barrio' }]
+  render(<ConversationStart {...props} onStart={vi.fn()} />)
+  const remove = await screen.findByRole('button', { name: 'Delete Mi barrio' })
+  workspace.execute.mockRejectedValue(new Error('Settings changed elsewhere.'))
+  await act(async () => fireEvent.click(remove))
+  expect(await screen.findByText('Settings changed elsewhere.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Mi barrio' })).toBeInTheDocument()
+  expect(remove).toBeEnabled()
+})

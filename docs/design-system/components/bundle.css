@@ -1142,9 +1142,12 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .connection-setup .connection-short-label { display: inline; }
 .connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .connection-state.connection-setup[data-configured=false] { background: transparent; }
-/* Narrow: the tabs need the room, so XP loses its unit and AI keeps only its dot. */
+/* Narrow: the language picker needs the room, so the tabs show their icons
+   only (their names stay as accessible labels), XP loses its unit and AI keeps
+   only its dot. */
 @media (max-width: 400px) {
   .mode-tabs-top .mode-tab { padding-inline: var(--space-4); font-size: var(--type-ui); }
+  .mode-tabs-top .mode-tab > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .topbar-actions .profile-unit, .connection-setup .connection-short-label { display: none; }
   .connection-setup { min-width: 0; padding-inline: var(--space-3); }
 }
@@ -1762,6 +1765,54 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
    them keep the interface style. */
 .target-word { font-family: var(--font-serif); font-weight: var(--weight-bold); color: var(--target-ink); }
 
+/* Shared message tools: optional labels remain inline until their container
+   runs out of room. Play, inspection and owner actions remain directly available. */
+.message-tools { position: relative; align-items: center; }
+.message-tools-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2); cursor: pointer;
+}
+.message-tools-icon:hover:not(:disabled, [aria-disabled="true"]) { color: var(--ink); background: var(--line-soft); }
+.message-tools-icon[aria-pressed="true"] { color: var(--interaction-ink); background: var(--interaction-tint); }
+.message-tools-icon:is(:disabled, [aria-disabled="true"]) { opacity: 0.5; cursor: default; }
+.message-tools-divider { width: var(--border-width); height: var(--space-8); margin-inline: var(--space-2); background: var(--line); }
+.message-tools-actions { display: inline-flex; align-items: center; gap: var(--space-1); margin-inline-start: auto; }
+.message-tools .message-add-drill {
+  display: inline-flex; align-items: center; justify-content: center; width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs);
+  margin: 0; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2);
+}
+.message-tools .message-add-drill:hover:not(:disabled) { color: var(--ink); background: var(--line-soft); }
+.message-tools .message-add-drill[data-state="saved"] { color: var(--success-ink); }
+.message-tools .message-add-drill > svg { width: var(--space-10); height: var(--space-10); }
+.message-tools-more[aria-expanded="true"] { color: var(--ink); background: var(--line-soft); }
+.message-tools-panel {
+  position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; min-width: 12rem;
+  margin-top: var(--space-2); padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-menu);
+}
+.message-tools-panel[hidden] { display: none; }
+.message-tools-item {
+  display: flex; align-items: center; gap: var(--space-4); width: 100%; min-height: var(--control-height); padding: 0 var(--space-4);
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink-2); font: var(--weight-medium) var(--type-ui)/var(--leading-snug) var(--font-sans);
+  text-align: start; cursor: pointer;
+}
+.message-tools-item:hover:not(:disabled) { color: var(--ink); background: var(--chrome); }
+.message-tools-item[aria-pressed="true"] { color: var(--interaction-ink); }
+.message-tools-item:disabled { opacity: 0.5; cursor: default; }
+@media (pointer: coarse) {
+  .message-tools-icon, .message-tools .message-add-drill { width: var(--touch-target); height: var(--touch-target); min-height: var(--touch-target); }
+  .message-tools-item { min-height: var(--touch-target); }
+}
+
+/* Measure optional controls without contributing to the bubble's intrinsic width. */
+.message-tools-primary, .message-tools-fixed { display: inline-flex; align-items: center; gap: var(--space-1); flex: none; }
+.message-tools-measure { position: absolute; visibility: hidden; pointer-events: none; display: inline-flex; inline-size: 0; block-size: 0; overflow: hidden; white-space: nowrap; inset-block-start: 0; inset-inline-start: 0; }
+.message-tools-measure > * { display: inline-flex; flex: none; }
+.message-tools > .message-translate { flex: none; white-space: nowrap; }
+
+.message-tools-measure [data-label]::before { content: attr(data-label); }
+
 /* ── components/activity.css ── */
 /* activity — conversation style owner. */
 .activity-indicator {
@@ -2242,6 +2293,8 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* Opening an inspector must not shift centered bubbles when scrolling becomes necessary. */
+  scrollbar-gutter: stable;
   padding: var(--space-5) var(--space-6) var(--space-3);
   display: flex;
   flex-direction: column;
@@ -2315,15 +2368,15 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
     border-inline-start: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-drawer);
   }
   .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
-  /* Compact: the folded coach is an edge tab of its own just inside the
-     conversation's inline end, where its drawer opens. The stream keeps clear of
-     it rather than scrolling messages underneath. */
-  .mobile-conversation > .chat:has(> .chat-coach-edge) { position: relative; }
+  /* Compact: the folded coach is a rail down the conversation's inline end,
+     where its drawer opens. The stream keeps clear of it rather than scrolling
+     messages underneath. */
+  .mobile-conversation > .chat:has(> .chat-coach-edge) { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .mobile-conversation > .chat:has(> .chat-coach-edge) > :not(.stream, .chat-coach-edge) { grid-column: 1 / -1; }
   .mobile-conversation .chat-coach-edge {
-    position: absolute; inset-inline-end: var(--space-2); top: 50%; translate: 0 -50%; z-index: var(--z-raised);
+    grid-column: 2; grid-row: 2; align-self: stretch; margin: var(--space-2); z-index: var(--z-raised);
     display: flex; align-items: center; box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2)); cursor: pointer;
   }
-  .chat:has(> .chat-coach-edge) .stream { padding-inline-end: calc(var(--control-height-xs) + 2 * var(--space-2) + var(--space-3)); }
   /* Opening slides the drawer in from its edge; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
   .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }
@@ -2466,40 +2519,6 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .msg.with-actions { margin-bottom: var(--space-2); min-width: 140px; }
 
-/* Bubble-owned controls reserve a side gutter for every text renderer, including
-   saved glosses. RTL places the corner on the opposite side of the source. */
-.msg.chat-message.with-corner-control {
-  padding-right: calc(var(--control-height) + var(--space-5));
-  min-height: calc(var(--control-height) + var(--space-4));
-}
-.msg.chat-message.with-corner-control.rtl {
-  padding-right: var(--space-6);
-  padding-left: calc(var(--control-height) + var(--space-5));
-}
-.bubble-corner-control {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--control-height);
-  height: var(--control-height);
-  min-height: var(--control-height);
-  padding: 0;
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-circle);
-  background: var(--sheet);
-  color: var(--ink);
-  font-size: var(--type-body);
-  line-height: var(--leading-none);
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-}
-.msg.rtl .bubble-corner-control { right: auto; left: var(--space-2); }
-.bubble-corner-control:hover:not(:disabled) { background: var(--field); border-color: var(--line); }
-.bubble-corner-control:disabled { opacity: 0.5; cursor: default; }
-
 .message-actions {
   display: flex;
   justify-content: flex-end;
@@ -2557,27 +2576,36 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
 
 
-/* Feedback is a status pill straddling your message's bottom border: neutral
-   when there is nothing to fix, amber when the coach has a correction waiting.
-   It keeps that place in every state from "Analyzing…" to scores, and the
-   bubble reserves the room below (with-actions), so feedback arriving never
-   changes the message's height. A long correction truncates here and reads in
-   full in its dialog. */
-.message-actions > .feedback-badge {
-  display: inline-flex; flex: 0 1 auto; margin-inline-start: auto;
-  height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0 var(--space-4); column-gap: var(--space-4);
-  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill);
-  background: var(--sheet); color: var(--interaction-ink); font: var(--weight-medium) var(--type-ui)/1.45 var(--font-sans);
-  font-variant-numeric: tabular-nums; min-width: 0; max-width: 100%; overflow: hidden; text-align: start;
+/* The learner's message and, under it, one quiet line: the coach's feedback on
+   that message (its scores once they exist) and the message's XP. Both open
+   their details. The line keeps its place in every state from "Analyzing…" to
+   scores; a long correction truncates here and reads in full in its dialog. */
+.learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); }
+.learner-turn > .msg.chat-message.me { margin-bottom: 0; }
+.message-feedback-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); max-width: 80%; min-width: 0; font: var(--type-meta)/var(--leading-snug) var(--font-sans); }
+.message-feedback-line > .feedback-badge {
+  display: inline-flex; align-items: center; column-gap: var(--space-2); min-width: 0; max-width: 100%; overflow: hidden;
+  min-height: var(--control-height-xs); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); text-align: start;
 }
-
-.message-actions > .feedback-badge:hover { border-color: currentColor; }
-
-.message-actions > .feedback-badge.feedback-error {
-  background: var(--sheet);
-  color: var(--danger-ink);
-  border-color: var(--danger-line);
+.message-feedback-line > .feedback-badge:hover { color: var(--ink); background: var(--line-soft); }
+.message-feedback-line > .feedback-badge.feedback-error { color: var(--danger-ink); }
+/* Compact scores open the full assessment. */
+.message-feedback-line > .feedback-badge.has-scores {
+  flex-wrap: wrap; justify-content: flex-end; column-gap: var(--space-5); row-gap: var(--space-1); padding: var(--space-1) var(--space-4);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-lg);
+  background: var(--coach-tint); color: var(--coach-ink); cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
+.message-feedback-line > .feedback-badge.has-scores:hover { border-color: var(--coach-mark); background: var(--coach-tint); box-shadow: var(--shadow-sm); }
+.feedback-line-score { display: inline-flex; align-items: center; gap: var(--space-3); white-space: nowrap; }
+.feedback-line-score .feedback-score { color: var(--coach-ink); font-weight: var(--weight-semibold); }
+.message-feedback-line > .feedback-badge > svg { transform: rotate(-90deg); }
+.message-feedback-line[dir="rtl"] > .feedback-badge > svg { transform: rotate(90deg); }
+.feedback-score { font-family: var(--font-mono); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.message-feedback-line .message-translate { min-height: var(--control-height-xs); padding: 0 var(--space-3); border-color: transparent; color: var(--interaction-ink); font-family: var(--font-mono); font-weight: var(--weight-medium); }
+.message-feedback-line .message-fixed { margin: 0; }
+@media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-feedback-line .message-translate { min-height: var(--touch-target); } }
 
 .message-fixed {
   display: block;
@@ -2591,8 +2619,11 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 /* Conversation assistance is a bubble-owned footer. Its divider and wrapping
    row share the same treatment on both sides, independent of source typography. */
-.partner-turn { display: flex; flex-direction: column; align-items: flex-start; max-width: 92%; gap: var(--space-1); }
-.partner-turn > .msg.chat-message.bot { max-width: 100%; margin-bottom: 0; }
+/* The partner's reply with its reaction to your message beside it, at the
+   bubble's foot, in a column that is kept whether or not there is a reaction. */
+.partner-turn { display: flex; align-items: flex-end; max-width: 92%; gap: var(--space-2); }
+.partner-turn > .msg.chat-message.bot { flex: 0 1 auto; min-width: 0; max-width: 100%; margin-bottom: 0; }
+.partner-reaction-slot { flex: none; display: flex; width: var(--reaction-badge-gutter); }
 .msg.chat-message .message-feedback { max-width: none; align-items: stretch; font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-align: start; }
 .msg.chat-message .message-actions {
   justify-content: flex-start;
@@ -2605,22 +2636,7 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   .message-actions .message-translate { min-height: 44px; }
 }
 
-/* Message actions stay outside reading text and share one compact row. */
-.message-xp-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
-@media (pointer: coarse) {
-  .message-xp-actions > button { min-height: 44px; min-width: 44px; }
-}
-
-/* Quiet bubble action, last in the row, with a full touch target despite its
-   small icon. Saved shows a success check. */
-.message-actions .message-add-drill { order: 1; margin-inline-start: auto; min-width: var(--control-height); display: inline-flex; align-items: center; justify-content: center; }
-.message-actions .message-translate.message-add-drill { color: var(--ink-3); }
-.message-actions .message-translate.message-add-drill[data-state=saved] { opacity: 1; color: var(--success-ink); }
-/* The corner control sits at the top of the bubble, so its gutter is free at the
-   bottom: the action row spans the full width and keeps one line. */
-.msg.chat-message.with-corner-control:not(.rtl) .message-actions { margin-right: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-.msg.chat-message.with-corner-control.rtl .message-actions { margin-left: calc(var(--space-6) - var(--control-height) - var(--space-5)); }
-@media (pointer: coarse) { .message-actions .message-add-drill { min-width: var(--touch-target); min-height: var(--touch-target); } }
+.msg.chat-message .message-tools { gap: var(--space-1); margin-block-start: var(--space-3); padding-block-start: 0; border-block-start: 0; }
 
 /* ── features/conversation/composer.css ── */
 /* Composer layout: the edit banner, the status line and the voice panel
@@ -3304,6 +3320,20 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .topic-start-saved { font-size: var(--type-body); line-height: var(--leading-snug); }
 .topic-start-roman { font-size: var(--type-meta); font-style: italic; color: var(--ink-3); line-height: var(--leading-snug); }
 .topic-start-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+/* A saved topic's delete control sits on its top corner, shown while the
+   pointer is over the topic or the control has focus; always shown on touch. */
+.saved-topic { position: relative; display: inline-flex; max-width: 100%; }
+.saved-topic-delete {
+  position: absolute; inset-block-start: calc(var(--space-4) * -1); inset-inline-end: calc(var(--space-4) * -1);
+  display: grid; place-items: center; width: var(--control-height-xs); height: var(--control-height-xs); padding: 0;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); background: var(--field); color: var(--ink-3);
+  box-shadow: var(--shadow-sm); cursor: pointer; opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.saved-topic:hover > .saved-topic-delete, .saved-topic-delete:focus-visible, .saved-topic-delete[aria-busy="true"] { opacity: 1; }
+.saved-topic-delete:hover:not(:disabled) { color: var(--danger-ink); border-color: var(--danger-line); background: var(--danger-tint); }
+.saved-topic-delete:disabled { cursor: default; }
+@media (pointer: coarse) { .saved-topic-delete { opacity: 1; } }
 
 /* The learner's own topic: a field named by its placeholder, with its own start,
    and saving it for later under it. */
@@ -3522,9 +3552,9 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .cor-why { font-size: var(--type-body); color: var(--ink-2); line-height: var(--leading-normal); margin: 0; }
 
 .cor-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin: 0; font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
-.cor-line > s { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--danger-tint); color: var(--danger-ink); text-decoration-thickness: 1.5px; }
-.cor-line > span[aria-hidden] { color: var(--ink-3); font-family: var(--font-sans); }
-.cor-line > strong { padding: 0 var(--space-4); border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); font-weight: var(--weight-medium); }
+.cor-original, .cor-replacement { flex: 1 1 12rem; min-width: 0; }
+.cor-original .msg.chat-message { border-color: var(--danger-line); }
+.cor-replacement .msg.chat-message { border-color: var(--success-line); }
 .coach-card .md-p { color: var(--ink-2); line-height: var(--leading-normal); }
 
 /* Coach feed: a persistent scrollback of one entry per coached message,
@@ -3611,9 +3641,9 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .coach-score-row > strong { font-size: var(--type-ui); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
 .coach-meter { flex: 1; display: flex; gap: var(--space-2); }
 .coach-meter > span { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--line-soft); }
-.coach-score[data-level=low] .coach-meter > [data-on=true] { background: var(--danger-ink); }
-.coach-score[data-level=partial] .coach-meter > [data-on=true] { background: var(--warning-line); }
-.coach-score[data-level=strong] .coach-meter > [data-on=true] { background: var(--success-ink); }
+.coach-meter[data-level=low] > [data-on=true] { background: var(--danger-ink); }
+.coach-meter[data-level=partial] > [data-on=true] { background: var(--warning-line); }
+.coach-meter[data-level=strong] > [data-on=true] { background: var(--success-ink); }
 
 .coach-wording { display: grid; gap: var(--space-3); }
 .coach-wording > span { font-size: var(--type-ui); font-weight: var(--weight-semibold); color: var(--ink-2); }
@@ -3688,12 +3718,13 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 /* Folded, the column is only its edge tab, and the tab's glow shows past it. */
 .break.collapsed { flex: 0 0 auto; min-width: 0; overflow: visible; }
 
-/* Folded, the coach is an edge tab of its own: a full border in the coach's
-   line, a thicker edge in its colour facing the conversation, and a soft glow in
-   that colour, as the top bar's tabs have. Compact's coach tab near the
-   conversation's edge (workspace.css) looks the same. */
+/* Folded, the coach is a rail down the conversation's whole edge, one button
+   from top to bottom: a full border in the coach's line, a thicker edge in its
+   colour facing the conversation, and a soft glow in that colour along its
+   length. Compact's coach rail inside the conversation's edge (workspace.css)
+   looks the same. */
 .break.collapsed .break-head, .chat-coach-edge {
-  flex-direction: column; justify-content: flex-start; gap: var(--space-4); width: auto; min-height: 0; padding: var(--space-8) var(--space-3);
+  flex: 1 1 auto; flex-direction: column; justify-content: flex-start; gap: var(--space-4); width: auto; min-height: 0; padding: var(--space-8) var(--space-3);
   border: var(--border-width) solid var(--coach-line); border-inline-start: var(--border-width-thick) solid var(--coach-mark); border-radius: var(--radius-lg);
   background: var(--sheet); color: var(--ink-2); box-shadow: 0 0 var(--space-8) color-mix(in srgb, var(--coach-mark) 35%, transparent);
   font: var(--weight-semibold) var(--type-ui) var(--font-sans); text-transform: none; letter-spacing: normal;
@@ -4787,15 +4818,9 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
-/* The partner's reaction to the learner's message: a small status chip that
-   rides on the reply's top edge at the inline start. It clears the line below it
-   by sitting higher, not by reserving a gutter: the reply keeps its full width
-   and the chip overlaps the bubble outline instead of the text. It stays a fixed
-   size so that clearance holds in every density and pointer mode. */
+/* The partner's reaction to the learner's message: a small status chip beside
+   the reply, at its foot, where the partner speaks from. */
 .persona-reaction {
-  position: absolute;
-  top: calc(-1 * var(--space-11));
-  inset-inline-start: 9px;
   width: var(--reaction-badge-gutter);
   min-width: var(--reaction-badge-gutter);
   min-height: 0;
@@ -4810,9 +4835,6 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   cursor: pointer;
 }
 
-/* A right-to-left reply keeps its speech control in the lead gutter, so the
-   chip starts past that control instead of under it. */
-.msg.rtl > .persona-reaction { inset-inline-start: calc(var(--control-height) + var(--space-2)); }
 
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
@@ -4842,15 +4864,9 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .reaction-excerpt.persona { align-self: flex-start; align-items: flex-start; }
 
-.reaction-excerpt .msg {
-  margin: 0;
-  max-width: 100%;
-  min-width: 0;
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--type-reading);
-  line-height: var(--leading-normal);
-  font-family: var(--font-serif);
-}
+/* Excerpts share the passage bubble; this variant owns only dialog spacing. */
+.reaction-excerpt .msg { margin: 0; max-width: 100%; }
+
 
 .reaction-details h2 { margin: var(--space-4) 0; font-size: var(--type-reading); color: var(--interaction-ink); }
 
@@ -5338,12 +5354,59 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .inspection-activity { width: 100%; height: 24px; background: var(--sheet); }
 .inspection-activity rect { fill: var(--interaction-ink); }
-.inspection-token-track { position: relative; height: 48px; background: var(--chrome); }
-.inspection-token-track button { position: absolute; top: 4px; height: 36px; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
-.inspection-token-track button[aria-pressed=true], .inspection-token-track .inspection-token-active { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
-.inspection-token-track button:focus-visible { z-index: var(--z-sticky); min-width: max-content; }
 
-.inspection-token-label { position: absolute; top: var(--space-2); overflow: hidden; padding: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); white-space: nowrap; text-overflow: ellipsis; }
+/* A recording's stored amplitude envelope. */
+.inspection-wave { display: block; width: 100%; height: 80px; background: var(--sheet); }
+.inspection-wave path { stroke: var(--interaction-ink); stroke-width: 1; }
+
+/* Timed words, one component on every surface: laid over a plot, or in a row
+   of their own under the plots. */
+.timed-words { position: relative; }
+.timed-words[data-placement="overlay"] { position: absolute; inset: 0; pointer-events: none; overflow: hidden; animation: timed-words-arrive var(--dur-base) var(--ease-out); }
+.timed-words[data-placement="track"] { height: 48px; background: var(--chrome); }
+.timed-word { position: absolute; top: 0; bottom: 0; box-sizing: border-box; }
+.timed-words[data-placement="overlay"] .timed-word { border-left: var(--border-width) solid currentColor; color: var(--spectrogram-high); }
+.timed-words[data-placement="overlay"] .timed-word[data-outcome] { color: var(--warning-line); }
+.timed-words[data-placement="overlay"] .timed-word[data-outcome="same"] { color: var(--success-line); }
+.timed-words[data-placement="overlay"] .timed-word[data-outcome="missing"] { color: var(--danger-line); }
+.timed-words[data-placement="overlay"] .timed-word[data-selected] { background: color-mix(in srgb, var(--spectrogram-high) 22%, transparent); }
+.timed-words[data-placement="overlay"] .timed-word > :is(bdi, button) { position: relative; display: inline-block; margin-top: var(--space-3); padding-inline: var(--space-2); white-space: nowrap; font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); font-family: var(--font-serif); text-shadow: 0 1px 3px var(--spectrogram-low), 0 0 5px var(--spectrogram-low); }
+.timed-words[data-placement="overlay"] .timed-word > button { pointer-events: auto; background: transparent; border: 0; color: inherit; }
+.timed-words[data-placement="track"] .timed-word { top: 4px; bottom: auto; height: 36px; }
+.timed-words[data-placement="track"] .timed-word > button { width: 100%; height: 100%; min-width: 0; padding: var(--space-2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: var(--border-width) solid var(--line); border-radius: var(--radius-xs); font-size: var(--type-ui); text-align: start; }
+.timed-words[data-placement="track"] .timed-word > bdi { display: block; overflow: hidden; padding: var(--space-2); color: var(--ink-2); font-size: var(--type-ui); white-space: nowrap; text-overflow: ellipsis; }
+.timed-words[data-placement="track"] .timed-word:is([data-active], [data-selected]) > button { background: var(--chip); color: var(--interaction-ink); border-color: var(--interaction-ink); }
+.timed-words[data-placement="track"] .timed-word:has(> button:focus-visible) { z-index: var(--z-sticky); min-width: max-content; }
+@keyframes timed-words-arrive { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .timed-words[data-placement="overlay"] { animation: none; } }
+
+/* The time axis under a set of plots. */
+.time-axis { position: relative; height: var(--space-8); }
+.time-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
+.time-axis span:first-child { transform: none; }
+
+/* The play cursor over a plot: a transparent slider across the whole plot,
+   drawn as one line at the playback position. */
+.playback-cursor { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; z-index: var(--z-raised); cursor: ew-resize; touch-action: none; }
+.playback-cursor .audio-spectrum-cursor { background: var(--spectrogram-cursor); width: var(--space-2); box-shadow: 0 0 var(--space-3) var(--spectrogram-cursor), 0 0 var(--space-2) var(--spectrogram-low); }
+.playback-cursor:focus-visible { outline: var(--border-width) solid var(--spectrogram-cursor); }
+
+/* One recording inspected inside its message bubble, drawn as Practice draws
+   a recording: the progress bar above the track, the track at a fixed height. */
+.compact-inspection { display: grid; gap: var(--space-2); margin-top: var(--space-3); font: var(--type-ui)/var(--leading-snug) var(--font-sans); }
+.compact-inspection-head { display: flex; align-items: center; gap: var(--space-2); }
+.compact-inspection-track > .inspection-plot { height: 120px; border-radius: var(--radius-sm); }
+.compact-inspection-track > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Expansion preserves bubble width and toolbar position; the dialog provides a larger plot. */
+.msg.chat-message.inspecting { outline: var(--border-width-strong) solid var(--interaction-ink); outline-offset: var(--space-1); }
+
+/* The transport's progress bar, with the same cursor and time map. */
+.playback-progress { position: relative; flex: 1 1 auto; min-width: 0; height: var(--touch-target); }
+.playback-progress-track { position: absolute; inset: var(--space-1) 0; overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+.playback-progress-track[data-time="rtl"] { transform: scaleX(-1); }
+.playback-progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--interaction-tint); pointer-events: none; }
+.playback-progress-time { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); }
+.playback-progress .audio-spectrum-cursor { width: var(--border-width); background: var(--interaction-ink); box-shadow: none; }
 .inspection-segment-mark { position: absolute; inset-block: 0; width: 0; border-inline-start: var(--border-width-thick) dashed var(--interaction-ink); }
 .inspection-segment-mark span { position: absolute; top: var(--space-1); inset-inline-start: var(--space-2); padding: 0 var(--space-2); background: var(--interaction-fill); color: var(--ink-on-fill); font-family: var(--font-mono); font-size: var(--type-meta); border-radius: var(--radius-xs); white-space: nowrap; }
 
@@ -5359,12 +5422,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .inspection-row { position: relative; min-width: 0; }
 .inspection-row > h3 { position: absolute; top: 4px; left: 4px; z-index: var(--z-raised); padding: 0 var(--space-2); background: var(--chrome); color: var(--ink-2); border-radius: var(--radius-xs); pointer-events: none; }
 .inspection-row > h3 span { display: none; }
-.inspection-wave { display: block; width: 100%; height: 80px; background: var(--sheet); }
-.inspection-wave path { stroke: var(--interaction-ink); stroke-width: 1; }
-.inspection-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.inspection-word-band { fill: transparent; stroke: var(--spectrogram-high); stroke-width: 1; }
-.inspection-word-selected { fill: color-mix(in srgb, var(--spectrogram-high) 22%, transparent); stroke: var(--spectrogram-high); stroke-width: 3; }
-.inspection-axis { display: flex; justify-content: space-between; width: 100%; min-height: 28px; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); }
 .inspection-legend, .inspection-word-toggle { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; font-size: var(--type-ui); }
 .inspection-heatmap-key { width: 100px; height: 12px; background: linear-gradient(to right, var(--spectrogram-low), var(--spectrogram-mid), var(--spectrogram-high)); }
 .inspection-word-detail { padding: var(--space-4); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--sheet); }
@@ -5375,19 +5432,15 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .inspection-row > h3 { font-size: var(--type-meta); }
 }
 
-.inspection-plot-word { position: absolute; top: 4px; max-width: 80%; overflow-wrap: anywhere; padding: 0 var(--space-2); background: var(--chip); color: var(--ink); font-size: var(--type-ui); border-radius: var(--radius-xs); }
-
 .inspection-row > h3 span:last-child { margin-top: auto; }
 
 .inspection-transport { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-4); padding: var(--space-4); background: var(--chrome); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); }
 .inspection-transport label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-ui); }
 .inspection-transport input[type=range] { width: 100px; }
-.inspection-clock { font: var(--type-ui) var(--font-mono); font-variant-numeric: tabular-nums; margin-inline-end: auto; }
-.inspection-scrubber { width: 100%; margin: 0; }
+.inspection-transport .playback-progress { flex-basis: 12rem; }
 .inspection-track-labels { display: flex; flex-wrap: wrap; gap: var(--space-8); font-size: var(--type-meta); color: var(--ink-2); }
 .inspection-viewport { overflow-x: auto; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-sm); overscroll-behavior-x: contain; }
-.inspection-timeline { position: relative; cursor: crosshair; }
-.inspection-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--spectrogram-high); box-shadow: 0 0 0 1px var(--spectrogram-low); z-index: var(--z-raised); pointer-events: none; }
+.inspection-timeline { position: relative; }
 
 /* ── features/drill/drill.css ── */
 /* Drill: the phrase rail, the practice stage and the attempt log. The target
@@ -5533,11 +5586,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 /* A row of mutually exclusive choices, all visible: recording mode, pause
    length, time direction. The checked one is filled. */
-.drill-segmented { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-1); background: var(--chip); border-radius: var(--radius-md); }
-.drill-segmented button { min-height: var(--control-height-sm); padding: 0 var(--space-4); background: transparent; color: var(--ink-2); border: 0; border-radius: var(--radius-sm); font-size: var(--type-ui); font-weight: var(--weight-medium); }
-.drill-segmented button:hover:not(:disabled) { background: var(--sheet); color: var(--ink); }
-.drill-segmented button[aria-checked="true"] { background: var(--interaction-fill); color: var(--ink-on-fill); }
-.drill-segmented button:disabled { opacity: 0.6; }
 
 /* The target pairs a tinted container with the shared display size at regular
    weight. Reading/script scales remain learner-owned; annotations stay smaller. */
@@ -5546,7 +5594,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-target-card .msg :is(.w, .target-text) { font-size: calc(var(--type-display) * var(--reading-scale) * var(--script-scale)); }
 .drill-media { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
 .drill-media .drill-seek { flex: 1 1 auto; min-width: 4rem; }
-.drill-media .drill-segmented { flex: none; flex-wrap: nowrap; }
+.drill-media .segmented { flex: none; flex-wrap: nowrap; }
 .drill-media-time { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
 .drill-media-take { margin-top: var(--space-2); }
 .drill-play { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); }
@@ -5564,9 +5612,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-track { display: grid; gap: var(--space-1); min-height: 0; }
 .drill-timelines .inspection-spectrogram { position: absolute; inset: 0; height: 100%; min-height: 0; }
 .drill-seek { accent-color: var(--interaction-ink); }
-.drill-axis { grid-row: 6; position: relative; height: var(--space-8); }
-.drill-axis span { position: absolute; top: 0; transform: translateX(-50%); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
-.drill-axis span:first-child { transform: none; }
+.drill-axis { grid-row: 6; }
 /* Right-to-left time mirrors each track as a whole, so the start of every
    recording sits on the right. Text inside is turned back to read normally. */
 .drill-timelines[data-time="rtl"] .drill-track { transform: scaleX(-1); }
@@ -5580,8 +5626,8 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-media-options svg { display: block; flex: none; }
 
 .drill-choice { display: grid; gap: var(--space-2); color: var(--ink-2); font-size: var(--type-meta); }
-.drill-choice .drill-segmented { justify-self: start; }
-.drill-choice .drill-segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
+.drill-choice .segmented { justify-self: start; }
+.drill-choice .segmented button { font-family: var(--font-mono); font-size: var(--type-meta); }
 
 
 
@@ -5769,7 +5815,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .drill-dock-pane { height: var(--drill-dock-height); min-height: 0; max-height: 70dvh; overflow: visible; }
   .drill-meter { grid-row: 2; grid-column: 2; height: var(--touch-target); }
   .drill-meter-threshold { width: var(--touch-target); margin-inline-start: calc(var(--touch-target) / -2); }
-  .drill-segmented button, .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
+  .drill-remove, .drill-sheet .btn, .drill-sheet summary { min-height: var(--touch-target); }
   .drill-peek { padding: var(--space-3); background: var(--sheet); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); }
   .drill-peek-open { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); width: 100%; min-height: var(--touch-target); padding: 0; margin-bottom: var(--space-2); background: transparent; border: 0; color: var(--ink); text-align: start; }
   .drill-peek-open > :last-child { margin-inline-start: auto; color: var(--interaction-ink); }
@@ -5792,7 +5838,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* Touch keeps every control at the minimum target, including the icon-only
    delete and the cards that carry selection. */
 @media (pointer: coarse) {
-  .drill-remove, .drill-item, .drill-word-row, .drill-more, .drill-segmented button { min-height: var(--touch-target); }
+  .drill-remove, .drill-item, .drill-word-row, .drill-more { min-height: var(--touch-target); }
 }
 
 /* Compact progress shares the report calculations and plot. Recent takes select
@@ -5826,12 +5872,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-phrase-bar { flex: none; position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-bottom: var(--space-2); }
 .drill-card-position { padding-inline: var(--space-4); color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap; }
 /* Colored starts share one renderer, over the measured pixels. */
-.drill-word-overlay { animation: drill-words-arrive var(--dur-base) var(--ease-out); position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.drill-word-marker { position: absolute; top: 0; bottom: 0; border-left: var(--border-width) solid currentColor; color: var(--warning-line); }
-.drill-word-marker[data-outcome="same"] { color: var(--success-line); }
-.drill-word-marker[data-outcome="missing"] { color: var(--danger-line); }
-.drill-word-marker > bdi, .drill-word-marker button { position: relative; display: inline-block; margin-top: var(--space-3); padding-inline: var(--space-2); white-space: nowrap; font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); font-family: var(--font-serif); text-shadow: 0 1px 3px var(--spectrogram-low), 0 0 5px var(--spectrogram-low); }
-.drill-word-marker button { pointer-events: auto; background: transparent; border: 0; color: inherit; }
 /* Both plots share the available rows; dock resizing changes their common height. */
 .drill-track > .inspection-plot { position: relative; min-height: 0; }
 .drill-track > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; }
@@ -5854,8 +5894,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   .drill-timelines .inspection-plot { transition: none; }
 }
 
-@keyframes drill-words-arrive { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .drill-word-overlay { animation: none; } }
 
 .drill-comparison-panel > .error-notice { position: absolute; inset: auto 0 0; z-index: var(--z-popover); }
 
@@ -5865,9 +5903,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 /* Keep both timing choices together when the media toolbar wraps. */
 .drill-timing-controls { display: flex; align-items: center; gap: var(--space-2); flex-wrap: nowrap; }
-.drill-playback-cursor { position: absolute; inset: 0; width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; z-index: var(--z-raised); cursor: ew-resize; touch-action: none; }
-.drill-playback-cursor .audio-spectrum-cursor { background: var(--spectrogram-cursor); width: var(--space-2); box-shadow: 0 0 var(--space-3) var(--spectrogram-cursor), 0 0 var(--space-2) var(--spectrogram-low); }
-.drill-playback-cursor:focus-visible { outline: var(--border-width) solid var(--spectrogram-cursor); }
 @media (prefers-reduced-motion: reduce) { .drill-history-entry[data-expanded] { animation: none; } }
 
 
@@ -5885,17 +5920,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-comparison-settings .drill-timing-controls { flex-wrap: wrap; }
 
 /* Playback is outlined; capture keeps the filled treatment. */
-.drill-target-card .speak-btn, .drill-media .drill-play { background: var(--sheet); border-color: var(--interaction-fill); color: var(--interaction-ink); }
-.drill-target-card .speak-btn:hover:not(:disabled), .drill-media .drill-play:hover:not(:disabled) { background: var(--field); border-color: var(--interaction-fill-hover); }
+.drill-media .drill-play { background: var(--sheet); border-color: var(--interaction-fill); color: var(--interaction-ink); }
+.drill-media .drill-play:hover:not(:disabled) { background: var(--field); border-color: var(--interaction-fill-hover); }
 
 .drill-dropdown-actions { padding: var(--space-2); border-top: var(--border-width) solid var(--line-soft); }
 
-.drill-playback-progress { position: relative; flex: 1 1 auto; min-width: 0; height: var(--touch-target); }
-.drill-playback-progress-track { position: absolute; inset: var(--space-1) 0; overflow: hidden; background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
-.drill-playback-progress-track[data-time="rtl"] { transform: scaleX(-1); }
-.drill-playback-progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--interaction-tint); pointer-events: none; }
-.drill-playback-progress-time { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); }
-.drill-playback-progress .audio-spectrum-cursor { width: var(--border-width); background: var(--interaction-ink); box-shadow: none; }
 
 /* The icon leads the label in playback direction; its triangle points that way. */
 .drill-play[dir="rtl"] > svg { transform: scaleX(-1); }

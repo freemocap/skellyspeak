@@ -1,8 +1,13 @@
 import { MessageSkillAnalysis } from '../reading/MessageSkillAnalysis'
-import { PhraseActions } from '../../../components/reading/PhraseActions'
+import { AddToDrillButton } from '../../../components/reading/AddToDrillButton'
+import { MessageTools, type MessageTool } from '../../../components/reading/MessageTools'
+import { useReadAloud } from '../../../components/reading/useReadAloud'
+import { MessageSpeechInspection, type MessageSpeechPlayback } from '../speech/MessageSpeechInspection'
+import { CompactInspection } from '../../../components/media/CompactInspection'
+import { useRecordingPlayback } from '../../../components/media/useRecordingPlayback'
+import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { MessageXpButton } from '../progress/MessageXpButton'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
-import { useUiDirection } from '../../../components/localization/useUiDirection'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from '../reading/AnalysisSentence'
 import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
@@ -50,6 +55,14 @@ export interface TurnShape {
   reactionError?: string
 }
 
+export interface TurnRecording {
+  result: import('../../../generated/contracts').TranscriptionInspectionResult
+  rate: number
+  volume: number
+  enabled: boolean
+  onExpand: () => void
+}
+
 export interface TurnViewProps {
   turn: TurnShape
   reviewing: boolean
@@ -58,11 +71,13 @@ export interface TurnViewProps {
   ttsReady: boolean
   speaking: boolean
   speechError?: { text: string; details: unknown }
+  partnerSpeech?: MessageSpeechPlayback
   rtl: boolean
   onBubbleTap: (id: number) => void
   onSpeak?: (text: string, turnId: number) => void
-  /** Present only on the learner message sent from the latest recording. */
-  onInspectRecording?: () => void
+  /** Present only on the learner message sent from the latest recording: its
+   *  audio and analysis, the playback settings, and the full dialog. */
+  recording?: TurnRecording
   /// Edit this turn's message and try again — the tutor (and coach) regenerate
   /// their response from the edited text. Omitted while a turn is in flight.
   onReplyControl?: (control: 'retry' | 'resume') => Promise<void>
@@ -85,10 +100,11 @@ export const TurnView = memo(function TurnView({
   ttsReady,
   speaking,
   speechError,
+  partnerSpeech,
   rtl,
   onBubbleTap,
   onSpeak,
-  onInspectRecording,
+  recording,
   onEditUser,
   onCoachControl,
   editDisabled,
@@ -99,10 +115,15 @@ export const TurnView = memo(function TurnView({
   onActivity,
 }: TurnViewProps) {
   const tr = useI18n()
-  const uiDirection = useUiDirection()
   const replyStream = useReplyStream(turn.execution)
   const activity = useMemo(() => turn.execution ? turnActivity(turn.execution, replyStream?.text ?? null) : null, [turn.execution, replyStream])
   const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
+  // Your recording's inspector opens only when you ask for it.
+  const [inspectorOpen, setInspectorOpen] = useState(false)
+  const [partnerInspectorOpen, setPartnerInspectorOpen] = useState(false)
+  const [recordingFailure, setRecordingFailure] = useState<unknown>(null)
+  const recordingPlayback = useRecordingPlayback({ audio: recording?.result.audioBase64 || null, duration: recording?.result.inspection.duration ?? 0,
+    enabled: recording?.enabled ?? false, rate: recording?.rate ?? 1, volume: recording?.volume ?? 1, onError: setRecordingFailure })
   const aidsEnabled = autoTranslate || alwaysRomanize || alwaysPronunciation
   const [userWordsOverride, setUserWordsOverride] = useState<boolean | null>(null)
   const userWordsOpen = userWordsOverride ?? aidsEnabled
@@ -132,51 +153,61 @@ export const TurnView = memo(function TurnView({
     return matches.length ? <span className="message-evidence token-evidence" style={evidenceStyle(matches)} data-reward-evidence={JSON.stringify(matches.map(item => item.id))}>{node}</span> : node
   }
 
+  const readAloud = useReadAloud(source)
+  const inspectable = recording ?? null
+  // A message you spoke plays your recording; a typed one is read aloud.
+  const learnerPlay = inspectable
+    ? { playing: recordingPlayback.playing, disabled: !inspectable.enabled || !inspectable.result.audioBase64, onToggle: recordingPlayback.toggle }
+    : readAloud
+  const learnerTools: MessageTool[] = userTranslation || translationPending(turn.userTranslationState)
+    ? [{ key: 'translate', label: tr("Translate"), ariaLabel: tr("Translate your message"),
+      pressed: showUserTranslation, pending: translationPending(turn.userTranslationState), onSelect: () => setShowUserTranslation(!showUserTranslation) }]
+    : []
+  const learnerMore = (analysisTool: MessageTool): MessageTool[] => [
+    { key: 'words', label: tr("Word by word"), pressed: userWordsOpen, pending: turn.userGlossState === 'running', disabled: !userSegments.length,
+      onSelect: () => setUserWordsOverride(!userWordsOpen) },
+    analysisTool,
+  ]
+
   return (
     <div className="turn-stack">
       {turn.user && (
-        <div
-          data-reward-message={turn.id}
-          className={`msg chat-message me${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''} with-actions`}
-        >
-          {userSegments.length > 0
-            ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user} segments={userSegments} decorateSegment={decorateEvidence} />
-            : plainEvidence}
-          {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
-          <TranslationStatus state={turn.userTranslationState} shown={showUserTranslation && !userTranslation} />
-          <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
-          <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
-          <div className="message-xp-actions" onDoubleClick={event => event.stopPropagation()}>
-          {onEditUser && (
-            <button
-              type="button"
-              className="message-translate edit-btn"
-              onDoubleClick={event => event.stopPropagation()}
-              disabled={editDisabled}
-              title={tr("Edit message")}
-              aria-label={tr("Edit message")}
-              onClick={(e) => {
-                e.stopPropagation()
-                onEditUser(turn)
-              }}
-            >
-              <span aria-hidden="true">✏️</span>
-            </button>
-          )}
-          {onInspectRecording && <button type="button" className="message-translate recording-inspect" title={tr("Inspect recording")} aria-label={tr("Inspect recording")} aria-haspopup="dialog" onClick={event => { event.stopPropagation(); onInspectRecording() }}><ToolbarIcon name="mic" size={15} /></button>}
-          <MessageXpButton messageId={turn.id} source={turn.user} />
-          <PhraseActions text={turn.user} />
-          </div>
-        <div dir={uiDirection} className={`message-feedback${turn.conversationFeedback ? ' has-scores' : ''}`} onDoubleClick={event => event.stopPropagation()}>
-          <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}>
-            {(userTranslation || translationPending(turn.userTranslationState)) && <button type="button" className={translationPending(turn.userTranslationState) ? 'message-translate is-hydrating' : 'message-translate'} aria-label={tr("Translate your message")} aria-expanded={showUserTranslation} aria-pressed={showUserTranslation} onClick={event => { event.stopPropagation(); setShowUserTranslation(!(showUserTranslation)) }}>{tr("Translate")}</button>}
-            <button type="button" className={turn.userGlossState === 'running' ? 'message-translate is-hydrating' : 'message-translate'} disabled={!userSegments.length} aria-pressed={userWordsOpen} onClick={() => setUserWordsOverride(!userWordsOpen)}>{tr("Word by word")}</button>
-          </MessageFeedback>
-        </div>
+        <div className="learner-turn">
+          <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
+            reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
+            bubble={analysisTool => (
+              <div
+                data-reward-message={turn.id}
+                className={`msg chat-message me${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
+              >
+                {userSegments.length > 0
+                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateEvidence} />
+                  : plainEvidence}
+                {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
+                <TranslationStatus state={turn.userTranslationState} shown={showUserTranslation && !userTranslation} />
+                <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
+                <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
+                {inspectable && inspectorOpen && <CompactInspection inspection={inspectable.result.inspection} playback={recordingPlayback}
+                  enabled={inspectable.enabled} onExpand={inspectable.onExpand} />}
+                <MessageTools play={learnerPlay} tools={learnerTools} more={learnerMore(analysisTool)}
+                  // BACKEND: only the latest recording is kept, in memory, so earlier messages have no audio to inspect (Deferred A16).
+                  inspect={inspectable && { kind: 'available', open: inspectorOpen, onToggle: () => setInspectorOpen(!inspectorOpen) }}
+                  actions={<>
+                    {onEditUser && <button type="button" className="message-tools-icon" disabled={editDisabled} aria-label={tr("Edit message")} title={tr("Edit message")}
+                      onClick={event => { event.stopPropagation(); onEditUser(turn) }}><ToolbarIcon name="edit" /></button>}
+                    <AddToDrillButton text={turn.user!} />
+                  </>} />
+                {recordingFailure != null && <ErrorNotice as="p" error={recordingFailure}>{tr("Audio playback failed.")}</ErrorNotice>}
+
+              </div>
+            )} />
         </div>
       )}
       {assistant && (
         <div className="partner-turn">
+          <span className="partner-reaction-slot">
+            {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
+          </span>
           <TargetMessage
             layout="bubble"
             text={assistant.reply}
@@ -188,11 +219,16 @@ export const TurnView = memo(function TurnView({
             translateLabel={tr("Translate partner message")}
             romanization={null}
             pronunciation={null}
-            annotation={turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
+            annotation={null}
             translationState={assistant.translationState}
             status={<GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />}
-            speech={ttsReady && onSpeak ? { speaking, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
+            speech={ttsReady && onSpeak ? { speaking, disabled: partnerSpeech && !partnerSpeech.enabled, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
             analysis={{ pending: assistant.explanationsState === 'running', onOpen: () => onBubbleTap(turn.id) }}
+            inspect={partnerSpeech ? { kind: 'available', open: partnerInspectorOpen, disabled: !partnerSpeech.enabled, onToggle: () => {
+              setPartnerInspectorOpen(!partnerInspectorOpen)
+              if (!partnerInspectorOpen && !partnerSpeech.retained && !partnerSpeech.playing) partnerSpeech.toggle()
+            } } : null}
+            inspector={partnerSpeech && <MessageSpeechInspection open={partnerInspectorOpen} speech={partnerSpeech} text={assistant.reply} />}
             focused={focused}
             rtl={rtl}
           />

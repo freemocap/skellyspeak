@@ -33,7 +33,7 @@ export const TOUR_VIEWS: readonly TourView[] = [
       { key: 'word', selector: '.partner-turn .reading-word',
         title: tr => tr('Tap a word'),
         text: tr => tr('Tap any word in a partner message to see its meaning. Word by word shows every word at once.') },
-      { key: 'speak', selector: '.partner-turn .speak-btn',
+      { key: 'speak', selector: '.partner-turn .message-tools-play',
         title: tr => tr('Play aloud'),
         text: tr => tr('Plays the message in the partner’s voice.') },
       { key: 'tools', selector: '.partner-turn .message-actions',

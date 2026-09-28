@@ -1,4 +1,5 @@
 import { useRef, useSyncExternalStore, type ReactNode } from 'react'
+import { SegmentedChoice } from '../../components/controls/SegmentedChoice'
 import { useI18n } from '../../components/localization/i18n'
 import { LiveRecording } from '../../components/media/LiveRecording'
 import { VoicePanel } from '../../components/media/VoicePanel'
@@ -187,9 +188,7 @@ function Choice({ label, value, options, format, onChange }: {
 }) {
   return <div className="drill-choice">
     <span>{label}</span>
-    <div className="drill-segmented" role="radiogroup" aria-label={label}>
-      {options.map(option => <button key={option} type="button" role="radio" aria-checked={option === value}
-        onClick={() => onChange(option)}>{format(option)}</button>)}
-    </div>
+    <SegmentedChoice label={label} value={String(value)} options={options.map(option => [String(option), format(option)] as const)}
+      onChange={chosen => onChange(Number(chosen))} />
   </div>
 }

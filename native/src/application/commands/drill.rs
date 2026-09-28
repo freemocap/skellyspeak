@@ -122,28 +122,14 @@ pub(in crate::application) async fn inspect_drill_audio(
         } else {
             None
         };
-    tauri::async_runtime::spawn_blocking(move || {
-        let (mut inspection, _) =
-            crate::speech::analysis::audio_inspection::inspect_wav(&wav, &item_id, &owner)?;
-        let timing = timing.or_else(|| {
-            speech_alignment
-                .as_ref()
-                .and_then(|alignment| alignment.words(inspection.duration))
-        });
-        crate::speech::analysis::audio_inspection::attach_words(&mut inspection, timing.as_ref());
-        Ok(inspection)
-    })
-    .await
-    .map_err(|cause| {
-        crate::diagnostics::failures::join(
-            &cause,
-            "drill.rs_worker",
-            AppError::new(
-                ErrorCode::Internal,
-                "Audio inspection stopped unexpectedly.",
-            ),
-        )
-    })?
+    let mut inspection = state.inner().inspect_audio(wav, item_id, owner).await?;
+    let timing = timing.or_else(|| {
+        speech_alignment
+            .as_ref()
+            .and_then(|alignment| alignment.words(inspection.duration))
+    });
+    crate::speech::analysis::audio_inspection::attach_words(&mut inspection, timing.as_ref());
+    Ok(inspection)
 }
 
 #[cfg(test)]

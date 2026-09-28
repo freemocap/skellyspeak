@@ -76,6 +76,15 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
     const current = workspace ?? await readWorkspace()
     await executeAction(current, { kind: 'saveTopics', additions, deletions, expectedRevision: current.revision })
   }
+  const [deleting, setDeleting] = useState<string | null>(null)
+  async function deleteSaved(item: SavedTopic) {
+    setDeleting(item.id); setError(null)
+    try {
+      await saveTopics([], [item.id])
+      setSaved((await readWorkspace()).savedTopics)
+    } catch (reason) { setError(nativeError(reason)) }
+    finally { setDeleting(null) }
+  }
   function startOwn() {
     const text = own.trim()
     if (!validTopicText(text)) { setError(tr('Enter a topic of 1–500 characters.')); return }
@@ -140,9 +149,16 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
           {item.translation !== item.target && <span className="topic-start-translation">{item.translation}</span>}
         </TopicStart>)}
         {/* Saved topics are the learner's own words, in whichever language they wrote them. */}
-        {saved.map(item => <TopicStart key={item.id} mark={mark(`saved:${item.id}`)} onStart={() => void start(`saved:${item.id}`, { kind: 'custom', text: item.text })}>
-          <span className="topic-start-saved"><bdi>{item.text}</bdi></span>
-        </TopicStart>)}
+        {/* Each carries a delete control in its corner, shown on hover or focus. */}
+        {saved.map(item => <span key={item.id} className="saved-topic">
+          <TopicStart mark={mark(`saved:${item.id}`)} onStart={() => void start(`saved:${item.id}`, { kind: 'custom', text: item.text })}>
+            <span className="topic-start-saved"><bdi>{item.text}</bdi></span>
+          </TopicStart>
+          <button type="button" className="saved-topic-delete" aria-label={tr('Delete {value0}', { value0: item.text })} title={tr('Delete {value0}', { value0: item.text })}
+            aria-busy={deleting === item.id} disabled={deleting !== null} onClick={() => void deleteSaved(item)}>
+            {deleting === item.id ? <ActivityIndicator label={tr('Delete {value0}', { value0: item.text })} compact /> : <ToolbarIcon name="trash" size={14} />}
+          </button>
+        </span>)}
       </div>
     </fieldset>
     <form className="start-own" onSubmit={event => { event.preventDefault(); startOwn() }}>

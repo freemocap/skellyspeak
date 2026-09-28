@@ -32,6 +32,7 @@ pub struct Store {
     /// factory reset can remove secrets even when the workspace will not open.
     pub(crate) credential_index: std::path::PathBuf,
     pub(crate) speech_delivery: crate::speech::delivery::DeliveryBuffer,
+    pub(crate) audio_analysis: std::sync::Arc<crate::speech::analysis::signal_cache::AnalysisGate>,
     /// Where drill attempt audio is stored, beside the workspace database.
     pub(crate) drill_audio: std::path::PathBuf,
     ownership: WorkspaceOwnership,
