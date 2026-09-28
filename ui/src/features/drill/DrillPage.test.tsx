@@ -6,6 +6,10 @@ import { DrillPage } from './DrillPage'
 import { ReadingLookupContext } from '../../components/reading/ReadingContext'
 import type { DrillAttemptView, DrillItemView, ListeningStatus, TranscriptionInspectionResult } from '../../generated/contracts'
 
+/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
+
+
 const invoke = vi.hoisted(() => vi.fn())
 const speak = vi.hoisted(() => vi.fn())
 const play = vi.hoisted(() => vi.fn())
@@ -163,9 +167,33 @@ const app = (lookup?: Lookup) => render(
   </I18nProvider>)
 
 async function openPhrases() {
-  fireEvent.click(await screen.findByRole('button', { name: /^Drill targets [1-9]/ }))
-  await screen.findByRole('dialog', { name: 'Drill targets' })
+  // At full width the cards panel starts folded to its edge tab beside the stage.
+  if (!screen.queryByRole('complementary', { name: 'Your practice cards' })) fireEvent.click(await screen.findByRole('button', { name: 'Practice cards' }))
+  await screen.findByRole('complementary', { name: 'Your practice cards' })
 }
+
+it('lets every stacked pane be dragged: reference, attempt, attempt list and recording panel', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+  items = [item({ attempts: [attempt({ id: 'attempt-3', sequence: 3n }), attempt({ id: 'attempt-2', sequence: 2n }), attempt()] })]
+  const view = app()
+  const reference = await screen.findByRole('separator', { name: 'Resize the reference' })
+  const take = screen.getByRole('separator', { name: 'Resize the attempt' })
+  const dock = screen.getByRole('separator', { name: 'Resize the recording panel' })
+  const panel = reference.closest<HTMLElement>('.drill-comparison-panel')!
+  fireEvent.keyDown(reference, { key: 'ArrowDown' })
+  expect(panel.style.getPropertyValue('--drill-reference-row')).toBe('96px')
+  fireEvent.keyDown(take, { key: 'End' })
+  expect(panel.style.getPropertyValue('--drill-attempt-row')).toBe('800px')
+  fireEvent.keyDown(dock, { key: 'Home' })
+  expect(dock.closest<HTMLElement>('.drill-page')!.style.getPropertyValue('--drill-dock-height')).toBe('150px')
+  expect(localStorage.getItem('skellyspeak_pane_drill-reference')).toBe('96')
+  // The attempt list fills the space between the plots and the recording panel,
+  // so it holds every take and scrolls rather than stopping at two.
+  const history = document.querySelector<HTMLElement>('.drill-history-preview')!
+  for (const name of ['Attempt 1', 'Attempt 2', 'Attempt 3']) expect(await within(history).findByRole('button', { name })).toBeInTheDocument()
+  view.unmount()
+  media.mockRestore()
+})
 
 it('draws a cached reference on entry without playback or generation', async () => {
   items = [item()]
@@ -188,7 +216,7 @@ it('ignores a late cached reference after selecting another phrase', async () =>
     ? (args.input.referenceItem === 'item-1' ? new Promise(resolve => { release = resolve }) : Promise.resolve(null))
     : native(command, args))
   app()
-  await screen.findByRole('button', { name: 'Speak reply' })
+  await screen.findByRole('button', { name: 'Play' })
   await openPhrases()
   fireEvent.click(screen.getAllByRole('button').find(node => node.textContent?.startsWith('Hasta luego.'))!)
   await act(async () => release({ audioBase64: 'cmVmZXJlbmNl', alignment: null }))
@@ -200,11 +228,11 @@ it('ignores a late cached reference after selecting another phrase', async () =>
 it('records an attempt against an existing phrase and scores what was said', async () => {
   items = [item()]
   app()
-  await screen.findByRole('button', { name: 'Speak reply' })
+  await screen.findByRole('button', { name: 'Play' })
   await openPhrases()
   // The phrase is listed, and shown through the shared target card.
   await screen.findByRole('button', { name: 'Delete “Quisiera un café.” and its attempts' })
-  expect(screen.getByRole('button', { name: 'Speak reply' })).toBeVisible()
+  expect(screen.getByRole('button', { name: 'Play' })).toBeVisible()
 
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Recording settings' }))
@@ -228,7 +256,7 @@ it('shows the measured comparison, the words that differed, and replays the atte
   await screen.findByRole('button', { name: 'Play yours' })
   // The measurement itself, and how it normalized, stay available under the summary.
   fireEvent.click(await screen.findByText('Comparison details'))
-  expect(screen.getByText('Characters matching the target, after lowercase, strip_punctuation')).toBeVisible()
+  expect(screen.getByText('Characters matching the card, after lowercase, strip_punctuation')).toBeVisible()
   expect(screen.getByText('0.06')).toBeVisible()
   expect(screen.getByText('1 of 16 characters')).toBeVisible()
   expect(screen.getByText('lowercase, strip_punctuation')).toBeVisible()
@@ -254,7 +282,7 @@ it('pairs the reference with the attempt once the reference has been heard', asy
   items = [item({ attempts: [attempt()] })]
   app()
   await screen.findByRole('button', { name: 'Play yours' })
-  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Speak reply' })) })
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Play' })) })
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl', speechAlignment: null }), { timeout: 5000 })
   expect(speak).toHaveBeenCalledWith(
     expect.objectContaining({ text: 'Quisiera un café.', aid: 'speech', language: 'spanish', referenceItem: 'item-1' }),
@@ -264,7 +292,7 @@ it('pairs the reference with the attempt once the reference has been heard', asy
   expect(screen.getByRole('slider', { name: 'Seek attempt audio' })).toBeEnabled()
   // Every replay asks native to validate/cache the source, even when the
   // inspection is already visible. Native cache hits do not call the provider.
-  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Speak reply' })) })
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Play' })) })
   expect(speak).toHaveBeenCalledTimes(2)
 })
 
@@ -305,7 +333,7 @@ it('refuses playback while the microphone is recording, and lets it go again aft
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Stop recording' })).toBeVisible())
   // The speakers would be recorded: neither the reference nor a replay runs.
-  expect(screen.getByRole('button', { name: 'Speak reply' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Play' })).toBeDisabled()
   const { interruptSpeech, microphoneHeld } = await import('../../platform/audio/speech')
   expect(microphoneHeld()).toBe(true)
   expect(interruptSpeech()).toBeNull()
@@ -341,7 +369,7 @@ it('never attaches one phrase’s reference to another', async () => {
   invoke.mockImplementation((command, args) => command === 'inspect_drill_audio'
     ? new Promise(resolve => { release = resolve }) : native(command, args))
   app()
-  fireEvent.click(await screen.findByRole('button', { name: 'Speak reply' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Play' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-1', audioBase64: 'cmVmZXJlbmNl', speechAlignment: null }))
   // The learner moves on while the reference inspection is still being prepared.
   await openPhrases()
@@ -351,7 +379,7 @@ it('never attaches one phrase’s reference to another', async () => {
   expect(invoke).not.toHaveBeenCalledWith('inspect_drill_audio', { itemId: 'item-2', audioBase64: 'cmVmZXJlbmNl' })
   // The seek control keeps its place but has nothing to seek: no reference is drawn.
   expect(screen.getByRole('slider', { name: 'Seek reference audio' })).toBeDisabled()
-  expect(screen.getByText('Hear it once to draw the reference here.')).toBeVisible()
+  expect(screen.getByText('Play the reference once to draw it here.')).toBeVisible()
 })
 
 it('asks about the phrase in its own stored language, and only once', async () => {
@@ -360,12 +388,15 @@ it('asks about the phrase in its own stored language, and only once', async () =
   items = [item({ variety: 'spanish-mexico', explanationVariety: 'english-gb' })]
   const lookup = vi.fn(async () => ({ explanations: { cards: [] } }) as never) as unknown as Lookup & ReturnType<typeof vi.fn>
   app(lookup)
+  await screen.findByRole('button', { name: 'Analysis' })
+  openMenus()
   fireEvent.click(await screen.findByRole('button', { name: 'Analysis' }))
   await waitFor(() => expect(lookup).toHaveBeenCalledWith(
     expect.objectContaining({ text: 'Quisiera un café.', aid: 'explanations', variety: 'spanish-mexico', explanationVariety: 'english-gb' }),
     expect.any(AbortSignal)))
   expect(await screen.findByText('Nothing to flag in this reply.')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Close Message analysis' }))
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
   expect(lookup).toHaveBeenCalledOnce()
 })
@@ -376,7 +407,7 @@ it('cancels pending reference speech on leaving, and never inspects its late res
   let finish!: (value: { audioBase64: string }) => void
   speak.mockImplementation(() => new Promise(resolve => { finish = resolve }))
   const view = app()
-  fireEvent.click(await screen.findByRole('button', { name: 'Speak reply' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Play' }))
   const signal = speak.mock.calls[0][1] as AbortSignal
   view.unmount()
   expect(signal.aborted).toBe(true)
@@ -392,7 +423,7 @@ it('stops retained attempt playback when another attempt takes the panel', async
   app()
   await waitFor(() => expect(screen.getByRole('button', { name: 'Play yours' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Take 1' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Attempt 1' }))
   expect(stop).toHaveBeenCalledOnce()
 })
 
@@ -416,7 +447,7 @@ it('names what the microphone is doing, and offers Discard only while recording'
   fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
-  expect(await screen.findByText('Recording a take')).toBeVisible()
+  expect(await screen.findByText('Recording an attempt')).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Discard current take' })).toBeNull()
 })
 
@@ -465,7 +496,7 @@ it('calls an attempt exact only when the comparison needed no edits', async () =
   const log = within(await screen.findByRole('complementary', { name: 'Attempts' }))
   // The newest, exact attempt is the full report; the older one is a line in the log.
   expect(within(await log.findByRole('region', { name: 'Attempt 2' })).getByText('Exact')).toBeVisible()
-  const older = await log.findByRole('button', { name: 'Take 1' })
+  const older = await log.findByRole('button', { name: 'Attempt 1' })
   expect(within(older).queryByText('Exact')).not.toBeInTheDocument()
 })
 
@@ -483,10 +514,10 @@ it('reads attempt history a page at a time and never the embedded array', async 
   const log = within(await screen.findByRole('complementary', { name: 'Attempts' }))
   await waitFor(() => expect(log.getAllByRole('button').length).toBeGreaterThan(1))
   // Ten per page, less the newest, which is reported in full above the log.
-  expect(log.getAllByRole('button', { name: /^Take \d+$/ })).toHaveLength(9)
+  expect(log.getAllByRole('button', { name: /^Attempt \d+$/ })).toHaveLength(9)
   expect(invoke).toHaveBeenCalledWith('drill_attempts', { itemId: 'item-1', cursor: null, limit: 20 })
   fireEvent.click(log.getByRole('button', { name: 'Show older attempts' }))
-  await waitFor(() => expect(log.getAllByRole('button', { name: /^Take \d+$/ })).toHaveLength(14))
+  await waitFor(() => expect(log.getAllByRole('button', { name: /^Attempt \d+$/ })).toHaveLength(14))
   expect(log.queryByRole('button', { name: 'Show older attempts' })).not.toBeInTheDocument()
 })
 
@@ -498,7 +529,7 @@ it('keeps a pruned recording distinct from one that was never kept', async () =>
   // Applying a zero limit to an existing recording removes it…
   expect(await screen.findByText('Removed', {}, { timeout: 5000 })).toBeVisible()
   const log = within(screen.getByRole('complementary', { name: 'Attempts' }))
-  fireEvent.click(log.getByRole('button', { name: 'Take 1' }))
+  fireEvent.click(log.getByRole('button', { name: 'Attempt 1' }))
   // …while a recording made under that limit was never written at all.
   expect(await screen.findByText('Not kept')).toBeVisible()
   expect(screen.getByText('Storage is set to keep no recordings.')).toBeVisible()
@@ -534,7 +565,7 @@ it('announces what the microphone is doing without the learner looking', async (
   fireEvent.click(screen.getByRole('radio', { name: 'Tap to record' }))
   fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
-  await waitFor(() => expect(live).toHaveTextContent('Recording a take'))
+  await waitFor(() => expect(live).toHaveTextContent('Recording an attempt'))
 })
 
 it('wires repeated takes, native cuts and live spectra into the real Drill page', async () => {
@@ -553,16 +584,16 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
     return native(command, args)
   })
   app()
-  await screen.findByRole('checkbox', { name: 'Auto detect takes' })
+  await screen.findByRole('checkbox', { name: 'Detect attempts' })
   fireEvent.click(screen.getByLabelText('Recording settings'))
-  fireEvent.click(within(screen.getByRole('radiogroup', { name: 'End a take after silence of' })).getByRole('radio', { name: '0.6 s' }))
+  fireEvent.click(within(screen.getByRole('radiogroup', { name: 'End an attempt after silence of' })).getByRole('radio', { name: '0.6 s' }))
   fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_start', {
     captureMode: 'auto', owner: { kind: 'drillItem', id: 'item-1' }, settings: { pauseMs: 600, thresholdDb: -45, minTakeMs: 300, silenceTimeoutMs: 10000 },
   }))
-  expect(await screen.findByText('Take 1 clipped →')).toBeVisible()
+  expect(await screen.findByText('Attempt 1 clipped →')).toBeVisible()
   expect(await screen.findByText('Transcribing…')).toBeVisible()
   const attemptPlot = () => document.querySelector('.drill-comparison-panel > .drill-timelines .inspection-spectrogram')
   await waitFor(() => expect(attemptPlot()).not.toBeNull())
@@ -570,10 +601,10 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   expect(screen.getByRole('button', { name: 'Play yours' })).toBeDisabled()
   expect(document.querySelector('.live-take-region')).not.toBeNull()
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_spectrogram', { recordingId: 'listening-1', afterSeconds: null }))
-  expect(screen.getByRole('checkbox', { name: 'Auto detect takes' })).toBeEnabled()
+  expect(screen.getByRole('checkbox', { name: 'Detect attempts' })).toBeEnabled()
   // The meter reads native's measurement, and the threshold moves without restarting.
   expect(screen.getByRole('meter', { name: 'Microphone level' })).toHaveAttribute('aria-valuenow', '-35')
-  expect(screen.getByText('Take 1 · 1 queued · 2 ignored')).toBeVisible()
+  expect(screen.getByText('Attempt 1 · 1 queued · 2 ignored')).toBeVisible()
   // Tuning is tucked into a panel so the dock stays one row.
   fireEvent.click(screen.getByLabelText('Recording settings'))
   expect(screen.getByRole('dialog', { name: 'Recording settings' })).toBeVisible()
@@ -599,7 +630,7 @@ it('wires repeated takes, native cuts and live spectra into the real Drill page'
   const tunes = invoke.mock.calls.filter(([command]) => command === 'mic_listen_tune').length
   fireEvent.keyDown(marker, { key: 'ArrowLeft' })
   expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_tune')).toHaveLength(tunes)
-  expect(screen.getByRole('button', { name: 'Speak reply' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Play' })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_stop', { recordingId: 'listening-1' }))
   items = [item({ attempts: [attempt({ transcriptionAttemptId: 'take-1' })] })]
@@ -622,7 +653,7 @@ it('shows reference audio before an attempt and seeks the actual player clock', 
     await new Promise<void>(resolve => args[1].addEventListener('abort', () => resolve(), { once: true }))
   })
   const view = app()
-  fireEvent.click(await screen.findByRole('button', { name: 'Speak reply' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Play' }))
   const slider = await screen.findByRole('slider', { name: 'Seek reference audio' })
   await waitFor(() => expect(slider).toHaveAttribute("aria-valuenow", "0.25"))
   fireEvent.keyDown(slider, { key: 'End' })
@@ -660,19 +691,32 @@ it('records while held, and throws away a press shorter than the shortest take',
   clock.mockRestore()
 })
 
-it('defaults comparison and live recording time to the script direction and switches both together', async () => {
+it('defaults the comparison and the recorder to the script direction, and sets the recorder on its own', async () => {
   script.direction = 'rtl'
   items = [item({ attempts: [attempt()] })]
   app()
   const toLeft = await screen.findByRole('radio', { name: '← Time' })
   expect(toLeft).toHaveAttribute('aria-checked', 'true')
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'rtl')
-  expect(document.querySelector('.live-recording')).toHaveAttribute('data-time', 'rtl')
-  expect(document.querySelector('.drill-dock-side')).toHaveAttribute('dir', 'rtl')
+  // Until chosen, the recorder follows the script: its button sits where time arrives.
+  const recorder = document.querySelector<HTMLElement>('.drill-voice')!
+  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  // The comparison's direction does not move the recorder.
   fireEvent.click(screen.getByRole('radio', { name: 'Time →' }))
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'ltr')
-  expect(document.querySelector('.live-recording')).toHaveAttribute('data-time', 'ltr')
-  expect(document.querySelector('.drill-dock-side')).toHaveAttribute('dir', 'ltr')
+  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  // Recording settings set the button's side and the stream's time direction independently.
+  fireEvent.click(within(recorder).getByRole('button', { name: 'Recording settings' }))
+  const settings = await screen.findByRole('dialog', { name: 'Recording settings' })
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Microphone button' })).getByRole('radio', { name: 'Right' }))
+  expect(recorder).toHaveAttribute('data-pad-side', 'right')
+  const time = within(within(settings).getByRole('radiogroup', { name: 'Time direction' }))
+  expect(time.getByRole('radio', { name: '← Time' })).toHaveAttribute('aria-checked', 'true')
+  fireEvent.click(time.getByRole('radio', { name: 'Time →' }))
+  expect(time.getByRole('radio', { name: 'Time →' })).toHaveAttribute('aria-checked', 'true')
+  expect(recorder).toHaveAttribute('data-pad-side', 'right')
+  expect(localStorage.getItem('skellyspeak_recorder_practice_pad')).toBe('right')
+  expect(localStorage.getItem('skellyspeak_recorder_practice_time')).toBe('ltr')
 })
 
 it('expands the selected take within its history row without reordering the list', async () => {
@@ -682,10 +726,10 @@ it('expands the selected take within its history row without reordering the list
   items = [item({ attempts: [exact, changed('attempt-2', 2n), changed('attempt-1', 1n)] })]
   app()
   await screen.findByRole('region', { name: 'Attempt 3' })
-  expect(screen.queryByRole('region', { name: 'This drill target' })).toBeNull()
+  expect(screen.queryByRole('region', { name: 'This card' })).toBeNull()
   expect(screen.queryByRole('region', { name: 'Earlier takes' })).toBeNull()
   const rows = Array.from(document.querySelectorAll<HTMLElement>('.drill-attempts-pane .drill-word-row'))
-  expect(rows.map(row => row.getAttribute('aria-label'))).toEqual(['Take 3', 'Take 2', 'Take 1'])
+  expect(rows.map(row => row.getAttribute('aria-label'))).toEqual(['Attempt 3', 'Attempt 2', 'Attempt 1'])
   expect(rows[0]).toHaveAttribute('aria-pressed', 'true')
   expect(rows[0]).not.toBeVisible()
   expect(rows[0].querySelector('.drill-word-row-cells')).toHaveStyle({ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' })
@@ -703,12 +747,12 @@ it('deletes one take, or clears the recent past, and reads the history again', a
   const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
   app()
   const log = within(await screen.findByRole('complementary', { name: 'Attempts' }))
-  fireEvent.click(await log.findByRole('button', { name: 'Take 1' }))
-  fireEvent.click(await log.findByRole('button', { name: 'Delete take 1' }))
+  fireEvent.click(await log.findByRole('button', { name: 'Attempt 1' }))
+  fireEvent.click(await log.findByRole('button', { name: 'Delete attempt 1' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('delete_drill_attempt', { attemptId: 'attempt-1' }))
-  await waitFor(() => expect(log.queryByRole('button', { name: 'Take 1' })).toBeNull())
+  await waitFor(() => expect(log.queryByRole('button', { name: 'Attempt 1' })).toBeNull())
 
-  fireEvent.click(log.getByText('Clear takes…'))
+  fireEvent.click(log.getByText('Clear attempts…'))
   fireEvent.click(log.getByRole('button', { name: 'Last 5 minutes' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('clear_drill_attempts', { itemId: 'item-1', since: '2026-09-23T14:55:00.000Z' }))
   await waitFor(() => expect(log.queryByRole('region', { name: 'Attempt 2' })).toBeNull())
@@ -719,29 +763,30 @@ it('stacks mobile practice and history with secondary controls in settings', asy
   const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
   items = [item({ attempts: [attempt({ id: 'attempt-2', sequence: 2n }), attempt()] }), second()]
   const view = app()
-  fireEvent.click(await screen.findByRole('button', { name: 'Take 1' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Attempt 1' }))
   const scoreDialog = await screen.findByRole('dialog', { name: 'Attempts' })
   expect(within(scoreDialog).getByRole('region', { name: 'Attempt 1' })).toBeVisible()
-  expect(within(scoreDialog).queryByRole('button', { name: 'Take 2' })).toBeNull()
+  expect(within(scoreDialog).queryByRole('button', { name: 'Attempt 2' })).toBeNull()
   fireEvent.click(scoreDialog, { clientX: -1, clientY: -1 })
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   expect(screen.getByRole('button', { name: 'Start recording' })).toBeVisible()
   fireEvent.click(await screen.findByRole('button', { name: 'Attempts' }))
   const historyDialog = await screen.findByRole('dialog', { name: 'Attempts' })
   const report = within(historyDialog).getByRole('complementary', { name: 'Attempts' })
-  expect(screen.queryByRole('complementary', { name: 'Your drill targets' })).toBeNull()
+  expect(screen.queryByRole('complementary', { name: 'Your practice cards' })).toBeNull()
   expect(screen.queryByRole('button', { name: /Full report/ })).toBeNull()
-  expect(screen.queryByRole('checkbox', { name: 'Auto detect takes' })).toBeNull()
-  const firstTake = await within(report).findByRole('button', { name: 'Take 1' })
+  // Auto's own controls stay in the recorder's row on phones too.
+  expect(screen.getByRole('checkbox', { name: 'Detect attempts' })).toBeInTheDocument()
+  const firstTake = await within(report).findByRole('button', { name: 'Attempt 1' })
   expect(within(report).queryByRole('region', { name: 'Attempt 2' })).toBeNull()
   fireEvent.click(firstTake)
   expect(within(report).getByRole('region', { name: 'Attempt 1' })).toBeVisible()
   fireEvent.click(within(report).getByRole('button', { name: 'Close' }))
   expect(within(report).queryByRole('region', { name: 'Attempt 1' })).toBeNull()
-  expect(within(report).getByRole('button', { name: 'Take 1' })).toBeVisible()
+  expect(within(report).getByRole('button', { name: 'Attempt 1' })).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Close Attempts' }))
-  fireEvent.click(screen.getByRole('button', { name: /Drill targets/ }))
-  const picker = await screen.findByRole('dialog', { name: 'Drill targets' })
+  fireEvent.click(screen.getByRole('button', { name: /^Practice cards/ }))
+  const picker = await screen.findByRole('dialog', { name: 'Practice cards' })
   fireEvent.click(within(picker).getByRole('button', { name: /^Hasta luego/ }))
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   await waitFor(() => expect(screen.getByRole('button', { name: 'Start recording' })).toBeEnabled())
@@ -750,7 +795,28 @@ it('stacks mobile practice and history with secondary controls in settings', asy
   fireEvent.click(screen.getByRole('button', { name: 'Close Recording settings' }))
   fireEvent.click(screen.getByRole('button', { name: 'Start recording' }))
   await screen.findByRole('button', { name: 'Stop recording' })
-  expect(screen.getByRole('button', { name: 'Previous drill target' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Previous card' })).toBeDisabled()
+  view.unmount()
+  media.mockRestore()
+})
+
+it('opens the cards from an edge tab on the stage in the compact layout', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  items = [item(), second()]
+  const view = app()
+  // Compact's one way to the cards is the tab on the start of the stage; the toolbar keeps moving through them.
+  const navigation = within(await screen.findByRole('navigation', { name: 'Practice cards' }))
+  expect(navigation.queryByRole('button', { name: 'Practice cards' })).toBeNull()
+  const edge = screen.getByRole('button', { name: 'Practice cards' })
+  expect(edge).toHaveClass('drill-cards-edge')
+  expect(edge.closest('.drill-mobile-body')).not.toBeNull()
+  fireEvent.click(edge)
+  const drawer = await screen.findByRole('dialog', { name: 'Practice cards' })
+  expect(drawer).toHaveClass('dialog-drawer')
+  expect(edge).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(within(drawer).getByRole('button', { name: /^Hasta luego/ }))
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+  expect(screen.getByText('Card 2 of 2')).toBeInTheDocument()
   view.unmount()
   media.mockRestore()
 })
@@ -786,7 +852,7 @@ it('dismisses a microphone error and its expanded diagnostics without hiding the
 it('defaults to Auto and exposes the shared voice speed preference without opening settings', async () => {
   items = [item()]
   app()
-  expect(await screen.findByRole('checkbox', { name: 'Auto detect takes' })).toBeChecked()
+  expect(await screen.findByRole('checkbox', { name: 'Detect attempts' })).toBeChecked()
   fireEvent.change(screen.getByRole('combobox', { name: 'Voice speed' }), { target: { value: '0.65' } })
   expect(setPreference).toHaveBeenLastCalledWith('tts_rate', 0.65)
 })
@@ -840,13 +906,13 @@ it('lets the learner stop reference and recorded playback', async () => {
   const stop = vi.fn()
   play.mockReturnValue({ play: () => new Promise(() => {}), stop })
   app()
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Speak reply' })).toBeEnabled())
-  fireEvent.click(screen.getByRole('button', { name: 'Speak reply' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Play' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('button', { name: 'Play' }))
   const referenceStop = await screen.findByRole('button', { name: 'Stop playback' })
   expect(referenceStop).toBeEnabled()
   fireEvent.click(referenceStop)
   expect(referenceSignal.aborted).toBe(true)
-  await screen.findByRole('button', { name: 'Speak reply' })
+  await screen.findByRole('button', { name: 'Play' })
   await waitFor(() => expect(screen.getByRole('button', { name: 'Play yours' })).toBeEnabled())
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
   fireEvent.click(await screen.findByRole('button', { name: 'Stop' }))
@@ -871,20 +937,27 @@ it('offers the shared ten-second Auto silence timeout and applies changes to cap
   view.unmount()
 })
 
-it('opens a phrase dropdown while keeping next and random navigation accessible', async () => {
+it('starts with the cards folded and names the shown card between Previous and Next', async () => {
   items = [item(), second()]
   app()
-  await screen.findByRole('button', { name: 'Speak reply' })
-  const navigation = within(await screen.findByRole('navigation', { name: 'Drill targets' }))
-  const toggle = navigation.getByRole('button', { name: /Drill targets/ })
-  expect(toggle).toHaveAttribute('aria-expanded', 'false')
-  expect(screen.queryByRole('complementary', { name: 'Your drill targets' })).toBeNull()
-  fireEvent.click(navigation.getByRole('button', { name: 'Next drill target' }))
-  await waitFor(() => expect(toggle).toHaveTextContent('2 / 2'))
-  fireEvent.click(navigation.getByRole('button', { name: 'Random target' }))
-  await waitFor(() => expect(toggle).toHaveTextContent('1 / 2'))
-  fireEvent.click(toggle)
-  expect(screen.getByRole('complementary', { name: 'Your drill targets' })).toBeVisible()
+  await screen.findByRole('button', { name: 'Play' })
+  const navigation = within(await screen.findByRole('navigation', { name: 'Practice cards' }))
+  // At full width the side panel is the only way to the cards; the toolbar moves through them.
+  expect(navigation.queryByRole('button', { name: /^Practice cards/ })).toBeNull()
+  expect(screen.queryByRole('complementary', { name: 'Your practice cards' })).toBeNull()
+  expect(navigation.getByText('Card 1 of 2')).toBeInTheDocument()
+  fireEvent.click(navigation.getByRole('button', { name: 'Next card' }))
+  await waitFor(() => expect(navigation.getByText('Card 2 of 2')).toBeInTheDocument())
+  fireEvent.click(navigation.getByRole('button', { name: 'Random card' }))
+  await waitFor(() => expect(navigation.getByText('Card 1 of 2')).toBeInTheDocument())
+  // Folded, the edge tab names the cards without a count, opens them, and the panel remembers it.
+  const edge = screen.getByRole('button', { name: 'Practice cards' })
+  expect(edge).toHaveTextContent(/^Practice cards$/)
+  fireEvent.click(edge)
+  expect(screen.getByRole('complementary', { name: 'Your practice cards' })).toBeVisible()
+  expect(localStorage.getItem('skellyspeak_cards_panel')).toBe('open')
+  fireEvent.click(screen.getByRole('button', { name: 'Close Practice cards' }))
+  expect(screen.queryByRole('complementary', { name: 'Your practice cards' })).toBeNull()
 })
 
 it('hides unscored takes by default and retains an explicit way to inspect them', async () => {
@@ -892,10 +965,10 @@ it('hides unscored takes by default and retains an explicit way to inspect them'
   items = [item({ attempts: [unscored, attempt()] })]
   app()
   await screen.findByRole('region', { name: 'Attempt 1' })
-  expect(screen.queryByRole('button', { name: 'Take 2' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Attempt 2' })).toBeNull()
   expect(screen.getByRole('checkbox', { name: 'Show unscored' }).closest('.drill-history-footer')).not.toBeNull()
   fireEvent.click(screen.getByRole('checkbox', { name: 'Show unscored' }))
-  expect(screen.queryByRole('button', { name: 'Take 2' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Attempt 2' })).toBeNull()
   expect(screen.getByRole('region', { name: 'Attempt 2' })).toBeVisible()
   expect(screen.getByRole('checkbox', { name: 'Show unscored' }).closest('.drill-history-footer')).not.toBeNull()
   fireEvent.click(screen.getByRole('checkbox', { name: 'Show unscored' }))
@@ -927,7 +1000,7 @@ it('toggles auto detection in Live without stopping the microphone or changing m
   await screen.findByRole('button', { name: 'Stop recording' })
   await waitFor(() => expect(document.querySelector('.live-recording .inspection-spectrogram')).not.toBeNull())
   const plot = document.querySelector('.live-recording .inspection-spectrogram')
-  const toggle = screen.getByRole('checkbox', { name: 'Auto detect takes' })
+  const toggle = screen.getByRole('checkbox', { name: 'Detect attempts' })
   fireEvent.click(toggle)
   expect(toggle).not.toBeChecked()
   expect(invoke).toHaveBeenCalledWith('mic_listen_tune', expect.objectContaining({ captureMode: 'monitor' }))
@@ -935,7 +1008,7 @@ it('toggles auto detection in Live without stopping the microphone or changing m
   expect(toggle).toBeChecked()
   expect(invoke).toHaveBeenCalledWith('mic_listen_tune', expect.objectContaining({ captureMode: 'auto' }))
   expect(document.querySelector('.live-recording .inspection-spectrogram')).toBe(plot)
-  expect(document.querySelector('.drill-dock')).toHaveAttribute('data-mode', 'live')
+  expect(document.querySelector('.drill-voice')).toHaveAttribute('data-mode', 'auto')
   expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_start')).toHaveLength(1)
   expect(invoke.mock.calls.some(([command]) => command === 'mic_listen_stop')).toBe(false)
 })
@@ -943,33 +1016,33 @@ it('toggles auto detection in Live without stopping the microphone or changing m
 it('restores the selected phrase after remount and replaces a deleted selection', async () => {
   items = [item(), second()]
   const firstView = app()
-  const next = await screen.findByRole('button', { name: 'Next drill target' })
+  const next = await screen.findByRole('button', { name: 'Next card' })
   await waitFor(() => expect(next).toBeEnabled())
   fireEvent.click(next)
   await waitFor(() => expect(localStorage.getItem('skellyspeak_drill_phrase_spanish')).toBe('item-2'))
   firstView.unmount()
   const refreshed = app()
-  await waitFor(() => expect(screen.getByRole('button', { name: /^Drill targets/ })).toHaveTextContent('2 / 2'))
+  await waitFor(() => expect(screen.getByText('Card 2 of 2')).toBeInTheDocument())
   expect(invoke).toHaveBeenCalledWith('get_cached_reading_audio', expect.objectContaining({ input: expect.objectContaining({ referenceItem: 'item-2' }) }))
   refreshed.unmount()
   items = [item()]
   app()
   await waitFor(() => expect(localStorage.getItem('skellyspeak_drill_phrase_spanish')).toBe('item-1'))
-  expect(screen.getByRole('button', { name: /^Drill targets/ })).toHaveTextContent('1 / 1')
+  expect(screen.getByText('Card 1 of 1')).toBeInTheDocument()
 })
 
 it('automatically expands a newly published take after selecting an older card', async () => {
   items = [item({ attempts: [attempt({ id: 'attempt-2', sequence: 2n }), attempt()] })]
   app()
-  fireEvent.click(await screen.findByRole('button', { name: 'Take 1' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Attempt 1' }))
   expect(screen.getByRole('region', { name: 'Attempt 1' })).toBeVisible()
   items = [item({ attempts: [attempt({ id: 'attempt-3', sequence: 3n }), ...items[0].attempts] })]
   const { recordingPublished } = await import('../../platform/audio/recording-events')
   act(() => recordingPublished({ kind: 'drillItem', id: 'item-1' }))
   expect(await screen.findByRole('region', { name: 'Attempt 3' })).toBeVisible()
   expect(screen.queryByRole('region', { name: 'Attempt 1' })).toBeNull()
-  expect(screen.queryByRole('button', { name: 'Take 3' })).toBeNull()
-  expect(screen.getByRole('button', { name: 'Take 1' })).toBeVisible()
+  expect(screen.queryByRole('button', { name: 'Attempt 3' })).toBeNull()
+  expect(screen.getByRole('button', { name: 'Attempt 1' })).toBeVisible()
 })
 
 it('releasing Hold before microphone startup finishes stops the capture when ready', async () => {
@@ -1019,11 +1092,11 @@ it('seeks paused plots without starting audio and resumes from the selected posi
   expect(Number(attemptCursor.getAttribute('aria-valuenow'))).toBeCloseTo(0.75)
   expect(play).not.toHaveBeenCalled()
   expect(speak).not.toHaveBeenCalled()
-  fireEvent.click(screen.getByRole('button', { name: 'Speak reply' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Play' }))
   await waitFor(() => expect(play).toHaveBeenCalledTimes(1))
   expect(play.mock.calls[0][5].startSeconds).toBe(0.6)
   fireEvent.click(screen.getByRole('button', { name: 'Stop playback' }))
-  await screen.findByRole('button', { name: 'Speak reply' })
+  await screen.findByRole('button', { name: 'Play' })
   fireEvent.change(reference, { target: { value: '0.2' } })
   expect(play).toHaveBeenCalledTimes(1)
   fireEvent.click(screen.getByRole('button', { name: 'Play yours' }))
@@ -1049,17 +1122,18 @@ it('restores the durable workspace phrase after startup even with stale webview 
   await waitFor(() => expect(finish).toBeDefined())
   expect(invoke.mock.calls.some(([command]) => command === 'enter_drill_visit')).toBe(false)
   await act(async () => finish('item-2'))
-  await waitFor(() => expect(screen.getByRole('button', { name: /^Drill targets/ })).toHaveTextContent('2 / 2'))
+  await waitFor(() => expect(screen.getByText('Card 2 of 2')).toBeInTheDocument())
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('enter_drill_visit', expect.objectContaining({ itemId: 'item-2' })))
   expect(localStorage.getItem('skellyspeak_drill_phrase_spanish')).toBe('item-2')
 })
 
-it('opens the full Add phrases modal directly from the toolbar', async () => {
+it('opens the full Add cards modal directly from the cards panel', async () => {
   items = [item()]
   app()
-  const navigation = await screen.findByRole('navigation', { name: 'Drill targets' })
-  fireEvent.click(within(navigation).getByRole('button', { name: 'Add drill targets…' }))
-  const dialog = await screen.findByRole('dialog', { name: 'Add phrases' })
+  await openPhrases()
+  const panel = await screen.findByRole('region', { name: 'Practice cards' })
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add practice cards…' }))
+  const dialog = await screen.findByRole('dialog', { name: 'Add practice cards' })
   expect(dialog.tagName).toBe('DIALOG')
   expect(document.querySelector('.drill-entry')).toBeNull()
   expect(screen.queryByPlaceholderText('Type a line to say out loud')).toBeNull()

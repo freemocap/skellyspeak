@@ -37,6 +37,8 @@ const MAX_SECONDS: u32 = 120;
 struct Buffers {
     /// Every captured sample, mono, for the WAV.
     pcm: Vec<f32>,
+    /// How much of `pcm` the live spectrogram has already read.
+    analysed: usize,
     total_samples: usize,
     /// Decimated samples the UI has not drawn yet.
     wave: Vec<f32>,
@@ -278,7 +280,29 @@ impl Capture {
         if b.overflowed {
             return Err("Microphone buffer overflow; recording stopped.".into());
         }
+        b.analysed = 0;
         Ok((self.sample_rate, std::mem::take(&mut b.pcm)))
+    }
+
+    /// Samples captured since the last call, copied for the live spectrogram.
+    /// The recording keeps every sample for its WAV.
+    pub(super) fn take_unanalysed(&self) -> Result<(u32, Vec<f32>), String> {
+        let mut b = self
+            .buffers
+            .lock()
+            .map_err(|_| "Audio buffers unavailable.")?;
+        if let Some(error) = &b.error {
+            return Err(error.clone());
+        }
+        if b.overflowed {
+            return Err(format!(
+                "Recording exceeded {MAX_SECONDS} seconds. Record a shorter message."
+            ));
+        }
+        let start = b.analysed.min(b.pcm.len());
+        let fresh = b.pcm[start..].to_vec();
+        b.analysed = b.pcm.len();
+        Ok((self.sample_rate, fresh))
     }
 
     fn halt(&mut self) {
@@ -358,6 +382,20 @@ mod tests {
                 .unwrap(),
             vec![-32767, 0, 32767]
         );
+    }
+    #[test]
+    fn live_analysis_reads_each_sample_once_and_the_wav_keeps_them_all() {
+        let capture = fixture(vec![0.1, 0.2, 0.3], 8000);
+        assert_eq!(
+            capture.take_unanalysed().unwrap(),
+            (8000, vec![0.1, 0.2, 0.3])
+        );
+        assert_eq!(capture.take_unanalysed().unwrap(), (8000, vec![]));
+        capture.buffers.lock().unwrap().pcm.push(0.4);
+        assert_eq!(capture.take_unanalysed().unwrap(), (8000, vec![0.4]));
+        let wav = capture.finish().unwrap();
+        let reader = hound::WavReader::new(std::io::Cursor::new(wav)).unwrap();
+        assert_eq!(reader.len(), 4);
     }
     #[test]
     fn recording_bound_is_explicit_and_does_not_silently_truncate() {

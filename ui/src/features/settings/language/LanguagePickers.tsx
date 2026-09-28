@@ -100,7 +100,10 @@ export function LearningPicker() {
       <button type="button" className="learning-picker" ref={trigger} aria-label={tr('Target language')}
         aria-expanded={open} aria-controls={id} disabled={disabled} onClick={() => { setExpanded(null); setOpen(!open) }}>
         <span className="learning-picker-identity">
-          <span lang={selected.languageTag}>{languageLabel(selected, tr.locale)}</span>
+          {/* The language's own name, then its name in the interface language; the
+              second gives way first where the bar is short of room. */}
+          <span><span lang={selected.languageTag}>{selected.endonym}</span>{translatedName(tr.locale, selected.name) !== selected.endonym
+            && <span className="learning-picker-name"> ({translatedName(tr.locale, selected.name)})</span>}</span>
           <small>{selectedVariety && translatedName(tr.locale, selectedVariety.label)}</small>
         </span>
         <span aria-hidden="true">▾</span>
@@ -165,7 +168,7 @@ export function NativePicker() {
   const { settings, disabled, change } = usePicker()
   if (!settings) return null
   return (
-    <label><span>{tr("Explanation language")}</span><select className="chat-language-picker" aria-label={tr("Native language")} value={settings.native_language}
+    <label><span>{tr("Explain in")}</span><select className="chat-language-picker" aria-label={tr("Explain in")} value={settings.native_language}
       disabled={disabled} onChange={event => change('native_language', event.target.value)}>
       {languages().filter((language, index, all) => all.findIndex(item => item.base === language.base) === index).map(language => <option lang={language.languageTag} key={language.base} value={language.base}>{languageLabel(language, tr.locale)}</option>)}
     </select></label>

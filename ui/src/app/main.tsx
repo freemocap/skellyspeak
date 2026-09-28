@@ -1,6 +1,7 @@
 import { t } from '../domain/localization'
 import { reportDiagnosticBridgeFailure, reportFault, reportUnhandledError } from '../platform/diagnostics/faults'
 import { installDiagnosticCapture, logDiagnostic } from '../platform/diagnostics/log'
+import { guardDevelopmentMeasures } from '../platform/diagnostics/development-measures'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { CrashBoundary } from './CrashBoundary'
@@ -15,6 +16,8 @@ import { currentWindowLabel } from '../platform/ipc/window'
 import { initStores } from '../state/init'
 
 installDiagnosticCapture()
+// React's development build keeps a props diff for every render; see the module.
+if (import.meta.env.DEV) guardDevelopmentMeasures()
 window.addEventListener('diagnostic-bridge-failed', reportDiagnosticBridgeFailure)
 window.addEventListener('unhandled-ui-error', reportUnhandledError)
 // The web lifecycle covers focus, visibility and pagehide. Only the native

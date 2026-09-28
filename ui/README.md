@@ -193,8 +193,8 @@ state, without native calls or persistence.
 | Text | `--type-meta` 11px, `--type-ui` 13px, `--type-body` 15px, `--type-title` 18px, `--type-reading` 20px, `--type-display` 24px |
 | General surfaces | `--bg`, `--chrome`, `--sheet`, `--field`; text `--ink`, `--ink-2`, `--ink-3`; borders `--line`, `--line-soft` |
 | Layout spacing | Ordered `--space-*` steps scale together using `--layout-scale` |
-| Controls | `--control-height` selects 40px/32px; coarse pointers enforce 44px |
-| Depth | `--shadow-sm/surface/floating/menu/drawer/input/recessed`, `--scrim`, `--scrim-strong`, `--surface-bg/glow` |
+| Controls | `--control-height` 40px, `--control-height-sm` 32px; coarse pointers enforce 44px |
+| Depth | `--shadow-sm/surface/floating/menu/drawer/input/recessed`, `--scrim`, `--scrim-strong` |
 | Reading | Independent reading/script scale, word spacing, serif/script fonts and annotation roles |
 | Interaction and status | `--interaction-ink/fill/fill-hover/tint`, `--focus-ring`; `--success-*`, `--warning-*`, `--danger-*` (each `-ink`, `-line`, `-tint`) |
 | Learning domains | `--d-*` fills, `--di-*` inks, `--dm-*` muted fills, `--ink-on-domain` |
@@ -212,7 +212,7 @@ reading}.css`. Feature CSS owns composition and explicit feature variants.
 {forms,appearance}.css` owns Settings-specific controls. Apply depth within the
 component base, rather than adding a global override sheet after all features.
 
-Appearance settings are learner preferences, validated/defaulted in Rust and
+Appearance settings (theme and palette) are learner preferences, validated/defaulted in Rust and
 applied by `platform/appearance/useAppearance.ts`. Reading preferences retain their
 own provider. The complete app restyle remains an incremental effort; the current
 status and detailed language/reward exploration follow-up are recorded in

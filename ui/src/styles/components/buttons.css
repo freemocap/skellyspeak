@@ -90,3 +90,21 @@
 .detail-action:disabled { opacity: .5; cursor: default; }
 
 .detail-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); }
+
+/* A segmented choice (SegmentedChoice): one of a few options as joined buttons,
+   the chosen one filled in the interaction colour so it reads at a glance. Rows
+   that label it own their own layout. */
+.segmented {
+  display: inline-flex; flex-wrap: wrap; padding: var(--space-1); gap: var(--space-1);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome);
+}
+.segmented button {
+  min-width: 0; min-height: var(--control-height-sm); padding: 0 var(--space-5); border: 0; border-radius: var(--radius-sm); background: transparent;
+  color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
+}
+.segmented button:hover:not(:disabled):not([aria-checked='true']) { color: var(--ink); background: var(--sheet); }
+.segmented button[aria-checked='true'] { background: var(--interaction-fill); color: var(--ink-on-fill); box-shadow: var(--shadow-sm); }
+.segmented button[aria-checked='true']:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+.segmented button:disabled { cursor: default; }
+.segmented button:disabled:not([aria-checked='true']) { opacity: 0.5; }
+@media (pointer: coarse) { .segmented button { min-height: var(--touch-target); } }

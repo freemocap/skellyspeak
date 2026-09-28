@@ -54,14 +54,14 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
         <span className="drill-inspection-spacer" />
         <span className="drill-inspection-score">{match(comparison, tr)}</span>
         <button type="button" className="btn drill-remove" disabled={deleting} onClick={onDelete}
-          aria-label={tr("Delete take {value0}", { value0: String(attempt.sequence) })} title={tr("Delete take {value0}", { value0: String(attempt.sequence) })}>
+          aria-label={tr("Delete attempt {value0}", { value0: String(attempt.sequence) })} title={tr("Delete attempt {value0}", { value0: String(attempt.sequence) })}>
           <ToolbarIcon name="trash" size={14} />
         </button>
       </div>
       {recording.note && <p className="drill-inspection-note">{recording.note}</p>}
 
       {comparison.reliability?.accepted === false ? <bdi>{attempt.transcript}</bdi> : <WordPairs words={words} rtl={rtl} />}
-      {comparison.scriptNote === 'mismatch' && <p role="note">{tr("The transcript is in a different script from the drill target. This does not change the measurement.")}</p>}
+      {comparison.scriptNote === 'mismatch' && <p role="note">{tr("The transcript is in a different script from the card. This does not change the measurement.")}</p>}
 
       <table className="drill-measures" title={tr("Speaking time, pace and pauses come from detected sound, not from recognised words.")}>
         <thead><tr><td /><th scope="col">{tr("You")}</th><th scope="col">{tr("Reference")}</th></tr></thead>
@@ -75,7 +75,7 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
       {comparison.reliability && <p className="drill-inspection-note">{tr("Minimum recognition confidence: {value0}. Model likelihood is not a calibrated probability of correctness.", {
         value0: tr.number(comparison.reliability.minimumConfidence, { style: 'percent', maximumFractionDigits: 0 }),
       })}</p>}
-        <p>{tr("Characters matching the target, after {value0}", { value0: comparison.normalizations.length ? comparison.normalizations.join(', ') : tr("no normalization") })}</p>
+        <p>{tr("Characters matching the card, after {value0}", { value0: comparison.normalizations.length ? comparison.normalizations.join(', ') : tr("no normalization") })}</p>
         <dl>
           <dt>{tr("Policy")}</dt><dd>{comparison.policy}</dd>
           <dt>{tr("Character error rate")}</dt>

@@ -247,19 +247,10 @@ pub(crate) fn decide(
     }
     Ok(decision)
 }
-pub(crate) fn control(
-    db: &Connection,
-    snapshot: &Snapshot,
-    turn: &str,
-    control: CoachControl,
-    expected: i32,
-) -> Result<String> {
-    if snapshot.revision != expected {
-        return Err(AppError::new(
-            ErrorCode::Conflict,
-            "Coaching changed. Review the current advice.",
-        ));
-    }
+/// Applies a learner's coaching control to the turn's current decision. Other
+/// work finishing meanwhile (glosses, assessments, rewards) does not matter: the
+/// control reads the decision as it is now.
+pub(crate) fn control(db: &Connection, turn: &str, control: CoachControl) -> Result<String> {
     let raw:Option<String>=db.query_row("SELECT context FROM turns t WHERE id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)",[turn],|r|r.get(0)).optional()?;
     let mut context: Value = serde_json::from_str(&raw.ok_or_else(|| {
         AppError::new(ErrorCode::NotFound, "Current coaching turn is unavailable.")

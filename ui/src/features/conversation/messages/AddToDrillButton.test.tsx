@@ -15,13 +15,15 @@ beforeEach(() => { create.mockReset(); remove.mockReset() })
 
 it('puts one add action on each bubble and saves the AI reply with its captured language scope', async () => {
   create.mockResolvedValue({ id: 'phrase-1' } as Awaited<ReturnType<typeof createDrillItem>>)
-  const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: {
+  const { container } = render(<ReadingScopeContext value={scope}><TurnView editing={false} turn={{ id: 1, user: 'Hola', pendingText: '', assistant: {
     reply: 'Buenos días.', tokens: [], user_tokens: [], translation: '', user_translation: '', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [],
   } }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
-  expect(within(container.querySelector('.msg.me') as HTMLElement).getAllByRole('button', { name: 'Add to Drill' })).toHaveLength(1)
-  expect(within(container.querySelector('.msg.bot') as HTMLElement).getAllByRole('button', { name: 'Add to Drill' })).toHaveLength(1)
-  fireEvent.click(within(container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Add to Drill' }))
-  await screen.findByRole('button', { name: 'Remove from Drill' })
+  expect(within(container.querySelector('.msg.me') as HTMLElement).getAllByRole('button', { name: 'Add to Practice' })).toHaveLength(1)
+  expect(within(container.querySelector('.msg.bot') as HTMLElement).getAllByRole('button', { name: 'Add to Practice' })).toHaveLength(1)
+  // Add to Practice is a top-level icon on both bubbles, never inside the ⋯ menu.
+  for (const button of screen.getAllByRole('button', { name: 'Add to Practice' })) expect(button.closest('.message-tools-actions')).not.toBeNull()
+  fireEvent.click(within(container.querySelector('.msg.bot') as HTMLElement).getByRole('button', { name: 'Add to Practice' }))
+  await screen.findByRole('button', { name: 'Remove from Practice' })
   expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Buenos días.', ...scope })
 })
 
@@ -29,12 +31,12 @@ it('blocks repeated clicks while a save is in flight', async () => {
   let finish!: (value: Awaited<ReturnType<typeof createDrillItem>>) => void
   create.mockReturnValue(new Promise(resolve => { finish = resolve }))
   render(<ReadingScopeContext value={scope}><AddToDrillButton text="Hola" /></ReadingScopeContext>)
-  const button = screen.getByRole('button', { name: 'Add to Drill' })
+  const button = screen.getByRole('button', { name: 'Add to Practice' })
   fireEvent.click(button); fireEvent.click(button)
   expect(button).toBeDisabled()
   expect(create).toHaveBeenCalledTimes(1)
   finish({ id: 'phrase-1' } as Awaited<ReturnType<typeof createDrillItem>>)
-  expect(await screen.findByRole('button', { name: 'Remove from Drill' })).toBeEnabled()
+  expect(await screen.findByRole('button', { name: 'Remove from Practice' })).toBeEnabled()
 })
 
 it('keeps a failed save visible and permits an explicit retry without truncating text', async () => {
@@ -42,11 +44,11 @@ it('keeps a failed save visible and permits an explicit retry without truncating
   create.mockResolvedValueOnce({ id: 'phrase-1' } as Awaited<ReturnType<typeof createDrillItem>>)
   const text = 'Long reply. '.repeat(60)
   render(<ReadingScopeContext value={scope}><AddToDrillButton text={text} /></ReadingScopeContext>)
-  fireEvent.click(screen.getByRole('button', { name: 'Add to Drill' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Add to Practice' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('512')
   expect(create).toHaveBeenLastCalledWith({ text, ...scope })
-  fireEvent.click(screen.getByRole('button', { name: 'Add to Drill' }))
-  await screen.findByRole('button', { name: 'Remove from Drill' })
+  fireEvent.click(screen.getByRole('button', { name: 'Add to Practice' }))
+  await screen.findByRole('button', { name: 'Remove from Practice' })
   expect(screen.queryByRole('alert')).toBeNull()
 })
 
@@ -58,9 +60,9 @@ it('does not guess a language when the conversation scope is unavailable', () =>
 
 it('saves the learner message from its own bubble', async () => {
   create.mockResolvedValue({ id: 'phrase-2' } as Awaited<ReturnType<typeof createDrillItem>>)
-  const { container } = render(<ReadingScopeContext value={scope}><TurnView turn={{ id: 1, user: 'Hola', pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
-  fireEvent.click(within(container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Add to Drill' }))
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Remove from Drill' })).toHaveAttribute('data-state', 'saved'))
+  const { container } = render(<ReadingScopeContext value={scope}><TurnView editing={false} turn={{ id: 1, user: 'Hola', pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onBubbleTap={() => {}} onAskCoach={() => {}} /></ReadingScopeContext>)
+  fireEvent.click(within(container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Add to Practice' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Remove from Practice' })).toHaveAttribute('data-state', 'saved'))
   expect(create).toHaveBeenCalledExactlyOnceWith({ text: 'Hola', ...scope })
 })
 
@@ -69,12 +71,12 @@ it('removes the saved item on a second press and can add it again', async () => 
   create.mockResolvedValueOnce({ id: 'phrase-2' } as Awaited<ReturnType<typeof createDrillItem>>)
   remove.mockResolvedValue(undefined)
   render(<ReadingScopeContext value={scope}><AddToDrillButton text="Hola" /></ReadingScopeContext>)
-  fireEvent.click(screen.getByRole('button', { name: 'Add to Drill' }))
-  fireEvent.click(await screen.findByRole('button', { name: 'Remove from Drill' }))
-  expect(await screen.findByRole('button', { name: 'Add to Drill' })).toHaveAttribute('data-state', 'ready')
+  fireEvent.click(screen.getByRole('button', { name: 'Add to Practice' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Remove from Practice' }))
+  expect(await screen.findByRole('button', { name: 'Add to Practice' })).toHaveAttribute('data-state', 'ready')
   expect(remove).toHaveBeenCalledExactlyOnceWith('phrase-1')
-  fireEvent.click(screen.getByRole('button', { name: 'Add to Drill' }))
-  await screen.findByRole('button', { name: 'Remove from Drill' })
+  fireEvent.click(screen.getByRole('button', { name: 'Add to Practice' }))
+  await screen.findByRole('button', { name: 'Remove from Practice' })
   expect(create).toHaveBeenCalledTimes(2)
 })
 
@@ -82,8 +84,8 @@ it('keeps the item saved and shows the failure when removal fails', async () => 
   create.mockResolvedValue({ id: 'phrase-1' } as Awaited<ReturnType<typeof createDrillItem>>)
   remove.mockRejectedValue(new Error('This drill item no longer exists.'))
   render(<ReadingScopeContext value={scope}><AddToDrillButton text="Hola" /></ReadingScopeContext>)
-  fireEvent.click(screen.getByRole('button', { name: 'Add to Drill' }))
-  fireEvent.click(await screen.findByRole('button', { name: 'Remove from Drill' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Add to Practice' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Remove from Practice' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('no longer exists')
-  expect(screen.getByRole('button', { name: 'Remove from Drill' })).toHaveAttribute('data-state', 'saved')
+  expect(screen.getByRole('button', { name: 'Remove from Practice' })).toHaveAttribute('data-state', 'saved')
 })

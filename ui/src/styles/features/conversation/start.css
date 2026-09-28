@@ -1,67 +1,168 @@
-/* start — conversation style owner. */
+/* start — conversation style owner. The empty conversation: the partner with
+   the main start beside them, one-press topics, the learner's own topic, and the
+   options in a panel of their own under every start. */
 .conversation-start {
   color: var(--ink);
   display: grid;
-  justify-items: stretch;
-  gap: var(--space-6);
-  padding: var(--space-6); margin-block: 0;
+  gap: var(--space-9);
+  padding: var(--space-6) var(--space-2); margin-block: 0;
   min-width: 0;
 }
+/* Narrower than the thread, so the card reads as one block. */
+.chat .stream > .conversation-start { max-width: 40rem; }
 
 /* Grid and fieldset children both take a min-content floor by default, which
-   let the scene cluster push the whole stream wider than the chat column. */
+   let the topics push the whole stream wider than the chat column. */
 .conversation-start > * { min-width: 0; max-width: 100%; }
 
+/* The partner's side of the table, in the partner's colours, with the main
+   start beside them. */
+.start-partner {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-5) var(--space-7); padding: var(--space-6) var(--space-7);
+  background: var(--partner-tint); border: var(--border-width) solid var(--partner-line); border-radius: var(--radius-xl);
+}
+.start-partner .persona-avatar {
+  width: 3rem; height: 3rem; border-radius: var(--radius-circle);
+  background: var(--sheet); border: var(--border-width-strong) solid var(--partner-mark); font-size: var(--type-display);
+}
+.start-partner-text { display: grid; gap: var(--space-2); min-width: 0; }
+.start-partner h2 { margin: 0; font-size: var(--type-title); overflow-wrap: anywhere; }
+.start-partner-links { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-7); }
+.start-link {
+  justify-self: start; min-height: var(--control-height-xs); padding: 0; border: 0; background: none; color: var(--interaction-ink); cursor: pointer;
+  font: var(--weight-medium) var(--type-ui) var(--font-sans); text-decoration: underline; text-underline-offset: var(--space-2); text-decoration-thickness: var(--border-width);
+}
+.start-link:hover:not(:disabled) { color: var(--interaction-fill-hover); }
+.start-link:disabled { opacity: .5; cursor: default; }
 .start-conversation-button {
-  min-height: var(--touch-target);
-  padding: var(--space-3) var(--space-5);
-  background: var(--interaction-fill);
-  color: var(--ink-on-fill);
-  border: var(--border-width) solid var(--interaction-fill);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-body);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
+  min-height: calc(var(--touch-target) + var(--space-2)); padding-inline: var(--space-11);
+  font: var(--weight-semibold) var(--type-title) var(--font-sans); box-shadow: var(--shadow-sm);
 }
 
-.start-conversation-button:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+/* Topics start the conversation when pressed: action buttons, each with an
+   arrow at its end. */
+.start-topics { margin: 0; padding: 0; border: 0; min-width: 0; }
+.start-topics legend { display: block; margin-bottom: var(--space-4); padding: 0; font: var(--weight-semibold) var(--type-ui) var(--font-sans); color: var(--ink-2); }
+.topic-starts { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.topic-start {
+  display: inline-flex; align-items: center; gap: var(--space-6); max-width: 100%; min-height: var(--touch-target);
+  padding-block: var(--space-3); padding-inline: var(--space-7) var(--space-5); text-align: start;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--field); color: var(--ink); box-shadow: var(--shadow-sm);
+  cursor: pointer; overflow-wrap: anywhere;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.topic-start:hover:not(:disabled) { border-color: var(--interaction-mark); background: var(--interaction-tint); }
+.topic-start:disabled { opacity: .5; cursor: default; }
+.topic-start > svg { flex: none; color: var(--interaction-ink); transform: rotate(-90deg); }
+.topic-start:dir(rtl) > svg { transform: rotate(90deg); }
+.topic-start-text { display: grid; min-width: 0; }
+/* The name is target-language text (.target-word in reading.css); a saved topic
+   is the learner's own words, in the interface style. */
+.topic-start-target { font-size: calc(var(--type-body) * var(--script-scale)); line-height: var(--leading-snug); }
+.topic-start-saved { font-size: var(--type-body); line-height: var(--leading-snug); }
+.topic-start-roman { font-size: var(--type-meta); font-style: italic; color: var(--ink-3); line-height: var(--leading-snug); }
+.topic-start-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+/* A saved topic's delete control sits on its top corner, shown while the
+   pointer is over the topic or the control has focus; always shown on touch. */
+.saved-topic { position: relative; display: inline-flex; max-width: 100%; }
+.saved-topic-delete {
+  position: absolute; inset-block-start: calc(var(--space-4) * -1); inset-inline-end: calc(var(--space-4) * -1);
+  display: grid; place-items: center; width: var(--control-height-xs); height: var(--control-height-xs); padding: 0;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-circle); background: var(--field); color: var(--ink-3);
+  box-shadow: var(--shadow-sm); cursor: pointer; opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.saved-topic:hover > .saved-topic-delete, .saved-topic-delete:focus-visible, .saved-topic-delete[aria-busy="true"] { opacity: 1; }
+.saved-topic-delete:hover:not(:disabled) { color: var(--danger-ink); border-color: var(--danger-line); background: var(--danger-tint); }
+.saved-topic-delete:disabled { cursor: default; }
+@media (pointer: coarse) { .saved-topic-delete { opacity: 1; } }
+
+/* The learner's own topic: a field named by its placeholder, with its own start,
+   and saving it for later under it. */
+.start-own { display: grid; gap: var(--space-4); margin: 0; }
+.start-own-row { display: flex; gap: var(--space-3); }
+.start-own-row > .field { flex: 1; min-width: 0; min-height: var(--touch-target); }
+.start-own-row > .btn { flex: none; min-height: var(--touch-target); padding-inline: var(--space-9); }
+.start-own-save { display: inline-flex; align-items: center; gap: var(--space-3); justify-self: start; color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; }
+.start-own-save input { accent-color: var(--interaction-fill); }
+.start-or-message { margin: 0; color: var(--ink-3); font-size: var(--type-ui); }
+.start-error { margin: 0; color: var(--danger-ink); overflow-wrap: anywhere; }
+
+/* Options: a panel of their own above every start. Folded, one line says what
+   they are set to; opening eases the panel taller. */
+.start-options {
+  overflow: hidden;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--chrome); box-shadow: var(--shadow-sm);
+}
+.start-options-toggle {
+  display: flex; align-items: center; gap: var(--space-4); width: 100%; min-height: var(--touch-target); padding: 0 var(--space-7);
+  border: 0; background: transparent; color: var(--ink); font: var(--weight-semibold) var(--type-ui) var(--font-sans); text-align: start; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.start-options-toggle:hover { background: color-mix(in srgb, var(--interaction-tint) 60%, var(--chrome)); }
+/* The panel clips its corners, so the focus ring is drawn inside it. */
+.start-options-toggle:focus-visible { outline-offset: calc(-1 * var(--space-2)); }
+.start-options-toggle > svg:first-child { flex: none; color: var(--interaction-ink); }
+.start-options-toggle > svg:last-child { flex: none; color: var(--ink-2); transition: transform var(--dur-slow) var(--ease-out); }
+.start-options[data-open='true'] .start-options-toggle > svg:last-child { transform: rotate(180deg); }
+.start-options-title { flex: none; }
+.start-options-summary { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-regular); color: var(--ink-2); }
+.start-options-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--dur-slow) var(--ease-out); }
+.start-options[data-open='true'] .start-options-body { grid-template-rows: 1fr; }
+.start-options-content {
+  display: grid; gap: var(--space-7); min-height: 0; overflow: hidden; padding: 0 var(--space-7);
+  background: var(--sheet); opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-out), padding var(--dur-slow) var(--ease-out);
+}
+.start-options[data-open='true'] .start-options-content { padding-block: var(--space-7) var(--space-8); border-top: var(--border-width) solid var(--line-soft); opacity: 1; }
+/* Each option's name, then its choices; the names share one column. The
+   prompt creator shows the same rows. */
+.start-options-rows { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: var(--space-5) var(--space-6); }
+.start-options-rows > .segmented { justify-self: start; }
+.start-option-label { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--type-ui); color: var(--ink-2); }
+/* Shown ahead of the native support it needs: disabled, with “Coming soon” on
+   hover. The select lets the pointer through so the wrapper's tooltip shows. */
+.start-option-soon { justify-self: start; cursor: help; }
+.start-option-soon select { min-width: 12rem; pointer-events: none; }
+
+/* The prompt creator's topic chips: they select for the configuration it applies. */
+.topic-chips { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.topic-chip {
+  display: inline-grid; align-content: center; max-width: 100%; min-height: var(--touch-target); padding: var(--space-3) var(--space-8); text-align: start;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); background: var(--field); color: var(--ink); cursor: pointer; overflow-wrap: anywhere;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.topic-chip:hover:not(:disabled) { border-color: var(--ink-3); }
+.topic-chip[aria-pressed='true'] { border-color: var(--interaction-mark); background: var(--interaction-tint); box-shadow: inset 0 0 0 var(--border-width) var(--interaction-mark); }
+.topic-chip:disabled { opacity: .5; cursor: default; }
+.topic-chip-label { display: inline-flex; align-items: center; gap: var(--space-3); font: var(--weight-medium) var(--type-ui) var(--font-sans); }
+.topic-chip-target { font-size: calc(var(--type-body) * var(--script-scale)); line-height: var(--leading-snug); }
+.topic-chip-roman { font-size: var(--type-meta); font-style: italic; color: var(--ink-3); line-height: var(--leading-snug); }
+.topic-chip-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
+
+@media (prefers-reduced-motion: reduce) {
+  .start-options-body, .start-options-content, .start-options-toggle, .start-options-toggle > svg:last-child, .topic-start, .topic-chip { transition: none; }
+}
+@media (max-width: 480px) {
+  .conversation-start { gap: var(--space-8); padding-inline: 0; }
+  /* The start takes its own row under the partner. */
+  .start-partner { grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5) var(--space-6); }
+  .start-conversation-button { grid-column: 1 / -1; }
+  .start-options-rows { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+}
+/* Narrow: the topics keep one row and scroll sideways, edge to edge. */
+@media (max-width: 400px) {
+  .topic-starts { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--space-3)); padding: 0 var(--space-3) var(--space-2); scrollbar-width: none; }
+  .topic-start { flex: none; max-width: 80%; }
+}
 
 .opening-status { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-5); color: var(--ink); }
 
 .opening-status .btn { color: var(--ink); background: var(--field); border-color: var(--line); }
-.conversation-start .persona-avatar { width: 48px; height: 48px; flex: none; border-radius: var(--radius-circle); background: var(--sheet); border: var(--border-width) solid var(--bubble-partner-line); font-size: var(--type-display); }
-.conversation-start h2 { margin: 0; font-size: var(--type-title); overflow-wrap: anywhere; }
 
-/* The invitation reads as the partner's side of the table, so it borrows the
-   colours the partner's messages already use. */
-.invitation { display: grid; gap: var(--space-5);
-  width: 100%; padding: var(--space-6);
-  background: var(--bubble-partner-bg); border: var(--border-width) solid var(--bubble-partner-line);
-  border-radius: var(--radius-xl); }
-.invitation-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
-.invitation-partner { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
-.invitation-partner-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-.invitation-partner-actions .btn { background: var(--sheet); }
-
-/* Opening the microphone is the peer of letting the partner start, so it is the
-   same size and sits beside it rather than under it. */
-.start-greeting-button {
-  min-height: var(--touch-target);
-  display: inline-flex; align-items: center; gap: var(--space-3);
-  padding: var(--space-3) var(--space-5);
-  background: var(--sheet); color: var(--interaction-ink);
-  border: var(--border-width-strong) solid var(--interaction-fill);
-  border-radius: var(--radius-sm);
-  font-size: var(--type-body); font-weight: var(--weight-semibold);
-  cursor: pointer;
-}
-.start-greeting-button:hover:not(:disabled) { background: var(--chrome); }
-.start-greeting-button:disabled { opacity: .5; cursor: default; }
-.start-greeting-dot { width: 10px; height: 10px; flex: none; border-radius: var(--radius-circle); background: var(--danger-fill); }
-
-/* A cluster of scenes, not a list: as many per row as the width allows. */
-.start-scenes { border: 0; padding: 0; margin: 0; min-width: 0; width: 100%; }
-.start-scenes legend { text-align: start; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
+/* Skill cards: a cluster, not a list, as many per row as the width allows. The
+   skill catalog browser (components/learning) uses them. */
 .scene-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--space-4);
   min-width: 0; }
 .scene-card { display: grid; justify-items: center; align-content: center; gap: var(--space-2);
@@ -72,24 +173,10 @@
 .scene-card:hover:not(:disabled) { border-color: var(--ink-3); }
 .scene-card[aria-pressed=true] { border-color: var(--interaction-ink); border-width: var(--border-width-strong); background: var(--interaction-tint); }
 .scene-card:disabled { opacity: .5; cursor: default; }
-.scene-glyph { font-size: var(--type-title); line-height: var(--leading-none); }
 .scene-label { font-size: var(--type-ui); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
-.scene-roman { font-size: var(--type-meta); color: var(--ink-3); font-style: italic; line-height: var(--leading-snug); }
-.scene-translation { font-size: var(--type-meta); color: var(--ink-3); line-height: var(--leading-snug); }
 
-/* Difficulty and grammar practice are ordinary settings; they stay on the
-   surface rather than behind a disclosure. */
-.start-controls { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-5) var(--space-8); }
-.start-conversation-button:disabled { opacity: .5; }
-@media (max-width: 480px) { .conversation-start { padding: var(--space-5); gap: var(--space-4); } }
-
-/* Compact start controls share one draft with the detailed prompt creator. */
-.start-choice-row { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
-.start-choice-row legend { text-align: start; color: var(--ink-2); font-size: var(--type-ui); margin-bottom: var(--space-3); }
-.start-choice-row .btn[aria-pressed=true], .prompt-tabs .btn[aria-selected=true] { background: var(--interaction-ink); color: var(--ink-on-fill); }
-.start-difficulty { display: grid; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-ui); }
-.start-difficulty .chat-language-picker { font-size: var(--type-ui); min-height: var(--control-height); }
-.start-error { margin: 0; color: var(--danger-ink); overflow-wrap: anywhere; }
+/* The prompt creator: the start choices unfolded, the YAML and the preview. */
+.prompt-tabs .btn[aria-selected=true] { background: var(--interaction-ink); color: var(--ink-on-fill); }
 .prompt-actions, .prompt-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .prompt-creator { display: grid; gap: var(--space-5); }
 .prompt-creator > section:not([hidden]) { display: grid; gap: var(--space-5); }
@@ -98,38 +185,3 @@
 .prompt-creator .prompt-yaml { min-height: 260px; font-family: monospace; }
 .prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
 .prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }
-
-/* All four choices share one grid row and equal widths; the coach label spans
-   its three choices without a nested fieldset shifting their button baseline. */
-.coach-choices {
-  display: block;
-  min-width: 0;
-  padding: var(--space-4);
-  background: var(--chrome);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-lg);
-}
-.coach-choices legend { padding-inline: var(--space-2); margin: 0; }
-.coach-choices-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
-  align-items: stretch;
-}
-.coach-choices-label {
-  grid-column: 2 / -1;
-  color: var(--ink-2);
-  font-size: var(--type-ui);
-}
-.coach-choices .scene-card {
-  grid-row: 2;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-size: var(--type-ui);
-  padding: var(--space-3) var(--space-4);
-}
-@media (max-width: 480px) {
-  .coach-choices-grid { grid-template-columns: minmax(0, 1fr); }
-  .coach-choices-label { grid-column: 1; grid-row: 2; }
-  .coach-choices .scene-card { grid-row: auto; }
-}

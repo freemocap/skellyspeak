@@ -4,6 +4,7 @@ import { useI18n } from '../../../components/localization/i18n'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
 import { XpEvidenceReport, xpReportCredits } from './XpEvidenceReport'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
 /** Explicit reports remain available when automatic XP effects are disabled. */
 export function MessageXpButton({ messageId, source }: { messageId: number; source: string }) {
@@ -19,7 +20,7 @@ export function MessageXpButton({ messageId, source }: { messageId: number; sour
   const shown = Math.max(0, total - points.filter(item => !item.paid).length)
   return <>
     <span className="message-xp-anchor">
-    <button data-message-xp type="button" className="message-translate" aria-label={tr('Message XP')} aria-haspopup="dialog" onClick={event => { event.stopPropagation(); setOpen(true) }}>{tr.number(shown)} {tr(' XP')}</button>
+    <button data-message-xp type="button" className="message-xp" aria-label={tr('Message XP')} aria-haspopup="dialog" onClick={event => { event.stopPropagation(); setOpen(true) }}><ToolbarIcon name="star" size={13} />{tr.number(shown)} {tr(' XP')}</button>
     <span className="message-xp-payout" aria-hidden="true">{points.filter(item => item.paid).map(item => <span className="message-xp-coin" key={item.key}>{'+'}{tr.number(1)}</span>)}</span>
     </span>
     {open && <XpEvidenceReport snapshot={snapshot} message={message} onClose={() => setOpen(false)} />}

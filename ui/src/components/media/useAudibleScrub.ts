@@ -2,9 +2,16 @@ import { useEffect, useRef } from 'react'
 import { createScrubPlayer } from '../../platform/audio/scrub-player'
 import type { SpeechFollowSource } from '../../platform/audio/speech-follow'
 
+/** Drag handlers for one recording's timeline. */
+export interface AudibleScrub {
+  start: (time: number, timestamp?: number) => void
+  move: (time: number, timestamp?: number) => void
+  end: () => void
+}
+
 /** Drag preview uses one sample-controlled player and always stops on release. */
 export function useAudibleScrub(audio: string | null, enabled: boolean, _playing: boolean,
-  volume: number, onError: (error: unknown) => void, onPause?: () => void, source?: SpeechFollowSource) {
+  volume: number, onError: (error: unknown) => void, onPause?: () => void, source?: SpeechFollowSource): AudibleScrub {
   const player = useRef<ReturnType<typeof createScrubPlayer> | null>(null)
   const beganPlaying = useRef<boolean | null>(null)
   const report = useRef(onError)

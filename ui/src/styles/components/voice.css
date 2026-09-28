@@ -1,0 +1,171 @@
+/* voice — the one recorder, identical in Chat and Practice
+   (components/media/VoicePanel.tsx). A two-by-two grid: the face (the stream, a
+   draft, or one arrow pointing at the pad) beside the microphone pad, then one
+   row of controls under the face and the Tap / Hold / Auto toggle under the pad,
+   at the pad's width. The pad sits on the side the learner chose. */
+.voice-panel { position: relative; display: grid; gap: var(--space-4); padding: var(--space-5) var(--space-7) var(--space-6); background: var(--sheet); }
+.voice-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) 7.5rem; grid-template-rows: 5.5rem auto;
+  grid-template-areas: "face pad" "controls modes"; gap: var(--space-4) var(--space-6); align-items: center;
+}
+/* The pad at the inline start: the same grid, mirrored. */
+.voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 7.5rem minmax(0, 1fr); grid-template-areas: "pad face" "modes controls"; }
+/* A draft gets room for a few lines; longer text scrolls inside the face. */
+.voice-panel:has(.voice-draft) .voice-grid { grid-template-rows: 7.5rem auto; }
+
+.voice-face {
+  grid-area: face; position: relative; display: grid; height: 100%; min-width: 0; overflow: hidden;
+  background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-input);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.voice-panel[data-phase='recording'] .voice-face { border-color: var(--recording-mark); box-shadow: 0 0 0 var(--border-width-strong) var(--recording-glow); }
+.voice-panel[data-phase='working'] .voice-face { opacity: 0.7; }
+.voice-face:focus-within { border-color: var(--interaction-mark); }
+
+/* The live stream fills the face: the waveform over the spectrogram. Its clock
+   labels leave; a clipped-attempt notice stays in the face's corner. */
+.voice-face .live-recording { grid-template-rows: minmax(0, 1fr); gap: 0; height: 100%; }
+.voice-face .live-recording-axis { display: none; }
+.voice-face .live-recording-head { position: absolute; top: var(--space-2); inset-inline-end: var(--space-3); z-index: var(--z-raised); pointer-events: none; }
+.voice-face .live-recording-head > span:first-child { display: none; }
+.voice-face .live-recording-plots { display: grid; grid-template-rows: var(--live-wave-height) minmax(0, 1fr); height: 100%; border: 0; border-radius: 0; }
+.voice-face .live-recording-plots > .inspection-plot { position: relative; min-height: 0; }
+.voice-face .live-recording-plots > .inspection-plot > .inspection-spectrogram { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* The empty stream is one arrow across its whole width, pointing at the pad on
+   whichever side it sits, with the same words in the middle everywhere. */
+.voice-prompt { position: relative; display: grid; place-items: center; min-width: 0; color: var(--ink-3); }
+.voice-prompt::before {
+  content: ''; position: absolute; top: 50%; left: var(--space-8); right: var(--space-8); height: var(--border-width-strong);
+  border-radius: var(--radius-pill); background: linear-gradient(to right, color-mix(in srgb, var(--ink-3) 15%, transparent), var(--ink-3));
+}
+.voice-panel[data-pad-side='left'] .voice-prompt::before { background: linear-gradient(to left, color-mix(in srgb, var(--ink-3) 15%, transparent), var(--ink-3)); }
+.voice-prompt-text { position: relative; padding-inline: var(--space-6); background: var(--field); color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap; }
+.voice-prompt svg { position: absolute; top: 50%; right: var(--space-6); transform: translateY(-50%) rotate(-90deg); color: var(--ink-3); }
+.voice-panel[data-pad-side='left'] .voice-prompt svg { right: auto; left: var(--space-6); transform: translateY(-50%) rotate(90deg); }
+
+/* Chat's draft: the transcript as editable text, with its own Discard and Send. */
+.voice-draft { display: grid; grid-template-columns: minmax(0, 1fr) auto; min-height: 0; height: 100%; }
+.voice-draft .field.voice-text {
+  height: 100%; min-height: 0; resize: none; border: 0; border-radius: 0; box-shadow: none; outline: none; background: transparent;
+  line-height: var(--leading-normal); word-spacing: var(--word-spacing);
+}
+.voice-draft .field.voice-text:dir(rtl) { line-height: var(--leading-vocalized); }
+.voice-draft-actions { display: flex; align-items: flex-end; gap: var(--space-3); padding: var(--space-4); }
+.voice-draft-discard, .voice-send { display: grid; place-items: center; width: var(--control-height); height: var(--control-height); border-radius: var(--radius-circle); cursor: pointer; }
+.voice-draft-discard { border: var(--border-width) solid var(--line); background: var(--sheet); color: var(--ink-2); }
+.voice-draft-discard:hover:not(:disabled) { border-color: var(--danger-line); color: var(--danger-ink); }
+.voice-send { border: 0; background: var(--interaction-fill); color: var(--ink-on-fill); font: var(--weight-bold) var(--type-title) var(--font-sans); }
+.voice-send:hover:not(:disabled) { background: var(--interaction-fill-hover); }
+.voice-draft-discard:disabled, .voice-send:disabled { opacity: 0.4; cursor: default; }
+
+/* Live state is a chip in the stream: the time while recording. */
+.voice-chip {
+  position: absolute; top: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-raised); display: inline-flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-1) var(--space-5); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--sheet) 88%, transparent);
+  color: var(--recording-ink); font: var(--weight-semibold) var(--type-meta) var(--font-mono); box-shadow: var(--shadow-sm);
+}
+.voice-dot { width: var(--space-4); height: var(--space-4); border-radius: var(--radius-circle); background: var(--recording-mark); animation: voice-blink var(--dur-loop) var(--ease-in-out) infinite; }
+.voice-discard-recording {
+  position: absolute; bottom: var(--space-3); inset-inline-start: var(--space-3); z-index: var(--z-raised); display: grid; place-items: center;
+  width: var(--control-height-sm); height: var(--control-height-sm); border: var(--border-width) solid var(--line); border-radius: var(--radius-circle);
+  background: var(--sheet); color: var(--ink-2); cursor: pointer;
+}
+.voice-discard-recording:hover { border-color: var(--danger-line); color: var(--danger-ink); }
+
+/* The microphone pad: an icon, never a word. Ready is a calm blue; recording is
+   red, outlined and glowing; waiting is faded. Colour carries the state. */
+.voice-pad {
+  grid-area: pad; display: grid; place-items: center; width: 100%; height: 100%;
+  border: var(--border-width-strong) solid var(--interaction-line); border-radius: var(--radius-xl);
+  /* Opaque, so the panel's place tint behind it cannot muddy the blue. */
+  background: color-mix(in srgb, var(--interaction-mark) 12%, var(--sheet)); color: var(--interaction-ink); box-shadow: var(--shadow-surface);
+  cursor: pointer; touch-action: none; user-select: none;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+/* Hover never masks recording: the pointer is still over the pad after a press. */
+.voice-pad:hover:not(:disabled, [data-live='true']) { background: color-mix(in srgb, var(--interaction-mark) 20%, var(--sheet)); border-color: var(--interaction-mark); }
+.voice-pad:active:not(:disabled) { transform: scale(0.98); }
+.voice-pad[data-live='true'] {
+  background: var(--recording-fill); border-color: var(--recording-mark); color: var(--ink-on-fill);
+  box-shadow: 0 0 0 var(--space-2) var(--recording-glow), 0 0 var(--space-12) var(--recording-glow);
+  animation: voice-live var(--dur-loop) var(--ease-in-out) infinite;
+}
+.voice-pad:disabled { opacity: 0.45; cursor: default; }
+
+/* One row, never wrapping, the same order everywhere: settings, the Auto meter,
+   then Chat's Type and Auto-send or Practice's Detect attempts. */
+.voice-controls { grid-area: controls; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-4); min-width: 0; white-space: nowrap; }
+.voice-controls .drill-meter { flex: 1 1 auto; }
+.voice-controls .voice-type { margin-inline-start: auto; }
+.voice-mini {
+  flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-5);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2);
+  font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
+}
+.voice-mini-icon { justify-content: center; width: var(--control-height-sm); padding: 0; }
+.voice-mini:hover:not(:disabled) { border-color: var(--ink-3); color: var(--ink); }
+.voice-mini:disabled { opacity: 0.5; cursor: default; }
+.voice-mini[aria-pressed='true'], .voice-mini[aria-expanded='true'] { border-color: var(--interaction-mark); color: var(--interaction-ink); background: var(--interaction-tint); }
+.voice-switch { flex: none; display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; }
+.voice-switch input { accent-color: var(--interaction-fill); }
+.voice-switch:has(input:disabled) { color: var(--ink-3); cursor: default; }
+
+/* Always visible, directly under the pad. A mode that is not available here yet
+   stays in place and says “Coming soon” when pressed. */
+.voice-modes {
+  grid-area: modes; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--space-1); gap: var(--space-1);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome);
+}
+.voice-modes button {
+  min-width: 0; min-height: var(--control-height-sm); padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent;
+  color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
+}
+/* The chosen mode is filled, as a segmented choice's is (buttons.css). */
+.voice-modes button:hover:not(:disabled):not([aria-checked='true']) { color: var(--ink); background: var(--sheet); }
+.voice-modes button[aria-checked='true'] { background: var(--interaction-fill); color: var(--ink-on-fill); box-shadow: var(--shadow-sm); }
+.voice-modes button:disabled:not([aria-checked='true']) { opacity: 0.5; cursor: default; }
+.voice-modes button[data-later] { color: var(--ink-3); opacity: 0.7; }
+.voice-soon {
+  position: absolute; bottom: calc(100% + var(--space-3)); inset-inline-end: 0; z-index: var(--z-popover);
+  padding: var(--space-3) var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-xs);
+  background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-floating); font: var(--weight-medium) var(--type-ui) var(--font-sans); white-space: nowrap;
+  animation: voice-soon-in var(--dur-fast) var(--ease-out);
+}
+
+/* The phase is announced, not drawn: no standing instruction on the surface. */
+.voice-status { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.voice-settings { display: grid; gap: var(--space-5); }
+.voice-settings h2 { margin: 0; font-size: var(--type-title); }
+.voice-settings-note { margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+/* Where the button sits and which way the stream runs: a label and a segmented
+   choice (buttons.css), its two options of even width. */
+.voice-choice { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); }
+.voice-choice-label { color: var(--ink); font-size: var(--type-ui); }
+.voice-choice .segmented { display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(5rem, auto); }
+
+@keyframes voice-live {
+  0%, 100% { box-shadow: 0 0 0 var(--space-2) var(--recording-glow), 0 0 var(--space-8) var(--recording-glow); }
+  50% { box-shadow: 0 0 0 var(--space-4) var(--recording-glow), 0 0 var(--space-13) var(--recording-glow); }
+}
+@keyframes voice-blink { 50% { opacity: 0.35; } }
+@keyframes voice-soon-in { from { opacity: 0; transform: translateY(var(--space-2)); } }
+@media (prefers-reduced-motion: reduce) {
+  .voice-pad[data-live='true'], .voice-dot, .voice-soon { animation: none; }
+}
+
+/* Compact and narrow: the same grid, smaller. */
+@media (max-width: 860px) {
+  .voice-panel { padding: var(--space-4) var(--space-4) var(--space-5); gap: var(--space-3); }
+  .voice-grid { grid-template-columns: minmax(0, 1fr) 7rem; gap: var(--space-3) var(--space-4); }
+  .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 7rem minmax(0, 1fr); }
+  .voice-controls { gap: var(--space-3); }
+  .voice-modes button { font-size: var(--type-meta); }
+}
+@media (max-width: 400px) {
+  .voice-grid { grid-template-columns: minmax(0, 1fr) 6.25rem; grid-template-rows: 4.75rem auto; }
+  .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 6.25rem minmax(0, 1fr); }
+  .voice-prompt-text { padding-inline: var(--space-4); font-size: var(--type-meta); }
+}
+@media (pointer: coarse) { .voice-mini, .voice-modes button { min-height: var(--touch-target); } }

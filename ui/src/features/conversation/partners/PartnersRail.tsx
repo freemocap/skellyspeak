@@ -8,7 +8,7 @@ export function PartnersRail({ choices, currentId, languageName, busy, onSelect,
 }) {
   const tr = useI18n()
   return <aside className="partners-rail" aria-label={tr('Partners')}>
-    <div className="pane-header"><span>{tr('Partners')}</span><button type="button" disabled={busy} aria-label={tr('+ New persona…')} onClick={onCreate}>+</button></div>
+    <div className="pane-header"><span>{tr('Partners')}</span><button type="button" disabled={busy} aria-label={tr('+ New partner…')} onClick={onCreate}>+</button></div>
     <div className="partners-list">{choices.map(choice => <button type="button" key={choice.id} disabled={busy} aria-pressed={choice.id === currentId} className="partner-row" onClick={() => onSelect(choice.id)}>
       <PersonaAvatar symbol={choice.symbol} /><span><strong>{choice.name}</strong><small>{languageName}</small></span>
     </button>)}</div>

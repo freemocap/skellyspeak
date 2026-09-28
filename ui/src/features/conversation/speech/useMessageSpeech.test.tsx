@@ -4,11 +4,11 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import type { ConversationSnapshot } from '../../../generated/contracts'
 import { setPlaybackAllowed } from '../../../platform/audio/speech'
 import { useMessageSpeech } from './useMessageSpeech'
-const native = vi.hoisted(() => ({ invoke: vi.fn(), execute: vi.fn(), fault: vi.fn(), play: vi.fn(), stop: vi.fn() }))
+const native = vi.hoisted(() => ({ invoke: vi.fn(), execute: vi.fn(), fault: vi.fn(), play: vi.fn(), stop: vi.fn(), player: vi.fn(), seek: vi.fn(), rate: vi.fn(), volume: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: native.invoke }))
 vi.mock('../../../platform/ipc/workspace', () => ({ executeAction: native.execute, nativeError: String }))
 vi.mock('../../../platform/diagnostics/faults', () => ({ reportFault: native.fault }))
-vi.mock('../../../platform/audio/speech-player', () => ({ playSpeechAudio: () => ({ play: native.play, stop: native.stop }) }))
+vi.mock('../../../platform/audio/speech-player', () => ({ playSpeechAudio: native.player }))
 function snapshot(ids: string[], operation = true): ConversationSnapshot {
   return { conversationId: 'chat', sessionId: 'session', revision: ids.length, messages: ids.map((id, i) => ({ id, sequence: i, role: 'assistant', text: id })), turns: operation ? ids.map(id => ({ operations: [{ id: `speech-${id}`, kind: 'persona_speech', sourceMessageId: id }] })) : [] } as unknown as ConversationSnapshot
 }
@@ -16,8 +16,33 @@ beforeEach(() => {
   setPlaybackAllowed(true)
   vi.clearAllMocks()
   native.play.mockResolvedValue(undefined)
+  native.player.mockImplementation((_audio, _finish, _error, _rate, _volume, observer) => {
+    const handle = { play: native.play, stop: native.stop, seek: native.seek, setRate: native.rate, setVolume: native.volume }
+    observer?.onReady?.(handle)
+    return handle
+  })
   native.execute.mockResolvedValue({ entityId: 'manual' })
   native.invoke.mockImplementation(async (_command, { operationId }) => ({ status: 'ready', operationId, messageId: operationId === 'manual' ? 'old' : operationId.slice(7), attemptId: operationId, mime: 'audio/mpeg', audioBase64: '' }))
+})
+
+it('keeps inspection on the same audio and clock, seeks it, and resumes without a generation command', async () => {
+  const view = renderHook(({ rate }) => useMessageSpeech(snapshot(['old']), 'chat', true, true, rate), { initialProps: { rate: 1 } })
+  act(() => view.result.current.toggle('old'))
+  await waitFor(() => expect(native.play).toHaveBeenCalledOnce())
+  expect(view.result.current.retained?.audio.operationId).toBe('manual')
+  const observer = native.player.mock.calls[0][5]
+  act(() => observer.onTime(1, 4))
+  expect(view.result.current.time).toBe(1)
+  act(() => view.result.current.seek('old', 2))
+  expect(native.seek).toHaveBeenCalledWith(2)
+  view.rerender({ rate: 1.2 })
+  expect(native.rate).toHaveBeenCalledWith(1.2)
+  act(() => view.result.current.stop())
+  act(() => view.result.current.resume('old'))
+  await waitFor(() => expect(native.play).toHaveBeenCalledTimes(2))
+  expect(native.player.mock.calls[1][5].startSeconds).toBe(2)
+  expect(native.execute).toHaveBeenCalledOnce()
+  view.unmount()
 })
 it('does not request or play history on mount, preference changes or reopen', () => {
   const old = snapshot(['old'])

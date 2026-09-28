@@ -1,6 +1,49 @@
 use super::*;
 
 #[test]
+fn inspection_uses_delivered_audio_after_one_time_playback_and_rejects_replaced_bytes() {
+    let (_dir, mut store, conversation) = setup();
+    crate::ai::results::set_capacity(&store.connection, 0).unwrap();
+    let (speech, _) = speech_children(&mut store, &conversation);
+    let mut delivery = crate::speech::delivery::DeliveryBuffer::default();
+    delivery
+        .insert(
+            store
+                .finish_speech(&speech, speech_outcome(Ok(vec![1; 44])))
+                .unwrap()
+                .unwrap(),
+        )
+        .unwrap();
+    let SpeechAudioState::Ready {
+        audio_base64,
+        alignment,
+        ..
+    } = store.speech_audio(&speech.operation, &delivery).unwrap()
+    else {
+        panic!("expected delivered audio")
+    };
+    assert!(!delivery.contains(&speech.attempt));
+    let mut audio = crate::speech::alignment::SpeechAudio {
+        audio_base64,
+        alignment,
+    };
+    for _ in 0..2 {
+        assert_eq!(
+            store
+                .delivered_speech_owner(&speech.operation, &speech.attempt, &audio)
+                .unwrap(),
+            crate::speech::recording::owner::RecordingOwner::Conversation(conversation.clone())
+        );
+    }
+    audio.audio_base64.push('A');
+    assert!(
+        store
+            .delivered_speech_owner(&speech.operation, &speech.attempt, &audio)
+            .is_err()
+    );
+}
+
+#[test]
 fn speech_siblings_partial_arrival_and_read_only_cache() {
     for speech_first in [true, false] {
         let (_dir, mut store, conversation) = setup();

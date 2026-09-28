@@ -30,7 +30,7 @@ const renderRows = (props: Partial<Parameters<typeof AttemptRows>[0]> = {}) => r
 it('draws one cell per target word, newest take first, and gives each cell its word', () => {
   renderRows({ selectedId: 'attempt-3' })
   const drawn = rows()
-  expect(drawn.map(row => row.getAttribute('aria-label'))).toEqual(['Take 3', 'Take 2', 'Take 1'])
+  expect(drawn.map(row => row.getAttribute('aria-label'))).toEqual(['Attempt 3', 'Attempt 2', 'Attempt 1'])
   expect(drawn[0]).toHaveAttribute('aria-pressed', 'true')
   const cells = drawn[0].querySelectorAll<HTMLElement>('.drill-word-cell')
   expect(cells).toHaveLength(2)
@@ -94,7 +94,7 @@ it('expands the selected take in its original position with accessible controls'
   expect(onSelect).toHaveBeenCalledWith('attempt-2')
   view.rerender(<I18nProvider locale="english"><AttemptRows attempts={[attempt(3), attempt(2), attempt(1)]}
     selectedId="attempt-2" renderDetails={renderDetails} onSelect={onSelect} /></I18nProvider>)
-  expect(rows().map(row => row.getAttribute('aria-label'))).toEqual(['Take 3', 'Take 2', 'Take 1'])
+  expect(rows().map(row => row.getAttribute('aria-label'))).toEqual(['Attempt 3', 'Attempt 2', 'Attempt 1'])
   expect(rows()[0]).toHaveAttribute('aria-expanded', 'false')
   expect(rows()[1]).toHaveAttribute('aria-expanded', 'true')
   expect(within(rows()[1].parentElement!).getByRole('region', { name: 'Details 2' })).toBeVisible()

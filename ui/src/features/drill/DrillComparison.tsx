@@ -1,19 +1,20 @@
-import { PlaybackProgress } from './PlaybackProgress'
+import { PlaybackProgress } from '../../components/media/PlaybackProgress'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
-import { PlaybackCursor } from './PlaybackCursor'
+import { RecordingTrack } from '../../components/media/RecordingTrack'
 import { useAnimatedAlignment } from './useAnimatedAlignment'
 import { useClipArrival } from './useClipArrival'
 import type { ClipPreview } from './useClipPreview'
-import { WordOverlay } from './WordOverlay'
+import { SegmentedChoice } from '../../components/controls/SegmentedChoice'
 import { matchTimedWords, wordAlignment } from '../../domain/audio/word-alignment'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { useIsMobile } from '../../components/layout/useIsMobile'
+import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
-import { Spectrogram, SpectrogramFrequencyScale, sharedScale } from '../../components/media/Spectrogram'
-import { DetectionDetails, useSeconds } from '../../components/media/InspectionTracks'
+import { sharedScale } from '../../components/media/Spectrogram'
+import { DetectionDetails, TimeAxis } from '../../components/media/InspectionTracks'
 import type { AudioInspection } from '../../generated/contracts'
 
 /** Which way time runs across the spectrograms. Right-to-left puts the first
@@ -24,11 +25,6 @@ export type TimeDirection = 'ltr' | 'rtl'
  * time axis, so their lengths can be compared directly. `words` maps the take's
  * word boundaries to the reference for visual comparison only. */
 export type TimeScale = 'fit' | 'shared' | 'words'
-
-/** Tick spacing: the smallest step that keeps the axis to about eight labels. */
-function tickStep(span: number) {
-  return [0.25, 0.5, 1, 2, 5, 10].find(step => span / step <= 8) ?? 30
-}
 
 /** The phrase and how it should sound, above the selected take: one surface,
  * one time scale choice and one colour scale, so length, rhythm and loudness
@@ -87,45 +83,45 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
   const arrival = useClipArrival(preview?.recordingId)
   const attemptDuration = aligned ? reference!.duration : rawDuration
   const attemptSpectrum = attempt?.spectrogram ?? preview?.spectrum.data
-  const seconds = useSeconds()
   const spectra = [reference?.spectrogram, attemptSpectrum].filter(entry => entry !== undefined)
   const scale = spectra.length ? sharedScale(spectra) : null
   const span = Math.max(reference?.duration ?? 0, attemptSpectrum ? rawDuration : 0, 0.001)
-  const step = tickStep(span)
-  const ticks = Array.from({ length: Math.floor(span / step) + 1 }, (_, index) => index * step)
   const width = (duration: number) => `${effectiveScale === 'shared' ? duration / span * 100 : 100}%`
   // Mobile can hide labels while preserving the measured plot.
   const showWords = !mobile || showTiming
+  // Each plot keeps the height the learner drags it to. At full width the attempt
+  // takes what the reference leaves; stacked, both plots have their own height.
+  const [referenceHeight, setReferenceHeight] = useStoredSize('drill-reference')
+  const [attemptHeight, setAttemptHeight] = useStoredSize('drill-attempt')
+  const referenceTrack = useRef<HTMLDivElement>(null)
+  const attemptTrack = useRef<HTMLDivElement>(null)
+  const heightOf = (track: RefObject<HTMLDivElement | null>) => () => track.current?.getBoundingClientRect().height ?? 0
+  const px = (size: number | null) => size === null ? undefined : `${Math.round(size)}px`
 
   const controls = <>
     {mobile && <label><input type="checkbox" checked={showTiming} onChange={event => setShowTiming(event.target.checked)} />{tr("Word timing overlays")}</label>}
-        <div className="drill-timing-controls"><div className="drill-segmented" role="radiogroup" aria-label={tr("Time scale")}>
-          {(['fit', 'shared', 'words'] as const).map(option => (
-            <button key={option} type="button" role="radio" disabled={option === 'words' && !alignment} aria-checked={effectiveScale === option} onClick={() => onTimeScale(option)}
-              title={option === 'words' ? tr("Requires matching word timestamps in both recordings") : option === 'fit' ? tr("Each recording fills the width") : tr("One time scale and one colour scale for both")}>
-              {option === 'words' ? tr("Align words") : option === 'fit' ? tr("Fit") : tr("Same scale")}
-            </button>
-          ))}
-        </div>
-        <div className="drill-segmented" role="radiogroup" aria-label={tr("Time direction")}>
-          {(['ltr', 'rtl'] as const).map(option => (
-            <button key={option} type="button" role="radio" aria-checked={direction === option} onClick={() => onDirection(option)}
-              title={option === 'ltr' ? tr("Time runs left to right") : tr("Time runs right to left")}>
-              {option === 'ltr' ? tr("Time →") : tr("← Time")}
-            </button>
-          ))}
-        </div>
+        <div className="drill-timing-controls">
+          <SegmentedChoice label={tr("Time scale")} value={effectiveScale} onChange={onTimeScale} options={[
+            ['fit', tr("Fit"), tr("Each recording fills the width")],
+            ['shared', tr("Same scale"), tr("One time scale and one colour scale for both")],
+            ['words', tr("Align words"), tr("Requires matching word timestamps in both recordings"), !alignment],
+          ]} />
+          <SegmentedChoice label={tr("Time direction")} value={direction} onChange={onDirection} options={[
+            ['ltr', tr("Time →"), tr("Time runs left to right")],
+            ['rtl', tr("← Time"), tr("Time runs right to left")],
+          ]} />
         </div>
   </>
 
   return (
-    <section className="drill-comparison-panel" aria-label={tr("Reference and your take")}>
+    <section className="drill-comparison-panel" aria-label={tr("Reference and your attempt")}
+      style={{ '--drill-reference-row': px(referenceHeight), '--drill-attempt-row': px(attemptHeight) } as CSSProperties}>
       <div className="drill-reference">
       <div className="drill-target-card">{target}</div>
 
       <div className="drill-media" dir={direction}>
-        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Hear it")} disabled={holding} onClick={onPlayReference} title={referenceNote}>
-          <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Target")}
+        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Play reference")} disabled={holding} onClick={onPlayReference} title={referenceNote}>
+          <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Reference")}
         </button>
         {!mobile && playbackSpeed}
         <PlaybackProgress time={referenceTime} duration={reference?.duration ?? 0} displayDuration={effectiveScale === "shared" ? span : reference?.duration ?? 0} direction={direction} label={tr("Seek reference audio")}
@@ -137,20 +133,19 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       </div>
 
       <div className="drill-timelines" data-time={direction}>
-        {reference && scale ? <div className="drill-track">
-          <div className="inspection-plot" style={{ width: width(reference.duration) }}>
-            <Spectrogram data={reference.spectrogram} duration={reference.duration} zoom={1} scale={scale} />
-            <SpectrogramFrequencyScale data={reference.spectrogram} count={3} />
-            {showWords && <WordOverlay timing={reference.wordTiming} duration={reference.duration} outcomes={matches?.reference} onSeek={holding ? undefined : onSeekReference} />}
-            <PlaybackCursor time={referenceTime} duration={reference.duration} direction={direction} label={tr("Target")} onScrubStart={referenceScrub?.start} onScrub={referenceScrub?.move} onScrubEnd={referenceScrub?.end} onSeek={holding ? undefined : onSeekReference} />
-          </div>
-        </div> : <div className="drill-track">
+        {reference && scale ? <div className="drill-track" ref={referenceTrack}>
+          <RecordingTrack spectrogram={reference.spectrogram} duration={reference.duration} sourceDuration={reference.duration} scale={scale} mapTime={undefined}
+            words={showWords ? reference.wordTiming : null} outcomes={matches?.reference ?? []} time={referenceTime} direction={direction} label={tr("Reference")}
+            onSeek={holding ? undefined : onSeekReference} onWordSeek={holding ? undefined : onSeekReference} scrub={referenceScrub}
+            style={{ width: width(reference.duration) }} plotRef={undefined} attempt={false} />
+        </div> : <div className="drill-track" ref={referenceTrack}>
           <div className="drill-plot-frame" data-state={referenceFailure ? 'failed' : playingReference ? 'loading' : 'empty'}>
             {referenceFailure ?? <p role="status">{playingReference ? tr("Loading reference…")
-              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Hear it once to draw the reference here.")}</p>}
+              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Play the reference once to draw it here.")}</p>}
           </div>
         </div>}
-
+        <ResizeHandle className="drill-plot-resize drill-reference-resize" label={tr("Resize the reference")} axis="y" grow={1}
+          size={referenceHeight} min={96} max={800} measure={heightOf(referenceTrack)} onResize={setReferenceHeight} />
       </div>
       </div>
       <div className="drill-timelines" data-time={direction}>
@@ -163,22 +158,20 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
               label={tr("Seek attempt audio")} onSeek={holding || !attempt ? undefined : onSeekAttempt} scrub={attemptScrub} />
           </div>
           {attemptSpectrum && scale
-            ? <div className="drill-track">
-              <div className="inspection-plot" data-attempt-spectrum="" ref={arrival} style={{ width: width(attemptDuration) }}>
-                <Spectrogram data={attemptSpectrum} duration={attemptDuration} mapTime={mapTime} zoom={1} scale={scale} />
-                <SpectrogramFrequencyScale data={attemptSpectrum} count={3} />
-                {showWords && attempt && <WordOverlay timing={attempt.wordTiming} duration={attemptDuration} outcomes={matches?.take} mapTime={mapTime} />}
-                <PlaybackCursor time={attemptTime} duration={rawDuration} displayDuration={attemptDuration} mapTime={mapTime} direction={direction} label={tr("Attempt")} onScrubStart={attemptScrub?.start} onScrub={attemptScrub?.move} onScrubEnd={attemptScrub?.end} onSeek={holding ? undefined : onSeekAttempt} />
-              </div>
+            ? <div className="drill-track" ref={attemptTrack}>
+              <RecordingTrack spectrogram={attemptSpectrum} duration={attemptDuration} sourceDuration={rawDuration} scale={scale} mapTime={mapTime ?? undefined}
+                words={showWords && attempt ? attempt.wordTiming : null} outcomes={matches?.take ?? []} time={attemptTime} direction={direction} label={tr("Attempt")}
+                onSeek={holding ? undefined : onSeekAttempt} onWordSeek={undefined} scrub={attemptScrub}
+                style={{ width: width(attemptDuration) }} plotRef={arrival} attempt />
             </div>
-            : <div className="drill-track">
+            : <div className="drill-track" ref={attemptTrack}>
               <div className="drill-plot-frame" data-state={attemptUnavailable ? 'empty' : 'loading'}><p role="status">{attemptUnavailable ?? tr(attemptLabel ? "Loading…" : "No attempts yet. Record one to compare.")}</p></div>
             </div>}
+          <ResizeHandle className="drill-plot-resize drill-attempt-resize" label={tr("Resize the attempt")} axis="y" grow={1}
+            size={attemptHeight} min={96} max={800} measure={heightOf(attemptTrack)} onResize={setAttemptHeight} />
         </>
 
-        {effectiveScale === 'shared' && spectra.length > 0 && <div className="drill-track drill-axis" aria-hidden="true">
-          {ticks.map(tick => <span key={tick} style={{ left: `${tick / span * 100}%` }}><bdi>{seconds(tick)}</bdi></span>)}
-        </div>}
+        {effectiveScale === 'shared' && spectra.length > 0 && <div className="drill-track drill-axis"><TimeAxis span={span} /></div>}
       </div>
 
       {attemptFailure != null && <ErrorNotice as="p" error={attemptFailure}>{errorMessage(attemptFailure)}

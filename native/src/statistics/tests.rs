@@ -81,7 +81,13 @@ fn shared_speech_counts_once_per_scope_and_survives_payload_eviction() {
         &json!({
             "inputTokens":7,"outputTokens":11,"costMicros":null,"providerId":"retained-id"
         }),
-        Some(b"fixture audio"),
+        Some(
+            &serde_json::to_vec(&crate::speech::alignment::SpeechAudio::new(
+                b"fixture audio",
+                None,
+            ))
+            .unwrap(),
+        ),
         None,
     )
     .unwrap();

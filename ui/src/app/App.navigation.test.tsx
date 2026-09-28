@@ -4,6 +4,7 @@ import { expect, it, vi } from 'vitest'
 import { useState } from 'react'
 import App from './App'
 import { useSessionStore } from '../state/session/session'
+import { useNavigationStore } from '../state/navigation/navigation'
 
 vi.mock('../components/layout/useIsMobile', () => ({ useIsMobile: () => true }))
 vi.mock('../state/learning/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/learning/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
@@ -42,24 +43,29 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Coach'])
+  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
   expect(screen.queryByText('Guided conversation')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Keep my words' } })
-  for (const destination of ['Chat', 'Coach']) {
-    fireEvent.click(screen.getByRole('button', { name: 'More' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Skill tree' }))
-    await screen.findByRole('button', { name: 'Practice this skill' })
-    fireEvent.click(within(nav).getByRole('button', { name: destination }))
-    expect(within(nav).getByRole('button', { name: destination })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
-    expect(screen.getByText(`Practice surface: ${destination === 'Chat' ? 'chat' : 'panel'}`)).toBeInTheDocument()
-  }
-  fireEvent.click(within(nav).getByRole('button', { name: 'Coach' }))
+  // The skill tree and back keeps the conversation mounted.
+  fireEvent.click(screen.getByRole('button', { name: 'More' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Skill tree' }))
+  await screen.findByRole('button', { name: 'Practice this skill' })
+  expect(within(nav).getByRole('button', { name: 'Chat' })).not.toHaveAttribute('aria-current')
+  fireEvent.click(within(nav).getByRole('button', { name: 'Chat' }))
+  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
+  expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
+  // The coach opens from the conversation; the Chat tab brings the conversation back.
+  act(() => useNavigationStore.getState().openPractice('panel'))
+  expect(screen.getByText('Practice surface: panel')).toBeInTheDocument()
+  fireEvent.click(within(nav).getByRole('button', { name: 'Chat' }))
+  expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
+  act(() => useNavigationStore.getState().openPractice('panel'))
   fireEvent.click(screen.getByRole('button', { name: 'SkellySpeak home — Chat' }))
   expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
-  fireEvent.click(screen.getByRole('button', { name: 'AI activity & tools' }))
+  fireEvent.click(screen.getByRole('button', { name: 'AI activity' }))
   expect(screen.getByText('Live operations')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Close AI activity' }))
   expect(screen.queryByText('Live operations')).not.toBeInTheDocument()
@@ -70,8 +76,8 @@ vi.mock('../features/activity/AiView', () => ({ AiView: () => <p role="status">L
 
 it('switches the practice page and saves the selected destination', async () => {
   render(<App />)
-  const switcher = screen.getByRole('group', { name: 'Practice surface' })
-  fireEvent.click(within(switcher).getByRole('button', { name: 'Drill' }))
+  const switcher = screen.getByRole('navigation', { name: 'Main navigation' })
+  fireEvent.click(within(switcher).getByRole('button', { name: 'Practice' }))
   expect(await screen.findByText('Drill surface')).toBeInTheDocument()
   expect(screen.queryByLabelText('Draft')).not.toBeInTheDocument()
   expect(localStorage.getItem('skellyspeak.practice-view')).toBe('drill')

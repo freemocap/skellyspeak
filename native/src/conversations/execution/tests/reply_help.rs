@@ -358,24 +358,14 @@ fn explicit_reading_explanations_use_the_explanation_turn_contract() {
         (reading.route, &reading.target.url, &reading.credential),
         (turn.route, &turn.target.url, &turn.credential)
     );
-    // Both validate quotes against the explained text.
+    // A card whose quote is not verbatim from the explained text is still kept.
     let card = |quote: &str| {
         reply(&serde_json::json!({"cards":[{"quote":quote,"title":"Question word","body":"Asks who.","example":"¿Con quién vas?","contrast":""}]}).to_string())
     };
-    assert!(
-        support::validate_source(
-            "¿Con quién fuiste?",
-            support::EXPLANATIONS,
-            &card("Con quién")
-        )
-        .is_ok()
-    );
-    assert!(
-        support::validate_source("¿Con quién fuiste?", support::EXPLANATIONS, &card("Dónde"))
-            .is_err()
-    );
+    assert!(support::validate(support::EXPLANATIONS, &card("Con quién")).is_ok());
+    assert!(support::validate(support::EXPLANATIONS, &card("Dónde")).is_ok());
     store.finish(&turn, Ok(card("Dónde"))).unwrap();
     let saved = store.conversation_snapshot(&conversation, None).unwrap();
     let saved = saved.messages.iter().find(|m| m.id == message).unwrap();
-    assert!(saved.reply_explanations.is_none());
+    assert!(saved.reply_explanations.is_some());
 }

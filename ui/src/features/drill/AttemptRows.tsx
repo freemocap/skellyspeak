@@ -60,7 +60,7 @@ export function AttemptRows({ attempts, selectedId, onSelect, rtl = false, arriv
           data-arrival={arriving ? '' : undefined}
           aria-expanded={renderDetails ? expanded : undefined} aria-controls={renderDetails && expanded ? detailsId : undefined}
           aria-pressed={expanded} onClick={() => { setOpenId(take.id); onSelect?.(take.id) }}
-          aria-label={tr("Take {value0}", { value0: String(take.sequence) })}>
+          aria-label={tr("Attempt {value0}", { value0: String(take.sequence) })}>
           <span className="drill-word-row-number">#{String(take.sequence)}</span>
           <span className="drill-word-row-cells" dir={rtl ? 'rtl' : 'ltr'}
             style={{ gridTemplateColumns: `repeat(${Math.max(1, words.length)}, minmax(0, 1fr))`, columnGap: `min(var(--space-1), ${25 / Math.max(1, words.length)}%)` }}>

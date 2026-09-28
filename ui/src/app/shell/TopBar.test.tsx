@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { TopBar } from './TopBar'
 import { useConnectionHealth } from '../../state/session/connection-health'
@@ -10,8 +10,6 @@ import type { Settings } from '../../types'
 import { useAiWindowStore } from '../../state/navigation/ai-window'
 import { useAiBusyStore } from '../../state/session/ai-busy'
 
-const viewport = vi.hoisted(() => ({ mobile: false }))
-vi.mock('../../components/layout/useIsMobile', () => ({ useIsMobile: () => viewport.mobile }))
 vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
 const windowApi = vi.hoisted(() => ({ openAiWindow: vi.fn() }))
 vi.mock('../../platform/ipc/window', () => ({ ...windowApi, aiWindowState: async () => ({ supported: true, open: false }) }))
@@ -20,7 +18,6 @@ vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
 ] }))
 beforeEach(() => {
   useConnectionHealth.setState({ routes: {} })
-  viewport.mobile = false
   useNavigationStore.setState(useNavigationStore.getInitialState())
   useSessionStore.setState(useSessionStore.getInitialState())
   useSettingsStore.setState({...useSettingsStore.getInitialState(), settings: {my_languages:['spanish','french'], target_varieties:{}, target_language:'spanish'} as Settings})
@@ -34,8 +31,7 @@ it.each(['hosted', 'custom'] as const)('opens AI access from the %s setup status
   fireEvent.click(screen.getByRole('button', { name: 'AI Not Connected' }))
   expect(useNavigationStore.getState().overlay).toBe('settings')
 })
-it.each([false, true])('keeps history and target language reachable with mobile=%s', mobile => {
-  viewport.mobile = mobile
+it('keeps the target language reachable, with the Chat and Practice tabs leading the bar', () => {
   const setLanguage = vi.fn().mockResolvedValue(undefined)
   useSettingsStore.setState({selectLanguageVariety:setLanguage})
   useNavigationStore.getState().openSkills()
@@ -45,9 +41,17 @@ it.each([false, true])('keeps history and target language reachable with mobile=
   expect(setLanguage).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', {name:'France'}))
   expect(setLanguage).toHaveBeenCalledExactlyOnceWith('french','french-france')
-  fireEvent.click(screen.getByRole('button', {name:'Conversations'}))
-  expect(useNavigationStore.getState()).toMatchObject({page:'guided',mode:'practice',historyOpen:true})
-  expect(screen.queryByRole('navigation', {name:'Main navigation'})).toBeNull()
+  // The conversation list opens from the chat header; the theme is in Settings.
+  expect(screen.queryByRole('button', {name:'Conversations'})).toBeNull()
+  expect(screen.queryByRole('button', {name:/Switch to (dark|light) mode/})).toBeNull()
+  // Chat and Practice come straight after the wordmark, before the language and
+  // the bar's controls, in the one row the bar has at every width.
+  const tabs = screen.getByRole('navigation', {name:'Main navigation'})
+  expect(within(tabs).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
+  const following = (first: Element, second: Element) => Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
+  expect(following(screen.getByRole('button', {name:/SkellySpeak home/}), tabs)).toBe(true)
+  expect(following(tabs, screen.getByRole('button', {name:'Target language'}))).toBe(true)
+  expect(following(tabs, screen.getByRole('button', {name:'More'}))).toBe(true)
 })
 it('disables language switching during a save or settings edit', () => {
   useSettingsStore.setState({savingLanguage:true})
@@ -58,11 +62,16 @@ it('disables language switching during a save or settings edit', () => {
   view.rerender(<TopBar />)
   expect(screen.getByRole('button', {name:'Target language'})).toBeDisabled()
 })
-it('returns from review to conversation history and preserves secondary navigation', () => {
+it('returns from review to Chat or Practice from the tabs and preserves secondary navigation', () => {
   useNavigationStore.getState().setMode('review')
   render(<TopBar />)
-  fireEvent.click(screen.getByRole('button', {name:'Conversations'}))
-  expect(useNavigationStore.getState()).toMatchObject({mode:'practice',historyOpen:true})
+  const tabs = screen.getByRole('navigation', {name:'Main navigation'})
+  expect(within(tabs).getByRole('button', {name:'Chat'})).not.toHaveAttribute('aria-current')
+  fireEvent.click(within(tabs).getByRole('button', {name:'Practice'}))
+  expect(useNavigationStore.getState()).toMatchObject({mode:'practice',page:'guided',practiceView:'drill'})
+  expect(within(tabs).getByRole('button', {name:'Practice'})).toHaveAttribute('aria-current', 'page')
+  fireEvent.click(within(tabs).getByRole('button', {name:'Chat'}))
+  expect(useNavigationStore.getState()).toMatchObject({page:'guided',practiceView:'chat',mobileSurface:'chat'})
   fireEvent.click(screen.getByRole('button', {name:'More'}))
   expect(useNavigationStore.getState().overlay).toBe('more')
 })
@@ -91,26 +100,6 @@ it('shows a clickable connected state only after a successful check at the curre
   useSessionStore.setState(state => ({ connection: { ...state.connection!, revision: 10 } }))
   view.rerender(<TopBar />)
   expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
-})
-
-it('updates the System theme toggle when the OS appearance changes', async () => {
-  const original = window.matchMedia
-  let matches = false
-  const listeners = new Set<() => void>()
-  window.matchMedia = vi.fn(() => ({ matches, addEventListener: (_: string, fn: () => void) => listeners.add(fn), removeEventListener: (_: string, fn: () => void) => listeners.delete(fn) }) as unknown as MediaQueryList)
-  const update = vi.fn()
-  useSettingsStore.setState({ settings: { my_languages:['spanish','french'], target_varieties:{}, target_language: 'spanish', theme: 'system' } as Settings, update })
-  const view = render(<TopBar />)
-  try {
-    expect(screen.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible()
-    const { act } = await import('@testing-library/react')
-    act(() => { matches = true; listeners.forEach(listener => listener()) })
-    fireEvent.click(screen.getByRole('button', { name: 'Switch to light mode' }))
-    expect(update.mock.calls[0][0]({ theme: 'system' }).theme).toBe('light')
-  } finally {
-    view.unmount()
-    window.matchMedia = original
-  }
 })
 
 function connect() {

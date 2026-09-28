@@ -35,6 +35,9 @@ const PATHS = {
   collapse: <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />,
   popout: <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />,
   popin: <path d="M21 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4M21 21l-7-7M14 20v-6h6" />,
+  waveform: <path d="M3 11v2M7 8v8M11 4v16M15 7v10M19 10v4" />,
+  'thumbs-up': <><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z" /><path d="m7 10 4-7a2.5 2.5 0 0 1 3 3l-1 4h5.5a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.3 21H7" /></>,
+  edit: <><path d="M16.2 3.8a2.5 2.5 0 0 1 3.5 3.5L8.5 18.5 4 20l1.5-4.5z" /><path d="m14.5 5.5 4 4" /></>,
 }
 
 export type ToolbarIconName = keyof typeof PATHS

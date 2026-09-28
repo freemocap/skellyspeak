@@ -1,8 +1,7 @@
-/* Composer layout and recording controls.
-   .field is the shared form-field base; .composer-input adds reading typography
-   and composer geometry. Input text uses body size with script scaling; the
-   learner reading-size multiplier applies to conversation content. Recording/stop
-   controls retain their distinct states. */
+/* Composer layout: the edit banner, the status line and the voice panel
+   (components/voice.css). .field is the shared form-field base; .composer-input
+   adds reading typography to the draft. Input text uses body size with script
+   scaling; the learner reading-size multiplier applies to conversation content. */
 .field.composer-input {
   border-radius: var(--radius-lg);
   padding: var(--space-5) var(--space-6);
@@ -28,76 +27,40 @@
   padding: var(--space-3) var(--space-8) var(--space-4);
 }
 
+/* Fixing a message is a coach mode: a solid coach-green header names it, says
+   how far the draft has moved from the original, and holds Cancel. */
 .edit-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
-  margin: var(--space-2) var(--space-1) var(--space-3); padding: var(--space-3) var(--space-5); border-radius: var(--radius-md);
-  background: var(--field); border: var(--border-width) solid var(--interaction-ink);
-  font-family: var(--font-sans); font-size: var(--type-ui); color: var(--ink);
+  display: flex; align-items: center; gap: var(--space-4);
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-8)) var(--space-4); padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--coach-ink); color: var(--sheet);
+  font-family: var(--font-sans); font-size: var(--type-ui);
 }
+.edit-banner strong { font-weight: var(--weight-semibold); }
+.edit-banner-changes { color: color-mix(in srgb, var(--sheet) 80%, var(--coach-ink)); }
 
 .edit-banner button {
-  flex: none; border: none; background: none; color: var(--interaction-ink);
-  cursor: pointer; font-size: var(--type-meta); text-decoration: underline;
+  flex: none; margin-inline-start: auto; min-height: var(--control-height-xs); padding: 0 var(--space-5);
+  border: var(--border-width) solid color-mix(in srgb, var(--sheet) 50%, var(--coach-ink)); border-radius: var(--radius-md);
+  background: none; color: var(--sheet); cursor: pointer; font: var(--weight-medium) var(--type-meta) var(--font-sans);
 }
-
-.crow { display: flex; flex-direction: column; gap: var(--space-2); margin-top: 0; padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4); background: var(--field); border: var(--border-width) solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); transition: border-color var(--dur-fast) var(--ease-out); }
-.crow:focus-within { border-color: var(--interaction-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--interaction-ink) 14%, transparent); }
-.composer-field-row { display: flex; align-items: flex-end; gap: var(--space-4); width: 100%; }
-.crow .field.composer-input { flex: 1; resize: none; border: 0; border-radius: 0; background: transparent; box-shadow: none; min-height: var(--touch-target); max-height: 160px; padding: var(--space-2); line-height: var(--leading-normal); font-size: calc(var(--type-body) * var(--script-scale)); word-spacing: var(--word-spacing); }
-.composer-shortcuts { display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8); margin-top: var(--space-2); font: var(--type-meta) var(--font-sans); color: var(--ink-3); }
-@media (max-width: 860px) { .composer-shortcuts { display: none; } }
-
-/* Record is the composer's primary action; Send is the quieter secondary one.
-   Its arrow keeps full opacity in both states — a disabled control is muted with
-   ink, not faded into the surface, and its outline stays crisp. */
-.send {
-  flex: none; width: var(--touch-target); height: var(--touch-target); border: var(--border-width) solid var(--line);
-  background: var(--field); color: var(--interaction-ink); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-title); border-radius: var(--radius-pill); min-height: var(--control-height-lg);
-}
-
-.send:disabled { color: var(--ink-3); cursor: default; }
-
-.send:not(:disabled):hover { border-color: var(--interaction-ink); }
-
-.mic {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4);
-  flex: none; min-width: 0; height: var(--touch-target); padding: 0 var(--space-9) 0 var(--space-7); border: 0;
-  background: var(--interaction-fill); color: var(--ink-on-fill); cursor: pointer; font-family: var(--font-sans); font-size: var(--type-body); font-weight: var(--weight-semibold); border-radius: var(--radius-pill); min-height: var(--control-height-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.mic:hover:not(:disabled) { background: var(--interaction-fill-hover); }
-
-.mic.recording { background: var(--danger-fill); color: var(--ink-on-fill); border-color: var(--danger-fill); }
-
-.mic.recording:hover:not(:disabled) { background: var(--danger-fill-hover); border-color: var(--danger-fill-hover); }
-
-.mic:disabled { opacity: 0.5; cursor: default; }
-
-.mic-cancel {
-  flex: none; width: 28px; height: 28px; border-radius: var(--radius-circle);
-  border: var(--border-width) solid var(--danger-line); background: var(--field); color: var(--danger-line);
-  cursor: pointer; font-size: var(--type-ui);
-}
-
-.mic-cancel:hover { background: var(--danger-line); color: var(--ink-on-fill); }
-
-.crow .mic-cancel {
-  width: auto;
-  min-height: 38px;
-  padding: 0 var(--space-4);
-  flex: none;
-  font-size: var(--type-ui);
-  color: var(--danger-ink);
-  border-color: var(--danger-ink);
-  border-radius: var(--radius-md);
-}
-
-.crow .mic-cancel:hover { background: var(--danger-ink); color: var(--ink-on-fill); }
-
-@media (pointer: coarse) { .crow .mic-cancel { min-height: var(--touch-target); } }
+.edit-banner button:hover:not(:disabled) { background: color-mix(in srgb, var(--sheet) 15%, var(--coach-ink)); }
+.edit-banner button:disabled { opacity: .6; cursor: default; }
+@media (pointer: coarse) { .edit-banner button { min-height: var(--touch-target); } }
 
 .composer > .activity-indicator { margin-inline: var(--space-5); }
+
+/* The recording panel is its own zone in Chat's colour, as Practice's is in
+   its own: a thin outline, the colour on the edge that faces the conversation,
+   and a tint behind its controls. */
+.composer-voice {
+  background: var(--coach-tint); border: var(--border-width) solid var(--coach-line);
+  border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-lg);
+}
+/* Dragged to a height, the recording panel gives the change to its face (the
+   stream or the draft) and the conversation above takes the rest. */
+.composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
+.composer[data-voice-sized] > .composer-voice > .voice-grid { grid-template-rows: minmax(4.75rem, 1fr) auto; }
 
 /* One fixed status line above the input: transcription, reply and follow-on
    AI work all report here, so their arrival never moves the input. */
@@ -105,10 +68,26 @@
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
 
+/* Compact and narrow: reply help, the status line and (narrow) the coach share
+   one row above the answer. In it, folded help and the status line drop their
+   own spacing; opened help takes the whole row and the rest wraps under it.
+   Help sits inside its reading scope (display: contents), so it is matched as
+   a descendant but laid out as an item of the row. */
+.composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block-end: var(--space-2); }
+.composer-assist .reply-help-folded { margin: 0; }
+.composer-assist .reply-help { flex: 1 1 100%; margin: 0; }
+.composer-assist > .composer-activity { flex: 1 1 0; min-width: 0; padding-inline: var(--space-2); }
+/* Narrow: the coach opens from the end of that row, in the coach's colours. */
+.chat-coach {
+  flex: none; margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-6);
+  border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.chat-coach svg { color: var(--coach-mark); }
+.chat-coach[aria-expanded='true'] { border-color: var(--coach-mark); }
+@media (pointer: coarse) { .chat-coach { min-height: var(--control-height); } }
+
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 
-/* Optional guidance shares the composer surface and never overlays its controls. */
-
-.crow .field.composer-input:dir(rtl) { line-height: var(--leading-vocalized); }
-
-.composer[data-editing] { background: var(--chrome); border: var(--border-width) solid var(--interaction-ink); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
+.composer[data-editing] { background: var(--coach-tint); border: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-floating); border-radius: var(--radius-lg); }
+.composer[data-editing] .field { border-color: var(--coach-mark); }

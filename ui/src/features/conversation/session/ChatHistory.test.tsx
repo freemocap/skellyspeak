@@ -109,7 +109,7 @@ describe('the list', () => {
 
   it('starts a new one', async () => {
     const { onNewChat, user } = setup([chat()])
-    await user.click(screen.getByRole('button', { name: /New chat/i }))
+    await user.click(screen.getByRole('button', { name: /New conversation/i }))
     expect(onNewChat).toHaveBeenCalled()
   })
 })

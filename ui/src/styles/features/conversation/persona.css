@@ -142,15 +142,9 @@
 
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
-/* The partner's reaction to the learner's message: a small status chip that
-   rides on the reply's top edge at the inline start. It clears the line below it
-   by sitting higher, not by reserving a gutter: the reply keeps its full width
-   and the chip overlaps the bubble outline instead of the text. It stays a fixed
-   size so that clearance holds in every density and pointer mode. */
+/* The partner's reaction to the learner's message: a small status chip beside
+   the reply, at its foot, where the partner speaks from. */
 .persona-reaction {
-  position: absolute;
-  top: calc(-1 * var(--space-11));
-  inset-inline-start: 9px;
   width: var(--reaction-badge-gutter);
   min-width: var(--reaction-badge-gutter);
   min-height: 0;
@@ -165,9 +159,6 @@
   cursor: pointer;
 }
 
-/* A right-to-left reply keeps its speech control in the lead gutter, so the
-   chip starts past that control instead of under it. */
-.msg.rtl > .persona-reaction { inset-inline-start: calc(var(--control-height) + var(--space-2)); }
 
 
 .reaction-details { max-width: 560px; overflow-wrap: anywhere; }
@@ -197,15 +188,9 @@
 
 .reaction-excerpt.persona { align-self: flex-start; align-items: flex-start; }
 
-.reaction-excerpt .msg {
-  margin: 0;
-  max-width: 100%;
-  min-width: 0;
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--type-reading);
-  line-height: var(--leading-normal);
-  font-family: var(--font-serif);
-}
+/* Excerpts share the passage bubble; this variant owns only dialog spacing. */
+.reaction-excerpt .msg { margin: 0; max-width: 100%; }
+
 
 .reaction-details h2 { margin: var(--space-4) 0; font-size: var(--type-reading); color: var(--interaction-ink); }
 

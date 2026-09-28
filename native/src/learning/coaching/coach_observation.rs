@@ -1,5 +1,6 @@
-//! Model output is candidate evidence; exact source, construct membership and
-//! repair semantics are checked before deterministic policy can publish it.
+//! Model output is candidate evidence; construct membership and repair semantics
+//! are checked before deterministic policy can publish it, and unusable items are
+//! dropped rather than failing the whole observation.
 use crate::ai::transport::provider::Completion;
 use crate::learning::coaching::*;
 use crate::model::*;
@@ -74,18 +75,12 @@ pub(crate) fn validate(
             return Err(rejected("retry source replaced or missing"));
         }
     }
-    let source: String = db.query_row(
-        "SELECT text FROM messages WHERE turn_id=?1 AND role='user'",
-        [turn],
-        |r| r.get(0),
-    )?;
-    validate_captured(&captured, &source, kind, output)
+    validate_captured(&captured, kind, output)
 }
 
 /// Validate an immutable execution input; publication separately checks current ownership.
 pub(crate) fn validate_captured(
     captured: &Value,
-    source: &str,
     kind: &str,
     output: &Completion,
 ) -> Result<Value> {
@@ -123,48 +118,41 @@ pub(crate) fn validate_captured(
     let candidates = captured["candidateConstructs"]
         .as_array()
         .ok_or_else(|| rejected("missing candidates"))?;
-    for item in &observation.items {
-        if !candidates.iter().any(|c| c["id"] == item.construct) {
-            return Err(rejected("unknown construct"));
-        }
-        prose("quote", &item.quote)?;
-        if !item.rationale.is_empty() {
-            prose("rationale", &item.rationale)?;
-        }
-        if !source.contains(&item.quote) {
-            return Err(rejected("quote not in exact learner source"));
-        }
-        if let Some(error) = &item.error {
+    // Observations are advice, not a contract: an item the policy cannot use is
+    // left out and the rest of the coaching is kept. A quote that is not a
+    // verbatim piece of the message is kept; the display marks only exact matches.
+    observation.items = std::mem::take(&mut observation.items)
+        .into_iter()
+        .filter_map(|mut item| {
+            if !candidates.iter().any(|c| c["id"] == item.construct)
+                || prose("quote", &item.quote).is_err()
+                || (!item.rationale.is_empty() && prose("rationale", &item.rationale).is_err())
+            {
+                return None;
+            }
+            // An error on something judged demonstrated or unobserved is the
+            // model contradicting itself; the judgment stands without the error.
             if matches!(item.outcome, Outcome::Demonstrated | Outcome::NotObserved) {
-                return Err(rejected("outcome conflicts with error"));
+                item.error = None;
             }
-            prose("target_hypothesis", &error.target_hypothesis)?;
-            if help_move == CoachMove::Explicit {
-                prose("rationale", &item.rationale)?;
-            }
-            prose("error category", &error.category)?;
-            if error.category.chars().count() > 80 {
-                return Err(rejected("error category exceeds 80 characters"));
-            }
-            for (field, cue) in [
-                ("hint", &error.hint),
-                ("elicitation", &error.elicitation),
-                ("metalinguistic", &error.metalinguistic),
-            ] {
-                let active = match field {
-                    "hint" => help_move == CoachMove::Hint,
-                    "elicitation" => {
-                        matches!(help_move, CoachMove::Elicit | CoachMove::PartnerClarify)
-                    }
-                    _ => help_move == CoachMove::Metalinguistic,
+            if let Some(error) = &item.error {
+                let cue = match help_move {
+                    CoachMove::Hint => Some(&error.hint),
+                    CoachMove::Elicit | CoachMove::PartnerClarify => Some(&error.elicitation),
+                    CoachMove::Metalinguistic => Some(&error.metalinguistic),
+                    _ => None,
                 };
-                if !active {
-                    continue;
+                let usable = prose("target_hypothesis", &error.target_hypothesis).is_ok()
+                    && prose("error category", &error.category).is_ok()
+                    && (help_move != CoachMove::Explicit || prose("rationale", &item.rationale).is_ok())
+                    && cue.is_none_or(|text| prose("cue", text).is_ok());
+                if !usable {
+                    return None;
                 }
-                prose(field, cue)?;
             }
-        }
-    }
+            Some(item)
+        })
+        .collect();
     // A skill can occur in several passages. Only identical observations are
     // redundant; validate all evidence before collapsing those repeats.
     let mut seen = std::collections::HashSet::new();
@@ -250,7 +238,7 @@ mod text_contract_tests {
                     diagnostics: None,
                 };
                 let result =
-                    validate_captured(&context, "source", "coach_retry_check", &output).unwrap();
+                    validate_captured(&context, "coach_retry_check", &output).unwrap();
                 assert_eq!(result["repaired"], reported);
                 assert_eq!(result["observation"]["items"], json!(items));
                 assert_eq!(result["decision"]["shown"]["construct"], "possession");

@@ -304,7 +304,6 @@ pub enum Action {
     CoachControl {
         turn_id: String,
         control: crate::learning::coaching::CoachControl,
-        expected_revision: i32,
     },
     ReviseTurn {
         conversation_id: String,
@@ -587,9 +586,6 @@ pub fn bindings() -> String {
         crate::learning::learner::learner_state::ConstructState::decl(&config),
         ConnectionRoute::decl(&config),
         crate::configuration::appearance::SurfacePalette::decl(&config),
-        crate::configuration::appearance::ControlDensity::decl(&config),
-        crate::configuration::appearance::LayoutSpacing::decl(&config),
-        crate::configuration::appearance::SurfaceDepth::decl(&config),
         crate::configuration::appearance::AppearancePreferences::decl(&config),
         AccessSettings::decl(&config),
         ProviderCredentialCheck::decl(&config),

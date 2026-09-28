@@ -8,19 +8,18 @@ interface WaveformStripProps {
   height?: number
   timelineSeconds?: number
   endSeconds?: number
-  mirrored?: boolean
 }
 
-/// Compact scrolling oscilloscope for the composer — adapted from the
+/// Compact scrolling oscilloscope for the voice panel — adapted from the
 /// mic-waveform-visualizer extract (ultraskelly-ui-og lineage): literal
-/// time-domain waveform, bounded history, red "now" line, elapsed timer.
+/// time-domain waveform, bounded history, red "now" line. The elapsed time is
+/// the voice panel's chip, so the strip draws no text of its own.
 /// Draws only while `source` is present.
 export function WaveformStrip({
   source,
   height = 44,
   timelineSeconds = 6,
   endSeconds,
-  mirrored = false,
 }: WaveformStripProps) {
   const clock = useRef(endSeconds)
   clock.current = endSeconds
@@ -28,7 +27,6 @@ export function WaveformStrip({
   const containerRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef<number | null>(null)
   const historyRef = useRef<number[]>([])
-  const startedAtRef = useRef<number>(Date.now())
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -43,15 +41,13 @@ export function WaveformStrip({
     const backgroundColor = cssToken('--field')
     const waveColor = cssToken('--interaction-ink')
     const gridColor = cssToken('--ink-on-fill')
-    const nowColor = cssToken('--warning-ink')
-    const labelColor = cssToken('--ink')
+    const nowColor = cssToken('--recording-mark')
 
     const maxSamples = Math.max(1, Math.floor(timelineSeconds * source.samplesPerSecond))
 
     let totalSamples = 0
     let paintedClock: number | undefined
     let needsPaint = true
-    let paintedElapsed = -1
     const resize = () => {
       if (!container) return
       const width = container.clientWidth
@@ -65,7 +61,6 @@ export function WaveformStrip({
     }
     resize()
     historyRef.current = []
-    startedAtRef.current = Date.now()
 
     const draw = () => {
       if (!container) return
@@ -80,15 +75,13 @@ export function WaveformStrip({
         }
       }
 
-      const elapsed = Math.floor(clock.current ?? (Date.now() - startedAtRef.current) / 1000)
       // Sample positions only change when data arrives; identical frames add no motion.
-      // Keep polling, but repaint for new data, elapsed text, or a cleared/resized canvas.
-      if (!needsPaint && incoming.length === 0 && elapsed === paintedElapsed && clock.current === paintedClock) {
+      // Keep polling, but repaint for new data, a moved capture clock, or a cleared/resized canvas.
+      if (!needsPaint && incoming.length === 0 && clock.current === paintedClock) {
         rafRef.current = requestAnimationFrame(draw)
         return
       }
       needsPaint = false
-      paintedElapsed = elapsed
       paintedClock = clock.current
 
       ctx2d.globalAlpha = 1
@@ -136,15 +129,6 @@ export function WaveformStrip({
       ctx2d.lineTo(width - 1, height)
       ctx2d.stroke()
 
-      // elapsed
-      ctx2d.globalAlpha = 0.55
-      ctx2d.fillStyle = labelColor
-      ctx2d.font = '9px monospace'
-      ctx2d.save()
-      if (mirrored) { ctx2d.translate(width, 0); ctx2d.scale(-1, 1) }
-      ctx2d.fillText(`● rec ${elapsed}s`, 6, 12)
-
-      ctx2d.restore()
       rafRef.current = requestAnimationFrame(draw)
     }
 
@@ -156,7 +140,7 @@ export function WaveformStrip({
       window.removeEventListener('resize', resize)
       historyRef.current = []
     }
-  }, [source, height, timelineSeconds, mirrored])
+  }, [source, height, timelineSeconds])
 
   return (
     <div ref={containerRef} className="wave-strip" style={{ height }}>

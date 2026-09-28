@@ -15,31 +15,55 @@ beforeEach(() => {
 const view = (phase: DockPhase) => <I18nProvider locale="english"><RecordDock phase={phase} mode="live"
   onMode={() => {}} settings={{ pauseMs: policy.defaultPauseMs, thresholdDb: policy.defaultThresholdDb,
     minTakeMs: policy.defaultMinTakeMs, silenceTimeoutMs: policy.defaultSilenceTimeoutMs }}
-  onSettings={() => {}} listeningStatus={null} waveSource={null} liveSpectrum={null}
+  onSettings={() => {}} listeningStatus={null} waveSource={null} spectrum={null}
   onToggle={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} /></I18nProvider>
 
-it('keeps the control rows and record node mounted when capture starts and stops', () => {
+it('keeps the pad and the control row mounted when capture starts and stops', () => {
   const { container, rerender } = render(view('ready'))
-  const button = screen.getByRole('button', { name: 'Start recording' })
-  const rows = Array.from(container.querySelector('.drill-dock-side')!.children)
-  expect(screen.queryByRole('button', { name: 'Discard current take' })).toBeNull()
-  expect(container.querySelector('.drill-dock-counts')).toHaveTextContent('0 queued')
+  const pad = screen.getByRole('button', { name: 'Start recording' })
+  const controls = Array.from(container.querySelector('.voice-controls')!.children)
+  expect(screen.getByText('Press the microphone to start')).toBeInTheDocument()
   rerender(view('recording'))
-  expect(screen.getByRole('button', { name: 'Stop recording' })).toBe(button)
-  expect(Array.from(container.querySelector('.drill-dock-side')!.children)).toEqual(rows)
+  expect(screen.getByRole('button', { name: 'Stop recording' })).toBe(pad)
+  expect(pad).toHaveAttribute('data-live', 'true')
+  expect(Array.from(container.querySelector('.voice-controls')!.children)).toEqual(controls)
   rerender(view('ready'))
-  expect(screen.getByRole('button', { name: 'Start recording' })).toBe(button)
-  expect(Array.from(container.querySelector('.drill-dock-side')!.children)).toEqual(rows)
+  expect(screen.getByRole('button', { name: 'Start recording' })).toBe(pad)
+  expect(Array.from(container.querySelector('.voice-controls')!.children)).toEqual(controls)
 })
 
-it('keeps only the record action, auto toggle and settings outside the dialog', () => {
+it('shows Tap, Hold and Auto under the pad, the Auto controls in the row, and timings in settings', () => {
   const { container } = render(view('ready'))
-  expect(screen.queryByRole('radio')).toBeNull()
-  expect(screen.getByRole('checkbox', { name: 'Auto detect takes' })).toBeChecked()
-  expect(container.querySelectorAll('.drill-dock-button')).toHaveLength(1)
-  expect(screen.queryByRole('button', { name: 'Discard current take' })).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Recording settings' }))
   const group = screen.getByRole('radiogroup', { name: 'Recording mode' })
   expect(within(group).getAllByRole('radio')).toHaveLength(3)
-  expect(within(group).getByRole('radio', { name: 'Live' })).toHaveAttribute('aria-checked', 'true')
+  expect(within(group).getByRole('radio', { name: 'Auto' })).toHaveAttribute('aria-checked', 'true')
+  expect(screen.getByRole('checkbox', { name: 'Detect attempts' })).toBeChecked()
+  expect(screen.getByRole('meter', { name: 'Microphone level' })).toBeInTheDocument()
+  expect(container.querySelectorAll('.voice-pad')).toHaveLength(1)
+  expect(screen.queryByRole('button', { name: 'Discard current take' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Recording settings' }))
+  const dialog = screen.getByRole('dialog', { name: 'Recording settings' })
+  expect(within(dialog).getByRole('radiogroup', { name: 'End an attempt after silence of' })).toBeInTheDocument()
+  expect(within(dialog).getByRole('radiogroup', { name: 'Ignore sounds shorter than' })).toBeInTheDocument()
+  expect(within(dialog).queryByRole('radiogroup', { name: 'Recording mode' })).toBeNull()
+})
+
+it('puts the button on the chosen side and offers both layout settings', async () => {
+  const layout = { padSide: 'left' as const, onPadSide: vi.fn(), time: 'rtl' as const, onTime: vi.fn() }
+  const { container } = render(<I18nProvider locale="english"><RecordDock phase="ready" mode="tap" layout={layout}
+    onMode={() => {}} settings={{ pauseMs: policy.defaultPauseMs, thresholdDb: policy.defaultThresholdDb,
+      minTakeMs: policy.defaultMinTakeMs, silenceTimeoutMs: policy.defaultSilenceTimeoutMs }}
+    onSettings={() => {}} listeningStatus={null} waveSource={null} spectrum={null}
+    onToggle={() => {}} onHoldStart={() => {}} onHoldEnd={() => {}} /></I18nProvider>)
+  const panel = container.querySelector('.drill-voice')!
+  // In a left-to-right interface the left side is the inline start.
+  expect(panel).toHaveAttribute('data-pad-side', 'left')
+  expect(panel).toHaveAttribute('data-pad', 'start')
+  fireEvent.click(screen.getByRole('button', { name: 'Recording settings' }))
+  const settings = await screen.findByRole('dialog', { name: 'Recording settings' })
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Microphone button' })).getByRole('radio', { name: 'Right' }))
+  expect(layout.onPadSide).toHaveBeenCalledExactlyOnceWith('right')
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Time direction' })).getByRole('radio', { name: 'Time →' }))
+  expect(layout.onTime).toHaveBeenCalledExactlyOnceWith('ltr')
+  expect(layout.onPadSide).toHaveBeenCalledOnce()
 })

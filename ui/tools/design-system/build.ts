@@ -126,6 +126,9 @@ await build({
 // Components read the document (UI direction, media queries) while rendering.
 const { JSDOM } = await import("jsdom");
 const dom = new JSDOM("<!doctype html><html lang='en'><body></body></html>", { pretendToBeVisual: true });
+// jsdom has no layout, so every width query answers as the Full width the
+// previews are drawn at.
+Object.assign(dom.window, { matchMedia: (media: string) => ({ media, matches: false, addEventListener: () => {}, removeEventListener: () => {} }) });
 Object.assign(globalThis, { window: dom.window, document: dom.window.document, HTMLElement: dom.window.HTMLElement });
 const { render } = await import(pathToFileURL(resolve(bundled)).href + `?t=${Date.now()}`);
 const rendered = render() as { previews: { name: string; group: string; height: number; html: string }[]; icons: { name: string; svg: string }[] };

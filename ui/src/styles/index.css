@@ -37,6 +37,7 @@
 @import './components/skill-guide.css';
 @import './components/errors.css';
 @import './components/waveform.css';
+@import './components/voice.css';
 @import './shell/notices.css';
 
 /* Feature surfaces, in the order the learner meets them. */

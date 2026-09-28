@@ -7,6 +7,7 @@ import type { ReactElement } from 'react'
 import { I18nProvider } from '../../src/components/localization/i18n'
 import { ToolbarIcon, type ToolbarIconName } from '../../src/components/controls/ToolbarIcon'
 import { InfoTip } from '../../src/components/controls/InfoTip'
+import { SegmentedChoice } from '../../src/components/controls/SegmentedChoice'
 import { ActivityIndicator } from '../../src/components/feedback/ActivityIndicator'
 import { ErrorDetails } from '../../src/components/feedback/ErrorDetails'
 import { SavedGlossText } from '../../src/components/reading/SavedGlossText'
@@ -34,6 +35,9 @@ export const previews: Preview[] = [
     <button className="btn danger">Delete this conversation</button>
     <button className="btn tiny">Retry failed</button>
     <button className="btn" disabled>Saving…</button>
+  </div> },
+  { name: 'SegmentedChoice', group: 'Forms', height: 72, element: <div className="ds-row">
+    <SegmentedChoice label="Time frame" value="any" onChange={noop} options={[['any', 'Any time'], ['past', 'Past events'], ['future', 'Future plans']]} />
   </div> },
   { name: 'PanelTabs', group: 'Navigation', height: 72, element: <div className="panel-tabs" role="tablist">
     <button className="panel-tab active" role="tab" aria-selected="true">Conversation</button>
@@ -66,7 +70,7 @@ export const previews: Preview[] = [
   </div> },
   { name: 'InfoTip', group: 'Feedback', height: 56, element: <p className="ds-text">Estimate <InfoTip>Assessments are model judgments, not independent human validation.</InfoTip></p> },
   { name: 'ActivityIndicator', group: 'Feedback', height: 56, element: <div className="ds-row">
-    <ActivityIndicator label="Generating a persona…" />
+    <ActivityIndicator label="Generating a partner…" />
     <ActivityIndicator label="Saving…" compact />
   </div> },
   { name: 'ErrorDetails', group: 'Feedback', height: 64, element: <ErrorDetails label="Request failed" errorKey="sample">
@@ -83,7 +87,7 @@ export const previews: Preview[] = [
 
 export const iconNames: ToolbarIconName[] = ['menu', 'more', 'plus', 'close', 'chevron', 'expand', 'collapse', 'popout', 'popin',
   'reload', 'update', 'settings', 'cog', 'profile', 'key', 'models', 'data', 'globe', 'voice', 'keyboard', 'reading',
-  'appearance', 'sun', 'moon', 'star', 'idea']
+  'appearance', 'sun', 'moon', 'star', 'idea', 'waveform', 'edit', 'thumbs-up']
 
 export function render() {
   return {

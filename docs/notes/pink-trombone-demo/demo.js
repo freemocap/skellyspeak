@@ -1,4 +1,5 @@
 import { TromboneEngine } from "./engine.js";
+import { drawAnatomy, restDiameters } from "./anatomy.js";
 import { UTTERANCES, describeShape, resolveShape, utteranceDuration } from "./utterances.js";
 
 const engine = new TromboneEngine();
@@ -18,6 +19,7 @@ const ctx2d = canvas.getContext("2d");
 
 let selected = UTTERANCES[0];
 let live = -1;
+let view = "anatomy";
 
 /* --- library -------------------------------------------------------- */
 
@@ -105,6 +107,20 @@ stopEl.addEventListener("click", () => {
     live = -1;
 });
 
+const viewButtons = {
+    anatomy: document.getElementById("view-anatomy"),
+    tract: document.getElementById("view-tract"),
+};
+
+for (const [name, button] of Object.entries(viewButtons)) {
+    button.addEventListener("click", () => {
+        view = name;
+        for (const [other, el] of Object.entries(viewButtons)) {
+            el.setAttribute("aria-checked", String(other === name));
+        }
+    });
+}
+
 speedEl.addEventListener("input", () => {
     engine.movementSpeed = Number(speedEl.value);
     speedValueEl.textContent = speedEl.value;
@@ -142,31 +158,45 @@ function frame() {
         statusEl.textContent = "Ready.";
     }
 
-    if (engine.render(ctx2d, width, height)) {
+    const shape = engine.currentShape();
+
+    if (view === "anatomy") {
+        // Diameters come straight from the tract processor; before audio starts
+        // there is none, so fall back to the processor's own rest calculation.
+        drawAnatomy(ctx2d, {
+            diameter: engine.voice?.d ?? restDiameters(),
+            velum: engine.voice?.v ?? 0.01,
+            voiced: shape ? shape.params.voiced : 0,
+            pitch: shape ? shape.params.pitch : 120,
+            time: engine.ctx ? engine.ctx.currentTime : performance.now() / 1000,
+            width,
+            height,
+        });
+    } else if (engine.render(ctx2d, width, height)) {
         // The tract outline is exact (it comes from the audio thread). The
         // tongue-position ring is a UI affordance, so follow the authored ramp.
-        const shape = engine.currentShape();
         if (shape) {
             engine.voice.UI.tongueIndex = shape.tongue[0];
             engine.voice.UI.tongueDiameter = shape.tongue[1];
             engine.voice.UI.draw();
             ctx2d.drawImage(engine.voice.UI.cnv, 0, 0, width, height);
         }
-        if (shape && shape.index !== live) {
-            live = shape.index;
-            updateReadout(shape.params);
-            [...chipsEl.children].forEach((chip, index) => {
-                chip.dataset.live = String(index === live);
-            });
-            statusEl.textContent =
-                `Segment ${live + 1} of ${selected.segments.length}` +
-                ` · ${utteranceDuration(selected).toFixed(2)}s total`;
-        }
     } else if (engine.enabled) {
         ctx2d.fillStyle = "#6f7883";
         ctx2d.font = "24px system-ui, sans-serif";
         ctx2d.textAlign = "center";
         ctx2d.fillText("waiting for the audio thread…", width / 2, height / 2);
+    }
+
+    if (shape && shape.index !== live) {
+        live = shape.index;
+        updateReadout(shape.params);
+        [...chipsEl.children].forEach((chip, index) => {
+            chip.dataset.live = String(index === live);
+        });
+        statusEl.textContent =
+            `Segment ${live + 1} of ${selected.segments.length}` +
+            ` · ${utteranceDuration(selected).toFixed(2)}s total`;
     }
 
     requestAnimationFrame(frame);

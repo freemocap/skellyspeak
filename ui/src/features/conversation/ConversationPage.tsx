@@ -4,7 +4,7 @@ import { ConversationReadingProvider } from './reading/ConversationReadingProvid
 import { interruptSpeech } from '../../platform/audio/speech'
 import { ConversationDirectionSettings } from './session/ConversationDirectionSettings'
 import { useAttemptStreamSync } from '../../state/session/attempt-streams'
-import type { ConversationStartConfig } from '../../generated/contracts'
+import type { CoachControl, ConversationStartConfig } from '../../generated/contracts'
 import { AskCoachContext } from '../../components/learning/AskCoachButton'
 import { useI18n } from '../../components/localization/i18n'
 import { TranscriptionInspector } from './speech/TranscriptionInspector'
@@ -30,7 +30,8 @@ import { RewardPresentationProvider } from './progress/RewardPresentation'
 import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
 import { TurnReplyHelp } from './composer/TurnReplyHelp'
 import { useSkillNavigationStore } from '../../state/navigation/skill-navigation'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { openOverlay } from '../../domain/input/back'
 import { createContact as createContactRequest, executeAction, readWorkspace, nativeError } from '../../platform/ipc/workspace'
 import type { Settings } from '../../types'
 import type { PersonaDetails } from '../../generated/contracts'
@@ -48,9 +49,13 @@ import { useSessionStore } from '../../state/session/session'
 import type { MobileLocation } from '../../state/navigation/navigation'
 import { useMessageSpeech } from './speech/useMessageSpeech'
 import { comboFromEvent } from '../../domain/input/keyboard'
-import { WaveformStrip } from '../../components/media/WaveformStrip'
+import { LiveRecording } from '../../components/media/LiveRecording'
+import { useRecorderLayout } from '../../components/media/useRecorderLayout'
+import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
+import { useUiDirection } from '../../components/localization/useUiDirection'
+import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
 import { EditFeedback } from './coaching/EditFeedback'
-import { TurnView } from './messages/TurnView'
+import { TurnView, type TurnShape } from './messages/TurnView'
 import { LatestTurnActivity } from './messages/TurnActivityLine'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { AnalysisContent } from './reading/AnalysisContent'
@@ -58,11 +63,12 @@ import { CoachAnalysisPanel } from './coaching/CoachAnalysisPanel'
 import { logInfo, logWarn } from '../../platform/diagnostics/log'
 import { ChatHistory } from './session/ChatHistory'
 import { latestAnswered } from '../../domain/conversation/turns'
+import { revisionChanges } from '../../domain/conversation/revision-changes'
 import { useConversation } from './session/useConversation'
 import { useConversationScroll } from './messages/useConversationScroll'
 import { useMicRecorder } from '../../platform/audio/useMicRecorder'
 import { usePersistentToggle } from '../../components/persistence/usePersistentToggle'
-import { useIsMobile } from '../../components/layout/useIsMobile'
+import { useWidthTier } from '../../components/layout/useWidthTier'
 import { reportFault } from '../../platform/diagnostics/faults'
 import { needsProviderSetup } from '../../domain/access/providers'
 
@@ -106,6 +112,8 @@ export default function ConversationPage({
   const inputRevision = useRef(0)
   const setInput = useCallback((value: string | ((previous: string) => string)) => { inputRevision.current += 1; setInputState(value) }, [])
   const inputEvidence = useRef<InputEvidence>(unreportedInput())
+  const draftRecording = useRef<string | null>(null)
+  const [sentRecording, setSentRecording] = useState<{ recordingId: string; turnId: string } | null>(null)
   // A repair retains its source and explicitly confirms removal of dependent turns.
   const [editingTurnId, setEditingTurnId] = useState<number | null>(null)
   const [acceptedEditSource, setAcceptedEditSource] = useState<string | null>(null)
@@ -259,7 +267,8 @@ export default function ConversationPage({
   const streamTail = (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
   const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
 
-  const isMobile = useIsMobile()
+  const tier = useWidthTier()
+  const isMobile = tier !== 'full'
   function openCoach(id?: number) {
     if (id !== undefined) setPinnedId(id)
     setPanelTab('coaching')
@@ -270,6 +279,7 @@ export default function ConversationPage({
   const [exportOpen, setExportOpen] = useState(false)
   const [inspectionOpen, setInspectionOpen] = useState(false)
   useEffect(() => setInspectionOpen(false), [currentChatId, active])
+  useEffect(() => { draftRecording.current = null; setSentRecording(null) }, [currentChatId, active])
   const [analysisOpen, setAnalysisOpen] = useState(false)
   function askCoach(question: string) {
     setAnalysisOpen(false)
@@ -295,6 +305,8 @@ export default function ConversationPage({
     []
   )
   const [startDraft, setStartDraft] = useState<{ id: string; value: ConversationStartConfig } | null>(null)
+  // The header's partner menu, which the start card's Change partner also opens.
+  const [partnerMenuOpen, setPartnerMenuOpen] = useState(false)
   const startConfiguration = startDraft?.id === currentChatId ? startDraft.value : details.conversation ? {
     difficulty: details.conversation.settings.difficulty, varietyId: details.conversation.settings.varietyId, direction: details.conversation.settings.direction,
   } : null
@@ -311,6 +323,8 @@ export default function ConversationPage({
     acceptingSend.current = true
     const submittedChatId = currentChatId
     const submittedDraftRevision = inputRevision.current
+    const submittedRecording = provenance.modality === 'speech_transcript' ? draftRecording.current : null
+    let acceptedTurnId: string | null = null
     let editedSource: string | null = null
     setSending(true)
     setError(null)
@@ -320,15 +334,19 @@ export default function ConversationPage({
       if (editingTurnId !== null) {
         const turn = turns.find(item => item.id === editingTurnId)
         if (!turn?.turnId || !snapshot || revision === undefined) throw new Error('Revision source is unavailable. Reopen the message to edit it.')
-        await executeAction(snapshot, { kind: 'reviseTurn', conversationId: snapshot.conversationId, turnId: turn.turnId, text, input: provenance, expectedRevision: revision })
+        acceptedTurnId = (await executeAction(snapshot, { kind: 'reviseTurn', conversationId: snapshot.conversationId, turnId: turn.turnId, text, input: provenance, expectedRevision: revision })).entityId
         editedSource = turn.turnId
       } else if (snapshot && !snapshot.opening && turns.length === 0) {
         if (!startConfiguration) throw new Error('Conversation settings are unavailable.')
         const latest = await readWorkspace()
         if (selectedChatRef.current !== submittedChatId) return
-        await executeAction(latest, { kind: 'startConversation', conversationId: snapshot.conversationId, configuration: startConfiguration, message: text, input: provenance, expectedRevision: latest.revision })
-      } else await sendMessage(text, currentChatId, provenance)
+        acceptedTurnId = (await executeAction(latest, { kind: 'startConversation', conversationId: snapshot.conversationId, configuration: startConfiguration, message: text, input: provenance, expectedRevision: latest.revision })).entityId
+      } else acceptedTurnId = (await sendMessage(text, currentChatId, provenance)).entityId
       if (selectedChatRef.current !== submittedChatId) return
+      if (submittedRecording && acceptedTurnId) {
+        setSentRecording({ recordingId: submittedRecording, turnId: acceptedTurnId })
+        if (draftRecording.current === submittedRecording) draftRecording.current = null
+      }
       if (inputRevision.current === submittedDraftRevision) {
         setInput('')
         inputEvidence.current = unreportedInput()
@@ -418,6 +436,25 @@ export default function ConversationPage({
 
   const activeTurns = turns.filter(turn => !turn.replacedBy)
   const editingTurn = turns.find((turn) => turn.id === editingTurnId)
+  /** Coach controls act on the turn's decision as it is when they run. */
+  const coachControl = async (turnId: string, control: CoachControl): Promise<void> => {
+    if (!snapshot) throw new Error('Coaching is unavailable.')
+    await executeAction(snapshot, { kind: 'coachControl', turnId, control })
+  }
+  const editChanges = editingTurn?.user != null ? revisionChanges(editingTurn.user, input) : 0
+  const coachedTurn = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
+  const editBlocked = acceptingSend.current || acceptedEditSource !== null
+  const canEdit = (turn: TurnShape): boolean => Boolean(turn.turnId) && turn.user !== null
+  /** Puts a sent message in the composer; sending replaces it. */
+  const startEdit = (selected: TurnShape): void => {
+    setEditingTurnId(selected.id)
+    setEditRevision(snapshot?.revision ?? null)
+    setInput(selected.user ?? '')
+    setError(null)
+    inputEvidence.current = unreportedInput()
+    // On phones, leave the microphone visible until the learner taps to type.
+    if (!isMobile) composer.current?.querySelector('textarea')?.focus()
+  }
   const latestAssistantId = latestAnswered(activeTurns)?.id ?? null
 
   // Romanization shows for targets whose script needs it (Arabic → ALA-LC).
@@ -446,8 +483,9 @@ export default function ConversationPage({
 
   const mic = useMicRecorder({
     owner: active && currentChatId ? { kind: 'conversation', id: currentChatId } : null,
-    onTranscribe: (text: string) => {
+    onTranscribe: (text, result) => {
       if (text) {
+        draftRecording.current = result.inspection.recordingId
         inputEvidence.current.modality = 'speech_transcript'
         if (settingsRef.current?.auto_send && (!sending || editingTurnId !== null)) {
           logInfo('[mic] auto-send enabled — sending transcription')
@@ -461,15 +499,45 @@ export default function ConversationPage({
   const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
   stopSpeechRef.current = () => { speech.stop(); interruptSpeech() }
   const toggleMic = () => { stopSpeechRef.current(); void mic.toggleMic() }
+  // Tap or Hold: in Hold the microphone records while the pad is held down.
+  const [voiceMode, setVoiceMode] = useState<'tap' | 'hold'>('tap')
+  const holdSession = useRef<{ ready: Promise<void>; released: boolean } | null>(null)
+  const holdStart = () => {
+    if (holdSession.current || mic.recording || mic.transcribing) return
+    stopSpeechRef.current()
+    holdSession.current = { ready: mic.toggleMic(), released: false }
+  }
+  const holdEnd = () => {
+    const session = holdSession.current
+    if (!session || session.released) return
+    session.released = true
+    void session.ready.then(async () => {
+      if (holdSession.current !== session) return
+      await mic.stopMic()
+      holdSession.current = null
+    })
+  }
   toggleMicRef.current = toggleMic
+  // The recording panel keeps the height the learner drags it to; the stream takes the rest.
+  const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
+  const uiDirection = useUiDirection()
+  const recorder = useRecorderLayout('chat', uiDirection)
 
   const aiBusy = replyActive
 
 
+  // In the compact and narrow layouts the coach covers the conversation as a
+  // drawer or a sheet: Back, Escape, the scrim and its close control fold it away.
+  const coachCovers = isMobile && mobileSurface === 'panel'
+  const closeCoach = useCallback(() => useNavigationStore.getState().openPractice('chat'), [])
   useEffect(() => {
-    if (isMobile && mobileSurface === 'panel') breakRef.current?.scrollIntoView({ block: 'start' })
-  }, [isMobile, mobileSurface, panelTab])
-  // Chat and Coach slide only after the learner switches between them, not on first open.
+    if (!coachCovers) return
+    const release = openOverlay(closeCoach)
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeCoach() }
+    window.addEventListener('keydown', onKey)
+    return () => { release(); window.removeEventListener('keydown', onKey) }
+  }, [coachCovers, closeCoach])
+  // The coach slides in only after the learner opens it, not on first open of the page.
   const [surfaceSwitched, setSurfaceSwitched] = useState(false)
   const shownSurface = useRef(mobileSurface)
   useEffect(() => {
@@ -478,8 +546,9 @@ export default function ConversationPage({
     setSurfaceSwitched(true)
   }, [mobileSurface])
   const latestTurn = activeTurns.at(-1)
-  // The latest recording belongs to the newest learner message that carries its transcript unchanged.
-  const recordingTurnId = mic.lastTranscription ? [...activeTurns].reverse().find(turn => turn.user?.trim() === mic.lastTranscription!.text.trim())?.id ?? null : null
+  // Bind the recording to the accepted send receipt, never to matching text.
+  const recordingTurnId = sentRecording?.recordingId === mic.lastTranscription?.inspection.recordingId
+    ? activeTurns.find(turn => turn.turnId === sentRecording?.turnId)?.id ?? null : null
   const analysing = (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null
   const inspectLatest = () => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: latestTurn?.turnId ?? null, operationKind: null })
   const replyHelp = (
@@ -492,30 +561,48 @@ export default function ConversationPage({
         }} />
     </ConversationErrorScope>
   )
+  // A new conversation's voice panel suggests the authored greeting to say.
+  const greeting = turns.length === 0 && snapshot && !snapshot.opening ? snapshot.starterGreeting : null
+  const greetingPrompt = greeting ? tr.rich('Say {greeting} to start', { greeting: <>
+    <b className="target-word" lang={targetLanguage?.languageTag}><bdi dir={rtl ? 'rtl' : 'ltr'}>{greeting.text}</bdi></b>
+    {greeting.romanized && <> (<bdi dir="ltr">{greeting.romanized}</bdi>)</>}
+  </> }) : undefined
+  const composerActivity = (
+    <div className="composer-activity" aria-live="polite">
+      {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} />
+        : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
+        : analysing}
+    </div>
+  )
   const chatComposer = (
-        <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}>
+        <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}
+          data-voice-sized={voiceHeight === null ? undefined : ""} style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as CSSProperties}>
+          <ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={voiceHeight} min={150} max={640}
+            measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           {editingTurnId !== null && (
             <div className="edit-banner">
-              <span>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("✎ Editing your message — send to replace it")}</span>
+              <ToolbarIcon name="edit" size={15} />
+              <strong>{acceptedEditSource ? tr("Edit saved — updating conversation…") : tr("Fix your message")}</strong>
+              {!acceptedEditSource && editingTurn?.user != null && <span className="edit-banner-changes">{editChanges === 0
+                ? tr("Sending replaces your message") : tr("Changes from your original", { count: editChanges })}</span>}
               <button type="button" disabled={acceptedEditSource !== null} onClick={cancelEdit}>
                 {tr("Cancel")}</button>
             </div>
           )}
-          {editingTurn && !acceptedEditSource && <EditFeedback onControl={snapshot && editingTurn.turnId ? async control => {
-            await executeAction(snapshot, { kind: 'coachControl', turnId: editingTurn.turnId!, control, expectedRevision: snapshot.revision })
-          } : undefined} conversationFeedback={editingTurn.conversationFeedback} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
-          <div className="composer-activity" aria-live="polite">
-            {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} />
-              : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
-              : analysing}
-          </div>
+          {editingTurn && !acceptedEditSource && <EditFeedback onControl={editingTurn.turnId ? control => coachControl(editingTurn.turnId!, control) : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
+          {!isMobile && composerActivity}
           {mic.failure != null && <ErrorNotice error={mic.failure}>
             <p>{nativeError(mic.failure)}</p>
             <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
           </ErrorNotice>}
-          {mic.lastTranscription && <button className="inspection-open" onClick={() => setInspectionOpen(true)}>{tr("Inspect recording")}</button>}
-          {isMobile && replyHelp}
-          <ComposerInput waveform={mic.recording && mic.waveSource ? <WaveformStrip source={mic.waveSource} height={44} timelineSeconds={10} /> : null} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
+          {/* Stacked, one row above the answer holds reply help, the status line and,
+              when narrow, the coach, instead of a row each. */}
+          {isMobile && <div className="composer-assist">{replyHelp}{composerActivity}{tier === 'narrow' && <button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
+            <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button>}</div>}
+          <ComposerInput stream={mic.recording ? <LiveRecording source={mic.waveSource} spectrum={mic.spectrum} time={recorder.time} /> : null} prompt={greetingPrompt}
+            layout={recorder} mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
+            settings={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
+              onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguage?.endonym ?? ''}
             onInput={setInput} onSend={text => { void send(text) }}
@@ -528,7 +615,7 @@ export default function ConversationPage({
     <div className="guided-workspace">
     <div
       ref={workspace}
-      className={`split ${isMobile ? 'mobile-conversation' : ''} ${isMobile && mobileSurface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`}
+      className={`split ${isMobile ? 'mobile-conversation' : ''} ${coachCovers ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`}
     >
       <ChatHistory
         open={historyOpen}
@@ -543,7 +630,9 @@ export default function ConversationPage({
       />
       {/* ── Chat half (paper) ─────────────────────────────────────────── */}
       <section className="chat" data-stripe={Array.from(currentChatId ?? '').reduce((sum, char) => sum + char.charCodeAt(0), 0) % CHAT_STRIPES}>
-        <ConversationHeader persona={<PersonaPicker choices={contactChoices} currentId={activeContactId}
+        <ConversationHeader leading={<button type="button" className="chat-conversations" aria-label={tr("Conversations")} title={tr("Conversations")}
+            aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}><ToolbarIcon name="menu" size={17} /></button>}
+          persona={<PersonaPicker choices={contactChoices} currentId={activeContactId} open={partnerMenuOpen} onOpenChange={setPartnerMenuOpen}
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
           <div className="chat-heading-actions">
           <XpChip chatId={currentChatId} />
@@ -553,11 +642,11 @@ export default function ConversationPage({
             nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
             promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />}
             difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />} />
-          <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /><span>{tr("New")}</span></button>
+          <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /></button>
           </div>
         </ConversationHeader>
         <SkillRewards chatId={currentChatId} active={active} />
-        <div className="stream" ref={streamRef} onScroll={streamScroll.onScroll}>
+        <div className="stream" data-editing={editingTurnId !== null ? '' : undefined} ref={streamRef} onScroll={streamScroll.onScroll}>
           {readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}
           {snapshot?.hasOlder && <button type="button" disabled={loadingOlder} onClick={() => void loadOlder()}>{loadingOlder ? tr("Loading older messages…") : tr("Load older messages")}</button>}
           {olderError && <ErrorNotice as="p" error={olderError}>{olderError}</ErrorNotice>}
@@ -572,11 +661,12 @@ export default function ConversationPage({
               </button>
             </div>
           ) : turns.length === 0 && !error && (
-            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} greeting={snapshot.starterGreeting} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onRecord={toggleMic} onSwitchPartner={() => setHistoryOpen(true)} onEditPersona={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
+            snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
           {activeTurns.map((turn) => (
             <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
               turn={turn}
+              editing={turn.id === editingTurnId}
               onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
@@ -586,26 +676,29 @@ export default function ConversationPage({
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
               speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
-              onSpeak={() => { if (turn.assistant?.messageId) speech.toggle(turn.assistant.messageId) }}
-              onInspectRecording={turn.id === recordingTurnId ? () => setInspectionOpen(true) : undefined}
+              onSpeak={() => { if (turn.assistant?.messageId) speech.resume(turn.assistant.messageId) }}
+              partnerSpeech={isTauri && turn.assistant?.messageId ? {
+                retained: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.retained : null,
+                time: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.time : 0,
+                playing: speech.messageId === turn.assistant.messageId,
+                enabled: active && !mic.recording && !mic.transcribing,
+                rate: settings?.tts_rate ?? 1, volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000,
+                seek: seconds => speech.seek(turn.assistant!.messageId!, seconds), stop: speech.stop,
+                toggle: () => speech.resume(turn.assistant!.messageId!),
+              } : undefined}
+              recording={turn.id === recordingTurnId && mic.lastTranscription ? { result: mic.lastTranscription, rate: settings?.tts_rate ?? 1,
+                volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000, enabled: !mic.recording && !mic.transcribing,
+                onExpand: () => setInspectionOpen(true) } : undefined}
               rtl={rtl}
               onBubbleTap={onBubbleTap}
               onAddContext={turn.turnId && !turn.replacedBy ? async note => { await executeAction(await readWorkspace(), {kind:'reassessFeedback', turnId:turn.turnId!, note}) } : undefined}
               onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
-              onCoachControl={snapshot && turn.turnId ? async (selected, control) => {
+              onCoachControl={turn.turnId ? async (selected, control) => {
                 if (!selected.turnId) throw new Error('Coaching source is unavailable.')
-                await executeAction(snapshot, { kind: 'coachControl', turnId: selected.turnId, control, expectedRevision: snapshot.revision })
+                await coachControl(selected.turnId, control)
               } : undefined}
-              editDisabled={acceptingSend.current || acceptedEditSource !== null}
-              onEditUser={turn.turnId && turn.user !== null ? selected => {
-                setEditingTurnId(selected.id)
-                setEditRevision(snapshot?.revision ?? null)
-                setInput(selected.user ?? '')
-                setError(null)
-                inputEvidence.current = unreportedInput()
-                // On phones, leave the microphone visible until the learner taps to type.
-                if (!isMobile) composer.current?.querySelector('textarea')?.focus()
-              } : undefined}
+              editDisabled={editBlocked}
+              onEditUser={canEdit(turn) ? startEdit : undefined}
             />
             </ConversationErrorScope>
           ))}
@@ -622,31 +715,34 @@ export default function ConversationPage({
           )}
         </div>
 
+        {/* Compact: the coach is a rail down the conversation's inline end, where its drawer opens. */}
+        {tier === 'compact' && <button type="button" className="chat-coach-edge" aria-expanded={coachCovers} onClick={() => openCoach()}>
+          <ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
         {!isMobile && chatComposer}
       </section>
 
       {!isMobile && breakOpen && <PracticeDivider workspace={workspace} />}
 
       {isMobile && <div className="chat mobile-composer">{chatComposer}</div>}
+      {coachCovers && <div className="coach-scrim" aria-hidden="true" onClick={closeCoach} />}
 
       {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
       <section
         className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
         ref={breakRef}
       >
-        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}>{tr("Coach")}</button>}
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}><ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
 
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview turn={activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
-            const latest = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
-            if (!snapshot || !latest?.turnId) throw new Error('Coaching is unavailable.')
-            await executeAction(snapshot, { kind: 'coachControl', turnId: latest.turnId, control, expectedRevision: snapshot.revision })
+          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+            if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')
+            await coachControl(coachedTurn.turnId, control)
           }} /></>}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
-          onCollapse={!isMobile ? toggleBreak : undefined}
+          onCollapse={isMobile ? closeCoach : toggleBreak}
           tab={panelTab}
           onTab={setPanelTab}
           autoSendDraft
@@ -662,11 +758,13 @@ export default function ConversationPage({
 
     </div>
 
-      {contactError && <ErrorDetails label={tr("Contact")} errorKey={contactError}>{contactError}</ErrorDetails>}
+      {contactError && <ErrorDetails label={tr("Partner")} errorKey={contactError}>{contactError}</ErrorDetails>}
       {newPersonaOpen && settings && <NewPersonaDialog key="new-persona" language={settings.target_language} romanized={romanized} busy={creatingConversation}
         onCreate={createPersona} onClose={() => setNewPersonaOpen(false)} />}
       {editingPersona && <PersonaProfileDialog key={editingPersona.id} persona={editingPersona} language={targetLanguageLabel(editingPersona.languageId)} romanized={Boolean(languageFor(editingPersona.languageId)?.romanization)} onSave={details.savePersona} onNewPersona={() => { setEditingPersonaId(null); setNewPersonaOpen(true) }} onClose={() => setEditingPersonaId(null)} />}
-      {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription} onClose={() => setInspectionOpen(false)} />}
+      {inspectionOpen && mic.lastTranscription && <TranscriptionInspector key={mic.lastTranscription.inspection.recordingId} result={mic.lastTranscription}
+        rate={settings?.tts_rate ?? 1} volume={(settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000} enabled={!mic.recording && !mic.transcribing}
+        onClose={() => setInspectionOpen(false)} />}
       {revisionConfirmation && <DetailDialog title={tr("Revise earlier message")} onClose={() => setRevisionConfirmation(null)}>
         <p>{tr("This revision removes ")}{revisionConfirmation.exchangeCount} {tr(" later conversation turns. Your edited message replaces the original; private coach history is kept.")}</p>
         <div className="detail-actions">

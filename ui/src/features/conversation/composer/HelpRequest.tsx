@@ -44,6 +44,6 @@ export function HelpStatus({ lane, pending, failure, label, onRetry, onInspect }
       <ResponseDetails value={failure ?? lane.details} />
     </ErrorDetails>}
     {onRetry && (failed || failure != null) && <button type="button" className="btn" disabled={pending} onClick={onRetry}>{tr('Retry')}</button>}
-    {onInspect && (failed || lane.state === 'held' || error != null) && <button type="button" className="btn" onClick={onInspect}>{tr('AI activity & tools')}</button>}
+    {onInspect && (failed || lane.state === 'held' || error != null) && <button type="button" className="btn" onClick={onInspect}>{tr('AI activity')}</button>}
   </>
 }

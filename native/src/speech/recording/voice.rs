@@ -1,10 +1,11 @@
 use crate::ai::connections::access;
 use crate::application::Application;
 use crate::model::*;
+use crate::speech::analysis::spectrogram::LiveSpectrogram;
 #[cfg(desktop)]
 use crate::speech::recording::audio;
 use crate::speech::recording::owner::RecordingOwner;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 /// The complete retained recognition result, shared by recording consumers.
 #[tauri::command]
@@ -25,6 +26,9 @@ pub struct Recording {
     context: Option<String>,
     #[cfg(desktop)]
     capture: audio::Capture,
+    /// This recording's live spectrogram. A listening run keeps its own
+    /// analysis in its session and leaves this one empty.
+    live: Arc<Mutex<super::live_view::LiveView>>,
 }
 #[derive(Clone)]
 pub(super) struct Transcription {
@@ -161,6 +165,7 @@ pub(super) fn start_prepared_capture(
         context: scope.context,
         #[cfg(desktop)]
         capture: audio::start(microphone.as_deref()).map_err(fault)?,
+        live: Default::default(),
     };
     let started = RecordingStarted {
         recording_id: recording.id.clone(),
@@ -202,6 +207,91 @@ pub fn mic_wave(
         return Ok(Vec::new());
     }
     Err(fault("Recording is no longer active."))
+}
+/// A single recording's live spectrogram after `after_seconds`: the analysis a
+/// listening run shows, so Chat draws the same stream as Practice. Desktop
+/// capture is analysed as this is polled; browser capture as `mic_push` delivers it.
+#[tauri::command]
+pub async fn mic_spectrogram(
+    state: tauri::State<'_, Arc<Application>>,
+    recording_id: String,
+    after_seconds: Option<f64>,
+) -> Result<Option<LiveSpectrogram>> {
+    live_spectrogram(&state, &recording_id, after_seconds)
+}
+pub(super) fn live_spectrogram(
+    state: &Application,
+    recording_id: &str,
+    after_seconds: Option<f64>,
+) -> Result<Option<LiveSpectrogram>> {
+    if after_seconds.is_some_and(|n| !n.is_finite() || n < 0.0) {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Invalid spectrum cursor.",
+        ));
+    }
+    // A listening run drains its own samples; its session owns its spectrogram.
+    if super::continuous::is_listening_run(state, recording_id) {
+        return Err(AppError::new(
+            ErrorCode::Conflict,
+            "A listening run reports its spectrogram through its session.",
+        ));
+    }
+    let (live, fresh) = {
+        let slot = state.capture.lock().map_err(|_| {
+            crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+        })?;
+        let recording = slot
+            .as_ref()
+            .filter(|r| r.id == recording_id)
+            .ok_or_else(|| fault("Recording is no longer active."))?;
+        #[cfg(desktop)]
+        let fresh = Some(recording.capture.take_unanalysed().map_err(fault)?);
+        #[cfg(mobile)]
+        let fresh: Option<(u32, Vec<f32>)> = None;
+        (recording.live.clone(), fresh)
+    };
+    let mut view = live
+        .lock()
+        .map_err(|_| fault("Live spectrum unavailable."))?;
+    if let Some((rate, pcm)) = fresh {
+        view.feed(rate, &pcm);
+    }
+    Ok(view.snapshot_since(after_seconds))
+}
+/// Browser capture sends ordered copies of its PCM for the live spectrogram;
+/// the recording itself still arrives whole, as the WAV for `mic_transcribe`.
+#[tauri::command]
+pub async fn mic_push(
+    state: tauri::State<'_, Arc<Application>>,
+    recording_id: String,
+    sequence: u32,
+    sample_rate: u32,
+    samples: Vec<f32>,
+) -> Result<()> {
+    push_live(&state, &recording_id, sequence, sample_rate, samples)
+}
+pub(super) fn push_live(
+    state: &Application,
+    recording_id: &str,
+    sequence: u32,
+    sample_rate: u32,
+    samples: Vec<f32>,
+) -> Result<()> {
+    let live = {
+        let slot = state.capture.lock().map_err(|_| {
+            crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+        })?;
+        slot.as_ref()
+            .filter(|r| r.id == recording_id)
+            .map(|r| r.live.clone())
+            .ok_or_else(|| fault("Recording is no longer active."))?
+    };
+    let mut view = live
+        .lock()
+        .map_err(|_| fault("Live spectrum unavailable."))?;
+    view.push_browser(sequence, sample_rate, samples)
+        .map_err(|message| AppError::new(ErrorCode::Validation, message))
 }
 #[tauri::command]
 pub fn mic_cancel(state: tauri::State<'_, Arc<Application>>, recording_id: String) -> Result<()> {
@@ -289,24 +379,9 @@ pub(super) async fn transcribe(
         super::transcription::permitted(&store.connection, &recording.owner, &recording.target)
     };
     validate()?;
-    let inspection_recording = recording.id.clone();
-    let inspection_owner = recording.owner.clone();
-    let (wav, mut inspection) = tauri::async_runtime::spawn_blocking(move || {
-        let (inspection, _) = crate::speech::analysis::audio_inspection::inspect_wav(
-            &wav,
-            &inspection_recording,
-            &inspection_owner,
-        )?;
-        Ok::<_, AppError>((wav, inspection))
-    })
-    .await
-    .map_err(|cause| {
-        crate::diagnostics::failures::join(
-            &cause,
-            "voice.rs",
-            fault("Audio inspection stopped unexpectedly."),
-        )
-    })??;
+    let mut inspection = state
+        .inspect_audio(wav.clone(), recording.id.clone(), recording.owner.clone())
+        .await?;
     {
         let mut store = state.lock()?;
         if store.snapshot()?.learner.id != recording.install {
@@ -404,6 +479,16 @@ pub(super) async fn transcribe(
             evidence,
         )?
     };
+    {
+        let store = state.lock()?;
+        let digest = crate::ai::results::digest(&input.wav);
+        crate::speech::analysis::signal_cache::save(
+            &store.connection,
+            &digest,
+            &crate::speech::analysis::audio_inspection::AudioSignal::from_inspection(&inspection),
+        )?;
+        store.prune_drill_audio()?;
+    }
     Ok(
         crate::speech::analysis::audio_inspection::TranscriptionInspectionResult {
             text,
@@ -433,6 +518,7 @@ pub(super) fn fixture(state: &Application, owner: RecordingOwner, pcm: Vec<f32>)
         language: scope.language,
         context: scope.context,
         capture: audio::fixture(pcm, 8000),
+        live: Default::default(),
     }
 }
 

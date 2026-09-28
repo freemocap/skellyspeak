@@ -4,6 +4,7 @@ import type { ConversationDirection, Snapshot, TopicCard } from '../../../genera
 import { useI18n } from '../../../components/localization/i18n'
 import { executeAction, nativeError, readWorkspace } from '../../../platform/ipc/workspace'
 import { ConversationPromptCreator } from './ConversationPromptCreator'
+import { SKILL_FOCUS_LABELS, TIME_FRAME_LABELS } from './StartChoices'
 
 /** Reopens the same creator for subsequent turns; native applies settings and saved topics together. */
 export function ConversationDirectionSettings({ conversationId, topics, direction }: { conversationId: string; topics: TopicCard[]; direction: ConversationDirection }) {
@@ -14,9 +15,9 @@ export function ConversationDirectionSettings({ conversationId, topics, directio
   const contact = workspace?.contacts.find(item => item.id === owner?.contactId)
   const persona = workspace?.personas.find(item => item.id === contact?.personaId)
   const language = workspace?.languages.find(item => item.id === owner?.languageId)
-  const topic = direction.topic?.kind === 'custom' ? direction.topic.text : direction.topic?.kind === 'builtin' ? topics.find(item => direction.topic?.kind === 'builtin' && item.id === direction.topic.id)?.target : direction.topic?.kind === 'coach' ? tr({ explore: 'Explore', continuePracticing: 'Continue practicing', coachChoice: 'Coach’s choice' }[direction.topic.mode]) : tr('Partner chooses')
+  const topic = direction.topic?.kind === 'custom' ? direction.topic.text : direction.topic?.kind === 'builtin' ? topics.find(item => direction.topic?.kind === 'builtin' && item.id === direction.topic.id)?.target : direction.topic?.kind === 'coach' ? tr(SKILL_FOCUS_LABELS[direction.topic.mode]) : tr('Partner chooses')
   return <section className="conversation-settings-group">
-    <p className="prompt-topic-summary">{topic} · {tr({ any: 'No preference', past: 'Past events', future: 'Future plans' }[direction.timeReference])}</p>
+    <p className="prompt-topic-summary">{topic} · {tr(TIME_FRAME_LABELS[direction.timeReference])}</p>
     <button type="button" className="btn" onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>{tr('Conversation Prompt Creator')}</button>
     {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     {workspace && owner && persona && language && <ConversationPromptCreator conversationId={conversationId} initial={{ difficulty: owner.settings.difficulty, varietyId: owner.settings.varietyId, direction: owner.settings.direction }} topics={topics} savedTopics={workspace.savedTopics} language={language} persona={persona.details} onClose={() => setWorkspace(null)} onApply={async (configuration, additions, deletions) => {

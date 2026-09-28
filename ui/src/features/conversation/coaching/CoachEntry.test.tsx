@@ -11,8 +11,8 @@ it('shows useful language explanations immediately, without internal metrics or 
 it('shows original, correction and why only after the explicit answer is exposed', () => {
   const decision = {exposedMove:'explicit' as const,repairStatus:null,shown:{construct:'spelling',quote:'cosenar',move:'explicit' as const,text:'cocinar',explanation:'Cocinar means “to cook.” The verb ends in -ar.'},retryInvited:false,fixed:null,alsoNoticed:[],keptGoing:false}
   const view = render(<CoachEntry source={null} decision={decision} />)
-  expect(view.container.querySelector('s')).toHaveTextContent('cosenar')
-  expect(view.container.querySelector('strong')).toHaveTextContent('cocinar')
+  expect(view.container.querySelector('del.cor-removed')).toHaveTextContent('cosenar')
+  expect(view.container.querySelector('.cor-replacement')).toHaveTextContent('cocinar')
   expect(screen.getByText(/Cocinar means/)).toBeVisible()
   view.rerender(<CoachEntry source={null} decision={{...decision,exposedMove:null}} />)
   expect(screen.queryByText('cocinar')).toBeNull()

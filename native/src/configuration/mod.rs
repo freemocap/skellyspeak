@@ -357,7 +357,6 @@ impl Registry {
         Ok(settings)
     }
     pub fn validate_preferences(&self, preferences: &model::Preferences) -> model::Result<()> {
-        preferences.appearance.validate()?;
         if let Some(language) = &preferences.onboarding_language {
             self.language(language)?;
             if !preferences.my_languages.contains(language)

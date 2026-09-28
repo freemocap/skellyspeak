@@ -34,17 +34,20 @@ pub(crate) fn mark(db: &Connection) -> Result<()> {
 
 fn mark_to(db: &Connection, cap: i64) -> Result<()> {
     let mut total: i64 = db.query_row("SELECT COALESCE(SUM(COALESCE(audio_bytes,length(pending_audio),0)),0) FROM drill_attempts WHERE audio_pruned_at IS NULL", [], |r| r.get(0))?;
+    total += crate::speech::analysis::signal_cache::bytes(db, "recording")?;
     if total <= cap {
         return Ok(());
     }
     let candidates = db.prepare("SELECT id,COALESCE(audio_bytes,length(pending_audio),0) FROM drill_attempts WHERE audio_pruned_at IS NULL AND (audio_bytes IS NOT NULL OR pending_audio IS NOT NULL) ORDER BY rowid")?
         .query_map([], |r| Ok((r.get::<_,String>(0)?,r.get::<_,i64>(1)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
-    for (id, bytes) in candidates {
+    for (id, _bytes) in candidates {
         if total <= cap {
             break;
         }
         db.execute("UPDATE drill_attempts SET audio_bytes=COALESCE(audio_bytes,length(pending_audio)),pending_audio=NULL,audio_pruned_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?1", [&id])?;
-        total -= bytes;
+        crate::speech::analysis::signal_cache::release(db, "recording", &id)?;
+        total = db.query_row("SELECT COALESCE(SUM(COALESCE(audio_bytes,length(pending_audio),0)),0) FROM drill_attempts WHERE audio_pruned_at IS NULL", [], |r| r.get::<_, i64>(0))?
+            + crate::speech::analysis::signal_cache::bytes(db, "recording")?;
     }
     Ok(())
 }
@@ -53,7 +56,7 @@ impl Store {
     pub fn drill_storage(&self) -> Result<DrillStorageView> {
         Ok(DrillStorageView {
             limit_mb: (limit(&self.connection)? / 1_000_000) as i32,
-            recording_bytes: self.connection.query_row("SELECT COALESCE(SUM(COALESCE(audio_bytes,length(pending_audio),0)),0) FROM drill_attempts", [], |r| r.get(0))?,
+            recording_bytes: self.connection.query_row("SELECT COALESCE(SUM(COALESCE(audio_bytes,length(pending_audio),0)),0) FROM drill_attempts", [], |r| r.get::<_, i64>(0))? + crate::speech::analysis::signal_cache::bytes(&self.connection, "recording")?,
             pending_removal_bytes: self.connection.query_row("SELECT COALESCE(SUM(audio_bytes),0) FROM drill_attempts WHERE audio_pruned_at IS NOT NULL", [], |r| r.get(0))?,
         })
     }

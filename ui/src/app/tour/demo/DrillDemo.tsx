@@ -32,7 +32,7 @@ export function DrillDemo() {
           onSelect={noop} onDelete={asyncNoop}>{null}</PhraseRail>}
         onAddPhrases={noop}
         dock={<div className="drill-pane drill-dock-pane"><RecordDock phase="ready" mode="live" onMode={noop} settings={{ pauseMs: 900, thresholdDb: -40, minTakeMs: 400, silenceTimeoutMs: 1800 }}
-          onSettings={noop} listeningStatus={null} waveSource={null} liveSpectrum={null} onToggle={noop} onHoldStart={noop} onHoldEnd={noop} /></div>}
+          onSettings={noop} listeningStatus={null} waveSource={null} spectrum={null} onToggle={noop} onHoldStart={noop} onHoldEnd={noop} /></div>}
         report={<aside className="drill-log" aria-label={tr('Attempts')}>
           <div className="drill-pane drill-attempts-pane">
             <AttemptRows attempts={DRILL_ATTEMPTS} selectedId={attempt.id} onSelect={noop} rtl renderDetails={take => <AttemptInspection attempt={take} audio={DRILL_ATTEMPT_AUDIO} reference={DRILL_REFERENCE_AUDIO} rtl onDelete={noop} deleting={false} />} />

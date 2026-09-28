@@ -1,7 +1,8 @@
 import { AskCoachContext } from '../components/learning/AskCoachButton'
 import { useNavigationStore } from '../state/navigation/navigation'
 import { ReadingScopeContext, type ReadingScope } from '../components/reading/ReadingContext'
-import { useMemo, useRef, type ReactNode } from 'react'
+import { useLayoutEffect, useMemo, useRef, type ReactNode } from 'react'
+import { clearInspectionResources } from '../platform/audio/inspection-resource'
 import type { Settings } from '../types'
 import { ReadingHelp } from '../components/reading/ReadingHelp'
 import { ReadingProvider } from '../components/reading/TargetText'
@@ -12,6 +13,7 @@ import { languages } from '../platform/ipc/tauri'
 import type { ReadingServices } from '../components/reading/ReadingContext'
 
 export function ReadingTools({ settings, defaultScope, onAsk, children }: { settings: Settings | null; defaultScope?: ReadingScope; onAsk?: ((question: string) => void) | null; children: ReactNode }) {
+  useLayoutEffect(() => { clearInspectionResources(); return clearInspectionResources }, [settings?.scope?.sessionId])
   const playback = useRef(settings); playback.current = settings
   const services = useMemo<ReadingServices>(() => ({
     read: readSelection, saved: readSavedGloss, activity: readingActivity,

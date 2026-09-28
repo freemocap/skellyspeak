@@ -5,7 +5,8 @@ import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { useI18n } from '../../../components/localization/i18n'
 import { invoke } from '../../../platform/ipc/native'
 import { nativeError } from '../../../platform/ipc/workspace'
-import { ConversationChoices } from './ConversationChoices'
+import { StartOptions, TopicChoices } from './StartChoices'
+import { personaName } from '../partners/personaLimits'
 import { CustomTopicDialog } from './CustomTopicDialog'
 import { difficultyLabel } from '../../../components/controls/DifficultySelect'
 
@@ -49,10 +50,11 @@ export function ConversationPromptCreator({ conversationId, initial, topics, sav
     {saveError && <ErrorNotice as="p" error={saveError}>{saveError}</ErrorNotice>}
     <section role="tabpanel" id="creator-panel-form" aria-labelledby="creator-form" hidden={view !== 'form'}>
       <label>{tr('Variety')}<select className="field" value={draft.varietyId} disabled={saving} onChange={event => change({ ...draft, varietyId: event.target.value })}>{language.varieties.map(variety => <option value={variety.id} key={variety.id}>{variety.name}</option>)}</select></label>
-      <ConversationChoices conversationId={conversationId} value={draft} topics={topics} disabled={saving} onChange={change} onCustom={() => setCustom(true)} />
-      <label><input type="checkbox" checked={draft.direction.usePersonaDetails} disabled={saving} onChange={event => change({ ...draft, direction: { ...draft.direction, usePersonaDetails: event.target.checked } })} /> {tr('Use persona details')}</label>
-      <details><summary>{tr('Persona background')}</summary><pre>{JSON.stringify(persona, null, 2)}</pre></details>
-      {draft.direction.topic?.kind === 'custom' && <p className="prompt-topic-summary">{draft.direction.topic.text}</p>}
+      {/* The start card's own choices, all shown: this is the detailed view. */}
+      <TopicChoices value={draft} topics={topics} partnerName={personaName(persona)} disabled={saving} onChange={change} onCustom={() => setCustom(true)} />
+      <StartOptions conversationId={conversationId} value={draft} disabled={saving} skillFocus onChange={change} />
+      <label><input type="checkbox" checked={draft.direction.usePersonaDetails} disabled={saving} onChange={event => change({ ...draft, direction: { ...draft.direction, usePersonaDetails: event.target.checked } })} /> {tr('Use partner details')}</label>
+      <details><summary>{tr('Partner background')}</summary><pre>{JSON.stringify(persona, null, 2)}</pre></details>
       <details><summary>{tr('Saved topics')}</summary>{savedTopics.filter(topic => !deletions.includes(topic.id)).map(topic => <div className="prompt-actions" key={topic.id}><button className="btn" disabled={saving} onClick={() => useTopic(topic.text)}>{topic.text}</button><button className="btn" disabled={saving} onClick={() => setDeletions(value => [...value, topic.id])}>{tr('Delete')}</button></div>)}
         {additions.map(text => <div className="prompt-actions" key={text}><button className="btn" disabled={saving} onClick={() => useTopic(text)}>{text} · {tr('Pending save')}</button><button className="btn" disabled={saving} onClick={() => setAdditions(items => items.filter(item => item !== text))}>{tr('Delete')}</button></div>)}
       </details>

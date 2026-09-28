@@ -31,7 +31,7 @@ export function useWordArrival(id: string | null, ready: boolean, scope: string 
         ?? document.querySelector<HTMLElement>('.drill-history-preview-rows')
       if (!source || !destination) return
       const to = (destination.querySelector('.drill-word-pairs') ?? destination).getBoundingClientRect()
-      const words = [...source.querySelectorAll<HTMLElement>('.drill-word-marker bdi')]
+      const words = [...source.querySelectorAll<HTMLElement>('.timed-word bdi')]
       words.forEach((word, index) => {
         const from = word.getBoundingClientRect()
         if (!from.width || !word.animate) return

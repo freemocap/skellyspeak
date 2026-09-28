@@ -1,14 +1,13 @@
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
-import { ConversationFeedbackCard } from './ConversationFeedbackCard'
-import type { ConversationFeedback } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
 import { useState } from 'react'
 import { nativeError } from '../../../platform/ipc/workspace'
 import type { CoachControl, CoachDecision, CoachObservationView } from '../../../generated/contracts'
 import { CoachEntry } from './CoachEntry'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
-export function EditFeedback({ conversationFeedback, decision, feedback, error, reviewing, onControl }: {
-  conversationFeedback?: ConversationFeedback
+/** What the coach said about the message being fixed, above the composer. */
+export function EditFeedback({ decision, feedback, error, reviewing, onControl }: {
   onControl?: (control: CoachControl) => Promise<void>
   feedback?: CoachObservationView; decision: CoachDecision | undefined; error: string | undefined; reviewing: boolean
 }) {
@@ -21,12 +20,11 @@ export function EditFeedback({ conversationFeedback, decision, feedback, error, 
     try { await onControl(control) } catch (error) { setFailure(nativeError(error)) } finally { setBusy(false) }
   }
   return <section className="edit-feedback">
-    <p>{tr("Feedback for your original message")}</p>
+    <p><ToolbarIcon name="idea" size={14} />{tr("Coach suggests")}</p>
     <div className="edit-feedback-body" role="region" aria-label={tr("Coach feedback while editing")} tabIndex={0}>
       {decision?.shown && decision.exposedMove !== decision.shown.move && <button type="button" disabled={busy || !onControl} onClick={() => void help('open_card')}>{tr("Show help")}</button>}
-      {decision || error ? <CoachEntry feedback={feedback} decision={decision} source={null} error={error} /> : <p>{reviewing ? tr("The coach is still reviewing this attempt.") : tr("No feedback was saved for this attempt.")}</p>}
+      {decision || error ? <CoachEntry feedback={feedback} decision={decision} source={null} error={error} /> : <p>{reviewing ? tr("The coach is still reviewing this message.") : tr("No feedback was saved for this message.")}</p>}
       {decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && <button type="button" disabled={busy || !onControl} onClick={() => void help('show_answer')}>{tr("Show answer")}</button>}
-      {conversationFeedback && <ConversationFeedbackCard feedback={conversationFeedback} />}
       {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     </div>
   </section>

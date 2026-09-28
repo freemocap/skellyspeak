@@ -1,12 +1,13 @@
 import { AddToDrillButton } from './AddToDrillButton'
+import { MessageTools, type MessageInspect, type MessageTool } from './MessageTools'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GlossSegment } from '../../generated/contracts'
 import { errorDetails, errorMessage } from '../../platform/diagnostics/error-details'
 import { ErrorDetails } from '../feedback/ErrorDetails'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
-import { useUiDirection } from '../localization/useUiDirection'
-import { speechKey, useReadingActions, useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
+import { useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
+import { useReadAloud } from './useReadAloud'
 import { useReadingPreferences } from './ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 import { TargetText } from './TargetText'
@@ -31,6 +32,7 @@ export interface TargetMessageAnalysis {
 }
 
 export interface TargetMessageProps {
+  side?: 'me' | 'bot'
   text: string
   /// Word meanings already known for `text`, anchored by UTF-16 offsets.
   segments: GlossSegment[]
@@ -53,8 +55,6 @@ export interface TargetMessageProps {
   /// Translate control carries its progress; a reserved line shows it only
   /// while the translation is set to show and has no text yet.
   translationState?: string | null
-  /// Optional actions supplied by the owning surface, without feature coupling.
-  extraActions?: ReactNode
   /** Already saved Drill phrases use their owning reference controls. */
   addToDrill?: boolean
   readAloud?: boolean
@@ -62,6 +62,10 @@ export interface TargetMessageProps {
   annotation: ReactNode
   speech: TargetMessageSpeech | null
   analysis: TargetMessageAnalysis | null
+  /// The audio inspector's toggle, when the owner can inspect this message's audio.
+  inspect?: MessageInspect | null
+  /// The open audio inspector, drawn inside the bubble above the tools.
+  inspector?: ReactNode
   focused: boolean
   rtl: boolean
 }
@@ -71,21 +75,15 @@ export interface TargetMessageProps {
  *  consumer supplies its own data and actions; the tools behave identically. */
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
-  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, extraActions, addToDrill = true, readAloud = true,
+  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, readAloud = true, side = 'bot',
+  inspect = null, inspector,
 }: TargetMessageProps) {
   const tr = useI18n()
-  const uiDirection = useUiDirection()
   const preferences = useReadingPreferences()
   const scope = useReadingScope(), saved = useSavedReading(), peek = useReadingPeek(), lookup = useReadingLookup()
-  const readingActions = useReadingActions()
-  const selection = scope ? { text, start: 0, end: text.length, scope } : null
-  const sharedSpeaking = selection !== null && readingActions?.speaking === speechKey(selection)
+  const shared = useReadAloud(text)
   // Owners supply playback behavior, never an alternative playback button.
-  const playback = speech ?? (readAloud && selection && readingActions ? {
-    speaking: sharedSpeaking,
-    onToggle: () => sharedSpeaking ? readingActions.stop() : readingActions.speak(selection),
-    error: null,
-  } : null)
+  const playback = speech ?? (readAloud && shared ? { speaking: shared.playing, onToggle: shared.onToggle, error: null } : null)
   // Saved, cached and requested meanings come from the reading services only
   // when the owner allows lookup and a reading scope is present.
   const readingScope = lookupWords ? scope : null
@@ -148,7 +146,6 @@ export function TargetMessage({
     })
   }
 
-  const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
   const body = <>
     {known.length > 0
       ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} />
@@ -158,17 +155,21 @@ export function TargetMessage({
     {translationState !== undefined && <TranslationStatus state={translationState} shown={translationOpen && shownTranslation === null} />}
     {soundOpen && sound && !(wordsOpen && known.some(part => part.romanization || part.pronunciation)) && <div className="wroman" dir="auto">{sound}</div>}
     {status}
-    {playback && <button type="button" className="bubble-corner-control speak-btn" disabled={playback.disabled} title={playback.speaking ? tr("Stop playback") : tr("Speak reply")} aria-label={playback.speaking ? tr("Stop playback") : tr("Speak reply")} onDoubleClick={stop} onClick={event => { stop(event); playback.onToggle() }}><span aria-hidden="true">{playback.speaking ? '⏹' : '🔊'}</span></button>}
     {playback?.error && <ErrorDetails onRetry={() => playback.onToggle()} label={tr("Speech")} errorKey={playback.error.text} explanation={playback.error.text}><ResponseDetails value={playback.error.details} /></ErrorDetails>}
   </>
-  const actions = <div className="message-actions" dir={uiDirection} onDoubleClick={stop}>
-    {sound && <button type="button" className="message-translate" aria-expanded={soundOpen} aria-pressed={soundOpen} onClick={event => { stop(event); setSoundOverride(!soundOpen) }}>{tr('Pronunciation')}</button>}
-    {(shownTranslation || canLookup || translationWorking) && <button type="button" className={translating.pending || translationWorking ? 'message-translate is-hydrating' : 'message-translate'} disabled={translating.pending} aria-label={translateLabel ?? undefined} aria-expanded={translationShown} aria-pressed={translationShown} onKeyDown={stop} onClick={event => { stop(event); void toggleTranslation() }}>{tr("Translate")}</button>}
-    <button type="button" className={segmentsPending || words.pending ? 'message-translate is-hydrating' : 'message-translate'} disabled={words.pending || (known.length === 0 && !canLookup)} aria-expanded={wordsOpen} aria-pressed={wordsOpen} onClick={event => { stop(event); void toggleWords() }}>{tr("Word by word")}</button>
-    {analysis && <button type="button" className={analysis.pending ? 'message-translate is-hydrating' : 'message-translate'} aria-haspopup="dialog" onClick={event => { stop(event); analysis.onOpen() }}>{tr("Analysis")}</button>}
-    {addToDrill && <AddToDrillButton text={text} />}
-    {extraActions}
-  </div>
+  const tools: MessageTool[] = [
+    ...(shownTranslation || canLookup || translationWorking ? [{ key: 'translate', label: tr("Translate"), ariaLabel: translateLabel ?? undefined,
+      pressed: translationShown, pending: translating.pending || translationWorking, disabled: translating.pending, onSelect: () => void toggleTranslation() }] : []),
+  ]
+  const more: MessageTool[] = [
+    { key: 'words', label: tr("Word by word"), pressed: wordsOpen, pending: segmentsPending || words.pending,
+      disabled: words.pending || (known.length === 0 && !canLookup), onSelect: () => void toggleWords() },
+    ...(analysis ? [{ key: 'analysis', label: tr("Analysis"), pending: analysis.pending, opensDialog: true, onSelect: analysis.onOpen }] : []),
+    ...(sound ? [{ key: 'sound', label: tr('Pronunciation'), pressed: soundOpen, onSelect: () => setSoundOverride(!soundOpen) }] : []),
+  ]
+  const actions = <MessageTools tools={tools} inspect={inspect} more={more}
+    play={playback && { playing: playback.speaking, disabled: playback.disabled, onToggle: playback.onToggle }}
+    actions={addToDrill && <AddToDrillButton text={text} />} />
   const failure = <>
     {words.error != null && <ErrorDetails onRetry={toggleWords} label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
     {translating.error != null && <ErrorDetails onRetry={toggleTranslation} label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
@@ -176,8 +177,8 @@ export function TargetMessage({
 
   // Meanings that are set to show and still being produced keep their line pitch.
   const aidsReserved = aidsEnabled && known.length === 0 && segmentsPending
-  const bubble = <div className={`msg chat-message bot with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${playback ? ' with-corner-control' : ''}${aidsReserved ? ' aids-reserved' : ''}`}>
-    {body}{actions}{failure}
+  const bubble = <div className={`msg chat-message ${side} with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${aidsReserved ? ' aids-reserved' : ''}${inspect?.open ? ' inspecting' : ''}`}>
+    {body}{inspector}{actions}{failure}
   </div>
   if (layout === 'bubble') return bubble
   return <div className={`reading-passage${layout === 'compact' ? ' reading-passage-compact' : ''}`}>{bubble}</div>

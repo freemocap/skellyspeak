@@ -31,7 +31,7 @@ export function checkUiSource(file: string, text: string, keys: ReadonlySet<stri
   function visit(node: ts.Node) {
     if (ts.isCallExpression(node)) {
       const name = node.expression.getText(source)
-      if (['tr', 't', 'messageKey'].includes(name)) {
+      if (['tr', 'tr.rich', 't', 'messageKey'].includes(name)) {
         const argument = node.arguments[name === 't' ? 1 : 0]
         if (argument) for (const key of renderedLiterals(argument)) if (!keys.has(key)) error(argument, `missing message ${JSON.stringify(key)}`)
       }

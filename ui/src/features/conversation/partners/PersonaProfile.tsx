@@ -65,11 +65,11 @@ export function PersonaProfile({ persona, language, romanized, onSave, ref }: {
   // Close paths flush the focused field too: Escape does not cause blur first.
   useImperativeHandle(ref, () => ({ flush: () => save(form.current?.flush() ?? draft) }))
   const autosave = (next = draft) => { void save(next).catch(() => { /* Failure remains beside the draft. */ }) }
-  return <form className="persona-profile" aria-label={tr("Persona profile")} onBlurCapture={event => {
+  return <form className="persona-profile" aria-label={tr("Partner profile")} onBlurCapture={event => {
     // Moving directly to Discard must not submit the field being abandoned.
     if (event.relatedTarget === discardButton.current) event.stopPropagation()
   }} onSubmit={event => { event.preventDefault(); autosave() }}>
-    <p className="persona-hint">{language} {tr(" · Changes apply to this contact’s next replies across conversations.")}</p>
+    <p className="persona-hint">{language} {tr(" · Changes apply to this partner’s next replies across conversations.")}</p>
     <fieldset disabled={busy}>
       <PersonaForm ref={form} key={revision} draft={draft} romanized={romanized} onChange={setDraft} onCommit={next => { setDraft(next); autosave(next) }} />
     </fieldset>
@@ -78,6 +78,6 @@ export function PersonaProfile({ persona, language, romanized, onSave, ref }: {
       <button ref={discardButton} type="button" className="btn" disabled={busy} onPointerDown={event => event.preventDefault()} onClick={restore}>{tr("Discard unsaved changes")}</button>
     </div>
     {busy && <p className="persona-hint" role="status">{tr("Saving…")}</p>}
-    {error && <ErrorDetails label={tr("Saving persona")} errorKey={error}>{error}<button type="button" className="btn" disabled={busy} onClick={() => { autosave() }}>{tr("Retry save")}</button></ErrorDetails>}
+    {error && <ErrorDetails label={tr("Saving partner")} errorKey={error}>{error}<button type="button" className="btn" disabled={busy} onClick={() => { autosave() }}>{tr("Retry save")}</button></ErrorDetails>}
   </form>
 }

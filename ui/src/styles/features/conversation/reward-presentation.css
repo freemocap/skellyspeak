@@ -56,7 +56,6 @@
   align-items: center;
   gap: var(--space-3);
   box-sizing: border-box;
-  min-width: 104px;
   height: var(--control-height);
   padding: 0 var(--space-5);
   border: var(--border-width) solid var(--line);
@@ -68,9 +67,9 @@
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }
-.xp-chip svg { color: var(--interaction-ink); flex: none; }
-.xp-chip-value { flex: 1; text-align: end; white-space: nowrap; }
-.xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--interaction-ink); color: var(--interaction-ink); }
+.xp-chip svg { color: var(--progress-mark); flex: none; }
+.xp-chip-value { white-space: nowrap; }
+.xp-chip:hover, .xp-chip[aria-expanded="true"] { border-color: var(--progress-line); color: var(--progress-ink); }
 
 .xp-ledger {
   position: absolute;

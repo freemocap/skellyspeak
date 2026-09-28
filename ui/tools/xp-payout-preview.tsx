@@ -43,7 +43,7 @@ function Preview() {
     <SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'preview', selectionVersion: 0, selected: null, select: noop }}>
       <RewardPresentationProvider enabled={enabled} chatId="preview" active>
         <div className="payout-demo"><div className="chat-head"><div className="chat-heading-actions"><XpChip chatId="preview" /></div></div><div className="stream">
-          <TurnView turn={{ id: 1, user: source, pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onEditUser={noop} onBubbleTap={noop} onSpeak={noop} onAskCoach={noop} />
+          <TurnView editing={false} turn={{ id: 1, user: source, pendingText: '', assistant: null }} reviewing={false} focused={false} ttsReady={false} speaking={false} rtl={false} onEditUser={noop} onBubbleTap={noop} onSpeak={noop} onAskCoach={noop} />
         </div><SkillRewards chatId="preview" active /><details className="payout-evidence"><summary>Skill totals</summary><ConversationProgress chatId="preview" /></details></div>
       </RewardPresentationProvider>
     </PracticeContext></SkillEvidenceContext>

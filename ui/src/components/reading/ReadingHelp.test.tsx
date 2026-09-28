@@ -11,6 +11,10 @@ import { SavedGlossText } from './SavedGlossText'
 import { ReadingLanguageScope } from './ReadingLanguageScope'
 import type { ReadingResult } from '../../generated/contracts'
 
+/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
+
+
 vi.mock('../../platform/ipc/tauri', () => ({ languageFor: (language: string) => ({ languageTag: language === 'arabic' ? 'ar' : 'es', romanization: language === 'arabic' ? 'ala' : null }) }))
 const scope = { language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-us' }
 const languages = [{ code: 'spanish', name: 'Spanish', languageTag: 'es', defaultVariety: 'spanish-spain', varieties: [{ id: 'spanish-spain', label: 'Spain' }] }, { code: 'arabic', name: 'Arabic', languageTag: 'ar', defaultVariety: 'arabic-egypt', varieties: [{ id: 'arabic-egypt', label: 'Egypt' }] }]
@@ -321,12 +325,16 @@ it('a partial cached or saved result still lets Word by word request the whole p
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
   // Only "Hola" is known from a durable source: the provider's peek reports partial coverage.
   app(<SavedReadingProvider sources={[{ scope, text: 'Hola casa', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'}] }]}><TargetMessage {...props} /></SavedReadingProvider>)
+  openMenus()
   await waitFor(() => expect(screen.getByRole('button', { name: 'Word by word' })).toBeEnabled())
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
   expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola casa', aid: 'word_gloss' }, expect.any(AbortSignal))
   await waitFor(() => expect(screen.getByText('house')).toBeVisible())
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
   expect(services.read).toHaveBeenCalledOnce()
 })
@@ -336,15 +344,18 @@ it('each passage requests generated help explicitly, and Chat-style owners never
   const props = { text: 'Hola', segments: [], segmentsKey: 'hola', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
   const view = app(<><TargetMessage {...props} /><TargetMessage {...props} segmentsKey="second" /></>)
+  openMenus()
   fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[0])
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
   // A different surface has no generated inference state of its own until requested.
   await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(1))
+  openMenus()
   fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[1])
   await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(2))
   expect(services.read).toHaveBeenCalledTimes(2)
   view.unmount()
   app(<TargetMessage {...props} layout="bubble" lookupWords={false} />)
+  openMenus()
   expect(screen.getByRole('button', { name: 'Word by word' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: 'Translate' })).toBeNull()
   expect(services.read).toHaveBeenCalledTimes(2)

@@ -61,6 +61,46 @@ pub(in crate::application) fn read_speech_audio(
     store.speech_audio(&operation_id, &store.speech_delivery)
 }
 
+/// Inspect the exact audio already delivered to playback; never consume delivery twice.
+#[tauri::command]
+pub(in crate::application) async fn inspect_message_speech(
+    state: tauri::State<'_, Arc<Application>>,
+    session_id: String,
+    operation_id: String,
+    attempt_id: String,
+    audio_base64: String,
+    speech_alignment: Option<crate::speech::alignment::SpeechAlignment>,
+) -> Result<crate::speech::analysis::audio_inspection::AudioInspection> {
+    let audio = crate::speech::alignment::SpeechAudio {
+        audio_base64,
+        alignment: speech_alignment,
+    };
+    if audio.audio_base64.len() > 36 * 1024 * 1024 {
+        return Err(AppError::new(
+            ErrorCode::Validation,
+            "Speech audio exceeds inspection limits.",
+        ));
+    }
+    let owner = {
+        let store = state.lock()?;
+        if session_id != store.session_id {
+            return Err(AppError::new(
+                ErrorCode::SessionExpired,
+                "The audio workspace changed.",
+            ));
+        }
+        store.delivered_speech_owner(&operation_id, &attempt_id, &audio)?
+    };
+    let wav = audio.wav()?;
+    let mut inspection = state.inner().inspect_audio(wav, attempt_id, owner).await?;
+    let timing = audio
+        .alignment
+        .as_ref()
+        .and_then(|a| a.words(inspection.duration));
+    crate::speech::analysis::audio_inspection::attach_words(&mut inspection, timing.as_ref());
+    Ok(inspection)
+}
+
 #[tauri::command]
 pub(in crate::application) fn get_profile(
     state: tauri::State<'_, Arc<Application>>,

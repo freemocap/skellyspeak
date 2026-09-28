@@ -120,7 +120,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
     <header className="ai-view-head">
       <h2 className="ai-view-title">{tr('AI activity')}</h2>
       {!definition && summary && <ActivitySummary activity={summary} showLast={false} />}
-      <div role="group" aria-label={tr('AI view mode')}>
+      <div role="group" aria-label={tr('AI activity view')}>
         <button type="button" className="ai-chip" aria-pressed={!definition} disabled={!selectionLoaded} onClick={() => setDefinition(undefined)}>{tr('Recorded runs')}</button>
         <button type="button" className="ai-chip" aria-pressed={!!definition} disabled={!selectionLoaded} onClick={() => setDefinition(current => current ?? lastDefinition.current ?? { graphId: '', operationKind: null })}>{tr('Graph definitions')}</button>
       </div>

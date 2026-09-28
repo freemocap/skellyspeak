@@ -11,13 +11,14 @@ type DrillLink = { kind: 'ready' } | { kind: 'saving' } | { kind: 'saved'; itemI
 
 /** Copy a completed message through the same command as Drill's manual entry,
  * and remove that Drill item on a second press. The reading scope belongs to
- * this conversation, not current global preferences. */
-export function AddToDrillButton({ text }: { text: string }) {
+ * this conversation, not current global preferences. `labelled` shows the
+ * action's name beside its icon, as a message's ⋯ menu lists it. */
+export function AddToDrillButton({ text, labelled = false }: { text: string; labelled?: boolean }) {
   const scope = useReadingScope()
-  return <ScopedAddToDrill key={JSON.stringify([scope, text])} text={text} />
+  return <ScopedAddToDrill key={JSON.stringify([scope, text])} text={text} labelled={labelled} />
 }
 
-function ScopedAddToDrill({ text }: { text: string }) {
+function ScopedAddToDrill({ text, labelled }: { text: string; labelled: boolean }) {
   const scope = useReadingScope()
   const tr = useI18n()
   const busy = useRef(false)
@@ -25,7 +26,7 @@ function ScopedAddToDrill({ text }: { text: string }) {
   const [failure, setFailure] = useState<{ action: 'add' | 'remove'; error: unknown } | null>(null)
   if (!scope || !text.trim()) return null
   const saved = link.kind === 'saved' || link.kind === 'removing'
-  const label = saved ? tr('Remove from Drill') : tr('Add to Drill')
+  const label = saved ? tr('Remove from Practice') : tr('Add to Practice')
   async function toggle() {
     if (!scope || busy.current) return
     busy.current = true
@@ -52,13 +53,13 @@ function ScopedAddToDrill({ text }: { text: string }) {
     } finally { busy.current = false }
   }
   return <>
-    <button type="button" className="message-translate message-add-drill" title={label} aria-label={label}
+    <button type="button" className={labelled ? 'message-tools-item message-add-drill' : 'message-translate message-add-drill'} title={label} aria-label={labelled ? undefined : label}
       aria-busy={link.kind === 'saving' || link.kind === 'removing'} data-state={saved ? 'saved' : 'ready'}
       disabled={link.kind === 'saving' || link.kind === 'removing'}
       onClick={event => { event.stopPropagation(); void toggle() }}>
-      <ToolbarIcon name={saved ? 'deck-added' : 'deck-add'} size={20} />
+      <ToolbarIcon name={saved ? 'deck-added' : 'deck-add'} size={labelled ? 17 : 20} />{labelled && label}
     </button>
-    {failure != null && <ErrorDetails label={failure.action === 'add' ? tr('Add to Drill') : tr('Remove from Drill')} errorKey={errorMessage(failure.error)} explanation={errorMessage(failure.error)}>
+    {failure != null && <ErrorDetails label={failure.action === 'add' ? tr('Add to Practice') : tr('Remove from Practice')} errorKey={errorMessage(failure.error)} explanation={errorMessage(failure.error)}>
       <ResponseDetails value={failure.error} />
     </ErrorDetails>}
   </>

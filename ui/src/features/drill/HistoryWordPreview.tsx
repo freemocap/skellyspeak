@@ -32,5 +32,5 @@ export function HistoryWordPreview({ value, onClose }: { value: HoveredHistoryWo
       window.removeEventListener('keydown', key)
     }
   }, [value, onClose])
-  return createPortal(<span ref={element} className="drill-word-preview" data-outcome={value.outcome} aria-hidden="true"><span className="drill-word-preview-label">{tr("Target")}</span><bdi>{value.word}</bdi>{value.attempt != null && <><span className="drill-word-preview-label">{tr("Attempt")}</span><bdi>{value.attempt}</bdi></>}</span>, document.body)
+  return createPortal(<span ref={element} className="drill-word-preview" data-outcome={value.outcome} aria-hidden="true"><span className="drill-word-preview-label">{tr("Card")}</span><bdi>{value.word}</bdi>{value.attempt != null && <><span className="drill-word-preview-label">{tr("Attempt")}</span><bdi>{value.attempt}</bdi></>}</span>, document.body)
 }

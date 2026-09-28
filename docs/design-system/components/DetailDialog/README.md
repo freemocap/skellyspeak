@@ -9,5 +9,5 @@ Source: `ui/src/components/dialogs/DetailDialog.tsx`, styled by `dialogs.css`. I
 - `size="wide"` — for wide data reports (learner model tables, YAML).
 
 ## Rules
-- One dialog at a time. The backdrop is `scrim`; the surface uses `shadow-floating`. Both follow the depth preference.
+- One dialog at a time. The backdrop is `scrim`; the surface uses `shadow-floating`.
 - Keep content-specific layouts (like the audio timeline) as explicit variants, not new dialogs.

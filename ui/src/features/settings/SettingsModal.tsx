@@ -348,11 +348,11 @@ export function SettingsModal({
     },
     native_language: {
       section: 'languages',
-      label: tr('My native language'),
+      label: tr('Explain in'),
       kw: 'native language explanations mother tongue',
       node: (
         <div className="form-row">
-          <label>{tr("My native language")}</label>
+          <label>{tr("Explain in")}</label>
           <select
             value={settings.native_language}
             onChange={(e) => setSettings({ ...settings, native_language: e.target.value, native_variety: languages().find(l => l.code === e.target.value)!.defaultVariety })}
@@ -410,7 +410,7 @@ export function SettingsModal({
     },
     auto_speak: {
       section: 'reading',
-      label: tr('Auto-speak tutor replies'),
+      label: tr('Read partner replies aloud'),
       kw: 'auto speak tts voice speech playback audio read aloud',
       node: (
         <div className="form-row check-row">
@@ -420,14 +420,14 @@ export function SettingsModal({
               checked={settings.auto_speak}
               onChange={(e) => setSettings({ ...settings, auto_speak: e.target.checked })}
             />
-            <span>{tr("Read persona replies aloud")}</span>
+            <span>{tr("Read partner replies aloud")}</span>
           </label>
         </div>
       ),
     },
     auto_send: {
       section: 'voice',
-      label: tr('Auto-send transcriptions'),
+      label: tr('Auto-send'),
       kw: 'auto send transcription mic speech stt voice input',
       node: (
         <div className="form-row check-row">
@@ -437,12 +437,12 @@ export function SettingsModal({
               checked={settings.auto_send}
               onChange={(e) => setSettings({ ...settings, auto_send: e.target.checked })}
             />
-            <span>{tr("Send after stopping the microphone")}</span>
+            <span>{tr("Auto-send")}</span>
           </label>
         </div>
       ),
     },
-    appearance: { section: 'appearance', label: tr('Appearance'), kw: 'theme light dark system palette color glow density spacing panels depth appearance', node: <AppearanceSettings settings={settings} onChange={setSettings} /> },
+    appearance: { section: 'appearance', label: tr('Appearance'), kw: 'theme light dark system palette color warm cool appearance', node: <AppearanceSettings settings={settings} onChange={setSettings} /> },
     text_size: {
       section: 'appearance', label: tr('Text size'), kw: 'font text size reading display accessibility',
       node: <div className="form-row"><label htmlFor="reading-size">{tr("Text size · ")}{settings.text_size}%</label>
@@ -486,7 +486,7 @@ export function SettingsModal({
       node: <div className="form-row check-row"><label className="check-label">
         <input type="checkbox" checked={settings.fast_mode}
           onChange={event => setSettings({ ...settings, fast_mode: event.target.checked })} />
-        <span>{tr("Fast mode · dismiss XP cards automatically")}</span>
+        <span>{tr("Fast mode · dismiss XP badges automatically")}</span>
       </label></div>,
     },
     always_pronunciation: {

@@ -5,15 +5,13 @@ import { DEFAULT_APPEARANCE } from '../../generated/contracts'
 import { useAppearance } from './useAppearance'
 import type { Settings } from '../../types'
 
-it('applies appearance globally and clears a previous glow when switched off', () => {
-  const settings = { theme: 'dark', appearance: { ...DEFAULT_APPEARANCE, depth: 'recessed', glowEnabled: true } } as Settings
+it('applies theme and palette globally', () => {
+  const settings = { theme: 'dark', appearance: { ...DEFAULT_APPEARANCE } } as Settings
   const view = renderHook(({ settings }) => useAppearance(settings), { initialProps: { settings } })
   const root = document.documentElement
-  expect(root.dataset).toMatchObject({ theme: 'dark', palette: 'cool', density: 'standard', spacing: 'tight', depth: 'recessed' })
-  expect(root.style.getPropertyValue('--appearance-glow')).toContain('30%')
-  view.rerender({ settings: { ...settings, appearance: { ...DEFAULT_APPEARANCE, controlDensity: 'compact', layoutSpacing: 'extra_tight' } } })
-  expect(root.dataset).toMatchObject({ density: 'compact', spacing: 'extra_tight', depth: 'subtle' })
-  expect(root.style.getPropertyValue('--appearance-glow')).toContain('0%')
+  expect(root.dataset).toMatchObject({ theme: 'dark', palette: 'cool' })
+  view.rerender({ settings: { ...settings, theme: 'light', appearance: { palette: 'warm' } } })
+  expect(root.dataset).toMatchObject({ theme: 'light', palette: 'warm' })
 })
 
 it('tracks system appearance and removes the listener on unmount', () => {

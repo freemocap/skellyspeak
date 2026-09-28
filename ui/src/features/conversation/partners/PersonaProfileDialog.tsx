@@ -21,10 +21,10 @@ export function PersonaProfileDialog({ persona, language, romanized, onSave, onN
     catch { /* Validation/save failure stays visible with its draft. */ }
     finally { closing.current = false }
   }
-  return <DetailDialog title={tr("Persona")} onClose={() => { void close() }}>
+  return <DetailDialog title={tr("Partner")} onClose={() => { void close() }}>
     <div className="persona-dialog-head">
-      <h2>{tr("Persona")}</h2>
-      <button type="button" className="btn" onClick={() => { void close(onNewPersona) }}>{tr("New persona…")}</button>
+      <h2>{tr("Partner")}</h2>
+      <button type="button" className="btn" onClick={() => { void close(onNewPersona) }}>{tr("New partner…")}</button>
     </div>
     <PersonaProfile ref={editor} persona={persona} language={language} romanized={romanized} onSave={onSave} />
   </DetailDialog>

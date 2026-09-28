@@ -40,3 +40,10 @@ test('identifiers, comments and longer messages do not keep retired keys alive',
   assert.deepEqual(usage.filter(item => !item.references.length).map(item => item.key), ['Map', 'New chat'])
   assert.deepEqual(usage.find(item => item.key === 'Kept')!.references, ['View.tsx'])
 })
+
+test('checks and counts messages with element placeholders like any other', () => {
+  assert.equal(check("<p>{tr.rich('Say {greeting} to start', { greeting: <b>{word}</b> })}</p>").length, 1)
+  assert.deepEqual(check("<p>{tr.rich('Say {greeting} to start', { greeting: <b>{word}</b> })}</p>", ['Say {greeting} to start']), [])
+  const usage = auditMessages(['Say {greeting} to start'], [{ path: 'View.tsx', text: "tr.rich('Say {greeting} to start', { greeting: word })" }])
+  assert.deepEqual(usage[0].direct, ['View.tsx'])
+})

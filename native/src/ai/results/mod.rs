@@ -34,6 +34,7 @@ pub fn digest(bytes: &[u8]) -> String {
 }
 
 pub fn initialize(db: &Connection) -> Result<()> {
+    crate::speech::analysis::signal_cache::initialize(db)?;
     let schema = include_str!("../../storage/schemas/inference_results.sql");
     let expected = Connection::open_in_memory()?;
     expected.execute_batch(schema)?;
@@ -87,11 +88,12 @@ pub fn settings(db: &Connection) -> Result<CacheSettings> {
             [],
             |r| r.get::<_, i64>(0),
         )? as u64,
-        used_bytes: db.query_row(
+        used_bytes: (db.query_row(
             "SELECT COALESCE(SUM(length(payload)),0) FROM inference_blobs",
             [],
             |r| r.get::<_, i64>(0),
-        )? as u64,
+        )? + crate::speech::analysis::signal_cache::bytes(db, "inference")?)
+            as u64,
         result_count: db.query_row("SELECT count(*) FROM inference_results", [], |r| {
             r.get::<_, i64>(0)
         })? as u64,
@@ -115,9 +117,14 @@ pub fn set_capacity(db: &Connection, bytes: u64) -> Result<CacheSettings> {
     settings(db)
 }
 
-fn prune(db: &Connection) -> Result<()> {
+pub(crate) fn prune(db: &Connection) -> Result<()> {
     loop {
         db.execute("DELETE FROM inference_blobs WHERE NOT EXISTS(SELECT 1 FROM inference_results WHERE blob_digest=inference_blobs.digest)", [])?;
+        let removed = db.prepare("SELECT id FROM audio_signal_sources WHERE kind='inference' AND NOT EXISTS(SELECT 1 FROM inference_results r WHERE r.id=audio_signal_sources.id)")?
+            .query_map([], |r| r.get::<_, String>(0))?.collect::<rusqlite::Result<Vec<_>>>()?;
+        for id in removed {
+            crate::speech::analysis::signal_cache::release(db, "inference", &id)?;
+        }
         let current = settings(db)?;
         if current.used_bytes <= current.capacity_bytes {
             return Ok(());
@@ -142,6 +149,15 @@ pub fn read(db: &Connection, id: &str) -> Result<Option<Retained>> {
                 ));
             }
             let metadata = serde_json::from_str(&metadata)?;
+            let task: String = db.query_row(
+                "SELECT task FROM inference_executions WHERE id=?1",
+                [id],
+                |r| r.get(0),
+            )?;
+            if task == "speech" {
+                let audio = crate::speech::alignment::SpeechAudio::decode(&payload)?;
+                crate::speech::analysis::signal_cache::retain(db, "inference", id, &audio.wav()?)?;
+            }
             db.execute(
                 "UPDATE inference_results SET last_used=?2 WHERE id=?1",
                 params![id, tick(db)?],
@@ -210,6 +226,15 @@ pub fn finish(
                 params![hash, payload],
             )?;
             tx.execute("INSERT INTO inference_results(id,request_key,blob_digest,last_used) VALUES(?1,?2,?3,?4)", params![id,key,hash,tick(&tx)?])?;
+            let task: String = tx.query_row(
+                "SELECT task FROM inference_executions WHERE id=?1",
+                [id],
+                |r| r.get(0),
+            )?;
+            if task == "speech" {
+                let audio = crate::speech::alignment::SpeechAudio::decode(payload)?;
+                crate::speech::analysis::signal_cache::retain(&tx, "inference", id, &audio.wav()?)?;
+            }
             prune(&tx)?;
         }
     }

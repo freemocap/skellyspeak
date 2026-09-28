@@ -15,14 +15,6 @@ export function useAppearance(settings: Settings | null) {
     return () => media.removeEventListener('change', update)
   }, [theme])
   useEffect(() => {
-    const root = document.documentElement
-    root.dataset.palette = appearance.palette
-    root.dataset.density = appearance.controlDensity
-    root.dataset.spacing = appearance.layoutSpacing
-    root.dataset.depth = appearance.depth
-    const amount = appearance.glowEnabled ? appearance.glowStrength : 0
-    const color = `color-mix(in srgb, ${appearance.glowColor} ${amount}%, transparent)`
-    root.style.setProperty('--appearance-glow', `0 0 18px 3px ${color}`)
-    root.style.setProperty('--appearance-glow-inset', `inset 0 0 18px 3px ${color}`)
-  }, [appearance])
+    document.documentElement.dataset.palette = appearance.palette
+  }, [appearance.palette])
 }

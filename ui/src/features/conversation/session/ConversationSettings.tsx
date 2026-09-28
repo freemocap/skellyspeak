@@ -9,11 +9,12 @@ import type { Settings } from '../../../types'
 type QuickSetting = 'auto_speak' | 'auto_send' | 'auto_translate' | 'always_romanize' | 'always_pronunciation' | 'fast_mode' | 'xp_effects'
 type Toggle = [QuickSetting, string, string]
 
-/// The conversation's own settings: one labelled button in the chat header opens
-/// every control that changes this conversation. A phone gets a bottom sheet over
-/// a scrim; a desktop window gets a panel on the inline end that leaves the chat
-/// readable beside it. Both render into the body so no clipping or stacking
-/// context of the chat header can hide them.
+/// The conversation's own settings: one icon button in the chat header, whose name
+/// and tooltip say what the conversation is set to, opens every control that
+/// changes this conversation. A phone gets a bottom sheet over a scrim; a desktop
+/// window gets a panel on the inline end that leaves the chat readable beside it.
+/// Both render into the body so no clipping or stacking context of the chat
+/// header can hide them.
 ///
 /// The toggles are the same Settings record the Settings modal edits — Rust owns
 /// it, and these are a second VIEW of one variable, not a copy.
@@ -74,8 +75,8 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
       ['auto_send', 'Auto-send', 'Send speech transcriptions immediately'],
     ]],
     ['Rewards', [
-      ['xp_effects', messageKey('XP effects'), messageKey('Show XP cards, progress bars and reward sounds')],
-      ['fast_mode', 'Fast mode', messageKey('Automatically dismiss new XP cards')],
+      ['xp_effects', messageKey('XP effects'), messageKey('Show XP badges, progress bars and reward sounds')],
+      ['fast_mode', 'Fast mode', messageKey('Automatically dismiss new XP badges')],
     ]],
   ]
 
@@ -120,10 +121,10 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
 
   return <>
     <button ref={toggleButton} type="button" className="chat-config-toggle" aria-expanded={open} aria-controls="chat-settings"
-      aria-label={summary ? `${tr("Conversation settings")}: ${summary}` : tr("Conversation settings")} title={open ? tr("Hide chat settings") : tr("Show chat settings")}
+      aria-label={summary ? `${tr("Conversation settings")}: ${summary}` : tr("Conversation settings")}
+      title={summary ? `${open ? tr("Hide conversation settings") : tr("Show conversation settings")}: ${summary}` : open ? tr("Hide conversation settings") : tr("Show conversation settings")}
       onClick={() => onOpenChange(!open)}>
       <ToolbarIcon name="settings" size={17} />
-      <span className="chat-config-text"><span className="chat-config-label">{tr("Conversation settings")}</span>{summary && <small className="chat-config-summary">{summary}</small>}</span>
     </button>
     {sheet}
   </>

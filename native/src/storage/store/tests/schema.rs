@@ -40,6 +40,7 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
         38,
         39,
         40,
+        41,
         SCHEMA_VERSION + 1,
     ] {
         let connection = Connection::open(&path).unwrap();

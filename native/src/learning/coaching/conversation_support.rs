@@ -225,23 +225,9 @@ fn prose(value: &str, max: usize, required: bool) -> Result<()> {
     }
     Ok(())
 }
-fn quoted(source: &str, quote: &str, max: usize) -> Result<()> {
-    prose(quote, max, true)?;
-    if !source.contains(quote) {
-        return Err(rejected("quote is not in its source message"));
-    }
-    Ok(())
-}
-pub fn validate(db: &Connection, turn: &str, kind: &str, output: &Completion) -> Result<Value> {
-    let source: String = db.query_row(
-        "SELECT text FROM messages WHERE turn_id=?1 AND role=?2",
-        params![turn, "assistant"],
-        |r| r.get(0),
-    )?;
-    validate_source(&source, kind, output)
-}
-/// Validate a support result against the exact source text it describes.
-pub(crate) fn validate_source(source: &str, kind: &str, output: &Completion) -> Result<Value> {
+/// Validate a support result. An explanation card's quote is shown as the
+/// model wrote it; a quote that is not verbatim from the message is not a failure.
+pub fn validate(kind: &str, output: &Completion) -> Result<Value> {
     if output.finish_reason == "error" || output.text.len() > 20000 {
         return Err(rejected("incomplete or oversized response"));
     }
@@ -300,7 +286,7 @@ pub(crate) fn validate_source(source: &str, kind: &str, output: &Completion) -> 
                     );
                     error
                 };
-                quoted(source, &c.quote, 300).map_err(|e| at("quote", e))?;
+                prose(&c.quote, 300, true).map_err(|e| at("quote", e))?;
                 prose(&c.title, 100, true).map_err(|e| at("title", e))?;
                 prose(&c.body, 700, true).map_err(|e| at("body", e))?;
                 prose(&c.example, 400, true).map_err(|e| at("example", e))?;

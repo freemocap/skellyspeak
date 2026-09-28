@@ -38,7 +38,7 @@ export function auditMessages(keys: string[], files: { path: string; text: strin
     function visit(node: ts.Node) {
       if (ts.isCallExpression(node)) {
         const name = node.expression.getText(source)
-        if (['tr', 't', 'messageKey'].includes(name)) {
+        if (['tr', 'tr.rich', 't', 'messageKey'].includes(name)) {
           const argument = node.arguments[name === 't' ? 1 : 0]
           if (argument && ts.isStringLiteralLike(argument)) {
             const usage = byKey.get(argument.text)

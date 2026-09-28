@@ -7,44 +7,55 @@ import { PersonaAvatar } from '../../../components/media/PersonaAvatar'
 export interface PersonaChoice { id: string; name: string; symbol: string | undefined }
 
 /// The chat header's persona control: the contact being spoken with, every other
-/// contact for this language, and the one action that adds another.
-export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCreate }: {
+/// contact for this language, and the one action that adds another. `open` and
+/// `onOpenChange` let another control open the same menu, as the start card's
+/// Change partner does. Opening moves focus to the current partner; Escape
+/// returns it to the toggle.
+export function PersonaPicker({ choices, currentId, busy, onSelect, onEdit, onCreate, open: shown, onOpenChange }: {
   choices: PersonaChoice[]
   currentId: string
   busy: boolean
   onSelect: (contactId: string) => void
   onEdit: () => void
   onCreate: () => void
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
   const tr = useI18n()
-  const [open, setOpen] = useState(false)
+  const [ownOpen, setOwnOpen] = useState(false)
+  const open = shown ?? ownOpen
+  const setOpen = (next: boolean) => { if (shown === undefined) setOwnOpen(next); onOpenChange?.(next) }
+  const latestSetOpen = useRef(setOpen)
+  latestSetOpen.current = setOpen
   const panel = useRef<HTMLDivElement>(null)
+  const toggle = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     if (!open) return
+    panel.current?.querySelector<HTMLElement>('[role="menu"] [aria-checked="true"], [role="menu"] button:not(:disabled)')?.focus()
     const dismiss = (event: PointerEvent) => {
       const target = event.target
       if (target instanceof Element && target.closest('[role="dialog"]')) return
-      if (!panel.current?.contains(target as Node)) setOpen(false)
+      if (!panel.current?.contains(target as Node)) latestSetOpen.current(false)
     }
-    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false) }
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { latestSetOpen.current(false); toggle.current?.focus() } }
     document.addEventListener('pointerdown', dismiss)
     document.addEventListener('keydown', escape)
     return () => { document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', escape) }
   }, [open])
   const current = choices.find(choice => choice.id === currentId)
   return <div className="persona-picker" ref={panel}>
-    <button type="button" className="persona-picker-toggle" aria-haspopup="menu" aria-expanded={open} disabled={busy}
-      title={current ? tr("Talking with {value0}", { value0: String(current.name) }) : tr("No contact for this language yet")} onClick={() => setOpen(value => !value)}>
-      {current ? <><PersonaAvatar symbol={current.symbol} /><span className="partner-identity"><strong>{current.name}</strong></span></> : <span>{tr("No persona")}</span>}
+    <button ref={toggle} type="button" className="persona-picker-toggle" aria-haspopup="menu" aria-expanded={open} disabled={busy}
+      title={current ? tr("Talking with {value0}", { value0: String(current.name) }) : tr("No partner for this language yet")} onClick={() => setOpen(!open)}>
+      {current ? <><PersonaAvatar symbol={current.symbol} /><span className="partner-identity"><strong>{current.name}</strong></span></> : <span>{tr("No partner")}</span>}
       <span aria-hidden="true">▾</span>
     </button>
-    {open && <><div className="menu-scrim" aria-hidden="true" onPointerDown={() => setOpen(false)} /><div className="persona-picker-menu" role="menu" aria-label={tr("Contacts")}>
+    {open && <><div className="menu-scrim" aria-hidden="true" onPointerDown={() => setOpen(false)} /><div className="persona-picker-menu" role="menu" aria-label={tr("Partners")}>
       {choices.map(choice => <button type="button" role="menuitemradio" aria-checked={choice.id === currentId} key={choice.id}
         className="persona-picker-item" onClick={() => { setOpen(false); if (choice.id !== currentId) onSelect(choice.id) }}>
         <PersonaAvatar symbol={choice.symbol} /><span>{choice.name}</span>{choice.id === currentId && <span aria-hidden="true">✓</span>}
       </button>)}
-      <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>{tr("Edit persona")}</button>
-      <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>{tr("+ New persona…")}</button>
+      <button type="button" role="menuitem" className="persona-picker-item" disabled={!current} onClick={() => { setOpen(false); onEdit() }}>{tr("Edit partner")}</button>
+      <button type="button" role="menuitem" className="persona-picker-item" onClick={() => { setOpen(false); onCreate() }}>{tr("+ New partner…")}</button>
     </div></>}
   </div>
 }

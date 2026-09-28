@@ -30,7 +30,7 @@ it('renders global dispatched usage and inspectable IDs without inventing missin
   api.read.mockResolvedValue(snapshot())
   render(<GenerationActivity />)
   await flush()
-  expect(screen.getByText('Persona generation · Global')).toBeInTheDocument()
+  expect(screen.getByText('Partner generation · Global')).toBeInTheDocument()
   expect(screen.getByRole('table')).toHaveAccessibleName('All retained dispatched attempts')
   expect(screen.getByRole('row', { name: 'Attempts 8' })).toBeInTheDocument()
   expect(screen.getByRole('row', { name: 'Reported input tokens 120' })).toBeInTheDocument()
@@ -74,7 +74,7 @@ it('shows a poll failure, removes stale totals, and requires explicit retry', as
   fireEvent.click(screen.getByRole('button', { name: 'Retry generation activity' }))
   await flush()
   expect(screen.queryByRole('alert')).toBeNull()
-  expect(screen.getByText('No recorded persona generations.')).toBeInTheDocument()
+  expect(screen.getByText('No recorded partner generations.')).toBeInTheDocument()
 })
 
 it.each(['resolve', 'reject'] as const)('ignores an unmounted read that later %ss and does not poll again', async (settle) => {
@@ -86,7 +86,7 @@ it.each(['resolve', 'reject'] as const)('ignores an unmounted read that later %s
   await flush()
   await act(async () => { if (settle === 'resolve') old.resolve({ ...snapshot(), attempts: [] }); else old.reject(new Error('Obsolete failure')) })
   expect(screen.queryByRole('alert')).toBeNull()
-  expect(screen.queryByText('No recorded persona generations.')).toBeNull()
+  expect(screen.queryByText('No recorded partner generations.')).toBeNull()
   expect(screen.getByText('failed · spanish · 2026-09-12T12:00:00Z')).toBeInTheDocument()
   expect(api.read).toHaveBeenCalledTimes(2)
 })

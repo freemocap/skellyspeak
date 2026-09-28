@@ -51,7 +51,7 @@ export function SurfaceHost() {
       ) : (
         <div className={`page-holder ${page === 'guided' ? '' : 'hidden'}`} aria-hidden={page !== 'guided'}>
           {drilling ? <PageBoundary>
-            <Suspense fallback={<p role="status">{tr("Loading drill…")}</p>}><DrillPage active /></Suspense>
+            <Suspense fallback={<p role="status">{tr("Loading Practice…")}</p>}><DrillPage active /></Suspense>
           </PageBoundary> : <PageBoundary>
             <ActiveSurfaceContext value={page === 'guided' && !drilling}><SkillEvidenceContext value={evidence}><ConversationPage active={page === 'guided' && !drilling} mobileSurface={mobileSurface}
               nativePicker={<NativePicker />}

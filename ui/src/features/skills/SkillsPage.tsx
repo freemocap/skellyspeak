@@ -49,8 +49,8 @@ export function SkillListView({ initialVariety, languageTag, snapshot, demonstra
     <ProgressRules />
     {open && node && <DetailDialog title={tr(node.label)} onClose={() => setOpen(false)}>
       <SkillDetailContent variety={inspectedVariety} languageTag={languageTag} node={node} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}
-        controls={<button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,focus:node.id},true)}>{tr('Practise this in conversation')}</button>}
-        recordControls={record => <button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,excluded_attempts:snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? snapshot.profile.choices.excluded_attempts.filter(id => id !== record.attempt_id) : [...snapshot.profile.choices.excluded_attempts,record.attempt_id]})}>{snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Excluded · restore attempt') : tr('Exclude attempt from progress')}</button>} />
+        controls={<button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,focus:node.id},true)}>{tr('Use this in a conversation')}</button>}
+        recordControls={record => <button disabled={saving || demonstration} onClick={() => void update({...snapshot.profile.choices,excluded_attempts:snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? snapshot.profile.choices.excluded_attempts.filter(id => id !== record.attempt_id) : [...snapshot.profile.choices.excluded_attempts,record.attempt_id]})}>{snapshot.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Excluded · restore assessment') : tr('Exclude assessment from progress')}</button>} />
     </DetailDialog>}
   </main>
 }

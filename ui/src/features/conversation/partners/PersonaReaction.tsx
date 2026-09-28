@@ -1,9 +1,7 @@
-import { PhraseActions } from '../../../components/reading/PhraseActions'
+import { TargetPassage } from '../../../components/reading/TargetPassage'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
-import { SavedGlossText } from '../../../components/reading/SavedGlossText'
 import type { WordGlossView } from '../../../generated/contracts'
 import { useI18n } from '../../../components/localization/i18n'
-import { TargetText } from '../../../components/reading/TargetText'
 import { useEffect, useRef, useState } from 'react'
 import { playRewardSound } from '../../../platform/audio/reward-sounds'
 import type { PersonaReaction as Reaction } from '../../../types'
@@ -46,8 +44,8 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit, userG
       <div className="reaction-details">
         <h2><span aria-hidden="true">{display.icon} </span>{tr(display.label)}</h2>
         <section className="reaction-exchange" aria-label={tr("Conversation exchange")}>
-          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><div className="msg me plain" dir="auto">{userGloss ? <SavedGlossText text={message} segments={userGloss.segments} /> : <TargetText text={message} />}<PhraseActions text={message} /></div></div>
-          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><div className="msg bot" dir="auto">{replyGloss ? <SavedGlossText text={reply} segments={replyGloss.segments} /> : <TargetText text={reply} />}<PhraseActions text={reply} /></div></div>
+          <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><TargetPassage text={message} side="me" segments={userGloss?.segments} /></div>
+          <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><TargetPassage text={reply} segments={replyGloss?.segments} /></div>
         </section>
         {error ? <ErrorNotice as="p" error={error}>{error}</ErrorNotice> : <>
           <AskCoachButton onClose={()=>setOpen(false)} question={`Explain the saved understanding category for this exchange. My message: ${message}. Partner reply: ${reply}. Assessment: ${JSON.stringify(reaction)}`} />

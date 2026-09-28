@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useI18n } from '../localization/i18n'
-import type { InspectionActivity, InspectionSpectrogram, InspectionWordTiming } from '../../generated/contracts'
+import type { InspectionActivity, InspectionSpectrogram, InspectionWaveform, InspectionWordTiming } from '../../generated/contracts'
+import type { WordMatch } from '../../domain/audio/word-alignment'
 
 /** Seconds to hundredths, the way every inspection surface prints a duration. */
 export function useSeconds() {
@@ -41,14 +42,20 @@ export function SegmentMarkers({ activity, duration, mapTime }: { activity: Insp
   })}</>
 }
 
-/** Every word the recognizer placed in time, as a track under the plots.
+/** Where the recognizer placed each word in time, drawn one way everywhere.
  *
- * Chat lets the learner select and seek by word; a read-only surface passes no
- * handlers and gets plain labels instead of controls. */
-export function TimedWordTrack({ wordTiming, duration, currentTime, selected, onSelect, onSeek, mapTime }: {
-  wordTiming: InspectionWordTiming
-  mapTime?: (seconds: number) => number
+ * `overlay` lays the words over a plot (a spectrogram or waveform); `track`
+ * lays them in their own row under the plots. Word matching outcomes colour
+ * each word's start edge when a comparison supplies them. Seeking always uses
+ * source time, even while `mapTime` warps the display. A surface that passes
+ * no handlers gets plain labels instead of controls. */
+export function TimedWords({ timing, duration, placement, labels = true, mapTime, outcomes, currentTime, selected, onSelect, onSeek }: {
+  timing: InspectionWordTiming
   duration: number
+  placement: 'overlay' | 'track'
+  labels?: boolean
+  mapTime?: (seconds: number) => number
+  outcomes?: WordMatch[]
   currentTime?: number
   selected?: number | null
   onSelect?: (index: number) => void
@@ -56,23 +63,60 @@ export function TimedWordTrack({ wordTiming, duration, currentTime, selected, on
 }) {
   const tr = useI18n()
   const seconds = useSeconds()
+  if (!timing.words.length) return null
+  const time = (value: number) => mapTime ? mapTime(value) : value
   const interactive = onSelect !== undefined || onSeek !== undefined
-  const time = (seconds: number) => mapTime ? mapTime(seconds) : seconds
-  const place = (word: { start: number; end: number }) => ({
-    left: `${time(word.start) / duration * 100}%`,
-    width: `${Math.max(0.2, (time(word.end) - time(word.start)) / duration * 100)}%`,
-  })
-  return <div className="inspection-token-track" aria-label={tr("Timed words")}>
-    {wordTiming.words.map(word => interactive
-      ? <button key={word.index} aria-pressed={selected === word.index}
-        className={currentTime !== undefined && currentTime >= word.start && currentTime < word.end ? 'inspection-token-active' : undefined}
-        style={place(word)} title={`${word.word}: ${seconds(word.start)}–${seconds(word.end)}`}
-        onFocus={() => onSelect?.(word.index)} onClick={() => { onSelect?.(word.index); onSeek?.(word.start) }}>
-        <bdi>{word.word}</bdi>
-      </button>
-      : <span key={word.index} className="inspection-token-label" style={place(word)}
-        title={`${word.word}: ${seconds(word.start)}–${seconds(word.end)}`}><bdi>{word.word}</bdi></span>)}
+  return <div className="timed-words" data-placement={placement} aria-label={tr('Timed words')}>
+    {timing.words.map((word, index) => {
+      const outcome = outcomes ? outcomes[index] ?? 'unknown' : undefined
+      const title = outcome === undefined ? `${word.word}: ${seconds(word.start)}–${seconds(word.end)}`
+        : `${word.word}: ${tr(outcome === 'same' ? 'Matched' : outcome === 'missing' ? 'Not matched' : 'Uncertain')} · ${tr('{value0} s', { value0: tr.number(word.start, { maximumFractionDigits: 2 }) })}`
+      const active = currentTime !== undefined && currentTime >= word.start && currentTime < word.end
+      const style = {
+        left: `${time(word.start) / duration * 100}%`,
+        width: `${Math.max(0.2, (time(word.end) - time(word.start)) / duration * 100)}%`,
+      }
+      return <span key={word.index} className="timed-word" data-outcome={outcome} data-active={active || undefined}
+        data-selected={selected === word.index || undefined} style={style} title={title}>
+        {interactive
+          ? <button type="button" aria-label={outcome === undefined ? undefined : title} aria-pressed={onSelect ? selected === word.index : undefined}
+            onFocus={() => onSelect?.(word.index)} onClick={() => { onSelect?.(word.index); onSeek?.(word.start) }}><bdi>{word.word}</bdi></button>
+          : labels && <bdi>{word.word}</bdi>}
+      </span>
+    })}
   </div>
+}
+
+/** Tick spacing: the smallest step that keeps the visible axis to about eight labels. */
+export function tickStep(span: number): number {
+  return [0.25, 0.5, 1, 2, 5, 10].find(step => span / step <= 8) ?? 30
+}
+
+/** The time axis under a set of plots. `visibleSpan` is how much of `span` is
+ * on screen at once, so a zoomed plot gets finer ticks. */
+export function TimeAxis({ span, visibleSpan = span }: { span: number; visibleSpan?: number }) {
+  const tr = useI18n()
+  const seconds = useSeconds()
+  const step = tickStep(visibleSpan)
+  const ticks = Array.from({ length: Math.floor(span / step) + 1 }, (_, index) => index * step)
+  return <div className="time-axis" role="img" aria-label={tr("Shared time axis, 0 to {value0}", { value0: seconds(span) })}>
+    {ticks.map(tick => <span key={tick} style={{ left: `${tick / span * 100}%` }}><bdi>{seconds(tick)}</bdi></span>)}
+  </div>
+}
+
+/** A recording's stored amplitude envelope: one vertical stroke per analysis bin. */
+export function StoredWaveform({ waveform, duration }: { waveform: InspectionWaveform; duration: number }) {
+  const tr = useI18n()
+  const x = (time: number) => Math.max(0, Math.min(1000, time / duration * 1000))
+  const clamp = (value: number) => Math.max(-1, Math.min(1, value))
+  const path = waveform.min.map((low, index) => {
+    const high = waveform.max[index]
+    if (high === undefined) throw new Error(`Waveform bin ${index} has a minimum but no maximum.`)
+    return `M${x((index + 0.5) * waveform.binSeconds)},${40 - clamp(high) * 36}V${40 - clamp(low) * 36}`
+  }).join(' ')
+  return <svg className="inspection-wave" viewBox="0 0 1000 80" preserveAspectRatio="none" role="img" aria-label={tr("Recorded audio amplitude")}>
+    <path d={path} vectorEffect="non-scaling-stroke" />
+  </svg>
 }
 
 /** Why there are no word timings, in the recognizer's own words when it gave a

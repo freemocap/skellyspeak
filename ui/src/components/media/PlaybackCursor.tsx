@@ -19,7 +19,7 @@ export function PlaybackCursor({ time, duration, displayDuration = duration, map
     onSeek?.(time)
     return time
   }
-  return <button type="button" className="drill-playback-cursor" role="slider" aria-label={label}
+  return <button type="button" className="playback-cursor" role="slider" aria-label={label}
     aria-valuemin={0} aria-valuemax={duration} aria-valuenow={Math.max(0, Math.min(duration, time))}
     disabled={!onSeek}
     onPointerDown={event => { dragging.current = true; event.currentTarget.setPointerCapture(event.pointerId); const time = seek(event); onScrubStart?.(time, event.timeStamp) }}

@@ -98,6 +98,7 @@ impl Store {
             connection,
             session_id: id(),
             speech_delivery: crate::speech::delivery::DeliveryBuffer::default(),
+            audio_analysis: Default::default(),
             credential_writes: std::collections::HashSet::new(),
             credential_index: path.with_file_name("credentials.index"),
             drill_audio: path.with_file_name("drill-audio"),
