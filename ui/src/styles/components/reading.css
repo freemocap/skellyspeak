@@ -147,7 +147,6 @@
 }
 
 .saved-word-help {
-  cursor: pointer;
   position: fixed;
   z-index: var(--z-popover);
   overflow: auto;
@@ -170,7 +169,7 @@
 .saved-word-help[data-word-help-layer='portal'] { position: absolute; }
 
 .saved-word-help .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
-.saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-reading-aid); color: var(--ink-3); }
+.saved-word-help .wroman, .saved-word-help .wpronunciation { font: var(--type-ui) var(--font-mono); color: var(--ink-3); }
 
 /* A clitic's meaning and sound fields share one source label in compact help. */
 .gloss-help-parts { font: var(--type-ui) / var(--leading-normal) var(--font-sans); white-space: normal; text-align: start; }
@@ -192,7 +191,7 @@
 .saved-word-details > span { display: block; }
 .saved-word-details .wg { font: var(--type-body) var(--font-sans); color: var(--ink); }
 .saved-word-details .wroman, .saved-word-details .wpronunciation {
-  font: var(--type-ui) var(--font-reading-aid); color: var(--ink-2);
+  font: var(--type-ui) var(--font-mono); color: var(--ink-2);
 }
 
 /* Romanization under a word may be wider than the word; it widens the column
@@ -204,7 +203,7 @@
 
 /* Reading actions are independent controls: they must never activate the source
    message, navigation item or insertion button. */
-.token-audio {
+.token-audio, .token-coach {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -239,7 +238,7 @@
   color: var(--ink);
   box-shadow: var(--shadow-floating);
 }
-@media (pointer: coarse) { .token-audio { min-width: 44px; min-height: 44px; } }
+@media (pointer: coarse) { .token-audio, .token-coach { min-width: 44px; min-height: 44px; } }
 
 /* Source words inherit their sentence metrics. Hover/focus never creates a new
    inline box, changes a border, or removes the source from Arabic bidi flow. */
@@ -314,3 +313,19 @@
 .message-tools > .message-translate { flex: none; white-space: nowrap; }
 
 .message-tools-measure [data-label]::before { content: attr(data-label); }
+
+/* The explicit coach action shares the audio corner and follows interface direction. */
+.saved-word-help:has(> .token-coach) {
+  padding-inline-end: calc(var(--space-11) + var(--space-4));
+  min-height: calc(var(--space-11) * 2 + var(--space-4) * 2);
+}
+.saved-word-help > .token-coach {
+  position: absolute; inset-block-end: var(--space-4); inset-inline-end: var(--space-1);
+  margin: 0; color: var(--ink-3); font: var(--type-ui) / var(--leading-none) var(--font-sans);
+}
+@media (pointer: coarse) {
+  .saved-word-help:has(> .token-coach) {
+    padding-inline-end: calc(var(--touch-target) + var(--space-4));
+    min-height: calc(var(--touch-target) * 2 + var(--space-4) * 2);
+  }
+}

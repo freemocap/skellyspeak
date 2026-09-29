@@ -6,7 +6,6 @@ import { UnannotatedText } from './UnannotatedText'
 import { SpeechFollowText } from './SpeechFollowText'
 import { AskCoachButton } from '../learning/AskCoachButton'
 import { useOverlayLayer } from '../dialogs/useOverlayLayer'
-import { DetailDialog } from '../dialogs/DetailDialog'
 import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
 import { useReadingPreferences } from './ReadingPreferences'
@@ -22,7 +21,6 @@ function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement |
 /** Saved UTF-16 anchors select exact source occurrences; reading never requests analysis. */
 export function SavedGlossText({ text, segments, afterSegment, decorateSegment, interactive = true, showAids = true, revealAids = false }: { revealAids?: boolean; showAids?: boolean; interactive?: boolean; text: string; segments: GlossSegment[]; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
   const tr = useI18n()
-  const [expanded, setExpanded] = useState<number | null>(null)
   const uiDirection = useUiDirection()
   const { autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization } = useReadingPreferences()
   const [revealed, setRevealed] = useState<Set<number>>(() => new Set())
@@ -67,8 +65,8 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
       document.removeEventListener('pointerdown', dismiss); document.removeEventListener('keydown', dismiss)
       if (element.isConnected && element.hasAttribute('popover')) element.hidePopover()
     }
-  }, [hovered, revealed, expanded, autoTranslate, alwaysRomanize, alwaysPronunciation, showAids])
-  useEffect(() => { setRevealed(new Set()); setHovered(null); setExpanded(null) }, [text])
+  }, [hovered, revealed, autoTranslate, alwaysRomanize, alwaysPronunciation, showAids])
+  useEffect(() => { setRevealed(new Set()); setHovered(null) }, [text])
   const pieces = []
   let cursor = 0
   for (const segment of glossDisplayGroups(text, segments)) {
@@ -93,33 +91,24 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     }
     const piece = interactive && annotations.length > 0
       ? <span className="wu saved-word" key={segment.start} data-source-start={segment.start} data-source-end={segment.end} onPointerEnter={event => { keepHover(); if (event.pointerType === 'mouse' && revealed.size === 0) { hoveredWord.current = event.currentTarget; setHovered(segment.start) } }} onPointerLeave={leaveHover}>
-          <span data-speech-source className={`reading-word${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open || expanded === segment.start} aria-controls={open || hovering || expanded === segment.start ? helperId : undefined}
+          <span data-speech-source className={`reading-word${open ? ' revealed' : ''}`} role="button" tabIndex={0} aria-expanded={open} aria-controls={open || hovering ? helperId : undefined}
             onClick={event => { event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() }}
             onDoubleClick={event => event.stopPropagation()}
             onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); hoveredWord.current = event.currentTarget; toggle() } }}>
             {source}
           </span>
-          {expanded === null && (open || hovering) && renderHelp(<span id={helperId} ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir="auto" popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined}
+          {(open || hovering) && renderHelp(<span id={helperId} ref={helper} className={`saved-word-help${segment.parts.length > 1 ? ' gloss-fragments' : ''}`} dir={uiDirection} popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined}
             role="group" aria-label={tr("Word help")}
             onPointerEnter={keepHover} onPointerLeave={leaveHover}
             onClick={event => event.stopPropagation()}>
-            <span role="button" tabIndex={0} aria-label={tr("Word help")} aria-haspopup="dialog"
-              onClick={event => { event.stopPropagation(); setExpanded(segment.start); setRevealed(new Set()); setHovered(null) }}
-              onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); event.currentTarget.click() } }}>
-            {open && <PinnedGlossLayer host={helper} onClose={() => { setRevealed(new Set()); setHovered(null) }} />}
+            {open && <PinnedGlossLayer host={helper} onClose={() => { setRevealed(new Set()); setHovered(null); hoveredWord.current?.focus() }} />}
             <GlossHelpParts text={text} parts={annotations} />
-            </span><TokenAudio text={text} start={segment.start} end={segment.end} />
+            <TokenAudio text={text} start={segment.start} end={segment.end} />
+            <AskCoachButton compact
+              question={`Help me understand “${source}” in this sentence: “${text}”. Saved word details: ${JSON.stringify(annotations.map(part => ({ text: text.slice(part.start, part.end), gloss: part.gloss, romanization: part.romanization, pronunciation: part.pronunciation })))}`}
+              onClose={() => { setRevealed(new Set()); setHovered(null) }}
+            />
           </span>)}
-          {expanded === segment.start && <DetailDialog title={tr("Word help")} onClose={() => { setExpanded(null); hoveredWord.current?.focus() }}>
-            <div id={helperId} className="saved-word-details" dir={uiDirection}>
-              <h2 dir="auto"><SpeechFollowText text={source} source={{ text, start: segment.start }}><span data-speech-source>{source}</span></SpeechFollowText><TokenAudio text={text} start={segment.start} end={segment.end} /></h2>
-              <GlossHelpParts text={text} parts={annotations} />
-              <div className="detail-actions"><AskCoachButton
-                question={`Help me understand “${source}” in this sentence: “${text}”. Saved word details: ${JSON.stringify(annotations.map(part => ({ text: text.slice(part.start, part.end), gloss: part.gloss, romanization: part.romanization, pronunciation: part.pronunciation })))}`}
-                onClose={() => setExpanded(null)}
-              /></div>
-            </div>
-          </DetailDialog>}
           {showAids && (revealAids || autoTranslate) && joined('gloss', 'wg')}
           {showAids && (revealAids || alwaysRomanize) && supportsRomanization && joined('romanization', 'wroman')}
           {showAids && (revealAids || alwaysPronunciation) && joined('pronunciation', 'wpronunciation')}

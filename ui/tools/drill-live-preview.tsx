@@ -140,7 +140,7 @@ function Preview() {
     <div className="app">
     <TopBar />
     <div className="content"><div className="page-holder"><section className="drill-page" style={{ '--drill-dock-height': dockHeight === null ? undefined : `${Math.round(dockHeight)}px` } as CSSProperties}>
-      <DrillLayout items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />}
+      <DrillLayout onAddPhrases={() => {}} items={[phrase]} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />}
         dockResize={<ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={() => dockPane.current?.getBoundingClientRect().height ?? 0} onResize={setDockHeight} />} attempt={firstVisit ? null : attempt} rtl
         rail={<PhraseRail items={[phrase]} selectedId="fixture" busy={false} locked={false} onSelect={() => {}} onDelete={async () => {}}>
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>

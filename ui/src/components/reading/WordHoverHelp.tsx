@@ -1,3 +1,5 @@
+import { AskCoachButton } from '../learning/AskCoachButton'
+import { useUiDirection } from '../localization/useUiDirection'
 import { ErrorNotice } from '../feedback/ErrorNotice'
 import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { errorMessage, errorDetails } from '../../platform/diagnostics/error-details'
@@ -19,6 +21,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   onEnter: () => void; onLeave: () => void; onClose: () => void
 }) {
   const tr = useI18n()
+  const direction = useUiDirection()
   const lookup = useReadingLookup()
   const peek = useReadingPeek()
   const saved = useSavedReading()
@@ -80,8 +83,9 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     }
   }, [anchor, onClose, layer.popover])
   const parts = localParts.length ? localParts : result?.gloss?.segments.filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss') ?? []
-  const content = <span ref={helper} popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
+  const content = <span ref={helper} dir={direction} popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
     onPointerEnter={onEnter} onPointerLeave={() => { if (!pinned) onLeave() }} onClick={event => event.stopPropagation()}>
+    <AskCoachButton compact question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${selection.scope.language} passage: “${selection.text}”.`} onClose={onClose} />
     <TokenAudio text={selection.text} start={selection.start} end={selection.end} />
     <SpeechFollowText text={selection.text.slice(selection.start, selection.end)} source={{ text: selection.text, start: selection.start }}><span data-speech-source className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span></SpeechFollowText>
     {!parts.length && !result && !failure && <span role="status">{tr('Finding word meanings…')}</span>}

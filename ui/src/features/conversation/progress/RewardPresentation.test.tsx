@@ -7,6 +7,7 @@ import { SkillRewards } from './SkillRewards'
 import { XpChip } from './XpChip'
 import { XP_PAYOUT_STEP_MS, XP_PAYOUT_LIFETIME_MS } from './RewardPresentation'
 import { MessageXpButton } from './MessageXpButton'
+import { MessageFeedback } from '../coaching/MessageFeedback'
 import { PracticeContext } from '../session/PracticeContext'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
@@ -22,7 +23,9 @@ function Fixture({ snapshot, enabled = true }: { snapshot: SkillSnapshot; fastMo
   return <SkillEvidenceContext value={{ snapshot, error: null }}>
     <RewardPresentationProvider enabled={enabled} chatId="chat" active>
       <header className="chat-head"><XpChip chatId="chat" /></header>
-      <PracticeContext value={{ chatId: "chat", selectionVersion: 0, selected: null, select: () => {} }}><div data-reward-message="1"><MessageXpButton messageId={1} source="this cup" /></div></PracticeContext>
+      <PracticeContext value={{ chatId: "chat", selectionVersion: 0, selected: null, select: () => {} }}><MessageFeedback id={1} text="this cup" feedback={undefined} error={undefined} reviewing={false} onEdit={undefined} onAsk={() => {}}
+        bubble={() => <div>this cup</div>}
+        reward={<MessageXpButton messageId={1} source="this cup" />} /></PracticeContext>
       <SkillRewards chatId="chat" active />
     </RewardPresentationProvider>
   </SkillEvidenceContext>
@@ -109,7 +112,7 @@ it('retains the milestone cue at the message counter', async () => {
 })
 it('finishes without a mounted message anchor instead of blocking later rewards', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)
-  document.querySelector('[data-reward-message]')!.removeAttribute('data-reward-message')
+  counter().removeAttribute('data-message-xp')
   await act(async () => view.rerender(<Fixture snapshot={earn(skillDemo, 1)} fastMode />))
   act(() => vi.advanceTimersByTime(1000))
   expect(playRewardSound).not.toHaveBeenCalled()

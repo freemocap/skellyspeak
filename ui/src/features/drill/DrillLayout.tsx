@@ -1,3 +1,4 @@
+import { useCardActionOverflow } from './useCardActionOverflow'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useWidthTier } from '../../components/layout/useWidthTier'
@@ -31,7 +32,7 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
     const choices = items.filter(item => item.id !== selectedId)
     onSelect(choices[Math.floor(Math.random() * choices.length)].id)
   }}>{tr('Random card')}</button>
-  const navigation = <nav className="drill-phrase-bar" aria-label={tr('Practice cards')}>
+  const navigationButtons = (measuring = false) => <>
     {/* At full width the cards are the side panel, and compact has their edge tab; narrow opens them from here. */}
     {tier === 'narrow' && <button className="btn drill-cards-open" type="button" aria-haspopup="dialog" aria-expanded={sheet === 'phrases'}
       aria-label={tr('Practice cards')} title={tr('Practice cards')} onClick={() => setSheet(sheet === 'phrases' ? null : 'phrases')}>
@@ -39,15 +40,30 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
     <button className="btn" type="button" aria-label={tr('Previous card')} disabled={locked || index <= 0}
       onClick={() => onSelect(items[index - 1].id)}>{tr('Previous')}</button>
     {/* Which card is shown, between the controls that move through them. */}
-    {index >= 0 && <span className="drill-card-position">{tr('Card {value0} of {value1}', { value0: index + 1, value1: items.length })}</span>}
+    {index >= 0 && <span className="drill-card-position" data-measure-label={measuring ? tr('Card {value0} of {value1}', { value0: index + 1, value1: items.length }) : undefined}>{!measuring && tr('Card {value0} of {value1}', { value0: index + 1, value1: items.length })}</span>}
     <button className="btn" type="button" aria-label={tr('Next card')} disabled={locked || index < 0 || index >= items.length - 1}
       onClick={() => onSelect(items[index + 1].id)}>{tr('Next')}</button>
-    {mobile ? <button type="button" className="btn" aria-label={tr('More')} aria-haspopup="dialog" aria-expanded={sheet === 'actions'} onClick={() => setSheet('actions')}><ToolbarIcon name="more" size={18} /></button> : random}
-    {sheet === 'actions' && <DetailDialog title={tr('Practice cards')} capture="preserve" onClose={() => setSheet(null)}><div className="drill-actions" onClick={event => { if ((event.target as Element).closest('button:not(:disabled)')) setSheet(null) }}>{random}{addTargets}</div></DetailDialog>}
+    </>
+  const actions = [random, ...(addTargets ? [addTargets] : [])]
+  const labels = [tr('Random card'), tr('Add practice cards…'), tr('Previous'), tr('Next'), index, items.length, tier].join('|')
+  const { bar, measure, visible } = useCardActionOverflow(actions.length, labels)
+  const hasOverflow = visible < actions.length
+  useEffect(() => { if (!hasOverflow && sheet === 'actions') setSheet(null) }, [hasOverflow, sheet])
+  const navigation = <nav ref={bar} className="drill-phrase-bar" aria-label={tr('Practice cards')}>
+    <span className="drill-card-navigation">{navigationButtons()}</span>
+    {actions.slice(0, visible).map((action, index) => <span className="drill-card-action" key={index}>{action}</span>)}
+    {hasOverflow && <button type="button" className="btn" aria-label={tr('More')} aria-haspopup="dialog" aria-expanded={sheet === 'actions'} onClick={() => setSheet('actions')}><ToolbarIcon name="more" size={18} /></button>}
+    {sheet === 'actions' && <DetailDialog title={tr('Practice cards')} capture="preserve" onClose={() => setSheet(null)}><div className="drill-actions" onClick={event => { if ((event.target as Element).closest('button:not(:disabled)')) setSheet(null) }}>{actions.slice(visible).map((action, index) => <span key={index}>{action}</span>)}</div></DetailDialog>}
     {sheet === 'phrases' && <DetailDialog capture="preserve" title={tr('Practice cards')} placement={tier === 'narrow' ? 'bottom' : 'start'} className="drill-cards-dialog" onClose={() => setSheet(null)}>
       <div onClick={event => { if ((event.target as Element).closest('.drill-item:not(:disabled)')) setSheet(null) }}>{rail}</div>
       {addTargets && <div className="drill-dropdown-actions">{addTargets}</div>}
     </DetailDialog>}
+    <span className="drill-card-measure" ref={measure} aria-hidden="true" inert>
+      <span className="drill-card-navigation">{navigationButtons(true)}</span>
+      <span data-card-action><button className="btn" type="button" tabIndex={-1}>{tr('Random card')}</button></span>
+      {addTargets && <span data-card-action><button className="btn" type="button" tabIndex={-1}>{tr('Add practice cards…')}</button></span>}
+      <button data-card-more className="btn" type="button" tabIndex={-1}><ToolbarIcon name="more" size={18} /></button>
+    </span>
   </nav>
   if (!mobile) {
     // Until there is a card, the stage's own empty state offers Add cards.

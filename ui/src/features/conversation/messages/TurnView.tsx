@@ -182,7 +182,6 @@ export const TurnView = memo(function TurnView({
             reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
             bubble={analysisTool => (
               <div
-                data-reward-message={turn.id}
                 className={`msg chat-message me${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
               >
                 {userSegments.length > 0

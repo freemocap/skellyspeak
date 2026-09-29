@@ -1,3 +1,4 @@
+import { AskCoachContext } from '../src/components/learning/AskCoachButton'
 import { CoachChatLayout } from '../src/features/conversation/coaching/CoachChatLayout'
 import { CoachPanelTabs } from '../src/features/conversation/coaching/CoachPanelTabs'
 /** Layout review using production components and sample data. No native or AI calls. */
@@ -155,7 +156,7 @@ function Preview() {
     speak: async () => { setNotice('Playback control — sample only; no audio request'); return null },
     activity: async () => ({}),
   }), [])
-  return <ReadingProvider settings={null}><ReadingHelp services={readingServices} languages={[]}><ReadingPreferencesProvider settings={settings}><div className="app" data-place="chat">
+  return <AskCoachContext value={setNotice}><ReadingProvider settings={null}><ReadingHelp services={readingServices} languages={[]}><ReadingPreferencesProvider settings={settings}><div className="app" data-place="chat">
     <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>cool</option><option>warm</option></select></label><output>{notice}</output></div>
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`} ref={workspace}>
@@ -201,6 +202,6 @@ function Preview() {
         <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <>{!mobile && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}<h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
       </section>
     </div>
-  </div></ReadingPreferencesProvider></ReadingHelp></ReadingProvider>
+  </div></ReadingPreferencesProvider></ReadingHelp></ReadingProvider></AskCoachContext>
 }
 createRoot(document.getElementById('root')!).render(<Preview />)
