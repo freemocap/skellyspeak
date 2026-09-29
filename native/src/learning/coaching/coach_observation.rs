@@ -121,6 +121,7 @@ pub(crate) fn validate_captured(
     // Observations are advice, not a contract: an item the policy cannot use is
     // left out and the rest of the coaching is kept. A quote that is not a
     // verbatim piece of the message is kept; the display marks only exact matches.
+    let submitted_items = observation.items.len();
     observation.items = std::mem::take(&mut observation.items)
         .into_iter()
         .filter_map(|mut item| {
@@ -154,6 +155,7 @@ pub(crate) fn validate_captured(
             Some(item)
         })
         .collect();
+    let validation_omissions = submitted_items - observation.items.len();
     // A skill can occur in several passages. Only identical observations are
     // redundant; validate all evidence before collapsing those repeats.
     let mut seen = std::collections::HashSet::new();
@@ -191,11 +193,15 @@ pub(crate) fn validate_captured(
     let decision =
         crate::learning::coaching::coach_policy::decide(captured, &observation, repaired)?;
     Ok(
-        json!({"observation":observation,"decision":decision,"repaired":repaired,"nativeRepair":native_repair}),
+        json!({"observation":observation,"decision":decision,"repaired":repaired,"nativeRepair":native_repair,"validationOmissions":validation_omissions}),
     )
 }
 pub(crate) fn publish(db: &Connection, turn: &str, value: &Value, attempt: &str) -> Result<()> {
     db.execute("UPDATE turns SET context=json_set(context,'$.coachObservation',json(?2),'$.coachDecision',json(?3),'$.coachObservationAttempt',?4,'$.itemsReturned',?5,'$.nativeRepairObservation',json(?6)) WHERE id=?1",params![turn,value["observation"].to_string(),value["decision"].to_string(),attempt,value["observation"]["items"].as_array().ok_or_else(||rejected("missing validated items"))?.len() as i32,value["nativeRepair"].to_string()])?;
+    db.execute(
+        "UPDATE turns SET context=json_set(context,'$.coachValidationOmissions',?2) WHERE id=?1",
+        params![turn, value["validationOmissions"].as_i64().unwrap_or(0)],
+    )?;
     // Correction feedback is independent of skill credit.
     let observation: CoachObservation = serde_json::from_value(value["observation"].clone())?;
     let omitted: Vec<usize> = observation

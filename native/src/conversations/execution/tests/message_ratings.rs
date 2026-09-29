@@ -105,3 +105,72 @@ fn invalid_scores_do_not_block_partner_reply_or_understanding() {
     assert!(view.messages[0].feedback_error.is_some());
     assert!(view.messages[1].reaction.is_some());
 }
+
+#[test]
+fn understood_publication_credits_once_and_does_not_change_skill_xp() {
+    let (_dir, mut store, conversation) = setup();
+    store.execute(send(&store, &conversation)).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE kind NOT IN ('persona_context','persona_reply','coach_reaction')",[]).unwrap();
+    store.dispatch().unwrap();
+    let partner = store.dispatch().unwrap().unwrap();
+    store.finish(&partner, Ok(reply("Hola."))).unwrap();
+    let reaction = store.dispatch().unwrap().unwrap();
+    for _ in 0..2 {
+        store
+            .finish(&reaction, Ok(result("coach_reaction", "understood")))
+            .unwrap();
+    }
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT count(*) FROM effort_awards WHERE dimension='partner_understood'",
+                [],
+                |r| r.get::<_, i32>(0)
+            )
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
+        0
+    );
+}
+
+#[test]
+fn clean_feedback_counts_but_incomplete_validation_does_not() {
+    for (items, expected) in [
+        (serde_json::json!([]), 1),
+        (
+            serde_json::json!([{"construct":"unknown_skill","quote":"hola","outcome":"demonstrated","error":null,"rationale":""}]),
+            0,
+        ),
+    ] {
+        let (_dir, mut store, conversation) = setup();
+        store.execute(send(&store, &conversation)).unwrap();
+        store
+            .connection
+            .execute(
+                "DELETE FROM operations WHERE kind NOT IN ('persona_context','coach_feedback')",
+                [],
+            )
+            .unwrap();
+        store.dispatch().unwrap();
+        let work = store.dispatch().unwrap().unwrap();
+        let output = serde_json::json!({"meaning_recovered":"full","items":items}).to_string();
+        for _ in 0..2 {
+            store.finish(&work, Ok(reply(&output))).unwrap();
+        }
+        assert_eq!(
+            store
+                .connection
+                .query_row(
+                    "SELECT count(*) FROM effort_awards WHERE dimension='no_issues_flagged'",
+                    [],
+                    |r| r.get::<_, i32>(0)
+                )
+                .unwrap(),
+            expected
+        );
+    }
+}

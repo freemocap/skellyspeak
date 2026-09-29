@@ -731,7 +731,7 @@ for scope and verification.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current database schema is **40**. There is no backwards-compatibility or
+The current database schema is **43**. There is no backwards-compatibility or
 versioned upgrade framework. Delete and recreate incompatible development data
 in the smallest practical feature scope; UI/code-only changes do not justify a
 reset. Reject unknown, damaged and newer databases explicitly rather than silently

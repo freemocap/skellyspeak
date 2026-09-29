@@ -145,6 +145,60 @@ pub(crate) fn get_skill_evidence(
         snapshot(&store, &target)
     }
 }
+/// One row per catalog language: its XP, saved conversations and lifetime effort
+/// units, for comparing languages without loading every evidence snapshot.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+pub struct LanguageTotals {
+    pub target: String,
+    pub name: String,
+    pub native_name: String,
+    pub language_tag: Option<String>,
+    pub xp: u32,
+    pub conversations: u32,
+    pub partner_understood: u32,
+    pub no_issues_flagged: u32,
+    pub revisions_sent: u32,
+    pub practice_attempts: u32,
+}
+#[tauri::command]
+pub(crate) fn get_language_totals(
+    state: tauri::State<'_, Arc<crate::application::Application>>,
+) -> Result<Vec<LanguageTotals>> {
+    let store = state.lock()?;
+    language_totals(&store)
+}
+fn language_totals(store: &Store) -> Result<Vec<LanguageTotals>> {
+    let mut rows = vec![];
+    for language in store.snapshot()?.languages {
+        let evidence = snapshot(store, &language.id)?;
+        let count = |value: &Value, field: &str| {
+            value
+                .as_u64()
+                .and_then(|n| u32::try_from(n).ok())
+                .ok_or_else(|| {
+                    AppError::new(
+                        ErrorCode::Validation,
+                        format!("Language totals have no valid {field}."),
+                    )
+                })
+        };
+        let effort = crate::learning::effort::read(&store.connection, &language.id)?;
+        rows.push(LanguageTotals {
+            xp: count(&evidence["profile"]["xp"], "XP")?,
+            conversations: count(&evidence["conversation_count"], "conversation count")?,
+            target: language.id,
+            name: language.name,
+            native_name: language.native_name,
+            language_tag: language.language_tag,
+            partner_understood: effort.partner_understood,
+            no_issues_flagged: effort.no_issues_flagged,
+            revisions_sent: effort.revisions_sent,
+            practice_attempts: effort.practice_attempts,
+        });
+    }
+    Ok(rows)
+}
 #[tauri::command]
 pub(crate) fn get_practice_overview(
     state: tauri::State<'_, Arc<crate::application::Application>>,
@@ -234,4 +288,30 @@ pub(crate) fn focus_from_snapshot(
     Ok(
         json!({"id":focus,"label":node["label"],"opportunity":node["description"],"source":if chosen {"learner"} else {"recommended"},"reason":if chosen {"Chosen by the learner."} else {"Skill with the least recorded experience."}}),
     )
+}
+#[cfg(test)]
+mod language_totals_tests {
+    use super::*;
+    #[test]
+    fn every_language_reports_its_own_xp_and_effort() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::open(&dir.path().join("totals.sqlite3")).unwrap();
+        store
+            .connection
+            .execute(
+                "INSERT INTO effort_awards(id,dimension,source_id,language_id,variety_id,conversation_id,policy) VALUES('a','practice_attempts','take','spanish','spanish-spain',NULL,'test')",
+                [],
+            )
+            .unwrap();
+        let rows = language_totals(&store).unwrap();
+        assert_eq!(rows.len(), store.snapshot().unwrap().languages.len());
+        let spanish = rows.iter().find(|row| row.target == "spanish").unwrap();
+        assert_eq!(spanish.language_tag.as_deref(), Some("es"));
+        assert_eq!((spanish.practice_attempts, spanish.xp), (1, 0));
+        assert!(
+            rows.iter()
+                .filter(|row| row.target != "spanish")
+                .all(|row| row.practice_attempts == 0)
+        );
+    }
 }

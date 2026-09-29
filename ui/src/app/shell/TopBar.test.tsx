@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { TopBar } from './TopBar'
 import { useConnectionHealth } from '../../state/session/connection-health'
@@ -11,6 +11,10 @@ import { useAiWindowStore } from '../../state/navigation/ai-window'
 import { useAiBusyStore } from '../../state/session/ai-busy'
 
 vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
+vi.mock('../../platform/ipc/skill-evidence', () => ({ getLanguageTotals: vi.fn(async () => [
+  { target: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: 12, conversations: 2, partnerUnderstood: 1, noIssuesFlagged: 1, revisionsSent: 0, practiceAttempts: 3 },
+  { target: 'french', name: 'French', nativeName: 'Français', languageTag: 'fr', xp: 30, conversations: 1, partnerUnderstood: 0, noIssuesFlagged: 0, revisionsSent: 0, practiceAttempts: 0 },
+]) }))
 const windowApi = vi.hoisted(() => ({ openAiWindow: vi.fn() }))
 vi.mock('../../platform/ipc/window', () => ({ ...windowApi, aiWindowState: async () => ({ supported: true, open: false }) }))
 vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
@@ -134,4 +138,43 @@ it('focuses the popped-out AI window instead of opening a second view', () => {
   expect(windowApi.openAiWindow).toHaveBeenCalledOnce()
   expect(useNavigationStore.getState().overlay).toBeNull()
   useAiWindowStore.setState({ supported: false, open: false })
+})
+it('opens the progress card first and the full report on the second press', () => {
+  render(<TopBar />)
+  const progress = screen.getByRole('button', { name: 'Language progress' })
+  fireEvent.click(progress)
+  expect(screen.getByRole('dialog', { name: 'All languages' })).toBeVisible()
+  expect(useNavigationStore.getState().overlay).not.toBe('profile')
+  fireEvent.click(progress)
+  expect(screen.queryByRole('dialog', { name: 'All languages' })).toBeNull()
+  expect(useNavigationStore.getState().overlay).toBe('profile')
+})
+it('shows the progress card on mouse hover, where a click then opens the full report', async () => {
+  vi.useFakeTimers()
+  render(<TopBar />)
+  const progress = screen.getByRole('button', { name: 'Language progress' })
+  fireEvent.pointerEnter(progress.parentElement!, { pointerType: 'mouse' })
+  expect(screen.getByRole('dialog', { name: 'All languages' })).toBeVisible()
+  fireEvent.pointerLeave(progress.parentElement!, { pointerType: 'mouse' })
+  act(() => { vi.advanceTimersByTime(300) })
+  expect(screen.queryByRole('dialog', { name: 'All languages' })).toBeNull()
+  fireEvent.pointerEnter(progress.parentElement!, { pointerType: 'mouse' })
+  fireEvent.click(progress)
+  expect(useNavigationStore.getState().overlay).toBe('profile')
+  vi.useRealTimers()
+})
+it('ignores touch hover so a tap opens the card', () => {
+  render(<TopBar />)
+  const progress = screen.getByRole('button', { name: 'Language progress' })
+  fireEvent.pointerEnter(progress.parentElement!, { pointerType: 'touch' })
+  expect(screen.queryByRole('dialog', { name: 'All languages' })).toBeNull()
+  fireEvent.click(progress)
+  expect(screen.getByRole('dialog', { name: 'All languages' })).toBeVisible()
+})
+it('shows the total across languages behind a globe, and lists every language in the card', async () => {
+  render(<TopBar />)
+  expect(await screen.findByLabelText('Total XP: 42')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Language progress' }))
+  const card = screen.getByRole('dialog', { name: 'All languages' })
+  expect(within(card).getAllByRole('row').slice(1).map(row => within(row).getByRole('rowheader').textContent)).toEqual(['FRFrench', 'ESSpanish'])
 })

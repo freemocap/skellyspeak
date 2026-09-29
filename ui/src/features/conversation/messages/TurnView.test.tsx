@@ -525,7 +525,8 @@ it('keeps the feedback line under the learner message in every feedback state wi
   expect(message).toHaveClass('with-actions')
   const badge = screen.getByRole('button', { name: 'Coach feedback for message 1' })
   expect(badge.closest('.learner-turn')).toBe(message.closest('.learner-turn'))
-  expect(badge).toHaveTextContent('Good job')
+  expect(badge).toHaveTextContent('Feedback')
+  expect(badge).not.toHaveTextContent('Clean')
   expect(badge.querySelector('.coach-meter')).toBeNull()
 })
 
@@ -610,4 +611,13 @@ it('selects the learner and partner separately without capturing embedded word o
   view.rerender(<TurnView {...input} onSelectMessage={onSelectMessage} selectedSide="assistant" />)
   expect(partner).toHaveAttribute('aria-current', 'true')
   expect(learner).not.toHaveClass('focused')
+})
+it('marks a resent fix, but not an original message or one being fixed', () => {
+  const input = props()
+  const view = render(<TurnView {...input} />)
+  expect(screen.queryByText('Fixed')).toBeNull()
+  view.rerender(<TurnView {...input} turn={{ ...input.turn, replacesTurnId: 'earlier' }} />)
+  expect(screen.getByText('Fixed')).toBeVisible()
+  view.rerender(<TurnView {...input} turn={{ ...input.turn, replacesTurnId: 'earlier' }} editing />)
+  expect(screen.queryByText('Fixed')).toBeNull()
 })

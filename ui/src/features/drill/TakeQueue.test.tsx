@@ -6,7 +6,7 @@ import { TakeQueue } from './TakeQueue'
 import type { DrillAttemptView, ListeningTake } from '../../generated/contracts'
 const take: ListeningTake = { recordingId: 'r1', number: 1, startSeconds: 1, endSeconds: 3, cutSeconds: 4, state: 'queued', failure: null }
 const attempt: DrillAttemptView = {
-  id: 'a1', visitId: null, transcriptionAttemptId: 'r1', sequence: 1n, transcript: 'hola', createdAt: '2026-09-23T10:00:00Z', audioPrunedAt: null, audioBytes: null,
+  id: 'a1', visitId: null, transcriptionAttemptId: 'r1', countedAsPractice: false, sequence: 1n, transcript: 'hola', createdAt: '2026-09-23T10:00:00Z', audioPrunedAt: null, audioBytes: null,
   comparison: { policy: 'drill-comparison-v1', target: 'hola', transcript: 'hola', normalizations: [], normalizedTarget: 'hola', normalizedTranscript: 'hola', referenceGraphemes: 4, characterErrorRate: 0, edits: 0, matchRatio: 1, scriptNote: 'matches', words: [{ kind: 'same', target: 'hola', transcript: 'hola', similarity: null }] },
 }
 function view(takes: ListeningTake[], attempts: DrillAttemptView[] = []) {

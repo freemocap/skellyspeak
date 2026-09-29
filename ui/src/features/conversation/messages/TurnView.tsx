@@ -35,6 +35,7 @@ export interface TurnShape {
   replyState?: import('../../../domain/conversation/reply-state').ReplyState
   execution?: import('../../../generated/contracts').TurnView
   turnId?: string
+  replacesTurnId?: string | null
   replacedBy?: string | null
   userSavedGloss?: import('../../../generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
@@ -181,6 +182,7 @@ export const TurnView = memo(function TurnView({
       {turn.user && (
         <div className="learner-turn">
           {editing && <span className="learner-turn-editing"><ToolbarIcon name="edit" size={12} />{tr("Fixing this message")}</span>}
+          {!editing && turn.replacesTurnId && <span className="learner-turn-edited"><ToolbarIcon name="fixes" size={13} />{tr("Fixed")}</span>}
           <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
             reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
             bubble={analysisTool => (

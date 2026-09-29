@@ -212,15 +212,8 @@
 .message-xp { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-xs); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--progress-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-mono); font-variant-numeric: tabular-nums; cursor: pointer; }
 .message-xp svg { color: var(--progress-mark); }
 .message-xp:hover { background: var(--progress-tint); }
-.message-feedback-line .message-fixed { margin: 0; }
 @media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-xp, .feedback-fix { min-height: var(--touch-target); } }
 
-.message-fixed {
-  display: block;
-  color: var(--success-ink);
-  font-size: var(--type-meta);
-  margin-top: var(--space-3);
-}
 
 .message-feedback { align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; max-width: 85%; min-width: 0; }
 /* Toggles show state with colour (above), not checkbox glyphs. */
@@ -252,3 +245,5 @@
 .stream[data-editing] .turn-stack[data-editing] > :not(.learner-turn) { opacity: .5; transition: opacity var(--dur-fast) var(--ease-out); }
 .turn-stack[data-editing] .learner-turn .msg.chat-message.me { outline: var(--border-width-strong) dashed var(--coach-mark); outline-offset: var(--space-2); }
 .learner-turn-editing { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: var(--coach-ink); color: var(--sheet); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); }
+/* A resent edit keeps a quiet marker; the replaced original is not shown. */
+.learner-turn-edited { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); }

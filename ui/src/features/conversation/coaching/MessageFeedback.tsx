@@ -18,7 +18,7 @@ import { useUiDirection } from '../../../components/localization/useUiDirection'
 /** The coach's feedback on one of the learner's messages. `bubble` draws the
  * message with its tools and receives the Analysis tool, which opens this
  * feedback; under the bubble, one quiet line holds the verdict (how many
- * errors the coach flagged, or Good job), Fix it and `reward` (the message's
+ * errors the coach flagged, or Clean), Fix it and `reward` (the message's
  * XP). The verdict opens the same feedback. */
 export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, bubble, reward, analysis, skills, onRetry, feedbackContext, onAddContext }: {
   feedbackContext?: string
@@ -70,19 +70,18 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   const askCoach = (question: string) => { close(); onAsk(question) }
   const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
   const label = decision ? tr("Feedback") : null
-  // The badge counts the phrases the coach flagged; with none, and a message it fully understood, it says so.
+  // The badge counts the phrases the coach flagged; with none, and a message it fully understood, it marks it clean.
   const flags = coachFlags(feedback, decision)
   const judged = Boolean(conversationFeedback || (decision && feedback))
-  const clear = flags.length === 0 && decision?.repairStatus !== 'uncertain' && (feedback?.meaningRecovered ?? 'full') === 'full'
+  const clear = Boolean(feedback && decision && !decision.shown && !feedback.corrections.length && !feedback.notes.length && !feedback.items.some(item => item.outcome === 'partial' || item.outcome === 'not_demonstrated') && decision.repairStatus !== 'uncertain' && feedback.meaningRecovered === 'full')
   const verdict = flags.length ? 'errors' : clear ? 'clear' : 'open'
   return <>
     {bubble({ key: 'analysis', label: tr("Analysis"), ariaLabel: tr("Analyze your message"), opensDialog: true, disabled: busy, onSelect: () => void openCard() })}
     <div className="message-feedback-line" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
-    {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
     <button type="button" data-feedback-state={error ? 'failed' : judged ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${error ? ' feedback-error' : ''}`} data-verdict={judged && !error ? verdict : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
         {error ? tr("Feedback failed") : judged ? <>
-          {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'thumbs-up'} size={14} />}
-          <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Good job") : tr("Feedback")}</span>
+          {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'clean'} size={14} />}
+          <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Clean") : tr("Feedback")}</span>
         </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
       </button>
     {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={13} />{tr("Fix it")}</button>}

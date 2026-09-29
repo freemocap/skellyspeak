@@ -397,3 +397,8 @@
   .topbar-actions .profile-unit, .connection-setup .connection-short-label { display: none; }
   .connection-setup { min-width: 0; padding-inline: var(--space-3); }
 }
+
+/* The progress button shows language XP only; effort sits behind its card. */
+.topbar-actions .profile-trigger.progress-trigger { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); border-color: var(--progress-line); background: var(--progress-tint); }
+.topbar-actions .profile-trigger.progress-trigger:hover, .topbar-actions .profile-trigger.progress-trigger[aria-expanded="true"] { border-color: var(--progress-mark); }
+@media (max-width: 480px) { .topbar-actions .profile-trigger.progress-trigger { padding-inline: var(--space-3); } }

@@ -53,7 +53,7 @@ const inspection = {
 }
 const attempt = (overrides: Partial<DrillAttemptView> = {}): DrillAttemptView => ({
   id: 'attempt-1', sequence: 1n, transcript: 'quisiera un cafe', audioBytes: 12n, audioPrunedAt: null,
-  transcriptionAttemptId: 'recording-1', createdAt: '2026-09-22T12:00:00.000Z',
+  transcriptionAttemptId: 'recording-1', countedAsPractice: false, createdAt: '2026-09-22T12:00:00.000Z',
   comparison: {
     policy: 'drill-comparison-v1', target: 'Quisiera un café.', transcript: 'quisiera un cafe',
     normalizations: ['lowercase', 'strip_punctuation'], normalizedTarget: 'quisiera un café',

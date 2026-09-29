@@ -1,47 +1,72 @@
-const PATHS = {
-  reload: <><path d="M20 7v5h-5" /><path d="M19 12a7 7 0 1 0-2 5M20 12l-3-5" /></>,
-  settings: <><path d="M4 7h5m4 0h7M4 17h9m4 0h3" /><circle cx="11" cy="7" r="2" /><circle cx="15" cy="17" r="2" /></>,
-  profile: <><circle cx="12" cy="8" r="3" /><path d="M5 21v-3a7 7 0 0 1 14 0v3" /></>,
-  menu: <path d="M4 6h16M4 12h16M4 18h16" />,
-  more: <><circle cx="5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /></>,
-  star: <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />,
-  appearance: <><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" /></>,
-  reading: <><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z" /><path d="M4 19V5" /></>,
-  key: <><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9M17 6l3 3" /></>,
-  models: <><rect x="6" y="6" width="12" height="12" rx="2" /><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" /></>,
-  globe: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></>,
-  voice: <><path d="M11 5 6 9H3v6h3l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></>,
-  keyboard: <><rect x="2" y="6" width="20" height="12" rx="2" /><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" /></>,
-  update: <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />,
-  data: <><ellipse cx="12" cy="5" rx="8" ry="3" /><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" /></>,
-  close: <path d="M6 6l12 12M18 6 6 18" />,
-  cog: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></>,
-  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
-  moon: <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />,
-  idea: <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" />,
-  plus: <path d="M12 5v14M5 12h14" />,
-  check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
-  'deck-add': <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /><path d="M9.5 10.5v6M6.5 13.5h6" /></>,
-  'deck-added': <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /><path d="m6.5 13.8 2 2 4-4.3" /></>,
-  chat: <path d="M4 5h16v11H9l-5 4z" />,
-  cards: <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /></>,
-  mic: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></>,
-  pause: <path d="M8 5v14M16 5v14" />,
-  stop: <rect x="7" y="7" width="10" height="10" rx="2" />,
-  play: <path d="M8 5.5v13l10.5-6.5z" />,
-  trash: <path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" />,
-  chevron: <path d="m6 9 6 6 6-6" />,
-  expand: <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />,
-  collapse: <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />,
-  popout: <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />,
-  popin: <path d="M21 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4M21 21l-7-7M14 20v-6h6" />,
-  waveform: <path d="M3 11v2M7 8v8M11 4v16M15 7v10M19 10v4" />,
-  'thumbs-up': <><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z" /><path d="m7 10 4-7a2.5 2.5 0 0 1 3 3l-1 4h5.5a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.3 21H7" /></>,
-  edit: <><path d="M16.2 3.8a2.5 2.5 0 0 1 3.5 3.5L8.5 18.5 4 20l1.5-4.5z" /><path d="m14.5 5.5 4 4" /></>,
+import {
+  AudioLines, BicepsFlexed, BookOpen, Check, ChevronDown, CircleCheck, Cpu,
+  Database, Download, Ellipsis, ExternalLink, Globe, KeyRound,
+  Keyboard, Lightbulb, Maximize2, Menu, MessageSquare, Mic,
+  Minimize2, Moon, PanelTopClose, Pause, Pencil, Play,
+  Plus, RotateCw, Settings, SlidersHorizontal, Smile, Square,
+  Star, Sun, Trash2, TriangleAlert, UserRound, Volume2,
+  X
+} from 'lucide-react'
+
+const LIBRARY_ICONS = {
+  smile: Smile,
+  practice: BicepsFlexed,
+  clean: CircleCheck,
+  alert: TriangleAlert,
+  reload: RotateCw,
+  settings: SlidersHorizontal,
+  profile: UserRound,
+  menu: Menu,
+  more: Ellipsis,
+  star: Star,
+  reading: BookOpen,
+  key: KeyRound,
+  models: Cpu,
+  globe: Globe,
+  voice: Volume2,
+  keyboard: Keyboard,
+  update: Download,
+  data: Database,
+  close: X,
+  cog: Settings,
+  sun: Sun,
+  moon: Moon,
+  idea: Lightbulb,
+  plus: Plus,
+  check: Check,
+  chat: MessageSquare,
+  mic: Mic,
+  pause: Pause,
+  stop: Square,
+  play: Play,
+  trash: Trash2,
+  chevron: ChevronDown,
+  expand: Maximize2,
+  collapse: Minimize2,
+  popout: ExternalLink,
+  popin: PanelTopClose,
+  waveform: AudioLines,
+  edit: Pencil,
 }
 
-export type ToolbarIconName = keyof typeof PATHS
+// Deliberate custom variants retained after icon review.
+const PATHS = {
+  appearance: <><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" /></>,
+  'deck-add': <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /><path d="M9.5 10.5v6M6.5 13.5h6" /></>,
+  'deck-added': <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /><path d="m6.5 13.8 2 2 4-4.3" /></>,
+  cards: <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /></>,
+  // Lucide's hammer with a sparkle where it strikes: fixing a message is work worth counting.
+  fixes: <><path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9" /><path d="m18 15 4-4" /><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5" /><path d="M19.5 16.5c.35 1.75 1.25 2.65 3 3-1.75.35-2.65 1.25-3 3-.35-1.75-1.25-2.65-3-3 1.75-.35 2.65-1.25 3-3z" /></>,
+  // Lucide has no confused face: the smile's face, a wavering mouth and a question mark.
+  confused: <><circle cx="10.5" cy="13.5" r="8" /><path d="M8 12h.01M13 12h.01" /><path d="M6.9 17c.75-.65 1.45-.65 2.2 0s1.45.65 2.2 0 1.45-.65 2.2 0" /><path d="M17.3 3.4a2.3 2.3 0 1 1 3.1 2.2c-.6.3-.9.8-.9 1.4" /><path d="M19.5 9.6h.01" /></>,
+}
+
+export type ToolbarIconName = keyof typeof PATHS | keyof typeof LIBRARY_ICONS
 
 export function ToolbarIcon({ name, size = 17 }: { name: ToolbarIconName; size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{PATHS[name]}</svg>
+  if (name in LIBRARY_ICONS) {
+    const Icon = LIBRARY_ICONS[name as keyof typeof LIBRARY_ICONS]
+    return <Icon size={size} strokeWidth={1.7} aria-hidden="true" />
+  }
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{PATHS[name as keyof typeof PATHS]}</svg>
 }

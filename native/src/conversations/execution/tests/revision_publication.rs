@@ -43,6 +43,17 @@ fn deleting_revised_conversation_removes_chain_and_credit_but_keeps_generation_r
     assert_eq!(
         store
             .connection
+            .query_row(
+                "SELECT count(*) FROM effort_awards WHERE dimension='revisions_sent'",
+                [],
+                |r| r.get::<_, i32>(0)
+            )
+            .unwrap(),
+        1
+    );
+    assert_eq!(
+        store
+            .connection
             .query_row("SELECT count(*) FROM turns", [], |r| r.get::<_, i32>(0))
             .unwrap(),
         0

@@ -1,3 +1,5 @@
+import { EffortProgressContext } from '../state/learning/EffortProgressContext'
+import { useEffortProgress } from '../state/learning/useEffortProgress'
 import { onReadingQuestion } from '../platform/ipc/window'
 import { OnboardingSetup } from '../features/settings/onboarding/OnboardingSetup'
 import { Tour } from './tour/Tour'
@@ -8,7 +10,7 @@ import { CredentialCleanup } from '../features/startup/CredentialCleanup'
 import { I18nProvider } from '../components/localization/i18n'
 import { useEffect } from 'react'
 import { useIsMobile } from '../components/layout/useIsMobile'
-import { useLoadSkillEvidence } from '../state/learning/useSkillEvidence'
+import { useLoadSkillEvidence, useSkillEvidence } from '../state/learning/useSkillEvidence'
 import { useSkillNavigationStore } from '../state/navigation/skill-navigation'
 import { useNavigationStore } from '../state/navigation/navigation'
 import { useSettingsStore } from '../state/settings/settings'
@@ -72,6 +74,8 @@ export function AppShell() {
   useConnectionHealthChecks()
   useAiWindowSync()
   useLoadSkillEvidence()
+  const evidence = useSkillEvidence()
+  const effort = useEffortProgress(settings?.target_language ?? '', evidence.snapshot)
   useAppShortcuts(shortcuts)
   useEffect(() => {
     let closed = false
@@ -88,7 +92,7 @@ export function AppShell() {
   if (onboarding?.onboardingRequired) return <I18nProvider locale={onboarding.interfaceLocale}><ReadingTools settings={settings} onAsk={null} defaultScope={{ language: onboarding.onboardingLanguage ?? 'english', variety: null, explanation: onboarding.explanationLanguage, explanationVariety: onboarding.explanationVarietyId }}><OnboardingSetup /></ReadingTools></I18nProvider>
 
   return (
-    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><div className="app" data-place={place}>
+    <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><EffortProgressContext value={effort}><div className="app" data-place={place}>
       <UpdateBanner />
 
       <TopBar />
@@ -101,6 +105,6 @@ export function AppShell() {
       <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? showOverlay('activity') : closeOverlay()} />
       {overlay === 'settings' && <SettingsModal onClose={closeOverlay} onBusyChange={setSettingsBusy} />}
       {TOUR_ENABLED && onboarding?.onboardingHelp && <Tour />}
-    </div></ReadingTools></I18nProvider>
+    </div></EffortProgressContext></ReadingTools></I18nProvider>
   )
 }

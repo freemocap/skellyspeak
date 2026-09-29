@@ -7,7 +7,7 @@ import type { DrillAttemptView } from '../../generated/contracts'
 
 const attempt = (sequence: number): DrillAttemptView => ({
   id: `attempt-${sequence}`, sequence: BigInt(sequence), transcript: 'quisiera un cafe', audioBytes: 12n, audioPrunedAt: null,
-  transcriptionAttemptId: `recording-${sequence}`, createdAt: '2026-09-22T12:00:00.000Z',
+  transcriptionAttemptId: `recording-${sequence}`, countedAsPractice: false, createdAt: '2026-09-22T12:00:00.000Z',
   comparison: {
     policy: 'drill-comparison-v1', target: 'Quisiera un café.', transcript: 'quisiera un cafe',
     normalizations: ['lowercase'], normalizedTarget: 'quisiera un café', normalizedTranscript: 'quisiera un cafe',
@@ -118,4 +118,11 @@ it('uses the result color for exact, unmatched, partial and unscored attempts', 
     expect(view.container.querySelector('.drill-history-entry[data-expanded]')).toHaveAttribute('data-result', result)
     view.unmount()
   }
+})
+
+it('ends a take that counted as practice with a + biceps mark, and only that take', () => {
+  renderRows({ attempts: [{ ...attempt(2), countedAsPractice: true }, attempt(1)] })
+  const [counted, other] = rows()
+  expect(within(counted).getByRole('img', { name: 'Counted as practice' })).toHaveTextContent('+')
+  expect(within(other).queryByRole('img', { name: 'Counted as practice' })).toBeNull()
 })
