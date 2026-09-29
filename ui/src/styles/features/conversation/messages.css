@@ -18,7 +18,7 @@
   border-bottom-left-radius: var(--radius-sm); color: var(--ink); cursor: pointer; position: relative;
 }
 
-.msg.bot.focused { border-color: var(--ink-3); }
+
 
 .msg.me {
   align-self: flex-end; background: var(--bubble-learner-bg); color: var(--ink);
@@ -165,8 +165,11 @@
 .msg.chat-message.me::before { background: var(--bubble-learner-line); }
 .msg.chat-message.me::after { background: var(--bubble-learner-bg); }
 
-.msg.chat-message.bot.focused { border-color: var(--interaction-ink); }
-.msg.chat-message.bot.focused::before { background: var(--interaction-ink); }
+/* Inset emphasis keeps selection from moving text or changing bubble dimensions. */
+.msg.chat-message.focused { box-shadow: inset 0 0 0 var(--border-width) var(--bubble-partner-line), 0 var(--space-2) var(--space-11) color-mix(in srgb, var(--coach-mark) 45%, transparent); }
+.msg.chat-message.me.focused { box-shadow: inset 0 0 0 var(--border-width) var(--bubble-learner-line), 0 var(--space-2) var(--space-11) color-mix(in srgb, var(--coach-mark) 45%, transparent); }
+.msg.chat-message[tabindex] { cursor: pointer; }
+.msg.chat-message[tabindex]:focus-visible { outline: var(--border-width-strong) solid var(--coach-mark); outline-offset: var(--space-2); }
 
 
 /* The learner's message and, under it, one quiet line: the coach's verdict on

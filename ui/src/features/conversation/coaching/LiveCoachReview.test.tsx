@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { StoredTurn } from '../../../types'
 import { LiveCoachReview } from './LiveCoachReview'
@@ -41,4 +41,12 @@ it('shows direct correction and explanation without an answer-reveal step', asyn
   view.rerender(<LiveCoachReview turn={{ ...turn, coachDecision: { ...turn.coachDecision, exposedMove: 'explicit' } }} visible onControl={control} nativeLanguageName="English" rtl={false} onEdit={edit} />)
   screen.getByRole('button', { name: 'Fix and resend' }).click()
   expect(edit).toHaveBeenCalledOnce()
+})
+
+it('browsing a selected message requires explicit disclosure of an unseen hint', () => {
+  const control = vi.fn().mockResolvedValue(undefined)
+  render(<LiveCoachReview turn={makeTurn(1, 'Reply')} visible revealOnView={false} onControl={control} nativeLanguageName="English" rtl={false} onEdit={undefined} />)
+  expect(control).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'View coaching help' }))
+  expect(control).toHaveBeenCalledExactlyOnceWith('open_card')
 })

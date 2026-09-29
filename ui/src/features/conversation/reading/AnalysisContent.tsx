@@ -21,6 +21,7 @@ import type { StoredTurn } from '../../../types'
 export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation' | 'turnId'>
 
 interface AnalysisContentProps {
+  partnerOnly?: boolean
   conversationId?: string
   onAsk?: (question: string) => void
   turn: AnalysedTurn
@@ -33,6 +34,7 @@ interface AnalysisContentProps {
 /// gloss lists, grammar mechanics, and the analysis Q&A thread.
 export const AnalysisContent = memo(function AnalysisContent({
   turn,
+  partnerOnly = false,
   conversationId,
   onAsk,
   nativeLanguageName,
@@ -61,7 +63,7 @@ export const AnalysisContent = memo(function AnalysisContent({
   const quoteTranslation = (quote: string) => quote === a?.reply ? a.translation
     : quote === turn.user ? turn.userTranslation ?? a?.user_translation ?? null : null
   if (!a) return <>
-    {turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} translation={turn.userTranslation} />}
+    {!partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} translation={turn.userTranslation} />}
     <p className="center-note">{tr("No partner reply yet.")}</p>
   </>
 
@@ -72,7 +74,7 @@ export const AnalysisContent = memo(function AnalysisContent({
           {tr("⟳ Analyzing grammar…")}</p>
       )}
 
-      {turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={turn.userTranslation ?? a.user_translation} />}
+      {!partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={turn.userTranslation ?? a.user_translation} />}
       <AnalysisSentence label={tr("Partner replied")} side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={a.translation} />
 
       {!a.help && a.explanationsError && <ErrorDetails label={tr("Message analysis")} errorKey={a.explanationsError}>{a.explanationsError}</ErrorDetails>}
@@ -90,7 +92,7 @@ export const AnalysisContent = memo(function AnalysisContent({
           onInspect={conversationId ? () => useNavigationStore.getState().inspectAi({conversationId, turnId:turn.turnId ?? null, operationKind:'reply_explanations'}) : undefined} />
         {a.help?.grammar?.cards.length === 0 && lane.state === 'succeeded' && <p>{tr('Nothing to flag in this reply.')}</p>}
       </>}
-      {turn.user && <MessageSkillAnalysis messageId={turn.id} source={turn.user} conversationId={conversationId} />}
+      {!partnerOnly && turn.user && <MessageSkillAnalysis messageId={turn.id} source={turn.user} conversationId={conversationId} />}
       {a.mechanics.length > 0 && (
         <>
           <p className="sect-k">{tr("What's happening")}</p>

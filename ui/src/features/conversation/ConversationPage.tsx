@@ -1,3 +1,4 @@
+import { AnalysisSentence } from './reading/AnalysisSentence'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
@@ -103,6 +104,7 @@ export default function ConversationPage({
   const selectionVersion = useSkillNavigationStore((state) => state.sequence)
   const skillSelection = useSkillNavigationStore((state) => state.selected)
   const selectSkill = useSkillNavigationStore((state) => state.select)
+  const [selectedMessage, setSelectedMessage] = useState<{ id: number; side: 'user' | 'assistant' } | null>(null)
   const [pinnedId, setPinnedId] = useState<number | null>(null)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -160,6 +162,7 @@ export default function ConversationPage({
   /// themselves are set by whoever swapped them.
   const resetView = useCallback(() => {
     setPinnedId(null)
+    setSelectedMessage(null)
     setCoachDraft('')
     setReviewing(new Set())
     setError(null)
@@ -442,7 +445,15 @@ export default function ConversationPage({
     await executeAction(snapshot, { kind: 'coachControl', turnId, control })
   }
   const editChanges = editingTurn?.user != null ? revisionChanges(editingTurn.user, input) : 0
-  const coachedTurn = activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
+  const selectedTurn = activeTurns.find(turn => turn.id === selectedMessage?.id)
+  useEffect(() => { if (selectedMessage && !selectedTurn) setSelectedMessage(null) }, [selectedMessage, selectedTurn])
+  const selectMessage = (id: number, side: 'user' | 'assistant'): void => {
+    setSelectedMessage({ id, side })
+    setPanelTab('coaching')
+    if (!breakOpen) toggleBreak()
+    if (isMobile) useNavigationStore.getState().openPractice('panel')
+  }
+  const coachedTurn = selectedTurn ?? activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
   const editBlocked = acceptingSend.current || acceptedEditSource !== null
   const canEdit = (turn: TurnShape): boolean => Boolean(turn.turnId) && turn.user !== null
   /** Puts a sent message in the composer; sending replaces it. */
@@ -672,6 +683,8 @@ export default function ConversationPage({
               onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
               onAskCoach={askCoach}
+              onSelectMessage={selectMessage}
+              selectedSide={selectedTurn?.id === turn.id ? selectedMessage?.side : undefined}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
@@ -736,10 +749,12 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{!isMobile && replyHelp}<LiveCoachReview turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+          coachingContent={<>{!isMobile && !selectedTurn && replyHelp}{selectedTurn && selectedMessage?.side === 'assistant' ? <AnalysisContent partnerOnly key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
+          {selectedTurn?.user && <AnalysisSentence label={tr("Your message")} text={selectedTurn.user} gloss={selectedTurn.userSavedGloss} translation={selectedTurn.userTranslation} />}
+          <LiveCoachReview key={coachedTurn?.id} revealOnView={!selectedTurn} turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')
             await coachControl(coachedTurn.turnId, control)
-          }} /></>}
+          }} /></>}</>}
           chatId={currentChatId}
           conversationBusy={sending || details.saving}
           onCollapse={isMobile ? closeCoach : toggleBreak}

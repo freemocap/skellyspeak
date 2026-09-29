@@ -141,3 +141,36 @@ Popup scrollbar follow-up: the bottom-positioned coach button intruded into the 
 Tab refinement: strengthened inactive Chat/Practice outlines with a mix of secondary ink and the existing line token. Reduced vertical padding and the base minimum height; desktop fixture tabs now measure 47px active and 45px inactive, 3px shorter (about 6%). Coarse-pointer 44px minimum remains intact. Inspected light and dark browser fixtures; style and whitespace checks passed. No commit was made. Message selection/coaching ownership and revision history remain the next substantial tasks.
 
 Recorder footer fit follow-up: removed desktop wrapping and made the microphone slot consume remaining width with a zero flex basis. A named inline-size container hides the slot's contents at 10rem or less (including Refresh), leaving the existing picker available through Recording settings. The query follows actual panel space, including translated sibling controls, rather than a new viewport breakpoint. Existing narrow-screen settings behavior remains. Browser checks at 1200/1000/900px measured a constant 32px footer row and selector widths of approximately 403/203/0px; opening Recording settings at 900px exposed the picker normally. Style, build and whitespace checks passed; the existing bundle advisory remains. No commit or deployment.
+
+## Message selection and coach ownership audit — after v2.6.4
+
+Status: source audit and proposed implementation sequence only. Checkout was clean at `80ce2197` (v2.6.4) before this note. No feature changes in this pass.
+
+Confirmed current behavior:
+
+- ConversationPage keeps a numeric pinned turn ID. Its coachedTurn follows that ID or the latest active turn; its partner analysis follows the pinned/latest answered turn. Selection does not distinguish learner and partner messages within a turn.
+- The partner Analysis action pins a turn and opens a dialog. Learner feedback uses its own MessageFeedback dialog. There is no unified message selection feeding the dock.
+- Saved learner feedback and partner reading/assistance already have source ownership. They do not need regeneration merely to browse another message.
+- CoachAnalysisPanel receives a pinnedTurn prop but does not use it. It displays the conversation snapshot's entire coachMessages list. Its composer, busy/error handling and draft are conversation-scoped.
+- AskCoach currently carries conversation ID, question text and expected revision, with no source-message owner. The native execution context captures the last eight coach messages across the conversation; the snapshot retrieves the last 100. UI filtering alone would not isolate discussions or request context.
+- Ask the coach uses a question string from the outer conversation context. Quoting a word/message in that string is useful content, but does not constitute a durable ownership link.
+- Reply-help composition intentionally follows the latest turn. This must remain distinct from inspection of an older selected message.
+- Revision code preserves private coach turns, but without a source-message link it cannot present them as the discussion of a particular historical wording.
+
+Recommended user behavior, to settle before persistence changes:
+
+1. Selecting either bubble highlights that specific message and opens its appropriate dock content: learner feedback for learner text; saved analysis/grammar/suggestions for partner text. Word taps, audio and action buttons keep their independent behavior. Supply a keyboard-accessible selection action without wrapping nested interactive text in another button.
+2. The dock identifies its source with speaker and a short excerpt. Explicit selection stays put when another reply arrives. Before explicit selection, retain a latest-message default. Changing conversations clears selection; a replaced/deleted selection must visibly resolve, never silently show another message's discussion under the old heading.
+3. Each actual message revision owns its coach discussion. Ask actions from bubbles and word popups carry that owner through draft and submission. Switching selection restores the corresponding discussion and keeps unfinished drafts separate. A response arriving after selection changes stays with the message that initiated it.
+4. General questions and pre-message/start-screen help need an explicit conversation-level destination. Existing unowned history must not be guessed onto messages based on text or recency. Decide its presentation separately from message discussions; no historical ownership inference or migration framework is proposed.
+5. Editing/resending creates a new revision's discussion; older discussion remains with older wording, accessible when revision history is implemented. Simply selecting or viewing old feedback must not award credit or mutate coaching exposure/repair controls.
+
+Implementation sequence:
+
+- First, message-side selection and a clearly identified dock, reusing saved feedback/analysis and preserving latest-reply composition. This is the smaller UI step, but is not complete message-owned coaching on its own.
+- Second, durable source-message ownership through the native command, validation, captured prompt context, publication, snapshots and exports; regenerate contracts from Rust. Filter history, pending/error/retry state and request context by the same owner. Preserve shared command transactions, replay checks and private-coach exclusion from partner context. Review revision/deletion foreign-key behavior before choosing the storage change.
+- Third, read-only revision browsing: earlier wording, current revision indicator and access to the feedback/discussion of that exact revision. No conversation branching.
+
+Targeted verification plan: learner versus partner selection in the same turn; two turns with identical text; independent word/audio controls; keyboard and mobile navigation; selection during an incoming reply; source-bound question drafts; switching messages/conversations during coach work; failure/retry ownership; restart/reload; edits and historical revisions; prompt history isolation; no additional learning credit or implicit feedback disclosure.
+
+Audit baseline verification: fast validation passed (including 13 tooling tests); the matching TurnView and CoachAnalysisPanel suites passed, 52 tests across two files. The requested ConversationPage.test.tsx pattern matched no file. Native ownership/revision suites were inspected, not run. No new behavior or running native application was verified in this audit.

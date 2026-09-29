@@ -1,3 +1,4 @@
+import { bubbleSelection } from './bubble-selection'
 import { AddToDrillButton } from './AddToDrillButton'
 import { MessageTools, type MessageInspect, type MessageTool } from './MessageTools'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -66,6 +67,7 @@ export interface TargetMessageProps {
   inspect?: MessageInspect | null
   /// The open audio inspector, drawn inside the bubble above the tools.
   inspector?: ReactNode
+  onSelect?: () => void
   focused: boolean
   rtl: boolean
 }
@@ -76,7 +78,7 @@ export interface TargetMessageProps {
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
   segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, readAloud = true, side = 'bot',
-  inspect = null, inspector,
+  inspect = null, inspector, onSelect,
 }: TargetMessageProps) {
   const tr = useI18n()
   const preferences = useReadingPreferences()
@@ -177,7 +179,7 @@ export function TargetMessage({
 
   // Meanings that are set to show and still being produced keep their line pitch.
   const aidsReserved = aidsEnabled && known.length === 0 && segmentsPending
-  const bubble = <div className={`msg chat-message ${side} with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${aidsReserved ? ' aids-reserved' : ''}${inspect?.open ? ' inspecting' : ''}`}>
+  const bubble = <div {...bubbleSelection(onSelect, focused, side === 'me' ? tr("Your message") : tr("Partner replied"))} className={`msg chat-message ${side} with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${aidsReserved ? ' aids-reserved' : ''}${inspect?.open ? ' inspecting' : ''}`}>
     {body}{inspector}{actions}{failure}
   </div>
   if (layout === 'bubble') return bubble

@@ -1,3 +1,4 @@
+import { bubbleSelection } from '../../../components/reading/bubble-selection'
 import { MessageSkillAnalysis } from '../reading/MessageSkillAnalysis'
 import { AddToDrillButton } from '../../../components/reading/AddToDrillButton'
 import { MessageTools, type MessageTool } from '../../../components/reading/MessageTools'
@@ -67,6 +68,8 @@ export interface TurnViewProps {
   turn: TurnShape
   reviewing: boolean
   onAskCoach: (question: string) => void
+  selectedSide?: 'user' | 'assistant'
+  onSelectMessage?: (id: number, side: 'user' | 'assistant') => void
   focused: boolean
   ttsReady: boolean
   speaking: boolean
@@ -98,7 +101,7 @@ export const TurnView = memo(function TurnView({
   turn,
   reviewing,
   onAskCoach,
-  focused,
+  focused, selectedSide, onSelectMessage,
   ttsReady,
   speaking,
   speechError,
@@ -182,7 +185,8 @@ export const TurnView = memo(function TurnView({
             reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
             bubble={analysisTool => (
               <div
-                className={`msg chat-message me${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
+                {...bubbleSelection(onSelectMessage ? () => onSelectMessage(turn.id, 'user') : undefined, selectedSide === 'user', tr("Your message"))}
+                className={`msg chat-message me${selectedSide === 'user' ? ' focused' : ''}${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
               >
                 {userSegments.length > 0
                   ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
@@ -234,7 +238,8 @@ export const TurnView = memo(function TurnView({
               if (!partnerInspectorOpen && !partnerSpeech.retained && !partnerSpeech.playing) partnerSpeech.toggle()
             } } : null}
             inspector={partnerSpeech && <MessageSpeechInspection open={partnerInspectorOpen} speech={partnerSpeech} text={assistant.reply} />}
-            focused={focused}
+            onSelect={onSelectMessage ? () => onSelectMessage(turn.id, 'assistant') : undefined}
+            focused={selectedSide === 'assistant' || (!onSelectMessage && focused)}
             rtl={rtl}
           />
         </div>

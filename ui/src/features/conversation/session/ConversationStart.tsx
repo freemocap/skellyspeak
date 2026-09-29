@@ -96,7 +96,8 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
   const disabled = busy || starting !== null || recording || transcribing
   const startDisabled = disabled || !canPartnerStart
   const name = partnerName ?? tr('partner')
-  // A skill focus chooses from recorded experience, so it is offered once there is some.
+  // An unset skill focus is offered once there is recorded practice; a configured
+  // focus remains visible, including the default Coach’s choice in a new chat.
   const recordedPractice = Boolean(snapshot?.profile.skills.some(skill => skill.experience > 0))
   // A topic set in Prompt details goes with the partner's start and the first message, so the summary names it.
   const topic = value.direction.topic

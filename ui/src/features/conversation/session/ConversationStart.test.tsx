@@ -124,7 +124,7 @@ it('keeps the options in a panel that says what they are set to; they only updat
   const { rerender } = render(<ConversationStart {...props} onStart={start} onChange={change} />)
   const toggle = screen.getByRole('button', { name: /^Options/ })
   expect(toggle).toHaveAttribute('aria-expanded', 'false')
-  expect(toggle).toHaveTextContent('Beginner · Any time')
+  expect(toggle).toHaveTextContent('Beginner · Any time frame')
   openOptions()
   fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Time frame' })).getByRole('radio', { name: 'Past events' }))
   expect(change).toHaveBeenLastCalledWith({ ...value, direction: { ...value.direction, timeReference: 'past' } })
@@ -136,7 +136,7 @@ it('keeps the options in a panel that says what they are set to; they only updat
 })
 it('names a topic set in Prompt details beside the options it starts with', () => {
   render(<ConversationStart {...props} value={withTopic({ kind: 'builtin', id: 'food' })} onStart={vi.fn()} />)
-  expect(screen.getByRole('button', { name: /^Options/ })).toHaveTextContent('الطعام والشراب · Beginner · Any time')
+  expect(screen.getByRole('button', { name: /^Options/ })).toHaveTextContent('الطعام والشراب · Beginner · Any time frame')
 })
 it('offers a skill focus once there is recorded practice, and the partner starts with it', async () => {
   const change = vi.fn()
@@ -152,9 +152,16 @@ it('offers a skill focus once there is recorded practice, and the partner starts
   const explore = withTopic({ kind: 'coach', mode: 'explore' })
   expect(change).toHaveBeenLastCalledWith(explore)
   rerender(withPractice(<ConversationStart {...props} value={explore} onStart={start} onChange={change} />))
-  expect(screen.getByRole('button', { name: /^Options/ })).toHaveTextContent('Beginner · Any time · Explore')
+  expect(screen.getByRole('button', { name: /^Options/ })).toHaveTextContent('Beginner · Any time frame · Explore')
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Nūr starts' })))
   expect(start).toHaveBeenCalledExactlyOnceWith(explore)
+})
+it('shows the default coach choice before any practice is recorded', () => {
+  render(<ConversationStart {...props} value={withTopic({ kind: 'coach', mode: 'coachChoice' })} onStart={vi.fn()} />)
+  expect(screen.getByRole('button', { name: /^Options/ })).toHaveTextContent('Beginner · Any time frame · Coach’s choice')
+  openOptions()
+  expect(within(screen.getByRole('radiogroup', { name: 'Skill focus' })).getByRole('radio', { name: 'Coach’s choice' })).toHaveAttribute('aria-checked', 'true')
+  expect(within(screen.getByRole('radiogroup', { name: 'Time frame' })).getByRole('radio', { name: 'Any time' })).toHaveAttribute('aria-checked', 'true')
 })
 it('opens the partner profile and the partner picker from the partner card', () => {
   const about = vi.fn()

@@ -30,7 +30,8 @@ export function skillFocusOf(value: ConversationStartConfig): RecommendationMode
 /** The options on one line, as the folded Options row shows them. */
 export function startOptionsSummary(tr: Translate, value: ConversationStartConfig): string {
   const focus = skillFocusOf(value)
-  return [tr(difficultyLabel(value.difficulty)), tr(TIME_FRAME_LABELS[value.direction.timeReference]), focus && tr(SKILL_FOCUS_LABELS[focus])]
+  const timeFrame = value.direction.timeReference === 'any' ? tr('Any time frame') : tr(TIME_FRAME_LABELS[value.direction.timeReference])
+  return [tr(difficultyLabel(value.difficulty)), timeFrame, focus && tr(SKILL_FOCUS_LABELS[focus])]
     .filter(Boolean).join(' · ')
 }
 
@@ -80,8 +81,8 @@ export function TopicChoices({ value, topics, partnerName, disabled, targetTag, 
 
 /// The settings that shape the opening: difficulty, the time frame and the skill
 /// focus, each a segmented choice, then a skill of the learner's choosing. The
-/// focus chooses from recorded experience, so where there is none yet it stays
-/// hidden unless a focus is already set.
+/// focus uses the skill catalog and recorded experience. An unset focus stays
+/// hidden until there is practice; a configured focus stays visible.
 export function StartOptions({ conversationId, value, disabled, skillFocus, onChange }: {
   conversationId?: string; value: ConversationStartConfig; disabled: boolean; skillFocus: boolean
   onChange: (value: ConversationStartConfig) => void

@@ -39,7 +39,9 @@ pub struct ConversationDirection {
 impl Default for ConversationDirection {
     fn default() -> Self {
         Self {
-            topic: None,
+            topic: Some(TopicChoice::Coach {
+                mode: crate::learning::recommendations::RecommendationMode::CoachChoice,
+            }),
             time_reference: TimeReference::Any,
             use_persona_details: true,
         }
@@ -141,6 +143,15 @@ pub(crate) fn settings(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn new_conversations_default_to_coachs_choice() {
+        assert!(matches!(
+            ConversationDirection::default().topic,
+            Some(TopicChoice::Coach {
+                mode: crate::learning::recommendations::RecommendationMode::CoachChoice
+            })
+        ));
+    }
     #[test]
     fn yaml_is_a_closed_configuration_not_executable_prompt_text() {
         let yaml = "difficulty: beginner\nvarietyId: arabic-levantine\ndirection:\n  topic: {kind: custom, text: 'A family meal'}\n  timeReference: past\n  usePersonaDetails: false\n";
