@@ -363,7 +363,21 @@ see [privacy and data flow](old/notes/privacy.md).
 
 ## Verification
 
+Run `npm run check:fast` before committing. It checks Rust formatting, localization
+catalogs and source usage, unused message candidates, diagnostic policy, styles,
+and the validation tooling's types and regression tests. It needs installed npm
+dependencies and Rust with `rustfmt`, but performs no compilation or live AI calls.
+It reports all failed checks and exits nonzero. Review unused-message candidates
+before deleting translations; dynamic references can require investigation.
+
+Root `npm test` runs this gate automatically before the UI tests. CI runs the same
+gate first; compilation, full test suites and app builds wait for it to pass.
+Android XML validation runs alongside it and also gates the Android build.
+The fast gate does not replace the full verification below or the requirement to
+wait for successful CI before tagging a release.
+
 ```sh
+npm run check:fast
 npm test
 npm run build
 npm run contracts:check

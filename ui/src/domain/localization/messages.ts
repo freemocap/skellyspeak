@@ -1,4 +1,4 @@
-import type { Dict } from './dict'
+import type { Dict } from './dict.ts'
 
 export function placeholders(text: string): string[] {
   return [...new Set([...text.matchAll(/\{([A-Za-z][A-Za-z0-9_]*)\}/g)].map(match => match[1]))].sort()

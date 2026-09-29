@@ -10,6 +10,15 @@ relative to the repository root. Root npm commands delegate frontend work to `ui
 The root lockfile covers that workspace and the tools; the documentation website
 retains its separate package and lockfile.
 
+`npm run check:fast` runs inexpensive source validation before full tests or builds.
+Root `npm test` runs it automatically; CI's `fast-validation` job runs the same
+command before its expensive jobs. It includes Rust formatting, real localization
+catalog/source checks and unused-key auditing, diagnostic policy, styles, tooling
+types and regression tests. Independent failures are collected into one failing
+summary. `npm run check:fast:test` runs the orchestration regressions alone.
+The localization command-line tools accept `--root <directory>` so tests can
+validate disposable source trees without changing the checkout's dictionaries.
+
 `test-fixtures/` contains fixtures shared by native/UI tests and the device runner.
 `e2e/` contains explicit device tests. Live provider runs are not part of layout
 verification. `npm run benchmarks:test` runs offline screening and schema-portability checks.

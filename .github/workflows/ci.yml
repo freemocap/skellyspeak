@@ -28,7 +28,28 @@ jobs:
             echo "Full CI suite required." >> "$GITHUB_STEP_SUMMARY"
           fi
 
+  # Run inexpensive source checks before allocating compilation/build jobs.
+  fast-validation:
+    if: ${{ inputs.skip_validation != true }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: rustfmt
+      - run: npm ci
+      - run: npm run check:fast
+
   frontend:
+    needs: fast-validation
     if: ${{ inputs.skip_validation != true }}
     runs-on: windows-latest
     steps:
@@ -41,16 +62,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm ci --prefix docs/docs-site
-      - run: npm run diagnostics:check
-      - run: npm test
-      - run: npm run localization:test
-      - run: npm run localization:audit -- --check
+      # Root npm test includes the fast gate; it already passed in its own job.
+      - run: npm run test --workspace @skellyspeak/ui
       - run: npm run benchmarks:test
       - run: npm run e2e:check
       - run: npm run test:reports
       - run: npm run docs:links
       - run: npm run docs:test
-      - run: npm run styles:check
       - run: npm run release:test
       - run: npm run ios:check
       - run: npm run logs:check
@@ -58,6 +76,7 @@ jobs:
       - run: npm run build
 
   ios:
+    needs: fast-validation
     if: ${{ inputs.skip_validation != true }}
     name: iOS simulator build
     runs-on: macos-latest
@@ -90,6 +109,7 @@ jobs:
         run: npm run tauri -- ios build --ci --target aarch64-sim --no-sign --config native/tauri.release.conf.json
 
   rust:
+    needs: fast-validation
     timeout-minutes: 30
     if: ${{ inputs.skip_validation != true }}
     runs-on: windows-latest
@@ -100,7 +120,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           toolchain: stable
-          components: clippy, rustfmt
+          components: clippy
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
           workspaces: native
@@ -111,8 +131,6 @@ jobs:
       - run: cargo test --locked --bin export-contracts
         working-directory: native
       - run: cargo run --locked --bin benchmark_gloss -- export --check
-        working-directory: native
-      - run: cargo fmt -- --check
         working-directory: native
       - run: cargo test --locked --lib
         timeout-minutes: 15
@@ -127,6 +145,7 @@ jobs:
   # had all succeeded. `cargo check` runs build scripts, which is where
   # alsa-sys fails, so it catches this without a full build.
   rust-linux:
+    needs: fast-validation
     if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
@@ -156,6 +175,7 @@ jobs:
   # running them here means a pull request shows the breakage before it lands
   # rather than after.
   server:
+    needs: fast-validation
     if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
@@ -177,6 +197,7 @@ jobs:
         working-directory: server
 
   docs:
+    needs: fast-validation
     if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:
@@ -230,6 +251,7 @@ jobs:
           EOF
 
   android-build:
+    needs: [fast-validation, android-resources]
     if: ${{ inputs.skip_validation != true }}
     runs-on: ubuntu-latest
     steps:

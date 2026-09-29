@@ -2,10 +2,12 @@ import { checkUiSource, missingCatalogMessages } from '../ui/tools/localization/
 import fs from 'node:fs'
 import path from 'node:path'
 import ts from 'typescript'
+import { parseArgs } from 'node:util'
 import { validateLocales } from '../ui/src/domain/localization/messages.ts'
 import type { Dict } from '../ui/src/domain/localization/dict.ts'
 
-const root = path.resolve(import.meta.dirname, '..')
+const { values } = parseArgs({ options: { root: { type: 'string' } } })
+const root = values.root ? path.resolve(values.root) : path.resolve(import.meta.dirname, '..')
 const localeDir = path.join(root, 'ui/src/domain/localization/locales')
 const locales: Record<string, Dict> = {}
 const errors: string[] = []
