@@ -268,7 +268,7 @@
 
 /* Shared message tools: optional labels remain inline until their container
    runs out of room. Play, inspection and owner actions remain directly available. */
-.message-tools { position: relative; align-items: center; }
+.message-tools { position: relative; align-items: center; max-inline-size: 100%; }
 .message-tools-icon {
   display: inline-flex; align-items: center; justify-content: center; flex: none;
   width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0;
@@ -288,10 +288,11 @@
 .message-tools .message-add-drill > svg { width: var(--space-10); height: var(--space-10); }
 .message-tools-more[aria-expanded="true"] { color: var(--ink); background: var(--line-soft); }
 .message-tools-panel {
-  position: absolute; inset-inline-end: 0; top: 100%; z-index: var(--z-popover); display: grid; min-width: 12rem;
-  margin-top: var(--space-2); padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line);
+  position: absolute; inset: auto; z-index: var(--z-popover); display: grid; width: max-content; min-width: 0; overflow-y: auto; box-sizing: border-box;
+  margin: 0; padding: var(--space-2); background: var(--sheet); border: var(--border-width) solid var(--line);
   border-radius: var(--radius-md); box-shadow: var(--shadow-menu);
 }
+.message-tools-panel[popover] { position: fixed; }
 .message-tools-panel[hidden] { display: none; }
 .message-tools-item {
   display: flex; align-items: center; gap: var(--space-4); width: 100%; min-height: var(--control-height); padding: 0 var(--space-4);

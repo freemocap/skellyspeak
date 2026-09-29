@@ -85,6 +85,7 @@ let transcription: TranscriptionInspectionResult
 let runStatus: ListeningStatus
 let manualActive = false
 beforeEach(() => {
+  microphones.mockResolvedValue({ source: 'native', devices: [] })
   localStorage.clear()
   invoke.mockReset(); speak.mockReset(); play.mockReset()
   items = []
@@ -1141,7 +1142,7 @@ it('opens the full Add cards modal directly from the cards panel', async () => {
 })
 
 it('uses the shared microphone preference from recording settings', async () => {
-  microphones.mockResolvedValueOnce({ source: 'native', devices: [{ id: 'usb', label: 'USB microphone', isDefault: false, channels: 1, sampleRate: 48000, unavailable: null }] })
+  microphones.mockResolvedValue({ source: 'native', devices: [{ id: 'usb', label: 'USB microphone', isDefault: false, channels: 1, sampleRate: 48000, unavailable: null }] })
   items = [item()]
   app()
   fireEvent.click(await screen.findByRole('button', { name: 'Recording settings' }))

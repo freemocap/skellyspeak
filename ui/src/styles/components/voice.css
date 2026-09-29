@@ -93,9 +93,9 @@
 }
 .voice-pad:disabled { opacity: 0.45; cursor: default; }
 
-/* One row, never wrapping, the same order everywhere: settings, the Auto meter,
-   then Chat's Type and Auto-send or Practice's Detect attempts. */
-.voice-controls { grid-area: controls; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-4); min-width: 0; white-space: nowrap; }
+/* Footer controls wrap on desktop so the microphone picker never crowds out
+   recording actions. Narrow layouts keep the picker in recording settings. */
+.voice-controls { grid-area: controls; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); min-width: 0; white-space: nowrap; }
 .voice-controls .drill-meter { flex: 1 1 auto; }
 .voice-controls .voice-type { margin-inline-start: auto; }
 .voice-mini {
@@ -160,7 +160,7 @@
   .voice-panel { padding: var(--space-4) var(--space-4) var(--space-5); gap: var(--space-3); }
   .voice-grid { grid-template-columns: minmax(0, 1fr) 7rem; gap: var(--space-3) var(--space-4); }
   .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 7rem minmax(0, 1fr); }
-  .voice-controls { gap: var(--space-3); }
+  .voice-controls { gap: var(--space-3); flex-wrap: nowrap; }
   .voice-modes button { font-size: var(--type-meta); }
 }
 @media (max-width: 400px) {
@@ -169,3 +169,10 @@
   .voice-prompt-text { padding-inline: var(--space-4); font-size: var(--type-meta); }
 }
 @media (pointer: coarse) { .voice-mini, .voice-modes button { min-height: var(--touch-target); } }
+
+/* Compact device selection uses the shared field and its existing error view. */
+.voice-microphone { flex: 1 1 12rem; min-width: 0; max-width: 100%; }
+.voice-microphone .form-row { margin: 0; min-width: 0; }
+.voice-microphone .form-row > label { display: none; }
+.voice-microphone .microphone-row { min-width: 0; }
+.voice-microphone select { width: 0; min-width: 0; text-overflow: ellipsis; font-size: var(--type-ui); }

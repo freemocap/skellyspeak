@@ -39,7 +39,7 @@
 .mode-tabs-top .mode-tab {
   display: inline-flex; align-items: center; gap: var(--space-4); min-height: calc(var(--control-height) + var(--space-2)); padding: var(--space-3) var(--space-11);
   margin-bottom: var(--border-width-strong);
-  border: var(--border-width-strong) solid transparent; border-bottom: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border: var(--border-width-strong) solid var(--line); border-bottom: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: color-mix(in srgb, var(--chip) 70%, transparent); color: var(--ink-2); font: var(--weight-bold) var(--type-title) var(--font-sans); cursor: pointer;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
 }

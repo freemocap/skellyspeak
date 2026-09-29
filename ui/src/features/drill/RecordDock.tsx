@@ -88,7 +88,7 @@ export function RecordDock({ microphoneSelector, layout, starting = false, phase
   const padLabel = mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")
 
   return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} phase={phase} face={stream}
-    faceTitle={copy.detail} status={copy.headline}
+    microphoneSelector={microphoneSelector} faceTitle={copy.detail} status={copy.headline}
     mode={live ? 'auto' : mode} onMode={next => onMode(next === 'auto' ? 'live' : next)} modesDisabled={busy || starting || phase === 'recording'}
     pad={{ label: padLabel, disabled: busy || (starting && mode !== 'hold'),
       action: mode === 'hold' ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggle } }}
@@ -100,7 +100,6 @@ export function RecordDock({ microphoneSelector, layout, starting = false, phase
         onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Detect attempts")}</label>
     </>}
     settings={<>
-      {microphoneSelector}
       {auto && <>
         <Choice label={tr("Stop listening after silence of")} value={settings.silenceTimeoutMs} options={CONTINUOUS_RECORDING_POLICY.silenceTimeoutOptionsMs}
           format={seconds} onChange={silenceTimeoutMs => onSettings({ ...settings, silenceTimeoutMs })} />

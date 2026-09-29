@@ -24,10 +24,14 @@ import { ResizeHandle, useStoredSize } from '../src/components/layout/ResizeHand
 import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSettings, ListeningStatus, ListeningTake, WordComparison, WordOutcome } from '../src/generated/contracts'
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
+import { MicrophoneSelector } from '../src/components/media/MicrophoneSelector'
 import { MessageTools } from '../src/components/reading/MessageTools'
 
 // Exercise the production language menu with an isolated in-memory settings writer.
 mockIPC(command => {
+  if (command === 'list_microphones') return { source: 'native', devices: [
+    { id: 'sample', label: 'Sample microphone', isDefault: true, channels: 1, sampleRate: 48000, unavailable: null },
+  ] }
   if (command === 'get_snapshot') return { languages: [
     { id: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', transcriptionLanguage: 'es', fontScale: 1, direction: 'ltr', romanization: null, defaultVariety: 'spanish-mexico', varieties: [{ id: 'spanish-mexico', name: 'Mexico', description: 'Mexico', direction: 'ltr', fontScale: 1, romanization: null, transcriptionLanguage: 'es' }] },
     { id: 'english', name: 'English', nativeName: 'English', languageTag: 'en', transcriptionLanguage: 'en', fontScale: 1, direction: 'ltr', romanization: null, defaultVariety: 'english-us', varieties: [{ id: 'english-us', name: 'United States', description: 'United States', direction: 'ltr', fontScale: 1, romanization: null, transcriptionLanguage: 'en' }] },
@@ -87,6 +91,7 @@ const attempts: DrillAttemptView[] = outcomes.map((kinds, index) => ({
 } as unknown as DrillAttemptView)).reverse()
 
 function Preview() {
+  const [microphoneId, setMicrophoneId] = useState<string | null>(null)
   const [autoDetect, setAutoDetect] = useState(true)
   const [mode, setMode] = useState<RecordMode>('live')
   const [live, setLive] = useState(!firstVisit)
@@ -141,7 +146,7 @@ function Preview() {
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
           <div className="drill-actions">{(['tap', 'hold', 'live'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
         </PhraseRail>}
-        dock={<div className="drill-dock-pane" ref={dockPane}>        <RecordDock layout={recorder} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
+        dock={<div className="drill-dock-pane" ref={dockPane}>        <RecordDock microphoneSelector={<MicrophoneSelector value={microphoneId} onChange={setMicrophoneId} disabled={live} />} layout={recorder} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
           listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} spectrum={firstVisit ? null : liveSpectrum}
           onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div>}
         // Stacked, the page shows its compact attempt strip; the full list opens from it.

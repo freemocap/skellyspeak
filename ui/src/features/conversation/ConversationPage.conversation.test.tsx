@@ -9,6 +9,8 @@ import type { Settings } from '../../types'
 import { createSpectrumFeed, type SpectrumFeed } from '../../domain/audio/spectrum-feed'
 import spectra from '../../../tools/spectrogram-fixture.json'
 
+vi.mock('../../platform/audio/microphones', () => ({ listMicrophones: vi.fn().mockResolvedValue({ source: 'native', devices: [] }) }))
+
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
 const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null, lastTranscription: null as TranscriptionInspectionResult | null }))
 const chrome = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn() }))

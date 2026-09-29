@@ -1,6 +1,7 @@
+import { MessageToolMenu } from './MessageToolMenu'
 import { useToolOverflow } from './useToolOverflow'
 import { useInspectorAnchor } from './useInspectorAnchor'
-import { useEffect, useId, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { ToolbarIcon } from '../controls/ToolbarIcon'
 import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
@@ -51,12 +52,9 @@ export function MessageTools({ play, inspect, tools, actions, more }: {
   const overflow = more.slice(visible)
   const anchorInspector = useInspectorAnchor(inspect?.open)
   const panelId = useId()
-  useEffect(() => {
-    if (!open) return
-    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false) }
-    document.addEventListener('pointerdown', outside)
-    return () => document.removeEventListener('pointerdown', outside)
-  }, [open])
+  const menuButton = useRef<HTMLButtonElement>(null)
+  const closeMenu = useCallback(() => setOpen(false), [])
+  useEffect(() => { if (!overflow.length) setOpen(false) }, [overflow.length])
   const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
   const toolButton = (tool: MessageTool, inMenu: boolean) => <button key={tool.key} type="button"
     className={`${inMenu ? 'message-tools-item' : 'message-translate'}${tool.pending ? ' is-hydrating' : ''}`}
@@ -78,12 +76,12 @@ export function MessageTools({ play, inspect, tools, actions, more }: {
       <span className="message-tools-fixed">
       {actions}
       </span>
-      {overflow.length > 0 && <button type="button" className="message-tools-icon message-tools-more" aria-label={tr("More actions")} title={tr("More actions")}
+      {overflow.length > 0 && <button ref={menuButton} type="button" className="message-tools-icon message-tools-more" aria-label={tr("More actions")} title={tr("More actions")}
         aria-expanded={open} aria-controls={panelId} onClick={event => { stop(event); setOpen(!open) }}><ToolbarIcon name="more" /></button>}
     </span>
-    {overflow.length > 0 && <div className="message-tools-panel" id={panelId} hidden={!open}>
+    {overflow.length > 0 && open && <MessageToolMenu anchor={menuButton} id={panelId} direction={uiDirection} onClose={closeMenu}>
       {overflow.map(tool => toolButton(tool, true))}
-    </div>}
+    </MessageToolMenu>}
     <span className="message-tools-measure" ref={measure} aria-hidden="true" inert>
       {more.map(tool => <button key={tool.key} type="button" tabIndex={-1} className="message-translate" data-measured-tool data-label={tool.label} />)}
       <span className="message-tools-icon message-tools-more"><ToolbarIcon name="more" /></span>

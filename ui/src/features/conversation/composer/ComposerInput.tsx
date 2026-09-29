@@ -22,8 +22,8 @@ interface ComposerInputProps {
   onMode?: (mode: 'tap' | 'hold') => void
   onHoldStart?: () => void
   onHoldEnd?: () => void
-  /** The recording settings dialog's content, such as the microphone choice. */
-  settings?: ReactNode
+  /** Shared microphone picker, shown in the footer or recording settings. */
+  microphoneSelector?: ReactNode
   /** The pad's side and the stream's direction, each set in the recording settings. */
   layout?: RecorderLayout
   targetLanguageTag?: string
@@ -38,7 +38,7 @@ interface ComposerInputProps {
  * in the face as an editable draft with its own Send; Auto-send skips the draft.
  * Recording and request ownership stay with the caller. Chat's Auto (pause to
  * finish each line) needs native work, so it is shown and marked “Coming soon”. */
-export function ComposerInput({ input, available, sending, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, settings, layout,
+export function ComposerInput({ input, available, sending, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, microphoneSelector, layout,
   transcriptionWarning, targetLanguageTag, targetLanguageName, stream, prompt, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
@@ -90,7 +90,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
         onDiscard={onDiscardRecording}
         pad={{ label: padLabel, title: micShortcut ? `${padLabel} · ${micShortcut}` : padLabel, disabled: !available || sending || transcribing,
           action: mode === 'hold' && onHoldStart && onHoldEnd ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggleRecording } }}
-        settings={settings} layout={layout}
+        microphoneSelector={microphoneSelector} layout={layout}
         controls={<>
           <button type="button" className="voice-mini voice-type" aria-pressed={drafting} disabled={recording || !available}
             onClick={() => setTyping(value => !value)}><ToolbarIcon name="keyboard" size={15} /><span>{tr("Type")}</span></button>

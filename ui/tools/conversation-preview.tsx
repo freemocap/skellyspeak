@@ -188,7 +188,7 @@ function Preview() {
             mode={voiceMode} onMode={setVoiceMode} onHoldStart={() => setRecording(true)} onHoldEnd={stopRecording}
             stream={wave && <LiveRecording source={wave} spectrum={feed} time={recorder.time} />}
             prompt={opening ? <>Say <b className="target-word" lang="es">hola</b> to start</> : undefined}
-            settings={<MicrophoneSelector value={null} onChange={() => setNotice('Microphone choice — sample only')} />}
+            microphoneSelector={<MicrophoneSelector value={null} onChange={() => setNotice('Microphone choice — sample only')} />}
             targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => recording ? stopRecording() : setRecording(true)} onDiscardRecording={() => setRecording(false)} />
         </div>
         {tier === 'compact' && <button type="button" className="chat-coach-edge" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={16} /><span>Coach</span></button>}

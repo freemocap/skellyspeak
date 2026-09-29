@@ -601,7 +601,7 @@ export default function ConversationPage({
             <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button>}</div>}
           <ComposerInput stream={mic.recording ? <LiveRecording source={mic.waveSource} spectrum={mic.spectrum} time={recorder.time} /> : null} prompt={greetingPrompt}
             layout={recorder} mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
-            settings={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
+            microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
               onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguage?.endonym ?? ''}

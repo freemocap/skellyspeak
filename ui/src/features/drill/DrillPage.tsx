@@ -342,7 +342,7 @@ export function DrillPage({ active }: { active: boolean }) {
   const dock = selected && (
         <div className="drill-pane drill-dock-pane" ref={element => { panes.current.dock = element }}>
           <RecordDock microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null}
-            disabled={!settings || mic.starting || phase === 'recording' || savingPreference}
+            disabled={!settings || mic.starting || phase === 'recording' || phase === 'working' || savingPreference}
             onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />}
             layout={recorder} starting={mic.starting} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
             listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} spectrum={mic.spectrum}

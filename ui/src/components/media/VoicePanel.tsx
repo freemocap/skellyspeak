@@ -4,6 +4,7 @@ import { ToolbarIcon } from '../controls/ToolbarIcon'
 import { SegmentedChoice } from '../controls/SegmentedChoice'
 import { DetailDialog } from '../dialogs/DetailDialog'
 import { useUiDirection } from '../localization/useUiDirection'
+import { useWidthTier } from '../layout/useWidthTier'
 import type { RecorderLayout } from './useRecorderLayout'
 
 /** How a recording begins and ends: one press each, held down, or cut at each pause. */
@@ -25,7 +26,7 @@ const MODES: readonly VoiceMode[] = ['tap', 'hold', 'auto']
  * the microphone: calm blue when ready, red with a red outline and a glow while
  * recording, faded while it waits. There is no standing instruction; the phase is
  * announced to screen readers instead. Recording logic stays with the caller. */
-export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterModes = [], modesDisabled = false, pad, controls, settings, status, faceTitle, onDiscard, layout, className }: {
+export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterModes = [], modesDisabled = false, pad, controls, settings, microphoneSelector, status, faceTitle, onDiscard, layout, className }: {
   label: string
   phase: VoicePhase
   /** The stream or a draft; null shows the prompt while the pad can start a recording. */
@@ -44,6 +45,8 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
   controls?: ReactNode
   /** The recording settings dialog's content; the button that opens it leads the control row. */
   settings?: ReactNode
+  /** Visible in the desktop footer; available in recording settings at every width. */
+  microphoneSelector?: ReactNode
   /** Announced when the phase changes, without drawing a standing instruction. */
   status?: string
   faceTitle?: string
@@ -55,6 +58,7 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
   className?: string
 }) {
   const tr = useI18n()
+  const desktop = useWidthTier() === 'full'
   const recording = phase === 'recording'
   const [soon, setSoon] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -108,6 +112,7 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
         <button type="button" className="voice-mini voice-mini-icon" aria-label={tr('Recording settings')} title={tr('Recording settings')}
           aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}><ToolbarIcon name="settings" size={15} /></button>
         {controls}
+        {desktop && !settingsOpen && microphoneSelector && <div className="voice-microphone">{microphoneSelector}</div>}
       </div>
       <div className="voice-modes" role="radiogroup" aria-label={tr('Recording mode')}>
         {MODES.map(option => {
@@ -123,6 +128,7 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
     {settingsOpen && <DetailDialog title={tr('Recording settings')} capture="preserve" onClose={() => setSettingsOpen(false)}>
       <div className="voice-settings">
         <h2>{tr('Recording settings')}</h2>
+        {microphoneSelector}
         {settings}
         {layout && <>
           <Choice label={tr('Microphone button')} value={layout.padSide} onChange={layout.onPadSide}

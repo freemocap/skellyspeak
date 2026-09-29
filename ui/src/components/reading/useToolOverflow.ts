@@ -9,18 +9,22 @@ export function useToolOverflow(count: number, labels: string) {
     const row = root.current, sizing = measure.current
     if (!row || !sizing) return
     const update = () => {
-      const width = row.clientWidth
-      if (!width) return
       const gap = Number.parseFloat(getComputedStyle(row).columnGap) || 0
       const fixed = row.querySelector<HTMLElement>('.message-tools-primary')!
       const actions = row.querySelector<HTMLElement>('.message-tools-fixed')!
       const more = sizing.querySelector<HTMLElement>('.message-tools-more')!
       const tools = [...sizing.querySelectorAll<HTMLElement>('[data-measured-tool]')]
-      const base = fixed.getBoundingClientRect().width + actions.getBoundingClientRect().width + gap * 2
+      const base = fixed.getBoundingClientRect().width + actions.getBoundingClientRect().width + gap
       const widths = tools.map(tool => tool.getBoundingClientRect().width + gap)
+      // Let short bubbles grow to fit their tools before deciding what overflows.
+      // The stylesheet caps this preferred width at the available content width.
+      row.style.inlineSize = `${Math.ceil(base + widths.reduce((sum, value) => sum + value, 0))}px`
+      const width = row.clientWidth
+      if (!width) return
       let n = count
       if (base + widths.reduce((sum, value) => sum + value, 0) > width) {
-        let available = width - base - more.getBoundingClientRect().width - gap
+        const actionGap = Number.parseFloat(getComputedStyle(actions.parentElement!).columnGap) || 0
+        let available = width - base - more.getBoundingClientRect().width - actionGap
         n = 0
         for (const needed of widths) { if (needed > available) break; available -= needed; n++ }
       }
@@ -29,6 +33,8 @@ export function useToolOverflow(count: number, labels: string) {
     update()
     const observer = new ResizeObserver(update)
     observer.observe(row); observer.observe(sizing)
+    observer.observe(row.querySelector('.message-tools-primary')!)
+    observer.observe(row.querySelector('.message-tools-fixed')!)
     for (const child of sizing.children) observer.observe(child)
     let mounted = true
     void document.fonts?.ready.then(() => { if (mounted) update() })
