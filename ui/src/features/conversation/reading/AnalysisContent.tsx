@@ -22,6 +22,7 @@ export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'a
 
 interface AnalysisContentProps {
   partnerOnly?: boolean
+  requestOnOpen?: boolean
   conversationId?: string
   onAsk?: (question: string) => void
   turn: AnalysedTurn
@@ -35,6 +36,7 @@ interface AnalysisContentProps {
 export const AnalysisContent = memo(function AnalysisContent({
   turn,
   partnerOnly = false,
+  requestOnOpen = true,
   conversationId,
   onAsk,
   nativeLanguageName,
@@ -49,12 +51,12 @@ export const AnalysisContent = memo(function AnalysisContent({
   const request = useHelpRequest(lane, eligible ? () => requestReplyHelp(conversationId!, a!.messageId!, 'grammar') : undefined)
   const requested = useRef('')
   useEffect(() => {
-    if (!eligible || lane.state !== null || request.pending || request.failure || a?.mechanics.length) return
+    if (!requestOnOpen || !eligible || lane.state !== null || request.pending || request.failure || a?.mechanics.length) return
     const key = `${conversationId}:${a!.messageId}`
     if (requested.current === key) return
     requested.current = key
     request.submit(() => requestReplyHelp(conversationId!, a!.messageId!, 'grammar'))
-  }, [eligible, lane.state, request.pending, request.failure, request.submit, conversationId, a])
+  }, [requestOnOpen, eligible, lane.state, request.pending, request.failure, request.submit, conversationId, a])
   const sources = useMemo(() => scope && a ? [
     {scope:a.help?.scope ?? scope, text:a.reply, segments:a.savedGloss?.segments ?? anchoredTokenGlosses(a.reply,a.tokens)},
     ...(turn.user ? [{scope:a.help?.scope ?? scope,text:turn.user,segments:turn.userSavedGloss?.segments ?? anchoredTokenGlosses(turn.user,a.user_tokens)}] : []),

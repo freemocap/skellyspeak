@@ -424,7 +424,7 @@ it('binds recorded audio to the accepted turn even when a later message repeats 
   next.messages[0].turnId = 'accepted'
   next.messages.push({ ...next.messages[0], id: 'later-source', turnId: 'later', sequence: 2, text: 'Hola again' })
   await act(async () => watches[1].resolve(next))
-  const bubbles = document.querySelectorAll('.msg.me')
+  const bubbles = document.querySelectorAll('.stream .msg.me')
   expect(bubbles).toHaveLength(2)
   expect(within(bubbles[0] as HTMLElement).getByRole('button', { name: 'Inspect recording' })).toBeEnabled()
   expect(within(bubbles[1] as HTMLElement).queryByRole('button', { name: 'Inspect recording' })).toBeNull()
@@ -582,6 +582,9 @@ it('persists Show answer through the real handler and renders only the returned 
   value.messages[0].feedback = { corrections: [], notes: [], meaningRecovered: 'full', items: [{ construct: 'past', quote: 'fue', outcome: 'partial', rationale: 'Past reference' }], candidatesSent: 18, itemsReturned: 1 }
   value.messages[0].coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
   await act(async () => watches[0].resolve(value))
+  fireEvent.click(screen.getByRole('group', { name: 'Your message' }))
+  expect(commands()).toHaveLength(0)
+  fireEvent.click(screen.getByRole('button', { name: 'View coaching help' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(commands()[0].action).toEqual({ kind: 'coachControl', turnId: 'a-turn', control: 'open_card' })
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
@@ -755,4 +758,23 @@ it('routes bubble selection to its message side and keeps it while a newer excha
   expect(partner).toHaveAttribute('aria-current', 'true')
   expect(document.querySelector('.break')).toHaveTextContent('¿Adónde fuiste?')
   expect(document.querySelector('.break')).not.toHaveTextContent('Another reply')
+})
+
+it('automatically selects the latest learner message, then its reply, without requesting analysis', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  const initial = snapshot('a', 30, 'Yo fue ayer')
+  await act(async () => watches[0].resolve(initial))
+  expect(screen.getByRole('group', { name: 'Your message' })).toHaveAttribute('aria-current', 'true')
+  await act(async () => watches[1].resolve(exchangeSnapshot()))
+  expect(screen.getByRole('group', { name: 'Your message' })).not.toHaveAttribute('aria-current')
+  expect(screen.getByRole('group', { name: 'Partner replied' })).toHaveAttribute('aria-current', 'true')
+  expect(commands()).toHaveLength(0)
+  const next = exchangeSnapshot()
+  await act(async () => watches[2].resolve({ ...next, revision: 32, messages: [...next.messages,
+    { ...next.messages[0], id: 'next-user', turnId: 'next', sequence: 3, text: 'Another message' },
+  ] }))
+  expect(screen.getAllByRole('group', { name: 'Your message' })[1]).toHaveAttribute('aria-current', 'true')
+  expect(screen.getByRole('group', { name: 'Partner replied' })).not.toHaveAttribute('aria-current')
+  expect(commands()).toHaveLength(0)
 })

@@ -50,7 +50,7 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
   /** Announced when the phase changes, without drawing a standing instruction. */
   status?: string
   faceTitle?: string
-  /** Offered beside the microphone while recording: throw the recording away. */
+  /** Overlaid on the microphone-facing edge of the stream while recording. */
   onDiscard?: () => void
   /** Where the pad sits and which way the stream runs, offered in the recording
    * settings. Without it the pad sits at the end of the reading direction. */
@@ -101,15 +101,13 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
           <ToolbarIcon name="chevron" size={18} />
         </div>)}
         {recording && <span className="voice-chip"><span className="voice-dot" aria-hidden="true" />{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</span>}
-      </div>
-      <div className="voice-pad-actions">
-        <button type="button" className="voice-pad" data-live={recording} aria-pressed={recording} aria-label={pad.label} title={pad.title ?? pad.label}
-          disabled={pad.disabled} {...padEvents}>
-          <ToolbarIcon name="mic" size={30} />
-        </button>
         {recording && onDiscard && <button type="button" className="voice-discard-recording" onClick={onDiscard}
           aria-label={tr('Discard recording')} title={tr('Discard recording without transcribing')}><ToolbarIcon name="trash" size={15} /></button>}
       </div>
+      <button type="button" className="voice-pad" data-live={recording} aria-pressed={recording} aria-label={pad.label} title={pad.title ?? pad.label}
+        disabled={pad.disabled} {...padEvents}>
+        <ToolbarIcon name="mic" size={30} />
+      </button>
       <div className="voice-controls">
         <button type="button" className="voice-mini voice-mini-icon" aria-label={tr('Recording settings')} title={tr('Recording settings')}
           aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}><ToolbarIcon name="settings" size={15} /></button>

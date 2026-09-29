@@ -445,8 +445,10 @@ export default function ConversationPage({
     await executeAction(snapshot, { kind: 'coachControl', turnId, control })
   }
   const editChanges = editingTurn?.user != null ? revisionChanges(editingTurn.user, input) : 0
-  const selectedTurn = activeTurns.find(turn => turn.id === selectedMessage?.id)
-  useEffect(() => { if (selectedMessage && !selectedTurn) setSelectedMessage(null) }, [selectedMessage, selectedTurn])
+  const explicitlySelectedTurn = activeTurns.find(turn => turn.id === selectedMessage?.id)
+  const selectedTurn = explicitlySelectedTurn ?? activeTurns.at(-1)
+  const selectedSide = explicitlySelectedTurn ? selectedMessage!.side : selectedTurn?.assistant ? 'assistant' : 'user'
+  useEffect(() => { if (selectedMessage && !explicitlySelectedTurn) setSelectedMessage(null) }, [selectedMessage, explicitlySelectedTurn])
   const selectMessage = (id: number, side: 'user' | 'assistant'): void => {
     setSelectedMessage({ id, side })
     setPanelTab('coaching')
@@ -684,7 +686,7 @@ export default function ConversationPage({
               reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
               onAskCoach={askCoach}
               onSelectMessage={selectMessage}
-              selectedSide={selectedTurn?.id === turn.id ? selectedMessage?.side : undefined}
+              selectedSide={selectedTurn?.id === turn.id ? selectedSide : undefined}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
               speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
@@ -749,7 +751,7 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{!isMobile && !selectedTurn && replyHelp}{selectedTurn && selectedMessage?.side === 'assistant' ? <AnalysisContent partnerOnly key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
+          coachingContent={<>{!isMobile && !explicitlySelectedTurn && replyHelp}{selectedTurn && selectedSide === 'assistant' ? <AnalysisContent partnerOnly requestOnOpen={false} key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
           {selectedTurn?.user && <AnalysisSentence label={tr("Your message")} text={selectedTurn.user} gloss={selectedTurn.userSavedGloss} translation={selectedTurn.userTranslation} />}
           <LiveCoachReview key={coachedTurn?.id} revealOnView={!selectedTurn} turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')

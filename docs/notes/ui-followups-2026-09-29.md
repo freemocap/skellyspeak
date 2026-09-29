@@ -1,6 +1,6 @@
 # Chat and Practice follow-up audit
 
-Status: initial source audit followed by two authorized implementation batches. The progress section below supersedes the initial no-change status; unresolved rows remain proposals or investigations.
+Status: UI refinements and message selection implemented. Message-specific coach discussions and read-only revision history are deferred at the learner’s request (2026-09-29); they are not active next steps. Historical audits and proposals below are retained for reference.
 
 Baseline: clean checkout at `v2.6.1` on 2026-09-29. Findings below are source observations, not phone reproduction results.
 
@@ -174,3 +174,20 @@ Implementation sequence:
 Targeted verification plan: learner versus partner selection in the same turn; two turns with identical text; independent word/audio controls; keyboard and mobile navigation; selection during an incoming reply; source-bound question drafts; switching messages/conversations during coach work; failure/retry ownership; restart/reload; edits and historical revisions; prompt history isolation; no additional learning credit or implicit feedback disclosure.
 
 Audit baseline verification: fast validation passed (including 13 tooling tests); the matching TurnView and CoachAnalysisPanel suites passed, 52 tests across two files. The requested ConversationPage.test.tsx pattern matched no file. Native ownership/revision suites were inspected, not run. No new behavior or running native application was verified in this audit.
+
+## Selection emphasis and automatic latest selection
+
+Added a thin coach-green outline outside the normal bubble border and strengthened the green glow; dimensions remain unchanged. With no explicit selection, the newest active turn selects its partner reply when present, otherwise its learner message. Explicit selection remains stable as newer messages arrive; an unavailable selection returns to the latest-message default. The dock follows that effective selection. Automatic selection does not open the mobile coach panel.
+
+Dock analysis now reads existing results without automatically requesting grammar just because selection followed a new message. The explicit Analysis action retains its request behavior. Updated feedback testing to explicitly reveal undisclosed hints, and scoped recording assertions to stream bubbles rather than also counting dock excerpts.
+
+Verification: the prior disk-space blocker is resolved. Selection, TurnView and LiveCoachReview suites passed (83 tests), then the expanded conversation suite passed all 37 tests including newest learner→reply→next learner selection with zero commands. Build, fast validation and whitespace checks passed; existing canvas notices and bundle-size advisory remain. This pass did not perform a new visual browser inspection. Changes remain uncommitted.
+
+
+## Scope decision — deferred follow-ups, 2026-09-29
+
+The learner chose to stop before message-specific coach discussion ownership and revision history after Fix and resend. Both are deferred indefinitely, not scheduled or required to finish the current UI work. This decision supersedes earlier implementation sequences identifying them as the next tasks.
+
+Keep the implemented message selection, selected-message feedback/analysis, automatic latest selection and green selection treatment. Coach discussion history remains conversation-wide. No per-message discussion ownership or revision-history browsing is claimed as implemented.
+
+If explicitly resumed later, use the audit above as a starting point and recheck current code. Retain the proposed distinction between general questions and message-owned discussions, and the proposed rule that each revision owns its own discussion. These are deferred design notes, not current product behavior. No additional implementation or commit was performed for this scope decision.

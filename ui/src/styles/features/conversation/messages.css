@@ -165,9 +165,11 @@
 .msg.chat-message.me::before { background: var(--bubble-learner-line); }
 .msg.chat-message.me::after { background: var(--bubble-learner-bg); }
 
-/* Inset emphasis keeps selection from moving text or changing bubble dimensions. */
-.msg.chat-message.focused { box-shadow: inset 0 0 0 var(--border-width) var(--bubble-partner-line), 0 var(--space-2) var(--space-11) color-mix(in srgb, var(--coach-mark) 45%, transparent); }
-.msg.chat-message.me.focused { box-shadow: inset 0 0 0 var(--border-width) var(--bubble-learner-line), 0 var(--space-2) var(--space-11) color-mix(in srgb, var(--coach-mark) 45%, transparent); }
+/* The outside selection ring and glow leave bubble dimensions unchanged. */
+.msg.chat-message.focused {
+  outline: var(--border-width) solid var(--coach-mark); outline-offset: var(--space-2);
+  box-shadow: var(--shadow-bubble), 0 var(--space-2) var(--space-12) color-mix(in srgb, var(--coach-mark) 70%, transparent);
+}
 .msg.chat-message[tabindex] { cursor: pointer; }
 .msg.chat-message[tabindex]:focus-visible { outline: var(--border-width-strong) solid var(--coach-mark); outline-offset: var(--space-2); }
 

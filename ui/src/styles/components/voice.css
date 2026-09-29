@@ -66,21 +66,21 @@
   color: var(--recording-ink); font: var(--weight-semibold) var(--type-meta) var(--font-mono); box-shadow: var(--shadow-sm);
 }
 .voice-dot { width: var(--space-4); height: var(--space-4); border-radius: var(--radius-circle); background: var(--recording-mark); animation: voice-blink var(--dur-loop) var(--ease-in-out) infinite; }
-/* The discard action stays on the stream-facing side of the microphone, even
-   when the interface reading direction differs from the chosen pad side. */
-.voice-pad-actions { grid-area: pad; display: flex; align-items: stretch; gap: var(--space-2); min-width: 0; height: 100%; direction: ltr; }
-.voice-panel[data-pad-side='right'] .voice-pad-actions { flex-direction: row-reverse; }
+/* Keep the original overlay inside the stream, at the edge nearest the pad. */
 .voice-discard-recording {
-  flex: none; align-self: center; display: grid; place-items: center;
+  position: absolute; bottom: var(--space-3); z-index: var(--z-raised); display: grid; place-items: center;
   width: var(--control-height-sm); height: var(--control-height-sm); border: var(--border-width) solid var(--line); border-radius: var(--radius-circle);
   background: var(--sheet); color: var(--ink-2); cursor: pointer;
 }
+/* Frequency labels occupy the spectrogram's right edge. */
+.voice-panel[data-pad-side='right'] .voice-discard-recording { right: calc(var(--space-13) + var(--space-6) + var(--space-8)); }
+.voice-panel[data-pad-side='left'] .voice-discard-recording { left: var(--space-3); }
 .voice-discard-recording:hover { border-color: var(--danger-line); color: var(--danger-ink); }
 
 /* The microphone pad: an icon, never a word. Ready is a calm blue; recording is
    red, outlined and glowing; waiting is faded. Colour carries the state. */
 .voice-pad {
-  flex: 1; display: grid; place-items: center; min-width: 0; height: 100%;
+  grid-area: pad; display: grid; place-items: center; width: 100%; height: 100%;
   border: var(--border-width-strong) solid var(--interaction-line); border-radius: var(--radius-xl);
   /* Opaque, so the panel's place tint behind it cannot muddy the blue. */
   background: color-mix(in srgb, var(--interaction-mark) 12%, var(--sheet)); color: var(--interaction-ink); box-shadow: var(--shadow-surface);
@@ -171,7 +171,7 @@
   .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 6.25rem minmax(0, 1fr); }
   .voice-prompt-text { padding-inline: var(--space-4); font-size: var(--type-meta); }
 }
-@media (pointer: coarse) { .voice-mini, .voice-modes button { min-height: var(--touch-target); } .voice-discard-recording { width: var(--touch-target); height: var(--touch-target); } }
+@media (pointer: coarse) { .voice-mini, .voice-modes button { min-height: var(--touch-target); } }
 
 /* Compact device selection uses the shared field and its existing error view. */
 .voice-microphone { flex: 1 1 0; min-width: 0; max-width: 100%; container: microphone-footer / inline-size; }
