@@ -12,8 +12,6 @@ const parts = [
 ]
 
 it.each(combinations)('uses %j for inline aids while keeping requested word help available', preferences => {
-  HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open','') }
-  HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') }
   const source = (showAids: boolean) => <ReadingPreferencesContext value={preferences}>
     <SavedGlossText text="a b" segments={parts} showAids={showAids} />
   </ReadingPreferencesContext>
@@ -28,25 +26,20 @@ it.each(combinations)('uses %j for inline aids while keeping requested word help
   expect(within(help).getByText('meaning')).toBeVisible()
   expect(within(help).getByText('roman')).toBeVisible()
   expect(within(help).queryByText('redundant')).toBeNull()
-  fireEvent.click(within(help).getByRole('button', {name:'Word help'}))
-  const dialog = screen.getByRole('dialog', {name:'Word help'})
-  expect(within(dialog).getByText('meaning')).toBeVisible()
-  expect(within(dialog).getByText('roman')).toBeVisible()
-  expect(within(dialog).queryByText('redundant')).toBeNull()
-  expect(dialog).not.toHaveTextContent(/Romanization|Pronunciation/)
+  expect(help).not.toHaveTextContent(/Romanization|Pronunciation/)
 })
 
 it('keeps requested detail content when always-visible preferences change', () => {
-  HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open','') }
   const source = (enabled: boolean) => <ReadingPreferencesContext value={{autoTranslate:enabled, alwaysRomanize:enabled, alwaysPronunciation:true}}>
     <SavedGlossText text="a" segments={[parts[0]]} />
   </ReadingPreferencesContext>
   const view = render(source(true))
   fireEvent.click(screen.getByRole('button', {name:'a'}))
-  fireEvent.click(screen.getByRole('button', {name:'Word help'}))
   view.rerender(source(false))
-  expect(view.container.querySelector('.wg')).toBeNull()
-  expect(within(screen.getByRole('dialog', {name:'Word help'})).getByText('roman')).toBeVisible()
+  expect(view.container.querySelector('.saved-word > .wg,.saved-word > .wroman')).toBeNull()
+  const help = screen.getByRole('group', {name:'Word help'})
+  expect(within(help).getByText('meaning')).toBeVisible()
+  expect(within(help).getByText('roman')).toBeVisible()
   expect(screen.queryByText('redundant')).toBeNull()
 })
 
