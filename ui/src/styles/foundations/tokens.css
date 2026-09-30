@@ -302,6 +302,8 @@
                          (the plot rows are grid track sizes: the reference shares
                          the stage at full width and has its own height stacked) */
   --reading-scale: 1;
+  /* Requested inline aid rows, supplied per message by ReadingPreferences. */
+  --reading-aid-rows: 1;
   --script-scale: 1;
   --word-spacing: 0px;
   --ai-inspector-width: 40%;

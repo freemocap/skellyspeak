@@ -1,4 +1,6 @@
 {
+  "Preparing audio…": "جارٍ تجهيز الصوت…",
+  "Cancel speech preparation": "إلغاء تجهيز الصوت",
   "Language XP": "نقاط خبرة اللغة",
   "Fixes": "الإصلاحات",
   "Fixed": "مُصلَحة",
@@ -108,7 +110,6 @@
   "All partners": "كل الشركاء",
   "All retained dispatched attempts": "كل المحاولات المرسلة المحفوظة",
   "All varieties": "كل التنوعات",
-  "Analysing…": "جارٍ التحليل…",
   "Analyze your message": "تحليل رسالتك",
   "Analyzing…": "جارٍ التحليل…",
   "App activity": "نشاط التطبيق",
@@ -495,7 +496,6 @@
   "vs ": "مقابل ",
   "⟳ Analyzing grammar…": "⟳ جارٍ تحليل القواعد…",
   "Stop playback": "إيقاف التشغيل",
-  "Thinking…": "جارٍ التفكير…",
   "your language": "لغتك",
   "Never opened": "لم تُفتح مطلقاً",
   "This view crashed: {message}": "تعطلت هذه الواجهة: {message}",
@@ -1490,5 +1490,7 @@
   "Single words and greetings": "كلمات مفردة وتحيات",
   "Everyday short phrases": "عبارات قصيرة يومية",
   "Fuller sentences to ask and explain": "جمل أكمل للسؤال والشرح",
-  "Longer, more natural speech": "كلام أطول وأكثر طبيعية"
+  "Longer, more natural speech": "كلام أطول وأكثر طبيعية",
+  "Receiving reply…": "جارٍ استلام الرد…",
+  "Background activity": "نشاط في الخلفية"
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
 import { languageFor } from '../../platform/ipc/tauri'
 import type { Settings } from '../../types'
 
@@ -22,4 +22,11 @@ export function useReadingPreferences() {
   const preferences = useContext(ReadingPreferencesContext)
   const supportsRomanization = preferences.supportsRomanization ?? true
   return { ...preferences, supportsRomanization, alwaysRomanize: preferences.alwaysRomanize && supportsRomanization }
+}
+
+/** Reserve the requested gloss and sound rows before their text is available.
+ * Romanization and pronunciation share a row, as in SavedGlossText. */
+export function useReadingAidSpace(reveal = false): CSSProperties {
+  const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
+  return { '--reading-aid-rows': Number(reveal || autoTranslate) + Number(reveal || alwaysRomanize || alwaysPronunciation) } as CSSProperties
 }

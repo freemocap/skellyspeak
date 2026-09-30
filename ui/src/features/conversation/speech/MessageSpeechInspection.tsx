@@ -12,6 +12,7 @@ export interface MessageSpeechPlayback {
   retained: MessageAudio | null
   time: number
   playing: boolean
+  preparing?: boolean
   enabled: boolean
   rate: number
   volume: number
@@ -45,13 +46,14 @@ export function MessageSpeechInspection({ speech, text, open = true }: { speech:
   }, [sessionId, operationId, attemptId, retry, requestedOnce])
   const scrub = useAudibleScrub(speech.retained?.audio.audioBase64 ?? null, speech.enabled, speech.playing,
     speech.volume, setFailure, speech.stop, { text, alignment: speech.retained?.audio.alignment })
-  const playback = { time: speech.time, playing: speech.playing, toggle: speech.toggle, seek: speech.seek, scrub }
+  const playback = { time: speech.time, playing: speech.playing, preparing: speech.preparing, toggle: speech.toggle, seek: speech.seek, scrub }
   const shown = cached ?? inspection
   return <div hidden={!open}>
+    {speech.preparing && <p role="status">{tr('Preparing audio…')}</p>}
     {failure != null ? <ErrorNotice as="div" error={failure}>{tr('Audio playback failed.')}
       <button type="button" className="btn" onClick={() => setRetry(value => value + 1)}>{tr('Try again')}</button>
     </ErrorNotice> : shown ? <CompactInspection inspection={shown} playback={playback} enabled={speech.enabled}
-      onExpand={() => setExpanded(true)} /> : <p role="status">{tr(speech.retained || speech.playing ? 'Loading…' : 'Recording audio unavailable.')}</p>}
+      onExpand={() => setExpanded(true)} /> : !speech.preparing && <p role="status">{tr(speech.retained || speech.playing ? 'Loading…' : 'Recording audio unavailable.')}</p>}
     {open && expanded && shown && speech.retained && <TranscriptionInspector
       result={{ text, inspection: shown, audioBase64: speech.retained.audio.audioBase64, diagnostics: null }}
       rate={speech.rate} volume={speech.volume} enabled={speech.enabled} playback={playback} onClose={() => setExpanded(false)} />}

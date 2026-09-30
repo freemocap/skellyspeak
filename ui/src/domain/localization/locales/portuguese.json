@@ -1,4 +1,6 @@
 {
+  "Preparing audio…": "Preparando áudio…",
+  "Cancel speech preparation": "Cancelar a preparação do áudio",
   "Language XP": "XP do idioma",
   "Fixes": "Correções",
   "Fixed": "Corrigida",
@@ -108,7 +110,6 @@
   "All partners": "Todos os parceiros",
   "All retained dispatched attempts": "Todas as tentativas enviadas e mantidas",
   "All varieties": "Todas as variedades",
-  "Analysing…": "Analisando…",
   "Analyze your message": "Analisar sua mensagem",
   "Analyzing…": "Analisando…",
   "App activity": "Atividade do aplicativo",
@@ -495,7 +496,6 @@
   "vs ": "vs ",
   "⟳ Analyzing grammar…": "⟳ Analisando gramática…",
   "Stop playback": "Parar reprodução",
-  "Thinking…": "Pensando…",
   "your language": "seu idioma",
   "Never opened": "Nunca aberta",
   "This view crashed: {message}": "Esta tela falhou: {message}",
@@ -1490,5 +1490,7 @@
   "Single words and greetings": "Palavras soltas e cumprimentos",
   "Everyday short phrases": "Frases curtas do dia a dia",
   "Fuller sentences to ask and explain": "Frases mais completas para perguntar e explicar",
-  "Longer, more natural speech": "Fala mais longa e natural"
+  "Longer, more natural speech": "Fala mais longa e natural",
+  "Receiving reply…": "Recebendo resposta…",
+  "Background activity": "Atividade em segundo plano"
 }

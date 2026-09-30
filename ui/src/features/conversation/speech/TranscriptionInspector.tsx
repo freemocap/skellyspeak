@@ -54,8 +54,8 @@ export function TranscriptionInspector({ result, rate, volume, enabled, onClose,
       <p>{tr("Original recording · ")}{seconds(duration)} · {inspection.sampleRate.toLocaleString(tr.browserLocale)} {tr(" Hz")}</p>
       <p className="inspection-transcript" dir="auto">{result.text || tr("No transcript text.")}</p>
       <div className="inspection-transport">
-        <button type="button" className="btn" disabled={!hasAudio || !enabled} aria-label={tr(playback.playing ? "Pause" : "Play")} onClick={playback.toggle}>
-          <ToolbarIcon name={playback.playing ? 'pause' : 'play'} size={14} />{tr(playback.playing ? "Pause" : "Play")}
+        <button type="button" className="btn" disabled={!hasAudio || !enabled} aria-label={tr(playback.preparing ? "Cancel speech preparation" : playback.playing ? "Pause" : "Play")} onClick={playback.toggle}>
+          {playback.preparing ? <span className="activity-spinner" aria-hidden="true" /> : <ToolbarIcon name={playback.playing ? 'pause' : 'play'} size={14} />}{tr(playback.preparing ? "Cancel" : playback.playing ? "Pause" : "Play")}
         </button>
         <button type="button" className="btn" disabled={!hasAudio} onClick={() => playback.seek(0)} aria-label={tr("Restart")}>↤</button>
         <PlaybackProgress time={time} duration={duration} direction="ltr" label={tr("Playback position")}

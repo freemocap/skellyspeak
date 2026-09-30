@@ -20,6 +20,13 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.open = false }
 })
 
+it('shows preparation rather than unavailable audio while waiting for the reply audio', () => {
+  render(<MessageSpeechInspection speech={{ ...speech(), retained: null, preparing: true }} text="Reply" />)
+  expect(screen.getByRole('status')).toHaveTextContent('Preparing audio…')
+  expect(screen.queryByText('Recording audio unavailable.')).toBeNull()
+  expect(native.invoke).not.toHaveBeenCalled()
+})
+
 it('inspects the exact retained attempt locally and shares the playback clock with the expanded view', async () => {
   const playback = speech()
   render(<MessageSpeechInspection speech={playback} text="Reply" />)

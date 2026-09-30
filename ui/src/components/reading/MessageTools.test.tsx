@@ -13,10 +13,12 @@ it('shows tools when they fit and moves only excess tools into the menu as its c
     observe() {} disconnect() {} unobserve() {}
   })
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) { return width })
-  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+  vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (this: HTMLElement) {
     const size = this.classList.contains('message-tools-primary') ? 100 : this.classList.contains('message-tools-fixed') ? 30 : this.hasAttribute('data-measured-tool') ? 80 : 24
-    return { width: size, height: 24, x: 0, y: 0, top: 0, left: 0, right: size, bottom: 24, toJSON: () => ({}) }
+    return size
   })
+  // A transformed entrance frame must not shrink the preferred toolbar width.
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 0 } as DOMRect)
   const select = vi.fn()
   render(<MessageTools play={null} inspect={null} tools={[]} actions={null}
     more={[{ key:'words', label:'Word by word', onSelect:select }, { key:'analysis', label:'Analysis', onSelect:select }]} />)
@@ -37,4 +39,24 @@ it('shows tools when they fit and moves only excess tools into the menu as its c
   act(() => { width = 300; callbacks.forEach(callback => callback()) })
   expect(screen.queryByRole('button', { name:'More actions' })).toBeNull()
   expect(screen.getAllByRole('button', { name:'Analysis' })).toHaveLength(1)
+})
+
+it('announces pending work without exposing the reserved controls', () => {
+  render(<MessageTools pending="Sending…" play={{ playing: false, onToggle: vi.fn() }} inspect={null}
+    tools={[{ key: 'translate', label: 'Translate', onSelect: vi.fn() }]}
+    more={[]} actions={<button>Edit</button>} />)
+  expect(screen.getByRole('status')).toHaveTextContent('Sending…')
+  expect(screen.queryByRole('button')).toBeNull()
+})
+
+it('keeps one playback button through preparation and playing, with cancellation available', () => {
+  const toggle = vi.fn()
+  const view = render(<MessageTools play={{ playing: false, preparing: true, onToggle: toggle }} inspect={null} tools={[]} actions={null} more={[]} />)
+  const button = screen.getByRole('button', { name: 'Cancel speech preparation' })
+  expect(screen.getByRole('status')).toHaveTextContent('Preparing audio…')
+  fireEvent.click(button)
+  expect(toggle).toHaveBeenCalledOnce()
+  view.rerender(<MessageTools play={{ playing: true, preparing: false, onToggle: toggle }} inspect={null} tools={[]} actions={null} more={[]} />)
+  expect(screen.getByRole('button', { name: 'Stop playback' })).toBe(button)
+  expect(screen.queryByRole('status')).toBeNull()
 })

@@ -447,7 +447,7 @@ describe('native composer admission', () => {
     expect(mine).toHaveAttribute('aria-busy', 'true')
     expect(mine).toHaveAttribute('data-arriving')
     const reply = document.querySelector('.stream .msg.bot.reply-pending') as HTMLElement
-    expect(reply).toHaveTextContent('Thinking…')
+    expect(reply).toHaveTextContent('Replying…')
     expect(reply).toHaveAttribute('data-arriving')
     expect(composer).toHaveValue('')
     await waitFor(() => expect(commands()).toHaveLength(1))
@@ -477,15 +477,18 @@ it('shows an edit in the bubble being edited, pending, the moment it is sent', a
   openMenus()
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.change((await draftField()), { target: { value: 'Yo fui ayer' } })
+  const editingShell = document.querySelector('.turn-stack[data-editing]')
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   const bubbles = document.querySelectorAll('.stream .msg.me')
   expect(bubbles).toHaveLength(1)
   expect(bubbles[0]).toHaveTextContent('Yo fui ayer')
   expect(bubbles[0]).toHaveAttribute('aria-busy', 'true')
+  expect(document.querySelector('.turn-stack[data-editing]')).toBe(editingShell)
+  expect(bubbles[0]).not.toHaveAttribute('data-arriving')
   // In the conversation, the reply the edit replaces gives way to the partner's pending bubble.
   const stream = document.querySelector('.stream') as HTMLElement
   expect(within(stream).queryByText('¿Adónde fuiste?')).toBeNull()
-  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Thinking…')
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Replying…')
   await waitFor(() => expect(commands()).toHaveLength(1))
   // A rejected revision keeps the edit in the composer and restores the original.
   await act(async () => pending.reject({ code: 'connection', message: 'The connection is unavailable.' }))
@@ -531,7 +534,7 @@ it('holds the learner’s bubble from the moment an Auto-send recording stops, t
   const filled = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
   expect(filled).toBe(held)
   expect(filled).toHaveTextContent('Fui al mercado.')
-  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Thinking…')
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Replying…')
   await waitFor(() => expect(commands()).toHaveLength(1))
 })
 
@@ -583,6 +586,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   await waitFor(() => expect(watches).toHaveLength(1))
   const initial = exchangeSnapshot()
   await act(async () => watches[0].resolve(initial))
+  const presentationSlot = document.querySelector('.stream .turn-stack')
   openMenus()
   const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
@@ -604,12 +608,14 @@ it('edits through the real page handler, sends durable identity and renders reta
   // it, before a regenerated partner reply or word help has arrived.
   const pendingRevision = { ...revised, messages: revised.messages.filter(message => message.id !== 'repair-reply') }
   await act(async () => watches[1].resolve(pendingRevision))
+  expect(document.querySelector('.stream .turn-stack')).toBe(presentationSlot)
   expect(screen.getAllByText('Yo fui ayer').some(element => element.closest('.msg.me'))).toBe(true)
   expect(screen.queryByText('Edit saved — updating conversation…')).not.toBeInTheDocument()
   expect(screen.queryByText('Yo fue ayer')).not.toBeInTheDocument()
   expect(screen.queryByText('¿Adónde fuiste?')).not.toBeInTheDocument()
   await waitFor(() => expect(watches).toHaveLength(3))
   await act(async () => watches[2].resolve({ ...revised, revision: 33 }))
+  expect(document.querySelector('.stream .turn-stack')).toBe(presentationSlot)
   expect(screen.getAllByText('Yo fui ayer').some(element => element.closest('.msg.me'))).toBe(true)
   expect(screen.queryByText('Edit saved — updating conversation…')).not.toBeInTheDocument()
   expect(screen.queryByText('Yo fue ayer')).not.toBeInTheDocument()
@@ -627,10 +633,16 @@ it('confirms native suffix scope and retains the edit draft after a stale admiss
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   const composer = (await draftField())
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
+  const stream = document.querySelector('.stream') as HTMLElement
+  Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 1600 })
+  Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 400 })
+  stream.scrollTop = 100
+  fireEvent.scroll(stream)
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   expect(screen.getByRole('dialog', { name: 'Revise earlier message' })).toHaveTextContent('1 later conversation turns. Your edited message replaces the original; private coach history is kept.')
   expect(commands()).toHaveLength(0)
   fireEvent.click(screen.getByRole('button', { name: 'Revise and remove later turns' }))
+  expect(stream.scrollTop).toBe(100)
   await waitFor(() => expect(commands()).toHaveLength(1))
   expect(composer).toHaveValue('Yo fui ayer')
   expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')

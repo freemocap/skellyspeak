@@ -10,6 +10,8 @@ import { useAudibleScrub, type AudibleScrub } from './useAudibleScrub'
 export interface RecordingPlayback {
   time: number
   playing: boolean
+  /** Remote speech may still be preparing before this retained track plays. */
+  preparing?: boolean
   toggle: () => void
   seek: (seconds: number) => void
   scrub: AudibleScrub

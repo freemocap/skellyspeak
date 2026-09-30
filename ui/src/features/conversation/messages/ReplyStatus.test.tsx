@@ -12,7 +12,7 @@ function project(turn: TurnView, paused = false) {
 }
 it.each(['failed', 'unknown', 'cancelled', 'invalidated', 'succeeded'])('does not show progress for terminal reply %s', state => {
   render(<ReplyStatus reply={project(execution(state))} />)
-  expect(screen.queryByText('Thinking…')).toBeNull()
+  expect(screen.queryByText('Replying…')).toBeNull()
   expect(screen.queryByText('Independent coach error')).toBeNull()
 })
 it('treats holds and both pause gates as stopped, even while turn state remains pending', () => {
@@ -37,11 +37,11 @@ it('retries explicitly once, surfaces admission rejection, and only displays pro
   fireEvent.click(screen.getByRole('button', { name: 'Retry exchange' }))
   fireEvent.click(screen.getByRole('button', { name: 'Retry exchange' }))
   expect(control).toHaveBeenCalledExactlyOnceWith('retry')
-  expect(screen.queryByText('Thinking…')).toBeNull()
+  expect(screen.queryByText('Replying…')).toBeNull()
   await act(async () => reject(new Error('Connection changed')))
   await waitFor(() => expect(screen.getByText('Connection changed')).toBeVisible())
   view.rerender(<ReplyStatus reply={project(execution('running', 'pending'))} onControl={control} />)
-  expect(screen.getByText('Thinking…')).toBeInTheDocument()
+  expect(screen.getByText('Replying…')).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Retry exchange' })).toBeNull()
 })
 it('gives a pending reply the landed bubble shape: a reading line and an action footer', () => {
@@ -49,8 +49,10 @@ it('gives a pending reply the landed bubble shape: a reading line and an action 
   const bubble = view.container.querySelector('.msg.bot') as HTMLElement
   expect(bubble).toHaveClass('with-actions')
   expect(bubble.querySelector('.reply-placeholder')).not.toBeNull()
-  expect(bubble.querySelector('.message-actions.reply-activity')).toHaveTextContent('Thinking…')
+  expect(bubble.querySelector('.message-actions.reply-activity')).toHaveTextContent('Replying…')
   view.rerender(<ReplyStatus reply={project(execution('running', 'pending'))} stream={{ text: 'Hola' } as never} />)
   expect(view.container.querySelector('.msg.bot')).toBe(bubble)
   expect(bubble.querySelector('.reply-received.target-text')).toHaveTextContent('Hola')
+  expect(screen.getByRole('status')).toHaveTextContent('Receiving reply…')
+  expect(screen.queryByText('Replying…')).toBeNull()
 })

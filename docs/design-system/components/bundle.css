@@ -328,6 +328,8 @@
                          (the plot rows are grid track sizes: the reference shares
                          the stage at full width and has its own height stacked) */
   --reading-scale: 1;
+  /* Requested inline aid rows, supplied per message by ReadingPreferences. */
+  --reading-aid-rows: 1;
   --script-scale: 1;
   --word-spacing: 0px;
   --ai-inspector-width: 40%;
@@ -1641,12 +1643,10 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .target-text { font-family: var(--font-serif); line-height: var(--leading-normal); white-space: pre-wrap; }
 
-/* Word meanings are set to show but have not arrived: plain text takes the
-   annotated line pitch (the word line plus its gloss row), so their arrival
-   does not add height to every line. Glosses can still widen words enough to
-   wrap onto another line; that growth cannot be known before they arrive. */
+/* Reserve the requested gloss and sound rows, not a single row for every
+   preference combination. Variable-length annotations can still grow. */
 .aids-reserved .target-text {
-  line-height: calc(var(--leading-normal) * 1em + var(--type-meta) * var(--reading-scale) * var(--leading-tight));
+  line-height: calc(var(--leading-normal) * 1em + var(--reading-aid-rows) * (var(--type-meta) * var(--reading-scale) * var(--leading-tight) + var(--space-hairline)));
 }
 
 .wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); font-weight: var(--weight-regular); font-style: normal; }
@@ -1789,6 +1789,11 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 /* Shared message tools: optional labels remain inline until their container
    runs out of room. Play, inspection and owner actions remain directly available. */
 .message-tools { position: relative; align-items: center; max-inline-size: 100%; }
+/* Pending feedback replaces the controls visually, retaining their geometry.
+   Hidden controls are also inert/disabled in MessageTools. */
+.message-tools[data-pending] > :not(.message-tools-progress) { visibility: hidden; }
+.message-tools.reply-activity { flex-wrap: nowrap; }
+.message-tools-progress { position: absolute; inset: 0; display: flex; align-items: center; overflow: hidden; }
 .message-tools-icon {
   display: inline-flex; align-items: center; justify-content: center; flex: none;
   width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0;
@@ -1904,17 +1909,17 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 
 .activity-summary-last { flex: none; color: var(--ink-3); white-space: nowrap; }
 
-.turn-activity { min-width: 0; transition: opacity var(--dur-slow) var(--ease-out); }
-
-.turn-activity[data-settled=true] { opacity: 0.7; }
+.turn-activity { min-width: 0; }
 
 .turn-activity-open { display: inline-flex; max-width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
 
-.turn-activity-open:hover .activity-summary-text { color: var(--ink); text-decoration: underline; }
+.turn-activity-open:hover { color: var(--ink); text-decoration: underline; }
 
 /* The pending reply's footer holds its progress where the landed reply's
    actions will sit, at the same height. */
 .reply-activity { min-height: var(--control-height-xs); align-items: center; flex-wrap: nowrap; overflow: hidden; }
+.reply-activity .activity-indicator { padding: 0; }
+@media (pointer: coarse) { .reply-activity { min-height: var(--touch-target); } }
 
 /* A reading line reserved before any reply text arrives. */
 .reply-placeholder::before { content: '\00a0'; }
@@ -1932,7 +1937,8 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 }
 
 /* Received reply text: exactly what arrived, in one plain node. */
-.reply-received { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+.reply-received { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reply-unrevealed { visibility: hidden; }
 
 .msg[data-reply-state] .reply-received { margin-block-end: var(--space-3); color: var(--ink-2); }
 
@@ -2504,10 +2510,8 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   gap: var(--space-10);
 }
 
-/* Messages settle at the bottom, next to the composer, and grow upward. The
-   spacer collapses once the conversation fills the stream, so scrolling is
-   unaffected; the empty top leaves room for XP cards opening from the header. */
-.chat .stream:has(.turn-stack)::before { content: ''; flex: 1 0 0; }
+/* Anchor short conversations at the top. Late replies and aids grow downward
+   instead of pushing every earlier bubble up from a bottom-aligned spacer. */
 
 /* Turns inside a reading-language scope (display: contents) are stream items
    too; without full width each turn shrinks to its content and centres. */
@@ -2608,9 +2612,14 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 
 .msg.me .wg { color: var(--ink-3); }
 
-.msg.rtl .w, .msg.rtl .target-text {
+.msg.rtl .w, .msg.rtl:not(.aids-reserved) .target-text {
   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
   line-height: var(--leading-vocalized);
+}
+
+/* Vocalized source text keeps its own leading while awaiting reading aids. */
+.msg.rtl.aids-reserved .target-text {
+  line-height: calc(var(--leading-vocalized) * 1em + var(--reading-aid-rows) * (var(--type-meta) * var(--reading-scale) * var(--leading-tight) + var(--space-hairline)));
 }
 
 .msg.rtl .wg { font-size: var(--type-meta); }
@@ -2729,12 +2738,8 @@ button.language-table-name:hover { color: var(--interaction-ink); }
    The paths are drawn for --bubble-tail-width × --bubble-tail-height. */
 .msg.chat-message.bot { border-bottom-left-radius: 0; }
 .msg.chat-message.me { border-bottom-right-radius: 0; }
-/* A message held open before its content lands (PendingBubble) grows into place
-   from its tail, then fills in; the landed message that replaces it does not
-   grow again. */
-.msg.chat-message[data-arriving] { animation: card-open var(--dur-slow) var(--ease-out); }
-.msg.chat-message.bot[data-arriving] { transform-origin: bottom left; }
-.msg.chat-message.me[data-arriving] { transform-origin: bottom right; }
+/* Admission fades in without moving or scaling the bubble's geometry. */
+.msg.chat-message[data-arriving] { animation: hydrate-arrive var(--dur-fast) var(--ease-out); }
 @media (prefers-reduced-motion: reduce) { .msg.chat-message[data-arriving] { animation: none; } }
 .msg.chat-message.bot::before, .msg.chat-message.bot::after,
 .msg.chat-message.me::before, .msg.chat-message.me::after {
@@ -2800,7 +2805,10 @@ button.language-table-name:hover { color: var(--interaction-ink); }
    verdict and XP open their details; the scores live in the coach panel. The
    line keeps its place in every state from "Analyzing…" to the verdict. */
 .learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
-.learner-turn > .msg.chat-message.me { margin-bottom: 0; }
+.learner-turn > .msg.chat-message.me { margin-bottom: 0; text-align: right; }
+/* Stable conversation widths prevent growing text and late tools from changing
+   line wraps on every delta. Excerpts keep their content-sized layout. */
+.turn-stack .learner-turn > .msg.chat-message.me { width: 80%; }
 .message-feedback-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); max-width: 80%; min-width: 0; font: var(--type-meta)/var(--leading-snug) var(--font-sans); }
 .message-feedback-line > .feedback-badge {
   display: inline-flex; column-gap: var(--space-2); min-width: 0; max-width: 100%; overflow: hidden;
@@ -2808,6 +2816,8 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   background: transparent; color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-none) var(--font-sans); text-align: start;
 }
 .message-feedback-line > .feedback-badge:hover { color: var(--ink); background: var(--line-soft); }
+/* Admission has no coaching verdict yet; keep the landed feedback footprint. */
+.message-feedback-line > .pending-feedback { visibility: hidden; }
 .message-feedback-line > .feedback-badge.feedback-error { color: var(--danger-ink); }
 /* Compact scores open the full assessment: a small chip, about a line of its
    text tall. Everything on the line is that tall in every state (the anchor
@@ -2861,9 +2871,13 @@ button.language-table-name:hover { color: var(--interaction-ink); }
    row share the same treatment on both sides, independent of source typography. */
 /* The partner's reply with its reaction to your message beside it, at the
    bubble's foot, in a column that is kept whether or not there is a reaction. */
-.partner-turn { display: flex; align-items: flex-end; max-width: 92%; gap: var(--space-2); }
-.partner-turn > .msg.chat-message.bot { flex: 0 1 auto; min-width: 0; max-width: 100%; margin-bottom: 0; }
-.partner-reaction-slot { flex: none; display: flex; width: var(--reaction-badge-gutter); }
+.partner-turn { display: flex; align-items: flex-start; width: calc(80% + var(--reaction-badge-gutter) + var(--space-2)); max-width: 92%; gap: var(--space-2); }
+.partner-turn > .msg.chat-message.bot { flex: 1 1 0; min-width: 0; max-width: 100%; margin-bottom: 0; }
+.partner-reaction-slot { flex: none; display: flex; align-self: flex-end; width: var(--reaction-badge-gutter); }
+@media (pointer: coarse) {
+  .partner-turn { width: calc(80% + var(--touch-target) + var(--space-2)); }
+  .partner-reaction-slot { width: var(--touch-target); }
+}
 .msg.chat-message .message-feedback { max-width: none; align-items: stretch; font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-align: start; }
 .msg.chat-message .message-actions {
   justify-content: flex-start;
@@ -2885,7 +2899,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .turn-stack[data-editing] .learner-turn .msg.chat-message.me { outline: var(--border-width-strong) dashed var(--coach-mark); outline-offset: var(--space-2); }
 .learner-turn-editing { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: var(--coach-ink); color: var(--sheet); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); }
 /* A resent edit keeps a quiet marker; the replaced original is not shown. */
-.learner-turn-edited { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); }
+.learner-turn-edited { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); }
 
 /* ── features/conversation/composer.css ── */
 /* Composer layout: the edit banner, the status line and the voice panel
@@ -5095,17 +5109,16 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
-/* The partner's reaction to the learner's message: a small status chip beside
-   the reply, at its foot, where the partner speaks from. */
+/* The reaction icon sits beside the reply's tail. Its transparent button keeps
+   keyboard access and the detail action without a visible enclosing chip. */
 .persona-reaction {
   width: var(--reaction-badge-gutter);
   min-width: var(--reaction-badge-gutter);
   min-height: 0;
   height: var(--reaction-badge-size);
   padding: var(--space-hairline) var(--space-3);
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-lg);
-  background: var(--sheet);
+  border: 0;
+  background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5114,6 +5127,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   cursor: pointer;
 }
 .persona-reaction[data-reaction="unavailable"] { color: var(--warning-ink); }
+@media (pointer: coarse) { .persona-reaction { min-width: var(--touch-target); min-height: var(--touch-target); } }
 
 
 

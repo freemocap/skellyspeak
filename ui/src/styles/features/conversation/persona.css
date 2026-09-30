@@ -142,17 +142,16 @@
 
 .persona-hint { margin: 0; font-size: var(--type-ui); line-height: var(--leading-normal); color: var(--ink-3); }
 
-/* The partner's reaction to the learner's message: a small status chip beside
-   the reply, at its foot, where the partner speaks from. */
+/* The reaction icon sits beside the reply's tail. Its transparent button keeps
+   keyboard access and the detail action without a visible enclosing chip. */
 .persona-reaction {
   width: var(--reaction-badge-gutter);
   min-width: var(--reaction-badge-gutter);
   min-height: 0;
   height: var(--reaction-badge-size);
   padding: var(--space-hairline) var(--space-3);
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-lg);
-  background: var(--sheet);
+  border: 0;
+  background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -161,6 +160,7 @@
   cursor: pointer;
 }
 .persona-reaction[data-reaction="unavailable"] { color: var(--warning-ink); }
+@media (pointer: coarse) { .persona-reaction { min-width: var(--touch-target); min-height: var(--touch-target); } }
 
 
 

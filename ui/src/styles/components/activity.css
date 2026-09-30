@@ -38,17 +38,17 @@
 
 .activity-summary-last { flex: none; color: var(--ink-3); white-space: nowrap; }
 
-.turn-activity { min-width: 0; transition: opacity var(--dur-slow) var(--ease-out); }
-
-.turn-activity[data-settled=true] { opacity: 0.7; }
+.turn-activity { min-width: 0; }
 
 .turn-activity-open { display: inline-flex; max-width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
 
-.turn-activity-open:hover .activity-summary-text { color: var(--ink); text-decoration: underline; }
+.turn-activity-open:hover { color: var(--ink); text-decoration: underline; }
 
 /* The pending reply's footer holds its progress where the landed reply's
    actions will sit, at the same height. */
 .reply-activity { min-height: var(--control-height-xs); align-items: center; flex-wrap: nowrap; overflow: hidden; }
+.reply-activity .activity-indicator { padding: 0; }
+@media (pointer: coarse) { .reply-activity { min-height: var(--touch-target); } }
 
 /* A reading line reserved before any reply text arrives. */
 .reply-placeholder::before { content: '\00a0'; }
@@ -66,7 +66,8 @@
 }
 
 /* Received reply text: exactly what arrived, in one plain node. */
-.reply-received { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+.reply-received { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reply-unrevealed { visibility: hidden; }
 
 .msg[data-reply-state] .reply-received { margin-block-end: var(--space-3); color: var(--ink-2); }
 

@@ -19,6 +19,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
   const generation = useRef(0)
   const current = useRef<{ messageId: string; operationId: string | null; sessionId: string; stop?: () => void } | null>(null)
   const [messageId, setMessageId] = useState<string | null>(null)
+  const [phase, setPhase] = useState<'idle' | 'preparing' | 'playing'>('idle')
   const [retained, setRetained] = useState<MessageAudio | null>(null)
   const [time, setTime] = useState(0)
   const playerRef = useRef<PlaybackHandle | null>(null)
@@ -39,6 +40,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
     if (previous?.operationId && !previous.stop) cancelOperation(previous.sessionId, previous.operationId)
     baseline.current?.eligible.clear()
     setMessageId(null)
+    setPhase('idle')
   }, [cancelOperation])
 
   useEffect(() => {
@@ -61,13 +63,14 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       if (audio.status === 'pending') { await new Promise(resolve => setTimeout(resolve, 400)); continue }
       if (audio.status === 'unavailable') throw { message: audio.message, code: audio.reason, diagnostics: { ...audio.diagnostics as object, operationId, attemptId: audio.attemptId } }
       setRetained({ sessionId, audio }); setTime(startSeconds)
-      const finish = () => { if (scope === generation.current) { current.current = null; setMessageId(null) } }
+      const finish = () => { if (scope === generation.current) { current.current = null; playerRef.current = null; setMessageId(null); setPhase('idle') } }
       const player = playSpeechAudio(audio, finish, error => {
         if (scope === generation.current) { setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech playback', error); finish() }
       }, playback.current.rate, playback.current.volume, {
         sourceText: latest.current?.messages.find(message => message.id === sourceId)?.text,
         startSeconds,
         onReady: handle => { if (scope === generation.current) playerRef.current = handle },
+        onPlaying: playing => { if (scope === generation.current && current.current?.messageId === sourceId) setPhase(playing ? 'playing' : 'preparing') },
         onTime: (seconds, total) => { if (scope === generation.current) { duration.current = total; setTime(seconds) } },
       })
       current.current = { messageId: sourceId, operationId, sessionId, stop: player.stop }
@@ -83,7 +86,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
     stop()
     const scope = generation.current
     current.current = { messageId: sourceId, operationId: operationId ?? null, sessionId: state.sessionId }
-    setMessageId(sourceId); setFailure(null)
+    setMessageId(sourceId); setPhase('preparing'); setFailure(null)
     try {
       if (!operationId) {
         const receipt = await executeAction(state, { kind: 'requestMessageSpeech', messageId: sourceId })
@@ -95,7 +98,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       if (speechPlaybackPermit() !== permit) { stop(); return }
       await consume(scope, permit, state.sessionId, operationId, sourceId, startSeconds)
     } catch (error) {
-      if (scope === generation.current) { current.current = null; setMessageId(null); setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech', error) }
+      if (scope === generation.current) { current.current = null; playerRef.current = null; setMessageId(null); setPhase('idle'); setFailure({ messageId: sourceId, text: errorMessage(error), details: errorDetails(error) }); reportFault('Speech', error) }
     }
   }, [active, conversationId, stop, consume, cancelOperation])
 
@@ -136,5 +139,5 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
     else if (retained?.audio.messageId === sourceId) void start(sourceId, retained.audio.operationId, time < duration.current ? time : 0)
     else void start(sourceId)
   }
-  return { messageId, failure, stop, toggle, retained, time, seek, resume }
+  return { messageId, phase, failure, stop, toggle, retained, time, seek, resume }
 }

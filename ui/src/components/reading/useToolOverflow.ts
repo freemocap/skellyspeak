@@ -14,8 +14,10 @@ export function useToolOverflow(count: number, labels: string) {
       const actions = row.querySelector<HTMLElement>('.message-tools-fixed')!
       const more = sizing.querySelector<HTMLElement>('.message-tools-more')!
       const tools = [...sizing.querySelectorAll<HTMLElement>('[data-measured-tool]')]
-      const base = fixed.getBoundingClientRect().width + actions.getBoundingClientRect().width + gap
-      const widths = tools.map(tool => tool.getBoundingClientRect().width + gap)
+      // Border-box layout widths retain fractions without the entrance transform.
+      const layoutWidth = (element: HTMLElement) => Number.parseFloat(getComputedStyle(element).width) || element.offsetWidth
+      const base = layoutWidth(fixed) + layoutWidth(actions) + gap
+      const widths = tools.map(tool => layoutWidth(tool) + gap)
       // Let short bubbles grow to fit their tools before deciding what overflows.
       // The stylesheet caps this preferred width at the available content width.
       row.style.inlineSize = `${Math.ceil(base + widths.reduce((sum, value) => sum + value, 0))}px`
@@ -24,7 +26,7 @@ export function useToolOverflow(count: number, labels: string) {
       let n = count
       if (base + widths.reduce((sum, value) => sum + value, 0) > width) {
         const actionGap = Number.parseFloat(getComputedStyle(actions.parentElement!).columnGap) || 0
-        let available = width - base - more.getBoundingClientRect().width - actionGap
+        let available = width - base - layoutWidth(more) - actionGap
         n = 0
         for (const needed of widths) { if (needed > available) break; available -= needed; n++ }
       }

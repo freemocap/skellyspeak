@@ -13,7 +13,7 @@ export interface PlaybackHandle {
   setRate: (rate: number) => void
 }
 
-export interface PlaybackObserver { onTime?: (seconds: number, duration: number) => void; onReady?: (player: PlaybackHandle | null) => void; startSeconds?: number; sourceText?: string; followSource?: { text: string; start: number } }
+export interface PlaybackObserver { onPlaying?: (playing: boolean) => void; onTime?: (seconds: number, duration: number) => void; onReady?: (player: PlaybackHandle | null) => void; startSeconds?: number; sourceText?: string; followSource?: { text: string; start: number } }
 
 let current: PlaybackHandle | null = null
 
@@ -53,6 +53,7 @@ export function playSpeechAudio(state: Pick<Extract<SpeechAudioState, { status: 
       observer?.onReady?.(null)
       audio.onloadedmetadata = null
       audio.onended = null; audio.onerror = null
+      audio.onplaying = null; audio.onwaiting = null; audio.onpause = null
       audio.pause(); audio.removeAttribute('src'); audio.load()
       URL.revokeObjectURL(url)
       release(handle)
@@ -75,6 +76,9 @@ export function playSpeechAudio(state: Pick<Extract<SpeechAudioState, { status: 
     setVolume: (value: number) => { if (!released) audio.volume = value },
   }
   audio.onloadedmetadata = () => { if (observer?.startSeconds) handle.seek(observer.startSeconds) }
+  // A handle and a play request are not evidence that media is playing.
+  audio.onplaying = () => { if (!released && current === handle) observer?.onPlaying?.(true) }
+  audio.onwaiting = audio.onpause = () => { if (!released && current === handle) observer?.onPlaying?.(false) }
   audio.onended = () => { observer?.onTime?.(audio.currentTime, audio.duration); handle.stop(); onEnd() }
   audio.onerror = () => { const error = mediaError(audio.error, 'Speech playback'); handle.stop(); onError(error) }
   current?.suspend()

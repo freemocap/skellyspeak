@@ -120,12 +120,10 @@
 
 .target-text { font-family: var(--font-serif); line-height: var(--leading-normal); white-space: pre-wrap; }
 
-/* Word meanings are set to show but have not arrived: plain text takes the
-   annotated line pitch (the word line plus its gloss row), so their arrival
-   does not add height to every line. Glosses can still widen words enough to
-   wrap onto another line; that growth cannot be known before they arrive. */
+/* Reserve the requested gloss and sound rows, not a single row for every
+   preference combination. Variable-length annotations can still grow. */
 .aids-reserved .target-text {
-  line-height: calc(var(--leading-normal) * 1em + var(--type-meta) * var(--reading-scale) * var(--leading-tight));
+  line-height: calc(var(--leading-normal) * 1em + var(--reading-aid-rows) * (var(--type-meta) * var(--reading-scale) * var(--leading-tight) + var(--space-hairline)));
 }
 
 .wg, .wroman, .wpronunciation { font-size: calc(var(--type-meta) * var(--reading-scale)); font-weight: var(--weight-regular); font-style: normal; }
@@ -268,6 +266,11 @@
 /* Shared message tools: optional labels remain inline until their container
    runs out of room. Play, inspection and owner actions remain directly available. */
 .message-tools { position: relative; align-items: center; max-inline-size: 100%; }
+/* Pending feedback replaces the controls visually, retaining their geometry.
+   Hidden controls are also inert/disabled in MessageTools. */
+.message-tools[data-pending] > :not(.message-tools-progress) { visibility: hidden; }
+.message-tools.reply-activity { flex-wrap: nowrap; }
+.message-tools-progress { position: absolute; inset: 0; display: flex; align-items: center; overflow: hidden; }
 .message-tools-icon {
   display: inline-flex; align-items: center; justify-content: center; flex: none;
   width: var(--control-height-xs); height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0;

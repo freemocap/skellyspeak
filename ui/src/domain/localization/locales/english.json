@@ -1,4 +1,6 @@
 {
+  "Preparing audio…": "Preparing audio…",
+  "Cancel speech preparation": "Cancel speech preparation",
   "Language XP": "Language XP",
   "Fixes": "Fixes",
   "Fixed": "Fixed",
@@ -91,7 +93,6 @@
   "All partners": "All partners",
   "All retained dispatched attempts": "All retained dispatched attempts",
   "All varieties": "All varieties",
-  "Analysing…": "Analysing…",
   "Analysis": "Analysis",
   "Analyze your message": "Analyze your message",
   "Analyzing…": "Analyzing…",
@@ -495,7 +496,6 @@
   "vs ": "vs ",
   "⟳ Analyzing grammar…": "⟳ Analyzing grammar…",
   "Stop playback": "Stop playback",
-  "Thinking…": "Thinking…",
   "your language": "your language",
   "Never opened": "Never opened",
   "This view crashed: {message}": "This view crashed: {message}",
@@ -1490,5 +1490,7 @@
   "Single words and greetings": "Single words and greetings",
   "Everyday short phrases": "Everyday short phrases",
   "Fuller sentences to ask and explain": "Fuller sentences to ask and explain",
-  "Longer, more natural speech": "Longer, more natural speech"
+  "Longer, more natural speech": "Longer, more natural speech",
+  "Receiving reply…": "Receiving reply…",
+  "Background activity": "Background activity"
 }

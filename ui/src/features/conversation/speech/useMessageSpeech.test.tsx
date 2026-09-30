@@ -25,6 +25,39 @@ beforeEach(() => {
   native.invoke.mockImplementation(async (_command, { operationId }) => ({ status: 'ready', operationId, messageId: operationId === 'manual' ? 'old' : operationId.slice(7), attemptId: operationId, mime: 'audio/mpeg', audioBase64: '' }))
 })
 
+it('distinguishes requested and ready audio from actual playback, including buffering and stop', async () => {
+  let ready!: (value: unknown) => void
+  native.invoke.mockImplementationOnce(() => new Promise(resolve => { ready = resolve }))
+  const view = renderHook(() => useMessageSpeech(snapshot(['old']), 'chat', true, true))
+  expect(view.result.current.phase).toBe('idle')
+  act(() => view.result.current.toggle('old'))
+  expect(view.result.current.phase).toBe('preparing')
+  await waitFor(() => expect(native.invoke).toHaveBeenCalledOnce())
+  await act(async () => ready({ status: 'ready', operationId: 'manual', messageId: 'old', attemptId: 'attempt', mime: 'audio/mpeg', audioBase64: '' }))
+  expect(native.play).toHaveBeenCalledOnce()
+  expect(view.result.current.phase).toBe('preparing')
+  const observer = native.player.mock.calls[0][5]
+  act(() => observer.onPlaying(true))
+  expect(view.result.current.phase).toBe('playing')
+  act(() => observer.onPlaying(false))
+  expect(view.result.current.phase).toBe('preparing')
+  act(() => observer.onPlaying(true))
+  act(() => view.result.current.stop())
+  expect(view.result.current.phase).toBe('idle')
+  act(() => observer.onPlaying(true))
+  expect(view.result.current.phase).toBe('idle')
+  expect(view.result.current.messageId).toBeNull()
+})
+
+it('clears preparation on playback rejection while retaining failure details', async () => {
+  native.play.mockRejectedValueOnce(new Error('Playback denied'))
+  const view = renderHook(() => useMessageSpeech(snapshot(['old']), 'chat', true, true))
+  act(() => view.result.current.toggle('old'))
+  await waitFor(() => expect(view.result.current.failure?.text).toContain('Playback denied'))
+  expect(view.result.current.phase).toBe('idle')
+  expect(view.result.current.failure?.details).toBeDefined()
+})
+
 it('keeps inspection on the same audio and clock, seeks it, and resumes without a generation command', async () => {
   const view = renderHook(({ rate }) => useMessageSpeech(snapshot(['old']), 'chat', true, true, rate), { initialProps: { rate: 1 } })
   act(() => view.result.current.toggle('old'))
@@ -66,7 +99,9 @@ it('manual replay requests the selected source and duplicate clicks stop pending
   native.execute.mockImplementation((_state, action) => action.kind === 'requestMessageSpeech' ? new Promise(resolve => { finish = resolve }) : Promise.resolve({}))
   const view = renderHook(() => useMessageSpeech(snapshot(['old']), 'chat', true, true))
   act(() => view.result.current.toggle('old'))
+  expect(view.result.current.phase).toBe('preparing')
   act(() => view.result.current.toggle('old'))
+  expect(view.result.current.phase).toBe('idle')
   await act(async () => finish({ entityId: 'manual' }))
   expect(native.execute).toHaveBeenCalledWith(expect.anything(), { kind: 'requestMessageSpeech', messageId: 'old' })
   expect(native.execute).toHaveBeenCalledWith(expect.anything(), { kind: 'cancelMessageSpeech', operationId: 'manual' })

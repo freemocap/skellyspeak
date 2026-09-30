@@ -11,7 +11,7 @@ import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
 import { useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
 import { useReadAloud } from './useReadAloud'
-import { useReadingPreferences } from './ReadingPreferences'
+import { useReadingAidSpace, useReadingPreferences } from './ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
 import { TargetText } from './TargetText'
 import { useSavedReading } from './SavedReadingProvider'
@@ -23,6 +23,7 @@ import { TranslationStatus, translationPending } from './TranslationStatus'
 export type TargetMessageLayout = 'bubble' | 'passage' | 'compact'
 
 export interface TargetMessageSpeech {
+  preparing?: boolean
   disabled?: boolean
   speaking: boolean
   onToggle: () => void
@@ -35,6 +36,8 @@ export interface TargetMessageAnalysis {
 }
 
 export interface TargetMessageProps {
+  /** Optional source presentation; the complete text still owns tools and speech. */
+  sourcePresentation?: ReactNode
   side?: 'me' | 'bot'
   text: string
   /// Word meanings already known for `text`, anchored by UTF-16 offsets.
@@ -87,7 +90,7 @@ export interface TargetMessageProps {
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
   segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, practiceAction, provenance, readAloud = true, side = 'bot',
-  inspect = null, inspector, onSelect,
+  inspect = null, inspector, onSelect, sourcePresentation,
 }: TargetMessageProps) {
   const tr = useI18n()
   const preferences = useReadingPreferences()
@@ -116,6 +119,7 @@ export function TargetMessage({
 
   const aidsEnabled = preferences.autoTranslate || preferences.alwaysRomanize || preferences.alwaysPronunciation
   const [wordsOverride, setWordsOverride] = useState<boolean | null>(null)
+  const aidSpace = useReadingAidSpace(wordsOverride === true)
   const wordsOpen = wordsOverride ?? (aidsEnabled && known.length > 0)
   const [translationOverride, setTranslationOverride] = useState<boolean | null>(null)
   const translationOpen = translationOverride ?? preferences.autoTranslate
@@ -158,9 +162,9 @@ export function TargetMessage({
   }
 
   const body = <>
-    {known.length > 0
+    {sourcePresentation ?? (known.length > 0
       ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} />
-      : <TargetText text={text} />}
+      : <TargetText text={text} />)}
     {annotation}
     {translationShown && <div className="trans" dir="auto">{shownTranslation}</div>}
     {translationState !== undefined && <TranslationStatus state={translationState} shown={translationOpen && shownTranslation === null} />}
@@ -179,7 +183,7 @@ export function TargetMessage({
     ...(sound ? [{ key: 'sound', label: tr('Pronunciation'), pressed: soundOpen, onSelect: () => setSoundOverride(!soundOpen) }] : []),
   ]
   const actions = <MessageTools tools={tools} inspect={inspect} more={more}
-    play={playback && { playing: playback.speaking, disabled: playback.disabled, onToggle: playback.onToggle }}
+    play={playback && { playing: playback.speaking, preparing: 'preparing' in playback && playback.preparing, disabled: playback.disabled, onToggle: playback.onToggle }}
     actions={<>{provenance && <ProvenanceTip provenance={provenance} />}{practiceAction ?? (addToDrill && <AddToDrillButton text={text} />)}</>} />
   const failure = <>
     {words.error != null && <ErrorDetails onRetry={toggleWords} label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
@@ -187,8 +191,8 @@ export function TargetMessage({
   </>
 
   // Meanings that are set to show and still being produced keep their line pitch.
-  const aidsReserved = aidsEnabled && known.length === 0 && segmentsPending
-  const bubble = <div {...bubbleSelection(onSelect, focused, side === 'me' ? tr("Your message") : tr("Partner replied"))} className={`msg chat-message ${side} with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${aidsReserved ? ' aids-reserved' : ''}${inspect?.open ? ' inspecting' : ''}`}>
+  const aidsReserved = (wordsOverride ?? aidsEnabled) && ((known.length === 0 && segmentsPending) || sourcePresentation !== undefined)
+  const bubble = <div {...bubbleSelection(onSelect, focused, side === 'me' ? tr("Your message") : tr("Partner replied"))} style={aidSpace} className={`msg chat-message ${side} with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${aidsReserved ? ' aids-reserved' : ''}${inspect?.open ? ' inspecting' : ''}`}>
     {body}{inspector}{actions}{failure}
     {(onSelect || focused) && <SelectionRing />}
   </div>

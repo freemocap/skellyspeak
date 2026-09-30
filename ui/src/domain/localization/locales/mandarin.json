@@ -1,4 +1,6 @@
 {
+  "Preparing audio…": "正在准备音频…",
+  "Cancel speech preparation": "取消音频准备",
   "Language XP": "语言经验值",
   "Fixes": "修正",
   "Fixed": "已修正",
@@ -108,7 +110,6 @@
   "All partners": "所有伙伴",
   "All retained dispatched attempts": "所有保留的已发送尝试",
   "All varieties": "所有语言变体",
-  "Analysing…": "正在分析…",
   "Analyze your message": "分析你的消息",
   "Analyzing…": "正在分析…",
   "App activity": "应用活动",
@@ -495,7 +496,6 @@
   "vs ": "对比",
   "⟳ Analyzing grammar…": "⟳ 正在分析语法…",
   "Stop playback": "停止播放",
-  "Thinking…": "正在思考…",
   "your language": "你的语言",
   "Never opened": "从未打开",
   "This view crashed: {message}": "此视图崩溃：{message}",
@@ -1490,5 +1490,7 @@
   "Single words and greetings": "单词和问候语",
   "Everyday short phrases": "日常短语",
   "Fuller sentences to ask and explain": "用于提问和解释的完整句子",
-  "Longer, more natural speech": "更长、更自然的表达"
+  "Longer, more natural speech": "更长、更自然的表达",
+  "Receiving reply…": "正在接收回复…",
+  "Background activity": "后台活动"
 }

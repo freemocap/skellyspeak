@@ -9,7 +9,8 @@ it('shows streamed text exactly as it arrived, including partial words', () => {
   const view = render(<ReplyStatus reply={{ state: 'pending', error: null, control: null }} stream={stream} />)
   expect(view.container.querySelector('.reply-received')).toHaveTextContent('¡Qué bien! Entonces fu')
   expect(view.container.querySelector('.is-hydrating')).not.toBeNull()
-  expect(view.container.querySelector('.stream-caret')).not.toBeNull()
+  // Streaming state does not add an inline caret that can wrap onto a new line.
+  expect(view.container.querySelector('.reply-received')).toHaveClass('streaming')
 })
 
 it.each(['failed', 'unknown', 'cancelled'] as const)('keeps received text visible when the reply ends %s', state => {

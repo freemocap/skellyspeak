@@ -54,7 +54,7 @@ function Preview() {
   return <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'var(--space-8)', padding: 'var(--space-8)', background: 'var(--bg)', minHeight: '100dvh' }}>
     <section aria-label="Chat" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
       <h2>Chat: live status and hydration</h2>
-      <ReplyStatus reply={{ state: tick < 10 ? 'pending' : 'unavailable', error: null, control: null }} activity={activity} stream={stream} />
+      <ReplyStatus reply={{ state: tick < 10 ? 'pending' : 'unavailable', error: null, control: null }} stream={stream} />
       {tick >= 10 && <div className="msg chat-message bot"><p>{REPLY}</p><TranslationStatus shown state={turn.operations.find(item => item.kind === 'reply_translation')!.state} /></div>}
       {tick >= 10 && <TurnActivityLine activity={activity} />}
       <h3>Failed mid-stream: the text stays</h3>

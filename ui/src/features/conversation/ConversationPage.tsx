@@ -27,6 +27,7 @@ import { ComposerInput } from './composer/ComposerInput'
 import { ErrorDetails } from '../../components/feedback/ErrorDetails'
 import { RequestFailure } from './messages/RequestFailure'
 import { PendingTurn } from './messages/PendingTurn'
+import { useTurnDisplayKeys } from './messages/useTurnDisplayKeys'
 import { usePendingMessage } from './session/usePendingMessage'
 import { ReadingPreferencesProvider } from '../../components/reading/ReadingPreferences'
 import { configureRewardSounds, stopRewardSounds } from '../../platform/audio/reward-sounds'
@@ -278,11 +279,11 @@ export default function ConversationPage({
   const streamTail = pendingMessage ? `sending:${pendingMessage.key}:${pendingMessage.phase}`
     : (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
   const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
-  // Sending shows the new message, even from earlier in the conversation.
+  // New messages go to the tail; revisions stay at the message being edited.
   const jumpToLatest = useRef(streamScroll.jumpToLatest)
   jumpToLatest.current = streamScroll.jumpToLatest
   const pendingKey = pendingMessage?.key
-  useEffect(() => { if (pendingKey) jumpToLatest.current() }, [pendingKey])
+  useEffect(() => { if (pendingKey && !pendingMessage?.editing) jumpToLatest.current() }, [pendingKey])
 
   const tier = useWidthTier()
   const isMobile = tier !== 'full'
@@ -469,6 +470,7 @@ export default function ConversationPage({
   }, [settings?.shortcuts])
 
   const activeTurns = turns.filter(turn => !turn.replacedBy)
+  const turnDisplayKeys = useTurnDisplayKeys(currentChatId, turns)
   const editingTurn = turns.find((turn) => turn.id === editingTurnId)
   /** Coach controls act on the turn's decision as it is when they run. */
   const coachControl = async (turnId: string, control: CoachControl): Promise<void> => {
@@ -584,7 +586,7 @@ export default function ConversationPage({
   const uiDirection = useUiDirection()
   const recorder = useRecorderLayout('chat', uiDirection)
 
-  const aiBusy = replyActive
+
 
 
   // Where the docked coach panel does not fit (compact and narrow), the coach
@@ -611,7 +613,8 @@ export default function ConversationPage({
   // Bind the recording to the accepted send receipt, never to matching text.
   const recordingTurnId = sentRecording?.recordingId === mic.lastTranscription?.inspection.recordingId
     ? activeTurns.find(turn => turn.turnId === sentRecording?.turnId)?.id ?? null : null
-  const analysing = (aiBusy || activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0) ? <ActivityIndicator label={tr("Analysing…")} /> : null
+  const analysing = (activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0)
+    ? <button type="button" className="turn-activity-open" onClick={() => inspectLatest()} title={tr('Open AI activity')}>{tr('Background activity')}</button> : null
   const inspectLatest = () => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: latestTurn?.turnId ?? null, operationKind: null })
   const replyHelp = (
     <ConversationErrorScope conversationId={snapshot?.conversationId} turn={latestTurn?.execution}>
@@ -631,7 +634,7 @@ export default function ConversationPage({
   </> }) : undefined
   const composerActivity = (
     <div className="composer-activity" aria-live="polite">
-      {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={tr("Replying…")} />
+      {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={pendingReply ? tr("Replying…") : tr("Sending…")} />
         : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
         : analysing}
     </div>
@@ -730,12 +733,10 @@ export default function ConversationPage({
           ) : turns.length === 0 && !error && !pendingMessage && (
             snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
-          {activeTurns.map((turn) => pendingMessage?.editing?.id === turn.id
-            // An edit in flight takes the place of the turn it replaces.
-            ? <PendingTurn key={turn.turnId} message={pendingMessage} rtl={rtl} onOpenSettings={onOpenSettings} onDismiss={() => releasePending(pendingMessage.key)} />
-            : (
-            <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
+          {activeTurns.map((turn) => (
+            <ConversationErrorScope key={turn.turnId ? turnDisplayKeys.get(turn.turnId) : turn.id} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
               turn={turn}
+              pendingEdit={pendingMessage?.editing?.id === turn.id ? pendingMessage : undefined}
               editing={turn.id === editingTurnId}
               onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
               onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
@@ -746,13 +747,14 @@ export default function ConversationPage({
               selectedSide={selectedTurn?.id === turn.id ? selectedSide : undefined}
               focused={(pinnedId ?? latestAssistantId) === turn.id}
               ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
-              speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId)}
+              speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId && speech.phase === 'playing')}
               speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
               onSpeak={() => { if (turn.assistant?.messageId) speech.resume(turn.assistant.messageId) }}
               partnerSpeech={isTauri && turn.assistant?.messageId ? {
                 retained: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.retained : null,
                 time: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.time : 0,
-                playing: speech.messageId === turn.assistant.messageId,
+                playing: speech.messageId === turn.assistant.messageId && speech.phase === 'playing',
+                preparing: speech.messageId === turn.assistant.messageId && speech.phase === 'preparing',
                 enabled: active && !mic.recording && !mic.transcribing,
                 rate: settings?.tts_rate ?? 1, volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000,
                 seek: seconds => speech.seek(turn.assistant!.messageId!, seconds), stop: speech.stop,

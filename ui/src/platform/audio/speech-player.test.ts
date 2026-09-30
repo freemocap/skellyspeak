@@ -12,6 +12,7 @@ interface Media {
   currentTime: number; duration: number; onloadedmetadata: (() => void) | null
   playbackRate: number; volume: number; preservesPitch: boolean
   paused?: boolean; seeking?: boolean; readyState?: number
+  onplaying?: (() => void) | null; onwaiting?: (() => void) | null; onpause?: (() => void) | null
 }
 
 function stubAudio(): { media: Media[]; revoke: ReturnType<typeof vi.fn> } {
@@ -29,6 +30,23 @@ function stubAudio(): { media: Media[]; revoke: ReturnType<typeof vi.fn> } {
 
 // Playback authority is module state, so every test restores it.
 afterEach(() => { setPlaybackAllowed(true); vi.unstubAllGlobals() })
+
+it('reports media playback events rather than readiness or play requests, and ignores released events', async () => {
+  const { media } = stubAudio()
+  const playing = vi.fn()
+  const player = playSpeechAudio(audio0, vi.fn(), vi.fn(), 1, 1, { onPlaying: playing })
+  await player.play()
+  expect(playing).not.toHaveBeenCalled()
+  media[0].onplaying?.()
+  expect(playing).toHaveBeenLastCalledWith(true)
+  media[0].onwaiting?.()
+  expect(playing).toHaveBeenLastCalledWith(false)
+  const late = media[0].onplaying
+  player.stop()
+  late?.()
+  expect(playing).toHaveBeenCalledTimes(2)
+  expect(media[0].onplaying).toBeNull()
+})
 
 it('follows timestamps on the media clock, clears gaps, and ignores an older player stopping', async () => {
   const { media } = stubAudio()

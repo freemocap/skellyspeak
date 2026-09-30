@@ -39,10 +39,8 @@
   gap: var(--space-10);
 }
 
-/* Messages settle at the bottom, next to the composer, and grow upward. The
-   spacer collapses once the conversation fills the stream, so scrolling is
-   unaffected; the empty top leaves room for XP cards opening from the header. */
-.chat .stream:has(.turn-stack)::before { content: ''; flex: 1 0 0; }
+/* Anchor short conversations at the top. Late replies and aids grow downward
+   instead of pushing every earlier bubble up from a bottom-aligned spacer. */
 
 /* Turns inside a reading-language scope (display: contents) are stream items
    too; without full width each turn shrinks to its content and centres. */

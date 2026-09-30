@@ -30,9 +30,14 @@
 
 .msg.me .wg { color: var(--ink-3); }
 
-.msg.rtl .w, .msg.rtl .target-text {
+.msg.rtl .w, .msg.rtl:not(.aids-reserved) .target-text {
   font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale));
   line-height: var(--leading-vocalized);
+}
+
+/* Vocalized source text keeps its own leading while awaiting reading aids. */
+.msg.rtl.aids-reserved .target-text {
+  line-height: calc(var(--leading-vocalized) * 1em + var(--reading-aid-rows) * (var(--type-meta) * var(--reading-scale) * var(--leading-tight) + var(--space-hairline)));
 }
 
 .msg.rtl .wg { font-size: var(--type-meta); }
@@ -151,12 +156,8 @@
    The paths are drawn for --bubble-tail-width × --bubble-tail-height. */
 .msg.chat-message.bot { border-bottom-left-radius: 0; }
 .msg.chat-message.me { border-bottom-right-radius: 0; }
-/* A message held open before its content lands (PendingBubble) grows into place
-   from its tail, then fills in; the landed message that replaces it does not
-   grow again. */
-.msg.chat-message[data-arriving] { animation: card-open var(--dur-slow) var(--ease-out); }
-.msg.chat-message.bot[data-arriving] { transform-origin: bottom left; }
-.msg.chat-message.me[data-arriving] { transform-origin: bottom right; }
+/* Admission fades in without moving or scaling the bubble's geometry. */
+.msg.chat-message[data-arriving] { animation: hydrate-arrive var(--dur-fast) var(--ease-out); }
 @media (prefers-reduced-motion: reduce) { .msg.chat-message[data-arriving] { animation: none; } }
 .msg.chat-message.bot::before, .msg.chat-message.bot::after,
 .msg.chat-message.me::before, .msg.chat-message.me::after {
@@ -222,7 +223,10 @@
    verdict and XP open their details; the scores live in the coach panel. The
    line keeps its place in every state from "Analyzing…" to the verdict. */
 .learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
-.learner-turn > .msg.chat-message.me { margin-bottom: 0; }
+.learner-turn > .msg.chat-message.me { margin-bottom: 0; text-align: right; }
+/* Stable conversation widths prevent growing text and late tools from changing
+   line wraps on every delta. Excerpts keep their content-sized layout. */
+.turn-stack .learner-turn > .msg.chat-message.me { width: 80%; }
 .message-feedback-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); max-width: 80%; min-width: 0; font: var(--type-meta)/var(--leading-snug) var(--font-sans); }
 .message-feedback-line > .feedback-badge {
   display: inline-flex; column-gap: var(--space-2); min-width: 0; max-width: 100%; overflow: hidden;
@@ -230,6 +234,8 @@
   background: transparent; color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-none) var(--font-sans); text-align: start;
 }
 .message-feedback-line > .feedback-badge:hover { color: var(--ink); background: var(--line-soft); }
+/* Admission has no coaching verdict yet; keep the landed feedback footprint. */
+.message-feedback-line > .pending-feedback { visibility: hidden; }
 .message-feedback-line > .feedback-badge.feedback-error { color: var(--danger-ink); }
 /* Compact scores open the full assessment: a small chip, about a line of its
    text tall. Everything on the line is that tall in every state (the anchor
@@ -283,9 +289,13 @@
    row share the same treatment on both sides, independent of source typography. */
 /* The partner's reply with its reaction to your message beside it, at the
    bubble's foot, in a column that is kept whether or not there is a reaction. */
-.partner-turn { display: flex; align-items: flex-end; max-width: 92%; gap: var(--space-2); }
-.partner-turn > .msg.chat-message.bot { flex: 0 1 auto; min-width: 0; max-width: 100%; margin-bottom: 0; }
-.partner-reaction-slot { flex: none; display: flex; width: var(--reaction-badge-gutter); }
+.partner-turn { display: flex; align-items: flex-start; width: calc(80% + var(--reaction-badge-gutter) + var(--space-2)); max-width: 92%; gap: var(--space-2); }
+.partner-turn > .msg.chat-message.bot { flex: 1 1 0; min-width: 0; max-width: 100%; margin-bottom: 0; }
+.partner-reaction-slot { flex: none; display: flex; align-self: flex-end; width: var(--reaction-badge-gutter); }
+@media (pointer: coarse) {
+  .partner-turn { width: calc(80% + var(--touch-target) + var(--space-2)); }
+  .partner-reaction-slot { width: var(--touch-target); }
+}
 .msg.chat-message .message-feedback { max-width: none; align-items: stretch; font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-align: start; }
 .msg.chat-message .message-actions {
   justify-content: flex-start;
@@ -307,4 +317,4 @@
 .turn-stack[data-editing] .learner-turn .msg.chat-message.me { outline: var(--border-width-strong) dashed var(--coach-mark); outline-offset: var(--space-2); }
 .learner-turn-editing { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: var(--coach-ink); color: var(--sheet); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); }
 /* A resent edit keeps a quiet marker; the replaced original is not shown. */
-.learner-turn-edited { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); }
+.learner-turn-edited { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); }

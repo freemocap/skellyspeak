@@ -17,16 +17,21 @@ import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMapp
 import { GlossAssistance } from '../reading/GlossAssistance'
 import { SavedGlossText } from '../../../components/reading/SavedGlossText'
 import { TargetMessage } from '../../../components/reading/TargetMessage'
-import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
+import { useReadingAidSpace, useReadingPreferences } from '../../../components/reading/ReadingPreferences'
 import { TargetText } from '../../../components/reading/TargetText'
 import { ReplyStatus } from './ReplyStatus'
-import { retainedReplyText, turnActivity } from '../../../domain/conversation/activity-summary'
+import { ReceivedText } from './PendingBubble'
+import { useReplyReveal } from './useReplyReveal'
+import { StableTurn } from './StableTurn'
+import { PendingLearner, WAITING_REPLY } from './PendingTurn'
+import type { PendingMessage } from '../session/usePendingMessage'
+import { retainedReplyText } from '../../../domain/conversation/activity-summary'
 import { useReplyStream } from '../../../state/session/attempt-streams'
 import { TranslationStatus, translationPending } from '../../../components/reading/TranslationStatus'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { PracticeContext } from '../session/PracticeContext'
 import { coachFlags, coachMarks } from '../../../domain/conversation/coach-marks'
-import { memo, useContext, useEffect, useMemo, useState } from 'react'
+import { memo, useContext, useEffect, useRef, useState } from 'react'
 import { MessageFeedback } from '../coaching/MessageFeedback'
 import { PersonaReaction } from '../partners/PersonaReaction'
 import type { GuidedTurnResult } from '../../../types'
@@ -95,11 +100,19 @@ export interface TurnViewProps {
   onEditUser?: (turn: TurnShape) => void
   /** This turn's message is open in the composer to be fixed and resent. */
   editing: boolean
+  pendingEdit?: PendingMessage
 }
 
 /// Memoized: during streaming, every delta re-renders only the turn that
 /// changed — not the whole conversation.
-export const TurnView = memo(function TurnView({
+export const TurnView = memo(function TurnView(props: TurnViewProps) {
+  return <StableTurn className="turn-stack" data-editing={props.editing ? '' : undefined} data-pending={props.pendingEdit?.phase}>
+    <TurnContents key={props.turn.turnId ?? props.turn.id} {...props} />
+  </StableTurn>
+})
+
+// Record-specific controls reset on revision; the presentation floor stays put.
+function TurnContents({
   turn,
   reviewing,
   onAskCoach,
@@ -114,6 +127,7 @@ export const TurnView = memo(function TurnView({
   recording,
   onEditUser,
   editing,
+  pendingEdit,
   onCoachControl,
   editDisabled,
   onRetryGloss,
@@ -124,7 +138,11 @@ export const TurnView = memo(function TurnView({
 }: TurnViewProps) {
   const tr = useI18n()
   const replyStream = useReplyStream(turn.execution)
-  const activity = useMemo(() => turn.execution ? turnActivity(turn.execution, replyStream?.text ?? null) : null, [turn.execution, replyStream])
+  const arrivedPending = useRef(!turn.assistant)
+  useEffect(() => { if (!turn.assistant || pendingEdit) arrivedPending.current = true }, [turn.assistant, pendingEdit])
+  const replyText = turn.assistant?.reply || replyStream?.text || retainedReplyText(turn.execution) || ''
+  const reveal = useReplyReveal(replyText, arrivedPending.current && (Boolean(turn.assistant) || turn.replyState?.state === 'pending'))
+
   const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
   // Your recording's inspector opens only when you ask for it.
   const [inspectorOpen, setInspectorOpen] = useState(false)
@@ -135,6 +153,7 @@ export const TurnView = memo(function TurnView({
   const aidsEnabled = autoTranslate || alwaysRomanize || alwaysPronunciation
   const [userWordsOverride, setUserWordsOverride] = useState<boolean | null>(null)
   const userWordsOpen = userWordsOverride ?? aidsEnabled
+  const aidSpace = useReadingAidSpace(userWordsOverride === true)
   useEffect(() => { setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation])
   const { snapshot } = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
@@ -179,17 +198,19 @@ export const TurnView = memo(function TurnView({
   ]
 
   return (
-    <div className="turn-stack" data-editing={editing ? '' : undefined}>
+    <>
       {turn.user && (
         <div className="learner-turn">
           {editing && <span className="learner-turn-editing"><ToolbarIcon name="edit" size={12} />{tr("Fixing this message")}</span>}
           {!editing && turn.replacesTurnId && <span className="learner-turn-edited"><ToolbarIcon name="fixes" size={13} />{tr("Fixed")}</span>}
+          {pendingEdit ? <PendingLearner message={pendingEdit} rtl={rtl} /> : <>
           <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
             reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
             bubble={analysisTool => (
               <div
                 {...bubbleSelection(onSelectMessage ? () => onSelectMessage(turn.id, 'user') : undefined, selectedSide === 'user', tr("Your message"))}
                 className={`msg chat-message me${selectedSide === 'user' ? ' focused' : ''}${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
+                style={aidSpace}
               >
                 {userSegments.length > 0
                   ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
@@ -213,9 +234,10 @@ export const TurnView = memo(function TurnView({
                 {(onSelectMessage || selectedSide === 'user') && <SelectionRing />}
               </div>
             )} />
+          </>}
         </div>
       )}
-      {assistant && (
+      {assistant && !pendingEdit && (
         <div className="partner-turn">
           <span className="partner-reaction-slot">
             {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
@@ -223,22 +245,23 @@ export const TurnView = memo(function TurnView({
           <TargetMessage provenance={null}
             layout="bubble"
             text={assistant.reply}
+            sourcePresentation={reveal.revealing ? <ReceivedText text={assistant.reply} visibleText={reveal.text} streaming rtl={rtl} /> : undefined}
             segments={assistant.savedGloss?.segments ?? anchoredTokenGlosses(assistant.reply, assistant.tokens)}
             segmentsKey={assistant.savedGloss ? `${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}` : 'tokens'}
-            segmentsPending={assistant.glossState === 'running'}
+            segmentsPending={['ready', 'waiting_dependencies', 'running'].includes(assistant.glossState ?? '')}
             lookupWords={false}
-            translation={assistant.translation}
+            translation={assistant.translation || null}
             translateLabel={tr("Translate partner message")}
             romanization={null}
             pronunciation={null}
             annotation={null}
             translationState={assistant.translationState}
             status={<GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />}
-            speech={ttsReady && onSpeak ? { speaking, disabled: partnerSpeech && !partnerSpeech.enabled, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
+            speech={ttsReady && onSpeak ? { speaking, preparing: partnerSpeech?.preparing, disabled: partnerSpeech && !partnerSpeech.enabled, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
             analysis={{ pending: assistant.explanationsState === 'running', onOpen: () => onBubbleTap(turn.id) }}
             inspect={partnerSpeech ? { kind: 'available', open: partnerInspectorOpen, disabled: !partnerSpeech.enabled, onToggle: () => {
               setPartnerInspectorOpen(!partnerInspectorOpen)
-              if (!partnerInspectorOpen && !partnerSpeech.retained && !partnerSpeech.playing) partnerSpeech.toggle()
+              if (!partnerInspectorOpen && !partnerSpeech.retained && !partnerSpeech.playing && !partnerSpeech.preparing) partnerSpeech.toggle()
             } } : null}
             inspector={partnerSpeech && <MessageSpeechInspection open={partnerInspectorOpen} speech={partnerSpeech} text={assistant.reply} />}
             onSelect={onSelectMessage ? () => onSelectMessage(turn.id, 'assistant') : undefined}
@@ -247,9 +270,11 @@ export const TurnView = memo(function TurnView({
           />
         </div>
       )}
-      {assistant === null && (
-        <ReplyStatus reply={turn.replyState} activity={activity} stream={replyStream} retainedText={retainedReplyText(turn.execution)} rtl={rtl} onControl={onReplyControl} onActivity={onActivity} />
+      {pendingEdit ? (
+        pendingEdit.phase === 'sending' && <ReplyStatus reply={WAITING_REPLY} rtl={rtl} />
+      ) : assistant === null && (
+        <ReplyStatus reply={turn.replyState} stream={replyStream} visibleText={reveal.text} retainedText={retainedReplyText(turn.execution)} rtl={rtl} onControl={onReplyControl} onActivity={onActivity} />
       )}
-    </div>
+    </>
   )
-})
+}
