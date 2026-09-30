@@ -18,7 +18,7 @@ def response(execute, slots, private):
 
         async def emit(value):
             nonlocal sequence
-            record = {'version': 2, 'seq': sequence, **value}
+            record = {'version': 3, 'seq': sequence, **value}
             sequence += 1
             await queue.put((json.dumps(record, ensure_ascii=True, allow_nan=False) + '\n').encode())
 
@@ -27,8 +27,7 @@ def response(execute, slots, private):
                 async with slots:
                     await emit({'type': 'start', 'format': 'pcm_s16le', 'sample_rate': 24000, 'channels': 1})
                     result, usage = await execute(lambda chunk: emit({'type': 'audio', **chunk}))
-                    await emit({'type': 'complete', 'total_samples': round(result.duration_seconds * 24000),
-                                'alignment': result.alignment, 'usage': usage})
+                    await emit({'type': 'complete', 'usage': usage})
             except Exception as error:
                 if asyncio.current_task().cancelling():
                     raise asyncio.CancelledError() from error

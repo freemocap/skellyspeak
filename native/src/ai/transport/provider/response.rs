@@ -44,7 +44,7 @@ pub fn validate_prose(text: &str) -> Result<()> {
 }
 
 pub fn decode(bytes: &[u8]) -> Result<Completion> {
-    let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
+    let mut value: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
         crate::diagnostics::response::invalid(
             "completion_json",
             "$",
@@ -57,6 +57,30 @@ pub fn decode(bytes: &[u8]) -> Result<Completion> {
             &serde_json::Value::Null,
         )
     })?;
+    // Decision results remain provider data on the wire. Project their answers
+    // here; feature publication still validates the requested answer contract.
+    if value.get("answers").is_some() {
+        if !value["answers"].is_object() {
+            return Err(crate::diagnostics::response::invalid(
+                "decisions",
+                "answers",
+                "typed answers object",
+                &value,
+            ));
+        }
+        value["choices"] = serde_json::json!([{"finish_reason":"stop", "message":{
+            "content":serde_json::to_string(&value["answers"])?}}]);
+        if let Some(usage) = value.get_mut("usage").and_then(|v| v.as_object_mut()) {
+            for (source, target) in [
+                ("input_tokens", "prompt_tokens"),
+                ("output_tokens", "completion_tokens"),
+            ] {
+                if let Some(count) = usage.get(source).cloned() {
+                    usage.insert(target.into(), count);
+                }
+            }
+        }
+    }
     let invalid = |path: &str, expected: &str| {
         crate::diagnostics::response::invalid("completion", path, expected, &value)
     };
@@ -134,3 +158,28 @@ pub fn decode(bytes: &[u8]) -> Result<Completion> {
 #[cfg(test)]
 #[path = "tests/response.rs"]
 mod tests;
+
+#[cfg(test)]
+mod decision_relay_tests {
+    use super::*;
+    use serde_json::json;
+    #[test]
+    fn native_projects_raw_decisions_and_preserves_billing() {
+        let value = json!({"id":"decision-1","model":"fixture","answers":{"skill":{"choice":"partial"}},
+            "usage":{"input_tokens":123,"output_tokens":45,"cost":0.0005}});
+        let result = decode(&serde_json::to_vec(&value).unwrap()).unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&result.text).unwrap(),
+            value["answers"]
+        );
+        assert_eq!(result.input_tokens, Some(123));
+        assert_eq!(result.output_tokens, Some(45));
+        assert_eq!(result.diagnostics.unwrap()["usage"]["cost"], 0.0005);
+        let bad = json!({"id":"bad-decision","answers":null,"usage":{"cost":0.0005}});
+        let error = decode(&serde_json::to_vec(&bad).unwrap()).unwrap_err();
+        let diagnostics = error.diagnostics.unwrap();
+        assert_eq!(diagnostics["path"], "answers");
+        assert_eq!(diagnostics["response"]["id"], "bad-decision");
+        assert_eq!(diagnostics["response"]["usage"]["cost"], 0.0005);
+    }
+}

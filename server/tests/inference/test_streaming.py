@@ -32,3 +32,9 @@ async def test_every_unicode_chunk_boundary() -> None:
 async def test_bad_streams_fail(stream: bytes) -> None:
     with pytest.raises(ValueError):
         _ = [event async for event in streaming.events(chunks([stream]))]
+
+@pytest.mark.asyncio
+async def test_finish_reasons_and_error_frames_reach_native_unchanged():
+    stream = b'data: {"choices":[{"finish_reason":"length"}]}\n\ndata: {"error":{"code":502,"message":"partial"}}\n\ndata: [DONE]\n\n'
+    result = [frame async for frame in streaming.events(chunks([stream]))]
+    assert result == [{'choices':[{'finish_reason':'length'}]}, {'error':{'code':502,'message':'partial'}}, None]

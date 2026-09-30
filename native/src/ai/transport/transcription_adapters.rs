@@ -4,8 +4,9 @@ use crate::ai::audio::{
 };
 use crate::model::{AppError, ErrorCode, Result};
 use crate::speech::analysis::fluency::TranscriptTiming;
-use serde::Deserialize;
-use serde_json::{Value, json};
+use serde_json::Value;
+#[cfg(test)]
+use serde_json::json;
 pub(super) struct Adapter;
 fn invalid(message: &str) -> AppError {
     AppError::new(ErrorCode::Validation, message)
@@ -31,7 +32,27 @@ impl Adapter {
         Ok(tag.clone())
     }
     pub fn form(model: &str, input: TranscriptionRequest) -> Result<reqwest::multipart::Form> {
-        let language = Self::language(&input.language)?;
+        let tag = Self::language(&input.language)?;
+        let catalog = crate::configuration::speech::Catalog::bundled();
+        let primary = crate::configuration::speech::primary(&tag)
+            .ok_or_else(|| invalid("Invalid transcription language."))?;
+        let definition = catalog.models.get(model);
+        let language = definition
+            .and_then(|d| catalog.language_sets.get(&d.languages))
+            .and_then(|languages| languages.get(primary))
+            .map(String::as_str)
+            .unwrap_or(primary);
+        if definition.is_some_and(|d| !d.allow_unlisted_languages)
+            && definition
+                .and_then(|d| catalog.language_sets.get(&d.languages))
+                .and_then(|set| set.get(primary))
+                .is_none()
+        {
+            return Err(invalid(
+                "Selected transcription model does not declare this language.",
+            ));
+        }
+        let word_provider = definition.is_some_and(|d| d.provider == "elevenlabs");
         let mut form = reqwest::multipart::Form::new()
             .part(
                 "file",
@@ -41,14 +62,40 @@ impl Adapter {
                     .map_err(|_| invalid("Invalid audio type."))?,
             )
             .text("model", model.to_owned())
-            .text("language", language)
-            .text("response_format", "json");
-        if let Some(context) = input.context {
-            form = form.text("prompt", context);
+            .text("language", language.to_owned());
+        if word_provider {
+            for (key, value) in [
+                ("timestamps_granularity", "word"),
+                ("tag_audio_events", "false"),
+                ("diarize", "false"),
+                ("no_verbatim", "false"),
+            ] {
+                form = form.text(key, value);
+            }
+        } else {
+            form = form
+                .text("response_format", "verbose_json")
+                .text("timestamp_granularities[]", "word")
+                .text("timestamp_granularities[]", "segment");
+            if let Some(context) = input.context {
+                let context = format!("{tag}\n{context}");
+                let end = (0..=context.len().min(224))
+                    .rev()
+                    .find(|&n| context.is_char_boundary(n))
+                    .unwrap();
+                form = form.text("prompt", context[..end].to_owned());
+            }
         }
         Ok(form)
     }
+    #[cfg(test)]
     pub fn decode(bytes: &[u8]) -> Result<TranscriptionOutcome> {
+        Self::decode_with_duration(bytes, None)
+    }
+    pub fn decode_with_duration(
+        bytes: &[u8],
+        duration: Option<f64>,
+    ) -> Result<TranscriptionOutcome> {
         let value: Value = serde_json::from_slice(bytes).map_err(|cause| {
             crate::diagnostics::response::json_context(
                 &cause,
@@ -56,59 +103,44 @@ impl Adapter {
                 invalid("Invalid transcription JSON."),
             )
         })?;
-        let mut diagnostics = crate::diagnostics::response::metadata(&value, &[]);
+        if value["version"] != 3 || !value["response"].is_object() {
+            return Err(crate::diagnostics::response::invalid(
+                "transcription",
+                "version/response",
+                "version 3 provider response",
+                &value,
+            ));
+        }
+        let raw = &value["response"];
         let failure = || {
             crate::diagnostics::response::invalid(
                 "transcription",
-                "$",
-                "text and optional valid timing",
+                "response.text",
+                "bounded transcript text",
                 &value,
             )
         };
-        let text = value["text"].as_str().ok_or_else(failure)?.to_owned();
-        let parsed: Result<TranscriptionResult> = (|| {
-            #[derive(Deserialize)]
-            struct Wire {
-                text: String,
-                timing: Option<TranscriptTiming>,
-            }
-            let wire: Wire = serde_json::from_value(value.clone()).map_err(|_| failure())?;
-            if let Some(timing) = &wire.timing {
-                if timing.text != wire.text {
-                    return Err(failure());
-                }
-                crate::speech::analysis::fluency::validate_timing(
-                    &timing.text,
-                    timing.duration,
-                    &timing.words,
-                )
-                .map_err(|_| failure())?;
-                if timing.words.iter().any(|word| word.end > timing.duration) {
-                    return Err(failure());
-                }
-            }
-            Ok(TranscriptionResult {
-                text: wire.text,
-                timing: wire.timing,
-            })
-        })();
-        let result = match parsed {
-            Ok(result) => result,
-            Err(error) => {
-                diagnostics["timing"] = json!({"status":"unavailable", "stage":"transcription_timing",
-                    "reason":"invalid_provider_timing", "validation":error.diagnostics});
-                TranscriptionResult { text, timing: None }
-            }
-        };
-        if result.text.chars().count() > 20000 || result.text.contains('\0') {
+        let text = raw["text"].as_str().ok_or_else(failure)?.to_owned();
+        if text.chars().count() > 20000 || text.contains('\0') {
             return Err(failure());
         }
-        let mut diagnostics = crate::diagnostics::response::metadata(&diagnostics, &[]);
-        // Keep the bounded confidence summary even if verbose provider metadata
-        // exhausts the general diagnostic budget. Only declared scalar fields survive.
-        if let Some(summary) = super::transcription_confidence::summary(&value) {
+        let mut diagnostics = crate::diagnostics::response::metadata(&value, &[]);
+        let duration = duration.or_else(|| raw["duration"].as_f64()).unwrap_or(0.0);
+        let timing = match super::transcription_timing::decode(raw, duration) {
+            Ok(timing) => {
+                serde_json::from_value::<Option<TranscriptTiming>>(timing).map_err(|_| failure())?
+            }
+            Err(reason) => {
+                diagnostics["timing"] = reason;
+                None
+            }
+        };
+        // Compute before redacting/truncating provider lists for diagnostics.
+        if let Some(summary) = super::transcription_confidence::from_response(raw) {
             diagnostics["transcription_confidence"] = summary;
         }
+        let result = TranscriptionResult { text, timing };
+
         Ok(TranscriptionOutcome {
             result,
             diagnostics: Some(diagnostics),
@@ -122,9 +154,8 @@ mod confidence_tests {
 
     #[test]
     fn existing_service_evidence_reaches_the_drill_gate() {
-        let value = json!({"text":"fixture", "usage":{"diagnostics":{"response":{"segments":[
-            {"avg_logprob":-0.05339829,"no_speech_prob":0.0012197495}
-        ]}}}});
+        let value = json!({"version":3,"response":{"text":"fixture","segments":[
+            {"avg_logprob":-0.05339829,"no_speech_prob":0.0012197495}]}});
         let outcome = Adapter::decode(&serde_json::to_vec(&value).unwrap()).unwrap();
         let mut wav = std::io::Cursor::new(Vec::new());
         let spec = hound::WavSpec {
@@ -159,13 +190,19 @@ mod confidence_tests {
 
     #[test]
     fn confidence_survives_verbose_metadata_limits_without_content() {
-        let summary = json!({"score":0.8,"complete":true,"count":100,"no_speech_probability":0.1,"source":"word_logprobs","private_extra":"private transcript"});
-        let value = json!({"text":"private transcript", "transcription_confidence":summary,
-            "usage":{"diagnostics":{"response":{"segments":vec![json!({"text":"private transcript","logprob":-0.2}); 2000]}}}});
+        let value = json!({"version":3,"response":{"text":"private transcript",
+            "words":vec![json!({"type":"word","text":"private transcript","logprob":0.8f64.ln()});100]}});
         let outcome = Adapter::decode(&serde_json::to_vec(&value).unwrap()).unwrap();
         assert_eq!(outcome.result.text, "private transcript");
         let metadata = outcome.diagnostics.unwrap();
-        assert_eq!(metadata["transcription_confidence"]["score"], 0.8);
+        assert!(
+            (metadata["transcription_confidence"]["score"]
+                .as_f64()
+                .unwrap()
+                - 0.8)
+                .abs()
+                < 1e-12
+        );
         assert_eq!(
             metadata["transcription_confidence"]["source"],
             "word_logprobs"

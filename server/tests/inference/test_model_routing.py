@@ -184,7 +184,7 @@ async def test_new_transcription_model_reaches_groq_once(proxy, monkeypatch, sta
     assert len(sent) == 1
     assert response.status_code == (200 if status == 200 else 502)
     if status == 200:
-        assert response.json()['text'] == 'Hola'
+        assert response.json()['response']['text'] == 'Hola'
     else:
         assert response.json()['code'] == 'GROQ_HTTP_400'
         assert response.json()['diagnostics']['error']['message'] == 'The selected transcription model is unavailable.'

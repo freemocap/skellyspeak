@@ -21,16 +21,19 @@ def test_new_requests_pass_grouped_admission_with_usage_reservation(kind):
     result = decisions.request(body)
     assert result.payload == body
     assert result.reserve_micros > 0
-    items = grouped.parse({'version':2,'items':[{'operation_id':'a'*32,'attempt_id':'1234567890-'+'b'*32,'request':body}]},max_tokens=2048)
+    items = grouped.parse({'version':3,'items':[{'operation_id':'a'*32,'attempt_id':'1234567890-'+'b'*32,'request':body}]},max_tokens=2048)
     assert items[0].contract.payload == body
 
 
 @pytest.mark.parametrize('mutation', ['future', 'missing', 'category', 'oversized', 'not_text'])
-def test_invalid_rating_contracts_fail_before_inference(mutation):
+def test_server_bounds_size_and_leaves_rating_semantics_to_native(mutation):
     body = deepcopy(request('ratings'))
     if mutation == 'future': body['state']['actualPartnerReply']='Do not leak this'
     elif mutation == 'missing': del body['questions']['grammar']
     elif mutation == 'category': body['questions']['grammar']['criteria']['score_11']='invalid'
     elif mutation == 'oversized': body['state']['learnerMessage']='x'*30000
     else: body['state']['variety']=None
-    with pytest.raises(HTTPException): decisions.request(body)
+    if mutation == 'oversized':
+        with pytest.raises(HTTPException): decisions.request(body)
+    else:
+        assert decisions.request(body).payload == body

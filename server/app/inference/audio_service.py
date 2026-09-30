@@ -1,10 +1,9 @@
-"""Hosted audio admission and normalized wire results; adapters own provider JSON.
+"""Hosted audio admission and raw response envelopes; native interprets provider JSON.
 
 Allowance estimates are not provider invoices. Unknown submissions retain their
 reservation, even when an error response can be delivered. No retries/fallbacks.
 """
 import asyncio
-import base64
 import json
 import math
 from functools import partial
@@ -15,9 +14,9 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from server.app.inference import audio_input
-from server.app.inference.transcription_languages import availability, language_code
+from server.app.inference.transcription_languages import availability
 from server.app.inference.audio_contracts import AudioFailure, SynthesisRequest, TranscriptionRequest
-from server.app.inference.elevenlabs import ElevenLabs, synthesis_text
+from server.app.inference.elevenlabs import ElevenLabs
 from server.app.inference.transcription_profiles import bind, MAX_MICROS_PER_HOUR
 from server.app.diagnostics import runtime, observability
 
@@ -111,12 +110,12 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
             value = json.loads(raw)
         except (ValueError, UnicodeError):
             raise HTTPException(400, "Invalid speech request JSON.") from None
-        if not isinstance(value, dict) or set(value) != {"model", "text", "language", "language_tag"}:
-            raise HTTPException(400, "Speech requires model, text, language variety and language_tag.")
+        if not isinstance(value, dict) or set(value) != {"model", "text", "language_code"}:
+            raise HTTPException(400, "Speech requires model, prepared text and language_code.")
         _model(value["model"], cfg.tts_model)
-        code = language_code(value["model"], value["language_tag"], 'speech')
-        if code is None:
-            raise AudioRejection(400, "AUDIO_LANGUAGE_UNSUPPORTED", "The selected speech model does not support this language tag.")
+        code = value["language_code"]
+        if code is not None and (not isinstance(code, str) or not code.isascii() or not code.isalpha() or not 2 <= len(code) <= 3):
+            raise HTTPException(400, "Invalid provider language code.")
         text = value["text"]
         try:
             valid = isinstance(text, str) and text.strip() and len(text.encode()) <= 16_384 and "\0" not in text
@@ -125,17 +124,10 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
         if not valid:
             raise HTTPException(400, "Invalid speech source text.")
         # [@elevenlabs_pricing_20260918] Explicit service rate, not actual billing.
-        source = SynthesisRequest(cfg.tts_model, cfg.elevenlabs_voice_id, text,
-                                  language_variety=value["language"])
-        if source.language_variety is None:
-            raise HTTPException(400, "Speech requires a language variety.")
-        try:
-            provider_text = synthesis_text(source)
-            if len(provider_text.encode("utf-8")) > 16_384 or len(provider_text) > 5_000:
-                raise ValueError()
-        except (ValueError, UnicodeError):
-            raise HTTPException(400, "Invalid speech language variety, model or input limit.") from None
-        amount = len(provider_text) * cfg.tts_micros_per_character
+        source = SynthesisRequest(cfg.tts_model, cfg.elevenlabs_voice_id, text, language_code=code)
+        if len(text) > 5_000:
+            raise HTTPException(400, "Speech exceeds provider input limit.")
+        amount = len(text) * cfg.tts_micros_per_character
         if request.headers.get('accept') == 'application/x-ndjson':
             from server.app.inference.speech_streaming import response
 
@@ -153,12 +145,11 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
                     raise_cancelled_unknown=True, progress=progress)
                 return result, _usage(result, amount)
 
-            return response(execute_stream, _slots, (text, provider_text, cfg.elevenlabs_key))
+            return response(execute_stream, _slots, (text, cfg.elevenlabs_key))
         result = await _execute(who, reserve, settle, amount, lambda adapter: adapter.synthesize(source),
                                 provider="elevenlabs", label="ElevenLabs",
                                 create=lambda client: ElevenLabs(client, api_key=cfg.elevenlabs_key))
-        return JSONResponse({"version": 1, "audio_base64": base64.b64encode(result.wav).decode(),
-                             "format": "wav", "alignment": result.alignment, "usage": _usage(result, amount)})
+        return JSONResponse({"version": 3, "response": result.response, "usage": _usage(result, amount)})
 
 
 async def transcribe(request, who, cfg, reserve, settle, read_body):
@@ -180,21 +171,17 @@ async def transcribe(request, who, cfg, reserve, settle, read_body):
                 content_type=content_type, language_code_width=3))
             language = audio.fields.get("language")
             binding = bind(audio.fields["model"], cfg)
-            if binding.language_code(language) is None:
+            if not language:
                 raise AudioRejection(400, "AUDIO_LANGUAGE_REQUIRED", "The selected model requires an explicit supported language tag.")
             if not binding.configured:
                 raise AudioRejection(503, "AUDIO_NOT_CONFIGURED", f"{binding.label} transcription is not configured on this server.")
-            duration = len(audio.pcm) / (2 * audio_input.SAMPLE_RATE)
+            duration = audio.duration
             amount = math.ceil(max(10, math.ceil(duration)) * binding.micros_per_hour / 3600)
-            source = TranscriptionRequest(audio.pcm, language, audio.fields.get("prompt", ""))
+            source = TranscriptionRequest(audio.wav, language, {k: v for k, v in audio.fields.items() if k not in {"model", "language"}})
             transferred = True
             result = await _execute(who, reserve, settle, amount, lambda transcribe: transcribe(source),
                                     provider=binding.provider, label=binding.label, create=binding.create, reservation=reservation, raise_cancelled_unknown=True)
-            return JSONResponse({"version": 1, "text": result.text,
-                "transcription_confidence": (result.receipt.diagnostics or {}).get("transcription_confidence"),
-                "timing": {"text": result.text, "duration": result.duration_seconds,
-                           "words": [{"word": w.text, "start": w.start, "end": w.end} for w in result.words]} if result.words is not None else None,
-                "usage": _usage(result, amount)})
+            return JSONResponse({"version": 3, "response": result.response, "usage": _usage(result, amount)})
         finally:
             if reservation is not None and not transferred:
                 await settle(reservation, cost=0, tokens=0, provider_id="", cost_basis="estimate", raise_unknown=False)

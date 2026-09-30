@@ -1,8 +1,6 @@
 use super::*;
 use crate::language::reading;
 use crate::learning::coaching::conversation_support as support;
-#[cfg(test)]
-use base64::{Engine, engine::general_purpose::STANDARD};
 
 /// Local preview only: a cache miss must never create or dispatch reading work.
 #[tauri::command]

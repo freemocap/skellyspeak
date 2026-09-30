@@ -394,9 +394,13 @@ pub async fn check_access(
         if value["protocol"] != "skellyspeak"
             || value["version"].as_u64() != Some(1)
             || value["max_items"].as_u64() != Some(8)
+            || !value["operations_versions"]
+                .as_array()
+                .is_some_and(|v| v.iter().any(|v| v == 3))
+            || value["audio"]["version"] != 3
         {
             return Err(error(
-                "The endpoint does not implement SkellySpeak protocol version 1.",
+                "This app requires the version 3 inference/audio service. Update the app and server together.",
             ));
         }
         let store = state.lock()?;

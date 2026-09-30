@@ -2,12 +2,11 @@
 
 Voice identifiers belong to a selected provider profile, not language content.
 Dollar cost is optional: character counts and audio duration are not invoices.
-These types are not yet the public hosted wire contract.
+These types are internal; the wire response retains the bounded provider object.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Protocol
 
 
 @dataclass(frozen=True)
@@ -16,15 +15,14 @@ class SynthesisRequest:
     voice_id: str
     text: str = field(repr=False)
     language_code: str | None = None
-    language_variety: str | None = None
 
 
 @dataclass(frozen=True)
 class TranscriptionRequest:
-    # Already decoded by the admission layer: mono signed 16-bit PCM, 16 kHz.
-    pcm: bytes = field(repr=False)
+    # Validated native WAV; forwarded without decoding or resampling.
+    wav: bytes = field(repr=False)
     language_tag: str
-    context: str = field(default="", repr=False)
+    fields: dict[str, str] = field(default_factory=dict, repr=False)
 
 
 @dataclass(frozen=True)
@@ -38,25 +36,8 @@ class AudioReceipt:
 
 
 @dataclass(frozen=True)
-class SynthesisResult:
-    wav: bytes = field(repr=False)
-    duration_seconds: float
-    receipt: AudioReceipt
-    alignment: dict | None = field(default=None, repr=False)
-
-
-@dataclass(frozen=True)
-class WordTiming:
-    text: str = field(repr=False)
-    start: float
-    end: float
-
-
-@dataclass(frozen=True)
-class TranscriptionResult:
-    text: str = field(repr=False)
-    duration_seconds: float
-    words: tuple[WordTiming, ...] | None
+class AudioResult:
+    response: dict | None = field(repr=False)
     receipt: AudioReceipt
 
 
@@ -77,9 +58,3 @@ refusal is not a billing receipt; callers must not invent a zero dollar charge.
         self.status = status
         self.provider_error = provider_error
         self.diagnostics = diagnostics
-
-
-class AudioProvider(Protocol):
-    async def synthesize(self, request: SynthesisRequest) -> SynthesisResult: ...
-
-    async def transcribe(self, request: TranscriptionRequest) -> TranscriptionResult: ...

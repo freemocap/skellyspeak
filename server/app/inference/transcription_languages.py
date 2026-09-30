@@ -1,36 +1,5 @@
-"""Provider language conversion from the generated shared capability catalog.
-
-Selection belongs to native configuration resolution. This boundary only validates
-and translates the captured model/language identity; it never changes models.
-"""
-import re
+"""Credential availability only; language support and selection belong to native."""
 from server.app.inference.speech_catalog import CATALOG
-
-WHISPER_MODELS = frozenset(model for model, definition in CATALOG['models'].items()
-                           if definition['provider'] == 'groq' and definition['task'] == 'transcription')
-
-
-def primary_code(tag):
-    if not isinstance(tag, str) or len(tag) > 80 or not re.fullmatch(r'[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*', tag):
-        return None
-    return tag.split('-')[0]
-
-
-def language_code(model, tag, task):
-    definition = CATALOG['models'].get(model)
-    if definition is None or definition['task'] != task:
-        return None
-    code = primary_code(tag)
-    listed = CATALOG['language_sets'][definition['languages']].get(code)
-    return listed if listed is not None else code if definition['allow_unlisted_languages'] else None
-
-
-def whisper_code(tag):
-    return language_code('whisper-large-v3', tag, 'transcription')
-
-
-def scribe_code(tag):
-    return language_code('scribe_v2', tag, 'transcription')
 
 
 def availability(cfg):

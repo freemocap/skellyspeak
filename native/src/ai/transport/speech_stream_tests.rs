@@ -3,9 +3,9 @@ use std::sync::Mutex;
 
 fn records() -> Vec<Value> {
     vec![
-        json!({"version":2,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
-        json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":"AQACAA==","receipt":{"request_id":"partial-receipt"}}),
-        json!({"version":2,"seq":2,"type":"complete","total_samples":2,"alignment":null,"usage":{"request_id":"receipt","cost_micros":null,"allowance_micros":10}}),
+        json!({"version":3,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+        json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":"AQACAA=="},"receipt":{"request_id":"partial-receipt"}}),
+        json!({"version":3,"seq":2,"type":"complete","total_samples":2,"alignment":null,"usage":{"request_id":"receipt","cost_micros":null,"allowance_micros":10}}),
     ]
 }
 
@@ -51,12 +51,12 @@ fn missing_terminal_reordered_offsets_and_trailing_records_fail_closed() {
             0 => {
                 records.pop();
             }
-            1 => records[1]["sample_offset"] = json!(1),
+            1 => records[1]["response"]["audio_base64"] = json!(""),
             2 => records[1]["seq"] = json!(2),
-            3 => records[2]["total_samples"] = json!(3),
+            3 => records[2]["seq"] = json!(3),
             4 => records.push(records[2].clone()),
             _ => {
-                records[2] = json!({"version":2,"seq":2,"type":"error","status":429,"provider_error":{"code":"rate_limit","request_id":"failure-id"}})
+                records[2] = json!({"version":3,"seq":2,"type":"error","status":429,"provider_error":{"code":"rate_limit","request_id":"failure-id"}})
             }
         }
         let mut decoder = Decoder::default();
@@ -86,7 +86,7 @@ fn frame_and_pcm_limits_are_enforced_before_delivery() {
             .is_err()
     );
     let mut values = records();
-    values[1]["audio_base64"] = json!("AQ==");
+    values[1]["response"]["audio_base64"] = json!("AQ==");
     let mut decoder = Decoder::default();
     let wire = values.iter().map(|v| format!("{v}\n")).collect::<String>();
     assert!(
@@ -189,15 +189,17 @@ fn completed_stream_alignment_survives_cache_and_reference_inspection() {
     use crate::speech::{
         alignment::SpeechAudio, analysis::audio_inspection, recording::owner::RecordingOwner,
     };
-    let mut decoder = Decoder::default();
+    let mut decoder = Decoder::new("one two");
     let mut outcome = SpeechOutcome::empty();
-    let pcm = STANDARD.encode(vec![0u8; 14400]);
-    let alignment = json!({"sourceText":"one two", "original":{
-        "characters":["one ","two"],"starts":[0.0,0.1],"ends":[0.1,0.3]},"normalized":null});
+    let pcm = STANDARD.encode(vec![0u8; 4800]);
     let values = [
         records()[0].clone(),
-        json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":pcm,"alignment":null}),
-        json!({"version":2,"seq":2,"type":"complete","total_samples":7200,"alignment":alignment,"usage":{}}),
+        json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":pcm,"alignment":{
+            "characters":["one "],"character_start_times_seconds":[0.0],"character_end_times_seconds":[0.1]}}}),
+        json!({"version":3,"seq":2,"type":"audio","response":{"audio_base64":pcm,"alignment":{
+            "characters":["two"],"character_start_times_seconds":[0.1],"character_end_times_seconds":[0.3]}}}),
+        json!({"version":3,"seq":3,"type":"audio","response":{"audio_base64":pcm,"alignment":null}}),
+        json!({"version":3,"seq":4,"type":"complete","usage":{}}),
     ];
     for value in values {
         decoder

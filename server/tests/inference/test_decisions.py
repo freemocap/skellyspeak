@@ -19,16 +19,10 @@ def test_decisions_reserve_repeated_state_and_adapt_usage_without_losing_origina
     assert validated.payload == request
     assert validated.reserve_micros > 0
     assert decisions.endpoint('https://openrouter.ai/api/v1') == 'https://openrouter.ai/api/alpha/decisions'
-    raw = {'id': 'fixture', 'model': decisions.MODEL, 'usage': {'cost': .0005, 'input_tokens': 123, 'output_tokens': 45}, 'answers': {'skill': {'choice': 'partial'}}}
-    result = decisions.completion(raw)
-    assert result['usage']['prompt_tokens'] == 123
-    assert result['usage']['completion_tokens'] == 45
-    assert result['usage']['cost'] == raw['usage']['cost']
-    assert json.loads(result['choices'][0]['message']['content']) == raw['answers']
-    assert result['answers'] == raw['answers']
 
 
-@pytest.mark.parametrize('change', ['model', 'extra', 'coverage', 'nan', 'large', 'context'])
+
+@pytest.mark.parametrize('change', ['model', 'extra', 'coverage', 'nan', 'large'])
 def test_invalid_requests_rejected_before_admission(change):
     body = fixture()
     if change == 'model': body['model'] = 'arbitrary/provider'
@@ -43,7 +37,7 @@ def test_invalid_requests_rejected_before_admission(change):
 
 
 def test_grouped_decisions_do_not_accept_streaming_deltas():
-    body = {'version': 2, 'items': [{'operation_id': 'a' * 32, 'attempt_id': '1234567890-' + 'b' * 32, 'request': fixture()}]}
+    body = {'version': 3, 'items': [{'operation_id': 'a' * 32, 'attempt_id': '1234567890-' + 'b' * 32, 'request': fixture()}]}
     parsed = grouped.parse(body, max_tokens=2048)
     assert parsed[0].contract.payload['model'] == decisions.MODEL
     body['items'][0]['deltas'] = True
@@ -55,19 +49,17 @@ def test_grouped_decisions_do_not_accept_streaming_deltas():
 def test_native_input_modalities_pass_grouped_admission_unchanged(modality):
     request = fixture(modality)
     assert request['state']['input']['modality'] == modality
-    body = {'version': 2, 'items': [{'operation_id': 'a' * 32,
+    body = {'version': 3, 'items': [{'operation_id': 'a' * 32,
             'attempt_id': '1234567890-' + 'b' * 32, 'request': request}]}
     parsed = grouped.parse(body, max_tokens=2048)
     assert parsed[0].contract.payload == request
 
 
 @pytest.mark.parametrize('modality', ['speech', 'audio', '', None, []])
-def test_unsupported_modalities_are_rejected(modality):
+def test_state_is_opaque_to_server(modality):
     request = fixture()
     request['state']['input']['modality'] = modality
-    with pytest.raises(HTTPException) as error:
-        decisions.request(request)
-    assert error.value.status_code == 400
+    assert decisions.request(request).payload == request
 
 
 @pytest.mark.parametrize('flag_bits', range(8))

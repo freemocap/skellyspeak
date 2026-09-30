@@ -11,9 +11,7 @@ const RESPONSE_TEXT_LIMIT: usize = 262_144;
 const LINE_LIMIT: usize = 4 * 1024 * 1024 + 4096;
 pub(crate) const MAX_ITEMS: usize = 8;
 const STREAM_LIMIT: usize = MAX_ITEMS * LINE_LIMIT + 1024;
-/// Protocol version 2 adds each item's deltas: at most the response text
-/// limit, JSON-escaped (six bytes per character at worst), plus framing for a
-/// bounded number of events.
+/// Additional allowance for bounded frame envelopes alongside terminal receipts.
 const DELTA_ALLOWANCE: usize = RESPONSE_TEXT_LIMIT * 6 + 20 * 180 * 256;
 
 fn unknown() -> AppError {
@@ -64,13 +62,12 @@ enum Event {
     Complete {
         count: usize,
     },
-    /// Version 2 only: text an item produced, in order. `offset` counts the
-    /// Unicode scalar values already sent for that item.
-    Delta {
+    /// Original provider frames; `offset` counts previously received frames.
+    Frames {
         operation_id: String,
         attempt_id: String,
         offset: usize,
-        text: String,
+        frames: Vec<serde_json::Value>,
     },
 }
 
@@ -81,9 +78,8 @@ pub struct Decoder {
     bytes: usize,
     limit: usize,
     complete: bool,
-    /// Accumulated delta text and its scalar count per item; `None` in
-    /// version 1, where any delta is a protocol failure.
-    deltas: Option<HashMap<String, (String, usize)>>,
+    /// Native frame reconstruction; absent for groups that did not request streaming.
+    deltas: Option<HashMap<String, provider::stream::Stream>>,
 }
 impl Decoder {
     pub fn new(identities: impl IntoIterator<Item = (String, String)>) -> Result<Self> {
@@ -109,7 +105,7 @@ impl Decoder {
             deltas: None,
         })
     }
-    /// A version 2 decoder, which accepts deltas for pending items.
+    /// A frame decoder for pending streamed items.
     pub fn with_deltas(identities: impl IntoIterator<Item = (String, String)>) -> Result<Self> {
         let mut decoder = Self::new(identities)?;
         decoder.limit = STREAM_LIMIT + decoder.count * DELTA_ALLOWANCE;
@@ -151,24 +147,25 @@ impl Decoder {
             })?;
             self.line.clear();
             let (operation, attempt, result) = match event {
-                Event::Delta {
+                Event::Frames {
                     operation_id,
                     attempt_id,
                     offset,
-                    text,
+                    frames,
                 } => {
                     let texts = self.deltas.as_mut().ok_or_else(unknown)?;
                     // Only for an item still pending: never after its result.
                     if self.pending.get(&operation_id) != Some(&attempt_id) {
                         return Err(unknown());
                     }
-                    let (accumulated, scalars) = texts.entry(operation_id.clone()).or_default();
-                    if offset != *scalars || accumulated.len() + text.len() > RESPONSE_TEXT_LIMIT {
+                    let stream = texts.entry(operation_id.clone()).or_default();
+                    if offset != stream.frames.len() {
                         return Err(unknown());
                     }
-                    accumulated.push_str(&text);
-                    *scalars += text.chars().count();
-                    on_delta(&operation_id, accumulated)?;
+                    for frame in frames {
+                        stream.push(frame).map_err(|_| unknown())?;
+                    }
+                    on_delta(&operation_id, &stream.text)?;
                     continue;
                 }
                 Event::Complete { count } => {
@@ -183,9 +180,17 @@ impl Decoder {
                     attempt_id,
                     response,
                 } => (
-                    operation_id,
+                    operation_id.clone(),
                     attempt_id,
-                    provider::decode(&serde_json::to_vec(&response)?),
+                    if response["stream_complete"] == true {
+                        self.deltas
+                            .as_ref()
+                            .and_then(|streams| streams.get(&operation_id))
+                            .ok_or_else(unknown)?
+                            .completion(&response)
+                    } else {
+                        provider::decode(&serde_json::to_vec(&response)?)
+                    },
                 ),
                 Event::Duplicate {
                     operation_id,
@@ -317,8 +322,8 @@ pub async fn request_with_outputs(
     request_streaming(client, key, dispatches, outputs, false, publish, |_, _| {}).await
 }
 
-/// Like `request_with_outputs`; with `deltas`, uses protocol version 2 and
-/// asks for prose items' text as it is produced. `on_delta` receives an item's
+/// Like `request_with_outputs`; with `deltas`, requests version 3 provider frames
+/// and assembles prose locally as they arrive. `on_delta` receives an item's
 /// full text so far. Only call with `deltas` for a server that advertises it.
 pub async fn request_streaming(
     client: &reqwest::Client,
@@ -355,9 +360,7 @@ pub async fn request_streaming(
         items.push(item);
         identities.push((operation, dispatch.attempt.clone()));
     }
-    let body = serde_json::to_vec(
-        &serde_json::json!({"version": if deltas { 2 } else { 1 }, "items": items}),
-    )?;
+    let body = serde_json::to_vec(&serde_json::json!({"version": 3, "items": items}))?;
     if body.len() > 1024 * 1024 {
         return Err(AppError::new(
             ErrorCode::Validation,
@@ -437,8 +440,7 @@ pub async fn request_streaming(
     decoder.finish()
 }
 
-/// Whether the server behind a grouped target advertises protocol version 2.
-/// Older servers use version 1; an unreachable server reports a connection failure.
+/// Validate the current frame protocol before inference admission.
 pub async fn supports_deltas(
     client: &reqwest::Client,
     key: &str,
@@ -473,9 +475,16 @@ pub async fn supports_deltas(
         return Ok(false);
     }
     let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap_or_default();
-    Ok(value["operations_versions"]
+    if !value["operations_versions"]
         .as_array()
-        .is_some_and(|versions| versions.iter().any(|version| version == 2)))
+        .is_some_and(|v| v.iter().any(|v| v == 3))
+    {
+        return Err(AppError::new(
+            ErrorCode::Provider,
+            "This app requires inference protocol version 3. Update the SkellySpeak server before generating a reply.",
+        ));
+    }
+    Ok(true)
 }
 
 pub fn compatible(
@@ -694,7 +703,7 @@ mod tests {
                         );
                         let payload: serde_json::Value =
                             serde_json::from_slice(&input[start + 4..]).unwrap();
-                        assert_eq!(payload["version"], 1);
+                        assert_eq!(payload["version"], 3);
                         let child = &payload["items"][0]["request"];
                         assert!(child.get("provider").is_none());
                         assert_eq!(child["temperature"], if structured { 0.7 } else { 1.1 });
@@ -922,7 +931,7 @@ mod delta_tests {
     }
     fn delta(offset: usize, text: &str) -> Vec<u8> {
         line(
-            serde_json::json!({"type":"delta","operation_id":"one","attempt_id":"a","offset":offset,"text":text}),
+            serde_json::json!({"type":"frames","operation_id":"one","attempt_id":"a","offset":offset,"frames":[{"choices":[{"delta":{"content":text}}]}]}),
         )
     }
     fn result() -> Vec<u8> {
@@ -951,18 +960,18 @@ mod delta_tests {
     }
 
     #[test]
-    fn version_1_treats_any_delta_as_a_protocol_failure() {
+    fn unrequested_frames_are_a_protocol_failure() {
         let mut decoder = Decoder::new([("one".into(), "a".into())]).unwrap();
         let error = decoder.push(&delta(0, "Hola"), |_, _| Ok(())).unwrap_err();
         assert_eq!(error.code, ErrorCode::UnknownOutcome);
     }
 
     #[test]
-    fn version_2_accumulates_by_scalar_offset_and_never_publishes_a_delta() {
+    fn frames_accumulate_by_frame_offset_and_never_publish_a_partial_result() {
         let mut decoder = Decoder::with_deltas([("one".into(), "a".into())]).unwrap();
         let (mut texts, mut published) = (Vec::new(), Vec::new());
         // "𠮷" is outside the BMP: one scalar value, two UTF-16 units.
-        for bytes in [delta(0, "¡Qué "), delta(5, "𠮷"), delta(6, "!")] {
+        for bytes in [delta(0, "¡Qué "), delta(1, "𠮷"), delta(2, "!")] {
             for byte in bytes {
                 feed(&mut decoder, &[byte], &mut texts, &mut published).unwrap();
             }
@@ -985,10 +994,10 @@ mod delta_tests {
     fn gaps_overlaps_late_deltas_and_oversize_text_are_protocol_failures() {
         for bytes in [
             [delta(0, "Ho"), delta(3, "la")].concat(),
-            [delta(0, "Ho"), delta(1, "la")].concat(),
+            [delta(0, "Ho"), delta(0, "la")].concat(),
             [delta(0, "Ho"), result(), delta(2, "la")].concat(),
             line(
-                serde_json::json!({"type":"delta","operation_id":"one","attempt_id":"other","offset":0,"text":"x"}),
+                serde_json::json!({"type":"frames","operation_id":"one","attempt_id":"other","offset":0,"frames":[{"choices":[{"delta":{"content":"x"}}]}]}),
             ),
             delta(0, &"a".repeat(RESPONSE_TEXT_LIMIT + 1)),
         ] {
@@ -1043,12 +1052,11 @@ mod delta_tests {
     }
 
     #[tokio::test]
-    async fn only_a_server_advertising_version_2_gets_deltas() {
+    async fn only_a_server_advertising_version_3_gets_frames() {
         let client = reqwest::Client::new();
-        let modern = protocol_server(
-            r#"{"protocol":"skellyspeak","version":1,"operations_versions":[1,2]}"#,
-        )
-        .await;
+        let modern =
+            protocol_server(r#"{"protocol":"skellyspeak","version":1,"operations_versions":[3]}"#)
+                .await;
         assert!(
             supports_deltas(&client, "", &dispatch(modern))
                 .await
@@ -1056,9 +1064,9 @@ mod delta_tests {
         );
         let older = protocol_server(r#"{"protocol":"skellyspeak","version":1}"#).await;
         assert!(
-            !supports_deltas(&client, "", &dispatch(older))
+            supports_deltas(&client, "", &dispatch(older))
                 .await
-                .unwrap()
+                .is_err()
         );
         assert!(
             !supports_deltas(
@@ -1082,7 +1090,7 @@ mod delta_tests {
     }
 
     #[tokio::test]
-    async fn version_2_requests_deltas_for_prose_only_and_reports_them_before_the_result() {
+    async fn requests_frames_for_prose_only_and_reports_text_before_the_result() {
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let url = format!("http://{}/v1/operations", listener.local_addr().unwrap());
@@ -1118,8 +1126,8 @@ mod delta_tests {
                 .unwrap()
                 .to_owned();
             let body = [
-                serde_json::json!({"type":"delta","operation_id":prose,"attempt_id":"a1","offset":0,"text":"¡Ho"}),
-                serde_json::json!({"type":"delta","operation_id":prose,"attempt_id":"a1","offset":3,"text":"la!"}),
+                serde_json::json!({"type":"frames","operation_id":prose,"attempt_id":"a1","offset":0,"frames":[{"choices":[{"delta":{"content":"¡Ho"}}]}]}),
+                serde_json::json!({"type":"frames","operation_id":prose,"attempt_id":"a1","offset":1,"frames":[{"choices":[{"delta":{"content":"la!"}}]}]}),
                 serde_json::json!({"type":"result","operation_id":prose,"attempt_id":"a1","response":{"id":"p","model":"m","choices":[{"finish_reason":"stop","message":{"content":"¡Hola!"}}]}}),
                 serde_json::json!({"type":"result","operation_id":structured,"attempt_id":"a2","response":{"id":"p","model":"m","choices":[{"finish_reason":"stop","message":{"content":"{}"}}]}}),
                 serde_json::json!({"type":"complete","count":2}),
@@ -1173,7 +1181,7 @@ mod delta_tests {
             ]
         );
         let payload = server.await.unwrap();
-        assert_eq!(payload["version"], 2);
+        assert_eq!(payload["version"], 3);
         assert_eq!(payload["items"][0]["deltas"], true);
         assert!(
             payload["items"][1].get("deltas").is_none(),

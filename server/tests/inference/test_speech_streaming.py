@@ -62,19 +62,15 @@ async def test_wire_audio_arrives_before_upstream_completion():
         assert json.loads(await anext(wire))['type'] == 'start'
         first = json.loads(await asyncio.wait_for(anext(wire), 1))
         assert first['type'] == 'audio' and first['seq'] == 1
-        assert first['sample_offset'] == 0
+        assert first['response'] == json.loads(frame())
         assert first['receipt']['request_id'] == 'receipt-1'
         assert not audio.closed and not audio.release.is_set()
         audio.release.set()
         second = json.loads(await anext(wire))
-        assert second['sample_offset'] == 2400
-        assert second['alignment']['original']['starts'] == [0]
-        assert second['alignment']['original']['ends'] == [0.1]
+        assert second['response'] == json.loads(frame('好', start=0.1))
         done = json.loads(await anext(wire))
         assert done['type'] == 'complete' and done['seq'] == 3
-        assert done['total_samples'] == 4800
-        assert done['alignment']['original']['starts'] == [0, 0.1]
-        assert done['alignment']['original']['characters'] == ['你', '好']
+        assert 'alignment' not in done and 'total_samples' not in done
         with pytest.raises(StopAsyncIteration):
             await anext(wire)
         assert audio.closed
@@ -147,7 +143,7 @@ async def test_disconnect_settles_submitted_work_as_unknown_with_partial_identit
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('bad', [b'not json\n', b'{"audio_base64":"?"}\n', b'[]\n', frame(pcm=b'1')])
+@pytest.mark.parametrize('bad', [b'not json\n', b'[]\n'])
 async def test_invalid_tail_never_completes_or_loses_partial_receipt(bad):
     received = []
 
@@ -160,7 +156,7 @@ async def test_invalid_tail_never_completes_or_loses_partial_receipt(bad):
             await ElevenLabs(client, api_key=KEY).synthesize(SOURCE, on_audio=emit)
     assert len(received) == 1
     assert failure.value.receipt.request_id == 'partial-1'
-    assert failure.value.diagnostics['received_samples'] == 2400
+    assert failure.value.diagnostics['received_frames'] == 2
     assert KEY not in json.dumps(failure.value.diagnostics)
 
 
@@ -171,14 +167,13 @@ async def test_frame_limit_and_missing_timing_are_explicit():
     async def emit(value):
         received.append(value)
 
-    decoder = SynthesisStream('source', 4800, emit)
+    decoder = SynthesisStream(emit)
     receipt = AudioReceipt('fixture', 'model', 'id')
     value = json.loads(frame())
     value['alignment'] = None
     await decoder.feed(json.dumps(value).encode(), receipt)
-    result = await decoder.finish()
-    assert result['original'] is None
-    assert decoder.diagnostics()['alignment']['original']['reason'] == 'not_supplied'
+    await decoder.finish()
+    assert received[0]['response'] == value
     with pytest.raises(AudioFailure):
         await decoder.feed(b'x' * (512 * 1024 + 1), receipt)
 
@@ -189,7 +184,7 @@ async def test_route_streams_and_settles_once(proxy, ledger, monkeypatch):
     upstream(monkeypatch, lambda _: httpx.Response(200, content=frame() + frame('好', start=0.1),
         headers={'content-type': 'application/json', 'request-id': 'stream-receipt'}))
     response = await proxy.post('/v1/audio/speech', headers={'accept': speech_streaming.MEDIA_TYPE},
-        json={'language_tag': 'zh', 'model': 'eleven_v3', 'language': 'Mandarin', 'text': '你好'})
+        json={'language_code': 'zh', 'model': 'eleven_v3', 'text': '你好'})
     assert response.status_code == 200, response.text
     events = [json.loads(line) for line in response.text.splitlines()]
     assert [event['type'] for event in events] == ['start', 'audio', 'audio', 'complete']
@@ -205,7 +200,7 @@ async def test_route_partial_failure_preserves_unknown_charge(proxy, ledger, mon
     upstream(monkeypatch, lambda _: httpx.Response(200, content=frame() + b'bad\n',
         headers={'content-type': 'application/json', 'request-id': 'failed-receipt'}))
     response = await proxy.post('/v1/audio/speech', headers={'accept': speech_streaming.MEDIA_TYPE},
-        json={'language_tag': 'zh', 'model': 'eleven_v3', 'language': 'Mandarin', 'text': '你好'})
+        json={'language_code': 'zh', 'model': 'eleven_v3', 'text': '你好'})
     events = [json.loads(line) for line in response.text.splitlines()]
     assert [event['type'] for event in events] == ['start', 'audio', 'error']
     assert 'failed-receipt' in json.dumps(events[-1])
@@ -220,7 +215,7 @@ async def test_audio_only_frames_preserve_recording_timestamps_and_final_words()
     received = []
     async def emit(value):
         received.append(value)
-    decoder = SynthesisStream('one two', 48000, emit)
+    decoder = SynthesisStream(emit)
     receipt = AudioReceipt('fixture', 'model', 'id')
     first = json.loads(frame('one ', start=0))
     second = json.loads(frame('two', start=0.1))
@@ -231,34 +226,5 @@ async def test_audio_only_frames_preserve_recording_timestamps_and_final_words()
     tail['alignment'] = tail['normalized_alignment'] = None
     for value in [first, second, tail]:
         await decoder.feed(json.dumps(value).encode() + b'\n', receipt)
-    result = await decoder.finish()
-    for lane in ['original', 'normalized']:
-        assert result[lane] == {'characters': ['one ', 'two'], 'starts': [0, 0.1], 'ends': [0.1, 0.3]}
-        assert decoder.status[lane] == {'status': 'available'}
-    assert received[1]['alignment']['original'] is None
-    assert received[2]['alignment']['original'] is None
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize('invalid', ['malformed', 'unordered', 'past_end'])
-async def test_invalid_timing_is_not_hidden_by_later_missing_or_valid_frames(invalid):
-    async def emit(value):
-        pass
-    decoder = SynthesisStream('one two', 48000, emit)
-    receipt = AudioReceipt('fixture', 'model', 'id')
-    first = json.loads(frame('one', start=0.05))
-    second = json.loads(frame('two', start=0.15))
-    if invalid == 'malformed':
-        second['alignment'] = {}
-    elif invalid == 'unordered':
-        second['alignment']['character_start_times_seconds'] = [0.01]
-    else:
-        second['alignment']['character_end_times_seconds'] = [0.9]
-    tail = json.loads(frame())
-    tail['alignment'] = tail['normalized_alignment'] = None
-    for value in [first, second, tail]:
-        await decoder.feed(json.dumps(value).encode() + b'\n', receipt)
-    result = await decoder.finish()
-    assert result['original'] is None
-    assert decoder.status['original']['reason'] != 'not_supplied'
-    assert result['normalized'] is not None
+    await decoder.finish()
+    assert [v['response'] for v in received] == [first, second, tail]

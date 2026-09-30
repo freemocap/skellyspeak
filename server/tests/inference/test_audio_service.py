@@ -33,11 +33,11 @@ async def test_speech_route_converts_request_and_accounts_estimate(proxy, ledger
         assert body["text"] == "[Spanish — Mexico accent]\nGracias." and body["model_id"] == "eleven_v3"
         return httpx.Response(200, json={"audio_base64": base64.b64encode(b"\0\0" * 24_000).decode(), "alignment": {"characters": ["G"], "character_start_times_seconds": [0.1], "character_end_times_seconds": [0.2]}}, headers={"request-id": "speech-receipt"})
     upstream(monkeypatch, respond)
-    response = await proxy.post("/v1/audio/speech", json={"language_tag": "es", "model": "eleven_v3", "language": "Spanish — Mexico", "text": "Gracias."})
+    response = await proxy.post("/v1/audio/speech", json={"language_code": "es", "model": "eleven_v3", "text": "[Spanish — Mexico accent]\nGracias."})
     assert response.status_code == 200, response.text
     result = response.json()
-    assert base64.b64decode(result["audio_base64"]).startswith(b"RIFF")
-    assert result["alignment"]["original"]["starts"] == [0.1]
+    assert base64.b64decode(result["response"]["audio_base64"]) == bytes(48000)
+    assert result["response"]["alignment"]["character_start_times_seconds"] == [0.1]
     assert result["usage"]["cost_micros"] is None
     assert result["usage"]["allowance_basis"] == "estimate"
     row, = records(ledger)
@@ -54,7 +54,7 @@ async def test_audio_error_keeps_reservation_and_original_status(proxy, ledger, 
         seen.append(request)
         return httpx.Response(status, text="private upstream body")
     upstream(monkeypatch, respond)
-    response = await proxy.post("/v1/audio/speech", json={"language_tag": "es", "model": "eleven_v3", "language": "Spanish — Mexico", "text": "Hello"})
+    response = await proxy.post("/v1/audio/speech", json={"language_code": "es", "model": "eleven_v3", "text": "Hello"})
     assert response.status_code == 502
     assert str(status) in response.text and "private" not in response.text
     assert len(seen) == 1
@@ -63,8 +63,8 @@ async def test_audio_error_keeps_reservation_and_original_status(proxy, ledger, 
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("payload", [{"model": "other", "text": "hello"}, {"language_tag": "es", "model": "eleven_v3", "language": "Spanish — Mexico", "text": " "},
-    {"language_tag": "es", "model": "eleven_v3", "language": "Spanish — Mexico", "text": "hello", "voice_id": "unapproved"}])
+@pytest.mark.parametrize("payload", [{"model": "other", "text": "hello"}, {"language_code": "es", "model": "eleven_v3", "text": " "},
+    {"language_code": "es", "model": "eleven_v3", "text": "hello", "voice_id": "unapproved"}])
 async def test_invalid_speech_is_rejected_before_reservation(proxy, ledger, payload):
     response = await proxy.post("/v1/audio/speech", json=payload)
     assert response.status_code == 400
@@ -74,12 +74,12 @@ async def test_invalid_speech_is_rejected_before_reservation(proxy, ledger, payl
 @pytest.mark.asyncio
 async def test_missing_config_fails_without_reservation(proxy, ledger, monkeypatch):
     monkeypatch.setattr(main, "CFG", replace(main.CFG, elevenlabs_voice_id=""))
-    assert (await proxy.post("/v1/audio/speech", json={"language_tag": "es", "model": "eleven_v3", "language": "Spanish — Mexico", "text": "hello"})).status_code == 503
+    assert (await proxy.post("/v1/audio/speech", json={"language_code": "es", "model": "eleven_v3", "text": "hello"})).status_code == 503
     assert not records(ledger)
 
 
 @pytest.mark.asyncio
-async def test_scribe_normalizes_timing_without_whisper_segments(proxy, ledger, monkeypatch):
+async def test_transcription_forwards_original_provider_words(proxy, ledger, monkeypatch):
     def respond(request):
         assert request.url.path == "/v1/speech-to-text"
         body = request.read()
@@ -96,8 +96,8 @@ async def test_scribe_normalizes_timing_without_whisper_segments(proxy, ledger, 
                                 files={"file": ("audio.wav", output.getvalue(), "audio/wav")})
     assert response.status_code == 200, response.text
     value = response.json()
-    assert value["text"] == "Go raibh maith agat"
-    assert value["timing"]["words"] == [{"word": "Go", "start": 0.1, "end": 0.4}]
+    assert value["response"]["text"] == "Go raibh maith agat"
+    assert value["response"]["words"] == [{"type":"word", "text": "Go", "start": 0.1, "end": 0.4}]
     assert "segments" not in value and value["usage"]["cost_micros"] is None
     row, = records(ledger)
     assert row["cost_basis"] == "estimate" and row["status"] == "settled"
@@ -106,7 +106,7 @@ async def test_scribe_normalizes_timing_without_whisper_segments(proxy, ledger, 
 @pytest.mark.asyncio
 async def test_speech_requires_authentication():
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url="http://test") as client:
-        response = await client.post("/v1/audio/speech", json={"language_tag": "es", "model": "eleven_v3", "language": "Spanish — Mexico", "text": "hello"})
+        response = await client.post("/v1/audio/speech", json={"language_code": "es", "model": "eleven_v3", "text": "hello"})
     assert response.status_code == 401
 
 
@@ -121,8 +121,8 @@ async def test_tts_provider_reason_reaches_client_with_secrets_and_source_redact
             "request": "private learner sentence", "api_key": "test-elevenlabs-key",
         }})
     upstream(monkeypatch, respond)
-    response = await proxy.post("/v1/audio/speech", json={"language_tag": "es",
-        "model": "eleven_v3", "language": "Spanish — Mexico", "text": "private learner sentence",
+    response = await proxy.post("/v1/audio/speech", json={"language_code": "es",
+        "model": "eleven_v3", "text": "private learner sentence",
     })
     assert response.status_code == 502
     assert response.json()["code"] == "ELEVENLABS_HTTP_401"
@@ -140,26 +140,26 @@ async def test_tts_provider_reason_reaches_client_with_secrets_and_source_redact
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("language", [None, "", " ", 42, [], "Spanish [laughs]", "Spanish\nMexico", "x" * 257])
-async def test_invalid_variety_fails_before_spending(proxy, ledger, language):
-    response = await proxy.post("/v1/audio/speech", json={"language_tag": "es",
-        "model": "eleven_v3", "text": "Gracias.", "language": language,
+@pytest.mark.parametrize("language", ["", " ", 42, [], "Spanish [laughs]", "Spanish\nMexico", "x" * 257])
+async def test_invalid_provider_code_fails_before_spending(proxy, ledger, language):
+    response = await proxy.post("/v1/audio/speech", json={"language_code": language,
+        "model": "eleven_v3", "text": "Gracias.",
     })
     assert response.status_code == 400
     assert not records(ledger)
 
 
 @pytest.mark.asyncio
-async def test_missing_variety_fails_before_spending(proxy, ledger):
-    response = await proxy.post("/v1/audio/speech", json={"model": "eleven_v3", "text": "Gracias."})
+async def test_missing_wire_field_fails_before_spending(proxy, ledger):
+    response = await proxy.post("/v1/audio/speech", json={"model": "eleven_v3", "text": "[Spanish — Mexico accent]\nGracias."})
     assert response.status_code == 400
     assert not records(ledger)
 
 
 @pytest.mark.asyncio
 async def test_accent_cue_counts_toward_provider_limit(proxy, ledger):
-    response = await proxy.post("/v1/audio/speech", json={"language_tag": "es",
-        "model": "eleven_v3", "text": "a" * 4990, "language": "Spanish — Mexico",
+    response = await proxy.post("/v1/audio/speech", json={"language_code": "es",
+        "model": "eleven_v3", "text": "a" * 5001,
     })
     assert response.status_code == 400
     assert not records(ledger)
@@ -176,8 +176,8 @@ async def test_provider_busy_reason_is_in_primary_error_without_retry(proxy, led
             "request_id": "provider-busy-request",
         }})
     upstream(monkeypatch, respond)
-    response = await proxy.post("/v1/audio/speech", json={"language_tag": "es",
-        "model": "eleven_v3", "language": "Spanish — Mexico", "text": "Gracias.",
+    response = await proxy.post("/v1/audio/speech", json={"language_code": "es",
+        "model": "eleven_v3", "text": "Gracias.",
     })
     assert response.status_code == 502
     body = response.json()
@@ -206,10 +206,9 @@ async def test_invalid_optional_timing_does_not_discard_transcript(proxy, ledger
         files={'file': ('audio.wav', output.getvalue(), 'audio/wav')})
     assert response.status_code == 200, response.text
     result = response.json()
-    assert result['text'] == 'fixture'
-    assert result['timing'] is None
-    assert result['usage']['diagnostics']['timing']['status'] == 'unavailable'
-    assert result['usage']['diagnostics']['response']['words'][0]['end'] == 1.06
+    assert result['response']['text'] == 'fixture'
+    assert result['response']['words'][0]['end'] == 1.06
+    assert 'timing' not in result
     row, = records(ledger)
     assert row['status'] == 'settled'
     assert row['provider_id'] == 'bounded-timing'

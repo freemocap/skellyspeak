@@ -20,7 +20,7 @@ from server.tests.inference.test_contracts import structured_format
 
 
 def envelope(count: int = 2) -> dict:
-    return {"version": 1, "items": [{
+    return {"version": 3, "items": [{
         "operation_id": f"{i:032x}", "attempt_id": f"{int(time.time())}-{i:032x}",
         "request": {"model": "google/gemini-2.5-flash", "messages": [{"role": "user", "content": f"hello {i}"}]},
     } for i in range(count)]}
@@ -229,10 +229,10 @@ async def test_protocol_capabilities_are_authenticated_and_match_grouped_contrac
     response = await proxy.get("/v1/protocol")
     assert response.status_code == 200
     value = response.json()
-    assert value == {"protocol": "skellyspeak", "version": 1, "max_items": 8, "operations_versions": [1, 2],
+    assert value == {"protocol": "skellyspeak", "version": 1, "max_items": 8, "operations_versions": [3],
                                "chat_models": ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite", "openai/gpt-oss-120b"],
                                "accepts_other_text_models": True, "decisions": {"version": 1, "models": ["typesafe/jev-1.13"]}, "transcription_model": "whisper-large-v3",
-                               "audio": {"version": 1, "routing": {"version": 1, "available_models": ["whisper-large-v3", "whisper-large-v3-turbo"], "accepts_custom_transcription_models": True}, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_stream_versions": [2], "speech_ready": False, "transcription_provider": "groq", "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"]}}
+                               "audio": {"version": 3, "routing": {"version": 1, "available_models": ["whisper-large-v3", "whisper-large-v3-turbo"], "accepts_custom_transcription_models": True}, "speech_provider": "elevenlabs", "speech_model": "eleven_v3", "speech_stream_versions": [3], "speech_ready": False, "transcription_provider": "groq", "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"]}}
 
 
 @pytest.mark.asyncio
@@ -315,9 +315,10 @@ async def test_jev_uses_decisions_endpoint_and_preserves_actual_billing(proxy, m
     assert sent[0][1] == fixture()
     result = events[0]["response"]
     assert result["usage"]["cost"] == .0005
-    assert result["usage"]["prompt_tokens"] == 100
-    assert result["usage"]["completion_tokens"] == 25
-    assert json.loads(result["choices"][0]["message"]["content"]) == result["answers"]
+    assert result["usage"]["input_tokens"] == 100
+    assert result["usage"]["output_tokens"] == 25
+    assert result["answers"]["skill_0"]["choice"] == "partial"
+    assert "choices" not in result
     assert main._usage_from(result) == (500, 125)
 
 
@@ -334,10 +335,8 @@ async def test_malformed_jev_response_retains_billing_identity_and_validation(pr
     body['items'][0]['request'] = fixture()
     response = await proxy.post('/v1/operations', json=body)
     events = [json.loads(line) for line in response.text.splitlines()]
-    assert [e['type'] for e in events] == ['error', 'complete']
-    d = events[0]['diagnostics']
-    assert events[0]['status'] == 502
-    assert d['response']['id'] == 'jev-malformed-receipt'
-    assert d['response']['usage']['cost'] == .0005
-    assert d['validation']['path'] == 'answers'
-    assert 'PRIVATE_RESPONSE_TEXT' not in json.dumps(events)
+    assert [e['type'] for e in events] == ['result', 'complete']
+    raw = events[0]['response']
+    assert raw['answers'] is None
+    assert raw['usage']['cost'] == .0005
+    assert raw['state'] == 'PRIVATE_RESPONSE_TEXT'

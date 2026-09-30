@@ -74,8 +74,6 @@ app/diagnostics/admin_assets/*
 !app/inference/transcription_profiles.py
 !app/inference/transcription_languages.py
 !app/inference/speech_catalog.py
-!app/inference/transcription_timing.py
-!app/inference/transcription_confidence.py
-!app/inference/synthesis_alignment.py
 !app/inference/synthesis_stream.py
 !app/inference/speech_streaming.py
+!app/inference/relay_payload.py

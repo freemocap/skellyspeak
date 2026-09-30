@@ -47,7 +47,8 @@ fn server(count: usize) -> (String, std::thread::JoinHandle<()>, Arc<AtomicBool>
                 assert!(waiting.elapsed().as_secs() < 10);
                 std::thread::sleep(std::time::Duration::from_millis(5));
             }
-            let body = r#"{"text":"Hola","request_id":"fixture-transcription"}"#;
+            let body =
+                r#"{"version":3,"response":{"text":"Hola","request_id":"fixture-transcription"}}"#;
             write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",body.len(),body).unwrap();
         }
     });

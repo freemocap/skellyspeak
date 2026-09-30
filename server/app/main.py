@@ -14,6 +14,7 @@ Design rules, matching the app:
 """
 
 from __future__ import annotations
+from server.app.inference import relay_payload
 from server.app.diagnostics.exceptions import DiagnosticValueError, DiagnosticRuntimeError
 
 from server.app.inference import decisions
@@ -82,8 +83,6 @@ CFG = config.load()
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncIterator[None]:
     runtime.emit("runtime_started")
-    async with runtime.phase("decoder_check"):
-        await asyncio.to_thread(audio_input.verify_decoder)
     try:
         yield
     finally:
@@ -180,10 +179,10 @@ async def provider_json(client: httpx.AsyncClient, url: str, *, limit: int, prov
         if not isinstance(payload, dict):
             raise HTTPException(502, "Upstream returned an invalid response.")
         if provider in {"OPENROUTER", "GROQ"} and payload.get("error"):
-            provider_errors.record(provider, response.status_code, {"error": payload["error"]}, kwargs)
+            provider_errors.record(provider, response.status_code, payload, kwargs)
             error = payload["error"]
             status = error.get("code") if isinstance(error, dict) else None
-            metadata = provider_errors.sanitize(payload, tuple(provider_errors.request_strings(kwargs)))
+            metadata = provider_errors.sanitize(payload, tuple(provider_errors.request_strings(kwargs)) + tuple(provider_errors.response_content_strings(payload)))
             metadata["chars"] = sum(len(choice.get("message", {}).get("content", ""))
                                     for choice in payload.get("choices", [])
                                     if isinstance(choice, dict) and isinstance(choice.get("message"), dict)
@@ -645,7 +644,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
                 raise HTTPException(status_code=502, detail="AI provider returned an invalid response.")
             provider_id = str(payload.get("id", ""))
             cost, tokens = _usage_from(payload)
-            return JSONResponse(content=payload)
+            return JSONResponse(content=relay_payload.for_client(payload, (CFG.openrouter_key,)))
         except BaseException as error:
             execution_error = error
             raise
@@ -691,7 +690,7 @@ async def chat_completions(request: Request, who: quota.Principal = Depends(curr
                         if chunk_cost is not None:
                             cost = chunk_cost
                         tokens = max(tokens, chunk_tokens)
-                        yield ("data: " + json.dumps(payload, ensure_ascii=False) + "\n\n").encode("utf-8")
+                        yield ("data: " + json.dumps(relay_payload.for_client(payload, (CFG.openrouter_key,)), ensure_ascii=False) + "\n\n").encode("utf-8")
             if not completed:
                 raise DiagnosticRuntimeError("AI provider stream ended without a completion marker.")
         except Exception as exc:
@@ -745,9 +744,9 @@ class StreamFailure(HTTPException):
 
 
 async def stream_grouped_item(client: httpx.AsyncClient, url: str, outbound: dict[str, object],
-                              headers: dict[str, str], on_delta: Callable[[str], None],
+                              headers: dict[str, str], on_delta: Callable[[dict], None],
                               accumulator: streaming.CompletionAccumulator) -> streaming.CompletionAccumulator:
-    """Stream one prose item upstream, handing each piece of text to `on_delta`."""
+    """Stream original bounded provider frames to the requesting client."""
     request = {**outbound, "stream": True, "usage": {"include": True}}
     async with runtime.phase("provider", provider="OPENROUTER"):
         async with client.stream("POST", url, json=request, headers=headers, follow_redirects=False) as response:
@@ -758,9 +757,10 @@ async def stream_grouped_item(client: httpx.AsyncClient, url: str, outbound: dic
             accumulator.http = {"status": response.status_code, "response_headers": provider_errors.response_headers(response)}
             try:
                 async for payload in streaming.frames(response.aiter_bytes()):
-                    added = accumulator.accept(payload)
-                    if added:
-                        on_delta(added)
+                    forwarded = accumulator.accept(payload)
+                    if forwarded is not None:
+                        from server.app.inference.relay_payload import for_client
+                        on_delta(for_client(forwarded, (CFG.openrouter_key,)))
             except streaming.ResponseLimitExceeded as error:
                 raise StreamFailure("RESPONSE_LIMIT", accumulator.partial("response_limit")) from error
             except (ValueError, UnicodeError, httpx.HTTPError) as error:
@@ -771,7 +771,7 @@ async def stream_grouped_item(client: httpx.AsyncClient, url: str, outbound: dic
 
 
 async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
-                               on_delta: Callable[[str], None] | None = None,
+                               on_delta: Callable[[dict], None] | None = None,
                                *, who: quota.Principal) -> dict[str, object]:
     from server.app.inference import retry
     state = "unknown"
@@ -789,7 +789,7 @@ async def execute_grouped_item(item: grouped.Item, held: work_admission.Claim,
 
 
 async def _execute_grouped_round(item: grouped.Item, held: work_admission.Claim,
-                               on_delta: Callable[[str], None] | None = None,
+                               on_delta: Callable[[dict], None] | None = None,
                                *, who: quota.Principal) -> dict[str, object]:
     reservation: budget.Reservation | None = None
     cost: int | None = 0
@@ -838,9 +838,8 @@ async def _execute_grouped_round(item: grouped.Item, held: work_admission.Claim,
             raise HTTPException(502, "Invalid provider response.")
         provider_id = str(payload.get("id", ""))
         cost, tokens = _usage_from(payload)
-        # A streamed item's result has exactly the non-streaming shape, so the
-        # client's strict decoder and publication run unchanged on it.
-        return {"type": "result", "response": decisions.completion(payload) if "questions" in outbound else payload}
+        # Native reconstructs streamed content and interprets ordinary responses.
+        return {"type": "result", "response": relay_payload.for_client(payload, (CFG.openrouter_key,))}
     except BaseException as error:
         # Limit failures and the enclosing work timeout may bypass the normal
         # return from stream_grouped_item. Keep already received billing facts
@@ -898,10 +897,10 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
             "accepts_other_text_models": True,
             "decisions": {"version": 1, "models": [decisions.MODEL]},
             "transcription_model": "whisper-large-v3",
-            "audio": {"version": 1, "routing": audio_service.availability(CFG), "transcription_provider": "groq",
+            "audio": {"version": 3, "routing": audio_service.availability(CFG), "transcription_provider": "groq",
                       "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"] + (["scribe_v2"] if CFG.elevenlabs_key else []),
                       "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,
-                      "speech_stream_versions": [2],
+                      "speech_stream_versions": [3],
                       "speech_ready": bool(CFG.elevenlabs_key and CFG.elevenlabs_voice_id)}}
     if verify_providers:
         result["providers"] = await provider_health.check(CFG)

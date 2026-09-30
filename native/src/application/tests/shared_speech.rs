@@ -1,5 +1,4 @@
 use super::*;
-use base64::Engine;
 use rusqlite::OptionalExtension;
 use std::io::{Read, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -157,8 +156,8 @@ async fn revoking_stream_authority_retains_redacted_partial_receipt_without_cach
         request(&mut socket);
         let prefix = format!(
             "{}\n{}\n",
-            json!({"version":2,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
-            json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":"ZAA=","alignment":null,
+            json!({"version":3,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+            json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":"ZAA=","alignment":null},
                 "receipt":{"request_id":"partial-request","diagnostics":{"code":"fixture_error","reason":"PRIVATE-SOURCE","authorization":"Bearer hidden-token"}}})
         );
         write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",prefix.len()+1,prefix).unwrap();
@@ -271,18 +270,18 @@ async fn cancellation(cancel_all: bool, reject_blob: bool, streamed: bool) {
         assert!(wire.starts_with("POST /v1/audio/speech "));
         let body: serde_json::Value =
             serde_json::from_str(wire.split_once("\r\n\r\n").unwrap().1).unwrap();
-        assert_eq!(body.as_object().unwrap().len(), 4);
-        assert_eq!(body["language_tag"], "en");
+        assert_eq!(body.as_object().unwrap().len(), 3);
+        assert!(body["language_code"].is_null());
         let terminal = format!(
             "{}\n",
-            json!({"version":2,"seq":2,"type":"complete","total_samples":1,"alignment":null,
+            json!({"version":3,"seq":2,"type":"complete","total_samples":1,"alignment":null,
             "usage":{"requested_model":model,"actual_model":model,"request_id":"shared-request","cost_micros":null}})
         );
         if streamed {
             let prefix = format!(
                 "{}\n{}\n",
-                json!({"version":2,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
-                json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":"ZAA=","alignment":null,"receipt":{"request_id":"shared-request"}})
+                json!({"version":3,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+                json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":"ZAA=","alignment":null},"receipt":{"request_id":"shared-request"}})
             );
             write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",prefix.len()+terminal.len(),prefix).unwrap();
             socket.flush().unwrap();
@@ -293,23 +292,9 @@ async fn cancellation(cancel_all: bool, reject_blob: bool, streamed: bool) {
             socket.write_all(terminal.as_bytes()).unwrap();
             return;
         }
-        let mut wav = std::io::Cursor::new(Vec::new());
-        let mut writer = hound::WavWriter::new(
-            &mut wav,
-            hound::WavSpec {
-                channels: 1,
-                sample_rate: 24000,
-                bits_per_sample: 16,
-                sample_format: hound::SampleFormat::Int,
-            },
-        )
-        .unwrap();
-        writer.write_sample(100_i16).unwrap();
-        writer.finalize().unwrap();
         respond(
             &mut socket,
-            json!({"version":1,"format":"wav",
-            "audio_base64":base64::engine::general_purpose::STANDARD.encode(wav.into_inner()),
+            json!({"version":3,"response":{"audio_base64":"ZAA="},
             "usage":{"requested_model":model,"actual_model":model,"provider":"elevenlabs","request_id":"shared-request","cost_micros":null,"allowance_micros":12}}),
         );
     });

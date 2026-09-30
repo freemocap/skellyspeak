@@ -60,8 +60,6 @@ jobs:
       - name: Run pytest
         working-directory: server
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
           uv run --frozen --group dev pytest -q
 
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4

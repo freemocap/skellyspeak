@@ -13,12 +13,12 @@ from server.tests.accounting.test_budget import ledger  # noqa: F401  (fixture)
 from server.tests.inference.test_proxy import proxy, upstream  # noqa: F401  (fixtures)
 
 
-def envelope(count: int = 1, *, version: int = 2, deltas: bool = True) -> dict:
+def envelope(count: int = 1, *, version: int = 3, deltas: bool = True) -> dict:
     items = []
     for i in range(count):
         item: dict[str, object] = {"operation_id": f"{i:032x}", "attempt_id": f"{int(time.time())}-{i:032x}",
                                    "request": {"model": "google/gemini-2.5-flash", "messages": [{"role": "user", "content": f"hola {i}"}]}}
-        if version == 2:
+        if version == 3:
             item["deltas"] = deltas
         items.append(item)
     return {"version": version, "items": items}
@@ -44,21 +44,25 @@ def lines(response: httpx.Response) -> list[dict]:
 
 def replay(events: list[dict]) -> dict[str, str]:
     """Rebuild each item's text from its deltas, checking every offset."""
-    texts: dict[str, str] = {}
-    ended: set[str] = set()
+    texts, counts, ended = {}, {}, set()
     for event in events:
-        if event["type"] == "delta":
-            key = event["operation_id"]
-            assert key not in ended, "no delta after an item's terminal event"
-            assert event["offset"] == len(texts.get(key, "")), "offsets are contiguous Unicode scalar counts"
-            texts[key] = texts.get(key, "") + event["text"]
-        elif event["type"] in {"result", "error", "duplicate"}:
-            ended.add(event["operation_id"])
+        if event['type'] == 'frames':
+            key = event['operation_id']
+            assert key not in ended
+            assert event['offset'] == counts.get(key, 0)
+            counts[key] = counts.get(key, 0) + len(event['frames'])
+            for frame in event['frames']:
+                choices = frame.get('choices', [])
+                if choices:
+                    texts[key] = texts.get(key, '') + choices[0].get('delta', {}).get('content', '')
+        elif event['type'] in {'result', 'error', 'duplicate'}:
+            ended.add(event['operation_id'])
     return texts
 
 
+
 @pytest.mark.asyncio
-async def test_version_2_streams_every_character_then_the_unchanged_result(proxy, monkeypatch):
+async def test_version_3_streams_original_frames_and_usage_receipt(proxy, monkeypatch):
     sent = []
     pieces = ["¡Qué ", "bien! ", "🎉 ", "𠮷", "野家"]
 
@@ -73,8 +77,8 @@ async def test_version_2_streams_every_character_then_the_unchanged_result(proxy
     assert [event["type"] for event in events][-2:] == ["result", "complete"]
     assert set(events[-2]) == {"type", "operation_id", "attempt_id", "response"}, "the terminal event keeps its strict shape"
     result = events[-2]["response"]
-    assert result["choices"][0]["message"]["content"] == "".join(pieces)
-    assert result["choices"][0]["finish_reason"] == "stop"
+    assert result["stream_complete"] is True
+    assert any(f.get("choices", [{}]) and f["choices"][0].get("finish_reason") == "stop" for e in events if e["type"] == "frames" for f in e["frames"])
     assert result["usage"]["completion_tokens"] == 3
     assert replay(events) == {f"{0:032x}": "".join(pieces)}
     assert sent[0]["stream"] is True and sent[0]["usage"] == {"include": True}
@@ -85,7 +89,7 @@ async def test_truncated_reply_is_a_result_with_its_finish_reason_and_usage(prox
     upstream(monkeypatch, lambda request: httpx.Response(200, content=sse(chunk("Hola mun", finish_reason="length"), USAGE)))
     events = lines(await proxy.post("/v1/operations", json=envelope()))
     result = [event for event in events if event["type"] == "result"][0]["response"]
-    assert result["choices"][0]["finish_reason"] == "length"
+    assert any(f.get("choices", [{}]) and f["choices"][0].get("finish_reason") == "length" for e in events if e["type"] == "frames" for f in e["frames"])
     assert result["usage"]["cost"] == 0.00001
     assert replay(events) == {f"{0:032x}": "Hola mun"}
 
@@ -115,7 +119,7 @@ async def test_streamed_partner_first_history_keeps_roles_and_role_deltas_are_no
     events = lines(response)
     assert replay(events) == {f"{0:032x}": "Did you borrow one instead?"}
     result = next(event["response"] for event in events if event["type"] == "result")
-    assert result["choices"][0]["message"]["content"] == "Did you borrow one instead?"
+    assert result["stream_complete"] is True
 
 
 @pytest.mark.asyncio
@@ -155,10 +159,10 @@ async def test_the_response_limit_is_an_error_never_a_truncated_result(proxy, mo
 
 
 @pytest.mark.asyncio
-async def test_version_1_is_unchanged_and_rejects_deltas(proxy, monkeypatch):
+async def test_nonstreaming_works_and_old_protocol_is_rejected(proxy, monkeypatch):
     upstream(monkeypatch, lambda request: httpx.Response(200, json={"id": "gen", "model": "m", "choices": [{"finish_reason": "stop", "message": {"content": "Hola"}}],
                                                                     "usage": {"cost": 0.00001, "prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2}}))
-    events = lines(await proxy.post("/v1/operations", json=envelope(version=1)))
+    events = lines(await proxy.post("/v1/operations", json=envelope(deltas=False)))
     assert [event["type"] for event in events] == ["result", "complete"]
     bad = envelope(version=1)
     bad["items"][0]["deltas"] = True
@@ -169,8 +173,8 @@ async def test_version_1_is_unchanged_and_rejects_deltas(proxy, monkeypatch):
 
 
 def test_digest_ignores_the_protocol_that_carried_the_request():
-    [v1] = grouped.parse(envelope(version=1), max_tokens=2000)
-    [v2] = grouped.parse(envelope(version=2), max_tokens=2000)
+    [v1] = grouped.parse(envelope(deltas=False), max_tokens=2000)
+    [v2] = grouped.parse(envelope(deltas=True), max_tokens=2000)
     assert v1.digest == v2.digest
     assert (v1.deltas, v2.deltas) == (False, True)
 
@@ -184,11 +188,11 @@ async def test_slow_consumer_and_racing_terminals_lose_nothing():
     async def execute(item, held, on_delta):
         text = f"item-{item.operation_id[-1]}-" + "é" * 40 + "🎉"
         for character in text:
-            on_delta(character)
+            on_delta(chunk(character))
             if character == "é":
                 await anyio.sleep(0)
         # The last piece lands in the same instant as the result.
-        on_delta("!")
+        on_delta(chunk("!"))
         return {"type": "result", "response": {"id": "x", "model": "m", "choices": [{"finish_reason": "stop", "message": {"content": text + "!"}}]}}
 
     class Claim:

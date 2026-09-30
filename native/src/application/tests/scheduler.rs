@@ -118,7 +118,7 @@ async fn revoked_work_is_not_submitted_after_a_delayed_probe() {
                 _ => (),
             }
         }
-        let body = r#"{"operations_versions":[1,2]}"#;
+        let body = r#"{"operations_versions":[3]}"#;
         socket
             .write_all(
                 format!(
