@@ -1,10 +1,34 @@
 # Conversation responsiveness and layout audit
 
 Status: source audit dated 2026-09-29; presentation and speech-state checkpoints
-and progress simplification are implemented below. Local publication and incremental
-audio delivery remain proposals.
+and progress simplification are implemented below. The history-dependent local
+publication wait is now removed; timing measurement and incremental audio delivery
+remain proposals.
 The pending-message work remains governed by its existing note; this audit
 identifies remaining issues and does not supersede those decisions.
+
+## Live-publication checkpoint
+
+Implemented after approval of the local publication slice:
+
+- Live conversation pages publish as soon as their read resolves, retaining
+  already displayed history. The live watcher continues while older pages refresh.
+- One background history walk runs at a time; additional refresh requests coalesce
+  to the latest live page. Each returned page publishes independently and the
+  full displayed range remains eligible for future refreshes.
+- Message, turn and edit-count records retain their own revision stamps. A newer
+  global snapshot revision does not make every cached record current; delayed
+  pages can refresh old records without overwriting newer overlapping records.
+- Chat/session checks, explicit read retry, bounded native reads and visible
+  errors remain. A history refresh failure retains the published reply and stops
+  observation until retry. No provider requests or retry policies changed.
+
+Verification: 11 snapshot tests and 42 conversation-flow tests pass, covering two
+live updates during a delayed history read, overlapping revision records,
+multi-page gaps, history failure/retry and chat switches. Production build and
+fast validation pass. These deterministic checks establish removal of the UI
+dependency, not measured device latency or provider speed. No local server or
+live provider request was started.
 
 ## Progress-feedback checkpoint
 
@@ -389,6 +413,8 @@ Owners: `native/src/conversations/execution/dispatch.rs`,
 `server/app/inference/grouped.py`.
 
 ### 6 Snapshot delivery creates an avoidable history dependency
+
+Historical finding, addressed by the live-publication checkpoint above.
 
 **Confirmed:** after older messages have been revealed, every new snapshot
 revision sequentially rereads the revealed older pages before calling

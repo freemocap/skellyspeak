@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
-import type { ChatMessage, ConversationSnapshot } from '../../../generated/contracts'
+import type { ChatMessage, ConversationSnapshot, TurnView } from '../../../generated/contracts'
 import { watchConversation } from '../../../platform/ipc/workspace'
 import { mergeConversationPages, useConversationSnapshot } from './useConversationSnapshot'
 vi.mock('../../../platform/ipc/workspace', () => ({ watchConversation: vi.fn(), nativeError: String }))
@@ -13,7 +13,7 @@ function messages(first: number, last: number): ChatMessage[] {
   })
 }
 function page(first: number, last: number, revision = 1, chatId = 'chat'): ConversationSnapshot {
-  return { sessionId: 'session', conversationId: chatId, revision, messages: messages(first, last), turns: [], hasOlder: first > 1 } as unknown as ConversationSnapshot
+  return { sessionId: 'session', conversationId: chatId, revision, messages: messages(first, last), turns: [], revisionSuffixCounts: [], hasOlder: first > 1 } as unknown as ConversationSnapshot
 }
 function deferred<T>() { let resolve!: (value: T) => void; let reject!: (reason: unknown) => void; const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no }); return { promise, resolve, reject } }
 beforeEach(() => { vi.resetAllMocks(); watch.mockImplementation(() => new Promise(() => {})) })
@@ -42,7 +42,8 @@ it('loads bounded older pages, deduplicates split exchanges and retains old hist
   expect(watch).toHaveBeenCalledWith('chat', -1, 102)
   expect(hook.result.current.snapshot?.messages).toHaveLength(200)
   // Advancing the live tail changes page boundaries; refresh back to the revealed floor.
-  watch.mockResolvedValueOnce(page(4, 103, 2)).mockResolvedValueOnce(page(1, 3, 2))
+  watch.mockImplementation((_id, _revision, before) => before === 104 ? Promise.resolve(page(4, 103, 2))
+    : before === 4 ? Promise.resolve(page(1, 3, 2)) : new Promise(() => {}))
   await act(async () => { update.resolve(page(104, 203, 2)) })
   await waitFor(() => expect(hook.result.current.snapshot?.messages).toHaveLength(203))
   expect(hook.result.current.snapshot?.messages.map(item => item.sequence)).toEqual(Array.from({ length: 203 }, (_, i) => i + 1))
@@ -96,7 +97,8 @@ it('bridges multiple live pages while an older-page request remains in flight', 
   watch.mockResolvedValueOnce(page(101, 200)).mockImplementationOnce(() => update.promise)
   const hook = renderHook(() => useConversationSnapshot('chat'))
   await waitFor(() => expect(watch).toHaveBeenCalledTimes(2))
-  watch.mockImplementationOnce(() => old.promise).mockResolvedValueOnce(page(301, 400, 2)).mockResolvedValueOnce(page(201, 300, 2)).mockResolvedValueOnce(page(101, 200, 2))
+  watch.mockImplementationOnce(() => old.promise).mockImplementation((_id, _revision, before) => before === 401 ? Promise.resolve(page(301, 400, 2))
+    : before === 301 ? Promise.resolve(page(201, 300, 2)) : before === 201 ? Promise.resolve(page(101, 200, 2)) : new Promise(() => {}))
   let loading!: Promise<void>
   act(() => { loading = hook.result.current.loadOlder() })
   await act(async () => { update.resolve(page(401, 500, 2)) })
@@ -105,22 +107,94 @@ it('bridges multiple live pages while an older-page request remains in flight', 
   expect(hook.result.current.snapshot?.messages.map(item => item.sequence)).toEqual(Array.from({ length: 500 }, (_, i) => i + 1))
 })
 
-// Audit characterization, not the desired publication behavior: a live update
-// currently waits for the entire previously revealed history range to reload.
-it('characterizes live snapshot publication waiting for a delayed history refresh', async () => {
+it('publishes successive live updates while a history refresh is still pending', async () => {
   const update = deferred<ConversationSnapshot>()
   const history = deferred<ConversationSnapshot>()
+  const second = deferred<ConversationSnapshot>()
   watch.mockResolvedValueOnce(page(102, 201)).mockImplementationOnce(() => update.promise)
   const hook = renderHook(() => useConversationSnapshot('chat'))
   await waitFor(() => expect(hook.result.current.snapshot?.revision).toBe(1))
   watch.mockResolvedValueOnce(page(2, 101))
   await act(async () => { await hook.result.current.loadOlder() })
-  watch.mockImplementationOnce(() => history.promise).mockResolvedValueOnce(page(1, 3, 2))
+  watch.mockImplementation((_id, revision, before) => before === 104 ? history.promise
+    : before === 4 ? Promise.resolve(page(1, 3, 2)) : revision === 2 ? second.promise : new Promise(() => {}))
   await act(async () => { update.resolve(page(104, 203, 2)) })
   await waitFor(() => expect(watch).toHaveBeenCalledWith('chat', -1, 104))
-  expect(hook.result.current.snapshot?.revision).toBe(1)
-  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(201)
-  await act(async () => { history.resolve(page(4, 103, 2)) })
-  await waitFor(() => expect(hook.result.current.snapshot?.revision).toBe(2))
+  expect(hook.result.current.snapshot?.revision).toBe(2)
   expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(203)
+  expect(hook.result.current.snapshot?.messages[0].sequence).toBe(2)
+  await act(async () => { second.resolve(page(106, 205, 3)) })
+  expect(hook.result.current.snapshot?.revision).toBe(3)
+  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(205)
+  await act(async () => { history.resolve(page(4, 103, 2)) })
+  await waitFor(() => expect(hook.result.current.snapshot?.messages[0].sequence).toBe(1))
+  expect(hook.result.current.snapshot?.revision).toBe(3)
+  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(205)
+})
+
+it('updates old records without rolling back newer overlapping messages, turns or edit counts', async () => {
+  const update = deferred<ConversationSnapshot>(), old = deferred<ConversationSnapshot>()
+  watch.mockResolvedValueOnce(page(101, 200)).mockImplementationOnce(() => update.promise)
+  const hook = renderHook(() => useConversationSnapshot('chat'))
+  await waitFor(() => expect(watch).toHaveBeenCalledTimes(2))
+  watch.mockImplementationOnce(() => old.promise)
+  let loading!: Promise<void>
+  act(() => { loading = hook.result.current.loadOlder() })
+  const refreshed = page(3, 102, 2)
+  refreshed.messages[47] = { ...refreshed.messages[47], replacedBy: 'replacement' }
+  refreshed.turns = [{ id: 'shared', state: 'failed', replacedBy: null, operations: [] }] as unknown as TurnView[]
+  refreshed.revisionSuffixCounts = [{ turnId: 'shared', exchangeCount: 1, coachTurnCount: 0 }]
+  const fresh = page(103, 202, 3)
+  fresh.turns = [{ id: 'shared', state: 'succeeded', replacedBy: 'replacement', operations: [] }] as unknown as TurnView[]
+  fresh.revisionSuffixCounts = [{ turnId: 'shared', exchangeCount: 2, coachTurnCount: 0 }]
+  watch.mockImplementation((_id, _revision, before) => before === 103 ? Promise.resolve(refreshed) : new Promise(() => {}))
+  await act(async () => { update.resolve(fresh) })
+  await waitFor(() => expect(hook.result.current.snapshot?.messages.find(m => m.sequence === 50)?.replacedBy).toBe('replacement'))
+  await act(async () => { old.resolve(page(1, 100)); await loading })
+  expect(hook.result.current.snapshot?.revision).toBe(3)
+  expect(hook.result.current.snapshot?.messages.find(m => m.sequence === 50)?.replacedBy).toBe('replacement')
+  expect(hook.result.current.snapshot?.turns[0]).toMatchObject({ state: 'succeeded', replacedBy: 'replacement' })
+  expect(hook.result.current.snapshot?.revisionSuffixCounts[0].exchangeCount).toBe(2)
+  expect(hook.result.current.snapshot?.messages).toHaveLength(202)
+})
+
+it('retains the published reply on history failure, then refreshes only after explicit retry', async () => {
+  const update = deferred<ConversationSnapshot>(), history = deferred<ConversationSnapshot>()
+  watch.mockResolvedValueOnce(page(101, 200)).mockImplementationOnce(() => update.promise)
+  const hook = renderHook(() => useConversationSnapshot('chat'))
+  await waitFor(() => expect(watch).toHaveBeenCalledTimes(2))
+  watch.mockResolvedValueOnce(page(1, 100))
+  await act(async () => { await hook.result.current.loadOlder() })
+  watch.mockImplementation((_id, _revision, before) => before === 103 ? history.promise : new Promise(() => {}))
+  await act(async () => { update.resolve(page(103, 202, 2)) })
+  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(202)
+  await act(async () => { history.reject(new Error('History unavailable')) })
+  expect(hook.result.current.readError).toContain('History unavailable')
+  expect(hook.result.current.snapshot?.messages.at(-1)?.sequence).toBe(202)
+  const calls = watch.mock.calls.length
+  await act(async () => { await Promise.resolve() })
+  expect(watch).toHaveBeenCalledTimes(calls)
+  watch.mockImplementation((_id, revision, before) => before === 103 ? Promise.resolve(page(3, 102, 3))
+    : before === 3 ? Promise.resolve(page(1, 2, 3)) : revision === -1 ? Promise.resolve(page(103, 202, 3)) : new Promise(() => {}))
+  act(() => hook.result.current.retryRead())
+  await waitFor(() => expect(hook.result.current.snapshot?.revision).toBe(3))
+  expect(hook.result.current.readError).toBeNull()
+  expect(hook.result.current.snapshot?.messages).toHaveLength(202)
+})
+
+it('ignores a delayed refresh after switching conversations', async () => {
+  const update = deferred<ConversationSnapshot>(), history = deferred<ConversationSnapshot>()
+  watch.mockResolvedValueOnce(page(101, 200)).mockImplementationOnce(() => update.promise)
+  const hook = renderHook(({ id }) => useConversationSnapshot(id), { initialProps: { id: 'chat' } })
+  await waitFor(() => expect(watch).toHaveBeenCalledTimes(2))
+  watch.mockResolvedValueOnce(page(1, 100))
+  await act(async () => { await hook.result.current.loadOlder() })
+  watch.mockImplementation((_id, _revision, before) => before === 103 ? history.promise : new Promise(() => {}))
+  await act(async () => { update.resolve(page(103, 202, 2)) })
+  watch.mockResolvedValueOnce(page(1, 2, 4, 'other'))
+  hook.rerender({ id: 'other' })
+  await waitFor(() => expect(hook.result.current.snapshot?.conversationId).toBe('other'))
+  await act(async () => { history.resolve(page(3, 102, 3)) })
+  expect(hook.result.current.snapshot?.messages).toHaveLength(2)
+  expect(hook.result.current.readError).toBeNull()
 })
