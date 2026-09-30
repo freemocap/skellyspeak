@@ -53,9 +53,12 @@ domain subfolders are deferred. Working notes belong in [docs/notes/](../docs/no
 
 `GET /v1/diagnostics` and `GET /v1/me` require the same signed, unrevoked
 session as chat. Together they use a separate Firestore admission lane, defaulting
-to 120 calls per account per UTC day and 600 calls globally. The owner panel can
+to 480 calls per account per UTC day and 600 calls globally. The owner panel can
 change those defaults through effective service overrides. They do not debit the
 inference/account daily request counter.
+
+The deployment configuration defaults to a maximum of 24 registered accounts.
+Saved owner-panel overrides take precedence over deployment defaults.
 
 Signed-session short-window admission has two lanes per process:
 

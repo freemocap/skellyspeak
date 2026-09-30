@@ -41,6 +41,16 @@ def test_account_and_auth_limits_do_not_refund(ledger: FakeDb, monkeypatch: pyte
     admission.take(ledger, lane="account", subject="another")
 
 
+def test_default_daily_account_checks_allow_480_then_reject(ledger: FakeDb) -> None:
+    for _ in range(480):
+        admission.take(ledger, lane="diagnostics", subject="learner")
+    with pytest.raises(admission.Rejection) as failure:
+        admission.take(ledger, lane="diagnostics", subject="learner")
+    assert failure.value.status_code == 429
+    assert failure.value.code == "PERSONAL_DIAGNOSTICS_DAILY_LIMIT"
+    admission.take(ledger, lane="diagnostics", subject="another")
+
+
 def test_local_ingress_expires_without_storage(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(admission, "REQUESTS_PER_MINUTE", 1)
     monkeypatch.setattr(admission.time, "monotonic", lambda: 0)

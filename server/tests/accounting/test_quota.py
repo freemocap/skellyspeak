@@ -166,14 +166,14 @@ def check_allowed(db: FakeDb, user_id: str, *, user_limit: int, global_limit: in
 
 
 class TestAccountCeiling:
-    @pytest.mark.parametrize("ceiling", [6, 12])
+    @pytest.mark.parametrize("ceiling", [6, 12, 24])
     def test_accounts_up_to_the_ceiling_are_created(self, db, ceiling):
         for n in range(ceiling):
             signup(db, n, max_users=ceiling)
         assert counted(db) == ceiling
         assert db.store["users/google:0"]["email"] == "user0@example.com"
 
-    @pytest.mark.parametrize("ceiling", [6, 12])
+    @pytest.mark.parametrize("ceiling", [6, 12, 24])
     def test_the_next_account_is_refused_with_a_readable_message(self, db, ceiling):
         for n in range(ceiling):
             signup(db, n, max_users=ceiling)
@@ -187,7 +187,7 @@ class TestAccountCeiling:
         assert counted(db) == ceiling
         assert f"users/google:{ceiling}" not in db.store
 
-    @pytest.mark.parametrize("ceiling", [6, 12])
+    @pytest.mark.parametrize("ceiling", [6, 12, 24])
     def test_an_existing_user_is_never_blocked_or_double_counted(self, db, ceiling):
         for n in range(ceiling):
             signup(db, n, max_users=ceiling)
