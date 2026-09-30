@@ -339,7 +339,7 @@ export default function ConversationPage({
    * place from the first moment; a new message's text moves out of the draft
    * into its bubble, and if it is rejected the bubble keeps it with Retry. */
   async function submitText(text: string, provenance: InputEvidence, revision?: number,
-    recording: string | null = provenance.modality === 'speech_transcript' ? draftRecording.current : null, editing: number | null = editingTurnId) {
+    recording: string | null = provenance.modality === 'speech_transcript' ? draftRecording.current : null, editing: number | null = editingTurnId, fromDraft = true) {
     if (acceptingSend.current) return
     acceptingSend.current = true
     const submittedChatId = currentChatId
@@ -348,7 +348,7 @@ export default function ConversationPage({
     // A recording's text fills the bubble that has held its place since it stopped.
     const key = submittedRecording && pendingMessage?.phase === 'transcribing' ? pendingMessage.key : submittedRecording ?? crypto.randomUUID()
     pending.hold({ key, editing: edited?.turnId ? { id: edited.id, turnId: edited.turnId } : null, text, phase: 'sending' })
-    if (editing === null) {
+    if (editing === null && fromDraft) {
       setInput('')
       inputEvidence.current = unreportedInput()
     }
@@ -376,7 +376,7 @@ export default function ConversationPage({
         setSentRecording({ recordingId: submittedRecording, turnId: acceptedTurnId })
         if (draftRecording.current === submittedRecording) draftRecording.current = null
       }
-      if (inputRevision.current === submittedDraftRevision) {
+      if (fromDraft && inputRevision.current === submittedDraftRevision) {
         setInput('')
         inputEvidence.current = unreportedInput()
       }
@@ -389,7 +389,7 @@ export default function ConversationPage({
         pending.release(key)
         setError(nativeError(reason))
         if (inputRevision.current === submittedDraftRevision) setInput(text)
-      } else pending.fail(key, nativeError(reason), () => submitRef.current(text, provenance, undefined, submittedRecording, null))
+      } else pending.fail(key, nativeError(reason), () => submitRef.current(text, provenance, undefined, submittedRecording, null, false))
       setRevisionConfirmation(null)
       setEditRevision(null)
       setSending(false)

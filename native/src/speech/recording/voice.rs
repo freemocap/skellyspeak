@@ -176,9 +176,9 @@ pub(super) fn start_prepared_capture(
         #[cfg(mobile)]
         samples_per_second: 750.0,
     };
-    *slot = Some(recording);
     // A new recording supersedes a failed take waiting for Retry.
-    failed_take(state)?.take();
+    failed_take(state)?.start(&recording.id);
+    *slot = Some(recording);
     Ok(started)
 }
 #[tauri::command]
@@ -365,17 +365,33 @@ pub async fn mic_transcribe(
 /// A manual take whose transcription failed, held in memory so Retry can send
 /// the same audio again. Only the latest failed take is held, until a retry
 /// succeeds or a new recording starts; a restart loses it.
-pub(crate) struct FailedTake {
+struct FailedTake {
     /// The take's own identity, which the learner's Retry names.
     take: String,
     request: Transcription,
     wav: Vec<u8>,
 }
 
-fn failed_take(state: &Application) -> Result<MutexGuard<'_, Option<FailedTake>>> {
-    state.failed_take.lock().map_err(|_| {
-        crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
-    })
+#[derive(Default)]
+pub(crate) struct RetryTake {
+    // Capture selects this before asynchronous work begins. Older completions
+    // must not clear newer audio or restore a take superseded by another capture.
+    latest: String,
+    held: Option<FailedTake>,
+}
+
+impl RetryTake {
+    fn start(&mut self, id: &str) {
+        self.latest = id.to_owned();
+        self.held = None;
+    }
+}
+
+fn failed_take(state: &Application) -> Result<MutexGuard<'_, RetryTake>> {
+    state
+        .failed_take
+        .lock()
+        .map_err(|_| crate::diagnostics::failures::poisoned(fault("Microphone state unavailable.")))
 }
 
 /// Transcribes a manual take, holding it for Retry if transcription fails.
@@ -385,11 +401,14 @@ async fn transcribe_holding_failure(
     wav: Vec<u8>,
 ) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
     let result = transcribe(state.clone(), request.clone(), wav.clone()).await;
-    *failed_take(&state)? = result.is_err().then(|| FailedTake {
-        take: request.id.clone(),
-        request,
-        wav,
-    });
+    let mut slot = failed_take(&state)?;
+    if slot.latest == request.id {
+        slot.held = result.is_err().then(|| FailedTake {
+            take: request.id.clone(),
+            request,
+            wav,
+        });
+    }
     result
 }
 
@@ -403,10 +422,10 @@ async fn retry_held_take(
 ) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
     let held = {
         let mut slot = failed_take(&state)?;
-        match slot.take() {
+        match slot.held.take() {
             Some(held) if held.take == take => held,
             other => {
-                *slot = other;
+                slot.held = other;
                 return Err(AppError::new(
                     ErrorCode::NotFound,
                     "This recording's audio is no longer available to send again.",
@@ -418,7 +437,10 @@ async fn retry_held_take(
     request.id = uuid::Uuid::new_v4().to_string();
     let result = transcribe(state.clone(), request, held.wav.clone()).await;
     if result.is_err() {
-        *failed_take(&state)? = Some(held);
+        let mut slot = failed_take(&state)?;
+        if slot.latest == held.take {
+            slot.held = Some(held);
+        }
     }
     result
 }

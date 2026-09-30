@@ -381,6 +381,13 @@ describe('native composer admission', () => {
     await act(async () => pending.reject(new Error('Admission refused')))
     expect(composer).toHaveValue('New draft typed while waiting')
     expect(commands()).toHaveLength(1)
+    const retry = deferred<Receipt>()
+    submit = () => retry.promise
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    await waitFor(() => expect(commands()).toHaveLength(2))
+    expect(composer).toHaveValue('New draft typed while waiting')
+    await act(async () => retry.resolve({ actionId: commands()[1].actionId, entityId: 'accepted', revision: 11 }))
+    expect(composer).toHaveValue('New draft typed while waiting')
   })
 
   it('settings refresh and empty conversation hydration do not send an automatic greeting', async () => {
