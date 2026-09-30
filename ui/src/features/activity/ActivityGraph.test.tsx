@@ -1,10 +1,11 @@
 // @vitest-environment jsdom
 import { render, waitFor } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
+import type { ReactFlowInstance } from '@xyflow/react'
 import type { TurnView } from '../../generated/contracts'
 import { ActivityGraph } from './ActivityGraph'
 
-const flow = vi.hoisted(() => ({ fitView: vi.fn(async () => true) }))
+const flow = vi.hoisted(() => ({ fitView: vi.fn<ReactFlowInstance['fitView']>(async () => true) }))
 vi.mock('@xyflow/react', () => ({
   ReactFlow: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Background: () => null, Controls: () => null, Handle: () => null,
@@ -21,7 +22,7 @@ function turn(running: string[]): TurnView {
   } as unknown as TurnView
 }
 const graph = (value: TurnView, follow: boolean) => <ActivityGraph turn={value} follow={follow} orientation="down" selectedKind={null} onSelect={() => {}} now={0} />
-const lastFit = () => flow.fitView.mock.lastCall?.[0] as { nodes?: { id: string }[]; minZoom?: number } | undefined
+const lastFit = () => flow.fitView.mock.lastCall?.[0]
 
 it('follows the running operations at a readable size, and shows the whole graph once work settles', async () => {
   const view = render(graph(turn(['gloss', 'speech']), true))

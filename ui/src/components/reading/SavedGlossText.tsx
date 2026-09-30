@@ -79,7 +79,7 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
     // Under the word, a clitic group reads as one word: its sounds run together
     // ("al-" + "aklah" → "al-aklah") and its meanings read as a phrase. The
     // per-part values stay in the helper, where there is room.
-    const phrase = (field: 'gloss' | 'romanization' | 'pronunciation') => annotations.map(part => field === 'pronunciation' && supportsRomanization && part.romanization ? undefined : part[field]).filter(Boolean).join(field === 'gloss' ? ' ' : '')
+    const phrase = (field: 'gloss' | 'romanization' | 'pronunciation') => annotations.map(part => field === 'pronunciation' && part.romanization ? undefined : part[field]).filter(Boolean).join(field === 'gloss' ? ' ' : '')
     const joined = (field: 'gloss' | 'romanization' | 'pronunciation', className: string) => {
       const value = phrase(field)
       return value ? <span className={className} dir="auto" data-gloss-start={segment.start} data-gloss-end={segment.end}>{value}</span> : null
