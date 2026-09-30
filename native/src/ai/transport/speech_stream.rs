@@ -214,9 +214,9 @@ impl Decoder {
                 },
             )
             .map_err(|_| self.invalid("wav_header"))?;
-            for sample in self.pcm.chunks_exact(2) {
+            for sample in self.pcm.as_chunks::<2>().0 {
                 writer
-                    .write_sample(i16::from_le_bytes([sample[0], sample[1]]))
+                    .write_sample(i16::from_le_bytes(*sample))
                     .map_err(|_| self.invalid("wav_samples"))?;
             }
             writer

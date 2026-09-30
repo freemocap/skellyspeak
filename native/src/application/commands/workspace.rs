@@ -81,30 +81,30 @@ pub(in crate::application) fn read_speech_audio(
             "Speech execution changed during playback.",
         ));
     }
-    if let model::SpeechAudioState::Pending { message_id, .. } = &audio {
-        if let Some(id) = source_execution {
-            let streams = state
-                .speech_streams
-                .lock()
-                .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?;
-            let offset = sample_offset.unwrap_or(0);
-            if let Some(pcm) = streams.read(&id, offset as usize)? {
-                use base64::Engine;
-                return Ok(model::SpeechAudioState::Streaming {
-                    operation_id,
-                    message_id: message_id.clone(),
-                    execution_id: id.clone(),
-                    sample_offset: offset,
-                    alignment: streams.alignment(&id),
-                    audio_base64: base64::engine::general_purpose::STANDARD.encode(pcm),
-                });
-            }
-            if execution_id.is_some() {
-                return Err(AppError::new(
-                    ErrorCode::Conflict,
-                    "Speech stream delivery expired.",
-                ));
-            }
+    if let model::SpeechAudioState::Pending { message_id, .. } = &audio
+        && let Some(id) = source_execution
+    {
+        let streams = state
+            .speech_streams
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?;
+        let offset = sample_offset.unwrap_or(0);
+        if let Some(pcm) = streams.read(&id, offset as usize)? {
+            use base64::Engine;
+            return Ok(model::SpeechAudioState::Streaming {
+                operation_id,
+                message_id: message_id.clone(),
+                execution_id: id.clone(),
+                sample_offset: offset,
+                alignment: streams.alignment(&id),
+                audio_base64: base64::engine::general_purpose::STANDARD.encode(pcm),
+            });
+        }
+        if execution_id.is_some() {
+            return Err(AppError::new(
+                ErrorCode::Conflict,
+                "Speech stream delivery expired.",
+            ));
         }
     }
     Ok(audio)

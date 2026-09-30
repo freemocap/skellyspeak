@@ -55,3 +55,34 @@ the successful build and UI test runs used approved execution outside that
 filesystem restriction. Native/server suites, device inspection, hosted CI and
 signed platform builds were not rerun. Hosted validation requires the subsequent
 push and is not claimed green for these uncommitted changes.
+
+## Follow-up: v2.9.2 CI failures
+
+The user subsequently committed the earlier fixes and prepared v2.9.2.
+[CI on 83c8351f](https://github.com/freemocap/skellyspeak/actions/runs/36755822935)
+passed fast validation, Linux compilation, server tests, docs and both mobile
+builds, but failed Windows Clippy and the UI suite. The earlier local verification
+did not include Clippy; the fast gate is not a replacement for that check.
+
+Local Clippy reproduced three errors in speech streaming code: constant-size
+byte chunks, a nested condition and a manual divisibility check. Applied the
+equivalent typed-chunk, chained-condition and divisibility forms without
+changing bounds, lock scope or return behavior. The README's broader Clippy
+command also found an unnecessary clone in an effort test; used a borrowed slice.
+
+The UI annotation identifies the 0.25x scrub-reader case exceeding five seconds.
+The preceding branch run and the release run on the same application source
+passed frontend validation. Locally the isolated eight-test file took 2.85
+seconds of test time. Its per-sample loop made hundreds of thousands of matcher
+calls. It now still inspects every output sample, but accumulates the minimum
+forward step and maximum destination overshoot and asserts those bounds once.
+NaN propagates to failing bounds; marker, terminal position and silence checks
+remain. No retries, timeout increase, rate reduction or sample skipping were
+introduced. Isolated test time fell to 36 milliseconds on the same machine.
+
+Updated the working agreement to inspect all failed jobs and verify downstream
+checks that an earlier failure skipped. Native edits require Clippy and native
+tests, in addition to the fast gate. This follow-up does not change versions,
+tags or release workflows.
+
+Follow-up verification is in progress; hosted CI has not run these local edits.

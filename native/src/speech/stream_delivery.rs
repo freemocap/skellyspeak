@@ -41,7 +41,9 @@ impl Registry {
             return Ok(());
         };
         let entry = &mut self.0[index];
-        if entry.pcm.len() + pcm.len() > super::delivery::AUDIO_LIMIT || pcm.len() % 2 != 0 {
+        if entry.pcm.len() + pcm.len() > super::delivery::AUDIO_LIMIT
+            || !pcm.len().is_multiple_of(2)
+        {
             return Err(AppError::new(
                 ErrorCode::Validation,
                 "Speech stream exceeds delivery bounds.",

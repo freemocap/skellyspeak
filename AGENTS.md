@@ -345,10 +345,13 @@ applies to changes to these instructions. Do not bypass this rule with automatic
 commits, merge commits, cherry-picks, amendments, or scripts that create commits.
 
 Agents may stage changes, create and switch branches, push commits to the
-configured remote, bump versions and create and push release tags as part of
-authorized work. These permissions do not authorize creating a commit. Keep
-version metadata and lockfiles consistent, run relevant checks before any
-explicitly authorized commit, and summarize Git operations performed.
+configured remote as part of authorized work. These permissions do not authorize
+creating a commit. Version bumps and release tags belong to the user: do not
+change release versions, create or push release tags, or invoke release scripts
+unless the user explicitly delegates that specific action in the current request.
+Fixing CI or preparing work for release does not authorize those actions. Run
+relevant checks before any explicitly authorized commit, and summarize Git
+operations performed.
 
 Never write your own name, or any AI tool, model, assistant or vendor name,
 anywhere, in any context: not in files, code, comments, documentation, Git
@@ -398,3 +401,32 @@ about the active design and actionable questions. For UI work, review applicable
 current guidance; the archived
 `old/notes/ui-guidelines.md` is historical reference, not an active specification. Use TypeScript for frontend tooling. Run the relevant checks in README.md;
 do not run archived application workflows.
+
+Run `npm run check:fast` from the repository root by default at meaningful
+implementation checkpoints, especially after changing UI text, translation
+catalogs, styles, diagnostic policy or Rust source. During longer work, run it
+after a coherent batch of edits so cheap failures are caught early; do not run
+it after every individual edit or repeatedly without relevant changes.
+
+For code, test or content changes, require a passing fast check on the final
+state before declaring work ready, handing it back, or performing an authorized
+commit or push. Fix failures and rerun after corrections. Review unused
+translation candidates for dynamic callers before removing keys; do not weaken
+checks or add dummy references to obtain a pass. Report any blocked check and
+its cause explicitly; do not describe unverified work as passing.
+
+The fast gate checks formatting, localization sources and usage, diagnostic
+policy, styles and validation tooling tests/types. It does not run the full UI
+suite or type-check application/test source. Also run affected regression tests
+and `npm run build` for UI code or test changes before handoff, plus other relevant
+README checks. Root `npm test` already includes the fast gate; a passing run on
+the same final state satisfies that requirement without a duplicate invocation.
+Documentation-only changes need applicable documentation checks, not the full
+application suite.
+
+When fixing CI, inspect every failed job on the current commit, not just the fast
+gate or first failure. Reproduce and verify each failed check and run downstream
+checks that earlier failures skipped where the local platform supports them.
+For native changes, run the README's Clippy and native test commands; formatting
+alone does not cover native validation. Report local passes and hosted CI status
+separately, including any remaining unverified jobs.

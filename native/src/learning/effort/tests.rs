@@ -99,7 +99,7 @@ fn awards_and_claims_survive_reopening() {
     )
     .unwrap();
     let id = read(&db, "spanish").unwrap().recent[0].id.clone();
-    claim(&mut db, "spanish", &[id.clone()]).unwrap();
+    claim(&mut db, "spanish", std::slice::from_ref(&id)).unwrap();
     drop(db);
     let mut db = Connection::open(&path).unwrap();
     award(

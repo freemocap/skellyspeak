@@ -12,14 +12,17 @@ it.each([0.25, 0.5, 1, 2, 4])('renders ordered audio once through a complete int
   reader.start(0.2)
   const output = Array.from({ length: 3 }, () => new Float32Array(128))
   let previous = 0.2, hits = 0, inMarker = false, blocks = 0
+  let smallestStep = Infinity, greatestOvershoot = -Infinity
   let position = 0.2
   const render = () => {
     reader.render(output)
     for (let i = 0; i < 128; i++) {
       if (output[0][i] === 0) continue
       const time = output[1][i] / output[0][i]
-      expect(time).toBeGreaterThanOrEqual(previous - 0.000001)
-      expect(time).toBeLessThanOrEqual(position + 0.000001)
+      // Inspect every sample, but avoid hundreds of thousands of matcher calls
+      // competing with the full suite on CI. NaN also propagates to the checks.
+      smallestStep = Math.min(smallestStep, time - previous)
+      greatestOvershoot = Math.max(greatestOvershoot, time - position)
       previous = time
       const marked = output[2][i] / output[0][i] > 0.5
       if (marked && !inMarker) hits++
@@ -34,6 +37,8 @@ it.each([0.25, 0.5, 1, 2, 4])('renders ordered audio once through a complete int
     render()
   }
   for (let i = 0; i < 20; i++) render()
+  expect(smallestStep).toBeGreaterThanOrEqual(-0.000001)
+  expect(greatestOvershoot).toBeLessThanOrEqual(0.000001)
   expect(reader.position).toBe(0.8 * sourceRate)
   expect(hits).toBe(1)
   expect(previous).toBeGreaterThan(0.799)
