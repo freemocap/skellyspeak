@@ -106,6 +106,29 @@
 .chat-coach svg { color: var(--coach-mark); }
 .chat-coach[aria-expanded='true'] { border-color: var(--coach-mark); }
 @media (pointer: coarse) { .chat-coach { min-height: var(--control-height); } }
+@media (max-width: 860px) and (pointer: coarse) {
+  .composer-assist:not(:has(.reply-help)) { flex-wrap: nowrap; gap: var(--space-2); margin-block: var(--space-8) var(--space-2); }
+  .composer-assist > .composer-activity { flex: 1 1 68px; min-width: 68px; max-width: none; overflow: hidden; padding-inline: 0; }
+  .composer-assist .ai-status { gap: var(--space-2); }
+  .composer-assist .ai-status-line { font: var(--weight-regular) var(--type-meta)/var(--leading-snug) var(--font-sans); color: var(--ink-3); }
+  .composer-assist .ai-status-pill { isolation: isolate; min-width: 68px; justify-content: center; padding-inline: var(--space-4); border-color: transparent; background: transparent; }
+  .composer-assist .ai-status-pill-surface { position: absolute; display: block; inset-block: var(--space-4); inset-inline: 0; border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--chip); }
+  .composer-assist .ai-status-pill::before, .composer-assist .ai-status-pill > span:last-child { position: relative; z-index: var(--z-raised); }
+  .composer-assist .ai-status[data-busy] .ai-status-pill, .composer-assist .ai-status[data-tone=offline] .ai-status-pill { border-color: transparent; background: transparent; }
+  .composer-assist .ai-status[data-busy] .ai-status-pill-surface { border-color: transparent; background: var(--interaction-tint); }
+  .composer-assist .ai-status[data-tone=offline] .ai-status-pill-surface { border-color: var(--danger-line); background: var(--danger-tint); }
+  .composer-assist .ai-status[data-busy] .ai-status-pill::after { inset-block: var(--space-4); }
+  .composer-assist .reply-help-folded { flex: 0 1 auto; min-width: var(--touch-target); }
+  .composer-assist .reply-help-open { position: relative; isolation: isolate; gap: var(--space-2); width: 100%; min-width: var(--touch-target); padding-inline: var(--space-3); border-color: transparent; background: transparent; font-size: var(--type-meta); white-space: nowrap; }
+  .composer-assist .reply-help-open::before { content: ''; position: absolute; inset-block: var(--space-4); inset-inline: 0; border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); }
+  .composer-assist .reply-help-open > :is(svg, span) { position: relative; z-index: var(--z-raised); }
+  .composer-assist .reply-help-open > svg { flex: none; }
+  .composer-assist .reply-help-open > span { overflow: hidden; text-overflow: ellipsis; }
+  .composer-assist .chat-coach { position: relative; isolation: isolate; gap: var(--space-2); padding-inline: var(--space-4); border-color: transparent; background: transparent; font-size: var(--type-meta); }
+  .composer-assist .chat-coach::before { content: ''; position: absolute; inset-block: var(--space-4); inset-inline: 0; border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); }
+  .composer-assist .chat-coach > :is(svg, span) { position: relative; z-index: var(--z-raised); }
+  .composer-assist .chat-coach[aria-expanded='true']::before { border-color: var(--coach-mark); }
+}
 
 .transcription-warning { margin-top: var(--space-4); font: var(--type-meta) var(--font-sans); color: var(--ink-2); }
 

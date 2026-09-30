@@ -91,6 +91,34 @@ async def test_truncated_reply_is_a_result_with_its_finish_reason_and_usage(prox
 
 
 @pytest.mark.asyncio
+async def test_streamed_partner_first_history_keeps_roles_and_role_deltas_are_not_prose(proxy, monkeypatch):
+    messages = [
+        {"role": "system", "content": "Reply to the latest learner message."},
+        {"role": "assistant", "content": "I bought two books. How many did you buy?"},
+        {"role": "user", "content": "I did not buy any books."},
+    ]
+    sent = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        sent.append(json.loads(request.content))
+        return httpx.Response(200, content=sse(
+            {"choices": [{"index": 0, "delta": {"role": "assistant"}}]},
+            chunk("Did you "), chunk("borrow one instead?", finish_reason="stop"), USAGE,
+        ), headers={"content-type": "text/event-stream"})
+
+    upstream(monkeypatch, respond)
+    request = envelope()
+    request["items"][0]["request"]["messages"] = messages
+    response = await proxy.post("/v1/operations", json=request)
+    assert response.status_code == 200
+    assert sent[0]["messages"] == messages
+    events = lines(response)
+    assert replay(events) == {f"{0:032x}": "Did you borrow one instead?"}
+    result = next(event["response"] for event in events if event["type"] == "result")
+    assert result["choices"][0]["message"]["content"] == "Did you borrow one instead?"
+
+
+@pytest.mark.asyncio
 async def test_provider_error_after_partial_output_keeps_the_text_and_reports_bounded_facts(proxy, monkeypatch):
     upstream(monkeypatch, lambda request: httpx.Response(200, content=sse(chunk("Parti"), {"error": {"code": 502, "message": "Upstream said no"}}, done=False)))
     events = lines(await proxy.post("/v1/operations", json=envelope()))

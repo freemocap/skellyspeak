@@ -635,7 +635,7 @@ export default function ConversationPage({
   const composerActivity = (
     <div className="composer-activity">
       <AiStatus transcribing={mic.transcribing} scheduling={sending && !pendingReply} turns={snapshot?.turns ?? []}
-        synthesizing={speech.phase === 'preparing'} latest={latestTurn?.assistant ? latestTurn.execution ?? undefined : undefined} onInspectLatest={inspectLatest} />
+        synthesizing={speech.phase === 'preparing'} buffering={speech.phase === 'buffering'} latest={latestTurn?.assistant ? latestTurn.execution ?? undefined : undefined} onInspectLatest={inspectLatest} />
     </div>
   )
   const chatComposer = (
@@ -710,7 +710,7 @@ export default function ConversationPage({
         retained: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.retained : null,
         time: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.time : 0,
         playing: speech.messageId === turn.assistant.messageId && speech.phase === 'playing',
-        preparing: speech.messageId === turn.assistant.messageId && speech.phase === 'preparing',
+        preparing: speech.messageId === turn.assistant.messageId && (speech.phase === 'preparing' || speech.phase === 'buffering'),
         enabled: active && !mic.recording && !mic.transcribing,
         rate: settings?.tts_rate ?? 1, volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000,
         seek: seconds => speech.seek(turn.assistant!.messageId!, seconds), stop: speech.stop,

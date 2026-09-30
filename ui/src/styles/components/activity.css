@@ -124,6 +124,7 @@
   font: var(--weight-semibold) var(--type-ui) var(--font-sans); line-height: var(--leading-none); cursor: pointer; white-space: nowrap;
 }
 .ai-status-pill::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); }
+.ai-status-pill-surface { display: none; }
 .ai-status-pill[data-configured=true]::before { background: var(--connected-mark); }
 .ai-status-pill:hover { border-color: var(--interaction-ink); color: var(--ink); }
 .ai-status-pill[aria-expanded=true] { border-color: var(--interaction-ink); }

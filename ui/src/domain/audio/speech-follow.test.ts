@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { estimatedSpeechWords, speechWords, spokenRangeInText, spokenWordAt } from './speech-follow'
+import { estimatedSpeechWords, estimatedTotalSpeechSeconds, speechWords, spokenRangeInText, spokenWordAt } from './speech-follow'
 
 function alignment(sourceText: string, spoken = sourceText) {
   const characters = Array.from(spoken)
@@ -35,6 +35,16 @@ it('follows only complete exact-source words while alignment is still arriving',
     expect(text.slice(words[0].start, words[0].end)).toBe(text.slice(0, text.indexOf(' ')))
   }
   expect(speechWords('go going', alignment('go going', 'go go'), true)).toEqual([])
+})
+
+it.each(['one two three four five', 'uno dos tres cuatro cinco', 'مرحبا بك كيف حالك اليوم', 'cafe\u0301 noir clair et calme'])('estimates remaining speech only from anchored partial timing: %s', text => {
+  const boundaries = text.split(' ')
+  const prefix = `${boundaries.slice(0, 3).join(' ')} `
+  const estimate = estimatedTotalSpeechSeconds(text, alignment(text, prefix), 1)
+  expect(estimate).not.toBeNull()
+  expect(estimate!).toBeGreaterThan(1)
+  expect(estimatedTotalSpeechSeconds(text, alignment('different', prefix), 1)).toBeNull()
+  expect(estimatedTotalSpeechSeconds(text, alignment(text, boundaries[0]), 1)).toBeNull()
 })
 
 it('uses the original timing when normalized speech rewrites source text', () => {

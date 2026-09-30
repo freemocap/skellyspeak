@@ -100,6 +100,13 @@ it('reports speech synthesis, from a turn or from a replay', () => {
   expect(aiStatus(input({ audio: 'partner' }))).toMatchObject({ busy: true, line: { id: 'synthesize', words, kinds: ['persona_speech'], models: ['voice-model'] } })
 })
 
+it('reports received audio as buffering even while other turn work runs', () => {
+  const speaking = turn('t1', [['s', 'persona_speech', 'running']])
+  expect(aiStatus(input({ turns: [speaking], audio: 'buffering' })).line).toMatchObject({
+    id: 'buffering', words: ['Buffering partner voice…', 'Buffering voice…', 'Buffering…'],
+  })
+})
+
 it('reports a practice card’s audio as fetched, since native may answer it from its cache', () => {
   expect(aiStatus(input({ audio: 'card' }))).toEqual({ busy: true, line: {
     id: 'card-audio', tone: 'work', announce: false, kinds: [], models: ['voice-model'],

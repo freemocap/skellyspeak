@@ -32,6 +32,7 @@ it('starts on a chunk, requests the next cursor, and hands completion to the sam
   act(() => view.result.current.toggle('message'))
   await waitFor(() => expect(mocks.invoke).toHaveBeenCalledTimes(2))
   expect(mocks.play).toHaveBeenCalledOnce()
+  expect(view.result.current.phase).toBe('buffering')
   expect(mocks.invoke.mock.calls[1][1]).toEqual({ sessionId: 'session', operationId: 'op', executionId: 'execution', sampleOffset: 2 })
   expect(view.result.current.retained).toBeNull()
   view.rerender({ rate: 0.8, volume: 0.5 })
@@ -42,6 +43,30 @@ it('starts on a chunk, requests the next cursor, and hands completion to the sam
   expect(view.result.current.retained?.audio).toEqual(ready)
   act(() => view.result.current.stop())
   expect(mocks.execute).toHaveBeenCalledOnce()
+})
+
+it('keeps the playing state when later chunks arrive during playback', async () => {
+  let next!: (value: unknown) => void
+  mocks.invoke.mockResolvedValueOnce(chunk).mockImplementationOnce(() => new Promise(resolve => { next = resolve }))
+    .mockImplementation(() => new Promise(() => {}))
+  const view = renderHook(() => useMessageSpeech(snapshot, 'chat', true, true))
+  act(() => view.result.current.toggle('message'))
+  await waitFor(() => expect(mocks.invoke).toHaveBeenCalledTimes(2))
+  act(() => mocks.stream.mock.calls[0][4].onPlaying(true))
+  await act(async () => next({ ...chunk, sampleOffset: 2 }))
+  await waitFor(() => expect(mocks.append).toHaveBeenCalledTimes(2))
+  expect(view.result.current.phase).toBe('playing')
+  act(() => view.result.current.stop())
+})
+
+it('does not append or advance the cursor for an empty caught-up read', async () => {
+  mocks.invoke.mockResolvedValueOnce(chunk).mockResolvedValueOnce({ ...chunk, sampleOffset: 2, audioBase64: '' }).mockResolvedValueOnce(ready)
+  const view = renderHook(() => useMessageSpeech(snapshot, 'chat', true, true))
+  act(() => view.result.current.toggle('message'))
+  await waitFor(() => expect(mocks.finish).toHaveBeenCalledWith(ready))
+  expect(mocks.append).toHaveBeenCalledOnce()
+  expect(mocks.invoke.mock.calls[2][1]).toEqual({ sessionId: 'session', operationId: 'op', executionId: 'execution', sampleOffset: 2 })
+  act(() => view.result.current.stop())
 })
 
 it('detaches a streaming consumer on stop and ignores the pending read', async () => {

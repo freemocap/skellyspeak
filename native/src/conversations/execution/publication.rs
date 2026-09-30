@@ -307,6 +307,14 @@ impl Store {
                 ErrorCode::Provider,
                 "Provider did not finish the reply normally. The reply was not saved to the conversation; the text that arrived is shown above.",
             )),
+            Ok(output)
+                if matches!(
+                    kind.as_str(),
+                    "persona_reply" | "persona_opening" | "coach_reply"
+                ) =>
+            {
+                crate::conversations::reply_contract::validate(&output.text)
+            }
             Ok(output) => crate::ai::transport::provider::validate_prose(&output.text),
             Err(error) => Err(error.clone()),
         };

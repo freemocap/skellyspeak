@@ -7,6 +7,7 @@ pub mod execution;
 pub(crate) mod message_history;
 pub(crate) mod openers;
 mod persona_projection;
+mod reply_contract;
 pub(crate) mod revision;
 pub(crate) mod saved_reading;
 pub(crate) mod saved_topics;

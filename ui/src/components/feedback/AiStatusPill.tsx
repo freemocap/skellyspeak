@@ -37,6 +37,7 @@ export function AiStatusPill({ access, open, onOpen, busy, line, fallback = null
     <button type="button" className="ai-status-pill" data-configured={access.connected} onClick={onOpen}
       aria-label={access.connected ? tr('AI Connected') : access.checking ? tr('Checking AI connection…') : tr('AI Not Connected')} title={detail}
       aria-expanded={access.connected || access.checking ? open : undefined} aria-controls={access.connected || access.checking ? 'ai-activity' : undefined}>
+      <span className="ai-status-pill-surface" aria-hidden="true" />
       <span aria-hidden="true">{tr('AI')}</span>
     </button>
     {shown ? <FittedLine key={shown.id} wordings={wordings} detail={[...shown.kinds, ...shown.models].join(' · ') || undefined} /> : fallback}

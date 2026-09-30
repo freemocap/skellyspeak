@@ -105,7 +105,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
         wire[0]["content"]
             .as_str()
             .unwrap()
-            .contains("Your earlier messages are yours, not theirs")
+            .contains("Messages marked assistant are your own earlier words")
     );
     assert_eq!(captured["sourceIds"].as_array().unwrap().len(), 1);
     finish_fixture_exchange(&mut store, &next, "¿Qué preparas?");
@@ -246,7 +246,7 @@ fn preview_matches_captured_opening_and_does_not_admit_work() {
         assert!(preview.configuration.prompt_editor.is_none());
         assert!(preview.system_prompt.contains("Absolute zero difficulty"));
         assert_eq!(
-            preview.system_prompt.contains("Persona background"),
+            preview.system_prompt.contains("## Partner background"),
             use_persona_details
         );
         let turn = apply(

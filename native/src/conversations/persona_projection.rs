@@ -57,6 +57,42 @@ pub(super) fn project(persona: &PersonaDetails, conversation_id: &str) -> Value 
     projection
 }
 
+/// Render the sampled background as quoted human-readable data, preserving source text.
+pub(super) fn prompt_text(value: &Value) -> String {
+    let mut lines = Vec::new();
+    for (field, label) in [
+        ("name", "Name"),
+        ("age", "Age"),
+        ("location", "Location"),
+        ("occupation", "Occupation"),
+        ("background", "Background"),
+        ("current_situation", "Current situation"),
+        ("manner", "Manner"),
+        ("interests", "Interests"),
+        ("opinions", "Opinions"),
+        ("interesting_facts", "Personal details"),
+        ("favorite_books", "Favorite books"),
+        ("favorite_movies", "Favorite movies"),
+        ("quirks", "Quirks"),
+    ] {
+        let Some(item) = value.get(field) else {
+            continue;
+        };
+        let items = item
+            .as_array()
+            .map(Vec::as_slice)
+            .unwrap_or(std::slice::from_ref(item));
+        for item in items {
+            let text = item
+                .as_str()
+                .map(str::to_owned)
+                .unwrap_or_else(|| item.to_string());
+            lines.push(format!("> {label}: {}", text.replace('\n', "\n> ")));
+        }
+    }
+    lines.join("\n")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

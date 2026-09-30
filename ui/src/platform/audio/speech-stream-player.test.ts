@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createSpeechStreamPlayer } from './speech-stream-player'
 import { interruptSpeech, setPlaybackAllowed } from './speech'
+import { getSpeechFollow, subscribeSpeechFollow } from './speech-follow'
 
 const mock = vi.hoisted(() => ({ context: null as unknown as AudioContext }))
 vi.mock('./speech-context', () => ({ speechContext: () => mock.context }))
@@ -19,7 +20,7 @@ beforeEach(() => {
 })
 afterEach(() => { interruptSpeech(); vi.useRealTimers() })
 function advance(ms: number) { for (let i = 0; i < ms; i += 20) { clock += 0.02; vi.advanceTimersByTime(20) } }
-const encode = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes))
+const encode = (bytes: Uint8Array) => btoa(Array.from(bytes, byte => String.fromCharCode(byte)).join(''))
 function audio(samples = 12000) {
   const bytes = new Uint8Array(samples * 2)
   new DataView(bytes.buffer).setInt16(0, 1000, true)
@@ -32,31 +33,71 @@ function audio(samples = 12000) {
   wav.set(bytes, 44)
   return { bytes, complete: { audioBase64: encode(wav), alignment: null } }
 }
+function alignment(text: string, spoken: string, duration: number) {
+  const characters = Array.from(spoken)
+  return { sourceText: text, original: { characters, starts: characters.map((_, i) => i * duration / characters.length), ends: characters.map((_, i) => (i + 1) * duration / characters.length) }, normalized: null }
+}
 
-it('plays before completion, waits through an underrun, then finishes without repeating the prefix', async () => {
-  const fixture = audio(); const end = vi.fn(); const playing = vi.fn(); const time = vi.fn(); const error = vi.fn()
-  const player = createSpeechStreamPlayer(end, error, 1, 1, { onPlaying: playing, onTime: time })
+it('starts as soon as measured delivery and queued audio support continuous playback', async () => {
+  const fixture = audio(96000); const end = vi.fn(); const playing = vi.fn(); const error = vi.fn()
+  const player = createSpeechStreamPlayer(end, error, 1, 1, { onPlaying: playing })
   await player.play()
   expect(sources).toHaveLength(0)
-  player.append(encode(fixture.bytes.subarray(0, 9600)), 0)
+  const text = 'one two three four five six seven eight'
+  player.append(encode(fixture.bytes.subarray(0, 57600)), 0, alignment(text, 'one two three four ', 1.5))
+  advance(300); expect(sources).toHaveLength(0)
+  player.append(encode(fixture.bytes.subarray(57600, 115200)), 28800, alignment(text, 'one two three four five six ', 2.7))
   expect(sources.length).toBeGreaterThan(0)
-  expect(playing).not.toHaveBeenCalledWith(true)
   advance(60); expect(playing).toHaveBeenLastCalledWith(true)
-  expect(end).not.toHaveBeenCalled()
-  advance(400); expect(playing).toHaveBeenLastCalledWith(false)
-  const heldTime = time.mock.lastCall![0]
-  advance(100); expect(time.mock.lastCall![0]).toBe(heldTime)
+  player.append(encode(fixture.bytes.subarray(115200)), 57600, alignment(text, text, 4))
   player.finish(fixture.complete)
-  advance(1000)
+  advance(5000)
   expect(end).toHaveBeenCalledOnce(); expect(error).not.toHaveBeenCalled()
-  expect(buffers.reduce((sum, buffer) => sum + buffer.length, 0)).toBe(12000)
+  expect(buffers.reduce((sum, buffer) => sum + buffer.length, 0)).toBe(96000)
   expect(buffers[0][0]).toBe(1000 / 32768)
+})
+
+it('waits for word timing and follows both the first and final streamed words', async () => {
+  const fixture = audio(48000); const text = 'one two three'; const seen = new Set<number>()
+  const unsubscribe = subscribeSpeechFollow(() => { const word = getSpeechFollow()?.word; if (word) seen.add(word.start) })
+  const player = createSpeechStreamPlayer(vi.fn(), vi.fn(), 1, 1, { sourceText: text })
+  await player.play()
+  player.append(encode(fixture.bytes.subarray(0, 48000)), 0, alignment(text, 'one ', 0.5))
+  advance(300); expect(sources).toHaveLength(0)
+  player.append(encode(fixture.bytes.subarray(48000)), 24000, alignment(text, 'one two ', 1.2))
+  expect(sources.length).toBeGreaterThan(0)
+  advance(100); expect(seen.has(0)).toBe(true)
+  advance(900)
+  player.finish({ ...fixture.complete, alignment: alignment(text, text, 2) })
+  advance(1500)
+  expect(seen.has(8)).toBe(true)
+  unsubscribe()
+})
+
+it('holds a slow stream with unknown length until completion', async () => {
+  const fixture = audio(48000); const end = vi.fn()
+  const player = createSpeechStreamPlayer(end, vi.fn())
+  await player.play(); player.append(encode(fixture.bytes.subarray(0, 24000)), 0)
+  advance(1000); player.append(encode(fixture.bytes.subarray(24000, 38400)), 12000)
+  advance(1000); expect(sources).toHaveLength(0)
+  player.finish(fixture.complete)
+  expect(sources.length).toBeGreaterThan(0)
+  advance(3000); expect(end).toHaveBeenCalledOnce()
+})
+
+it('starts immediately on completion even before rate or word timing is available', async () => {
+  const fixture = audio(); const player = createSpeechStreamPlayer(vi.fn(), vi.fn())
+  await player.play(); player.append(encode(fixture.bytes.subarray(0, 4000)), 0)
+  expect(sources).toHaveLength(0)
+  player.finish(fixture.complete)
+  expect(sources.length).toBeGreaterThan(0)
+  expect(buffers.reduce((sum, buffer) => sum + buffer.length, 0)).toBe(12000)
 })
 
 it('schedules queued buffers contiguously and stops every source on interruption', async () => {
   const fixture = audio(); const end = vi.fn()
   const player = createSpeechStreamPlayer(end, vi.fn())
-  await player.play(); player.append(encode(fixture.bytes), 0)
+  await player.play(); player.append(encode(fixture.bytes), 0); player.finish(fixture.complete)
   const starts = sources.map(node => node.start.mock.calls[0][0] as number)
   starts.slice(1).forEach((start, i) => expect(start - starts[i]).toBeCloseTo(0.02, 8))
   interruptSpeech()

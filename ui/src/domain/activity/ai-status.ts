@@ -28,6 +28,7 @@ export const STEP_WORDS = {
 
 const CONTEXT: StatusWords = [messageKey('Validating conversation context…'), messageKey('Validating context…'), messageKey('Validating…')]
 const SPEECH: StatusWords = [messageKey('Synthesizing partner voice…'), messageKey('Synthesizing voice…'), messageKey('Synthesizing…')]
+const BUFFERING: StatusWords = [messageKey('Buffering partner voice…'), messageKey('Buffering voice…'), messageKey('Buffering…')]
 
 /// Recorded operations by scheduler kind, worded from what each one does
 /// (native/src/diagnostics/ai_graphs.rs describes them). A kind missing here
@@ -64,7 +65,7 @@ export interface AiStatusInput {
   streaming: ReadonlySet<string>
   /// Speech audio requested for playback, until it plays: a partner message's
   /// voice being synthesized, or a practice card's audio being fetched.
-  audio: 'partner' | 'card' | null
+  audio: 'partner' | 'buffering' | 'card' | null
   connection: 'connected' | 'checking' | 'disconnected'
   /// The configured audio models, named beside the steps they run.
   models: { transcription: string | null; speech: string | null }
@@ -124,6 +125,7 @@ export function aiStatus(input: AiStatusInput): { busy: boolean; line: AiStatusL
   if (input.transcribing) return { busy, line: line('transcribe', STEP_WORDS.transcribe,
     { announce: true, kinds: ['speech_transcription'], models: model(input.models.transcription) }) }
   if (input.scheduling) return { busy, line: line('schedule', STEP_WORDS.schedule, { announce: true }) }
+  if (input.audio === 'buffering') return { busy, line: line('buffering', BUFFERING, { kinds: ['persona_speech'], models: model(input.models.speech) }) }
   if (running) return { busy, line: running }
   if (queued) return { busy, line: line('dispatch', STEP_WORDS.dispatch) }
   if (input.audio === 'partner') return { busy, line: line('synthesize', SPEECH, { kinds: ['persona_speech'], models: model(input.models.speech) }) }

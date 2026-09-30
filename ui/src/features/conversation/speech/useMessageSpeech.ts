@@ -20,7 +20,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
   const generation = useRef(0)
   const current = useRef<{ messageId: string; operationId: string | null; sessionId: string; complete?: boolean; stop?: () => void } | null>(null)
   const [messageId, setMessageId] = useState<string | null>(null)
-  const [phase, setPhase] = useState<'idle' | 'preparing' | 'playing'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'preparing' | 'buffering' | 'playing'>('idle')
   const [retained, setRetained] = useState<MessageAudio | null>(null)
   const [time, setTime] = useState(0)
   const playerRef = useRef<PlaybackHandle | null>(null)
@@ -57,6 +57,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
 
   const consume = useCallback(async (scope: number, permit: object, sessionId: string, operationId: string, sourceId: string, startSeconds = 0) => {
     let stream: SpeechStreamPlayer | null = null
+    let streamPlaying = false
     let cursor: { sampleOffset: number; executionId: string } | undefined
     const finish = () => {
       if (scope === generation.current) {
@@ -73,7 +74,7 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
       sourceText: latest.current?.messages.find(message => message.id === sourceId)?.text,
       startSeconds,
       onReady: (handle: PlaybackHandle | null) => { if (scope === generation.current) playerRef.current = handle },
-      onPlaying: (playing: boolean) => { if (scope === generation.current && current.current?.messageId === sourceId) setPhase(playing ? 'playing' : 'preparing') },
+      onPlaying: (playing: boolean) => { streamPlaying = playing; if (scope === generation.current && current.current?.messageId === sourceId) setPhase(playing ? 'playing' : stream ? 'buffering' : 'preparing') },
       onTime: (seconds: number, total: number) => { if (scope === generation.current) { duration.current = total; setTime(seconds) } },
     }
     while (scope === generation.current) {
@@ -90,8 +91,10 @@ export function useMessageSpeech(snapshot: ConversationSnapshot | null, conversa
           await stream.play()
           if (scope !== generation.current) { stream.stop(); return }
         }
-        cursor = { sampleOffset: stream.append(audio.audioBase64, audio.sampleOffset, audio.alignment), executionId: audio.executionId }
-        await new Promise(resolve => setTimeout(resolve, 80))
+        const hasSamples = audio.audioBase64.length > 0
+        cursor = { sampleOffset: hasSamples ? stream.append(audio.audioBase64, audio.sampleOffset, audio.alignment) : audio.sampleOffset, executionId: audio.executionId }
+        if (hasSamples && !streamPlaying) setPhase('buffering')
+        if (!hasSamples) await new Promise(resolve => setTimeout(resolve, 80))
         continue
       }
       if (audio.status === 'pending') { await new Promise(resolve => setTimeout(resolve, 100)); continue }

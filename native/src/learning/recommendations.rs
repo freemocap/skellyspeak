@@ -172,11 +172,25 @@ pub(crate) fn append_prompt(
     recommendation: Option<&Value>,
 ) -> Result<()> {
     if let Some(value) = recommendation {
-        system.push_str(&format!(
-            "\n\n{}\nPractice selection (data): {}",
+        // Selection provenance stays in the captured turn. Assessment instructions are
+        // for evidence evaluation, not for the person participating in this exchange.
+        let skill = &value["skill"];
+        let field = |key: &str| -> Result<&str> {
+            skill[key].as_str().ok_or_else(|| {
+                AppError::new(
+                    ErrorCode::Internal,
+                    format!("Practice focus is missing {key}."),
+                )
+            })
+        };
+        let focus = format!(
+            "## Practice focus\n{}\n\n> {}\n> {}",
             registry.conversation_prompt().coach_focus,
-            serde_json::to_string(value)?
-        ));
+            field("name")?.replace('\n', "\n> "),
+            field("overview")?.replace('\n', "\n> ")
+        );
+        // Keep the immediate conversational task and difficulty at the end.
+        system.insert_str(0, &format!("{focus}\n\n"));
     }
     Ok(())
 }

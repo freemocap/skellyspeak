@@ -66,6 +66,49 @@ fn a_published_reply_keeps_its_response_but_is_not_unpublished_text() {
 }
 
 #[test]
+fn a_role_labeled_transcript_is_retained_but_not_published_or_spoken() {
+    let (_dir, mut store, conversation) = setup();
+    let (turn, dispatched) = reply_dispatch(&mut store, &conversation);
+    let text = "assistant: Buenas tardes.\n\nuser: Hola.";
+    let mut completion = reply(text);
+    completion.provider_id = "response-receipt".into();
+    completion.diagnostics = Some(serde_json::json!({"request_id":"response-receipt"}));
+    store
+        .finish_retaining(&dispatched, Ok(completion), Some(text))
+        .unwrap();
+    let attempt = reply_attempt(&store, &conversation, &turn);
+    assert_eq!(attempt.state, "failed");
+    assert_eq!(attempt.provider_id.as_deref(), Some("response-receipt"));
+    assert_eq!(attempt.unpublished_text.as_deref(), Some(text));
+    let detail = store.attempt_detail(&dispatched.attempt).unwrap();
+    assert_eq!(detail.response_text.as_deref(), Some(text));
+    let published: i32 = store
+        .connection
+        .query_row(
+            "SELECT count(*) FROM messages WHERE turn_id=?1 AND role='assistant'",
+            [&turn],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(published, 0);
+    let speech_ready: i32 = store.connection.query_row(
+        "SELECT count(*) FROM operations WHERE turn_id=?1 AND kind='persona_speech' AND state IN ('ready','running','succeeded')",
+        [&turn], |row| row.get(0),
+    ).unwrap();
+    assert_eq!(speech_ready, 0);
+    let diagnostics: String = store
+        .connection
+        .query_row(
+            "SELECT diagnostics FROM attempts WHERE id=?1",
+            [&dispatched.attempt],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert!(diagnostics.contains("conversation_reply_validation"));
+    assert!(diagnostics.contains("response-receipt"));
+}
+
+#[test]
 fn a_failed_reply_keeps_every_streamed_character_visible() {
     let (_dir, mut store, conversation) = setup();
     let (turn, dispatched) = reply_dispatch(&mut store, &conversation);

@@ -112,7 +112,7 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
                 section(
                     "system · optional persona",
                     format!(
-                        "{}\nPersona background (data): {{{{personaDetails}}}}",
+                        "{}\n## Partner background\n {{{{personaDetails}}}}",
                         c.persona
                     ),
                 ),
