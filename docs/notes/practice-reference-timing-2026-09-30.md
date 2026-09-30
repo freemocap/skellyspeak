@@ -53,3 +53,35 @@ The server fix has not been deployed. Existing cached results with missing timin
 cannot recover discarded source timestamps by replaying their audio. After
 server deployment, regenerate the affected reference via targeted cache cleanup;
 do not delete practice attempts, conversations or unrelated cached results.
+
+
+## Follow-up after the native relay audit
+
+The local version 3 runtime reproduced missing reference words. The latest saved
+practice speech result had valid playable audio (4.96 seconds) but both alignment
+lanes had been discarded with `timing_exceeds_audio_duration`. Another saved result
+provides exact numeric evidence: final provider end 6.720000000000001 versus PCM
+duration 6.72. Additional streams ended in three empty alignment arrays; the native
+accumulator incorrectly marked these audio-only tails as malformed, invalidating
+previously received timing. The audit regression fixtures covered null tails and
+exact decimal bounds, missing these two real response shapes.
+
+Implemented: treat only three parallel empty arrays as an absent timing update;
+keep malformed/mismatched arrays invalid. Permit eight floating-point epsilons
+scaled by duration at the audio boundary. Preserve provider times in alignment;
+clip projected word intervals to the actual duration within that tiny allowance.
+Meaningful overruns still fail. Validation diagnostics now include audio duration,
+maximum timing end and character count without source text or audio.
+
+Regression checks cover both cases together and carry the resulting timing through
+cached speech decoding and reference spectrogram word attachment. Existing bad
+cache entries cannot recover timestamps already discarded by the old validator;
+the affected reference must be regenerated. No server change is needed.
+
+Verification for this follow-up: the three timing-accumulator tests and the full
+stream/cache/reference-inspection regression passed. Shared alignment tests also
+passed. With the application closed and its exclusive workspace lock held, removed
+one invalid reference result and its unshared derived cache data; retained practice
+items, attempts, execution receipts and other audio. The local development app was
+rebuilt, signed and relaunched successfully. Visual confirmation of regenerated
+reference words remains a user check. No server changes or deployment were needed.

@@ -34,6 +34,13 @@ impl Timings {
                     starts: v.character_start_times_seconds,
                     ends: v.character_end_times_seconds,
                 });
+            // A provider may send an empty timing object on an audio-only tail.
+            // All three arrays must be empty; mismatched arrays remain invalid.
+            if decoded.as_ref().is_some_and(|v| {
+                v.characters.is_empty() && v.starts.is_empty() && v.ends.is_empty()
+            }) {
+                continue;
+            }
             let Some(next) =
                 decoded.filter(|v| v.valid(crate::speech::delivery::AUDIO_LIMIT as f64 / 48000.0))
             else {
@@ -93,7 +100,7 @@ impl Timings {
             } else {
                 "available"
             };
-            result[field] = json!({"status": if reason == "available" {"available"} else {"unavailable"}, "reason":reason});
+            result[field] = json!({"status": if reason == "available" {"available"} else {"unavailable"}, "reason":reason, "duration_seconds":duration, "maximum_end_seconds":lane.as_ref().and_then(|v| v.ends.iter().copied().reduce(f64::max)), "character_count":lane.as_ref().map_or(0, |v| v.characters.len())});
         }
         result
     }
@@ -134,7 +141,6 @@ mod tests {
     fn malformed_lane_is_not_revived_by_null_or_valid_frames() {
         for bad in [
             json!({}),
-            lane("", 0.0, 0.1),
             lane("\0", 0.0, 0.1),
             lane("a", -0.1, 0.2),
             json!({"characters":["a"],"character_start_times_seconds":[true],"character_end_times_seconds":[0.2]}),
@@ -155,5 +161,25 @@ mod tests {
         timings.append(&json!({"alignment":lane("a",0.5,0.8)}));
         timings.append(&json!({"alignment":lane("b",0.1,0.2)}));
         assert!(timings.projection("ab", 1.0).original.is_none());
+    }
+}
+
+#[cfg(test)]
+mod provider_boundary_tests {
+    use super::*;
+    #[test]
+    fn empty_tail_and_float_roundoff_keep_reference_words() {
+        let mut timing = Timings::default();
+        timing.append(&json!({"alignment":{"characters":["one"],"character_start_times_seconds":[0.0],"character_end_times_seconds":[6.720000000000001]}}));
+        timing.append(&json!({"alignment":{"characters":[],"character_start_times_seconds":[],"character_end_times_seconds":[]}}));
+        let alignment = timing.projection("one", 6.72);
+        assert_eq!(
+            alignment.original.as_ref().unwrap().ends[0],
+            6.720000000000001
+        );
+        let words = alignment.words(6.72).unwrap();
+        assert_eq!(words.words[0].end, 6.72);
+        assert_eq!(timing.diagnostics(6.72)["original"]["reason"], "available");
+        assert!(timing.projection("one", 6.719).original.is_none());
     }
 }

@@ -197,8 +197,8 @@ fn completed_stream_alignment_survives_cache_and_reference_inspection() {
         json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":pcm,"alignment":{
             "characters":["one "],"character_start_times_seconds":[0.0],"character_end_times_seconds":[0.1]}}}),
         json!({"version":3,"seq":2,"type":"audio","response":{"audio_base64":pcm,"alignment":{
-            "characters":["two"],"character_start_times_seconds":[0.1],"character_end_times_seconds":[0.3]}}}),
-        json!({"version":3,"seq":3,"type":"audio","response":{"audio_base64":pcm,"alignment":null}}),
+            "characters":["two"],"character_start_times_seconds":[0.1],"character_end_times_seconds":[0.30000000000000004]}}}),
+        json!({"version":3,"seq":3,"type":"audio","response":{"audio_base64":pcm,"alignment":{"characters":[],"character_start_times_seconds":[],"character_end_times_seconds":[]}}}),
         json!({"version":3,"seq":4,"type":"complete","usage":{}}),
     ];
     for value in values {
