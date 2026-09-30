@@ -33,6 +33,7 @@ pub fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
+#[cfg(test)]
 pub fn initialize(db: &Connection) -> Result<()> {
     crate::speech::analysis::signal_cache::initialize(db)?;
     let schema = include_str!("../../storage/schemas/inference_results.sql");
@@ -58,12 +59,16 @@ pub fn initialize(db: &Connection) -> Result<()> {
             ));
         }
     }
-    let transaction = db.unchecked_transaction()?;
-    transaction.execute_batch(schema)?;
-    // Targeted development cleanup: obsolete regenerable bytes only, never receipts or recordings.
-    transaction.execute_batch(
+    db.execute_batch(schema)?;
+    db.execute_batch(
         "DROP TABLE IF EXISTS drill_references; DROP TABLE IF EXISTS inference_profiles;",
     )?;
+    recover(db)
+}
+
+pub(crate) fn recover(db: &Connection) -> Result<()> {
+    crate::speech::analysis::signal_cache::recover(db)?;
+    let transaction = db.unchecked_transaction()?;
     // The former speech cache stored only WAV bytes. Invalidate that known
     // regenerable format; keep every execution receipt and recording untouched.
     transaction.execute("DELETE FROM inference_results WHERE id IN (SELECT r.id FROM inference_results r JOIN inference_executions e ON e.id=r.id JOIN inference_blobs b ON b.digest=r.blob_digest WHERE e.task='speech' AND substr(b.payload,1,4)=x'52494646' AND substr(b.payload,9,4)=x'57415645')", [])?;

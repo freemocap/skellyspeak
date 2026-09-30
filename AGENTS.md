@@ -256,25 +256,35 @@ Any implementation reuse requires explicit review against the approved design
 after implementation is authorized. Do not run or maintain the reference
 application as part of design work.
 
-The rebuild starts from current application data only. No backwards compatibility,
-legacy credential copying, imports, backups, format conversion or versioned upgrade
-frameworks are required. Do not retain obsolete schemas, route variants or saved
-configuration solely to preserve development history.
+Workspace history is durable from database format 45 onward. Application versions
+and workspace format versions are independent. Any incompatible SQL or persisted
+JSON change requires an explicit consecutive migration and a format version bump.
+Keep released steps and historical format contracts unchanged, and retain the
+complete chain from the supported baseline. No imports or conversions from the
+archived application or pre-45 formats are required.
 
-Development application data is disposable. When a change makes data incompatible,
-delete and recreate the affected feature's data rather than converting it. Keep the
-scope proportional: UI/code changes do not justify a reset, and a local feature
-change does not automatically justify deleting unrelated application data. Review
-foreign-key, file and credential ownership before a targeted deletion. A full reset
-is allowed when shared schema incompatibility makes a smaller cleanup impractical;
-explain the actual scope instead of adding preservation machinery.
+Migrations run under workspace ownership before ordinary startup recovery, with a
+consistent recovery copy and one transaction for the entire chain. Validate source
+identity, integrity and format, each step's output, and current product state before
+commit. A failure must report its stage and retain useful redacted diagnostics;
+never silently reset an unknown, damaged, newer or failed-to-migrate database.
+Missing migration steps are errors. Reject pre-baseline files without modification.
 
-The user authorizes this development cleanup without repeat confirmation. Retain
-workspace locking and explicit failure reporting; never silently reset unknown,
-damaged or newer databases. This is not permission for silent production data loss,
-or for deleting source code, Git history or unrelated app data. Ordinary product
-records (such as Drill attempts) remain product features, not a promise to preserve
-old formats or retired configurations.
+New fields require meaningful defaults, explicit backfills or optional values.
+Renames and restructuring preserve identities and relationships. Tightened
+constraints require an explicit treatment of existing records. Deletion requires
+a documented ownership review showing that information is preserved elsewhere,
+reconstructible, or intentionally retired. Missing evidence is unknown, not zero.
+Preserve learner evidence and earned awards, including their policy provenance;
+formula changes must not silently rewrite historical credit or award it twice.
+Derived projections may change only under an explicit product policy.
+
+Do not use development resets as a substitute for migrations. Factory Reset remains
+an explicit learner action and also removes local migration recovery copies. Steps
+may change only transactional database data; files, audio and credentials require a
+separately reviewed recovery protocol. Test individual steps, all supported starting
+versions, failure rollback, repeated startup, preservation of history and equivalence
+with fresh databases. See native/README.md and docs/notes/workspace-migrations.md.
 
 ## Collaboration
 

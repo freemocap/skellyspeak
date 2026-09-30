@@ -24,6 +24,8 @@ it('renders the matching icon explosion at the activation point, then removes it
   expect(burst).toHaveStyle({ left: '142px', top: '253px' })
   expect(burst.querySelectorAll('svg')).toHaveLength(7)
   act(() => vi.advanceTimersByTime(850))
+  expect(document.querySelector('.action-reward-burst')).toBe(burst)
+  act(() => vi.advanceTimersByTime(850))
   expect(document.querySelector('.action-reward-burst')).toBeNull()
 })
 it('honors disabled effects and reduced motion', () => {

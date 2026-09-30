@@ -6,6 +6,8 @@ import { SavedGlossText } from '../src/components/reading/SavedGlossText'
 import '../src/styles/index.css'
 
 const samples = [
+  ['el', 'Greek', 'Γεια σας. Ελληνικά, καφές, μουσική. ά α\u0301 ΐ ι\u0308\u0301 σ ς', 1],
+  ['th', 'Thai', 'สวัสดี ขอบคุณ น้ำ ดื่ม เครื่องดื่ม เก้าอี้ ผู้ใหญ่ กุ้ง', 1],
   ['ja', 'Japanese', 'こんにちは。日本語、学校、音楽。が か\u3099 コーヒー。', 1],
   ['ko', 'Korean', '안녕하세요. 한국어와 음악. 한 한', 1],
   ['vi', 'Vietnamese', 'Xin chào. Tiếng Việt, cảm ơn. ệ e\u0323\u0302', 1],
@@ -61,6 +63,12 @@ function Preview() {
     </section>)}
     <p role="status">Loaded: {fonts}</p>
     <h2>Mixed scripts</h2><p data-font-sample="mixed"><TargetText text="Arabic: مُدَرِّسٌ · Hindi: हिंदी · Malayalam: മലയാളം · Chinese: 中文 · Latin: café" /></p>
+    <h2>Greek and Thai reading aids</h2>
+    <p className="wroman">kalēmera · eucharistō · maa · máa · mǎa · kàa · kâao · kɔ̀ɔp kun · krʉ̂ʉang-dʉ̀ʉm</p>
+    <h2>Thai saved word help · no inserted word spaces</h2>
+    <div className="msg bot chat-message" lang="th">
+      <SavedGlossText text="เขากำลังอ่านหนังสือ" segments={[{ start: 8, end: 12, kind: 'gloss', gloss: 'read', romanization: 'àan' }]} />
+    </div>
     <h2>Reading aids</h2><p className="wroman" data-font-sample="romanization">ḥ ṣ ḍ ṭ ẓ ā ī ū ‘ ’ ʿ ʹ ṅ ñ ṇ ṛ ṝ ḷ ḹ ḻ ṟ ṯ ś ṣ ṃ ḥ ǎ ǐ ǒ ǔ ǚ ḍh — marḥaban, qāḍin, nǐ hǎo</p>
     <h2>Saved word help · shaping and marks</h2>
     <div className="msg bot chat-message" lang="ar" style={{ '--script-scale': 1.5 } as CSSProperties}>

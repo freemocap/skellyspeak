@@ -5,10 +5,6 @@ use rusqlite::{Connection, OptionalExtension, params};
 use serde_json::{Value, json};
 use std::sync::Arc;
 
-pub fn initialize(db: &Connection) -> Result<()> {
-    db.execute_batch("CREATE TABLE IF NOT EXISTS skill_choices(language_id TEXT PRIMARY KEY,revision INTEGER NOT NULL,focus TEXT,excluded TEXT NOT NULL CHECK(json_valid(excluded)));")?;
-    Ok(())
-}
 pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
     store.config.language(target)?;
     snapshot_db(&store.connection, &store.config, &store.session_id, target)

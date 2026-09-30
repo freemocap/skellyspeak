@@ -82,3 +82,27 @@ ordinary writes are independently tested as rejected.
 New modules and tests remain below 500 lines. Existing mixed model/command files
 receive only contract registration and one command entry point; their unrelated
 responsibilities were not split as part of this feature.
+
+## Follow-up: skill evidence incorrectly displayed as message errors
+
+Observed and implemented, 2026-09-30. Read-only inspection of a reported revised
+message found a successful assessment of the current text. Its observation had
+`outcome: not_demonstrated`, `error: null`, and no selected correction. The UI
+inferred an error directly from the skill outcome, while the coach card correctly
+had no correction to display. This recurrence was not cross-version result reuse.
+
+Native `coach_policy::view` now publishes `CoachObservationView.issues` using the
+same actionable-item predicate as correction disclosure. `items` remains skill
+evidence; issues do not expose the hidden correction text. Bubble counts, inline
+marks and the Clean verdict consume issues instead of interpreting skill outcomes
+as wording errors. Existing saved observations receive this projection on read;
+no database changes, new assessment requests or history changes are needed.
+Fix counts and the existing effort-credit qualification policy are unchanged.
+
+Verification: 17 native coaching tests, 169 conversation execution tests and eight
+effort qualification tests passed; three live execution tests were ignored. The
+affected UI suites passed, including the reported evidence-only shape, matching
+badge/dialog behavior, absence of inline marks and retained hidden actual issues.
+Generated contracts pass their consistency check. Full TypeScript checking still
+reports the existing `ActivityGraph.test.tsx:24` zero-argument mock tuple error.
+The running native application was not rebuilt or restarted as part of this check.

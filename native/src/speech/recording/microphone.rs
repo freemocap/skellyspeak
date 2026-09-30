@@ -45,7 +45,8 @@ pub struct MicrophoneList {
     pub devices: Vec<MicrophoneDevice>,
 }
 
-pub fn initialize(db: &Connection) -> Result<()> {
+#[cfg(test)]
+fn initialize(db: &Connection) -> Result<()> {
     db.execute_batch(
         "CREATE TABLE IF NOT EXISTS microphone_selection(singleton INTEGER PRIMARY KEY CHECK(singleton=1), device TEXT CHECK(device IS NULL OR length(device) BETWEEN 1 AND 512)); INSERT OR IGNORE INTO microphone_selection VALUES(1,NULL);",
     )?;

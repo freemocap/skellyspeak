@@ -63,7 +63,23 @@ scripts:
   has_case: true
   word_spacing: true
   font_scale: 1.0
+- id: greek
+  direction: ltr
+  cursive: false
+  shaping: false
+  has_case: true
+  word_spacing: true
+  font_scale: 1.0
+- id: thai
+  direction: ltr
+  cursive: false
+  shaping: true
+  has_case: false
+  word_spacing: false
+  font_scale: 1.0
 families:
+- id: kra-dai
+  label: Kra-Dai
 - id: indo-european
   label: Indo-European
 - id: afro-asiatic

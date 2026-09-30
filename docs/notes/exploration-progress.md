@@ -157,3 +157,10 @@ regressions; style and generated-contract checks. Browser fixture inspection
 confirmed the telescope at its button and the robot above a dialog, with the
 existing counter popup still visible. This was a fixture preview, not a live
 provider request. The pre-existing ActivityGraph test type error remains.
+
+### Presentation refinement
+
+Implemented: removed the effort-icon gain popups from both shared XP-counter
+surfaces. The progress cards still list each effort unit; numeric XP feedback
+remains. Action-location icons now animate for 1.6 seconds (previously 0.8),
+with removal after 1.7 seconds. Existing reward sounds are unchanged.

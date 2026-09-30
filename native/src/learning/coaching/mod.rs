@@ -111,12 +111,25 @@ pub struct ObservedItemSummary {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct CoachObservationView {
+    /// Correctable source spans, independent of skill evidence and disclosure.
+    pub issues: Vec<CoachIssue>,
     pub corrections: Vec<Correction>,
     pub notes: Vec<String>,
     pub meaning_recovered: MeaningLevel,
     pub items: Vec<ObservedItemSummary>,
     pub candidates_sent: usize,
     pub items_returned: usize,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+pub struct CoachIssue {
+    pub quote: String,
+    pub severity: CoachIssueSeverity,
+}
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "snake_case")]
+pub enum CoachIssueSeverity {
+    Error,
+    Partial,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "snake_case")]

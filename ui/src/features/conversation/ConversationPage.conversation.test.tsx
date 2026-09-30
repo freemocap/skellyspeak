@@ -804,7 +804,7 @@ it('persists Show answer through the real handler and renders only the returned 
   render(page())
   await waitFor(() => expect(watches).toHaveLength(1))
   const value = exchangeSnapshot()
-  value.messages[0].feedback = { corrections: [], notes: [], meaningRecovered: 'full', items: [{ construct: 'past', quote: 'fue', outcome: 'partial', rationale: 'Past reference' }], candidatesSent: 18, itemsReturned: 1 }
+  value.messages[0].feedback = { issues: [], corrections: [], notes: [], meaningRecovered: 'full', items: [{ construct: 'past', quote: 'fue', outcome: 'partial', rationale: 'Past reference' }], candidatesSent: 18, itemsReturned: 1 }
   value.messages[0].coachDecision = { exposedMove: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, alsoNoticed: [], keptGoing: false }
   await act(async () => watches[0].resolve(value))
   fireEvent.click(screen.getByRole('group', { name: 'Your message' }))

@@ -2,11 +2,12 @@ import { expect, it } from 'vitest'
 import type { CoachDecision, CoachObservationView } from '../../generated/contracts'
 import { coachFlags, coachMarks } from './coach-marks'
 
-const feedback = (patch: Partial<CoachObservationView>): CoachObservationView => ({ corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 0, itemsReturned: 0, ...patch })
+const feedback = (patch: Partial<CoachObservationView>): CoachObservationView => ({ issues: [], corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 0, itemsReturned: 0, ...patch })
 const decision = (quote: string): CoachDecision => ({ exposedMove: null, shown: { construct: 'c', quote, move: 'hint', text: 'hint' }, retryInvited: true, alsoNoticed: [], keptGoing: false })
 
-it('flags the shown correction, other corrections and weak observations once each', () => {
+it('flags actual issues and disclosed corrections once each', () => {
   const flags = coachFlags(feedback({
+    issues: [{ quote: 'son', severity: 'partial' }, { quote: 'los tacos', severity: 'partial' }, { quote: 'aguacates', severity: 'error' }],
     corrections: [{ construct: 'a', quote: 'son', move: 'explicit', text: 'también' }],
     items: [
       { construct: 'a', quote: 'son', outcome: 'partial', rationale: '' },
@@ -17,6 +18,15 @@ it('flags the shown correction, other corrections and weak observations once eac
     ],
   }), decision('son'))
   expect(flags).toEqual([{ quote: 'son', severity: 'error' }, { quote: 'los tacos', severity: 'partial' }, { quote: 'aguacates', severity: 'error' }])
+})
+
+it('does not turn missing or partial skill evidence into a correction', () => {
+  const current = feedback({ items: [
+    { construct: 'ability_permission_necessity', quote: 'je vais le porter.', outcome: 'not_demonstrated', rationale: '' },
+    { construct: 'future_reference', quote: 'je vais', outcome: 'partial', rationale: '' },
+  ] })
+  expect(coachFlags(current, undefined)).toEqual([])
+  expect(coachMarks('Oui, je vais le porter.', coachFlags(current, undefined))).toEqual([])
 })
 
 it('flags nothing without coaching', () => {

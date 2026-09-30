@@ -2,8 +2,8 @@
 
 Status: authored content implemented, 2026-09-30; speaker review pending.
 
-Each of the 18 default banks now contains eight idiomatic phrases. The existing
-Modern Standard Arabic replacement bank also contains eight, for 152 additional
+Each of the 20 default banks now contains eight idiomatic phrases. The existing
+Modern Standard Arabic replacement bank also contains eight, for 168 additional
 entries. These are conventional idioms and sayings, sometimes inflected into
 short practice utterances. They are not a sixth difficulty level. They load into
 the normal candidate picker and require explicit Keep, just like the other sets.
@@ -24,6 +24,8 @@ links below document checks beyond the main bibliography entry.
 
 | Bank | Main source | Selection/check notes |
 | --- | --- | --- |
+| Greek | [Expression collection](https://moderngreekonline.com/el/grammar/paroimies-kai-ekfraseis) [@practice-idioms-greek] | Search excerpts attest the first four expressions; full-page retrieval failed. [Omniglot](https://www.omniglot.com/language/idioms/greek.htm) [@practice-idioms-greek-supplement] supports disorder, personal change and anger; [the Academy archive record](https://www.searchculture.gr/aggregator/edm/AcademyParimies/000093-429533?language=el) [@practice-proverb-greek-haste] supports the haste proverb. Expanded contracted spelling in the anger expression. |
+| Thai | [Idiom collection](https://en.wikipedia.org/w/index.php?title=List_of_Thai_language_idioms&oldid=1314256562) [@practice-idioms-thai] | Eight canonical expressions cover disproportionate effort, arduous work, failure to listen, fright, mutual stubbornness, protectiveness, urgency and blunt speech. Canonical phrases are not all appropriate as direct address; register review remains pending. |
 | English | [EF idiom reference](https://www.ef.com/wwen/english-resources/english-idioms/) [@practice-idioms-english] | Conventional expressions for ease, introductions, feeling unwell, teasing, stopping, secrecy, rarity and complexity. Also checked [Cambridge: spill the beans](https://dictionary.cambridge.org/dictionary/english/spill-the-beans). |
 | Spanish | [Inklingo idioms](https://www.inklingo.app/spanish/idioms) [@practice-idioms-spanish] | Cost, distraction, help, accuracy, mistakes, teasing, effort and persistence. |
 | French | [Preply idiom collection](https://preply.com/en/blog/french-idioms/) [@practice-idioms-french] | Checked the listed expressions and meanings; also [donner sa langue au chat](https://fr.wiktionary.org/wiki/donner_sa_langue_au_chat). |

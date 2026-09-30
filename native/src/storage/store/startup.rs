@@ -3,6 +3,7 @@ use super::*;
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
         let ownership = WorkspaceOwnership::acquire(path)?;
+        migrations::validate_registry()?;
         let config = crate::configuration::Registry::bundled()
             .map_err(|e| AppError::new(ErrorCode::ConfigLoad, e.to_string()))?;
         #[cfg(unix)]
@@ -51,6 +52,7 @@ impl Store {
             let tx = connection.transaction()?;
             tx.execute_batch(include_str!("../schemas/schema.sql"))?;
             tx.execute_batch(GENERATION_SCHEMA)?;
+            schema::create_extensions(&tx)?;
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
             config.language("english")?;
             let preferences = Preferences {
@@ -77,25 +79,9 @@ impl Store {
             )?;
             tx.commit()?;
         }
-        let version: i32 = connection.pragma_query_value(None, "user_version", |r| r.get(0))?;
-        if version != SCHEMA_VERSION {
-            return Err(AppError::new(
-                ErrorCode::Storage,
-                format!(
-                    "This workspace uses an incompatible data format ({version}); this build requires {SCHEMA_VERSION}. Use Factory Reset to delete this app's local data, then reopen the app. No data was changed."
-                ),
-            ));
-        }
+        migrations::upgrade(&mut connection, path, &config)?;
         validate_database(&connection)?;
         validate_current_schema(&connection)?;
-        // Retired access lockouts own no product data or foreign keys. Keep
-        // per-turn refusals and attempt diagnostics; discard only the lockouts.
-        connection.execute_batch("DROP TABLE IF EXISTS inference_holds")?;
-        crate::learning::learner::progression::initialize(&connection)?;
-        crate::learning::rewards::reward_settings::initialize(&connection)?;
-        crate::speech::recording::microphone::initialize(&connection)?;
-        crate::ai::results::initialize(&connection)?;
-        crate::speech::recording::results::initialize(&connection)?;
         let store = Self {
             config,
             connection,
@@ -108,6 +94,7 @@ impl Store {
             ownership,
         };
         store.snapshot()?;
+        crate::ai::results::recover(&store.connection)?;
         store.reconcile_execution()?;
         crate::drill::sessions::recover(&store.connection)?;
         crate::ai::generation::generation_receipts::recover(&store.connection)?;

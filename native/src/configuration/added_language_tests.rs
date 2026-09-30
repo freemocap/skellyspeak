@@ -4,6 +4,8 @@ use super::*;
 fn added_languages_resolve_through_the_standard_registry() {
     let registry = Registry::bundled().unwrap();
     for (id, tag, script, romanized) in [
+        ("greek", "el", "greek", true),
+        ("thai", "th", "thai", true),
         ("korean", "ko", "hangul", true),
         ("japanese", "ja", "japanese", true),
         ("vietnamese", "vi", "latin", false),
@@ -62,6 +64,8 @@ fn courtesy_hints_preserve_unicode_and_language_specific_case() {
     use unicode_normalization::UnicodeNormalization;
     let registry = Registry::bundled().unwrap();
     for (id, phrase) in [
+        ("greek", "ΕΥΧΑΡΙΣΤΏ"),
+        ("thai", "ขอบคุณ"),
         ("korean", "감사합니다"),
         ("japanese", "ありがとうございます"),
         ("vietnamese", "CẢM ƠN"),

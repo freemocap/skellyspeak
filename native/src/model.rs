@@ -625,6 +625,8 @@ pub fn bindings() -> String {
         crate::learning::coaching::CoachObservation::decl(&config),
         crate::learning::coaching::ObservedItemSummary::decl(&config),
         crate::learning::coaching::CoachObservationView::decl(&config),
+        crate::learning::coaching::CoachIssue::decl(&config),
+        crate::learning::coaching::CoachIssueSeverity::decl(&config),
         crate::learning::coaching::CoachMove::decl(&config),
         crate::learning::coaching::Correction::decl(&config),
         crate::learning::coaching::CoachDecision::decl(&config),

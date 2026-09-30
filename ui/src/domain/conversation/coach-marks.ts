@@ -1,17 +1,16 @@
-import type { CoachDecision, CoachObservationView } from '../../generated/contracts'
+import type { CoachDecision, CoachIssue, CoachIssueSeverity, CoachObservationView } from '../../generated/contracts'
 
 /** How serious a flagged phrase is: `error` is wrong, `partial` is not quite right. */
-export type CoachMarkSeverity = 'error' | 'partial'
+export type CoachMarkSeverity = CoachIssueSeverity
 
 /** One phrase of the learner's message the coach flagged. */
-export interface CoachFlag { quote: string; severity: CoachMarkSeverity }
+export type CoachFlag = CoachIssue
 
 /** Where a flagged phrase sits in the message, in UTF-16 offsets. */
 export interface CoachMark { start: number; end: number; severity: CoachMarkSeverity }
 
-/** The phrases the coach flagged in a message, from saved coaching only: the
- * correction it chose to show, its other corrections, and observations it
- * judged not or only partly demonstrated. Each quote counts once; a quote
+/** The native correctable issues, including corrections selected for disclosure.
+ * Skill evidence alone never flags wording as wrong. Each quote counts once; a quote
  * flagged both ways counts as an error. */
 export function coachFlags(feedback: CoachObservationView | undefined, decision: CoachDecision | undefined): CoachFlag[] {
   const flags = new Map<string, CoachMarkSeverity>()
@@ -23,10 +22,7 @@ export function coachFlags(feedback: CoachObservationView | undefined, decision:
   }
   if (decision?.shown) add(decision.shown.quote, 'error')
   for (const correction of feedback?.corrections ?? []) add(correction.quote, 'error')
-  for (const item of feedback?.items ?? []) {
-    if (item.outcome === 'not_demonstrated') add(item.quote, 'error')
-    else if (item.outcome === 'partial') add(item.quote, 'partial')
-  }
+  for (const issue of feedback?.issues ?? []) add(issue.quote, issue.severity)
   return [...flags].map(([quote, severity]) => ({ quote, severity }))
 }
 

@@ -78,6 +78,19 @@ pub(crate) fn view(captured: &Value) -> Result<Option<CoachObservationView>> {
         .count();
     let validation_omissions = captured["coachValidationOmissions"].as_u64().unwrap_or(0);
     Ok(Some(CoachObservationView {
+        issues: observation
+            .items
+            .iter()
+            .filter(|item| actionable(item))
+            .map(|item| CoachIssue {
+                quote: item.quote.clone(),
+                severity: if item.outcome == Outcome::Partial {
+                    CoachIssueSeverity::Partial
+                } else {
+                    CoachIssueSeverity::Error
+                },
+            })
+            .collect(),
         corrections,
         notes: if validation_omissions > 0 {
             vec![format!(
@@ -250,4 +263,65 @@ pub(crate) fn control(db: &Connection, turn: &str, control: CoachControl) -> Res
         params![attempt.as_str(), decision.to_string()],
     )?;
     Ok(turn.into())
+}
+
+#[cfg(test)]
+mod issue_tests {
+    use super::*;
+
+    fn captured(items: Value) -> Value {
+        json!({
+            "candidateConstructs": [],
+            "coachObservation": {"meaning_recovered": "full", "items": items},
+            "coachDecision": {"exposedMove": null, "shown": null, "keptGoing": false}
+        })
+    }
+
+    #[test]
+    fn skill_outcomes_without_errors_never_become_correctable_issues() {
+        for outcome in Outcome::ALL {
+            let saved = captured(json!([{
+                "construct": "ability_permission_necessity", "quote": "je vais le porter.",
+                "outcome": outcome, "error": null, "rationale": ""
+            }]));
+            let projected = view(&saved).unwrap().unwrap();
+            assert!(projected.issues.is_empty());
+            assert!(projected.corrections.is_empty());
+            assert_eq!(projected.items[0].outcome, outcome);
+        }
+    }
+
+    #[test]
+    fn issues_use_the_same_actionable_items_as_corrections_before_disclosure() {
+        let item = |quote: &str, target: &str, outcome: Outcome| {
+            json!({
+                "construct": "past", "quote": quote, "outcome": outcome, "rationale": "Use the past form.",
+                "error": {"op": "replace", "category": "grammar", "source": "unknown",
+                    "blocks_meaning": false, "target_hypothesis": target,
+                    "hint": "", "elicitation": "", "metalinguistic": ""}
+            })
+        };
+        let mut saved = captured(json!([
+            item("I goes", "I go", Outcome::NotDemonstrated),
+            item("he go", "he goes", Outcome::Partial),
+            item("correct", "correct", Outcome::Partial)
+        ]));
+        let hidden = view(&saved).unwrap().unwrap();
+        assert!(hidden.corrections.is_empty());
+        assert_eq!(hidden.issues.len(), 2);
+        assert!(matches!(
+            hidden.issues[0].severity,
+            CoachIssueSeverity::Error
+        ));
+        assert!(matches!(
+            hidden.issues[1].severity,
+            CoachIssueSeverity::Partial
+        ));
+        saved["coachDecision"]["exposedMove"] = json!("explicit");
+        let disclosed = view(&saved).unwrap().unwrap();
+        assert_eq!(disclosed.corrections.len(), hidden.issues.len());
+        for (issue, correction) in hidden.issues.iter().zip(&disclosed.corrections) {
+            assert_eq!(issue.quote, correction.quote);
+        }
+    }
 }

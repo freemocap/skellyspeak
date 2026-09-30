@@ -583,7 +583,7 @@ it('squiggles the phrases the coach flagged and leaves the edit to Fix it', () =
   input.onEditUser = vi.fn()
   input.turn.user = 'Me gustan son los tacos'
   input.turn.assistant!.user_tokens = []
-  input.turn.coach = { corrections: [], notes: [], meaningRecovered: 'full', candidatesSent: 1, itemsReturned: 2, items: [
+  input.turn.coach = { issues: [{ quote: 'son', severity: 'error' }, { quote: 'los tacos', severity: 'partial' }], corrections: [], notes: [], meaningRecovered: 'full', candidatesSent: 1, itemsReturned: 2, items: [
     { construct: 'a', quote: 'son', outcome: 'not_demonstrated', rationale: '' },
     { construct: 'b', quote: 'los tacos', outcome: 'partial', rationale: '' },
   ] }
@@ -592,6 +592,17 @@ it('squiggles the phrases the coach flagged and leaves the edit to Fix it', () =
   expect(flagged).toEqual([['son', 'error'], ['los tacos', 'partial']])
   expect(screen.getByRole('button', { name: 'Fix it' })).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Edit message' })).toBeNull()
+})
+
+it('does not underline a corrected message for evidence without a correction', () => {
+  const input = props()
+  input.turn.user = 'Oui, je vais le porter.'
+  input.turn.assistant!.user_tokens = []
+  input.turn.coach = { issues: [], corrections: [], notes: [], meaningRecovered: 'full', candidatesSent: 1, itemsReturned: 1,
+    items: [{ construct: 'ability_permission_necessity', quote: 'je vais le porter.', outcome: 'not_demonstrated', rationale: '' }] }
+  const view = render(<TurnView {...input} />)
+  expect(view.container.querySelector('.coach-flag')).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Fix it' })).toBeNull()
 })
 
 it('selects the learner and partner separately without capturing embedded word or audio actions', () => {

@@ -87,7 +87,13 @@ export type ErrorTag = { op: ErrorOp, category: string, source: ErrorSource, blo
 export type ObservedItem = { construct: string, quote: string, outcome: Outcome, error: ErrorTag | null, rationale: string, };
 export type CoachObservation = { meaning_recovered: MeaningLevel, items: Array<ObservedItem>, };
 export type ObservedItemSummary = { construct: string, quote: string, outcome: Outcome, rationale: string, };
-export type CoachObservationView = { corrections: Array<Correction>, notes: Array<string>, meaningRecovered: MeaningLevel, items: Array<ObservedItemSummary>, candidatesSent: number, itemsReturned: number, };
+export type CoachObservationView = {
+/**
+ * Correctable source spans, independent of skill evidence and disclosure.
+ */
+issues: Array<CoachIssue>, corrections: Array<Correction>, notes: Array<string>, meaningRecovered: MeaningLevel, items: Array<ObservedItemSummary>, candidatesSent: number, itemsReturned: number, };
+export type CoachIssue = { quote: string, severity: CoachIssueSeverity, };
+export type CoachIssueSeverity = "error" | "partial";
 export type CoachMove = "partner_clarify" | "hint" | "elicit" | "metalinguistic" | "explicit";
 export type Correction = { construct: string, quote: string, move: CoachMove, text: string, explanation?: string, };
 export type CoachDecision = { exposedMove: CoachMove | null, shown: Correction | null, retryInvited: boolean, alsoNoticed: Array<ObservedItemSummary>, keptGoing: boolean, };
@@ -304,7 +310,7 @@ export type SavedGlossSource = { sourceId: string, operationId: string | null, a
 export type CacheSettings = { capacityBytes: number, usedBytes: number, resultCount: number, };
 export type AppError = { diagnostics?: unknown, code: ErrorCode, message: string, refusal: Refusal | null, };
 export const PERSONA_LIMITS = { nameMax: 80, ageMin: 18, ageMax: 100, locationMax: 120, occupationMax: 120, backgroundMax: 2000, currentSituationMax: 600, mannerMax: 600, itemMax: 120, interestsMax: 12, opinionsMax: 12, factsMax: 12, booksMax: 8, moviesMax: 8, quirksMax: 8, vibeMin: 2, vibeMax: 4, briefMax: 200 } as const
-export const SKILL_CATALOG_VERSION = 3034210181 as const
+export const SKILL_CATALOG_VERSION = 2667068028 as const
 export const TEXT_SIZE = { default: 85, min: 75, max: 160, step: 5 } as const
 export const DEFAULT_APPEARANCE: AppearancePreferences = {"palette":"cool"}
 export const DIFFICULTY_LEVELS: readonly Difficulty[] = ["absolute_zero","beginner","intermediate","advanced","fluent"] as const

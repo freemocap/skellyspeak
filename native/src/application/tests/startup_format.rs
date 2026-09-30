@@ -19,7 +19,11 @@ fn incompatible_stored_json_is_refused_before_product_reads_and_exposes_reset() 
     let app = Application::start(&path, None);
     let refusal = app.startup_state().refusal.unwrap();
     assert_eq!(refusal.code, ErrorCode::Storage);
-    assert!(refusal.message.contains("incompatible data format (40)"));
+    assert!(
+        refusal
+            .message
+            .contains("format 40 predates supported format 45")
+    );
     assert!(refusal.message.contains("Factory Reset"));
     assert!(!refusal.message.contains("JSON"));
     assert!(app.store.lock().unwrap().is_none());

@@ -75,7 +75,7 @@ CREATE TABLE drill_storage(id INTEGER PRIMARY KEY CHECK(id=1), limit_mb INTEGER 
 INSERT INTO drill_storage(id,limit_mb) VALUES(1,500);
 CREATE TABLE drill_previews(id TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('generated','conversation')), input TEXT NOT NULL CHECK(json_valid(input)), receipt_id TEXT REFERENCES generation_attempts(id), ready INTEGER NOT NULL DEFAULT 0, expires_at TEXT NOT NULL DEFAULT(datetime('now','+1 day')));
 CREATE TABLE drill_candidates(id TEXT PRIMARY KEY, preview_id TEXT NOT NULL REFERENCES drill_previews(id) ON DELETE CASCADE, ordinal INTEGER NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)), accepted_item_id TEXT, UNIQUE(preview_id,ordinal));
-PRAGMA user_version=44;
+-- user_version is owned by the workspace transaction coordinator.
 
 CREATE TRIGGER revision_link_insert BEFORE INSERT ON turns WHEN NEW.replaces_turn_id IS NOT NULL AND (NEW.replaces_turn_id=NEW.id OR NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id)) BEGIN SELECT RAISE(ABORT,'Invalid revision ownership'); END;
 CREATE TRIGGER revision_link_update BEFORE UPDATE OF replaces_turn_id ON turns WHEN OLD.replaces_turn_id IS NOT NULL OR NEW.replaces_turn_id=NEW.id OR (NEW.replaces_turn_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id AND rowid<OLD.rowid)) BEGIN SELECT RAISE(ABORT,'Invalid revision chain'); END;

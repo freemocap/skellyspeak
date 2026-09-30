@@ -24,6 +24,7 @@ and output SHA-256 hashes, conversion tool, character counts and license files.
 | Simplified Chinese (currently Mandarin) | Noto Sans SC | 100–900 |
 | Japanese | Noto Sans JP | 100–900 |
 | Korean | Noto Sans KR | 100–900 |
+| Thai | Noto Sans Thai | 100–900 |
 | Cherokee | Noto Sans Cherokee | 100–900 |
 | Reading aids and broad Latin/Greek/Cyrillic fallback | Noto Sans | 100–900 |
 

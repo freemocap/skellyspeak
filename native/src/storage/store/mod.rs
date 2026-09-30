@@ -8,6 +8,7 @@ use uuid::Uuid;
 
 mod commands;
 mod creation;
+mod migrations;
 mod schema;
 mod snapshot;
 mod startup;

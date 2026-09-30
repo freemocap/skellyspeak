@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn an_empty_workspace_opens_at_the_one_supported_version() {
+fn an_empty_workspace_opens_at_the_current_version() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("skellyspeak.sqlite3");
     let store = Store::open(&path).unwrap();
@@ -19,7 +19,7 @@ fn an_empty_workspace_opens_at_the_one_supported_version() {
 }
 
 #[test]
-fn any_other_schema_version_is_refused_without_modifying_the_file() {
+fn unsupported_schema_versions_are_refused_without_modifying_the_file() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("skellyspeak.sqlite3");
     drop(Store::open(&path).unwrap());
@@ -41,6 +41,8 @@ fn any_other_schema_version_is_refused_without_modifying_the_file() {
         39,
         40,
         41,
+        44,
+        -1,
         SCHEMA_VERSION + 1,
     ] {
         let connection = Connection::open(&path).unwrap();

@@ -169,10 +169,10 @@ fn audio_refusal_does_not_block_new_chat_or_survive_as_an_access_lockout() {
         crate::ai::policy::refusal::classify(Some("PERSONAL_ACCOUNT_DAILY_LIMIT"), None, None),
     );
     store.note_refusal(&target, &error).unwrap();
-    // Simulate the discarded table from the preceding app build.
+    // Simulate the version-45 table; retirement now belongs to its migration.
     store
         .connection
-        .execute_batch("CREATE TABLE inference_holds(id TEXT PRIMARY KEY, error TEXT NOT NULL)")
+        .execute_batch("CREATE TABLE inference_holds(id TEXT PRIMARY KEY, error TEXT NOT NULL); PRAGMA user_version=45;")
         .unwrap();
     store
         .connection

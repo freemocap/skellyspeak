@@ -124,7 +124,7 @@ the transaction, receipt and replay boundary. Existing dispatch, holds, validati
 publication and safe response diagnostics serve all three operations.
 
 Schema 26 replaced the former automatic assistance graph. The current workspace
-format policy below governs incompatible development data. Contracts come from Rust and include each operation's reply-help kind
+migration policy below governs stored-format changes. Contracts come from Rust and include each operation's reply-help kind
 and each partner message's captured reading scope.
 
 ### Message versions and assessment ownership
@@ -409,19 +409,55 @@ conversation configuration.
 `drill/conversation_source.rs` extracts exact sentence spans without inference and
 revalidates their source before adoption. Schema 36 uses fresh development data.
 
-### Development data
+### Workspace migrations
 
-Workspace format 41 is the only supported format. The version covers persisted
-JSON as well as SQL tables: bump `SCHEMA_VERSION` when either becomes incompatible.
-Startup rejects incompatible formats before loading product records and shows
-the existing Factory Reset action. Reset deletes local app data and closes the
-app; reopening creates a current workspace. Do not keep old DDL, format converters,
-versioned upgrade chains, persistent upgrade notices, or obsolete route variants.
-When a change invalidates stored development data, remove the affected feature's
-data rather than converting it. Review foreign keys, files and credential ownership
-first. A code/UI change alone does not require a reset. Keep workspace locking and
-explicit schema/integrity errors. Use a full reset only when a smaller cleanup is
-impractical; this is development authorization, not silent production data loss.
+Workspace format **46** upgrades supported files from baseline **45**. The format
+covers SQL and persisted JSON; application release numbers are independent.
+`storage/store/migrations/` owns consecutive steps and frozen historical contracts.
+`storage/schemas/` owns the current schema, including settings and result tables
+formerly initialized separately during startup.
+
+Under the existing workspace lock, startup validates the source, creates a
+consistent database recovery copy in `migration-backups/` beside the workspace,
+then runs all required steps inside one immediate transaction. Each step validates
+its output before advancing `user_version`; final validation checks current DDL,
+integrity, references and the learner-facing snapshot before commit. Normal
+execution recovery and cache maintenance happen afterward. A failed step rolls
+back the entire chain and reports source/target versions, step, stage and redacted
+cause metadata. A commit/rollback failure reports uncertainty rather than claiming
+success. Backups include committed WAL records, are retained without automatic
+pruning, and are deleted by an explicit Factory Reset. They contain private local
+data; they are not uploaded. Database-only steps leave audio files and credentials
+untouched. Recovery copies are for manual recovery; there is no automatic restore
+or new restore UI in this change.
+
+Pre-45 formats, unknown identity, damaged schemas and newer formats are refused
+without automatic reset. Newer-format errors ask for a newer app. Fresh workspaces
+are created directly at the current version. Reopening a current workspace does
+not run migrations or create another recovery copy.
+
+For each future format change:
+
+1. Increment `SCHEMA_VERSION`, append exactly one `N → N+1` step and retain every
+   earlier step. The registry rejects gaps, duplicate steps and unaccompanied bumps.
+2. Freeze the step's SQL/JSON conversions and output validator. Do not make old
+   conversions depend on current serialized types, current defaults or mutable
+   schema files. Update the current fresh-workspace schema separately.
+3. Give new fields meaningful defaults, explicit backfills or optional values;
+   preserve identities and relationships through restructuring. Review constraint
+   changes against real historical fixtures. Preserve unknown information as unknown.
+4. Document every deletion: ownership, references and whether its information is
+   preserved, reconstructible or explicitly retired. Preserve evidence, awards and
+   their policy provenance. Level/XP formula changes require an explicit historical
+   credit policy, not a reset or implicit re-award.
+5. Test the step, every supported source version to current, repeated startup,
+   mid-chain failure rollback, retained product history and fresh/upgraded equivalence.
+   Keep frozen historical fixtures independent of current schema generation.
+
+Migration code must not commit independently or modify external files/credentials.
+SQLite table rebuilds must preserve references and finish with foreign-key checks;
+complex changes requiring another transaction strategy need explicit review.
+See [implementation and verification](../docs/notes/workspace-migrations.md).
 
 ### Speech configuration and captured routes
 

@@ -476,7 +476,7 @@ Standard and Fast model IDs apply to chat. Models settings selects only models,
 including Transcription and Read aloud. AI access selects one route for every
 capability: Hosted sign-in or Custom URL. Each capability uses only credentials
 from the shared selected route; missing credentials fail explicitly without fallback.
-Custom URL stores its address and authentication choice separately. Development data is disposable; reset only the affected scope when its format becomes incompatible.
+Custom URL stores its address and authentication choice separately. Workspace format changes require migrations that preserve existing data.
 
 Hosted and custom chat batch only operations sharing captured destination and
 credential authority. Custom requests omit hosted install/platform/version headers.
@@ -732,11 +732,12 @@ for scope and verification.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-The current database schema is **43**. There is no backwards-compatibility or
-versioned upgrade framework. Delete and recreate incompatible development data
-in the smallest practical feature scope; UI/code-only changes do not justify a
-reset. Reject unknown, damaged and newer databases explicitly rather than silently
-resetting them. Full Factory Reset is available when a scoped cleanup is impractical.
+Workspace format **46** supports automatic upgrades from format **45** onward.
+Every stored-format change includes a consecutive migration; app releases do not
+necessarily change the database format. Startup retains a local recovery copy and
+upgrades the complete chain in one transaction, preserving learner history.
+Older unsupported, newer and damaged databases are refused without automatic reset.
+See [workspace migration policy](native/README.md#workspace-migrations).
 App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in

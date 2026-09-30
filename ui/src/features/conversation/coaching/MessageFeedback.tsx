@@ -75,7 +75,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   // The badge counts the phrases the coach flagged; with none, and a message it fully understood, it marks it clean.
   const flags = coachFlags(feedback, decision)
   const judged = Boolean(conversationFeedback || (decision && feedback))
-  const clear = Boolean(feedback && decision && !decision.shown && !feedback.corrections.length && !feedback.notes.length && !feedback.items.some(item => item.outcome === 'partial' || item.outcome === 'not_demonstrated') && feedback.meaningRecovered === 'full')
+  const clear = Boolean(feedback && decision && !flags.length && !feedback.notes.length && feedback.meaningRecovered === 'full')
   const verdict = flags.length ? 'errors' : clear ? 'clear' : 'open'
   return <>
     {bubble(messageTools.details('coach', { ariaLabel: tr("Coach your message"), disabled: busy, onSelect: () => void openCard() }))}

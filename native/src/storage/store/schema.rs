@@ -1,8 +1,8 @@
 use super::*;
 
-/// Only the current workspace format is supported, including persisted JSON.
+/// Workspace format, including persisted JSON; every bump requires a migration.
 /// Bump when required stored fields or their meaning change, not only for SQL DDL.
-pub(crate) const SCHEMA_VERSION: i32 = 45;
+pub(crate) const SCHEMA_VERSION: i32 = 46;
 pub(super) const GENERATION_SCHEMA: &str = include_str!("../schemas/generation_schema.sql");
 
 pub(crate) fn validate_database(connection: &Connection) -> Result<()> {
@@ -33,6 +33,27 @@ pub(crate) fn validate_current_schema(connection: &Connection) -> Result<()> {
     for schema in [include_str!("../schemas/schema.sql"), GENERATION_SCHEMA] {
         reference.execute_batch(schema)?;
     }
+    create_extensions(&reference)?;
+    validate_objects(connection, &reference, false)
+}
+
+pub(super) fn create_extensions(connection: &Connection) -> Result<()> {
+    for sql in [
+        include_str!("../schemas/settings.sql"),
+        include_str!("../schemas/audio_signals.sql"),
+        include_str!("../schemas/inference_results.sql"),
+        include_str!("../schemas/recording_results.sql"),
+    ] {
+        connection.execute_batch(sql)?;
+    }
+    Ok(())
+}
+
+pub(super) fn validate_objects(
+    connection: &Connection,
+    reference: &Connection,
+    optional: bool,
+) -> Result<()> {
     let mut statement = reference.prepare("SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%'")?;
     for row in statement.query_map([], |r| {
         Ok((
@@ -49,10 +70,16 @@ pub(crate) fn validate_current_schema(connection: &Connection) -> Result<()> {
                 |r| Ok((r.get(0)?, r.get(1)?)),
             )
             .optional()?;
-        if actual != Some((kind, sql)) {
+        if optional && actual.is_none() {
+            continue;
+        }
+        // Source checkout line endings are not a database format difference.
+        if actual.map(|(kind, sql)| (kind, sql.replace("\r\n", "\n")))
+            != Some((kind, sql.replace("\r\n", "\n")))
+        {
             return Err(AppError::new(
                 ErrorCode::Storage,
-                format!("Unexpected current schema object: {name}. No data was changed."),
+                format!("Unexpected schema object: {name}. No data was changed."),
             ));
         }
     }

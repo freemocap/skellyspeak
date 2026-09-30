@@ -5,14 +5,13 @@ import { ProgressCounters } from './ProgressCounters'
 import { ProgressCard } from './ProgressCard'
 import type { EffortProgress } from '../../generated/contracts'
 const effort: EffortProgress = { target: 'spanish', partnerUnderstood: 12, revisionsSent: 3, practiceAttempts: 45, noIssuesFlagged: 6, explorations: 0, bot: 0, recent: [] }
-it('shows XP as the only number and floats a gain for the effort unit that rose', () => {
+it('keeps the numeric XP gain without duplicating effort icons at the counter', () => {
   const view = render(<ProgressCounters xp={1248} effort={effort} />)
   expect(screen.getByLabelText('XP: 1,248')).toBeVisible()
   expect(view.container).not.toHaveTextContent('45')
   expect(view.container.querySelector('[data-effort-gain]')).toBeNull()
   view.rerender(<ProgressCounters xp={1250} effort={{ ...effort, practiceAttempts: 46 }} />)
-  expect(view.container.querySelector('[data-effort-gain="practice"]')).toHaveTextContent('+1')
-  expect(view.container.querySelectorAll('[data-effort-gain]')).toHaveLength(1)
+  expect(view.container.querySelector('[data-effort-gain]')).toBeNull()
   expect(screen.getByLabelText('XP: 1,250')).toHaveAttribute('data-gaining', 'true')
   expect(screen.getByText('+2')).toBeVisible()
 })
@@ -38,19 +37,19 @@ it('lists XP and each effort unit separately in the card', () => {
   expect(expand).toHaveBeenCalledOnce()
 })
 
-it('shows a telescope gain without changing XP and honors disabled effects', () => {
+it('does not emit telescope popups from the XP counter', () => {
   const view = render(<ProgressCounters xp={12} effort={effort} />)
   view.rerender(<ProgressCounters xp={12} effort={{ ...effort, explorations: 1 }} />)
-  expect(view.container.querySelector('[data-effort-gain="telescope"]')).toHaveTextContent('+1')
+  expect(view.container.querySelector('[data-effort-gain]')).toBeNull()
   expect(screen.getByLabelText('XP: 12')).not.toHaveAttribute('data-gaining')
   view.rerender(<ProgressCounters xp={12} effort={{ ...effort, explorations: 2 }} effects={false} />)
   expect(view.container.querySelector('[data-effort-gain]')).toBeNull()
 })
 
-it('shows the robot gain independently of XP and exploration', () => {
+it('does not emit robot popups from the XP counter', () => {
   const view = render(<ProgressCounters xp={12} effort={effort} />)
   view.rerender(<ProgressCounters xp={12} effort={{ ...effort, bot: 1 }} />)
-  expect(view.container.querySelector('[data-effort-gain="bot"]')).toHaveTextContent('+1')
+  expect(view.container.querySelector('[data-effort-gain]')).toBeNull()
   expect(view.container.querySelector('[data-effort-gain="telescope"]')).toBeNull()
   expect(screen.getByLabelText('XP: 12')).not.toHaveAttribute('data-gaining')
 })

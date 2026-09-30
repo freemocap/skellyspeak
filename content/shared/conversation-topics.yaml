@@ -20,6 +20,8 @@
     turkish: Yiyecek ve içecek
     russian: Еда и напитки
     ukrainian: Їжа та напої
+    greek: Φαγητό και ποτό
+    thai: อาหารและเครื่องดื่ม
   romanizations:
     "arabic:ala-lc-arabic": aṭ-ṭaʿām wa-al-sharāb
     "hindi:ala-lc-hindi": khānā-pīnā
@@ -29,6 +31,8 @@
     "japanese:hepburn-reading": tabemono to nomimono
     "russian:ala-lc-russian": Eda i napitki
     "ukrainian:ala-lc-ukrainian": Ïz͡ha ta napoï
+    greek:ala-lc-greek: Phagēto kai poto
+    thai:paiboon: aa-hǎan lɛ́ krʉ̂ʉang-dʉ̀ʉm
   subject: You are serving at a café. Greet the learner and ask what they would like.
 - id: family
   glyph: 👪
@@ -51,6 +55,8 @@
     turkish: Ailen
     russian: Твоя семья
     ukrainian: Твоя родина
+    greek: Η οικογένειά σου
+    thai: ครอบครัวของคุณ
   romanizations:
     "arabic:ala-lc-arabic": ʿāʾilatuka
     "hindi:ala-lc-hindi": āpkā parivār
@@ -60,6 +66,8 @@
     "japanese:hepburn-reading": kazoku
     "russian:ala-lc-russian": Tvoi͡a semʹi͡a
     "ukrainian:ala-lc-ukrainian": Tvoi͡a rodyna
+    greek:ala-lc-greek: Hē oikogeneia sou
+    thai:paiboon: krɔ̂ɔp-kruua kɔ̌ɔng kun
   subject: Ask about someone important to the learner. They may choose a friend or
     an invented person.
 - id: weekend
@@ -83,6 +91,8 @@
     turkish: Hafta sonu planları
     russian: Планы на выходные
     ukrainian: Плани на вихідні
+    greek: Σχέδια για το Σαββατοκύριακο
+    thai: แผนสำหรับวันหยุด
   romanizations:
     "arabic:ala-lc-arabic": khuṭaṭ nihāyat al-usbūʿ
     "hindi:ala-lc-hindi": saptāhānta kī yojanāeṁ
@@ -92,6 +102,8 @@
     "japanese:hepburn-reading": shūmatsu no yotei
     "russian:ala-lc-russian": Plany na vykhodnye
     "ukrainian:ala-lc-ukrainian": Plany na vykhidni
+    greek:ala-lc-greek: Schedia gia to Savvatokyriako
+    thai:paiboon: pɛ̌ɛn sǎm-ràp wan yùt
   subject: Ask what the learner would like to do this weekend and share a plan of
     your own.
 - id: place
@@ -115,6 +127,8 @@
     turkish: Sevdiğin bir yer
     russian: Место, которое тебе нравится
     ukrainian: Місце, яке тобі подобається
+    greek: Ένα μέρος που σου αρέσει
+    thai: สถานที่ที่คุณชอบ
   romanizations:
     "arabic:ala-lc-arabic": makān tuḥibbuhu
     "hindi:ala-lc-hindi": āpkī pasand kī jagah
@@ -124,6 +138,8 @@
     "japanese:hepburn-reading": suki na basho
     "russian:ala-lc-russian": Mesto, kotoroe tebe nravit͡si͡a
     "ukrainian:ala-lc-ukrainian": Mist͡se, i͡ake tobi podobai͡etʹsi͡a
+    greek:ala-lc-greek: Hena meros pou sou aresei
+    thai:paiboon: sà-tǎan-tîi tîi kun chɔ̂ɔp
   subject: Talk about a place the learner likes. Invite a small detail about it.
 - id: day
   glyph: ☀️
@@ -146,6 +162,8 @@
     turkish: Günün
     russian: Твой день
     ukrainian: Твій день
+    greek: Η μέρα σου
+    thai: วันของคุณ
   romanizations:
     "arabic:ala-lc-arabic": yawmuka
     "hindi:ala-lc-hindi": āpkā din
@@ -155,6 +173,8 @@
     "japanese:hepburn-reading": ichinichi no koto
     "russian:ala-lc-russian": Tvoĭ denʹ
     "ukrainian:ala-lc-ukrainian": Tviĭ denʹ
+    greek:ala-lc-greek: Hē mera sou
+    thai:paiboon: wan kɔ̌ɔng kun
   subject: Ask about something from the learner’s day. Keep the exchange open to their
     interests.
 - id: music
@@ -178,6 +198,8 @@
     turkish: Müzik
     russian: Музыка
     ukrainian: Музика
+    greek: Μουσική
+    thai: ดนตรี
   romanizations:
     "arabic:ala-lc-arabic": al-mūsīqā
     "hindi:ala-lc-hindi": saṅgīt
@@ -187,4 +209,6 @@
     "japanese:hepburn-reading": ongaku
     "russian:ala-lc-russian": Muzyka
     "ukrainian:ala-lc-ukrainian": Muzyka
+    greek:ala-lc-greek: Mousikē
+    thai:paiboon: don-dtrii
   subject: Ask about music the learner enjoys and share a preference.

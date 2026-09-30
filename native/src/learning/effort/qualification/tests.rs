@@ -82,7 +82,7 @@ fn low_recognition_confidence_does_not_erase_on_target_effort() {
 
 fn clear() -> (CoachObservationView, CoachDecision) {
     (
-        serde_json::from_value(json!({"corrections":[],"notes":[],"meaningRecovered":"full","items":[],"candidatesSent":3,"itemsReturned":0})).unwrap(),
+        serde_json::from_value(json!({"issues":[],"corrections":[],"notes":[],"meaningRecovered":"full","items":[],"candidatesSent":3,"itemsReturned":0})).unwrap(),
         serde_json::from_value(json!({"exposedMove":null,"shown":null,"retryInvited":false,"alsoNoticed":[],"keptGoing":false})).unwrap(),
     )
 }

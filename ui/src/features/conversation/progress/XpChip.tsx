@@ -33,7 +33,7 @@ export function XpChip({ chatId }: { chatId: string | null }) {
   const xp = conversationEvidence(snapshot, chatId).profile.xp
   return <div ref={anchor} className="progress-anchor" {...card.anchor}>
     <button type="button" className="xp-chip progress-trigger" aria-label={tr('Conversation XP')} aria-haspopup="dialog" aria-expanded={card.open || ledger} onClick={card.press}>
-      <ProgressCounters xp={xp} xpLabel="Conversation XP" scope={chatId} icon="chat" effort={effort.value} units={conversationUnits} effects={shell.effects} error={effort.error} />
+      <ProgressCounters xp={xp} xpLabel="Conversation XP" scope={chatId} icon="chat" effort={effort.value} effects={shell.effects} error={effort.error} />
     </button>
     {card.open && <CardLayer anchor={anchor} onClose={card.close}>
       <ProgressCard title={tr('This conversation')} icon="chat" tone="coach" xp={xp} effort={effort.value} units={conversationUnits} error={effort.error} expandLabel="Conversation XP" onExpand={() => { card.close(); setLedger(true) }}>

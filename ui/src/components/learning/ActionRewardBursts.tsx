@@ -10,7 +10,7 @@ function Burst({ reward, done }: { reward: ActionReward; done: (id: string) => v
   const popover = supportsPopover()
   useEffect(() => {
     if (popover) ref.current?.showPopover()
-    const timer = setTimeout(() => done(reward.award.id), 850)
+    const timer = setTimeout(() => done(reward.award.id), 1700)
     return () => { clearTimeout(timer) }
   }, [popover, done, reward.award.id])
   const unit = effortDimensions.find(item => item.dimension === reward.award.dimension)!
@@ -24,7 +24,7 @@ function Burst({ reward, done }: { reward: ActionReward; done: (id: string) => v
   </div>, document.body)
 }
 
-/** An additional, silent visual at the action; counter effects retain their own lifetime. */
+/** Effort icons appear at the initiating action; existing reward audio is independent. */
 export function ActionRewardBursts({ enabled }: { enabled: boolean }) {
   const [bursts, setBursts] = useState<ActionReward[]>([])
   const done = useCallback((id: string) => setBursts(current => current.filter(item => item.award.id !== id)), [])

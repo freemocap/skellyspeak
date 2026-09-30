@@ -2,32 +2,6 @@
 use crate::{ai::audio::TranscriptionResult, model::*};
 use rusqlite::{Connection, OptionalExtension, params};
 
-pub(crate) fn initialize(db: &Connection) -> Result<()> {
-    let schema = include_str!("../../storage/schemas/recording_results.sql");
-    let reference = Connection::open_in_memory()?;
-    reference.execute_batch(schema)?;
-    let expected: String = reference.query_row(
-        "SELECT sql FROM sqlite_master WHERE name='recording_results'",
-        [],
-        |r| r.get(0),
-    )?;
-    let actual: Option<String> = db
-        .query_row(
-            "SELECT sql FROM sqlite_master WHERE name='recording_results'",
-            [],
-            |r| r.get(0),
-        )
-        .optional()?;
-    if actual.is_some_and(|sql| sql != expected) {
-        return Err(AppError::new(
-            ErrorCode::Storage,
-            "Unexpected recording-result schema. No recording data was changed.",
-        ));
-    }
-    db.execute_batch(schema)?;
-    Ok(())
-}
-
 pub(crate) fn result(db: &Connection, id: &str) -> Result<Option<TranscriptionResult>> {
     let result: Option<String> = db
         .query_row(

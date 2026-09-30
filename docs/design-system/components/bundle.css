@@ -216,7 +216,7 @@
   /* ── Typography ───────────────────────────────────────────────────────── */
   /* Script faces are range-limited: mixed-language text gets the same fonts in
      every surface without replacing Latin glyphs or depending on the UI locale. */
-  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee', 'Noto Sans Thai';
   --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
   --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
   --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
@@ -686,20 +686,29 @@
   unicode-range: U+13A0-13FF, U+AB70-ABBF;
 }
 
+@font-face {
+  font-family: 'Noto Sans Thai';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(/fonts/noto-sans-thai.woff2) format('woff2');
+  unicode-range: U+0E00-0E7F;
+}
+
 /* Han glyph forms follow the language of this text, independently of the chat.
    Reset at each explicit boundary so a nested Chinese quotation does not inherit
    a Japanese or Korean face. Latin roles keep their existing owners. */
 :where([lang]) {
-  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+  --font-scripts: 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee', 'Noto Sans Thai';
   --font-sans: var(--font-scripts), 'IBM Plex Sans', 'Noto Sans', 'Segoe UI', system-ui, sans-serif;
   --font-serif: var(--font-scripts), 'Newsreader', 'Noto Sans', Georgia, 'Times New Roman', serif;
   --font-mono: var(--font-scripts), 'IBM Plex Mono', 'Noto Sans', ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
 }
 :where([lang|="ja"]) {
-  --font-scripts: 'Noto Sans JP', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+  --font-scripts: 'Noto Sans JP', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee', 'Noto Sans Thai';
 }
 :where([lang|="ko"]) {
-  --font-scripts: 'Noto Sans KR', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee';
+  --font-scripts: 'Noto Sans KR', 'Skelly Arabic Reading', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans Malayalam', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans Cherokee', 'Noto Sans Thai';
 }
 
 /* ── foundations/reset.css ── */
@@ -2076,25 +2085,17 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .progress-counter-error { color: var(--danger-ink); }
 
 /* Each effort unit keeps the colour of the place it comes from: the partner, the
-   coach's clean badge, the coach's edit, the Practice tab. Gains add its tint. */
+   coach's clean badge, the coach's edit, the Practice tab. */
 [data-unit="partnerUnderstood"] { color: var(--partner-ink); }
 [data-unit="noIssuesFlagged"] { color: var(--success-ink); }
 [data-unit="revisionsSent"] { color: var(--coach-ink); }
 [data-unit="practiceAttempts"] { color: var(--practice-ink); }
 [data-unit="explorations"] { color: var(--interaction-ink); }
-.progress-gain[data-unit="partnerUnderstood"] { border-color: var(--partner-line); background: var(--partner-tint); }
-.progress-gain[data-unit="noIssuesFlagged"] { border-color: var(--success-line); background: var(--success-tint); }
-.progress-gain[data-unit="revisionsSent"] { border-color: var(--coach-line); background: var(--coach-tint); }
-.progress-gain[data-unit="practiceAttempts"] { border-color: var(--practice-line); background: var(--practice-tint); }
-.progress-gain[data-unit="explorations"] { border-color: var(--interaction-line); background: var(--interaction-tint); }
 
-.progress-gains { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-reward); display: flex; gap: var(--space-2); pointer-events: none; }
-.progress-gain { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border: var(--border-width) solid; border-radius: var(--radius-pill); box-shadow: var(--shadow-floating); font: var(--weight-bold) var(--type-ui)/var(--leading-none) var(--font-mono); white-space: nowrap; animation: progress-pop var(--dur-loop) var(--ease-out) both; }
 @keyframes progress-gain { 0% { opacity: 0; transform: translateY(var(--space-2)); } 20%, 65% { opacity: 1; } 100% { opacity: 0; transform: translateY(calc(-1 * var(--space-3))); } }
-@keyframes progress-pop { 0% { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(0.6); } 12% { opacity: 1; transform: translateY(0) scale(1.15); } 22% { transform: scale(1); } 78% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(var(--space-2)); } }
 @keyframes progress-tick { 0%, 35% { text-shadow: 0 0 var(--space-3) var(--progress-mark); } 100% { text-shadow: none; } }
 @keyframes progress-spin { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.35) rotate(72deg); } 100% { transform: scale(1) rotate(144deg); } }
-@media (prefers-reduced-motion: reduce) { .progress-counter-gain, .progress-gain, .progress-counter[data-gaining] .progress-counter-number, .progress-counter[data-gaining] .progress-counter-mark { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .progress-counter-gain, .progress-counter[data-gaining] .progress-counter-number, .progress-counter[data-gaining] .progress-counter-mark { animation: none; } }
 
 /* The card a progress button shows first: compact, in the progress gold. */
 .progress-card { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-reward); box-sizing: border-box; width: max-content; min-width: 240px; max-width: min(380px, calc(100vw - var(--space-8))); display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-lg); background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-floating); font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-transform: none; letter-spacing: normal; animation: progress-card-open var(--dur-base) var(--ease-out); }
@@ -2161,14 +2162,13 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .effort-mini-stats thead { color: var(--ink-2); }
 
 [data-unit="bot"] { color: var(--interaction-ink); }
-.progress-gain[data-unit="bot"] { border-color: var(--interaction-line); background: var(--interaction-tint); }
 
 /* Manual popovers keep the action burst above dialogs without intercepting input. */
 .action-reward-burst { position: fixed; inset: auto; margin: 0; padding: 0; width: 0; height: 0; overflow: visible; border: 0; background: transparent; pointer-events: none; z-index: var(--z-reward); }
 .action-reward-burst::backdrop { background: transparent; pointer-events: none; }
 .action-reward-center, .action-reward-particle { position: absolute; display: flex; pointer-events: none; filter: drop-shadow(0 0 var(--space-1) var(--sheet)); }
-.action-reward-center { animation: action-reward-pop var(--dur-deliberate) var(--ease-out) both; }
-.action-reward-particle { animation: action-reward-scatter var(--dur-deliberate) var(--ease-out) both; }
+.action-reward-center { animation: action-reward-pop calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
+.action-reward-particle { animation: action-reward-scatter calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) { .action-reward-burst { display: none; } }
 
 /* ── components/skill-guide.css ── */

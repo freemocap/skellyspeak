@@ -35,6 +35,14 @@ Start with [Spanish](languages/spanish.yaml) or [Arabic](languages/arabic.yaml).
 [Hindi](languages/hindi.yaml) and [Malayalam](languages/malayalam.yaml) illustrate
 Indic writing and local transliteration definitions.
 
+[Greek](languages/greek.yaml) covers contemporary Modern Greek in Greece with
+monotonic writing and ALA-LC transliteration. [Thai](languages/thai.yaml) covers
+standard Thai in Thailand with tone-marked Paiboon reading aids. Its convention
+uses `g/dt/bp` for the corresponding unaspirated initials and `k/t/p` for aspirated
+initials; do not mix in another scheme's consonant spellings. Thai vowel length
+and lexical tone remain explicit in the aid, while source Thai stays unchanged.
+Both additions retain `needs_review` for authored linguistic content.
+
 ### Inside a language file
 
 | Field | What belongs here |
@@ -130,7 +138,7 @@ Speech preferences use the shared capability catalog described under
 
 The native registry loads the twelve-skill catalog and the conversation assessor
 uses its compact language/variety guidance. `learning.skill_guides` covers all
-twelve skills for every offered language and variety: 18 languages and 22 varieties.
+twelve skills for every offered language and variety: 20 languages and 24 varieties.
 Each has a shared language core and an explicit selected-variety section. Arabic's
 shared core is not Modern Standard Arabic; Levantine and standard sections remain
 separate. All teaching drafts remain marked `needs_review`; complete coverage and

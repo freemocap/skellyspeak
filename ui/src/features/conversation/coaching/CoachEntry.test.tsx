@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
 import { CoachEntry } from './CoachEntry'
 it('shows useful language explanations immediately, without internal metrics or nested disclosure', () => {
-  const view = render(<CoachEntry source="Sí, me gusta cocinar." feedback={{corrections: [], notes: [], meaningRecovered:'full',candidatesSent:46,itemsReturned:1,items:[{construct:'event_roles',outcome:'demonstrated',quote:'me gusta cocinar',rationale:'Me gusta followed by an infinitive means “I like doing something.” Cocinar means “to cook.”'}]}} />)
+  const view = render(<CoachEntry source="Sí, me gusta cocinar." feedback={{issues: [], corrections: [], notes: [], meaningRecovered:'full',candidatesSent:46,itemsReturned:1,items:[{construct:'event_roles',outcome:'demonstrated',quote:'me gusta cocinar',rationale:'Me gusta followed by an infinitive means “I like doing something.” Cocinar means “to cook.”'}]}} />)
   expect(screen.getByText(/Me gusta followed/)).toBeVisible()
   expect(view.container.querySelector('details')).toBeNull()
   expect(view.container.textContent).not.toMatch(/Meaning recovered|Candidate constructs|Returned items|event_roles|demonstrated/)
@@ -21,7 +21,7 @@ it('shows original, correction and why only after the explicit answer is exposed
 
 it('renders no suggestion for evidence-only success and deduplicates identical explanations', () => {
   const item = {construct:'questions_answers',outcome:'demonstrated' as const,quote:'¿Cómo estás?',rationale:''}
-  const feedback = {corrections: [], notes: [], meaningRecovered:'full' as const,candidatesSent:2,itemsReturned:2,items:[item,{...item,construct:'greeting'}]}
+  const feedback = {issues: [], corrections: [], notes: [], meaningRecovered:'full' as const,candidatesSent:2,itemsReturned:2,items:[item,{...item,construct:'greeting'}]}
   const view = render(<CoachEntry source={null} feedback={feedback} />)
   expect(view.container.querySelectorAll('.coach-card')).toHaveLength(0)
   expect(view.container.textContent).toBe('No correction identified.')
@@ -32,7 +32,7 @@ it('renders no suggestion for evidence-only success and deduplicates identical e
 it('shows every distinct disclosed correction and retains assessment notes', () => {
   const corrections = Array.from({ length: 8 }, (_, i) => ({ construct: 'test', quote: `source ${i}`, text: `replacement ${i}`, move: 'explicit' as const, explanation: `reason ${i}` }))
   const decision = { exposedMove: 'explicit' as const, shown: corrections[0], retryInvited: false, alsoNoticed: [], keptGoing: false }
-  const feedback = { corrections, notes: ['An unchanged replacement was omitted.'], meaningRecovered: 'full' as const, items: [], candidatesSent: 1, itemsReturned: 9 }
+  const feedback = { issues: [], corrections, notes: ['An unchanged replacement was omitted.'], meaningRecovered: 'full' as const, items: [], candidatesSent: 1, itemsReturned: 9 }
   const view = render(<CoachEntry source={null} decision={decision} feedback={feedback} />)
   expect(screen.getAllByLabelText('Coaching suggestion')).toHaveLength(8)
   expect(screen.getByText('replacement 7')).toBeVisible()

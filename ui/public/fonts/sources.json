@@ -157,6 +157,16 @@
       "codepoints": 511,
       "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosanscherokee/NotoSansCherokee[wght].ttf",
       "license": "noto-sans-cherokee-OFL.txt"
+    },
+    {
+      "file": "noto-sans-thai.woff2",
+      "sha256": "e993ffb552ddf8f38d7d4393062bcde01fdd8da6eb897ed92d27e7018cbf82a4",
+      "sourceSha256": "5a1c559bb539583c8a1fd99d1c5b9491e5e14478c9cd2bd0970d5c3096cc9ef8",
+      "bytes": 108220,
+      "codepoints": 426,
+      "source": "https://github.com/google/fonts/blob/e44c4b011a820c2cbe2fd2cfa8052037d7edb571/ofl/notosansthai/NotoSansThai[wdth,wght].ttf",
+      "license": "noto-sans-thai-OFL.txt",
+      "conversion": "fontTools 4.66.1 TTFont flavor=woff2; no subsetting or table edits."
     }
   ]
 }

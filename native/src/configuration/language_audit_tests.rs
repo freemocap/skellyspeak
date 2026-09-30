@@ -67,6 +67,8 @@ fn every_target_and_explanation_variety_has_the_shared_topics() {
 fn courtesy_retrieval_uses_only_the_target_languages_material() {
     let registry = Registry::bundled().unwrap();
     let examples = [
+        ("greek", "ευχαριστώ"),
+        ("thai", "ขอบคุณ"),
         ("korean", "감사합니다"),
         ("japanese", "ありがとう"),
         ("vietnamese", "cảm ơn"),

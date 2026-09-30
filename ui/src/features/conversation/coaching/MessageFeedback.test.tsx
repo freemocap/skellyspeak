@@ -13,7 +13,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function (): void { this.setAttribute('open', '') }
   HTMLDialogElement.prototype.close = function (): void { this.removeAttribute('open') }
 })
-const feedback: CoachObservationView = { corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
+const feedback: CoachObservationView = { issues: [], corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
 const decision: CoachDecision = { exposedMove: 'hint', shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, alsoNoticed: [], keptGoing: false }
 const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
 it('shows a neutral feedback chip and the policy hint without grades or an invented answer', () => {
@@ -202,8 +202,18 @@ it('leads the scored line with a verdict and rings, and Fix it opens the message
   expect(badge).toHaveTextContent('Clean')
   expect(screen.queryByRole('button', { name: 'Fix it' })).toBeNull()
   view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }}
-    feedback={{ ...feedback, items: [{ construct: 'a', quote: 'Yo', outcome: 'partial', rationale: '' }, { construct: 'b', quote: 'ayer', outcome: 'not_demonstrated', rationale: '' }] }} />)
+    feedback={{ ...feedback, issues: [{ quote: 'Yo', severity: 'partial' }, { quote: 'ayer', severity: 'error' }], items: [{ construct: 'a', quote: 'Yo', outcome: 'partial', rationale: '' }, { construct: 'b', quote: 'ayer', outcome: 'not_demonstrated', rationale: '' }] }} />)
   expect(badge).toHaveTextContent('2 errors')
+})
+
+it('agrees with the dialog when a corrected sentence has evidence but no correction', () => {
+  render(<MessageFeedback {...frame} {...base} text="Oui, je vais le porter."
+    decision={{ ...decision, shown: null, exposedMove: null }}
+    feedback={{ ...feedback, items: [{ construct: 'ability_permission_necessity', quote: 'je vais le porter.', outcome: 'not_demonstrated', rationale: '' }] }} />)
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Clean')
+  expect(screen.queryByRole('button', { name: 'Fix it' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
+  expect(screen.getByRole('dialog')).toHaveTextContent('No correction identified.')
 })
 
 it('does not infer a clean verdict from ratings or omitted assessment items', () => {

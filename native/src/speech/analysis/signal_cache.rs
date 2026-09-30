@@ -41,6 +41,7 @@ impl LiveSignals {
     }
 }
 
+#[cfg(test)]
 pub(crate) fn initialize(db: &Connection) -> Result<()> {
     let schema = include_str!("../../storage/schemas/audio_signals.sql");
     let expected = Connection::open_in_memory()?;
@@ -65,6 +66,10 @@ pub(crate) fn initialize(db: &Connection) -> Result<()> {
         }
     }
     db.execute_batch(schema)?;
+    recover(db)
+}
+
+pub(crate) fn recover(db: &Connection) -> Result<()> {
     db.execute("DELETE FROM audio_signals WHERE revision<>?1", [REVISION])?;
     // Unowned transient audio has no lifetime across application sessions.
     remove_unclaimed(db)
