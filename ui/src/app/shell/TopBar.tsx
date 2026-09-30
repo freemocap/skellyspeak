@@ -15,7 +15,8 @@ import { useSettingsStore } from '../../state/settings/settings'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
 import { ModeTabs } from './ModeTabs'
 import { SkillRadarGlyph } from '../../components/learning/SkillRadar'
-import { skillLevels } from '../../domain/learning/statistics/skill-levels'
+import { holdingBack, languageSkillLevels } from '../../domain/learning/statistics/skill-levels'
+import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { ThemeControls } from './ThemeControls'
 
 /** The global bar: the wordmark, the language, the Chat and Practice tabs at full
@@ -38,7 +39,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   // nothing to show until evidence for the active language has landed.
   const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
   // The language's skill level: its weakest skill, drawn as the resting radar.
-  const levels = evidence.snapshot ? skillLevels(evidence.snapshot) : null
+  const levels = evidence.snapshot ? languageSkillLevels(evidence.snapshot) : null
   const savingLanguage = useSettingsStore((state) => state.savingLanguage)
   const included = useSettingsStore((state) => state.settings?.my_languages)
   const totals = useLanguageTotals(evidence.snapshot, effort.value, included)
@@ -66,6 +67,14 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         </button>
         {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>
           <ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={totals.globalEffort} units={['explorations', 'bot']} error={totals.error} expandLabel="Full report" onExpand={() => { progressCard.close(); showOverlay('profile') }}>
+            {levels && <div className="progress-card-levels">
+              <SkillRadarGlyph levels={levels} />
+              <div>
+                <strong>{tr('Skill level {value0}', { value0: levels.level })}</strong>
+                <span>{levels.level === 0 && levels.ready === 0 ? tr('Get a skill point in each skill to reach level 1.') : tr('{value0} of {value1} skills at {value2} points for level {value3}', { value0: levels.ready, value1: levels.skills.length, value2: levels.target, value3: levels.level + 1 })}</span>
+                <ul>{holdingBack(levels).slice(0, 3).map(({ skill, needed }) => <li key={skill.id} style={{ color: skillColors(skill.id).ink }}>{tr(skill.label)}<span>{tr('{value0} more', { value0: needed })}</span></li>)}</ul>
+              </div>
+            </div>}
             {totals.rows ? <LanguageTable rows={totals.rows} active={profile?.target} compact /> : <p role="status" className="progress-card-empty">{tr('Loading…')}</p>}
           </ProgressCard>
         </CardLayer>}

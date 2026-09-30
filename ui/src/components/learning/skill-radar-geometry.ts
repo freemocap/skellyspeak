@@ -1,8 +1,7 @@
-import { levelPosition, levelThreshold } from '../../domain/learning/statistics/skill-levels'
-
 /// Radar geometry in viewBox units. Arm 0 points up; arms run clockwise in
-/// catalog order. The next overall level sits on the ring; each earned level is
-/// an equal-width band inside it, so rings stay evenly spaced as thresholds grow.
+/// catalog order. The next language level sits on the ring; each earned level is
+/// an equal-width band inside it, so rings stay evenly spaced as native thresholds
+/// grow. Positions come from `SkillLevel.position`; nothing here knows a threshold.
 
 export interface RadarFrame { view: number; ring: number }
 export const PANEL_FRAME: RadarFrame = { view: 480, ring: 125 }
@@ -20,14 +19,14 @@ export function polar(frame: RadarFrame, radius: number, index: number, count: n
   return { x: centre + radius * Math.cos(angle), y: centre + radius * Math.sin(angle) }
 }
 
-/** Radius of `points` on a radar whose ring is overall level `level + 1`. */
-export function armRadius(frame: RadarFrame, points: number, level: number): number {
-  return frame.ring * Math.min(levelPosition(points) / (level + 1), OVERSHOOT)
+/** Radius of a band position on a radar whose ring is language level `level + 1`. */
+export function positionRadius(frame: RadarFrame, position: number, level: number): number {
+  return frame.ring * Math.min(position / (level + 1), OVERSHOOT)
 }
 
-/** Radius of the ring for `ringLevel` while the learner is at overall `level`. */
+/** Radius of the ring for `ringLevel` while the learner is at language `level`. */
 export function ringRadius(frame: RadarFrame, ringLevel: number, level: number): number {
-  return armRadius(frame, levelThreshold(ringLevel), level)
+  return positionRadius(frame, ringLevel, level)
 }
 
 /** A thick arm that widens from a point at the centre to a rounded end at `tip`. */

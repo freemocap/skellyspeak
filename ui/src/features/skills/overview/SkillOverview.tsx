@@ -7,9 +7,11 @@ import { domainColors, skillDomain } from '../../../domain/learning/catalog/skil
 export function SkillOverview({ node, snapshot, variety }: { node: TreeNode; snapshot: SkillSnapshot; variety?: string }) {
   const tr = useI18n()
   const domain = node.kind === 'root' ? null : skillDomain(snapshot, node)
+  // Levels exist only for the language scope; a conversation scope shows XP alone.
+  const level = snapshot.profile.levels?.skills.find(item => item.skillId === node.id)
   const progress = variety === undefined ? snapshot.profile.skills.find(item => item.skill_id === node.id) : experienceProfile(snapshot, variety).skills.find(item => item.id === node.id)
   return <header className="skill-overview" style={domain ? { borderColor: domainColors(domain.id).bright } : undefined}>
     {domain && <small>{tr(domain.label)}</small>}<h2>{tr(node.label)}</h2><p>{tr(node.criterion || node.description)}</p>
-    {progress && <div className="skill-overview-progress"><strong>{tr.number(progress.xp)} {tr(" XP")}</strong><span>{tr('Next milestone: {value0} XP', { value0: (Math.floor(progress.xp / 50) + 1) * 50 })}</span><span>{tr('Experience')}: {tr.number(progress.experience)}</span>{progress.effort > 0 && <span>{tr.number(progress.effort)} {tr(" effort")}</span>}</div>}
+    {progress && <div className="skill-overview-progress"><strong>{tr.number(progress.xp)} {tr(" XP")}</strong>{level && <span>{tr('Skill level {value0} · {value1} of {value2} points', { value0: level.level, value1: level.points, value2: level.nextThreshold })}</span>}<span>{tr('Experience')}: {tr.number(progress.experience)}</span>{progress.effort > 0 && <span>{tr.number(progress.effort)} {tr(" effort")}</span>}</div>}
   </header>
 }

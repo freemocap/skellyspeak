@@ -43,7 +43,7 @@ export function RewardPresentationProvider({ children, chatId, active, enabled }
         schedule(() => {
           setArrivals(items => items.map(item => item.key === key ? { ...item, paid: true } : item))
           const host = document.querySelector<HTMLElement>(`[data-message-xp="${messageId}"]`)
-          if (host) playRewardSound(award.milestone && point === award.xp - 1 ? { kind: 'milestone' } : { kind: 'xp', xp: 1 }, host)
+          if (host) playRewardSound({ kind: 'xp', xp: 1 }, host)
         }, delay)
         schedule(() => setArrivals(items => items.filter(item => item.key !== key)), delay + XP_PAYOUT_LIFETIME_MS)
       }

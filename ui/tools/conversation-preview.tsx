@@ -192,7 +192,7 @@ function Preview() {
   }
   useEffect(() => () => aiPlay.current.forEach(clearTimeout), [])
   const aiStatus = <div className="composer-activity"><AiStatus {...ai} onInspectLatest={() => setNotice('AI activity for the latest exchange')} /></div>
-  const [tab, setTab] = useState<'coaching' | 'evidence'>('coaching')
+  const [tab, setTab] = useState<'coaching' | 'skills'>('coaching')
   const [configOpen, setConfigOpen] = useState(false)
   const [partnerMenu, setPartnerMenu] = useState(false)
   const [quick, setQuick] = useState(PREVIEW_SETTINGS)

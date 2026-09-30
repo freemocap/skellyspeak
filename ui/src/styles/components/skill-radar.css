@@ -51,9 +51,11 @@
 
 /* The chip glyph: the resting picture only, sized by its owner. */
 .skill-radar-glyph { display: inline-block; flex: none; max-width: none; margin-inline: 0; }
-.skill-radar-glyph .skill-radar-target { stroke-width: 1; }
-.skill-radar-glyph .skill-radar-edge { stroke-width: 0.5; }
-.skill-radar-glyph .skill-radar-earned { stroke-width: 0.4; stroke-dasharray: 1 0.8; }
+/* Glyph strokes keep their pixel width at any size the owner chooses. */
+.skill-radar-glyph :is(.skill-radar-target, .skill-radar-edge, .skill-radar-earned) { vector-effect: non-scaling-stroke; }
+.skill-radar-glyph .skill-radar-target { stroke-width: 1.6; }
+.skill-radar-glyph .skill-radar-edge { stroke-width: 0.8; }
+.skill-radar-glyph .skill-radar-earned { stroke-width: 0.8; stroke-dasharray: 2 2; }
 
 @media (prefers-reduced-motion: reduce) {
   .skill-radar-detail, .skill-radar-line, .skill-radar-label { transition: none; }

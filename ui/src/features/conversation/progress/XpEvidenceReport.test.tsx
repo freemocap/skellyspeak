@@ -56,13 +56,13 @@ it('reports whole-message evidence and excludes invalidated or uncredited attemp
 it('puts the skill list inside the scroll region and opens only that conversation’s examples', () => {
   const snapshot = fixture()
   const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selected: null, selectionVersion: 0, select: vi.fn() }}><ConversationProgress chatId="chat" /></PracticeContext></SkillEvidenceContext>)
-  const bar = screen.getByRole('progressbar', { name: 'Identify and describe XP' })
+  const bar = view.container.querySelector<HTMLElement>('[data-reward-skill="identify_describe"]')!
   expect(bar.closest('.analysis-scroll')).toBe(view.container.querySelector('.conversation-evidence'))
   fireEvent.click(bar)
   const report = screen.getByRole('dialog', { name: 'Identify and describe' })
   expect(within(report).getByText('Esa taza.')).toBeVisible()
   expect(within(report).queryByText('Otra taza.')).toBeNull()
   fireEvent.click(within(report).getByRole('button', { name: 'Close Identify and describe' }))
-  fireEvent.click(screen.getByRole('progressbar', { name: 'Express quantity XP' }))
+  fireEvent.click(view.container.querySelector<HTMLElement>('[data-reward-skill="quantity"]')!)
   expect(within(screen.getByRole('dialog', { name: 'Express quantity' })).getByText('No credited messages.')).toBeVisible()
 })

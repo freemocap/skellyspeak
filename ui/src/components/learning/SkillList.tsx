@@ -32,8 +32,6 @@ export function SkillList({ snapshot, selected, onSelect, presenting = false }: 
     <ol className="skill-list">{visibleRows.filter(r => !category || r.domain.id === category).map(({ node, xp, domain }) => <li key={node.id}>
       <button type="button" className="skill-list-row" data-reward-skill={node.id} aria-haspopup="dialog" aria-pressed={selected === node.id} onClick={() => onSelect(node.id)} style={{ color: domainColors(domain.id).ink }}>
         <strong>{tr(node.label)}</strong><span>{tr.number(xp)} XP</span><small>{tr(domain.label)}</small>
-        <progress aria-label={tr('{value0} XP', {value0:tr(node.label)})} value={xp % 50} max={50} aria-valuetext={tr('{value0} XP; next milestone {value1}', {value0:xp,value1:(Math.floor(xp / 50) + 1) * 50})} />
-        <small>{tr('Next milestone: {value0} XP', {value0:(Math.floor(xp / 50) + 1) * 50})}</small>
       </button>
     </li>)}</ol>
   </section>

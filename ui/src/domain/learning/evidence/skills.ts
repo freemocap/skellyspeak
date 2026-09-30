@@ -1,4 +1,5 @@
 import type { TreeNode } from '../catalog/skillTree'
+import type { SkillLevelEvent, SkillLevelSummary } from '../../../generated/contracts'
 
 /// Skill evidence: records, snapshots and the credit arithmetic that folds an
 /// awarded attempt into a learner profile.
@@ -103,6 +104,11 @@ export interface LearnerProfile {
   branches: { skill_id: string; available: boolean }[]
   recommended_focus: string
   active_focus: string
+  /** Native Fibonacci level projection over the eligible credits of this scope.
+   * Null for UI-derived scopes (one conversation), which have no level. */
+  levels: SkillLevelSummary | null
+  /** Unclaimed level celebrations; only the full-language scope carries any. */
+  pendingLevelEvents: SkillLevelEvent[]
 }
 export interface PracticeOverview {
   languages: { name: string; endonym: string; snapshot: SkillSnapshot }[]
@@ -119,5 +125,6 @@ export function conversationEvidence(snapshot: SkillSnapshot, chatId: string): S
     const effort = own.reduce((sum, credit) => sum + (credit.effort ?? credit.event?.effort ?? 0), 0)
     return { ...skill, xp: own.reduce((sum, credit) => sum + credit.xp, 0), experience, effort, checked: experience > 0, star: false }
   })
-  return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0) } }
+  // A conversation has points but no level: language levels and celebrations never travel with it.
+  return { ...snapshot, records, conversation_count: 1, profile: { ...snapshot.profile, skills, credits, xp: credits.reduce((sum, credit) => sum + credit.xp, 0), levels: null, pendingLevelEvents: [] } }
 }

@@ -13,5 +13,8 @@ export const skillDemo: SkillSnapshot = {
     xp: 0, recommended_focus: 'identify_describe', active_focus: 'identify_describe',
     skills: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skill_id: s.id, experience: 0, effort: 0, xp: 0, checked: false, star: false })),
     branches: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skill_id: s.id, available: skillTree.some((parent) => parent.id === s.parent && parent.kind === 'domain') })),
+    // No credits yet: every skill and the language sit at level 0, with level 1 at one point.
+    levels: { policyId: 'fixture', skills: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skillId: s.id, points: 0, level: 0, currentThreshold: 0, nextThreshold: 1 })), level: 0, currentThreshold: 0, nextThreshold: 1, bands: [1] },
+    pendingLevelEvents: [],
   },
 }

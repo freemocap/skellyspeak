@@ -1,4 +1,6 @@
 import { ActionRewardBursts } from '../components/learning/ActionRewardBursts'
+import { LevelUpPresenter } from '../features/skills/levels/LevelUpPresenter'
+import { useSkillLevelEventQueue } from '../state/learning/skill-level-events'
 import { EffortProgressContext } from '../state/learning/EffortProgressContext'
 import { useEffortProgress } from '../state/learning/useEffortProgress'
 import { onReadingQuestion } from '../platform/ipc/window'
@@ -76,6 +78,8 @@ export function AppShell() {
   useAiWindowSync()
   useLoadSkillEvidence()
   const evidence = useSkillEvidence()
+  // The one owner of level celebrations for the active language.
+  useSkillLevelEventQueue(evidence.snapshot, evidence.reload, settings?.xp_effects !== false)
   const effort = useEffortProgress(settings?.target_language ?? '', evidence.snapshot)
   useAppShortcuts(shortcuts)
   useEffect(() => {
@@ -95,6 +99,7 @@ export function AppShell() {
   return (
     <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><EffortProgressContext value={effort}><div className="app" data-place={place}>
       <ActionRewardBursts enabled={effort.effects} />
+      <LevelUpPresenter snapshot={effort.effects ? evidence.snapshot : null} />
       <UpdateBanner />
 
       <TopBar />

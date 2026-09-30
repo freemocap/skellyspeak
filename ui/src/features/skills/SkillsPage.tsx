@@ -4,7 +4,7 @@ import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { useI18n } from '../../components/localization/i18n'
 import { EvidenceMappingNotice } from '../../components/learning/EvidenceMappingNotice'
-import { SkillList } from '../../components/learning/SkillList'
+import { SkillLevelsPanel } from '../../components/learning/SkillLevelsPanel'
 import { ProgressRules } from './learner/ProgressRules'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { SkillDetailContent } from './evidence/SkillDetailContent'
@@ -45,7 +45,7 @@ export function SkillListView({ initialVariety, languageTag, snapshot, demonstra
     <EvidenceMappingNotice snapshot={snapshot} />
     {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     <ExperienceProfile snapshot={snapshot} initialVariety={initialVariety} onInspect={inspect} />
-    <SkillList key={snapshot.target} snapshot={snapshot} selected={selected} onSelect={id => inspect(id, initialVariety)} />
+    <SkillLevelsPanel key={snapshot.target} snapshot={snapshot} conversation={null} onInspect={id => inspect(id, initialVariety)} />
     <ProgressRules />
     {open && node && <DetailDialog title={tr(node.label)} onClose={() => setOpen(false)}>
       <SkillDetailContent variety={inspectedVariety} languageTag={languageTag} node={node} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}

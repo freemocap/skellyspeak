@@ -716,10 +716,7 @@
   "Skills": "Habilidades",
   "Category": "Categoría",
   "All categories": "Todas las categorías",
-  "{value0} XP; next milestone {value1}": "{value0} XP; siguiente hito {value1}",
-  "Next milestone: {value0} XP": "Siguiente hito: {value0} XP",
   "Skill XP comes from evidence in your messages.": "La XP de habilidades proviene de evidencias en tus mensajes.",
-  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Cada 50 XP alcanzas otro hito. Cada barra muestra el progreso hacia el siguiente hito; la XP total sigue creciendo.",
   "Read-aloud model": "Modelo de lectura en voz alta",
   "Audio provider key": "Clave del proveedor de audio",
   "Open local admin": "Abrir administración local",
@@ -1588,5 +1585,13 @@
   "+{value0} pt": "+{value0} pt",
   "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Esta conversación: {value0} puntos de habilidad, escalados para que su habilidad más usada llegue al anillo dorado",
   "No skill points in this conversation yet": "Aún no hay puntos de habilidad en esta conversación",
-  "Point at a skill to see what it covers. Press it to show only that skill below.": "Señala una habilidad para ver qué abarca. Púlsala para mostrar solo esa habilidad abajo."
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Señala una habilidad para ver qué abarca. Púlsala para mostrar solo esa habilidad abajo.",
+  "To reach level {value0}": "Para llegar al nivel {value0}",
+  "{value0} more": "{value0} más",
+  "See the evidence": "Ver las pruebas",
+  "Skill level up": "Subida de nivel de habilidad",
+  "{value0} skills levelled up": "{value0} habilidades subieron de nivel",
+  "Every skill now has {value0} or more points.": "Cada habilidad tiene ahora {value0} puntos o más.",
+  "Skill level {value0} · {value1} of {value2} points": "Nivel de habilidad {value0} · {value1} de {value2} puntos",
+  "Each credited message is a skill point for each skill it shows. A skill levels up at 1, 2, 3, 5, 8, 13… points, and your language's skill level is your weakest skill's level. Each bar shows progress toward that skill's next level.": "Cada mensaje acreditado da un punto a cada habilidad que muestra. Una habilidad sube de nivel con 1, 2, 3, 5, 8, 13… puntos, y el nivel de habilidad de tu idioma es el de tu habilidad más débil. Cada barra muestra el progreso hacia el siguiente nivel de esa habilidad."
 }

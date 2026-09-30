@@ -17,23 +17,22 @@ it('shows exactly 12 skills and four optional category filters without branches'
   fireEvent.change(screen.getByRole('combobox'), {target:{value:'people_things'}})
   expect(rows()).toEqual(['identify_describe','possession_relationships','quantity'])
 })
-it('holds order during reward presentation and uses continuing 50 XP targets', async () => {
+it('holds order during reward presentation and shows XP without milestone bars', async () => {
   const {rerender}=render(<SkillList snapshot={skillDemo} onSelect={vi.fn()} />)
   const original=rows()
   rerender(<SkillList snapshot={withXp('quantity', 105)} onSelect={vi.fn()} presenting />)
   expect(rows()).toEqual(original)
   rerender(<SkillList snapshot={withXp('quantity',105)} onSelect={vi.fn()} />)
   await waitFor(()=>expect(rows()[0]).toBe('quantity'))
-  const bar=document.querySelector('[data-reward-skill="quantity"] progress')!
-  expect(bar).toHaveAttribute('value','5')
-  expect(bar).toHaveAttribute('max','50')
-  expect(bar).toHaveAttribute('aria-valuetext','105 XP; next milestone 150')
+  expect(document.querySelector('[data-reward-skill="quantity"] progress')).toBeNull()
+  expect(document.querySelector('[data-reward-skill="quantity"]')).toHaveTextContent('105 XP')
   expect(rows().slice(1)).toEqual(original.filter(id=>id!=='quantity'))
 })
 it('saves focus before returning to conversation and keeps errors visible', async () => {
   const actions=handlers()
   render(<SkillListView snapshot={skillDemo} demonstration={false} {...actions} />)
   fireEvent.click(document.querySelector('[data-reward-skill="identify_describe"]')!)
+  fireEvent.click(screen.getByRole('button',{name:'See the evidence'}))
   fireEvent.click(screen.getByRole('button',{name:'Use this in a conversation'}))
   await waitFor(()=>expect(actions.onPractice).toHaveBeenCalledOnce())
   expect(actions.save).toHaveBeenCalledWith(expect.objectContaining({focus:'identify_describe'}))

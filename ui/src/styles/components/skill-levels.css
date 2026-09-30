@@ -1,4 +1,4 @@
-/* Skill levels panel (features/skills/levels/SkillLevelsPanel.tsx): the level
+/* Skill levels panel (components/learning/SkillLevelsPanel.tsx): the level
    header, the radar and the per-skill rows that the radar filters. Row colour is
    the skill's own jewel tone, set inline as `color` on the row. */
 .skill-levels { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-6); }
@@ -37,3 +37,12 @@
 .skill-levels-focus { display: flex; flex-direction: column; gap: var(--space-1); min-height: calc(var(--type-body) * 3); padding: var(--space-4) var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-3); font-size: var(--type-ui); line-height: var(--leading-snug); }
 .skill-levels-focus strong { font-weight: var(--weight-semibold); }
 .skill-levels-focus span { color: var(--ink-2); }
+
+/* What holds the next language level back: one chip per short skill, pressing pins it. */
+.skill-levels-next { display: flex; flex-direction: column; gap: var(--space-3); }
+.skill-levels-next h3 { margin: 0; color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.skill-levels-next ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.skill-levels-chip { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-5); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); font-size: var(--type-meta); font-weight: var(--weight-semibold); cursor: pointer; }
+.skill-levels-chip:hover, .skill-levels-chip[aria-pressed='true'] { border-color: currentColor; }
+.skill-levels-chip > span:last-child { color: var(--ink-3); font-family: var(--font-mono); font-weight: var(--weight-regular); }
+.skill-levels-more { display: flex; align-items: center; color: var(--ink-3); font-size: var(--type-meta); }

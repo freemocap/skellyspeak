@@ -315,3 +315,133 @@ claim that the new animations are wired. Changes are uncommitted.
 > 50-XP trigger while retaining ordinary XP arrivals. Native/contract/fast checks,
 > build and affected UI tests pass; details are in §7. Return the finished UI pass
 > for a combined flow review and final polish. No commit has been created.
+
+## 9. UI pass (UI owner) — ready for integration review
+
+Status: **implemented, uncommitted.** Built against §6 as delivered.
+
+### What changed
+- `LearnerProfile` gains `levels: SkillLevelSummary | null` and
+  `pendingLevelEvents: SkillLevelEvent[]`. `conversationEvidence` sets
+  `levels: null` and `pendingLevelEvents: []`, so language levels and events never
+  travel with a conversation scope.
+- `domain/learning/statistics/skill-levels.ts` no longer owns any threshold. It
+  reads `profile.levels`, validates catalog order and `bands`, joins labels/XP,
+  and derives presentation only: arm position
+  `level + (points-currentThreshold)/(nextThreshold-currentThreshold)`, readiness,
+  band fill, and `holdingBack` (skills below the next language threshold).
+  `conversationSkillPoints(snapshot, chatId)` is the separate typed conversation
+  count (no level; fails on duplicate or unknown credits).
+- Radar geometry draws rings from level positions only; the glyph keeps pixel
+  strokes at any size.
+- One celebration owner: `state/learning/skill-level-events.ts`
+  (`useSkillLevelEventQueue`, mounted once in `AppShell`). It initializes per
+  language + profile-choices revision, claims an ordered prefix (≤100) only
+  after preparing presentations, presents only returned events, and reloads
+  evidence when a batch finishes. Hidden windows claim nothing; a failed/stale
+  claim is reported (`reportFault`) and followed by a reload, never replayed;
+  each snapshot's pending list is acted on once; nothing-returned claims reload.
+- `features/skills/levels/LevelUpPresenter.tsx`: consecutive skill steps collapse
+  into one corner receipt (one row per skill, final level); each language step is
+  a floating card (current radar settles, badge rolls from→to, "Every skill now
+  has N or more points"). Sounds reuse the existing cues (`pop`, `milestone`) and
+  their settings; reduced motion removes movement. Current levels elsewhere are
+  always the snapshot's.
+- Retired the 50-XP milestone: `SkillRewards` no longer computes it, the
+  `MessageEvidence.milestone` field and the milestone coin cue are gone,
+  `SkillList` shows XP without milestone bars, `xp-progress.ts` removed, and the
+  three milestone strings removed from all locales. Ordinary XP arrivals are
+  unchanged.
+- `SkillLevelsPanel` moved to `components/learning/` (the conversation feature
+  uses it; features stay independent). Adds "To reach level N" chips (three
+  largest gaps + count), and a "See the evidence" action on the Skills page.
+  Skills page uses it in place of the old skill list; `ProgressRules` and
+  `SkillOverview` describe levels instead of milestones.
+- Top-bar progress card shows the language radar, level and the three
+  skills furthest from the next level.
+- Styles: `components/skill-levels.css` (panel), `features/skills/level-up.css`
+  (celebrations). New strings in all 7 locales (machine-drafted).
+- Tests: `tests/fixtures/skill-levels.ts` mirrors the native policy for fixtures
+  only. New/updated tests for the adapter, panel, queue (init/claim order,
+  returned-only presentation, stale claim, all-claimed) and milestone removal.
+  Preview: `ui/tools/skill-levels-preview.html` (`?celebrate=catch-up|language|skills`).
+
+### Files to delete on disk (moved or retired; the sync tool cannot delete)
+- `ui/src/features/skills/levels/SkillLevelsPanel.tsx`
+- `ui/src/features/skills/levels/SkillLevelsPanel.test.tsx`
+- `ui/src/styles/features/skills/skill-levels.css`
+- `ui/src/features/conversation/progress/xp-progress.ts`
+
+### Verification (UI owner, cloud copy of the branch + native UI outputs)
+- `npm run check:fast`: passed. `tsc`: passed. `npm run build`: passed
+  (existing chunk-size advisory).
+- Full UI vitest: 1654 passed. Failing only where the cloud copy lacks the native
+  pass: the two `ipc-commands` architecture tests (new commands not registered in
+  that copy's `startup.rs`); these should pass on the real branch. One
+  `DrillPage` test failed once under full-suite load and passes alone.
+- Visual check in the preview: coach Skills tab, Skills page panel, top-bar card,
+  language card, skill receipt, and a full mocked catch-up run.
+- Not verified: the real Tauri flow (live publication → refresh → claim →
+  presentation), restart mid-queue, language switching during a batch, and
+  queues over 100 against real native.
+
+### Open for review
+1. In the coach Skills tab the old conversation skill list (`ConversationMap`,
+   practice-focus selection) still follows the new panel, so skills appear twice.
+   Keep, merge its focus action into the panel, or drop it?
+2. Live skill receipts appear in the corner rather than beside the source
+   message; `chatId`/`messageId` are available if attaching is wanted.
+3. The celebration card shows the current radar, not a replay of the old shape.
+
+## 10. Combined checkout review and repairs
+
+Status: loading failure repaired and automated UI verification passed. No commit
+or push performed. The native implementation was already present in this checkout.
+
+The transfer included imports, tests and styles for the shared `SkillLevelsPanel`,
+but omitted its implementation. Restored the component in `components/learning`,
+using native thresholds, separate conversation counts, weakest-skill chips and
+the evidence callback. Removed all four obsolete files listed in §9 after reading
+their contents and establishing their replacement ownership. Updated the other
+conversation preview's obsolete tab type to match Coach/Skills.
+
+Queue review found that a delayed initialization could set the old language as
+initialized and claim after switching languages or hiding the window. Added a
+scope/generation guard covering learner, language, registry, choices and effects
+enablement, checked both before claiming and after asynchronous responses.
+The presenter rejects a different scope. Reward effects disabled in settings
+prevent initialization/claims; hidden windows pause presentation timers. Failed
+claims reload once and suppress repeated retries for an unchanged pending set,
+avoiding an automatic error/reload loop. Visibility restoration allows a fresh
+attempt. These changes preserve the native at-most-once claim semantics.
+
+Regression coverage includes delayed initialization across language switches,
+visibility changes during initialization, delayed claim responses, disabled
+effects, and batches larger than 100, alongside the existing stale-claim tests.
+
+Review decisions for this pass:
+
+- Keep the conversation list because it still owns practice-focus selection and
+  conversation evidence. Removing it now would remove working controls; merging
+  those controls into the panel remains a focused layout improvement.
+- Retain corner receipts for this implementation. Source IDs remain available
+  for a later message-attached presentation; no historical source is invented.
+- Retain the current radar on celebration cards. The badge celebrates a specific
+  earned level; the shape is current evidence, not a reconstructed historical
+  shape. Do not claim that old shapes were recorded or replayed.
+
+Verification on the combined checkout:
+
+- Full `npm test`: 256 files, 1,662 tests passed, including both IPC registration
+  tests and the drill suite. Its fast gate passed.
+- `npm run build`: passed (existing large-bundle advisory).
+- `npm run previews:check`: passed after fixing the obsolete tab type.
+- Final `npm run check:fast`: passed.
+- Browser preview at the running local development server rendered without the
+  import overlay. Inspected the panel, pin/filter interaction and settled language
+  celebration card. The preview uses fixture IPC, not a real native session.
+
+Native files did not change during this repair; native verification is recorded
+in §7. No new live inference, real workspace restart/mid-animation run, physical
+sound/haptic check, translation review or hosted CI run was performed. The full
+desktop publication-to-animation flow is therefore not newly certified here.

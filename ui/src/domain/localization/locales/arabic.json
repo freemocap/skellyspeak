@@ -716,10 +716,7 @@
   "Skills": "المهارات",
   "Category": "الفئة",
   "All categories": "جميع الفئات",
-  "{value0} XP; next milestone {value1}": "{value0} XP؛ المحطة التالية {value1}",
-  "Next milestone: {value0} XP": "المحطة التالية: {value0} XP",
   "Skill XP comes from evidence in your messages.": "تأتي نقاط خبرة المهارات من الأدلة في رسائلك.",
-  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "تصل إلى محطة جديدة كل 50 XP. يعرض كل شريط التقدم نحو المحطة التالية، وتستمر نقاط الخبرة الإجمالية في الزيادة.",
   "Read-aloud model": "نموذج القراءة بصوت عالٍ",
   "Audio provider key": "مفتاح مزود الصوت",
   "Open local admin": "فتح إدارة الخادم المحلي",
@@ -1588,5 +1585,13 @@
   "+{value0} pt": "+{value0} ن",
   "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "هذه المحادثة: {value0} نقاط مهارة، بمقياس تبلغ فيه أكثر مهارة استخدامًا الحلقة الذهبية",
   "No skill points in this conversation yet": "لا توجد نقاط مهارة في هذه المحادثة بعد",
-  "Point at a skill to see what it covers. Press it to show only that skill below.": "أشر إلى مهارة لترى ما تشمله. اضغط عليها لعرضها وحدها في الأسفل."
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "أشر إلى مهارة لترى ما تشمله. اضغط عليها لعرضها وحدها في الأسفل.",
+  "To reach level {value0}": "للوصول إلى المستوى {value0}",
+  "{value0} more": "{value0} أخرى",
+  "See the evidence": "عرض الأدلة",
+  "Skill level up": "ارتفع مستوى مهارة",
+  "{value0} skills levelled up": "ارتفع مستوى {value0} مهارات",
+  "Every skill now has {value0} or more points.": "لدى كل مهارة الآن {value0} نقاط أو أكثر.",
+  "Skill level {value0} · {value1} of {value2} points": "مستوى المهارة {value0} · {value1} من {value2} نقاط",
+  "Each credited message is a skill point for each skill it shows. A skill levels up at 1, 2, 3, 5, 8, 13… points, and your language's skill level is your weakest skill's level. Each bar shows progress toward that skill's next level.": "كل رسالة محتسبة تمنح نقطة لكل مهارة تظهر فيها. ترتفع المهارة مستوى عند 1، 2، 3، 5، 8، 13… نقاط، ومستوى مهارة لغتك هو مستوى أضعف مهاراتك. يُظهر كل شريط التقدم نحو المستوى التالي لتلك المهارة."
 }

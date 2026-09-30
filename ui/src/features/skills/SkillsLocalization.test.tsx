@@ -15,7 +15,7 @@ it.each(Object.keys(LOCALES))('renders translated categories, skill labels and c
   expect(screen.getByRole('heading', { name: t(locale, node.label) })).toBeVisible()
   expect(screen.getByText(t(locale, node.criterion))).toBeVisible()
   expect(screen.getByRole('option', { name: t(locale, 'People and things') })).toHaveValue('people_things')
-  expect(screen.getAllByRole('progressbar').length).toBe(12)
+  expect(screen.queryAllByRole('progressbar')).toHaveLength(0)
 })
 it('switches labels and number formatting without resetting selection or changing evidence', () => {
   const snapshot = structuredClone(skillDemo)
@@ -31,8 +31,7 @@ it('switches labels and number formatting without resetting selection or changin
   expect(screen.getByText('التعبير عن الكمية')).toBeVisible()
   const row = document.querySelector('[data-reward-skill="quantity"]')!
   expect(row).toHaveAttribute('aria-pressed', 'true')
-  expect(row.querySelector('progress')).toHaveAttribute('value', '34')
-  expect(row.querySelector('progress')!.getAttribute('aria-valuetext')).toContain(new Intl.NumberFormat('ar').format(1234))
+  expect(row).toHaveTextContent(new Intl.NumberFormat('ar').format(1234))
   fireEvent.click(row)
   expect(select).toHaveBeenCalledWith('quantity')
   expect(snapshot).toEqual(original)

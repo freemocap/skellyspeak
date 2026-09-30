@@ -1,8 +1,8 @@
 import type { KeyboardEvent } from 'react'
 import { useI18n } from '../localization/i18n'
 import { skillColors } from '../../domain/learning/catalog/skill-domains'
-import type { LanguageSkillLevels, SkillLevel } from '../../domain/learning/statistics/skill-levels'
-import { armRadius, GLYPH_FRAME, PANEL_FRAME, polar, ringRadius, taperedArm, type RadarFrame } from './skill-radar-geometry'
+import type { ConversationSkillPoints, LanguageSkillLevels, SkillLevel } from '../../domain/learning/statistics/skill-levels'
+import { GLYPH_FRAME, PANEL_FRAME, polar, positionRadius, ringRadius, taperedArm, type RadarFrame } from './skill-radar-geometry'
 
 /** The skill shape: a colour-wheel fill that grows from white toward the gold ring
  * of the next overall level, each earned level a dark dashed ring behind it, a thin
@@ -20,7 +20,7 @@ export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversati
   const tr = useI18n()
   const frame = PANEL_FRAME
   const count = levels.skills.length
-  const tips = levels.skills.map((skill, index) => polar(frame, armRadius(frame, skill.points, levels.level), index, count))
+  const tips = levels.skills.map((skill, index) => polar(frame, positionRadius(frame, skill.position, levels.level), index, count))
   const centre = frame.view / 2
   const toggle = (id: string) => onPin(pinned === id ? null : id)
   const key = (id: string) => (event: KeyboardEvent) => {
@@ -30,7 +30,7 @@ export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversati
   const leave = (id: string) => { if (pointed === id) onPoint(null) }
   return <div className="skill-radar" data-pinned={pinned ? 'true' : undefined}>
     <RadarBase frame={frame} levels={levels} detailed />
-    <RadarFill frame={frame} levels={levels} tips={tips} />
+    <RadarFill frame={frame} skillIds={levels.skills.map(skill => skill.id)} tips={tips} />
     <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`} role="group" aria-label={tr('Skill radar')}>
       <polygon className="skill-radar-edge" points={tips.map(tip => `${tip.x},${tip.y}`).join(' ')} />
       <circle className="skill-radar-target" cx={centre} cy={centre} r={frame.ring} />
@@ -62,14 +62,15 @@ export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversati
   </div>
 }
 
-/** The language radar at badge size: the fill, its edge, the earned rings and the gold ring. */
+/** The language radar without labels or interaction, sized by its owner: the fill,
+ * its edge, the earned rings and the gold ring. */
 export function SkillRadarGlyph({ levels }: { levels: LanguageSkillLevels }) {
   const frame = GLYPH_FRAME
   const count = levels.skills.length
-  const tips = levels.skills.map((skill, index) => polar(frame, armRadius(frame, skill.points, levels.level), index, count))
+  const tips = levels.skills.map((skill, index) => polar(frame, positionRadius(frame, skill.position, levels.level), index, count))
   return <span className="skill-radar skill-radar-glyph" aria-hidden="true">
     <RadarBase frame={frame} levels={levels} detailed={false} />
-    <RadarFill frame={frame} levels={levels} tips={tips} />
+    <RadarFill frame={frame} skillIds={levels.skills.map(skill => skill.id)} tips={tips} />
     <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`}>
       <polygon className="skill-radar-edge" points={tips.map(tip => `${tip.x},${tip.y}`).join(' ')} />
       <circle className="skill-radar-target" cx={frame.view / 2} cy={frame.view / 2} r={frame.ring} />
@@ -79,16 +80,16 @@ export function SkillRadarGlyph({ levels }: { levels: LanguageSkillLevels }) {
 
 /** One conversation's shape at badge size: its points per skill scaled so the
  * busiest skill reaches the edge. No rings: a conversation has no level. */
-export function ConversationShapeGlyph({ levels }: { levels: LanguageSkillLevels }) {
+export function ConversationShapeGlyph({ points }: { points: ConversationSkillPoints }) {
   const frame = GLYPH_FRAME
-  const count = levels.skills.length
-  const most = Math.max(...levels.skills.map(skill => skill.points))
-  const tips = levels.skills.map((skill, index) => polar(frame, most === 0 ? 0 : frame.ring * skill.points / most, index, count))
+  const count = points.skills.length
+  const most = Math.max(...points.skills.map(skill => skill.points))
+  const tips = points.skills.map((skill, index) => polar(frame, most === 0 ? 0 : frame.ring * skill.points / most, index, count))
   return <span className="skill-radar skill-radar-glyph" aria-hidden="true">
     <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`}>
       <circle className="skill-radar-disc" cx={frame.view / 2} cy={frame.view / 2} r={frame.ring} />
     </svg>
-    {most > 0 && <RadarFill frame={frame} levels={levels} tips={tips} />}
+    {most > 0 && <RadarFill frame={frame} skillIds={points.skills.map(skill => skill.id)} tips={tips} />}
     <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`}>
       {most > 0 && <polygon className="skill-radar-edge" points={tips.map(tip => `${tip.x},${tip.y}`).join(' ')} />}
     </svg>
@@ -116,10 +117,10 @@ function RadarBase({ frame, levels, detailed }: { frame: RadarFrame; levels: Lan
 }
 
 /** The colour wheel, pale at the centre, clipped to a shape. */
-function RadarFill({ frame, levels, tips }: { frame: RadarFrame; levels: LanguageSkillLevels; tips: { x: number; y: number }[] }) {
-  const count = levels.skills.length
-  const stops = levels.skills.map((skill, index) => `${skillColors(skill.id).mark} ${360 * index / count}deg`)
-  const wheel = `conic-gradient(from 0deg, ${stops.join(', ')}, ${skillColors(levels.skills[0].id).mark} 360deg)`
+function RadarFill({ frame, skillIds, tips }: { frame: RadarFrame; skillIds: string[]; tips: { x: number; y: number }[] }) {
+  const count = skillIds.length
+  const stops = skillIds.map((id, index) => `${skillColors(id).mark} ${360 * index / count}deg`)
+  const wheel = `conic-gradient(from 0deg, ${stops.join(', ')}, ${skillColors(skillIds[0]).mark} 360deg)`
   const half = frame.view / 2
   const fade = `radial-gradient(closest-side, var(--skill-radar-core) 0%, var(--skill-radar-mid) ${45 * frame.ring / half}%, transparent ${90 * frame.ring / half}%)`
   const clip = `polygon(${tips.map(tip => `${tip.x / frame.view * 100}% ${tip.y / frame.view * 100}%`).join(', ')})`

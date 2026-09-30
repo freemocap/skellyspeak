@@ -1,39 +1,58 @@
 import { describe, expect, it } from 'vitest'
-import { levelFor, levelPosition, levelThreshold, skillLevels } from './skill-levels'
+import { bandPosition, conversationSkillPoints, holdingBack, languageSkillLevels } from './skill-levels'
 import { skillDemo } from '../catalog/skillDemo'
+import { unreportedInput, type SkillSnapshot } from '../evidence/skills'
+import { withFixtureLevels } from '../../../../tests/fixtures/skill-levels'
 
-describe('skill levels', () => {
-  it('uses Fibonacci thresholds without the repeated 1', () => {
-    expect([0, 1, 2, 3, 4, 5, 6, 7, 8].map(levelThreshold)).toEqual([0, 1, 2, 3, 5, 8, 13, 21, 34])
+const ids = skillDemo.catalog.filter(node => node.kind === 'skill').map(node => node.id)
+
+function learner(points: number[], chatFor: (skill: number, n: number) => string = () => 'earlier'): SkillSnapshot {
+  const snapshot = structuredClone(skillDemo)
+  ids.forEach((id, index) => {
+    for (let n = 0; n < points[index]; n++) {
+      const attempt = `${id}-${n}`
+      snapshot.records.push({ attempt_id: attempt, session_id: 's', turn_id: n, message_id: n, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: chatFor(index, n), learner_id: 'demo', target: snapshot.target, native: 'english', source: 'x', input: unreportedInput(), at_secs: 0, model: 'm', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'p', status: 'complete', error: null, assessment: null })
+      snapshot.profile.credits.push({ attempt_id: attempt, skill_id: id, xp: 1 })
+    }
   })
-  it('maps points to the highest reached level', () => {
-    expect([0, 1, 2, 3, 4, 5, 7, 8, 12, 13].map(levelFor)).toEqual([0, 1, 2, 3, 3, 4, 4, 5, 5, 6])
+  return withFixtureLevels(snapshot)
+}
+
+describe('language skill levels', () => {
+  it('reads the native projection in catalog order and derives presentation values', () => {
+    const levels = languageSkillLevels(learner([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6]))
+    expect(levels.level).toBe(4)
+    expect(levels.target).toBe(8)
+    expect(levels.bands).toEqual([1, 2, 3, 5, 8])
+    expect(levels.ready).toBe(5)
+    expect(levels.skills[1]).toMatchObject({ points: 6, level: 4, currentThreshold: 5, nextThreshold: 8 })
+    expect(levels.skills[1].position).toBeCloseTo(4 + 1 / 3)
   })
-  it('interpolates inside a band', () => {
-    expect(levelPosition(0)).toBe(0)
-    expect(levelPosition(5)).toBe(4)
-    expect(levelPosition(6)).toBeCloseTo(4 + 1 / 3)
+  it('names what holds the next level back, largest gap first', () => {
+    const behind = holdingBack(languageSkillLevels(learner([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6])))
+    expect(behind[0].needed).toBe(3)
+    expect(behind.map(item => item.needed)).toEqual([...behind.map(item => item.needed)].sort((a, b) => b - a))
+    expect(behind.every(item => item.skill.points < 8)).toBe(true)
   })
-  it('rejects fractional and negative inputs', () => {
-    expect(() => levelFor(-1)).toThrow()
-    expect(() => levelThreshold(1.5)).toThrow()
+  it('refuses a scope without levels and a projection out of catalog order', () => {
+    const scoped = learner(ids.map(() => 1))
+    expect(() => languageSkillLevels({ ...scoped, profile: { ...scoped.profile, levels: null } })).toThrow('only the language scope')
+    const swapped = structuredClone(scoped)
+    swapped.profile.levels!.skills.reverse()
+    expect(() => languageSkillLevels(swapped)).toThrow('catalog order')
   })
-  it('counts credited messages per skill and takes the weakest skill as the level', () => {
-    const snapshot = structuredClone(skillDemo)
-    const skills = snapshot.catalog.filter(node => node.kind === 'skill')
-    skills.forEach((skill, index) => {
-      for (let n = 0; n < (index === 0 ? 1 : 3); n++) snapshot.profile.credits.push({ attempt_id: `${skill.id}-${n}`, skill_id: skill.id, xp: 1 })
-    })
-    const levels = skillLevels(snapshot)
-    expect(levels.level).toBe(1)
-    expect(levels.target).toBe(2)
-    expect(levels.ready).toBe(skills.length - 1)
-    expect(levels.skills[0]).toMatchObject({ points: 1, level: 1, nextThreshold: 2 })
-    expect(levels.skills[1]).toMatchObject({ points: 3, level: 3, nextThreshold: 5 })
+  it('rejects an empty band and points below the current threshold', () => {
+    expect(() => bandPosition(2, 2, 2, 2)).toThrow('empty')
+    expect(() => bandPosition(3, 2, 3, 5)).toThrow('below')
   })
-  it('fails on a credit for an unknown skill', () => {
-    const snapshot = structuredClone(skillDemo)
-    snapshot.profile.credits.push({ attempt_id: 'a', skill_id: 'not_a_skill', xp: 1 })
-    expect(() => skillLevels(snapshot)).toThrow('outside the catalog')
+})
+
+describe('conversation skill points', () => {
+  it('counts one conversation\'s credits per skill without any level', () => {
+    const snapshot = learner(ids.map(() => 3), (skill, n) => skill < 2 && n === 0 ? 'chat' : 'earlier')
+    const points = conversationSkillPoints(snapshot, 'chat')
+    expect(points.total).toBe(2)
+    expect(points.skills.slice(0, 3).map(skill => skill.points)).toEqual([1, 1, 0])
+    expect('level' in points).toBe(false)
   })
 })

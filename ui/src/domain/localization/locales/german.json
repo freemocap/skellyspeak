@@ -716,10 +716,7 @@
   "Skills": "Fähigkeiten",
   "Category": "Kategorie",
   "All categories": "Alle Kategorien",
-  "{value0} XP; next milestone {value1}": "{value0} XP; nächster Meilenstein {value1}",
-  "Next milestone: {value0} XP": "Nächster Meilenstein: {value0} XP",
   "Skill XP comes from evidence in your messages.": "Fähigkeits-XP beruhen auf Belegen in deinen Nachrichten.",
-  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Alle 50 XP erreichst du einen weiteren Meilenstein. Jeder Balken zeigt den Fortschritt zum nächsten Meilenstein; die Gesamt-XP wachsen weiter.",
   "Read-aloud model": "Vorlesemodell",
   "Audio provider key": "Schlüssel des Audioanbieters",
   "Open local admin": "Lokale Verwaltung öffnen",
@@ -1588,5 +1585,13 @@
   "+{value0} pt": "+{value0} P.",
   "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Dieses Gespräch: {value0} Kompetenzpunkte, so skaliert, dass die meistgenutzte Kompetenz den goldenen Ring erreicht",
   "No skill points in this conversation yet": "Noch keine Kompetenzpunkte in diesem Gespräch",
-  "Point at a skill to see what it covers. Press it to show only that skill below.": "Zeige auf eine Kompetenz, um zu sehen, was sie umfasst. Wähle sie, um unten nur sie anzuzeigen."
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Zeige auf eine Kompetenz, um zu sehen, was sie umfasst. Wähle sie, um unten nur sie anzuzeigen.",
+  "To reach level {value0}": "Für Stufe {value0}",
+  "{value0} more": "noch {value0}",
+  "See the evidence": "Belege ansehen",
+  "Skill level up": "Kompetenz aufgestiegen",
+  "{value0} skills levelled up": "{value0} Kompetenzen aufgestiegen",
+  "Every skill now has {value0} or more points.": "Jede Kompetenz hat jetzt mindestens {value0} Punkte.",
+  "Skill level {value0} · {value1} of {value2} points": "Kompetenzstufe {value0} · {value1} von {value2} Punkten",
+  "Each credited message is a skill point for each skill it shows. A skill levels up at 1, 2, 3, 5, 8, 13… points, and your language's skill level is your weakest skill's level. Each bar shows progress toward that skill's next level.": "Jede angerechnete Nachricht gibt jeder gezeigten Kompetenz einen Punkt. Eine Kompetenz steigt bei 1, 2, 3, 5, 8, 13… Punkten auf, und die Kompetenzstufe deiner Sprache ist die deiner schwächsten Kompetenz. Jeder Balken zeigt den Fortschritt zur nächsten Stufe dieser Kompetenz."
 }

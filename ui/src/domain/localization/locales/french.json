@@ -716,10 +716,7 @@
   "Skills": "Compétences",
   "Category": "Catégorie",
   "All categories": "Toutes les catégories",
-  "{value0} XP; next milestone {value1}": "{value0} XP ; prochain palier {value1}",
-  "Next milestone: {value0} XP": "Prochain palier : {value0} XP",
   "Skill XP comes from evidence in your messages.": "Les XP des compétences proviennent des éléments observés dans vos messages.",
-  "Every 50 XP reaches another milestone. Each bar shows progress toward the next milestone; total XP keeps growing.": "Un nouveau palier est atteint tous les 50 XP. Chaque barre indique la progression vers le prochain palier ; le total des XP continue de croître.",
   "Read-aloud model": "Modèle de lecture à voix haute",
   "Audio provider key": "Clé du fournisseur audio",
   "Open local admin": "Ouvrir l’administration locale",
@@ -1588,5 +1585,13 @@
   "+{value0} pt": "+{value0} pt",
   "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Cette conversation : {value0} points de compétence, à l’échelle de sa compétence la plus travaillée sur l’anneau doré",
   "No skill points in this conversation yet": "Aucun point de compétence dans cette conversation pour l’instant",
-  "Point at a skill to see what it covers. Press it to show only that skill below.": "Pointez une compétence pour voir ce qu’elle couvre. Appuyez dessus pour n’afficher qu’elle ci-dessous."
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Pointez une compétence pour voir ce qu’elle couvre. Appuyez dessus pour n’afficher qu’elle ci-dessous.",
+  "To reach level {value0}": "Pour atteindre le niveau {value0}",
+  "{value0} more": "encore {value0}",
+  "See the evidence": "Voir les preuves",
+  "Skill level up": "Compétence au niveau supérieur",
+  "{value0} skills levelled up": "{value0} compétences ont progressé",
+  "Every skill now has {value0} or more points.": "Chaque compétence a maintenant au moins {value0} points.",
+  "Skill level {value0} · {value1} of {value2} points": "Niveau de compétence {value0} · {value1} points sur {value2}",
+  "Each credited message is a skill point for each skill it shows. A skill levels up at 1, 2, 3, 5, 8, 13… points, and your language's skill level is your weakest skill's level. Each bar shows progress toward that skill's next level.": "Chaque message crédité rapporte un point à chaque compétence qu’il montre. Une compétence monte de niveau à 1, 2, 3, 5, 8, 13… points, et le niveau de compétence de votre langue est celui de votre compétence la plus faible. Chaque barre montre la progression vers le niveau suivant de cette compétence."
 }
