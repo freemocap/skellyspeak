@@ -1,0 +1,445 @@
+# yaml-language-server: $schema=../schemas/language.yaml
+schema_version: 1
+identity:
+  id: thai
+  name: Thai
+  native_name: ไทย
+  family: kra-dai
+  review: needs_review
+integrations:
+  language_tag: th
+  transcription: th
+definitions:
+  orthographies:
+    modern-thai:
+      script: thai
+      guidance:
+        - scope: target_writing
+          text: Write standard Thai in Thai script, retaining vowels, tone marks and other orthographic signs.
+            Use natural phrase spacing; do not insert spaces between every word or separate
+            combining marks from their bases. Preserve quoted source text exactly, including its
+            original spacing. Romanization belongs only in a separate reading aid.
+          sources:
+            - unicode17_southeast_asia
+        - scope: explanation_writing
+          text: Write standard Thai in Thai script, retaining vowels, tone marks and other orthographic signs.
+            Use natural phrase spacing; do not insert spaces between every word or separate
+            combining marks from their bases. Preserve quoted source text exactly, including its
+            original spacing. Romanization belongs only in a separate reading aid.
+          sources:
+            - unicode17_southeast_asia
+  romanization_schemes:
+    paiboon:
+      label: Paiboon (tone-marked)
+      instructions: Use the Paiboon convention documented in the cited comparison table. Mark mid tone
+        with no accent, low with grave (à), falling with circumflex (â), high with acute (á), and
+        rising with caron (ǎ), placing the mark on the first vowel. Double vowels for length,
+        including aa, ii, ʉʉ, uu, ee, ɛɛ, oo, ɔɔ and əə; distinguish short/long diphthongs ia/iia,
+        ʉa/ʉʉa and ua/uua. Initial ก is g, ต dt, ป bp, จ j; aspirated counterparts use k, t, p and
+        ch. Final stops are k, t, p. Keep voiced b/d distinct. Separate spoken syllables with
+        hyphens and words with spaces. Resolve pronunciation and lexical tone in context; Thai
+        written tone signs are not a direct one-to-one mapping to spoken tones. Expand repetition in
+        the aid and omit silent letters there only. This is a pronunciation-oriented aid, not
+        reversible spelling or evidence of the learner’s actual pronunciation. Preserve the Thai
+        source exactly.
+      examples:
+        - original: มา
+          romanized: maa
+        - original: ม้า
+          romanized: máa
+        - original: หมา
+          romanized: mǎa
+        - original: ข่า
+          romanized: kàa
+        - original: ข้าว
+          romanized: kâao
+        - original: ขอบคุณ
+          romanized: kɔ̀ɔp kun
+      sources:
+        - thai_paiboon_conventions
+      review: needs_review
+defaults:
+  variety: thai-thailand
+  orthography:
+    local: modern-thai
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme:
+      local: paiboon
+  supported_romanizations:
+    - local: paiboon
+traits:
+  - tones
+  - unspaced-words
+varieties:
+  - id: thai-thailand
+    name: Thailand
+    description: Standard Thai in Thailand, using contemporary Thai spelling and everyday conversation;
+      regional languages are outside this profile.
+    review: needs_review
+    sources:
+      - unicode17_southeast_asia
+    overrides: {}
+    guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+        - ขอบคุณ
+        - ขอโทษ
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: เป็น identifies roles; คือ identifies or specifies; descriptive predicates commonly omit
+          a copula.
+        explanation: "Use เป็น for a role such as being a doctor. Many qualities work directly as
+          predicates: ห้องนี้เล็ก. อยู่ expresses location. Do not insert เป็น before every
+          adjective merely because an English translation has be."
+        examples:
+          - text: เขาเป็นหมอ
+            translation: They are a doctor.
+          - text: ห้องนี้เล็ก
+            translation: This room is small.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: มี expresses having or existence; ของ and possessor phrases identify relationships.
+        explanation: มี can describe possession or the existence of something. ของ links a thing to its
+          possessor, as in หนังสือของฉัน. Kinship expressions may omit ของ in ordinary usage. A
+          relationship does not establish legal ownership.
+        examples:
+          - text: มีจักรยานหนึ่งคัน
+            translation: There is one bicycle.
+          - text: นี่คือพี่สาวของฉัน
+            translation: This is my older sister.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Counting commonly uses noun, number and classifier; classifier choice depends on what is
+          counted.
+        explanation: For two books use หนังสือสองเล่ม. Classifiers also appear with demonstratives and
+          questions about number. Nouns do not acquire a plural ending after a number. มาก and น้อย
+          express relative amount without an exact count.
+        examples:
+          - text: มีหนังสือสองเล่ม
+            translation: There are two books.
+          - text: เหลือน้ำอีกนิดหน่อย
+            translation: There is a little water left.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Context and aspect expressions establish present meaning without person or tense
+          inflection.
+        explanation: A bare verb can describe a habit or current situation. กำลัง and อยู่ can highlight
+          activity in progress. ตอนนี้ means now; ทุกวัน means every day. Do not require an aspect
+          marker when the context already supports the intended meaning.
+        examples:
+          - text: ทำงานที่นี่ทุกวัน
+            translation: I work here every day.
+          - text: เขากำลังอ่านหนังสือ
+            translation: They are reading a book.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Past time comes from context or time expressions; แล้ว and เคย contribute aspect or
+          experience.
+        explanation: เมื่อวาน places an event yesterday. แล้ว often signals completion or a changed
+          situation, while เคย describes prior experience. Neither is a universal past-tense ending.
+          A past event can be expressed without either marker.
+        examples:
+          - text: เมื่อวานไปตลาด
+            translation: Yesterday I went to the market.
+          - text: เคยไปเชียงใหม่
+            translation: I have been to Chiang Mai.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: จะ and future time expressions establish prospective events; verbs do not conjugate for
+          future tense.
+        explanation: พรุ่งนี้ means tomorrow. จะ can mark an intention, prediction or prospective action,
+          but a future time expression may be enough in context. Distinguish a wish with อยาก from a
+          commitment to do something.
+        examples:
+          - text: พรุ่งนี้จะไปตลาด
+            translation: Tomorrow I will go to the market.
+          - text: เราจะเจอกันสัปดาห์หน้า
+            translation: We will meet next week.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: อยาก, ต้องการ and ชอบ distinguish desire, need or want, and liking.
+        explanation: อยาก commonly precedes a desired activity. ต้องการ can take a wanted thing, while ชอบ
+          expresses liking. ชอบชามากกว่ากาแฟ compares preferences. Do not treat every statement of
+          liking as a request for that item now.
+        examples:
+          - text: ชอบกาแฟ
+            translation: I like coffee.
+          - text: อยากกลับบ้าน
+            translation: I want to go home.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: ได้, เป็น, ต้อง and permission constructions have distinct ability, possibility and
+          obligation uses.
+        explanation: After an action, ได้ can express ability or permission. เป็น can express a learned
+          skill, as in ว่ายน้ำเป็น. ต้อง marks necessity; ไม่ต้อง removes necessity, whereas ห้าม
+          prohibits. Interpret ได้ in its position and context rather than assigning one fixed
+          meaning.
+        examples:
+          - text: ว่ายน้ำเป็น
+            translation: I can swim.
+          - text: ไม่ต้องมาพรุ่งนี้
+            translation: You do not have to come tomorrow.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: ไม่ negates many predicates; ไม่ใช่ rejects an identification and ยังไม่ means not yet.
+        explanation: Use ไม่ before many verbal or descriptive predicates. Pair an identification with ใช่
+          or ไม่ใช่. ยังไม่ adds an expectation that a situation may change. Answers often repeat
+          the relevant predicate instead of using a universal yes or no.
+        examples:
+          - text: ไม่รู้
+            translation: I do not know.
+          - text: ยังไม่ได้กินข้าว
+            translation: I have not eaten yet.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Question words commonly stay in the position of the requested information; ไหม forms
+          many yes/no questions.
+        explanation: ที่ไหน asks where, เมื่อไร when and ใคร who. ไหม commonly follows the predicate; หรือ
+          offers alternatives or asks for confirmation. Do not require English-style word inversion.
+          Polite question endings depend on the speaker and context.
+        examples:
+          - text: สถานีอยู่ที่ไหน
+            translation: Where is the station?
+          - text: หิวไหม
+            translation: Are you hungry?
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: ช่วย, ขอ and questions ending ได้ไหม form requests; politeness depends on particles and
+          relationship.
+        explanation: ช่วย asks for help with an action. ขอ can request an item or permission, and ได้ไหม
+          asks whether something can be done. ครับ and ค่ะ or คะ depend on the speaker and sentence
+          type; do not assume one form fits every learner. กรุณา is often more formal.
+        examples:
+          - text: ขอน้ำหน่อย
+            translation: Some water, please.
+          - text: ช่วยพูดอีกครั้งได้ไหม
+            translation: Could you say it again?
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: เพราะ introduces reasons and ถ้า introduces conditions; context establishes temporal or
+          hypothetical meaning.
+        explanation: เพราะ gives a reason. ถ้า introduces a condition and ก็ can connect its consequence.
+          Verbs do not change tense to match English conditional patterns. Distinguish an open
+          possibility from an event asserted to have happened.
+        examples:
+          - text: อยู่บ้านเพราะฝนตก
+            translation: I am staying home because it is raining.
+          - text: ถ้ามีเวลาจะไป
+            translation: If I have time, I will go.
+      varieties:
+        thai-thailand:
+          assessment: Use standard Thai with context-appropriate pronouns and particles; accept omitted
+            recoverable subjects and avoid imposing English inflection.
+          explanation: The core examples use ordinary standard Thai. Short phrases omit recoverable subjects;
+            select pronouns and polite endings for the actual speaker and relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+conversation:
+  greeting:
+    text: สวัสดี
+    romanizations:
+      thai:paiboon: sà-wàt-dii
+  default_partner:
+    name: มาลี
+    romanizedName: Maa-lii
+    age: 34
+    location: Bangkok, Thailand
+    occupation: Repairs bicycles
+    background: Learned bicycle repair at a neighborhood workshop.
+    currentSituation: Preparing a repaired bicycle for a customer and planning a weekend ride.
+    interests:
+      - bicycle repair
+      - cooking
+    opinions:
+      - Repairing a useful object is worth taking time over.
+    interestingFacts:
+      - Keeps a notebook of routes with quiet streets.
+    favoriteBooks: []
+    favoriteMovies: []
+    manner: Practical and curious. Uses respectful everyday Thai with new acquaintances.
+    quirks:
+      - Checks the weather before choosing a route.
+    vibe:
+      - 🚲
+      - 🔧
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - สวัสดี
+      - ขอบคุณ
+      - ขอน้ำหน่อย
+      - อยู่ที่นี่
+      - ร้อน
+      - หิว
+      - นี่อะไร
+      - ไม่รู้
+    beginner:
+      - เขาเป็นหมอ
+      - ห้องนี้เล็ก
+      - มีจักรยานหนึ่งคัน
+      - นี่คือพี่สาวของฉัน
+      - ต้องการเก้าอี้สองตัว
+      - มีเวลานิดหน่อย
+      - ทำงานที่นี่
+      - เขากำลังอ่านหนังสือ
+    intermediate:
+      - เมื่อวานไปตลาด
+      - เคยไปเชียงใหม่
+      - พรุ่งนี้จะมา
+      - เราจะเจอกันสัปดาห์หน้า
+      - ชอบกาแฟมากกว่าชา
+      - อยากกลับบ้าน
+      - ช่วยพูดอีกครั้งได้ไหม
+      - ไม่ต้องมาพรุ่งนี้
+    advanced:
+      - ถ้ามีเวลามากกว่านี้ก็อยากเรียนเล่นกีตาร์
+      - ถึงแม้ฝนจะตก เราก็ตัดสินใจเดินต่อ
+      - อยากให้เราคุยกันก่อนที่จะตัดสินใจ
+      - ยิ่งอ่านรายงานนี้ก็ยิ่งมีคำถามมากขึ้น
+      - กว่าจะไปถึงสถานี รถไฟก็ออกไปแล้ว
+      - ไม่ใช่ว่าไม่เห็นด้วย แต่ยังต้องการข้อมูลเพิ่มเติม
+      - สิ่งที่กังวลคือการเปลี่ยนแปลงนี้จะส่งผลต่อคนอื่นอย่างไร
+      - ถ้ารู้ล่วงหน้าว่าการประชุมจะนานขนาดนี้ก็คงเปลี่ยนแผนไปแล้ว
+    social:
+      - สวัสดีค่ะ
+      - สวัสดีครับ
+      - สบายดีไหม
+      - สบายดี ขอบคุณ
+      - คุณชื่ออะไร
+      - ยินดีที่ได้รู้จัก
+      - ขอบคุณมาก
+      - ไม่เป็นไร
+      - ขอโทษค่ะ
+      - ขอโทษครับ
+      - แล้วเจอกัน
+      - เดินทางปลอดภัย
+    # Sources: [@practice-idioms-thai]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - ขี่ช้างจับตั๊กแตน
+      - เข็นครกขึ้นเขา
+      - เข้าหูซ้ายทะลุหูขวา
+      - ขนหัวลุก
+      - ขิงก็รา ข่าก็แรง
+      - ไข่ในหิน
+      - แข่งกับเวลา
+      - ขวานผ่าซาก
+  varieties: {}

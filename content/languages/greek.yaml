@@ -1,0 +1,433 @@
+# yaml-language-server: $schema=../schemas/language.yaml
+schema_version: 1
+identity:
+  id: greek
+  name: Greek
+  native_name: Ελληνικά
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: el
+  transcription: el
+definitions:
+  orthographies:
+    modern-greek:
+      script: greek
+      guidance:
+        - scope: target_writing
+          text: Write contemporary Modern Greek in Greek script with monotonic accents and diaeresis where
+            required. Preserve the distinction between medial σ and final ς. Keep question
+            punctuation and source quotations exactly as written; do not convert quotations, names
+            or learner evidence to monotonic spelling or Latin letters.
+          sources:
+            - unicode17_europe
+        - scope: explanation_writing
+          text: Write contemporary Modern Greek in Greek script with monotonic accents and diaeresis where
+            required. Preserve the distinction between medial σ and final ς. Keep question
+            punctuation and source quotations exactly as written; do not convert quotations, names
+            or learner evidence to monotonic spelling or Latin letters.
+          sources:
+            - unicode17_europe
+  romanization_schemes:
+    ala-lc-greek:
+      label: ALA-LC Greek
+      instructions: "Use the Modern Greek ALA-LC table (2010), not Ancient Greek sound values: β v, η ē, ω
+        ō, θ th, φ ph, χ ch, ψ ps, σ/ς s. Use γγ ng, γξ nx, γχ nch; γκ is gk initially/finally and
+        nk medially. Initial μπ is b and initial ντ is d̲; elsewhere use mp and nt. Render υ as y
+        except u in αυ, ευ, ηυ, ου, υι and ωυ. Apply the table’s historical rough-breathing h rule,
+        including where appropriate in monotonic words; rho takes rh only with an explicit rough
+        breathing. Omit other accents and diaeresis only in the separate romanized aid. This
+        bibliographic transliteration does not encode stress or reliably represent modern
+        pronunciation. Never modify the Greek source."
+      examples:
+        - original: καλημέρα
+          romanized: kalēmera
+        - original: ευχαριστώ
+          romanized: eucharistō
+        - original: θάλασσα
+          romanized: thalassa
+        - original: Ελλάδα
+          romanized: Hellada
+      sources:
+        - ala_lc_greek
+      review: needs_review
+defaults:
+  variety: greek-greece
+  orthography:
+    local: modern-greek
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme:
+      local: ala-lc-greek
+  supported_romanizations:
+    - local: ala-lc-greek
+traits: []
+varieties:
+  - id: greek-greece
+    name: Greece
+    description: Contemporary standard Modern Greek in Greece, using monotonic spelling and everyday
+      conversation; Ancient Greek and regional varieties are outside this profile.
+    review: needs_review
+    sources:
+      - unicode17_europe
+    overrides: {}
+    guidance: []
+guidance: []
+learning:
+  goal_material:
+    courtesy:
+      tokens:
+        - ευχαριστώ
+        - παρακαλώ
+  skill_guides:
+    identify_describe:
+      core:
+        assessment: Use είμαι with identities and qualities; articles and adjectives agree with the noun.
+        explanation: Είμαι connects a person or thing to a description. Nouns have grammatical gender, and
+          articles and adjectives change for gender, number and case. Subject pronouns can be
+          omitted when the verb and context identify the person.
+        examples:
+          - text: Είναι γιατρός.
+            translation: They are a doctor.
+          - text: Το δωμάτιο είναι μικρό.
+            translation: The room is small.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    possession_relationships:
+      core:
+        assessment: Έχω expresses having; possessive clitics and genitive phrases express relationships.
+        explanation: "Έχω means have. Put μου, σου or another possessive after the noun phrase: το βιβλίο
+          μου. A genitive phrase can identify the person more fully. Family relationships and
+          association are not necessarily ownership."
+        examples:
+          - text: Έχω ένα ποδήλατο.
+            translation: I have a bicycle.
+          - text: Αυτή είναι η αδελφή μου.
+            translation: This is my sister.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    quantity:
+      core:
+        assessment: Numbers and quantifiers express quantity; some number forms agree with noun gender and
+          case.
+        explanation: Use a number before the noun. Ένας, μία, ένα distinguish gender, while δύο does not.
+          Πολύς and λίγος have agreeing forms; do not assume a single quantifier form fits every
+          noun.
+        examples:
+          - text: Χρειαζόμαστε δύο καρέκλες.
+            translation: We need two chairs.
+          - text: Έχω λίγο χρόνο.
+            translation: I have a little time.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    present_situations:
+      core:
+        assessment: Present verb forms express states, habits or ongoing activity according to context.
+        explanation: Verb endings identify person and number. A present form can describe both a routine and
+          something happening now; τώρα and κάθε μέρα clarify the time. Greek does not require a
+          separate construction for every English progressive.
+        examples:
+          - text: Δουλεύω εδώ.
+            translation: I work here.
+          - text: Τώρα διαβάζει.
+            translation: They are reading now.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    past_reference:
+      core:
+        assessment: Distinguish imperfective past background or repetition from perfective past events.
+        explanation: Compare διάβαζα, presenting reading in progress or as a habit, with διάβασα, presenting
+          an event as a whole. Χθες locates an event yesterday but does not choose its aspect. Verb
+          stems, endings and stress can change.
+        examples:
+          - text: Χθες διάβασα το γράμμα.
+            translation: Yesterday I read the letter.
+          - text: Όταν ήμουν παιδί, έμενα εδώ.
+            translation: When I was a child, I lived here.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    future_reference:
+      core:
+        assessment: Θα combines with aspectually distinct verb forms for future reference.
+        explanation: Θα διαβάσω presents a reading event as a whole; θα διαβάζω can present an ongoing or
+          repeated activity. Αύριο supplies a future time. Θα also occurs in guesses and
+          hypothetical meanings, so interpret the whole context.
+        examples:
+          - text: Θα έρθω αύριο.
+            translation: I will come tomorrow.
+          - text: Θα δουλεύω όλο το πρωί.
+            translation: I will be working all morning.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    wants_preferences:
+      core:
+        assessment: Θέλω, μου αρέσει and προτιμώ express wants, liking and preference with different
+          constructions.
+        explanation: "Θέλω can take a noun or να with a finite verb. In μου αρέσει, the liked thing controls
+          singular or plural agreement: μου αρέσουν τα βιβλία. Προτιμώ expresses a preference.
+          Wanting something now is distinct from generally liking it."
+        examples:
+          - text: Μου αρέσει ο καφές.
+            translation: I like coffee.
+          - text: Θέλω να πάω σπίτι.
+            translation: I want to go home.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    ability_permission_necessity:
+      core:
+        assessment: Μπορώ να and πρέπει να express ability, possibility or obligation; context distinguishes
+          permission.
+        explanation: Μπορώ να introduces an action someone can perform or may be allowed to perform. Πρέπει
+          να states necessity. Δεν χρειάζεται να removes a requirement; it does not prohibit the
+          action. After να use a verb agreeing with its own subject.
+        examples:
+          - text: Μπορώ να κολυμπήσω.
+            translation: I can swim.
+          - text: Δεν χρειάζεται να έρθεις.
+            translation: You do not need to come.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    affirm_negate:
+      core:
+        assessment: Ναι and όχι answer; δεν negates indicative clauses and μην occurs in prohibitions and
+          many να clauses.
+        explanation: Use δεν before an ordinary finite statement. A negative command uses μην with the
+          appropriate verb form, rather than an affirmative imperative. Negative expressions such as
+          κανείς can co-occur with δεν without cancelling the negation.
+        examples:
+          - text: Δεν ξέρω.
+            translation: I do not know.
+          - text: Μην ανοίξεις την πόρτα.
+            translation: Do not open the door.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    questions_answers:
+      core:
+        assessment: Question words, intonation and context establish questions; Greek uses the
+          semicolon-shaped question mark.
+        explanation: Πού asks where, πότε when and γιατί why. A yes/no question can retain statement word
+          order. Written questions end in ;. Keep πού and πώς distinct from unaccented που and πως
+          in their other uses.
+        examples:
+          - text: Πού είναι ο σταθμός;
+            translation: Where is the station?
+          - text: Θέλεις νερό;
+            translation: Do you want water?
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    requests:
+      core:
+        assessment: Requests can use imperatives, παρακαλώ or a question with μπορείτε να.
+        explanation: Choose singular informal or plural/polite address consistently. Μπορείτε να asks
+          respectfully for an action; παρακαλώ can soften a request but does not make every
+          imperative suitable in every relationship. Negative requests use μην.
+        examples:
+          - text: Έναν καφέ, παρακαλώ.
+            translation: A coffee, please.
+          - text: Μπορείτε να το πείτε ξανά;
+            translation: Could you say it again?
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+    reasons_conditions:
+      core:
+        assessment: Γιατί or επειδή introduce reasons; αν introduces conditions with context-sensitive tense
+          and aspect.
+        explanation: Connect a reason with επειδή or γιατί. Αν can introduce an open condition, while αν
+          είχα χρόνο, θα ερχόμουν expresses a hypothetical situation. Do not assess a condition as a
+          prediction or as an event that actually happened.
+        examples:
+          - text: Μένω σπίτι επειδή βρέχει.
+            translation: I am staying home because it is raining.
+          - text: Αν έχω χρόνο, θα έρθω.
+            translation: If I have time, I will come.
+      varieties:
+        greek-greece:
+          assessment: Use contemporary standard Modern Greek in Greece, with consistent informal or polite
+            address; do not apply Ancient Greek paradigms.
+          explanation: The core examples use contemporary standard forms. Choose singular informal or plural
+            polite address to fit the relationship.
+          examples: []
+      review: needs_review
+      authorship: Authored teaching draft; linguistic review pending.
+      sources: []
+conversation:
+  greeting:
+    text: Γεια σας
+    romanizations:
+      greek:ala-lc-greek: Geia sas
+  default_partner:
+    name: Άννα
+    romanizedName: Anna
+    age: 34
+    location: Thessaloniki, Greece
+    occupation: Repairs bicycles
+    background: Learned bicycle repair at a neighborhood workshop.
+    currentSituation: Preparing a repaired bicycle for a customer and planning a weekend ride.
+    interests:
+      - bicycle repair
+      - cooking
+    opinions:
+      - Repairing a useful object is worth taking time over.
+    interestingFacts:
+      - Keeps a notebook of routes with quiet streets.
+    favoriteBooks: []
+    favoriteMovies: []
+    manner: Practical and curious. Uses respectful everyday Greek with new acquaintances.
+    quirks:
+      - Checks the weather before choosing a route.
+    vibe:
+      - 🚲
+      - 🔧
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Ναι.
+      - Όχι.
+      - Νερό, παρακαλώ.
+      - Είμαι εδώ.
+      - Κάνει ζέστη.
+      - Πεινάω.
+      - Τι είναι αυτό;
+      - Δεν ξέρω.
+    beginner:
+      - Είναι γιατρός.
+      - Αυτό το δωμάτιο είναι μικρό.
+      - Έχω ένα ποδήλατο.
+      - Αυτή είναι η αδελφή μου.
+      - Χρειαζόμαστε δύο καρέκλες.
+      - Έχω λίγο χρόνο.
+      - Δουλεύω εδώ.
+      - Τώρα διαβάζει.
+    intermediate:
+      - Χθες πήγα στην αγορά.
+      - Έχω διαβάσει αυτό το βιβλίο.
+      - Θα έρθω αύριο.
+      - Θα δουλεύω όλο το πρωί.
+      - Μου αρέσει ο καφές.
+      - Θέλω να πάω σπίτι.
+      - Μπορείτε να το πείτε ξανά;
+      - Δεν χρειάζεται να έρθεις.
+    advanced:
+      - Αν είχα περισσότερο χρόνο, θα μάθαινα να παίζω κιθάρα.
+      - Παρόλο που έβρεχε, αποφασίσαμε να συνεχίσουμε τη βόλτα μας.
+      - Θα προτιμούσα να το συζητήσουμε πριν πάρουμε μια απόφαση.
+      - Όσο περισσότερο διαβάζω την έκθεση, τόσο περισσότερες απορίες έχω.
+      - Μέχρι να φτάσουμε στον σταθμό, το τρένο είχε ήδη φύγει.
+      - Δεν είναι ότι διαφωνώ μαζί σου, αλλά χρειάζομαι περισσότερες πληροφορίες.
+      - Αυτό που με ανησυχεί είναι πώς θα επηρεάσει η αλλαγή τους άλλους.
+      - Αν μας είχες ειδοποιήσει νωρίτερα, θα είχαμε αλλάξει τα σχέδιά μας.
+    social:
+      - Γεια σας!
+      - Καλημέρα!
+      - Καλησπέρα!
+      - Τι κάνετε;
+      - Καλά, ευχαριστώ.
+      - Πώς σας λένε;
+      - Χάρηκα πολύ.
+      - Συγγνώμη.
+      - Ευχαριστώ πολύ.
+      - Παρακαλώ.
+      - Τα λέμε!
+      - Καλό βράδυ!
+    # Sources: [@practice-idioms-greek], [@practice-idioms-greek-supplement],
+    # [@practice-proverb-greek-haste]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - Τα έκανα θάλασσα.
+      - Κάνω την πάπια.
+      - Βάζω νερό στο κρασί μου.
+      - Μου βγήκε ξινό.
+      - Τα κάνω άνω κάτω.
+      - Έγινε άλλος άνθρωπος.
+      - Βγήκα από τα ρούχα μου.
+      - Όποιος βιάζεται σκοντάφτει.
+  varieties: {}
