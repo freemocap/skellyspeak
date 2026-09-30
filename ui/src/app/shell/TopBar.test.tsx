@@ -114,7 +114,7 @@ function connect() {
   useConnectionHealth.setState({ routes: { hosted: { revision: 1, status: 'connected', checkedAt: 1, error: null } } })
 }
 
-it('opens and closes the AI View from the connected status, and pulses while AI works', () => {
+it('opens the activity view and clears its busy border state when work stops', () => {
   connect()
   useAiWindowStore.setState({ supported: true, open: false })
   useAiBusyStore.setState({ busy: true })
@@ -126,7 +126,8 @@ it('opens and closes the AI View from the connected status, and pulses while AI 
   expect(button).toHaveAttribute('aria-expanded', 'true')
   fireEvent.click(button)
   expect(useNavigationStore.getState().overlay).toBeNull()
-  useAiBusyStore.setState({ busy: false })
+  act(() => useAiBusyStore.setState({ busy: false }))
+  expect(button).not.toHaveAttribute('data-busy')
 })
 
 it('focuses the popped-out AI window instead of opening a second view', () => {

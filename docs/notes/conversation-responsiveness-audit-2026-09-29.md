@@ -14,9 +14,23 @@ Implemented after approval of this slice:
   arrives, instead of operation names, word counts and completion summaries.
 - Composer admission says “Sending…”. Transcription and audio preparation retain
   their distinct labels.
-- Follow-on work uses a quiet “Background activity” link without a spinner.
-  Successful completion clears immediately, removing the three-second linger.
-  Failed and held work remains visible and inspectable.
+- The initial “Background activity” link was rejected in review and removed.
+  Ordinary follow-on work adds no composer label; failed and held work remains
+  visible and inspectable. There is no three-second completion linger.
+- The connected activity button has a rotating border highlight while the
+  existing conversation activity signal reports running operations. It does not
+  change button geometry. Reduced motion uses a static border; forced colors
+  retain a visible outline. The signal still covers recorded operations in the
+  open conversation, not every possible request elsewhere in the application.
+- The coaching panel puts reply help below the selected partner message and
+  exposes grammar and suggestion actions immediately. Selecting a message does
+  not generate assistance. Older selected messages retain their own help and
+  diagnostic context as newer exchanges arrive. Mobile composer help retains
+  its separate compact disclosure. Message excerpts in the coach use green.
+- After review, the coach's brief hint is hidden behind “Help understanding this
+  message”. Only an explicit click reveals it; arriving data and opening grammar
+  or suggestions do not reveal it. Those two actions stay visible independently.
+  The disclosure can close again without collapsing the other help lanes.
 - The activity view retains operation details and metadata. No scheduling,
   provider, retry, persistence or action-admission behavior changed.
 - Human message text aligns right within its existing right-anchored bubble.
@@ -25,6 +39,12 @@ Verification: 64 focused conversation tests pass across five suites, including
 send/edit transitions, streamed replies, immediate activity clearing and failure
 discovery. These are source and automated checks; no running-app visual review
 or live provider request was performed for this slice.
+
+The review follow-up passed 85 tests across coaching, reply help, conversation
+selection, status and top-bar suites, plus the production build and fast checks.
+The in-app browser had no open preview; the local server was not restarted.
+The hint-disclosure correction passed 61 reply-help and conversation tests, fast
+validation and preview type checks; generated component artifacts were refreshed.
 
 ## Speech-state checkpoint
 

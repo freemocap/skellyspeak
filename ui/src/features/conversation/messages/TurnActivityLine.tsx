@@ -14,9 +14,9 @@ export function LatestTurnActivity({ execution, onActivity, fallback }: { execut
 /// clears immediately; failures remain discoverable through the activity link.
 export function TurnActivityLine({ activity, onActivity, fallback = null }: { activity: TurnActivity; onActivity?: () => void; fallback?: ReactNode }) {
   const tr = useI18n()
-  if (activity.settled && !activity.failed) return <>{fallback}</>
+  if (!activity.failed && !activity.held) return <>{fallback}</>
   const label = activity.failed ? tr('Activity failed', { count: activity.failed })
-    : activity.held ? tr('Held') : tr('Background activity')
+    : tr('Held')
   return <div className="turn-activity" role="status">
     {onActivity ? <button type="button" className="turn-activity-open" onClick={onActivity} title={tr('Open AI activity')}>{label}</button>
       : label}

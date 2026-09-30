@@ -10,11 +10,11 @@ const activity: TurnActivity = {
   lastFinished: 'persona reply', settled: false, elapsedMs: null,
 }
 
-it('keeps background work quiet and inspectable, then clears immediately', () => {
+it('leaves ordinary background work out of the composer before and after completion', () => {
   const inspect = vi.fn()
   const view = render(<TurnActivityLine activity={activity} onActivity={inspect} fallback={<span>Ready</span>} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Background activity' }))
-  expect(inspect).toHaveBeenCalledOnce()
+  expect(screen.queryByRole('button')).toBeNull()
+  expect(screen.getByText('Ready')).toBeVisible()
   expect(view.container.querySelector('.activity-spinner')).toBeNull()
   expect(view.container).not.toHaveTextContent('word gloss')
   expect(view.container).not.toHaveTextContent('1/3')

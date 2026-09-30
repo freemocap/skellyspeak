@@ -57,10 +57,18 @@ const where = (path: string, node: { source?: { start?: { line: number } } }) =>
 const declared = new Set<string>();
 const scoped = new Set<string>();
 const overrides: { prop: string; at: string }[] = [];
+// Registered animation values may vary in keyframes; their defaults still live
+// in tokens.css. Ordinary selectors cannot redefine shared design tokens.
+const registered = new Set<string>();
+for (const { css } of parsed) css.walkAtRules("property", rule => { registered.add(rule.params); });
 for (const { name, path, css } of parsed) {
   css.walkDecls((decl) => {
     if (!decl.prop.startsWith("--")) return;
     const parent = decl.parent;
+    if (parent?.parent?.type === "atrule" && parent.parent.name === "keyframes" && registered.has(decl.prop)) {
+      overrides.push({ prop: decl.prop, at: where(path, decl) });
+      return;
+    }
     const selector = parent?.type === "rule" ? (parent as {selector:string}).selector : "";
     const theme = /^:root(?:\[data-(?:theme|palette|density|spacing|depth)='[a-z_]+'\])+$/.test(selector);
     // Script families follow explicit text-language boundaries; only these

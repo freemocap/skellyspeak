@@ -9,7 +9,7 @@ import { ReadingExample } from '../../../components/reading/ReadingExample'
 import { SavedReadingProvider } from '../../../components/reading/SavedReadingProvider'
 import { useReadingScope } from '../../../components/reading/ReadingContext'
 import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
-import { memo, useMemo, useEffect, useRef } from 'react'
+import { memo, useMemo, useEffect, useRef, type ReactNode } from 'react'
 import { HelpStatus, useHelpRequest } from '../composer/HelpRequest'
 import { requestReplyHelp } from '../composer/TurnReplyHelp'
 import { MessageReadingScope } from './MessageReadingScope'
@@ -21,6 +21,7 @@ import type { StoredTurn } from '../../../types'
 export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation' | 'turnId'>
 
 interface AnalysisContentProps {
+  replyHelp?: ReactNode
   partnerOnly?: boolean
   requestOnOpen?: boolean
   conversationId?: string
@@ -36,6 +37,7 @@ interface AnalysisContentProps {
 export const AnalysisContent = memo(function AnalysisContent({
   turn,
   partnerOnly = false,
+  replyHelp,
   requestOnOpen = true,
   conversationId,
   onAsk,
@@ -79,6 +81,8 @@ export const AnalysisContent = memo(function AnalysisContent({
       {!partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={turn.userTranslation ?? a.user_translation} />}
       <AnalysisSentence label={tr("Partner replied")} side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={a.translation} />
 
+      {replyHelp}
+
       {!a.help && a.explanationsError && <ErrorDetails label={tr("Message analysis")} errorKey={a.explanationsError}>{a.explanationsError}</ErrorDetails>}
       {a.errors.length > 0 && (
         <div className="turn-errors">
@@ -88,14 +92,14 @@ export const AnalysisContent = memo(function AnalysisContent({
         </div>
       )}
 
-      {(a.help || eligible) && <>
+      {!replyHelp && (a.help || eligible) && <>
         <HelpStatus lane={lane} pending={request.pending} failure={request.failure} label={tr('Working out the grammar…')}
           onRetry={eligible ? () => request.submit(() => requestReplyHelp(conversationId!, a.messageId!, 'grammar', true)) : undefined}
           onInspect={conversationId ? () => useNavigationStore.getState().inspectAi({conversationId, turnId:turn.turnId ?? null, operationKind:'reply_explanations'}) : undefined} />
         {a.help?.grammar?.cards.length === 0 && lane.state === 'succeeded' && <p>{tr('Nothing to flag in this reply.')}</p>}
       </>}
       {!partnerOnly && turn.user && <MessageSkillAnalysis messageId={turn.id} source={turn.user} conversationId={conversationId} />}
-      {a.mechanics.length > 0 && (
+      {!replyHelp && a.mechanics.length > 0 && (
         <>
           <p className="sect-k">{tr("What's happening")}</p>
           {a.mechanics.map((mech) => (

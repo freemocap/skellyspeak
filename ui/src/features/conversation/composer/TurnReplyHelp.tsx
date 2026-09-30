@@ -18,15 +18,15 @@ export async function requestReplyHelp(conversationId: string, messageId: string
     : {kind:helpKind === 'grammar' ? 'requestExplanations' : 'requestSuggestions', messageId})
 }
 
-export function TurnReplyHelp({ turn, conversationId, busy, onAsk, onUse }: {
-  turn?: StoredTurn; conversationId?: string; busy: boolean; onAsk?: (question: string) => void
+export function TurnReplyHelp({ turn, conversationId, busy, onAsk, onUse, inline = false }: {
+  inline?: boolean; turn?: StoredTurn; conversationId?: string; busy: boolean; onAsk?: (question: string) => void
   onUse: (text: string, source: 'suggestion' | 'scaffold') => void
 }) {
   const a = turn?.assistant, help = a?.help
   if (!a?.messageId || !help || !conversationId) return null
   const eligible = !turn?.replacedBy && !turn?.execution?.replacedBy && !['cancelled','invalidated'].includes(turn?.execution?.state ?? '')
   const request = (kind: ReplyHelpKind, retry = false) => requestReplyHelp(conversationId, a.messageId!, kind, retry)
-  return <MessageReadingScope scope={help.scope}><ReplyHelp key={a.messageId}
+  return <MessageReadingScope scope={help.scope}><ReplyHelp inline={inline} key={a.messageId}
     brief={help.brief?.explanation} briefPending={['ready','running','waiting_dependencies'].includes(help.lanes.brief.state ?? '')}
     grammar={help.grammar?.cards} replies={help.assistance?.replies}
     starters={help.assistance ? [...help.assistance.frames, ...help.assistance.starters] : undefined}

@@ -274,6 +274,7 @@
   --dur-loop-fast: 1.1s;
   --dur-loop: 1.6s;
   --dur-loop-slow: 2.8s;
+  --activity-border-angle: 0deg;
   --dur-loop-long: 5s;
 
   /* ── Layering ─────────────────────────────────────────────────────────────

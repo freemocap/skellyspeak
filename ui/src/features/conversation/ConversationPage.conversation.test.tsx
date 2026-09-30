@@ -903,6 +903,11 @@ it('routes bubble selection to its message side and keeps it while a newer excha
   expect(learner).not.toHaveAttribute('aria-current')
   expect(document.querySelector('.break')).toHaveTextContent('¿Adónde fuiste?')
   expect(document.querySelector('.break')).not.toHaveTextContent('Yo fue ayer')
+  const panel = document.querySelector('.break') as HTMLElement
+  expect(within(panel).getByRole('button', { name: 'Explain grammar' })).toBeVisible()
+  expect(within(panel).getByRole('button', { name: 'Suggest a reply' })).toBeVisible()
+  expect(within(panel).queryByRole('button', { name: 'Help with this reply' })).toBeNull()
+  expect(panel.querySelector('.analysis-sentence')!.compareDocumentPosition(panel.querySelector('.reply-help')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   await waitFor(() => expect(watches).toHaveLength(2))
   await act(async () => watches[1].resolve({ ...initial, revision: 32, messages: [...initial.messages,
     { ...initial.messages[0], id: 'next-user', turnId: 'next', sequence: 3, text: 'Another message' },
@@ -911,6 +916,7 @@ it('routes bubble selection to its message side and keeps it while a newer excha
   expect(partner).toHaveAttribute('aria-current', 'true')
   expect(document.querySelector('.break')).toHaveTextContent('¿Adónde fuiste?')
   expect(document.querySelector('.break')).not.toHaveTextContent('Another reply')
+  expect(within(panel).getByRole('button', { name: 'Suggest a reply' })).toBeVisible()
 })
 
 it('automatically selects the latest learner message, then its reply, without requesting analysis', async () => {

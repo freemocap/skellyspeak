@@ -173,9 +173,9 @@
 .live-coach-review > h3 { margin: 0; color: var(--interaction-ink); font-size: var(--type-body); }
 .live-coach-review > .detail-action, .live-coach-fix { justify-self: start; }
 .live-coach-fix { display: inline-flex; align-items: center; gap: var(--space-3); }
-.analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--interaction-ink); background: var(--interaction-tint); }
-.analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--interaction-ink); }
-.analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--interaction-ink); }
+.analysis-sentence { padding: var(--space-4) var(--space-6); margin-block: var(--space-4); border-radius: var(--radius-md); border-inline-start: var(--border-width-thick) solid var(--coach-ink); background: var(--coach-tint); }
+.analysis-sentence > h4 { margin: 0 0 var(--space-2); font-size: var(--type-meta); color: var(--coach-ink); }
+.analysis-sentence > .sentence { margin: 0; font-size: var(--type-body); line-height: var(--leading-normal); color: var(--coach-ink); }
 .live-coach-review > .analysis-sentence { margin: 0; }
 .detail-dialog > .analysis-sentence { clear: both; margin-bottom: var(--space-6); }
 

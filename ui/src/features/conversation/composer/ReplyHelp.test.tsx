@@ -19,6 +19,42 @@ const annotatedReplies = replyHelpFixture.saved
 const { replies, grammar } = replyHelpFixture
 const base = { brief: replyHelpFixture.brief, busy: false, errors: [] as string[], onUse: () => {} }
 
+it('exposes both coach actions immediately without generating on mount', () => {
+  const explain = vi.fn().mockResolvedValue(undefined)
+  const suggest = vi.fn().mockResolvedValue(undefined)
+  render(<ReplyHelp {...base} inline onExplainGrammar={explain} onSuggestReply={suggest} />)
+  expect(screen.queryByRole('button', { name: 'Help with this reply' })).toBeNull()
+  expect(screen.getByRole('button', { name: 'Explain grammar' })).toBeVisible()
+  expect(screen.getByRole('button', { name: 'Suggest a reply' })).toBeVisible()
+  expect(explain).not.toHaveBeenCalled()
+  expect(suggest).not.toHaveBeenCalled()
+  expect(screen.queryByText(/She asked how you are/)).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Suggest a reply' }))
+  expect(suggest).toHaveBeenCalledOnce()
+  expect(explain).not.toHaveBeenCalled()
+  expect(screen.queryByText(/She asked how you are/)).toBeNull()
+})
+
+it('reveals the hint only on request, independently of grammar and reply suggestions', () => {
+  const view = render(wrap({ inline: true, brief: undefined, briefPending: true, grammar, replies }))
+  const hint = screen.getByRole('button', { name: 'Help understanding this message' })
+  expect(hint).toHaveAttribute('aria-expanded', 'false')
+  expect(screen.queryByText('Reading the conversation…')).toBeNull()
+  view.rerender(wrap({ inline: true, grammar, replies }))
+  expect(screen.queryByText(/She asked how you are/)).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Explain grammar' }))
+  expect(screen.getByRole('heading', { name: 'Yes-no questions with 吗' })).toBeVisible()
+  expect(screen.queryByText(/She asked how you are/)).toBeNull()
+  fireEvent.click(hint)
+  expect(hint).toHaveAttribute('aria-expanded', 'true')
+  expect(screen.getByText(/She asked how you are/)).toBeVisible()
+  fireEvent.click(hint)
+  expect(screen.queryByText(/She asked how you are/)).toBeNull()
+  expect(screen.getByRole('heading', { name: 'Yes-no questions with 吗' })).toBeVisible()
+  expect(screen.getByRole('button', { name: 'Suggest a reply' })).toBeVisible()
+  expect(backend.invoke).not.toHaveBeenCalled()
+})
+
 function wrap(props: Partial<Parameters<typeof ReplyHelp>[0]>) {
   const scope = {language:'mandarin',variety:null,explanation:'english',explanationVariety:null}
   return <ReadingProvider settings={null}><ReadingScopeContext value={scope}><SavedReadingProvider sources={annotatedReplies.map(reply => ({...reply,scope}))}><ReplyHelp {...base} {...props} /></SavedReadingProvider></ReadingScopeContext></ReadingProvider>

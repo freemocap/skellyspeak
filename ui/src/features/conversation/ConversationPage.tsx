@@ -613,12 +613,10 @@ export default function ConversationPage({
   // Bind the recording to the accepted send receipt, never to matching text.
   const recordingTurnId = sentRecording?.recordingId === mic.lastTranscription?.inspection.recordingId
     ? activeTurns.find(turn => turn.turnId === sentRecording?.turnId)?.id ?? null : null
-  const analysing = (activeTurns.some(turn => turn.analysisState === 'pending') || reviewing.size > 0)
-    ? <button type="button" className="turn-activity-open" onClick={() => inspectLatest()} title={tr('Open AI activity')}>{tr('Background activity')}</button> : null
   const inspectLatest = () => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: latestTurn?.turnId ?? null, operationKind: null })
-  const replyHelp = (
-    <ConversationErrorScope conversationId={snapshot?.conversationId} turn={latestTurn?.execution}>
-      <TurnReplyHelp turn={latestTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} busy={sending}
+  const replyHelp = (turn = latestTurn, inline = false) => (
+    <ConversationErrorScope conversationId={snapshot?.conversationId} turn={turn?.execution}>
+      <TurnReplyHelp inline={inline} turn={turn} conversationId={snapshot?.conversationId} onAsk={askCoach} busy={sending}
         onUse={(text, source) => {
           inputEvidence.current = { ...inputEvidence.current, [source]: true }
           setInput(previous => previous.trim() ? `${previous.trimEnd()} ${text}` : text)
@@ -635,8 +633,8 @@ export default function ConversationPage({
   const composerActivity = (
     <div className="composer-activity" aria-live="polite">
       {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={pendingReply ? tr("Replying…") : tr("Sending…")} />
-        : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={analysing} />
-        : analysing}
+        : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={null} />
+        : null}
     </div>
   )
   const chatComposer = (
@@ -663,7 +661,7 @@ export default function ConversationPage({
           </ErrorNotice>}
           {/* Stacked, one row above the answer holds reply help, the status line and
               the coach, instead of a row each. */}
-          {isMobile && <div className="composer-assist">{replyHelp}{composerActivity}<button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
+          {isMobile && <div className="composer-assist">{replyHelp()}{composerActivity}<button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
             <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button></div>}
           {/* The divider is the recording panel's own top edge; everything above it
               stays with the conversation. */}
@@ -800,7 +798,7 @@ export default function ConversationPage({
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{!isMobile && !explicitlySelectedTurn && replyHelp}{selectedTurn && selectedSide === 'assistant' ? <AnalysisContent partnerOnly requestOnOpen={false} key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
+          coachingContent={<>{selectedTurn && selectedSide === 'assistant' ? <AnalysisContent replyHelp={replyHelp(selectedTurn, true)} partnerOnly requestOnOpen={false} key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
           {selectedTurn?.user && <AnalysisSentence label={tr("Your message")} text={selectedTurn.user} gloss={selectedTurn.userSavedGloss} translation={selectedTurn.userTranslation} />}
           <LiveCoachReview key={coachedTurn?.id} revealOnView={!selectedTurn} turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
             if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')

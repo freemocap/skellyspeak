@@ -345,15 +345,26 @@
 .profile-trigger strong { font-weight: var(--weight-semibold); }
 .profile-star { display: inline-flex; color: var(--warning-line); }
 .profile-star svg { fill: color-mix(in srgb, var(--warning-line) 45%, transparent); }
-.connection-state { display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
+.connection-state { position: relative; display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
 .connection-state::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); box-shadow: 0 0 0 3px var(--line-soft); }
 .connection-state[data-configured=false] { color: var(--danger-ink); border-color: var(--danger-tint); background: var(--danger-tint); }
 .connection-state[data-configured=true] { color: var(--ink-2); }
 .connection-state[data-configured=false]::before { background: var(--danger-ink); box-shadow: 0 0 0 3px var(--danger-tint); }
 .connection-state[data-configured=true]::before { background: var(--success-ink); box-shadow: 0 0 0 3px var(--success-tint); }
-.connection-state[data-busy=true]::before { background: var(--interaction-ink); animation: inside-pulse var(--dur-loop) ease-in-out infinite; }
+.connection-state[data-busy=true]::before { background: var(--interaction-ink); }
+/* A moving border marks live requests without moving the button or its label. */
+@property --activity-border-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.connection-state[data-busy=true]::after {
+  content: ''; position: absolute; inset: calc(-1 * var(--border-width));
+  border-radius: inherit; padding: var(--border-width-strong); pointer-events: none;
+  background: conic-gradient(from var(--activity-border-angle), var(--line-soft) 0deg, var(--interaction-ink) 80deg, var(--interaction-ink) 110deg, var(--line-soft) 170deg);
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  animation: activity-border-orbit var(--dur-loop-slow) linear infinite;
+}
+@keyframes activity-border-orbit { to { --activity-border-angle: 360deg; } }
 .connection-state[aria-expanded=true] { border-color: var(--interaction-ink); }
-@media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::before { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::after { animation: none; background: var(--interaction-ink); } }
+@media (forced-colors: active) { .connection-state[data-busy=true] { outline: var(--border-width-strong) solid Highlight; } }
 .connection-setup { justify-content: center; min-width: var(--control-height); min-height: var(--control-height-lg); padding-inline: var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
 .connection-setup:hover { color: var(--ink); background: var(--line-soft); }
 /* The logo stays at every width; below 600px its name gives up the room. */
