@@ -1,4 +1,5 @@
 import { HistoryGrid } from './HistoryGrid'
+import { PracticeCredit } from '../../components/learning/PracticeCredit'
 import { useIsMobile } from '../../components/layout/useIsMobile'
 import { HistoryWordPreview, type HoveredHistoryWord } from './HistoryWordPreview'
 import { useEffect, useId, useState, type ReactNode } from 'react'
@@ -72,7 +73,7 @@ export function AttemptRows({ attempts, selectedId, onSelect, rtl = false, arriv
               <bdi>{word.target}</bdi>
             </span>)}
           </span>
-          <span className="drill-word-row-score">{scored ? percent(take.comparison.matchRatio) : tr("Not scored")}</span>
+          <span className="drill-word-row-score">{scored ? percent(take.comparison.matchRatio) : tr("Not scored")}{take.countedAsPractice && <PracticeCredit size={12} />}</span>
         </button>
         {expanded && renderDetails && <div className="drill-history-details" id={detailsId}>{take.id === hydratingId ? <div className="drill-inspection" aria-busy="true"><p role="status">{tr("Loading result…")}</p></div> : renderDetails(take)}{mobile && <button type="button" className="btn drill-history-collapse" aria-label={tr("Close")} onClick={() => setOpenId(null)}>{tr("Close")}</button>}</div>}
         </div>

@@ -87,7 +87,7 @@ export const previews: Preview[] = [
 
 export const iconNames: ToolbarIconName[] = ['menu', 'more', 'plus', 'close', 'chevron', 'expand', 'collapse', 'popout', 'popin',
   'reload', 'update', 'settings', 'cog', 'profile', 'key', 'models', 'data', 'globe', 'voice', 'keyboard', 'reading',
-  'appearance', 'sun', 'moon', 'star', 'idea', 'waveform', 'edit', 'thumbs-up']
+  'appearance', 'sun', 'moon', 'star', 'idea', 'waveform', 'edit', 'clean', 'fixes', 'confused', 'alert']
 
 export function render() {
   return {

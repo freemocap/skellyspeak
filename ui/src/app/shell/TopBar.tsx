@@ -1,4 +1,12 @@
-import type { ReactNode } from 'react'
+import { ProgressCounters } from '../../components/learning/ProgressCounters'
+import { ProgressCard } from '../../components/learning/ProgressCard'
+import { useOverlayLayer } from '../../components/dialogs/useOverlayLayer'
+import { useHoverCard } from '../../components/learning/useHoverCard'
+import { LanguageTable, languageCode } from '../../components/learning/LanguageTable'
+import { useLanguageTotals } from '../../state/learning/useLanguageTotals'
+import { useVisibleEffort } from '../../state/learning/EffortProgressContext'
+import { playRewardSound } from '../../platform/audio/reward-sounds'
+import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { LearningPicker } from '../../features/settings/language/LanguagePickers'
 import { useI18n } from '../../components/localization/i18n'
 import { useConnectionHealth } from '../../state/session/connection-health'
@@ -23,10 +31,19 @@ import { ThemeControls } from './ThemeControls'
 export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker?: ReactNode }) {
   const tr = useI18n()
   const evidence = useSkillEvidence()
+  const effort = useVisibleEffort()
+  const counter = useRef<HTMLButtonElement>(null)
+  const progressAnchor = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (counter.current && effort.value?.recent.some(award => effort.arrived.includes(award.id) && award.dimension !== 'partner_understood')) playRewardSound({ kind: 'pop' }, counter.current)
+  }, [effort.arrived, effort.value])
   // A summary of the language profile: which language, and its XP. There is
   // nothing to show until evidence for the active language has landed.
   const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
   const savingLanguage = useSettingsStore((state) => state.savingLanguage)
+  const included = useSettingsStore((state) => state.settings?.my_languages)
+  const totals = useLanguageTotals(evidence.snapshot, effort.value, included)
+  const activeRow = totals.rows?.find(row => row.target === profile?.target)
   const connection = useSessionStore(state => state.connection)
   const health = useConnectionHealth(state => connection ? state.routes[connection.route] : undefined)
   const connected = connection?.configured && health?.revision === connection.revision && health.status === 'connected'
@@ -37,6 +54,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const goHome = useNavigationStore((state) => state.goHome)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
   const toggleOverlay = useNavigationStore((state) => state.toggleOverlay)
+  const progressCard = useHoverCard(() => showOverlay('profile'))
   const aiWindowOpen = useAiWindowStore((state) => state.open)
   const aiBusy = useAiBusyStore((state) => state.busy)
   // Connected: the button shows what the AI is doing (the AI View). Not
@@ -57,7 +75,17 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
       <ThemeControls />
-      <button type="button" className="profile-trigger" aria-label={tr("Open language profile")} onClick={() => showOverlay('profile')}><span className="profile-star"><ToolbarIcon name="star" size={16} /></span>{profile ? <><strong>{profile.xp.toLocaleString(tr.browserLocale)}<span className="profile-unit"> XP</span></strong></> : tr("Progress")}</button>
+      {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the full report. */}
+      <div ref={progressAnchor} className="progress-anchor" {...progressCard.anchor}>
+        <button ref={counter} type="button" className="profile-trigger progress-trigger" aria-label={tr("Language progress")} aria-haspopup="dialog" aria-expanded={progressCard.open} onClick={progressCard.press}>
+          <ProgressCounters xp={profile?.xp ?? null} xpLabel="Language XP" code={activeRow ? languageCode(activeRow) : undefined} global={totals.globalXp} effort={effort.value} effects={effort.effects} error={effort.error ?? totals.error} />
+        </button>
+        {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>
+          <ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={null} units={[]} error={totals.error} expandLabel="Full report" onExpand={() => { progressCard.close(); showOverlay('profile') }}>
+            {totals.rows ? <LanguageTable rows={totals.rows} active={profile?.target} compact /> : <p role="status" className="progress-card-empty">{tr('Loading…')}</p>}
+          </ProgressCard>
+        </CardLayer>}
+      </div>
       <button type="button" className="connection-state connection-setup" data-configured={Boolean(connected)}
         aria-busy={checking} aria-label={connected ? tr('AI Connected') : tr('AI Not Connected')} title={connectionDetail} onClick={openAiView}
         aria-expanded={connected ? overlay === 'activity' || aiWindowOpen : undefined} aria-controls={connected ? 'ai-activity' : undefined} data-busy={connected && aiBusy ? true : undefined}>
@@ -83,4 +111,10 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       </div>
     </div>
   )
+}
+
+/** Closes on Escape or an outside press; the anchor holds the button, so pressing it again reaches its handler. */
+function CardLayer({ anchor, onClose, children }: { anchor: RefObject<HTMLDivElement | null>; onClose: () => void; children: ReactNode }) {
+  useOverlayLayer(anchor, onClose, true)
+  return children
 }

@@ -13,6 +13,8 @@ const demoLanguage = (code: string, direction: 'ltr' | 'rtl', varietyId: string)
 })
 const demoLanguages = [demoLanguage('spanish', 'ltr', 'spanish-spain'), demoLanguage('arabic', 'rtl', 'arabic-levantine'), demoLanguage('english', 'ltr', 'english-united-states')]
 vi.mock('../../platform/ipc/tauri', () => ({
+  // The top bar reads language totals; the tour's assertions do not depend on them.
+  invoke: async (command: string) => { if (command === 'get_language_totals') return []; throw new Error(`Tour test has no IPC fixture for ${command}`) },
   languages: () => demoLanguages,
   languageFor: (code: string, varietyId?: string) => {
     const language = demoLanguages.find(item => item.code === code)

@@ -1,4 +1,5 @@
 import { useI18n } from '../../components/localization/i18n'
+import { PracticeCredit } from '../../components/learning/PracticeCredit'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useSeconds } from '../../components/media/InspectionTracks'
 import { speechTiming, type SpeechTiming } from '../../domain/drill/timing'
@@ -53,6 +54,7 @@ export function AttemptInspection({ attempt, audio, reference, rtl, onDelete, de
         <span className="drill-inspection-words">{recording.value}</span>
         <span className="drill-inspection-spacer" />
         <span className="drill-inspection-score">{match(comparison, tr)}</span>
+        {attempt.countedAsPractice && <PracticeCredit size={16} />}
         <button type="button" className="btn drill-remove" disabled={deleting} onClick={onDelete}
           aria-label={tr("Delete attempt {value0}", { value0: String(attempt.sequence) })} title={tr("Delete attempt {value0}", { value0: String(attempt.sequence) })}>
           <ToolbarIcon name="trash" size={14} />

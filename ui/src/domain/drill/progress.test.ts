@@ -9,7 +9,7 @@ const extra = (heard: string): WordComparison => ({ kind: 'extra', target: null,
 
 const take = (sequence: number, words: WordComparison[], matchRatio: number | null, edits = 1): DrillAttemptView => ({
   id: `attempt-${sequence}`, sequence: BigInt(sequence), visitId: null, transcript: '', audioBytes: null, audioPrunedAt: null,
-  transcriptionAttemptId: null, createdAt: '2026-09-23T10:00:00.000Z',
+  transcriptionAttemptId: null, countedAsPractice: false, createdAt: '2026-09-23T10:00:00.000Z',
   comparison: {
     policy: 'fixture', target: '', transcript: '', normalizations: [], normalizedTarget: '', normalizedTranscript: '',
     edits, referenceGraphemes: 20, characterErrorRate: null, matchRatio, words, scriptNote: 'matches',

@@ -45,11 +45,12 @@ it('retains the card after a failed control and never retries automatically', as
   expect(screen.getByRole('alert')).toHaveTextContent('Review the changed feedback first.')
   expect(control).toHaveBeenCalledOnce()
 })
-it('renders only native Fixed text and keeps continuing optional', async () => {
+it('keeps repair rationale inside the feedback card and continuing optional', async () => {
   const control = vi.fn().mockResolvedValue(undefined)
   render(<MessageFeedback {...frame} {...base} decision={{ ...decision, shown: null, retryInvited: false, fixed: 'Fixed: fui: first-person past', alsoNoticed: [] }} onControl={control} />)
-  expect(screen.getByRole('status')).toHaveTextContent('Fixed: fui: first-person past')
+  expect(screen.queryByText('Fixed: fui: first-person past')).toBeNull()
   await act(async () => fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ })))
+  expect(within(screen.getByRole('dialog')).getByRole('status')).toHaveTextContent('Fixed: fui: first-person past')
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Keep going' })))
   expect(screen.queryByRole('dialog')).toBeNull()
   expect(control).toHaveBeenCalledWith('keep_going')
@@ -132,7 +133,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   const edit = vi.fn()
   render(<MessageFeedback {...frame} {...base} decision={currentDecision} onEdit={edit} />)
   const chip = screen.getByRole('button', { name: 'Coach feedback for message 3' })
-  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 error' : currentDecision?.repairStatus === 'uncertain' ? 'Feedback' : 'Good job')
+  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 error' : currentDecision?.repairStatus === 'uncertain' ? 'Feedback' : 'Clean')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Edit and resend message' }))
@@ -209,9 +210,16 @@ it('leads the scored line with a verdict and rings, and Fix it opens the message
   fireEvent.click(screen.getByRole('button', { name: 'Fix it' }))
   expect(onEdit).toHaveBeenCalledOnce()
   view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }} />)
-  expect(badge).toHaveTextContent('Good job')
+  expect(badge).toHaveTextContent('Clean')
   expect(screen.queryByRole('button', { name: 'Fix it' })).toBeNull()
   view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }}
     feedback={{ ...feedback, items: [{ construct: 'a', quote: 'Yo', outcome: 'partial', rationale: '' }, { construct: 'b', quote: 'ayer', outcome: 'not_demonstrated', rationale: '' }] }} />)
   expect(badge).toHaveTextContent('2 errors')
+})
+
+it('does not infer a clean verdict from ratings or omitted assessment items', () => {
+  const view = render(<MessageFeedback {...frame} {...base} feedback={undefined} decision={undefined} conversationFeedback={{ grammar: 5, conversation: 5, answers: {} }} />)
+  expect(screen.queryByText('Clean')).toBeNull()
+  view.rerender(<MessageFeedback {...frame} {...base} feedback={{ ...feedback, notes: ['One unusable item omitted.'] }} decision={{ ...decision, shown: null }} />)
+  expect(screen.queryByText('Clean')).toBeNull()
 })

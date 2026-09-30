@@ -88,6 +88,7 @@ pub(crate) fn accept(
     }
     input.revision = true;
     db.execute("UPDATE turns SET replaces_turn_id=?2,context=json_set(context,'$.input',json(?3)) WHERE id=?1", params![replacement,turn,serde_json::to_string(&input)?])?;
+    crate::learning::effort::revision(db, &replacement, turn)?;
     Ok(replacement)
 }
 

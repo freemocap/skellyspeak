@@ -63,3 +63,7 @@ CREATE TABLE saved_topics (id TEXT PRIMARY KEY, text TEXT NOT NULL UNIQUE);
 
 -- Reading source and audio remain volatile; receipts contain redacted metadata only.
 CREATE TABLE reading_attempts (id TEXT PRIMARY KEY, receipt TEXT NOT NULL CHECK(json_valid(receipt)));
+
+-- Lifetime effort uses detached source IDs deliberately: source cleanup retains credit.
+CREATE TABLE effort_awards(id TEXT PRIMARY KEY, dimension TEXT NOT NULL CHECK(dimension IN ('partner_understood','revisions_sent','practice_attempts','no_issues_flagged')), source_id TEXT NOT NULL, language_id TEXT NOT NULL, variety_id TEXT NOT NULL, conversation_id TEXT, policy TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), claimed INTEGER NOT NULL DEFAULT 0 CHECK(claimed IN (0,1)), UNIQUE(dimension,source_id));
+CREATE INDEX effort_awards_language ON effort_awards(language_id);

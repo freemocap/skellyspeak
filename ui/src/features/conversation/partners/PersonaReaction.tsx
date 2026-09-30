@@ -7,10 +7,11 @@ import { playRewardSound } from '../../../platform/audio/reward-sounds'
 import type { PersonaReaction as Reaction } from '../../../types'
 import { AskCoachButton } from '../../../components/learning/AskCoachButton'
 import { DetailDialog } from '../../../components/dialogs/DetailDialog'
+import { ToolbarIcon, type ToolbarIconName } from '../../../components/controls/ToolbarIcon'
 
-const reactions: Record<Reaction['kind'], { icon: string; label: string }> = {
-  understood: { icon: '🙂', label: 'Partner understood' },
-  confused: { icon: '😕', label: 'Partner misunderstood' },
+const reactions: Record<Reaction['kind'], { icon: ToolbarIconName; label: string }> = {
+  understood: { icon: 'smile', label: 'Partner understood' },
+  confused: { icon: 'confused', label: 'Partner misunderstood' },
 }
 
 export function PersonaReaction({ reaction, error, message, reply, onEdit, userGloss, replyGloss }: {
@@ -34,15 +35,15 @@ export function PersonaReaction({ reaction, error, message, reply, onEdit, userG
     }
   }, [reaction, error])
   if (!reaction && !error) return null
-  const display = error ? { icon: '⚠', label: 'Partner reaction unavailable' } : reactions[reaction!.kind]
+  const display: { icon: ToolbarIconName; label: string } = error ? { icon: 'alert', label: 'Partner reaction unavailable' } : reactions[reaction!.kind]
   return <>
-    <button ref={button} type="button" className="persona-reaction" aria-label={tr(display.label)} title={tr(display.label)} aria-haspopup="dialog" aria-expanded={open}
+    <button ref={button} type="button" className="persona-reaction" data-reaction={error ? 'unavailable' : reaction!.kind} aria-label={tr(display.label)} title={tr(display.label)} aria-haspopup="dialog" aria-expanded={open}
       onDoubleClick={event => event.stopPropagation()} onClick={event => { event.stopPropagation(); setOpen(true) }}>
-      <span aria-hidden="true">{display.icon}</span>
+      <ToolbarIcon name={display.icon} size={18} />
     </button>
     {open && <DetailDialog title={tr("Partner reaction")} onClose={() => setOpen(false)}>
       <div className="reaction-details">
-        <h2><span aria-hidden="true">{display.icon} </span>{tr(display.label)}</h2>
+        <h2 className="reaction-heading"><ToolbarIcon name={display.icon} size={20} />{tr(display.label)}</h2>
         <section className="reaction-exchange" aria-label={tr("Conversation exchange")}>
           <div className="reaction-excerpt learner"><span>{tr("Your message")}</span><TargetPassage text={message} side="me" segments={userGloss?.segments} /></div>
           <div className="reaction-excerpt persona"><span>{tr("Partner reply")}</span><TargetPassage text={reply} segments={replyGloss?.segments} /></div>

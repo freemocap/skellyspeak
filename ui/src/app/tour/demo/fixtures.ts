@@ -91,7 +91,7 @@ const DRILL_OUTCOMES: WordOutcome[][] = [
 const DRILL_RATIOS = [0.48, 0.93, 0.45, 0.88]
 export const DRILL_ATTEMPTS: DrillAttemptView[] = DRILL_OUTCOMES.map((kinds, index) => ({
   id: `demo-attempt-${index + 1}`, sequence: BigInt(index + 1), visitId: null, audioBytes: 400000n, audioPrunedAt: null,
-  transcriptionAttemptId: null, createdAt: new Date(Date.UTC(2026, 8, 23, 14, 27, index * 9)).toISOString(),
+  transcriptionAttemptId: null, countedAsPractice: false, createdAt: new Date(Date.UTC(2026, 8, 23, 14, 27, index * 9)).toISOString(),
   transcript: kinds.map((kind, n) => kind === 'missing' ? '' : drillWord(DRILL_TARGET_WORDS[n], kind).transcript).join(' '),
   comparison: {
     policy: 'drill-comparison-v1', target: DRILL_TARGET_WORDS.join(' '), transcript: '', normalizations: ['strip_punctuation'],

@@ -226,7 +226,7 @@
 .drill-history-details .drill-inspection { background: transparent; border: 0; }
 .drill-word-row:is(:hover, :focus-visible) { background: var(--interaction-tint); box-shadow: inset var(--border-width-thick) 0 var(--interaction-ink); }
 .drill-word-row-number, .drill-word-row-score { font-family: var(--font-mono); font-size: var(--type-meta); white-space: nowrap; }
-.drill-word-row-score { text-align: end; }
+.drill-word-row-score { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--space-2); text-align: end; }
 /* One cell per target word, and they divide the width they are given with no
    minimum: N of them always tile the strip exactly, so the row cannot overflow
    and there is nothing to scroll in either direction. Each cell is its own

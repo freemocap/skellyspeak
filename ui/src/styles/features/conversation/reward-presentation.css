@@ -49,7 +49,6 @@
 .reward-provenance div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-4); }
 .reward-provenance dd { margin: 0; overflow-wrap: anywhere; }
 
-.xp-chip-anchor { position: relative; flex: none; }
 
 .xp-chip {
   display: inline-flex;
@@ -78,8 +77,10 @@
   z-index: var(--z-reward);
   box-sizing: border-box;
   width: min(320px, calc(100vw - var(--space-12)));
-  max-height: min(420px, 60vh);
-  overflow: auto;
+  max-height: min(640px, 75vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--sheet);
@@ -92,6 +93,16 @@
   animation: xp-ledger-open var(--dur-base) var(--ease-out);
 }
 [dir="rtl"] .xp-ledger { transform-origin: top left; }
+/* The full ledger opened from the conversation card: the dialog is the frame. */
+.xp-ledger-skills { width: 100%; margin-top: var(--space-5); border-collapse: collapse; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
+.xp-ledger-skills caption { text-align: start; font-weight: var(--weight-semibold); padding-bottom: var(--space-3); }
+.xp-ledger-skills :is(th, td) { padding: var(--space-2); border-top: var(--border-width) solid var(--line-soft); text-align: end; }
+.xp-ledger-skills thead th { color: var(--ink-2); border-top: 0; }
+.xp-ledger-skills :is(thead th:first-child, tbody th) { text-align: start; }
+.xp-ledger-skills tbody th { display: flex; align-items: center; gap: var(--space-3); font-weight: var(--weight-semibold); }
+.xp-ledger-skills td { font-family: var(--font-mono); }
+.xp-ledger-stats [data-unit] dt { display: flex; align-items: center; gap: var(--space-2); }
+.xp-ledger-dialog .xp-ledger { position: static; width: auto; max-height: min(640px, 75vh); border: 0; box-shadow: none; animation: none; }
 
 .xp-domain-dot { flex: none; width: 9px; height: 9px; border-radius: var(--radius-circle); }
 
@@ -146,3 +157,19 @@
 @media (prefers-reduced-motion: reduce) {
   .message-xp-coin { animation: none; }
 }
+
+/* Expanded XP badge face, shared with the language badge in the shell. */
+/* Quieter than the top bar's filled language XP, so the two never read as duplicates. */
+.xp-chip.progress-trigger { height: auto; min-height: var(--control-height); padding: var(--space-2) var(--space-4); border-color: transparent; background: transparent; }
+/* The conversation's XP is coach green; gold belongs to the learner's overall XP in the top bar. */
+.xp-chip.progress-trigger :is(.progress-counters, .progress-counter-xp) { color: var(--coach-ink); }
+.xp-chip.progress-trigger .progress-counter-mark { color: var(--coach-mark); }
+.xp-chip.progress-trigger .progress-counter-gain { background: var(--coach-ink); }
+.xp-chip.progress-trigger:hover, .xp-chip.progress-trigger[aria-expanded="true"] { border-color: var(--coach-line); background: var(--coach-tint); }
+@media (max-width: 400px) { .xp-chip.progress-trigger { padding-inline: var(--space-2); } }
+
+.xp-ledger-heading, .xp-ledger-stats { flex: none; }
+.xp-ledger-stats { padding: 0 var(--space-4) var(--space-4); border-bottom: var(--border-width) solid var(--line); }
+.xp-ledger-stats dl { display: flex; justify-content: space-between; gap: var(--space-3); margin: 0 0 var(--space-4); font-size: var(--type-meta); }
+.xp-ledger-stats dd { margin: 0; font-weight: var(--weight-semibold); }
+.xp-ledger-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }

@@ -403,6 +403,7 @@ impl Store {
                         &dispatch.attempt,
                     )?;
                 }
+                crate::learning::effort::message(&tx, &turn, &kind)?;
             } else if let Some(gloss) = gloss {
                 let repair = if gloss.coverage == GlossCoverage::Partial {
                     reading::queue_gloss_repair(&tx, &turn, dispatch)?

@@ -78,9 +78,14 @@ pub(crate) fn view(captured: &Value) -> Result<Option<CoachObservationView>> {
         .iter()
         .filter(|item| unchanged_correction(item))
         .count();
+    let validation_omissions = captured["coachValidationOmissions"].as_u64().unwrap_or(0);
     Ok(Some(CoachObservationView {
         corrections,
-        notes: if omitted == 0 {
+        notes: if validation_omissions > 0 {
+            vec![format!(
+                "{validation_omissions} unusable assessment item(s) omitted during validation; a clean verdict is unavailable."
+            )]
+        } else if omitted == 0 {
             vec![]
         } else {
             vec![format!(

@@ -1,0 +1,101 @@
+/* Shared progress face: one XP number in the progress gold. Effort units live in
+   the progress card and surface on the face only as a brief "+N icon" when they
+   rise. Gains and the card position against the owner's .progress-anchor. */
+.progress-anchor { position: relative; flex: none; }
+.progress-counters { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--progress-ink); font-family: var(--font-mono); font-size: var(--type-meta); line-height: var(--leading-none); font-variant-numeric: tabular-nums; }
+.progress-counter { display: inline-flex; position: relative; align-items: center; gap: var(--space-2); white-space: nowrap; min-width: 0; }
+.progress-counter-mark { display: inline-flex; color: var(--progress-mark); }
+.progress-counter-mark[data-icon="star"] svg { fill: currentColor; }
+/* All languages first, behind a globe; then the language's code and its own XP. */
+.progress-counter-global { padding-inline-end: var(--space-3); border-inline-end: var(--border-width) solid var(--progress-line); }
+.progress-counter-global .progress-counter-mark { color: var(--progress-ink); }
+.language-code { display: inline-flex; align-items: center; padding: var(--space-hairline) var(--space-2); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-sm); background: var(--sheet); color: var(--progress-ink); font: var(--weight-bold) var(--type-meta)/var(--leading-none) var(--font-mono); letter-spacing: var(--tracking-tag); }
+.progress-counter-number { font-size: var(--type-ui); font-weight: var(--weight-bold); min-width: 1ch; }
+.progress-counter-icon { display: inline-flex; align-items: center; font-size: var(--type-meta); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tag); flex: none; }
+.progress-counter-gain { position: absolute; inset-inline-end: 0; bottom: 100%; pointer-events: none; color: var(--ink-on-fill); background: var(--progress-mark); border-radius: var(--radius-pill); padding: var(--space-1) var(--space-3); box-shadow: var(--shadow-surface); font-weight: var(--weight-bold); animation: progress-gain var(--dur-loop-fast) var(--ease-out) both; }
+.progress-counter[data-gaining] .progress-counter-mark { animation: progress-spin var(--dur-deliberate) var(--ease-out); }
+.progress-counter[data-gaining] .progress-counter-number { animation: progress-tick var(--dur-deliberate) var(--ease-out); }
+.progress-counter-error { color: var(--danger-ink); }
+
+/* Each effort unit keeps the colour of the place it comes from: the partner, the
+   coach's clean badge, the coach's edit, the Practice tab. Gains add its tint. */
+[data-unit="partnerUnderstood"] { color: var(--partner-ink); }
+[data-unit="noIssuesFlagged"] { color: var(--success-ink); }
+[data-unit="revisionsSent"] { color: var(--coach-ink); }
+[data-unit="practiceAttempts"] { color: var(--practice-ink); }
+.progress-gain[data-unit="partnerUnderstood"] { border-color: var(--partner-line); background: var(--partner-tint); }
+.progress-gain[data-unit="noIssuesFlagged"] { border-color: var(--success-line); background: var(--success-tint); }
+.progress-gain[data-unit="revisionsSent"] { border-color: var(--coach-line); background: var(--coach-tint); }
+.progress-gain[data-unit="practiceAttempts"] { border-color: var(--practice-line); background: var(--practice-tint); }
+
+.progress-gains { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-reward); display: flex; gap: var(--space-2); pointer-events: none; }
+.progress-gain { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border: var(--border-width) solid; border-radius: var(--radius-pill); box-shadow: var(--shadow-floating); font: var(--weight-bold) var(--type-ui)/var(--leading-none) var(--font-mono); white-space: nowrap; animation: progress-pop var(--dur-loop) var(--ease-out) both; }
+@keyframes progress-gain { 0% { opacity: 0; transform: translateY(var(--space-2)); } 20%, 65% { opacity: 1; } 100% { opacity: 0; transform: translateY(calc(-1 * var(--space-3))); } }
+@keyframes progress-pop { 0% { opacity: 0; transform: translateY(calc(-1 * var(--space-4))) scale(0.6); } 12% { opacity: 1; transform: translateY(0) scale(1.15); } 22% { transform: scale(1); } 78% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(var(--space-2)); } }
+@keyframes progress-tick { 0%, 35% { text-shadow: 0 0 var(--space-3) var(--progress-mark); } 100% { text-shadow: none; } }
+@keyframes progress-spin { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.35) rotate(72deg); } 100% { transform: scale(1) rotate(144deg); } }
+@media (prefers-reduced-motion: reduce) { .progress-counter-gain, .progress-gain, .progress-counter[data-gaining] .progress-counter-number, .progress-counter[data-gaining] .progress-counter-mark { animation: none; } }
+
+/* The card a progress button shows first: compact, in the progress gold. */
+.progress-card { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-reward); box-sizing: border-box; width: max-content; min-width: 240px; max-width: min(380px, calc(100vw - var(--space-8))); display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-lg); background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-floating); font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-transform: none; letter-spacing: normal; animation: progress-card-open var(--dur-base) var(--ease-out); }
+.progress-card-heading { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); background: var(--progress-tint); }
+.progress-card-xp { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--progress-ink); font: var(--weight-bold) var(--type-title)/var(--leading-none) var(--font-mono); font-variant-numeric: tabular-nums; }
+.progress-card-xp svg { color: var(--progress-mark); }
+.progress-card-xp[data-icon="star"] svg { fill: currentColor; }
+.progress-card-xp span { font-size: var(--type-meta); }
+.progress-card-title { margin-inline-start: auto; color: var(--progress-ink); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.progress-card-units { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-6); margin: 0; padding: 0 var(--space-2); list-style: none; }
+.progress-card-units li { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+.progress-card-units strong { font: var(--weight-bold) var(--type-body)/var(--leading-none) var(--font-mono); font-variant-numeric: tabular-nums; }
+.progress-card-units span { font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.progress-card-skills { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-2) var(--space-3); margin: 0; padding: var(--space-3) var(--space-2) 0; border-top: var(--border-width) solid var(--line-soft); list-style: none; font-size: var(--type-meta); }
+.progress-card-skills li { display: contents; }
+.progress-card-skill { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-semibold); }
+.progress-card-skill-uses { color: var(--ink-3); font-family: var(--font-mono); }
+.progress-card-skills strong { color: var(--progress-ink); font-family: var(--font-mono); }
+.progress-card-empty { margin: 0; padding: 0 var(--space-2); color: var(--ink-3); font-size: var(--type-meta); }
+.progress-card-expand { align-self: flex-end; display: inline-flex; align-items: center; gap: var(--space-1); min-height: 0; padding: var(--space-1) var(--space-2); border: 0; background: transparent; color: var(--interaction-ink); font: var(--weight-semibold) var(--type-meta) var(--font-sans); cursor: pointer; }
+.progress-card-expand svg { transform: rotate(-90deg); }
+[dir="rtl"] .progress-card-expand svg { transform: rotate(90deg); }
+.progress-card-expand:hover { text-decoration: underline; }
+@keyframes progress-card-open { from { opacity: 0; transform: translateY(calc(-1 * var(--space-2))); } }
+@media (prefers-reduced-motion: reduce) { .progress-card { animation: none; } }
+@media (pointer: coarse) { .progress-card-expand { min-height: var(--touch-target); } }
+
+/* A take that earned a practice unit, in the Practice tab's colour. */
+.take-credit { display: inline-flex; align-items: center; gap: var(--space-hairline); padding: var(--space-hairline) var(--space-2); border-radius: var(--radius-pill); background: var(--practice-tint); color: var(--practice-ink); font: var(--weight-bold) var(--type-meta)/var(--leading-none) var(--font-mono); white-space: nowrap; }
+
+/* A conversation's card is coach green, so it never reads as the learner's overall gold. */
+.progress-card[data-tone="coach"] { border-color: var(--coach-line); }
+.progress-card[data-tone="coach"] .progress-card-heading { background: var(--coach-tint); }
+.progress-card[data-tone="coach"] :is(.progress-card-xp, .progress-card-title) { color: var(--coach-ink); }
+.progress-card[data-tone="coach"] .progress-card-xp svg { color: var(--coach-mark); }
+
+/* Languages side by side: sortable columns, the active language highlighted. */
+.language-table { width: 100%; border-collapse: collapse; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
+.language-table :is(th, td) { padding: var(--space-2) var(--space-3); text-align: end; white-space: nowrap; }
+.language-table tbody :is(th, td) { border-top: var(--border-width) solid var(--line-soft); }
+.language-table :is(thead th:first-child, tbody th) { text-align: start; }
+.language-table thead button { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 0; padding: 0; border: 0; background: transparent; color: inherit; font: var(--weight-semibold) var(--type-meta) var(--font-sans); cursor: pointer; }
+.language-table thead th:not([data-unit]) button { color: var(--ink-2); }
+.language-table thead th[data-column="xp"] button { color: var(--progress-ink); }
+.language-table thead button:hover { text-decoration: underline; }
+.language-table-sort { display: inline-block; width: 1ch; font-size: var(--type-meta); text-align: center; visibility: hidden; }
+.language-table-sort[data-shown] { visibility: visible; }
+.language-table td { font-family: var(--font-mono); font-weight: var(--weight-semibold); }
+.language-table td[data-column="xp"] { color: var(--progress-ink); font-weight: var(--weight-bold); }
+.language-table-name { display: inline-flex; align-items: center; gap: var(--space-3); min-height: 0; padding: 0; border: 0; background: transparent; color: var(--ink); font: var(--weight-semibold) var(--type-meta) var(--font-sans); text-align: start; }
+button.language-table-name { cursor: pointer; }
+button.language-table-name:hover { color: var(--interaction-ink); }
+.language-table tr[data-active] :is(th, td) { background: var(--progress-tint); }
+.language-table:not([data-compact]) { font-size: var(--type-ui); }
+.language-table:not([data-compact]) :is(.language-table-name, thead button) { font-size: var(--type-ui); }
+@media (pointer: coarse) { .language-table thead button, button.language-table-name { min-height: var(--touch-target); } }
+
+.effort-mini-stats { width: 100%; border-collapse: collapse; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
+.effort-mini-stats caption { text-align: start; font-weight: var(--weight-semibold); padding-bottom: var(--space-3); }
+.effort-mini-stats th, .effort-mini-stats td { padding: var(--space-2); text-align: end; }
+.effort-mini-stats th:first-child { text-align: start; }
+.effort-mini-stats th span { display: flex; align-items: center; gap: var(--space-2); }
+.effort-mini-stats svg { flex: none; }
+.effort-mini-stats thead { color: var(--ink-2); }

@@ -153,11 +153,14 @@
   border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-lg);
   background: var(--sheet);
-  color: var(--ink);
-  font-size: var(--type-title);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--partner-ink);
   line-height: var(--leading-none);
   cursor: pointer;
 }
+.persona-reaction[data-reaction="unavailable"] { color: var(--warning-ink); }
 
 
 
@@ -193,6 +196,7 @@
 
 
 .reaction-details h2 { margin: var(--space-4) 0; font-size: var(--type-reading); color: var(--interaction-ink); }
+.reaction-heading { display: flex; align-items: center; gap: var(--space-3); }
 
 .personality-chips { display: flex; gap: var(--space-4); flex-wrap: wrap; border: 0; padding: var(--space-4) 0; }
 .personality-chips button { min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; color: var(--ink); padding-inline: var(--space-6); }

@@ -5,3 +5,5 @@ pub mod practice_assessment;
 pub mod rewards;
 
 pub mod recommendations;
+
+pub mod effort;

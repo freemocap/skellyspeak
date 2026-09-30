@@ -69,6 +69,8 @@ pub struct DrillAttemptView {
     pub audio_pruned_at: Option<String>,
     // The provider receipt this attempt came from, for its route and usage.
     pub transcription_attempt_id: Option<String>,
+    // Whether this take earned a practice effort unit; the award outlives the attempt.
+    pub counted_as_practice: bool,
     pub created_at: String,
 }
 
@@ -476,6 +478,7 @@ pub(crate) fn stage_attempt_with_reliability(
     if let Some(reliability) = reliability {
         self::reliability::qualify(&mut comparison, reliability);
     }
+    crate::learning::effort::practice(db, item_id, receipt, &comparison)?;
     let comparison = comparison::record(&comparison)?;
     db.execute("INSERT INTO drill_attempts(id,drill_item_id,transcription_attempt_id,visit_id,sequence,transcript,comparison,pending_audio) VALUES(?1,?2,?3,(SELECT drill_visit_id FROM transcription_attempts WHERE id=?3),(SELECT COALESCE(MAX(sequence),0)+1 FROM drill_attempts WHERE drill_item_id=?2),?4,?5,?6)", params![id,item_id,receipt,transcript,comparison,wav])?;
     if let Some(wav) = wav {
@@ -559,6 +562,7 @@ fn attempt(db: &Connection, id: &str) -> Result<DrillAttemptView> {
         comparison: serde_json::from_str(&comparison)?,
         audio_bytes,
         audio_pruned_at,
+        counted_as_practice: crate::learning::effort::practice_counted(db, receipt.as_deref())?,
         transcription_attempt_id: receipt,
         created_at,
     })

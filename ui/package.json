@@ -15,6 +15,7 @@
     "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-updater": "^2.11.0",
     "@xyflow/react": "^12.11.6",
+    "lucide-react": "^1.48.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zustand": "^5.0.15"
