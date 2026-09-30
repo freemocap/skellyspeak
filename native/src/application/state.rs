@@ -12,6 +12,8 @@ pub(crate) struct Application {
     pub(super) generations: generation::Registry,
     pub(crate) listening: Mutex<Option<Arc<crate::speech::recording::continuous::Session>>>,
     pub(crate) capture: Mutex<Option<voice::Recording>>,
+    /// The latest manual take whose transcription failed, held for Retry.
+    pub(crate) failed_take: Mutex<Option<voice::FailedTake>>,
     pub(crate) store: Mutex<Option<Store>>,
     /// Why the workspace could not be opened at startup. Commands report it
     /// rather than a generic failure, and the window stays open so the reason
@@ -67,6 +69,7 @@ impl Application {
             reading: Default::default(),
             generations: generation::Registry::default(),
             capture: Mutex::new(None),
+            failed_take: Mutex::new(None),
             listening: Mutex::new(None),
             store: Mutex::new(store),
             refusal: Mutex::new(refusal),

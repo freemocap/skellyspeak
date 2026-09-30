@@ -345,7 +345,8 @@ export default function ConversationPage({
     const submittedChatId = currentChatId
     const submittedRecording = recording
     const edited = editing !== null ? turns.find(item => item.id === editing) : undefined
-    const key = submittedRecording ?? crypto.randomUUID()
+    // A recording's text fills the bubble that has held its place since it stopped.
+    const key = submittedRecording && pendingMessage?.phase === 'transcribing' ? pendingMessage.key : submittedRecording ?? crypto.randomUUID()
     pending.hold({ key, editing: edited?.turnId ? { id: edited.id, turnId: edited.turnId } : null, text, phase: 'sending' })
     if (editing === null) {
       setInput('')
@@ -539,6 +540,23 @@ export default function ConversationPage({
       } else logWarn('[mic] transcription was empty (silence?)')
     },
   })
+  // With Auto-send a recording is sent the moment it stops, so its message holds
+  // its place while it is transcribed. A failed take keeps it, with Retry sending
+  // the same audio again; a take whose text went to the draft, or that held no
+  // speech, lets it go.
+  const take = mic.pendingRecordings.at(-1) ?? null
+  const takeKey = take ? `${take.recordingId}:${take.state}` : null
+  const autoSends = Boolean(settings?.auto_send) && (!sending || editingTurnId !== null)
+  const followedTake = useRef<string | null>(null)
+  useEffect(() => {
+    if (!take || followedTake.current === takeKey) return
+    followedTake.current = takeKey
+    if (take.state === 'processing') {
+      if (autoSends) pending.hold({ key: take.recordingId, editing: editingTurn?.turnId ? { id: editingTurn.id, turnId: editingTurn.turnId } : null, text: null, phase: 'transcribing' })
+    } else if (take.state === 'failed') pending.fail(take.recordingId, nativeError(take.failure), () => mic.retry(take.recordingId))
+    else pending.release(take.recordingId, 'transcribing')
+  }, [takeKey])
+  const takeFailed = take?.state === 'failed' ? take : null
   const speech = useMessageSpeech(snapshot, currentChatId, Boolean(settings?.auto_speak) && !mic.recording && !mic.transcribing, active, settings?.tts_rate ?? 1, (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000)
   stopSpeechRef.current = () => { speech.stop(); interruptSpeech() }
   const toggleMic = () => { stopSpeechRef.current(); void mic.toggleMic() }
@@ -633,9 +651,12 @@ export default function ConversationPage({
           )}
           {editingTurn && !acceptedEditSource && <EditFeedback onControl={editingTurn.turnId ? control => coachControl(editingTurn.turnId!, control) : undefined} key={editingTurn.id} decision={editingTurn.coachDecision} feedback={editingTurn.coach} error={editingTurn.coachError} reviewing={reviewing.has(editingTurn.id)} />}
           {!isMobile && composerActivity}
-          {mic.failure != null && <ErrorNotice error={mic.failure}>
+          {/* A failed take offers Retry, which sends its audio again; its message's
+              bubble shows it when Auto-send had sent it. */}
+          {mic.failure != null && !(takeFailed && pendingMessage?.key === takeFailed.recordingId) && <ErrorNotice error={mic.failure}
+            onRetry={takeFailed ? () => mic.retry(takeFailed.recordingId) : undefined}>
             <p>{nativeError(mic.failure)}</p>
-            <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
+            {!takeFailed && <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>}
           </ErrorNotice>}
           {/* Stacked, one row above the answer holds reply help, the status line and
               the coach, instead of a row each. */}

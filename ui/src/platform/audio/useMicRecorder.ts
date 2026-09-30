@@ -256,6 +256,36 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     if (active.current) await toggleMic()
   }, [toggleMic])
 
+  /** Sends a failed take's audio for transcription again: native holds the audio
+   * of a failed take for this. The retried attempt has its own identity; the take
+   * keeps its own, and its text is passed on as a first transcription's is. */
+  const retry = useCallback(async (recordingId: string) => {
+    if (working.current || active.current) return
+    const scope = generation.current
+    const retryOwner = current.current
+    const mark = (take: Partial<PendingRecording>) => setPendingRecordings(takes => takes.map(item => item.recordingId === recordingId ? { ...item, ...take } : item))
+    working.current = true
+    mark({ state: 'processing', failure: null })
+    setFailure(null); setTranscribing(true)
+    try {
+      const result = await invoke<TranscriptionInspectionResult>('mic_retry_transcription', { recordingId }).catch(error => {
+        if (retryOwner?.kind === 'drillItem') recordingPublished(retryOwner)
+        throw error
+      })
+      recordingPublished(result.inspection.owner)
+      if (generation.current !== scope) return
+      if (`${result.inspection.owner.kind}:${result.inspection.owner.id}` !== ownerKey) throw new Error('Recording inspection belongs to a different owner.')
+      mark({ state: 'completed' })
+      setLastTranscription(result)
+      if (result.text.trim()) callback.current(result.text, result)
+    } catch (error) {
+      if (generation.current === scope) { mark({ state: 'failed', failure: error }); setFailure(error); reportFault('Microphone', error) }
+    } finally {
+      working.current = false
+      setTranscribing(false)
+    }
+  }, [ownerKey])
+
   const discardCurrent = useCallback(() => {
     const recordingId = active.current
     if (recordingId && continuous.current) {
@@ -270,5 +300,5 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     void invoke('mic_listen_tune', { recordingId, settings, ...(captureMode ? { captureMode } : {}) }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
   }, [])
 
-  return { starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, cancel }
+  return { starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, retry, cancel }
 }

@@ -32,7 +32,9 @@ export function usePendingMessage(turns: readonly StoredTurn[]) {
   }, [])
   const fail = useCallback((key: string, failure: string, retry: () => Promise<void>) =>
     setMessage(message => message?.key === key ? { ...message, phase: 'failed', failure, retry } : message), [])
-  const release = useCallback((key?: string) => setMessage(message => key === undefined || message?.key === key ? null : message), [])
+  /** Lets the message go: any message, the one under `key`, or only while it is in `phase`. */
+  const release = useCallback((key?: string, phase?: PendingMessage['phase']) =>
+    setMessage(message => (key === undefined || message?.key === key) && (phase === undefined || message?.phase === phase) ? null : message), [])
   const landed = message?.phase === 'sending' && turns.some(turn => message.editing
     ? turn.replacesTurnId === message.editing.turnId
     : turn.user !== null && !turn.replacedBy && turn.turnId !== undefined && !message.known.has(turn.turnId))

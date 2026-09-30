@@ -12,7 +12,8 @@ import spectra from '../../../tools/spectrogram-fixture.json'
 vi.mock('../../platform/audio/microphones', () => ({ listMicrophones: vi.fn().mockResolvedValue({ source: 'native', devices: [] }) }))
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
-const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null, lastTranscription: null as TranscriptionInspectionResult | null }))
+const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null, lastTranscription: null as TranscriptionInspectionResult | null,
+  pendingRecordings: [] as { recordingId: string; state: 'processing' | 'completed' | 'failed'; failure: unknown }[], retry: vi.fn() }))
 const chrome = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc.invoke }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: ipc.fault }))
@@ -25,7 +26,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
   languageFor: (code: string) => code === 'english' ? { code: 'english', name: 'English', endonym: 'English' } : { code: 'spanish', name: 'Spanish', endonym: 'Español' },
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
-vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string, result: TranscriptionInspectionResult) => void }) => { microphone.transcribe = text => onTranscribe(text, microphone.lastTranscription ?? { inspection: { recordingId: 'recording' } } as TranscriptionInspectionResult); return { lastTranscription: microphone.lastTranscription, recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, toggleMic: vi.fn(), cancel: vi.fn() } } }))
+vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string, result: TranscriptionInspectionResult) => void }) => { microphone.transcribe = text => onTranscribe(text, microphone.lastTranscription ?? { inspection: { recordingId: 'recording' } } as TranscriptionInspectionResult); return { lastTranscription: microphone.lastTranscription, recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, pendingRecordings: microphone.pendingRecordings, retry: microphone.retry, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('./coaching/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'coaching' ? coachingContent : null }))
 vi.mock('./progress/RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('./progress/XpChip', () => ({ XpChip: () => null }))
@@ -112,6 +113,7 @@ beforeEach(async () => {
   HTMLDialogElement.prototype.close = function () { this.open = false }
   vi.clearAllMocks()
   microphone.lastTranscription = null
+  microphone.pendingRecordings = []
   useSessionStore.setState({ ...useSessionStore.getInitialState(), connection: snapshot().connection })
   localStorage.clear()
   workspace = directory()
@@ -500,6 +502,47 @@ it('auto-sends one native transcript and retains a later transcript while a repl
   expect(commands()).toHaveLength(1)
   await act(async () => pending.reject(new Error('Rejected')))
   expect(input).toHaveValue('Guardar esta frase')
+})
+
+it('holds the learner’s bubble from the moment an Auto-send recording stops, then fills in its text', async () => {
+  const pending = deferred<Receipt>()
+  submit = () => pending.promise
+  chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
+  const view = render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'processing', failure: null }]
+  view.rerender(page())
+  const held = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+  expect(held).toHaveAttribute('aria-busy', 'true')
+  expect(held.querySelector('.reply-placeholder')).not.toBeNull()
+  expect(held).toHaveTextContent('Transcribing…')
+  // No reply is requested before the message has its text.
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toBeNull()
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'completed', failure: null }]
+  act(() => microphone.transcribe('Fui al mercado.'))
+  const filled = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+  expect(filled).toBe(held)
+  expect(filled).toHaveTextContent('Fui al mercado.')
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Thinking…')
+  await waitFor(() => expect(commands()).toHaveLength(1))
+})
+
+it('keeps a failed recording in its bubble with Retry, which sends its audio again', async () => {
+  chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
+  const view = render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'processing', failure: null }]
+  view.rerender(page())
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'failed', failure: new Error('Transcription provider unavailable') }]
+  view.rerender(page())
+  const failed = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+  expect(failed.querySelector('.reply-placeholder')).not.toBeNull()
+  expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
+  expect(screen.queryByRole('button', { name: 'Record again' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+  await waitFor(() => expect(microphone.retry).toHaveBeenCalledExactlyOnceWith('take'))
 })
 
 it('binds recorded audio to the accepted turn even when a later message repeats its text', async () => {

@@ -5,7 +5,7 @@ use crate::speech::analysis::spectrogram::LiveSpectrogram;
 #[cfg(desktop)]
 use crate::speech::recording::audio;
 use crate::speech::recording::owner::RecordingOwner;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 /// The complete retained recognition result, shared by recording consumers.
 #[tauri::command]
@@ -177,6 +177,8 @@ pub(super) fn start_prepared_capture(
         samples_per_second: 750.0,
     };
     *slot = Some(recording);
+    // A new recording supersedes a failed take waiting for Retry.
+    failed_take(state)?.take();
     Ok(started)
 }
 #[tauri::command]
@@ -357,7 +359,77 @@ pub async fn mic_transcribe(
         }
         bytes
     };
-    transcribe(state.inner().clone(), request, wav).await
+    transcribe_holding_failure(state.inner().clone(), request, wav).await
+}
+
+/// A manual take whose transcription failed, held in memory so Retry can send
+/// the same audio again. Only the latest failed take is held, until a retry
+/// succeeds or a new recording starts; a restart loses it.
+pub(crate) struct FailedTake {
+    /// The take's own identity, which the learner's Retry names.
+    take: String,
+    request: Transcription,
+    wav: Vec<u8>,
+}
+
+fn failed_take(state: &Application) -> Result<MutexGuard<'_, Option<FailedTake>>> {
+    state.failed_take.lock().map_err(|_| {
+        crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
+    })
+}
+
+/// Transcribes a manual take, holding it for Retry if transcription fails.
+async fn transcribe_holding_failure(
+    state: Arc<Application>,
+    request: Transcription,
+    wav: Vec<u8>,
+) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
+    let result = transcribe(state.clone(), request.clone(), wav.clone()).await;
+    *failed_take(&state)? = result.is_err().then(|| FailedTake {
+        take: request.id.clone(),
+        request,
+        wav,
+    });
+    result
+}
+
+/// Transcribes a held failed take again, as a new attempt with its own identity;
+/// the failed attempt stays recorded. Transcription results are cached by the
+/// audio, so provider work that already succeeded is not paid for twice. The
+/// take stays held if this attempt fails too.
+async fn retry_held_take(
+    state: Arc<Application>,
+    take: &str,
+) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
+    let held = {
+        let mut slot = failed_take(&state)?;
+        match slot.take() {
+            Some(held) if held.take == take => held,
+            other => {
+                *slot = other;
+                return Err(AppError::new(
+                    ErrorCode::NotFound,
+                    "This recording's audio is no longer available to send again.",
+                ));
+            }
+        }
+    };
+    let mut request = held.request.clone();
+    request.id = uuid::Uuid::new_v4().to_string();
+    let result = transcribe(state.clone(), request, held.wav.clone()).await;
+    if result.is_err() {
+        *failed_take(&state)? = Some(held);
+    }
+    result
+}
+
+/// Sends a failed take's audio for transcription again (Retry).
+#[tauri::command]
+pub async fn mic_retry_transcription(
+    state: tauri::State<'_, Arc<Application>>,
+    recording_id: String,
+) -> Result<crate::speech::analysis::audio_inspection::TranscriptionInspectionResult> {
+    retry_held_take(state.inner().clone(), &recording_id).await
 }
 
 // Manual clips and segmented utterances share inspection, admission, receipts,

@@ -516,3 +516,89 @@ async fn cache_write_failure_retains_provider_metadata_and_admission_failure_is_
     assert_eq!(receipt["dispatched"], false);
     assert_eq!(app.lock().unwrap().profile().unwrap().global.attempts, 1);
 }
+
+fn carries(request: &[u8], wav: &[u8]) -> bool {
+    request.windows(wav.len()).any(|window| window == wav)
+}
+
+fn answer_through(app: &Arc<Application>, url: &str) {
+    app.lock()
+        .unwrap()
+        .connection
+        .execute(
+            "UPDATE ai_config SET custom_config=json_set(custom_config,'$.baseUrl',?1)",
+            [url],
+        )
+        .unwrap();
+}
+
+#[tokio::test]
+async fn a_failed_take_is_held_and_retried_with_its_audio_as_a_new_attempt() {
+    let (url, ready, release, worker) = server(json!({"request_id":"failed-recognition","text":3}));
+    let (_dir, app, recording, input) = setup(&url);
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (result, _) = tokio::join!(
+        transcribe_holding_failure(app.clone(), recording.clone(), input.wav.clone()),
+        gate
+    );
+    assert!(result.is_err());
+    assert!(carries(&worker.join().unwrap(), &input.wav));
+    assert!(app.failed_take.lock().unwrap().is_some());
+
+    let (url, ready, release, worker) = server(reply());
+    answer_through(&app, &url);
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (retried, _) = tokio::join!(retry_held_take(app.clone(), &recording.id), gate);
+    let retried = retried.unwrap();
+    // The same audio, as a new attempt with its own identity.
+    assert!(carries(&worker.join().unwrap(), &input.wav));
+    assert_eq!(retried.text, "Hola");
+    assert_ne!(retried.inspection.recording_id, recording.id);
+    assert!(app.failed_take.lock().unwrap().is_none());
+    // The failed attempt stays recorded for AI activity.
+    let store = app.lock().unwrap();
+    let failed = results::receipt_for_consumer(&store.connection, &recording.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(failed["state"], "unknown");
+    assert!(failed.to_string().contains("failed-recognition"));
+}
+
+#[tokio::test]
+async fn retrying_a_take_that_is_not_held_fails_without_provider_work() {
+    let (_dir, app, _recording, _input) = setup("http://127.0.0.1:9/v1");
+    let error = retry_held_take(app.clone(), "not-held").await.unwrap_err();
+    assert!(matches!(error.code, ErrorCode::NotFound));
+}
+
+#[tokio::test]
+async fn a_retry_that_fails_again_keeps_the_take_held() {
+    let (url, ready, release, worker) = server(json!({"request_id":"first-failure","text":3}));
+    let (_dir, app, recording, input) = setup(&url);
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (first, _) = tokio::join!(
+        transcribe_holding_failure(app.clone(), recording.clone(), input.wav.clone()),
+        gate
+    );
+    assert!(first.is_err());
+    worker.join().unwrap();
+    let (url, ready, release, worker) = server(json!({"request_id":"second-failure","text":3}));
+    answer_through(&app, &url);
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (again, _) = tokio::join!(retry_held_take(app.clone(), &recording.id), gate);
+    assert!(again.is_err());
+    worker.join().unwrap();
+    assert!(app.failed_take.lock().unwrap().is_some());
+}
