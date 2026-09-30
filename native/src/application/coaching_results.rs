@@ -84,7 +84,6 @@ impl Request {
                 "Workspace changed during coaching execution.",
             ));
         }
-        holds::check(&store.connection, &self.dispatch.target)?;
         let current = access::resolve(&store.connection, access::Capability::Chat)?;
         if current.route != self.dispatch.target.route
             || current.url != self.dispatch.target.url

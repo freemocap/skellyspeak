@@ -152,10 +152,6 @@ impl Store {
             Action::RetryGloss { operation_id } => handlers.retry_gloss(operation_id)?,
             Action::ControlTurn { turn_id, control } => handlers.control_turn(turn_id, control)?,
             Action::SetPaused { paused } => handlers.set_paused(paused)?,
-            Action::RecoverAiAccess {
-                hold_id,
-                expected_generation,
-            } => handlers.recover_ai_access(hold_id, expected_generation)?,
             Action::StartChat { language_id } => handlers.start_chat(language_id)?,
             Action::CreateContact {
                 language_id,

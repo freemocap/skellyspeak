@@ -8,7 +8,6 @@ pub(super) fn pause_related(
     let Some(refusal) = &error.refusal else {
         return Ok(());
     };
-    crate::ai::policy::holds::record(db, target, error)?;
     let rows = db
         .prepare(
             "SELECT id,context,refusal_hold FROM turns WHERE state IN ('pending','assisting')",
@@ -54,29 +53,17 @@ pub(super) fn pause_related(
 }
 
 pub(super) fn release_hold(db: &Connection, turn: &str, step: bool) -> Result<()> {
-    let context: String = db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
-        r.get(0)
-    })?;
-    let context: serde_json::Value = serde_json::from_str(&context)?;
-    let target = serde_json::from_value(context["target"].clone())?;
-    crate::ai::policy::holds::check(db, &target)?;
     let hold: Option<String> =
         db.query_row("SELECT refusal_hold FROM turns WHERE id=?1", [turn], |r| {
             r.get(0)
         })?;
     if let Some(hold) = hold {
         let error: AppError = serde_json::from_str(&hold)?;
-        if step
-            || error
-                .refusal
-                .as_ref()
-                .and_then(|r| r.retry_at)
-                .is_some_and(|time| time > crate::ai::policy::refusal::now())
-        {
+        if step {
             return Err(AppError::new(
                 ErrorCode::Provider,
                 format!(
-                    "Work is held after a provider refusal. Honor the retry/reset time, then explicitly Resume or Retry after correcting the cause. {}",
+                    "Work is held after a provider refusal. Explicitly Resume or Retry to ask the server again. {}",
                     error.message
                 ),
             ));

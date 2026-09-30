@@ -356,10 +356,6 @@ pub enum Action {
     SetPaused {
         paused: bool,
     },
-    RecoverAiAccess {
-        hold_id: String,
-        expected_generation: String,
-    },
     CreateContact {
         language_id: String,
         details: PersonaDetails,
@@ -454,14 +450,6 @@ pub struct Refusal {
     pub service_wide: bool,
     pub retry_at: Option<f64>,
     pub request_id: Option<String>,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, TS)]
-#[serde(rename_all = "camelCase")]
-pub struct InferenceHold {
-    pub id: String,
-    pub generation: String,
-    pub route: ConnectionRoute,
-    pub error: AppError,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "snake_case")]
@@ -707,7 +695,6 @@ pub fn bindings() -> String {
         Receipt::decl(&config),
         ErrorCode::decl(&config),
         Refusal::decl(&config),
-        InferenceHold::decl(&config),
         StarterGreeting::decl(&config),
         LanguagePartner::decl(&config),
         TranscriptionAttempt::decl(&config),
@@ -1081,7 +1068,6 @@ pub struct ConversationSnapshot {
     pub opening: Option<Opening>,
     pub revision_suffix_counts: Vec<RevisionSuffixCount>,
     pub transcription_attempts: Vec<TranscriptionAttempt>,
-    pub holds: Vec<InferenceHold>,
     pub coach_messages: Vec<ChatMessage>,
     pub conversation_id: String,
     pub session_id: String,

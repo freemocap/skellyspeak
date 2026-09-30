@@ -481,7 +481,7 @@ mod tests {
     }
 
     #[test]
-    fn provider_refusal_and_held_authority_survive_restart_until_explicit_recovery() {
+    fn provider_refusal_survives_restart_without_blocking_explicit_generation() {
         let (dir, mut store) = setup();
         let captured = request(&store, "spanish");
         submit(&mut store, &captured);
@@ -493,13 +493,7 @@ mod tests {
                 .unwrap_err();
         assert_eq!(error.message, refusal.message);
         finish::<PersonaDetails>(&mut store, &captured, None, &Err(error)).unwrap();
-        assert!(matches!(
-            Request::capture(&store, "spanish".into(), None),
-            Err(AppError {
-                code: ErrorCode::AdmissionHeld,
-                ..
-            })
-        ));
+        Request::capture(&store, "spanish".into(), None).unwrap();
         drop(store);
         let mut store = Store::open(&dir.path().join("workspace.sqlite3")).unwrap();
         let view = activity(&store.connection).unwrap();
@@ -510,22 +504,11 @@ mod tests {
         );
         assert_eq!(view.usage.attempts, 1);
         assert_eq!(view.usage.unknown_usage, 1);
-        assert!(matches!(
-            Request::capture(&store, "spanish".into(), None),
-            Err(AppError {
-                code: ErrorCode::AdmissionHeld,
-                ..
-            })
-        ));
-        let hold = crate::ai::policy::holds::views(&store.connection)
-            .unwrap()
-            .remove(0);
-        crate::ai::policy::holds::recover(&store.connection, &hold.id, &hold.generation).unwrap();
         let next = Request::capture(&store, "spanish".into(), None).unwrap();
         begin(&mut store, &next).unwrap();
         let view = activity(&store.connection).unwrap();
         assert_eq!(view.attempts[0].state, "pending");
         assert_eq!(view.attempts[1].state, "failed");
-        assert_eq!(view.usage.attempts, 1); // Recovery never dispatches the old or new request.
+        assert_eq!(view.usage.attempts, 1); // Capturing new work never dispatches the failed attempt.
     }
 }

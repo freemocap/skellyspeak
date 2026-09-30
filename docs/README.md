@@ -22,7 +22,7 @@ and remaining limits.
 - `docs-site`, `coaching-work-plan.md`, and
   `coaching-contracts.md` retain their designated planning role. A plan is not
   evidence that its behavior has been implemented.
-- [Historical notes](../old/notes/) are preserved for reference. They are likely
+- [Historical notes](https://github.com/freemocap/skellyspeak/tree/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/) are linked to a historical Git snapshot; the archive is no longer in the checkout. They are likely
   outdated and are not current specifications or working instructions.
 
 Do not promote a claim to current documentation merely by moving it. The next

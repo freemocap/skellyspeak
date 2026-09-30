@@ -146,10 +146,6 @@ fn r1_reply_completion_preserves_queued_translation_refusal() {
     store.note_refusal(&dispatch.target, &error).unwrap();
     store.finish(&dispatch, Ok(reply("Hola."))).unwrap();
     assert!(store.dispatch().unwrap().is_none());
-    let hold = crate::ai::policy::holds::views(&store.connection)
-        .unwrap()
-        .remove(0);
-    crate::ai::policy::holds::recover(&store.connection, &hold.id, &hold.generation).unwrap();
     assert!(control_turn(&store.connection, &turn, TurnControl::Step).is_err());
     assert!(store.dispatch().unwrap().is_none());
     apply(

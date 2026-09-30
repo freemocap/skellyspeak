@@ -23,15 +23,15 @@ text; normalization belongs only to the operation that requires it.
 | [redaction-policy/](redaction-policy/) | Shared diagnostic-data redaction policy and cross-runtime conformance cases |
 | [docs/](docs/) | Documentation status, guides and existing website |
 | [tools/](tools/) | Development, verification and release tooling |
-| [old/](old/) | Historical reference; potentially outdated and untrustworthy |
+| [Historical archive](https://github.com/freemocap/skellyspeak/tree/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/) | Removed from the checkout; linked snapshot is historical reference only |
 
 The root npm package coordinates tools and the UI workspace. Dependencies are
 installed with `npm ci`; the UI owns its own package manifest. Internal module
 reorganization will follow this top-level move.
 
 **Documentation audit pending:** the detailed descriptions below and the existing
-website have not all been checked against current code. Links to `old/` are
-historical context, not current specifications. See [documentation status](docs/).
+website have not all been checked against current code. Archive links point to a
+historical Git snapshot, not current specifications. See [documentation status](docs/).
 
 **Current source implementation: immediate chat, recording/transcription and speech
 playback, a separate coach thread, Google sign-in and custom-server execution.** Rust persists
@@ -269,7 +269,7 @@ The v1.21.1 signed archive and export succeeded; its added verification helper
 failed on a dotted entitlement key. The restored workflow uses v0's codesign
 team check instead. Local verification does not establish that the restored
 workflow has passed on GitHub or that Apple has accepted a new build. See
-[the restoration report](old/notes/workflow/reports/ios-v0-workflow-restoration.md).
+[the restoration report](https://github.com/freemocap/skellyspeak/blob/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/workflow/reports/ios-v0-workflow-restoration.md).
 
 Desktop release builds install signed updates through the app. Android opens
 https://docs.freemocap.org/skellyspeak/download for APK installation. Debug builds
@@ -359,7 +359,7 @@ identifier `com.freemocap.skellyspeak`, as configured in `native/tauri.conf.json
 and `native/tauri.release.conf.json`. On macOS this is
 `~/Library/Application Support/com.freemocap.skellyspeak/`. No application data is
 synchronized. Send transmits selected context through the selected hosted or custom-server route;
-see [privacy and data flow](old/notes/privacy.md).
+see [privacy and data flow](https://github.com/freemocap/skellyspeak/blob/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/privacy.md).
 
 ## Verification
 
@@ -405,12 +405,13 @@ Native request admission now shares four permits across partner chat, coach chat
 desktop transcription on all access routes. One audio request may wait for capacity;
 excess waiting audio is rejected without submission. Tests cover mixed occupancy,
 queue saturation, source/configuration invalidation and release on cancellation.
-Queued chat/coach turns now pause on matching HTTP 429 refusals, with the reason and
-earliest retry retained in the native execution snapshot. Holds survive restart; recovery is
-explicit and Step cannot bypass them. Shared access holds also block fresh Send
-and transcription. The native Recover access command checks the retry time
-and refuses stale recovery actions; it makes no AI call and leaves queued turns
-paused. Transcription receipts now retain route, model, timing and outcome;
+Queued chat/coach turns pause on matching HTTP 429 refusals, retaining the original
+reason, diagnostics and reported retry time. These queue pauses survive restart;
+Resume or Retry explicitly requests work again without a client reset-time gate.
+Step does not release a refusal pause. Refusals do not create persistent access
+lockouts for new chat, reading, generation or audio requests: the server decides
+current access. Retrying one turn does not resume other paused turns, and failed
+attempts are never automatically replayed. Transcription receipts now retain route, model, timing and outcome;
 interrupted attempts become unknown on restart and are never replayed. Native execution snapshots expose these receipts, and usage projections include
 them with unavailable token usage; presentation remains pending. Audio and transcript text are not stored in receipts;
 this limit does not establish a bound on upstream work after local cancellation.
@@ -429,7 +430,7 @@ other devices and providers still require capability-specific checks.
 Hosted deployment passed its test, container and exact-revision traffic checks,
 and the user confirmed hosted chat works. The client preserves documented
 rate/allowance/spending-pause reasons and request IDs. See the
-[security audit](old/notes/SECURITY-AUDIT.md) for additional local hardening and remaining
+[security audit](https://github.com/freemocap/skellyspeak/blob/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/SECURITY-AUDIT.md) for additional local hardening and remaining
 repository/cloud checks; source changes require deployment or native restart.
 
 The signed macOS development launcher passed local build, bundle/signature
@@ -446,7 +447,7 @@ Windows, Linux and Android builds remain unverified.
 ## Architecture and roadmap
 
 See [the repository map and documentation status](docs/README.md). Existing
-architecture notes and plans in [the archive](old/notes/) are historical reference,
+architecture notes and plans in [the archive](https://github.com/freemocap/skellyspeak/tree/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/) are historical reference,
 not authoritative descriptions of current behavior. The documentation content
 audit and internal layer organization remain future work.
 
@@ -565,7 +566,7 @@ receipts show three successful transcriptions/replies/speech generations, with
 speech and gloss running independently. General speech fidelity, stop/replay and
 other devices still need their own checks. Current automated results and next
 work were recorded in the archived build plan; detailed evidence is in
-[the integration report](old/notes/workflow/reports/integration-logging.md).
+[the integration report](https://github.com/freemocap/skellyspeak/blob/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/workflow/reports/integration-logging.md).
 
 The local server and native app must both include the current audio protocol.
 Normal local server restarts preserve the session token. Select Custom URL once in AI access and choose `scribe_v2`/`eleven_v3` for the configured ElevenLabs service;
@@ -674,7 +675,7 @@ Missing devices and failed prerequisites fail the run; they are not passing test
 
 ### AI model evaluation
 
-The [model-routing screen](old/notes/workflow/benchmarks/model-routing/README.md) records
+The [model-routing screen](https://github.com/freemocap/skellyspeak/blob/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/workflow/benchmarks/model-routing/README.md) records
 paid synthetic comparisons, output defects and the proposed Fast/Standard/Strong
 task split. Production routing is unchanged. Run its offline checks with
 `node --test tools/benchmarks/model-routing.test.ts`; paid execution is explicit
@@ -739,7 +740,7 @@ resetting them. Full Factory Reset is available when a scoped cleanup is impract
 App builds carry their own teaching content.
 
 The September 14 workspace redesign and its verification limits are recorded in
-[the design-pass report](old/notes/workspace-redesign-report.md).
+[the design-pass report](https://github.com/freemocap/skellyspeak/blob/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/workspace-redesign-report.md).
 
 “Save a copy of my data” in Settings and schema-refusal recovery copies the database,
 SQLite sidecars to Downloads. App-owned teaching content is not workspace data.

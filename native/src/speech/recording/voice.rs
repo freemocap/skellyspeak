@@ -50,7 +50,6 @@ impl Transcription {
             ));
         }
         super::transcription::permitted(&store.connection, &self.owner, &self.target)?;
-        crate::ai::policy::holds::check(&store.connection, &self.target)?;
         if crate::ai::connections::configuration::config(&store.connection)?.paused {
             return Err(AppError::new(
                 ErrorCode::AdmissionHeld,
@@ -143,7 +142,6 @@ pub(super) fn start_prepared_capture(
             &scope.language_context,
         )?
     };
-    crate::ai::policy::holds::check(&store.connection, &target)?;
     let visit = match &owner {
         RecordingOwner::Conversation(_) => None,
         RecordingOwner::DrillItem(item) => Some(crate::drill::sessions::active_visit(

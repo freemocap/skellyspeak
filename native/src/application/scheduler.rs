@@ -17,7 +17,6 @@ impl Application {
                     "Operation revoked before dispatch.",
                 ));
             }
-            holds::check(&store.connection, &dispatch.target)?;
             let capability = if dispatch.speech_source.is_some() {
                 access::Capability::Speech
             } else {

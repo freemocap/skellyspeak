@@ -81,13 +81,4 @@ impl Handlers<'_> {
             .execute("UPDATE operations SET permit=0 WHERE state='ready'", [])?;
         Ok("execution".into())
     }
-
-    pub(super) fn recover_ai_access(
-        &mut self,
-        hold_id: String,
-        expected_generation: String,
-    ) -> Result<String> {
-        crate::ai::policy::holds::recover(self.tx, &hold_id, &expected_generation)?;
-        Ok(hold_id)
-    }
 }

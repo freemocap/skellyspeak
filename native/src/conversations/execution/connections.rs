@@ -34,7 +34,6 @@ pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -
         db,
         crate::ai::connections::access::Capability::Chat,
     )?;
-    crate::ai::policy::holds::check(db, &base)?;
     let profile = config(db)?;
     let fast = profile.fast_model;
     let operations = db.prepare("SELECT id,kind FROM operations WHERE turn_id=?1 AND kind NOT IN ('persona_context','coach_context','persona_speech') AND ((?2 IS NOT NULL AND id=?2) OR (?2 IS NULL AND state IN ('failed','unknown','waiting_dependencies'))) ")?
@@ -55,8 +54,8 @@ pub(super) fn bind_retry(db: &Connection, turn: &str, operation: Option<&str>) -
             ],
         )?;
     }
-    // Current scoped holds above are authoritative; a historical turn hold must
-    // not prevent retry after the user changes credentials or destination.
+    // An explicit retry asks the server again; historical refusals only pause
+    // queued work and never decide current access.
     db.execute("UPDATE turns SET paused=CASE WHEN refusal_hold IS NOT NULL THEN 0 ELSE paused END,refusal_hold=NULL WHERE id=?1", [turn])?;
     Ok(())
 }

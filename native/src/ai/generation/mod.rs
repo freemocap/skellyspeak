@@ -2,7 +2,6 @@
 //! Persona proposals stay volatile; durable Drill candidates belong to previews.
 pub(crate) mod generation_receipts;
 use crate::ai::connections::access;
-use crate::ai::policy::holds;
 use crate::model::*;
 use crate::storage::store::Store;
 use std::{
@@ -149,21 +148,11 @@ impl Request {
         {
             return Err(self.stopped("connection authority changed"));
         }
-        if let Err(error) = holds::check(&store.connection, &self.target) {
-            return Err(
-                if self.was_submitted() && error.code == ErrorCode::AdmissionHeld {
-                    self.stopped("AI access was held while generation was running")
-                } else {
-                    error
-                },
-            );
-        }
         Ok(())
     }
 }
 
-/// Persist provider refusals before returning them. Checking the new self-hold
-/// afterward would incorrectly replace the original refusal with AdmissionHeld.
+/// Preserve the refusal and pause related queued work without blocking new requests.
 pub fn accept_completion(
     store: &mut Store,
     request: &Request,
@@ -527,7 +516,7 @@ mod tests {
     }
 
     #[test]
-    fn own_refusal_is_preserved_and_a_later_shared_hold_marks_dispatched_work_unknown() {
+    fn own_refusal_is_preserved_without_blocking_new_generation() {
         let (_directory, mut store) = fixture();
         let request = capture(&store);
         request.mark_submitted();
@@ -537,21 +526,12 @@ mod tests {
         assert_eq!(result.code, ErrorCode::Provider);
         assert_eq!(result.message, error.message);
         assert!(result.refusal.is_some());
-        assert_eq!(
-            request.validate(&store).unwrap_err().code,
-            ErrorCode::UnknownOutcome
-        );
-        assert!(matches!(
-            Request::capture(&store, "spanish".into(), None),
-            Err(AppError {
-                code: ErrorCode::AdmissionHeld,
-                ..
-            })
-        ));
+        request.validate(&store).unwrap();
+        Request::capture(&store, "spanish".into(), None).unwrap();
     }
 
     #[test]
-    fn paused_or_held_authority_never_begins_and_refusals_block_followups() {
+    fn explicit_pause_prevents_generation_but_refusals_allow_manual_followups() {
         let (_directory, store) = fixture();
         store
             .connection
@@ -571,13 +551,8 @@ mod tests {
         let request = capture(&store);
         let error = AppError::new(ErrorCode::Provider, "Request rate limited")
             .with_refusal(crate::ai::policy::refusal::classify(None, Some(60), None));
-        holds::record(&store.connection, &request.target, &error).unwrap();
-        assert!(matches!(
-            Request::capture(&store, "spanish".into(), None),
-            Err(AppError {
-                code: ErrorCode::AdmissionHeld,
-                ..
-            })
-        ));
+        let mut store = store;
+        store.note_refusal(&request.target, &error).unwrap();
+        Request::capture(&store, "spanish".into(), None).unwrap();
     }
 }

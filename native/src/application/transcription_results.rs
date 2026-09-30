@@ -30,7 +30,7 @@ impl Application {
                 "Transcription stopped: AI execution is paused.",
             ));
         }
-        holds::check(&store.connection, target)
+        Ok(())
     }
 
     pub(crate) async fn shared_transcription(

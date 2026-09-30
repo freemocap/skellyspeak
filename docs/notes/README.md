@@ -19,5 +19,4 @@ verification reports, and handoffs.
   belongs there. A note is not authoritative just because it is in this folder.
 
 These notes are stored in the repository and may be publicly readable; they are
-not private storage. Historical material in [old/notes/](../../old/notes/) remains
-archived and potentially inaccurate. Do not move it here wholesale.
+not private storage. Historical material in [old/notes/](https://github.com/freemocap/skellyspeak/tree/d16874e0a59ee00772ef0952751ac35d9e6e6d78/old/notes/) is linked to a historical Git snapshot and may be inaccurate. Do not move it here wholesale.

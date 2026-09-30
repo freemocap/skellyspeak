@@ -29,7 +29,7 @@ impl Application {
                 "Speech access changed before execution.",
             ));
         }
-        holds::check(&store.connection, target)
+        Ok(())
     }
 
     pub(super) async fn shared_speech(

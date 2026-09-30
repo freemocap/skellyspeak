@@ -88,6 +88,9 @@ impl Store {
         }
         validate_database(&connection)?;
         validate_current_schema(&connection)?;
+        // Retired access lockouts own no product data or foreign keys. Keep
+        // per-turn refusals and attempt diagnostics; discard only the lockouts.
+        connection.execute_batch("DROP TABLE IF EXISTS inference_holds")?;
         crate::learning::learner::progression::initialize(&connection)?;
         crate::learning::rewards::reward_settings::initialize(&connection)?;
         crate::speech::recording::microphone::initialize(&connection)?;

@@ -92,7 +92,6 @@ pub(super) fn queue_gloss_repair(
         return Ok("paused_or_connection_changed");
     }
     let admission = (|| -> Result<()> {
-        crate::ai::policy::holds::check(db, &dispatch.target)?;
         let used: i64 = db.query_row("SELECT count(*) FROM attempts a JOIN operations o ON o.id=a.operation_id WHERE o.turn_id=?1 AND a.requested_model!='local'", [turn], |r| r.get(0))?;
         let reserved: i64 = db.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND state IN ('ready','waiting_dependencies') AND kind NOT IN ('persona_context','coach_context')", [turn], |r| r.get(0))?;
         if used + reserved + 1 > TURN_ATTEMPT_LIMIT {

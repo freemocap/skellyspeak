@@ -32,7 +32,6 @@ pub(super) fn prepare_speech(
     let (_, message_id, text, _, _) = speech_owner(db, operation)?;
     let captured: serde_json::Value = serde_json::from_str(context)?;
     let target = speech_binding(db, &message_id, &text, &captured)?;
-    crate::ai::policy::holds::check(db, &target)?;
     let voice = captured["speechVoice"]
         .as_str()
         .ok_or_else(|| fail("Missing captured speech voice."))?
@@ -133,7 +132,6 @@ pub fn request_speech(db: &Connection, message_id: &str, resident_audio: bool) -
             "AI execution is paused. Speech was not queued.",
         ));
     }
-    crate::ai::policy::holds::check(db, &target)?;
     let operation = existing.map(|(id, _)| id).unwrap_or_else(id);
     // Each explicit request authorizes another generation. Historical attempts
     // remain observable, but do not impose a lifetime replay/retry limit.

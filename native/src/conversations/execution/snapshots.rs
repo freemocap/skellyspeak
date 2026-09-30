@@ -266,7 +266,6 @@ impl Store {
                 db,
                 &crate::speech::recording::owner::RecordingOwner::Conversation(conversation.into()),
             )?,
-            holds: crate::ai::policy::holds::views(db)?,
             coach_messages,
             conversation_id: conversation.into(),
             session_id: self.session_id.clone(),

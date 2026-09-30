@@ -45,7 +45,6 @@ pub fn begin(
     target: &ResolvedTarget,
 ) -> Result<()> {
     permitted(db, owner, target)?;
-    crate::ai::policy::holds::check(db, target)?;
     if crate::ai::connections::configuration::config(db)?.paused {
         return Err(AppError::new(
             ErrorCode::AdmissionHeld,

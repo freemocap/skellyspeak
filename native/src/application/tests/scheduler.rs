@@ -108,13 +108,13 @@ async fn revoked_work_is_not_submitted_after_a_delayed_probe() {
                         .execute("UPDATE ai_config SET revision=revision+1", [])
                         .unwrap();
                 }
-                "hold" => holds::record(
-                    &store.connection,
-                    &dispatches[0].target,
-                    &AppError::new(ErrorCode::Provider, "Rate limited")
-                        .with_refusal(crate::ai::policy::refusal::classify(None, None, None)),
-                )
-                .unwrap(),
+                "hold" => store
+                    .note_refusal(
+                        &dispatches[0].target,
+                        &AppError::new(ErrorCode::Provider, "Rate limited")
+                            .with_refusal(crate::ai::policy::refusal::classify(None, None, None)),
+                    )
+                    .unwrap(),
                 _ => (),
             }
         }
@@ -131,7 +131,7 @@ async fn revoked_work_is_not_submitted_after_a_delayed_probe() {
             .unwrap();
         drop(socket);
         let result = preparation.await;
-        if change == "none" || change == "revision" {
+        if change == "none" || change == "revision" || change == "hold" {
             assert!(result.unwrap());
         } else {
             assert!(result.is_err(), "{change} must stop dispatch");

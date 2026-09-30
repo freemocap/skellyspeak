@@ -95,7 +95,7 @@ function snapshot(id = 'a', revision = 1, text?: string): ConversationSnapshot {
   return {
     opening: null, topicChoices: [], starterGreeting: { text: 'hola', romanized: null }, revisionSuffixCounts: [], conversationId: id, sessionId: 'native-session', revision, hasOlder: false,
     messages: text === undefined ? [] : [{ coachDecision: null, wordGloss: null, glossState: null, glossError: null, glossOperationId: null, turnId: `${id}-turn`, replacesTurnId: null, replacedBy: null, id: `${id}-source`, sequence: 1, role: 'user', text, createdAt: '2026-09-10', translation: null, translationState: null }],
-    turns: [], coachMessages: [], holds: [], transcriptionAttempts: [],
+    turns: [], coachMessages: [], transcriptionAttempts: [],
     connection: { route: 'hosted', signedIn: true, email: '', revision: 1, configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'google/gemini-2.5-flash', fastModel: '', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false },
   }
 }

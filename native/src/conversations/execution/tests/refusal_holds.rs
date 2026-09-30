@@ -129,7 +129,6 @@ fn refusal_holds_matching_queue_without_attempts_and_survives_restart() {
     assert!(view.turns[0].hold.is_some());
     assert!(view.turns[0].attempts.is_empty());
     assert!(!store.conversation_snapshot(&third, None).unwrap().turns[0].paused);
-    assert!(control_turn(&store.connection, &queued, TurnControl::Resume).is_err());
     assert!(control_turn(&store.connection, &queued, TurnControl::Step).is_err());
     // No failed-queue entry consumes an invented network attempt.
     assert!(store.dispatch().unwrap().is_none()); // Independent local context.
@@ -140,28 +139,7 @@ fn refusal_holds_matching_queue_without_attempts_and_survives_restart() {
     let view = reopened.conversation_snapshot(&second, None).unwrap();
     assert!(view.turns[0].hold.is_some());
     assert!(reopened.dispatch().unwrap().is_none());
-    // Expiry alone does not resume the queue; explicit recovery is required.
-    reopened.connection.execute("UPDATE turns SET refusal_hold=json_set(refusal_hold,'$.refusal.retryAt',0) WHERE id=?1", [&queued]).unwrap();
-    assert!(reopened.dispatch().unwrap().is_none());
-    assert!(control_turn(&reopened.connection, &queued, TurnControl::Resume).is_err());
-    reopened
-        .connection
-        .execute(
-            "UPDATE inference_holds SET error=json_set(error,'$.refusal.retryAt',0)",
-            [],
-        )
-        .unwrap();
-    let hold = crate::ai::policy::holds::views(&reopened.connection)
-        .unwrap()
-        .remove(0);
-    apply(
-        &mut reopened,
-        Action::RecoverAiAccess {
-            hold_id: hold.id,
-            expected_generation: hold.generation,
-        },
-    );
-    assert!(reopened.dispatch().unwrap().is_none());
+    // Explicit resume reaches the server even before the original retry time.
     control_turn(&reopened.connection, &queued, TurnControl::Resume).unwrap();
     assert!(
         reopened.conversation_snapshot(&second, None).unwrap().turns[0]
@@ -173,14 +151,8 @@ fn refusal_holds_matching_queue_without_attempts_and_survives_restart() {
 }
 
 #[test]
-fn audio_refusal_blocks_new_chat_before_acceptance_and_survives_source_deletion() {
+fn audio_refusal_does_not_block_new_chat_or_survive_as_an_access_lockout() {
     let (dir, mut store, conversation) = setup();
-    let mut target = crate::ai::connections::access::resolve(
-        &store.connection,
-        crate::ai::connections::access::Capability::Chat,
-    )
-    .unwrap();
-    // Hosted audio and chat share the service spending boundary.
     store
         .connection
         .execute(
@@ -188,51 +160,105 @@ fn audio_refusal_blocks_new_chat_before_acceptance_and_survives_source_deletion(
             [],
         )
         .unwrap();
-    target.route = ConnectionRoute::Hosted;
-    target.url = format!("{}/v1/audio/transcriptions", crate::ai::hosted::ORIGIN);
-    target.credential = Some("hosted-test".into());
+    let target = crate::ai::connections::access::resolve(
+        &store.connection,
+        crate::ai::connections::access::Capability::Chat,
+    )
+    .unwrap();
+    let error = AppError::new(ErrorCode::Provider, "Daily request limit reached.").with_refusal(
+        crate::ai::policy::refusal::classify(Some("PERSONAL_ACCOUNT_DAILY_LIMIT"), None, None),
+    );
+    store.note_refusal(&target, &error).unwrap();
+    // Simulate the discarded table from the preceding app build.
     store
-        .note_refusal(
-            &target,
-            &AppError::new(ErrorCode::Provider, "Spending paused.").with_refusal(
-                crate::ai::policy::refusal::classify(Some("SPENDING_PAUSED"), None, None),
-            ),
+        .connection
+        .execute_batch("CREATE TABLE inference_holds(id TEXT PRIMARY KEY, error TEXT NOT NULL)")
+        .unwrap();
+    store
+        .connection
+        .execute(
+            "INSERT INTO inference_holds VALUES('hosted-service',?1)",
+            [serde_json::to_string(&error).unwrap()],
         )
         .unwrap();
-    let command = send(&store, &conversation);
-    assert_eq!(
-        store.execute(command).unwrap_err().code,
-        ErrorCode::AdmissionHeld
-    );
+    drop(store);
+    let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    store.prepare_chat().unwrap();
     assert!(
-        store
+        !store
+            .connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='inference_holds')",
+                [],
+                |row| row.get::<_, bool>(0),
+            )
+            .unwrap()
+    );
+    let command = send(&store, &conversation);
+    store.execute(command).unwrap();
+    assert!(
+        !store
             .conversation_snapshot(&conversation, None)
             .unwrap()
             .messages
             .is_empty()
     );
-    let revision = store
-        .snapshot()
+}
+
+#[test]
+fn manual_retry_before_daily_reset_preserves_error_and_repauses_on_new_refusal() {
+    let (dir, mut store, conversation) = setup();
+    let dispatch = begin(&mut store, &conversation);
+    let turn = store
+        .conversation_snapshot(&conversation, None)
         .unwrap()
-        .conversations
-        .iter()
-        .find(|c| c.id == conversation)
-        .unwrap()
-        .revision;
+        .turns[0]
+        .id
+        .clone();
+    let error = AppError::new(ErrorCode::Provider, "Daily request limit reached.")
+        .with_refusal(crate::ai::policy::refusal::classify(
+            Some("PERSONAL_ACCOUNT_DAILY_LIMIT"),
+            None,
+            Some("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+        ))
+        .with_diagnostics(serde_json::json!({"code":"PERSONAL_ACCOUNT_DAILY_LIMIT"}));
+    assert!(error.refusal.as_ref().unwrap().retry_at.unwrap() > crate::ai::policy::refusal::now());
+    store.finish(&dispatch, Err(error.clone())).unwrap();
+    assert!(store.dispatch().unwrap().is_none());
+    drop(store);
+    let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    store.prepare_chat().unwrap();
+    assert!(store.dispatch().unwrap().is_none());
     apply(
         &mut store,
-        Action::DeleteConversation {
-            conversation_id: conversation,
-            expected_revision: revision,
+        Action::ControlTurn {
+            turn_id: turn.clone(),
+            control: TurnControl::Retry,
         },
     );
-    drop(store);
-    let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
-    assert_eq!(
-        crate::ai::policy::holds::check(&reopened.connection, &target)
-            .unwrap_err()
-            .code,
-        ErrorCode::AdmissionHeld
+    let retry = store.dispatch().unwrap().unwrap();
+    assert_ne!(retry.attempt, dispatch.attempt);
+    let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
+    let original = snapshot.turns[0]
+        .attempts
+        .iter()
+        .find(|a| a.id == dispatch.attempt)
+        .unwrap();
+    assert_eq!(original.error.as_deref(), Some(error.message.as_str()));
+    assert!(
+        serde_json::to_string(&original.diagnostics)
+            .unwrap()
+            .contains("PERSONAL_ACCOUNT_DAILY_LIMIT")
+    );
+    store.finish(&retry, Err(error)).unwrap();
+    assert!(store.dispatch().unwrap().is_none());
+    assert!(
+        store
+            .conversation_snapshot(&conversation, None)
+            .unwrap()
+            .turns[0]
+            .hold
+            .is_some()
     );
 }
 

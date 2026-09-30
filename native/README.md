@@ -23,7 +23,7 @@ text; normalization belongs only to the operation that requires it.
 | [src/drill/](src/drill/) | Manual phrases, attempts/comparisons, sessions/visits, reference cache and recording retention; recording and AI execution stay shared |
 | [src/learning/](src/learning/) | Coaching, learner evidence/state, progression, rewards and reward settings |
 | [src/speech/](src/speech/) | Capture, recording commands, transcription receipts, audio inspection, fluency timing and one-time audio delivery |
-| [src/ai/](src/ai/) | Access, credentials, routing, admission, holds, refusals, shared generation lifecycle and receipts, hosted connections and provider transports |
+| [src/ai/](src/ai/) | Access, credentials, routing, admission, refusals, shared generation lifecycle and receipts, hosted connections and provider transports |
 | [src/storage/](src/storage/) | Workspace ownership, database initialization and schemas, reset and workspace-copy export |
 | [src/language/](src/language/) | Language lookup, Unicode/emoji handling, existing linguistics code and its fixtures |
 | [src/configuration/](src/configuration/) | Configuration loading, validation, types, citations and schema checks |
@@ -127,7 +127,7 @@ and each partner message's captured reading scope.
 | `learning/` | `coaching/` (requests, observations, policy), `learner/` (state, progression), `rewards/` (rewards, settings) |
 | `partners/` | `persona/` (definitions, prompts), `generation.rs` (persona request projection), and reactions |
 | `speech/` | `recording/` (capture, commands, transcription), `analysis/` (inspection, fluency); `delivery.rs` holds the one-time playback mailbox |
-| `ai/` | `results/` (shared results, blobs, receipts, request identity and subscriptions), `generation/` (proposal registry and receipts), `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, holds, refusals) |
+| `ai/` | `results/` (shared results, blobs, receipts, request identity and subscriptions), `generation/` (proposal registry and receipts), `connections/` (access, credentials, routing), `hosted/` (hosted integration, mobile sign-in), `transport/` (text, speech, grouped responses), `policy/` (admission, refusals, bounded retries) |
 | `storage/` | `schemas/` holds database SQL; `store/` groups locking, schema validation, startup, snapshots and transactional commands; reset remains in factory_reset.rs |
 | `conversations/execution/` | Admission, holds, connections, turns, snapshots, dispatch, publication, reading retries, speech and recovery; behavior-based tests in `tests/` |
 | `ai/transport/provider/` | `keys.rs` verifies credentials; `payload.rs` builds prose/structured requests and enforces input limits; `request.rs` owns HTTP and dispatch routing; `response.rs` decodes completions and validates prose; matching suites and local HTTP fixtures live in `tests/` |

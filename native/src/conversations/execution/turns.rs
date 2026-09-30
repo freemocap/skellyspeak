@@ -238,7 +238,6 @@ fn accept_turn(
         db,
         crate::ai::connections::access::Capability::Chat,
     )?;
-    crate::ai::policy::holds::check(db, &target)?;
     let speech_enabled = !coach && conversation.settings.read_aloud;
     let speech_target = if speech_enabled {
         Some(crate::ai::connections::speech_routing::resolve(
@@ -249,9 +248,6 @@ fn accept_turn(
     } else {
         None
     };
-    if let Some(target) = &speech_target {
-        crate::ai::policy::holds::check(db, target)?;
-    }
     let plan = if coach {
         COACH_PLAN
     } else if opening.is_some() {
