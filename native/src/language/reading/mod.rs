@@ -1,5 +1,5 @@
 //! Explicit reading consumers. Generated payloads are evictable local results;
-//! redacted execution receipts are durable. Never grants learning credit.
+//! redacted execution receipts are durable. New text help can earn exploration, never skill XP.
 mod receipts;
 pub(crate) mod saved;
 mod sentence_blanks;
@@ -76,6 +76,10 @@ impl ReadingAid {
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ReadingInput {
+    /// Optional conversation attribution captured by the reading surface.
+    #[serde(default)]
+    #[ts(optional)]
+    pub conversation_id: Option<String>,
     // Optional durable reference owner; ordinary reading aids remain ephemeral.
     #[serde(default)]
     #[ts(optional)]
@@ -117,6 +121,11 @@ pub struct Request {
 }
 impl Request {
     pub fn capture(store: &Store, input: ReadingInput) -> Result<Self> {
+        crate::learning::effort::exploration::validate_conversation(
+            &store.connection,
+            input.conversation_id.as_deref(),
+            &input.language,
+        )?;
         if input.text.trim().is_empty()
             || input.text.encode_utf16().count() > TEXT_LIMIT
             || input.text.contains('\0')
@@ -171,6 +180,11 @@ impl Request {
         Ok(request)
     }
     pub fn validate_source(&self, store: &Store) -> Result<()> {
+        crate::learning::effort::exploration::validate_conversation(
+            &store.connection,
+            self.input.conversation_id.as_deref(),
+            &self.input.language,
+        )?;
         crate::drill::reference::validate(store, self)?;
         if self.cancelled.load(Ordering::SeqCst) {
             return Err(self.stopped("cancelled"));

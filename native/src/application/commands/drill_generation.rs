@@ -127,6 +127,7 @@ async fn run(state: &Arc<Application>, id: &str) -> Result<previews::DrillGenera
                 )? {
                     return Err(error);
                 }
+                crate::learning::effort::exploration::practice_proposal(&tx, request)?;
                 tx.commit()?;
                 Ok(())
             })();

@@ -4,6 +4,8 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { AiView } from './AiView'
 
+const credit = vi.hoisted(() => ({ recordBotInspection: vi.fn() }))
+vi.mock('../../platform/ipc/effort', () => credit)
 const api = vi.hoisted(() => ({ readWorkspace: vi.fn(), watchConversation: vi.fn(), listTurnHistory: vi.fn(), readAttemptDetail: vi.fn() }))
 const windowApi = vi.hoisted(() => ({ getAiViewSelection: vi.fn(), setAiViewSelection: vi.fn(), getAiGraphDefinitions: vi.fn() }))
 const flow = vi.hoisted(() => ({ fitView: async (_options?: { nodes?: { id: string }[] }) => true }))
@@ -21,6 +23,7 @@ vi.mock('@xyflow/react', () => ({
 }))
 beforeEach(() => {
   vi.resetAllMocks()
+  credit.recordBotInspection.mockResolvedValue(undefined)
   HTMLDialogElement.prototype.showModal = function () { this.open = true }
   HTMLDialogElement.prototype.close = function () { this.open = false }
   useNavigationStore.setState({ aiInspection: null })
@@ -360,4 +363,22 @@ it('keeps the tray above the recording panel to the live graph under a single he
   expect(screen.getByRole('button', { name: 'Close AI activity' })).toBeInTheDocument()
   // Too short to show the whole graph legibly, the tray keeps the running reply in view.
   await waitFor(() => expect(fit).toHaveBeenLastCalledWith(expect.objectContaining({ nodes: [{ id: 'reply' }] })))
+})
+
+it('credits deliberate node inspection only after recorded details load', async () => {
+  api.readWorkspace.mockResolvedValue({ selected: 'chat' })
+  api.watchConversation.mockResolvedValueOnce(snapshot('chat', 1, [turn('turn', [
+    { id: 'reply', kind: 'persona_reply', state: 'succeeded', dependencies: [] },
+  ], [attempt('reply')])])).mockImplementation(() => new Promise(() => {}))
+  const pending = deferred<{ requestMessages: null; responseText: string; previewText: null }>()
+  api.readAttemptDetail.mockReturnValue(pending.promise)
+  render(<AiView mode="docked" actions={null} />)
+  await screen.findByTestId('node-reply')
+  expect(credit.recordBotInspection).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByTestId('node-reply'))
+  expect(credit.recordBotInspection).not.toHaveBeenCalled()
+  await act(async () => pending.resolve({ requestMessages: null, responseText: 'Recorded response', previewText: null }))
+  await waitFor(() => expect(credit.recordBotInspection).toHaveBeenCalledExactlyOnceWith('reply-attempt'))
+  fireEvent.click(screen.getByTestId('node-reply'))
+  expect(credit.recordBotInspection).toHaveBeenCalledTimes(1)
 })

@@ -204,6 +204,7 @@ pub fn run() {
             learner_state::get_learner_profile,
             rewards::claim_reward_events,
             crate::learning::effort::get_effort_progress,
+            crate::learning::effort::bot::record_bot_inspection,
             crate::learning::effort::report::get_effort_report,
             crate::learning::effort::claim_effort_awards,
             learner_state::export_learner_state,

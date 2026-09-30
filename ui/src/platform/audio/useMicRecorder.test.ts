@@ -245,7 +245,7 @@ it('refreshes a Drill owner after post-publication cleanup fails without retrans
 })
 
 it('continuous listening publishes separate takes and stops through the shared authority', async () => {
-  let status = { recordingId: 'listen', listening: true, speaking: false, queued: 0, processing: false, completed: 0, failure: null }
+  let status = { takes: [], recordingId: 'listen', listening: true, speaking: false, queued: 0, processing: false, completed: 0, failure: null }
   invoke.mockImplementation(async (command: string) => {
     if (command === 'mic_listen_start') return { recordingId: 'listen', samplesPerSecond: 750, browserCapture: false, browserDeviceId: null }
     if (command === 'mic_listen_status') return status

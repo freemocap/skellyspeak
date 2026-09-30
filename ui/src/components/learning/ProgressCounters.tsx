@@ -7,7 +7,7 @@ import { useI18n } from '../localization/i18n'
 const GAIN_MS = 1600
 
 /** Shared face for the profile button and the conversation badge. XP is the one
- * visible number; the four effort units stay behind the progress card and only
+ * visible number; the effort units stay behind the progress card and only
  * surface as a brief "+N icon" when one of them increases. Units are never summed. */
 export function ProgressCounters({ xp, xpLabel = 'XP', scope, effort, units, effects = true, error, icon = 'star', code, global }: {
   xp: number | null; xpLabel?: string; scope?: string; effort: EffortProgress | null; units?: readonly EffortField[]; effects?: boolean; error?: string | null

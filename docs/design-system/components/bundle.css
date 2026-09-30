@@ -40,6 +40,9 @@
    overrides only the roles it changes. */
 
 :root {
+  /* Per-particle direction, supplied by the action reward renderer. */
+  --burst-x: 0;
+  --burst-y: 0;
   /* Native menus and controls follow the resolved app theme, including System. */
   color-scheme: light;
   /* ══ Colour: surfaces and text ═══════════════════════════════════════════
@@ -2078,10 +2081,12 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 [data-unit="noIssuesFlagged"] { color: var(--success-ink); }
 [data-unit="revisionsSent"] { color: var(--coach-ink); }
 [data-unit="practiceAttempts"] { color: var(--practice-ink); }
+[data-unit="explorations"] { color: var(--interaction-ink); }
 .progress-gain[data-unit="partnerUnderstood"] { border-color: var(--partner-line); background: var(--partner-tint); }
 .progress-gain[data-unit="noIssuesFlagged"] { border-color: var(--success-line); background: var(--success-tint); }
 .progress-gain[data-unit="revisionsSent"] { border-color: var(--coach-line); background: var(--coach-tint); }
 .progress-gain[data-unit="practiceAttempts"] { border-color: var(--practice-line); background: var(--practice-tint); }
+.progress-gain[data-unit="explorations"] { border-color: var(--interaction-line); background: var(--interaction-tint); }
 
 .progress-gains { position: absolute; top: calc(100% + var(--space-2)); inset-inline-end: 0; z-index: var(--z-reward); display: flex; gap: var(--space-2); pointer-events: none; }
 .progress-gain { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border: var(--border-width) solid; border-radius: var(--radius-pill); box-shadow: var(--shadow-floating); font: var(--weight-bold) var(--type-ui)/var(--leading-none) var(--font-mono); white-space: nowrap; animation: progress-pop var(--dur-loop) var(--ease-out) both; }
@@ -2154,6 +2159,17 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .effort-mini-stats th span { display: flex; align-items: center; gap: var(--space-2); }
 .effort-mini-stats svg { flex: none; }
 .effort-mini-stats thead { color: var(--ink-2); }
+
+[data-unit="bot"] { color: var(--interaction-ink); }
+.progress-gain[data-unit="bot"] { border-color: var(--interaction-line); background: var(--interaction-tint); }
+
+/* Manual popovers keep the action burst above dialogs without intercepting input. */
+.action-reward-burst { position: fixed; inset: auto; margin: 0; padding: 0; width: 0; height: 0; overflow: visible; border: 0; background: transparent; pointer-events: none; z-index: var(--z-reward); }
+.action-reward-burst::backdrop { background: transparent; pointer-events: none; }
+.action-reward-center, .action-reward-particle { position: absolute; display: flex; pointer-events: none; filter: drop-shadow(0 0 var(--space-1) var(--sheet)); }
+.action-reward-center { animation: action-reward-pop var(--dur-deliberate) var(--ease-out) both; }
+.action-reward-particle { animation: action-reward-scatter var(--dur-deliberate) var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) { .action-reward-burst { display: none; } }
 
 /* ── components/skill-guide.css ── */
 /* Authored lessons share the app's reading controls and surface tokens. */
@@ -3764,6 +3780,10 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .prompt-creator .prompt-yaml { min-height: 260px; font-family: monospace; }
 .prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
 .prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }
+
+/* Secondary entry remains available while start options are collapsed. */
+.start-prompt-editor { border-block-start: var(--border-width) solid var(--line-soft); padding-block: var(--space-2); }
+.start-prompt-editor .start-link { display: inline-flex; align-items: center; gap: var(--space-2); }
 
 /* ── features/conversation/reading-evidence.css ── */
 /* reading evidence — conversation style owner. */
@@ -6626,6 +6646,18 @@ section.drill-bundled-buttons { display: block; padding-top: var(--space-4); }
 @keyframes ai-status-arrive { from { opacity: 0; transform: translateY(var(--space-3)); } to { opacity: 1; transform: none; } }
 
 
+
+@keyframes action-reward-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+  45% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -80%) scale(0.75); }
+}
+@keyframes action-reward-scatter {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--burst-x) * var(--space-13)), calc(-50% + var(--burst-y) * var(--space-13))) scale(0.65); }
+}
 
 
 /* ── features/settings/onboarding.css ── */

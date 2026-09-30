@@ -57,6 +57,16 @@ async fn skill_target_reaches_generation_and_survives_acceptance_without_xp() {
     };
     assert_eq!(focus.skill.id, "past_reference");
     let store = app.lock().unwrap();
+    let effort = crate::learning::effort::read(&store.connection, "spanish").unwrap();
+    assert_eq!(effort.explorations, 1);
+    assert!(effort.recent[0].conversation_id.is_none());
+    store.drill_preview(&id).unwrap();
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
     let saved = store.drill_items("spanish").unwrap();
     assert_eq!(
         serde_json::to_value(&saved[0].source).unwrap()["skillFocus"]["skill"]["id"],

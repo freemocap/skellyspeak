@@ -160,6 +160,8 @@ pub struct LanguageTotals {
     pub no_issues_flagged: u32,
     pub revisions_sent: u32,
     pub practice_attempts: u32,
+    pub explorations: u32,
+    pub bot: u32,
 }
 #[tauri::command]
 pub(crate) fn get_language_totals(
@@ -195,6 +197,8 @@ fn language_totals(store: &Store) -> Result<Vec<LanguageTotals>> {
             no_issues_flagged: effort.no_issues_flagged,
             revisions_sent: effort.revisions_sent,
             practice_attempts: effort.practice_attempts,
+            explorations: effort.explorations,
+            bot: effort.bot,
         });
     }
     Ok(rows)

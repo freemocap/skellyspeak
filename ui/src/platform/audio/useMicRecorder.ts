@@ -1,3 +1,4 @@
+import { bindRewardOrigin, captureRewardOrigin, inheritRewardOrigin } from '../ipc/reward-origin'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../ipc/native'
 import { reportFault } from '../diagnostics/faults'
@@ -98,6 +99,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
           const status = await invoke<ListeningStatus>('mic_listen_status', { recordingId })
           if (active.current !== recordingId) return
           if (status.recordingId !== recordingId) throw new Error('Listening status belongs to another recording.')
+          for (const take of status.takes) inheritRewardOrigin(take.recordingId, recordingId)
           setListeningStatus(status)
           if (status.completed !== publications.current) {
             publications.current = status.completed
@@ -156,6 +158,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
   }, [recording, cancel, spectrum])
 
   const toggleMic = useCallback(async () => {
+    const rewardOrigin = captureRewardOrigin()
     if (working.current) return
     const scope = generation.current
     working.current = true
@@ -171,6 +174,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
         return
       }
       if (recordingId) {
+        bindRewardOrigin(recordingId, rewardOrigin)
         stoppedRecordingId = recordingId
         // Every owner keeps the take's identity (Practice's attempt row, the
         // conversation's pending message) until its text arrives or fails.
@@ -232,6 +236,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
             browser.current = capture
           } catch (error) { await stopNative(recordingId); throw error }
         }
+        bindRewardOrigin(recordingId, rewardOrigin)
         active.current = recordingId
         samples.current = []
         setWaveSource(browser.current?.wave ?? { samplesPerSecond, read: () => samples.current.splice(0) })
@@ -260,6 +265,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
    * of a failed take for this. The retried attempt has its own identity; the take
    * keeps its own, and its text is passed on as a first transcription's is. */
   const retry = useCallback(async (recordingId: string) => {
+    bindRewardOrigin(recordingId)
     if (working.current || active.current) return
     const scope = generation.current
     const retryOwner = current.current

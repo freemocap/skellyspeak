@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest'
 import { ProgressCounters } from './ProgressCounters'
 import { ProgressCard } from './ProgressCard'
 import type { EffortProgress } from '../../generated/contracts'
-const effort: EffortProgress = { target: 'spanish', partnerUnderstood: 12, revisionsSent: 3, practiceAttempts: 45, noIssuesFlagged: 6, recent: [] }
+const effort: EffortProgress = { target: 'spanish', partnerUnderstood: 12, revisionsSent: 3, practiceAttempts: 45, noIssuesFlagged: 6, explorations: 0, bot: 0, recent: [] }
 it('shows XP as the only number and floats a gain for the effort unit that rose', () => {
   const view = render(<ProgressCounters xp={1248} effort={effort} />)
   expect(screen.getByLabelText('XP: 1,248')).toBeVisible()
@@ -33,7 +33,24 @@ it('lists XP and each effort unit separately in the card', () => {
   render(<ProgressCard title="Language progress" xp={1248} effort={effort} expandLabel="Full report" onExpand={expand} />)
   const card = screen.getByRole('dialog', { name: 'Language progress' })
   expect(card).toHaveTextContent('1,248 XP')
-  for (const label of ['Understood: 12', 'Clean: 6', 'Fixes: 3', 'Practice: 45']) expect(screen.getByLabelText(label)).toBeVisible()
+  for (const label of ['Understood: 12', 'Clean: 6', 'Fixes: 3', 'Practice: 45', 'Explore: 0']) expect(screen.getByLabelText(label)).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Full report' }))
   expect(expand).toHaveBeenCalledOnce()
+})
+
+it('shows a telescope gain without changing XP and honors disabled effects', () => {
+  const view = render(<ProgressCounters xp={12} effort={effort} />)
+  view.rerender(<ProgressCounters xp={12} effort={{ ...effort, explorations: 1 }} />)
+  expect(view.container.querySelector('[data-effort-gain="telescope"]')).toHaveTextContent('+1')
+  expect(screen.getByLabelText('XP: 12')).not.toHaveAttribute('data-gaining')
+  view.rerender(<ProgressCounters xp={12} effort={{ ...effort, explorations: 2 }} effects={false} />)
+  expect(view.container.querySelector('[data-effort-gain]')).toBeNull()
+})
+
+it('shows the robot gain independently of XP and exploration', () => {
+  const view = render(<ProgressCounters xp={12} effort={effort} />)
+  view.rerender(<ProgressCounters xp={12} effort={{ ...effort, bot: 1 }} />)
+  expect(view.container.querySelector('[data-effort-gain="bot"]')).toHaveTextContent('+1')
+  expect(view.container.querySelector('[data-effort-gain="telescope"]')).toBeNull()
+  expect(screen.getByLabelText('XP: 12')).not.toHaveAttribute('data-gaining')
 })

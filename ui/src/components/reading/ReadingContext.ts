@@ -1,4 +1,4 @@
-import { createContext, useContext, type ComponentType } from 'react'
+import { createContext, useContext, useMemo, type ComponentType } from 'react'
 import type { ReadingInput, ReplyExplanation } from '../../generated/contracts'
 import type { ReadingHelpResult, ReadingLookupOptions } from '../../domain/reading/reading-result'
 export type ReadingScope = Omit<ReadingInput, 'text' | 'aid'>
@@ -11,11 +11,18 @@ export interface ReadingServices {
 }
 export const ReadingTemplateContext = createContext(false)
 export const ReadingScopeContext = createContext<ReadingScope | null>(null)
+/** Attribution belongs to the initiating surface, independently of reading language overrides. */
+export const ReadingConversationContext = createContext<{ id: string; language: string } | null>(null)
 export const ReadingPeekContext = createContext<(input: ReadingInput) => ReadingHelpResult | null>(() => null)
 export const useReadingPeek = () => useContext(ReadingPeekContext)
 export type ReadingLookup = (input: ReadingInput, signal: AbortSignal, options?: ReadingLookupOptions) => Promise<ReadingHelpResult>
 export const ReadingLookupContext = createContext<ReadingLookup | null>(null)
-export const useReadingLookup = () => useContext(ReadingLookupContext)
+export function useReadingLookup() {
+  const lookup = useContext(ReadingLookupContext)
+  const conversation = useContext(ReadingConversationContext)
+  return useMemo<ReadingLookup | null>(() => lookup && conversation ? (input, ...args) =>
+    lookup(withConversation(input, conversation), ...args) : lookup, [lookup, conversation])
+}
 // The reading host composes full message controls into low-level word helpers.
 // Injecting their renderer keeps token rendering independent of message bubbles.
 export const ReadingCompletionsContext = createContext<ComponentType<{ cards: ReplyExplanation[] }> | null>(null)
@@ -26,5 +33,15 @@ export const ReadingActionsContext = createContext<{
   speaking: string | null
 } | null>(null)
 export const speechKey = (selection: ReadingSelection) => JSON.stringify([selection.scope, selection.text.slice(selection.start, selection.end)])
-export function useReadingActions() { return useContext(ReadingActionsContext) }
+export function useReadingActions() {
+  const actions = useContext(ReadingActionsContext)
+  const conversation = useContext(ReadingConversationContext)
+  return useMemo(() => actions ? { ...actions, inspect: (selection: ReadingSelection) =>
+    actions.inspect({ ...selection, scope: withConversation(selection.scope, conversation) }) } : null, [actions, conversation])
+}
 export function useReadingScope() { return useContext(ReadingScopeContext) }
+
+function withConversation<T extends ReadingScope>(input: T, conversation: { id: string; language: string } | null): T {
+  return conversation && input.language === conversation.language
+    ? { ...input, conversationId: conversation.id } : input
+}

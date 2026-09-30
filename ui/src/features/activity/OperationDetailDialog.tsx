@@ -1,3 +1,4 @@
+import { bindRewardOrigin } from '../../platform/ipc/reward-origin'
 import { useState } from 'react'
 import type { OperationView, TurnView } from '../../generated/contracts'
 import { humanizeKind } from '../../domain/conversation/activity-summary'
@@ -24,6 +25,7 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
   const tr = useI18n()
   const attempts = turn.attempts.filter(attempt => attempt.operationId === operation.id)
   const [picked, setPicked] = useState<string | null>(null)
+  const [inspected, setInspected] = useState<string | null>(attempts.at(-1)?.id ?? null)
   const attempt = attempts.find(item => item.id === picked) ?? attempts.at(-1) ?? null
   const runs = operationRuns(turns, operation.kind)
   const failed = !!attempt?.error || attempt?.state === 'failed'
@@ -33,7 +35,7 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
       <header className="ai-detail-head">
         <h2>{humanizeKind(operation.kind)}</h2>
         {attempts.length > 1 && <div className="ai-attempts" role="group" aria-label={tr('Attempts')}>
-          {attempts.map((item, index) => <button key={item.id} type="button" className="ai-chip" aria-pressed={item.id === attempt?.id} onClick={() => setPicked(item.id)}>{tr('Attempt {number}', { number: index + 1 })} · {item.state}</button>)}
+          {attempts.map((item, index) => <button key={item.id} type="button" className="ai-chip" aria-pressed={item.id === attempt?.id} onClick={() => { bindRewardOrigin(`inspection:${item.id}`); setPicked(item.id); setInspected(item.id) }}>{tr('Attempt {number}', { number: index + 1 })} · {item.state}</button>)}
         </div>}
       </header>
       <section className="ai-detail-facts">
@@ -42,7 +44,7 @@ export function OperationDetailDialog({ turn, operation, turns, now, onPickTurn,
         <OperationFacts turn={turn} operation={operation} attempt={attempt} now={now} />
       </section>
       <section className="ai-detail-bodies">
-        {attempt ? <AttemptBodies attempt={attempt} /> : <p className="ai-muted">{tr('This operation has not started.')}</p>}
+        {attempt ? <AttemptBodies attempt={attempt} deliberate={attempt.id === inspected} /> : <p className="ai-muted">{tr('This operation has not started.')}</p>}
       </section>
       <section className="ai-detail-history">
         <h3 className="ai-section-title">{tr('History of this operation')}</h3>

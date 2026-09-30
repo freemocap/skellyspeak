@@ -228,3 +228,11 @@ it('keeps a saved topic and shows the failure when deleting it fails', async () 
   expect(screen.getByRole('button', { name: 'Mi barrio' })).toBeInTheDocument()
   expect(remove).toBeEnabled()
 })
+
+it('offers the prompt editor outside collapsed options', () => {
+  render(<ConversationStart {...props} onStart={vi.fn()} />)
+  expect(screen.getByRole('button', { name: /^Options/ })).toHaveAttribute('aria-expanded', 'false')
+  const editor = screen.getByRole('button', { name: 'Open prompt editor…' })
+  expect(editor.closest('.start-options')).toBeNull()
+  expect(editor.closest('[inert]')).toBeNull()
+})

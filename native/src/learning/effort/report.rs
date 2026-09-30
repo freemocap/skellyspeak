@@ -63,7 +63,8 @@ pub(super) fn read(
         db.query_row("SELECT rowid FROM effort_awards WHERE id=?1 AND language_id=?2 AND (?3 IS NULL OR dimension=?3)",params![id,target,filter.map(|d|d.key())], |r|r.get(0)).optional()?.ok_or_else(|| AppError::new(ErrorCode::NotFound,"Effort history changed. Reopen the report."))
     }).transpose()?;
     // Cursor uses immutable insertion order, so new publications cannot shift pages.
-    let rows = db.prepare("SELECT a.id,a.dimension,a.created_at,CASE WHEN a.dimension='practice_attempts' THEN (SELECT transcript FROM drill_attempts WHERE transcription_attempt_id=a.source_id LIMIT 1) ELSE (SELECT text FROM messages WHERE turn_id=a.source_id AND role='user') END FROM effort_awards a WHERE language_id=?1 AND (?2 IS NULL OR a.dimension=?2) AND (?3 IS NULL OR a.rowid<?3) ORDER BY a.rowid DESC LIMIT 51")?.query_map(params![target,filter.map(|d|d.key()),cursor],|r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,Option<String>>(3)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    // Exploration identities are operations or content digests, never user turn IDs.
+    let rows = db.prepare("SELECT a.id,a.dimension,a.created_at,CASE WHEN a.dimension IN ('explorations','bot') THEN NULL WHEN a.dimension='practice_attempts' THEN (SELECT transcript FROM drill_attempts WHERE transcription_attempt_id=a.source_id LIMIT 1) ELSE (SELECT text FROM messages WHERE turn_id=a.source_id AND role='user') END FROM effort_awards a WHERE language_id=?1 AND (?2 IS NULL OR a.dimension=?2) AND (?3 IS NULL OR a.rowid<?3) ORDER BY a.rowid DESC LIMIT 51")?.query_map(params![target,filter.map(|d|d.key()),cursor],|r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,Option<String>>(3)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
     let more = rows.len() > 50;
     for (id, key, created_at, source_text) in rows.into_iter().take(50) {
         report.entries.push(EffortHistoryEntry {

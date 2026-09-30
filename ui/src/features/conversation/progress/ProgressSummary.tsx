@@ -134,6 +134,8 @@ export function ProgressSummary({ snapshot, target, onClose, onLearning }: { sna
       {overview && <>
         <dl className="practice-metrics">
           <div><dt>{tr("Total XP")}</dt><dd>{globalXp.toLocaleString(tr.browserLocale)}</dd></div>
+          <div data-unit="bot"><dt>{tr('Bot')}</dt><dd>{totals.globalEffort ? tr.number(totals.globalEffort.bot) : '—'}</dd></div>
+          <div data-unit="explorations"><dt>{tr('Explore')}</dt><dd>{totals.globalEffort ? tr.number(totals.globalEffort.explorations) : '—'}</dd></div>
           <div><dt>{tr("Saved conversations")}</dt><dd>{tr.number(conversations)}</dd></div>
           <div><dt>{tr("Assessed messages")}</dt><dd>{tr.number(records.length)}</dd></div>
           <div><dt>{tr("Dates with assessments (UTC)")}</dt><dd>{tr.number(practiceDates.size)}</dd></div>

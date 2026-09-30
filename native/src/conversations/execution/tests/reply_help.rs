@@ -12,6 +12,7 @@ fn partner(store: &mut Store, conversation: &str, opening: bool) -> (String, Str
             .unwrap()
             .settings;
         let configuration = crate::conversations::direction::ConversationStartConfig {
+            prompt_editor: None,
             difficulty: settings.difficulty,
             variety_id: settings.variety_id,
             direction: settings.direction,
@@ -109,6 +110,12 @@ fn normal_and_opening_turns_generate_only_brief_then_save_requested_empty_gramma
             .unwrap();
         assert_eq!(help.dependencies, vec![parent.id.clone()]);
         let grammar = store.dispatch().unwrap().unwrap();
+        assert_eq!(
+            crate::learning::effort::read(&store.connection, "spanish")
+                .unwrap()
+                .explorations,
+            0
+        );
         let input: serde_json::Value =
             serde_json::from_str(&grammar.messages.last().unwrap().content).unwrap();
         assert_eq!(input["actualPartnerReply"], "¿Con quién fuiste?");
@@ -120,6 +127,12 @@ fn normal_and_opening_turns_generate_only_brief_then_save_requested_empty_gramma
         assert!(saved.reply_brief.is_some());
         assert!(saved.reply_explanations.as_ref().unwrap().cards.is_empty());
         assert_eq!(saved.explanations_state.as_deref(), Some("succeeded"));
+        let effort = crate::learning::effort::read(&store.connection, "spanish").unwrap();
+        assert_eq!(effort.explorations, 1);
+        assert_eq!(
+            effort.recent[0].conversation_id.as_deref(),
+            Some(conversation.as_str())
+        );
         assert!(saved.reply_assistance.is_none());
         assert_eq!(saved.reading_scope.as_ref().unwrap().language, "spanish");
         let count = store.profile().unwrap().global.attempts;
@@ -131,6 +144,12 @@ fn normal_and_opening_turns_generate_only_brief_then_save_requested_empty_gramma
         );
         assert!(store.dispatch().unwrap().is_none());
         assert_eq!(store.profile().unwrap().global.attempts, count);
+        assert_eq!(
+            crate::learning::effort::read(&store.connection, "spanish")
+                .unwrap()
+                .explorations,
+            1
+        );
         let restored = store.conversation_snapshot(&conversation, None).unwrap();
         assert_eq!(
             restored
@@ -330,6 +349,7 @@ fn explicit_reading_explanations_use_the_explanation_turn_contract() {
     let request = crate::language::reading::Request::capture(
         &store,
         crate::language::reading::ReadingInput {
+            conversation_id: None,
             reference_item: None,
             text: "¿Con quién fuiste?".into(),
             language: "spanish".into(),

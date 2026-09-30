@@ -1,14 +1,16 @@
 import {
-  AudioLines, BicepsFlexed, BookOpen, Check, ChevronDown, CircleCheck, Cpu,
+  AudioLines, Bot, BicepsFlexed, BookOpen, Check, ChevronDown, CircleCheck, Cpu,
   Database, Download, Ellipsis, ExternalLink, Globe, KeyRound,
   Keyboard, Lightbulb, Maximize2, Menu, MessageSquare, Mic,
   Minimize2, Moon, PanelTopClose, Pause, Pencil, Play,
   Plus, RotateCw, Settings, SlidersHorizontal, Smile, Square,
-  Star, Sun, Trash2, TriangleAlert, UserRound, Volume2,
+  Star, Sun, Telescope, Trash2, TriangleAlert, UserRound, Volume2,
   X
 } from 'lucide-react'
 
 const LIBRARY_ICONS = {
+  telescope: Telescope,
+  bot: Bot,
   smile: Smile,
   practice: BicepsFlexed,
   clean: CircleCheck,

@@ -50,6 +50,10 @@ impl Default for ConversationDirection {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ConversationStartConfig {
+    /// The learner applied the prompt editor before starting this conversation.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub prompt_editor: Option<bool>,
     pub difficulty: Difficulty,
     pub variety_id: String,
     pub direction: ConversationDirection,

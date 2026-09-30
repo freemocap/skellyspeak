@@ -426,6 +426,7 @@ impl Store {
             if kind == "persona_reply" || kind == "persona_opening" {
                 tx.execute("UPDATE turns SET context=json_set(context,'$.speechSourceId',(SELECT id FROM messages WHERE turn_id=?1 AND role='assistant'),'$.speechSourceText',(SELECT text FROM messages WHERE turn_id=?1 AND role='assistant')) WHERE id=?1", [&turn])?;
             }
+            crate::learning::effort::exploration::conversation(&tx, &dispatch.operation)?;
             tx.execute(
                 "UPDATE conversations SET revision=revision+1 WHERE id=?1",
                 [conversation],

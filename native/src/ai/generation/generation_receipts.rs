@@ -81,6 +81,9 @@ pub fn finish<T>(
 ) -> Result<()> {
     let tx = store.connection.transaction()?;
     let stopped = finish_in(&tx, request, completion, outcome)?;
+    if stopped.is_none() && outcome.is_ok() && request.kind == "persona" {
+        crate::learning::effort::bot::persona(&tx, request)?;
+    }
     tx.commit()?;
     match stopped {
         Some(error) => Err(error),
@@ -304,6 +307,10 @@ mod tests {
         )
         .unwrap();
         assert!(finish::<PersonaDetails>(&mut store, &request, None, &outcome).is_err());
+        let effort = crate::learning::effort::read(&store.connection, "spanish").unwrap();
+        assert_eq!(effort.bot, 1);
+        assert_eq!(effort.explorations, 0);
+        assert!(effort.recent[0].conversation_id.is_none());
         let profile = store.profile().unwrap();
         assert_eq!(profile.global.attempts, 1);
         assert_eq!(profile.global.input_tokens, 12);
@@ -364,6 +371,12 @@ mod tests {
         )
         .unwrap_err();
         assert_eq!(error.code, ErrorCode::UnknownOutcome);
+        assert_eq!(
+            crate::learning::effort::read(&store.connection, "spanish")
+                .unwrap()
+                .bot,
+            0
+        );
         let view = activity(&store.connection).unwrap();
         assert_eq!(view.attempts[0].state, "unknown");
         assert_eq!(view.attempts[1].state, "cancelled");
@@ -404,6 +417,12 @@ mod tests {
         .unwrap();
         let view = activity(&store.connection).unwrap();
         assert_eq!(view.attempts[0].state, "failed");
+        assert_eq!(
+            crate::learning::effort::read(&store.connection, "spanish")
+                .unwrap()
+                .bot,
+            0
+        );
         assert_eq!(view.usage.input_tokens, 3);
         assert_eq!(view.usage.output_tokens, 4);
         assert_eq!(view.usage.unknown_usage, 0);

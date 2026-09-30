@@ -1,4 +1,6 @@
 {
+  "Bot": "Bot",
+  "Open prompt editor…": "Abrir el editor de instrucciones…",
   "Preparing audio…": "Preparando audio…",
   "Cancel speech preparation": "Cancelar la preparación del audio",
   "Language XP": "XP del idioma",
@@ -738,7 +740,6 @@
   "Any time": "Cualquier momento",
   "Any time frame": "Cualquier período",
   "No focus": "Sin enfoque",
-  "Prompt details…": "Detalles de las instrucciones…",
   "About {name}": "Sobre {name}",
   "Change partner": "Cambiar de compañero",
   "Past events": "Sucesos pasados",

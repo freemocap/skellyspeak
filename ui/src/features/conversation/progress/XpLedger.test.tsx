@@ -9,7 +9,7 @@ it('counts contributing messages once, shows this conversation’s units and ski
   snapshot.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: snapshot.target, native: 'english', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
   snapshot.profile.credits = [{ attempt_id: 'a', skill_id: 'identify_describe', xp: 1 }]
   const inspect = vi.fn()
-  render(<XpLedger snapshot={snapshot} chatId="chat" effort={{ target: snapshot.target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 9, noIssuesFlagged: 1, recent: [] }} onInspectMessage={inspect} />)
+  render(<XpLedger snapshot={snapshot} chatId="chat" effort={{ target: snapshot.target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 9, noIssuesFlagged: 1, explorations: 0, bot: 0, recent: [] }} onInspectMessage={inspect} />)
   const skills = screen.getByRole('table', { name: 'Skills in this conversation' })
   expect(skills).toHaveTextContent('Identify and describe')
   expect(skills).toHaveTextContent('100%')

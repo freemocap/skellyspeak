@@ -4,9 +4,18 @@ import { beforeEach, expect, it, vi } from 'vitest'
 import { useEffortProgress } from './useEffortProgress'
 import { getEffortProgress, claimEffortAwards } from '../../platform/ipc/effort'
 import type { EffortProgress } from '../../generated/contracts'
+import { effortPublished } from '../../platform/ipc/effort-events'
 vi.mock('../../platform/ipc/effort', () => ({ getEffortProgress: vi.fn(), claimEffortAwards: vi.fn() }))
-const progress = (target: string): EffortProgress => ({ target, partnerUnderstood: 1, revisionsSent: 2, practiceAttempts: 3, noIssuesFlagged: 4, recent: [{ id: target, sourceId: 'source', dimension: 'practice_attempts', language: target, variety: 'standard', conversationId: null, policy: 'effort-inclusion-1', createdAt: '2026-09-29T12:00:00Z', claimed: false }] })
+const progress = (target: string): EffortProgress => ({ target, partnerUnderstood: 1, revisionsSent: 2, practiceAttempts: 3, noIssuesFlagged: 4, explorations: 0, bot: 0, recent: [{ id: target, sourceId: 'source', dimension: 'practice_attempts', language: target, variety: 'standard', conversationId: null, policy: 'effort-inclusion-1', createdAt: '2026-09-29T12:00:00Z', claimed: false }] })
 beforeEach(() => { vi.clearAllMocks(); vi.mocked(claimEffortAwards).mockImplementation(async (_target, ids) => ids) })
+it('refreshes newly generated reading effort without a conversation revision', async () => {
+  vi.mocked(getEffortProgress).mockResolvedValue(progress('spanish'))
+  const { result } = renderHook(() => useEffortProgress('spanish', 1))
+  await waitFor(() => expect(result.current.value?.explorations).toBe(0))
+  vi.mocked(getEffortProgress).mockResolvedValue({ ...progress('spanish'), explorations: 1 })
+  act(() => effortPublished())
+  await waitFor(() => expect(result.current.value?.explorations).toBe(1))
+})
 it('keeps lifetime totals visible if presentation claiming fails', async () => {
   vi.mocked(getEffortProgress).mockResolvedValue(progress('spanish'))
   vi.mocked(claimEffortAwards).mockRejectedValue(new Error('Claim failed'))

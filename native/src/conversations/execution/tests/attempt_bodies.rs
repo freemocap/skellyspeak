@@ -231,3 +231,44 @@ fn inspection_bodies_survive_while_diagnostics_redact_content_and_credentials() 
     assert!(saved.contains("provider-request-id"));
     assert!(saved.contains("actual-model"));
 }
+
+#[test]
+fn bot_inspection_is_explicit_durable_and_attributed() {
+    let (dir, mut store, conversation) = setup();
+    let (_, dispatched) = reply_dispatch(&mut store, &conversation);
+    store.attempt_detail(&dispatched.attempt).unwrap();
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .bot,
+        0
+    );
+    let earned = crate::learning::effort::bot::inspect(&mut store.connection, &dispatched.attempt)
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        earned.source_id,
+        format!("inspection:{}", dispatched.attempt)
+    );
+    assert!(
+        crate::learning::effort::bot::inspect(&mut store.connection, &dispatched.attempt)
+            .unwrap()
+            .is_none()
+    );
+    let credit = crate::learning::effort::read(&store.connection, "spanish").unwrap();
+    assert_eq!(credit.bot, 1);
+    assert_eq!(
+        credit.recent[0].conversation_id.as_deref(),
+        Some(conversation.as_str())
+    );
+    assert!(crate::learning::effort::bot::inspect(&mut store.connection, "missing").is_err());
+    drop(store);
+    let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    crate::learning::effort::bot::inspect(&mut store.connection, &dispatched.attempt).unwrap();
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .bot,
+        1
+    );
+}

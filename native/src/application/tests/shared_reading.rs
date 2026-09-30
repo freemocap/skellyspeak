@@ -7,6 +7,7 @@ use serde_json::json;
 
 fn input(aid: reading::ReadingAid) -> reading::ReadingInput {
     reading::ReadingInput {
+        conversation_id: None,
         reference_item: None,
         text: "Hola casa".into(),
         language: "spanish".into(),
@@ -47,6 +48,15 @@ async fn shared_translation_survives_restart_and_pause_without_another_paid_atte
     );
     assert_ne!(first.receipt["attemptId"], second.receipt["attemptId"]);
     assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts, 1);
+    let effort =
+        crate::learning::effort::read(&state.lock().unwrap().connection, "spanish").unwrap();
+    assert_eq!(effort.explorations, 1);
+    let presented: Vec<_> = [&first, &second]
+        .into_iter()
+        .filter_map(|result| result.receipt["effortAward"]["id"].as_str())
+        .collect();
+    assert_eq!(presented, vec![effort.recent[0].id.as_str()]);
+    assert!(effort.recent[0].conversation_id.is_none());
     drop(state);
     let state = Application::start(&path, None);
     state
@@ -59,6 +69,13 @@ async fn shared_translation_survives_restart_and_pause_without_another_paid_atte
     let cached = run_owned_reading(&state, &c).await.unwrap();
     assert_eq!(cached.translation, first.translation);
     assert_eq!(cached.receipt["response"]["cacheHit"], true);
+    assert!(cached.receipt["effortAward"].is_null());
+    assert_eq!(
+        crate::learning::effort::read(&state.lock().unwrap().connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
     assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts, 1);
     let retry = begin(&state, reading::ReadingAid::Translation, true);
     assert!(run_owned_reading(&state, &retry).await.is_err());
@@ -67,6 +84,12 @@ async fn shared_translation_survives_restart_and_pause_without_another_paid_atte
         .unwrap();
     assert_eq!(held["state"], "failed");
     assert_eq!(held["dispatched"], false);
+    assert_eq!(
+        crate::learning::effort::read(&state.lock().unwrap().connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
     assert_eq!(state.lock().unwrap().profile().unwrap().global.attempts, 1);
 }
 

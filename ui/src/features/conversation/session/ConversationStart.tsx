@@ -120,10 +120,14 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
         onTransitionEnd={event => { if (optionsOpen && event.target === event.currentTarget && event.propertyName === 'grid-template-rows') revealOptions() }}>
         <div className="start-options-content">
           <StartOptions conversationId={conversationId} value={value} disabled={disabled} skillFocus={recordedPractice} onChange={onChange} />
-          <button type="button" className="start-link" disabled={disabled}
-            onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>{tr('Prompt details…')}</button>
         </div>
       </div>
+    </div>
+    <div className="start-prompt-editor">
+      <button type="button" className="start-link" disabled={disabled}
+        onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>
+        <ToolbarIcon name="bot" size={16} />{tr('Open prompt editor…')}
+      </button>
     </div>
     {/* The partner's side of the table, in the partner's colours, with the main start beside them. */}
     <div className="start-partner">
@@ -174,7 +178,7 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
     {error && <ErrorNotice as="p" error={error} className="start-error">{error}</ErrorNotice>}
     {workspace && persona && language && <ConversationPromptCreator conversationId={conversationId} initial={value} topics={topics} savedTopics={workspace.savedTopics} language={language} persona={persona.details} onClose={() => setWorkspace(null)} onApply={async (configuration, additions, deletions) => {
       await saveTopics(additions, deletions)
-      onChange(configuration)
+      onChange({ ...configuration, promptEditor: true })
       // The creator may have saved or deleted topics; the applied change stands either way.
       if (additions.length || deletions.length) readWorkspace().then(result => setSaved(result.savedTopics), reason => setError(nativeError(reason)))
     }} />}

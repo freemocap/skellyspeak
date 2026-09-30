@@ -13,6 +13,7 @@ fn config(store: &Store, conversation: &str, mode: RecommendationMode) -> Conver
     let mut direction = settings.direction.clone();
     direction.topic = Some(TopicChoice::Coach { mode });
     ConversationStartConfig {
+        prompt_editor: None,
         difficulty: settings.difficulty.clone(),
         variety_id: settings.variety_id.clone(),
         direction,

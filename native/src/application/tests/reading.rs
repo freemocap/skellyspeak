@@ -103,6 +103,7 @@ async fn speech_request(reference: bool) {
         .begin(
             &state.lock().unwrap(),
             reading::ReadingInput {
+                conversation_id: None,
                 reference_item: item.clone(),
                 text: "كتاب".into(),
                 language: "arabic".into(),
@@ -114,6 +115,7 @@ async fn speech_request(reference: bool) {
         )
         .unwrap();
     let companion_input = reading::ReadingInput {
+        conversation_id: None,
         reference_item: None,
         text: "\u{0643}\u{062a}\u{0627}\u{0628}".into(),
         language: "arabic".into(),
@@ -237,6 +239,7 @@ async fn speech_request(reference: bool) {
             .unwrap();
         let before: i64 = state.lock().unwrap().connection.query_row("SELECT count(*) FROM reading_attempts WHERE json_extract(receipt,'$.dispatchedAt') IS NOT NULL", [], |r| r.get(0)).unwrap();
         let input = reading::ReadingInput {
+            conversation_id: None,
             reference_item: item,
             text: "كتاب".into(),
             language: "arabic".into(),
@@ -326,6 +329,7 @@ async fn translation_runs_the_conversation_translation_contract_and_is_counted()
         .begin(
             &state.lock().unwrap(),
             reading::ReadingInput {
+                conversation_id: None,
                 reference_item: None,
                 text: "كتاب".into(),
                 language: "arabic".into(),
@@ -401,6 +405,7 @@ async fn unclear_translation_fails_with_a_receipt_and_still_counts_usage() {
         .begin(
             &state.lock().unwrap(),
             reading::ReadingInput {
+                conversation_id: None,
                 reference_item: None,
                 text: "كتاب".into(),
                 language: "arabic".into(),
@@ -470,6 +475,7 @@ async fn word_gloss_runs_the_conversation_gloss_contract_and_keeps_partial_meani
         .begin(
             &state.lock().unwrap(),
             reading::ReadingInput {
+                conversation_id: None,
                 reference_item: None,
                 text: "كتاب".into(),
                 language: "arabic".into(),
@@ -526,6 +532,7 @@ async fn explanations_run_the_conversation_support_contract_against_the_source()
         .begin(
             &state.lock().unwrap(),
             reading::ReadingInput {
+                conversation_id: None,
                 reference_item: None,
                 text: "كتاب جديد".into(),
                 language: "arabic".into(),

@@ -492,6 +492,7 @@ fn explicit_reading_translation_sends_the_same_request_as_a_translation_turn() {
     let request = crate::language::reading::Request::capture(
         &store,
         crate::language::reading::ReadingInput {
+            conversation_id: None,
             reference_item: None,
             text: "Hola.".into(),
             language: "spanish".into(),

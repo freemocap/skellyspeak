@@ -14,9 +14,21 @@ fn coach_is_durable_and_excluded_from_persona_context() {
     );
     assert!(store.dispatch().unwrap().is_none());
     let coach = store.dispatch().unwrap().unwrap();
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        0
+    );
     store
         .finish(&coach, Ok(reply("Private coach explanation")))
         .unwrap();
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
     let snapshot = store.conversation_snapshot(&conversation, None).unwrap();
     assert_eq!(snapshot.messages.len(), 0);
     assert_eq!(snapshot.coach_messages.len(), 2);
@@ -34,6 +46,12 @@ fn coach_is_durable_and_excluded_from_persona_context() {
     let profile = store.profile().unwrap();
     assert_eq!(profile.global.persona_messages, 1);
     assert_eq!(profile.global.attempts, 2);
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
 }
 
 fn support_turn(store: &mut Store, conversation: &str, text: &str) -> String {

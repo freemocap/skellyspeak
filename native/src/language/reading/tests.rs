@@ -7,6 +7,7 @@ fn fixture() -> (tempfile::TempDir, Store) {
 }
 fn input() -> ReadingInput {
     ReadingInput {
+        conversation_id: None,
         reference_item: None,
         text: "Hola".into(),
         language: "spanish".into(),
@@ -15,6 +16,120 @@ fn input() -> ReadingInput {
         explanation_variety: None,
         aid: ReadingAid::WordGloss,
     }
+}
+
+#[test]
+fn exploration_requires_new_successful_text_and_survives_cache_regeneration() {
+    use crate::learning::effort::{exploration, read};
+    let (_dir, store) = fixture();
+    let request = Request::capture(&store, input()).unwrap();
+    for receipt in [
+        serde_json::json!({"state":"pending","response":{"cacheHit":false}}),
+        serde_json::json!({"state":"failed","response":{"cacheHit":false}}),
+        serde_json::json!({"state":"cancelled","response":{"cacheHit":false}}),
+        serde_json::json!({"state":"succeeded","response":{"cacheHit":true}}),
+        serde_json::json!({"state":"succeeded","response":{}}),
+    ] {
+        exploration::reading(&store.connection, &request, &receipt).unwrap();
+    }
+    assert_eq!(read(&store.connection, "spanish").unwrap().explorations, 0);
+    let accepted = serde_json::json!({"state":"succeeded","response":{"cacheHit":false}});
+    let transaction = store.connection.unchecked_transaction().unwrap();
+    exploration::reading(&transaction, &request, &accepted).unwrap();
+    transaction.rollback().unwrap();
+    assert_eq!(read(&store.connection, "spanish").unwrap().explorations, 0);
+    exploration::reading(&store.connection, &request, &accepted).unwrap();
+    let mut retry = Request::capture(&store, input()).unwrap();
+    retry.fresh = true;
+    exploration::reading(&store.connection, &retry, &accepted).unwrap();
+    assert_eq!(read(&store.connection, "spanish").unwrap().explorations, 1);
+    let mut other = input();
+    other.aid = ReadingAid::Translation;
+    exploration::reading(
+        &store.connection,
+        &Request::capture(&store, other).unwrap(),
+        &accepted,
+    )
+    .unwrap();
+    assert_eq!(read(&store.connection, "spanish").unwrap().explorations, 2);
+    let mut speech = input();
+    speech.aid = ReadingAid::Speech;
+    exploration::reading(
+        &store.connection,
+        &Request::capture(&store, speech).unwrap(),
+        &accepted,
+    )
+    .unwrap();
+    let progress = read(&store.connection, "spanish").unwrap();
+    assert_eq!(progress.explorations, 2);
+    assert!(
+        progress
+            .recent
+            .iter()
+            .all(|award| award.conversation_id.is_none())
+    );
+    assert_eq!(read(&store.connection, "french").unwrap().explorations, 0);
+}
+
+#[test]
+fn exploration_rejects_missing_or_wrong_language_conversation_attribution() {
+    let (_dir, mut store) = fixture();
+    let execute = |store: &mut Store, action| {
+        store
+            .execute(Command {
+                session_id: store.session_id.clone(),
+                action_id: uuid::Uuid::new_v4().to_string(),
+                action,
+            })
+            .unwrap()
+            .entity_id
+    };
+    execute(
+        &mut store,
+        Action::CreateContact {
+            language_id: "spanish".into(),
+            details: crate::partners::persona::starter("spanish").unwrap(),
+        },
+    );
+    let contact = store.snapshot().unwrap().contacts[0].id.clone();
+    let conversation = execute(
+        &mut store,
+        Action::CreateConversation {
+            contact_id: contact,
+            title: "Reading".into(),
+        },
+    );
+    let mut scoped = input();
+    scoped.conversation_id = Some(conversation.clone());
+    let request = Request::capture(&store, scoped.clone()).unwrap();
+    crate::learning::effort::exploration::reading(
+        &store.connection,
+        &request,
+        &serde_json::json!({"state":"succeeded","response":{"cacheHit":false}}),
+    )
+    .unwrap();
+    let effort = crate::learning::effort::read(&store.connection, "spanish").unwrap();
+    assert_eq!(effort.explorations, 1);
+    assert_eq!(
+        effort.recent[0].conversation_id.as_deref(),
+        Some(conversation.as_str())
+    );
+    scoped.language = "french".into();
+    assert!(Request::capture(&store, scoped.clone()).is_err());
+    scoped.language = "spanish".into();
+    scoped.conversation_id = Some("missing".into());
+    assert!(Request::capture(&store, scoped).is_err());
+    store
+        .connection
+        .execute("DELETE FROM conversations WHERE id=?1", [&conversation])
+        .unwrap();
+    assert!(request.validate_source(&store).is_err());
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
 }
 #[test]
 fn requests_are_bounded_single_use_and_source_owned() {

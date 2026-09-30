@@ -156,7 +156,7 @@ query is independent of chat pagination. The UI adapter is
 Editing an earlier exchange still deletes its dependent later conversation
 suffix; this is version history, not an archive of abandoned conversation branches.
 
-Workspace format 44 requires fresh development data. Incompatible workspaces
+Workspace format 45 requires fresh development data. Incompatible workspaces
 are refused explicitly; startup does not migrate or silently reset them.
 
 ### Subfolder groups
@@ -291,8 +291,9 @@ development checkout, remove its `applications/skellyspeak.desktop` and
 `language/reading/` owns bounded, source-captured word meanings, translation,
 explanations and speech requests outside conversation turns.
 `application/commands/reading.rs` registers begin, run, cancel and receipt inspection.
-Requests reuse conversation aid contracts, validate captured connection/workspace
-authority, and create no learning credit. `application/reading_results.rs` owns
+Requests reuse conversation aid contracts and validate captured connection/workspace
+authority. Accepted fresh text help earns exploration effort, never skill XP;
+saved results, speech playback and failed requests earn none. `application/reading_results.rs` owns
 shared generated-text execution; `ai/results/` retains evictable validated
 payloads and durable content-free execution receipts. `reading_attempts` records
 independent consumers and links to those executions. Closing a card cannot cancel

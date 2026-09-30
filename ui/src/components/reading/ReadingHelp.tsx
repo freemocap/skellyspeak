@@ -153,7 +153,8 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
     <div className="reading-language-controls">
       <label>{tr('Source language')}<select className="field" value={scope.language} onChange={event => {
         const language = languages.find(item => item.code === event.target.value)!
-        setScope({ ...scope, language: language.code, variety: language.defaultVariety })
+        setScope({ ...scope, language: language.code, variety: language.defaultVariety,
+          conversationId: language.code === selection.scope.language ? selection.scope.conversationId : undefined })
       }}>{languages.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
       <label>{tr('Variety')}<select className="field" value={scope.variety ?? language?.defaultVariety} onChange={event => setScope({ ...scope, variety: event.target.value })}>
         {language?.varieties.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}

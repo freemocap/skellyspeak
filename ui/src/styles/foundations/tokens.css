@@ -14,6 +14,9 @@
    overrides only the roles it changes. */
 
 :root {
+  /* Per-particle direction, supplied by the action reward renderer. */
+  --burst-x: 0;
+  --burst-y: 0;
   /* Native menus and controls follow the resolved app theme, including System. */
   color-scheme: light;
   /* ══ Colour: surfaces and text ═══════════════════════════════════════════

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { LanguageTotals } from '../../generated/contracts'
+import type { EffortProgress, LanguageTotals } from '../../generated/contracts'
 import { getLanguageTotals } from '../../platform/ipc/skill-evidence'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 
@@ -16,5 +16,11 @@ export function useLanguageTotals(evidence: unknown, effort: unknown, included: 
     return () => { current = false }
   }, [evidence, effort])
   const rows = state.rows && included ? state.rows.filter(row => included.includes(row.target)) : state.rows
-  return { rows, error: state.error, globalXp: state.rows ? state.rows.reduce((sum, row) => sum + row.xp, 0) : null }
+  const sum = (field: 'partnerUnderstood' | 'noIssuesFlagged' | 'revisionsSent' | 'practiceAttempts' | 'explorations' | 'bot') =>
+    state.rows!.reduce((total, row) => total + row[field], 0)
+  const globalEffort: EffortProgress | null = state.rows ? {
+    target: '', recent: [], partnerUnderstood: sum('partnerUnderstood'), noIssuesFlagged: sum('noIssuesFlagged'),
+    revisionsSent: sum('revisionsSent'), practiceAttempts: sum('practiceAttempts'), explorations: sum('explorations'), bot: sum('bot'),
+  } : null
+  return { rows, globalEffort, error: state.error, globalXp: state.rows ? state.rows.reduce((sum, row) => sum + row.xp, 0) : null }
 }

@@ -1,3 +1,4 @@
+import { ActionRewardBursts } from '../components/learning/ActionRewardBursts'
 import { EffortProgressContext } from '../state/learning/EffortProgressContext'
 import { useEffortProgress } from '../state/learning/useEffortProgress'
 import { onReadingQuestion } from '../platform/ipc/window'
@@ -93,6 +94,7 @@ export function AppShell() {
 
   return (
     <I18nProvider locale={settings?.interface_locale ?? 'english'}><ReadingTools settings={settings}><EffortProgressContext value={effort}><div className="app" data-place={place}>
+      <ActionRewardBursts enabled={effort.effects} />
       <UpdateBanner />
 
       <TopBar />

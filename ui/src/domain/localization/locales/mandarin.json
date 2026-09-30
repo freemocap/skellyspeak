@@ -1,4 +1,6 @@
 {
+  "Bot": "机器人",
+  "Open prompt editor…": "打开提示词编辑器…",
   "Preparing audio…": "正在准备音频…",
   "Cancel speech preparation": "取消音频准备",
   "Language XP": "语言经验值",
@@ -738,7 +740,6 @@
   "Any time": "不限时间",
   "Any time frame": "不限时间范围",
   "No focus": "不设重点",
-  "Prompt details…": "提示词详情…",
   "About {name}": "关于{name}",
   "Change partner": "更换伙伴",
   "Past events": "过去的事",

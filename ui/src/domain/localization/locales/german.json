@@ -1,4 +1,6 @@
 {
+  "Bot": "Bot",
+  "Open prompt editor…": "Prompt-Editor öffnen…",
   "Preparing audio…": "Audio wird vorbereitet…",
   "Cancel speech preparation": "Audiovorbereitung abbrechen",
   "Language XP": "Sprach-XP",
@@ -738,7 +740,6 @@
   "Any time": "Beliebig",
   "Any time frame": "Beliebiger Zeitraum",
   "No focus": "Kein Schwerpunkt",
-  "Prompt details…": "Anweisungsdetails…",
   "About {name}": "Über {name}",
   "Change partner": "Gesprächspartner wechseln",
   "Past events": "Vergangene Ereignisse",

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { EffortProgress } from '../../generated/contracts'
 import { getEffortProgress, claimEffortAwards } from '../../platform/ipc/effort'
 import { onRecordingPublished } from '../../platform/audio/recording-events'
+import { onEffortPublished } from '../../platform/ipc/effort-events'
 import { useSettingsStore } from '../settings/settings'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 
@@ -11,6 +12,7 @@ export function useEffortProgress(target: string, revision: unknown, present = t
   const [recording, setRecording] = useState(0)
   const [state, setState] = useState<{ target: string; value: EffortProgress | null; error: string | null; arrived: string[] }>({ target, value: null, error: null, arrived: [] })
   useEffect(() => onRecordingPublished(() => setRecording(value => value + 1)), [])
+  useEffect(() => onEffortPublished(() => setRecording(value => value + 1)), [])
   useEffect(() => {
     if (!target) return
     let current = true

@@ -135,10 +135,13 @@ pub(crate) fn preview(
         &settings.explanation_language,
         Some(&settings.explanation_variety_id),
     )?;
+    // Start provenance is not an editable prompt instruction.
+    let mut editable = configuration.clone();
+    editable.prompt_editor = None;
     Ok(PromptPreview {
         coach_focus: None,
-        configuration: configuration.clone(),
-        yaml: serde_yaml_ng::to_string(configuration).map_err(|_| {
+        configuration: editable.clone(),
+        yaml: serde_yaml_ng::to_string(&editable).map_err(|_| {
             AppError::new(
                 ErrorCode::Internal,
                 "Could not serialize conversation configuration.",

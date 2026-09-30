@@ -29,6 +29,12 @@ fn clarification_reassesses_only_feedback_and_survives_reopen() {
     )
     .unwrap();
     let note = "I meant to ask about yesterday; the transcript used present tense.";
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        0
+    );
     let command = cmd(
         &store,
         Action::ReassessFeedback {
@@ -96,6 +102,12 @@ fn clarification_reassesses_only_feedback_and_survives_reopen() {
         )
         .unwrap();
     assert!(store.dispatch().unwrap().is_none());
+    assert_eq!(
+        crate::learning::effort::read(&store.connection, "spanish")
+            .unwrap()
+            .explorations,
+        1
+    );
     assert!(
         store
             .conversation_snapshot(&conversation, None)

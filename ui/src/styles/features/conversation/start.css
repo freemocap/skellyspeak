@@ -185,3 +185,7 @@
 .prompt-creator .prompt-yaml { min-height: 260px; font-family: monospace; }
 .prompt-creator .prompt-actions .btn { overflow-wrap: anywhere; max-width: 100%; }
 .prompt-topic-summary { overflow-wrap: anywhere; max-width: 100%; color: var(--ink-2); }
+
+/* Secondary entry remains available while start options are collapsed. */
+.start-prompt-editor { border-block-start: var(--border-width) solid var(--line-soft); padding-block: var(--space-2); }
+.start-prompt-editor .start-link { display: inline-flex; align-items: center; gap: var(--space-2); }

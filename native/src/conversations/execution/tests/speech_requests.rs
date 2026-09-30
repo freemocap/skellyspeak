@@ -414,6 +414,7 @@ fn explicit_reading_speech_sends_the_same_request_as_persona_speech() {
         )
         .unwrap();
     let input = |text: &str| crate::language::reading::ReadingInput {
+        conversation_id: None,
         reference_item: None,
         text: text.into(),
         language: "spanish".into(),

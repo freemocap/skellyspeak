@@ -5,6 +5,7 @@ import { useI18n } from '../../components/localization/i18n'
 import { nativeError, readAttemptDetail } from '../../platform/ipc/workspace'
 import { InspectionContent, InspectionModeControl, type InspectionMode } from './InspectionContent'
 import { useAttemptStream } from '../../state/session/attempt-streams'
+import { recordBotInspection } from '../../platform/ipc/effort'
 
 /// An attempt's recorded bodies. Re-read whenever the attempt's state changes,
 /// so a finishing attempt swaps its live preview for the recorded response.
@@ -40,13 +41,22 @@ export function AttemptResponse({ attempt, detail, mode = 'readable' }: { attemp
 }
 
 /// The request and response recorded for one attempt.
-export function AttemptBodies({ attempt }: { attempt: AttemptView }) {
+export function AttemptBodies({ attempt, deliberate = false }: { attempt: AttemptView; deliberate?: boolean }) {
   const tr = useI18n()
   const { detail, error } = useAttemptDetail(attempt)
   const [mode, setMode] = useState<InspectionMode>('readable')
+  const [creditError, setCreditError] = useState<string | null>(null)
+  useEffect(() => {
+    if (!deliberate || !detail || !(detail.requestMessages?.length || detail.decisionRequest || detail.responseText || detail.previewText)) return
+    let current = true
+    setCreditError(null)
+    void recordBotInspection(attempt.id).catch(reason => { if (current) setCreditError(nativeError(reason)) })
+    return () => { current = false }
+  }, [attempt.id, detail, deliberate])
   return <>
     <InspectionModeControl mode={mode} onChange={setMode} />
     {error && <ErrorNotice as="p" error={error} className="ai-error">{error}</ErrorNotice>}
+    {creditError && <ErrorNotice as="p" error={creditError} className="ai-error">{creditError}</ErrorNotice>}
     <h4 className="ai-section-title">{tr('Request')}</h4>
     {detail?.decisionRequest ? <div className="ai-message"><div className="ai-message-role">{tr('Jev Choice')}</div><InspectionContent text={JSON.stringify(detail.decisionRequest, null, 2)} mode={mode} /></div> : detail?.requestMessages?.length ? detail.requestMessages.map((message, index) => <div key={index} className="ai-message">
       <div className="ai-message-role">{message.role}</div>

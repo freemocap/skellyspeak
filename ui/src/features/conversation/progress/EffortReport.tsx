@@ -33,7 +33,7 @@ export function EffortReport({ target, revision }: { target: string; revision: u
         <ol className="effort-history-list">{report.entries.map(entry => {
           const kind = effortDimensions.find(item => item.dimension === entry.dimension)!
           return <li key={entry.id}><header><span><ToolbarIcon name={kind.icon} size={14} />{tr(kind.label)}</span><strong>+{tr.number(1)}</strong><time dateTime={entry.createdAt}>{tr.dateTime(new Date(entry.createdAt))}</time></header>
-            {entry.sourceText ? <blockquote dir="auto">{entry.sourceText}</blockquote> : <small>{tr('Source history deleted; credit retained.')}</small>}
+            {entry.sourceText ? <blockquote dir="auto">{entry.sourceText}</blockquote> : ['explorations', 'bot'].includes(entry.dimension) ? null : <small>{tr('Source history deleted; credit retained.')}</small>}
           </li>
         })}</ol>
         {report.next && <button className="btn" type="button" disabled={loading} onClick={() => void more()}>{tr(loading ? 'Loading…' : 'Load more')}</button>}

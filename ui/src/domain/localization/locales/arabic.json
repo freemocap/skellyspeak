@@ -1,4 +1,6 @@
 {
+  "Bot": "روبوت",
+  "Open prompt editor…": "فتح محرر التعليمات…",
   "Preparing audio…": "جارٍ تجهيز الصوت…",
   "Cancel speech preparation": "إلغاء تجهيز الصوت",
   "Language XP": "نقاط خبرة اللغة",
@@ -738,7 +740,6 @@
   "Any time": "أي وقت",
   "Any time frame": "أي إطار زمني",
   "No focus": "بلا مهارة مستهدفة",
-  "Prompt details…": "تفاصيل التعليمات…",
   "About {name}": "عن {name}",
   "Change partner": "تغيير الشريك",
   "Past events": "أحداث ماضية",

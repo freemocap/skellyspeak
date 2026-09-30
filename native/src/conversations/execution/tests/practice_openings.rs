@@ -207,6 +207,7 @@ fn configuration(
         .unwrap()
         .settings;
     crate::conversations::direction::ConversationStartConfig {
+        prompt_editor: None,
         difficulty: settings.difficulty.clone(),
         variety_id: settings.variety_id.clone(),
         direction: settings.direction.clone(),
@@ -219,6 +220,7 @@ fn preview_matches_captured_opening_and_does_not_admit_work() {
         let (_dir, mut store, conversation) = setup();
         let mut config = configuration(&store, &conversation);
         config.difficulty = Difficulty::AbsoluteZero;
+        config.prompt_editor = Some(true);
         config.direction.use_persona_details = use_persona_details;
         config.direction.time_reference = crate::conversations::direction::TimeReference::Future;
         config.direction.topic =
@@ -240,6 +242,8 @@ fn preview_matches_captured_opening_and_does_not_admit_work() {
             0
         );
         assert_eq!(preview.difficulty_prompts.len(), 5);
+        assert!(!preview.yaml.contains("promptEditor"));
+        assert!(preview.configuration.prompt_editor.is_none());
         assert!(preview.system_prompt.contains("Absolute zero difficulty"));
         assert_eq!(
             preview.system_prompt.contains("Persona background"),
@@ -376,4 +380,53 @@ fn saved_topic_edits_and_conversation_settings_apply_atomically() {
             .unwrap(),
         0
     );
+}
+
+#[test]
+fn bot_steering_rewards_topic_or_editor_once_only_after_acceptance() {
+    for (topic, editor, expected) in [
+        (false, false, 0),
+        (true, false, 1),
+        (false, true, 1),
+        (true, true, 1),
+    ] {
+        let (_dir, mut store, conversation) = setup();
+        let mut configuration = configuration(&store, &conversation);
+        configuration.direction.topic = if topic {
+            Some(crate::conversations::direction::TopicChoice::Custom {
+                text: "A trip".into(),
+            })
+        } else {
+            None
+        };
+        configuration.prompt_editor = Some(editor);
+        let command = Command {
+            session_id: store.session_id.clone(),
+            action_id: id(),
+            action: Action::StartConversation {
+                conversation_id: conversation.clone(),
+                configuration,
+                message: None,
+                input: None,
+                expected_revision: store.snapshot().unwrap().revision,
+            },
+        };
+        assert_eq!(
+            crate::learning::effort::read(&store.connection, "spanish")
+                .unwrap()
+                .bot,
+            0
+        );
+        store.execute(command.clone()).unwrap();
+        store.execute(command).unwrap();
+        let credit = crate::learning::effort::read(&store.connection, "spanish").unwrap();
+        assert_eq!(credit.bot, expected);
+        assert_eq!(credit.explorations, 0);
+        if expected != 0 {
+            assert_eq!(
+                credit.recent[0].conversation_id.as_deref(),
+                Some(conversation.as_str())
+            );
+        }
+    }
 }

@@ -1,4 +1,6 @@
 //! Append-only lifetime effort. Source deletion never revokes earned units.
+pub(crate) mod bot;
+pub(crate) mod exploration;
 pub(crate) mod qualification;
 pub(crate) mod report;
 mod sources;
@@ -18,6 +20,8 @@ pub enum EffortDimension {
     RevisionsSent,
     PracticeAttempts,
     NoIssuesFlagged,
+    Explorations,
+    Bot,
 }
 impl EffortDimension {
     fn key(self) -> &'static str {
@@ -26,6 +30,8 @@ impl EffortDimension {
             Self::RevisionsSent => "revisions_sent",
             Self::PracticeAttempts => "practice_attempts",
             Self::NoIssuesFlagged => "no_issues_flagged",
+            Self::Explorations => "explorations",
+            Self::Bot => "bot",
         }
     }
 }
@@ -50,6 +56,8 @@ pub struct EffortProgress {
     pub revisions_sent: u32,
     pub practice_attempts: u32,
     pub no_issues_flagged: u32,
+    pub explorations: u32,
+    pub bot: u32,
     pub recent: Vec<EffortAward>,
 }
 
@@ -63,7 +71,14 @@ fn award(
     variety: &str,
     conversation: Option<&str>,
 ) -> Result<()> {
-    db.execute("INSERT INTO effort_awards(id,dimension,source_id,language_id,variety_id,conversation_id,policy) VALUES(?1,?2,?3,?4,?5,?6,?7) ON CONFLICT(dimension,source_id) DO NOTHING", params![uuid::Uuid::new_v4().to_string(), dimension.key(), source, language, variety, conversation, qualification::POLICY])?;
+    let policy = if matches!(dimension, EffortDimension::Bot) {
+        "bot-engagement-1"
+    } else if matches!(dimension, EffortDimension::Explorations) {
+        "exploration-generation-1"
+    } else {
+        qualification::POLICY
+    };
+    db.execute("INSERT INTO effort_awards(id,dimension,source_id,language_id,variety_id,conversation_id,policy) VALUES(?1,?2,?3,?4,?5,?6,?7) ON CONFLICT(dimension,source_id) DO NOTHING", params![uuid::Uuid::new_v4().to_string(), dimension.key(), source, language, variety, conversation, policy])?;
     Ok(())
 }
 /// Whether a recording receipt earned a practice unit, for marking its attempt.
@@ -92,6 +107,8 @@ fn read_scoped(
         revisions_sent: 0,
         practice_attempts: 0,
         no_issues_flagged: 0,
+        explorations: 0,
+        bot: 0,
         recent: vec![],
     };
     let counts = db
@@ -108,6 +125,8 @@ fn read_scoped(
             "revisions_sent" => progress.revisions_sent = count,
             "practice_attempts" => progress.practice_attempts = count,
             "no_issues_flagged" => progress.no_issues_flagged = count,
+            "explorations" => progress.explorations = count,
+            "bot" => progress.bot = count,
             _ => {
                 return Err(crate::model::AppError::new(
                     crate::model::ErrorCode::Validation,

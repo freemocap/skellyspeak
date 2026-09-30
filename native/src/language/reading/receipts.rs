@@ -40,6 +40,11 @@ pub fn finish(
     if let Some(error) = error {
         receipt["error"] = serde_json::json!({"code":error.code, "message":crate::diagnostics::response::scrub(&error.message, &[&request.input.text]), "diagnostics":error.diagnostics, "refusal":error.refusal});
     }
+    if let Some(award) =
+        crate::learning::effort::exploration::reading(&store.connection, request, &receipt)?
+    {
+        receipt["effortAward"] = serde_json::json!(award);
+    }
     store.connection.execute("UPDATE reading_attempts SET receipt=json_set(?2,'$.finishedAt',strftime('%Y-%m-%dT%H:%M:%fZ','now')) WHERE id=?1", params![request.id, receipt.to_string()])?;
     Ok(receipt)
 }

@@ -1,3 +1,4 @@
+import { bindRewardOrigin } from '../../platform/ipc/reward-origin'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { ReadingActivity } from './ReadingActivity'
@@ -58,6 +59,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
   const [selection, setSelection] = useState<Selection>({ conversationId: null, turnId: null, kind: null })
   const [selectionError, setSelectionError] = useState<string | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [inspectedAttempt, setInspectedAttempt] = useState<string | null>(null)
   const [definition, setDefinition] = useState<AiDefinitionSelection | undefined>()
   const lastDefinition = useRef<AiDefinitionSelection | undefined>(undefined)
   useEffect(() => { if (definition) lastDefinition.current = definition }, [definition])
@@ -152,11 +154,17 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
     {!definition && renderHeader()}
     {(!definition && activity.error || selectionError) && <ErrorNotice as="p" className="ai-error" error={selectionError || activity.error}>{selectionError || activity.error}</ErrorNotice>}
     {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} renderHeader={renderHeader} /> : <>
-    <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => setDetailOpen(true)}>
-        {selectedAttempt && <AttemptBodies attempt={selectedAttempt} />}
+    <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => { if (selectedAttempt) bindRewardOrigin(`inspection:${selectedAttempt.id}`); setInspectedAttempt(selectedAttempt?.id ?? null); setDetailOpen(true) }}>
+        {selectedAttempt && <AttemptBodies attempt={selectedAttempt} deliberate={selectedAttempt.id === inspectedAttempt} />}
       </OperationInspector>}>
       <div className="ai-view-main">
-        {turn ? <ActivityGraph turn={turn} orientation={phone ? 'down' : 'across'} follow={mode === 'tray'} selectedKind={operation?.kind ?? null} onSelect={kind => setSelection(current => ({ ...current, kind }))} now={now} />
+        {turn ? <ActivityGraph turn={turn} orientation={phone ? 'down' : 'across'} follow={mode === 'tray'} selectedKind={operation?.kind ?? null} onSelect={kind => {
+          setSelection(current => ({ ...current, kind }))
+          const chosen = turn.operations.find(item => item.kind === kind)
+          const attemptId = chosen ? latestAttempt(turn, chosen.id)?.id : null
+          if (attemptId) bindRewardOrigin('inspection:' + attemptId)
+          setInspectedAttempt(chosen ? latestAttempt(turn, chosen.id)?.id ?? null : null)
+        }} now={now} />
           : <p className="ai-muted">{conversationId && !activity.error && !selectionError && (!selectionReady || (restoring && activity.hasOlder)) ? tr('Loading…') : tr('No recorded AI operations.')}</p>}
         {turn && (mode === 'expanded' || mode === 'window') && <ExchangeTimeline turn={turn} now={now} />}
         {!phone && <details className="ai-other">

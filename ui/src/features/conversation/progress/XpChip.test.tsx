@@ -7,7 +7,7 @@ import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
 import { getEffortProgress } from '../../../platform/ipc/effort'
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../../../platform/ipc/effort', () => ({
-  getEffortProgress: vi.fn(async (target: string) => ({ target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, noIssuesFlagged: 1, recent: [] })),
+  getEffortProgress: vi.fn(async (target: string) => ({ target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, noIssuesFlagged: 1, explorations: 0, bot: 0, recent: [] })),
   getEffortReport: vi.fn(async () => ({ activity: [], entries: [], next: null })),
 }))
 it('shows this conversation’s effort in the card, then the ledger on the second press', async () => {

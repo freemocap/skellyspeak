@@ -25,6 +25,7 @@ fn request(store: &mut Store, text: &str) -> std::sync::Arc<Request> {
         .begin(
             store,
             ReadingInput {
+                conversation_id: None,
                 reference_item: Some(item.id),
                 text: text.into(),
                 language: "spanish".into(),

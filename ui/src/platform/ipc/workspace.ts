@@ -1,3 +1,5 @@
+import { bindRewardOrigin, captureRewardOrigin, inheritRewardOrigin } from './reward-origin'
+import { effortPublished } from './effort-events'
 import { errorMessage } from '../diagnostics/error-details'
 import { invoke } from './native'
 import type { Action, Command, Conversation, ConversationSnapshot, PersonaDetails, PersonaGenerationActivity, Receipt, Snapshot, TurnHistoryPage, AttemptDetail } from '../../generated/contracts'
@@ -9,18 +11,26 @@ export function readWorkspace(): Promise<Snapshot> {
 /** Commands carry the native session and a unique delivery identity; never retry automatically. */
 export function executeAction(snapshot: Pick<Snapshot, 'sessionId'>, action: Action): Promise<Receipt> {
   const command: Command = { sessionId: snapshot.sessionId, actionId: crypto.randomUUID(), action }
-  return invoke<Receipt>('execute_command', { command })
+  const origin = captureRewardOrigin()
+  return invoke<Receipt>('execute_command', { command }).then(receipt => {
+    if (['startConversation', 'sendMessage', 'reviseTurn', 'askCoach', 'requestSuggestions', 'requestExplanations', 'reassessFeedback', 'retryReplyHelp', 'coachControl'].includes(action.kind)) bindRewardOrigin(receipt.entityId, origin)
+    if (action.kind === 'startConversation') bindRewardOrigin('steering:' + action.conversationId, origin)
+    return receipt
+  })
 }
 
 /** Reserve an owned generation before any provider work starts. */
 export function beginPersonaGeneration(languageId: string, brief: string): Promise<string> {
   const trimmed = brief.trim()
-  return invoke<string>('begin_persona_generation', { languageId, brief: trimmed ? trimmed : null })
+  const origin = captureRewardOrigin()
+  return invoke<string>('begin_persona_generation', { languageId, brief: trimmed ? trimmed : null }).then(id => { bindRewardOrigin('persona:' + id, origin); return id })
 }
 
 /** Fill a proposal for review; creating the contact remains an explicit action. */
-export function runPersonaGeneration(generationId: string): Promise<PersonaDetails> {
-  return invoke<PersonaDetails>('run_persona_generation', { generationId })
+export async function runPersonaGeneration(generationId: string): Promise<PersonaDetails> {
+  const result = await invoke<PersonaDetails>('run_persona_generation', { generationId })
+  effortPublished()
+  return result
 }
 
 export function cancelPersonaGeneration(generationId: string): Promise<void> {
@@ -41,7 +51,10 @@ export async function createContact(languageId: string, details: PersonaDetails)
 }
 
 export function watchConversation(conversationId: string, afterRevision = -1, before: number | null = null): Promise<ConversationSnapshot> {
-  return invoke<ConversationSnapshot>('watch_conversation', { conversationId, afterRevision, before })
+  return invoke<ConversationSnapshot>('watch_conversation', { conversationId, afterRevision, before }).then(snapshot => {
+    for (const turn of snapshot.turns) for (const operation of turn.operations) inheritRewardOrigin(operation.id, turn.id)
+    return snapshot
+  })
 }
 
 export function selectedConversation(snapshot: Snapshot, languageId?: string): Conversation | null {

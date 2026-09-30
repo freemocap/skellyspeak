@@ -60,7 +60,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
           <ProgressCounters xp={profile?.xp ?? null} xpLabel="Language XP" code={activeRow ? languageCode(activeRow) : undefined} global={totals.globalXp} effort={effort.value} effects={effort.effects} error={effort.error ?? totals.error} />
         </button>
         {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>
-          <ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={null} units={[]} error={totals.error} expandLabel="Full report" onExpand={() => { progressCard.close(); showOverlay('profile') }}>
+          <ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={totals.globalEffort} units={['explorations', 'bot']} error={totals.error} expandLabel="Full report" onExpand={() => { progressCard.close(); showOverlay('profile') }}>
             {totals.rows ? <LanguageTable rows={totals.rows} active={profile?.target} compact /> : <p role="status" className="progress-card-empty">{tr('Loading…')}</p>}
           </ProgressCard>
         </CardLayer>}

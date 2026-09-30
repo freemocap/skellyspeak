@@ -1,12 +1,17 @@
+import { bindRewardOrigin, captureRewardOrigin } from './reward-origin'
 import type { ConversationDrillInput, ConversationDrillPage, DrillGenerationInput, DrillGenerationPreview, DrillItemView, PersonaGenerationActivity } from '../../generated/contracts'
 import { invoke } from './native'
 import { ownedRequest } from './owned-request'
+import { effortPublished } from './effort-events'
 
 export function beginDrillPreview(input: DrillGenerationInput): Promise<string> {
-  return invoke('begin_drill_preview', { input })
+  const origin = captureRewardOrigin()
+  return invoke<string>('begin_drill_preview', { input }).then(id => { bindRewardOrigin('practice:' + id, origin); return id })
 }
-export function runDrillPreview(requestId: string): Promise<DrillGenerationPreview> {
-  return invoke('preview_drill_items', { requestId })
+export async function runDrillPreview(requestId: string): Promise<DrillGenerationPreview> {
+  const result = await invoke<DrillGenerationPreview>('preview_drill_items', { requestId })
+  effortPublished()
+  return result
 }
 export function cancelDrillPreview(requestId: string): Promise<void> {
   return invoke('cancel_drill_preview', { requestId })

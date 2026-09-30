@@ -135,5 +135,6 @@ pub(crate) fn accept(
         "INSERT INTO conversation_openings(conversation_id,opening,turn_id) VALUES(?1,?2,?3)",
         params![conversation, serde_json::to_string(&opening)?, turn],
     )?;
+    crate::learning::effort::bot::steering(db, conversation, &configuration)?;
     Ok(turn)
 }
