@@ -324,7 +324,7 @@ it('a partial cached or saved result still lets Word by word request the whole p
   const props = { text: 'Hola casa', segments: [], segmentsKey: 'hola-casa', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
   // Only "Hola" is known from a durable source: the provider's peek reports partial coverage.
-  app(<SavedReadingProvider sources={[{ scope, text: 'Hola casa', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'}] }]}><TargetMessage {...props} /></SavedReadingProvider>)
+  app(<SavedReadingProvider sources={[{ scope, text: 'Hola casa', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'}] }]}><TargetMessage provenance={null} {...props} /></SavedReadingProvider>)
   openMenus()
   await waitFor(() => expect(screen.getByRole('button', { name: 'Word by word' })).toBeEnabled())
   openMenus()
@@ -343,7 +343,7 @@ it('each passage requests generated help explicitly, and Chat-style owners never
   const { TargetMessage } = await import('./TargetMessage')
   const props = { text: 'Hola', segments: [], segmentsKey: 'hola', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
-  const view = app(<><TargetMessage {...props} /><TargetMessage {...props} segmentsKey="second" /></>)
+  const view = app(<><TargetMessage provenance={null} {...props} /><TargetMessage provenance={null} {...props} segmentsKey="second" /></>)
   openMenus()
   fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[0])
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
@@ -354,7 +354,7 @@ it('each passage requests generated help explicitly, and Chat-style owners never
   await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(2))
   expect(services.read).toHaveBeenCalledTimes(2)
   view.unmount()
-  app(<TargetMessage {...props} layout="bubble" lookupWords={false} />)
+  app(<TargetMessage provenance={null} {...props} layout="bubble" lookupWords={false} />)
   openMenus()
   expect(screen.getByRole('button', { name: 'Word by word' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: 'Translate' })).toBeNull()

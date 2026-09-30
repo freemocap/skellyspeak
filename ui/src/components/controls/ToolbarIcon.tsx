@@ -52,6 +52,7 @@ const LIBRARY_ICONS = {
 // Deliberate custom variants retained after icon review.
 const PATHS = {
   appearance: <><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" /></>,
+  help: <><circle cx="12" cy="12" r="9" /><path d="M9.4 9.5a2.6 2.6 0 1 1 3.9 2.25c-.8.46-1.3 1.05-1.3 1.95v.3M12 17h.01" /></>,
   'deck-add': <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /><path d="M9.5 10.5v6M6.5 13.5h6" /></>,
   'deck-added': <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /><path d="m6.5 13.8 2 2 4-4.3" /></>,
   cards: <><rect x="3" y="7" width="13" height="13" rx="2" /><path d="M8 4h11a2 2 0 0 1 2 2v11" /></>,

@@ -1,66 +1,58 @@
-import { InfoTip } from '../../components/controls/InfoTip'
+import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useI18n } from '../../components/localization/i18n'
-import { messageKey } from '../../domain/localization'
 import { difficultyLabel } from '../../components/controls/DifficultySelect'
-import { TargetPhrase } from '../../components/reading/TargetPhrase'
-import type { DrillGenerationInput, DrillLength } from '../../generated/contracts'
+import { TargetMessage } from '../../components/reading/TargetMessage'
+import type { DrillGenerationInput } from '../../generated/contracts'
+import { lengthLabel } from '../../components/reading/MessageProvenance'
 import type { OfferedCandidate } from './useDrillPreview'
 
-/// Functional names for the requested shape. The values come from the generated
-/// contract; only their display names live here.
-const LENGTHS = {
-  word: messageKey('Word'),
-  shortPhrase: messageKey('Short phrase'),
-  sentence: messageKey('Sentence'),
-  severalSentences: messageKey('Several sentences'),
-} as const satisfies Record<DrillLength, string>
-
-export function lengthLabel(value: DrillLength): string {
-  return LENGTHS[value]
-}
-
-/** What was offered, and one press to keep each of it.
+/** What was offered, each as the app's standard target-language message with
+ * its reading tools, and one press to keep it.
  *
  * Three kinds of claim are kept apart: what was asked for, what the model said
- * about its own output, and what was checked here. Only the last is stated as
- * fact; a model calling its own line "beginner" is reported, not verified. */
-export function CandidateList({ offered, added, adding, onKeep }: {
+ * about its own output, and what was checked here. Only the last is stated in
+ * the row; where a card came from and what the model said about it sit behind
+ * the card's information tip. */
+export function CandidateList({ offered, added, adding, rtl, onKeep }: {
   offered: OfferedCandidate[]
   added: string[]
   adding: boolean
+  rtl: boolean
   onKeep: (entry: OfferedCandidate) => void
 }) {
-  const tr = useI18n()
   return (
     <ul className="drill-candidates">
       {offered.map(entry => {
-        const { candidate } = entry
-        const isAdded = added.includes(candidate.candidateId)
+        const isAdded = added.includes(entry.candidate.candidateId)
         return (
-          <li key={candidate.candidateId} className="drill-candidate" data-kept={isAdded}>
-            <span className="drill-candidate-body">
-              {candidate.source.kind === 'generated' && candidate.source.skillFocus && <span className="drill-chip">{tr('Skill focus')}: {tr(candidate.source.skillFocus.skill.name)}{candidate.source.skillFocus.recommendation && <InfoTip>{tr('Experience')}: {tr.number(candidate.source.skillFocus.recommendation.skill.experience)}{' · '}{tr('Effort')}: {tr.number(candidate.source.skillFocus.recommendation.skill.effort)}</InfoTip>}</span>}
-              <TargetPhrase text={candidate.text} addToDrill={false} />
-              {candidate.translation !== null && <span className="drill-candidate-translation">{candidate.translation}</span>}
-              <span className="drill-candidate-notes">
-                {candidate.source.kind === 'conversation'
-                  && <span className="drill-chip">{tr("From your conversations")}</span>}
-                {candidate.reported.difficulty !== null
-                  && <span className="drill-chip">{tr("Model says {value0}", { value0: candidate.reported.difficulty })}</span>}
-                {candidate.reported.tags.map(tag => <span key={tag} className="drill-chip">{tr("Model says {value0}", { value0: tag })}</span>)}
-              </span>
-            </span>
-            {isAdded
-              ? <span className="drill-chip" data-tone="success">{tr("Added")}</span>
-              : candidate.verified.duplicate
-                ? <span className="drill-chip">{tr("Already in your practice cards")}</span>
-                : <button type="button" className="btn" disabled={adding} onClick={() => onKeep(entry)}
-                  aria-label={tr("Keep “{value0}”", { value0: candidate.text })}>{tr("Keep")}</button>}
+          <li key={entry.candidate.candidateId} className="drill-candidate" data-kept={isAdded}>
+            <TargetMessage layout="bubble" text={entry.candidate.text} segments={[]} segmentsKey={entry.candidate.candidateId}
+              translation={entry.candidate.translation} romanization={null} pronunciation={null} translateLabel={null}
+              segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null}
+              focused={false} rtl={rtl}
+              provenance={{ source: entry.candidate.source, addedAt: null, reported: entry.candidate.reported }}
+              practiceAction={<KeepCandidate entry={entry} isAdded={isAdded} adding={adding} onKeep={onKeep} />} />
           </li>
         )
       })}
     </ul>
   )
+}
+
+/** Keeping runs through native acceptance by candidate id, so the card keeps
+ * its provenance. It is the same icon-only control, in the same place, as every
+ * message's Add to Practice; the list's hint line names the icon once. */
+function KeepCandidate({ entry, isAdded, adding, onKeep }: {
+  entry: OfferedCandidate; isAdded: boolean; adding: boolean; onKeep: (entry: OfferedCandidate) => void
+}) {
+  const tr = useI18n()
+  if (isAdded) return <span className="drill-chip" data-tone="success">{tr("Added")}</span>
+  if (entry.candidate.verified.duplicate) return <span className="drill-chip">{tr("Already in your practice cards")}</span>
+  return <button type="button" className="message-translate message-add-drill" data-state="ready" disabled={adding}
+    title={tr("Add to Practice")} aria-label={tr("Keep “{value0}”", { value0: entry.candidate.text })}
+    onClick={event => { event.stopPropagation(); onKeep(entry) }}>
+    <ToolbarIcon name="deck-add" size={20} />
+  </button>
 }
 
 /** What was asked for, in each request's own words rather than whatever the

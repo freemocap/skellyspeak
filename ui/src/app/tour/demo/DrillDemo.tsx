@@ -26,10 +26,10 @@ export function DrillDemo() {
   return <div className="demo-page">
     <TopBar />
     <section className="drill-page">
-      <DrillLayout items={items} selectedId={DRILL_PHRASE.id} locked={false} onSelect={noop} attempt={attempt} rtl
+      <DrillLayout items={items} empty={false} selectedId={DRILL_PHRASE.id} locked={false} onSelect={noop} attempt={attempt} rtl
         reportResize={<div />}
         rail={<PhraseRail items={items} selectedId={DRILL_PHRASE.id} busy={false} locked={false}
-          onSelect={noop} onDelete={asyncNoop}>{null}</PhraseRail>}
+          onSelect={noop} onDelete={asyncNoop} onAddPhrases={noop}>{null}</PhraseRail>}
         onAddPhrases={noop}
         dock={<div className="drill-pane drill-dock-pane"><RecordDock phase="ready" mode="live" onMode={noop} settings={{ pauseMs: 900, thresholdDb: -40, minTakeMs: 400, silenceTimeoutMs: 1800 }}
           onSettings={noop} listeningStatus={null} waveSource={null} spectrum={null} onToggle={noop} onHoldStart={noop} onHoldEnd={noop} /></div>}

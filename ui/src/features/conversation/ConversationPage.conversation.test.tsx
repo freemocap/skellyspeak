@@ -12,7 +12,8 @@ import spectra from '../../../tools/spectrogram-fixture.json'
 vi.mock('../../platform/audio/microphones', () => ({ listMicrophones: vi.fn().mockResolvedValue({ source: 'native', devices: [] }) }))
 
 const ipc = vi.hoisted(() => ({ invoke: vi.fn(), fault: vi.fn() }))
-const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null, lastTranscription: null as TranscriptionInspectionResult | null }))
+const microphone = vi.hoisted(() => ({ transcribe: (_text: string) => {}, recording: false, spectrum: null as SpectrumFeed | null, lastTranscription: null as TranscriptionInspectionResult | null,
+  pendingRecordings: [] as { recordingId: string; state: 'processing' | 'completed' | 'failed'; failure: unknown }[], retry: vi.fn() }))
 const chrome = vi.hoisted(() => ({ getSettings: vi.fn(), saveSettings: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: ipc.invoke }))
 vi.mock('../../platform/diagnostics/faults', () => ({ reportFault: ipc.fault }))
@@ -25,7 +26,7 @@ vi.mock('../../platform/ipc/tauri', () => ({
   languageFor: (code: string) => code === 'english' ? { code: 'english', name: 'English', endonym: 'English' } : { code: 'spanish', name: 'Spanish', endonym: 'Español' },
 }))
 vi.mock('../../platform/audio/reward-sounds', () => ({ configureRewardSounds: vi.fn(), stopRewardSounds: vi.fn() }))
-vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string, result: TranscriptionInspectionResult) => void }) => { microphone.transcribe = text => onTranscribe(text, microphone.lastTranscription ?? { inspection: { recordingId: 'recording' } } as TranscriptionInspectionResult); return { lastTranscription: microphone.lastTranscription, recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, toggleMic: vi.fn(), cancel: vi.fn() } } }))
+vi.mock('../../platform/audio/useMicRecorder', () => ({ useMicRecorder: ({ onTranscribe }: { onTranscribe: (text: string, result: TranscriptionInspectionResult) => void }) => { microphone.transcribe = text => onTranscribe(text, microphone.lastTranscription ?? { inspection: { recordingId: 'recording' } } as TranscriptionInspectionResult); return { lastTranscription: microphone.lastTranscription, recording: microphone.recording, transcribing: false, waveSource: null, spectrum: microphone.spectrum, pendingRecordings: microphone.pendingRecordings, retry: microphone.retry, toggleMic: vi.fn(), cancel: vi.fn() } } }))
 vi.mock('./coaching/CoachAnalysisPanel', () => ({ CoachAnalysisPanel: ({ coachingContent, tab }: { coachingContent: React.ReactNode; tab: string }) => tab === 'coaching' ? coachingContent : null }))
 vi.mock('./progress/RewardPresentation', () => ({ RewardPresentationProvider: ({ children }: { children: React.ReactNode }) => children }))
 vi.mock('./progress/XpChip', () => ({ XpChip: () => null }))
@@ -112,6 +113,7 @@ beforeEach(async () => {
   HTMLDialogElement.prototype.close = function () { this.open = false }
   vi.clearAllMocks()
   microphone.lastTranscription = null
+  microphone.pendingRecordings = []
   useSessionStore.setState({ ...useSessionStore.getInitialState(), connection: snapshot().connection })
   localStorage.clear()
   workspace = directory()
@@ -257,24 +259,44 @@ it('opens the conversation list from the chat header and lets the coach cover th
   view.unmount()
   media.mockRestore()
 })
-it('opens the coach from an edge tab on the conversation in the compact layout', async () => {
-  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
-  useNavigationStore.getState().openPractice('chat')
+it('puts the recording panel’s divider on the panel’s own edge, with the row above it outside the panel', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot()))
-  // One way to the coach: the tab on the conversation's edge, where the drawer opens.
-  const coach = screen.getByRole('button', { name: 'Coach' })
-  expect(coach).toHaveClass('chat-coach-edge')
-  expect(coach.closest('section.chat')).not.toBeNull()
-  expect(coach).toHaveAttribute('aria-expanded', 'false')
-  fireEvent.click(coach)
-  expect(useNavigationStore.getState().mobileSurface).toBe('panel')
-  view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
-  expect(screen.getByRole('button', { name: 'Coach' })).toHaveAttribute('aria-expanded', 'true')
-  expect(document.querySelector('.split.mobile-coach .coach-scrim')).not.toBeNull()
+  const divider = screen.getByRole('separator', { name: 'Resize the recording panel' })
+  // The divider is the recording panel's top edge: the panel follows it directly…
+  expect(divider.nextElementSibling).toHaveClass('composer-voice')
+  // …and the row of reply help, status and coach stays above it, with the conversation.
+  const assist = document.querySelector('.composer-assist')!
+  expect(assist.compareDocumentPosition(divider) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   view.unmount()
   media.mockRestore()
+})
+it('opens the coach from the row above the answer in the compact layout, as on phones', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    useNavigationStore.getState().openPractice('chat')
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot()))
+    // Once the docked panel no longer fits, there is one way to the coach at
+    // every width: the button in the row above the answer, not a tab on the
+    // conversation's edge.
+    const coach = screen.getByRole('button', { name: 'Coach' })
+    expect(coach).toHaveClass('chat-coach')
+    expect(coach.closest('.composer-assist')).not.toBeNull()
+    expect(document.querySelector('.chat-coach-edge')).toBeNull()
+    expect(coach).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(coach)
+    expect(useNavigationStore.getState().mobileSurface).toBe('panel')
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    expect(screen.getByRole('button', { name: 'Coach' })).toHaveAttribute('aria-expanded', 'true')
+    expect(document.querySelector('.split.mobile-coach .coach-scrim')).not.toBeNull()
+    view.unmount()
+  } finally {
+    media.mockRestore()
+  }
 })
 it('keeps a dragged recording panel height and draws the live spectrogram while recording', async () => {
   const fixture = (await import('../../../tools/spectrogram-fixture.json')).default[0].spectrogram
@@ -339,8 +361,10 @@ describe('native composer admission', () => {
     await waitFor(() => expect(commands()).toHaveLength(1))
     expect(commands()[0].action).toEqual({ kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 7, text: 'Hola, ¿cómo estás?' })
     await act(async () => pending.reject(new Error('Authentication failed')))
-    expect(composer).toHaveValue('Hola, ¿cómo estás?')
-    expect(screen.getByRole('button', { name: 'Send' })).toBeEnabled()
+    // The rejected message keeps its bubble, with Retry; the draft stays clear.
+    expect(document.querySelector('.stream .msg.me')).toHaveTextContent('Hola, ¿cómo estás?')
+    expect(composer).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
     expect(commands()).toHaveLength(1)
   })
 
@@ -357,6 +381,13 @@ describe('native composer admission', () => {
     await act(async () => pending.reject(new Error('Admission refused')))
     expect(composer).toHaveValue('New draft typed while waiting')
     expect(commands()).toHaveLength(1)
+    const retry = deferred<Receipt>()
+    submit = () => retry.promise
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    await waitFor(() => expect(commands()).toHaveLength(2))
+    expect(composer).toHaveValue('New draft typed while waiting')
+    await act(async () => retry.resolve({ actionId: commands()[1].actionId, entityId: 'accepted', revision: 11 }))
+    expect(composer).toHaveValue('New draft typed while waiting')
   })
 
   it('settings refresh and empty conversation hydration do not send an automatic greeting', async () => {
@@ -373,7 +404,7 @@ describe('native composer admission', () => {
     expect(chrome.saveSettings).not.toHaveBeenCalled()
   })
 
-  it('submits one command and restores the draft after rejected Send', async () => {
+  it('submits one command and keeps a rejected message in its bubble with Retry, which sends it again', async () => {
     const pending = deferred<Receipt>()
     submit = () => pending.promise
     render(page())
@@ -385,13 +416,82 @@ describe('native composer admission', () => {
     fireEvent.click(button)
     await waitFor(() => expect(commands()).toHaveLength(1))
     await act(async () => pending.reject(new Error('Admission refused')))
-    expect(composer).toHaveValue('Keep this unsent text')
+    const failed = document.querySelector('.stream .msg.me') as HTMLElement
+    expect(failed).toHaveTextContent('Keep this unsent text')
+    expect(composer).toHaveValue('')
     expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
     fireEvent.click(screen.getByText('⚠ Request failed'))
     expect(screen.getByText('Admission refused')).toBeVisible()
     expect(commands()[0].action).toEqual({ kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 7, text: 'Keep this unsent text' })
     expect(commands()).toHaveLength(1)
+    submit = async command => ({ actionId: command.actionId, entityId: 'accepted', revision: 11 })
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    await waitFor(() => expect(commands()).toHaveLength(2))
+    expect(commands()[1].action).toMatchObject({ kind: 'sendMessage', text: 'Keep this unsent text' })
+    expect(document.querySelectorAll('.stream .msg.me')).toHaveLength(1)
   })
+
+  it('shows the learner’s bubble, then the partner’s pending bubble, the moment Send is pressed', async () => {
+    const pending = deferred<Receipt>()
+    submit = () => pending.promise
+    render(page())
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(exchangeSnapshot()))
+    const composer = await draftField()
+    fireEvent.change(composer, { target: { value: 'Fui al mercado.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    // Held open before native storage has the message: the learner's text grows
+    // into place, and the partner's bubble waits under it.
+    const mine = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+    expect(mine).toHaveTextContent('Fui al mercado.')
+    expect(mine).toHaveAttribute('aria-busy', 'true')
+    expect(mine).toHaveAttribute('data-arriving')
+    const reply = document.querySelector('.stream .msg.bot.reply-pending') as HTMLElement
+    expect(reply).toHaveTextContent('Thinking…')
+    expect(reply).toHaveAttribute('data-arriving')
+    expect(composer).toHaveValue('')
+    await waitFor(() => expect(commands()).toHaveLength(1))
+    await act(async () => pending.resolve({ actionId: commands()[0].actionId, entityId: 'accepted', revision: 32 }))
+    // Native storage has it: the landed turn takes the same place, without growing again.
+    const landed = exchangeSnapshot()
+    landed.revision = 32
+    landed.messages.push({ ...landed.messages[0], id: 'sent', turnId: 'accepted', sequence: 3, text: 'Fui al mercado.' })
+    landed.turns = [{ id: 'accepted', replacesTurnId: null, replacedBy: null, route: 'hosted', state: 'pending', paused: false, hold: null, attempts: [],
+      operations: [{ id: 'accepted-reply', kind: 'persona_reply', state: 'running', sourceMessageId: null, contractVersion: 1, dependencies: [], role: 'standard' }] }]
+    await act(async () => watches[1].resolve(landed))
+    const sent = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].filter(bubble => bubble.textContent?.includes('Fui al mercado.'))
+    expect(sent).toHaveLength(1)
+    expect(sent[0]).not.toHaveAttribute('aria-busy')
+    const replies = document.querySelectorAll('.stream .msg.bot.reply-pending')
+    expect(replies).toHaveLength(1)
+    expect(replies[0]).not.toHaveAttribute('data-arriving')
+  })
+})
+
+it('shows an edit in the bubble being edited, pending, the moment it is sent', async () => {
+  const pending = deferred<Receipt>()
+  submit = () => pending.promise
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  openMenus()
+  fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
+  fireEvent.change((await draftField()), { target: { value: 'Yo fui ayer' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  const bubbles = document.querySelectorAll('.stream .msg.me')
+  expect(bubbles).toHaveLength(1)
+  expect(bubbles[0]).toHaveTextContent('Yo fui ayer')
+  expect(bubbles[0]).toHaveAttribute('aria-busy', 'true')
+  // In the conversation, the reply the edit replaces gives way to the partner's pending bubble.
+  const stream = document.querySelector('.stream') as HTMLElement
+  expect(within(stream).queryByText('¿Adónde fuiste?')).toBeNull()
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Thinking…')
+  await waitFor(() => expect(commands()).toHaveLength(1))
+  // A rejected revision keeps the edit in the composer and restores the original.
+  await act(async () => pending.reject({ code: 'connection', message: 'The connection is unavailable.' }))
+  expect(document.querySelector('.stream .msg.me')).toHaveTextContent('Yo fue ayer')
+  expect(within(stream).getByText('¿Adónde fuiste?')).toBeInTheDocument()
+  expect((await draftField())).toHaveValue('Yo fui ayer')
 })
 
 it('auto-sends one native transcript and retains a later transcript while a reply is pending', async () => {
@@ -409,6 +509,47 @@ it('auto-sends one native transcript and retains a later transcript while a repl
   expect(commands()).toHaveLength(1)
   await act(async () => pending.reject(new Error('Rejected')))
   expect(input).toHaveValue('Guardar esta frase')
+})
+
+it('holds the learner’s bubble from the moment an Auto-send recording stops, then fills in its text', async () => {
+  const pending = deferred<Receipt>()
+  submit = () => pending.promise
+  chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
+  const view = render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'processing', failure: null }]
+  view.rerender(page())
+  const held = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+  expect(held).toHaveAttribute('aria-busy', 'true')
+  expect(held.querySelector('.reply-placeholder')).not.toBeNull()
+  expect(held).toHaveTextContent('Transcribing…')
+  // No reply is requested before the message has its text.
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toBeNull()
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'completed', failure: null }]
+  act(() => microphone.transcribe('Fui al mercado.'))
+  const filled = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+  expect(filled).toBe(held)
+  expect(filled).toHaveTextContent('Fui al mercado.')
+  expect(document.querySelector('.stream .msg.bot.reply-pending')).toHaveTextContent('Thinking…')
+  await waitFor(() => expect(commands()).toHaveLength(1))
+})
+
+it('keeps a failed recording in its bubble with Retry, which sends its audio again', async () => {
+  chrome.getSettings.mockResolvedValue({ ...SETTINGS, auto_send: true })
+  const view = render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'processing', failure: null }]
+  view.rerender(page())
+  microphone.pendingRecordings = [{ recordingId: 'take', state: 'failed', failure: new Error('Transcription provider unavailable') }]
+  view.rerender(page())
+  const failed = [...document.querySelectorAll<HTMLElement>('.stream .msg.me')].at(-1)!
+  expect(failed.querySelector('.reply-placeholder')).not.toBeNull()
+  expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
+  expect(screen.queryByRole('button', { name: 'Record again' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+  await waitFor(() => expect(microphone.retry).toHaveBeenCalledExactlyOnceWith('take'))
 })
 
 it('binds recorded audio to the accepted turn even when a later message repeats its text', async () => {

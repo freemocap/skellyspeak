@@ -31,10 +31,12 @@
   overscroll-behavior: contain;
 }
 
+/* Every change of speaker, between turns and inside one (.turn-stack), gets
+   the same room at every width. */
 .chat .stream {
   padding: var(--space-6) var(--space-8) var(--space-4);
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-10);
 }
 
 /* Messages settle at the bottom, next to the composer, and grow upward. The
@@ -58,7 +60,7 @@
 .chat .stream > .stream-jump:hover { border-color: var(--interaction-ink); }
 
 @media(max-width:860px) {
-  .chat .stream { padding: var(--space-3) var(--space-6); gap: var(--space-5); }
+  .chat .stream { padding: var(--space-3) var(--space-6); }
 }
 
 @media (max-width: 860px) {
@@ -88,38 +90,20 @@
   }
   .mobile-conversation .break { flex: 0 1 35%; overflow: hidden; min-height: 0; display: none; }
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
-  /* Compact: the coach is a drawer over the conversation from the inline end,
-     with the coach's colour on the edge that faces the conversation. The
-     conversation stays in place underneath the scrim. */
+  /* Where the docked panel does not fit (compact and narrow), the coach is a
+     sheet from the bottom, opened from the Coach button above the answer, with
+     the coach's colour on its top edge. The conversation stays in place
+     underneath the scrim. */
   .mobile-conversation.mobile-coach .break {
-    position: absolute; inset-block: 0; inset-inline-end: 0; z-index: var(--z-drawer);
-    display: flex; width: min(24rem, 88%); min-height: 0; overflow-y: auto;
-    border-inline-start: var(--border-width-strong) solid var(--coach-mark); box-shadow: var(--shadow-drawer);
+    position: absolute; inset-block: auto 0; inset-inline: 0; z-index: var(--z-drawer);
+    display: flex; height: 85%; min-height: 0; overflow-y: auto;
+    border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    box-shadow: var(--shadow-drawer);
   }
   .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
-  /* Compact: the folded coach is a rail down the conversation's inline end,
-     where its drawer opens. The stream keeps clear of it rather than scrolling
-     messages underneath. */
-  .mobile-conversation > .chat:has(> .chat-coach-edge) { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
-  .mobile-conversation > .chat:has(> .chat-coach-edge) > :not(.stream, .chat-coach-edge) { grid-column: 1 / -1; }
-  .mobile-conversation .chat-coach-edge {
-    grid-column: 2; grid-row: 2; align-self: stretch; margin: var(--space-2); z-index: var(--z-raised);
-    display: flex; align-items: center; box-sizing: border-box; width: calc(var(--control-height-xs) + var(--space-2)); cursor: pointer;
-  }
-  /* Opening slides the drawer in from its edge; opening the page does not. */
-  .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-right var(--dur-slow) var(--ease-out); }
-  .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-left; }
-}
-
-/* Narrow: the coach is a sheet from the bottom, its colour on the top edge. */
-@media (max-width: 400px) {
-  .mobile-conversation.mobile-coach .break {
-    inset-block: auto 0; inset-inline: 0; width: auto; height: 85%;
-    border-inline-start: 0; border-top: var(--border-width-strong) solid var(--coach-mark);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  }
-  .mobile-conversation.surface-switched.mobile-coach .break, .mobile-conversation.surface-switched.mobile-coach .break:dir(rtl) { animation-name: surface-in-from-bottom; }
   .mobile-coach .coach-collapse { transform: rotate(90deg); }
+  /* Opening slides the sheet up; opening the page does not. */
+  .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-bottom var(--dur-slow) var(--ease-out); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -38,6 +38,10 @@
 
 .btn.primary:hover:not(:disabled) { background: var(--interaction-fill-hover); border-color: var(--interaction-fill-hover); }
 
+.btn.outline { border-color: var(--interaction-mark); color: var(--interaction-ink); }
+
+.btn.outline:hover:not(:disabled) { border-color: var(--interaction-ink); background: var(--interaction-tint); }
+
 .btn:disabled { opacity: 0.5; cursor: default; }
 
 .btn.tiny { padding: var(--space-3) var(--space-5); font-size: var(--type-meta); letter-spacing: var(--tracking-tag); }

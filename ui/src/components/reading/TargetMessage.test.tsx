@@ -15,7 +15,7 @@ vi.mock('../../platform/ipc/tauri', () => ({languageFor: () => ({languageTag:'es
 /// A standalone passage: no saved meanings, lookup allowed, no owner actions.
 function passage(overrides: Partial<TargetMessageProps> & Pick<TargetMessageProps, 'text'>): TargetMessageProps {
   return { segments: [], segmentsKey: overrides.text, translation: null, romanization: null, pronunciation: null, layout: 'passage', translateLabel: null,
-    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false, ...overrides }
+    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false, provenance: null, ...overrides }
 }
 
 it('shows requested missing word help on the first click with always-visible aids off', async () => {
@@ -332,4 +332,12 @@ it('with automatic translation on, a failed request is retried by one more click
   await waitFor(() => expect(screen.getByText('Hello')).toBeVisible())
   expect(view.container).not.toHaveTextContent('Translation refused')
   expect(read).toHaveBeenCalledTimes(2)
+})
+
+it('puts an owner-supplied practice action in place of the shared Add to Practice button', () => {
+  render(<ReadingScopeContext value={{language:'spanish',variety:'spain',explanation:'english',explanationVariety:'american'}}>
+    <TargetMessage {...passage({text:'Hola', practiceAction: <button type="button">Keep</button>})} />
+  </ReadingScopeContext>)
+  expect(screen.getByRole('button',{name:'Keep'})).toBeVisible()
+  expect(screen.queryByRole('button',{name:'Add to Practice'})).toBeNull()
 })

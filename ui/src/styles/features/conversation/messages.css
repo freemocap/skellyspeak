@@ -151,6 +151,13 @@
    The paths are drawn for --bubble-tail-width × --bubble-tail-height. */
 .msg.chat-message.bot { border-bottom-left-radius: 0; }
 .msg.chat-message.me { border-bottom-right-radius: 0; }
+/* A message held open before its content lands (PendingBubble) grows into place
+   from its tail, then fills in; the landed message that replaces it does not
+   grow again. */
+.msg.chat-message[data-arriving] { animation: card-open var(--dur-slow) var(--ease-out); }
+.msg.chat-message.bot[data-arriving] { transform-origin: bottom left; }
+.msg.chat-message.me[data-arriving] { transform-origin: bottom right; }
+@media (prefers-reduced-motion: reduce) { .msg.chat-message[data-arriving] { animation: none; } }
 .msg.chat-message.bot::before, .msg.chat-message.bot::after,
 .msg.chat-message.me::before, .msg.chat-message.me::after {
   content: ''; position: absolute; bottom: calc(-1 * var(--border-width));
@@ -165,32 +172,71 @@
 .msg.chat-message.me::before { background: var(--bubble-learner-line); }
 .msg.chat-message.me::after { background: var(--bubble-learner-bg); }
 
-/* The outside selection ring and glow leave bubble dimensions unchanged. */
+/* Selection leaves the bubble's size alone: a glow in the coach's colour under
+   it, and a line --bubble-ring-gap outside it that follows the tail
+   (SelectionRing). ::before is a rounded ring with the tail's corner cut away;
+   ::after is the ring round the tail. The tail piece's box, cut and path are
+   drawn for the tail tokens, that gap and a --border-width line (selected) or a
+   --border-width-strong line (keyboard focus). The learner's ring is mirrored
+   with its tail. Forced colours keep a plain outline. */
 .msg.chat-message.focused {
-  outline: var(--border-width) solid var(--coach-mark); outline-offset: var(--space-2);
   box-shadow: var(--shadow-bubble), 0 var(--space-2) var(--space-12) color-mix(in srgb, var(--coach-mark) 70%, transparent);
 }
 .msg.chat-message[tabindex] { cursor: pointer; }
-.msg.chat-message[tabindex]:focus-visible { outline: var(--border-width-strong) solid var(--coach-mark); outline-offset: var(--space-2); }
+.msg.chat-message[tabindex]:focus-visible { outline: none; }
+.msg-selection { display: none; position: absolute; pointer-events: none; }
+.msg-selection::before, .msg-selection::after { content: ''; position: absolute; }
+.msg-selection::before { inset: 0; border-style: solid; border-color: var(--coach-mark); }
+.msg-selection::after { width: 13px; height: 17px; background: var(--coach-mark); }
+.msg.chat-message.me > .msg-selection { transform: scaleX(-1); }
+/* Placed from the bubble’s padding box, so its own border joins the gap and the line. */
+.msg.chat-message.focused > .msg-selection { display: block; inset: calc(-1 * (var(--border-width) + var(--bubble-ring-gap) + var(--border-width))); }
+.msg.chat-message.focused > .msg-selection::before {
+  border-width: var(--border-width); border-radius: calc(var(--radius-xl) + var(--bubble-ring-gap) + var(--border-width)); border-bottom-left-radius: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, calc(var(--bubble-ring-gap) + var(--border-width)) 100%,
+    calc(var(--bubble-ring-gap) + var(--border-width)) calc(100% - var(--bubble-ring-gap) - var(--border-width) - 11px), 0 calc(100% - var(--bubble-ring-gap) - var(--border-width) - 11px));
+}
+.msg.chat-message.focused > .msg-selection::after {
+  left: calc(var(--bubble-ring-gap) + var(--border-width) - 12px); bottom: calc(var(--bubble-ring-gap) + var(--border-width) - 5px);
+  clip-path: path('M9 0 L9.01 1.73 C8.59 6.37 7.2 8.21 4.14 9.13 A3 3 0 0 0 5 15 L13 15 L13 14 L5 14 A2 2 0 0 1 4.43 10.08 C7.8 9.07 9.56 6.75 10.01 1.82 L10 0 Z');
+}
+.msg.chat-message[tabindex]:focus-visible > .msg-selection { display: block; inset: calc(-1 * (var(--border-width) + var(--bubble-ring-gap) + var(--border-width-strong))); }
+.msg.chat-message[tabindex]:focus-visible > .msg-selection::before {
+  border-width: var(--border-width-strong); border-radius: calc(var(--radius-xl) + var(--bubble-ring-gap) + var(--border-width-strong)); border-bottom-left-radius: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, calc(var(--bubble-ring-gap) + var(--border-width-strong)) 100%,
+    calc(var(--bubble-ring-gap) + var(--border-width-strong)) calc(100% - var(--bubble-ring-gap) - var(--border-width-strong) - 11px), 0 calc(100% - var(--bubble-ring-gap) - var(--border-width-strong) - 11px));
+}
+.msg.chat-message[tabindex]:focus-visible > .msg-selection::after {
+  left: calc(var(--bubble-ring-gap) + var(--border-width-strong) - 12px); bottom: calc(var(--bubble-ring-gap) + var(--border-width-strong) - 5px);
+  clip-path: path('M8 0 L8.02 1.64 C7.62 6 6.6 7.34 3.85 8.17 A4 4 0 0 0 5 16 L13 16 L13 14 L5 14 A2 2 0 0 1 4.43 10.08 C7.8 9.07 9.56 6.75 10.01 1.82 L10 0 Z');
+}
+@media (forced-colors: active) {
+  .msg.chat-message.focused > .msg-selection, .msg.chat-message[tabindex]:focus-visible > .msg-selection { display: none; }
+  .msg.chat-message.focused { outline: var(--border-width) solid; outline-offset: var(--bubble-ring-gap); }
+  .msg.chat-message[tabindex]:focus-visible { outline: var(--border-width-strong) solid; outline-offset: var(--bubble-ring-gap); }
+}
 
 
 /* The learner's message and, under it, one quiet line: the coach's verdict on
    that message (how many errors it flagged), Fix it, and the message's XP. The
    verdict and XP open their details; the scores live in the coach panel. The
    line keeps its place in every state from "Analyzing…" to the verdict. */
-.learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-1); }
+.learner-turn { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
 .learner-turn > .msg.chat-message.me { margin-bottom: 0; }
 .message-feedback-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); max-width: 80%; min-width: 0; font: var(--type-meta)/var(--leading-snug) var(--font-sans); }
 .message-feedback-line > .feedback-badge {
-  display: inline-flex; align-items: center; column-gap: var(--space-2); min-width: 0; max-width: 100%; overflow: hidden;
-  min-height: var(--control-height-xs); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm);
-  background: transparent; color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); text-align: start;
+  display: inline-flex; column-gap: var(--space-2); min-width: 0; max-width: 100%; overflow: hidden;
+  min-height: 0; padding: var(--space-1) var(--space-3); border: var(--border-width) solid transparent; border-radius: var(--radius-sm);
+  background: transparent; color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-none) var(--font-sans); text-align: start;
 }
 .message-feedback-line > .feedback-badge:hover { color: var(--ink); background: var(--line-soft); }
 .message-feedback-line > .feedback-badge.feedback-error { color: var(--danger-ink); }
-/* Compact scores open the full assessment. */
+/* Compact scores open the full assessment: a small chip, about a line of its
+   text tall. Everything on the line is that tall in every state (the anchor
+   below, and a transparent border where nothing is drawn), so the line sits
+   close under its bubble and never moves. */
 .message-feedback-line > .feedback-badge[data-verdict] {
-  flex-wrap: wrap; justify-content: flex-end; column-gap: var(--space-3); row-gap: var(--space-1); padding: var(--space-1) var(--space-5);
+  justify-content: flex-end; column-gap: var(--space-2); row-gap: var(--space-1); min-height: 0; padding: var(--space-1) var(--space-3);
   border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill);
   background: var(--coach-tint); color: var(--coach-ink); cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
@@ -203,16 +249,31 @@
 .message-feedback-line > .feedback-badge[data-verdict=clear] > svg:not(:last-child) { color: var(--success-ink); }
 .feedback-verdict { font-weight: var(--weight-semibold); }
 /* Fix it opens the message in the composer: an outlined action in the interaction colour. */
-.feedback-fix { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-xs); padding: 0 var(--space-4); border: var(--border-width) solid var(--interaction-line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--interaction-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); cursor: pointer; }
+.feedback-fix { display: inline-flex; gap: var(--space-2); min-height: 0; padding: var(--space-1) var(--space-4); border: var(--border-width) solid var(--interaction-line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--interaction-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-none) var(--font-sans); cursor: pointer; }
 .feedback-fix:hover:not(:disabled) { border-color: var(--interaction-ink); background: var(--interaction-tint); }
 .feedback-fix:disabled { opacity: .5; cursor: default; }
 .message-feedback-line > .feedback-badge > svg { transform: rotate(-90deg); }
 .message-feedback-line[dir="rtl"] > .feedback-badge > svg { transform: rotate(90deg); }
 /* XP is quiet: an outline star and the amount in the progress colour, no fill. */
-.message-xp { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-xs); padding: 0 var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--progress-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-mono); font-variant-numeric: tabular-nums; cursor: pointer; }
+.message-xp { display: inline-flex; gap: var(--space-2); min-height: 0; padding: var(--space-1) var(--space-3); border: var(--border-width) solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--progress-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-none) var(--font-mono); font-variant-numeric: tabular-nums; cursor: pointer; }
 .message-xp svg { color: var(--progress-mark); }
 .message-xp:hover { background: var(--progress-tint); }
-@media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-xp, .feedback-fix { min-height: var(--touch-target); } }
+/* Icons and words on this line centre on the words' central line, .35em above
+   their alphabetic baseline: the middle of Latin capitals and CJK ideographs,
+   and of Arabic words on average. Centring the words' line box instead would
+   set Latin and CJK words about .12em high, because the Arabic reading face owns
+   the space character and so places every label's baseline (ux-design-pass T1).
+   A zero-width anchor on the baseline claims the chip's height evenly around
+   that line, the icons centre in it, and the words' tight line never outgrows
+   it. Wrapping lets a touch-height chip centre its line. */
+.message-feedback-line :is(.feedback-badge, .feedback-fix, .message-xp) { flex-wrap: wrap; align-items: baseline; align-content: center; }
+.message-feedback-line :is(.feedback-badge, .feedback-fix, .message-xp)::before {
+  content: ''; block-size: calc(var(--space-5) + .35em); margin-block-end: calc(var(--space-5) - .35em);
+  margin-inline-end: calc(-1 * var(--space-2));
+}
+.message-feedback-line :is(.feedback-badge, .feedback-fix, .message-xp) > svg { align-self: center; }
+.message-feedback-line .message-fixed { margin: 0; }
+@media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-feedback-line > .feedback-badge[data-verdict], .message-xp, .feedback-fix { min-height: var(--touch-target); } }
 
 
 .message-feedback { align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; max-width: 85%; min-width: 0; }

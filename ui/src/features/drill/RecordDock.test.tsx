@@ -12,7 +12,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') }
 })
 
-const view = (phase: DockPhase) => <I18nProvider locale="english"><RecordDock phase={phase} mode="live"
+const view = (phase: DockPhase, empty = false) => <I18nProvider locale="english"><RecordDock phase={phase} empty={empty} mode="live"
   onMode={() => {}} settings={{ pauseMs: policy.defaultPauseMs, thresholdDb: policy.defaultThresholdDb,
     minTakeMs: policy.defaultMinTakeMs, silenceTimeoutMs: policy.defaultSilenceTimeoutMs }}
   onSettings={() => {}} listeningStatus={null} waveSource={null} spectrum={null}
@@ -30,6 +30,18 @@ it('keeps the pad and the control row mounted when capture starts and stops', ()
   rerender(view('ready'))
   expect(screen.getByRole('button', { name: 'Start recording' })).toBe(pad)
   expect(Array.from(container.querySelector('.voice-controls')!.children)).toEqual(controls)
+})
+
+it('stays the same panel with no cards: capture is off and the stream says to add one', () => {
+  const { container } = render(view('ready', true))
+  expect(screen.getByRole('button', { name: 'Start recording' })).toBeDisabled()
+  for (const mode of within(screen.getByRole('radiogroup', { name: 'Recording mode' })).getAllByRole('radio')) expect(mode).toBeDisabled()
+  expect(screen.getByRole('checkbox', { name: 'Detect attempts' })).toBeDisabled()
+  expect(container.querySelector('.voice-face')).toHaveTextContent('Add a practice card to record.')
+  expect(screen.getByRole('status')).toHaveTextContent('Add a practice card to record.')
+  expect(screen.queryByText('Press the microphone to start')).toBeNull()
+  // Choosing a microphone needs no card.
+  expect(screen.getByRole('button', { name: 'Recording settings' })).toBeEnabled()
 })
 
 it('shows Tap, Hold and Auto under the pad, the Auto controls in the row, and timings in settings', () => {

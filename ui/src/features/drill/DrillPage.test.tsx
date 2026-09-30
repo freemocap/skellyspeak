@@ -28,7 +28,7 @@ vi.mock('../../platform/audio/speech', async () => {
   return actual
 })
 vi.mock('../../platform/ipc/tauri', async () => ({
-  languageFor: () => ({ languageTag: 'es', direction: script.direction, romanization: null }),
+  languageFor: () => ({ code: 'spanish', languageTag: 'es', direction: script.direction, romanization: null, greeting: { text: '¡Hola!', romanized: null } }),
   languages: () => [],
   isTauri: true,
 }))
@@ -72,7 +72,7 @@ const item = (overrides: Partial<DrillItemView> = {}): DrillItemView => {
   const attempts = overrides.attempts ?? []
   const ratios = attempts.map(entry => entry.comparison.matchRatio).filter(ratio => ratio !== null)
   return {
-    id: 'item-1', text: 'Quisiera un café.', language: 'spanish', variety: 'spanish-spain',
+    id: 'item-1', source: { kind: 'own' }, text: 'Quisiera un café.', language: 'spanish', variety: 'spanish-spain',
     explanation: 'english', explanationVariety: 'english-us', createdAt: '2026-09-22T11:00:00.000Z',
     attemptCount: attempts.length, bestMatchRatio: ratios.length ? Math.max(...ratios) : null,
     lastAttemptAt: attempts[0]?.createdAt ?? null, attempts: [], ...overrides,
@@ -166,6 +166,13 @@ const app = (lookup?: Lookup) => render(
       <DrillPage active />
     </ReadingLookupContext>
   </I18nProvider>)
+
+/** The attempt list of the card on screen. The list is on the page before any
+ * card is, empty, and is replaced when a card arrives, so wait for the card. */
+async function attemptLog() {
+  await screen.findByText(/^Card \d+ of \d+$/)
+  return within(screen.getByRole('complementary', { name: 'Attempts' }))
+}
 
 async function openPhrases() {
   // At full width the cards panel starts folded to its edge tab beside the stage.
@@ -314,13 +321,15 @@ it('keeps attempts across a visit and removes everything with the phrase', async
   expect(await screen.findByText('1 attempts · best 94%')).toBeVisible()
   view.rerender(<I18nProvider locale="english"><DrillPage active={false} /></I18nProvider>)
   view.rerender(<I18nProvider locale="english"><DrillPage active /></I18nProvider>)
-  expect(await within(await screen.findByRole('complementary', { name: 'Attempts' })).findByRole('region', { name: 'Attempt 1' })).toBeVisible()
+  expect(await (await attemptLog()).findByRole('region', { name: 'Attempt 1' })).toBeVisible()
   expect(invoke.mock.calls.filter(([command]) => command === 'get_drill_items').length).toBeGreaterThan(1)
   await openPhrases()
 
   fireEvent.click(screen.getByRole('button', { name: 'Delete “Quisiera un café.” and its attempts' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('delete_drill_item', { itemId: 'item-1' }))
-  expect(await screen.findByText('Nothing to practise yet')).toBeVisible()
+  expect(await screen.findByText('No practice cards yet')).toBeVisible()
+  // The starter is offered on entering with no cards, not when the last one is deleted.
+  expect(screen.queryByRole('dialog', { name: 'Start practising' })).toBeNull()
 })
 
 it('refuses playback while the microphone is recording, and lets it go again after', async () => {
@@ -494,7 +503,7 @@ it('calls an attempt exact only when the comparison needed no edits', async () =
     comparison: { ...attempt().comparison, edits: 0, characterErrorRate: 0, matchRatio: 1 } })
   items = [item({ attempts: [perfect, attempt()] })]
   app()
-  const log = within(await screen.findByRole('complementary', { name: 'Attempts' }))
+  const log = await attemptLog()
   // The newest, exact attempt is the full report; the older one is a line in the log.
   expect(within(await log.findByRole('region', { name: 'Attempt 2' })).getByText('Exact')).toBeVisible()
   const older = await log.findByRole('button', { name: 'Attempt 1' })
@@ -512,7 +521,7 @@ it('reads attempt history a page at a time and never the embedded array', async 
     return native(command, args)
   })
   app()
-  const log = within(await screen.findByRole('complementary', { name: 'Attempts' }))
+  const log = await attemptLog()
   await waitFor(() => expect(log.getAllByRole('button').length).toBeGreaterThan(1))
   // Ten per page, less the newest, which is reported in full above the log.
   expect(log.getAllByRole('button', { name: /^Attempt \d+$/ })).toHaveLength(9)
@@ -747,7 +756,7 @@ it('deletes one take, or clears the recent past, and reads the history again', a
   const now = Date.parse('2026-09-23T15:00:00.000Z')
   const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
   app()
-  const log = within(await screen.findByRole('complementary', { name: 'Attempts' }))
+  const log = await attemptLog()
   fireEvent.click(await log.findByRole('button', { name: 'Attempt 1' }))
   fireEvent.click(await log.findByRole('button', { name: 'Delete attempt 1' }))
   await waitFor(() => expect(invoke).toHaveBeenCalledWith('delete_drill_attempt', { attemptId: 'attempt-1' }))
@@ -1151,4 +1160,115 @@ it('uses the shared microphone preference from recording settings', async () => 
   expect(updateSettings).toHaveBeenCalledWith(expect.any(Function), 'Changing microphone')
   const change = updateSettings.mock.lastCall![0]
   expect(change({ microphone_device_id: null, tts_rate: 0.85 })).toEqual({ microphone_device_id: 'usb', tts_rate: 0.85 })
+})
+
+it('keeps the practice layout with one large Add practice cards button when there are no cards', async () => {
+  localStorage.setItem('skellyspeak_practice_starter', 'closed')
+  app()
+  const panel = await screen.findByRole('region', { name: 'Practice cards' })
+  expect(within(panel).getByRole('button', { name: 'Add practice cards…' })).toHaveAccessibleDescription('No practice cards yet')
+  expect(screen.getAllByRole('button', { name: 'Add practice cards…' })).toHaveLength(1)
+  // The stage, recorder and attempt list are the real components, empty: no
+  // drawn stand-ins, and nothing to play or record until a card exists.
+  expect(document.querySelector('.drill-target-card')).toHaveTextContent('No card selected')
+  expect(screen.getByRole('button', { name: 'Play reference' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Play yours' })).toBeDisabled()
+  const recorder = screen.getByRole('region', { name: 'Record an attempt' })
+  expect(within(recorder).getByRole('button', { name: 'Start recording' })).toBeDisabled()
+  expect(within(recorder).getByRole('status')).toHaveTextContent('Add a practice card to record.')
+  expect(screen.getByRole('complementary', { name: 'Attempts' })).toHaveTextContent('No attempts yet. Record one to compare.')
+  expect(document.querySelector('[class*="drill-empty"], .drill-stage-empty')).toBeNull()
+  expect(screen.queryByRole('dialog', { name: 'Start practising' })).toBeNull()
+  fireEvent.click(within(panel).getByRole('button', { name: 'Add practice cards…' }))
+  expect(await screen.findByRole('dialog', { name: 'Add practice cards' })).toBeVisible()
+  expect(screen.getByText('Generated phrases will appear here.')).toBeVisible()
+})
+
+it('says there are no cards only once the card list has been read', async () => {
+  localStorage.setItem('skellyspeak_practice_starter', 'closed')
+  let answer: (cards: DrillItemView[]) => void = () => { throw new Error('The card list was never requested.') }
+  const base = invoke.getMockImplementation()!
+  invoke.mockImplementation(async (command: string, args: Record<string, unknown>) =>
+    command === 'get_drill_items' ? new Promise(resolve => { answer = resolve }) : base(command, args))
+  app()
+  const recorder = await screen.findByRole('region', { name: 'Record an attempt' })
+  expect(within(recorder).getByRole('status')).toHaveTextContent('Preparing the session')
+  expect(screen.queryByText('Add a practice card to record.')).toBeNull()
+  act(() => answer([]))
+  await waitFor(() => expect(within(recorder).getByRole('status')).toHaveTextContent('Add a practice card to record.'))
+})
+
+it('keeps the real recorder and attempt list on a phone with no cards, and leads the bar with Add practice cards', async () => {
+  localStorage.setItem('skellyspeak_practice_starter', 'closed')
+  const media = vi.spyOn(window, 'matchMedia').mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() } as unknown as MediaQueryList)
+  const view = app()
+  try {
+    const bar = await screen.findByRole('navigation', { name: 'Practice cards' })
+    await waitFor(() => expect(within(bar).getByRole('button', { name: 'Add practice cards…' })).toBeVisible())
+    expect(document.querySelector('.drill-target-card')).toHaveTextContent('No card selected')
+    const recorder = screen.getByRole('region', { name: 'Record an attempt' })
+    expect(within(recorder).getByRole('button', { name: 'Start recording' })).toBeDisabled()
+    expect(within(recorder).getByRole('status')).toHaveTextContent('Add a practice card to record.')
+    expect(screen.getByRole('region', { name: 'Attempts' })).toBeInTheDocument()
+    expect(document.querySelector('[class*="drill-empty"], .drill-stage-empty')).toBeNull()
+  } finally {
+    view.unmount()
+    media.mockRestore()
+  }
+})
+
+it('opens the starter on a visit with no cards, and one press keeps a level’s phrases and opens the first', async () => {
+  const generated = ['Buenos días.', 'Gracias.', 'Por favor.']
+  const base = invoke.getMockImplementation()!
+  invoke.mockImplementation(async (command: string, args: Record<string, unknown>) => {
+    switch (command) {
+      case 'begin_drill_preview': return 'starter-request'
+      case 'preview_drill_items': return {
+        requested: null, requestId: 'starter-request', shortfall: null, receiptId: null,
+        candidates: generated.map((text, index) => ({
+          candidateId: `candidate-${index}`, text, translation: null, reported: { difficulty: null, tags: [] },
+          verified: { scopeMatchesRequest: true, lengthOk: true, nonEmpty: true, duplicate: index === 2 },
+          source: { kind: 'generated', requestId: 'starter-request', candidateId: `candidate-${index}`, topic: null, difficulty: 'beginner', length: 'shortPhrase' },
+        })),
+      }
+      case 'accept_drill_items': {
+        const kept = (args.candidateIds as string[]).map((id, index) => item({ id: `kept-${index}`, text: generated[index],
+          source: { kind: 'generated', requestId: 'starter-request', candidateId: id, topic: null, difficulty: 'beginner', length: 'shortPhrase' } }))
+        items = kept
+        return kept
+      }
+      case 'discard_drill_preview': return
+      default: return base(command, args)
+    }
+  })
+  app()
+  const starter = await screen.findByRole('dialog', { name: 'Start practising' })
+  // Each level says in one line what it holds, under its name, and its button carries that line.
+  for (const [name, description] of [['Add 8 absolute zero phrases', 'Single words and greetings'], ['Add 8 beginner phrases', 'Everyday short phrases'],
+    ['Add 8 intermediate phrases', 'Fuller sentences to ask and explain'], ['Add 8 advanced phrases', 'Longer, more natural speech']]) {
+    expect(within(starter).getByRole('button', { name })).toBeVisible()
+    expect(within(starter).getByRole('button', { name })).toHaveAccessibleDescription(description)
+  }
+  expect(within(starter).getByText('¡Hola!')).toBeVisible()
+  fireEvent.click(within(starter).getByRole('button', { name: 'Add 8 beginner phrases' }))
+  await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Start practising' })).toBeNull())
+  expect(invoke).toHaveBeenCalledWith('begin_drill_preview', { input: {
+    language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-us',
+    topic: null, count: 8, difficulty: 'beginner', length: 'shortPhrase' } })
+  // The duplicate is left out; everything new is kept without a second press.
+  expect(invoke).toHaveBeenCalledWith('accept_drill_items', { requestId: 'starter-request', candidateIds: ['candidate-0', 'candidate-1'] })
+  expect(await screen.findByText('Card 1 of 2')).toBeVisible()
+})
+
+it('stays closed on later visits once “Don’t show this again” is ticked', async () => {
+  const view = app()
+  const starter = await screen.findByRole('dialog', { name: 'Start practising' })
+  fireEvent.click(within(starter).getByRole('checkbox', { name: 'Don’t show this again' }))
+  expect(within(starter).getByRole('checkbox', { name: 'Don’t show this again' })).toBeChecked()
+  fireEvent.click(within(starter).getByRole('button', { name: 'Close' }))
+  expect(screen.queryByRole('dialog', { name: 'Start practising' })).toBeNull()
+  view.rerender(<I18nProvider locale="english"><DrillPage active={false} /></I18nProvider>)
+  view.rerender(<I18nProvider locale="english"><DrillPage active /></I18nProvider>)
+  await screen.findByRole('region', { name: 'Practice cards' })
+  expect(screen.queryByRole('dialog', { name: 'Start practising' })).toBeNull()
 })

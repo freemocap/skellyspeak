@@ -159,6 +159,12 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
 #[test]
 fn focus_is_frozen_for_coaching_without_directing_partner() {
     let (_dir, mut store, conversation) = setup();
+    // This covers learner-selected coaching without a conversation recommendation.
+    // New conversations now default to an explicit coach recommendation instead.
+    store.connection.execute(
+        "UPDATE conversation_settings SET settings=json_set(settings,'$.direction.topic',NULL) WHERE conversation_id=?1",
+        [&conversation],
+    ).unwrap();
     store
         .connection
         .execute(

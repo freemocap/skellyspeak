@@ -329,3 +329,15 @@
     min-height: calc(var(--touch-target) * 2 + var(--space-4) * 2);
   }
 }
+
+/* A message's "How this was added" tip, shown only when its owner supplies a source. */
+.message-provenance { display: inline-flex; align-items: center; color: var(--ink-3); }
+.message-provenance .info-tip { margin-inline: 0; }
+.message-provenance .info-tip > button { min-width: var(--control-height-xs); min-height: var(--control-height-xs); border-radius: var(--radius-sm); }
+.message-provenance .info-tip > button:hover, .message-provenance .info-tip > button[aria-expanded="true"] { color: var(--interaction-ink); background: var(--interaction-tint); }
+.message-provenance-card { display: grid; gap: var(--space-3); }
+.message-provenance-heading { color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.message-provenance-kind { display: flex; align-items: center; gap: var(--space-3); font-weight: var(--weight-medium); }
+.message-provenance-line { color: var(--ink-2); }
+.message-provenance-meta { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); }
+.message-provenance-model { padding-top: var(--space-3); border-top: var(--border-width) solid var(--line-soft); color: var(--ink-3); font-size: var(--type-meta); }

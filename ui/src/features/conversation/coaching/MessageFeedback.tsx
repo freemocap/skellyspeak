@@ -84,7 +84,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
           <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Clean") : tr("Feedback")}</span>
         </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
       </button>
-    {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={13} />{tr("Fix it")}</button>}
+    {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={12} />{tr("Fix it")}</button>}
     {reward}
     </div>
     {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}

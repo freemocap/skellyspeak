@@ -34,12 +34,17 @@ const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR
  * been on; Auto adds the level meter and Detect attempts to the control row, and
  * each pause cuts an attempt, marked in the stream. The phase is announced to
  * screen readers; its longer explanation is the stream's tooltip. Capture and
- * playback share one authority, so playback waits while this records. */
-export function RecordDock({ microphoneSelector, layout, starting = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+ * playback share one authority, so playback waits while this records.
+ *
+ * With no practice cards the panel keeps its place and its settings, but
+ * nothing that starts capture works, and the stream says to add a card. */
+export function RecordDock({ microphoneSelector, layout, starting = false, empty = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
   microphoneSelector?: ReactNode
   /** The pad's side and the stream's direction, each set in the recording settings. */
   layout?: RecorderLayout
   starting?: boolean
+  /** There are no practice cards: the card list has been read and is empty. */
+  empty?: boolean
   phase: DockPhase
   mode: RecordMode
   onMode: (mode: RecordMode) => void
@@ -60,9 +65,10 @@ export function RecordDock({ microphoneSelector, layout, starting = false, phase
   const decibels = (db: number) => tr('{value0} dB', { value0: tr.number(db, { maximumFractionDigits: 0 }) })
   const live = mode === 'live'
   const auto = live && autoDetect
-  const busy = phase === 'working' || phase === 'preparing'
+  // Capture cannot start: there are no cards, or the session is opening or storing.
+  const blocked = empty || phase === 'working' || phase === 'preparing'
 
-  const copy = {
+  const copy = empty ? { headline: tr("Add a practice card to record."), detail: undefined } : {
     preparing: { headline: tr("Preparing the session"), detail: tr("Recording starts once the practice session is open.") },
     ready: {
       tap: { headline: tr("Ready to record"), detail: tr("Tap to start, tap again to stop.") },
@@ -82,21 +88,23 @@ export function RecordDock({ microphoneSelector, layout, starting = false, phase
 
   const feed = spectrum ?? noSpectrum
   const hasSpectrum = useSyncExternalStore(feed.subscribe, () => feed.get() !== null)
-  const stream = phase === 'recording' || hasSpectrum
+  // The line is drawn for sight; the same words are the announced status.
+  const face = empty ? <p className="drill-voice-note" aria-hidden="true">{copy.headline}</p>
+    : phase === 'recording' || hasSpectrum
     ? <LiveRecording time={layout?.time} active={phase === 'recording'} source={waveSource} spectrum={spectrum} takes={listeningStatus?.takes ?? []} />
     : null
   const padLabel = mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")
 
-  return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} phase={phase} face={stream}
+  return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} phase={phase} face={face}
     microphoneSelector={microphoneSelector} faceTitle={copy.detail} status={copy.headline}
-    mode={live ? 'auto' : mode} onMode={next => onMode(next === 'auto' ? 'live' : next)} modesDisabled={busy || starting || phase === 'recording'}
-    pad={{ label: padLabel, disabled: busy || (starting && mode !== 'hold'),
+    mode={live ? 'auto' : mode} onMode={next => onMode(next === 'auto' ? 'live' : next)} modesDisabled={blocked || starting || phase === 'recording'}
+    pad={{ label: padLabel, disabled: blocked || (starting && mode !== 'hold'),
       action: mode === 'hold' ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggle } }}
     controls={live && <>
       <LevelMeter level={listeningStatus?.levelDb ?? null} noise={listeningStatus?.noiseFloorDb ?? null}
         threshold={settings.thresholdDb} decibels={decibels}
         onThreshold={thresholdDb => { if (thresholdDb !== settings.thresholdDb) onSettings({ ...settings, thresholdDb }) }} />
-      <label className="voice-switch"><input type="checkbox" checked={auto} disabled={busy || starting}
+      <label className="voice-switch"><input type="checkbox" checked={auto} disabled={blocked || starting}
         onChange={event => onAutoDetect?.(event.target.checked)} />{tr("Detect attempts")}</label>
     </>}
     settings={<>

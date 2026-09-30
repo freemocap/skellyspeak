@@ -97,36 +97,39 @@
 }
 .voice-pad:disabled { opacity: 0.45; cursor: default; }
 
-/* Keep recording actions on one row; device selection uses the remaining space. */
-.voice-controls { grid-area: controls; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-3); min-width: 0; white-space: nowrap; }
+/* Keep recording actions on one row; device selection uses the remaining space.
+   The row serves the pad, so it stays quiet: text and icons with no outline of
+   their own, a faint wash on hover and the interaction tint when on. */
+.voice-controls { grid-area: controls; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); min-width: 0; white-space: nowrap; }
 .voice-controls .drill-meter { flex: 1 1 auto; }
 .voice-controls .voice-type { margin-inline-start: auto; }
-.voice-mini {
-  flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-5);
-  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2);
-  font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
+.voice-mini, .voice-switch {
+  flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-xs); padding: 0 var(--space-4);
+  border: 0; border-radius: var(--radius-md); background: transparent; color: var(--ink-2);
+  font: var(--weight-medium) var(--type-ui)/var(--leading-tight) var(--font-sans); cursor: pointer;
 }
-.voice-mini-icon { justify-content: center; width: var(--control-height-sm); padding: 0; }
-.voice-mini:hover:not(:disabled) { border-color: var(--ink-3); color: var(--ink); }
+.voice-mini-icon { justify-content: center; width: var(--control-height-xs); padding: 0; }
+.voice-mini:hover:not(:disabled), .voice-switch:hover:has(input:not(:disabled)) { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
 .voice-mini:disabled { opacity: 0.5; cursor: default; }
-.voice-mini[aria-pressed='true'], .voice-mini[aria-expanded='true'] { border-color: var(--interaction-mark); color: var(--interaction-ink); background: var(--interaction-tint); }
-.voice-switch { flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-sm); padding: 0 var(--space-4); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-size: var(--type-ui); cursor: pointer; }
+.voice-mini[aria-pressed='true'], .voice-mini[aria-expanded='true'] { color: var(--interaction-ink); background: var(--interaction-tint); }
 .voice-switch input { accent-color: var(--interaction-fill); }
 .voice-switch:has(input:disabled) { color: var(--ink-3); cursor: default; }
 
-/* Always visible, directly under the pad. A mode that is not available here yet
-   stays in place and says “Coming soon” when pressed. */
+/* Always visible, directly under the pad: a light track with the chosen mode
+   as a raised chip, as the coach's tabs show theirs. It is quieter than a
+   filled segmented choice (buttons.css) so the pad stays the one strong
+   control. A mode that is not available here yet stays in place and says
+   “Coming soon” when pressed. */
 .voice-modes {
-  grid-area: modes; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0; gap: 0;
-  border: 0; border-radius: var(--radius-pill); background: var(--chrome); box-shadow: inset 0 0 0 var(--border-width) var(--line);
+  grid-area: modes; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--space-1); gap: 0;
+  border: 0; border-radius: var(--radius-md); background: color-mix(in srgb, var(--ink) 7%, transparent);
 }
 .voice-modes button {
-  min-width: 0; min-height: var(--control-height-sm); padding: 0; border: 0; border-radius: var(--radius-pill); background: transparent;
-  color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); cursor: pointer;
+  min-width: 0; min-height: calc(var(--control-height-xs) - 2 * var(--space-1)); padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent;
+  color: var(--ink-3); font: var(--weight-medium) var(--type-ui)/var(--leading-tight) var(--font-sans); cursor: pointer;
 }
-/* The chosen mode is filled, as a segmented choice's is (buttons.css). */
-.voice-modes button:hover:not(:disabled):not([aria-checked='true']) { color: var(--ink); background: var(--sheet); }
-.voice-modes button[aria-checked='true'] { background: var(--interaction-fill); color: var(--ink-on-fill); box-shadow: var(--shadow-sm); }
+.voice-modes button:hover:not(:disabled):not([aria-checked='true']) { color: var(--ink); }
+.voice-modes button[aria-checked='true'] { background: var(--sheet); color: var(--interaction-ink); box-shadow: var(--shadow-sm); font-weight: var(--weight-semibold); }
 .voice-modes button:disabled:not([aria-checked='true']) { opacity: 0.5; cursor: default; }
 .voice-modes button[data-later] { color: var(--ink-3); opacity: 0.7; }
 .voice-soon {
@@ -163,24 +166,44 @@
   .voice-panel { padding: var(--space-4) var(--space-4) var(--space-3); gap: var(--space-3); }
   .voice-grid { grid-template-columns: minmax(0, 1fr) 7rem; gap: var(--space-3) var(--space-4); }
   .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 7rem minmax(0, 1fr); }
-  .voice-controls { gap: var(--space-3); flex-wrap: nowrap; }
   .voice-modes button { font-size: var(--type-meta); }
 }
 @media (max-width: 400px) {
   .voice-grid { grid-template-columns: minmax(0, 1fr) 6.25rem; grid-template-rows: 4.75rem auto; }
   .voice-panel[data-pad='start'] .voice-grid { grid-template-columns: 6.25rem minmax(0, 1fr); }
   .voice-prompt-text { padding-inline: var(--space-4); font-size: var(--type-meta); }
+  /* Phones: the row's labels take the mode switch's smaller type, and Practice's
+     level meter gives up width, so the row fits beside the switch. A switch
+     label longer than the room left (some translations) wraps rather than
+     running under the switch. */
+  .voice-mini, .voice-switch { font-size: var(--type-meta); }
+  .voice-controls .drill-meter { min-width: 3rem; }
+  .voice-controls .voice-switch { flex: 0 1 auto; min-width: 0; white-space: normal; }
 }
-@media (pointer: coarse) { .voice-mini, .voice-modes button { min-height: var(--touch-target); } }
+@media (pointer: coarse) {
+  .voice-mini, .voice-switch, .voice-modes button { min-height: var(--touch-target); }
+  .voice-mini-icon { width: var(--touch-target); }
+  .voice-microphone select { height: var(--touch-target); min-height: var(--touch-target); }
+  .voice-microphone .microphone-row > .btn { width: var(--touch-target); min-height: var(--touch-target); }
+}
 
 /* Compact device selection uses the shared field and its existing error view. */
 .voice-microphone { flex: 1 1 0; min-width: 0; max-width: 100%; container: microphone-footer / inline-size; }
 .voice-microphone .form-row { margin: 0; min-width: 0; }
 .voice-microphone .form-row > label { display: none; }
 .voice-microphone .microphone-row { min-width: 0; gap: var(--space-3); }
-/* Footer fields match the short pill controls; settings keep their full form layout. */
-.voice-microphone select { width: 0; min-width: 0; min-height: var(--control-height-sm); padding: 0 var(--space-5); border-radius: var(--radius-pill); text-overflow: ellipsis; font-size: var(--type-ui); box-shadow: none; }
-.voice-microphone .microphone-row > .btn { flex: none; width: var(--control-height-sm); min-height: var(--control-height-sm); padding: 0; border-radius: var(--radius-pill); }
+/* Footer fields match the row's quiet controls, with no outline until focused;
+   settings keep their full form layout. A select sizes its box from its font's
+   own line spacing, so its height is set as well as its minimum. */
+.voice-microphone select {
+  width: 0; min-width: 0; height: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0 var(--space-4); border-color: transparent; border-radius: var(--radius-md);
+  background: transparent; color: var(--ink-2); text-overflow: ellipsis; font-size: var(--type-ui); line-height: var(--leading-tight); box-shadow: none;
+}
+.voice-microphone .microphone-row > .btn {
+  flex: none; width: var(--control-height-xs); min-height: var(--control-height-xs); padding: 0; border-color: transparent; border-radius: var(--radius-md);
+  background: transparent; color: var(--ink-2); box-shadow: none;
+}
+.voice-microphone select:hover:not(:disabled), .voice-microphone .microphone-row > .btn:hover:not(:disabled) { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
 
 /* Below this usable width (including Refresh), use Recording settings instead.
    Query the available slot, so panel resizing and translated controls count. */

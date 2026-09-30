@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { I18nProvider } from '../../components/localization/i18n'
 import { AddPhrases } from './AddPhrases'
@@ -67,6 +67,11 @@ it('labels a nested rate limit and retries only the failed part of the saved bat
   expect(api.previewDrillItems.mock.calls[2][0]).toEqual(api.previewDrillItems.mock.calls[1][0])
   expect(api.previewDrillItems.mock.calls[2][0].length).toBe('shortPhrase')
   expect(screen.queryByRole('alert')).toBeNull()
+})
+
+it('shows the results well before anything is asked', () => {
+  open()
+  expect(screen.getByText('Generated phrases will appear here.')).toBeVisible()
 })
 
 it('never generates until asked, then sends length and difficulty as separate choices', async () => {
@@ -142,6 +147,22 @@ it('keeps one phrase per press, by native id, with no confirm step', async () =>
   expect(await screen.findByText('Added')).toBeVisible()
   expect(screen.queryByRole('button', { name: 'Keep “La cuenta, por favor.”' })).not.toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Keep “Un café, por favor.”' })).toBeVisible()
+})
+
+it('keeps a phrase with the icon-only Add to Practice control, explained once above the results', async () => {
+  open()
+  expect(document.querySelector('.drill-hint')).toBeNull()
+  generate()
+  const keep = await screen.findByRole('button', { name: 'Keep “Un café, por favor.”' })
+  // The same square icon control as a message's Add to Practice: no word to wrap.
+  expect(keep).toHaveClass('message-add-drill')
+  expect(keep.textContent).toBe('')
+  const hints = document.querySelectorAll('.drill-hint')
+  expect(hints).toHaveLength(1)
+  expect(hints[0]).toHaveTextContent('Click to add a phrase to your practice cards.')
+  expect(within(hints[0] as HTMLElement).getByRole('img', { name: 'Add to Practice' })).toBeInTheDocument()
+  // The hint leads the list it explains.
+  expect(hints[0].compareDocumentPosition(keep) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 })
 
 it('keeps every remaining phrase in one press', async () => {

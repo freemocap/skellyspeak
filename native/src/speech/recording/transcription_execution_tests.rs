@@ -19,11 +19,38 @@ fn server(
     std::thread::JoinHandle<Vec<u8>>,
 ) {
     let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    server_on(listener, body)
+}
+
+fn server_on(
+    listener: std::net::TcpListener,
+    body: serde_json::Value,
+) -> (
+    String,
+    tokio::sync::oneshot::Receiver<()>,
+    std::sync::mpsc::Sender<()>,
+    std::thread::JoinHandle<Vec<u8>>,
+) {
     let url = format!("http://{}/v1", listener.local_addr().unwrap());
     let (sent, received) = tokio::sync::oneshot::channel();
     let (release, gate) = std::sync::mpsc::channel();
     let worker = std::thread::spawn(move || {
-        let (mut socket, _) = listener.accept().unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let deadline = std::time::Instant::now() + Duration::from_secs(5);
+        let (mut socket, _) = loop {
+            match listener.accept() {
+                Ok(connection) => break connection,
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    assert!(
+                        std::time::Instant::now() < deadline,
+                        "No transcription request arrived"
+                    );
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => panic!("Could not accept transcription request: {error}"),
+            }
+        };
+        socket.set_nonblocking(false).unwrap();
         socket
             .set_read_timeout(Some(Duration::from_secs(5)))
             .unwrap();
@@ -105,6 +132,7 @@ fn setup(
         context: recording.context.clone(),
     };
     drop(store);
+    app.failed_take.lock().unwrap().start(&recording.id);
     (dir, app, recording, input)
 }
 
@@ -515,4 +543,148 @@ async fn cache_write_failure_retains_provider_metadata_and_admission_failure_is_
         .unwrap();
     assert_eq!(receipt["dispatched"], false);
     assert_eq!(app.lock().unwrap().profile().unwrap().global.attempts, 1);
+}
+
+fn carries(request: &[u8], wav: &[u8]) -> bool {
+    request.windows(wav.len()).any(|window| window == wav)
+}
+
+#[tokio::test]
+async fn a_failed_take_is_held_and_retried_with_its_audio_as_a_new_attempt() {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let (url, ready, release, worker) = server_on(
+        listener.try_clone().unwrap(),
+        json!({"request_id":"failed-recognition","text":3}),
+    );
+    let (_dir, app, recording, input) = setup(&url);
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (result, _) = tokio::join!(
+        transcribe_holding_failure(app.clone(), recording.clone(), input.wav.clone()),
+        gate
+    );
+    assert!(result.is_err());
+    assert!(carries(&worker.join().unwrap(), &input.wav));
+    assert!(app.failed_take.lock().unwrap().held.is_some());
+
+    let (_, ready, release, worker) = server_on(listener, reply());
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (retried, _) = tokio::join!(retry_held_take(app.clone(), &recording.id), gate);
+    let retried = retried.unwrap();
+    // The same audio, as a new attempt with its own identity.
+    assert!(carries(&worker.join().unwrap(), &input.wav));
+    assert_eq!(retried.text, "Hola");
+    assert_ne!(retried.inspection.recording_id, recording.id);
+    assert!(app.failed_take.lock().unwrap().held.is_none());
+    // The failed attempt stays recorded for AI activity.
+    let store = app.lock().unwrap();
+    let failed = results::receipt_for_consumer(&store.connection, &recording.id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(failed["state"], "unknown");
+    assert!(failed.to_string().contains("failed-recognition"));
+}
+
+#[tokio::test]
+async fn retrying_a_take_that_is_not_held_fails_without_provider_work() {
+    let (_dir, app, _recording, _input) = setup("http://127.0.0.1:9/v1");
+    let error = retry_held_take(app.clone(), "not-held").await.unwrap_err();
+    assert!(matches!(error.code, ErrorCode::NotFound));
+}
+
+#[tokio::test]
+async fn late_transcription_and_retry_cannot_replace_a_newer_failed_take() {
+    for (retry, succeeds) in [(false, false), (false, true), (true, false)] {
+        let body = if succeeds { reply() } else { json!({"text":3}) };
+        let (url, ready, release, worker) = server(body);
+        let (_dir, app, recording, input) = setup(&url);
+        if retry {
+            app.failed_take.lock().unwrap().held = Some(FailedTake {
+                take: recording.id.clone(),
+                request: recording.clone(),
+                wav: input.wav.clone(),
+            });
+        }
+        let gate = async {
+            ready.await.unwrap();
+            let mut newer = recording.clone();
+            newer.id = "newer-take".into();
+            let mut slot = app.failed_take.lock().unwrap();
+            slot.start(&newer.id);
+            slot.held = Some(FailedTake {
+                take: newer.id.clone(),
+                request: newer,
+                wav: input.wav.clone(),
+            });
+            release.send(()).unwrap();
+        };
+        let run = async {
+            if retry {
+                retry_held_take(app.clone(), &recording.id).await
+            } else {
+                transcribe_holding_failure(app.clone(), recording.clone(), input.wav.clone()).await
+            }
+        };
+        let (result, _) = tokio::join!(run, gate);
+        assert_eq!(result.is_ok(), succeeds);
+        worker.join().unwrap();
+        assert_eq!(
+            app.failed_take.lock().unwrap().held.as_ref().unwrap().take,
+            "newer-take"
+        );
+    }
+}
+
+#[tokio::test]
+async fn retry_refuses_a_changed_destination_and_retains_the_audio() {
+    let (_dir, app, recording, input) = setup("http://127.0.0.1:9/v1");
+    app.failed_take.lock().unwrap().held = Some(FailedTake {
+        take: recording.id.clone(),
+        request: recording.clone(),
+        wav: input.wav,
+    });
+    app.lock().unwrap().connection.execute(
+        "UPDATE ai_config SET custom_config=json_set(custom_config,'$.baseUrl','http://127.0.0.1:8/v1')", []
+    ).unwrap();
+    let error = retry_held_take(app.clone(), &recording.id)
+        .await
+        .unwrap_err();
+    assert_eq!(error.code, ErrorCode::Conflict);
+    assert!(app.failed_take.lock().unwrap().held.is_some());
+    assert_eq!(app.lock().unwrap().profile().unwrap().global.attempts, 0);
+}
+
+#[tokio::test]
+async fn a_retry_that_fails_again_keeps_the_take_held() {
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let (url, ready, release, worker) = server_on(
+        listener.try_clone().unwrap(),
+        json!({"request_id":"first-failure","text":3}),
+    );
+    let (_dir, app, recording, input) = setup(&url);
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (first, _) = tokio::join!(
+        transcribe_holding_failure(app.clone(), recording.clone(), input.wav.clone()),
+        gate
+    );
+    assert!(first.is_err());
+    worker.join().unwrap();
+    let (_, ready, release, worker) =
+        server_on(listener, json!({"request_id":"second-failure","text":3}));
+    let gate = async {
+        ready.await.unwrap();
+        release.send(()).unwrap();
+    };
+    let (again, _) = tokio::join!(retry_held_take(app.clone(), &recording.id), gate);
+    assert!(again.is_err());
+    worker.join().unwrap();
+    assert!(app.failed_take.lock().unwrap().held.is_some());
 }

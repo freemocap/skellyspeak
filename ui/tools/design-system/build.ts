@@ -121,7 +121,7 @@ const viteGlob = {
 };
 await build({
   entryPoints: ["ui/tools/design-system/previews.tsx"], outfile: bundled, bundle: true, format: "esm",
-  platform: "node", jsx: "automatic", external: ["react", "react-dom"], logLevel: "error", plugins: [viteGlob],
+  platform: "node", jsx: "automatic", external: ["react", "react-dom", "lucide-react"], logLevel: "error", plugins: [viteGlob],
 });
 // Components read the document (UI direction, media queries) while rendering.
 const { JSDOM } = await import("jsdom");

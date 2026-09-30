@@ -19,7 +19,7 @@ export function ExplanationCards({ cards, nativeLanguageName, onTerm }: {
   return <>{cards.map(card => (
     <div key={card.title} className="exp">
       <div className="exp-top"><span className="exp-title">{card.title}</span></div>
-      {card.quote && <TargetMessage key={card.quote} layout="passage" text={card.quote} segments={[]} segmentsKey={card.quote}
+      {card.quote && <TargetMessage provenance={null} key={card.quote} layout="passage" text={card.quote} segments={[]} segmentsKey={card.quote}
         translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false}
         lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
       <Markdown text={card.body} onTerm={onTerm ? term => onTerm(term, card) : undefined} />

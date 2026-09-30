@@ -28,6 +28,20 @@ it('draws every reference state inside the same frame', () => {
   expect(frame).toContainElement(screen.getByRole('alert'))
 })
 
+it('keeps its frames with no card: the card area says so and nothing can be played', () => {
+  const { container } = render(view({ target: null }))
+  expect(container.querySelector('.drill-target-card')).toHaveTextContent('No card selected')
+  expect(screen.getByRole('button', { name: 'Play reference' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Play yours' })).toBeDisabled()
+  const frames = [...container.querySelectorAll('.drill-plot-frame')]
+  expect(frames).toHaveLength(2)
+  // No instruction to play or record what does not exist.
+  for (const frame of frames) {
+    expect(frame).toHaveAttribute('data-state', 'empty')
+    expect(frame.textContent).toBe('')
+  }
+})
+
 it('keeps the take frame while its recording loads', () => {
   const { container } = render(view({ attemptLabel: 'Attempt 2' }))
   const frames = container.querySelectorAll('.drill-plot-frame')

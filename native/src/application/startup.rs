@@ -164,6 +164,7 @@ pub fn run() {
             voice::mic_push,
             voice::mic_cancel,
             voice::mic_transcribe,
+            voice::mic_retry_transcription,
             voice::get_transcription_result,
             factory_reset::factory_reset,
             factory_reset::export_workspace,

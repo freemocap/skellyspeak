@@ -33,8 +33,10 @@ export type TimeScale = 'fit' | 'shared' | 'words'
 export function DrillComparison({ target, reference, referenceTime, onSeekReference, onPlayReference, playingReference, referenceNote, referenceFailure,
   attempt, preview, comparisonAccepted = true, attemptTime = 0, attemptLabel, attemptFailure, onRetryAttempt, attemptUnavailable, direction, onDirection, timeScale, onTimeScale,
   holding, playingAttempt, onPlayAttempt, playbackSpeed, onSeekAttempt, referenceScrub, attemptScrub }: {
-  /** The phrase itself, in its reading bubble. */
-  target: ReactNode
+  /** The phrase itself, in its reading bubble, or null when no card is
+   * selected: the bubble area says so, the plots stay empty frames and
+   * nothing can be played. */
+  target: ReactNode | null
   playbackSpeed?: ReactNode
   reference: AudioInspection | null
   referenceTime: number
@@ -69,6 +71,7 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
 }) {
   const tr = useI18n()
   const mobile = useIsMobile()
+  const card = target !== null
   const [controlsOpen, setControlsOpen] = useState(false)
   const [showTiming, setShowTiming] = useState(true)
   const alignment = useMemo(() => comparisonAccepted && reference && attempt
@@ -117,10 +120,10 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
     <section className="drill-comparison-panel" aria-label={tr("Reference and your attempt")}
       style={{ '--drill-reference-row': px(referenceHeight), '--drill-attempt-row': px(attemptHeight) } as CSSProperties}>
       <div className="drill-reference">
-      <div className="drill-target-card">{target}</div>
+      <div className="drill-target-card">{target ?? <p className="drill-target-none">{tr("No card selected")}</p>}</div>
 
       <div className="drill-media" dir={direction}>
-        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Play reference")} disabled={holding} onClick={onPlayReference} title={referenceNote}>
+        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Play reference")} disabled={holding || !card} onClick={onPlayReference} title={referenceNote}>
           <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Reference")}
         </button>
         {!mobile && playbackSpeed}
@@ -140,8 +143,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
             style={{ width: width(reference.duration) }} plotRef={undefined} attempt={false} />
         </div> : <div className="drill-track" ref={referenceTrack}>
           <div className="drill-plot-frame" data-state={referenceFailure ? 'failed' : playingReference ? 'loading' : 'empty'}>
-            {referenceFailure ?? <p role="status">{playingReference ? tr("Loading reference…")
-              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Play the reference once to draw it here.")}</p>}
+            {referenceFailure ?? (card && <p role="status">{playingReference ? tr("Loading reference…")
+              : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Play the reference once to draw it here.")}</p>)}
           </div>
         </div>}
         <ResizeHandle className="drill-plot-resize drill-reference-resize" label={tr("Resize the reference")} axis="y" grow={1}
@@ -165,7 +168,9 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
                 style={{ width: width(attemptDuration) }} plotRef={arrival} attempt />
             </div>
             : <div className="drill-track" ref={attemptTrack}>
-              <div className="drill-plot-frame" data-state={attemptUnavailable ? 'empty' : 'loading'}><p role="status">{attemptUnavailable ?? tr(attemptLabel ? "Loading…" : "No attempts yet. Record one to compare.")}</p></div>
+              {card
+                ? <div className="drill-plot-frame" data-state={attemptUnavailable ? 'empty' : 'loading'}><p role="status">{attemptUnavailable ?? tr(attemptLabel ? "Loading…" : "No attempts yet. Record one to compare.")}</p></div>
+                : <div className="drill-plot-frame" data-state="empty" />}
             </div>}
           <ResizeHandle className="drill-plot-resize drill-attempt-resize" label={tr("Resize the attempt")} axis="y" grow={1}
             size={attemptHeight} min={96} max={800} measure={heightOf(attemptTrack)} onResize={setAttemptHeight} />
