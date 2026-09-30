@@ -183,3 +183,47 @@ async fn real_http_delivers_audio_while_the_terminal_is_blocked() {
     assert_eq!(outcome.provider_id.as_deref(), Some("receipt"));
     assert!(outcome.cost_micros.is_none());
 }
+
+#[test]
+fn completed_stream_alignment_survives_cache_and_reference_inspection() {
+    use crate::speech::{
+        alignment::SpeechAudio, analysis::audio_inspection, recording::owner::RecordingOwner,
+    };
+    let mut decoder = Decoder::default();
+    let mut outcome = SpeechOutcome::empty();
+    let pcm = STANDARD.encode(vec![0u8; 14400]);
+    let alignment = json!({"sourceText":"one two", "original":{
+        "characters":["one ","two"],"starts":[0.0,0.1],"ends":[0.1,0.3]},"normalized":null});
+    let values = [
+        records()[0].clone(),
+        json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":pcm,"alignment":null}),
+        json!({"version":2,"seq":2,"type":"complete","total_samples":7200,"alignment":alignment,"usage":{}}),
+    ];
+    for value in values {
+        decoder
+            .feed(format!("{value}\n").as_bytes(), &mut outcome, &|_, _, _| {
+                Ok(())
+            })
+            .unwrap();
+    }
+    let wav = decoder.finish(&mut outcome, &|_, _, _| Ok(())).unwrap();
+    let saved = SpeechAudio::new(&wav, outcome.alignment);
+    let replay = SpeechAudio::decode(&serde_json::to_vec(&saved).unwrap()).unwrap();
+    let (mut inspection, _) = audio_inspection::inspect_wav(
+        &replay.wav().unwrap(),
+        "reference",
+        &RecordingOwner::DrillItem("fixture".into()),
+    )
+    .unwrap();
+    let words = replay
+        .alignment
+        .unwrap()
+        .words(inspection.duration)
+        .unwrap();
+    audio_inspection::attach_words(&mut inspection, Some(&words));
+    assert_eq!(inspection.word_timing.words.len(), 2);
+    assert_eq!(inspection.word_timing.words[0].word, "one");
+    assert_eq!(inspection.word_timing.words[1].word, "two");
+    assert_eq!(inspection.word_timing.words[1].start, 0.1);
+    assert_eq!(inspection.word_timing.words[1].end, 0.3);
+}

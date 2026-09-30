@@ -83,3 +83,10 @@ Android build completed after a disk-space failure was resolved by deleting only
 regenerable native compilation caches. After USB reconnection, installation
 succeeded and the app was opened. Installation and launch succeeded; the user subsequently reported a successful
 conversation smoke check.
+
+## Local patch build
+
+At the user's request, the package manifest and lockfile were advanced to 2.9.5.
+The Android debug APK was rebuilt, installed over the existing app and opened.
+Android reports versionName 2.9.5 and versionCode 2009005. Commits, tags and
+release publication are left to the user; none were performed.

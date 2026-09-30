@@ -23,7 +23,7 @@ class SynthesisStream:
         self.receipt = None
         self.timings = {key: {'characters': [], 'starts': [], 'ends': []}
                         for key in ('original', 'normalized')}
-        self.status = {key: {'status': 'available'} for key in self.timings}
+        self.status = {key: {'status': 'unavailable', 'reason': 'not_supplied'} for key in self.timings}
         self.metadata = []
 
     def fail(self, stage, details=None):
@@ -74,17 +74,39 @@ class SynthesisStream:
         duration = len(pcm) / (RATE * 2)
         alignment = {'sourceText': self.source}
         for key, field in [('original', 'alignment'), ('normalized', 'normalized_alignment')]:
-            timing, status = decode_alignment(value.get(field), duration)
-            if status['status'] != 'available':
+            raw_timing = value.get(field)
+            alignment[key] = None
+            # Audio frame boundaries need not coincide with text boundaries. Missing
+            # timing in a frame adds no words; it does not revoke earlier words.
+            if raw_timing is None:
+                continue
+            # The source timestamps use the recording clock, not the audio frame's
+            # clock. They may describe audio delivered by a later frame.
+            timing, status = decode_alignment(raw_timing, self.limit / (RATE * 2))
+            if timing is None:
                 self.status[key] = status
-            alignment[key] = timing
-            if timing is not None:
-                target = self.timings[key]
-                if sum(map(len, target['characters'])) + sum(map(len, timing['characters'])) > 20000:
-                    self.fail('speech_stream_alignment_limit')
-                target['characters'].extend(timing['characters'])
-                target['starts'].extend(t + offset / RATE for t in timing['starts'])
-                target['ends'].extend(t + offset / RATE for t in timing['ends'])
+                continue
+            target = self.timings[key]
+            if target['starts'] and timing['starts'][0] < target['starts'][-1]:
+                self.status[key] = {'status': 'unavailable', 'reason': 'unordered_stream_timing'}
+                continue
+            if sum(map(len, target['characters'])) + sum(map(len, timing['characters'])) > 20000:
+                self.fail('speech_stream_alignment_limit')
+            target['characters'].extend(timing['characters'])
+            target['starts'].extend(timing['starts'])
+            target['ends'].extend(timing['ends'])
+            if self.status[key].get('reason') == 'not_supplied':
+                self.status[key] = {'status': 'available'}
+            # The app wire uses frame-relative timing. Only emit a frame projection
+            # when all its intervals fit; retain the complete recording projection
+            # regardless, and validate it against final audio length in finish().
+            start = offset / RATE
+            if (self.status[key]['status'] == 'available'
+                    and timing['starts'][0] >= start
+                    and max(timing['ends']) <= start + duration):
+                alignment[key] = {'characters': timing['characters'],
+                                  'starts': [t - start for t in timing['starts']],
+                                  'ends': [t - start for t in timing['ends']]}
         self.pcm.extend(pcm)
         await self.emit({'sample_offset': offset, 'audio_base64': base64.b64encode(pcm).decode(),
                          'alignment': alignment, 'receipt': {
@@ -96,6 +118,10 @@ class SynthesisStream:
         await self.line()
         if not self.pcm:
             self.fail('speech_stream_empty')
+        duration = len(self.pcm) / (RATE * 2)
+        for key, timing in self.timings.items():
+            if timing['ends'] and max(timing['ends']) > duration:
+                self.status[key] = {'status': 'unavailable', 'reason': 'timing_exceeds_audio_duration'}
         return {'sourceText': self.source,
                 **{key: self.timings[key] if self.status[key]['status'] == 'available' else None
                    for key in self.timings}}
