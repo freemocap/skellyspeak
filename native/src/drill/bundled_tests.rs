@@ -175,7 +175,7 @@ fn previews_preserve_scripts_and_selected_variety_without_writes() {
             .unwrap()
             .candidates[0]
             .text,
-        "تجري الرياح بما لا تشتهي السفن."
+        "تَجري الرّياح بِما لا تَشتَهي السّفُن."
     );
     assert_eq!(count(&store, "drill_items"), 0);
 }

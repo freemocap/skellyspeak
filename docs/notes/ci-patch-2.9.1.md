@@ -85,4 +85,28 @@ checks that an earlier failure skipped. Native edits require Clippy and native
 tests, in addition to the fast gate. This follow-up does not change versions,
 tags or release workflows.
 
-Follow-up verification is in progress; hosted CI has not run these local edits.
+The full native suite then exposed two stale exact-text expectations, and the
+benchmark export check exposed two stale generated prompts. Content commit
+`a25250cb` added vowel marks to the source examples and practice phrases but did
+not update those fixtures. Updated the exact expectations and regenerated the
+benchmark fixtures with the existing exporter. No matching normalization or
+runtime language behavior changed.
+
+While checks ran, the shared checkout advanced to `f3d2e65c` (v2.9.3), committing
+the Clippy/audio-test changes. The final native run uses that checkout plus the
+fixture corrections. This investigation did not create commits or tags, push,
+or change version files.
+
+Follow-up verification:
+
+- Fast validation, including all 13 validation tests.
+- All 1,642 UI tests across 253 files and the production build.
+- Clippy with both `--lib` and `--lib --tests`, treating warnings as errors.
+- Contract export consistency and its exporter test.
+- Regenerated benchmark consistency and all six benchmark tests.
+- Updater verification test and `git diff --check`.
+- Full native library suite on v2.9.3 with the fixture fixes: 742 passed,
+  zero failed, five existing ignored tests.
+
+Hosted CI has not run the final fixture corrections. Existing canvas notices
+and bundle-size warnings remain. Signed release builds were not run locally.
