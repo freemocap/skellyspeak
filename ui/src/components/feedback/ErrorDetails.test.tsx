@@ -17,6 +17,14 @@ it('dismisses a collapsed notice by keyboard and keeps it dismissed across paren
   expect(screen.getByRole('alert')).toBeVisible()
 })
 
+it('tells its owner when dismissed, so what failed can be dropped with it', async () => {
+  const user = userEvent.setup()
+  const dropped: string[] = []
+  render(<ErrorDetails label="Request failed" errorKey="send" onDismiss={() => dropped.push('send')}>Admission refused</ErrorDetails>)
+  await user.click(screen.getByRole('button', { name: 'Dismiss request failed error' }))
+  expect(dropped).toEqual(['send'])
+})
+
 it('dismisses expanded diagnostics without requiring the user to close them first', async () => {
   const user = userEvent.setup()
   render(<ErrorDetails label="Coach" errorKey="failure">Full diagnostic</ErrorDetails>)

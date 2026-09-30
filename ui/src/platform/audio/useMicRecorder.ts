@@ -172,7 +172,9 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
       }
       if (recordingId) {
         stoppedRecordingId = recordingId
-        if (owner?.kind === 'drillItem') setPendingRecordings(takes => [...takes, { recordingId, state: 'processing', failure: null }])
+        // Every owner keeps the take's identity (Practice's attempt row, the
+        // conversation's pending message) until its text arrives or fails.
+        setPendingRecordings(takes => [...takes, { recordingId, state: 'processing', failure: null }])
         active.current = null; setRecording(false); setWaveSource(null); setTranscribing(true)
         // Keep exclusion until native acknowledges the stop/transcription call.
         // Cancelling or changing owner must not release while hardware is live.

@@ -4,7 +4,8 @@
    Every name below is referenced by an animation declaration in a component
    sheet. Three that were not — pulse, gpulse and practice-arrive — belonged to
    the agent graph, a cancel control and a practice transition that were all
-   removed earlier; the keyframes outlived them and are gone. */
+   removed earlier; the keyframes outlived them and are gone. The sideways
+   surface-in keyframes went with the compact coach drawer. */
 
 @keyframes inside-glow {
   0%, 100% { box-shadow: 0 0 0 0 var(--warning-ring); }
@@ -18,10 +19,6 @@
 
 @keyframes activity-spin { to { transform: rotate(360deg); } }
 
-@keyframes surface-in-from-right { from { transform: translateX(100%); opacity: .6; } to { transform: none; opacity: 1; } }
-
-@keyframes surface-in-from-left { from { transform: translateX(-100%); opacity: .6; } to { transform: none; opacity: 1; } }
-
 @keyframes surface-in-from-bottom { from { transform: translateY(100%); opacity: .6; } to { transform: none; opacity: 1; } }
 
 @keyframes hydrate-sweep { from { background-position: 0% 0; } to { background-position: 300% 0; } }
@@ -31,6 +28,10 @@
 @keyframes stream-caret { 50% { opacity: 0; } }
 
 @keyframes hydrate-arrive { from { opacity: 0; } to { opacity: 1; } }
+
+/* A card or message bubble growing into its place: Practice's opened take, and a
+   conversation bubble held open before its content lands. */
+@keyframes card-open { from { opacity: 0; transform: translateY(var(--space-7)) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 /* Work of unknown length: the bar says something is happening, not how far. */
 @keyframes take-progress { from { transform: translateX(-100%); } to { transform: translateX(400%); } }

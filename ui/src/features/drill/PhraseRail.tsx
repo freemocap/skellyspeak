@@ -1,23 +1,31 @@
-import { type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import type { DrillItemView } from '../../generated/contracts'
 
-/** Select or delete existing phrases. Creation belongs to the full Add phrases dialog. */
-export function PhraseRail({ items, selectedId, busy, locked, onSelect, onDelete, children }: {
+/** Select or delete existing phrases. With none, the rail is one large Add
+ * practice cards button; creation belongs to the full Add phrases dialog. */
+export function PhraseRail({ items, selectedId, busy, locked, onSelect, onDelete, onAddPhrases, children }: {
   items: DrillItemView[]
   selectedId: string | null
   busy: boolean
   locked: boolean
   onSelect: (id: string) => void
   onDelete: (item: DrillItemView) => Promise<void>
+  onAddPhrases: () => void
   children: ReactNode
 }) {
   const tr = useI18n()
+  const emptyNote = useId()
   return (
     <aside className="drill-rail" aria-label={tr("Your practice cards")}>
       {items.length === 0
-        ? <p className="drill-rail-empty">{tr("Nothing to practise yet")}</p>
+        ? <button type="button" className="drill-rail-add" aria-haspopup="dialog" aria-label={tr("Add practice cards…")}
+          aria-describedby={emptyNote} disabled={locked} onClick={onAddPhrases}>
+          <span className="drill-rail-add-mark"><ToolbarIcon name="deck-add" size={30} /></span>
+          <span className="drill-rail-add-label">{tr("Add practice cards…")}</span>
+          <span className="drill-rail-add-note" id={emptyNote}>{tr("No practice cards yet")}</span>
+        </button>
         : <ul className="drill-items" aria-label={tr("Practice cards")}>
           {items.map(item => (
             <li key={item.id}>

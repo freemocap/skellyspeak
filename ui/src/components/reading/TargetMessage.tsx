@@ -1,5 +1,7 @@
 import { bubbleSelection } from './bubble-selection'
 import { AddToDrillButton } from './AddToDrillButton'
+import { ProvenanceTip, type MessageProvenance } from './MessageProvenance'
+import { SelectionRing } from './SelectionRing'
 import { MessageTools, type MessageInspect, type MessageTool } from './MessageTools'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GlossSegment } from '../../generated/contracts'
@@ -58,6 +60,13 @@ export interface TargetMessageProps {
   translationState?: string | null
   /** Already saved Drill phrases use their owning reference controls. */
   addToDrill?: boolean
+  /// An owner's own control in the Add to Practice slot, for text whose keeping
+  /// runs through the owner (a generated card keeps its provenance). It takes
+  /// the place of the shared Add to Practice button.
+  practiceAction?: ReactNode
+  /// Where this text came from. Only owners that know it pass one, and only
+  /// then does the message show its "How this was added" tip.
+  provenance: MessageProvenance | null
   readAloud?: boolean
   /// Owner-supplied content shown directly under the text.
   annotation: ReactNode
@@ -77,7 +86,7 @@ export interface TargetMessageProps {
  *  consumer supplies its own data and actions; the tools behave identically. */
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
-  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, readAloud = true, side = 'bot',
+  segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, practiceAction, provenance, readAloud = true, side = 'bot',
   inspect = null, inspector, onSelect,
 }: TargetMessageProps) {
   const tr = useI18n()
@@ -171,7 +180,7 @@ export function TargetMessage({
   ]
   const actions = <MessageTools tools={tools} inspect={inspect} more={more}
     play={playback && { playing: playback.speaking, disabled: playback.disabled, onToggle: playback.onToggle }}
-    actions={addToDrill && <AddToDrillButton text={text} />} />
+    actions={<>{provenance && <ProvenanceTip provenance={provenance} />}{practiceAction ?? (addToDrill && <AddToDrillButton text={text} />)}</>} />
   const failure = <>
     {words.error != null && <ErrorDetails onRetry={toggleWords} label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
     {translating.error != null && <ErrorDetails onRetry={toggleTranslation} label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
@@ -181,6 +190,7 @@ export function TargetMessage({
   const aidsReserved = aidsEnabled && known.length === 0 && segmentsPending
   const bubble = <div {...bubbleSelection(onSelect, focused, side === 'me' ? tr("Your message") : tr("Partner replied"))} className={`msg chat-message ${side} with-actions${focused ? ' focused' : ''}${rtl ? ' rtl' : ''}${aidsReserved ? ' aids-reserved' : ''}${inspect?.open ? ' inspecting' : ''}`}>
     {body}{inspector}{actions}{failure}
+    {(onSelect || focused) && <SelectionRing />}
   </div>
   if (layout === 'bubble') return bubble
   return <div className={`reading-passage${layout === 'compact' ? ' reading-passage-compact' : ''}`}>{bubble}</div>

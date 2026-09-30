@@ -11,7 +11,10 @@
 
 .sect-k.pending { color: var(--interaction-ink); margin-bottom: var(--space-6); }
 
-.turn-stack { display: flex; flex-direction: column; gap: var(--space-2); }
+/* A turn is the learner's message (with its feedback line) and the partner's
+   reply. The change of speaker inside it gets the same room as the change
+   between turns (workspace.css), so a reply never touches the line above it. */
+.turn-stack { display: flex; flex-direction: column; gap: var(--space-10); }
 
 .sect-k {
   font-family: var(--font-sans);

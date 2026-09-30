@@ -8,17 +8,14 @@ import { ActivitySummary } from '../../../components/feedback/ActivitySummary'
 import type { TurnActivity } from '../../../domain/conversation/activity-summary'
 import type { AttemptStreamUpdate } from '../../../generated/contracts'
 import { useReadingPreferences } from '../../../components/reading/ReadingPreferences'
+import { PendingBubble, ReceivedText } from './PendingBubble'
 
-/// Text that arrived for a reply: shown exactly as received, in one plain node,
-/// the moment it arrives. Complete words are never held back. It uses the
-/// landed reply's reading typography, so the swap does not rewrap the text.
-function ReceivedText({ text, streaming, rtl }: { text: string; streaming: boolean; rtl?: boolean }) {
-  return <p className={streaming ? 'reply-received target-text streaming' : 'reply-received target-text'} dir={rtl ? 'rtl' : 'auto'}>{text}{streaming && <span className="stream-caret" aria-hidden="true" />}</p>
-}
-
-export function ReplyStatus({ reply, activity, stream, retainedText, rtl, onControl, onActivity }: {
+/** The partner's reply before it lands. `arriving` grows its bubble into place
+ * when it first appears; the landed turn's copy of a grown placeholder leaves it
+ * off. */
+export function ReplyStatus({ reply, activity, stream, retainedText, rtl, onControl, onActivity, arriving = false }: {
   reply?: ReplyState; activity?: TurnActivity | null; stream?: AttemptStreamUpdate | null; retainedText?: string | null; rtl?: boolean
-  onControl?: (control: 'retry' | 'resume') => Promise<void>; onActivity?: () => void
+  onControl?: (control: 'retry' | 'resume') => Promise<void>; onActivity?: () => void; arriving?: boolean
 }) {
   const tr = useI18n()
   const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
@@ -29,16 +26,8 @@ export function ReplyStatus({ reply, activity, stream, retainedText, rtl, onCont
   const received = stream?.text || retainedText || null
   if (state === 'pending') {
     const summary = activity ? <ActivitySummary activity={activity} /> : <ActivityIndicator compact label={tr('Thinking…')} />
-    // One bubble shape from the first frame: a reading line, then the footer
-    // where the landed reply's actions will sit. Progress lives in that footer.
-    // Reading aids set to show reserve their place too: the annotated line
-    // pitch, the translation line, and the read-aloud control's gutter.
-    const aids = autoTranslate || alwaysRomanize || alwaysPronunciation
-    return <div className={`msg chat-message bot with-actions with-corner-control reply-pending${aids ? ' aids-reserved' : ''}${received ? ' is-hydrating' : ''}`} aria-busy="true">
-      {received ? <ReceivedText text={received} streaming rtl={rtl} /> : <p className="reply-received target-text reply-placeholder" aria-hidden="true" />}
-      {autoTranslate && <div className="trans hydrating-slot" data-phase="waiting" aria-hidden="true"><span className="hydrating-line" /></div>}
-      <div className="message-actions reply-activity" role="status">{summary}</div>
-    </div>
+    return <PendingBubble side="bot" text={received} streaming rtl={rtl} activity={summary} arriving={arriving}
+      aids={autoTranslate || alwaysRomanize || alwaysPronunciation} translationSlot={autoTranslate} />
   }
   const label = state === 'failed' ? tr('Partner reply failed.') : state === 'unknown' ? tr('Partner reply outcome is unknown. Retrying may repeat provider work and charges.') : state === 'cancelled' ? tr('Partner reply was cancelled. Send a new message to continue.') : state === 'held' ? tr('Partner reply is held.') : state === 'paused' ? tr('Partner reply is paused.') : tr('Partner reply is unavailable.')
   return <div className="msg chat-message bot" data-reply-state={state}>

@@ -48,7 +48,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
   if (!brief && !briefPending && !onExplainGrammar && !onSuggestReply && !errors.length && !grammar && !replies && !starters?.length && !lanes) return null
   if (!open) return <div className="reply-help-folded">
     <button type="button" className="reply-help-open" aria-expanded={false} aria-controls={id}
-      onClick={() => setOpen(true)}><ToolbarIcon name="idea" size={15} />{tr("Help with this reply")}</button>
+      onClick={() => setOpen(true)}><ToolbarIcon name="help" size={15} />{tr("Help with this reply")}</button>
   </div>
 
   return <section id={id} className="reply-help" aria-label={tr("Help with this reply")}>
@@ -73,7 +73,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
       {status('grammar', explain, grammarLane, tr('Working out the grammar…'))}
       {grammar?.map(card => <article className="grammar-card" key={card.title}>
         <h4 className="grammar-title"><MixedText text={card.title} /></h4>
-        {card.quote && <TargetMessage layout="compact" text={card.quote} segments={[]} segmentsKey={card.quote} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
+        {card.quote && <TargetMessage provenance={null} layout="compact" text={card.quote} segments={[]} segmentsKey={card.quote} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
         <Markdown text={card.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this conversation.`) : undefined} />
         {card.example && <ReadingExample text={card.example} compact />}
         {card.contrast && <p className="grammar-contrast"><MixedText text={card.contrast} /></p>}
@@ -85,7 +85,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
       {status('replies', suggest, repliesLane, tr('Writing reply ideas…'))}
       {replies && replies.length > 0 && <ul className="help-replies" aria-label={tr("Suggested replies")}>
         {replies.map(reply => <li className="help-reply" key={reply.text}>
-          <div className="help-reply-text"><TargetMessage layout="compact" text={reply.text} segments={[]} segmentsKey={reply.text} translation={reply.translation} romanization={reply.romanization} pronunciation={reply.pronunciation} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} /></div>
+          <div className="help-reply-text"><TargetMessage provenance={null} layout="compact" text={reply.text} segments={[]} segmentsKey={reply.text} translation={reply.translation} romanization={reply.romanization} pronunciation={reply.pronunciation} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} /></div>
           <button type="button" className="help-insert" disabled={busy} title={tr("Insert reply")}
             aria-label={tr("Insert reply: {value0}", { value0: reply.text })}
             onClick={() => onUse(reply.text, 'suggestion')}><span aria-hidden="true">↗</span></button>

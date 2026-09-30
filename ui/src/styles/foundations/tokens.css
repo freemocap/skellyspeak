@@ -49,6 +49,9 @@
   /* A bubble's tail: a curved spur below the speaker-side corner. */
   --bubble-tail-width: 9px;
   --bubble-tail-height: 10px;
+  /* How far outside a selected bubble, and its tail, the selection ring stands.
+     Fixed like the tail, whose ring path is drawn for this gap. */
+  --bubble-ring-gap: 2px;
   /* The partner-reaction chip straddling a reply's top edge, and the bubble
      gutter that keeps the reply's first line clear of it. Fixed in every
      density and pointer mode: the chip sits beside the line, never over it. */

@@ -3,16 +3,24 @@ import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import { useI18n } from '../../components/localization/i18n'
 import { errorMessage } from '../../platform/diagnostics/error-details'
+import { languageFor } from '../../platform/ipc/tauri'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { DifficultySelect } from '../../components/controls/DifficultySelect'
 import { ReadingScopeContext } from '../../components/reading/ReadingContext'
 import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageScope'
 import { DRILL_LENGTHS, type Difficulty, type DrillGenerationInput, type DrillSkillTarget, type DrillLength, type ReadingScope } from '../../generated/contracts'
-import { CandidateList, RequestedCaption, lengthLabel } from './CandidateList'
+import { CandidateList, RequestedCaption } from './CandidateList'
+import { AddToPracticeHint } from './AddToPracticeHint'
+import { messageKey } from '../../domain/localization'
+import { lengthLabel } from '../../components/reading/MessageProvenance'
 import { useDrillPreview } from './useDrillPreview'
 
 const COUNT_MIN = 1
 const COUNT_MAX = 20
+/// How many phrases the dialog asks for until the learner changes it.
+const DEFAULT_COUNT = 8
+/// Placeholder bubbles drawn in the empty results well.
+const PLACEHOLDER_BUBBLES = 4
 
 /** Ask for phrases, and keep the ones worth practising.
  *
@@ -30,8 +38,10 @@ export function AddPhrases({ scope, onAdded, onClose }: {
   const [skillTarget, setSkillTarget] = useState<DrillSkillTarget | null>(null)
   const [topic, setTopic] = useState('')
   const [difficulty, setDifficulty] = useState<Difficulty>('beginner')
-  const [count, setCount] = useState('8')
+  const [count, setCount] = useState(String(DEFAULT_COUNT))
   const offer = useDrillPreview(scope, onAdded)
+  const language = languageFor(scope.language, scope.variety ?? undefined)
+  if (!language) throw new Error(`No language configuration for ${scope.language} (${scope.variety ?? 'no variety'}).`)
 
   const quantity = /^\d+$/.test(count.trim()) ? Number(count.trim()) : null
   const counted = quantity !== null && quantity >= COUNT_MIN && quantity <= COUNT_MAX
@@ -103,7 +113,7 @@ export function AddPhrases({ scope, onAdded, onClose }: {
 
             {offer.running
               ? <button type="button" className="btn" onClick={offer.cancel}>{tr("Cancel")}</button>
-              : <button type="button" className="btn primary" disabled={!askable} onClick={ask}>
+              : <button type="button" className="btn outline" disabled={!askable} onClick={ask}>
                 {tr(offer.asked ? "Generate again" : "Generate")}
               </button>}
             {lengths.length > 0 && !counted && count.trim() !== ''
@@ -120,23 +130,34 @@ export function AddPhrases({ scope, onAdded, onClose }: {
               value0: String(offer.shortfall.requested), value1: String(offer.shortfall.produced), value2: offer.shortfall.reason,
             })}</p>}
 
-            {offer.asked && !offer.running && offer.offered.length === 0
-              && <p className="center-note">{tr("Nothing came back. Ask again, or change the request.")}</p>}
+            {offer.offered.length > 0 && <div className="drill-add-actions">
+              <RequestedCaption requested={offer.requested} chats={offer.fromChats} />
+              <span className="drill-inspection-spacer" />
+              {keepable.length > 1 && <button type="button" className="btn" disabled={offer.adding}
+                onClick={() => void offer.accept(keepable)}>
+                {tr("Keep all {value0}", { value0: String(keepable.length) })}
+              </button>}
+            </div>}
+            {/* Each phrase keeps with the icon alone, so the list names it once. */}
+            {offer.offered.length > 0 && <AddToPracticeHint message={messageKey("Click {value0} to add a phrase to your practice cards.")} />}
 
-            {offer.offered.length > 0 && <>
-              <div className="drill-add-actions">
-                <RequestedCaption requested={offer.requested} chats={offer.fromChats} />
-                <span className="drill-inspection-spacer" />
-                {keepable.length > 1 && <button type="button" className="btn" disabled={offer.adding}
-                  onClick={() => void offer.accept(keepable)}>
-                  {tr("Keep all {value0}", { value0: String(keepable.length) })}
-                </button>}
-              </div>
-              <CandidateList offered={offer.offered} added={offer.added} adding={offer.adding}
-                onKeep={entry => void offer.accept([entry])} />
-              {offer.hasMore && <button type="button" className="btn drill-more" disabled={offer.running}
-                onClick={offer.loadMore}>{tr("Show more")}</button>}
-            </>}
+            {/* A recessed well that exists before anything is asked, so cards land
+                in a place that is already there. */}
+            <div className="drill-add-well" aria-busy={offer.running}>
+              {offer.offered.length > 0
+                ? <>
+                  <CandidateList offered={offer.offered} added={offer.added} adding={offer.adding}
+                    rtl={language.direction === 'rtl'} onKeep={entry => void offer.accept([entry])} />
+                  {offer.hasMore && <button type="button" className="btn drill-more" disabled={offer.running}
+                    onClick={offer.loadMore}>{tr("Show more")}</button>}
+                </>
+                : <div className="drill-add-placeholder">
+                  {Array.from({ length: PLACEHOLDER_BUBBLES }, (_, index) => <span key={index} className="drill-add-ghost" aria-hidden="true" />)}
+                  {!offer.running && <p className="drill-add-placeholder-note">{offer.asked
+                    ? tr("Nothing came back. Ask again, or change the request.")
+                    : tr("Generated phrases will appear here.")}</p>}
+                </div>}
+            </div>
           </div>
 
         </div>

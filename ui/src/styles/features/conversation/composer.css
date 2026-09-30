@@ -57,6 +57,10 @@
   background: var(--coach-tint); border: var(--border-width) solid var(--coach-line);
   border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-lg);
 }
+/* The recording panel's divider lies on its top edge: at rest the panel's own
+   green line is the divider's line, with the grip on it; the divider's line
+   shows only while it is pointed at or dragged. */
+.composer-voice-resize::after { background: transparent; }
 /* Dragged to a height, the recording panel gives the change to its face (the
    stream or the draft) and the conversation above takes the rest. */
 .composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
@@ -68,18 +72,23 @@
 
 .composer-activity .activity-spinner { width: 16px; height: 16px; }
 
-/* Compact and narrow: reply help, the status line and (narrow) the coach share
-   one row above the answer. In it, folded help and the status line drop their
-   own spacing; opened help takes the whole row and the rest wraps under it.
-   Help sits inside its reading scope (display: contents), so it is matched as
-   a descendant but laid out as an item of the row. */
-.composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block-end: var(--space-2); }
-.composer-assist .reply-help-folded { margin: 0; }
+/* Compact and narrow: reply help, the status line and the coach share one row
+   above the recording panel, outside it. In it, folded help and the status
+   line drop their own spacing; folded help sits at the row's end beside the
+   coach, over the microphone and clear of the partner's replies, with the
+   status line taking the start. Opened help takes the whole row and the rest
+   wraps under it. Help sits inside its reading scope (display: contents), so it
+   is matched as a descendant but laid out as an item of the row. The row stands
+   well clear of the last message, further than speakers stand from each other,
+   and near the recording panel, so it reads as part of the composer. */
+.composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block: var(--space-10) var(--space-4); }
+.composer-assist .reply-help-folded { margin: 0; order: 1; }
 .composer-assist .reply-help { flex: 1 1 100%; margin: 0; }
 .composer-assist > .composer-activity { flex: 1 1 0; min-width: 0; padding-inline: var(--space-2); }
-/* Narrow: the coach opens from the end of that row, in the coach's colours. */
+/* The coach opens from the very end of that row, in the coach's colours, as a
+   sheet over the conversation (workspace.css). */
 .chat-coach {
-  flex: none; margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-6);
+  flex: none; order: 2; margin-inline-start: auto; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-6);
   border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink);
   font: var(--weight-semibold) var(--type-ui) var(--font-sans); cursor: pointer; white-space: nowrap;
 }

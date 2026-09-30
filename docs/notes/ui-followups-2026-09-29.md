@@ -177,7 +177,7 @@ Audit baseline verification: fast validation passed (including 13 tooling tests)
 
 ## Selection emphasis and automatic latest selection
 
-Added a thin coach-green outline outside the normal bubble border and strengthened the green glow; dimensions remain unchanged. With no explicit selection, the newest active turn selects its partner reply when present, otherwise its learner message. Explicit selection remains stable as newer messages arrive; an unavailable selection returns to the latest-message default. The dock follows that effective selection. Automatic selection does not open the mobile coach panel.
+Added a thin coach-green outline outside the normal bubble border and strengthened the green glow; dimensions remain unchanged. (The outline is superseded by the ring that follows the tail; see [Selection ring, tab height and recorder direction](#selection-ring-tab-height-and-recorder-direction--2026-09-29).) With no explicit selection, the newest active turn selects its partner reply when present, otherwise its learner message. Explicit selection remains stable as newer messages arrive; an unavailable selection returns to the latest-message default. The dock follows that effective selection. Automatic selection does not open the mobile coach panel.
 
 Dock analysis now reads existing results without automatically requesting grammar just because selection followed a new message. The explicit Analysis action retains its request behavior. Updated feedback testing to explicitly reveal undisclosed hints, and scoped recording assertions to stream bubbles rather than also counting dock excerpts.
 
@@ -191,3 +191,106 @@ The learner chose to stop before message-specific coach discussion ownership and
 Keep the implemented message selection, selected-message feedback/analysis, automatic latest selection and green selection treatment. Coach discussion history remains conversation-wide. No per-message discussion ownership or revision-history browsing is claimed as implemented.
 
 If explicitly resumed later, use the audit above as a starting point and recheck current code. Retain the proposed distinction between general questions and message-owned discussions, and the proposed rule that each revision owns its own discussion. These are deferred design notes, not current product behavior. No additional implementation or commit was performed for this scope decision.
+
+## Selection ring, tab height and recorder direction — 2026-09-29
+
+Status: implemented in the working tree, not committed; requested by the learner in the desktop app.
+
+- Selection ring. The selected bubble's line now stands 2px outside it (`--bubble-ring-gap`, half the earlier `--space-2` at normal spacing) and follows the tail rather than cutting across it. `SelectionRing` adds one decorative element to selectable bubbles (partner replies in `TargetMessage`, learner messages in `TurnView`). In `messages.css` its `::before` is the rounded ring with the tail's corner cut away, and its `::after` is the ring round the tail. The tail piece's path is the tail curve offset by the gap and the line: one cubic, within 0.2px of the true offset, and an arc round the tip. Keyboard focus draws the same ring with a `--border-width-strong` line in place of the old outline; forced colours keep a plain outline. The learner's ring is mirrored with its tail.
+- Chat and Practice tabs. At full width they were 45–47px against the bar's 40px controls. The tab's `font` shorthand reset `line-height` to `normal`, and `--font-sans` leads with a script face whose normal line is about twice the type size, so the 18px label got a 37px line. The label now uses `--leading-tight`; the tabs are the control height at every width, with the active tab level at the top and reaching over the place line.
+- Folded coach tab. The folded coach was a rail down the conversation's whole height (full width: the collapsed column's button; compact: `.chat-coach-edge`) with a 3px coach-green leading edge, which the learner found distracting, especially on mobile. It is now a small tab at the top, only as long as its icon and name (79px against the 37px word). It keeps the 1px outline, with a `--border-width-strong` leading edge (half of 3px would render as 1px at 100% scaling, no heavier than the outline) and a fainter glow. The Practice cards edge tab, documented as matching the coach's, takes the same edge and glow.
+- Recorder control row (Chat and Practice, every width). The learner found the row too bubbly and forward: bordered pills for settings, Type, Auto-send, Detect attempts and the desktop microphone picker, and a solid interaction-fill chip for the chosen mode. They are now quiet text-and-icon controls with no outline, a faint ink wash on hover and the interaction tint when on. The mode switch is a light track with the chosen mode as a raised `--sheet` chip in interaction ink, as the coach's tabs show theirs, so the pad stays the one strong control. On phones (≤400px) the row's labels take the switch's `--type-meta` and Practice's meter may narrow to 3rem, so the row fits beside the switch. A longer switch label (French "Détecter les tentatives") wraps instead of running under it; this also fixes an overflow Practice already had at 360px. Touch targets stay 44px; Auto-send and Detect attempts now meet that too.
+- Sizes, second pass. With a pointer, the recorder row is `--control-height-xs` (28px) rather than 32px. Its text uses `--leading-tight`, and the desktop microphone select has a set height, because a select sizes its box from its font's own line spacing. Practice's level meter keeps its 44px touch height only on coarse pointers (it was tied to widths of 860px and below). The folded coach tab is twice its width (62px, at full width too) with its icon and name centred. The "Good job" / "N errors" verdict chip and Fix it are as tall as their text (20px, 12px icons); the feedback line still keeps 28px, so it does not move when the verdict arrives. Touch keeps 44px targets throughout. *Superseded by the third pass below: the learner wanted the tab longer, not wider, and the line's 28px minimum was the gap under the bubble.*
+- Coach panel opening width (open question). The learner felt the coach column opens "too late" as the window widens, then said it is probably fine. It docks above the app's 860px compact/full tier; opening it sooner would need a lower, Chat-only breakpoint. Not changed.
+- Recorder direction (decision, no change). The defaults stay: time runs in the script's direction (newest sound at the end edge), and the microphone sits at that edge, so new sound enters beside it. In a scrolling stream the picture moves against the time axis, like a news ticker. Putting the microphone at the start and letting the picture flow in reading direction would reverse each take against the text and the Practice comparison plots. Learners can still change both in Recording settings.
+
+Verification: `tsc` clean; `vitest` 1453 tests pass (new: each selectable bubble carries its own hidden ring); fast validation and `previews:check` pass. In the conversation preview, which now selects bubbles on click, the gap measured 2px on every side at the 1px selected line and the 2px keyboard line. At 10× the ring follows both tails without seams, and it was also checked in the dark theme. The tabs measured 40/42px at 1280px with unchanged compact and narrow heights. Both changes were seen hot-reloaded in the running desktop app (screen capture only).
+
+### Third pass — the learner's corrections
+
+- Folded coach tab: longer, not wider. The width is back to a slim tab (31px compact, 38px at full width) and the tab is four control heights long (160px) with its icon and name centred, at both tiers. *The compact tab was later removed (next section); the full-width tab is unchanged.*
+- Gap under the learner's message. It came from the feedback line's 28px minimum and XP's 28px. The line has no minimum now; every item on it (verdict chip, Fix it, XP and the plain states) is one 20px chip height, with a transparent border where nothing is drawn. The line sits 1.5px under its bubble and still does not move when the verdict arrives.
+- Icons and words on the feedback line. Words sat about 1.3px above the icons. Cause: the Arabic reading face covers U+0020, so it is the first available font for all interface text. Its ascent and descent place every label's baseline 0.235em below the middle of its line box. Latin capitals (0.35em above the baseline) and CJK ideographs (0.38em) therefore sit high when the box is centred. Arabic words measured 0.18–0.47em, depending on marks and descenders. This is part of [ux-design-pass T1](ux-design-pass/README.md) and was not changed here. The chips now centre on the words' central line instead, 0.35em above their own baseline. A zero-width `::before` anchor sits on the baseline and claims the chip's height evenly around that line; the icons centre in it, and the words keep `--leading-none` so they never outgrow it. This does not depend on which face owns the space character, so it stays right if T1 changes the stacks. Touch-height chips wrap so `align-content` can centre their line.
+- Recording panel divider. The resize handle was the composer's first child, above the help and status row, so that row read as part of the recording panel. The handle now comes directly before the panel. Its grip lies on the panel's green top edge; its own line is transparent at rest and shows only on hover or drag. The help and status row sits above it, outside the panel.
+- Help with this reply (compact and narrow). Folded, it sits at the row's end, above the microphone and clear of the partner's replies; the status line takes the start. On phones the Coach pill stays at the very end, where its sheet opens. At full width, help stays in the coach panel as before.
+
+Verification (third pass):
+
+- Automated:
+  - `styles:check`, fast validation, `tsc` and `previews:check` pass.
+  - `vitest`: 223 files and 1454 tests pass. The new test checks that the divider's next sibling is the recording panel and that the help row precedes the divider.
+- Conversation preview, 800px with a mouse:
+  - Chip: 19.98px, the label's central line at 9.99px, the icons at 9.98px.
+  - Phone width (coarse pointer): chips 44px, central line 21.99px, icons 21.98px.
+  - Full width: the grip centre lies exactly on the panel's top edge.
+  - English, Arabic (right to left) and Chinese labels, checked at 4×: aligned with no clipping, all chips 19.98px.
+- Running desktop app (screen capture only):
+  - Icons: unmoved.
+  - "Good job" and "XP": one pixel lower, capitals now within 0.5–0.6px of the icons (1.5–1.6px before). The remainder is the text baseline snapping to whole pixels at the line's fractional position.
+
+## Coach button below full width, and the help icon — 2026-09-29
+
+Status: implemented in the working tree, not committed; requested by the learner.
+
+- Decision: the coach has two presentations, not three.
+  - Full width (over 860px): the docked panel, open or folded to its slim tab at the top of the conversation's edge.
+  - Compact and narrow: the green Coach button at the end of the row above the answer opens the coach. It appears as the bottom sheet that phones already used.
+  - The compact edge tab and side drawer are removed.
+  - Practice's cards panel keeps its own compact edge tab and drawer; this request covered only the coach.
+- Implementation:
+  - `ConversationPage` and the conversation preview render the Coach button at every width below full, and no `.chat-coach-edge`.
+  - `workspace.css` has one sheet rule for 860px and below. The 400px block and the edge tab's grid are gone.
+  - `coaching-dock.css` styles only the full-width folded tab.
+  - The sideways `surface-in-from-right` and `surface-in-from-left` keyframes, used only by the drawer, are removed from `motion.css`, whose header says every keyframe there is in use.
+- Help with this reply: the folded button shows a circled question mark (`help`, new in `ToolbarIcon`) instead of the coach's light bulb, in the same place before the words. "Suggest a reply" inside the opened help keeps the light bulb.
+- Design-system docs regenerated with `npm run design-system`:
+  - The bundle and the ReplyHelp preview follow these changes.
+  - The regenerated `thumbs-up.svg` also drops an embedded content-credentials metadata block that the committed copy carried. It remains in the history of commit 24a7016e.
+
+Verification:
+
+- Automated:
+  - Styles, fast validation, previews, design-system and `tsc` checks pass.
+  - `vitest`: 223 files and 1454 tests pass.
+  - The compact-layout test now expects the Coach button in the row above the answer and no edge tab. Before the change it failed against the old code, which rendered `chat-coach-edge`.
+- Conversation preview:
+  - 800px: the row ends with Help with this reply and Coach. Coach opens an 800px-wide sheet from the bottom, with a 2px coach-green top edge and 16px corners, above the scrim, and its fold control points down. The fold control closes it.
+  - 375px: the row is unchanged, with 44px touch targets.
+  - 1280px: the panel stays docked, its help shows the new icon, and no Coach button appears.
+- Running desktop app (screen capture only, at its current 530px width): no edge tab; the row above the recording panel ends with Help with this reply, with its question mark, and Coach.
+
+### Vertical breathing room (compact and narrow)
+
+Requested by the learner in the desktop app at phone width; implemented, not committed.
+
+| Gap | Before | After | How |
+| --- | --- | --- | --- |
+| Learner's message to its feedback line | 1.5px | 3px | `.learner-turn` gap `--space-2`, at every width |
+| Last message to the Help / Coach row | 7.5px | 12px | the row's top margin `--space-3` |
+| Help / Coach row to the recording panel's green edge | 3px | 6px | the row's bottom margin `--space-4` |
+
+Each gap keeps its grouping:
+
+- The feedback line stays closer to its bubble than turns are to each other (3px against 7.5px).
+- The row stays closer to the recording panel than to the conversation (6px against 12px), so it reads as part of the composer.
+
+Verification:
+
+- Measured in the conversation preview at 800px: 3px, 12px when the last message is settled at the bottom, and 6px.
+- Style checks, fast validation, the design-system check (bundle regenerated) and `vitest` (1454 tests) pass.
+- Not seen in the desktop app, which was on Practice at the time.
+
+Second pass (supersedes the first where they differ). The learner found the first pass far too tight, especially the feedback line touching the partner's reply below it. That reply is in the same turn, so the gap came from `.turn-stack`, not the stream.
+
+| Gap | Now | How |
+| --- | --- | --- |
+| Any change of speaker: inside a turn (feedback line to the partner's reply) and between turns | 15px (was 3px inside a turn, 7.5px compact and 9px full between turns) | `.turn-stack` and `.chat .stream` gap `--space-10`, at every width |
+| Learner's message to its own feedback line | 3px (unchanged) | |
+| Last message to the Help / Coach row | 22.5px (was 12px) | the row's top margin `--space-10` |
+| Help / Coach row to the recording panel | 6px (unchanged) | |
+
+Verification:
+
+- Measured in the conversation preview at 800px: speaker changes 15px, feedback line 3px, row 6px, and the row 22.5px below a settled last message.
+- The running desktop app (screen capture at 490px) shows the same.
+- Style checks, fast validation, the design-system check (bundle regenerated) and `vitest` (1454 tests) pass.

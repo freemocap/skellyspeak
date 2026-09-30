@@ -1,4 +1,5 @@
 import { bubbleSelection } from '../../../components/reading/bubble-selection'
+import { SelectionRing } from '../../../components/reading/SelectionRing'
 import { MessageSkillAnalysis } from '../reading/MessageSkillAnalysis'
 import { AddToDrillButton } from '../../../components/reading/AddToDrillButton'
 import { MessageTools, type MessageTool } from '../../../components/reading/MessageTools'
@@ -207,7 +208,7 @@ export const TurnView = memo(function TurnView({
                     <AddToDrillButton text={turn.user!} />
                   </>} />
                 {recordingFailure != null && <ErrorNotice as="p" error={recordingFailure}>{tr("Audio playback failed.")}</ErrorNotice>}
-
+                {(onSelectMessage || selectedSide === 'user') && <SelectionRing />}
               </div>
             )} />
         </div>
@@ -217,7 +218,7 @@ export const TurnView = memo(function TurnView({
           <span className="partner-reaction-slot">
             {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
           </span>
-          <TargetMessage
+          <TargetMessage provenance={null}
             layout="bubble"
             text={assistant.reply}
             segments={assistant.savedGloss?.segments ?? anchoredTokenGlosses(assistant.reply, assistant.tokens)}

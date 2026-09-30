@@ -13,9 +13,9 @@ import type { DrillAttemptView, DrillItemView } from '../../generated/contracts'
  * the stage opens them as a drawer; in the narrow one a toolbar button opens
  * them as a sheet. The recording panel can be dragged taller at every width.
  * Card changes remain locked during capture. */
-export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, report,
+export function DrillLayout({ items, empty, selectedId, locked, onSelect, rail, dock, report,
   children, onAddPhrases, reportResize, dockResize }: {
-  items: DrillItemView[]; selectedId: string | null; locked: boolean; onSelect: (id: string) => void
+  items: DrillItemView[]; empty: boolean; selectedId: string | null; locked: boolean; onSelect: (id: string) => void
   attempt: DrillAttemptView | null; rtl: boolean; rail: ReactNode; dock: ReactNode; report: ReactNode
   children: ReactNode; queue?: ReactNode; onAddPhrases?: () => void; reportResize?: ReactNode; dockResize?: ReactNode
 }) {
@@ -44,7 +44,9 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
     <button className="btn" type="button" aria-label={tr('Next card')} disabled={locked || index < 0 || index >= items.length - 1}
       onClick={() => onSelect(items[index + 1].id)}>{tr('Next')}</button>
     </>
-  const actions = [random, ...(addTargets ? [addTargets] : [])]
+  // With no cards the desktop panel's own large button adds them; on narrower
+  // layouts the bar leads with Add, where it stays in view.
+  const actions = !addTargets ? [random] : !empty ? [random, addTargets] : mobile ? [addTargets, random] : [random]
   const labels = [tr('Random card'), tr('Add practice cards…'), tr('Previous'), tr('Next'), index, items.length, tier].join('|')
   const { bar, measure, visible } = useCardActionOverflow(actions.length, labels)
   const hasOverflow = visible < actions.length
@@ -66,8 +68,13 @@ export function DrillLayout({ items, selectedId, locked, onSelect, rail, dock, r
     </span>
   </nav>
   if (!mobile) {
-    // Until there is a card, the stage's own empty state offers Add cards.
-    const cards = items.length === 0 ? null : cardsOpen
+    // With no cards the panel stays open: it is where the first ones are added.
+    const cards = empty
+      ? <section className="drill-cards" aria-label={tr('Practice cards')}>
+        <header className="drill-cards-head"><h2><ToolbarIcon name="cards" size={16} />{tr('Practice cards')}</h2></header>
+        {rail}
+      </section>
+      : items.length === 0 ? null : cardsOpen
       ? <section className="drill-cards" aria-label={tr('Practice cards')}>
         <header className="drill-cards-head">
           <h2><ToolbarIcon name="cards" size={16} />{tr('Practice cards')}</h2>

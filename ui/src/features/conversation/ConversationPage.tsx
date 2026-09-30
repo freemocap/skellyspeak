@@ -25,6 +25,9 @@ import { PersonaPicker } from './partners/PersonaPicker'
 import { useConversationDetails } from './session/useConversationDetails'
 import { ComposerInput } from './composer/ComposerInput'
 import { ErrorDetails } from '../../components/feedback/ErrorDetails'
+import { RequestFailure } from './messages/RequestFailure'
+import { PendingTurn } from './messages/PendingTurn'
+import { usePendingMessage } from './session/usePendingMessage'
 import { ReadingPreferencesProvider } from '../../components/reading/ReadingPreferences'
 import { configureRewardSounds, stopRewardSounds } from '../../platform/audio/reward-sounds'
 import { RewardPresentationProvider } from './progress/RewardPresentation'
@@ -193,6 +196,11 @@ export default function ConversationPage({
     resetView,
   })
 
+  // A sent message holds its place until native storage has its turn.
+  const pending = usePendingMessage(turns)
+  const pendingMessage = pending.message
+  const releasePending = pending.release
+  useEffect(() => releasePending(), [currentChatId, releasePending])
   const selectedChatRef = useRef(currentChatId)
   selectedChatRef.current = currentChatId
   const details = useConversationDetails(currentChatId, snapshotRevision)
@@ -267,8 +275,14 @@ export default function ConversationPage({
     void useSettingsStore.getState().load().catch((error: unknown) => reportFault('Loading settings', error))
   }, [currentChatId])
 
-  const streamTail = (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
+  const streamTail = pendingMessage ? `sending:${pendingMessage.key}:${pendingMessage.phase}`
+    : (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
   const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
+  // Sending shows the new message, even from earlier in the conversation.
+  const jumpToLatest = useRef(streamScroll.jumpToLatest)
+  jumpToLatest.current = streamScroll.jumpToLatest
+  const pendingKey = pendingMessage?.key
+  useEffect(() => { if (pendingKey) jumpToLatest.current() }, [pendingKey])
 
   const tier = useWidthTier()
   const isMobile = tier !== 'full'
@@ -321,12 +335,23 @@ export default function ConversationPage({
       setEditingTurnId(null)
     }
   }, [acceptedEditSource, turns])
-  async function submitText(text: string, provenance: InputEvidence, revision?: number) {
+  /** Sends `text` as a new message, or as a revision of `editing`. It holds its
+   * place from the first moment; a new message's text moves out of the draft
+   * into its bubble, and if it is rejected the bubble keeps it with Retry. */
+  async function submitText(text: string, provenance: InputEvidence, revision?: number,
+    recording: string | null = provenance.modality === 'speech_transcript' ? draftRecording.current : null, editing: number | null = editingTurnId) {
     if (acceptingSend.current) return
     acceptingSend.current = true
     const submittedChatId = currentChatId
+    const submittedRecording = recording
+    const edited = editing !== null ? turns.find(item => item.id === editing) : undefined
+    const key = submittedRecording ?? crypto.randomUUID()
+    pending.hold({ key, editing: edited?.turnId ? { id: edited.id, turnId: edited.turnId } : null, text, phase: 'sending' })
+    if (editing === null) {
+      setInput('')
+      inputEvidence.current = unreportedInput()
+    }
     const submittedDraftRevision = inputRevision.current
-    const submittedRecording = provenance.modality === 'speech_transcript' ? draftRecording.current : null
     let acceptedTurnId: string | null = null
     let editedSource: string | null = null
     setSending(true)
@@ -334,8 +359,8 @@ export default function ConversationPage({
     try {
       await details.beforeSend()
       if (selectedChatRef.current !== submittedChatId) return
-      if (editingTurnId !== null) {
-        const turn = turns.find(item => item.id === editingTurnId)
+      if (editing !== null) {
+        const turn = edited
         if (!turn?.turnId || !snapshot || revision === undefined) throw new Error('Revision source is unavailable. Reopen the message to edit it.')
         acceptedTurnId = (await executeAction(snapshot, { kind: 'reviseTurn', conversationId: snapshot.conversationId, turnId: turn.turnId, text, input: provenance, expectedRevision: revision })).entityId
         editedSource = turn.turnId
@@ -355,17 +380,22 @@ export default function ConversationPage({
         inputEvidence.current = unreportedInput()
       }
       if (editedSource) setAcceptedEditSource(editedSource)
-      else setEditingTurnId(null)
       setRevisionConfirmation(null)
     } catch (reason) {
       if (selectedChatRef.current !== submittedChatId) return
-      setError(nativeError(reason))
-      if (inputRevision.current === submittedDraftRevision) setInput(text)
+      if (editing !== null) {
+        // An edit stays in the composer, so the learner can adjust, resend or cancel it.
+        pending.release(key)
+        setError(nativeError(reason))
+        if (inputRevision.current === submittedDraftRevision) setInput(text)
+      } else pending.fail(key, nativeError(reason), () => submitRef.current(text, provenance, undefined, submittedRecording, null))
       setRevisionConfirmation(null)
       setEditRevision(null)
       setSending(false)
     } finally { acceptingSend.current = false }
   }
+  const submitRef = useRef(submitText)
+  submitRef.current = submitText
 
   async function startConversation(configuration: ConversationStartConfig) {
     if (acceptingSend.current || sending) throw new Error('A conversation action is already pending.')
@@ -539,8 +569,9 @@ export default function ConversationPage({
   const aiBusy = replyActive
 
 
-  // In the compact and narrow layouts the coach covers the conversation as a
-  // drawer or a sheet: Back, Escape, the scrim and its close control fold it away.
+  // Where the docked coach panel does not fit (compact and narrow), the coach
+  // covers the conversation as a sheet: Back, Escape, the scrim and its close
+  // control fold it away.
   const coachCovers = isMobile && mobileSurface === 'panel'
   const closeCoach = useCallback(() => useNavigationStore.getState().openPractice('chat'), [])
   useEffect(() => {
@@ -590,8 +621,6 @@ export default function ConversationPage({
   const chatComposer = (
         <div className="composer" data-editing={editingTurnId !== null ? "" : undefined} ref={composer}
           data-voice-sized={voiceHeight === null ? undefined : ""} style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as CSSProperties}>
-          <ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={voiceHeight} min={150} max={640}
-            measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           {editingTurnId !== null && (
             <div className="edit-banner">
               <ToolbarIcon name="edit" size={15} />
@@ -608,10 +637,14 @@ export default function ConversationPage({
             <p>{nativeError(mic.failure)}</p>
             <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={toggleMic}>{tr('Record again')}</button>
           </ErrorNotice>}
-          {/* Stacked, one row above the answer holds reply help, the status line and,
-              when narrow, the coach, instead of a row each. */}
-          {isMobile && <div className="composer-assist">{replyHelp}{composerActivity}{tier === 'narrow' && <button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
-            <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button>}</div>}
+          {/* Stacked, one row above the answer holds reply help, the status line and
+              the coach, instead of a row each. */}
+          {isMobile && <div className="composer-assist">{replyHelp}{composerActivity}<button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
+            <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button></div>}
+          {/* The divider is the recording panel's own top edge; everything above it
+              stays with the conversation. */}
+          <ResizeHandle className="composer-voice-resize" label={tr("Resize the recording panel")} axis="y" grow={-1} size={voiceHeight} min={150} max={640}
+            measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           <ComposerInput stream={mic.recording ? <LiveRecording source={mic.waveSource} spectrum={mic.spectrum} time={recorder.time} /> : null} prompt={greetingPrompt}
             layout={recorder} mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
             microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
@@ -673,10 +706,13 @@ export default function ConversationPage({
                 {tr("Or set up AI access in another way")}
               </button>
             </div>
-          ) : turns.length === 0 && !error && (
+          ) : turns.length === 0 && !error && !pendingMessage && (
             snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
-          {activeTurns.map((turn) => (
+          {activeTurns.map((turn) => pendingMessage?.editing?.id === turn.id
+            // An edit in flight takes the place of the turn it replaces.
+            ? <PendingTurn key={turn.turnId} message={pendingMessage} rtl={rtl} onOpenSettings={onOpenSettings} onDismiss={() => releasePending(pendingMessage.key)} />
+            : (
             <ConversationErrorScope key={turn.turnId} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
               turn={turn}
               editing={turn.id === editingTurnId}
@@ -717,22 +753,12 @@ export default function ConversationPage({
             />
             </ConversationErrorScope>
           ))}
+          {pendingMessage && !pendingMessage.editing && <PendingTurn key={pendingMessage.key} message={pendingMessage} rtl={rtl} onOpenSettings={onOpenSettings}
+            onDismiss={() => releasePending(pendingMessage.key)} />}
           {streamScroll.unseen && <button type="button" className="stream-jump" onClick={streamScroll.jumpToLatest}>{tr("New messages")}</button>}
-          {error && (
-            <ErrorDetails label={tr("Request failed")} errorKey={error} explanation={error}>
-              {/* A message that says "go to Settings" should take you there,
-                  rather than making you find the gear yourself. */}
-              {onOpenSettings && needsProviderSetup(error) && (
-                <button type="button" className="err-action" onClick={onOpenSettings}>
-                  {tr("Open Settings")}</button>
-              )}
-            </ErrorDetails>
-          )}
+          {error && <RequestFailure error={error} onOpenSettings={onOpenSettings} />}
         </div>
 
-        {/* Compact: the coach is a rail down the conversation's inline end, where its drawer opens. */}
-        {tier === 'compact' && <button type="button" className="chat-coach-edge" aria-expanded={coachCovers} onClick={() => openCoach()}>
-          <ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
         {!isMobile && chatComposer}
       </section>
 

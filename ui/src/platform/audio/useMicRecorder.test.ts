@@ -71,6 +71,19 @@ it('transcribes the recording ID once on explicit Stop', async () => {
   expect(onTranscribe).toHaveBeenCalledExactlyOnceWith('fixture transcript', transcript)
   expect(result.current.lastTranscription).toEqual(transcript)
 })
+it('holds a conversation take from Stop until its text arrives', async () => {
+  let finish!: (value: TranscriptionInspectionResult) => void
+  const original = invoke.getMockImplementation()!
+  invoke.mockImplementation((command: string, args: unknown) => command === 'mic_transcribe'
+    ? new Promise(resolve => { finish = resolve }) : original(command, args))
+  const { result } = setup()
+  await act(async () => { await result.current.toggleMic() })
+  let stopping!: Promise<void>
+  act(() => { stopping = result.current.toggleMic() })
+  await waitFor(() => expect(result.current.pendingRecordings).toEqual([{ recordingId: 'fixture-recording', state: 'processing', failure: null }]))
+  await act(async () => { finish(transcript); await stopping })
+  expect(result.current.pendingRecordings).toEqual([{ recordingId: 'fixture-recording', state: 'completed', failure: null }])
+})
 it('cancels capture without transcription when the conversation changes', async () => {
   const { result, rerender, onTranscribe } = setup()
   await act(async () => { await result.current.toggleMic() })

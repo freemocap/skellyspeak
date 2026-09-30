@@ -104,7 +104,7 @@ export const AnalysisContent = memo(function AnalysisContent({
                 <span className="exp-title">{mech.title}</span>
                 {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
               </div>
-              {mech.quote && <TargetMessage key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={quoteTranslation(mech.quote)} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
+              {mech.quote && <TargetMessage provenance={null} key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={quoteTranslation(mech.quote)} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
               <Markdown text={mech.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(mech)}`) : undefined} />
               {mech.example && <ReadingExample text={mech.example} />}
               {mech.contrast && (

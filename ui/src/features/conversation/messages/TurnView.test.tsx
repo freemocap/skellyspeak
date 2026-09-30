@@ -611,3 +611,17 @@ it('selects the learner and partner separately without capturing embedded word o
   expect(partner).toHaveAttribute('aria-current', 'true')
   expect(learner).not.toHaveClass('focused')
 })
+
+it('gives each selectable bubble its own selection ring, hidden from assistive technology', () => {
+  const input = props()
+  const view = render(<TurnView {...input} onSelectMessage={vi.fn()} selectedSide="user" />)
+  // The ring is drawn by the bubble's stylesheet round the bubble and its tail;
+  // it is decoration only, so it carries no text and no role.
+  for (const name of ['Your message', 'Partner replied']) {
+    const ring = screen.getByRole('group', { name }).querySelector(':scope > .msg-selection')
+    expect(ring).toHaveAttribute('aria-hidden', 'true')
+    expect(ring?.textContent).toBe('')
+  }
+  view.rerender(<TurnView {...input} />)
+  expect(view.container.querySelector('.msg-selection')).toBeNull()
+})

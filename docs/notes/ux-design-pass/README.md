@@ -172,7 +172,12 @@ These are observations from the first sweep, not proposals yet.
   `unicode-range: U+0020-0040, …`, which covers space, digits and `!"#$%&'()*+,-./:;<=>?@`.
   Measured in the preview page: `0123456789?.,:/` at 40px is 251px in the app
   stack and 251px in Skelly Arabic Reading, against 303px in IBM Plex Sans. This is
-  why numbers and question marks look slightly off everywhere. The range is
+  why numbers and question marks look slightly off everywhere. Covering U+0020 also
+  makes that face the first available font of every stack, so its metrics set
+  `line-height: normal` (about twice the type size) and where each label's baseline
+  sits in its line box: 0.235em below the middle, against 0.375em for IBM Plex Sans.
+  Latin capitals and CJK therefore sit about 0.12em high beside box-centred icons.
+  Measured 2026-09-29 ([UI follow-ups](../ui-followups-2026-09-29.md), third pass). The range is
   deliberate: it keeps Arabic text runs together in the native window
   ([font coverage note](../language-font-coverage-2026-09-20.md)). Fixing it needs
   a shared rule for which face owns shared ASCII characters in interface text and
@@ -553,6 +558,10 @@ Made 2026-09-28 (review of build step 6):
       cards open from the toolbar icon. Both open as sheets from the bottom.
   - **One row above the answer (Compact and Narrow).** Reply help, the status
     line and, when narrow, Coach share it, instead of taking a row each.
+  - *Coach part superseded 2026-09-29: Compact now works like Narrow for the
+    coach. The Coach button is in the row above the answer and opens the sheet;
+    there is no coach edge tab or drawer. The cards are unchanged. See
+    [UI follow-ups](../ui-followups-2026-09-29.md).*
   - **Message removed:** "New".
 
   No commit.

@@ -7,5 +7,5 @@ export function ReadingExample({ text, compact = false }: { text: string; compac
   // Unstructured prose must not acquire the direction and scale of its first word.
   if (!parts) return <p dir="auto"><MixedText text={text} /></p>
   const source = parts[1].trim()
-  return <TargetMessage key={text} layout={compact ? 'compact' : 'passage'} text={source} segments={[]} segmentsKey={source} translation={parts[3]} romanization={parts[2]} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />
+  return <TargetMessage provenance={null} key={text} layout={compact ? 'compact' : 'passage'} text={source} segments={[]} segmentsKey={source} translation={parts[3]} romanization={parts[2]} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />
 }

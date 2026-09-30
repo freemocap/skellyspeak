@@ -36,7 +36,7 @@ const services: ReadingServices = {
 /// A standalone passage: lookup allowed, no owner actions.
 function passage(text: string, romanization: string, translation: string): TargetMessageProps {
   return { text, segments: [], segmentsKey: text, translation, romanization, pronunciation: null, layout: 'passage', translateLabel: null,
-    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
+    segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false, provenance: null }
 }
 
 /// The shared message tools with a source that is not a conversation turn:
@@ -48,7 +48,7 @@ function DrillItemFixture() {
   const text = 'ممكن تحكي شوي شوي؟'
   return <section aria-label="Non-conversation source">
     <h2>Same message tools, non-conversation source (drill item)</h2>
-    <TargetMessage layout="bubble" text={text} segmentsKey="drill-item"
+    <TargetMessage provenance={null} layout="bubble" text={text} segmentsKey="drill-item"
       segments={[{start:0,end:4,kind:'gloss',gloss:'can',romanization:'mumkin'},{start:5,end:9,kind:'gloss',gloss:'you speak',romanization:'tiḥki'},{start:10,end:13,kind:'gloss',gloss:'a little',romanization:'shwayy'},{start:14,end:17,kind:'gloss',gloss:'a little',romanization:'shwayy'}]}
       translation="Can you speak slowly?" romanization="mumkin tiḥki shwayy shwayy?" pronunciation={null} translateLabel={null}
       segmentsPending={false} lookupWords={false} status={null} annotation={null} focused={false} rtl

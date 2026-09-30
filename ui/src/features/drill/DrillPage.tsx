@@ -38,6 +38,8 @@ import { DrillStorage } from './DrillStorage'
 import { DrillAnalysis } from './DrillAnalysis'
 import { PhraseRail } from './PhraseRail'
 import { AddPhrases } from './AddPhrases'
+import { QuickStart } from './QuickStart'
+import { usePersistentToggle } from '../../components/persistence/usePersistentToggle'
 import { RecordDock, attemptCounts, dockPhase, type RecordMode } from './RecordDock'
 
 /** The reference reading of one phrase: its audio and that audio's analysis. */
@@ -72,6 +74,14 @@ export function DrillPage({ active }: { active: boolean }) {
   const [chosenAttemptId, setChosenAttemptId] = useState<string | null>(null)
   const [showUnscored, setShowUnscored] = useState(false)
   const [asking, setAsking] = useState(false)
+  // The card list has been read at least once for this visit, so an empty list
+  // means there are no cards rather than that they have not arrived yet.
+  const [loaded, setLoaded] = useState(false)
+  // The starter opens on every visit with no cards until the learner turns it off.
+  const starterPreference = usePersistentToggle('skellyspeak_practice_starter', true)
+  // Whether this visit has decided on the starter: it is offered once, on the
+  // visit's first card list, never later when the last card is deleted.
+  const starterDecided = useRef(false)
   const savingPreference = useSettingsStore(state => state.savingPreference)
   const setPreference = useSettingsStore(state => state.setPreference)
   const [speaking, setSpeaking] = useState(false)
@@ -132,6 +142,7 @@ export function DrillPage({ active }: { active: boolean }) {
     if (!mounted.current || request !== loading.current || showingLanguage.current !== language) return
     const remembered = localStorage.getItem(`skellyspeak_drill_phrase_${language}`)
     setItems(loaded)
+    setLoaded(true)
     setSelectedId(current => generation === selectionGeneration.current && keep
       ? keep : loaded.some(item => item.id === current) ? current
         : loaded.some(item => item.id === lastVisited) ? lastVisited
@@ -144,7 +155,7 @@ export function DrillPage({ active }: { active: boolean }) {
   }, [reload])
   useEffect(() => {
     if (!active) return
-    setItems([]); setSelectedId(null); setLoadFailure(null)
+    setItems([]); setSelectedId(null); setLoadFailure(null); setLoaded(false); starterDecided.current = false
     refresh()
     const unsubscribe = onRecordingPublished(owner => { if (owner.kind === 'drillItem') refresh() })
     return () => { unsubscribe(); loading.current++ }
@@ -330,6 +341,16 @@ export function DrillPage({ active }: { active: boolean }) {
   const locale = scope ? languageFor(scope.language, scope.variety) : creating ? languageFor(creating.language, creating.variety) : null
   // Until the learner chooses, the recorder follows the card's script direction.
   const recorder = useRecorderLayout('practice', locale?.direction === 'rtl' ? 'rtl' : 'ltr')
+  // Once open, the starter stays until it is closed or cards exist, even when
+  // "Don't show this again" is ticked inside it.
+  const [starterShown, setStarterShown] = useState(false)
+  useEffect(() => {
+    if (!active || !loaded || starterDecided.current) return
+    starterDecided.current = true
+    setStarterShown(items.length === 0 && loadFailure == null && starterPreference.open)
+  }, [active, loaded, items.length, loadFailure, starterPreference.open])
+  const starterOpen = starterShown && items.length === 0
+  const closeStarter = () => setStarterShown(false)
   if (!creating) return <p role="status">{tr("Loading…")}</p>
   const shown = reference?.itemId === selected?.id ? reference : null
   const rtl = locale?.direction === 'rtl'
@@ -339,12 +360,16 @@ export function DrillPage({ active }: { active: boolean }) {
     : attempt.audioBytes === null ? tr("This attempt's recording was not kept.")
     : null
 
-  const dock = selected && (
+  // With no card the stage, the recorder and the attempt list are still the
+  // real ones, each in its own empty state. Only a read, empty card list says
+  // there are no cards; before the first read nothing claims it.
+  const empty = loaded && items.length === 0
+  const dock = (
         <div className="drill-pane drill-dock-pane" ref={element => { panes.current.dock = element }}>
           <RecordDock microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null}
             disabled={!settings || mic.starting || phase === 'recording' || phase === 'working' || savingPreference}
             onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />}
-            layout={recorder} starting={mic.starting} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
+            layout={recorder} starting={mic.starting} empty={empty} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
             listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} spectrum={mic.spectrum}
             onToggle={() => void mic.toggleMic()}
             onHoldStart={holdStart} onHoldEnd={holdEnd} />
@@ -366,8 +391,8 @@ export function DrillPage({ active }: { active: boolean }) {
   const renderAttemptDetails = (take: DrillAttemptView) => <AttemptInspection attempt={take}
     audio={attemptAudio.audio?.attemptId === take.id ? attemptAudio.audio.inspection : inspectionCache.current.get(take.id) ?? null}
     reference={shown?.inspection ?? null} rtl={rtl} onDelete={() => deleteTake(take)} deleting={deletingTakes || holdingAudio} />
-  const report = selected && (
-      <MobileAttemptHistory key={selected.id} detail={id => {
+  const report = (
+      <MobileAttemptHistory key={selected?.id} detail={id => {
         const take = history.attempts.find(entry => entry.id === id)
         return take ? renderAttemptDetails(take) : null
       }} preview={openAttempt => <>{countsLine}<TakeQueue compact takes={liveTakes} attempts={history.attempts.filter(take => take.id !== heldHistoryId)} /><AttemptRows reservationKey={mobileRowReserved ? "reserved" : "settled"} attempts={presentedAttempts} selectedId={attempt?.id} onSelect={id => { setChosenAttemptId(id); openAttempt(id) }} rtl={rtl} /></>}>
@@ -394,7 +419,7 @@ export function DrillPage({ active }: { active: boolean }) {
     else void playReference(selected, referenceTime > 0 && referenceTime < (shown?.inspection.duration ?? 0) ? referenceTime : undefined)
   }
 
-  const practice = selected && scope && (
+  const practice = (
       <main className="drill-stage">
         {loadFailure != null && <ErrorNotice as="p" error={loadFailure}>{errorMessage(loadFailure)}
           <button type="button" className="btn" onClick={() => refresh()}>{tr("Try again")}</button></ErrorNotice>}
@@ -402,20 +427,20 @@ export function DrillPage({ active }: { active: boolean }) {
           <button type="button" className="btn" onClick={visit.retry}>{tr("Try again")}</button></ErrorNotice>}
         {failure != null && <ErrorNotice as="p" error={failure}>{errorMessage(failure)}</ErrorNotice>}
 
-        <DrillComparison comparisonAccepted={audioAttempt?.comparison.reliability?.accepted !== false} target={<DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
+        <DrillComparison comparisonAccepted={audioAttempt?.comparison.reliability?.accepted !== false} target={selected && scope ? <DrillAnalysis item={selected} scope={scope} nativeLanguageName={settings?.native_language ?? ''}>
             {analysis => (
-              <TargetMessage readAloud={false} addToDrill={false} layout="bubble" text={selected.text} segments={[]} segmentsKey={selected.id}
+              <TargetMessage provenance={{ source: selected.source, addedAt: selected.createdAt, reported: null }} readAloud={false} addToDrill={false} layout="bubble" text={selected.text} segments={[]} segmentsKey={selected.id}
                 translation={null} romanization={null} pronunciation={null} translateLabel={tr("Translate")}
                 segmentsPending={false} lookupWords status={null} annotation={null} analysis={analysis}
                 speech={{ speaking, onToggle: toggleReference, disabled: holdingAudio, error: null }} focused={false} rtl={locale?.direction === 'rtl'} />
             )}
-          </DrillAnalysis>}
+          </DrillAnalysis> : null}
           playbackSpeed={<label className="drill-playback-speed"><span>{tr('Voice speed')}</span><select className="field" aria-label={tr('Voice speed')}
             value={settings?.tts_rate ?? 1} disabled={savingPreference || !settings}
             onChange={event => void setPreference('tts_rate', Number(event.target.value))}>
             {[...new Set([0.5, 0.65, 0.8, 1, 1.2, 1.5, settings?.tts_rate ?? 1])].sort((a, b) => a - b).map(rate => <option key={rate} value={rate}>{rate}×</option>)}
           </select></label>}
-          referenceFailure={referenceFailure != null ? <ErrorNotice as="div" error={referenceFailure}><strong>{tr('Reference')}</strong><p>{errorMessage(referenceFailure)}</p>
+          referenceFailure={referenceFailure != null && selected ? <ErrorNotice as="div" error={referenceFailure}><strong>{tr('Reference')}</strong><p>{errorMessage(referenceFailure)}</p>
             <button type="button" className="btn" disabled={holdingAudio || speaking} onClick={() => void playReference(selected)}>{tr('Try again')}</button><ResponseDetails value={referenceFailure} /></ErrorNotice> : undefined}
           onPlayReference={toggleReference} playingReference={speaking}
           referenceNote={holdingAudio ? tr("Playback waits until the attempt is stored.") : tr("Replays reuse the saved reference; no new request is made.")}
@@ -440,43 +465,24 @@ export function DrillPage({ active }: { active: boolean }) {
           {mic.failure != null && <ErrorNotice as="div" error={mic.failure}><strong>{tr('Microphone')}</strong><p>{errorMessage(mic.failure)}</p><ResponseDetails value={mic.failure} />
             <button type="button" className="btn" disabled={mic.recording || mic.transcribing} onClick={() => void mic.toggleMic()}>{tr('Record again')}</button></ErrorNotice>}
       </div>
-      <DrillLayout items={items} selectedId={selectedId} locked={holdingAudio} onAddPhrases={() => setAsking(true)}
+      <DrillLayout items={items} empty={empty} selectedId={selectedId} locked={holdingAudio} onAddPhrases={() => setAsking(true)}
         onSelect={id => { selectionGeneration.current++; setChosenAttemptId(null); setSelectedId(id) }}
         attempt={attempt} rtl={rtl} dock={dock} report={report} queue={queue}
         reportResize={<ResizeHandle label={tr("Resize the report column")} axis="x" grow={-1} size={reportWidth} min={220} max={900} measure={measure('report')} onResize={setReportWidth} />}
         dockResize={<ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={measure('dock')} onResize={setDockHeight} />}
         rail={<PhraseRail items={items} selectedId={selectedId} busy={busy} locked={holdingAudio}
-        onSelect={id => { selectionGeneration.current++; setChosenAttemptId(null); setSelectedId(id) }} onDelete={remove}>
+        onSelect={id => { selectionGeneration.current++; setChosenAttemptId(null); setSelectedId(id) }} onDelete={remove} onAddPhrases={() => setAsking(true)}>
         <DrillStorage active={active} onChanged={reload} />
       </PhraseRail>}>
 
-      {practice ?? <main className="drill-stage drill-stage-alone">
-        {failure != null && <ErrorNotice as="p" error={failure}>{errorMessage(failure)}</ErrorNotice>}
-        {loadFailure != null
-          ? <ErrorNotice as="p" error={loadFailure}>{errorMessage(loadFailure)}
-            <button type="button" className="btn" onClick={() => refresh()}>{tr("Try again")}</button></ErrorNotice>
-          : <div className="drill-prepare">
-            <header className="drill-prepare-head">
-              <h2>{tr("Nothing to practise yet")}</h2>
-              <p>{tr("Add a card to start practising.")}</p>
-              <button type="button" className="btn primary" disabled={busy || holdingAudio} onClick={() => setAsking(true)}>
-                {tr("Add practice cards…")}</button>
-            </header>
-            <div className="drill-prepare-frame" aria-hidden="true">
-              <div className="drill-prepare-reference"><span>{tr("Card")}</span></div>
-              <div className="drill-prepare-compare">
-                <div><span>{tr("Reference")}</span></div>
-                <div><span>{tr("Your attempt")}</span></div>
-              </div>
-              <div className="drill-prepare-report"><span>{tr("Attempts")}</span></div>
-            </div>
-          </div>}
-      </main>}
+      {practice}
 
       </DrillLayout>
 
       {/* Raised over the practice columns rather than replacing them. */}
       {asking && <AddPhrases scope={creating} onAdded={async () => refresh()} onClose={() => setAsking(false)} />}
+      {starterOpen && <QuickStart scope={creating} showAgain={starterPreference.open} onShowAgain={starterPreference.toggle}
+        onAdded={async firstId => { await reload(firstId); setLoadFailure(null); closeStarter() }} onClose={closeStarter} />}
     </section>
     </ReadingLanguageScope></ReadingScopeContext>
   )

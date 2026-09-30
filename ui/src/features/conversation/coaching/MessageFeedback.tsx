@@ -81,11 +81,11 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
     {decision?.fixed && <span className="message-fixed" role="status"><span dir="auto">{decision.fixed}</span></span>}
     <button type="button" data-feedback-state={error ? 'failed' : judged ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${error ? ' feedback-error' : ''}`} data-verdict={judged && !error ? verdict : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
         {error ? tr("Feedback failed") : judged ? <>
-          {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'thumbs-up'} size={14} />}
+          {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'thumbs-up'} size={12} />}
           <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Good job") : tr("Feedback")}</span>
-        </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
+        </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={12} />
       </button>
-    {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={13} />{tr("Fix it")}</button>}
+    {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={12} />{tr("Fix it")}</button>}
     {reward}
     </div>
     {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
