@@ -24,10 +24,10 @@ export function ConversationProgress({ chatId, children }: { chatId: string; chi
   const skills = new Set(snapshot.catalog.filter(node => node.kind === 'skill' && skillDomain(snapshot, node).id === domain?.id).map(node => node.id))
   const records = snapshot.records.filter(record => record.assessment?.judgments.some(item => skills.has(item.skill_id)))
   return <>
-    <div className="analysis-scroll conversation-evidence" role="region" aria-label={tr("Experience")} tabIndex={0}>
+    <div className="analysis-scroll conversation-evidence" role="region" aria-label={tr("Skills")} tabIndex={0}>
+      {children}
     <EvidenceMappingNotice snapshot={snapshot} />
     <SkillEvidenceContext value={{ snapshot, error: evidence.error }}><ConversationMap /></SkillEvidenceContext>
-      {children}
       <RewardsLedger snapshot={snapshot} />
       <details><summary>{tr("Conversation XP")}</summary>
       <div className="detail-actions"><strong>{domain ? tr(domain.label) : tr("Conversation XP")}</strong><InfoTip>{tr("XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.")}</InfoTip><button className="detail-action" onClick={() => setGlobal(true)}>{tr("Show language progression")}</button></div>

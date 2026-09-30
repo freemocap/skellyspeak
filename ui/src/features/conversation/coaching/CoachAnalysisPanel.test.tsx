@@ -30,7 +30,7 @@ describe('native private coaching', () => {
     expect(backend.execute).not.toHaveBeenCalled()
     expect(screen.getByLabelText('Coach conversation')).not.toBeVisible()
     expect(screen.getByRole('tab', { name: 'Coach' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
-    expect(screen.getByRole('tab', { name: 'Experience' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Skills' })).toBeVisible()
     expect(screen.getAllByText('Coach')).toHaveLength(1)
   })
   it('submits once with current conversation revision and displays only saved replies', async () => {

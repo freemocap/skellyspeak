@@ -1568,5 +1568,25 @@
     "few": "{count} 次修改",
     "many": "{count} 次修改",
     "other": "{count} 次修改"
-  }
+  },
+  "Skill radar": "技能雷达图",
+  "{value0}: skill level {value1}, {value2} points": "{value0}：技能等级 {value1}，{value2} 分",
+  "Lv {value0} · {value1}": "等级 {value0} · {value1}",
+  "{value0} more for level {value1}": "再得 {value0} 分达到等级 {value1}",
+  "Skill levels": "技能等级",
+  "Lv": "等级",
+  "Skill level {value0}": "技能等级 {value0}",
+  "Progress to the next skill level": "距下一技能等级的进度",
+  "Get a skill point in each skill to reach level 1.": "在每项技能中获得一分即可达到等级 1。",
+  "{value0} of {value1} skills at {value2} points for level {value3}": "{value1} 项技能中有 {value0} 项已达 {value2} 分（等级 {value3}）",
+  "Showing {value0}": "显示：{value0}",
+  "Show all": "显示全部",
+  "Press an arm to filter": "点按一条轴进行筛选",
+  "Lv {value0}": "等级 {value0}",
+  "{value0} of {value1} points": "{value0}/{value1} 分",
+  "{value0} skill points in this conversation": "本次对话中的 {value0} 个技能点",
+  "+{value0} pt": "+{value0} 分",
+  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "本次对话：{value0} 个技能点，按最常用的技能缩放至金色圆环",
+  "No skill points in this conversation yet": "本次对话尚无技能点",
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "指向一项技能可查看其内容。点按即可在下方只显示该技能。"
 }

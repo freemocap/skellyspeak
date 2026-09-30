@@ -1568,5 +1568,25 @@
     "few": "{count} Korrekturen",
     "many": "{count} Korrekturen",
     "other": "{count} Korrekturen"
-  }
+  },
+  "Skill radar": "Kompetenzradar",
+  "{value0}: skill level {value1}, {value2} points": "{value0}: Kompetenzstufe {value1}, {value2} Punkte",
+  "Lv {value0} · {value1}": "St. {value0} · {value1}",
+  "{value0} more for level {value1}": "Noch {value0} bis Stufe {value1}",
+  "Skill levels": "Kompetenzstufen",
+  "Lv": "St.",
+  "Skill level {value0}": "Kompetenzstufe {value0}",
+  "Progress to the next skill level": "Fortschritt zur nächsten Kompetenzstufe",
+  "Get a skill point in each skill to reach level 1.": "Sammle in jeder Kompetenz einen Punkt, um Stufe 1 zu erreichen.",
+  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} von {value1} Kompetenzen mit {value2} Punkten für Stufe {value3}",
+  "Showing {value0}": "Angezeigt: {value0}",
+  "Show all": "Alle anzeigen",
+  "Press an arm to filter": "Achse wählen zum Filtern",
+  "Lv {value0}": "St. {value0}",
+  "{value0} of {value1} points": "{value0} von {value1} Punkten",
+  "{value0} skill points in this conversation": "{value0} Kompetenzpunkte in diesem Gespräch",
+  "+{value0} pt": "+{value0} P.",
+  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Dieses Gespräch: {value0} Kompetenzpunkte, so skaliert, dass die meistgenutzte Kompetenz den goldenen Ring erreicht",
+  "No skill points in this conversation yet": "Noch keine Kompetenzpunkte in diesem Gespräch",
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Zeige auf eine Kompetenz, um zu sehen, was sie umfasst. Wähle sie, um unten nur sie anzuzeigen."
 }

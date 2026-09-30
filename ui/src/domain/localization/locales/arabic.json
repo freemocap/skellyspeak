@@ -1568,5 +1568,25 @@
     "few": "{count} تصحيحات",
     "many": "{count} تصحيحًا",
     "other": "{count} تصحيح"
-  }
+  },
+  "Skill radar": "رادار المهارات",
+  "{value0}: skill level {value1}, {value2} points": "{value0}: مستوى المهارة {value1}، {value2} نقاط",
+  "Lv {value0} · {value1}": "م {value0} · {value1}",
+  "{value0} more for level {value1}": "{value0} أخرى للمستوى {value1}",
+  "Skill levels": "مستويات المهارات",
+  "Lv": "م",
+  "Skill level {value0}": "مستوى المهارة {value0}",
+  "Progress to the next skill level": "التقدم نحو مستوى المهارة التالي",
+  "Get a skill point in each skill to reach level 1.": "احصل على نقطة في كل مهارة للوصول إلى المستوى 1.",
+  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} من {value1} مهارات بلغت {value2} نقاط للمستوى {value3}",
+  "Showing {value0}": "عرض {value0}",
+  "Show all": "عرض الكل",
+  "Press an arm to filter": "اضغط على محور للتصفية",
+  "Lv {value0}": "م {value0}",
+  "{value0} of {value1} points": "{value0} من {value1} نقاط",
+  "{value0} skill points in this conversation": "{value0} نقاط مهارة في هذه المحادثة",
+  "+{value0} pt": "+{value0} ن",
+  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "هذه المحادثة: {value0} نقاط مهارة، بمقياس تبلغ فيه أكثر مهارة استخدامًا الحلقة الذهبية",
+  "No skill points in this conversation yet": "لا توجد نقاط مهارة في هذه المحادثة بعد",
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "أشر إلى مهارة لترى ما تشمله. اضغط عليها لعرضها وحدها في الأسفل."
 }

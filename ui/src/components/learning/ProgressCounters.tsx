@@ -12,7 +12,7 @@ export function ProgressCounters({ xp, xpLabel = 'XP', scope, effort, effects = 
   xp: number | null; xpLabel?: string; scope?: string; effort: EffortProgress | null; effects?: boolean; error?: string | null
   /** Marks the XP number; replaced by `code` when a language code is given. */
   icon?: ToolbarIconName; code?: string
-  /** All languages' XP, shown before the language's own number when given. */
+  /** All languages' XP, shown after the language's own number when given. */
   global?: number | null
 }) {
   const tr = useI18n()
@@ -22,16 +22,16 @@ export function ProgressCounters({ xp, xpLabel = 'XP', scope, effort, effects = 
   const full = xp === null ? tr('Loading…') : tr.number(xp)
   const globalFull = global == null ? tr('Loading…') : tr.number(global)
   return <span className="progress-counters">
-    {global !== undefined && <span className="progress-counter progress-counter-global" title={`${tr('Total XP')}: ${globalFull}`} aria-label={`${tr('Total XP')}: ${globalFull}`}>
-      <span className="progress-counter-mark" aria-hidden="true"><ToolbarIcon name="globe" size={14} /></span>
-      <strong className="progress-counter-number" aria-hidden="true">{global === null ? '—' : compact(tr, global)}</strong>
-    </span>}
     <span className="progress-counter progress-counter-xp" data-gaining={xpGain > 0 || undefined} title={`${tr(xpLabel)}: ${full}`} aria-label={`${tr(xpLabel)}: ${full}`}>
       {code ? <span className="language-code" aria-hidden="true">{code}</span> : <span className="progress-counter-mark" data-icon={icon} aria-hidden="true"><ToolbarIcon name={icon} size={14} /></span>}
       <strong key={`${identity}:${xp}`} className="progress-counter-number" aria-hidden="true">{formatted}</strong>
       {' '}<span className="progress-counter-icon" aria-hidden="true">XP</span>
       {xpGain > 0 && <span key={xp} className="progress-counter-gain" aria-hidden="true">+{compact(tr, xpGain)}</span>}
     </span>
+    {global !== undefined && <span className="progress-counter progress-counter-global" title={`${tr('Total XP')}: ${globalFull}`} aria-label={`${tr('Total XP')}: ${globalFull}`}>
+      <span className="progress-counter-mark" aria-hidden="true"><ToolbarIcon name="globe" size={14} /></span>
+      <strong className="progress-counter-number" aria-hidden="true">{global === null ? '—' : compact(tr, global)}</strong>
+    </span>}
     {error && <span className="progress-counter-error" role="status" title={error} aria-label={error}>!</span>}
   </span>
 }

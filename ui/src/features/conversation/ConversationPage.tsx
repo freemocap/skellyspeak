@@ -136,7 +136,7 @@ export default function ConversationPage({
     if (!active) stopRewardSounds()
   }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'coaching' | 'evidence'>('coaching')
+  const [panelTab, setPanelTab] = useState<'coaching' | 'skills'>('coaching')
   const [coachDraft, setCoachDraft] = useState('')
   const mode = useNavigationStore(state => state.mode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())

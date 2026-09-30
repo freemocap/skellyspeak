@@ -5,7 +5,10 @@ import { useI18n } from '../../../components/localization/i18n'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 import { ConversationProgress } from '../progress/ConversationProgress'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { SkillLevelsPanel } from '../../skills/levels/SkillLevelsPanel'
+import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
+import { conversationEvidence } from '../../../domain/learning/evidence/skills'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../../platform/ipc/tauri'
 import { executeAction, nativeError, readWorkspace } from '../../../platform/ipc/workspace'
 import { useConversationSnapshot } from '../session/useConversationSnapshot'
@@ -16,11 +19,12 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   autoSendDraft?: boolean
   onCollapse?: () => void
   coachingContent?: ReactNode
-  conversationBusy: boolean; chatId: string; tab: 'coaching' | 'evidence'; onTab: (tab: 'coaching' | 'evidence') => void
+  conversationBusy: boolean; chatId: string; tab: 'coaching' | 'skills'; onTab: (tab: 'coaching' | 'skills') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
   const tr = useI18n()
+  const languageSnapshot = useContext(SkillEvidenceContext).snapshot
   const { snapshot, readError, retryRead } = useConversationSnapshot(isTauri ? chatId : null)
   const [input, setInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -101,7 +105,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   />
   return <>
     <CoachPanelTabs tab={tab} onTab={onTab} onCollapse={onCollapse} />
-    {tab === 'evidence' && <ConversationProgress chatId={chatId} />}
+    {tab === 'skills' && languageSnapshot && <ConversationProgress chatId={chatId}><SkillLevelsPanel snapshot={languageSnapshot} conversation={conversationEvidence(languageSnapshot, chatId)} /></ConversationProgress>}
     {coachDock}
   </>
 }

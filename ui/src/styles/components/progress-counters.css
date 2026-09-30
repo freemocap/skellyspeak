@@ -7,7 +7,7 @@
 .progress-counter-mark { display: inline-flex; color: var(--progress-mark); }
 .progress-counter-mark[data-icon="star"] svg { fill: currentColor; }
 /* All languages first, behind a globe; then the language's code and its own XP. */
-.progress-counter-global { padding-inline-end: var(--space-3); border-inline-end: var(--border-width) solid var(--progress-line); }
+.progress-counter-global { padding-inline-start: var(--space-3); border-inline-start: var(--border-width) solid var(--progress-line); }
 .progress-counter-global .progress-counter-mark { color: var(--progress-ink); }
 .language-code { display: inline-flex; align-items: center; padding: var(--space-hairline) var(--space-2); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-sm); background: var(--sheet); color: var(--progress-ink); font: var(--weight-bold) var(--type-meta)/var(--leading-none) var(--font-mono); letter-spacing: var(--tracking-tag); }
 .progress-counter-number { font-size: var(--type-ui); font-weight: var(--weight-bold); min-width: 1ch; }
@@ -103,3 +103,9 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .action-reward-center { animation: action-reward-pop calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
 .action-reward-particle { animation: action-reward-scatter calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) { .action-reward-burst { display: none; } }
+
+/* The language's skill level in the top-bar trigger: the resting radar glyph and the level. */
+.skill-level-chip { display: inline-flex; align-items: center; gap: var(--space-2); padding-inline-end: var(--space-3); margin-inline-end: var(--space-2); border-inline-end: var(--border-width) solid var(--line-soft); }
+.skill-level-chip strong { color: var(--ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+/* As tall as the trigger allows without growing it. */
+.skill-level-chip .skill-radar-glyph { width: calc(var(--control-height) - var(--space-3)); }

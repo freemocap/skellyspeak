@@ -1568,5 +1568,25 @@
     "few": "{count} corrections",
     "many": "{count} corrections",
     "other": "{count} corrections"
-  }
+  },
+  "Skill radar": "Radar des compétences",
+  "{value0}: skill level {value1}, {value2} points": "{value0} : niveau de compétence {value1}, {value2} points",
+  "Lv {value0} · {value1}": "Niv. {value0} · {value1}",
+  "{value0} more for level {value1}": "Encore {value0} pour le niveau {value1}",
+  "Skill levels": "Niveaux de compétence",
+  "Lv": "Niv.",
+  "Skill level {value0}": "Niveau de compétence {value0}",
+  "Progress to the next skill level": "Progression vers le prochain niveau de compétence",
+  "Get a skill point in each skill to reach level 1.": "Obtenez un point dans chaque compétence pour atteindre le niveau 1.",
+  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} compétences sur {value1} à {value2} points pour le niveau {value3}",
+  "Showing {value0}": "Affichage : {value0}",
+  "Show all": "Tout afficher",
+  "Press an arm to filter": "Appuyez sur un axe pour filtrer",
+  "Lv {value0}": "Niv. {value0}",
+  "{value0} of {value1} points": "{value0} points sur {value1}",
+  "{value0} skill points in this conversation": "{value0} points de compétence dans cette conversation",
+  "+{value0} pt": "+{value0} pt",
+  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Cette conversation : {value0} points de compétence, à l’échelle de sa compétence la plus travaillée sur l’anneau doré",
+  "No skill points in this conversation yet": "Aucun point de compétence dans cette conversation pour l’instant",
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Pointez une compétence pour voir ce qu’elle couvre. Appuyez dessus pour n’afficher qu’elle ci-dessous."
 }

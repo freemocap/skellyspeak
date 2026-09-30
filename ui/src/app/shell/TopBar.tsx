@@ -14,6 +14,8 @@ import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
 import { ModeTabs } from './ModeTabs'
+import { SkillRadarGlyph } from '../../components/learning/SkillRadar'
+import { skillLevels } from '../../domain/learning/statistics/skill-levels'
 import { ThemeControls } from './ThemeControls'
 
 /** The global bar: the wordmark, the language, the Chat and Practice tabs at full
@@ -35,6 +37,8 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   // A summary of the language profile: which language, and its XP. There is
   // nothing to show until evidence for the active language has landed.
   const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
+  // The language's skill level: its weakest skill, drawn as the resting radar.
+  const levels = evidence.snapshot ? skillLevels(evidence.snapshot) : null
   const savingLanguage = useSettingsStore((state) => state.savingLanguage)
   const included = useSettingsStore((state) => state.settings?.my_languages)
   const totals = useLanguageTotals(evidence.snapshot, effort.value, included)
@@ -57,6 +61,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the full report. */}
       <div ref={progressAnchor} className="progress-anchor" {...progressCard.anchor}>
         <button ref={counter} type="button" className="profile-trigger progress-trigger" aria-label={tr("Language progress")} aria-haspopup="dialog" aria-expanded={progressCard.open} onClick={progressCard.press}>
+          {levels && <span className="skill-level-chip" title={tr('Skill level {value0}', { value0: levels.level })}><SkillRadarGlyph levels={levels} /><strong>{tr('Lv {value0}', { value0: levels.level })}</strong></span>}
           <ProgressCounters xp={profile?.xp ?? null} xpLabel="Language XP" code={activeRow ? languageCode(activeRow) : undefined} global={totals.globalXp} effort={effort.value} effects={effort.effects} error={effort.error ?? totals.error} />
         </button>
         {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>

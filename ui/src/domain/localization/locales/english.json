@@ -1568,5 +1568,25 @@
     "few": "{count} fixes",
     "many": "{count} fixes",
     "other": "{count} fixes"
-  }
+  },
+  "Skill radar": "Skill radar",
+  "{value0}: skill level {value1}, {value2} points": "{value0}: skill level {value1}, {value2} points",
+  "Lv {value0} · {value1}": "Lv {value0} · {value1}",
+  "{value0} more for level {value1}": "{value0} more for level {value1}",
+  "Skill levels": "Skill levels",
+  "Lv": "Lv",
+  "Skill level {value0}": "Skill level {value0}",
+  "Progress to the next skill level": "Progress to the next skill level",
+  "Get a skill point in each skill to reach level 1.": "Get a skill point in each skill to reach level 1.",
+  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} of {value1} skills at {value2} points for level {value3}",
+  "Showing {value0}": "Showing {value0}",
+  "Show all": "Show all",
+  "Press an arm to filter": "Press an arm to filter",
+  "Lv {value0}": "Lv {value0}",
+  "{value0} of {value1} points": "{value0} of {value1} points",
+  "{value0} skill points in this conversation": "{value0} skill points in this conversation",
+  "+{value0} pt": "+{value0} pt",
+  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring",
+  "No skill points in this conversation yet": "No skill points in this conversation yet",
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Point at a skill to see what it covers. Press it to show only that skill below."
 }

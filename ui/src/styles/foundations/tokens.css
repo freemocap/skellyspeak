@@ -162,6 +162,40 @@
   /* Text on a domain ink (di-*): the XP badge. */
   --ink-on-domain: #ffffff;
 
+  /* Skill colours: one jewel tone per catalog skill, equal lightness and chroma,
+     hue stepping from orchid to peridot (no reds, oranges or yellows). The mark
+     draws radar arms, row dots and bars; -ink is the skill as text on sheet.
+     Read from domain/learning/catalog/skill-domains.ts. */
+  --skill-identify-describe: #9656ba;  /* Orchid */
+  --skill-identify-describe-ink: #65407a;
+  --skill-possession-relationships: #815fc9;  /* Amethyst */
+  --skill-possession-relationships-ink: #584583;
+  --skill-quantity: #6668d3;  /* Iris */
+  --skill-quantity-ink: #474b88;
+  --skill-present-situations: #4372d4;  /* Sapphire */
+  --skill-present-situations-ink: #345189;
+  --skill-past-reference: #057dc7;  /* Cobalt */
+  --skill-past-reference-ink: #175686;
+  --skill-future-reference: #1082ab;  /* Cerulean */
+  --skill-future-reference-ink: #085a78;
+  --skill-wants-preferences: #00869a;  /* Lagoon */
+  --skill-wants-preferences-ink: #075d6b;
+  --skill-ability-permission-necessity: #0c888a;  /* Aquamarine */
+  --skill-ability-permission-necessity-ink: #005f60;
+  --skill-affirm-negate: #118a7a;  /* Teal */
+  --skill-affirm-negate-ink: #006154;
+  --skill-questions-answers: #0e8d63;  /* Jade */
+  --skill-questions-answers-ink: #006243;
+  --skill-requests: #198f38;  /* Emerald */
+  --skill-requests-ink: #266130;
+  --skill-reasons-conditions: #59880a;  /* Peridot */
+  --skill-reasons-conditions-ink: #405d1a;
+  /* The skill radar fill fades from the sheet at the centre to full colour at the edge. */
+  --skill-radar-core: color-mix(in srgb, var(--sheet) 92%, transparent);
+  --skill-radar-mid: color-mix(in srgb, var(--sheet) 35%, transparent);
+  /* The dot on the end of a pointed or pinned radar arm. */
+  --skill-radar-tip: #ffffff;
+
   /* Recording spectrum intensity; independent of skill-domain colours. */
   --spectrogram-cursor: #46ff9a;
   --spectrogram-low: #171b36;
@@ -409,6 +443,30 @@
   --di-descriptions: #bfa4f0;
   --d-situating: #3fc0af;
   --di-situating: #3fc0af;
+  --skill-identify-describe: #c289e4;
+  --skill-identify-describe-ink: #dcbcf1;
+  --skill-possession-relationships: #ad91f2;
+  --skill-possession-relationships-ink: #cfc0f9;
+  --skill-quantity: #929afa;
+  --skill-quantity-ink: #bfc6ff;
+  --skill-present-situations: #75a3fc;
+  --skill-present-situations-ink: #b1cbfc;
+  --skill-past-reference: #50acf6;
+  --skill-past-reference-ink: #a0d0fc;
+  --skill-future-reference: #16b3eb;
+  --skill-future-reference-ink: #93d5f5;
+  --skill-wants-preferences: #09b8d3;
+  --skill-wants-preferences-ink: #8bd9ea;
+  --skill-ability-permission-necessity: #15bbbd;
+  --skill-ability-permission-necessity-ink: #89dbdb;
+  --skill-affirm-negate: #06bfa8;
+  --skill-affirm-negate-ink: #8fdccc;
+  --skill-questions-answers: #35bf8b;
+  --skill-questions-answers-ink: #9adbbc;
+  --skill-requests: #62bc6f;
+  --skill-requests-ink: #a8d9ad;
+  --skill-reasons-conditions: #87b651;
+  --skill-reasons-conditions-ink: #b9d69e;
   --ink-on-domain: var(--bg);
 }
 

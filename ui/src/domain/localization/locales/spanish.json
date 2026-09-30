@@ -1568,5 +1568,25 @@
     "few": "{count} correcciones",
     "many": "{count} correcciones",
     "other": "{count} correcciones"
-  }
+  },
+  "Skill radar": "Radar de habilidades",
+  "{value0}: skill level {value1}, {value2} points": "{value0}: nivel de habilidad {value1}, {value2} puntos",
+  "Lv {value0} · {value1}": "Nv. {value0} · {value1}",
+  "{value0} more for level {value1}": "{value0} más para el nivel {value1}",
+  "Skill levels": "Niveles de habilidad",
+  "Lv": "Nv.",
+  "Skill level {value0}": "Nivel de habilidad {value0}",
+  "Progress to the next skill level": "Progreso hacia el siguiente nivel de habilidad",
+  "Get a skill point in each skill to reach level 1.": "Consigue un punto en cada habilidad para llegar al nivel 1.",
+  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} de {value1} habilidades con {value2} puntos para el nivel {value3}",
+  "Showing {value0}": "Mostrando {value0}",
+  "Show all": "Mostrar todo",
+  "Press an arm to filter": "Pulsa un eje para filtrar",
+  "Lv {value0}": "Nv. {value0}",
+  "{value0} of {value1} points": "{value0} de {value1} puntos",
+  "{value0} skill points in this conversation": "{value0} puntos de habilidad en esta conversación",
+  "+{value0} pt": "+{value0} pt",
+  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Esta conversación: {value0} puntos de habilidad, escalados para que su habilidad más usada llegue al anillo dorado",
+  "No skill points in this conversation yet": "Aún no hay puntos de habilidad en esta conversación",
+  "Point at a skill to see what it covers. Press it to show only that skill below.": "Señala una habilidad para ver qué abarca. Púlsala para mostrar solo esa habilidad abajo."
 }
