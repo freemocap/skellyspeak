@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ConversationSnapshot } from '../../../generated/contracts'
 import { nativeError, watchConversation } from '../../../platform/ipc/workspace'
-import { useAiBusyStore } from '../../../state/session/ai-busy'
 
 /** Merge bounded pages by durable identity; newer page data wins independently of arrival order. */
 export function mergeConversationPages(pages: ConversationSnapshot[]): ConversationSnapshot {
@@ -139,8 +138,5 @@ export function useConversationSnapshot(chatId: string | null) {
   }, [])
   const retryRead = useCallback(() => setRetryVersion(value => value + 1), [])
   const visible = snapshot?.conversationId === chatId ? snapshot : null
-  const busy = visible?.turns.some(turn => turn.operations.some(operation => operation.state === 'running')) ?? false
-  useEffect(() => { useAiBusyStore.getState().setBusy(busy) }, [busy])
-  useEffect(() => () => useAiBusyStore.getState().setBusy(false), [])
   return { snapshot: visible, readError, retryRead, olderError, loadingOlder, loadOlder }
 }

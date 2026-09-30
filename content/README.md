@@ -50,6 +50,42 @@ Indic writing and local transliteration definitions.
 | `learning.skills` | Optional language-owned skills using the same terse structure as shared skills |
 | `learning.skill_guides` | Skill-keyed language cores and explicit variety sections; compact assessment text and human explanations |
 | `conversation` | Greeting and `default_partner` definition |
+| `practice` | Required authored phrase sets and their linguistic review status |
+
+### Included practice phrases
+
+Every language must supply `practice.review`, `practice.sets`, and
+`practice.varieties` (an empty map when no replacement is needed). The six
+required sets are `absolute_zero`, `beginner`, `intermediate`, `advanced`,
+`social`, and `idiomatic`. Each is an ordered list of 8–50 distinct strings, without outer
+whitespace or control characters, with at most 512 UTF-16 units per phrase.
+The first phrase is the sample shown in the first-visit Practice dialog.
+
+Use short first-lesson utterances for Absolute zero, everyday descriptions for
+Beginner, more varied time references and requests for Intermediate, and longer
+clauses and nuanced statements for Advanced. Social contains greetings,
+introductions, thanks, apologies and leave-taking; it is a theme rather than a
+difficulty. Idiomatic contains conventional expressions and familiar sayings,
+also independent of difficulty. Check forms of address and gendered speaker forms when reviewing.
+Check new idioms against external usage sources and record those sources in
+`references.bib` and the [source note](../docs/notes/practice-idioms-sources.md).
+Mark drafts `needs_review`; schema coverage does not establish linguistic accuracy.
+
+`practice.varieties` can name an existing variety and supply a complete replacement
+bank when the shared wording does not fit its register or writing. Current Arabic
+content uses a Levantine default and a Modern Standard replacement; the reason is
+recorded in [the implementation note](../docs/notes/practice-phrase-sets.md).
+No application code branches on a language name to resolve these banks.
+
+Both Practice dialogs load these sets into the same candidate list used for
+generated phrases. Loading a set is read-only and makes no generation request.
+The learner must explicitly Keep a phrase or choose Keep all to save cards.
+Acceptance validates selected native IDs against the current bank and scope,
+preserves authored text and provenance, and saves the selection in one transaction.
+Existing active cards of the same target language, variety and exact text are
+marked as duplicates; repeating acceptance returns existing cards and attempts.
+AI generation remains available in the general add-cards dialog. Reading aids
+and speech keep their existing explicit actions and access requirements.
 
 ### Identities, references and inheritance
 

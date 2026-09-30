@@ -14,10 +14,10 @@ import type { DrillAttemptView, DrillItemView } from '../../generated/contracts'
  * them as a sheet. The recording panel can be dragged taller at every width.
  * Card changes remain locked during capture. */
 export function DrillLayout({ items, empty, selectedId, locked, onSelect, rail, dock, report,
-  children, onAddPhrases, reportResize, dockResize }: {
+  children, onAddPhrases, reportResize }: {
   items: DrillItemView[]; empty: boolean; selectedId: string | null; locked: boolean; onSelect: (id: string) => void
   attempt: DrillAttemptView | null; rtl: boolean; rail: ReactNode; dock: ReactNode; report: ReactNode
-  children: ReactNode; queue?: ReactNode; onAddPhrases?: () => void; reportResize?: ReactNode; dockResize?: ReactNode
+  children: ReactNode; queue?: ReactNode; onAddPhrases?: () => void; reportResize?: ReactNode
 }) {
   const tier = useWidthTier()
   const mobile = tier !== 'full'
@@ -86,7 +86,7 @@ export function DrillLayout({ items, empty, selectedId, locked, onSelect, rail, 
       : <button type="button" className="drill-cards-edge" aria-label={tr('Practice cards')} aria-expanded={false} onClick={toggleCards}>
         <ToolbarIcon name="cards" size={16} /><span>{tr('Practice cards')}</span>
       </button>
-    return <>{cards}<div className="drill-workspace">{navigation}{children}{dock && dockResize}{dock}</div>{reportResize}{report}</>
+    return <>{cards}<div className="drill-workspace">{navigation}{children}{dock}</div>{reportResize}{report}</>
   }
   return <>
     <div className="drill-mobile-body">
@@ -98,7 +98,6 @@ export function DrillLayout({ items, empty, selectedId, locked, onSelect, rail, 
         {report}
       </div>
     </div>
-    {dock && dockResize}
     {dock}
   </>
 }

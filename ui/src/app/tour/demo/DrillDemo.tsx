@@ -1,4 +1,5 @@
 import { useI18n } from '../../../components/localization/i18n'
+import { TargetMessage } from '../../../components/reading/TargetMessage'
 import { TopBar } from '../../shell/TopBar'
 import { DrillLayout } from '../../../features/drill/DrillLayout'
 import { PhraseRail } from '../../../features/drill/PhraseRail'
@@ -40,8 +41,10 @@ export function DrillDemo() {
         </aside>}>
         <main className="drill-stage">
           <DrillComparison
-            target={<div className="msg chat-message bot with-actions rtl"><span dir="auto">{DRILL_PHRASE.text}</span>
-              <div className="message-actions"><button type="button" className="message-translate">{tr('Translate')}</button><button type="button" className="message-translate">{tr('Word by word')}</button></div></div>}
+            target={<TargetMessage text={DRILL_PHRASE.text} segments={[]} segmentsKey="demo"
+              translation={null} romanization={null} pronunciation={null} layout="bubble" translateLabel={null}
+              segmentsPending={false} lookupWords={false} status={null} annotation={null} provenance={null}
+              addToDrill={false} readAloud={false} speech={null} analysis={{ pending: false, onOpen: noop }} focused={false} rtl />}
             playbackSpeed={<label className="drill-playback-speed"><span>{tr('Voice speed')}</span><select className="field" aria-label={tr('Voice speed')} value={1} onChange={noop}><option value={1}>1×</option></select></label>}
             onPlayReference={noop} playingReference={false} referenceNote={tr('Replays reuse the saved reference; no new request is made.')}
             reference={DRILL_REFERENCE_AUDIO} referenceTime={0.4} onSeekReference={noop}

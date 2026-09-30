@@ -173,12 +173,51 @@ impl Application {
             results::dispatched(&store.connection, id)?;
         }
         // Once submitted, settlement is independent of consumer cancellation.
-        let completed = retry::run(
-            || audio::synthesize(&client, target, &key, input, install),
+        self.speech_streams
+            .lock()
+            .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?
+            .begin(id);
+        let progress = Mutex::new(None);
+        let emit = |pcm: &[u8],
+                    alignment: Option<&crate::speech::alignment::SpeechAlignment>,
+                    outcome: &audio::SpeechOutcome| {
+            *progress
+                .lock()
+                .map_err(|_| crate::diagnostics::failures::poisoned(internal()))? = Some((
+                outcome
+                    .provider_id
+                    .as_ref()
+                    .map(|id| crate::diagnostics::response::scrub(id, &[&key, &input.text])),
+                outcome.diagnostics.as_ref().map(|details| {
+                    crate::diagnostics::response::metadata(details, &[&key, &input.text])
+                }),
+            ));
+            self.speech_streams
+                .lock()
+                .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?
+                .append(id, pcm, alignment)
+        };
+        let mut completed = retry::run(
+            || audio::synthesize_stream(&client, target, &key, input, install, &emit),
             || self.speech_authority(target, install),
             |error| results::record_retry(&self.lock()?.connection, id, error),
         )
         .await;
+        // Authority revocation can drop the transport future. Keep the validated
+        // receipt already observed with audio even when that future cannot return.
+        if completed.audio.is_err()
+            && let Some((provider_id, diagnostics)) = progress
+                .into_inner()
+                .map_err(|_| crate::diagnostics::failures::poisoned(internal()))?
+        {
+            if completed.provider_id.is_none() {
+                completed.provider_id = provider_id;
+            }
+            if let Some(diagnostics) = diagnostics {
+                completed.diagnostics.get_or_insert_with(|| json!({}))["streamProgress"] =
+                    diagnostics;
+            }
+        }
         let mut metadata = json!({"requestedModel":target.model,"route":target.route.label(),"actualModel":completed.actual_model,"providerId":completed.provider_id,
             "inputTokens":completed.input_tokens,"outputTokens":completed.output_tokens,"costMicros":completed.cost_micros,
             "finishReason":completed.finish_reason,

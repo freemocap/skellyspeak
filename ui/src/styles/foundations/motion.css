@@ -36,4 +36,17 @@
 /* Work of unknown length: the bar says something is happening, not how far. */
 @keyframes take-progress { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
 
+/* The AI pill's moving edge: a bright arc around its outline while AI work runs. */
+@keyframes activity-border-orbit { to { --activity-border-angle: 360deg; } }
+
+/* Panels arrive rather than appear: a tray rises from the row beneath it, a
+   dialog rises and settles, a drawer slides in from its edge. */
+@keyframes panel-rise { from { opacity: 0; transform: translateY(var(--space-8)); } to { opacity: 1; transform: none; } }
+@keyframes dialog-arrive { from { opacity: 0; transform: translateY(var(--space-6)) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes surface-in-from-start { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes surface-in-from-end { from { transform: translateX(100%); } to { transform: none; } }
+
+/* A new step in the composer's AI status line rises into place, like a log line. */
+@keyframes ai-status-arrive { from { opacity: 0; transform: translateY(var(--space-3)); } to { opacity: 1; transform: none; } }
+
 

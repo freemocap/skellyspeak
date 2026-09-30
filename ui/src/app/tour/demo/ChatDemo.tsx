@@ -4,6 +4,7 @@ import { TurnView } from '../../../features/conversation/messages/TurnView'
 import { CoachPanelTabs } from '../../../features/conversation/coaching/CoachPanelTabs'
 import { ConversationFeedbackCard } from '../../../features/conversation/coaching/ConversationFeedbackCard'
 import { ComposerInput } from '../../../features/conversation/composer/ComposerInput'
+import { AiStatus } from '../../../features/conversation/composer/AiStatus'
 import { CHAT_FEEDBACK, CHAT_QUESTION, CHAT_READING_SCOPE, CHAT_REPLY } from './fixtures'
 
 const noop = () => {}
@@ -27,6 +28,7 @@ export function ChatDemo() {
           </MessageReadingScope>
         </div>
         <div className="composer">
+          <div className="composer-activity"><AiStatus transcribing={false} scheduling={false} turns={[]} synthesizing={false} /></div>
           <ComposerInput input="" onInput={noop} available sending={false} recording={false} transcribing={false} autoSend
             targetLanguageTag="es" targetLanguageName="Español" onSend={noop} onToggleRecording={noop} onDiscardRecording={noop} />
         </div>

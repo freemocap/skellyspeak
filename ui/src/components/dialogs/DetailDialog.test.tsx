@@ -29,3 +29,21 @@ it('allows capture policy to be preserved independently of dialog geometry', asy
     expect(suspend).toHaveBeenCalledOnce()
   } finally { endCapture(token) }
 })
+
+it('leaves the close control to content that carries its own', () => {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  HTMLDialogElement.prototype.close = function () { this.open = false }
+  const view = render(<DetailDialog title="AI activity" closeControl="content" onClose={() => {}}><header>AI activity</header></DetailDialog>)
+  expect(screen.queryByRole('button', { name: 'Close AI activity' })).toBeNull()
+  view.unmount()
+  render(<DetailDialog title="AI activity" onClose={() => {}}><header>AI activity</header></DetailDialog>)
+  expect(screen.getByRole('button', { name: 'Close AI activity' })).toBeInTheDocument()
+})
+
+it('marks the full-screen placement, which takes the whole screen at every width', () => {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  HTMLDialogElement.prototype.close = function () { this.open = false }
+  render(<DetailDialog title="AI activity" placement="full" onClose={() => {}}>AI activity</DetailDialog>)
+  expect(screen.getByRole('dialog')).toHaveClass('detail-dialog', 'dialog-full')
+  expect(screen.getByRole('dialog')).not.toHaveClass('dialog-sheet')
+})

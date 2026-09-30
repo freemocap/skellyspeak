@@ -1,3 +1,6 @@
+import { ExplanationCards } from './ExplanationCards'
+import { SentenceCompletions } from './SentenceCompletions'
+import { isSentenceBlank, sentenceBlanks } from '../../domain/reading/sentence-blanks'
 import { createPortal } from 'react-dom'
 import { supportsPopover } from '../controls/popover-support'
 import { ErrorNotice } from '../feedback/ErrorNotice'
@@ -8,7 +11,7 @@ import { savedGlossIndex, type SavedGlossSource } from '../../domain/reading/sav
 import { AskCoachButton } from '../learning/AskCoachButton'
 import { ReadingLanguageScope } from './ReadingLanguageScope'
 import { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ReadingActionsContext, ReadingLookupContext, ReadingPeekContext, ReadingScopeContext, speechKey, type ReadingSelection, type ReadingServices } from './ReadingContext'
+import { ReadingActionsContext, ReadingCompletionsContext, ReadingLookupContext, ReadingPeekContext, ReadingScopeContext, speechKey, type ReadingSelection, type ReadingServices } from './ReadingContext'
 import { SavedGlossText } from './SavedGlossText'
 import { TokenAudio } from './TokenAudio'
 import { DetailDialog } from '../dialogs/DetailDialog'
@@ -61,7 +64,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
       if (accepted && (selected ? accepted.gloss?.segments.some(part => part.kind === 'gloss' && part.start < selected.end && part.end > selected.start) : accepted.gloss?.coverage === 'complete')) return accepted
     }
     const saved = peek(input)
-    const complete = { word_gloss: saved?.gloss?.coverage === 'complete', translation: saved?.translation != null, explanations: saved?.explanations != null }[input.aid]
+    const complete = { word_gloss: saved?.gloss?.coverage === 'complete', translation: saved?.translation != null, explanations: saved?.explanations != null, completions: saved?.explanations != null }[input.aid]
     if (complete && !options?.retry) return saved!
     const result = options?.retry
       ? await services.read(input, signal, { retry: true })
@@ -98,7 +101,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
     return () => document.removeEventListener('visibilitychange', hide)
   }, [stop])
   return <SavedReadingRegistryContext value={registerSources}><SavedReadingContext value={savedIndex}><ReadingActionsContext value={{ inspect, speak, stop, speaking }}>
-    <ReadingPeekContext value={peek}><ReadingLookupContext value={lookup}>{children}
+    <ReadingPeekContext value={peek}><ReadingLookupContext value={lookup}><ReadingCompletionsContext value={SentenceCompletions}>{children}
     {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} services={services} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
     {(speechError != null || speechReceipt != null || speaking != null) && createPortal(<div ref={audioStatus} popover={nativePopover ? "manual" : undefined} className="reading-audio-status" data-reading-tools>
       {speaking && <><span role="status">{tr(loadingAudio ? 'Loading speech…' : 'Reading aloud…')}</span><button className="btn" onClick={stop}>{tr('Stop reading')}</button></>}
@@ -106,11 +109,15 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
       {speechReceipt != null && <ResponseDetails value={speechReceipt} />}
       {!speaking && <button className="btn" onClick={() => { setSpeechError(null); setSpeechReceipt(null) }}>{tr('Close')}</button>}
     </div>, document.body)}
-  </ReadingLookupContext></ReadingPeekContext></ReadingActionsContext></SavedReadingContext></SavedReadingRegistryContext>
+  </ReadingCompletionsContext></ReadingLookupContext></ReadingPeekContext></ReadingActionsContext></SavedReadingContext></SavedReadingRegistryContext>
 }
 
 function ReadingInspector({ selection, services, languages, onClose }: { selection: ReadingSelection; services: ReadingServices; languages: ReadingLanguage[]; onClose: () => void }) {
   const tr = useI18n()
+  const aid = selection.aid ?? (isSentenceBlank(selection.text, selection.start, selection.end) ? 'explanations' : 'word_gloss')
+  const analyzing = aid !== 'word_gloss'
+  const blankSelection = isSentenceBlank(selection.text, selection.start, selection.end, aid === 'completions')
+  const title = tr(analyzing ? 'Message analysis' : 'Word help')
   const lookup = useContext(ReadingLookupContext)!
   const peek = useContext(ReadingPeekContext)
   // Saved-source refreshes replace these functions without changing the question.
@@ -126,23 +133,23 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   const lastRequest = useRef<string | null>(null)
   useEffect(() => {
     const { lookup, peek } = readers.current
-    const requestKey = JSON.stringify([scope, selection.text, attempt])
-    const saved = peek({...scope, text:selection.text, aid:'word_gloss'})
+    const requestKey = JSON.stringify([scope, selection.text, aid, attempt])
+    const saved = peek({...scope, text:selection.text, aid})
     if (saved && (attempt === 0 || lastRequest.current === requestKey)) { setResult(saved); setFailure(null); setPending(false); return }
     const controller = new AbortController()
     setResult(null); setFailure(null); setPending(true)
     lastRequest.current = requestKey
-    void lookup({ ...scope, text: selection.text, aid:'word_gloss' }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
+    void lookup({ ...scope, text: selection.text, aid }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
       .then(value => { if (!controller.signal.aborted) {
         setResult(value)
       } })
       .catch(error => { if (!controller.signal.aborted) setFailure(error) })
       .finally(() => { if (!controller.signal.aborted) setPending(false) })
     return () => controller.abort()
-  }, [scope, attempt, selection.text, selection.start, selection.end])
+  }, [scope, attempt, selection.text, selection.start, selection.end, aid])
   const language = languages.find(item => item.code === scope.language)
-  return <DetailDialog title={tr('Word help')} onClose={onClose}><div data-reading-tools>
-    <h2>{tr('Word help')}</h2>
+  return <DetailDialog title={title} onClose={onClose}><div data-reading-tools>
+    <h2>{title}</h2>
     <div className="reading-language-controls">
       <label>{tr('Source language')}<select className="field" value={scope.language} onChange={event => {
         const language = languages.find(item => item.code === event.target.value)!
@@ -153,12 +160,15 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
       </select></label>
     </div>
     <ReadingScopeContext value={scope}><ReadingLanguageScope language={scope.language} variety={scope.variety}>
-      <p className="reading-selected-word" dir="auto" lang={language?.languageTag}><span>{selection.text.slice(selection.start, selection.end)}</span><TokenAudio text={selection.text} start={selection.start} end={selection.end} /></p>
+      <p className="reading-selected-word" dir="auto" lang={language?.languageTag}><span>{selection.text.slice(selection.start, selection.end)}</span>{!blankSelection && <TokenAudio text={selection.text} start={selection.start} end={selection.end} />}</p>
       <p dir="auto" lang={language?.languageTag}><SavedGlossText text={selection.text} segments={result?.gloss?.segments ?? []} /></p>
     </ReadingLanguageScope></ReadingScopeContext>
-    {pending && <p role="status">{tr('Finding word meanings…')}</p>}
+    {analyzing && result?.explanations && <ReadingScopeContext value={scope}>{aid === 'completions' || sentenceBlanks(selection.text).length
+      ? <SentenceCompletions cards={result.explanations.cards} />
+      : <ExplanationCards cards={result.explanations.cards} nativeLanguageName={scope.explanation} />}</ReadingScopeContext>}
+    {pending && <p role="status">{tr(analyzing ? 'Working out the grammar…' : 'Finding word meanings…')}</p>}
     {failure != null && <ErrorNotice error={failure}>{message(failure)}<ResponseDetails value={details(failure)} /></ErrorNotice>}
-    {(failure != null || result?.gloss?.coverage === 'partial') && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr('Retry word meanings')}</button>}
+    {(failure != null || result?.gloss?.coverage === 'partial') && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr(analyzing ? 'Retry' : 'Retry word meanings')}</button>}
     <AskCoachButton question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${scope.language} passage: “${selection.text}”.`} onClose={onClose} />
     <ResponseDetails value={result?.receipt} />
     <button className="btn" onClick={() => { void services.activity().then(setActivity).catch(setFailure) }}>{tr('Reading request history')}</button>

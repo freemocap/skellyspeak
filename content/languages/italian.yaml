@@ -453,3 +453,69 @@ conversation:
     vibe:
       - 🚲
       - 📓
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Sì.
+      - No.
+      - Acqua, per favore.
+      - Sono qui.
+      - Fa caldo.
+      - Ho fame.
+      - Che cos'è?
+      - Non lo so.
+    beginner:
+      - Sono medico.
+      - La stanza è tranquilla.
+      - Ho una bicicletta.
+      - Questa è mia sorella.
+      - Servono tre sedie.
+      - Vorrei un po' d'acqua.
+      - Lavoro qui.
+      - Sto leggendo.
+    intermediate:
+      - Sono arrivata ieri.
+      - Pioveva quando siamo partiti.
+      - Parto domani.
+      - Arriveremo lunedì.
+      - Mi piace cucinare.
+      - Vorrei un caffè.
+      - So nuotare.
+      - Devo partire.
+    advanced:
+      - Se avessi saputo che la riunione sarebbe durata così tanto, sarei tornato a casa prima.
+      - Quello che mi preoccupa di più è l'effetto della decisione su chi non è stato consultato.
+      - Benché la proposta sembri promettente, sarebbe opportuno valutarne le possibili conseguenze.
+      - Preferirei che rimandassimo il viaggio piuttosto che prendere una decisione affrettata.
+      - Più rileggo la relazione, meno mi convincono le sue conclusioni.
+      - La riuscita del progetto dipenderà soprattutto da come sapremo dividerci le responsabilità.
+      - Non è che sia contrario all'idea; dubito soltanto che questo sia il momento giusto.
+      - Quando ci siamo resi conto di quello che era successo, ormai era difficile rimediare.
+    social:
+      - Ciao!
+      - Buongiorno!
+      - Buonasera!
+      - Come sta?
+      - Bene, grazie.
+      - Come si chiama?
+      - Piacere di conoscerla.
+      - Grazie mille.
+      - Prego.
+      - Mi scusi.
+      - Mi dispiace.
+      - Arrivederci!
+      - A presto!
+      - Buona giornata!
+    # Sources: [@practice-idioms-italian]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "In bocca al lupo!"
+      - "Acqua in bocca!"
+      - "Non vedo l’ora."
+      - "Tocca ferro!"
+      - "È acqua passata."
+      - "Mi sento un pesce fuor d’acqua."
+      - "Non perderti in un bicchier d’acqua."
+      - "Hai scoperto l’acqua calda."
+  varieties: {}

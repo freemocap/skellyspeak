@@ -9,3 +9,5 @@ mod boundary_tests;
 pub mod text_request;
 mod transcription_adapters;
 mod transcription_confidence;
+
+mod speech_stream;

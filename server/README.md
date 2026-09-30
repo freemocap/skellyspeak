@@ -545,6 +545,13 @@ listening verification with the configured voice. [@elevenlabs_accent_tags_20260
 version 1, base64 mono 24 kHz WAV, and a usage receipt. Existing OpenRouter chat
 routes are unchanged. Provider credentials remain on the service.
 
+Clients may opt into streamed speech with `Accept: application/x-ndjson` on the
+same route. Protocol discovery advertises `audio.speech_stream_versions: [2]`.
+Ordered PCM records arrive before completion; the terminal record carries final
+alignment and usage. Disconnects and partial failures retain unknown spending
+instead of reporting successful audio. The current native player has not yet
+adopted this path. See the [stream contract and staged implementation](../docs/notes/streaming-speech-implementation.md).
+
 Transcription selects its adapter from each request's model, independently of the
 client access route. `whisper-large-v3` is the recommended default; `scribe_v2`
 uses ElevenLabs. Other model identifiers retain the Groq forwarding behavior.

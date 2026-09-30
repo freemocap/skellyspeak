@@ -21,11 +21,11 @@ it('shows tools when they fit and moves only excess tools into the menu as its c
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 0 } as DOMRect)
   const select = vi.fn()
   render(<MessageTools play={null} inspect={null} tools={[]} actions={null}
-    more={[{ key:'words', label:'Word by word', onSelect:select }, { key:'analysis', label:'Analysis', onSelect:select }]} />)
+    more={[{ key:'words', label:'Words', onSelect:select }, { key:'analysis', label:'Analysis', onSelect:select }]} />)
   expect(screen.queryByRole('button', { name:'More actions' })).toBeNull()
   expect(screen.getByRole('button', { name:'Analysis' })).toBeVisible()
   act(() => { width = 250; callbacks.forEach(callback => callback()) })
-  expect(screen.getByRole('button', { name:'Word by word' })).toBeVisible()
+  expect(screen.getByRole('button', { name:'Words' })).toBeVisible()
   expect(screen.queryByRole('button', { name:'Analysis' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name:'More actions' }))
   const analysis = screen.getByRole('button', { name:'Analysis' })

@@ -112,6 +112,9 @@
   border: var(--border-width) solid var(--practice-line); border-top: var(--border-width-strong) solid var(--practice-mark);
 }
 .drill-dock-pane .voice-grid { grid-template-rows: minmax(5.5rem, 1fr) auto; height: 100%; }
+/* The AI pill's row leads the recorder, as Chat's status line leads its own,
+   and never takes more than half the stage's width. */
+.drill-ai-status { flex: none; display: flex; align-items: center; min-height: var(--control-height-sm); max-width: 50%; padding: 0 var(--space-5); }
 /* The listening session's counts, beside the attempt list. */
 .drill-attempt-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
 .drill-attempts-pane { flex: none; height: auto; }
@@ -550,6 +553,17 @@
 .drill-starter-sample .msg.chat-message { max-width: 100%; }
 .drill-starter-do { display: grid; gap: var(--space-4); margin-top: auto; }
 .drill-starter-do .error-notice { margin: 0; }
+/* The general add dialog discloses local sets above its generation form. */
+.drill-pregenerated { clear: both; margin-bottom: var(--space-8); padding-bottom: var(--space-7); border-bottom: var(--border-width) solid var(--line-soft); }
+.drill-pregenerated summary { display: inline-flex; align-items: center; gap: var(--space-3); list-style: none; }
+.drill-pregenerated summary::-webkit-details-marker { display: none; }
+.drill-pregenerated[open] summary svg { transform: rotate(180deg); }
+.drill-pregenerated .drill-bundled { margin-inline-start: var(--space-8); }
+.drill-bundled-groups { display: grid; gap: var(--space-4); }
+.drill-bundled-buttons { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.drill-bundled-buttons .btn { display: inline-flex; align-items: center; gap: var(--space-3); }
+section.drill-bundled-buttons { display: block; padding-top: var(--space-4); }
+.drill-bundled h3 { margin: 0 0 var(--space-3); font-size: var(--type-body); }
 .drill-starter-action { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3); width: 100%; }
 .drill-starter-busy { display: flex; align-items: center; justify-content: center; gap: var(--space-3); min-height: var(--control-height); margin: 0; border: var(--border-width) solid var(--interaction-line); border-radius: var(--radius-md); background: var(--interaction-tint); color: var(--interaction-ink); font-size: var(--type-ui); font-weight: var(--weight-medium); }
 .drill-starter-spinner { width: var(--space-7); height: var(--space-7); border: var(--border-width-strong) solid var(--interaction-line); border-top-color: var(--interaction-ink); border-radius: var(--radius-circle); animation: drill-starter-spin var(--dur-spin) linear infinite; }
@@ -557,7 +571,7 @@
 /* A line of help that draws a control's icon where the words name it: the
    starter's tip and the Add practice cards list's Keep hint. */
 .drill-hint { display: flex; align-items: center; gap: var(--space-3); margin: 0; color: var(--ink-3); font-size: var(--type-ui); }
-.drill-hint-icon { display: inline-grid; place-items: center; width: var(--control-height-xs); height: var(--control-height-xs); margin-inline: var(--space-2); vertical-align: middle; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--sheet); color: var(--interaction-ink); }
+.drill-hint-icon { display: inline-grid; place-items: center; margin-inline: var(--space-2); vertical-align: middle; color: var(--interaction-ink); }
 .drill-starter .drill-hint { margin-top: var(--space-8); }
 /* "Don't show this again" is the shared form checkbox row, in the footer's type beside Close. */
 .drill-starter-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-6); margin-top: var(--space-8); padding-top: var(--space-6); border-top: var(--border-width) solid var(--line-soft); }

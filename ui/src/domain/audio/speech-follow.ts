@@ -14,7 +14,7 @@ export function spokenRangeInText(text: string, source: string, word: SpokenWord
 }
 
 /** Exact UTF-16 source anchors only: cues and rewritten speech are not display text. */
-export function speechWords(text: string, alignment: SpeechAlignment | null | undefined): SpokenWord[] {
+export function speechWords(text: string, alignment: SpeechAlignment | null | undefined, partial = false): SpokenWord[] {
   if (!text || alignment?.sourceText !== text) return []
   for (const timing of [alignment.normalized, alignment.original]) {
     if (!timing) continue
@@ -22,11 +22,19 @@ export function speechWords(text: string, alignment: SpeechAlignment | null | un
     if (!characters.length || characters.length !== starts.length || starts.length !== ends.length ||
       characters.some((part, i) => !part || !Number.isFinite(starts[i]) || !Number.isFinite(ends[i]) || starts[i] < 0 || ends[i] < starts[i] || (i > 0 && starts[i] < starts[i - 1]))) continue
     const spoken = characters.join('')
-    const offset = spoken.indexOf(text)
+    let offset = spoken.indexOf(text)
+    if (offset < 0 && partial) {
+      const first = readingWords(text).find(word => word.word)
+      if (first) {
+        const prefix = text.slice(0, first.end)
+        const candidate = spoken.indexOf(prefix)
+        if (candidate >= 0 && spoken.indexOf(prefix, candidate + 1) === -1 && text.startsWith(spoken.slice(candidate))) offset = candidate
+      }
+    }
     if (offset < 0 || spoken.indexOf(text, offset + 1) !== -1) continue
     let cursor = 0
     const spans = characters.map(part => { const start = cursor; cursor += part.length; return { start, end: cursor } })
-    return readingWords(text).filter(word => word.word).map(word => {
+    return readingWords(text).filter(word => word.word && offset + word.end <= spoken.length).map(word => {
       const first = spans.findIndex(span => span.start <= offset + word.start && span.end > offset + word.start)
       const last = spans.findIndex(span => span.start < offset + word.end && span.end >= offset + word.end)
       return { start: word.start, end: word.end, from: starts[first], to: ends[last] }

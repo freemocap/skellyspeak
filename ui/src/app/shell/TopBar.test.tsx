@@ -7,16 +7,12 @@ import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
 import type { Settings } from '../../types'
-import { useAiWindowStore } from '../../state/navigation/ai-window'
-import { useAiBusyStore } from '../../state/session/ai-busy'
 
 vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
 vi.mock('../../platform/ipc/skill-evidence', () => ({ getLanguageTotals: vi.fn(async () => [
   { target: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: 12, conversations: 2, partnerUnderstood: 1, noIssuesFlagged: 1, revisionsSent: 0, practiceAttempts: 3 },
   { target: 'french', name: 'French', nativeName: 'Français', languageTag: 'fr', xp: 30, conversations: 1, partnerUnderstood: 0, noIssuesFlagged: 0, revisionsSent: 0, practiceAttempts: 0 },
 ]) }))
-const windowApi = vi.hoisted(() => ({ openAiWindow: vi.fn() }))
-vi.mock('../../platform/ipc/window', () => ({ ...windowApi, aiWindowState: async () => ({ supported: true, open: false }) }))
 vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
   {code:'spanish',base:'spanish',name:'Spanish',endonym:'Español',defaultVariety:'spanish-mexico',varieties:[{id:'spanish-mexico',label:'Mexico'}]}, {code:'french',base:'french',name:'French',endonym:'Français',defaultVariety:'french-france',varieties:[{id:'french-france',label:'France'}]}
 ] }))
@@ -26,14 +22,10 @@ beforeEach(() => {
   useSessionStore.setState(useSessionStore.getInitialState())
   useSettingsStore.setState({...useSettingsStore.getInitialState(), settings: {my_languages:['spanish','french'], target_varieties:{}, target_language:'spanish'} as Settings})
 })
-it.each(['hosted', 'custom'] as const)('opens AI access from the %s setup status', route => {
-  useSessionStore.setState({ connection: {
-    route, signedIn: false, email: '', revision: 1,
-    configured: false, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
-  } })
+it('leaves the AI status to the chat composer', () => {
   render(<TopBar />)
-  fireEvent.click(screen.getByRole('button', { name: 'AI Not Connected' }))
-  expect(useNavigationStore.getState().overlay).toBe('settings')
+  expect(screen.queryByRole('button', { name: /^AI (Not )?Connected$/ })).toBeNull()
+  expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument()
 })
 it('keeps the target language reachable, with the Chat and Practice tabs leading the bar', () => {
   const setLanguage = vi.fn().mockResolvedValue(undefined)
@@ -88,58 +80,6 @@ it('opens the language browser from the compact selector', () => {
   expect(screen.getByRole('button', { name: 'Target language' })).toBeInTheDocument()
 })
 
-
-it('shows a clickable connected state only after a successful check at the current revision', () => {
-  useSessionStore.setState({ connection: {
-    route: 'custom', signedIn: false, email: '', revision: 9,
-    configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
-  } })
-  const view = render(<TopBar />)
-  expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
-  useConnectionHealth.getState().record('custom', 9)
-  view.rerender(<TopBar />)
-  // Connected, the status opens the AI View; AI access stays under Settings.
-  fireEvent.click(screen.getByRole('button', { name: 'AI Connected' }))
-  expect(useNavigationStore.getState().overlay).toBe('activity')
-  useSessionStore.setState(state => ({ connection: { ...state.connection!, revision: 10 } }))
-  view.rerender(<TopBar />)
-  expect(screen.getByRole('button', { name: 'AI Not Connected' })).toBeInTheDocument()
-})
-
-function connect() {
-  useSessionStore.setState({ connection: {
-    route: 'hosted', signedIn: true, email: '', revision: 1,
-    configured: true, assessmentAdapter: 'jev_choice' as const, standardModel: 'standard', fastModel: 'fast', audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false,
-  } })
-  useConnectionHealth.setState({ routes: { hosted: { revision: 1, status: 'connected', checkedAt: 1, error: null } } })
-}
-
-it('opens the activity view and clears its busy border state when work stops', () => {
-  connect()
-  useAiWindowStore.setState({ supported: true, open: false })
-  useAiBusyStore.setState({ busy: true })
-  render(<TopBar />)
-  const button = screen.getByRole('button', { name: 'AI Connected' })
-  expect(button).toHaveAttribute('data-busy', 'true')
-  fireEvent.click(button)
-  expect(useNavigationStore.getState().overlay).toBe('activity')
-  expect(button).toHaveAttribute('aria-expanded', 'true')
-  fireEvent.click(button)
-  expect(useNavigationStore.getState().overlay).toBeNull()
-  act(() => useAiBusyStore.setState({ busy: false }))
-  expect(button).not.toHaveAttribute('data-busy')
-})
-
-it('focuses the popped-out AI window instead of opening a second view', () => {
-  connect()
-  windowApi.openAiWindow.mockResolvedValue(undefined)
-  useAiWindowStore.setState({ supported: true, open: true })
-  render(<TopBar />)
-  fireEvent.click(screen.getByRole('button', { name: 'AI Connected' }))
-  expect(windowApi.openAiWindow).toHaveBeenCalledOnce()
-  expect(useNavigationStore.getState().overlay).toBeNull()
-  useAiWindowStore.setState({ supported: false, open: false })
-})
 it('opens the progress card first and the full report on the second press', () => {
   render(<TopBar />)
   const progress = screen.getByRole('button', { name: 'Language progress' })

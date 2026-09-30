@@ -134,7 +134,9 @@ async fn run_owned_reading(state: &Arc<Application>, id: &str) -> Result<reading
         match request.input.aid {
             reading::ReadingAid::WordGloss => stored.gloss.map(Aid::Gloss),
             reading::ReadingAid::Translation => stored.translation.map(Aid::Translation),
-            reading::ReadingAid::Explanations => stored.explanations.map(Aid::Explanations),
+            reading::ReadingAid::Explanations | reading::ReadingAid::Completions => {
+                stored.explanations.map(Aid::Explanations)
+            }
             reading::ReadingAid::Speech => unreachable!(),
         }
         .ok_or_else(|| {

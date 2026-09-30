@@ -463,3 +463,73 @@ conversation:
     vibe:
       - 🌱
       - 📷
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Uisce, le do thoil.
+      - Tá mé anseo.
+      - Tá sé te.
+      - Tá ocras orm.
+      - Cad é seo?
+      - Níl a fhios agam.
+      - Tá mé réidh.
+      - Tá sé fuar.
+    beginner:
+      - Is múinteoir mé.
+      - Tá an seomra ciúin.
+      - Tá rothar agam.
+      - Seo mo dheirfiúr.
+      - Tá dhá leabhar agam.
+      - Tá beagán uisce ann.
+      - Oibrím anseo.
+      - Tá sí ag léamh.
+    intermediate:
+      - Tháinig mé inné.
+      - Bhí mé sa bhaile.
+      - Tiocfaidh mé amárach.
+      - Beidh mé sa bhaile.
+      - Is maith liom tae.
+      - Ba mhaith liom dul abhaile.
+      - Is féidir liom snámh.
+      - Caithfidh mé imeacht.
+    advanced:
+      - Dá mbeadh a fhios agam go mairfeadh an cruinniú chomh fada sin, bheinn tar éis mo chuid pleananna a
+        athrú.
+      - Is é an rud is mó a chuireann imní orm ná an tionchar a bheidh ag an gcinneadh ar na daoine nár
+        cuireadh ceist orthu.
+      - Cé go bhfuil cuma mhaith ar an moladh, ba cheart dúinn smaoineamh ar na deacrachtaí a d'fhéadfadh
+        teacht as.
+      - B'fhearr liom go gcuirfimis an turas siar ná go ndéanfaimis cinneadh róthapa.
+      - Dá mhéad a léim an tuairisc, is ea is lú muinín atá agam as na conclúidí inti.
+      - Beidh rath an tionscadail ag brath ar an gcaoi a roinnfimid an obair eadrainn.
+      - Níl mé i gcoinne an smaoinimh féin, ach níl mé cinnte gurb é seo an t-am ceart dó.
+      - Faoin am ar thuigeamar cad a bhí tar éis tarlú, bhí sé deacair an scéal a chur ina cheart.
+    social:
+      - Dia duit!
+      - Dia is Muire duit!
+      - Maidin mhaith!
+      - Tráthnóna maith!
+      - Conas atá tú?
+      - Tá mé go maith, go raibh maith agat.
+      - Cad is ainm duit?
+      - Is deas bualadh leat.
+      - Go raibh maith agat.
+      - Tá fáilte romhat.
+      - Gabh mo leithscéal.
+      - Tá brón orm.
+      - Slán!
+      - Feicfidh mé arís thú!
+      - Oíche mhaith!
+    # Sources: [@practice-idioms-irish]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Táim ar mhuin na muice."
+      - "Is fiú ór í."
+      - "Tá mé ar ais ar mo bhonnaí."
+      - "Tá mo theanga amuigh."
+      - "Tóg go bog é."
+      - "Tá an áit dubh le daoine."
+      - "Tá tuirse an domhain orm."
+      - "Gan duine, gan daoine."
+  varieties: {}

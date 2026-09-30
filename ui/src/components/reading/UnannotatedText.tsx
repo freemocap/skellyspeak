@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { SpeechFollowText } from './SpeechFollowText'
-import { useReadingActions, useReadingScope, type ReadingSelection } from './ReadingContext'
+import { ReadingTemplateContext, useReadingActions, useReadingScope, type ReadingSelection } from './ReadingContext'
 import { languageFor } from '../../platform/ipc/tauri'
 import { readingWords, readingPassage } from '../../domain/reading/word-boundaries'
 import { WordHoverHelp } from './WordHoverHelp'
@@ -30,13 +30,14 @@ function ReadingWord({ text, selection }: { text: string; selection: ReadingSele
 }
 
 /** Word boundaries add actions without changing the source's inline typography. */
-export function UnannotatedText({ text, interactive = true, inline = false }: { text: string; interactive?: boolean; inline?: boolean }) {
+export function UnannotatedText({ text, interactive = true, inline = false, source }: { text: string; interactive?: boolean; inline?: boolean; source?: { text: string; start: number } }) {
+  const template = useContext(ReadingTemplateContext)
   const actions = useReadingActions()
   const scope = useReadingScope()
   const locale = scope ? languageFor(scope.language, scope.variety ?? undefined)?.languageTag : undefined
-  const parts = useMemo(() => readingWords(text, locale).map(part => ({ ...part, selection: scope ? { ...readingPassage(text, part.start, part.end, locale), scope } : null })), [text, locale, scope])
+  const parts = useMemo(() => readingWords(text, locale, template).map(part => ({ ...part, selection: scope ? { ...readingPassage(source?.text ?? text, (source?.start ?? 0) + part.start, (source?.start ?? 0) + part.end, locale), scope, ...(template && part.blank ? { aid: 'completions' as const } : {}) } : null })), [text, locale, scope, template, source?.text, source?.start])
   if (!interactive || !actions || !scope) return <SpeechFollowText text={text}><span data-speech-source className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale}>{text}</span></SpeechFollowText>
-  return <SpeechFollowText text={text}><span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale} data-reading-language={scope.language} data-reading-variety={scope.variety ?? undefined}>{parts.map(part => part.word
+  return <SpeechFollowText text={text}><span className={inline ? undefined : "target-text"} dir={inline ? undefined : "auto"} lang={locale} data-reading-language={scope.language} data-reading-variety={scope.variety ?? undefined}>{parts.map(part => part.word || part.blank
     ? <ReadingWord key={part.start} text={text.slice(part.start, part.end)} selection={part.selection!} />
     : <span data-speech-source key={part.start}>{text.slice(part.start, part.end)}</span>)}</span></SpeechFollowText>
 }

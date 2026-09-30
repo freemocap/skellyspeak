@@ -7,7 +7,7 @@ import { ReadingScopeContext } from '../../../components/reading/ReadingContext'
 import { ReadingProvider } from '../../../components/reading/TargetText'
 import { replyHelpFixture } from './ReplyHelp.fixtures'
 
-/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+/** Opens every message's ⋯ menu, where Words, Analysis and Pronunciation live. */
 const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
 
 

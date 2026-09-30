@@ -161,6 +161,20 @@ pub fn cancel_speech(db: &Connection, operation: &str) -> Result<String> {
 }
 
 impl Store {
+    /// Resolve only a currently authorized consumer; no request can read another
+    /// operation's shared stream merely by knowing its execution identifier.
+    pub(crate) fn speech_stream_execution(&self, operation: &str) -> Result<Option<String>> {
+        let (_, message, text, state, context) = speech_owner(&self.connection, operation)?;
+        let captured = serde_json::from_str(&context)?;
+        speech_binding(&self.connection, &message, &text, &captured)?;
+        if !matches!(state.as_str(), "running" | "succeeded") {
+            return Ok(None);
+        }
+        Ok(self.connection.query_row(
+            "SELECT c.execution_id FROM attempts a JOIN inference_consumers c ON c.consumer_id=a.id WHERE a.operation_id=?1 AND a.state IN ('running','succeeded') ORDER BY a.rowid DESC LIMIT 1",
+            [operation], |r| r.get(0)).optional()?)
+    }
+
     pub fn finish_speech(
         &mut self,
         dispatch: &Dispatch,

@@ -509,3 +509,69 @@ conversation:
       - 🎧
       - 🌊
       - 🛠️
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Yes.
+      - No.
+      - Water, please.
+      - I'm here.
+      - It's hot.
+      - I'm hungry.
+      - What's this?
+      - I don't know.
+    beginner:
+      - She is a doctor.
+      - The room is quiet.
+      - I have a bicycle.
+      - This is my sister.
+      - We need three chairs.
+      - There is a little water.
+      - I work here.
+      - She is reading.
+    intermediate:
+      - We arrived yesterday.
+      - I was reading when she called.
+      - I am going to cook tonight.
+      - The train leaves tomorrow.
+      - I like coffee.
+      - I would like to sit down.
+      - I can swim.
+      - You do not have to come.
+    advanced:
+      - Had I known the meeting would run so late, I would have taken an earlier train home.
+      - What concerns me most is how the decision will affect people who weren't consulted.
+      - Although the proposal looks promising, we ought to consider what could go wrong.
+      - I'd rather we postponed the trip than rushed into arrangements we might regret.
+      - The more closely I read the report, the less convinced I am by its conclusions.
+      - Whether the project succeeds will depend largely on how well we share responsibility.
+      - It's not that I disagree with the goal; I just doubt that this approach will achieve it.
+      - By the time we realised what had happened, there was little we could do to put it right.
+    social:
+      - Hello!
+      - Good morning!
+      - Good evening!
+      - How are you?
+      - I'm well, thank you.
+      - Nice to meet you.
+      - What's your name?
+      - Thank you very much.
+      - You're welcome.
+      - Excuse me.
+      - I'm sorry.
+      - Goodbye!
+      - See you later!
+      - Have a good day!
+    # Sources: [@practice-idioms-english]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "It's a piece of cake."
+      - "Let's break the ice."
+      - "I'm feeling under the weather."
+      - "You're pulling my leg."
+      - "Let's call it a day."
+      - "Don't spill the beans."
+      - "That happens once in a blue moon."
+      - "It's not rocket science."
+  varieties: {}

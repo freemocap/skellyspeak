@@ -3,8 +3,9 @@ import {
   acceptDrillItems, conversationDrillCandidates, discardDrillPreview, previewDrillItems,
 } from '../../platform/ipc/drill-generation'
 import { reportFault } from '../../platform/diagnostics/faults'
+import { acceptPracticePhrases } from '../../platform/ipc/practice-sets'
 import type {
-  DrillCandidate, DrillGenerationInput, DrillGenerationPreview, ReadingScope,
+  DrillCandidate, DrillGenerationInput, DrillGenerationPreview, DrillItemView, ReadingScope,
 } from '../../generated/contracts'
 
 /** One candidate and the request that owns it: acceptance is always by native
@@ -18,8 +19,8 @@ const CONVERSATION_PAGE = 20
  * Generation is one explicit paid request; regenerating is another explicit one.
  * Conversation extraction pages through source spans with no provider call at
  * all. Both end at the same native acceptance, so selection is shared. */
-export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promise<void>) {
-  const [pages, setPages] = useState<DrillGenerationPreview[]>([])
+export function useDrillPreview(scope: ReadingScope | null, onAdded: (items: DrillItemView[]) => Promise<void>, initialPreview?: DrillGenerationPreview | null) {
+  const [pages, setPages] = useState<DrillGenerationPreview[]>(() => initialPreview ? [initialPreview] : [])
   const [cursor, setCursor] = useState<string | null>(null)
   const [running, setRunning] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -106,17 +107,34 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
       for (const { requestId, candidate } of chosen) {
         byRequest.set(requestId, [...(byRequest.get(requestId) ?? []), candidate.candidateId])
       }
-      for (const [requestId, ids] of byRequest) await acceptDrillItems(requestId, ids)
+      const kept: DrillItemView[] = []
+      for (const [requestId, ids] of byRequest) {
+        const source = chosen.find(entry => entry.requestId === requestId)!.candidate.source
+        if (source.kind === 'bundled') {
+          if (!scope) throw new Error('Keeping practice phrases needs a reading scope.')
+          kept.push(...await acceptPracticePhrases(scope, source.set, requestId, ids))
+        } else kept.push(...await acceptDrillItems(requestId, ids))
+      }
       if (mounted.current) setAdded(existing => [...existing, ...chosen.map(entry => entry.candidate.candidateId)])
-      await onAdded()
+      await onAdded(kept)
     } catch (error) {
       if (mounted.current) setFailure(error)
     } finally { if (mounted.current) setAdding(false) }
-  }, [onAdded])
+  }, [onAdded, scope])
+
+  // Authored sets join the same review list; selecting the same set refreshes
+  // its duplicate flags without appending a second copy of its candidates.
+  const offerPreview = useCallback(async (preview: DrillGenerationPreview) => {
+    setPages(current => current.some(page => page.requestId === preview.requestId)
+      ? current.map(page => page.requestId === preview.requestId ? preview : page)
+      : [...current, preview])
+  }, [])
 
   /// Give back what was not adopted. Accepted provenance is native's and stays.
   const discard = useCallback(() => {
-    for (const page of pages) void discardDrillPreview(page.requestId).catch(error => reportFault('Discarding a drill preview', error))
+    for (const page of pages) if (!page.requestId.startsWith('bundled:')) {
+      void discardDrillPreview(page.requestId).catch(error => reportFault('Discarding a drill preview', error))
+    }
     clear()
   }, [pages, clear])
 
@@ -126,8 +144,9 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
   return {
     offered,
     requested: pages.map(page => page.requested).filter((one): one is DrillGenerationInput => one !== null),
-    fromChats: pages.some(page => page.requested === null),
-    shortfall: pages.map(page => page.shortfall).find(one => one != null) ?? null,
+    // Only generation shortfalls need a result notice; conversation extraction
+    // simply offers the available lines. Its response metadata stays on the page.
+    shortfall: pages.filter(page => page.requested !== null).map(page => page.shortfall).find(one => one != null) ?? null,
     hasMore: cursor !== null,
     loadMore: () => { if (cursor !== null && !running) void loadMoreLines(cursor) },
     asked: pages.length > 0,
@@ -136,6 +155,6 @@ export function useDrillPreview(scope: ReadingScope | null, onAdded: () => Promi
       if (batch) return generate(batch.inputs, batch.alsoChats, batch.index)
     } : undefined,
     running, adding, added, failure,
-    generate, cancel, accept, discard, clear,
+    generate, cancel, accept, discard, clear, offerPreview,
   }
 }

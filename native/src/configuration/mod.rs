@@ -5,6 +5,7 @@ mod citations;
 pub mod difficulty;
 mod documents;
 pub mod guides;
+pub mod practice;
 mod skill_navigation;
 pub mod skills;
 pub mod speech;
@@ -580,6 +581,8 @@ pub const INTERFACE_LOCALES: &[&str] = &[
 ];
 #[cfg(test)]
 mod document_tests;
+#[cfg(test)]
+mod practice_tests;
 
 #[cfg(test)]
 mod language_audit_tests;

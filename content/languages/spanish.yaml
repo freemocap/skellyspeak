@@ -597,3 +597,70 @@ conversation:
       - 🌿
       - 🌊
       - 🍊
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Sí.
+      - No.
+      - Agua, por favor.
+      - Estoy aquí.
+      - Hace calor.
+      - Tengo hambre.
+      - ¿Qué es esto?
+      - No sé.
+    beginner:
+      - Ana es médica.
+      - Ana está cansada.
+      - Es el libro de mi hermana.
+      - Mis hermanas viven aquí.
+      - Tengo poco tiempo.
+      - Hay muchas personas.
+      - Trabajo en casa.
+      - Estoy trabajando en casa.
+    intermediate:
+      - Ayer fui al mercado.
+      - Estaba en el mercado cuando llamaste.
+      - Voy a llamar mañana.
+      - Salimos mañana.
+      - Prefiero tomar té.
+      - Me gusta el café.
+      - Sé nadar.
+      - Hoy no puedo nadar.
+    advanced:
+      - Si hubiera sabido que la reunión iba a durar tanto, habría vuelto a casa antes.
+      - Lo que más me preocupa es cómo afectará la decisión a quienes no fueron consultados.
+      - Aunque la propuesta parece prometedora, convendría considerar sus posibles consecuencias.
+      - Preferiría que aplazáramos el viaje antes que tomar decisiones de las que luego nos arrepintamos.
+      - Cuanto más leo el informe, menos me convencen sus conclusiones.
+      - Que el proyecto salga adelante dependerá de cómo repartamos las responsabilidades.
+      - No es que esté en contra de la idea; simplemente dudo que este sea el mejor momento.
+      - Para cuando nos dimos cuenta de lo que había ocurrido, apenas quedaba margen para actuar.
+    social:
+      - ¡Hola!
+      - ¡Buenos días!
+      - ¡Buenas tardes!
+      - ¡Buenas noches!
+      - ¿Cómo estás?
+      - Bien, gracias.
+      - Mucho gusto.
+      - ¿Cómo te llamas?
+      - Muchas gracias.
+      - De nada.
+      - Disculpa.
+      - Lo siento.
+      - ¡Adiós!
+      - ¡Hasta luego!
+      - ¡Que tengas un buen día!
+    # Sources: [@practice-idioms-spanish]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Me cuesta un ojo de la cara."
+      - "Estoy en las nubes."
+      - "¿Me echas una mano?"
+      - "Has dado en el clavo."
+      - "He metido la pata."
+      - "¿Me estás tomando el pelo?"
+      - "Hay que ponerse las pilas."
+      - "No tires la toalla."
+  varieties: {}

@@ -5,7 +5,7 @@ import type { WordComparison } from '../../generated/contracts'
 /** Each aligned pair wraps as a unit, including missing and extra words. */
 export function WordPairs({ words, rtl }: { words: WordComparison[]; rtl: boolean }) {
   const tr = useI18n()
-  return <div role="group" className="drill-word-pairs" dir={rtl ? 'rtl' : 'ltr'} aria-label={tr('Word by word')}>
+  return <div role="group" className="drill-word-pairs" dir={rtl ? 'rtl' : 'ltr'} aria-label={tr('Words')}>
     <div className="drill-word-labels" aria-hidden="true"><span>{tr('Card')}</span><span>{tr('Attempt')}</span></div>
     {words.map((word, index) => <div className="drill-word-pair" key={index} data-outcome={word.kind}>
       <span><span className="drill-word-outcome">{tr('Card')}: </span>{word.target === null ? tr('—') : <TargetText text={word.target} interactive={false} />}</span>

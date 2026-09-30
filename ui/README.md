@@ -352,6 +352,21 @@ and varieties. Exact source annotations take precedence over saved alternatives.
 Reply suggestions, frames and starters use this same renderer and reading
 preferences, without a separate translation/pronunciation disclosure layout.
 
+MessageTools owns toolbar rendering, overflow and accessibility for both speakers.
+useMessageToolDefinitions owns the Words and detail actions: learner feedback
+supplies Coach; target-message analysis supplies Analysis. Conversation messages
+and their coach copies share TurnView, including the learner's edit, recording
+and feedback behavior. Tour and preview message examples also use TargetMessage.
+
+TargetMessage provides shared Analysis when reading lookup is enabled; owners
+may supply a saved-message analysis handler. Reply suggestions and sentence
+starters use its full toolbar. Starters declare template syntax through
+ReadingTemplateContext, so underscore slots work even without surrounding spaces.
+Blank help requests two or three completed sentences through the reading service,
+preserving the original template and every character outside its slots. Outside
+declared templates, only standalone underscore runs count as slots; ordinary
+identifiers retain their word behavior. No request starts merely by rendering.
+
 Word helpers include token read-aloud. `app/ReadingTools.tsx` injects the native
 reading service and shared audio player; shared controls must not import feature
 state. The inspector and AI activity expose retained reading-request receipts.

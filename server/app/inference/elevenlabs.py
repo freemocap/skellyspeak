@@ -83,7 +83,7 @@ class ElevenLabs:
         self._key = api_key
 
     async def _post(self, path: str, receipt: AudioReceipt, *, limit: int,
-                    content_types: set[str], private: tuple[str, ...] = (), **kwargs: object) -> tuple[bytes, AudioReceipt]:
+                    content_types: set[str], private: tuple[str, ...] = (), on_chunk=None, **kwargs: object) -> tuple[bytes, AudioReceipt]:
         # Fixed origin prevents callers sending this key to a custom endpoint.
         # The whole read has a deadline, including a slowly trickling response.
         try:
@@ -125,10 +125,15 @@ class ElevenLabs:
                     if content_types != {"application/json"} and content_type not in content_types:
                         raise AudioFailure("AUDIO_RESPONSE_TYPE", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"response_headers", "path":"content_type", "expected":sorted(content_types), "response":receipt.diagnostics})
                     chunks = bytearray()
+                    received = 0
                     async for chunk in response.aiter_bytes():
-                        if len(chunks) + len(chunk) > limit:
-                            raise AudioFailure("AUDIO_RESPONSE_LIMIT", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"response_body", "limit_bytes":limit, "received_bytes":len(chunks)+len(chunk), "truncated":True, "response":receipt.diagnostics})
-                        chunks.extend(chunk)
+                        received += len(chunk)
+                        if received > limit:
+                            raise AudioFailure("AUDIO_RESPONSE_LIMIT", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"response_body", "limit_bytes":limit, "received_bytes":received, "truncated":True, "response":receipt.diagnostics})
+                        if on_chunk is None:
+                            chunks.extend(chunk)
+                        else:
+                            await on_chunk(chunk, receipt)
                     return bytes(chunks), receipt
                 finally:
                     await response.aclose()
@@ -137,7 +142,7 @@ class ElevenLabs:
             details = describe(error, private=tuple(provider_errors.request_strings({"key": self._key, "request": kwargs, "private": private})), include_message=True)
             raise AudioFailure("AUDIO_TRANSPORT_UNKNOWN", receipt=receipt, unknown_outcome=True, diagnostics={"stage":"transport", "exception_type":type(error).__name__, "causes":details["causes"], "response":receipt.diagnostics}) from None
 
-    async def synthesize(self, request: SynthesisRequest) -> SynthesisResult:
+    async def synthesize(self, request: SynthesisRequest, *, on_audio=None) -> SynthesisResult:
         receipt = AudioReceipt("elevenlabs", request.model)
         if (not _identifier(request.model) or not _identifier(request.voice_id)
                 or not request.text.strip() or len(request.text.encode("utf-8")) > 16_384
@@ -153,6 +158,25 @@ class ElevenLabs:
                    "apply_text_normalization": "off"}
         if request.language_code is not None:
             payload["language_code"] = request.language_code
+        if on_audio is not None:
+            from server.app.inference.synthesis_stream import SynthesisStream
+            stream = SynthesisStream(request.text, MAX_PCM_BYTES, on_audio)
+            stream.receipt = receipt
+            try:
+                _, receipt = await self._post(
+                    f"text-to-speech/{request.voice_id}/stream/with-timestamps", receipt,
+                    limit=8 * 1024 * 1024, content_types={"application/json", "application/x-ndjson"},
+                    params={"output_format": "pcm_24000"}, json=payload, private=(request.text,), on_chunk=stream.feed,
+                )
+            except AudioFailure as error:
+                error.diagnostics = {**(error.diagnostics or {}), 'partial_stream': stream.diagnostics(),
+                                     'received_samples': len(stream.pcm) // 2}
+                raise
+            stream.receipt = receipt
+            alignment = await stream.finish()
+            receipt = AudioReceipt(receipt.provider, receipt.requested_model, receipt.request_id,
+                                   receipt.cost_micros, stream.diagnostics())
+            return SynthesisResult(_wav(bytes(stream.pcm), OUTPUT_RATE), len(stream.pcm) / (OUTPUT_RATE * 2), receipt, alignment)
         body, receipt = await self._post(
             f"text-to-speech/{request.voice_id}/with-timestamps", receipt, limit=8 * 1024 * 1024,
             content_types={"application/json"},

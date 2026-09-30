@@ -6,16 +6,18 @@ import { AiView } from './AiView'
 
 const api = vi.hoisted(() => ({ readWorkspace: vi.fn(), watchConversation: vi.fn(), listTurnHistory: vi.fn(), readAttemptDetail: vi.fn() }))
 const windowApi = vi.hoisted(() => ({ getAiViewSelection: vi.fn(), setAiViewSelection: vi.fn(), getAiGraphDefinitions: vi.fn() }))
+const flow = vi.hoisted(() => ({ fitView: async (_options?: { nodes?: { id: string }[] }) => true }))
 vi.mock('../../platform/ipc/workspace', () => ({ ...api, selectedConversation: (workspace: { selected: string | null }) => workspace.selected ? { id: workspace.selected } : null, nativeError: String }))
 vi.mock('../../platform/ipc/window', () => windowApi)
 vi.mock('../../platform/ipc/attempt-streams', () => ({ onAttemptStream: async () => () => {}, readAttemptStreams: async () => ({ generation: 1, entries: [] }) }))
 vi.mock('./GenerationActivity', () => ({ GenerationActivity: () => <div>Generation receipts</div> }))
 vi.mock('@xyflow/react', () => ({
-  ReactFlow: ({ nodes, edges }: { nodes: { id: string; data: { label: string; phase: string | null; onSelect: () => void } }[]; edges: unknown[] }) => <div>
+  ReactFlow: ({ nodes, edges, children }: { nodes: { id: string; data: { label: string; phase: string | null; onSelect: () => void } }[]; edges: unknown[]; children?: React.ReactNode }) => <div>
     <pre data-testid="graph">{JSON.stringify({ nodes: nodes.map(node => ({ id: node.id, label: node.data.label, phase: node.data.phase })), edges })}</pre>
     {nodes.map(node => <button key={node.id} type="button" data-testid={`node-${node.id}`} onClick={node.data.onSelect}>{node.data.label}</button>)}
+    {children}
   </div>,
-  Background: () => null, Controls: () => null, Handle: () => null, Position: { Left: 'left', Right: 'right' }, useReactFlow: () => ({ fitView: async () => true }),
+  Background: () => null, Controls: () => null, Handle: () => null, Position: { Left: 'left', Right: 'right' }, useReactFlow: () => flow,
 }))
 beforeEach(() => {
   vi.resetAllMocks()
@@ -317,4 +319,45 @@ it('puts failed-node errors and provider reasons before long bodies and resets i
   const dialog = screen.getByRole('dialog')
   expect(within(dialog).getByRole('alert')).toHaveTextContent('429: Model is temporarily rate-limited upstream.')
   expect(within(dialog).getByRole('alert').compareDocumentPosition(within(dialog).getByRole('heading', { name: 'Request' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+})
+
+it("leads the phone's full screen with the live graph, stacked down the screen as a tree", async () => {
+  api.readWorkspace.mockResolvedValue({ selected: 'chat' })
+  api.watchConversation.mockResolvedValueOnce(snapshot('chat', 1, [turn('turn', [
+    { id: 'context', kind: 'persona_context', state: 'succeeded', dependencies: [] },
+    { id: 'reply', kind: 'persona_reply', state: 'succeeded', dependencies: ['context'] },
+    { id: 'skills', kind: 'skill_assessment', state: 'running', dependencies: ['context'] },
+    { id: 'gloss', kind: 'persona_word_gloss', state: 'running', dependencies: ['reply'] },
+  ], [attempt('context'), attempt('reply'), attempt('skills', { state: 'running', finishedAt: null }), attempt('gloss', { state: 'running', finishedAt: null })])]))
+    .mockImplementation(() => new Promise(() => {}))
+  render(<AiView mode="screen" actions={null} />)
+  await waitFor(() => expect(screen.getByTestId('graph')).toHaveTextContent('persona word gloss'))
+  const graph = JSON.parse(screen.getByTestId('graph').textContent!) as { nodes: { id: string; phase: string }[] }
+  // Down the screen: the gloss follows the reply it depends on, before its sibling branch.
+  expect(graph.nodes.map(node => node.id)).toEqual(['context', 'reply', 'gloss', 'skills'])
+  expect(graph.nodes.find(node => node.id === 'gloss')!.phase).toBe('running')
+  // Secondary views stay off the phone's first screen.
+  expect(screen.queryByRole('figure', { name: 'Attempts over time' })).toBeNull()
+})
+
+it('keeps the tray above the recording panel to the live graph under a single header line', async () => {
+  const fit = vi.spyOn(flow, 'fitView')
+  api.readWorkspace.mockResolvedValue({ selected: 'chat' })
+  api.watchConversation.mockResolvedValueOnce(snapshot('chat', 1, [turn('turn', [
+    { id: 'context', kind: 'persona_context', state: 'succeeded', dependencies: [] },
+    { id: 'reply', kind: 'persona_reply', state: 'running', dependencies: ['context'] },
+  ], [attempt('context'), attempt('reply', { state: 'running', finishedAt: null })])]))
+    .mockImplementation(() => new Promise(() => {}))
+  render(<AiView mode="tray" actions={<button type="button">Close AI activity</button>} />)
+  await waitFor(() => expect(screen.getByTestId('graph')).toHaveTextContent('persona reply'))
+  const graph = JSON.parse(screen.getByTestId('graph').textContent!) as { nodes: { id: string }[] }
+  expect(graph.nodes.map(node => node.id)).toEqual(['context', 'reply'])
+  // One line: the title, what is running and the tray's controls; exchanges
+  // and definitions wait for the full screen.
+  expect(screen.queryByRole('group', { name: 'Exchanges' })).toBeNull()
+  expect(screen.queryByRole('group', { name: 'AI activity view' })).toBeNull()
+  expect(screen.queryByText('Other AI activity')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Close AI activity' })).toBeInTheDocument()
+  // Too short to show the whole graph legibly, the tray keeps the running reply in view.
+  await waitFor(() => expect(fit).toHaveBeenLastCalledWith(expect.objectContaining({ nodes: [{ id: 'reply' }] })))
 })

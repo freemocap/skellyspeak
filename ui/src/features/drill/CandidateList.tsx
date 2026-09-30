@@ -1,7 +1,7 @@
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useI18n } from '../../components/localization/i18n'
 import { difficultyLabel } from '../../components/controls/DifficultySelect'
-import { TargetMessage } from '../../components/reading/TargetMessage'
+import { TargetMessage, type TargetMessageProps } from '../../components/reading/TargetMessage'
 import type { DrillGenerationInput } from '../../generated/contracts'
 import { lengthLabel } from '../../components/reading/MessageProvenance'
 import type { OfferedCandidate } from './useDrillPreview'
@@ -13,7 +13,8 @@ import type { OfferedCandidate } from './useDrillPreview'
  * about its own output, and what was checked here. Only the last is stated in
  * the row; where a card came from and what the model said about it sit behind
  * the card's information tip. */
-export function CandidateList({ offered, added, adding, rtl, onKeep }: {
+export function CandidateList({ offered, added, adding, rtl, onKeep, bulkReading }: {
+  bulkReading?: TargetMessageProps['bulkReading']
   offered: OfferedCandidate[]
   added: string[]
   adding: boolean
@@ -29,7 +30,7 @@ export function CandidateList({ offered, added, adding, rtl, onKeep }: {
             <TargetMessage layout="bubble" text={entry.candidate.text} segments={[]} segmentsKey={entry.candidate.candidateId}
               translation={entry.candidate.translation} romanization={null} pronunciation={null} translateLabel={null}
               segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null}
-              focused={false} rtl={rtl}
+              focused={false} rtl={rtl} bulkReading={bulkReading}
               provenance={{ source: entry.candidate.source, addedAt: null, reported: entry.candidate.reported }}
               practiceAction={<KeepCandidate entry={entry} isAdded={isAdded} adding={adding} onKeep={onKeep} />} />
           </li>
@@ -56,23 +57,22 @@ function KeepCandidate({ entry, isAdded, adding, onKeep }: {
 }
 
 /** What was asked for, in each request's own words rather than whatever the
- * controls say now — they may have moved on since. One line per paid request,
- * plus a line for lines taken from past chats, which were not asked of anyone. */
-export function RequestedCaption({ requested, chats }: { requested: DrillGenerationInput[]; chats: boolean }) {
+ * controls say now — they may have moved on since. One line per paid request. */
+export function RequestedCaption({ requested }: { requested: DrillGenerationInput[] }) {
   const tr = useI18n()
+  if (requested.length === 0) return null
   const said = (one: DrillGenerationInput) => one.topic === null
-    ? tr("Asked for {value0} × {value1} at {value2}.", {
+    ? tr("Generated {value0} × {value1} at {value2}.", {
         value0: String(one.count), value1: tr(lengthLabel(one.length)).toLocaleLowerCase(tr.browserLocale),
         value2: tr(difficultyLabel(one.difficulty)).toLocaleLowerCase(tr.browserLocale),
       })
-    : tr("Asked for {value0} × {value1} at {value2}, on “{value3}”.", {
+    : tr("Generated {value0} × {value1} at {value2}, on “{value3}”.", {
         value0: String(one.count), value1: tr(lengthLabel(one.length)).toLocaleLowerCase(tr.browserLocale),
         value2: tr(difficultyLabel(one.difficulty)).toLocaleLowerCase(tr.browserLocale), value3: one.topic,
       })
   return (
     <p className="drill-candidates-note">
       {requested.map(one => <span key={one.length}>{said(one)}</span>)}
-      {chats && <span>{tr("Taken from your conversations, exactly as written there.")}</span>}
     </p>
   )
 }

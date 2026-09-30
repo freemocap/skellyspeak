@@ -138,6 +138,9 @@
   --success-ink: #086581;
   --success-line: #79c9e2;
   --success-tint: #def4fc;
+  /* The AI pill's connected mark: green, by request, where success is cyan.
+     Not connected is red beside it, so the pill also says so in words. */
+  --connected-mark: #3f9a6a;
   --warning-ink: #8a4e0a;
   --warning-line: #c78a2f;
   --warning-tint: #fbebd6;
@@ -325,6 +328,8 @@
        --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
        --live-wave-height  live waveform height    components/media/LiveRecording.tsx
        --chat-voice-height dragged recording panel features/conversation/ConversationPage.tsx
+       --reply-help-height  dragged reply help     features/conversation/ConversationPage.tsx
+       --ai-tray-height     dragged AI tray        features/activity/AiViewPanel.tsx
        --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx
                          (the plot rows are grid track sizes: the reference shares
                          the stage at full width and has its own height stacked) */
@@ -340,6 +345,8 @@
   --drill-rail-width: 15rem;
   --drill-report-width: 24rem;
   --chat-voice-height: auto;
+  --reply-help-height: min(320px, 38dvh);
+  --ai-tray-height: min(260px, 34dvh);
   --drill-dock-height: auto;
   --drill-reference-row: 1fr;
   --drill-attempt-row: minmax(8rem, 18dvh);
@@ -359,6 +366,8 @@
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
 :root[data-theme='dark'] {
   color-scheme: dark;
+  /* Floating surfaces need a lit edge and soft halo against dark surroundings. */
+  --shadow-floating: 0 0 0 1px rgb(255 255 255 / 32%), 0 0 24px rgb(255 255 255 / 14%), 0 16px 40px rgb(0 0 0 / 48%);
   --bg: #141517;
   --chrome: #1b1d20;
   --sheet: #24262a;
@@ -405,6 +414,7 @@
   --success-ink: #75d6f5;
   --success-line: #75d6f5;
   --success-tint: color-mix(in srgb, #75d6f5 16%, transparent);
+  --connected-mark: #6cc995;
   --warning-ink: #f0a957;
   --warning-line: #f0a957;
   --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);
@@ -1019,8 +1029,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 
 .more-actions .btn { min-height: var(--touch-target); }
 
-.mobile-ai-panel { display: flex; flex-direction: column; height: 65dvh; min-height: 0; }
-
 .topbar-actions { display: flex; flex-wrap: nowrap; max-width: 100%; align-items: center; gap: var(--space-2); margin-inline-start: auto; flex: none; }
 
 .topbar-actions .gear {
@@ -1103,28 +1111,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
 .profile-trigger strong { font-weight: var(--weight-semibold); }
 .profile-star { display: inline-flex; color: var(--warning-line); }
 .profile-star svg { fill: color-mix(in srgb, var(--warning-line) 45%, transparent); }
-.connection-state { position: relative; display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-4); font-size: var(--type-ui); color: var(--ink-3); }
-.connection-state::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); box-shadow: 0 0 0 3px var(--line-soft); }
-.connection-state[data-configured=false] { color: var(--danger-ink); border-color: var(--danger-tint); background: var(--danger-tint); }
-.connection-state[data-configured=true] { color: var(--ink-2); }
-.connection-state[data-configured=false]::before { background: var(--danger-ink); box-shadow: 0 0 0 3px var(--danger-tint); }
-.connection-state[data-configured=true]::before { background: var(--success-ink); box-shadow: 0 0 0 3px var(--success-tint); }
-.connection-state[data-busy=true]::before { background: var(--interaction-ink); }
-/* A moving border marks live requests without moving the button or its label. */
-@property --activity-border-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
-.connection-state[data-busy=true]::after {
-  content: ''; position: absolute; inset: calc(-1 * var(--border-width));
-  border-radius: inherit; padding: var(--border-width-strong); pointer-events: none;
-  background: conic-gradient(from var(--activity-border-angle), var(--line-soft) 0deg, var(--interaction-ink) 80deg, var(--interaction-ink) 110deg, var(--line-soft) 170deg);
-  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
-  animation: activity-border-orbit var(--dur-loop-slow) linear infinite;
-}
-@keyframes activity-border-orbit { to { --activity-border-angle: 360deg; } }
-.connection-state[aria-expanded=true] { border-color: var(--interaction-ink); }
-@media (prefers-reduced-motion: reduce) { .connection-state[data-busy=true]::after { animation: none; background: var(--interaction-ink); } }
-@media (forced-colors: active) { .connection-state[data-busy=true] { outline: var(--border-width-strong) solid Highlight; } }
-.connection-setup { justify-content: center; min-width: var(--control-height); min-height: var(--control-height-lg); padding-inline: var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: transparent; cursor: pointer; text-align: start; }
-.connection-setup:hover { color: var(--ink); background: var(--line-soft); }
 /* The logo stays at every width; below 600px its name gives up the room. */
 @media (max-width: 600px) { .app-home > span { display: none; } }
 
@@ -1158,18 +1144,12 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
   .topbar-actions .profile-trigger { padding-inline: var(--space-4); gap: var(--space-2); }
 }
 
-.connection-short-label { display: none; }
-.connection-setup .connection-short-label { display: inline; }
-.connection-setup .connection-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.connection-state.connection-setup[data-configured=false] { background: transparent; }
 /* Narrow: the language picker needs the room, so the tabs show their icons
-   only (their names stay as accessible labels), XP loses its unit and AI keeps
-   only its dot. */
+   only (their names stay as accessible labels) and XP loses its unit. */
 @media (max-width: 400px) {
   .mode-tabs-top .mode-tab { padding-inline: var(--space-4); font-size: var(--type-ui); }
   .mode-tabs-top .mode-tab > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .topbar-actions .profile-unit, .connection-setup .connection-short-label { display: none; }
-  .connection-setup { min-width: 0; padding-inline: var(--space-3); }
+  .topbar-actions .profile-unit { display: none; }
 }
 
 /* The progress button shows language XP only; effort sits behind its card. */
@@ -1477,6 +1457,21 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
 .detail-dialog.dialog-sheet {
   margin-block: auto 0; margin-inline: 0; width: 100vw; max-width: 100vw; max-height: 85dvh;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: var(--space-8);
+}
+/* A full-screen modal takes the whole screen at every width: content with a
+   chat box or a canvas of its own, which should not share the screen. */
+.detail-dialog.dialog-full { margin: 0; width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; box-shadow: none; resize: none; }
+
+/* Dialogs arrive rather than appear: centered ones rise and settle over a
+   fading scrim, sheets and full screens slide up from the bottom, drawers in
+   from their edge. */
+.detail-dialog[open] { animation: dialog-arrive var(--dur-slow) var(--ease-out); }
+.detail-dialog[open]::backdrop { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+.detail-dialog:is(.dialog-sheet, .dialog-full)[open] { animation-name: surface-in-from-bottom; }
+.detail-dialog.dialog-drawer[open] { animation-name: surface-in-from-start; }
+.detail-dialog.dialog-drawer[open]:dir(rtl) { animation-name: surface-in-from-end; }
+@media (prefers-reduced-motion: reduce) {
+  .detail-dialog[open], .detail-dialog[open]::backdrop { animation: none; }
 }
 
 /* Shared dialogs can expand to the viewport rather than fixing reports to their initial width. */
@@ -1993,6 +1988,52 @@ select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
   .is-hydrating::after { animation: none; background: var(--interaction-ink); }
   .stream-caret, .hydrating-slot[data-phase=running] .hydrating-line, .reply-received { animation: none; }
 }
+
+/* The AI pill at every recorder (components/feedback/AiStatusPill.tsx). It
+   follows the reply-help and coach pills in neutral grey: a chip at rest with
+   a green mark while AI is connected, the accent's tint circled by a moving
+   edge while AI work runs, and the danger family while AI is not connected.
+   The step beside it takes the rest of the line and shortens (three words,
+   two, one) before it folds away. Each surface places and caps the row. */
+.ai-status { position: relative; display: flex; align-items: center; gap: var(--space-4); flex: 1 1 0; min-width: 0; }
+.ai-status-pill {
+  position: relative; flex: none; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-5);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--chip); color: var(--ink-2);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); line-height: var(--leading-none); cursor: pointer; white-space: nowrap;
+}
+.ai-status-pill::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); }
+.ai-status-pill[data-configured=true]::before { background: var(--connected-mark); }
+.ai-status-pill:hover { border-color: var(--interaction-ink); color: var(--ink); }
+.ai-status-pill[aria-expanded=true] { border-color: var(--interaction-ink); }
+.ai-status[data-busy] .ai-status-pill { border-color: transparent; background: var(--interaction-tint); color: var(--interaction-ink); }
+.ai-status[data-busy] .ai-status-pill::before { background: var(--interaction-ink); }
+/* A moving edge marks live AI work without moving the pill or its label. */
+@property --activity-border-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.ai-status[data-busy] .ai-status-pill::after {
+  content: ''; position: absolute; inset: calc(-1 * var(--border-width));
+  border-radius: inherit; padding: var(--border-width-strong); pointer-events: none;
+  background: conic-gradient(from var(--activity-border-angle), var(--interaction-line) 0deg, var(--interaction-ink) 80deg, var(--interaction-ink) 110deg, var(--interaction-line) 170deg);
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  animation: activity-border-orbit var(--dur-loop) linear infinite;
+}
+.ai-status[data-tone=offline] .ai-status-pill { border-color: var(--danger-line); background: var(--danger-tint); color: var(--danger-ink); }
+.ai-status[data-tone=offline] .ai-status-pill::before { background: var(--danger-ink); }
+
+/* The step: the chosen wording, and hidden copies of every wording at their
+   natural width, which the line measures to choose. A new step rises into
+   place, like a log line. */
+.ai-status-line { position: relative; flex: 1 1 0; min-width: 0; overflow: hidden; font: var(--weight-medium) var(--type-ui) var(--font-sans); color: var(--ink-2); }
+.ai-status-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; animation: ai-status-arrive var(--dur-base) var(--ease-out); }
+.ai-status[data-tone=offline] .ai-status-text { color: var(--danger-ink); }
+.ai-status-measure { position: absolute; inset-inline-start: 0; top: 0; visibility: hidden; pointer-events: none; }
+.ai-status-measure > span { display: block; width: max-content; white-space: nowrap; }
+.ai-status-announce { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (pointer: coarse) { .ai-status-pill { min-height: var(--control-height); } }
+@media (prefers-reduced-motion: reduce) {
+  .ai-status[data-busy] .ai-status-pill::after { animation: none; background: var(--interaction-ink); }
+  .ai-status-text { animation: none; }
+}
+@media (forced-colors: active) { .ai-status[data-busy] .ai-status-pill { outline: var(--border-width-strong) solid Highlight; } }
 
 /* ── components/skill-list.css ── */
 /* Shared flat skill list in the conversation and Skills page. Rows are cards; the
@@ -2572,23 +2613,24 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   .mobile-conversation .break { flex: 0 1 35%; overflow: hidden; min-height: 0; display: none; }
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
   /* Where the docked panel does not fit (compact and narrow), the coach is a
-     sheet from the bottom, opened from the Coach button above the answer, with
-     the coach's colour on its top edge. The conversation stays in place
-     underneath the scrim. */
+     full-screen modal: it has a chat box of its own, so it takes the whole
+     window, the recorder included, rather than sharing it. It slides up over
+     a fading scrim when opened; Back, Escape and its close control return to
+     the conversation, which stays in place underneath. */
   .mobile-conversation.mobile-coach .break {
-    position: absolute; inset-block: auto 0; inset-inline: 0; z-index: var(--z-drawer);
-    display: flex; height: 85%; min-height: 0; overflow-y: auto;
-    border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    box-shadow: var(--shadow-drawer);
+    position: fixed; inset: 0; z-index: var(--z-modal);
+    display: flex; min-height: 0; overflow-y: auto;
+    border-top: var(--border-width-strong) solid var(--coach-mark);
   }
-  .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
+  .coach-scrim { position: fixed; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
   .mobile-coach .coach-collapse { transform: rotate(90deg); }
-  /* Opening slides the sheet up; opening the page does not. */
+  /* Opening slides the coach up while its scrim fades in; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-bottom var(--dur-slow) var(--ease-out); }
+  .mobile-conversation.surface-switched .coach-scrim { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mobile-conversation.surface-switched .break { animation: none; }
+  .mobile-conversation.surface-switched .break, .mobile-conversation.surface-switched .coach-scrim { animation: none; }
 }
 
 /* ── features/conversation/messages.css ── */
@@ -2852,6 +2894,11 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .feedback-fix { display: inline-flex; gap: var(--space-2); min-height: 0; padding: var(--space-1) var(--space-4); border: var(--border-width) solid var(--interaction-line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--interaction-ink); font: var(--weight-semibold) var(--type-meta)/var(--leading-none) var(--font-sans); cursor: pointer; }
 .feedback-fix:hover:not(:disabled) { border-color: var(--interaction-ink); background: var(--interaction-tint); }
 .feedback-fix:disabled { opacity: .5; cursor: default; }
+/* The fixes sent for a message: a hammer and the count, between Fix it and the XP. */
+.feedback-fixes { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-2); color: var(--ink-2); font: var(--weight-semibold) var(--type-meta)/var(--leading-none) var(--font-sans); font-variant-numeric: tabular-nums; }
+.feedback-fixes > svg { color: var(--ink-3); }
+/* The count is read out in words ("2 fixes"); only the hammer and the number show. */
+.feedback-fixes .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .message-feedback-line > .feedback-badge > svg { transform: rotate(-90deg); }
 .message-feedback-line[dir="rtl"] > .feedback-badge > svg { transform: rotate(90deg); }
 /* XP is quiet: an outline star and the amount in the progress colour, no fill. */
@@ -2911,7 +2958,6 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .turn-stack[data-editing] .learner-turn .msg.chat-message.me { outline: var(--border-width-strong) dashed var(--coach-mark); outline-offset: var(--space-2); }
 .learner-turn-editing { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: var(--coach-ink); color: var(--sheet); font: var(--weight-semibold) var(--type-meta)/var(--leading-snug) var(--font-sans); }
 /* A resent edit keeps a quiet marker; the replaced original is not shown. */
-.learner-turn-edited { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); color: var(--ink-3); font: var(--weight-medium) var(--type-meta)/var(--leading-snug) var(--font-sans); }
 
 /* ── features/conversation/composer.css ── */
 /* Composer layout: the edit banner, the status line and the voice panel
@@ -2982,24 +3028,35 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
 .composer[data-voice-sized] > .composer-voice > .voice-grid { grid-template-rows: minmax(4.75rem, 1fr) auto; }
 
-/* One fixed status line above the input: transcription, reply and follow-on
-   AI work all report here, so their arrival never moves the input. */
-.composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); padding: 0 var(--space-5); color: var(--ink); overflow: hidden; white-space: nowrap; }
-
-.composer-activity .activity-spinner { width: 16px; height: 16px; }
+/* One fixed status line above the input: the AI pill and the step under way.
+   Transcription, the reply and follow-on AI work all report here, so their
+   arrival never moves the input. It never takes more than half the row, so
+   reply help and the coach keep their room. */
+.composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); max-width: 50%; padding: 0 var(--space-5); color: var(--ink); }
 
 /* Compact and narrow: reply help, the status line and the coach share one row
    above the recording panel, outside it. In it, folded help and the status
    line drop their own spacing; folded help sits at the row's end beside the
    coach, over the microphone and clear of the partner's replies, with the
-   status line taking the start. Opened help takes the whole row and the rest
-   wraps under it. Help sits inside its reading scope (display: contents), so it
-   is matched as a descendant but laid out as an item of the row. The row stands
-   well clear of the last message, further than speakers stand from each other,
-   and near the recording panel, so it reads as part of the composer. */
+   status line taking the start, never more than half the row. Folded help and
+   the coach close the row together; the space the status line leaves opens
+   before them. Opened help takes the whole row and the rest wraps under it.
+   Help sits inside its reading scope (display: contents), so it is matched as
+   a descendant but laid out as an item of the row. The row stands well clear
+   of the last message, further than speakers stand from each other, and near
+   the recording panel, so it reads as part of the composer. */
 .composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block: var(--space-10) var(--space-4); }
-.composer-assist .reply-help-folded { margin: 0; order: 1; }
-.composer-assist .reply-help { flex: 1 1 100%; margin: 0; }
+.composer-assist .reply-help-folded { margin: 0; margin-inline-start: auto; order: 1; }
+.composer-assist:has(.reply-help-folded) .chat-coach { margin-inline-start: 0; }
+.composer-assist .reply-help { flex: 1 1 100%; margin: 0; animation: panel-rise var(--dur-slow) var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .composer-assist .reply-help { animation: none; } }
+/* Opened help's top edge is a grip: dragging keeps the tray's height, which
+   bounds it while its content scrolls. Folded, there is nothing to size. */
+.composer-assist > .reply-help-resize { flex: 1 1 100%; order: -1; }
+.composer-assist > .reply-help-resize::after { background: transparent; }
+.composer-assist > .reply-help-resize::before { top: calc(50% - 2px); inset-inline-start: calc(50% - 24px); width: 48px; height: 4px; }
+.composer-assist:not(:has(.reply-help)) > .reply-help-resize { display: none; }
+.composer-assist[data-help-sized] .reply-help { max-height: var(--reply-help-height); }
 .composer-assist > .composer-activity { flex: 1 1 0; min-width: 0; padding-inline: var(--space-2); }
 /* The coach opens from the very end of that row, in the coach's colours, as a
    sheet over the conversation (workspace.css). */
@@ -3164,7 +3221,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 
 /* ── Worked replies ───────────────────────────────────────────────────────── */
 
-.help-replies {
+.help-replies, .help-starters ul {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: var(--space-2);
@@ -3173,22 +3230,15 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   list-style: none;
 }
 
-.help-reply {
+/* Each item uses the shared message bubble; this row owns only insertion layout. */
+.help-reply, .help-starter {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   min-width: 0;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-lg);
-  background: var(--field);
-  color: var(--ink);
-  text-align: start;
-  overflow-wrap: anywhere;
-  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.help-reply:hover { border-color: var(--interaction-ink); }
+.help-starter > .reading-passage { flex: 1; min-width: 0; }
 
 .help-reply-text {
   flex: 1;
@@ -3230,28 +3280,6 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   color: var(--ink-3);
 }
 
-.help-starters ul {
-  display: flex; flex-wrap: wrap; gap: var(--space-2);
-  margin: 0; padding: 0; list-style: none;
-}
-
-.help-starter {
-  display: inline-flex; align-items: center; gap: var(--space-3);
-  min-height: var(--control-height-xs);
-  padding: var(--space-2) var(--space-5);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(--sheet);
-  color: var(--ink-2);
-  font: calc(var(--type-ui) * var(--reading-scale) * var(--script-scale)) / var(--leading-snug) var(--font-serif);
-  cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out);
-}
-
-.help-starter:hover { border-color: var(--interaction-ink); color: var(--ink); }
-
-.help-starter:disabled { opacity: .5; cursor: default; }
-
 /* ── Folded ───────────────────────────────────────────────────────────────── */
 
 .reply-help-folded { display: flex; justify-content: flex-start; margin: 0 0 var(--space-2); }
@@ -3291,7 +3319,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   .help-insert, .reply-help-hide, .reply-help-open { min-width: var(--control-height); min-height: var(--control-height); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reply-help-action, .reply-help-action > svg:last-child, .help-reply, .help-starter { transition: none; }
+  .reply-help-action, .reply-help-action > svg:last-child { transition: none; }
 }
 
 /* ── features/conversation/header.css ── */
@@ -4499,6 +4527,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   position: fixed; inset: var(--space-8); z-index: var(--z-modal);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
   box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-floating);
+  animation: dialog-arrive var(--dur-slow) var(--ease-out);
 }
 
 @media (pointer: coarse) and (min-width: 860px) {
@@ -4518,6 +4547,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   .ai-node[data-phase=running]::after, [data-phase=running] > .ai-node-dot, .ai-node-dot[data-phase=running], .ai-timeline-bar[data-phase=running] { animation: none; }
   .ai-node[data-phase=running] { border-color: var(--interaction-ink); }
   .ai-node[data-phase=running]::after { display: none; }
+  .logs-panel:has(> .ai-view[data-mode=docked]), .logs-panel.ai-panel-expanded, .ai-tray { animation: none; }
 }
 
 /* Static definitions use the same graph geometry with no execution state. */
@@ -4541,10 +4571,52 @@ button.language-table-name:hover { color: var(--interaction-ink); }
   border-top: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: 0 -6px 20px color-mix(in srgb, var(--ink) 16%, transparent);
+  /* Opening slides the dock up from the bottom rather than dropping it in. */
+  animation: surface-in-from-bottom var(--dur-slow) var(--ease-out);
 }
 @media (pointer: coarse) {
   .ai-definition-toolbar .field { min-height: 44px; }
 }
+
+/* Phones: both views lead with the live graph, stacked down the screen as a
+   tree; the tapped operation's details follow beneath, secondary. Controls sit
+   in the view's own header, so no column is given up to a floating close
+   button. The tray rises above the recording panel, into the slot its page
+   gives it, like reply help: one header line, then the graph. The full screen
+   adds the summary and the exchanges under its title line. */
+.ai-tray-slot { display: contents; }
+.ai-tray {
+  flex: none; box-sizing: border-box; display: flex; flex-direction: column;
+  width: 100%; height: var(--ai-tray-height); min-height: 0; overflow: hidden;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  background: var(--chrome); box-shadow: var(--shadow-sm);
+  animation: panel-rise var(--dur-slow) var(--ease-out);
+}
+.ai-tray-resize { flex: none; margin-block: 0; background: color-mix(in srgb, var(--interaction-fill) 13%, var(--chrome)); }
+.ai-tray-resize::after { background: transparent; }
+.ai-tray-resize::before { top: calc(50% - 2px); inset-inline-start: calc(50% - 24px); width: 48px; height: 4px; }
+.detail-dialog.ai-screen { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-actions { margin-inline-start: auto; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-spacer { display: none; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-body { display: block; overflow-y: auto; overscroll-behavior: contain; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-main { height: 100%; overflow: hidden; padding: var(--space-3); }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-graph { flex: 1 1 auto; min-height: 0; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-inspector-resize { display: none; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-inspector-slot { min-height: 0; max-height: none; }
+.ai-view[data-mode=screen] .ai-view-head { padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6); border-bottom-color: var(--line-soft); }
+.ai-view[data-mode=screen] .ai-view-title { order: -2; font-size: var(--type-body); }
+.ai-view[data-mode=screen] .ai-view-actions { order: -1; }
+.ai-view[data-mode=screen] .ai-view-head > .activity-summary { flex-basis: 100%; }
+.ai-view[data-mode=screen] .ai-exchanges { max-width: 100%; flex-basis: 100%; }
+.ai-view[data-mode=screen] .ai-icon-button { width: var(--control-height); height: var(--control-height); }
+/* The tray's one line: the title, what is running, cut short, and its controls. */
+.ai-view[data-mode=tray] .ai-view-head { flex-wrap: nowrap; gap: var(--space-3); padding: 0 var(--space-2) var(--space-1) var(--space-4); border-bottom-color: var(--line-soft); }
+.ai-view[data-mode=tray] .ai-view-title { flex: none; font-size: var(--type-meta); }
+.ai-view[data-mode=tray] .ai-view-head > .activity-summary { flex: 1 1 0; font-size: var(--type-meta); }
+
+/* The stacked graph's edges leave a node from its lower start corner and run
+   down the start side into each dependent, like a tree's branches. */
+.ai-graph[data-orientation=down] .react-flow__handle-bottom { left: var(--space-7); }
 
 /* ── features/settings/forms.css ── */
 .shortcut-field { display: flex; align-items: center; gap: var(--space-5); }
@@ -5915,6 +5987,9 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   border: var(--border-width) solid var(--practice-line); border-top: var(--border-width-strong) solid var(--practice-mark);
 }
 .drill-dock-pane .voice-grid { grid-template-rows: minmax(5.5rem, 1fr) auto; height: 100%; }
+/* The AI pill's row leads the recorder, as Chat's status line leads its own,
+   and never takes more than half the stage's width. */
+.drill-ai-status { flex: none; display: flex; align-items: center; min-height: var(--control-height-sm); max-width: 50%; padding: 0 var(--space-5); }
 /* The listening session's counts, beside the attempt list. */
 .drill-attempt-counts { margin: 0; overflow: hidden; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); text-overflow: ellipsis; white-space: nowrap; }
 .drill-attempts-pane { flex: none; height: auto; }
@@ -6353,6 +6428,17 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .drill-starter-sample .msg.chat-message { max-width: 100%; }
 .drill-starter-do { display: grid; gap: var(--space-4); margin-top: auto; }
 .drill-starter-do .error-notice { margin: 0; }
+/* The general add dialog discloses local sets above its generation form. */
+.drill-pregenerated { clear: both; margin-bottom: var(--space-8); padding-bottom: var(--space-7); border-bottom: var(--border-width) solid var(--line-soft); }
+.drill-pregenerated summary { display: inline-flex; align-items: center; gap: var(--space-3); list-style: none; }
+.drill-pregenerated summary::-webkit-details-marker { display: none; }
+.drill-pregenerated[open] summary svg { transform: rotate(180deg); }
+.drill-pregenerated .drill-bundled { margin-inline-start: var(--space-8); }
+.drill-bundled-groups { display: grid; gap: var(--space-4); }
+.drill-bundled-buttons { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.drill-bundled-buttons .btn { display: inline-flex; align-items: center; gap: var(--space-3); }
+section.drill-bundled-buttons { display: block; padding-top: var(--space-4); }
+.drill-bundled h3 { margin: 0 0 var(--space-3); font-size: var(--type-body); }
 .drill-starter-action { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3); width: 100%; }
 .drill-starter-busy { display: flex; align-items: center; justify-content: center; gap: var(--space-3); min-height: var(--control-height); margin: 0; border: var(--border-width) solid var(--interaction-line); border-radius: var(--radius-md); background: var(--interaction-tint); color: var(--interaction-ink); font-size: var(--type-ui); font-weight: var(--weight-medium); }
 .drill-starter-spinner { width: var(--space-7); height: var(--space-7); border: var(--border-width-strong) solid var(--interaction-line); border-top-color: var(--interaction-ink); border-radius: var(--radius-circle); animation: drill-starter-spin var(--dur-spin) linear infinite; }
@@ -6360,7 +6446,7 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 /* A line of help that draws a control's icon where the words name it: the
    starter's tip and the Add practice cards list's Keep hint. */
 .drill-hint { display: flex; align-items: center; gap: var(--space-3); margin: 0; color: var(--ink-3); font-size: var(--type-ui); }
-.drill-hint-icon { display: inline-grid; place-items: center; width: var(--control-height-xs); height: var(--control-height-xs); margin-inline: var(--space-2); vertical-align: middle; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); background: var(--sheet); color: var(--interaction-ink); }
+.drill-hint-icon { display: inline-grid; place-items: center; margin-inline: var(--space-2); vertical-align: middle; color: var(--interaction-ink); }
 .drill-starter .drill-hint { margin-top: var(--space-8); }
 /* "Don't show this again" is the shared form checkbox row, in the footer's type beside Close. */
 .drill-starter-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-6); margin-top: var(--space-8); padding-top: var(--space-6); border-top: var(--border-width) solid var(--line-soft); }
@@ -6525,6 +6611,19 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 /* Work of unknown length: the bar says something is happening, not how far. */
 @keyframes take-progress { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
+
+/* The AI pill's moving edge: a bright arc around its outline while AI work runs. */
+@keyframes activity-border-orbit { to { --activity-border-angle: 360deg; } }
+
+/* Panels arrive rather than appear: a tray rises from the row beneath it, a
+   dialog rises and settles, a drawer slides in from its edge. */
+@keyframes panel-rise { from { opacity: 0; transform: translateY(var(--space-8)); } to { opacity: 1; transform: none; } }
+@keyframes dialog-arrive { from { opacity: 0; transform: translateY(var(--space-6)) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes surface-in-from-start { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes surface-in-from-end { from { transform: translateX(100%); } to { transform: none; } }
+
+/* A new step in the composer's AI status line rises into place, like a log line. */
+@keyframes ai-status-arrive { from { opacity: 0; transform: translateY(var(--space-3)); } to { opacity: 1; transform: none; } }
 
 
 

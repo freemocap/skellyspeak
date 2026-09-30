@@ -71,6 +71,8 @@ export interface StoredTurn {
   turnId?: string
   replacesTurnId?: string | null
   replacedBy?: string | null
+  /// Revisions sent in place of this message's earlier versions.
+  fixes?: number
   userSavedGloss?: import('./generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null

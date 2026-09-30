@@ -6,6 +6,10 @@ export type ConnectionHealth = {
   providers?: AccessCheck['providers']
   revision: number
   status: 'checking' | 'connected' | 'disconnected'
+  /// The last finished check at this revision, kept while a re-check runs, so
+  /// returning to the app does not demote a working connection before a
+  /// check actually fails.
+  settled?: 'connected' | 'disconnected'
   checkedAt: number | null
   error: string | null
 }
@@ -16,12 +20,14 @@ type State = {
   begin: (route: ConnectionRoute, revision: number) => void
   offline: () => void
 }
+const settledAt = (previous: ConnectionHealth | undefined, revision: number): ConnectionHealth['settled'] =>
+  previous?.revision !== revision ? undefined : previous.status === 'checking' ? previous.settled : previous.status
 const errorMessage = (error: unknown) => error instanceof Error ? error.message
   : typeof error === 'object' && error !== null && 'message' in error ? String(error.message) : String(error)
 
 export const useConnectionHealth = create<State>((set, get) => ({
   routes: {},
-  begin: (route, revision) => set(state => ({ routes: { ...state.routes, [route]: { revision, status: 'checking', checkedAt: null, error: null } } })),
+  begin: (route, revision) => set(state => ({ routes: { ...state.routes, [route]: { revision, status: 'checking', settled: settledAt(state.routes[route], revision), checkedAt: null, error: null } } })),
   record: (route, revision, error, result) => set(state => ({ routes: { ...state.routes,
     [route]: { revision, providers: result?.providers,
       status: error === undefined && (!result || result.providers.every(provider => provider.state === 'accepted')) ? 'connected' : 'disconnected',
@@ -34,7 +40,7 @@ export const useConnectionHealth = create<State>((set, get) => ({
     const previous = get().routes[route]
     if (previous?.revision === revision && (previous.status === 'checking' ||
       (!force && previous.checkedAt !== null && Date.now() - previous.checkedAt < 60_000))) return
-    const pending: ConnectionHealth = { revision, status: 'checking', checkedAt: null, error: null }
+    const pending: ConnectionHealth = { revision, status: 'checking', settled: settledAt(previous, revision), checkedAt: null, error: null }
     set(state => ({ routes: { ...state.routes, [route]: pending } }))
     try {
       if (!connection.configured) throw new Error('Set up this connection in AI access settings.')

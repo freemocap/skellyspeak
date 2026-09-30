@@ -61,6 +61,14 @@ pub enum SpeechUnavailableReason {
     deny_unknown_fields
 )]
 pub enum SpeechAudioState {
+    Streaming {
+        operation_id: String,
+        message_id: String,
+        execution_id: String,
+        sample_offset: u32,
+        audio_base64: String,
+        alignment: Option<crate::speech::alignment::SpeechAlignment>,
+    },
     Pending {
         operation_id: String,
         message_id: String,
@@ -718,6 +726,8 @@ pub fn bindings() -> String {
         crate::drill::previews::DrillShortfall::decl(&config),
         crate::drill::previews::DrillGenerationPreview::decl(&config),
         crate::drill::DrillItemInput::decl(&config),
+        crate::configuration::practice::PracticeSet::decl(&config),
+        crate::configuration::practice::PracticeSetSummary::decl(&config),
         crate::drill::retention::DrillStorageView::decl(&config),
         crate::drill::sessions::DrillSessionView::decl(&config),
         crate::drill::sessions::DrillVisitView::decl(&config),

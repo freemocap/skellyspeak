@@ -84,6 +84,21 @@
   margin-block: auto 0; margin-inline: 0; width: 100vw; max-width: 100vw; max-height: 85dvh;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: var(--space-8);
 }
+/* A full-screen modal takes the whole screen at every width: content with a
+   chat box or a canvas of its own, which should not share the screen. */
+.detail-dialog.dialog-full { margin: 0; width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; box-shadow: none; resize: none; }
+
+/* Dialogs arrive rather than appear: centered ones rise and settle over a
+   fading scrim, sheets and full screens slide up from the bottom, drawers in
+   from their edge. */
+.detail-dialog[open] { animation: dialog-arrive var(--dur-slow) var(--ease-out); }
+.detail-dialog[open]::backdrop { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
+.detail-dialog:is(.dialog-sheet, .dialog-full)[open] { animation-name: surface-in-from-bottom; }
+.detail-dialog.dialog-drawer[open] { animation-name: surface-in-from-start; }
+.detail-dialog.dialog-drawer[open]:dir(rtl) { animation-name: surface-in-from-end; }
+@media (prefers-reduced-motion: reduce) {
+  .detail-dialog[open], .detail-dialog[open]::backdrop { animation: none; }
+}
 
 /* Shared dialogs can expand to the viewport rather than fixing reports to their initial width. */
 .modal, .detail-dialog { resize: both; min-width: min(280px, 100%); min-height: 100px; }

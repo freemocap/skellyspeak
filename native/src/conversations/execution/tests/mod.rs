@@ -1,6 +1,8 @@
 use super::*;
 
 mod fixtures;
+mod model_comparison;
+mod model_comparison_synthetic;
 use fixtures::*;
 
 mod attempt_bodies;

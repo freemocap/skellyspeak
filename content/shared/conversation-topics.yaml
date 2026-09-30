@@ -2,7 +2,7 @@
 - id: food
   glyph: ☕
   labels:
-    arabic: الطعام والشراب
+    arabic: الطّعام والشّراب
     english: Food and drink
     french: Manger et boire
     german: Essen und Trinken
@@ -33,7 +33,7 @@
 - id: family
   glyph: 👪
   labels:
-    arabic: عائلتك
+    arabic: عائِلَتُك
     english: Your family
     french: Votre famille
     german: Deine Familie
@@ -65,7 +65,7 @@
 - id: weekend
   glyph: 🌤️
   labels:
-    arabic: خطط نهاية الأسبوع
+    arabic: خُطَط نِهاية الأُسبوع
     english: Weekend plans
     french: Projets du week-end
     german: Wochenendpläne
@@ -97,7 +97,7 @@
 - id: place
   glyph: 🗺️
   labels:
-    arabic: مكان تحبه
+    arabic: مَكان تُحِبّه
     english: A place you like
     french: Un endroit que vous aimez
     german: Ein Ort, den du magst
@@ -128,7 +128,7 @@
 - id: day
   glyph: ☀️
   labels:
-    arabic: يومك
+    arabic: يَومُك
     english: Your day
     french: Votre journée
     german: Dein Tag
@@ -160,7 +160,7 @@
 - id: music
   glyph: 🎵
   labels:
-    arabic: الموسيقى
+    arabic: المُوسيقى
     english: Music
     french: Musique
     german: Musik

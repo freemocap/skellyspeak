@@ -1,7 +1,7 @@
+import { ReadingTemplateContext } from '../../../components/reading/ReadingContext'
 import { useId, useState } from 'react'
 import type { ReplyExplanation, AssistedReply, ReplyHelpKind } from '../../../generated/contracts'
 import { Markdown } from '../../../components/reading/Markdown'
-import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { TargetMessage } from '../../../components/reading/TargetMessage'
 import { ReadingExample } from '../../../components/reading/ReadingExample'
 import { MixedText } from '../../../components/reading/MixedText'
@@ -99,14 +99,14 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
             onClick={() => onUse(reply.text, 'suggestion')}><span aria-hidden="true">↗</span></button>
         </li>)}
       </ul>}
-      {starters && starters.length > 0 && <div className="help-starters">
+      {starters && starters.length > 0 && <ReadingTemplateContext value={true}><div className="help-starters">
         <span className="help-starters-label">{tr("Sentence starters")}</span>
         <ul>{starters.map(text => <li key={text}>
-          <span className="help-starter"><TargetPhrase text={text} /><button type="button" className="help-insert" disabled={busy}
+          <div className="help-starter"><TargetMessage provenance={null} layout="compact" text={text} segments={[]} segmentsKey={text} translation={null} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} /><button type="button" className="help-insert" disabled={busy}
             aria-label={tr("Insert starter: {value0}", { value0: text })}
-            onClick={() => onUse(text, 'scaffold')}><span aria-hidden="true">↗</span></button></span>
+            onClick={() => onUse(text, 'scaffold')}><span aria-hidden="true">↗</span></button></div>
         </li>)}</ul>
-      </div>}
+      </div></ReadingTemplateContext>}
     </div>}
 
     {errors.length > 0 && <ErrorDetails label={tr("Reply help")} errorKey={JSON.stringify(errors)}>{errors.join(' · ')}</ErrorDetails>}

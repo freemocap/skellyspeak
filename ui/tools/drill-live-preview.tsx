@@ -25,7 +25,7 @@ import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSetting
 import fixture from './spectrogram-fixture.json'
 import '../src/styles/index.css'
 import { MicrophoneSelector } from '../src/components/media/MicrophoneSelector'
-import { MessageTools } from '../src/components/reading/MessageTools'
+import { TargetMessage } from '../src/components/reading/TargetMessage'
 
 // Exercise the production language menu with an isolated in-memory settings writer.
 mockIPC(command => {
@@ -140,15 +140,14 @@ function Preview() {
     <div className="app">
     <TopBar />
     <div className="content"><div className="page-holder"><section className="drill-page" style={{ '--drill-dock-height': dockHeight === null ? undefined : `${Math.round(dockHeight)}px` } as CSSProperties}>
-      <DrillLayout onAddPhrases={() => {}} items={[phrase]} empty={false} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />}
-        dockResize={<ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={() => dockPane.current?.getBoundingClientRect().height ?? 0} onResize={setDockHeight} />} attempt={firstVisit ? null : attempt} rtl
+      <DrillLayout onAddPhrases={() => {}} items={[phrase]} empty={false} selectedId="fixture" locked={false} onSelect={() => {}} reportResize={<div />} attempt={firstVisit ? null : attempt} rtl
         rail={<PhraseRail items={[phrase]} selectedId="fixture" busy={false} locked={false} onSelect={() => {}} onDelete={async () => {}} onAddPhrases={() => {}}>
           <p>Offline fixture; synthetic attempts. No microphone or AI.</p>
           <div className="drill-actions">{(['tap', 'hold', 'live'] as const).map(option => <button key={option} className="btn" onClick={() => setMode(option)}>Show {option}</button>)}</div>
         </PhraseRail>}
-        dock={<div className="drill-dock-pane" ref={dockPane}>        <RecordDock microphoneSelector={<MicrophoneSelector value={microphoneId} onChange={setMicrophoneId} disabled={live} />} layout={recorder} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
+        dock={<><ResizeHandle label="Resize the recording panel" axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={() => dockPane.current?.getBoundingClientRect().height ?? 0} onResize={setDockHeight} /><div className="drill-dock-pane" ref={dockPane}>        <RecordDock microphoneSelector={<MicrophoneSelector value={microphoneId} onChange={setMicrophoneId} disabled={live} />} layout={recorder} phase={live ? 'recording' : 'ready'} mode={mode} onMode={setMode} autoDetect={autoDetect} onAutoDetect={setAutoDetect} settings={settings} onSettings={setSettings}
           listeningStatus={firstVisit ? null : { ...status, listening: live }} waveSource={live ? source : null} spectrum={firstVisit ? null : liveSpectrum}
-          onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div>}
+          onToggle={() => setLive(value => !value)} onHoldStart={() => setLive(true)} onHoldEnd={() => setLive(false)} /></div></>}
         // Stacked, the page shows its compact attempt strip; the full list opens from it.
         report={<MobileAttemptHistory detail={id => <AttemptInspection attempt={attempts.find(entry => entry.id === id)!} audio={spoken} reference={reference} rtl onDelete={() => {}} deleting={false} />}
           preview={openAttempt => <AttemptRows attempts={attempts} selectedId={attempt.id} onSelect={id => { setSelected(id); openAttempt(id) }} rtl />}>
@@ -159,13 +158,10 @@ function Preview() {
         </div>
       </aside></MobileAttemptHistory>}>
       <main className="drill-stage">
-        <DrillComparison target={<div className="msg chat-message bot with-actions rtl"><span className="target-text" dir="auto">أنا بفهم الخرايط القديمة شوية.</span>
-            <MessageTools play={{ playing: false, onToggle: () => {} }} inspect={null} actions={null}
-              tools={[{ key: 'translate', label: 'Translate', onSelect: () => {} }]}
-              more={[
-                { key: 'words', label: 'Word by word', onSelect: () => {} },
-                { key: 'analysis', label: 'Analysis', opensDialog: true, onSelect: () => {} },
-              ]} /></div>}
+        <DrillComparison target={<TargetMessage text="أنا بفهم الخرايط القديمة شوية." segments={[]} segmentsKey="preview"
+          translation={null} romanization={null} pronunciation={null} layout="bubble" translateLabel={null}
+          segmentsPending={false} lookupWords={false} status={null} annotation={null} provenance={null}
+          addToDrill={false} readAloud={false} speech={null} analysis={{ pending: false, onOpen: () => {} }} focused={false} rtl />}
           playbackSpeed={<label className="drill-playback-speed"><span>Voice speed</span><select className="field" aria-label="Voice speed" value={speed} onChange={event => setSpeed(Number(event.target.value))}>{[0.5, 0.65, 0.8, 1, 1.2, 1.5].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></label>}
           onPlayReference={() => {}} playingReference={false} referenceNote="Fixture"
           reference={firstVisit ? null : timed(reference)} referenceTime={time} onSeekReference={setTime} attempt={firstVisit ? null : timed(spoken, attempt.comparison.words.flatMap(word => word.transcript ? [word.transcript] : []))}

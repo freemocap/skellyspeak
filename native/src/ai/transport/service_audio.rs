@@ -124,6 +124,7 @@ fn decode(bytes: &[u8], outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
     Ok(wav)
 }
 
+#[cfg(test)]
 pub(in crate::ai) async fn synthesize(
     client: &reqwest::Client,
     target: &ResolvedTarget,
@@ -131,11 +132,23 @@ pub(in crate::ai) async fn synthesize(
     input: &SpeechInput,
     install: &str,
 ) -> SpeechOutcome {
+    synthesize_stream(client, target, key, input, install, &|_, _, _| Ok(())).await
+}
+
+pub(in crate::ai) async fn synthesize_stream(
+    client: &reqwest::Client,
+    target: &ResolvedTarget,
+    key: &str,
+    input: &SpeechInput,
+    install: &str,
+    emit: &crate::ai::audio::SpeechSink<'_>,
+) -> SpeechOutcome {
     let mut outcome = SpeechOutcome::empty();
     outcome.audio = async {
         validate(input)?;
         let mut request = client
             .post(&target.url)
+            .header(reqwest::header::ACCEPT, "application/x-ndjson")
             .json(&serde_json::json!({"model": target.model, "text": input.text, "language": input.language, "language_tag": input.language_tag}));
         if !key.is_empty() {
             request = request.bearer_auth(key);
@@ -149,21 +162,28 @@ pub(in crate::ai) async fn synthesize(
             .map_err(|e| crate::diagnostics::response::network(&e, "speech_request"))?;
         let http = crate::diagnostics::response::headers(&response);
         let status = response.status();
-        let bytes = if !status.is_success()
-            && (target.route == ConnectionRoute::Hosted
-                || matches!(status.as_u16(), 400 | 409 | 422 | 502 | 503))
-        {
-            hosted::body_with_private(response, &[key, &input.text]).await
+        outcome.diagnostics = Some(serde_json::json!({"http":http}));
+        let streaming = response.headers().get(reqwest::header::CONTENT_TYPE)
+            .and_then(|v| v.to_str().ok()).is_some_and(|v| v.split(';').next().unwrap_or("").trim() == "application/x-ndjson");
+        let result = if status.is_success() && streaming {
+            super::speech_stream::receive(response, &mut outcome, emit).await
         } else {
-            response_bytes(response, "Speech", target.route, 8 * 1024 * 1024).await
-        }
-        .map_err(|mut error| {
-            if !status.is_client_error() {
-                error.code = ErrorCode::UnknownOutcome;
+            let bytes = if !status.is_success()
+                && (target.route == ConnectionRoute::Hosted
+                    || matches!(status.as_u16(), 400 | 409 | 422 | 502 | 503))
+            {
+                hosted::body_with_private(response, &[key, &input.text]).await
+            } else {
+                response_bytes(response, "Speech", target.route, 8 * 1024 * 1024).await
             }
-            error
-        })?;
-        let result = decode(&bytes, &mut outcome);
+            .map_err(|mut error| {
+                if !status.is_client_error() {
+                    error.code = ErrorCode::UnknownOutcome;
+                }
+                error
+            })?;
+            decode(&bytes, &mut outcome)
+        };
         if outcome.alignment.as_ref().is_some_and(|a| a.source_text != input.text) {
             outcome.alignment = None;
             outcome.diagnostics.as_mut().unwrap()["alignmentValidation"] = serde_json::json!({
@@ -187,6 +207,14 @@ pub(in crate::ai) async fn synthesize(
                 serde_json::json!(resolution);
         }
     }
+    outcome.provider_id = outcome
+        .provider_id
+        .as_ref()
+        .map(|value| crate::diagnostics::response::scrub(value, &[key, &input.text]));
+    outcome.actual_model = outcome
+        .actual_model
+        .as_ref()
+        .map(|value| crate::diagnostics::response::scrub(value, &[key, &input.text]));
     outcome.diagnostics = outcome
         .diagnostics
         .as_ref()

@@ -901,6 +901,7 @@ async def protocol(who: quota.Principal = Depends(diagnostic_user), verify_provi
             "audio": {"version": 1, "routing": audio_service.availability(CFG), "transcription_provider": "groq",
                       "transcription_models": ["whisper-large-v3", "whisper-large-v3-turbo"] + (["scribe_v2"] if CFG.elevenlabs_key else []),
                       "speech_provider": "elevenlabs", "speech_model": CFG.tts_model,
+                      "speech_stream_versions": [2],
                       "speech_ready": bool(CFG.elevenlabs_key and CFG.elevenlabs_voice_id)}}
     if verify_providers:
         result["providers"] = await provider_health.check(CFG)

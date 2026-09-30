@@ -21,6 +21,7 @@ import type { StoredTurn } from '../../../types'
 export type AnalysedTurn = Pick<StoredTurn, 'id' | 'user' | 'analysisState' | 'assistant' | 'userSavedGloss' | 'userTranslation' | 'turnId'>
 
 interface AnalysisContentProps {
+  showMessages?: boolean
   replyHelp?: ReactNode
   partnerOnly?: boolean
   requestOnOpen?: boolean
@@ -37,6 +38,7 @@ interface AnalysisContentProps {
 export const AnalysisContent = memo(function AnalysisContent({
   turn,
   partnerOnly = false,
+  showMessages = true,
   replyHelp,
   requestOnOpen = true,
   conversationId,
@@ -67,7 +69,7 @@ export const AnalysisContent = memo(function AnalysisContent({
   const quoteTranslation = (quote: string) => quote === a?.reply ? a.translation
     : quote === turn.user ? turn.userTranslation ?? a?.user_translation ?? null : null
   if (!a) return <>
-    {!partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} translation={turn.userTranslation} />}
+    {showMessages && !partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} translation={turn.userTranslation} />}
     <p className="center-note">{tr("No partner reply yet.")}</p>
   </>
 
@@ -78,8 +80,8 @@ export const AnalysisContent = memo(function AnalysisContent({
           {tr("⟳ Analyzing grammar…")}</p>
       )}
 
-      {!partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={turn.userTranslation ?? a.user_translation} />}
-      <AnalysisSentence label={tr("Partner replied")} side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={a.translation} />
+      {showMessages && !partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={turn.userTranslation ?? a.user_translation} />}
+      {showMessages && <AnalysisSentence label={tr("Partner replied")} side="bot" text={a.reply} gloss={a.savedGloss} tokens={a.tokens} translation={a.translation} />}
 
       {replyHelp}
 

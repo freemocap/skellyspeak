@@ -2,6 +2,7 @@
 //! redacted execution receipts are durable. Never grants learning credit.
 mod receipts;
 pub(crate) mod saved;
+mod sentence_blanks;
 #[cfg(test)]
 mod tests;
 pub(crate) mod text;
@@ -40,6 +41,7 @@ pub enum ReadingAid {
     Speech,
     Translation,
     Explanations,
+    Completions,
 }
 impl ReadingAid {
     /// The receipt kind recorded for this aid.
@@ -49,6 +51,7 @@ impl ReadingAid {
             ReadingAid::Speech => "token_speech",
             ReadingAid::Translation => "reading_translation",
             ReadingAid::Explanations => "reading_explanations",
+            ReadingAid::Completions => "reading_completions",
         }
     }
     /// The task role that selects this aid's model, shared with conversation turns.
@@ -57,15 +60,16 @@ impl ReadingAid {
             ReadingAid::WordGloss => gloss::ROLE,
             ReadingAid::Speech => crate::ai::connections::model_routing::SPEECH_ROLE,
             ReadingAid::Translation => crate::language::translation::ROLE,
-            ReadingAid::Explanations => support::ROLE,
+            ReadingAid::Explanations | ReadingAid::Completions => support::ROLE,
         }
     }
     fn capability(self) -> access::Capability {
         match self {
             ReadingAid::Speech => access::Capability::Speech,
-            ReadingAid::WordGloss | ReadingAid::Translation | ReadingAid::Explanations => {
-                access::Capability::Chat
-            }
+            ReadingAid::WordGloss
+            | ReadingAid::Translation
+            | ReadingAid::Explanations
+            | ReadingAid::Completions => access::Capability::Chat,
         }
     }
 }
@@ -120,6 +124,12 @@ impl Request {
             return Err(AppError::new(
                 ErrorCode::Validation,
                 format!("Select between 1 and {TEXT_LIMIT} characters for reading help."),
+            ));
+        }
+        if input.aid == ReadingAid::Completions && !sentence_blanks::contains(&input.text, true) {
+            return Err(AppError::new(
+                ErrorCode::Validation,
+                "Sentence completion requires a template with an underscore slot.",
             ));
         }
         let context = store.config.resolve_pair(
@@ -264,13 +274,19 @@ impl Request {
     pub(crate) fn explanations_dispatch(&self) -> Result<(TextRequest, serde_json::Value)> {
         let mut captured = self.captured();
         captured["messages"] = serde_json::json!([]);
-        let schema = support::schema_for_context(support::EXPLANATIONS, &captured);
-        let messages = support::prompt_for_exchange(
+        let mut schema = support::schema_for_context(support::EXPLANATIONS, &captured);
+        let mut messages = support::prompt_for_exchange(
             self.input.text.clone(),
             None,
             support::EXPLANATIONS,
             &captured,
         )?;
+        if sentence_blanks::contains(&self.input.text, self.input.aid == ReadingAid::Completions) {
+            schema["properties"]["cards"]["minItems"] = serde_json::json!(2);
+            schema["properties"]["cards"]["maxItems"] = serde_json::json!(3);
+            messages[0].content.push('\n');
+            messages[0].content.push_str(sentence_blanks::INSTRUCTION);
+        }
         Ok((self.text_request(messages), schema))
     }
     /// A translation request through the conversation translation contract:

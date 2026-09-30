@@ -25,6 +25,18 @@ it('keeps repeated occurrences distinct and leaves silence unhighlighted', () =>
   expect(spokenWordAt(words, 0.4)?.start).toBe(3)
 })
 
+it('follows only complete exact-source words while alignment is still arriving', () => {
+  for (const text of ['Hola mundo', 'مرحبا بالعالم', 'cafe\u0301 next']) {
+    const prefix = text.slice(0, text.indexOf(' ') + 2)
+    const partial = alignment(text, `[cue] ${prefix}`)
+    expect(speechWords(text, partial)).toEqual([])
+    const words = speechWords(text, partial, true)
+    expect(words).toHaveLength(1)
+    expect(text.slice(words[0].start, words[0].end)).toBe(text.slice(0, text.indexOf(' ')))
+  }
+  expect(speechWords('go going', alignment('go going', 'go go'), true)).toEqual([])
+})
+
 it('uses the original timing when normalized speech rewrites source text', () => {
   const data = alignment('café')
   expect(speechWords('café', { ...data, normalized: alignment('cafe').original })).toEqual(speechWords('café', data))

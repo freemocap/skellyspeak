@@ -112,6 +112,9 @@
   --success-ink: #086581;
   --success-line: #79c9e2;
   --success-tint: #def4fc;
+  /* The AI pill's connected mark: green, by request, where success is cyan.
+     Not connected is red beside it, so the pill also says so in words. */
+  --connected-mark: #3f9a6a;
   --warning-ink: #8a4e0a;
   --warning-line: #c78a2f;
   --warning-tint: #fbebd6;
@@ -299,6 +302,8 @@
        --node-color      skill-domain colour      components/learning/DomainEvidenceTree.tsx
        --live-wave-height  live waveform height    components/media/LiveRecording.tsx
        --chat-voice-height dragged recording panel features/conversation/ConversationPage.tsx
+       --reply-help-height  dragged reply help     features/conversation/ConversationPage.tsx
+       --ai-tray-height     dragged AI tray        features/activity/AiViewPanel.tsx
        --drill-*         resized drill panes      features/drill/DrillPage.tsx, DrillComparison.tsx
                          (the plot rows are grid track sizes: the reference shares
                          the stage at full width and has its own height stacked) */
@@ -314,6 +319,8 @@
   --drill-rail-width: 15rem;
   --drill-report-width: 24rem;
   --chat-voice-height: auto;
+  --reply-help-height: min(320px, 38dvh);
+  --ai-tray-height: min(260px, 34dvh);
   --drill-dock-height: auto;
   --drill-reference-row: 1fr;
   --drill-attempt-row: minmax(8rem, 18dvh);
@@ -333,6 +340,8 @@
 /* Dark: the same roles in graphite. Muted text stays readable at small sizes. */
 :root[data-theme='dark'] {
   color-scheme: dark;
+  /* Floating surfaces need a lit edge and soft halo against dark surroundings. */
+  --shadow-floating: 0 0 0 1px rgb(255 255 255 / 32%), 0 0 24px rgb(255 255 255 / 14%), 0 16px 40px rgb(0 0 0 / 48%);
   --bg: #141517;
   --chrome: #1b1d20;
   --sheet: #24262a;
@@ -379,6 +388,7 @@
   --success-ink: #75d6f5;
   --success-line: #75d6f5;
   --success-tint: color-mix(in srgb, #75d6f5 16%, transparent);
+  --connected-mark: #6cc995;
   --warning-ink: #f0a957;
   --warning-line: #f0a957;
   --warning-tint: color-mix(in srgb, #f0a957 16%, transparent);

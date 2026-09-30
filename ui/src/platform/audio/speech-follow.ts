@@ -15,7 +15,7 @@ export function publishSpeechFollow(next: SpeechFollow | null) {
   listeners.forEach(listener => listener())
 }
 
-export interface SpeechFollowSource { text: string; alignment?: SpeechAlignment | null; context?: { text: string; start: number } }
+export interface SpeechFollowSource { text: string; alignment?: SpeechAlignment | null; context?: { text: string; start: number }; partial?: boolean }
 
 /** Both continuous playback and audible scrubbing use the same visual timing. */
 export function createSpeechFollower(source?: SpeechFollowSource) {
@@ -24,8 +24,8 @@ export function createSpeechFollower(source?: SpeechFollowSource) {
   const context = source?.context
   const anchored = context && context.text.slice(context.start, context.start + text.length) === text ? context : null
   const anchor = (word: SpokenWord) => ({ ...word, start: word.start + (anchored?.start ?? 0), end: word.end + (anchored?.start ?? 0) })
-  let words = speechWords(text, source?.alignment).map(anchor)
-  const estimated = words.length === 0
+  let words = speechWords(text, source?.alignment, source?.partial).map(anchor)
+  const estimated = words.length === 0 && !source?.partial
   let estimatedDuration = 0
   return {
     update(seconds: number, duration: number) {

@@ -270,6 +270,7 @@
   position: fixed; inset: var(--space-8); z-index: var(--z-modal);
   border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
   box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-floating);
+  animation: dialog-arrive var(--dur-slow) var(--ease-out);
 }
 
 @media (pointer: coarse) and (min-width: 860px) {
@@ -289,6 +290,7 @@
   .ai-node[data-phase=running]::after, [data-phase=running] > .ai-node-dot, .ai-node-dot[data-phase=running], .ai-timeline-bar[data-phase=running] { animation: none; }
   .ai-node[data-phase=running] { border-color: var(--interaction-ink); }
   .ai-node[data-phase=running]::after { display: none; }
+  .logs-panel:has(> .ai-view[data-mode=docked]), .logs-panel.ai-panel-expanded, .ai-tray { animation: none; }
 }
 
 /* Static definitions use the same graph geometry with no execution state. */
@@ -312,7 +314,49 @@
   border-top: var(--border-width) solid var(--line);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: 0 -6px 20px color-mix(in srgb, var(--ink) 16%, transparent);
+  /* Opening slides the dock up from the bottom rather than dropping it in. */
+  animation: surface-in-from-bottom var(--dur-slow) var(--ease-out);
 }
 @media (pointer: coarse) {
   .ai-definition-toolbar .field { min-height: 44px; }
 }
+
+/* Phones: both views lead with the live graph, stacked down the screen as a
+   tree; the tapped operation's details follow beneath, secondary. Controls sit
+   in the view's own header, so no column is given up to a floating close
+   button. The tray rises above the recording panel, into the slot its page
+   gives it, like reply help: one header line, then the graph. The full screen
+   adds the summary and the exchanges under its title line. */
+.ai-tray-slot { display: contents; }
+.ai-tray {
+  flex: none; box-sizing: border-box; display: flex; flex-direction: column;
+  width: 100%; height: var(--ai-tray-height); min-height: 0; overflow: hidden;
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-lg);
+  background: var(--chrome); box-shadow: var(--shadow-sm);
+  animation: panel-rise var(--dur-slow) var(--ease-out);
+}
+.ai-tray-resize { flex: none; margin-block: 0; background: color-mix(in srgb, var(--interaction-fill) 13%, var(--chrome)); }
+.ai-tray-resize::after { background: transparent; }
+.ai-tray-resize::before { top: calc(50% - 2px); inset-inline-start: calc(50% - 24px); width: 48px; height: 4px; }
+.detail-dialog.ai-screen { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-actions { margin-inline-start: auto; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-spacer { display: none; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-body { display: block; overflow-y: auto; overscroll-behavior: contain; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-view-main { height: 100%; overflow: hidden; padding: var(--space-3); }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-graph { flex: 1 1 auto; min-height: 0; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-inspector-resize { display: none; }
+.ai-view:is([data-mode=screen], [data-mode=tray]) .ai-inspector-slot { min-height: 0; max-height: none; }
+.ai-view[data-mode=screen] .ai-view-head { padding: var(--space-3) var(--space-3) var(--space-3) var(--space-6); border-bottom-color: var(--line-soft); }
+.ai-view[data-mode=screen] .ai-view-title { order: -2; font-size: var(--type-body); }
+.ai-view[data-mode=screen] .ai-view-actions { order: -1; }
+.ai-view[data-mode=screen] .ai-view-head > .activity-summary { flex-basis: 100%; }
+.ai-view[data-mode=screen] .ai-exchanges { max-width: 100%; flex-basis: 100%; }
+.ai-view[data-mode=screen] .ai-icon-button { width: var(--control-height); height: var(--control-height); }
+/* The tray's one line: the title, what is running, cut short, and its controls. */
+.ai-view[data-mode=tray] .ai-view-head { flex-wrap: nowrap; gap: var(--space-3); padding: 0 var(--space-2) var(--space-1) var(--space-4); border-bottom-color: var(--line-soft); }
+.ai-view[data-mode=tray] .ai-view-title { flex: none; font-size: var(--type-meta); }
+.ai-view[data-mode=tray] .ai-view-head > .activity-summary { flex: 1 1 0; font-size: var(--type-meta); }
+
+/* The stacked graph's edges leave a node from its lower start corner and run
+   down the start side into each dependent, like a tree's branches. */
+.ai-graph[data-orientation=down] .react-flow__handle-bottom { left: var(--space-7); }

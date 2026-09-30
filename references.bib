@@ -659,6 +659,12 @@
   review = {full-text},
   claim = {With Scribe v2, no_verbatim removes filler words, false starts and disfluencies. These transcripts cannot represent omitted fillers or restarts as learner evidence.}
 }
+@misc{speech_stream_timestamps,
+  title = {Stream speech with timing API reference},
+  url = {https://elevenlabs.io/docs/api-reference/text-to-speech/stream-with-timestamps},
+  review = {reviewed},
+  claim = {The timestamp streaming endpoint returns successive JSON audio chunks with separate original and normalized character alignment. Complete input text is submitted upfront.}
+}
 @misc{elevenlabs_tts_20260917,
   author = {{ElevenLabs}},
   title = {Create speech API reference},
@@ -1305,4 +1311,183 @@
   url = {https://courses.ischool.berkeley.edu/i262/s13/content/chan/lab5-super-mario-coin-bank.html},
   review = {reviewed},
   claim = {Reviewed student implementation of a two-pitch coin cue. Provides B5 to E6 as a recreation reference; does not establish exact original waveform or envelope. Preview uses independently synthesized pulse harmonics and envelopes.}
+}
+
+
+@misc{speech_buffer_schedule,
+  title = {AudioBufferSourceNode start method},
+  url = {https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode/start},
+  review = {reviewed},
+  claim = {Buffer sources can be scheduled on the audio context clock. Supports contiguous PCM scheduling independent of network arrival; does not establish device latency or audible quality in this application.}
+}
+
+@misc{speech_time_scale_review,
+  title = {A Review of Time-Scale Modification of Music Signals},
+  author = {Jonathan Driedger and Meinard Mueller},
+  year = {2016},
+  url = {https://www.audiolabs-erlangen.de/content/resources/MIR/00_PCD_AudioLabs/2016_DriedgerMueller_TSMOverview_AppliedSciences_ePrint.pdf},
+  review = {reviewed},
+  claim = {Waveform similarity overlap-add adjusts the placement of overlapping windows to change duration while preserving pitch. Supports the playback algorithm choice; does not establish speech intelligibility or perceptual quality of this implementation.}
+}
+
+@misc{practice-idioms-english,
+  title = {English idioms},
+  author = {{EF Education First}},
+  url = {https://www.ef.com/wwen/english-resources/english-idioms/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the english practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-spanish,
+  title = {Spanish idioms},
+  author = {{Inklingo}},
+  url = {https://www.inklingo.app/spanish/idioms},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the spanish practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-french,
+  title = {French idioms},
+  author = {{Preply}},
+  url = {https://preply.com/en/blog/french-idioms/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the french practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-german,
+  title = {Liste deutscher Redewendungen},
+  author = {{Wikipedia contributors}},
+  url = {https://de.wikipedia.org/wiki/Liste_deutscher_Redewendungen},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the german practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-italian,
+  title = {Espressioni idiomatiche con la parola acqua},
+  author = {{Zanichelli}},
+  url = {https://aulalingue.scuola.zanichelli.it/benvenuti/2013/02/07/espressioni-idiomatiche-con-la-parola-acqua-1/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the italian practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-portuguese,
+  title = {Lista de expressoes idiomaticas},
+  author = {{Observatorio da Lingua Portuguesa}},
+  url = {https://observalinguaportuguesa.org/lista-de-expressoes-idiomaticas/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the portuguese practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-russian,
+  title = {Russian idioms},
+  author = {{ThoughtCo}},
+  url = {https://www.thoughtco.com/russian-idioms-4178475},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the russian practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-ukrainian,
+  title = {Ukrainian phraseological expressions and meanings},
+  author = {{Institut.cn.ua}},
+  url = {https://institut.cn.ua/frazeologizmy-ukrayinskoyi-movy-100-pryklad-iv-zi-znachennyam/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the ukrainian practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-japanese,
+  title = {Japanese idioms and proverbs},
+  author = {{LearnJapanese.co}},
+  url = {https://www.learnjapanese.co/blog/learn-japanese-idioms-and-proverbs/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the japanese practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-korean,
+  title = {Korean idiomatic expressions},
+  author = {{KBSTest.cloud}},
+  url = {https://kbstest.cloud/expressions},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the korean practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-mandarin,
+  title = {Chinese idiom dictionary},
+  author = {{YouHSK}},
+  url = {https://youhsk.com/thanh-ngu/},
+  review = {abstract},
+  claim = {Attests conventional expression forms used in the mandarin practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-vietnamese,
+  title = {Thanh ngu Viet Nam},
+  author = {{Wikiquote contributors}},
+  url = {https://vi.wikiquote.org/wiki/Th%C3%A0nh_ng%E1%BB%AF_Vi%E1%BB%87t_Nam},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the vietnamese practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-hindi,
+  title = {Hindi idioms and meanings},
+  author = {{Leverage Edu}},
+  url = {https://leverageedu.com/blog/hi/muhavara/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the hindi practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-malayalam,
+  title = {Malayalam idioms},
+  author = {{PSC Arivukal}},
+  url = {https://www.pscarivukal.com/2023/05/Idioms.html},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the malayalam practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-irish,
+  title = {Cupla Focal: A Couple of Irish Gaelic Words 15},
+  author = {{Birmingham Irish Association}},
+  url = {https://www.birish.org.uk/cupla-focal-a-couple-of-irish-gaelic-words-15},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the irish practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-indonesian,
+  title = {Buah tangan and examples of idioms},
+  author = {{detikBali}},
+  url = {https://www.detik.com/bali/berita/d-6448137/buah-tangan-artinya-apa-ini-contoh-kalimatnya},
+  review = {abstract},
+  claim = {Attests conventional expression forms used in the indonesian practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-turkish,
+  title = {Turkce Deyimler Sozlugu},
+  author = {{Turk Dili ve Edebiyati}},
+  url = {https://www.turkedebiyati.org/turkce-deyimler-sozlugu/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the turkish practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
+}
+
+@misc{practice-idioms-arabic,
+  title = {Arabic proverbs},
+  author = {{The Mezzofanti Guild}},
+  url = {https://www.mezzoguild.com/learn/arabic/arabic-proverbs/},
+  review = {full-text},
+  claim = {Attests conventional expression forms used in the arabic practice bank.},
+  note = {Consulted 2026-09-30. Supplementary sources and limits are in docs/notes/practice-idioms-sources.md. Authored practice sentences still need speaker review.}
 }

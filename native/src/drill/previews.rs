@@ -14,6 +14,10 @@ use ts_rs::TS;
 )]
 pub enum DrillSource {
     Own,
+    Bundled {
+        set: crate::configuration::practice::PracticeSet,
+        content_hash: String,
+    },
     Generated {
         #[ts(optional)]
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -84,7 +88,14 @@ pub(crate) fn valid_text(text: &str) -> bool {
     !text.trim().is_empty() && text.encode_utf16().count() <= 512 && !text.contains('\0')
 }
 pub(crate) fn duplicate(db: &Connection, scope: &LanguageContext, text: &str) -> Result<bool> {
-    Ok(db.query_row("SELECT EXISTS(SELECT 1 FROM drill_items WHERE language_id=?1 AND variety_id=?2 AND text=?3 AND archived=0)",params![scope.language_id,scope.variety_id,text],|r|r.get(0))?)
+    Ok(existing_item(db, scope, text)?.is_some())
+}
+pub(crate) fn existing_item(
+    db: &Connection,
+    scope: &LanguageContext,
+    text: &str,
+) -> Result<Option<String>> {
+    Ok(db.query_row("SELECT id FROM drill_items WHERE language_id=?1 AND variety_id=?2 AND text=?3 AND archived=0 ORDER BY rowid LIMIT 1",params![scope.language_id,scope.variety_id,text],|r|r.get(0)).optional()?)
 }
 #[derive(Deserialize, Serialize)]
 pub(crate) struct PreviewInput {

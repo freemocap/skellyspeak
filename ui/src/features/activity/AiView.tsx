@@ -21,7 +21,11 @@ import { ExchangeTimeline } from './ExchangeTimeline'
 import { GenerationActivity } from './GenerationActivity'
 import { useAttemptStreamSync, useReplyStream } from '../../state/session/attempt-streams'
 
-export type AiViewMode = 'docked' | 'expanded' | 'window'
+/// The phone's views lead with the live graph, stacked down the screen so it
+/// stays readable, with the tapped operation inspected beneath it. `screen`
+/// fills the phone; `tray` sits above the recording panel under a single
+/// header line, leaving exchanges to the full screen.
+export type AiViewMode = 'docked' | 'expanded' | 'window' | 'screen' | 'tray'
 
 interface Selection {
   conversationId: string | null
@@ -115,18 +119,20 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
   const summary = useMemo(() => turn ? turnActivity(turn, replyText) : null, [turn, replyText])
   const selectedAttempt = turn && operation ? latestAttempt(turn, operation.id) : null
   const pick = (turnId: string) => setSelection(current => ({ ...current, turnId: turnId === turns[0]?.id ? null : turnId }))
+  const phone = mode === 'screen' || mode === 'tray'
 
   const renderHeader = (controls?: ReactNode) => (
     <header className="ai-view-head">
       <h2 className="ai-view-title">{tr('AI activity')}</h2>
       {!definition && summary && <ActivitySummary activity={summary} showLast={false} />}
-      <div role="group" aria-label={tr('AI activity view')}>
+      {/* Definitions are a graph to read at a desk; the phone keeps recorded runs. */}
+      {!phone && <div role="group" aria-label={tr('AI activity view')}>
         <button type="button" className="ai-chip" aria-pressed={!definition} disabled={!selectionLoaded} onClick={() => setDefinition(undefined)}>{tr('Recorded runs')}</button>
         <button type="button" className="ai-chip" aria-pressed={!!definition} disabled={!selectionLoaded} onClick={() => setDefinition(current => current ?? lastDefinition.current ?? { graphId: '', operationKind: null })}>{tr('Graph definitions')}</button>
-      </div>
+      </div>}
       {controls}
       <div className="ai-view-spacer" />
-      {!definition && <div className="ai-exchanges" role="group" aria-label={tr('Exchanges')}>
+      {!definition && mode !== 'tray' && <div className="ai-exchanges" role="group" aria-label={tr('Exchanges')}>
         <button type="button" className="ai-chip" aria-pressed={following} onClick={() => setSelection(current => ({ ...current, turnId: null }))} title={tr('Follow the newest exchange')}>{tr('Follow live')}</button>
         {turns.map(item => {
           const failed = item.operations.some(op => ['failed', 'unknown'].includes(operationPhase(op.state) ?? ''))
@@ -150,14 +156,14 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
         {selectedAttempt && <AttemptBodies attempt={selectedAttempt} />}
       </OperationInspector>}>
       <div className="ai-view-main">
-        {turn ? <ActivityGraph turn={turn} selectedKind={operation?.kind ?? null} onSelect={kind => setSelection(current => ({ ...current, kind }))} now={now} />
+        {turn ? <ActivityGraph turn={turn} orientation={phone ? 'down' : 'across'} follow={mode === 'tray'} selectedKind={operation?.kind ?? null} onSelect={kind => setSelection(current => ({ ...current, kind }))} now={now} />
           : <p className="ai-muted">{conversationId && !activity.error && !selectionError && (!selectionReady || (restoring && activity.hasOlder)) ? tr('Loading…') : tr('No recorded AI operations.')}</p>}
-        {turn && mode !== 'docked' && <ExchangeTimeline turn={turn} now={now} />}
-        <details className="ai-other">
+        {turn && (mode === 'expanded' || mode === 'window') && <ExchangeTimeline turn={turn} now={now} />}
+        {!phone && <details className="ai-other">
           <summary>{tr('Other AI activity')}</summary>
           {snapshot?.transcriptionAttempts.map(attempt => <details key={attempt.id}><summary>{attempt.model} · {attempt.state}</summary>{attempt.error && <p>{attempt.error}</p>}<ResponseDetails value={attempt.diagnostics} /></details>)}
           <GenerationActivity /><ReadingActivity />
-        </details>
+        </details>}
       </div>
 
     </AiSplit>

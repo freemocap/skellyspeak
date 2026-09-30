@@ -28,7 +28,7 @@ mockIPC(command=> { if(command==='get_snapshot') return {languages:registry}; th
 await loadLanguages()
 const segments = [{start:0,end:4,kind:'gloss' as const,gloss:'hello',pronunciation:'oh-la'},{start:6,end:11,kind:'gloss' as const,gloss:'world'}]
 const services: ReadingServices = {
-  read: async input => input.aid === 'translation' ? {gloss:null,audioBase64:null,translation:`Fixture translation of “${input.text}” (no request sent).`,receipt:{fixture:true}} as ReadingResult : ({gloss:{segments: input.text==='Hola, mundo.'?segments:[...input.text.matchAll(/[\p{L}\p{M}]+/gu)].map(match => ({start:match.index,end:match.index+match[0].length,kind:'gloss',gloss:match[0].includes('قديم')?'old':match[0].includes('بيوت')?'houses':'fixture meaning',romanization:match[0].includes('قديم')?'qadīme':undefined})),coverage:'complete'},audioBase64:null,receipt:{fixture:true}} as ReadingResult),
+  read: async input => (input.aid === 'explanations' || input.aid === 'completions') ? {gloss:null,audioBase64:null,audioAlignment:null,translation:null,explanations:{cards:(input.text.includes('__') ? ['Quiero agua.', 'Quiero café.'] : [input.text]).map((example, index) => ({quote:input.text,title:`Fixture option ${index + 1}`,body:'Deterministic explanation for layout review; no provider request.',example,contrast:''}))},receipt:{fixture:true}} : input.aid === 'translation' ? {gloss:null,audioBase64:null,translation:`Fixture translation of “${input.text}” (no request sent).`,receipt:{fixture:true}} as ReadingResult : ({gloss:{segments: input.text==='Hola, mundo.'?segments:[...input.text.matchAll(/[\p{L}\p{M}]+/gu)].map(match => ({start:match.index,end:match.index+match[0].length,kind:'gloss',gloss:match[0].includes('قديم')?'old':match[0].includes('بيوت')?'houses':'fixture meaning',romanization:match[0].includes('قديم')?'qadīme':undefined})),coverage:'complete'},audioBase64:null,receipt:{fixture:true}} as ReadingResult),
   speak: async () => { throw new Error('Offline preview: no speech request was sent.') },
   activity: async () => [{fixture:true}],
 }
@@ -64,6 +64,8 @@ createRoot(document.getElementById('root')!).render(<I18nProvider locale="englis
     {scope:{language:'arabic',variety:'arabic-levantine',explanation:'english',explanationVariety:'english-united-states'},text:'القديمة',segments:[{start:0,end:7,kind:'gloss',gloss:'old',romanization:'qadīme'}]},
   ]}><main style={{padding:24,maxWidth:1100,margin:'auto',height:'100vh',overflow:'auto'}}>
     <h1>Reading controls — offline fixture</h1><p>Click a word, then its help or speaker control. Select text in the editor or source block. Speech reports a fixture error; no provider is called.</p>
+    <h2>Reply and starter controls</h2>
+    <div style={{maxWidth:380}}><ReplyHelp inline opened={['replies']} replies={[{text:'Quiero agua.',translation:'I want water.',romanization:'',pronunciation:''}]} starters={['Quiero __.']} busy={false} errors={[]} onUse={()=>{}} /></div>
     <ReadingLanguageScope language="arabic" variety="arabic-levantine"><section style={{'--script-scale':1.5} as React.CSSProperties}>
       <p className="msg chat-message bot"><SavedGlossText text="مَسْكَنُك، هَل تُحِبُّ المَسالِكَ الجَدِيدَة؟" segments={[{start:11,end:14,kind:'gloss',gloss:'question'},{start:15,end:22,kind:'gloss',gloss:'like',romanization:'tuḥibbu'}]} /></p>
       <ReadingAnalysisFixture />

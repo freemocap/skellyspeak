@@ -1,3 +1,5 @@
+import { ReadingTemplateContext } from './ReadingContext'
+import { sentenceBlanks } from '../../domain/reading/sentence-blanks'
 import { createPortal } from 'react-dom'
 import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { TokenAudio } from './TokenAudio'
@@ -10,7 +12,7 @@ import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
 import { useReadingPreferences } from './ReadingPreferences'
 import { glossDisplayGroups } from '../../domain/reading/gloss-display'
-import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { Fragment, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react'
 import type { GlossSegment } from '../../generated/contracts'
 
 function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement | null>; onClose: () => void }) {
@@ -19,7 +21,7 @@ function PinnedGlossLayer({ host, onClose }: { host: RefObject<HTMLSpanElement |
 }
 
 /** Saved UTF-16 anchors select exact source occurrences; reading never requests analysis. */
-export function SavedGlossText({ text, segments, afterSegment, decorateSegment, interactive = true, showAids = true, revealAids = false }: { revealAids?: boolean; showAids?: boolean; interactive?: boolean; text: string; segments: GlossSegment[]; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
+export function SavedGlossText({ text, segments, afterSegment, decorateSegment, interactive = true, showAids = true, revealAids = false, showSound }: { showSound?: boolean; revealAids?: boolean; showAids?: boolean; interactive?: boolean; text: string; segments: GlossSegment[]; afterSegment?: (start: number, end: number) => ReactNode; decorateSegment?: (node: ReactNode, start: number, end: number) => ReactNode }) {
   const tr = useI18n()
   const uiDirection = useUiDirection()
   const { autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization } = useReadingPreferences()
@@ -69,17 +71,20 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
   useEffect(() => { setRevealed(new Set()); setHovered(null) }, [text])
   const pieces = []
   let cursor = 0
-  for (const segment of glossDisplayGroups(text, segments)) {
+  const template = useContext(ReadingTemplateContext)
+  const blanks = sentenceBlanks(text, template)
+  const wordSegments = segments.filter(segment => !blanks.some(blank => segment.start < blank.end && segment.end > blank.start))
+  for (const segment of glossDisplayGroups(text, wordSegments)) {
     const annotations = segment.parts.filter(part => part.kind === 'gloss' && part.gloss !== null)
     // Under the word, a clitic group reads as one word: its sounds run together
     // ("al-" + "aklah" → "al-aklah") and its meanings read as a phrase. The
     // per-part values stay in the helper, where there is room.
-    const phrase = (field: 'gloss' | 'romanization' | 'pronunciation') => annotations.map(part => field === 'pronunciation' && part.romanization ? undefined : part[field]).filter(Boolean).join(field === 'gloss' ? ' ' : '')
+    const phrase = (field: 'gloss' | 'romanization' | 'pronunciation') => annotations.map(part => field === 'pronunciation' && supportsRomanization && part.romanization ? undefined : part[field]).filter(Boolean).join(field === 'gloss' ? ' ' : '')
     const joined = (field: 'gloss' | 'romanization' | 'pronunciation', className: string) => {
       const value = phrase(field)
       return value ? <span className={className} dir="auto" data-gloss-start={segment.start} data-gloss-end={segment.end}>{value}</span> : null
     }
-    if (segment.start > cursor) pieces.push(<Fragment key={`gap-${cursor}`}><UnannotatedText inline text={text.slice(cursor, segment.start)} interactive={interactive} /></Fragment>)
+    if (segment.start > cursor) pieces.push(<Fragment key={`gap-${cursor}`}><UnannotatedText inline source={{ text, start: cursor }} text={text.slice(cursor, segment.start)} interactive={interactive} /></Fragment>)
     const source = text.slice(segment.start, segment.end)
     const open = revealed.has(segment.start)
     const hovering = hovered === segment.start && !open
@@ -110,15 +115,15 @@ export function SavedGlossText({ text, segments, afterSegment, decorateSegment, 
             />
           </span>)}
           {showAids && (revealAids || autoTranslate) && joined('gloss', 'wg')}
-          {showAids && (revealAids || alwaysRomanize) && supportsRomanization && joined('romanization', 'wroman')}
-          {showAids && (revealAids || alwaysPronunciation) && joined('pronunciation', 'wpronunciation')}
+          {(showSound ?? (showAids && (revealAids || alwaysRomanize))) && supportsRomanization && joined('romanization', 'wroman')}
+          {(showSound ?? (showAids && (revealAids || alwaysPronunciation))) && joined('pronunciation', 'wpronunciation')}
         </span>
-      : <UnannotatedText inline key={segment.start} text={source} interactive={interactive} />
+      : <UnannotatedText inline source={{ text, start: segment.start }} key={segment.start} text={source} interactive={interactive} />
     pieces.push(decorateSegment ? <Fragment key={segment.start}>{decorateSegment(piece, segment.start, segment.end)}</Fragment> : piece)
     if (afterSegment) pieces.push(<Fragment key={`credit-${segment.start}`}>{afterSegment(cursor, segment.end)}</Fragment>)
     cursor = segment.end
   }
-  if (cursor < text.length) pieces.push(<Fragment key={`gap-${cursor}`}><UnannotatedText inline text={text.slice(cursor)} interactive={interactive} /></Fragment>)
+  if (cursor < text.length) pieces.push(<Fragment key={`gap-${cursor}`}><UnannotatedText inline source={{ text, start: cursor }} text={text.slice(cursor)} interactive={interactive} /></Fragment>)
   if (afterSegment && cursor < text.length) pieces.push(<Fragment key="credit-tail">{afterSegment(cursor, text.length)}</Fragment>)
   return <SpeechFollowText text={text}><span className="w preserve-space" dir="auto">{pieces}</span></SpeechFollowText>
 }

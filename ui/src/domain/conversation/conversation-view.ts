@@ -1,5 +1,6 @@
 import type { ConversationSnapshot } from '../../generated/contracts'
 import type { StoredTurn } from '../../types'
+import { fixCount } from './fixes'
 import { replyHelp } from './reply-help'
 import { replyState } from './reply-state'
 
@@ -15,7 +16,7 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
     let turn = byIdentity.get(message.turnId)
     if (!turn) {
       const execution = snapshot.turns.find(item => item.id === message.turnId)
-      turn = { replyState: replyState(execution, snapshot), execution, id: message.sequence, turnId: message.turnId, replacesTurnId: message.replacesTurnId, replacedBy: message.replacedBy, user: null, assistant: null, analysisState: null }
+      turn = { replyState: replyState(execution, snapshot), execution, id: message.sequence, turnId: message.turnId, replacesTurnId: message.replacesTurnId, replacedBy: message.replacedBy, fixes: fixCount(message.turnId, snapshot.turns), user: null, assistant: null, analysisState: null }
       byIdentity.set(message.turnId, turn)
       turns.push(turn)
     }

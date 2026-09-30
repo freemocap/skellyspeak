@@ -1,15 +1,18 @@
+import { useMessageToolDefinitions } from './useMessageToolDefinitions'
+import { sentenceBlanks } from '../../domain/reading/sentence-blanks'
+import { readingWords } from '../../domain/reading/word-boundaries'
 import { bubbleSelection } from './bubble-selection'
 import { AddToDrillButton } from './AddToDrillButton'
 import { ProvenanceTip, type MessageProvenance } from './MessageProvenance'
 import { SelectionRing } from './SelectionRing'
 import { MessageTools, type MessageInspect, type MessageTool } from './MessageTools'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { GlossSegment } from '../../generated/contracts'
 import { errorDetails, errorMessage } from '../../platform/diagnostics/error-details'
 import { ErrorDetails } from '../feedback/ErrorDetails'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { useI18n } from '../localization/i18n'
-import { useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
+import { ReadingTemplateContext, useReadingActions, useReadingLookup, useReadingPeek, useReadingScope } from './ReadingContext'
 import { useReadAloud } from './useReadAloud'
 import { useReadingAidSpace, useReadingPreferences } from './ReadingPreferences'
 import { SavedGlossText } from './SavedGlossText'
@@ -36,6 +39,8 @@ export interface TargetMessageAnalysis {
 }
 
 export interface TargetMessageProps {
+  /** Explicit list-wide actions; null leaves this aid under individual control. */
+  bulkReading?: { translations: boolean | null; phonetics: boolean | null }
   /** Optional source presentation; the complete text still owns tools and speech. */
   sourcePresentation?: ReactNode
   side?: 'me' | 'bot'
@@ -53,7 +58,7 @@ export interface TargetMessageProps {
   translateLabel: string | null
   /// Saved meanings for this message are still being produced.
   segmentsPending: boolean
-  /// Word by word and Translate may request aids through the reading lookup.
+  /// Words and Translate may request aids through the reading lookup.
   lookupWords: boolean
   /// Owner-supplied progress and failures for this message's aids.
   status: ReactNode
@@ -74,6 +79,8 @@ export interface TargetMessageProps {
   /// Owner-supplied content shown directly under the text.
   annotation: ReactNode
   speech: TargetMessageSpeech | null
+  /// Null uses shared reading analysis when lookup is enabled; conversation
+  /// owners supply their own saved-message analysis handler.
   analysis: TargetMessageAnalysis | null
   /// The audio inspector's toggle, when the owner can inspect this message's audio.
   inspect?: MessageInspect | null
@@ -90,12 +97,19 @@ export interface TargetMessageProps {
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
   segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, practiceAction, provenance, readAloud = true, side = 'bot',
-  inspect = null, inspector, onSelect, sourcePresentation,
+  inspect = null, inspector, onSelect, sourcePresentation, bulkReading,
 }: TargetMessageProps) {
   const tr = useI18n()
+  const messageTools = useMessageToolDefinitions()
   const preferences = useReadingPreferences()
   const scope = useReadingScope(), saved = useSavedReading(), peek = useReadingPeek(), lookup = useReadingLookup()
   const shared = useReadAloud(text)
+  const template = useContext(ReadingTemplateContext)
+  const readingActions = useReadingActions()
+  const messageAnalysis = analysis ?? (lookupWords && scope && readingActions ? {
+    pending: false,
+    onOpen: () => readingActions.inspect({ text, start: 0, end: text.length, scope, aid: template && sentenceBlanks(text, true).length ? 'completions' : 'explanations' }),
+  } : null)
   // Owners supply playback behavior, never an alternative playback button.
   const playback = speech ?? (readAloud && shared ? { speaking: shared.playing, onToggle: shared.onToggle, error: null } : null)
   // Saved, cached and requested meanings come from the reading services only
@@ -115,7 +129,10 @@ export function TargetMessage({
   const lookedUp = cachedResult?.gloss?.coverage === 'complete' || (fetchedResult !== null && fetchedResult.source === sourceKey)
   const resolved = [...local, ...[...cached, ...fetched].filter(part => !local.some(item => item.start < part.end && item.end > part.start))]
   // Prefer one complete cached/fetched result over duplicating equivalent anchors.
-  const known = resolved.filter((part, index) => !resolved.slice(0, index).some(item => item.start < part.end && item.end > part.start))
+  const known = resolved.filter((part, index) => !resolved.slice(0, index).some(item => item.start < part.end && item.end > part.start)).map(part => {
+    const fresh = fetched.find(item => item.start === part.start && item.end === part.end)
+    return fresh ? { ...part, romanization: part.romanization ?? fresh.romanization, pronunciation: part.pronunciation ?? fresh.pronunciation } : part
+  })
 
   const aidsEnabled = preferences.autoTranslate || preferences.alwaysRomanize || preferences.alwaysPronunciation
   const [wordsOverride, setWordsOverride] = useState<boolean | null>(null)
@@ -149,21 +166,57 @@ export function TargetMessage({
   // What the learner sees: a translation is shown only when one exists.
   const translationShown = translationOpen && shownTranslation !== null
   const translationWorking = translationPending(translationState)
-  async function toggleTranslation() {
-    if (shownTranslation !== null) { setTranslationOverride(!translationOpen); return }
+  async function showTranslation(visible: boolean) {
+    setTranslationOverride(visible)
+    if (!visible) { translating.cancel(); return }
+    if (shownTranslation !== null) return
     // Nothing to show yet: one explicit click requests it and shows it.
     setTranslationOverride(true)
-    if (translating.pending || readingScope === null || lookup === null || sourceKey === null) return
+    if (readingScope === null || lookup === null || sourceKey === null) return
     const source = sourceKey
     await translating.run(signal => lookup({ ...readingScope, text, aid: 'translation' }, signal), result => {
       if (result.translation === null) throw new Error('The reading service returned no translation.')
       setFetchedTranslation({ source, text: result.translation })
     })
   }
+  const toggleTranslation = () => showTranslation(shownTranslation === null || !translationOpen)
+
+  const phonetics = useSourceRequest(sourceKey)
+  const hasPhonetics = known.some(part => preferences.supportsRomanization ? part.romanization || part.pronunciation : part.pronunciation)
+  const phoneticParts = known.filter(part => part.kind === 'gloss' && part.gloss !== null
+    && (preferences.supportsRomanization ? part.romanization || part.pronunciation : part.pronunciation))
+  const phoneticsComplete = phoneticParts.length > 0 && readingWords(text).filter(word => word.word).every(word => {
+    let end = word.start
+    for (const part of phoneticParts) if (part.start <= end && part.end > end) end = part.end
+    return end >= word.end
+  })
+  async function showPhonetics(visible: boolean) {
+    setSoundOverride(visible)
+    if (!visible) { phonetics.cancel(); return }
+    if (sound || phoneticsComplete || !readingScope || !lookup || !sourceKey) return
+    const source = sourceKey
+    await phonetics.run(signal => lookup({ ...readingScope, text, aid: 'word_gloss' }, signal), result => {
+      const parts = result.gloss?.segments ?? []
+      if (!parts.some(part => part.kind === 'gloss' && part.gloss !== null && (preferences.supportsRomanization ? part.romanization || part.pronunciation : part.pronunciation))) {
+        throw new Error('The reading service returned no pronunciation or romanization.')
+      }
+      setFetchedResult({ source, segments: parts })
+    })
+  }
+  // Only changes to an explicit bulk choice (or its source) dispatch work.
+  // Ordinary renders and individual toggles never repeat the bulk command.
+  const bulkActions = useRef({ showTranslation, showPhonetics })
+  bulkActions.current = { showTranslation, showPhonetics }
+  useEffect(() => {
+    if (bulkReading?.translations != null) void bulkActions.current.showTranslation(bulkReading.translations)
+  }, [bulkReading?.translations, sourceKey])
+  useEffect(() => {
+    if (bulkReading?.phonetics != null) void bulkActions.current.showPhonetics(bulkReading.phonetics)
+  }, [bulkReading?.phonetics, sourceKey])
 
   const body = <>
     {sourcePresentation ?? (known.length > 0
-      ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} />
+      ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} showSound={soundOverride ?? undefined} />
       : <TargetText text={text} />)}
     {annotation}
     {translationShown && <div className="trans" dir="auto">{shownTranslation}</div>}
@@ -177,10 +230,12 @@ export function TargetMessage({
       pressed: translationShown, pending: translating.pending || translationWorking, disabled: translating.pending, onSelect: () => void toggleTranslation() }] : []),
   ]
   const more: MessageTool[] = [
-    { key: 'words', label: tr("Word by word"), pressed: wordsOpen, pending: segmentsPending || words.pending,
-      disabled: words.pending || (known.length === 0 && !canLookup), onSelect: () => void toggleWords() },
-    ...(analysis ? [{ key: 'analysis', label: tr("Analysis"), pending: analysis.pending, opensDialog: true, onSelect: analysis.onOpen }] : []),
-    ...(sound ? [{ key: 'sound', label: tr('Pronunciation'), pressed: soundOpen, onSelect: () => setSoundOverride(!soundOpen) }] : []),
+    messageTools.words({ pressed: wordsOpen, pending: segmentsPending || words.pending,
+      disabled: words.pending || (known.length === 0 && !canLookup), onSelect: () => void toggleWords() }),
+    ...(messageAnalysis ? [messageTools.details('analysis', { pending: messageAnalysis.pending, onSelect: messageAnalysis.onOpen })] : []),
+    ...(sound || hasPhonetics || bulkReading ? [{ key: 'sound', label: tr('Pronunciation'), pressed: soundOpen,
+      pending: phonetics.pending, disabled: !sound && !hasPhonetics && !canLookup,
+      onSelect: () => void showPhonetics(!soundOpen || phonetics.error != null) }] : []),
   ]
   const actions = <MessageTools tools={tools} inspect={inspect} more={more}
     play={playback && { playing: playback.speaking, preparing: 'preparing' in playback && playback.preparing, disabled: playback.disabled, onToggle: playback.onToggle }}
@@ -188,6 +243,7 @@ export function TargetMessage({
   const failure = <>
     {words.error != null && <ErrorDetails onRetry={toggleWords} label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
     {translating.error != null && <ErrorDetails onRetry={toggleTranslation} label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}
+    {phonetics.error != null && <ErrorDetails onRetry={() => showPhonetics(true)} label={tr('Pronunciation')} errorKey={errorMessage(phonetics.error)} explanation={errorMessage(phonetics.error)}><ResponseDetails value={errorDetails(phonetics.error)} /></ErrorDetails>}
   </>
 
   // Meanings that are set to show and still being produced keep their line pitch.
@@ -211,6 +267,7 @@ function useSourceRequest(source: string | null) {
     return () => { controller.current?.abort(); controller.current = null }
   }, [source])
   async function run<T>(request: (signal: AbortSignal) => Promise<T>, publish: (value: T) => void) {
+    controller.current?.abort()
     const current = new AbortController(); controller.current = current
     setPending(true); setError(null)
     try {
@@ -219,5 +276,6 @@ function useSourceRequest(source: string | null) {
     } catch (failure) { if (!current.signal.aborted) setError(failure) }
     finally { if (!current.signal.aborted) setPending(false) }
   }
-  return { pending, error, run }
+  const cancel = () => { controller.current?.abort(); controller.current = null; setPending(false); setError(null) }
+  return { pending, error, run, cancel }
 }

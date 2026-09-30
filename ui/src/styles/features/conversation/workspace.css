@@ -89,21 +89,22 @@
   .mobile-conversation .break { flex: 0 1 35%; overflow: hidden; min-height: 0; display: none; }
   .mobile-conversation > .chat:not(.mobile-composer) { flex: 1; min-height: 0; overflow: hidden; }
   /* Where the docked panel does not fit (compact and narrow), the coach is a
-     sheet from the bottom, opened from the Coach button above the answer, with
-     the coach's colour on its top edge. The conversation stays in place
-     underneath the scrim. */
+     full-screen modal: it has a chat box of its own, so it takes the whole
+     window, the recorder included, rather than sharing it. It slides up over
+     a fading scrim when opened; Back, Escape and its close control return to
+     the conversation, which stays in place underneath. */
   .mobile-conversation.mobile-coach .break {
-    position: absolute; inset-block: auto 0; inset-inline: 0; z-index: var(--z-drawer);
-    display: flex; height: 85%; min-height: 0; overflow-y: auto;
-    border-top: var(--border-width-strong) solid var(--coach-mark); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    box-shadow: var(--shadow-drawer);
+    position: fixed; inset: 0; z-index: var(--z-modal);
+    display: flex; min-height: 0; overflow-y: auto;
+    border-top: var(--border-width-strong) solid var(--coach-mark);
   }
-  .coach-scrim { position: absolute; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
+  .coach-scrim { position: fixed; inset: 0; z-index: var(--z-scrim); background: var(--scrim); }
   .mobile-coach .coach-collapse { transform: rotate(90deg); }
-  /* Opening slides the sheet up; opening the page does not. */
+  /* Opening slides the coach up while its scrim fades in; opening the page does not. */
   .mobile-conversation.surface-switched.mobile-coach .break { animation: surface-in-from-bottom var(--dur-slow) var(--ease-out); }
+  .mobile-conversation.surface-switched .coach-scrim { animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mobile-conversation.surface-switched .break { animation: none; }
+  .mobile-conversation.surface-switched .break, .mobile-conversation.surface-switched .coach-scrim { animation: none; }
 }

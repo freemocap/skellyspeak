@@ -34,6 +34,11 @@ The active [conversation prompt experiments](benchmarks/conversation-prompts/REA
 use synthetic current-source fixtures, offline plans, bounded paid OpenRouter runs
 and saved comparisons. They do not depend on archived workflows or alter app prompts.
 
+The [model comparison suite](benchmarks/model-comparison/README.md) combines private
+recorded requests with authored multilingual scenarios, projects them through
+current native prompt builders, and freezes separate standard/fast comparison
+batches. Dataset generation and verification are offline; paid runs are explicit.
+
 `npm run test:reports` prints unreachable-module, unused-export and unused-style
 candidates separately from passing test totals. Candidates require source review;
 the command does not delete code. Broken import resolution remains an error.

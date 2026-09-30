@@ -1,3 +1,4 @@
+import { useMessageToolDefinitions } from '../../../components/reading/useMessageToolDefinitions'
 import { FeedbackContextForm } from './FeedbackContextForm'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { AskCoachButton, AskCoachContext } from '../../../components/learning/AskCoachButton'
@@ -16,7 +17,7 @@ import type { MessageTool } from '../../../components/reading/MessageTools'
 import { useUiDirection } from '../../../components/localization/useUiDirection'
 
 /** The coach's feedback on one of the learner's messages. `bubble` draws the
- * message with its tools and receives the Analysis tool, which opens this
+ * message with its tools and receives the Coach tool, which opens this
  * feedback; under the bubble, one quiet line holds the verdict (how many
  * errors the coach flagged, or Clean), Fix it and `reward` (the message's
  * XP). The verdict opens the same feedback. */
@@ -27,7 +28,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   onRetry?: () => Promise<void>
   skills?: ReactNode
   analysis?: ReactNode
-  bubble: (analysisTool: MessageTool) => ReactNode
+  bubble: (coachTool: MessageTool) => ReactNode
   reward: ReactNode
   id: number; text: string; feedback: CoachObservationView | undefined; decision?: CoachDecision; error: string | undefined
   reviewing: boolean
@@ -35,6 +36,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   onControl?: (control: CoachControl) => Promise<void>
 }) {
   const tr = useI18n()
+  const messageTools = useMessageToolDefinitions()
   const uiDirection = useUiDirection()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -76,7 +78,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
   const clear = Boolean(feedback && decision && !decision.shown && !feedback.corrections.length && !feedback.notes.length && !feedback.items.some(item => item.outcome === 'partial' || item.outcome === 'not_demonstrated') && decision.repairStatus !== 'uncertain' && feedback.meaningRecovered === 'full')
   const verdict = flags.length ? 'errors' : clear ? 'clear' : 'open'
   return <>
-    {bubble({ key: 'analysis', label: tr("Analysis"), ariaLabel: tr("Analyze your message"), opensDialog: true, disabled: busy, onSelect: () => void openCard() })}
+    {bubble(messageTools.details('coach', { ariaLabel: tr("Coach your message"), disabled: busy, onSelect: () => void openCard() }))}
     <div className="message-feedback-line" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
     <button type="button" data-feedback-state={error ? 'failed' : judged ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${error ? ' feedback-error' : ''}`} data-verdict={judged && !error ? verdict : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
         {error ? tr("Feedback failed") : judged ? <>

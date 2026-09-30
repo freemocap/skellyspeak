@@ -513,3 +513,71 @@ conversation:
       - 📚
       - ☕
       - 🌧️
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Oui.
+      - Non.
+      - De l'eau, s'il vous plaît.
+      - Je suis ici.
+      - Il fait chaud.
+      - J'ai faim.
+      - Qu'est-ce que c'est ?
+      - Je ne sais pas.
+    beginner:
+      - Elle est médecin.
+      - La maison est grande.
+      - J'ai un vélo.
+      - C'est ma sœur.
+      - Il y a trois chaises.
+      - Je voudrais un peu d'eau.
+      - Je travaille ici.
+      - Elle lit en ce moment.
+    intermediate:
+      - Je suis arrivé hier.
+      - Il pleuvait quand nous sommes partis.
+      - Je vais partir demain.
+      - Nous arriverons lundi.
+      - J'aime cuisiner.
+      - Je voudrais un café.
+      - Je sais nager.
+      - Il faut partir.
+    advanced:
+      - Si j'avais su que la réunion durerait aussi longtemps, je serais rentré plus tôt.
+      - Ce qui me préoccupe le plus, c'est l'effet de cette décision sur les personnes qui n'ont pas été
+        consultées.
+      - Bien que la proposition semble prometteuse, il faudrait en examiner les conséquences possibles.
+      - Je préférerais que nous reportions le voyage plutôt que de prendre une décision précipitée.
+      - Plus je relis ce rapport, moins ses conclusions me paraissent convaincantes.
+      - La réussite du projet dépendra en grande partie de la manière dont nous partagerons les
+        responsabilités.
+      - Ce n'est pas que je sois contre cette idée, mais je doute que le moment soit bien choisi.
+      - Quand nous avons compris ce qui s'était passé, il était déjà difficile de changer les choses.
+    social:
+      - Bonjour !
+      - Bonsoir !
+      - Salut !
+      - Comment allez-vous ?
+      - Très bien, merci.
+      - Comment vous appelez-vous ?
+      - Ça me fait plaisir de vous rencontrer.
+      - Merci beaucoup.
+      - De rien.
+      - Excusez-moi.
+      - Je suis désolé.
+      - Au revoir !
+      - À bientôt !
+      - Bonne journée !
+    # Sources: [@practice-idioms-french]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Je donne ma langue au chat."
+      - "Il raconte des salades."
+      - "N’en fais pas tout un fromage."
+      - "J’ai un chat dans la gorge."
+      - "J’ai la chair de poule."
+      - "Elle a le cœur sur la main."
+      - "Il fait un froid de canard."
+      - "Les carottes sont cuites."
+  varieties: {}

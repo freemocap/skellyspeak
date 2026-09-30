@@ -1,3 +1,4 @@
+import { useMessageToolDefinitions } from '../../../components/reading/useMessageToolDefinitions'
 import type { ReactNode } from 'react'
 import { useReadingAidSpace } from '../../../components/reading/ReadingPreferences'
 import { MessageTools } from '../../../components/reading/MessageTools'
@@ -27,6 +28,7 @@ export function PendingBubble({ side, text, visibleText, streaming = false, rtl,
 }) {
   const aidSpace = useReadingAidSpace()
   const tr = useI18n()
+  const messageTools = useMessageToolDefinitions()
   const readAloud = useReadAloud(text ?? '')
   const noop = () => {}
   return <div style={aidSpace} className={`msg chat-message ${side} with-actions${side === 'bot' ? ' with-corner-control' : ''} reply-pending${aids ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${text ? ' is-hydrating' : ''}`}
@@ -35,7 +37,7 @@ export function PendingBubble({ side, text, visibleText, streaming = false, rtl,
     {translationSlot && <div className="trans hydrating-slot" data-phase="waiting" aria-hidden="true"><span className="hydrating-label">{tr("Translating…")}</span><span className="hydrating-line" /></div>}
     <MessageTools pending={activity} play={side === 'bot' || readAloud ? { playing: false, onToggle: noop } : null} inspect={null}
       tools={[{ key: 'translate', label: tr("Translate"), onSelect: noop }]}
-      more={[{ key: 'words', label: tr("Word by word"), onSelect: noop }, { key: 'analysis', label: tr("Analysis"), onSelect: noop }]}
+      more={[messageTools.words({ onSelect: noop }), messageTools.details(side === 'me' ? 'coach' : 'analysis', { onSelect: noop })]}
       actions={<>{side === 'me' && <button type="button" disabled className="message-tools-icon"><ToolbarIcon name="edit" /></button>}<AddToDrillButton text={text ?? ''} /></>} />
   </div>
 }

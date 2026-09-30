@@ -66,24 +66,35 @@
 .composer[data-voice-sized] > .composer-voice { box-sizing: border-box; height: var(--chat-voice-height); max-height: 70dvh; grid-template-rows: minmax(0, 1fr); }
 .composer[data-voice-sized] > .composer-voice > .voice-grid { grid-template-rows: minmax(4.75rem, 1fr) auto; }
 
-/* One fixed status line above the input: transcription, reply and follow-on
-   AI work all report here, so their arrival never moves the input. */
-.composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); padding: 0 var(--space-5); color: var(--ink); overflow: hidden; white-space: nowrap; }
-
-.composer-activity .activity-spinner { width: 16px; height: 16px; }
+/* One fixed status line above the input: the AI pill and the step under way.
+   Transcription, the reply and follow-on AI work all report here, so their
+   arrival never moves the input. It never takes more than half the row, so
+   reply help and the coach keep their room. */
+.composer-activity { display: flex; align-items: center; min-height: var(--control-height-sm); max-width: 50%; padding: 0 var(--space-5); color: var(--ink); }
 
 /* Compact and narrow: reply help, the status line and the coach share one row
    above the recording panel, outside it. In it, folded help and the status
    line drop their own spacing; folded help sits at the row's end beside the
    coach, over the microphone and clear of the partner's replies, with the
-   status line taking the start. Opened help takes the whole row and the rest
-   wraps under it. Help sits inside its reading scope (display: contents), so it
-   is matched as a descendant but laid out as an item of the row. The row stands
-   well clear of the last message, further than speakers stand from each other,
-   and near the recording panel, so it reads as part of the composer. */
+   status line taking the start, never more than half the row. Folded help and
+   the coach close the row together; the space the status line leaves opens
+   before them. Opened help takes the whole row and the rest wraps under it.
+   Help sits inside its reading scope (display: contents), so it is matched as
+   a descendant but laid out as an item of the row. The row stands well clear
+   of the last message, further than speakers stand from each other, and near
+   the recording panel, so it reads as part of the composer. */
 .composer-assist { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin-block: var(--space-10) var(--space-4); }
-.composer-assist .reply-help-folded { margin: 0; order: 1; }
-.composer-assist .reply-help { flex: 1 1 100%; margin: 0; }
+.composer-assist .reply-help-folded { margin: 0; margin-inline-start: auto; order: 1; }
+.composer-assist:has(.reply-help-folded) .chat-coach { margin-inline-start: 0; }
+.composer-assist .reply-help { flex: 1 1 100%; margin: 0; animation: panel-rise var(--dur-slow) var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .composer-assist .reply-help { animation: none; } }
+/* Opened help's top edge is a grip: dragging keeps the tray's height, which
+   bounds it while its content scrolls. Folded, there is nothing to size. */
+.composer-assist > .reply-help-resize { flex: 1 1 100%; order: -1; }
+.composer-assist > .reply-help-resize::after { background: transparent; }
+.composer-assist > .reply-help-resize::before { top: calc(50% - 2px); inset-inline-start: calc(50% - 24px); width: 48px; height: 4px; }
+.composer-assist:not(:has(.reply-help)) > .reply-help-resize { display: none; }
+.composer-assist[data-help-sized] .reply-help { max-height: var(--reply-help-height); }
 .composer-assist > .composer-activity { flex: 1 1 0; min-width: 0; padding-inline: var(--space-2); }
 /* The coach opens from the very end of that row, in the coach's colours, as a
    sheet over the conversation (workspace.css). */

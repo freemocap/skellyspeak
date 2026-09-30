@@ -1,5 +1,6 @@
 use super::*;
 use base64::Engine;
+use rusqlite::OptionalExtension;
 use std::io::{Read, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -80,7 +81,7 @@ async fn invalid_independent_input_fails_before_execution() {
 
 #[tokio::test]
 async fn cancelling_one_consumer_preserves_shared_dispatch_and_receipt() {
-    cancellation(false, false).await;
+    cancellation(false, false, false).await;
 }
 
 #[tokio::test]
@@ -124,15 +125,119 @@ async fn paused_speech_has_an_undispatched_shared_receipt() {
 
 #[tokio::test]
 async fn cancelling_all_consumers_after_dispatch_still_settles_receipt() {
-    cancellation(true, false).await;
+    cancellation(true, false, false).await;
 }
 
 #[tokio::test]
 async fn failed_audio_cache_write_preserves_provider_receipt_and_usage() {
-    cancellation(false, true).await;
+    cancellation(false, true, false).await;
 }
 
-async fn cancellation(cancel_all: bool, reject_blob: bool) {
+#[tokio::test]
+async fn streaming_consumers_share_early_audio_and_cancel_independently() {
+    cancellation(false, false, true).await;
+}
+
+#[tokio::test]
+async fn revoking_stream_authority_retains_redacted_partial_receipt_without_caching() {
+    let directory = tempfile::tempdir().unwrap();
+    let state = Application::start(&directory.path().join("speech.sqlite3"), None);
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+    let (target, install) = {
+        let store = state.lock().unwrap();
+        let base = format!("http://{}/v1", listener.local_addr().unwrap());
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))",[base]).unwrap();
+        (
+            access::resolve(&store.connection, access::Capability::Speech).unwrap(),
+            store.snapshot().unwrap().learner.id,
+        )
+    };
+    let worker = std::thread::spawn(move || {
+        let (mut socket, _) = listener.accept().unwrap();
+        request(&mut socket);
+        let prefix = format!(
+            "{}\n{}\n",
+            json!({"version":2,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+            json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":"ZAA=","alignment":null,
+                "receipt":{"request_id":"partial-request","diagnostics":{"code":"fixture_error","reason":"PRIVATE-SOURCE","authorization":"Bearer hidden-token"}}})
+        );
+        write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",prefix.len()+1,prefix).unwrap();
+        socket.flush().unwrap();
+        let mut byte = [0];
+        // Revocation must close the response without asking for another generation.
+        assert_eq!(socket.read(&mut byte).unwrap(), 0);
+    });
+    let request = state.shared_speech(
+        target,
+        audio::SpeechInput {
+            text: "PRIVATE-SOURCE".into(),
+            language_tag: "en".into(),
+            language: "English".into(),
+            voice: "unused".into(),
+        },
+        install,
+        "consumer",
+        || Ok(()),
+    );
+    let revoke = async {
+        loop {
+            let received = {
+                let store = state.lock().unwrap();
+                let id: Option<String> = store
+                    .connection
+                    .query_row(
+                        "SELECT execution_id FROM inference_consumers WHERE consumer_id='consumer'",
+                        [],
+                        |r| r.get(0),
+                    )
+                    .optional()
+                    .unwrap();
+                id.is_some_and(|id| {
+                    state
+                        .speech_streams
+                        .lock()
+                        .unwrap()
+                        .read(&id, 0)
+                        .unwrap()
+                        .is_some()
+                })
+            };
+            if received {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
+        state
+            .lock()
+            .unwrap()
+            .connection
+            .execute("UPDATE ai_config SET paused=1", [])
+            .unwrap();
+    };
+    let (result, _) = tokio::time::timeout(Duration::from_secs(5), async {
+        tokio::join!(request, revoke)
+    })
+    .await
+    .unwrap();
+    assert!(result.is_err());
+    worker.join().unwrap();
+    let store = state.lock().unwrap();
+    assert!(
+        results::for_consumer(&store.connection, "consumer")
+            .unwrap()
+            .is_none()
+    );
+    let receipt = results::receipt_for_consumer(&store.connection, "consumer")
+        .unwrap()
+        .unwrap();
+    assert_eq!(receipt["response"]["providerId"], "partial-request");
+    let details = receipt.to_string();
+    assert!(details.contains("fixture_error"));
+    assert!(!details.contains("PRIVATE-SOURCE"));
+    assert!(!details.contains("hidden-token"));
+}
+
+async fn cancellation(cancel_all: bool, reject_blob: bool, streamed: bool) {
     let directory = tempfile::tempdir().unwrap();
     let state = Application::start(&directory.path().join("speech.sqlite3"), None);
     // Joining pending work remains available when retained reuse is disabled.
@@ -168,8 +273,26 @@ async fn cancellation(cancel_all: bool, reject_blob: bool) {
             serde_json::from_str(wire.split_once("\r\n\r\n").unwrap().1).unwrap();
         assert_eq!(body.as_object().unwrap().len(), 4);
         assert_eq!(body["language_tag"], "en");
+        let terminal = format!(
+            "{}\n",
+            json!({"version":2,"seq":2,"type":"complete","total_samples":1,"alignment":null,
+            "usage":{"requested_model":model,"actual_model":model,"request_id":"shared-request","cost_micros":null}})
+        );
+        if streamed {
+            let prefix = format!(
+                "{}\n{}\n",
+                json!({"version":2,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+                json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":"ZAA=","alignment":null,"receipt":{"request_id":"shared-request"}})
+            );
+            write!(socket,"HTTP/1.1 200 OK\r\nContent-Type: application/x-ndjson\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",prefix.len()+terminal.len(),prefix).unwrap();
+            socket.flush().unwrap();
+        }
         started.send(()).unwrap();
         released.recv_timeout(Duration::from_secs(10)).unwrap();
+        if streamed {
+            socket.write_all(terminal.as_bytes()).unwrap();
+            return;
+        }
         let mut wav = std::io::Cursor::new(Vec::new());
         let mut writer = hound::WavWriter::new(
             &mut wav,
@@ -230,6 +353,20 @@ async fn cancellation(cancel_all: bool, reject_blob: bool) {
             .query_row("SELECT count(*) FROM inference_consumers", [], |r| r.get(0))
             .unwrap();
         assert_eq!(count, 2);
+        if streamed {
+            tokio::time::timeout(Duration::from_secs(5), async {
+                loop {
+                    let id: String = state.lock().unwrap().connection.query_row("SELECT execution_id FROM inference_consumers WHERE consumer_id='first'", [], |r|r.get(0)).unwrap();
+                    if state.speech_streams.lock().unwrap().read(&id,0).unwrap() == Some(&[100,0][..]) { break; }
+                    tokio::time::sleep(Duration::from_millis(10)).await;
+                }
+            }).await.unwrap();
+            assert!(
+                results::for_consumer(&state.lock().unwrap().connection, "second")
+                    .unwrap()
+                    .is_none()
+            );
+        }
         active.store(false, Ordering::SeqCst);
     };
     let first_then_release = async {

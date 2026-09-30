@@ -6,7 +6,7 @@ import { TurnView as SharedTurnView, type TurnViewProps } from './TurnView'
 import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
 import type { TranscriptionInspectionResult } from '../../../generated/contracts'
 
-/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+/** Opens every message's ⋯ menu, where Words, Analysis and Pronunciation live. */
 const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
 
 
@@ -204,7 +204,7 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   expect(grade).toHaveTextContent('Feedback')
   expect(grade.closest('.msg.me')).toBeNull()
   openMenus()
-  expect(screen.getByRole('button', { name: 'Analyze your message' }).closest('.message-actions')).not.toBeNull()
+  expect(screen.getByRole('button', { name: 'Coach your message' }).closest('.message-actions')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'false')
@@ -231,7 +231,7 @@ it('reveals saved word meanings without starting inference or changing whole-mes
   const view = render(<TurnView {...input} />)
   fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' }))
   openMenus()
-  const words = within(view.container.querySelector('.msg.bot') as HTMLElement).getByRole('button', {name:'Word by word'})
+  const words = within(view.container.querySelector('.msg.bot') as HTMLElement).getByRole('button', {name:'Words'})
   expect(words).toBeEnabled()
   fireEvent.click(words)
   expect(view.container.querySelector('.msg.bot .wg')).toBeNull()
@@ -289,20 +289,22 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   openMenus()
   for (const bubble of [learner, partner]) {
     expect(within(bubble).getByRole('button', { name: /Translate/ }).closest('.message-actions')).not.toBeNull()
-    expect(within(bubble).getByRole('button', { name: /Analy/ }).closest('.message-actions')).not.toBeNull()
+    const detail = within(bubble).getByRole('button', { name: bubble === learner ? 'Coach your message' : 'Analysis' })
+    expect(detail.closest('.message-actions')).not.toBeNull()
+    expect(detail).toHaveTextContent(bubble === learner ? 'Coach' : 'Analysis')
   }
   openMenus()
-  const words = within(learner).getByRole('button', { name: 'Word by word' })
+  const words = within(learner).getByRole('button', { name: 'Words' })
   expect(words).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(words)
   openMenus()
-  expect(within(partner).getByRole('button', { name: 'Word by word' })).toHaveAttribute('aria-pressed', 'true')
+  expect(within(partner).getByRole('button', { name: 'Words' })).toHaveAttribute('aria-pressed', 'true')
   view.rerender(<TurnView {...input} />)
   expect(words).toHaveAttribute('aria-pressed', 'false')
   for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
   for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
   openMenus()
-  fireEvent.click(within(learner).getByRole('button', { name: 'Analyze your message' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Coach your message' }))
   const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(dialog.parentElement).toBe(document.body)
 })
@@ -323,7 +325,7 @@ it('toggles saved learner meanings independently before a reply without requesti
   const view = render(<TurnView {...input} />)
   fireEvent.click(screen.getByRole('button', { name: 'Translate your message' }))
   openMenus()
-  const words = screen.getByRole('button', { name: 'Word by word' })
+  const words = screen.getByRole('button', { name: 'Words' })
   expect(words).toBeEnabled()
   expect(words).toHaveClass('is-hydrating')
   fireEvent.click(words)
@@ -346,7 +348,7 @@ it('keeps word actions disabled without annotations and allows them when saved m
   input.turn.assistant!.glossState = 'failed'
   const view = render(<TurnView {...input} />)
   openMenus()
-  for (const words of screen.getAllByRole('button', { name: 'Word by word' })) {
+  for (const words of screen.getAllByRole('button', { name: 'Words' })) {
     expect(words).toBeDisabled()
     expect(words).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(words)
@@ -354,7 +356,7 @@ it('keeps word actions disabled without annotations and allows them when saved m
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
   view.rerender(<TurnView {...input} turn={{ ...input.turn, assistant: { ...input.turn.assistant!, user_tokens: [token] } }} />)
   openMenus()
-  expect(within(view.container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Word by word' })).toBeEnabled()
+  expect(within(view.container.querySelector('.msg.me') as HTMLElement).getByRole('button', { name: 'Words' })).toBeEnabled()
 })
 
 it('reveals Arabic token meanings through the shaping-safe renderer on either side', () => {
@@ -369,15 +371,15 @@ it('reveals Arabic token meanings through the shaping-safe renderer on either si
   const learner = view.container.querySelector('.msg.me') as HTMLElement
   const partner = view.container.querySelector('.msg.bot') as HTMLElement
   openMenus()
-  fireEvent.click(within(partner).getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(within(partner).getByRole('button', { name: 'Words' }))
   openMenus()
-  fireEvent.click(within(learner).getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Words' }))
   openMenus()
-  fireEvent.click(within(learner).getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Words' }))
   expect(learner.querySelector('.wg')).toHaveTextContent('houses')
   expect(partner.querySelector('.wg')).toBeNull()
   openMenus()
-  fireEvent.click(within(partner).getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(within(partner).getByRole('button', { name: 'Words' }))
   expect(partner.querySelector('.wg')).toHaveTextContent('houses')
 })
 
@@ -419,7 +421,7 @@ it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both m
     expect(bubble.querySelector('.wroman')).toHaveTextContent('roman')
     expect(bubble.querySelector('.wpronunciation')).toBeNull()
     openMenus()
-    fireEvent.click(within(bubble).getByRole('button', {name:'Word by word'}))
+    fireEvent.click(within(bubble).getByRole('button', {name:'Words'}))
     expect(bubble.querySelector('.wg')).toBeNull()
   }
   view.rerender(<TurnView {...input} autoTranslate={false} alwaysRomanize={false} alwaysPronunciation showRomanization />)
@@ -430,7 +432,7 @@ it.each(['tokens', 'saved', 'joining'] as const)('updates enabled aids on both m
   expect(input.onAskCoach).not.toHaveBeenCalled()
 })
 
-it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveals and hides each side with all defaults off (%s)', path => {
+it.each(['tokens', 'saved', 'joining'] as const)('Words explicitly reveals and hides each side with all defaults off (%s)', path => {
   const input = props()
   input.showRomanization = true
   const text = path === 'joining' ? 'بيوت باب' : 'Hola casa'
@@ -453,7 +455,7 @@ it.each(['tokens', 'saved', 'joining'] as const)('Word by word explicitly reveal
   for (const side of ['me','bot']) {
     const bubble = view.container.querySelector(`.msg.${side}`) as HTMLElement
     openMenus()
-    const button = within(bubble).getByRole('button',{name:'Word by word'})
+    const button = within(bubble).getByRole('button',{name:'Words'})
     expect(button).toHaveAttribute('aria-pressed','false')
     fireEvent.click(button)
     expect(button).toHaveAttribute('aria-pressed','true')
@@ -612,13 +614,14 @@ it('selects the learner and partner separately without capturing embedded word o
   expect(partner).toHaveAttribute('aria-current', 'true')
   expect(learner).not.toHaveClass('focused')
 })
-it('marks a resent fix, but not an original message or one being fixed', () => {
+it('counts the fixes sent for a message under its bubble, beside its XP', () => {
   const input = props()
   const view = render(<TurnView {...input} />)
-  expect(screen.queryByText('Fixed')).toBeNull()
-  view.rerender(<TurnView {...input} turn={{ ...input.turn, replacesTurnId: 'earlier' }} />)
-  expect(screen.getByText('Fixed')).toBeVisible()
-  view.rerender(<TurnView {...input} turn={{ ...input.turn, replacesTurnId: 'earlier' }} editing />)
+  expect(view.container.querySelector('.feedback-fixes')).toBeNull()
+  view.rerender(<TurnView {...input} turn={{ ...input.turn, replacesTurnId: 'earlier', fixes: 2 }} />)
+  const fixes = view.container.querySelector('.feedback-fixes')!
+  expect(fixes).toHaveTextContent('2 fixes')
+  expect(fixes.closest('.message-feedback-line')).not.toBeNull()
   expect(screen.queryByText('Fixed')).toBeNull()
 })
 

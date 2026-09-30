@@ -53,7 +53,7 @@ impl Request {
                 let (request, schema) = self.translation_dispatch()?;
                 (request, None, schema)
             }
-            ReadingAid::Explanations => {
+            ReadingAid::Explanations | ReadingAid::Completions => {
                 let (request, schema) = self.explanations_dispatch()?;
                 (request, None, schema)
             }
@@ -119,11 +119,15 @@ impl Request {
                     completion,
                 )?)
             }
-            ReadingAid::Explanations => {
-                stored.explanations = Some(serde_json::from_value(support::validate(
-                    support::EXPLANATIONS,
-                    completion,
-                )?)?)
+            ReadingAid::Explanations | ReadingAid::Completions => {
+                let explanations =
+                    serde_json::from_value(support::validate(support::EXPLANATIONS, completion)?)?;
+                super::sentence_blanks::validate(
+                    &self.input.text,
+                    self.input.aid == ReadingAid::Completions,
+                    &explanations,
+                )?;
+                stored.explanations = Some(explanations);
             }
             ReadingAid::Speech => unreachable!(),
         }

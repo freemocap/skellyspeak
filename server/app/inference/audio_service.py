@@ -44,7 +44,7 @@ def _model(value, expected):
 
 
 async def _execute(who, reserve, settle, amount, invoke, *, provider, label, create,
-                   reservation=None, raise_cancelled_unknown=False):
+                   reservation=None, raise_cancelled_unknown=False, progress=None):
     cost = 0
     cancelled = False
     provider_id = provider
@@ -90,6 +90,7 @@ async def _execute(who, reserve, settle, amount, invoke, *, provider, label, cre
         raise
     finally:
         if reservation is not None:
+            provider_id = (progress or {}).get('request_id') or provider_id
             await settle(reservation, cost=cost, tokens=0, provider_id=provider_id,
                          cost_basis="estimate", raise_unknown=cancelled and raise_cancelled_unknown)
 
@@ -135,6 +136,24 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
         except (ValueError, UnicodeError):
             raise HTTPException(400, "Invalid speech language variety, model or input limit.") from None
         amount = len(provider_text) * cfg.tts_micros_per_character
+        if request.headers.get('accept') == 'application/x-ndjson':
+            from server.app.inference.speech_streaming import response
+
+            async def execute_stream(emit):
+                progress = {}
+
+                async def forward(chunk):
+                    progress.update(chunk['receipt'])
+                    await emit(chunk)
+
+                result = await _execute(who, reserve, settle, amount,
+                    lambda adapter: adapter.synthesize(source, on_audio=forward),
+                    provider="elevenlabs", label="ElevenLabs",
+                    create=lambda client: ElevenLabs(client, api_key=cfg.elevenlabs_key),
+                    raise_cancelled_unknown=True, progress=progress)
+                return result, _usage(result, amount)
+
+            return response(execute_stream, _slots, (text, provider_text, cfg.elevenlabs_key))
         result = await _execute(who, reserve, settle, amount, lambda adapter: adapter.synthesize(source),
                                 provider="elevenlabs", label="ElevenLabs",
                                 create=lambda client: ElevenLabs(client, api_key=cfg.elevenlabs_key))

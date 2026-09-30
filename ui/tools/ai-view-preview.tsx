@@ -1,9 +1,10 @@
 /** AI View and live-status review using production components and sample data.
- * No native or AI calls: the operations below are shaped like a real snapshot
- * of turn_plan.rs PLAN, advanced by a timer. */
+ * No native or AI calls: the fixture's operations are shaped like a real
+ * snapshot of turn_plan.rs PLAN, advanced by a timer. The phone's tray and full
+ * screen are reviewed in context, in the conversation preview. */
 import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useState } from 'react'
-import type { AttemptStreamUpdate, TurnView } from '../src/generated/contracts'
+import type { AttemptStreamUpdate } from '../src/generated/contracts'
 import { turnActivity } from '../src/domain/conversation/activity-summary'
 import { ActivityGraph } from '../src/features/activity/ActivityGraph'
 import { OperationInspector } from '../src/features/activity/OperationInspector'
@@ -12,32 +13,8 @@ import { ReplyStatus } from '../src/features/conversation/messages/ReplyStatus'
 import { TranslationStatus } from '../src/components/reading/TranslationStatus'
 import { TurnActivityLine } from '../src/features/conversation/messages/TurnActivityLine'
 import { ActivitySummary } from '../src/components/feedback/ActivitySummary'
+import { REPLY, origin, snapshotAt } from './ai-view-fixture'
 import '../src/styles/index.css'
-
-const PLAN: [string, string[], string][] = [
-  ['persona_context', [], 'local'], ['persona_reply', ['persona_context'], 'standard'], ['skill_assessment', ['persona_context'], 'fast'],
-  ['coach_retry_check', ['persona_context'], 'standard'], ['user_word_gloss', ['persona_context'], 'standard'], ['user_translation', ['persona_context'], 'standard'],
-  ['persona_word_gloss', ['persona_reply'], 'standard'], ['persona_speech', ['persona_reply'], 'speech'], ['reply_translation', ['persona_reply'], 'standard'],
-  ['reply_explanations', ['persona_reply'], 'standard'], ['reply_assistance', ['persona_reply'], 'standard'], ['conversation_feedback', ['persona_reply'], 'standard'],
-]
-const TIMING: Record<string, [number, number]> = { persona_context: [0, 1], persona_reply: [1, 10], skill_assessment: [1, 5], coach_retry_check: [1, 3], user_word_gloss: [2, 6], user_translation: [2, 5], persona_word_gloss: [10, 14], persona_speech: [10, 16], reply_translation: [10, 13], reply_explanations: [10, 15], reply_assistance: [11, 14], conversation_feedback: [11, 16] }
-const REPLY = '¡Qué bien! Entonces fuiste al mercado el sábado. ¿Qué compraste allí? Me encantan los mercados de fruta por la mañana.'
-const origin = Date.parse('2026-09-18T10:00:00.000Z')
-
-function snapshotAt(tick: number, id: string): TurnView {
-  const at = (ticks: number) => new Date(origin + ticks * 450).toISOString()
-  const operations = PLAN.map(([kind, dependencies, role]) => {
-    const [start, end] = TIMING[kind]
-    const state = tick < start ? (dependencies.length ? 'waiting_dependencies' : 'ready') : tick < end ? 'running' : 'succeeded'
-    return { sourceMessageId: null, id: `${id}-${kind}`, kind, contractVersion: 1, dependencies: dependencies.map(dep => `${id}-${dep}`), role, state: kind === 'skill_assessment' && tick >= 1 && tick < 3 ? 'held' : state }
-  })
-  const attempts = PLAN.filter(([kind]) => tick >= TIMING[kind][0]).map(([kind]) => ({
-    id: `${id}-${kind}-attempt`, operationId: `${id}-${kind}`, state: tick < TIMING[kind][1] ? 'running' : 'succeeded',
-    requestedModel: 'google/gemini-2.5-flash', actualModel: tick < TIMING[kind][1] ? null : 'google/gemini-2.5-flash', providerId: null,
-    startedAt: at(TIMING[kind][0]), finishedAt: tick < TIMING[kind][1] ? null : at(TIMING[kind][1]), inputTokens: 1200, outputTokens: 90, error: null, unpublishedText: null,
-  }))
-  return { replacesTurnId: null, replacedBy: null, route: 'hosted', id, state: tick < 10 ? 'pending' : tick < 16 ? 'assisting' : 'succeeded', paused: false, hold: null, operations, attempts }
-}
 
 function Preview() {
   const [tick, setTick] = useState(4)

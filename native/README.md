@@ -68,6 +68,13 @@ capacity and logical payload usage. Zero disables retained reuse, while concurre
 callers can still share pending work. Receipts survive eviction and cancellation.
 `speech/delivery.rs` is a bounded, consuming mailbox for asynchronous playback,
 including output too large for the configured cache; it is not reusable storage.
+`speech/stream_delivery.rs` separately holds bounded provisional PCM by shared
+execution. Conversation consumers read it with a sample cursor after current
+source/session checks; only a validated completed stream reaches reusable storage.
+The speech adapter opts into NDJSON delivery and also accepts completed WAV
+responses from services without streaming. See the
+[implementation and verification note](../docs/notes/streaming-speech-implementation.md).
+
 
 Cache hits need no network request or secret lookup. A miss sends the existing
 speech request directly; caching requires no server protocol change. Saved audio

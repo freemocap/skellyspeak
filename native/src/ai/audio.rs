@@ -54,14 +54,23 @@ pub fn validate_speech(target: &ResolvedTarget, input: &SpeechInput) -> Result<(
     crate::ai::transport::service_audio::validate(input)
 }
 
-pub async fn synthesize(
+pub(crate) type SpeechSink<'a> = dyn Fn(&[u8], Option<&crate::speech::alignment::SpeechAlignment>, &SpeechOutcome) -> Result<()>
+    + Send
+    + Sync
+    + 'a;
+
+pub(crate) async fn synthesize_stream(
     client: &reqwest::Client,
     target: &ResolvedTarget,
     key: &str,
     input: &SpeechInput,
     install: &str,
+    emit: &SpeechSink<'_>,
 ) -> SpeechOutcome {
-    crate::ai::transport::service_audio::synthesize(client, target, key, input, install).await
+    crate::ai::transport::service_audio::synthesize_stream(
+        client, target, key, input, install, emit,
+    )
+    .await
 }
 
 pub async fn transcribe(

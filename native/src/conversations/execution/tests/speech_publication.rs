@@ -1,6 +1,34 @@
 use super::*;
 
 #[test]
+fn provisional_speech_identity_requires_a_current_bound_consumer() {
+    let (_dir, mut store, conversation) = setup();
+    let (speech, _) = speech_children(&mut store, &conversation);
+    assert!(
+        store
+            .speech_stream_execution(&speech.operation)
+            .unwrap()
+            .is_none()
+    );
+    crate::ai::results::associate(&store.connection, &speech.attempt, "execution").unwrap();
+    assert_eq!(
+        store
+            .speech_stream_execution(&speech.operation)
+            .unwrap()
+            .as_deref(),
+        Some("execution")
+    );
+    assert!(store.speech_stream_execution("another-operation").is_err());
+    cancel_speech(&store.connection, &speech.operation).unwrap();
+    assert!(
+        store
+            .speech_stream_execution(&speech.operation)
+            .unwrap()
+            .is_none()
+    );
+}
+
+#[test]
 fn inspection_uses_delivered_audio_after_one_time_playback_and_rejects_replaced_bytes() {
     let (_dir, mut store, conversation) = setup();
     crate::ai::results::set_capacity(&store.connection, 0).unwrap();

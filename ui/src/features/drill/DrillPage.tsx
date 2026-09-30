@@ -5,6 +5,7 @@ import { useAudibleScrub } from '../../components/media/useAudibleScrub'
 import { useRecordingPlayback } from '../../components/media/useRecordingPlayback'
 import { useClipPreview } from './useClipPreview'
 import { TakeQueue } from './TakeQueue'
+import { PracticeAiStatus } from './PracticeAiStatus'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useI18n } from '../../components/localization/i18n'
@@ -23,8 +24,9 @@ import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandl
 import { useRecorderLayout } from '../../components/media/useRecorderLayout'
 import { languageFor } from '../../platform/ipc/tauri'
 import { useSettingsStore } from '../../state/settings/settings'
+import { aiTraySlot } from '../../state/navigation/ai-tray'
 import { clearDrillAttempts, deleteDrillAttempt, deleteDrillItem, drillItems, lastDrillItem, inspectDrillAudio } from '../../platform/ipc/drill'
-import type { AudioInspection, DrillAttemptView, DrillItemView, ListeningSettings } from '../../generated/contracts'
+import type { AudioInspection, DrillAttemptView, DrillGenerationPreview, DrillItemView, ListeningSettings } from '../../generated/contracts'
 import { useDrillVisit } from './useDrillVisit'
 import { useDrillAttempts } from './useDrillAttempts'
 import { ResponseDetails } from '../../components/feedback/ResponseDetails'
@@ -74,6 +76,7 @@ export function DrillPage({ active }: { active: boolean }) {
   const [chosenAttemptId, setChosenAttemptId] = useState<string | null>(null)
   const [showUnscored, setShowUnscored] = useState(false)
   const [asking, setAsking] = useState(false)
+  const [initialPreview, setInitialPreview] = useState<DrillGenerationPreview | null>(null)
   // The card list has been read at least once for this visit, so an empty list
   // means there are no cards rather than that they have not arrived yet.
   const [loaded, setLoaded] = useState(false)
@@ -85,6 +88,8 @@ export function DrillPage({ active }: { active: boolean }) {
   const savingPreference = useSettingsStore(state => state.savingPreference)
   const setPreference = useSettingsStore(state => state.setPreference)
   const [speaking, setSpeaking] = useState(false)
+  // A card's audio has been requested and has not arrived.
+  const [fetchingAudio, setFetchingAudio] = useState(false)
   const [mode, setMode] = useState<RecordMode>('live')
   const [autoDetect, setAutoDetect] = useState(true)
   const [listening, setListening] = useState<ListeningSettings>({
@@ -252,7 +257,7 @@ export function DrillPage({ active }: { active: boolean }) {
   /// native cache checks the current source and speech configuration on every play.
   const referenceRequest = useRef<AbortController | null>(null)
   useEffect(() => {
-    setSpeaking(false); setFailure(null); setReferenceFailure(null); setReference(null); setReferenceTime(0); referencePlayer.current = null
+    setSpeaking(false); setFetchingAudio(false); setFailure(null); setReferenceFailure(null); setReference(null); setReferenceTime(0); referencePlayer.current = null
     if (active && selected && scope) {
       const itemId = selected.id
       const controller = new AbortController()
@@ -272,7 +277,7 @@ export function DrillPage({ active }: { active: boolean }) {
     referenceRequest.current?.abort()
     const controller = new AbortController()
     referenceRequest.current = controller
-    setSpeaking(true); setReferenceFailure(null)
+    setSpeaking(true); setFetchingAudio(false); setReferenceFailure(null)
     const current = () => referenceRequest.current === controller && !controller.signal.aborted && itemShowing.current === item.id
     const observer: PlaybackObserver = {
       sourceText: item.text,
@@ -287,9 +292,12 @@ export function DrillPage({ active }: { active: boolean }) {
         // Seeking retained audio must not issue a speech-generation request.
         await replaySelectionAudio(reference.audioBase64, controller.signal, () => {}, rate, volume, observer, reference.alignment)
       } else {
+        // The AI pill names the request until its audio arrives.
+        setFetchingAudio(true)
         await speakSelection({ ...scope, text: item.text, aid: 'speech', referenceItem: item.id }, controller.signal, () => {}, rate, volume, {
           ...observer,
           onAudio: async spoken => {
+            if (referenceRequest.current === controller) setFetchingAudio(false)
             controller.signal.throwIfAborted()
             if (!spoken.audioBase64) throw new Error('The speech service returned no audio.')
             const inspection = await inspectDrillAudio(item.id, spoken.audioBase64, { speechAlignment: spoken.audioAlignment })
@@ -304,7 +312,7 @@ export function DrillPage({ active }: { active: boolean }) {
     } catch (error) {
       if (current() && !(error instanceof DOMException && error.name === 'AbortError')) setReferenceFailure(error)
     } finally {
-      if (referenceRequest.current === controller) { setSpeaking(false); referencePlayer.current = null }
+      if (referenceRequest.current === controller) { setSpeaking(false); setFetchingAudio(false); referencePlayer.current = null }
     }
   }
   useEffect(() => { referencePlayer.current?.setRate(settings?.tts_rate ?? 1) }, [settings?.tts_rate])
@@ -364,7 +372,15 @@ export function DrillPage({ active }: { active: boolean }) {
   // real ones, each in its own empty state. Only a read, empty card list says
   // there are no cards; before the first read nothing claims it.
   const empty = loaded && items.length === 0
-  const dock = (
+  // The AI pill leads the recorder, as it leads Chat's; attempts queued by a
+  // listening session are still on their way through the speech service. On
+  // phones the AI View's tray rises right above the pill. The recording
+  // panel's grip sits on the panel itself, below the pill, as in Chat.
+  const dock = (<>
+        <div className="ai-tray-slot" ref={aiTraySlot} />
+        <div className="drill-ai-status"><PracticeAiStatus fetchingAudio={fetchingAudio}
+          transcribing={mic.transcribing || mic.listeningStatus?.processing === true || (mic.listeningStatus?.queued ?? 0) > 0} /></div>
+        <ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={measure('dock')} onResize={setDockHeight} />
         <div className="drill-pane drill-dock-pane" ref={element => { panes.current.dock = element }}>
           <RecordDock microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null}
             disabled={!settings || mic.starting || phase === 'recording' || phase === 'working' || savingPreference}
@@ -374,7 +390,7 @@ export function DrillPage({ active }: { active: boolean }) {
             onToggle={() => void mic.toggleMic()}
             onHoldStart={holdStart} onHoldEnd={holdEnd} />
         </div>
-  )
+  </>)
   // The listening session's counts sit beside the attempt list, not in the recorder.
   const counts = attemptCounts(mic.listeningStatus, tr)
   const countsLine = counts && <p className="drill-attempt-counts">{counts}</p>
@@ -469,7 +485,6 @@ export function DrillPage({ active }: { active: boolean }) {
         onSelect={id => { selectionGeneration.current++; setChosenAttemptId(null); setSelectedId(id) }}
         attempt={attempt} rtl={rtl} dock={dock} report={report} queue={queue}
         reportResize={<ResizeHandle label={tr("Resize the report column")} axis="x" grow={-1} size={reportWidth} min={220} max={900} measure={measure('report')} onResize={setReportWidth} />}
-        dockResize={<ResizeHandle label={tr("Resize the recording panel")} axis="y" grow={-1} size={dockHeight} min={150} max={900} measure={measure('dock')} onResize={setDockHeight} />}
         rail={<PhraseRail items={items} selectedId={selectedId} busy={busy} locked={holdingAudio}
         onSelect={id => { selectionGeneration.current++; setChosenAttemptId(null); setSelectedId(id) }} onDelete={remove} onAddPhrases={() => setAsking(true)}>
         <DrillStorage active={active} onChanged={reload} />
@@ -480,9 +495,10 @@ export function DrillPage({ active }: { active: boolean }) {
       </DrillLayout>
 
       {/* Raised over the practice columns rather than replacing them. */}
-      {asking && <AddPhrases scope={creating} onAdded={async () => refresh()} onClose={() => setAsking(false)} />}
+      {asking && <AddPhrases scope={creating} initialPreview={initialPreview} onAdded={async () => refresh()}
+        onClose={() => { setAsking(false); setInitialPreview(null) }} />}
       {starterOpen && <QuickStart scope={creating} showAgain={starterPreference.open} onShowAgain={starterPreference.toggle}
-        onAdded={async firstId => { await reload(firstId); setLoadFailure(null); closeStarter() }} onClose={closeStarter} />}
+        onPreview={async preview => { setInitialPreview(preview); closeStarter(); setAsking(true) }} onClose={closeStarter} />}
     </section>
     </ReadingLanguageScope></ReadingScopeContext>
   )

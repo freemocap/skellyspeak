@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { expect, it } from 'vitest'
-import { layoutOperations } from './graph-layout'
+import { layoutOperations, layoutOperationsDown, TREE_INDENT, TREE_ROW } from './graph-layout'
 
 it('renders exactly the supplied edges and preserves declaration order within each depth', () => {
   const operations = [
@@ -28,4 +28,21 @@ it('refuses missing or duplicate dependencies, duplicate IDs and cycles instead 
   expect(() => layoutOperations([op('a', []), op('b', ['a', 'a'])])).toThrow('duplicate dependencies')
   expect(() => layoutOperations([op('a', []), op('a', [])])).toThrow('duplicate operation IDs')
   expect(() => layoutOperations([op('a', ['b']), op('b', ['a'])])).toThrow('cycle')
+})
+
+it('stacks the graph down a narrow screen as a tree, each operation under the one it most depends on', () => {
+  const operations = [
+    { id: 'context', kind: 'context', dependencies: [] },
+    { id: 'reply', kind: 'reply', dependencies: ['context'] },
+    { id: 'skills', kind: 'skills', dependencies: ['context'] },
+    { id: 'gloss', kind: 'gloss', dependencies: ['reply'] },
+    { id: 'join', kind: 'join', dependencies: ['skills', 'gloss'] },
+  ]
+  const graph = layoutOperationsDown(operations)
+  // Children follow their deepest prerequisite: the join sits under gloss, not skills.
+  expect(graph.nodes.map(node => node.operation.id)).toEqual(['context', 'reply', 'gloss', 'join', 'skills'])
+  expect(graph.nodes.map(node => node.x / TREE_INDENT)).toEqual([0, 1, 2, 3, 1])
+  expect(graph.nodes.map(node => node.y)).toEqual(graph.nodes.map((_, index) => index * TREE_ROW))
+  // The tree only orders the rows: every dependency is still an edge.
+  expect(graph.edges.map(edge => edge.id).sort()).toEqual(['context:reply', 'context:skills', 'gloss:join', 'reply:gloss', 'skills:join'])
 })

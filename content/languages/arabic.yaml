@@ -52,25 +52,25 @@ definitions:
         that could be mistaken for a digraph. These are transliteration rules, not a pronunciation
         respelling. Never alter the Arabic source.
       examples:
-        - original: كتاب
+        - original: كِتاب
           romanized: kitāb
-        - original: صورة
+        - original: صُورة
           romanized: ṣūrah
-        - original: على
+        - original: عَلى
           romanized: ‘alá
-        - original: مسألة
+        - original: مَسأَلة
           romanized: mas’alah
-        - original: إيمان
+        - original: إِيمان
           romanized: īmān
-        - original: الشمس
+        - original: الشّمس
           romanized: al-shams
-        - original: وزارة التربية
+        - original: وِزارة التّربية
           romanized: Wizārat al-Tarbiyah
-        - original: فجأةً
+        - original: فَجأَةً
           romanized: faj’atan
         - original: قاضٍ
           romanized: qāḍin
-        - original: أدهم
+        - original: أَدهم
           romanized: Adʹham
       sources:
         - ala_lc_arabic
@@ -123,7 +123,7 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: Levantine Arabic past meaning can come from verb forms, time expressions such as مبارح,
+          assessment: Levantine Arabic past meaning can come from verb forms, time expressions such as مبارِح,
             and conversation context. Past states or ongoing activities can use كان constructions. A
             past-looking form alone is insufficient in hypothetical contexts; assess the meaning in
             the selected spoken variety.
@@ -131,7 +131,7 @@ learning:
             ### Report an event, then describe the background
 
 
-            Use a past verb to report what happened. A time word such as `مبارح` (yesterday) makes
+            Use a past verb to report what happened. A time word such as `مبارِح` (yesterday) makes
             the time explicit. For a state that held then, a form of `كان` can set it in the past.
 
 
@@ -139,12 +139,12 @@ learning:
 
 
             In these examples the endings identify the speaker as “I.” The waiting example uses a
-            masculine speaker's form; a woman would use `ناطرة`.
+            masculine speaker's form; a woman would use `ناطِرة`.
           examples:
-            - text: مبارح رحت عالسوق.
+            - text: مبارِح رُحت عالسّوق.
               translation: Yesterday I went to the market.
               context: A past event.
-            - text: كنت ناطر التاكسي.
+            - text: كُنت ناطِر التّاكسي.
               translation: I was waiting for the taxi.
               context: A past state, said by a male speaker.
         arabic-modern-standard:
@@ -153,7 +153,7 @@ learning:
             describe an ongoing or habitual past activity. The verb forms interact with context; the
             perfect is not simply a label for every possible past meaning.
           examples:
-            - text: وَصَلْتُ أَمْسِ.
+            - text: وَصَلتُ أَمس.
               translation: I arrived yesterday.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -170,7 +170,7 @@ learning:
       varieties:
         arabic-levantine:
           assessment: Levantine Arabic can express ownership, kinship, assignment or use with noun
-            relationships, attached pronouns and expressions such as إلو or تبع. Interpret the
+            relationships, attached pronouns and expressions such as إِلو or تَبَع. Interpret the
             relationship in context, not only physical ownership. Short replies can rely on the
             preceding question.
           explanation: >-
@@ -184,26 +184,26 @@ learning:
             ### Say what you have
 
 
-            Use `عندي` for “I have.” It can introduce something available to you, including time,
+            Use `عِندي` for “I have.” It can introduce something available to you, including time,
             rather than only an object you own.
           examples:
-            - text: كتابي هون.
+            - text: كِتابي هون.
               translation: My book is here.
               context: The ending on book means my.
-            - text: أختي هون.
+            - text: أُختي هون.
               translation: My sister is here.
               context: The same relationship pattern with a person.
-            - text: عندي وقت.
+            - text: عِندي وَقت.
               translation: I have time.
               context: Describe what is available.
         arabic-modern-standard:
           assessment: Standard Arabic uses possessive suffixes, construct phrases and existential possession.
           explanation: The construct phrase places two nouns together to express a relationship, and
-            possessive suffixes attach to a noun. With عِنْدِي, something is available to or
+            possessive suffixes attach to a noun. With عِندي, something is available to or
             possessed by the speaker. These standard forms should not replace Levantine forms in a
             conversational guide.
           examples:
-            - text: عِنْدِي كِتَابٌ.
+            - text: عِندي كِتاب.
               translation: I have a book.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -235,10 +235,10 @@ learning:
             Many adjectives change for masculine and feminine nouns. Here the room is grammatically
             feminine, so its adjective has a feminine ending.
           examples:
-            - text: الغرفة كبيرة.
+            - text: الغُرفة كْبيرة.
               translation: The room is large.
               context: Describe the room.
-            - text: أحمد بالبيت.
+            - text: أَحمد بالبيت.
               translation: Ahmad is at home.
               context: Say where someone is.
         arabic-modern-standard:
@@ -249,7 +249,7 @@ learning:
             number, definiteness and case. A definite noun followed by an indefinite adjective can
             form a statement rather than a single noun phrase.
           examples:
-            - text: هٰذِهِ الْغُرْفَةُ كَبِيرَةٌ.
+            - text: هَذه الغُرفة كَبيرة.
               translation: This room is big.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -270,7 +270,7 @@ learning:
 
 
             In Levantine, a dual noun can mean two without adding a separate word for “two.” Learn
-            the dual together with its singular. For an uncounted amount, `شوي` can mean “a little.”
+            the dual together with its singular. For an uncounted amount, `شْوَي` can mean “a little.”
 
 
             ### Learn number phrases together
@@ -279,10 +279,10 @@ learning:
             Larger numbers interact with the noun's form. Start with complete phrases you actually
             need, rather than assuming the noun stays unchanged after every number.
           examples:
-            - text: عندي كتابين.
+            - text: عِندي كِتابين.
               translation: I have two books.
               context: The noun ending expresses two.
-            - text: بدي شوي مي.
+            - text: بِدّي شْوَي مَيّ.
               translation: I want a little water.
               context: An amount rather than separate items.
         arabic-modern-standard:
@@ -292,7 +292,7 @@ learning:
             noun, and the noun is plural in the genitive. Start with a complete number–noun phrase
             and keep its form together.
           examples:
-            - text: عِنْدِي ثَلَاثَةُ كُتُبٍ.
+            - text: عِندي ثَلاثة كُتُب.
               translation: I have three books.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -306,14 +306,14 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: In Levantine, b-prefixed verbs, عم constructions and some active participles can
+          assessment: In Levantine, b-prefixed verbs, عَم constructions and some active participles can
             contribute present meaning.
           explanation: >-
             ### Routine and action in progress
 
 
-            A verb with `بـ` commonly describes a habit or ordinary present activity. `عم` can draw
-            attention to an action underway. Listen for the whole phrase: the form used after `عم`
+            A verb with `بـ` commonly describes a habit or ordinary present activity. `عَم` can draw
+            attention to an action underway. Listen for the whole phrase: the form used after `عَم`
             varies within Levantine.
 
 
@@ -323,10 +323,10 @@ learning:
             A current location or description can stand without an equivalent of “am” or “is.” Use
             the action pattern when there is an action to describe.
           examples:
-            - text: بشتغل هون.
+            - text: بِشتغِل هون.
               translation: I work here.
               context: An ordinary working arrangement.
-            - text: عم بشتغل.
+            - text: عَم بِشتغِل.
               translation: I am working.
               context: Focus on the activity underway.
         arabic-modern-standard:
@@ -336,7 +336,7 @@ learning:
             progressive auxiliary. Nominal clauses describe many states. Time expressions establish
             whether the activity is happening now or regularly.
           examples:
-            - text: أَعْمَلُ هُنَا.
+            - text: أَعمَل هُنا.
               translation: I work here.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -352,13 +352,13 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: Levantine رح can mark future reference; context can also establish future time. Do not
-            require MSA سـ or سوف.
+          assessment: Levantine رَح can mark future reference; context can also establish future time. Do not
+            require MSA سَـ or سَوف.
           explanation: >-
-            ### Put the plan after رح
+            ### Put the plan after رَح
 
 
-            A common Levantine future pattern uses `رح` before the verb. The following verb normally
+            A common Levantine future pattern uses `رَح` before the verb. The following verb normally
             does not carry the ordinary present `بـ` prefix. Compare working as a routine with
             working tomorrow.
 
@@ -366,22 +366,22 @@ learning:
             ### Make the time explicit
 
 
-            A word such as `بكرا` (tomorrow) makes a useful starting point when arranging a time.
+            A word such as `بُكرا` (tomorrow) makes a useful starting point when arranging a time.
             Pronunciation and spelling vary across Levantine communities.
           examples:
-            - text: بشتغل هون.
+            - text: بِشتغِل هون.
               translation: I work here.
               context: Present routine.
-            - text: رح اشتغل هون بكرا.
+            - text: رَح اِشتغِل هون بُكرا.
               translation: I will work here tomorrow.
               context: Future plan.
         arabic-modern-standard:
-          assessment: Standard Arabic uses سـ or سوف with imperfect verbs and future context.
+          assessment: Standard Arabic uses سَـ or سَوْفَ with imperfect verbs and future context.
           explanation: The prefix سَـ and the particle سَوْفَ can place an imperfect verb in the future. A
             future time phrase can make the reference explicit. These are standard-language options;
             the Levantine section describes its own future constructions.
           examples:
-            - text: سَأَذْهَبُ غَدًا.
+            - text: سَأَذهَب غَداً.
               translation: I will go tomorrow.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -397,35 +397,35 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: Levantine بدي expresses wanting. Distinguish the desire from a prediction or an implied
+          assessment: Levantine بِدّي expresses wanting. Distinguish the desire from a prediction or an implied
             request.
           explanation: >-
             ### Wanting and liking
 
 
-            `بدي` expresses “I want”; `بحب` can express “I like” or “I love.” The context tells you
+            `بِدّي` expresses “I want”; `بِحِبّ` can express “I like” or “I love.” The context tells you
             how strong the feeling is. A want can concern an object or an action.
 
 
             ### Follow a want with an action
 
 
-            After `بدي`, use the action verb without the ordinary present `بـ` prefix. The two verbs
+            After `بِدّي`, use the action verb without the ordinary present `بـ` prefix. The two verbs
             are part of one pattern, not two independent statements.
           examples:
-            - text: بدي أشرب قهوة.
+            - text: بِدّي أَشرَب قَهوة.
               translation: I want to drink coffee.
               context: A desired action.
-            - text: بحب القهوة.
+            - text: بِحِبّ القَهوة.
               translation: I like coffee.
               context: A general preference.
         arabic-modern-standard:
-          assessment: Standard Arabic uses أراد, أحب and preference expressions.
-          explanation: أُرِيدُ states a want, while أُحِبُّ can state liking. A wanted action can follow أَنْ
+          assessment: Standard Arabic uses أَراد, أَحَبّ and preference expressions.
+          explanation: أُرِيدُ states a want, while أُحِبّ can state liking. A wanted action can follow أَنْ
             in a subordinate verb construction. Liking something is not itself a claim that the
             speaker intends to do it next.
           examples:
-            - text: أُحِبُّ الْقَهْوَةَ.
+            - text: أُحِبّ القَهوة.
               translation: I like coffee.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -439,38 +439,38 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: In Levantine, بقدر can express ability and لازم necessity. Interpret permission from the
+          assessment: In Levantine, بِقدَر can express ability and لازِم necessity. Interpret permission from the
             utterance in context.
           explanation: >-
             ### Ability and necessity
 
 
-            Use `بقدر` for “I can” and `لازم` for something necessary. The following action normally
+            Use `بِقدَر` for “I can” and `لازِم` for something necessary. The following action normally
             uses a verb without the ordinary present `بـ` prefix.
 
 
             ### Ask for permission
 
 
-            A question beginning with `ممكن` can ask whether an action is allowed or possible. In a
+            A question beginning with `مُمكِن` can ask whether an action is allowed or possible. In a
             real conversation, tone and the setting tell the listener which you mean.
           examples:
-            - text: بقدر أجي بكرا.
+            - text: بِقدَر أَجي بُكرا.
               translation: I can come tomorrow.
               context: Ability or availability.
-            - text: لازم أروح.
+            - text: لازِم أَروح.
               translation: I have to go.
               context: Necessity.
-            - text: ممكن أفوت؟
+            - text: مُمكِن أَفوت؟
               translation: May I come in?
               context: Permission at a doorway.
         arabic-modern-standard:
-          assessment: Standard Arabic uses استطاع, permission expressions and necessity constructions.
+          assessment: Standard Arabic uses اِستَطاع, permission expressions and necessity constructions.
           explanation: أَسْتَطِيعُ expresses ability, often followed by أَنْ and a verb. يَجِبُ expresses
             obligation in a different construction. A question about possibility can be used
             socially to ask permission, so the intended meaning depends on the situation.
           examples:
-            - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
+            - text: أَستَطيع أَن أَسبَح.
               translation: I can swim.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -485,13 +485,13 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: Levantine uses ما for verbal negation and مو or مش in other constructions, with regional
+          assessment: Levantine uses ما for verbal negation and مو or مِش in other constructions, with regional
             variation. Do not demand one regional form.
           explanation: >-
             ### Negate an action or a description
 
 
-            A common Levantine pattern puts `ما` before a verb and `مش` before a description. Learn
+            A common Levantine pattern puts `ما` before a verb and `مِش` before a description. Learn
             these as two patterns rather than inserting the same negative word everywhere.
 
 
@@ -499,12 +499,12 @@ learning:
 
 
             You will also hear `مو` in descriptions, especially in northern Levantine speech. The
-            examples use `مش`; that does not make other local forms incorrect.
+            examples use `مِش`; that does not make other local forms incorrect.
           examples:
-            - text: ما بعرف.
+            - text: ما بَعرِف.
               translation: I do not know.
               context: Negate a verb.
-            - text: أنا مش جاهز.
+            - text: أَنا مِش جاهِز.
               translation: I am not ready.
               context: Negate a description; male speaker.
         arabic-modern-standard:
@@ -513,7 +513,7 @@ learning:
             form, and لَنْ negates future reference with a subjunctive imperfect form. لَيْسَ is
             used for many nominal predicates. Do not apply a single negator to every clause.
           examples:
-            - text: لَا أَعْرِفُ.
+            - text: لا أَعرِف.
               translation: I do not know.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -544,22 +544,22 @@ learning:
             A place phrase can answer a location question. Repeating the entire sentence is
             possible, but not required for a useful conversational answer.
           examples:
-            - text: وين المحطة؟
+            - text: وين المَحَطّة؟
               translation: Where is the station?
               context: Ask for a location.
-            - text: جنب الفندق.
+            - text: جَنب الفُندُق.
               translation: Next to the hotel.
               context: Answer the location question.
-            - text: ليش تأخرت؟
+            - text: ليش تْأَخّرت؟
               translation: Why were you late?
               context: Ask one male addressee for a reason.
         arabic-modern-standard:
-          assessment: Standard Arabic uses هل, interrogative أ and question words.
-          explanation: هَلْ and interrogative أَ can introduce yes/no questions. أَيْنَ asks about place,
+          assessment: Standard Arabic uses هَل, interrogative أَ and question words.
+          explanation: هَل and interrogative أَ can introduce yes/no questions. أَيْنَ asks about place,
             مَتَى about time, and مَنْ about a person. A question need not have English-style
             auxiliary inversion.
           examples:
-            - text: أَيْنَ الْمَحَطَّةُ؟
+            - text: أَين المَحَطّة؟
               translation: Where is the station?
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -580,7 +580,7 @@ learning:
             ### Ask for an action
 
 
-            `ممكن` followed by an action is a useful request pattern. `لو سمحت` adds “please” or “if
+            `مُمكِن` followed by an action is a useful request pattern. `لو سَمَحت` adds “please” or “if
             you would.” The action verb changes for the person you address.
 
 
@@ -590,10 +590,10 @@ learning:
             A request invites an action, not just a statement about someone's ability. In the first
             example, the expected response is slower speech.
           examples:
-            - text: ممكن تحكي شوي شوي؟
+            - text: مُمكِن تِحكي شْوَي شْوَي؟
               translation: Could you speak slowly?
               context: Address one male speaker.
-            - text: افتح الباب، لو سمحت.
+            - text: اِفتَح الباب، لو سَمَحت.
               translation: Open the door, please.
               context: A direct request to one male addressee.
         arabic-modern-standard:
@@ -602,7 +602,7 @@ learning:
             politely; its suffix changes for other addressees. Modal questions can make a request
             less direct. Keep address agreement consistent.
           examples:
-            - text: اِفْتَحِ الْبَابَ مِنْ فَضْلِكَ.
+            - text: اِفتَحِ الباب مِن فَضلِكَ.
               translation: Open the door, please, addressed to one man.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -616,13 +616,13 @@ learning:
         examples: []
       varieties:
         arabic-levantine:
-          assessment: In Levantine, لأنو can introduce a reason and إذا a condition. A sequence of events
+          assessment: In Levantine, لَأَنّو can introduce a reason and إِذا a condition. A sequence of events
             alone supplies neither relation.
           explanation: >-
             ### Because and if
 
 
-            Use `لأنّ` for a reason and `إذا` for a condition. Compare a reason for staying with a
+            Use `لَأَنّ` for a reason and `إِذا` for a condition. Compare a reason for staying with a
             plan that depends on having time.
 
 
@@ -632,19 +632,19 @@ learning:
             The part after “if” is the condition, not a claim that it has already happened. Begin
             with ordinary possibilities before tackling hypothetical situations.
           examples:
-            - text: رح ضل هون لأنّي تعبان.
+            - text: رَح ضَلّ هون لَأَنّي تَعبان.
               translation: I will stay here because I am tired.
               context: A reason; male speaker.
-            - text: إذا عندي وقت، رح أجي.
+            - text: إِذا عِندي وَقت، رَح أَجي.
               translation: If I have time, I will come.
               context: A condition on the plan.
         arabic-modern-standard:
           assessment: Standard Arabic uses reason clauses and several conditional particles.
-          explanation: لِأَنَّ introduces a reason. إِذَا commonly introduces an expected or possible
+          explanation: لِأَنّ introduces a reason. إِذا commonly introduces an expected or possible
             condition, while إِنْ and لَوْ have different patterns and uses. A past-form verb after
-            إِذَا can refer to a future condition, so form alone does not establish past time.
+            إِذا can refer to a future condition, so form alone does not establish past time.
           examples:
-            - text: سَأَبْقَى هُنَا لِأَنِّي مُتْعَبٌ.
+            - text: سَأَبقى هُنا لِأَنّي مُتعَب.
               translation: I will stay here because I am tired, said by a man.
       review: needs_review
       authorship: AI-authored teaching draft. Original examples; speaker review pending.
@@ -692,3 +692,135 @@ conversation:
       - 🏛️
       - 🎻
       - 🌿
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - إيه.
+      - لا.
+      - مَيّ، لو سَمَحت.
+      - أَنا هون.
+      - الدّنيا شوب.
+      - بِدّي آكُل.
+      - شو هاد؟
+      - ما بَعرِف.
+    beginner:
+      - الغُرفة كْبيرة.
+      - أَحمد بالبيت.
+      - كِتابي هون.
+      - أُختي هون.
+      - عِندي كِتابين.
+      - بِدّي شْوَي مَيّ.
+      - بِشتغِل هون.
+      - عَم بِشتغِل.
+    intermediate:
+      - مبارِح رُحت عالسّوق.
+      - كُنت ناطِر التّاكسي.
+      - بِشتغِل هون.
+      - رَح اِشتغِل هون بُكرا.
+      - بِدّي أَشرَب قَهوة.
+      - بِحِبّ القَهوة.
+      - بِقدَر أَجي بُكرا.
+      - لازِم أَروح.
+    advanced:
+      - لو كُنت بَعرِف إِنّو الاجتِماع رَح يطَوّل لَهالدّرَجة، كُنت غَيّرت خُطّتي للرّجعة عالبيت.
+      - أَكتر شي مْقَلّقني هو كيف هالقَرار رَح يأَثّر عالنّاس اللّي ما حَدا أَخَد رَأيهم.
+      - مَع إِنّو الاقتِراح مُبَشّر، لازِم نْفَكّر مْنيح بالنّتائِج اللّي مُمكِن تِتْرَتّب عليه.
+      - بْفَضّل نْأَجّل السّفرة بَدَل ما ناخُد قَرار بِسُرعة ونِندَم عليه بَعدين.
+      - كُلّ ما بَقرأ التّقرير بِتَمَعّن أَكتر، بِحِسّ إِنّو الاستِنتاجات اللّي فيه ما إِلها دَليل كافي.
+      - نَجاح المَشروع بيعْتَمِد لَحَدّ كْبير على كيف رَح نِتقاسَم المَسؤوليّات بيناتنا.
+      - مو إِنّي ضِدّ الفِكرة، بَسّ لِسّه مو مِتأَكّد إِذا هَلّق هو الوَقت المُناسِب إِلها.
+      - لَمّا فْهِمنا شو اللّي صار، كان صار صَعب نِعمَل شي يصَلّح الوَضع.
+    social:
+      - مَرحَبا!
+      - صَباح الخَير!
+      - مَسا الخَير!
+      - كيفَك؟
+      - مْنيح، الحَمد لله.
+      - شو اِسمَك؟
+      - تْشَرّفنا.
+      - شُكراً كْتير.
+      - أَهلاً وسَهلاً.
+      - عَفواً.
+      - لو سَمَحت.
+      - آسِف.
+      - ولا يهِمّك.
+      - مَع السّلامة!
+      - بْشوفَك بَعدين!
+      - تِصبَح على خَير!
+    # Sources: [@practice-idioms-arabic]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "اللّي بِدّو يِلعَب مَع القِطّ بِدّو يِلقى خَراميشه."
+      - "الدّم ما بيصير مَيّ."
+      - "البَحصة بِتسنِد خابية."
+      - "الحَرَكة بَرَكة."
+      - "ما تْقول فول ليصير بالمَكيول."
+      - "طَنجَرة ولاقَت غَطاها."
+      - "على قَدّ بِساطَك مِدّ اِجريك."
+      - "اِبعَد عَن الشّر وغَنّيله."
+  varieties:
+    arabic-modern-standard:
+      absolute_zero:
+        - نَعَم.
+        - لا.
+        - ماء، مِن فَضلِك.
+        - أَنا هُنا.
+        - الجَوّ حارّ.
+        - أَنا جائِع.
+        - ما هَذا؟
+        - لا أَعرِف.
+      beginner:
+        - هَذه الغُرفة كَبيرة.
+        - أَحمد في البَيت.
+        - عِندي كِتاب.
+        - هَذا بَيت أُختي.
+        - عِندي ثَلاثة كُتُب.
+        - أُريد بَعض الماء.
+        - أَعمَل هُنا.
+        - هِي تَقرَأ الآن.
+      intermediate:
+        - وَصَلتُ أَمس.
+        - كُنتُ أَنتَظِر الحافِلة.
+        - سَأَذهَب غَداً.
+        - سَأَعود إِلى البَيت الأُسبوع المُقبِل.
+        - أُحِبّ القَهوة.
+        - أُريد أَن أَستَريح قَليلاً.
+        - أَستَطيع أَن أَسبَح.
+        - هَل يُمكِنني الجُلوس هُنا؟
+      advanced:
+        - لو كُنتُ أَعلَم أَنّ الاجتِماع سَيَستَغرِق كُلّ هَذا الوَقت، لَغَيّرتُ خُطّتي للعَودة إِلى البَيت.
+        - أَكثَر ما يُقلِقني هو تَأثير هَذا القَرار على الأَشخاص الّذين لَم تُستَشَر آراؤُهم.
+        - على الرّغم مِن أَنّ الاقتِراح يَبدو واعِداً، يَنبَغي أَن نَدرُس عَواقِبه المُحتَمَلة بِعِناية.
+        - أُفَضّل أَن نُؤَجّل الرّحلة على أَن نَتّخِذ قَراراً مُتَسَرّعاً قَد نَندَم عليه لاحِقاً.
+        - كُلّما أَعَدتُ قِراءة التّقرير، ازداد شَكّي في أَنّ نَتائِجه تَستَنِد إِلى أَدِلّة كافِية.
+        - سَيَعتَمِد نَجاح المَشروع إِلى حَدّ كَبير على كَيفيّة تَوزيع المَسؤوليّات بَينَنا.
+        - لَستُ مُعارِضاً للفِكرة في حَدّ ذاتِها، لكنّني غَير مُتَأَكّد مِن أَنّ الوَقت مُناسِب لتَنفيذِها.
+        - بِحُلول الوَقت الّذي فَهِمنا فيه ما حَدَث، كان مِن الصّعب اتّخاذ إِجراء يُصلِح الوَضع.
+      social:
+        - مَرحَباً!
+        - صَباح الخَير!
+        - مَساء الخَير!
+        - كَيف حالَك؟
+        - أَنا بِخَير، شُكراً.
+        - ما اسمُك؟
+        - سُرِرتُ بِلِقائِك.
+        - شُكراً جَزيلاً.
+        - أَهلاً وسَهلاً.
+        - عَفواً.
+        - مِن فَضلِك.
+        - أَعتَذِر.
+        - لا بَأس.
+        - إِلى اللّقاء!
+        - أَراك لاحِقاً!
+        - تُصبِح على خَير!
+      # Sources: [@practice-idioms-arabic].
+      idiomatic:
+        - "تَجري الرّياح بِما لا تَشتَهي السّفُن."
+        - "الحاجة أُمّ الاختِراع."
+        - "الأُمور بِخَواتِمها."
+        - "الطّيور على أَشكالِها تَقَع."
+        - "يَحصُد المَرء ما زَرَع."
+        - "خَير الكَلام ما قَلّ ودَلّ."
+        - "الصّديق وَقت الضّيق."
+        - "ما يَأتي بِسُرعة يَذهَب بِسُرعة."

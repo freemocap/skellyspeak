@@ -64,6 +64,7 @@ document!(LanguageDocument {
     guidance: Vec<Guidance>,
     learning: LearningContent,
     conversation: ConversationContent,
+    practice: super::practice::PracticeContent,
 });
 document!(LanguageIdentity {
     id: LanguageId,

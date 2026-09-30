@@ -136,6 +136,7 @@ impl Registry {
             }
         }
         registry.validate_starter_content()?;
+        registry.validate_practice_content()?;
         let bib = files.get("references.bib").ok_or_else(|| {
             error(
                 "references.bib",

@@ -1,4 +1,3 @@
-import { AnalysisSentence } from './reading/AnalysisSentence'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
@@ -32,9 +31,10 @@ import { usePendingMessage } from './session/usePendingMessage'
 import { ReadingPreferencesProvider } from '../../components/reading/ReadingPreferences'
 import { configureRewardSounds, stopRewardSounds } from '../../platform/audio/reward-sounds'
 import { RewardPresentationProvider } from './progress/RewardPresentation'
-import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
+import { AiStatus } from './composer/AiStatus'
 import { TurnReplyHelp } from './composer/TurnReplyHelp'
 import { useSkillNavigationStore } from '../../state/navigation/skill-navigation'
+import { aiTraySlot } from '../../state/navigation/ai-tray'
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { openOverlay } from '../../domain/input/back'
 import { createContact as createContactRequest, executeAction, readWorkspace, nativeError } from '../../platform/ipc/workspace'
@@ -61,7 +61,6 @@ import { useUiDirection } from '../../components/localization/useUiDirection'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
 import { EditFeedback } from './coaching/EditFeedback'
 import { TurnView, type TurnShape } from './messages/TurnView'
-import { LatestTurnActivity } from './messages/TurnActivityLine'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { AnalysisContent } from './reading/AnalysisContent'
 import { CoachAnalysisPanel } from './coaching/CoachAnalysisPanel'
@@ -187,7 +186,6 @@ export default function ConversationPage({
     removeChat,
     sendMessage,
     pendingReply,
-    replyActive,
     snapshotRevision,
     readError, retryRead, olderError, loadingOlder, loadOlder,
     snapshot,
@@ -292,7 +290,9 @@ export default function ConversationPage({
     setPanelTab('coaching')
     if (!breakOpen) toggleBreak()
     if (isMobile) useNavigationStore.getState().openPractice('panel')
-    requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus())
+    // Phones: opening moves no focus, so nothing scrolls to reveal the field and
+    // no keyboard opens over the popover. The learner taps the field to ask.
+    if (!isMobile) requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus({ preventScroll: true }))
   }
   const [exportOpen, setExportOpen] = useState(false)
   const [inspectionOpen, setInspectionOpen] = useState(false)
@@ -583,6 +583,8 @@ export default function ConversationPage({
   toggleMicRef.current = toggleMic
   // The recording panel keeps the height the learner drags it to; the stream takes the rest.
   const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
+  // Opened reply help keeps a dragged height too, so the learner decides how much it takes.
+  const [replyHelpHeight, setReplyHelpHeight] = useStoredSize('reply-help')
   const uiDirection = useUiDirection()
   const recorder = useRecorderLayout('chat', uiDirection)
 
@@ -631,10 +633,9 @@ export default function ConversationPage({
     {greeting.romanized && <> (<bdi dir="ltr">{greeting.romanized}</bdi>)</>}
   </> }) : undefined
   const composerActivity = (
-    <div className="composer-activity" aria-live="polite">
-      {mic.transcribing ? <ActivityIndicator label={tr("Transcribing…")} /> : sending && (!pendingReply || replyActive) ? <ActivityIndicator label={pendingReply ? tr("Replying…") : tr("Sending…")} />
-        : latestTurn?.assistant && latestTurn.execution ? <LatestTurnActivity execution={latestTurn.execution} onActivity={inspectLatest} fallback={null} />
-        : null}
+    <div className="composer-activity">
+      <AiStatus transcribing={mic.transcribing} scheduling={sending && !pendingReply} turns={snapshot?.turns ?? []}
+        synthesizing={speech.phase === 'preparing'} latest={latestTurn?.assistant ? latestTurn.execution ?? undefined : undefined} onInspectLatest={inspectLatest} />
     </div>
   )
   const chatComposer = (
@@ -661,7 +662,15 @@ export default function ConversationPage({
           </ErrorNotice>}
           {/* Stacked, one row above the answer holds reply help, the status line and
               the coach, instead of a row each. */}
-          {isMobile && <div className="composer-assist">{replyHelp()}{composerActivity}<button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
+          {isMobile && <div className="composer-assist" data-help-sized={replyHelpHeight === null ? undefined : ''}
+            style={replyHelpHeight === null ? undefined : { '--reply-help-height': `${Math.round(replyHelpHeight)}px` } as CSSProperties}>
+            {/* Opened reply help's top edge; the handle hides while help is folded. */}
+            <ResizeHandle className="reply-help-resize" label={tr("Resize the reply help panel")} axis="y" grow={-1} size={replyHelpHeight}
+              min={120} max={Math.round(window.innerHeight * 0.8)} onResize={setReplyHelpHeight}
+              measure={() => composer.current?.querySelector('.composer-assist .reply-help')?.getBoundingClientRect().height ?? 0} />
+            {/* The AI View's tray rises here, right above the pill that opens it,
+                while this conversation shows and the coach does not cover it. */}
+            {replyHelp()}<div className="ai-tray-slot" ref={active && !coachCovers ? aiTraySlot : undefined} />{composerActivity}<button type="button" className="chat-coach" aria-expanded={coachCovers} onClick={() => openCoach()}>
             <ToolbarIcon name="idea" size={15} /><span>{tr("Coach")}</span></button></div>}
           {/* The divider is the recording panel's own top edge; everything above it
               stays with the conversation. */}
@@ -676,6 +685,86 @@ export default function ConversationPage({
             onInput={setInput} onSend={text => { void send(text) }}
             onDiscardRecording={mic.cancel} onToggleRecording={toggleMic} />
         </div>
+  )
+
+  // Both surfaces share message capabilities, availability and action handlers.
+  const renderTurn = (turn: typeof activeTurns[number], onlySide?: 'user' | 'assistant') => (
+    <ConversationErrorScope key={onlySide ? `message:${onlySide}:${turn.turnId ?? turn.id}` : turn.turnId ? turnDisplayKeys.get(turn.turnId) : turn.id} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
+      onlySide={onlySide}
+      turn={turn}
+      pendingEdit={pendingMessage?.editing?.id === turn.id ? pendingMessage : undefined}
+      editing={turn.id === editingTurnId}
+      onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
+      onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
+      onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
+      reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
+      onAskCoach={askCoach}
+      onSelectMessage={selectMessage}
+      selectedSide={selectedTurn?.id === turn.id ? selectedSide : undefined}
+      focused={(pinnedId ?? latestAssistantId) === turn.id}
+      ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
+      speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId && speech.phase === 'playing')}
+      speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
+      onSpeak={() => { if (turn.assistant?.messageId) speech.resume(turn.assistant.messageId) }}
+      partnerSpeech={isTauri && turn.assistant?.messageId ? {
+        retained: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.retained : null,
+        time: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.time : 0,
+        playing: speech.messageId === turn.assistant.messageId && speech.phase === 'playing',
+        preparing: speech.messageId === turn.assistant.messageId && speech.phase === 'preparing',
+        enabled: active && !mic.recording && !mic.transcribing,
+        rate: settings?.tts_rate ?? 1, volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000,
+        seek: seconds => speech.seek(turn.assistant!.messageId!, seconds), stop: speech.stop,
+        toggle: () => speech.resume(turn.assistant!.messageId!),
+      } : undefined}
+      recording={turn.id === recordingTurnId && mic.lastTranscription ? { result: mic.lastTranscription, rate: settings?.tts_rate ?? 1,
+        volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000, enabled: !mic.recording && !mic.transcribing,
+        onExpand: () => setInspectionOpen(true) } : undefined}
+      rtl={rtl}
+      onBubbleTap={onBubbleTap}
+      onAddContext={turn.turnId && !turn.replacedBy ? async note => { await executeAction(await readWorkspace(), {kind:'reassessFeedback', turnId:turn.turnId!, note}) } : undefined}
+      onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
+      onCoachControl={turn.turnId ? async (selected, control) => {
+        if (!selected.turnId) throw new Error('Coaching source is unavailable.')
+        await coachControl(selected.turnId, control)
+      } : undefined}
+      editDisabled={editBlocked}
+      onEditUser={canEdit(turn) ? startEdit : undefined}
+    />
+    </ConversationErrorScope>
+  )
+
+  // The coach: beside the conversation at full width; a full-screen modal where
+  // the docked panel does not fit (compact and narrow).
+  const coachPanel = (
+      <section
+        className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
+        ref={breakRef}
+      >
+        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}><ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
+
+        {/* Private coaching and message assessment. */}
+        {currentChatId && <CoachAnalysisPanel
+          key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
+          coachingContent={<>{selectedTurn && renderTurn(selectedTurn, selectedSide)}{selectedTurn && selectedSide === 'assistant' ? <AnalysisContent showMessages={false} replyHelp={replyHelp(selectedTurn, true)} partnerOnly requestOnOpen={false} key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
+          <LiveCoachReview key={coachedTurn?.id} revealOnView={!selectedTurn} turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
+            if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')
+            await coachControl(coachedTurn.turnId, control)
+          }} /></>}</>}
+          chatId={currentChatId}
+          conversationBusy={sending || details.saving}
+          onCollapse={isMobile ? closeCoach : toggleBreak}
+          tab={panelTab}
+          onTab={setPanelTab}
+          autoSendDraft
+          draftQuestion={coachDraft}
+          onDraftConsumed={consumeCoachDraft}
+          pinnedTurn={pinnedTurn}
+          nativeLanguageName={nativeLanguageName}
+          showRomanization={showRomanization}
+          rtl={rtl}
+        />}
+
+      </section>
   )
 
   return (
@@ -731,49 +820,7 @@ export default function ConversationPage({
           ) : turns.length === 0 && !error && !pendingMessage && (
             snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
-          {activeTurns.map((turn) => (
-            <ConversationErrorScope key={turn.turnId ? turnDisplayKeys.get(turn.turnId) : turn.id} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
-              turn={turn}
-              pendingEdit={pendingMessage?.editing?.id === turn.id ? pendingMessage : undefined}
-              editing={turn.id === editingTurnId}
-              onActivity={() => useNavigationStore.getState().inspectAi({ conversationId: snapshot?.conversationId ?? null, turnId: turn.turnId ?? null, operationKind: null })}
-              onReplyControl={turn.turnId ? async control => { await executeAction(await readWorkspace(), { kind: 'controlTurn', turnId: turn.turnId!, control }) } : undefined}
-              onRetryGloss={async operationId => { await executeAction(await readWorkspace(), { kind: 'retryGloss', operationId }) }}
-              reviewing={turn.analysisState === 'pending' || reviewing.has(turn.id)}
-              onAskCoach={askCoach}
-              onSelectMessage={selectMessage}
-              selectedSide={selectedTurn?.id === turn.id ? selectedSide : undefined}
-              focused={(pinnedId ?? latestAssistantId) === turn.id}
-              ttsReady={isTauri && Boolean(turn.assistant?.messageId)}
-              speaking={Boolean(turn.assistant?.messageId && speech.messageId === turn.assistant.messageId && speech.phase === 'playing')}
-              speechError={speech.failure?.messageId === turn.assistant?.messageId ? speech.failure ?? undefined : undefined}
-              onSpeak={() => { if (turn.assistant?.messageId) speech.resume(turn.assistant.messageId) }}
-              partnerSpeech={isTauri && turn.assistant?.messageId ? {
-                retained: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.retained : null,
-                time: speech.retained?.audio.messageId === turn.assistant.messageId ? speech.time : 0,
-                playing: speech.messageId === turn.assistant.messageId && speech.phase === 'playing',
-                preparing: speech.messageId === turn.assistant.messageId && speech.phase === 'preparing',
-                enabled: active && !mic.recording && !mic.transcribing,
-                rate: settings?.tts_rate ?? 1, volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000,
-                seek: seconds => speech.seek(turn.assistant!.messageId!, seconds), stop: speech.stop,
-                toggle: () => speech.resume(turn.assistant!.messageId!),
-              } : undefined}
-              recording={turn.id === recordingTurnId && mic.lastTranscription ? { result: mic.lastTranscription, rate: settings?.tts_rate ?? 1,
-                volume: (settings?.master_volume ?? 100) * (settings?.voice_volume ?? 100) / 10000, enabled: !mic.recording && !mic.transcribing,
-                onExpand: () => setInspectionOpen(true) } : undefined}
-              rtl={rtl}
-              onBubbleTap={onBubbleTap}
-              onAddContext={turn.turnId && !turn.replacedBy ? async note => { await executeAction(await readWorkspace(), {kind:'reassessFeedback', turnId:turn.turnId!, note}) } : undefined}
-              onRetryHelp={turn.turnId ? async () => { await executeAction(await readWorkspace(), {kind:'controlTurn', turnId:turn.turnId!, control:'retry'}) } : undefined}
-              onCoachControl={turn.turnId ? async (selected, control) => {
-                if (!selected.turnId) throw new Error('Coaching source is unavailable.')
-                await coachControl(selected.turnId, control)
-              } : undefined}
-              editDisabled={editBlocked}
-              onEditUser={canEdit(turn) ? startEdit : undefined}
-            />
-            </ConversationErrorScope>
-          ))}
+          {activeTurns.map(turn => renderTurn(turn))}
           {pendingMessage && !pendingMessage.editing && <PendingTurn key={pendingMessage.key} message={pendingMessage} rtl={rtl} onOpenSettings={onOpenSettings}
             onDismiss={() => releasePending(pendingMessage.key)} />}
           {streamScroll.unseen && <button type="button" className="stream-jump" onClick={streamScroll.jumpToLatest}>{tr("New messages")}</button>}
@@ -788,37 +835,7 @@ export default function ConversationPage({
       {isMobile && <div className="chat mobile-composer">{chatComposer}</div>}
       {coachCovers && <div className="coach-scrim" aria-hidden="true" onClick={closeCoach} />}
 
-      {/* ── Breakdown half (dark) — full panel in mobile Coach/Analysis mode ── */}
-      <section
-        className={`break ${breakOpen || isMobile ? '' : 'collapsed'}`}
-        ref={breakRef}
-      >
-        {!breakOpen && !isMobile && <button type="button" className="break-head" onClick={toggleBreak} aria-expanded={false}><ToolbarIcon name="idea" size={16} /><span>{tr("Coach")}</span></button>}
-
-        {/* Private coaching and message assessment. */}
-        {currentChatId && <CoachAnalysisPanel
-          key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
-          coachingContent={<>{selectedTurn && selectedSide === 'assistant' ? <AnalysisContent replyHelp={replyHelp(selectedTurn, true)} partnerOnly requestOnOpen={false} key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
-          {selectedTurn?.user && <AnalysisSentence label={tr("Your message")} text={selectedTurn.user} gloss={selectedTurn.userSavedGloss} translation={selectedTurn.userTranslation} />}
-          <LiveCoachReview key={coachedTurn?.id} revealOnView={!selectedTurn} turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
-            if (!coachedTurn?.turnId) throw new Error('Coaching is unavailable.')
-            await coachControl(coachedTurn.turnId, control)
-          }} /></>}</>}
-          chatId={currentChatId}
-          conversationBusy={sending || details.saving}
-          onCollapse={isMobile ? closeCoach : toggleBreak}
-          tab={panelTab}
-          onTab={setPanelTab}
-          autoSendDraft
-          draftQuestion={coachDraft}
-          onDraftConsumed={consumeCoachDraft}
-          pinnedTurn={pinnedTurn}
-          nativeLanguageName={nativeLanguageName}
-          showRomanization={showRomanization}
-          rtl={rtl}
-        />}
-
-      </section>
+      {coachPanel}
 
     </div>
 

@@ -72,8 +72,38 @@ export function layoutOperations<T extends { id: string; kind: string; dependenc
   return { nodes, edges }
 }
 
-export function layoutTurn(turn: Pick<TurnView, 'operations' | 'attempts'>): { nodes: GraphNode[]; edges: GraphEdge[] } {
-  const layout = layoutOperations(turn.operations)
+/// Row pitch and per-depth indent of the stacked layout.
+export const TREE_ROW = 40
+export const TREE_INDENT = 28
+
+/// The same graph for a narrow screen: one operation per row, down the screen
+/// in dependency order, each directly under the prerequisite it most depends
+/// on (its deepest) and indented by its depth, so it reads as a tree whose
+/// edges run down the start side. Only the rows are ordered this way; every
+/// recorded dependency is still an edge.
+export function layoutOperationsDown<T extends { id: string; kind: string; dependencies: string[] }>(operations: T[]) {
+  const across = layoutOperations(operations)
+  const depth = new Map(across.nodes.map(node => [node.operation.id, node.depth]))
+  const children = new Map<string, T[]>()
+  const roots: T[] = []
+  for (const operation of operations) {
+    const parent = operation.dependencies.reduce<string | null>((best, dependency) =>
+      best === null || depth.get(dependency)! > depth.get(best)! ? dependency : best, null)
+    if (parent === null) roots.push(operation)
+    else children.set(parent, [...(children.get(parent) ?? []), operation])
+  }
+  const nodes: { operation: T; depth: number; x: number; y: number }[] = []
+  const place = (operation: T) => {
+    const level = depth.get(operation.id)!
+    nodes.push({ operation, depth: level, x: level * TREE_INDENT, y: nodes.length * TREE_ROW })
+    for (const child of children.get(operation.id) ?? []) place(child)
+  }
+  roots.forEach(place)
+  return { nodes, edges: across.edges }
+}
+
+export function layoutTurn(turn: Pick<TurnView, 'operations' | 'attempts'>, orientation: 'across' | 'down' = 'across'): { nodes: GraphNode[]; edges: GraphEdge[] } {
+  const layout = orientation === 'down' ? layoutOperationsDown(turn.operations) : layoutOperations(turn.operations)
   const phases = new Map(turn.operations.map(operation => [operation.id, operationPhase(operation.state)]))
   return {
     nodes: layout.nodes.map(node => ({ ...node, attempt: latestAttempt(turn, node.operation.id), phase: operationPhase(node.operation.state) })),

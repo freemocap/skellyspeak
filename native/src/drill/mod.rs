@@ -3,6 +3,7 @@
 //! Drill owns only what is new — the item, the attempt and the comparison.
 //! Recording, transcription, reading aids, speech and inspection are the shared
 //! implementations Chat uses, reached by naming a `RecordingOwner::DrillItem`.
+pub mod bundled;
 pub mod comparison;
 pub mod conversation_source;
 pub mod generation;

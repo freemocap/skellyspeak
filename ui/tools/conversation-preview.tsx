@@ -3,6 +3,9 @@ import { CoachChatLayout } from '../src/features/conversation/coaching/CoachChat
 import { CoachPanelTabs } from '../src/features/conversation/coaching/CoachPanelTabs'
 /** Layout review using production components and sample data. No native or AI calls. */
 import { mockIPC } from '@tauri-apps/api/mocks'
+import { AiViewPanel } from '../src/features/activity/AiViewPanel'
+import { aiTraySlot } from '../src/state/navigation/ai-tray'
+import { AI_VIEW_CONVERSATION, aiViewCommand, presentTurn } from './ai-view-fixture'
 import { loadLanguages } from '../src/platform/ipc/tauri'
 import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -35,9 +38,13 @@ import { ReadingPreferencesProvider } from '../src/components/reading/ReadingPre
 import { useAppearance } from '../src/platform/appearance/useAppearance'
 import { useWidthTier } from '../src/components/layout/useWidthTier'
 import { useNavigationStore } from '../src/state/navigation/navigation'
+import { AiStatus } from '../src/features/conversation/composer/AiStatus'
+import { useSessionStore } from '../src/state/session/session'
+import { useConnectionHealth } from '../src/state/session/connection-health'
+import { useAttemptStreams } from '../src/state/session/attempt-streams'
 import { PREVIEW_SETTINGS } from './preview-settings'
 import { DEFAULT_APPEARANCE } from '../src/generated/contracts'
-import type { ConversationFeedback, ConversationStartConfig, TopicCard } from '../src/generated/contracts'
+import type { ConversationFeedback, ConversationStartConfig, TopicCard, TurnView as RecordedTurn } from '../src/generated/contracts'
 import '../src/styles/index.css'
 
 // Production controls may expose native-only actions (for example Customize).
@@ -52,10 +59,14 @@ const previewLanguages = [
   { transcriptionLanguage: 'en', languageTag: 'en', fontScale: 1, id: 'english', name: 'English', nativeName: 'English', direction: 'ltr', romanization: null, defaultVariety: 'english-united-states',
     varieties: [{ transcriptionLanguage: 'en', id: 'english-united-states', name: 'United States', description: 'United States', direction: 'ltr', fontScale: 1, romanization: null }] },
 ]
-mockIPC((command) => {
+// The AI View reads a conversation mid-turn, so its tray and full screen show a live graph.
+const aiViewTurns = [presentTurn(14, 'live'), presentTurn(99, 'older')]
+mockIPC((command, args) => {
+  const aiView = aiViewCommand(command, args, aiViewTurns)
+  if (aiView !== undefined) return aiView
   if (command === 'inspect_message_speech') return spectra[0]
   if (command === 'create_drill_item') return { id: 'preview-drill-copy' }
-  if (command === 'get_snapshot') return { languages: previewLanguages, savedTopics: [{ id: 'preview-saved', text: 'Mi barrio' }] } as unknown
+  if (command === 'get_snapshot') return { languages: previewLanguages, savedTopics: [{ id: 'preview-saved', text: 'Mi barrio' }], conversations: [AI_VIEW_CONVERSATION] } as unknown
   if (command === 'list_microphones') return { source: 'native', devices: [{ id: 'sample-microphone', label: 'Sample microphone', isDefault: true, channels: 1, sampleRate: 48000, unavailable: null }] }
   throw new Error('This layout preview does not support native actions. Use the running app for this control.')
 })
@@ -97,6 +108,40 @@ function sampleWave(): WaveSource {
 // A real native spectrogram from the shared fixture, fed in 50 ms slices the way
 // the recorder's polling delivers live frames, through the same spectrum feed.
 const sample = (spectra as unknown as AudioInspection[])[1].spectrogram
+// The composer's AI status line, driven by recorded-turn fixtures instead of a
+// workspace: each scene is one moment of a turn, in the order a turn runs.
+type AiScene = 'idle' | 'transcribe' | 'schedule' | 'context' | 'request' | 'stream' | 'review' | 'gloss' | 'speech' | 'check' | 'offline' | 'failed'
+const AI_SCENES: AiScene[] = ['idle', 'transcribe', 'schedule', 'context', 'request', 'stream', 'review', 'gloss', 'speech', 'check', 'offline', 'failed']
+const AI_TURN_PLAY: [AiScene, number][] = [['transcribe', 1600], ['schedule', 500], ['context', 500], ['request', 1400], ['stream', 2200], ['review', 1600], ['gloss', 1800], ['speech', 1600], ['idle', 0]]
+const previewAt = (seconds: number) => new Date(Date.UTC(2026, 8, 30, 10, 0, seconds)).toISOString()
+function previewTurn(operations: [kind: string, state: string, started?: number][]): RecordedTurn {
+  return { id: 'preview-turn', state: 'assisting', paused: false, hold: null, route: 'hosted', replacesTurnId: null, replacedBy: null,
+    operations: operations.map(([kind, state]) => ({ id: kind, kind, state, dependencies: [], role: 'standard', contractVersion: 1, sourceMessageId: null })),
+    attempts: operations.filter(([, state]) => !['ready', 'waiting_dependencies'].includes(state)).map(([kind, state, started = 0]) => ({
+      id: `attempt-${kind}`, operationId: kind, state, requestedModel: kind === 'persona_speech' ? 'openai/gpt-audio-mini' : 'standard-model', actualModel: null, providerId: null,
+      startedAt: previewAt(started), finishedAt: state === 'running' ? null : previewAt(started + 1), inputTokens: null, outputTokens: null, error: state === 'failed' ? 'Sample failure' : null, unpublishedText: null })) }
+}
+const replied: [string, string, number][] = [['persona_context', 'succeeded', 0], ['persona_reply', 'succeeded', 1]]
+const AI_SCENE_TURNS: Partial<Record<AiScene, RecordedTurn>> = {
+  context: previewTurn([['persona_context', 'running', 0], ['persona_reply', 'waiting_dependencies']]),
+  request: previewTurn([['persona_context', 'succeeded', 0], ['persona_reply', 'running', 1]]),
+  stream: previewTurn([['persona_context', 'succeeded', 0], ['persona_reply', 'running', 1]]),
+  review: previewTurn([...replied, ['coach_feedback', 'running', 2], ['conversation_feedback', 'running', 3]]),
+  gloss: previewTurn([...replied, ['reply_translation', 'running', 4], ['persona_word_gloss', 'running', 5]]),
+  speech: previewTurn([...replied, ['persona_speech', 'running', 6]]),
+  failed: previewTurn([...replied, ['persona_word_gloss', 'failed', 5]]),
+}
+function useAiScene(scene: AiScene) {
+  useEffect(() => {
+    useSessionStore.setState({ connection: { route: 'hosted', signedIn: true, email: '', revision: 1, configured: scene !== 'offline', assessmentAdapter: 'jev_choice', standardModel: 'standard', fastModel: 'fast',
+      audio: { transcription: { model: 'whisper-large-v3' }, speech: { model: 'openai/gpt-audio-mini' } }, paused: false } })
+    useConnectionHealth.setState({ routes: scene === 'offline' ? {} : { hosted: { revision: 1, status: scene === 'check' ? 'checking' : 'connected', checkedAt: scene === 'check' ? null : Date.now(), error: null } } })
+    useAttemptStreams.setState({ generation: 1, entries: scene !== 'stream' ? {} : { 'attempt-persona_reply': { generation: 1, attemptId: 'attempt-persona_reply', conversationId: 'preview',
+      turnId: 'preview-turn', operationId: 'persona_reply', kind: 'persona_reply', seq: 1, text: 'Hola, ¿qué tal?', terminal: null } } })
+  }, [scene])
+  const turn = AI_SCENE_TURNS[scene]
+  return { transcribing: scene === 'transcribe', scheduling: scene === 'schedule', synthesizing: false, turns: turn ? [turn] : [], latest: scene === 'failed' ? turn : undefined }
+}
 type MessageSide = 'user' | 'assistant'
 /** One selected bubble at a time; choosing another moves the selection. */
 function useSelectedMessage(): [{ id: number; side: MessageSide }, (id: number, side: MessageSide) => void] {
@@ -115,6 +160,8 @@ function Preview() {
   const [autoSend, setAutoSend] = useState(true)
   const wave = useMemo(() => recording ? sampleWave() : null, [recording])
   const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
+  const [replyHelpHeight, setReplyHelpHeight] = useStoredSize('reply-help')
+  const breakRef = useRef<HTMLElement>(null)
   const [feed] = useState(createSpectrumFeed)
   const recorder = useRecorderLayout('chat', document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr')
   useEffect(() => {
@@ -135,6 +182,16 @@ function Preview() {
   const [dark, setDark] = useState(false)
   const [palette, setPalette] = useState<'cool' | 'warm'>('cool')
   const [notice, setNotice] = useState('')
+  const [aiScene, setAiScene] = useState<AiScene>('idle')
+  const ai = useAiScene(aiScene)
+  const aiPlay = useRef<number[]>([])
+  const playAiTurn = () => {
+    aiPlay.current.forEach(clearTimeout)
+    let elapsed = 0
+    aiPlay.current = AI_TURN_PLAY.map(([scene, duration]) => { const timer = window.setTimeout(() => setAiScene(scene), elapsed); elapsed += duration; return timer })
+  }
+  useEffect(() => () => aiPlay.current.forEach(clearTimeout), [])
+  const aiStatus = <div className="composer-activity"><AiStatus {...ai} onInspectLatest={() => setNotice('AI activity for the latest exchange')} /></div>
   const [tab, setTab] = useState<'coaching' | 'evidence'>('coaching')
   const [configOpen, setConfigOpen] = useState(false)
   const [partnerMenu, setPartnerMenu] = useState(false)
@@ -143,6 +200,7 @@ function Preview() {
   const tier = useWidthTier()
   const mobile = tier !== 'full'
   const surface = useNavigationStore(state => state.mobileSurface)
+  const overlay = useNavigationStore(state => state.overlay)
   const [surfaceSwitched, setSurfaceSwitched] = useState(false)
   const shownSurface = useRef(surface)
   useEffect(() => {
@@ -164,8 +222,38 @@ function Preview() {
     speak: async () => { setNotice('Playback control — sample only; no audio request'); return null },
     activity: async () => ({}),
   }), [])
+  // Production phone structure: the composer follows the conversation; the coach
+  // is a full-screen modal over both.
+  const composerBlock = (
+        <div className="composer" ref={composer} data-voice-sized={voiceHeight === null ? undefined : ''}
+          style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as React.CSSProperties}>
+          {!mobile && aiStatus}
+          {mobile && <div className="composer-assist" data-help-sized={replyHelpHeight === null ? undefined : ''}
+            style={replyHelpHeight === null ? undefined : { '--reply-help-height': `${Math.round(replyHelpHeight)}px` } as React.CSSProperties}>
+            <ResizeHandle className="reply-help-resize" label="Resize the reply help panel" axis="y" grow={-1} size={replyHelpHeight} min={120} max={Math.round(window.innerHeight * 0.8)}
+              onResize={setReplyHelpHeight} measure={() => composer.current?.querySelector('.composer-assist .reply-help')?.getBoundingClientRect().height ?? 0} />
+            {!opening &&<MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
+            <div className="ai-tray-slot" ref={surface === 'panel' ? undefined : aiTraySlot} />{aiStatus}
+            <button type="button" className="chat-coach" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={15} /><span>Coach</span></button></div>}
+          <ResizeHandle className="composer-voice-resize" label="Resize the recording panel" axis="y" grow={-1} size={voiceHeight} min={150} max={640}
+            measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
+          <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend={autoSend} onAutoSend={setAutoSend} layout={recorder}
+            mode={voiceMode} onMode={setVoiceMode} onHoldStart={() => setRecording(true)} onHoldEnd={stopRecording}
+            stream={wave && <LiveRecording source={wave} spectrum={feed} time={recorder.time} />}
+            prompt={opening ? <>Say <b className="target-word" lang="es">hola</b> to start</> : undefined}
+            microphoneSelector={<MicrophoneSelector value={null} onChange={() => setNotice('Microphone choice — sample only')} />}
+            targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => recording ? stopRecording() : setRecording(true)} onDiscardRecording={() => setRecording(false)} />
+        </div>
+  )
+  const coachPanel = (
+      <section className={`break ${coach || mobile ? '' : 'collapsed'}`} ref={breakRef}>
+        {!coach && !mobile && <button className="break-head" onClick={() => setCoach(true)}><ToolbarIcon name="idea" size={16} /><span>Coach</span></button>}
+        <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={mobile ? () => useNavigationStore.getState().openPractice('chat') : () => setCoach(false)} />
+        <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <>{!mobile && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}<h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
+      </section>
+  )
   return <AskCoachContext value={setNotice}><ReadingProvider settings={null}><ReadingHelp services={readingServices} languages={[]}><ReadingPreferencesProvider settings={settings}><div className="app" data-place="chat">
-    <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>cool</option><option>warm</option></select></label><output>{notice}</output></div>
+    <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>AI status<select value={aiScene} onChange={event => { aiPlay.current.forEach(clearTimeout); setAiScene(event.target.value as AiScene) }}>{AI_SCENES.map(scene => <option key={scene}>{scene}</option>)}</select></label><button onClick={playAiTurn}>Play a turn</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>cool</option><option>warm</option></select></label><output>{notice}</output></div>
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`} ref={workspace}>
       <section className="chat">
@@ -184,31 +272,17 @@ function Preview() {
               formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
             } }} reviewing={false} onAskCoach={setNotice} focused={false} selectedSide={selected.id === 2 ? selected.side : undefined} onSelectMessage={select} ttsReady={false} speaking={false} rtl onBubbleTap={() => setNotice('Message analysis')} />
           </ReadingPreferencesContext></div>
-          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView editing={false} turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',conversationFeedback:feedback, coachDecision:{ exposedMove:'explicit',repairStatus:null,shown:{construct:'past',quote:'Ayer go.',move:'explicit',text:'Ayer fui al mercado.',explanation:'Use fui for a completed trip yesterday.'},retryInvited:false,fixed:null,alsoNoticed:[],keptGoing:false }}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onAddContext={async note => { setNotice(note); setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} selectedSide={selected.id === 1 ? selected.side : undefined} onSelectMessage={select} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
+          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView editing={false} turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',fixes:2,conversationFeedback:feedback, coachDecision:{ exposedMove:'explicit',repairStatus:null,shown:{construct:'past',quote:'Ayer go.',move:'explicit',text:'Ayer fui al mercado.',explanation:'Use fui for a completed trip yesterday.'},retryInvited:false,fixed:null,alsoNoticed:[],keptGoing:false }}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onAddContext={async note => { setNotice(note); setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} selectedSide={selected.id === 1 ? selected.side : undefined} onSelectMessage={select} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
         </>}</div>
-        <div className="composer" ref={composer} data-voice-sized={voiceHeight === null ? undefined : ''}
-          style={voiceHeight === null ? undefined : { '--chat-voice-height': `${Math.round(voiceHeight)}px` } as React.CSSProperties}>
-          {mobile && <div className="composer-assist">{!opening && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
-            <div className="composer-activity" aria-live="polite" />
-            <button type="button" className="chat-coach" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={15} /><span>Coach</span></button></div>}
-          <ResizeHandle className="composer-voice-resize" label="Resize the recording panel" axis="y" grow={-1} size={voiceHeight} min={150} max={640}
-            measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
-          <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend={autoSend} onAutoSend={setAutoSend} layout={recorder}
-            mode={voiceMode} onMode={setVoiceMode} onHoldStart={() => setRecording(true)} onHoldEnd={stopRecording}
-            stream={wave && <LiveRecording source={wave} spectrum={feed} time={recorder.time} />}
-            prompt={opening ? <>Say <b className="target-word" lang="es">hola</b> to start</> : undefined}
-            microphoneSelector={<MicrophoneSelector value={null} onChange={() => setNotice('Microphone choice — sample only')} />}
-            targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => recording ? stopRecording() : setRecording(true)} onDiscardRecording={() => setRecording(false)} />
-        </div>
+        {!mobile && composerBlock}
       </section>
+      {mobile && <div className="chat mobile-composer">{composerBlock}</div>}
       {coach && !mobile && <PracticeDivider workspace={workspace} />}
       {mobile && surface === 'panel' && <div className="coach-scrim" aria-hidden="true" onClick={() => useNavigationStore.getState().openPractice('chat')} />}
-      <section className={`break ${coach || mobile ? '' : 'collapsed'}`}>
-        {!coach && !mobile && <button className="break-head" onClick={() => setCoach(true)}><ToolbarIcon name="idea" size={16} /><span>Coach</span></button>}
-        <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={mobile ? () => useNavigationStore.getState().openPractice('chat') : () => setCoach(false)} />
-        <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <>{!mobile && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}<h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
-      </section>
+      {coachPanel}
     </div>
+    {/* The production AI View, opened by the AI pill as the app shell opens it. */}
+    <AiViewPanel open={overlay === 'activity'} onOpenChange={open => open ? useNavigationStore.getState().showOverlay('activity') : useNavigationStore.getState().closeOverlay()} />
   </div></ReadingPreferencesProvider></ReadingHelp></ReadingProvider></AskCoachContext>
 }
 createRoot(document.getElementById('root')!).render(<Preview />)

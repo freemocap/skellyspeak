@@ -445,3 +445,74 @@ conversation:
     vibe:
       - 🎨
       - 🚲
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Ya.
+      - Tidak.
+      - Air, tolong.
+      - Saya di sini.
+      - Panas.
+      - Saya lapar.
+      - Apa ini?
+      - Saya tidak tahu.
+    beginner:
+      - Dia guru.
+      - Rumah itu besar.
+      - Saya punya sepeda.
+      - Ini kakak saya.
+      - Saya punya dua buku.
+      - Masih ada sedikit air.
+      - Saya bekerja di sini.
+      - Dia sedang membaca.
+    intermediate:
+      - Saya datang kemarin.
+      - Dulu saya tinggal di sini.
+      - Saya akan datang besok.
+      - Kami berangkat minggu depan.
+      - Saya suka kopi.
+      - Saya ingin pulang.
+      - Saya bisa berenang.
+      - Kamu tidak harus datang.
+    advanced:
+      - Seandainya saya tahu rapatnya akan berlangsung selama ini, saya pasti sudah mengubah rencana pulang.
+      - Yang paling saya khawatirkan adalah dampak keputusan ini terhadap orang-orang yang tidak diajak
+        berdiskusi.
+      - Meskipun usulan itu tampak menjanjikan, kita tetap perlu mempertimbangkan berbagai kemungkinan
+        akibatnya.
+      - Saya lebih memilih menunda perjalanan daripada terburu-buru mengambil keputusan yang nantinya kita
+        sesali.
+      - Semakin teliti saya membaca laporan itu, semakin sulit bagi saya untuk menerima kesimpulannya.
+      - Keberhasilan proyek ini akan sangat bergantung pada cara kita membagi tanggung jawab.
+      - Bukannya saya menolak gagasan itu, tetapi saya belum yakin apakah sekarang waktu yang tepat.
+      - Ketika kami akhirnya memahami apa yang terjadi, sudah tidak banyak yang bisa dilakukan untuk
+        memperbaiki keadaan.
+    social:
+      - Halo!
+      - Selamat pagi!
+      - Selamat siang!
+      - Selamat sore!
+      - Selamat malam!
+      - Apa kabar?
+      - Baik, terima kasih.
+      - Siapa nama Anda?
+      - Senang berkenalan dengan Anda.
+      - Terima kasih banyak.
+      - Sama-sama.
+      - Permisi.
+      - Maaf.
+      - Sampai jumpa!
+      - Selamat jalan!
+    # Sources: [@practice-idioms-indonesian]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Ini buah tangan untukmu."
+      - "Mari kita bicarakan dengan kepala dingin."
+      - "Dia tetap rendah hati."
+      - "Penyanyi itu sedang naik daun."
+      - "Toko itu gulung tikar."
+      - "Dia jatuh hati padanya."
+      - "Saya menerimanya dengan berat hati."
+      - "Dia memang kepala batu."
+  varieties: {}

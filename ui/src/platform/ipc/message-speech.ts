@@ -2,8 +2,8 @@ import type { AudioInspection, SpeechAudioState } from '../../generated/contract
 import { inspectionResource, peekInspection } from '../audio/inspection-resource'
 import { invoke } from './native'
 
-export function readMessageAudio(sessionId: string, operationId: string): Promise<SpeechAudioState> {
-  return invoke('read_speech_audio', { sessionId, operationId })
+export function readMessageAudio(sessionId: string, operationId: string, cursor?: { sampleOffset: number; executionId: string }): Promise<SpeechAudioState> {
+  return invoke('read_speech_audio', { sessionId, operationId, ...cursor })
 }
 
 type ReadySpeech = Extract<SpeechAudioState, { status: 'ready' }>

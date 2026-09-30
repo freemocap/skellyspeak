@@ -447,3 +447,69 @@ conversation:
     vibe:
       - ✏️
       - 🌳
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Có.
+      - Không.
+      - Cho tôi nước.
+      - Tôi ở đây.
+      - Trời nóng.
+      - Tôi đói.
+      - Đây là gì?
+      - Tôi không biết.
+    beginner:
+      - Tôi là giáo viên.
+      - Căn phòng này yên tĩnh.
+      - Tôi có một chiếc xe đạp.
+      - Đây là chị tôi.
+      - Tôi có hai quyển sách.
+      - Tôi muốn một ít nước.
+      - Tôi làm việc ở đây.
+      - Cô ấy đang đọc sách.
+    intermediate:
+      - Hôm qua tôi đến đây.
+      - Tôi ăn rồi.
+      - Ngày mai tôi sẽ đến.
+      - Chúng tôi sắp đi.
+      - Tôi thích cà phê.
+      - Tôi muốn về nhà.
+      - Tôi có thể bơi.
+      - Tôi cần đi.
+    advanced:
+      - Nếu biết cuộc họp kéo dài đến thế, tôi đã thay đổi kế hoạch về nhà từ trước.
+      - Điều khiến tôi lo nhất là quyết định này sẽ ảnh hưởng thế nào đến những người chưa được hỏi ý kiến.
+      - Mặc dù đề xuất có vẻ hứa hẹn, chúng ta vẫn nên cân nhắc kỹ những hệ quả có thể xảy ra.
+      - Tôi thà hoãn chuyến đi còn hơn vội vàng đưa ra một quyết định mà sau này có thể hối tiếc.
+      - Càng đọc kỹ bản báo cáo, tôi càng thấy những kết luận trong đó chưa thực sự thuyết phục.
+      - Dự án có thành công hay không phụ thuộc rất nhiều vào cách chúng ta phân chia trách nhiệm.
+      - Không phải tôi phản đối ý tưởng đó, chỉ là tôi chưa chắc đây có phải thời điểm thích hợp hay không.
+      - Đến khi chúng tôi hiểu ra chuyện gì đã xảy ra thì đã rất khó để khắc phục tình hình.
+    social:
+      - Xin chào!
+      - Chào bạn!
+      - Bạn khỏe không?
+      - Tôi khỏe, cảm ơn.
+      - Bạn tên là gì?
+      - Rất vui được gặp bạn.
+      - Cảm ơn bạn nhiều.
+      - Không có gì.
+      - Xin lỗi.
+      - Cho tôi hỏi một chút.
+      - Tạm biệt!
+      - Hẹn gặp lại!
+      - Chúc bạn một ngày tốt lành!
+      - Chúc ngủ ngon!
+    # Sources: [@practice-idioms-vietnamese]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Ba chân bốn cẳng."
+      - "Ba chìm bảy nổi."
+      - "Chạy mất dép."
+      - "Chờ sung rụng."
+      - "Có mới nới cũ."
+      - "Có tật giật mình."
+      - "Đàn gảy tai trâu."
+      - "Nước đến chân mới nhảy."
+  varieties: {}

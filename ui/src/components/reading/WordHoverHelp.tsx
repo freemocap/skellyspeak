@@ -1,17 +1,18 @@
+import { isSentenceBlank } from '../../domain/reading/sentence-blanks'
 import { AskCoachButton } from '../learning/AskCoachButton'
 import { useUiDirection } from '../localization/useUiDirection'
 import { ErrorNotice } from '../feedback/ErrorNotice'
 import { positionWordHelp, wordHelpLayer } from './word-help-layer'
 import { errorMessage, errorDetails } from '../../platform/diagnostics/error-details'
 import { useSavedReading } from './SavedReadingProvider'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useI18n } from '../localization/i18n'
 import { ResponseDetails } from '../feedback/ResponseDetails'
 import { TokenAudio } from './TokenAudio'
 import { SpeechFollowText } from './SpeechFollowText'
 import { GlossHelpParts } from './GlossHelpParts'
-import { useReadingActions, useReadingLookup, useReadingPeek, type ReadingSelection } from './ReadingContext'
+import { ReadingCompletionsContext, useReadingActions, useReadingLookup, useReadingPeek, type ReadingSelection } from './ReadingContext'
 import { useReadingPreferences } from './ReadingPreferences'
 import type { ReadingHelpResult as ReadingResult } from '../../domain/reading/reading-result'
 
@@ -21,19 +22,23 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   onEnter: () => void; onLeave: () => void; onClose: () => void
 }) {
   const tr = useI18n()
+  const Completions = useContext(ReadingCompletionsContext)
+  const blank = selection.aid === 'completions' || isSentenceBlank(selection.text, selection.start, selection.end)
+  const aid = selection.aid ?? (blank ? 'explanations' : 'word_gloss')
   const direction = useUiDirection()
   const lookup = useReadingLookup()
   const peek = useReadingPeek()
   const saved = useSavedReading()
   const localParts = useMemo(() => {
+    if (blank) return []
     const source = saved(selection.text, selection.scope)
     const cached = peek({...selection.scope, text:selection.text, aid:'word_gloss'})?.gloss?.segments ?? []
     return [...source, ...cached.filter(part => !source.some(item => item.start < part.end && item.end > part.start))]
       .filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss')
-  }, [saved, peek, selection])
+  }, [saved, peek, selection, blank])
   const actions = useReadingActions()
   const { supportsRomanization } = useReadingPreferences()
-  const helper = useRef<HTMLSpanElement>(null)
+  const helper = useRef<HTMLDivElement>(null)
   const layer = wordHelpLayer(anchor.current)
   const [result, setResult] = useState<ReadingResult | null>(null)
   const [failure, setFailure] = useState<unknown>(null)
@@ -47,7 +52,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
   known.current = localParts
   const request = useRef<AbortController | null>(null)
   const requested = useRef<string | null>(null)
-  const requestKey = JSON.stringify([selection.scope, selection.text, attempt])
+  const requestKey = JSON.stringify([selection.scope, selection.text, aid, attempt])
   useEffect(() => () => request.current?.abort(), [])
   useEffect(() => {
     if (!lookup || requested.current === requestKey) return
@@ -55,13 +60,13 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     request.current?.abort()
     request.current = null
     setResult(null); setFailure(null)
-    if (known.current.length) return
+    if (!blank && known.current.length) return
     const controller = new AbortController()
     request.current = controller
-    void lookup({ ...selection.scope, text: selection.text, aid:'word_gloss' }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
+    void lookup({ ...selection.scope, text: selection.text, aid }, controller.signal, { retry: attempt > 0, selection: { start: selection.start, end: selection.end } })
       .then(value => { if (request.current === controller) setResult(value) })
       .catch(error => { if (request.current === controller) setFailure(error) })
-  }, [lookup, requestKey, selection.scope, selection.text])
+  }, [lookup, requestKey, selection.scope, selection.text, aid, blank])
   useLayoutEffect(() => {
     const card = helper.current, word = anchor.current
     if (!card || !word) return
@@ -83,16 +88,16 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     }
   }, [anchor, onClose, layer.popover])
   const parts = localParts.length ? localParts : result?.gloss?.segments.filter(part => part.start < selection.end && part.end > selection.start && part.kind === 'gloss') ?? []
-  const content = <span ref={helper} dir={direction} popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr('Word help')} data-reading-tools
+  const content = <div ref={helper} dir={direction} popover={layer.popover ? "manual" : undefined} data-word-help-layer={!layer.popover ? "portal" : undefined} className="saved-word-help reading-word-help" role="group" aria-label={tr(blank ? 'Suggested replies' : 'Word help')} data-reading-tools
     onPointerEnter={onEnter} onPointerLeave={() => { if (!pinned) onLeave() }} onClick={event => event.stopPropagation()}>
     <AskCoachButton compact question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${selection.scope.language} passage: “${selection.text}”.`} onClose={onClose} />
-    <TokenAudio text={selection.text} start={selection.start} end={selection.end} />
+    {!blank && <TokenAudio text={selection.text} start={selection.start} end={selection.end} />}
     <SpeechFollowText text={selection.text.slice(selection.start, selection.end)} source={{ text: selection.text, start: selection.start }}><span data-speech-source className="reading-help-source" dir="auto">{selection.text.slice(selection.start, selection.end)}</span></SpeechFollowText>
-    {!parts.length && !result && !failure && <span role="status">{tr('Finding word meanings…')}</span>}
-    <GlossHelpParts text={selection.text} parts={parts} showRomanization={supportsRomanization} />
+    {!parts.length && !result && !failure && <span role="status">{tr(blank ? 'Writing reply ideas…' : 'Finding word meanings…')}</span>}
+    {blank ? result?.explanations && Completions && <Completions cards={result.explanations.cards} /> : <GlossHelpParts text={selection.text} parts={parts} showRomanization={supportsRomanization} />}
     {failure != null && <ErrorNotice error={failure}>{errorMessage(failure)}<ResponseDetails value={errorDetails(failure)} /></ErrorNotice>}
-    {(failure != null || result && !parts.length) && <button className="reading-help-action" onClick={() => setAttempt(value => value + 1)}>{tr('Retry word meanings')}</button>}
-    <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr('Word help')}</button>
-  </span>
+    {(failure != null || result && (blank ? !result.explanations?.cards.length : !parts.length)) && <button className="reading-help-action" onClick={() => setAttempt(value => value + 1)}>{tr(blank ? 'Retry' : 'Retry word meanings')}</button>}
+    <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr(blank ? 'Analysis' : 'Word help')}</button>
+  </div>
   return createPortal(content, layer.host)
 }

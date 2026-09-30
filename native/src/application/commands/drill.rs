@@ -3,6 +3,37 @@ use crate::drill::{DrillItemInput, DrillItemView};
 use base64::{Engine, engine::general_purpose::STANDARD};
 
 #[tauri::command]
+pub(in crate::application) fn get_practice_sets(
+    state: tauri::State<'_, Arc<Application>>,
+    language: String,
+    variety: Option<String>,
+) -> Result<Vec<crate::configuration::practice::PracticeSetSummary>> {
+    state.lock()?.practice_sets(&language, variety.as_deref())
+}
+
+#[tauri::command]
+pub(in crate::application) fn preview_practice_set(
+    state: tauri::State<'_, Arc<Application>>,
+    scope: crate::language::reading::ReadingScope,
+    set: crate::configuration::practice::PracticeSet,
+) -> Result<crate::drill::previews::DrillGenerationPreview> {
+    state.lock()?.preview_practice_set(scope, set)
+}
+
+#[tauri::command]
+pub(in crate::application) fn accept_practice_phrases(
+    state: tauri::State<'_, Arc<Application>>,
+    scope: crate::language::reading::ReadingScope,
+    set: crate::configuration::practice::PracticeSet,
+    request_id: String,
+    candidate_ids: Vec<String>,
+) -> Result<Vec<DrillItemView>> {
+    state
+        .lock()?
+        .accept_practice_phrases(scope, set, &request_id, candidate_ids)
+}
+
+#[tauri::command]
 pub(in crate::application) fn create_drill_item(
     state: tauri::State<'_, Arc<Application>>,
     input: DrillItemInput,

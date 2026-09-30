@@ -37,8 +37,9 @@ import { useConversation } from './session/useConversation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
 import { useNavigationStore } from '../../state/navigation/navigation'
+import { useAiTrayStore } from '../../state/navigation/ai-tray'
 
-/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+/** Opens every message's ⋯ menu, where Words, Analysis and Pronunciation live. */
 const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
 
 
@@ -272,6 +273,77 @@ it('puts the recording panel’s divider on the panel’s own edge, with the row
   expect(assist.compareDocumentPosition(divider) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   view.unmount()
   media.mockRestore()
+})
+it('opens the coach on phones as a full-screen modal, over the recorder, without moving focus into it', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    useNavigationStore.getState().openPractice('chat')
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot()))
+    const coach = screen.getByRole('button', { name: 'Coach' })
+    coach.focus()
+    fireEvent.click(coach)
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 50)) })
+    const modal = document.querySelector<HTMLElement>('.split.mobile-coach > .break')!
+    // A modal of its own, with its own chat box: nothing to resize, and not a panel inside the conversation.
+    expect(modal).not.toBeNull()
+    expect(modal.closest('section.chat')).toBeNull()
+    expect(modal.querySelector('[role=separator][aria-label="Resize the coach panel"]')).toBeNull()
+    expect(document.querySelector('.split.mobile-coach > .coach-scrim')).not.toBeNull()
+    // Opening moves no focus into it: nothing scrolls to reveal a field, and no keyboard opens.
+    expect(modal.contains(document.activeElement)).toBe(false)
+    view.unmount()
+  } finally {
+    media.mockRestore()
+  }
+})
+it('gives the AI tray its place on phones, right above the AI pill, and takes it back under the coach', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    useNavigationStore.getState().openPractice('chat')
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot()))
+    const slot = useAiTrayStore.getState().slot!
+    expect(slot).not.toBeNull()
+    expect(slot.parentElement).toHaveClass('composer-assist')
+    expect(slot.nextElementSibling).toHaveClass('composer-activity')
+    // The full-screen coach covers the recording panel; a tray there would be hidden.
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    expect(useAiTrayStore.getState().slot).toBeNull()
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    expect(useAiTrayStore.getState().slot).toBe(slot)
+    // A conversation kept behind another page does not hold it.
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="chat" active={false} />)
+    expect(useAiTrayStore.getState().slot).toBeNull()
+    view.unmount()
+  } finally {
+    media.mockRestore()
+  }
+})
+it('lets opened reply help on phones be dragged to a height it keeps', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    localStorage.removeItem('skellyspeak_pane_reply-help')
+    useNavigationStore.getState().openPractice('chat')
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(exchangeSnapshot()))
+    const assist = document.querySelector<HTMLElement>('.composer-assist')!
+    fireEvent.click(await within(assist).findByRole('button', { name: 'Help with this reply' }))
+    const tray = assist.querySelector<HTMLElement>('.reply-help')!
+    vi.spyOn(tray, 'getBoundingClientRect').mockReturnValue({ height: 200 } as DOMRect)
+    fireEvent.keyDown(within(assist).getByRole('separator', { name: 'Resize the reply help panel' }), { key: 'ArrowUp' })
+    expect(assist).toHaveAttribute('data-help-sized')
+    expect(assist.style.getPropertyValue('--reply-help-height')).toBe('216px')
+    expect(localStorage.getItem('skellyspeak_pane_reply-help')).toBe('216')
+    view.unmount()
+  } finally {
+    media.mockRestore()
+    localStorage.removeItem('skellyspeak_pane_reply-help')
+  }
 })
 it('opens the coach from the row above the answer in the compact layout, as on phones', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
@@ -590,7 +662,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   openMenus()
   const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
-  fireEvent.click(screen.getByRole('button', { name: 'Analyze your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit and resend message' }))
   const composer = (await draftField())
   expect(composer).toHaveValue('Yo fue ayer')
@@ -892,8 +964,8 @@ it('routes bubble selection to its message side and keeps it while a newer excha
   await waitFor(() => expect(watches).toHaveLength(1))
   const initial = exchangeSnapshot()
   await act(async () => watches[0].resolve(initial))
-  const learner = screen.getByRole('group', { name: 'Your message' })
-  const partner = screen.getByRole('group', { name: 'Partner replied' })
+  const learner = within(document.querySelector('.stream') as HTMLElement).getByRole('group', { name: 'Your message' })
+  const partner = within(document.querySelector('.stream') as HTMLElement).getByRole('group', { name: 'Partner replied' })
   fireEvent.click(learner)
   expect(learner).toHaveAttribute('aria-current', 'true')
   expect(screen.queryByRole('dialog')).toBeNull()
@@ -907,7 +979,7 @@ it('routes bubble selection to its message side and keeps it while a newer excha
   expect(within(panel).getByRole('button', { name: 'Explain grammar' })).toBeVisible()
   expect(within(panel).getByRole('button', { name: 'Suggest a reply' })).toBeVisible()
   expect(within(panel).queryByRole('button', { name: 'Help with this reply' })).toBeNull()
-  expect(panel.querySelector('.analysis-sentence')!.compareDocumentPosition(panel.querySelector('.reply-help')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(panel.querySelector('.msg.bot')!.compareDocumentPosition(panel.querySelector('.reply-help')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   await waitFor(() => expect(watches).toHaveLength(2))
   await act(async () => watches[1].resolve({ ...initial, revision: 32, messages: [...initial.messages,
     { ...initial.messages[0], id: 'next-user', turnId: 'next', sequence: 3, text: 'Another message' },
@@ -924,16 +996,40 @@ it('automatically selects the latest learner message, then its reply, without re
   await waitFor(() => expect(watches).toHaveLength(1))
   const initial = snapshot('a', 30, 'Yo fue ayer')
   await act(async () => watches[0].resolve(initial))
-  expect(screen.getByRole('group', { name: 'Your message' })).toHaveAttribute('aria-current', 'true')
+  expect(within(document.querySelector('.stream') as HTMLElement).getByRole('group', { name: 'Your message' })).toHaveAttribute('aria-current', 'true')
   await act(async () => watches[1].resolve(exchangeSnapshot()))
-  expect(screen.getByRole('group', { name: 'Your message' })).not.toHaveAttribute('aria-current')
-  expect(screen.getByRole('group', { name: 'Partner replied' })).toHaveAttribute('aria-current', 'true')
+  expect(within(document.querySelector('.stream') as HTMLElement).getByRole('group', { name: 'Your message' })).not.toHaveAttribute('aria-current')
+  expect(within(document.querySelector('.stream') as HTMLElement).getByRole('group', { name: 'Partner replied' })).toHaveAttribute('aria-current', 'true')
   expect(commands()).toHaveLength(0)
   const next = exchangeSnapshot()
   await act(async () => watches[2].resolve({ ...next, revision: 32, messages: [...next.messages,
     { ...next.messages[0], id: 'next-user', turnId: 'next', sequence: 3, text: 'Another message' },
   ] }))
-  expect(screen.getAllByRole('group', { name: 'Your message' })[1]).toHaveAttribute('aria-current', 'true')
-  expect(screen.getByRole('group', { name: 'Partner replied' })).not.toHaveAttribute('aria-current')
+  expect(within(document.querySelector('.stream') as HTMLElement).getAllByRole('group', { name: 'Your message' })[1]).toHaveAttribute('aria-current', 'true')
+  expect(within(document.querySelector('.stream') as HTMLElement).getByRole('group', { name: 'Partner replied' })).not.toHaveAttribute('aria-current')
   expect(commands()).toHaveLength(0)
+})
+
+
+it('keeps coach controls equal to chat and opens analysis and editing from the coach copy', async () => {
+  render(page())
+  await waitFor(() => expect(watches).toHaveLength(1))
+  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  const stream = document.querySelector('.stream') as HTMLElement
+  const panel = document.querySelector('.break') as HTMLElement
+  const controls = (root: Element) => within(root as HTMLElement).getAllByRole('button').map(button => ({
+    label: button.getAttribute('aria-label') ?? button.textContent,
+    disabled: (button as HTMLButtonElement).disabled,
+  }))
+  expect(controls(panel.querySelector('.msg.bot')!)).toEqual(controls(stream.querySelector('.msg.bot')!))
+  fireEvent.click(within(panel).getByRole('button', { name: 'Analysis' }))
+  expect(screen.getByRole('dialog', { name: 'Message analysis' })).toBeVisible()
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close Message analysis' }))
+  fireEvent.click(within(stream).getByRole('group', { name: 'Your message' }))
+  expect(controls(panel.querySelector('.msg.me')!)).toEqual(controls(stream.querySelector('.msg.me')!))
+  fireEvent.click(within(panel).getByRole('button', { name: 'Coach your message' }))
+  const feedback = screen.getByRole('dialog', { name: 'Feedback on your message' })
+  expect(feedback).toBeVisible()
+  fireEvent.click(within(feedback).getByRole('button', { name: 'Edit and resend message' }))
+  expect(await draftField()).toHaveValue('Yo fue ayer')
 })

@@ -1,3 +1,4 @@
+import { unlockSpeechAudio } from './speech-context'
 import { setPlaybackAllowed } from './speech'
 import { setRewardPlaybackAllowed, unlockRewardAudio } from './reward-sounds'
 
@@ -36,6 +37,7 @@ export function installPlaybackLifecycle(): PlaybackLifecycle {
   const activate = (event: Event): void => {
     if (event.isTrusted && document.visibilityState === 'visible') focus(true)
     unlockRewardAudio()
+    unlockSpeechAudio()
   }
   const visibility = (): void => setBlocked('visibility', document.visibilityState === 'hidden')
   const pageHide = (): void => setBlocked('page', true)

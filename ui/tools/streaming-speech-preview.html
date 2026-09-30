@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Streaming audio verification</title></head>
+<body>
+  <h1>Streaming audio verification</h1>
+  <p>Local synthetic audio, using the application's streaming player. No provider requests.</p>
+  <p><label>Speed <select id="rate"><option value="1">1×</option><option value="0.5">0.5×</option><option value="1.5">1.5×</option></select></label>
+  <label><input id="audible" type="checkbox">Audible test tone</label></p>
+  <button id="start">Run delayed stream</button> <button id="stop">Stop</button>
+  <pre id="result" aria-live="polite">Ready</pre>
+  <script type="module" src="./streaming-speech-preview.ts"></script>
+</body></html>

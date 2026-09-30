@@ -72,7 +72,8 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
 })
 
-vi.mock('../features/activity/AiView', () => ({ AiView: () => <p role="status">Live operations</p> }))
+// The phone sheet's close control lives in the view's own header actions.
+vi.mock('../features/activity/AiView', () => ({ AiView: ({ actions }: { actions: React.ReactNode }) => <><p role="status">Live operations</p>{actions}</> }))
 
 it('switches the practice page and saves the selected destination', async () => {
   render(<App />)

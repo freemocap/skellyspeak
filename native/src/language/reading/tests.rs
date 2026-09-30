@@ -110,3 +110,45 @@ fn reading_speech_uses_language_capability_and_keeps_canonical_tag() {
     source.language = "unsupported-language".into();
     assert!(Request::capture(&store, source).is_err());
 }
+
+#[test]
+fn template_analysis_requests_completions_with_original_context() {
+    let (_dir, store) = fixture();
+    let mut source = input();
+    source.aid = ReadingAid::Explanations;
+    source.text = "Quiero __.".into();
+    let request = Request::capture(&store, source).unwrap();
+    let prepared = request.prepare_text().unwrap();
+    assert_eq!(prepared.schema["properties"]["cards"]["minItems"], 2);
+    assert_eq!(prepared.schema["properties"]["cards"]["maxItems"], 3);
+    assert!(
+        prepared.dispatch.messages[0]
+            .content
+            .contains(sentence_blanks::INSTRUCTION)
+    );
+    assert!(prepared.dispatch.messages[1].content.contains("Quiero __."));
+}
+
+#[test]
+fn explicit_completion_aid_uses_template_syntax_and_requires_a_slot() {
+    let (_dir, store) = fixture();
+    let mut source = input();
+    source.aid = ReadingAid::Completions;
+    assert!(Request::capture(&store, source.clone()).is_err());
+    source.text = "Quiero___hoy.".into();
+    let request = Request::capture(&store, source).unwrap();
+    let prepared = request.prepare_text().unwrap();
+    assert_eq!(request.input.aid.receipt_kind(), "reading_completions");
+    assert_eq!(prepared.schema["properties"]["cards"]["minItems"], 2);
+    assert_eq!(prepared.schema["properties"]["cards"]["maxItems"], 3);
+    assert!(
+        prepared.dispatch.messages[0]
+            .content
+            .contains(sentence_blanks::INSTRUCTION)
+    );
+    assert!(
+        prepared.dispatch.messages[1]
+            .content
+            .contains("Quiero___hoy.")
+    );
+}

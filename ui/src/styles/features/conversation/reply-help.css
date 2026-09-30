@@ -144,7 +144,7 @@
 
 /* ── Worked replies ───────────────────────────────────────────────────────── */
 
-.help-replies {
+.help-replies, .help-starters ul {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: var(--space-2);
@@ -153,22 +153,15 @@
   list-style: none;
 }
 
-.help-reply {
+/* Each item uses the shared message bubble; this row owns only insertion layout. */
+.help-reply, .help-starter {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   min-width: 0;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-5);
-  border: var(--border-width) solid var(--line-soft);
-  border-radius: var(--radius-lg);
-  background: var(--field);
-  color: var(--ink);
-  text-align: start;
-  overflow-wrap: anywhere;
-  transition: border-color var(--dur-fast) var(--ease-out);
 }
 
-.help-reply:hover { border-color: var(--interaction-ink); }
+.help-starter > .reading-passage { flex: 1; min-width: 0; }
 
 .help-reply-text {
   flex: 1;
@@ -210,28 +203,6 @@
   color: var(--ink-3);
 }
 
-.help-starters ul {
-  display: flex; flex-wrap: wrap; gap: var(--space-2);
-  margin: 0; padding: 0; list-style: none;
-}
-
-.help-starter {
-  display: inline-flex; align-items: center; gap: var(--space-3);
-  min-height: var(--control-height-xs);
-  padding: var(--space-2) var(--space-5);
-  border: var(--border-width) solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(--sheet);
-  color: var(--ink-2);
-  font: calc(var(--type-ui) * var(--reading-scale) * var(--script-scale)) / var(--leading-snug) var(--font-serif);
-  cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out);
-}
-
-.help-starter:hover { border-color: var(--interaction-ink); color: var(--ink); }
-
-.help-starter:disabled { opacity: .5; cursor: default; }
-
 /* ── Folded ───────────────────────────────────────────────────────────────── */
 
 .reply-help-folded { display: flex; justify-content: flex-start; margin: 0 0 var(--space-2); }
@@ -271,5 +242,5 @@
   .help-insert, .reply-help-hide, .reply-help-open { min-width: var(--control-height); min-height: var(--control-height); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .reply-help-action, .reply-help-action > svg:last-child, .help-reply, .help-starter { transition: none; }
+  .reply-help-action, .reply-help-action > svg:last-child { transition: none; }
 }

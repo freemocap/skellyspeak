@@ -19,10 +19,16 @@ let current: PlaybackHandle | null = null
 
 /// Only the player that still owns the registration may clear it: a newer
 /// utterance must survive an older one releasing late.
-function release(handle: PlaybackHandle): void {
+export function releaseSpeechPlayer(handle: PlaybackHandle): void {
   if (current !== handle) return
   current = null
   registerSpeechPlayback(null)
+}
+
+export function claimSpeechPlayer(handle: PlaybackHandle): void {
+  current?.suspend()
+  current = handle
+  registerSpeechPlayback(handle)
 }
 
 export function playSpeechAudio(state: Pick<Extract<SpeechAudioState, { status: 'ready' }>, 'audioBase64' | 'mime'> & { alignment?: import('../../generated/contracts').SpeechAlignment | null }, onEnd: () => void, onError: (error: Error) => void, rate = 1, volume = 1, observer?: PlaybackObserver): PlaybackHandle {
@@ -56,7 +62,7 @@ export function playSpeechAudio(state: Pick<Extract<SpeechAudioState, { status: 
       audio.onplaying = null; audio.onwaiting = null; audio.onpause = null
       audio.pause(); audio.removeAttribute('src'); audio.load()
       URL.revokeObjectURL(url)
-      release(handle)
+      releaseSpeechPlayer(handle)
     },
     play: async () => {
       if (released) return
@@ -81,9 +87,7 @@ export function playSpeechAudio(state: Pick<Extract<SpeechAudioState, { status: 
   audio.onwaiting = audio.onpause = () => { if (!released && current === handle) observer?.onPlaying?.(false) }
   audio.onended = () => { observer?.onTime?.(audio.currentTime, audio.duration); handle.stop(); onEnd() }
   audio.onerror = () => { const error = mediaError(audio.error, 'Speech playback'); handle.stop(); onError(error) }
-  current?.suspend()
-  current = handle
-  registerSpeechPlayback(handle)
+  claimSpeechPlayer(handle)
   if (!released) { observer?.onReady?.(handle); if (observer?.onTime || source) frame = requestAnimationFrame(tick) }
   return handle
 }

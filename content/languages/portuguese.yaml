@@ -432,3 +432,70 @@ conversation:
       - 📚
       - 🚲
       - 🌿
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Sim.
+      - Não.
+      - Água, por favor.
+      - Estou aqui.
+      - Está quente.
+      - Estou com fome.
+      - O que é isso?
+      - Não sei.
+    beginner:
+      - Ela é médica.
+      - A porta está aberta.
+      - Tenho uma bicicleta.
+      - Esta é minha irmã.
+      - Precisamos de três cadeiras.
+      - Tenho pouco tempo.
+      - Trabalho aqui.
+      - Estou lendo.
+    intermediate:
+      - Cheguei ontem.
+      - Chovia quando saí.
+      - Vou sair amanhã.
+      - A reunião começa segunda-feira.
+      - Gosto de cozinhar.
+      - Queria um café.
+      - Sei nadar.
+      - Preciso sair.
+    advanced:
+      - Se eu soubesse que a reunião ia durar tanto, teria voltado para casa mais cedo.
+      - O que mais me preocupa é como a decisão vai afetar as pessoas que não foram consultadas.
+      - Embora a proposta pareça promissora, seria melhor avaliar suas possíveis consequências.
+      - Eu preferiria que adiássemos a viagem a tomarmos uma decisão da qual depois nos arrependêssemos.
+      - Quanto mais releio o relatório, menos suas conclusões me convencem.
+      - O sucesso do projeto dependerá principalmente da maneira como dividirmos as responsabilidades.
+      - Não é que eu seja contra a ideia; só não tenho certeza de que este seja o momento certo.
+      - Quando percebemos o que tinha acontecido, já era difícil fazer alguma coisa para resolver a situação.
+    social:
+      - Olá!
+      - Bom dia!
+      - Boa tarde!
+      - Boa noite!
+      - Tudo bem?
+      - Tudo bem, e você?
+      - Como você se chama?
+      - Prazer em conhecer você.
+      - Muito obrigado.
+      - De nada.
+      - Com licença.
+      - Desculpe.
+      - Até logo!
+      - Até mais!
+      - Tenha um bom dia!
+    # Sources: [@practice-idioms-portuguese]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Vamos arregaçar as mangas."
+      - "Não batas sempre na mesma tecla."
+      - "Vamos pôr as cartas na mesa."
+      - "Isso não tem pés nem cabeça."
+      - "Vamos pôr mãos à obra."
+      - "É uma agulha num palheiro."
+      - "Não confundas alhos com bugalhos."
+      - "Vamos dar a volta por cima."
+  varieties: {}

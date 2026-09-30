@@ -110,3 +110,49 @@
   .is-hydrating::after { animation: none; background: var(--interaction-ink); }
   .stream-caret, .hydrating-slot[data-phase=running] .hydrating-line, .reply-received { animation: none; }
 }
+
+/* The AI pill at every recorder (components/feedback/AiStatusPill.tsx). It
+   follows the reply-help and coach pills in neutral grey: a chip at rest with
+   a green mark while AI is connected, the accent's tint circled by a moving
+   edge while AI work runs, and the danger family while AI is not connected.
+   The step beside it takes the rest of the line and shortens (three words,
+   two, one) before it folds away. Each surface places and caps the row. */
+.ai-status { position: relative; display: flex; align-items: center; gap: var(--space-4); flex: 1 1 0; min-width: 0; }
+.ai-status-pill {
+  position: relative; flex: none; display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-5);
+  border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--chip); color: var(--ink-2);
+  font: var(--weight-semibold) var(--type-ui) var(--font-sans); line-height: var(--leading-none); cursor: pointer; white-space: nowrap;
+}
+.ai-status-pill::before { content: ''; flex: none; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3); }
+.ai-status-pill[data-configured=true]::before { background: var(--connected-mark); }
+.ai-status-pill:hover { border-color: var(--interaction-ink); color: var(--ink); }
+.ai-status-pill[aria-expanded=true] { border-color: var(--interaction-ink); }
+.ai-status[data-busy] .ai-status-pill { border-color: transparent; background: var(--interaction-tint); color: var(--interaction-ink); }
+.ai-status[data-busy] .ai-status-pill::before { background: var(--interaction-ink); }
+/* A moving edge marks live AI work without moving the pill or its label. */
+@property --activity-border-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.ai-status[data-busy] .ai-status-pill::after {
+  content: ''; position: absolute; inset: calc(-1 * var(--border-width));
+  border-radius: inherit; padding: var(--border-width-strong); pointer-events: none;
+  background: conic-gradient(from var(--activity-border-angle), var(--interaction-line) 0deg, var(--interaction-ink) 80deg, var(--interaction-ink) 110deg, var(--interaction-line) 170deg);
+  mask: linear-gradient(black 0 0) content-box exclude, linear-gradient(black 0 0);
+  animation: activity-border-orbit var(--dur-loop) linear infinite;
+}
+.ai-status[data-tone=offline] .ai-status-pill { border-color: var(--danger-line); background: var(--danger-tint); color: var(--danger-ink); }
+.ai-status[data-tone=offline] .ai-status-pill::before { background: var(--danger-ink); }
+
+/* The step: the chosen wording, and hidden copies of every wording at their
+   natural width, which the line measures to choose. A new step rises into
+   place, like a log line. */
+.ai-status-line { position: relative; flex: 1 1 0; min-width: 0; overflow: hidden; font: var(--weight-medium) var(--type-ui) var(--font-sans); color: var(--ink-2); }
+.ai-status-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; animation: ai-status-arrive var(--dur-base) var(--ease-out); }
+.ai-status[data-tone=offline] .ai-status-text { color: var(--danger-ink); }
+.ai-status-measure { position: absolute; inset-inline-start: 0; top: 0; visibility: hidden; pointer-events: none; }
+.ai-status-measure > span { display: block; width: max-content; white-space: nowrap; }
+.ai-status-announce { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (pointer: coarse) { .ai-status-pill { min-height: var(--control-height); } }
+@media (prefers-reduced-motion: reduce) {
+  .ai-status[data-busy] .ai-status-pill::after { animation: none; background: var(--interaction-ink); }
+  .ai-status-text { animation: none; }
+}
+@media (forced-colors: active) { .ai-status[data-busy] .ai-status-pill { outline: var(--border-width-strong) solid Highlight; } }

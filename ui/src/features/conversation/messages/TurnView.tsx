@@ -1,3 +1,4 @@
+import { useMessageToolDefinitions } from '../../../components/reading/useMessageToolDefinitions'
 import { bubbleSelection } from '../../../components/reading/bubble-selection'
 import { SelectionRing } from '../../../components/reading/SelectionRing'
 import { MessageSkillAnalysis } from '../reading/MessageSkillAnalysis'
@@ -17,6 +18,7 @@ import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMapp
 import { GlossAssistance } from '../reading/GlossAssistance'
 import { SavedGlossText } from '../../../components/reading/SavedGlossText'
 import { TargetMessage } from '../../../components/reading/TargetMessage'
+import { FixCount } from './FixCount'
 import { useReadingAidSpace, useReadingPreferences } from '../../../components/reading/ReadingPreferences'
 import { TargetText } from '../../../components/reading/TargetText'
 import { ReplyStatus } from './ReplyStatus'
@@ -43,6 +45,8 @@ export interface TurnShape {
   turnId?: string
   replacesTurnId?: string | null
   replacedBy?: string | null
+  /// Revisions sent in place of this message's earlier versions.
+  fixes?: number
   userSavedGloss?: import('../../../generated/contracts').WordGlossView | null
   userGlossOperationId?: string | null
   userTranslation?: string | null
@@ -72,6 +76,8 @@ export interface TurnRecording {
 }
 
 export interface TurnViewProps {
+  /** Restrict the coach copy to its selected message without changing its controls. */
+  onlySide?: 'user' | 'assistant'
   turn: TurnShape
   reviewing: boolean
   onAskCoach: (question: string) => void
@@ -113,6 +119,7 @@ export const TurnView = memo(function TurnView(props: TurnViewProps) {
 
 // Record-specific controls reset on revision; the presentation floor stays put.
 function TurnContents({
+  onlySide,
   turn,
   reviewing,
   onAskCoach,
@@ -137,6 +144,7 @@ function TurnContents({
   onActivity,
 }: TurnViewProps) {
   const tr = useI18n()
+  const messageTools = useMessageToolDefinitions()
   const replyStream = useReplyStream(turn.execution)
   const arrivedPending = useRef(!turn.assistant)
   useEffect(() => { if (!turn.assistant || pendingEdit) arrivedPending.current = true }, [turn.assistant, pendingEdit])
@@ -191,22 +199,21 @@ function TurnContents({
     ? [{ key: 'translate', label: tr("Translate"), ariaLabel: tr("Translate your message"),
       pressed: showUserTranslation, pending: translationPending(turn.userTranslationState), onSelect: () => setShowUserTranslation(!showUserTranslation) }]
     : []
-  const learnerMore = (analysisTool: MessageTool): MessageTool[] => [
-    { key: 'words', label: tr("Word by word"), pressed: userWordsOpen, pending: turn.userGlossState === 'running', disabled: !userSegments.length,
-      onSelect: () => setUserWordsOverride(!userWordsOpen) },
-    analysisTool,
+  const learnerMore = (coachTool: MessageTool): MessageTool[] => [
+    messageTools.words({ pressed: userWordsOpen, pending: turn.userGlossState === 'running', disabled: !userSegments.length,
+      onSelect: () => setUserWordsOverride(!userWordsOpen) }),
+    coachTool,
   ]
 
   return (
     <>
-      {turn.user && (
+      {onlySide !== 'assistant' && turn.user && (
         <div className="learner-turn">
           {editing && <span className="learner-turn-editing"><ToolbarIcon name="edit" size={12} />{tr("Fixing this message")}</span>}
-          {!editing && turn.replacesTurnId && <span className="learner-turn-edited"><ToolbarIcon name="fixes" size={13} />{tr("Fixed")}</span>}
           {pendingEdit ? <PendingLearner message={pendingEdit} rtl={rtl} /> : <>
           <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
-            reward={<MessageXpButton messageId={turn.id} source={turn.user} />}
-            bubble={analysisTool => (
+            reward={<>{(turn.fixes ?? 0) > 0 && <FixCount count={turn.fixes!} />}<MessageXpButton messageId={turn.id} source={turn.user} /></>}
+            bubble={coachTool => (
               <div
                 {...bubbleSelection(onSelectMessage ? () => onSelectMessage(turn.id, 'user') : undefined, selectedSide === 'user', tr("Your message"))}
                 className={`msg chat-message me${selectedSide === 'user' ? ' focused' : ''}${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
@@ -221,7 +228,7 @@ function TurnContents({
                 <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
                 {inspectable && inspectorOpen && <CompactInspection inspection={inspectable.result.inspection} playback={recordingPlayback}
                   enabled={inspectable.enabled} onExpand={inspectable.onExpand} />}
-                <MessageTools play={learnerPlay} tools={learnerTools} more={learnerMore(analysisTool)}
+                <MessageTools play={learnerPlay} tools={learnerTools} more={learnerMore(coachTool)}
                   // BACKEND: only the latest recording is kept, in memory, so earlier messages have no audio to inspect (Deferred A16).
                   inspect={inspectable && { kind: 'available', open: inspectorOpen, onToggle: () => setInspectorOpen(!inspectorOpen) }}
                   actions={<>
@@ -237,7 +244,7 @@ function TurnContents({
           </>}
         </div>
       )}
-      {assistant && !pendingEdit && (
+      {onlySide !== 'user' && assistant && !pendingEdit && (
         <div className="partner-turn">
           <span className="partner-reaction-slot">
             {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
@@ -270,11 +277,11 @@ function TurnContents({
           />
         </div>
       )}
-      {pendingEdit ? (
+      {onlySide !== 'user' && (pendingEdit ? (
         pendingEdit.phase === 'sending' && <ReplyStatus reply={WAITING_REPLY} rtl={rtl} />
       ) : assistant === null && (
         <ReplyStatus reply={turn.replyState} stream={replyStream} visibleText={reveal.text} retainedText={retainedReplyText(turn.execution)} rtl={rtl} onControl={onReplyControl} onActivity={onActivity} />
-      )}
+      ))}
     </>
   )
 }

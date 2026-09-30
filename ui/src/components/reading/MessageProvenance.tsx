@@ -39,6 +39,9 @@ export function ProvenanceTip({ provenance }: { provenance: MessageProvenance })
       <span className="message-provenance-card">
         <span className="message-provenance-heading">{tr("How this was added")}</span>
         {source.kind === 'own' && <span className="message-provenance-kind"><ToolbarIcon name="deck-added" size={16} />{tr("Added by you")}</span>}
+        {source.kind === 'bundled' && <>
+          <span className="message-provenance-line">{tr(source.set === 'social' ? 'Social phrases' : source.set === 'idiomatic' ? 'Idiomatic phrases' : difficultyLabel(source.set))}</span>
+        </>}
         {source.kind === 'generated' && <>
           <span className="message-provenance-kind"><ToolbarIcon name="star" size={16} />
             {source.skillFocus ? tr("Generated for a skill") : tr("Generated")}</span>

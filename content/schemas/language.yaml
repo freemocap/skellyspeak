@@ -311,6 +311,70 @@ definitions:
     - quirks
     - vibe
     type: object
+  PhraseSets:
+    additionalProperties: false
+    properties:
+      absolute_zero:
+        items:
+          type: string
+        maxItems: 50
+        minItems: 8
+        type: array
+      advanced:
+        items:
+          type: string
+        maxItems: 50
+        minItems: 8
+        type: array
+      beginner:
+        items:
+          type: string
+        maxItems: 50
+        minItems: 8
+        type: array
+      idiomatic:
+        items:
+          type: string
+        maxItems: 50
+        minItems: 8
+        type: array
+      intermediate:
+        items:
+          type: string
+        maxItems: 50
+        minItems: 8
+        type: array
+      social:
+        items:
+          type: string
+        maxItems: 50
+        minItems: 8
+        type: array
+    required:
+    - absolute_zero
+    - advanced
+    - beginner
+    - idiomatic
+    - intermediate
+    - social
+    type: object
+  PracticeContent:
+    additionalProperties: false
+    properties:
+      review:
+        $ref: '#/definitions/ReviewStatus'
+      sets:
+        $ref: '#/definitions/PhraseSets'
+      varieties:
+        additionalProperties:
+          $ref: '#/definitions/PhraseSets'
+        description: Authored replacements where a variety requires different wording or script.
+        type: object
+    required:
+    - review
+    - sets
+    - varieties
+    type: object
   Preferences:
     additionalProperties: false
     properties:
@@ -509,6 +573,8 @@ properties:
     $ref: '#/definitions/Integrations'
   learning:
     $ref: '#/definitions/LearningContent'
+  practice:
+    $ref: '#/definitions/PracticeContent'
   schema_version:
     format: uint32
     minimum: 0.0
@@ -529,6 +595,7 @@ required:
 - identity
 - integrations
 - learning
+- practice
 - schema_version
 - traits
 - varieties

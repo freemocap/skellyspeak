@@ -427,3 +427,71 @@ conversation:
       - 🚲
       - 🔧
       - 🎵
+
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Ja.
+      - Nein.
+      - Wasser, bitte.
+      - Ich bin hier.
+      - Es ist heiß.
+      - Ich habe Hunger.
+      - Was ist das?
+      - Ich weiß es nicht.
+    beginner:
+      - Sie ist Ärztin.
+      - Das Zimmer ist ruhig.
+      - Ich habe ein Fahrrad.
+      - Das ist meine Schwester.
+      - Wir brauchen drei Stühle.
+      - Ich habe wenig Zeit.
+      - Ich arbeite hier.
+      - Sie liest gerade.
+    intermediate:
+      - Ich habe gestern gekocht.
+      - Wir waren zu Hause.
+      - Ich komme morgen.
+      - Es wird regnen.
+      - Ich trinke gern Tee.
+      - Ich möchte etwas essen.
+      - Ich kann schwimmen.
+      - Du musst nicht kommen.
+    advanced:
+      - Hätte ich gewusst, dass die Besprechung so lange dauert, wäre ich früher nach Hause gefahren.
+      - Am meisten beunruhigt mich, wie sich die Entscheidung auf diejenigen auswirkt, die nicht gefragt
+        wurden.
+      - Obwohl der Vorschlag vielversprechend klingt, sollten wir seine möglichen Folgen sorgfältig prüfen.
+      - Mir wäre lieber, wir würden die Reise verschieben, als eine Entscheidung zu überstürzen.
+      - Je genauer ich den Bericht lese, desto weniger überzeugen mich seine Schlussfolgerungen.
+      - Ob das Vorhaben gelingt, hängt vor allem davon ab, wie wir die Verantwortung verteilen.
+      - Ich habe grundsätzlich nichts gegen die Idee, bezweifle aber, dass jetzt der richtige Zeitpunkt ist.
+      - Als uns klar wurde, was geschehen war, ließ sich kaum noch etwas daran ändern.
+    social:
+      - Hallo!
+      - Guten Morgen!
+      - Guten Tag!
+      - Guten Abend!
+      - Wie geht es Ihnen?
+      - Gut, danke.
+      - Wie heißen Sie?
+      - Freut mich, Sie kennenzulernen.
+      - Vielen Dank.
+      - Gern geschehen.
+      - Entschuldigung.
+      - Es tut mir leid.
+      - Auf Wiedersehen!
+      - Bis bald!
+      - Schönen Tag noch!
+    # Sources: [@practice-idioms-german]; see docs/notes/practice-idioms-sources.md.
+    idiomatic:
+      - "Ich verstehe nur Bahnhof."
+      - "Ich drücke dir die Daumen."
+      - "Du hast Tomaten auf den Augen."
+      - "Bleib am Ball."
+      - "Schieb es nicht auf die lange Bank."
+      - "Bind mir keinen Bären auf."
+      - "Das hat einen Bart."
+      - "Du triffst den Nagel auf den Kopf."
+  varieties: {}

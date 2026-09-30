@@ -26,7 +26,7 @@ export function GlossAssistance({ assistant, onRetryGloss }: {
   }
   const pending = ['ready', 'running', 'waiting_dependencies'].includes(assistant.glossState ?? '')
   const pendingLabel = tr(assistant.savedGloss ? "Finishing word meanings…" : "Word meanings pending")
-  // Work in progress is carried by the Word by word control; a line appears
+  // Work in progress is carried by the Words control; a line appears
   // only for a result that needs attention: partial, held, failed or empty.
   const showGlossHelp = (assistant.savedGloss?.coverage === 'partial' || ['held', 'failed', 'unknown'].includes(assistant.glossState ?? '') || glossRetryError || (assistant.glossState === 'succeeded' && assistant.savedGloss && !assistant.savedGloss.segments.some(segment => segment.kind === 'gloss')))
   if (pending && !showGlossHelp) return <span className="hydrating-announce" role="status">{pendingLabel}</span>

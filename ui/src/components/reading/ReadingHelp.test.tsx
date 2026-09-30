@@ -11,7 +11,7 @@ import { SavedGlossText } from './SavedGlossText'
 import { ReadingLanguageScope } from './ReadingLanguageScope'
 import type { ReadingResult } from '../../generated/contracts'
 
-/** Opens every message's ⋯ menu, where Word by word, Analysis and Pronunciation live. */
+/** Opens every message's ⋯ menu, where Words, Analysis and Pronunciation live. */
 const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
 
 
@@ -318,7 +318,7 @@ it('delegates grammar explanation reuse to native and keeps source inputs distin
   expect(vi.mocked(services.read).mock.calls.map(([input]) => [input.aid, input.text])).toEqual([['explanations', 'Hola'], ['explanations', 'Hola'], ['explanations', 'Hola.']])
 })
 
-it('a partial cached or saved result still lets Word by word request the whole passage, once', async () => {
+it('a partial cached or saved result still lets Words request the whole passage, once', async () => {
   const { TargetMessage } = await import('./TargetMessage')
   vi.mocked(services.read).mockResolvedValue({ gloss: { coverage: 'complete', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'},{start:5,end:9,kind:'gloss',gloss:'house'}] }, audioBase64: null, translation: null, receipt: null } as ReadingResult)
   const props = { text: 'Hola casa', segments: [], segmentsKey: 'hola-casa', translation: null, romanization: null, pronunciation: null, layout: 'passage' as const, translateLabel: null,
@@ -326,16 +326,16 @@ it('a partial cached or saved result still lets Word by word request the whole p
   // Only "Hola" is known from a durable source: the provider's peek reports partial coverage.
   app(<SavedReadingProvider sources={[{ scope, text: 'Hola casa', segments: [{start:0,end:4,kind:'gloss',gloss:'hello'}] }]}><TargetMessage provenance={null} {...props} /></SavedReadingProvider>)
   openMenus()
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Word by word' })).toBeEnabled())
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Words' })).toBeEnabled())
   openMenus()
-  fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Words' }))
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
   expect(services.read).toHaveBeenCalledWith({ ...scope, text: 'Hola casa', aid: 'word_gloss' }, expect.any(AbortSignal))
   await waitFor(() => expect(screen.getByText('house')).toBeVisible())
   openMenus()
-  fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Words' }))
   openMenus()
-  fireEvent.click(screen.getByRole('button', { name: 'Word by word' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Words' }))
   expect(services.read).toHaveBeenCalledOnce()
 })
 
@@ -345,18 +345,18 @@ it('each passage requests generated help explicitly, and Chat-style owners never
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false }
   const view = app(<><TargetMessage provenance={null} {...props} /><TargetMessage provenance={null} {...props} segmentsKey="second" /></>)
   openMenus()
-  fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[0])
+  fireEvent.click(screen.getAllByRole('button', { name: 'Words' })[0])
   await waitFor(() => expect(services.read).toHaveBeenCalledOnce())
   // A different surface has no generated inference state of its own until requested.
   await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(1))
   openMenus()
-  fireEvent.click(screen.getAllByRole('button', { name: 'Word by word' })[1])
+  fireEvent.click(screen.getAllByRole('button', { name: 'Words' })[1])
   await waitFor(() => expect(view.container.querySelectorAll('.wg')).toHaveLength(2))
   expect(services.read).toHaveBeenCalledTimes(2)
   view.unmount()
   app(<TargetMessage provenance={null} {...props} layout="bubble" lookupWords={false} />)
   openMenus()
-  expect(screen.getByRole('button', { name: 'Word by word' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Words' })).toBeDisabled()
   expect(screen.queryByRole('button', { name: 'Translate' })).toBeNull()
   expect(services.read).toHaveBeenCalledTimes(2)
 })

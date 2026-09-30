@@ -9,7 +9,7 @@ vi.mock('../../../platform/ipc/tauri', () => ({ isTauri: true }))
 vi.mock('../../../platform/ipc/workspace', () => ({ readWorkspace: backend.read, executeAction: backend.execute, watchConversation: backend.watch, nativeError: (error: unknown) => String(error) }))
 vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../progress/ConversationMap', () => ({ ConversationMap: () => null }))
-const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [], messages: [], hasOlder: false } as unknown as ConversationSnapshot
+const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [], messages: [], revisionSuffixCounts: [], hasOlder: false } as unknown as ConversationSnapshot
 function panel(chatId = 'chat-1', draftQuestion = '', autoSendDraft = false, conversationBusy = false) {
   return <CoachAnalysisPanel autoSendDraft={autoSendDraft} chatId={chatId} conversationBusy={conversationBusy} tab="coaching" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
 }

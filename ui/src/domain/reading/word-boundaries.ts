@@ -1,8 +1,23 @@
+import { sentenceBlanks } from './sentence-blanks'
+
 /** Local navigation boundaries only. Meanings still come from validated source
  * annotations; Unicode segmentation is never presented as linguistic analysis. */
-export function readingWords(text: string, locale?: string) {
+export function readingWords(text: string, locale?: string, template = false) {
   const segmenter = new Intl.Segmenter(locale || undefined, { granularity: 'word' })
-  return Array.from(segmenter.segment(text), item => ({ start: item.index, end: item.index + item.segment.length, word: !!item.isWordLike }))
+  const parts: { start: number; end: number; word: boolean; blank: boolean }[] = []
+  const appendWords = (start: number, end: number) => {
+    for (const item of segmenter.segment(text.slice(start, end))) {
+      parts.push({ start: start + item.index, end: start + item.index + item.segment.length, word: !!item.isWordLike, blank: false })
+    }
+  }
+  let cursor = 0
+  for (const blank of sentenceBlanks(text, template)) {
+    appendWords(cursor, blank.start)
+    parts.push({ ...blank, word: false, blank: true })
+    cursor = blank.end
+  }
+  appendWords(cursor, text.length)
+  return parts
 }
 
 /** Large reports remain inspectable without truncating a chosen occurrence.

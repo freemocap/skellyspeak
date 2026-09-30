@@ -32,7 +32,7 @@ export const TOUR_VIEWS: readonly TourView[] = [
     stops: [
       { key: 'word', selector: '.partner-turn .reading-word',
         title: tr => tr('Tap a word'),
-        text: tr => tr('Tap any word in a partner message to see its meaning. Word by word shows every word at once.') },
+        text: tr => tr('Tap any word in a partner message to see its meaning. Words shows every word at once.') },
       { key: 'speak', selector: '.partner-turn .message-tools-play',
         title: tr => tr('Play aloud'),
         text: tr => tr('Plays the message in the partner’s voice.') },
@@ -54,7 +54,7 @@ export const TOUR_VIEWS: readonly TourView[] = [
       { key: 'progress', selector: '.profile-trigger',
         title: tr => tr('Progress'),
         text: tr => tr('Opens your XP and skills.') },
-      { key: 'ai', selector: '.connection-state',
+      { key: 'ai', selector: '.ai-status-pill',
         title: tr => tr('AI status'),
         text: tr => tr('Shows whether AI access is connected. Opens the AI panel with every model request for each turn.') },
     ],
