@@ -15,24 +15,15 @@ guidance:
 feedback:
   correct_only: useful_language
   skip_sources: []
-  ladder:
-  - partner_clarify
-  - hint
-  - elicit
-  - metalinguistic
-  - explicit
   intensity:
     light:
       start_at: explicit
-      max_revisions: 1
       show_logged: false
     standard:
       start_at: explicit
-      max_revisions: 2
       show_logged: true
     thorough:
       start_at: explicit
-      max_revisions: 3
       show_logged: true
   never:
   - praise_the_person

@@ -30,7 +30,7 @@ fn model_comparison_boundary() {
     for case in document["cases"].as_array_mut().unwrap() {
         let kind = case["kind"].as_str().unwrap();
         let gloss = matches!(kind, "user_word_gloss" | "persona_word_gloss");
-        let coach = matches!(kind, "coach_feedback" | "coach_retry_check");
+        let coach = matches!(kind, "coach_feedback");
         let support = conversation_support::owns(kind);
         assert!(
             gloss
@@ -73,10 +73,7 @@ fn model_comparison_boundary() {
                     .output_schema,
                 )
             } else if coach {
-                Some(
-                    coach_observation::schema(&case["context"], kind == "coach_retry_check")
-                        .unwrap(),
-                )
+                Some(coach_observation::schema(&case["context"]).unwrap())
             } else if support {
                 Some(conversation_support::schema_for_context(
                     kind,

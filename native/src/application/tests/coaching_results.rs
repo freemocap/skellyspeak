@@ -262,7 +262,7 @@ fn cache_identity_covers_inputs_model_schema_and_validation_context_not_attempt_
         results::text::request_key(
             &request.dispatch,
             request.output(),
-            "coaching-result-v1",
+            "coaching-result-v2",
             &json!([request.kind, request.captured, request.source]),
         )
         .unwrap()

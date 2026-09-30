@@ -142,7 +142,7 @@ export const PROGRESS_LANGUAGES = [
 // ── AI panel ─────────────────────────────────────────────────────────────
 const AI_PLAN: [string, string[], string][] = [
   ['persona_context', [], 'local'], ['persona_reply', ['persona_context'], 'standard'], ['skill_assessment', ['persona_context'], 'fast'],
-  ['coach_retry_check', ['persona_context'], 'standard'], ['user_word_gloss', ['persona_context'], 'standard'], ['user_translation', ['persona_context'], 'standard'],
+  ['coach_feedback', ['persona_context'], 'standard'], ['user_word_gloss', ['persona_context'], 'standard'], ['user_translation', ['persona_context'], 'standard'],
   ['persona_word_gloss', ['persona_reply'], 'standard'], ['persona_speech', ['persona_reply'], 'speech'], ['reply_translation', ['persona_reply'], 'standard'],
   ['reply_explanations', ['persona_reply'], 'standard'], ['reply_assistance', ['persona_reply'], 'standard'], ['conversation_feedback', ['persona_reply'], 'standard'],
 ]

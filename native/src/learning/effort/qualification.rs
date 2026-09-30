@@ -1,8 +1,6 @@
 //! Source-domain qualification for unit effort awards. No storage side effects.
 use crate::drill::comparison::DrillComparison;
-use crate::learning::coaching::{
-    CoachDecision, CoachObservationView, MeaningLevel, Outcome, RepairStatus,
-};
+use crate::learning::coaching::{CoachDecision, CoachObservationView, MeaningLevel, Outcome};
 use crate::partners::partner_reaction::{PartnerReaction, ReactionKind};
 
 /// Versioned product inclusion policy, not an accuracy or proficiency threshold.
@@ -38,7 +36,6 @@ pub fn no_issues(
         return Qualification::Pending;
     };
     if feedback.meaning_recovered != MeaningLevel::Full
-        || matches!(decision.repair_status, Some(RepairStatus::Uncertain))
         || decision.shown.is_some()
         || !feedback.corrections.is_empty()
         || !feedback.notes.is_empty()

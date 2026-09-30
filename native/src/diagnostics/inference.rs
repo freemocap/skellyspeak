@@ -42,7 +42,6 @@ fn kind(value: &str) -> &str {
         | "reply_explanations"
         | "coach_feedback"
         | "coach_reaction"
-        | "coach_retry_check"
         | "coach_suggestions"
         | "coach_reply"
         | "persona_reply"

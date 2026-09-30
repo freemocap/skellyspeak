@@ -15,8 +15,6 @@ export function CoachEntry({ decision, feedback, source, error }: {
   return <div className="coach-entry">
     {source && <div className="coach-entry-said"><TargetPassage side="me" text={source} /></div>}
     {error && <ErrorNotice as="p" error={error} className="turn-errors">{error}</ErrorNotice>}
-    {decision?.repairStatus === 'uncertain' && <p role="status">{tr("The coach could not confirm this revision yet.")}</p>}
-    {decision?.fixed && <p className="coach-fixed" role="status"><span dir="auto">{decision.fixed}</span></p>}
     {corrections.map((shown, index) => <section key={index} className="coach-card coach-card-help" aria-label={tr("Coaching suggestion")}>
       {shown.move === 'explicit' ? <>
         {/* One line: your words struck out, then the replacement with its reading tools. */}
@@ -31,7 +29,7 @@ export function CoachEntry({ decision, feedback, source, error }: {
         <p className="coach-remark" dir="auto">{shown.text}</p>
       </>}
     </section>)}
-    {feedback && !corrections.length && !explanations.length && !error && !decision?.fixed && !decision?.keptGoing && <p className="coach-remark">{tr(feedback.meaningRecovered === 'none' ? 'The meaning could not be determined. Add context to clarify what you intended.' : feedback.meaningRecovered === 'partial' ? 'Only part of the meaning was clear. Add context to clarify what you intended.' : 'No correction identified.')}</p>}
+    {feedback && !corrections.length && !explanations.length && !error && !decision?.keptGoing && <p className="coach-remark">{tr(feedback.meaningRecovered === 'none' ? 'The meaning could not be determined. Add context to clarify what you intended.' : feedback.meaningRecovered === 'partial' ? 'Only part of the meaning was clear. Add context to clarify what you intended.' : 'No correction identified.')}</p>}
     {explanations.map((explanation, index) => <section key={index} className="coach-card coach-card-explanation" aria-label={tr("Language explanation")}>
       <blockquote><TargetPassage side="me" text={explanation.quote} /></blockquote>
       <p className="coach-remark" dir="auto">{explanation.rationale}</p>

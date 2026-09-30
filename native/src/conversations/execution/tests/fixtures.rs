@@ -301,13 +301,7 @@ pub(super) fn fixture_evidence(store: &Store, turn: &str, _wording: &str) {
 }
 
 pub(super) fn wave2_context(store: &Store, turn: &str) -> serde_json::Value {
-    let raw: String = store
-        .connection
-        .query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
-            r.get(0)
-        })
-        .unwrap();
-    serde_json::from_str(&raw).unwrap()
+    crate::conversations::assessments::context(&store.connection, turn).unwrap()
 }
 
 pub(super) fn wave2_error(quote: &str) -> serde_json::Value {
@@ -328,13 +322,17 @@ pub(super) fn wave2_observe(
         &reply(&value.to_string()),
     )
     .unwrap();
-    crate::learning::coaching::coach_observation::publish(
-        &store.connection,
-        turn,
-        &validated,
-        &format!("observation-{turn}"),
-    )
-    .unwrap();
+    let attempt = id();
+    store
+        .connection
+        .execute(
+            "UPDATE operations SET state='succeeded' WHERE turn_id=?1 AND kind=?2",
+            params![turn, kind],
+        )
+        .unwrap();
+    store.connection.execute("INSERT INTO attempts(id,operation_id,state,requested_model) SELECT ?1,id,'succeeded','fixture' FROM operations WHERE turn_id=?2 AND kind=?3", params![attempt,turn,kind]).unwrap();
+    crate::conversations::assessments::publish(&store.connection, turn, kind, &attempt, &validated)
+        .unwrap();
     validated
 }
 

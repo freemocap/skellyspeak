@@ -57,11 +57,15 @@ fn render(
         )?;
         let contexts = rows(
             db,
-            "SELECT json_object('turn_id',t.id,'coachObservation',json_extract(t.context,'$.coachObservation'),'candidateConstructs',json_extract(t.context,'$.candidateConstructs'),'coachDecision',json_extract(t.context,'$.coachDecision')) FROM turns t WHERE t.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND (json_type(t.context,'$.coachObservation')='object' OR json_type(t.context,'$.coachDecision')='object') ORDER BY t.rowid",
+            "SELECT json_object('turn_id',t.id) FROM turns t WHERE t.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM messages m JOIN message_assessments s ON s.message_id=m.id WHERE m.turn_id=t.id AND s.kind='coach_feedback') ORDER BY t.rowid",
             conversation,
         )?;
         let mut feedback = vec![];
-        for context in contexts {
+        for source in contexts {
+            let turn = source["turn_id"]
+                .as_str()
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing assessment turn."))?;
+            let context = crate::conversations::assessments::context(db, turn)?;
             // Reuse the public observation projection; hidden target hypotheses
             // and error rationales do not become visible through export.
             let observation = if context["coachObservation"].is_null() {
@@ -75,9 +79,7 @@ fn render(
                 } else {
                     Some(serde_json::from_value(context["coachDecision"].clone())?)
                 };
-            feedback.push(
-                json!({"turn_id":context["turn_id"],"observation":observation,"decision":decision}),
-            );
+            feedback.push(json!({"turn_id":turn,"observation":observation,"decision":decision}));
         }
         Some(json!({"messages":thread,"feedback":feedback}))
     } else {
@@ -273,15 +275,19 @@ mod tests {
         // Recorded bodies are local inspection data: never exported.
         store.connection.execute("INSERT INTO attempts(id,operation_id,state,requested_model,error,provider_id,input_tokens,output_tokens,request_messages,response_text,preview_text) VALUES('attempt',?1,'failed','fixture-model','SECRET_ERROR','SECRET_PROVIDER_RESPONSE',10,2,'[{\"role\":\"user\",\"content\":\"SECRET_RECORDED_REQUEST\"}]','SECRET_RECORDED_RESPONSE','SECRET_RECORDED_PREVIEW')",[format!("operation-{turn_id}")]).unwrap();
         let observed = json!({"meaning_recovered":"partial","items":[{"construct":"question","quote":"Partner opening","outcome":"partial","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"SECRET_HYPOTHESIS","hint":"A hint","elicitation":"Try again","metalinguistic":"A rule"},"rationale":"SECRET_RATIONALE"}]});
-        let decision = json!({"exposedMove":"hint","repairStatus":null,"shown":{"construct":"question","quote":"Partner opening","move":"hint","text":"VISIBLE_COACH_HINT"},"retryInvited":true,"fixed":null,"alsoNoticed":[],"keptGoing":false});
-        store
-            .connection
-            .execute(
-                "UPDATE turns SET context=json_set(context,'$.coachDecision',json(?2)) WHERE id=?1",
-                params![turn_id, decision.to_string()],
-            )
-            .unwrap();
-        store.connection.execute("UPDATE turns SET context=json_set(context,'$.coachObservation',json(?2),'$.candidateConstructs',json(?3)) WHERE id=?1",params![turn_id,observed.to_string(),json!([{"id":"question"}]).to_string()]).unwrap();
+        let decision = json!({"exposedMove":"hint","shown":{"construct":"question","quote":"Partner opening","move":"hint","text":"VISIBLE_COACH_HINT"},"retryInvited":true,"alsoNoticed":[],"keptGoing":false});
+        store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) VALUES('learner-source',?1,?2,3,'user','Learner source')",params![conversation,turn_id]).unwrap();
+        store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) VALUES('feedback-operation',?1,'coach_feedback','succeeded')",[&turn_id]).unwrap();
+        store.connection.execute("INSERT INTO attempts(id,operation_id,state,requested_model) VALUES('feedback-attempt','feedback-operation','succeeded','fixture')",[]).unwrap();
+        store.connection.execute("UPDATE turns SET context=json_set(context,'$.candidateConstructs',json(?2)) WHERE id=?1",params![turn_id,json!([{"id":"question"}]).to_string()]).unwrap();
+        crate::conversations::assessments::publish(
+            &store.connection,
+            &turn_id,
+            "coach_feedback",
+            "feedback-attempt",
+            &json!({"observation":observed,"decision":decision,"validationOmissions":0}),
+        )
+        .unwrap();
         // A second conversation can contain private data; none may cross scope.
         store.connection.execute("INSERT INTO conversations(id,contact_id,language_id,title,archived,revision,last_used) SELECT 'other',contact_id,language_id,'UNRELATED_TITLE',0,1,0 FROM conversations WHERE id=?1",[&conversation]).unwrap();
         turn(&store, "other", 1, "persona_reply", "UNRELATED_MESSAGE");

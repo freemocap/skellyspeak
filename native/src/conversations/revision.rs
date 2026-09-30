@@ -78,14 +78,6 @@ pub(crate) fn accept(
         current.revision,
         turn,
     )?;
-    let retry: bool = db.query_row(
-        "SELECT json_type(context,'$.coachRetry')='object' FROM turns WHERE id=?1",
-        [&replacement],
-        |r| r.get(0),
-    )?;
-    if retry {
-        db.execute("UPDATE operations SET kind='coach_retry_check' WHERE turn_id=?1 AND kind='coach_feedback'",[&replacement])?;
-    }
     input.revision = true;
     db.execute("UPDATE turns SET replaces_turn_id=?2,context=json_set(context,'$.input',json(?3)) WHERE id=?1", params![replacement,turn,serde_json::to_string(&input)?])?;
     crate::learning::effort::revision(db, &replacement, turn)?;

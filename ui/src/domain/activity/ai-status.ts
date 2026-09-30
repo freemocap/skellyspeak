@@ -36,7 +36,6 @@ export const OPERATION_WORDS: Readonly<Record<string, StatusWords>> = {
   persona_context: CONTEXT,
   coach_context: CONTEXT,
   coach_feedback: [messageKey('Coach correcting message…'), messageKey('Finding corrections…'), messageKey('Correcting…')],
-  coach_retry_check: [messageKey('Checking your revision…'), messageKey('Checking revision…'), messageKey('Rechecking…')],
   conversation_feedback: [messageKey('Scoring your message…'), messageKey('Scoring message…'), messageKey('Scoring…')],
   coach_reaction: [messageKey('Rating partner understanding…'), messageKey('Rating understanding…'), messageKey('Rating…')],
   skill_assessment: [messageKey('Detecting skill evidence…'), messageKey('Detecting skills…'), messageKey('Detecting…')],

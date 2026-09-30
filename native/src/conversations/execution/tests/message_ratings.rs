@@ -39,6 +39,27 @@ fn scores_publish_before_reply_and_understanding_waits_for_reply_without_credit(
         Some(0)
     );
     assert_eq!(view.messages.len(), 1);
+    let history = store
+        .message_history(&conversation, &view.messages[0].id)
+        .unwrap();
+    assert_eq!(
+        history.versions[0]
+            .conversation_feedback
+            .as_ref()
+            .unwrap()
+            .grammar,
+        Some(0)
+    );
+    assert_eq!(
+        history.versions[0]
+            .assessments
+            .iter()
+            .find(|a| a.kind == "conversation_feedback")
+            .unwrap()
+            .attempt_id
+            .as_deref(),
+        Some(rating.attempt.as_str())
+    );
     store
         .finish(&partner, Ok(reply("Please clarify.")))
         .unwrap();

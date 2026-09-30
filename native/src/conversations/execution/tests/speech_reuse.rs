@@ -84,6 +84,11 @@ fn conversation_reuses_independent_result_while_paused_and_reopens_without_crede
         })
         .unwrap();
     assert_eq!(executions, 1);
+    // Deliberate corruption fixture: ordinary writes cannot change a message version.
+    reopened
+        .connection
+        .execute_batch("DROP TRIGGER message_version_fixed")
+        .unwrap();
     reopened
         .connection
         .execute(

@@ -11,8 +11,8 @@ use rusqlite::{Connection, params};
 use serde_json::Value;
 
 fn message_scope(db: &Connection, turn: &str) -> Result<(String, String, String, Value)> {
-    let (language, conversation, raw): (String,String,String) = db.query_row("SELECT c.language_id,c.id,t.context FROM turns t JOIN conversations c ON c.id=t.conversation_id WHERE t.id=?1 AND EXISTS(SELECT 1 FROM messages WHERE turn_id=t.id AND role='user')", [turn], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
-    let context: Value = serde_json::from_str(&raw)?;
+    let (language, conversation): (String,String) = db.query_row("SELECT c.language_id,c.id FROM turns t JOIN conversations c ON c.id=t.conversation_id WHERE t.id=?1 AND EXISTS(SELECT 1 FROM messages WHERE turn_id=t.id AND role='user')", [turn], |r| Ok((r.get(0)?,r.get(1)?)))?;
+    let context = crate::conversations::assessments::context(db, turn)?;
     let variety = context["practiceSettings"]["varietyId"]
         .as_str()
         .ok_or_else(|| {
@@ -25,10 +25,7 @@ fn message_scope(db: &Connection, turn: &str) -> Result<(String, String, String,
     Ok((language, variety, conversation, context))
 }
 pub(crate) fn message(db: &Connection, turn: &str, kind: &str) -> Result<()> {
-    if !matches!(
-        kind,
-        "coach_reaction" | "coach_feedback" | "coach_retry_check"
-    ) {
+    if !matches!(kind, "coach_reaction" | "coach_feedback") {
         return Ok(());
     }
     let (language, variety, conversation, context) = message_scope(db, turn)?;

@@ -46,6 +46,15 @@ pub(in crate::application) fn execute_command(
 }
 
 #[tauri::command]
+pub(in crate::application) fn get_message_history(
+    state: tauri::State<'_, Arc<Application>>,
+    conversation_id: String,
+    message_id: String,
+) -> Result<crate::conversations::message_history::MessageHistory> {
+    state.lock()?.message_history(&conversation_id, &message_id)
+}
+
+#[tauri::command]
 pub(in crate::application) fn read_speech_audio(
     state: tauri::State<'_, Arc<Application>>,
     session_id: String,

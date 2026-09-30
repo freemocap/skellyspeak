@@ -9,7 +9,7 @@ it('shows useful language explanations immediately, without internal metrics or 
   expect(view.container.textContent).not.toMatch(/Meaning recovered|Candidate constructs|Returned items|event_roles|demonstrated/)
 })
 it('shows original, correction and why only after the explicit answer is exposed', () => {
-  const decision = {exposedMove:'explicit' as const,repairStatus:null,shown:{construct:'spelling',quote:'cosenar',move:'explicit' as const,text:'cocinar',explanation:'Cocinar means “to cook.” The verb ends in -ar.'},retryInvited:false,fixed:null,alsoNoticed:[],keptGoing:false}
+  const decision = {exposedMove:'explicit' as const,shown:{construct:'spelling',quote:'cosenar',move:'explicit' as const,text:'cocinar',explanation:'Cocinar means “to cook.” The verb ends in -ar.'},retryInvited:false,alsoNoticed:[],keptGoing:false}
   const view = render(<CoachEntry source={null} decision={decision} />)
   expect(view.container.querySelector('del.cor-removed')).toHaveTextContent('cosenar')
   expect(view.container.querySelector('.cor-replacement')).toHaveTextContent('cocinar')
@@ -31,7 +31,7 @@ it('renders no suggestion for evidence-only success and deduplicates identical e
 
 it('shows every distinct disclosed correction and retains assessment notes', () => {
   const corrections = Array.from({ length: 8 }, (_, i) => ({ construct: 'test', quote: `source ${i}`, text: `replacement ${i}`, move: 'explicit' as const, explanation: `reason ${i}` }))
-  const decision = { exposedMove: 'explicit' as const, repairStatus: null, shown: corrections[0], retryInvited: false, fixed: null, alsoNoticed: [], keptGoing: false }
+  const decision = { exposedMove: 'explicit' as const, shown: corrections[0], retryInvited: false, alsoNoticed: [], keptGoing: false }
   const feedback = { corrections, notes: ['An unchanged replacement was omitted.'], meaningRecovered: 'full' as const, items: [], candidatesSent: 1, itemsReturned: 9 }
   const view = render(<CoachEntry source={null} decision={decision} feedback={feedback} />)
   expect(screen.getAllByLabelText('Coaching suggestion')).toHaveLength(8)

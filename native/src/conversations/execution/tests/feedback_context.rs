@@ -22,6 +22,12 @@ fn clarification_reassesses_only_feedback_and_survives_reopen() {
     store
         .finish(&partner, Ok(reply("A relevant follow-up question?")))
         .unwrap();
+    crate::learning::coaching::coach_policy::control(
+        &store.connection,
+        &turn,
+        crate::learning::coaching::CoachControl::OpenCard,
+    )
+    .unwrap();
     let note = "I meant to ask about yesterday; the transcript used present tense.";
     let command = cmd(
         &store,
@@ -36,6 +42,27 @@ fn clarification_reassesses_only_feedback_and_survives_reopen() {
     assert_eq!(snapshot.messages[0].feedback_context.as_deref(), Some(note));
     assert!(snapshot.messages[0].feedback.is_none());
     assert_eq!(snapshot.messages.len(), 2);
+    let history = store
+        .message_history(&conversation, &snapshot.messages[0].id)
+        .unwrap();
+    assert_eq!(
+        history.versions.len(),
+        1,
+        "Reassessment is not a text revision"
+    );
+    assert!(history.versions[0].feedback.is_none());
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT count(*) FROM message_assessments WHERE kind='coach_feedback'",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+        1,
+        "Keep the earlier result attached to its own attempt"
+    );
     let next = store.dispatch().unwrap().unwrap();
     let data: serde_json::Value = serde_json::from_str(&next.messages[1].content).unwrap();
     assert_eq!(data["learnerClarification"], note);
@@ -69,6 +96,29 @@ fn clarification_reassesses_only_feedback_and_survives_reopen() {
         )
         .unwrap();
     assert!(store.dispatch().unwrap().is_none());
+    assert!(
+        store
+            .conversation_snapshot(&conversation, None)
+            .unwrap()
+            .messages[0]
+            .coach_decision
+            .as_ref()
+            .unwrap()
+            .exposed_move
+            .is_none(),
+        "Disclosure belongs to the old attempt"
+    );
+    assert_eq!(
+        store
+            .connection
+            .query_row(
+                "SELECT count(*) FROM message_assessments WHERE kind='coach_feedback'",
+                [],
+                |r| r.get::<_, i64>(0)
+            )
+            .unwrap(),
+        2
+    );
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],
         0

@@ -22,7 +22,7 @@ impl Request {
         let (_, turn, _, kind) = store
             .attempt_scope(&dispatch.attempt)?
             .ok_or_else(internal)?;
-        if !matches!(kind.as_str(), "coach_feedback" | "coach_retry_check") {
+        if !matches!(kind.as_str(), "coach_feedback") {
             return Ok(None);
         }
         let raw: String =
@@ -38,13 +38,8 @@ impl Request {
             "feedbackPolicy",
             "practiceSettings",
             "practiceFocus",
-            "coachRetry",
         ] {
             captured[field] = context[field].clone();
-        }
-        // Retry ownership is checked at publication, not part of shared inference identity.
-        if let Some(retry) = captured["coachRetry"].as_object_mut() {
-            retry.remove("previousTurnId");
         }
         let source = store.connection.query_row(
             "SELECT text FROM messages WHERE turn_id=?1 AND role='user'",
@@ -63,7 +58,7 @@ impl Request {
         request.key = results::text::request_key(
             &request.dispatch,
             request.output(),
-            "coaching-result-v1",
+            "coaching-result-v2",
             &json!([request.kind, request.captured, request.source]),
         )?;
         Ok(Some(request))

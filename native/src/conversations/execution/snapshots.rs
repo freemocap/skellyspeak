@@ -138,28 +138,25 @@ impl Store {
                 explanation_variety: Some(language.explanation_variety_id),
             });
             if message.role == "user" {
-                let captured: String = db.query_row(
-                    "SELECT context FROM turns WHERE id=?1",
-                    [&message.turn_id],
-                    |r| r.get(0),
-                )?;
-                let captured: serde_json::Value = serde_json::from_str(&captured)?;
+                let captured = crate::conversations::assessments::context(db, &message.turn_id)?;
                 message.feedback_context = captured
                     .get("feedbackContext")
                     .and_then(|v| v.as_str())
                     .map(str::to_owned);
-                message.conversation_feedback = captured
-                    .get("conversation_feedback")
-                    .cloned()
-                    .map(serde_json::from_value)
-                    .transpose()?;
+                message.conversation_feedback = crate::conversations::assessments::current(
+                    db,
+                    &message.turn_id,
+                    "conversation_feedback",
+                )?
+                .map(|(_, value)| serde_json::from_value(value))
+                .transpose()?;
                 message.feedback = crate::learning::coaching::coach_policy::view(&captured)?;
                 message.coach_decision = captured
                     .get("coachDecision")
                     .cloned()
                     .map(serde_json::from_value)
                     .transpose()?;
-                (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,coalesce(json_extract(t.context,'$.coach_feedbackError'),json_extract(t.context,'$.coach_retry_checkError'),json_extract(t.context,'$.conversation_feedbackError')) FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind IN ('coach_feedback','coach_retry_check') WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
+                (message.feedback_state,message.feedback_error) = db.query_row("SELECT o.state,coalesce(json_extract(t.context,'$.coach_feedbackError'),json_extract(t.context,'$.conversation_feedbackError')) FROM messages m JOIN turns t ON t.id=m.turn_id LEFT JOIN operations o ON o.turn_id=t.id AND o.kind='coach_feedback' WHERE m.id=?1", [&message.id], |r|Ok((r.get(0)?,r.get(1)?)))?;
             } else {
                 let reaction: Option<String> = db.query_row(
                     "SELECT json_extract(context,'$.partnerReaction') FROM turns WHERE id=?1",

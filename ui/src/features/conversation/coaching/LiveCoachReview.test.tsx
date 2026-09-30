@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
 import type { StoredTurn } from '../../../types'
 import { LiveCoachReview } from './LiveCoachReview'
-const makeTurn = (id: number, reply: string) => ({id,user:'Me gusta cocinar.',analysisState:'complete',assistant:{reply,tokens:[],user_tokens:[],errors:[],mechanics:[]},coachDecision:{exposedMove:null,repairStatus:null,shown:{construct:'verb',quote:'gusta',move:'hint',text:'Which verb form fits here?'},retryInvited:true,fixed:null,alsoNoticed:[],keptGoing:false}} as unknown as StoredTurn)
+const makeTurn = (id: number, reply: string) => ({id,user:'Me gusta cocinar.',analysisState:'complete',assistant:{reply,tokens:[],user_tokens:[],errors:[],mechanics:[]},coachDecision:{exposedMove:null,shown:{construct:'verb',quote:'gusta',move:'hint',text:'Which verb form fits here?'},retryInvited:true,alsoNoticed:[],keptGoing:false}} as unknown as StoredTurn)
 it('updates to the latest exchange and records visible hint exposure once', async () => {
   const control=vi.fn().mockResolvedValue(undefined)
   const view=render(<LiveCoachReview turn={makeTurn(1,'¿Qué cocinas?')} visible onControl={control} nativeLanguageName="English" rtl={false} onEdit={undefined}/>)
@@ -28,7 +28,7 @@ it('shows direct correction and explanation without an answer-reveal step', asyn
   const control = vi.fn().mockResolvedValue(undefined)
   const turn = makeTurn(3, '¿Qué te gusta cocinar?')
   turn.conversationFeedback = { grammar: 4, conversation: 8, answers: {} }
-  turn.coachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'event_roles', quote: 'Yo gusta', move: 'explicit', text: 'Me gusta', explanation: 'Use me gusta to say what you like.' }, retryInvited: false, fixed: null, alsoNoticed: [], keptGoing: false }
+  turn.coachDecision = { exposedMove: null, shown: { construct: 'event_roles', quote: 'Yo gusta', move: 'explicit', text: 'Me gusta', explanation: 'Use me gusta to say what you like.' }, retryInvited: false, alsoNoticed: [], keptGoing: false }
   const view = render(<LiveCoachReview turn={turn} visible onControl={control} nativeLanguageName="English" rtl={false} onEdit={undefined} />)
   await waitFor(() => expect(control).toHaveBeenCalledExactlyOnceWith('open_card'))
   view.rerender(<LiveCoachReview turn={{ ...turn, coachDecision: { ...turn.coachDecision, exposedMove: 'explicit' } }} visible onControl={control} nativeLanguageName="English" rtl={false} onEdit={undefined} />)

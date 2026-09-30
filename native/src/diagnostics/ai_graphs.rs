@@ -225,16 +225,16 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
             )?);
             node.output_schema = Some(conversation_support::schema(kind));
         }
-        "coach_feedback" | "coach_retry_check" => {
+        "coach_feedback" => {
             node.source =
                 "native/src/learning/coaching/mod.rs; native/src/conversations/execution/turns.rs"
                     .into();
-            node.description = "Automatic source-bound correction and explanation, independent of ratings and XP. Clarification reruns this feedback with the learner note. A revision check also uses prior coaching evidence.".into();
+            node.description = "Automatic source-bound correction and explanation, independent of ratings and XP. Clarification reruns this feedback with the learner note. Every fixed version receives its own assessment without prior coaching evidence.".into();
             node.templates = vec![
                 section("system", coaching::system_prompt(kind, &captured)?),
                 section(
                     "user · inputs",
-                    "{{learnerSource}}, {{priorConversation}}, {{privateCoachHistory}}, {{targetLanguage}}, {{explanationLanguage}}, {{difficulty}}, {{candidateConstructs}}, {{helpMode}}, {{inputProvenance}}, {{proactivity}}, {{practiceFocus}}, {{coachRetry}}, {{learnerClarification}}",
+                    "{{learnerSource}}, {{priorConversation}}, {{targetLanguage}}, {{explanationLanguage}}, {{difficulty}}, {{candidateConstructs}}, {{helpMode}}, {{inputProvenance}}, {{proactivity}}, {{practiceFocus}}, {{learnerClarification}}",
                 ),
             ];
         }

@@ -5,7 +5,7 @@ import type { CoachDecision } from '../../../generated/contracts'
 import { EditFeedback } from './EditFeedback'
 
 it('does not expose a generated hint merely by editing and displays only recorded exposure', () => {
-  const decision: CoachDecision = { exposedMove: null, repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
+  const decision: CoachDecision = { exposedMove: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, alsoNoticed: [], keptGoing: false }
   const view = render(<EditFeedback decision={decision} reviewing={false} error={undefined} />)
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   expect(screen.getByRole('button', { name: 'Show help' })).toBeVisible()

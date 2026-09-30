@@ -1,4 +1,4 @@
-//! Deterministic graduated help. Hidden hypotheses stay in native turn context;
+//! Deterministic disclosure. Hidden hypotheses stay in source-owned assessment results;
 //! display decisions contain only the help the learner has chosen to see.
 use crate::learning::coaching::*;
 use crate::model::*;
@@ -10,14 +10,12 @@ use std::collections::HashMap;
 #[derive(Deserialize)]
 struct Intensity {
     start_at: String,
-    max_revisions: u32,
     show_logged: bool,
 }
 #[derive(Deserialize)]
 struct Policy {
     correct_only: String,
     skip_sources: Vec<String>,
-    ladder: Vec<String>,
     intensity: HashMap<String, Intensity>,
 }
 fn invalid(message: &str) -> AppError {
@@ -133,39 +131,10 @@ pub(crate) fn requested_move(captured: &Value) -> Result<CoachMove> {
         .intensity
         .get(intensity)
         .ok_or_else(|| invalid("Missing feedback intensity policy."))?;
-    let retry = &captured["coachRetry"];
-    if retry.is_null() {
-        return movement(&intensity.start_at);
-    }
-    let previous = retry["shown"]["move"]
-        .as_str()
-        .ok_or_else(|| invalid("Missing shown repair support."))?;
-    if retry["supportStep"].is_null() {
-        return movement(previous);
-    }
-    if retry["depth"].as_u64().unwrap_or(0) >= u64::from(intensity.max_revisions)
-        || previous == "explicit"
-    {
-        return Ok(CoachMove::Explicit);
-    }
-    let index = policy
-        .ladder
-        .iter()
-        .position(|r| r == previous)
-        .ok_or_else(|| invalid("Previous support is absent from the captured ladder."))?;
-    movement(
-        policy
-            .ladder
-            .get(index + 1)
-            .ok_or_else(|| invalid("Feedback ladder has no next move."))?,
-    )
+    movement(&intensity.start_at)
 }
 
-pub(crate) fn decide(
-    captured: &Value,
-    observation: &CoachObservation,
-    repaired: Option<bool>,
-) -> Result<CoachDecision> {
+pub(crate) fn decide(captured: &Value, observation: &CoachObservation) -> Result<CoachDecision> {
     let policy: Policy = serde_json::from_value(captured["feedbackPolicy"].clone())?;
     let intensity = match captured["practiceSettings"]["coachProactivity"].as_str() {
         Some("on_request") => "light",
@@ -177,46 +146,14 @@ pub(crate) fn decide(
         .intensity
         .get(intensity)
         .ok_or_else(|| invalid("Missing feedback intensity policy."))?;
-    let retry = &captured["coachRetry"];
     let focus = captured["practiceFocus"]["id"].as_str();
     let mut decision = CoachDecision {
         exposed_move: None,
-        repair_status: None,
         shown: None,
         retry_invited: false,
-        fixed: None,
         also_noticed: vec![],
         kept_going: false,
     };
-    if let Some(repaired) = repaired {
-        let has_target_evidence = observation.items.iter().any(|i| {
-            Some(i.construct.as_str()) == retry["item"]["construct"].as_str()
-                && !matches!(i.outcome, Outcome::Uncertain | Outcome::NotObserved)
-                && !unchanged_correction(i)
-        });
-        decision.repair_status = Some(if repaired {
-            RepairStatus::Repaired
-        } else if !has_target_evidence {
-            RepairStatus::Uncertain
-        } else {
-            RepairStatus::NotRepaired
-        });
-    }
-    if repaired == Some(true) {
-        let target = retry["item"]["construct"]
-            .as_str()
-            .ok_or_else(|| invalid("Missing repair target."))?;
-        decision.fixed = observation
-            .items
-            .iter()
-            .find(|i| {
-                i.construct == target && i.outcome == Outcome::Demonstrated && i.error.is_none()
-            })
-            .filter(|item| !item.rationale.is_empty())
-            .map(|item| item.rationale.clone());
-    }
-    // A revision may fix, remove or replace the earlier issue and introduce other
-    // useful feedback. Select from the current source regardless of the repair flag.
     let selected = observation
         .items
         .iter()
@@ -232,9 +169,8 @@ pub(crate) fn decide(
         })
         .min_by_key(|i| !i.error.as_ref().unwrap().blocks_meaning);
     if let Some(item) = selected {
-        let depth = retry["depth"].as_u64().unwrap_or(0) as u32;
         let rung = requested_move(captured)?;
-        decision.retry_invited = depth < intensity.max_revisions && rung != CoachMove::Explicit;
+        decision.retry_invited = rung != CoachMove::Explicit;
         decision.shown = Some(correction(item, rung, captured)?);
     }
     if intensity.show_logged {
@@ -257,9 +193,8 @@ pub(crate) fn decide(
 /// control reads the decision as it is now.
 pub(crate) fn control(db: &Connection, turn: &str, control: CoachControl) -> Result<String> {
     let raw:Option<String>=db.query_row("SELECT context FROM turns t WHERE id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id)",[turn],|r|r.get(0)).optional()?;
-    let mut context: Value = serde_json::from_str(&raw.ok_or_else(|| {
-        AppError::new(ErrorCode::NotFound, "Current coaching turn is unavailable.")
-    })?)?;
+    raw.ok_or_else(|| AppError::new(ErrorCode::NotFound, "Current coaching turn is unavailable."))?;
+    let context = crate::conversations::assessments::context(db, turn)?;
     let mut decision: CoachDecision = serde_json::from_value(context["coachDecision"].clone())
         .map_err(|cause| {
             crate::diagnostics::response::json_context(
@@ -308,34 +243,11 @@ pub(crate) fn control(db: &Connection, turn: &str, control: CoachControl) -> Res
             decision.retry_invited = false;
         }
     }
-    context["coachDecision"] = serde_json::to_value(decision)?;
+    let attempt = context["coachObservationAttempt"].clone();
+    let decision = serde_json::to_value(decision)?;
     db.execute(
-        "UPDATE turns SET context=?2 WHERE id=?1",
-        params![turn, serde_json::to_string(&context)?],
+        "INSERT INTO assessment_disclosures(attempt_id,decision) VALUES(?1,?2) ON CONFLICT(attempt_id) DO UPDATE SET decision=excluded.decision",
+        params![attempt.as_str(), decision.to_string()],
     )?;
     Ok(turn.into())
-}
-pub(crate) fn retry_context(db: &Connection, turn: &str) -> Result<Option<Value>> {
-    let raw: String = db.query_row("SELECT context FROM turns WHERE id=?1", [turn], |r| {
-        r.get(0)
-    })?;
-    let context: Value = serde_json::from_str(&raw)?;
-    if context["coachDecision"]["shown"].is_null() || context["coachDecision"]["keptGoing"] == true
-    {
-        return Ok(None);
-    }
-    let decision: CoachDecision = serde_json::from_value(context["coachDecision"].clone())?;
-    let observation: CoachObservation =
-        serde_json::from_value(context["coachObservation"].clone())?;
-    let shown = decision
-        .shown
-        .ok_or_else(|| invalid("Missing shown correction."))?;
-    let item = observation
-        .items
-        .into_iter()
-        .find(|i| i.construct == shown.construct && i.error.is_some())
-        .ok_or_else(|| invalid("Missing native retry item."))?;
-    Ok(Some(
-        json!({"previousTurnId":turn,"item":item,"shown":shown,"supportStep":decision.exposed_move,"depth":context["coachRetry"]["depth"].as_u64().unwrap_or(0)+u64::from(decision.exposed_move.is_some())}),
-    ))
 }

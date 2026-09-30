@@ -123,7 +123,6 @@ impl Store {
             && kind != "skill_assessment"
             && kind != "persona_reply"
             && kind != "persona_opening"
-            && kind != "coach_retry_check"
             && kind != "coach_reply"
             && kind != "reply_translation"
             && kind != "persona_word_gloss"
@@ -169,10 +168,7 @@ impl Store {
                 Some(if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::schema(&kind)
                 } else {
-                    crate::learning::coaching::coach_observation::schema(
-                        &captured,
-                        kind == "coach_retry_check",
-                    )?
+                    crate::learning::coaching::coach_observation::schema(&captured)?
                 })
             } else {
                 None
@@ -370,10 +366,7 @@ impl Store {
         bump(&tx)?;
         tx.commit()?;
         let dispatch = Dispatch {
-            structured_output_tokens: if matches!(
-                kind.as_str(),
-                "coach_feedback" | "coach_retry_check"
-            ) {
+            structured_output_tokens: if matches!(kind.as_str(), "coach_feedback") {
                 8192
             } else {
                 2048

@@ -28,7 +28,7 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
             .unwrap(),
         0
     );
-    assert_eq!(store.connection.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND kind IN ('coach_feedback','coach_retry_check','user_word_gloss')",[&turn],|r|r.get::<_,i32>(0)).unwrap(),0);
+    assert_eq!(store.connection.query_row("SELECT count(*) FROM operations WHERE turn_id=?1 AND kind IN ('coach_feedback','user_word_gloss')",[&turn],|r|r.get::<_,i32>(0)).unwrap(),0);
     assert!(store.dispatch().unwrap().is_none());
     let opening = store.dispatch().unwrap().unwrap();
     assert_eq!(opening.temperature, 1.1);

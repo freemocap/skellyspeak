@@ -46,6 +46,11 @@ fn speech_cancel_before_dispatch_and_manual_source_checks() {
         .connection
         .execute("UPDATE ai_config SET paused=0", [])
         .unwrap();
+    // Deliberate corruption fixture: ordinary writes cannot change a message version.
+    store
+        .connection
+        .execute_batch("DROP TRIGGER message_version_fixed")
+        .unwrap();
     store
         .connection
         .execute(

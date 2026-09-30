@@ -1,8 +1,10 @@
+pub(crate) mod assessments;
 pub(crate) mod coach_prompt;
 pub(crate) mod conversation_export;
 pub(crate) mod conversation_prompt;
 pub mod direction;
 pub mod execution;
+pub(crate) mod message_history;
 pub(crate) mod openers;
 mod persona_projection;
 pub(crate) mod revision;

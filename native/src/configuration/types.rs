@@ -64,7 +64,6 @@ pub struct Construct {
 #[serde(deny_unknown_fields)]
 pub struct Intensity {
     pub start_at: String,
-    pub max_revisions: u8,
     pub show_logged: bool,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -72,7 +71,6 @@ pub struct Intensity {
 pub struct FeedbackPolicy {
     pub correct_only: String,
     pub skip_sources: Vec<String>,
-    pub ladder: Vec<String>,
     pub intensity: BTreeMap<String, Intensity>,
     pub never: Vec<String>,
     pub sources: Vec<String>,

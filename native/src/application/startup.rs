@@ -187,6 +187,7 @@ pub fn run() {
             commands::connections::get_connection,
             commands::connections::save_models,
             commands::workspace::watch_conversation,
+            commands::workspace::get_message_history,
             commands::partners::begin_persona_generation,
             commands::partners::run_persona_generation,
             commands::partners::cancel_persona_generation,

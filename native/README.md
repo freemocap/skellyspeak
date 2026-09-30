@@ -87,7 +87,7 @@ retained audio, set cache capacity to zero, then restore the desired capacity;
 execution receipts survive. Accepted text and original recordings keep their
 existing durable owners.
 
-Scheduled correction feedback and repair checks use the same retained result store
+Scheduled correction feedback uses the same retained result store
 through `application/coaching_results.rs`. Exact request payloads, response schemas,
 validation inputs and access identity determine reuse; consumer attempt IDs do not.
 Concurrent consumers share one execution and each publishes through its own existing
@@ -96,6 +96,7 @@ and provider failures remain inspectable but are not reusable. An explicit retry
 make a new request when no usable result exists. This path adds no automatic retry.
 Shared execution receipts count provider usage once across associated attempts.
 Other scheduled text tasks retain their existing grouped execution behavior.
+
 Generated reading text and transcription also use the shared local repository and
 pending subscriptions. Proposal generation uses shared execution receipts while
 remaining fresh for each explicit request; proposal text is not reusable cache data.
@@ -123,8 +124,40 @@ the transaction, receipt and replay boundary. Existing dispatch, holds, validati
 publication and safe response diagnostics serve all three operations.
 
 Schema 26 replaced the former automatic assistance graph. The current workspace
-upgrade policy below supersedes the former reset-on-version-change policy. Contracts come from Rust and include each operation's reply-help kind
+format policy below governs incompatible development data. Contracts come from Rust and include each operation's reply-help kind
 and each partner message's captured reading scope.
+
+### Message versions and assessment ownership
+
+Accepted `messages` rows are immutable in text, role and ownership. A fix creates
+a new message and turn, linked by `turns.replaces_turn_id`; the predecessor remains
+available for inspection. Each version schedules ordinary `coach_feedback` with
+its current text and conversation context. Prior correction results and private
+coaching dialogue are excluded from that assessment request. Fix counting retains
+the same revision chain and does not assert that an issue was resolved.
+
+`conversations/assessments.rs` persists successful correction, numeric rating and
+skill-assessment results in `message_assessments`. Each row references its source
+message and producing attempt. Database constraints verify that the attempt's
+operation belongs to the same turn and assessment kind. Results and ownership
+are immutable; reassessment creates another attempt/result for the same version.
+Pending or failed reassessment does not present an older success as current.
+`assessment_disclosures` binds mutable disclosure to its producing result by a
+foreign key. Learning projections
+remain with their existing owners and retain their one-time credit rules.
+
+`get_message_history(conversation_id, message_id)` returns `MessageHistory` for
+any learner-message version in the specified conversation, ordered oldest first.
+The root message identifies the series and the current message identifies its
+latest version. Results include text, predecessor, timestamp, current coaching
+and numeric feedback, and operation states/attempt IDs for each version. This
+query is independent of chat pagination. The UI adapter is
+`platform/ipc/message-history.ts`; a history browsing surface is not yet wired.
+Editing an earlier exchange still deletes its dependent later conversation
+suffix; this is version history, not an archive of abandoned conversation branches.
+
+Workspace format 44 requires fresh development data. Incompatible workspaces
+are refused explicitly; startup does not migrate or silently reset them.
 
 ### Subfolder groups
 

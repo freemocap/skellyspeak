@@ -308,14 +308,12 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
                 [&turn],
             )
             .unwrap();
-        crate::learning::coaching::publish(
-            &store.connection,
+        wave2_observe(
+            &store,
             &turn,
-            crate::learning::coaching::FEEDBACK,
-            &value,
-            "five-outcomes",
-        )
-        .unwrap();
+            "coach_feedback",
+            serde_json::from_str(&body).unwrap(),
+        );
         assert_eq!(
             crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]
                 ["xp"],

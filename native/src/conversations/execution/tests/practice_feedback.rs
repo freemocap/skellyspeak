@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn wave2_explicit_answer_is_durable_terminal_and_retry_uncertainty_is_honest() {
+fn explicit_answer_is_durable_and_fix_assessment_is_independent() {
     let (_dir, mut store, conversation) = setup();
     let first = store
         .execute(send(&store, &conversation))
@@ -49,24 +49,24 @@ fn wave2_explicit_answer_is_durable_terminal_and_retry_uncertainty_is_honest() {
     let checked = wave2_observe(
         &store,
         &second,
-        "coach_retry_check",
-        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
+        "coach_feedback",
+        serde_json::json!({"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
     );
     assert_eq!(checked["decision"]["shown"]["move"], "explicit");
     assert_eq!(checked["decision"]["retryInvited"], false);
     let uncertain = wave2_observe(
         &store,
         &second,
-        "coach_retry_check",
-        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[]}),
+        "coach_feedback",
+        serde_json::json!({"meaning_recovered":"partial","items":[]}),
     );
-    assert_eq!(uncertain["decision"]["repairStatus"], "uncertain");
+    assert!(uncertain["decision"]["repairStatus"].is_null());
     assert!(uncertain["decision"]["fixed"].is_null());
     assert!(uncertain["decision"]["shown"].is_null());
 }
 
 #[test]
-fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
+fn fresh_fix_feedback_does_not_award_direct_skill_credit() {
     let (_dir, mut store, conversation) = setup();
     let first = store
         .execute(send(&store, &conversation))
@@ -92,17 +92,11 @@ fn wave2_checked_repair_retains_exact_support_without_direct_credit() {
     let checked = wave2_observe(
         &store,
         &second,
-        "coach_retry_check",
-        serde_json::json!({"repaired":true,"meaning_recovered":"full","items":[{"construct":"questions_answers","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
+        "coach_feedback",
+        serde_json::json!({"meaning_recovered":"full","items":[{"construct":"questions_answers","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
     );
-    assert!(checked["nativeRepair"]["support_step"].is_null());
-    assert_eq!(checked["decision"]["repairStatus"], "repaired");
-    assert!(
-        checked["decision"]["fixed"]
-            .as_str()
-            .unwrap()
-            .contains("linking verb")
-    );
+    assert!(checked["decision"]["shown"].is_null());
+    assert!(checked["decision"]["repairStatus"].is_null());
     let profile = crate::learning::learner::progression::snapshot(&store, "spanish").unwrap();
     assert_eq!(profile["profile"]["xp"], 0);
 }
@@ -138,18 +132,13 @@ fn direct_retry_and_keep_going_do_not_block_chat() {
         ))
         .unwrap()
         .entity_id;
-    assert_eq!(
-        wave2_context(&store, &second)["coachRetry"]["supportStep"],
-        "explicit"
-    );
-    // Retained disclosure decisions still work; new revisions use independent
-    // conversational feedback rather than scheduling the retired retry grader.
+    assert!(wave2_context(&store, &second).get("coachRetry").is_none());
     finish_fixture_exchange(&mut store, &second, "Reply");
     wave2_observe(
         &store,
         &second,
-        "coach_retry_check",
-        serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
+        "coach_feedback",
+        serde_json::json!({"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
     );
     let command = Command {
         session_id: store.session_id.clone(),
@@ -276,12 +265,11 @@ fn wave2_unseen_retries_do_not_escalate_assistance() {
         let observed = wave2_observe(
             &store,
             &next,
-            "coach_retry_check",
-            serde_json::json!({"repaired":false,"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
+            "coach_feedback",
+            serde_json::json!({"meaning_recovered":"partial","items":[wave2_error("¿Cómo tu hermana?")]}),
         );
         assert_eq!(observed["decision"]["shown"]["move"], "explicit");
-        assert_eq!(wave2_context(&store, &next)["coachRetry"]["depth"], 0);
-        assert!(wave2_context(&store, &next)["coachRetry"]["supportStep"].is_null());
+        assert!(wave2_context(&store, &next).get("coachRetry").is_none());
         previous = next;
     }
 }

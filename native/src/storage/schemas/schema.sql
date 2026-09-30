@@ -26,6 +26,30 @@ CREATE UNIQUE INDEX one_pending_reply ON turns(conversation_id) WHERE state='pen
 CREATE TABLE messages(id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE, turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE, sequence INTEGER NOT NULL, role TEXT NOT NULL CHECK(role IN ('user','assistant')), text TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), UNIQUE(conversation_id,sequence), UNIQUE(turn_id,role));
 CREATE TABLE operations(id TEXT PRIMARY KEY, turn_id TEXT NOT NULL REFERENCES turns(id) ON DELETE CASCADE, kind TEXT NOT NULL, state TEXT NOT NULL, permit INTEGER NOT NULL DEFAULT 0, UNIQUE(turn_id,kind));
 CREATE TABLE attempts(id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES operations(id) ON DELETE CASCADE, state TEXT NOT NULL, requested_model TEXT NOT NULL, actual_model TEXT, provider_id TEXT, started_at TEXT NOT NULL DEFAULT(strftime('%Y-%m-%dT%H:%M:%fZ','now')), finished_at TEXT, input_tokens INTEGER, output_tokens INTEGER, error TEXT, diagnostics TEXT CHECK(diagnostics IS NULL OR json_valid(diagnostics)), request_messages TEXT CHECK(request_messages IS NULL OR json_valid(request_messages)), response_text TEXT CHECK(response_text IS NULL OR length(CAST(response_text AS BLOB))<=262144), preview_text TEXT CHECK(preview_text IS NULL OR length(CAST(preview_text AS BLOB))<=262144));
+-- Accepted text is a version. Fixes insert another message/turn; they never edit it.
+CREATE TRIGGER message_version_fixed BEFORE UPDATE OF id,turn_id,conversation_id,role,text ON messages
+BEGIN SELECT RAISE(ABORT,'Message versions are immutable'); END;
+CREATE TRIGGER message_owner_insert BEFORE INSERT ON messages
+WHEN NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.turn_id AND conversation_id=NEW.conversation_id)
+BEGIN SELECT RAISE(ABORT,'Message conversation must match its turn'); END;
+CREATE TRIGGER turn_owner_fixed BEFORE UPDATE OF id,conversation_id ON turns
+BEGIN SELECT RAISE(ABORT,'Turn ownership is immutable'); END;
+CREATE TRIGGER operation_owner_fixed BEFORE UPDATE OF id,turn_id,kind ON operations
+BEGIN SELECT RAISE(ABORT,'Operation ownership is immutable'); END;
+CREATE TRIGGER attempt_owner_fixed BEFORE UPDATE OF id,operation_id ON attempts
+BEGIN SELECT RAISE(ABORT,'Attempt ownership is immutable'); END;
+-- Results retain their exact version and producer even after a reassessment.
+CREATE TABLE message_assessments(attempt_id TEXT PRIMARY KEY REFERENCES attempts(id) ON DELETE CASCADE, message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE, kind TEXT NOT NULL CHECK(kind IN ('coach_feedback','conversation_feedback','skill_assessment')), result TEXT NOT NULL CHECK(json_valid(result)));
+CREATE INDEX message_assessments_source ON message_assessments(message_id,kind);
+CREATE TRIGGER assessment_owner_insert BEFORE INSERT ON message_assessments
+WHEN NOT EXISTS(SELECT 1 FROM attempts a JOIN operations o ON o.id=a.operation_id JOIN turns t ON t.id=o.turn_id JOIN messages m ON m.turn_id=t.id WHERE a.id=NEW.attempt_id AND m.id=NEW.message_id AND m.role='user' AND o.kind=NEW.kind AND a.state='succeeded' AND o.state='succeeded' AND t.state NOT IN ('invalidated','cancelled') AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id))
+BEGIN SELECT RAISE(ABORT,'Assessment must belong to its successful source attempt'); END;
+CREATE TRIGGER assessment_fixed BEFORE UPDATE ON message_assessments
+BEGIN SELECT RAISE(ABORT,'Published assessments are immutable'); END;
+-- Mutable disclosure is owned by the exact result, never by the current bubble.
+CREATE TABLE assessment_disclosures(attempt_id TEXT PRIMARY KEY REFERENCES message_assessments(attempt_id) ON DELETE CASCADE, decision TEXT NOT NULL CHECK(json_valid(decision)));
+CREATE TRIGGER disclosure_owner_fixed BEFORE UPDATE OF attempt_id ON assessment_disclosures
+BEGIN SELECT RAISE(ABORT,'Assessment disclosure ownership is immutable'); END;
 -- One drill item is a target-language line the learner practises saying. Sets,
 -- sessions and visits arrive with Drill itself; an item is what a recording can
 -- belong to today.
@@ -51,7 +75,7 @@ CREATE TABLE drill_storage(id INTEGER PRIMARY KEY CHECK(id=1), limit_mb INTEGER 
 INSERT INTO drill_storage(id,limit_mb) VALUES(1,500);
 CREATE TABLE drill_previews(id TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('generated','conversation')), input TEXT NOT NULL CHECK(json_valid(input)), receipt_id TEXT REFERENCES generation_attempts(id), ready INTEGER NOT NULL DEFAULT 0, expires_at TEXT NOT NULL DEFAULT(datetime('now','+1 day')));
 CREATE TABLE drill_candidates(id TEXT PRIMARY KEY, preview_id TEXT NOT NULL REFERENCES drill_previews(id) ON DELETE CASCADE, ordinal INTEGER NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)), accepted_item_id TEXT, UNIQUE(preview_id,ordinal));
-PRAGMA user_version=40;
+PRAGMA user_version=44;
 
 CREATE TRIGGER revision_link_insert BEFORE INSERT ON turns WHEN NEW.replaces_turn_id IS NOT NULL AND (NEW.replaces_turn_id=NEW.id OR NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id)) BEGIN SELECT RAISE(ABORT,'Invalid revision ownership'); END;
 CREATE TRIGGER revision_link_update BEFORE UPDATE OF replaces_turn_id ON turns WHEN OLD.replaces_turn_id IS NOT NULL OR NEW.replaces_turn_id=NEW.id OR (NEW.replaces_turn_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM turns WHERE id=NEW.replaces_turn_id AND conversation_id=NEW.conversation_id AND rowid<OLD.rowid)) BEGIN SELECT RAISE(ABORT,'Invalid revision chain'); END;

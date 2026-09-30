@@ -87,7 +87,7 @@ createRoot(document.getElementById('root')!).render(<I18nProvider locale="englis
     <h2>Same saved word in another surface</h2><p><TargetText text="Otra playa." /></p>
     <h2>Saved message and suggestions</h2><p><SavedGlossText text="Hola, mundo." segments={segments} /></p>
     <ReplyHelp brief="Saved reading fixture" opened={['replies']} replies={[{text:'Hola, mundo.',translation:'Hello, world.',romanization:'',pronunciation:''}]} busy={false} errors={[]} onUse={()=>{}} />
-    <h2>Unannotated coaching correction</h2><CoachEntry source="Hola, mundo." decision={{exposedMove:'explicit',shown:{move:'explicit',construct:'greeting',quote:'Hola mundo',text:'Hola, mundo.'},repairStatus:null,retryInvited:false,fixed:null,alsoNoticed:[],keptGoing:false}} />
+    <h2>Unannotated coaching correction</h2><CoachEntry source="Hola, mundo." decision={{exposedMove:'explicit',shown:{move:'explicit',construct:'greeting',quote:'Hola mundo',text:'Hola, mundo.'},retryInvited:false,alsoNoticed:[],keptGoing:false}} />
     <h2>Arabic word with parts</h2><ReadingLanguageScope language="arabic" variety="arabic-levantine"><p><SavedGlossText text="الكتاب" segments={[{start:0,end:2,kind:'gloss',gloss:'the',romanization:'al-'},{start:2,end:6,kind:'gloss',gloss:'book',romanization:'kitāb'}]} /></p></ReadingLanguageScope>
     <h2>New text</h2><p><TargetText text="Hola, mundo." /></p>
     <h2>Editor and raw configuration</h2><textarea className="field" aria-label="Draft" defaultValue="Hola, mundo." /><pre>{'greeting: Hola, mundo.\nname: Lucía'}</pre>

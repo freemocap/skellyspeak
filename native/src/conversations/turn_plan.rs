@@ -61,13 +61,6 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "coach_retry_check",
-        activation: Activation::Explicit,
-        dependencies: &["persona_context"],
-        role: "standard",
-        contract_version: 1,
-    },
-    Declaration {
         kind: "conversation_feedback",
         activation: Activation::Automatic,
         dependencies: &["persona_context"],

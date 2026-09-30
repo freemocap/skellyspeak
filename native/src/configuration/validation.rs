@@ -516,20 +516,11 @@ impl Registry {
         }
         citations("shared/teaching-policy.yaml#estimator", &e.sources, &keys)?;
         let p = &self.feedback;
-        let ladder = [
-            "partner_clarify",
-            "hint",
-            "elicit",
-            "metalinguistic",
-            "explicit",
-        ];
-        if !["focus_and_meaning_blocking", "useful_language"].contains(&p.correct_only.as_str())
-            || p.ladder != ladder.iter().map(|s| s.to_string()).collect::<Vec<_>>()
-        {
+        if !["focus_and_meaning_blocking", "useful_language"].contains(&p.correct_only.as_str()) {
             return Err(error(
                 "shared/teaching-policy.yaml#feedback",
                 "policy",
-                "Unsupported correction policy or ladder.",
+                "Unsupported correction policy.",
             ));
         }
         if p.never.iter().map(String::as_str).collect::<BTreeSet<_>>()
@@ -570,13 +561,11 @@ impl Registry {
             ));
         }
         for i in p.intensity.values() {
-            if !["hint", "elicit", "metalinguistic", "explicit"].contains(&i.start_at.as_str())
-                || !(1..=3).contains(&i.max_revisions)
-            {
+            if !["hint", "elicit", "metalinguistic", "explicit"].contains(&i.start_at.as_str()) {
                 return Err(error(
                     "shared/teaching-policy.yaml#feedback",
                     "policy",
-                    "Unsupported starting move or revision limit.",
+                    "Unsupported starting move.",
                 ));
             }
         }

@@ -68,10 +68,6 @@ definitions:
         additionalProperties:
           $ref: '#/definitions/Intensity'
         type: object
-      ladder:
-        items:
-          type: string
-        type: array
       never:
         items:
           type: string
@@ -87,7 +83,6 @@ definitions:
     required:
     - correct_only
     - intensity
-    - ladder
     - never
     - skip_sources
     - sources
@@ -178,16 +173,11 @@ definitions:
   Intensity:
     additionalProperties: false
     properties:
-      max_revisions:
-        format: uint8
-        minimum: 0.0
-        type: integer
       show_logged:
         type: boolean
       start_at:
         type: string
     required:
-    - max_revisions
     - show_logged
     - start_at
     type: object

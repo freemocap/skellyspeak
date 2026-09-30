@@ -14,7 +14,7 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function (): void { this.removeAttribute('open') }
 })
 const feedback: CoachObservationView = { corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 3, itemsReturned: 0 }
-const decision: CoachDecision = { exposedMove: 'hint', repairStatus: null, shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false }
+const decision: CoachDecision = { exposedMove: 'hint', shown: { construct: 'past', quote: 'fue', move: 'hint', text: 'Which form goes with yo?' }, retryInvited: true, alsoNoticed: [], keptGoing: false }
 const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
 it('shows a neutral feedback chip and the policy hint without grades or an invented answer', () => {
   render(<MessageFeedback {...frame} {...base} />)
@@ -45,12 +45,11 @@ it('retains the card after a failed control and never retries automatically', as
   expect(screen.getByRole('alert')).toHaveTextContent('Review the changed feedback first.')
   expect(control).toHaveBeenCalledOnce()
 })
-it('keeps repair rationale inside the feedback card and continuing optional', async () => {
+it('keeps feedback inside the card and continuing optional', async () => {
   const control = vi.fn().mockResolvedValue(undefined)
-  render(<MessageFeedback {...frame} {...base} decision={{ ...decision, shown: null, retryInvited: false, fixed: 'Fixed: fui: first-person past', alsoNoticed: [] }} onControl={control} />)
-  expect(screen.queryByText('Fixed: fui: first-person past')).toBeNull()
+  render(<MessageFeedback {...frame} {...base} decision={{ ...decision, shown: null, retryInvited: false, alsoNoticed: [] }} onControl={control} />)
   await act(async () => fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ })))
-  expect(within(screen.getByRole('dialog')).getByRole('status')).toHaveTextContent('Fixed: fui: first-person past')
+  expect(screen.getByRole('dialog')).toHaveTextContent('No correction identified.')
   await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Keep going' })))
   expect(screen.queryByRole('dialog')).toBeNull()
   expect(control).toHaveBeenCalledWith('keep_going')
@@ -65,14 +64,6 @@ it('distinguishes pending, failed, and missing feedback', () => {
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback unavailable')
 })
 
-it('reports uncertain repair without a Fixed claim or invented correction', () => {
-  render(<MessageFeedback {...frame} {...base} decision={{ ...decision, shown: null, retryInvited: false, fixed: null, repairStatus: 'uncertain' }} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('Feedback')
-  fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
-  expect(screen.getByRole('status')).toHaveTextContent('The coach could not confirm this revision yet.')
-  expect(screen.queryByText(/Fixed:/)).toBeNull()
-  expect(screen.queryByLabelText('Coaching suggestion')).toBeNull()
-})
 
 it.each(['Coach feedback for message 3', 'Coach your message'])('requires durable disclosure through %s before showing help', async label => {
   let complete!: () => void
@@ -124,8 +115,6 @@ it('opens the same modal immediately and keeps errors inside it', async () => {
 const feedbackStates: [string, CoachDecision][] = [
   ['retry invited', decision],
   ['suggestion', { ...decision, retryInvited: false }],
-  ['fixed', { ...decision, fixed: 'Fixed: fui', shown: null }],
-  ['uncertain', { ...decision, repairStatus: 'uncertain', shown: null }],
   ['continued', { ...decision, keptGoing: true, shown: null }],
   ['no correction', { ...decision, retryInvited: false, shown: null }],
 ]
@@ -133,7 +122,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   const edit = vi.fn()
   render(<MessageFeedback {...frame} {...base} decision={currentDecision} onEdit={edit} />)
   const chip = screen.getByRole('button', { name: 'Coach feedback for message 3' })
-  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 error' : currentDecision?.repairStatus === 'uncertain' ? 'Feedback' : 'Clean')
+  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 error' : 'Clean')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Edit and resend message' }))

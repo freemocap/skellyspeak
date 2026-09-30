@@ -3,7 +3,7 @@ import type { CoachDecision, CoachObservationView } from '../../generated/contra
 import { coachFlags, coachMarks } from './coach-marks'
 
 const feedback = (patch: Partial<CoachObservationView>): CoachObservationView => ({ corrections: [], notes: [], meaningRecovered: 'full', items: [], candidatesSent: 0, itemsReturned: 0, ...patch })
-const decision = (quote: string): CoachDecision => ({ exposedMove: null, repairStatus: null, shown: { construct: 'c', quote, move: 'hint', text: 'hint' }, retryInvited: true, fixed: null, alsoNoticed: [], keptGoing: false })
+const decision = (quote: string): CoachDecision => ({ exposedMove: null, shown: { construct: 'c', quote, move: 'hint', text: 'hint' }, retryInvited: true, alsoNoticed: [], keptGoing: false })
 
 it('flags the shown correction, other corrections and weak observations once each', () => {
   const flags = coachFlags(feedback({

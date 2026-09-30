@@ -239,7 +239,6 @@ impl Store {
                     || crate::learning::coaching::conversation_support::owns(&kind)
                     || crate::learning::coaching::message_assessment::owns(&kind)
                     || kind == "coach_feedback"
-                    || kind == "coach_retry_check"
                     || kind == "coach_suggestions"
                     || kind == "coach_reaction" =>
             {
@@ -356,7 +355,6 @@ impl Store {
             || crate::learning::coaching::conversation_support::owns(&kind)
             || crate::learning::coaching::message_assessment::owns(&kind)
             || kind == "coach_feedback"
-            || kind == "coach_retry_check"
             || kind == "coach_suggestions"
             || kind == "coach_reaction"
         {
@@ -374,14 +372,21 @@ impl Store {
             super::graph::release_dependents(&tx, &turn)?;
             let output = result.map_err(|_| fail("Missing validated output."))?;
             if let Some(value) = coaching {
+                if crate::conversations::assessments::owns(&kind) {
+                    crate::conversations::assessments::publish(
+                        &tx,
+                        &turn,
+                        &kind,
+                        &dispatch.attempt,
+                        &value,
+                    )?;
+                }
                 if kind == "skill_attribution" {
                     tx.execute("UPDATE turns SET context=json_set(context,'$.skillAttribution',json(?2),'$.skillAttributionAttempt',?3) WHERE id=?1", params![turn,value.to_string(),dispatch.attempt])?;
                 } else if kind == "skill_assessment" {
                     // Presence and its deterministic award were published while the
                     // owning attempt was still running, in this same transaction.
-                } else if kind == "conversation_feedback"
-                    || crate::learning::coaching::conversation_support::owns(&kind)
-                {
+                } else if crate::learning::coaching::conversation_support::owns(&kind) {
                     crate::learning::coaching::conversation_support::publish(
                         &tx, &turn, &kind, &value,
                     )?;
@@ -396,12 +401,7 @@ impl Store {
                         &dispatch.attempt,
                     )?;
                 } else {
-                    crate::learning::coaching::coach_observation::publish(
-                        &tx,
-                        &turn,
-                        &value,
-                        &dispatch.attempt,
-                    )?;
+                    // Correction and numeric feedback are stored against their source and attempt.
                 }
                 crate::learning::effort::message(&tx, &turn, &kind)?;
             } else if let Some(gloss) = gloss {

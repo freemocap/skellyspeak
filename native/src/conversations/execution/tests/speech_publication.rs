@@ -327,6 +327,11 @@ fn speech_source_edit_and_route_revocation_reject_publication() {
         if route_change {
             invalidate(&store.connection, Some(speech.target.route)).unwrap();
         } else {
+            // Deliberate corruption fixture: ordinary writes cannot change a message version.
+            store
+                .connection
+                .execute_batch("DROP TRIGGER message_version_fixed")
+                .unwrap();
             store
                 .connection
                 .execute(

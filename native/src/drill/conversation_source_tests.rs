@@ -94,6 +94,11 @@ fn extraction_preserves_spans_pages_and_provenance_without_inference() {
     assert_eq!(store.profile().unwrap().global.attempts, before);
     let source = &first.preview.candidates[0];
     if let DrillSource::Conversation { source_ref, .. } = &source.source {
+        // Deliberate corruption fixture: ordinary writes cannot change a message version.
+        store
+            .connection
+            .execute_batch("DROP TRIGGER message_version_fixed")
+            .unwrap();
         store
             .connection
             .execute(
