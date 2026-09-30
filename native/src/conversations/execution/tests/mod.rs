@@ -31,6 +31,7 @@ mod turn_lifecycle;
 mod work_budgets;
 
 mod skill_assessment;
+mod skill_levels;
 
 mod retry_connections;
 

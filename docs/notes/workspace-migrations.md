@@ -4,6 +4,19 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
+Current format: **47**. The 46 → 47 step adds an initially empty
+`skill_level_events` table. Existing XP, evidence, settings and award claim flags
+are unchanged. Explicit runtime initialization derives catch-up from eligible
+credits; ordinary reads and the migration do not award or rewrite XP. Receipts
+survive source-conversation deletion to prevent repeat celebrations and contain
+only identifiers and levels, not message text. Factory Reset removes them with
+the workspace. The released 45 → 46 step remains unchanged.
+
+Verified with the full native suite: real skill credits and XP claim flags survive
+both supported starting formats, migration failures roll back, repeated startup
+does not repeat upgrades, and fresh/migrated schemas match. See the
+[native/UI handoff](skill-radar-levels-handoff-2026-09-30.md) for integration details.
+
 ## Scope and behavior
 
 The local native SQLite workspace owns learner history. This change does not

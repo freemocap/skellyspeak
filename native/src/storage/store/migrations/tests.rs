@@ -38,6 +38,47 @@ fn version(db: &Connection) -> i32 {
         .unwrap()
 }
 
+#[test]
+fn format_46_adds_empty_level_receipts_preserving_history_and_reopens() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("workspace.sqlite3");
+    let db = baseline(&path, true);
+    db.pragma_update(None, "user_version", 46).unwrap();
+    let awards = rows(&db, "effort_awards");
+    drop(db);
+    let store = Store::open(&path).unwrap();
+    assert_eq!(version(&store.connection), 47);
+    assert_eq!(rows(&store.connection, "effort_awards"), awards);
+    assert!(rows(&store.connection, "skill_level_events").is_empty());
+    drop(store);
+    let reopened = Store::open(&path).unwrap();
+    assert!(rows(&reopened.connection, "skill_level_events").is_empty());
+    assert_eq!(
+        std::fs::read_dir(dir.path().join("migration-backups"))
+            .unwrap()
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn level_receipt_migration_rolls_back_on_final_validation_failure() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut db = baseline(&dir.path().join("db"), true);
+    db.pragma_update(None, "user_version", 46).unwrap();
+    let before = rows(&db, "effort_awards");
+    assert!(
+        run_chain(&mut db, 46, 47, STEPS, |_| Err(AppError::new(
+            ErrorCode::Storage,
+            "Fixture validation failure."
+        )))
+        .is_err()
+    );
+    assert_eq!(version(&db), 46);
+    assert!(db.prepare("SELECT * FROM skill_level_events").is_err());
+    assert_eq!(rows(&db, "effort_awards"), before);
+}
+
 fn rows(db: &Connection, table: &str) -> Vec<Vec<rusqlite::types::Value>> {
     let mut statement = db
         .prepare(&format!("SELECT * FROM {table} ORDER BY rowid"))
@@ -335,7 +376,12 @@ fn upgrade_preserves_conversation_graph_and_allows_continued_workspace_use() {
         .iter()
         .map(|table| rows(&store.connection, table))
         .collect();
-    // This first migration does not alter these tables' version-45 contracts.
+    // Reconstruct the supported source format; these retained tables still use
+    // their version-45 contracts, while milestone receipts were introduced later.
+    store
+        .connection
+        .execute_batch("DROP TABLE skill_level_events;")
+        .unwrap();
     store
         .connection
         .pragma_update(None, "user_version", 45)

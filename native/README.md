@@ -411,7 +411,7 @@ revalidates their source before adoption. Schema 36 uses fresh development data.
 
 ### Workspace migrations
 
-Workspace format **46** upgrades supported files from baseline **45**. The format
+Workspace format **47** upgrades supported files from baseline **45**. The format
 covers SQL and persisted JSON; application release numbers are independent.
 `storage/store/migrations/` owns consecutive steps and frozen historical contracts.
 `storage/schemas/` owns the current schema, including settings and result tables

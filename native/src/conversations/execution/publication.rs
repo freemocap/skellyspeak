@@ -329,9 +329,35 @@ impl Store {
             let presence: std::collections::BTreeMap<String, crate::learning::practice::Presence> =
                 serde_json::from_value(value["presence"].clone())?;
             let expected = presence.keys().cloned().collect();
+            let (level_target, level_chat, level_message): (String, String, i32) = tx.query_row(
+                "SELECT c.language_id,c.id,m.sequence FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' WHERE t.id=?1",
+                [&turn], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
+            // First materialize prior evidence without attributing it to this new message.
+            let before = crate::learning::learner::progression::snapshot_db(
+                &tx,
+                &self.config,
+                &self.session_id,
+                &level_target,
+            )?;
+            crate::learning::rewards::skill_level_events::synchronize(&tx, &before, None)?;
             crate::learning::practice::publish(&tx, &turn, &dispatch.attempt, presence, &expected)?;
             tx.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3) WHERE id=?1",params![turn,value.to_string(),dispatch.attempt])?;
             crate::learning::rewards::publish(&tx, &turn, &dispatch.attempt)?;
+            let after = crate::learning::learner::progression::snapshot_db(
+                &tx,
+                &self.config,
+                &self.session_id,
+                &level_target,
+            )?;
+            crate::learning::rewards::skill_level_events::synchronize(
+                &tx,
+                &after,
+                Some(crate::learning::rewards::skill_level_events::Source {
+                    attempt: &dispatch.attempt,
+                    chat: &level_chat,
+                    message: level_message,
+                }),
+            )?;
         }
         let (state, error) = match valid {
             Ok(()) => ("succeeded", None),

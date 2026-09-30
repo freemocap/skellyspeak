@@ -276,7 +276,14 @@ fn profile(store: &Store, target: &str, persona_id: Option<&str>, _at: i64) -> R
             .map(|c| c["xp"].as_u64().unwrap())
             .sum::<u64>()
     );
+    evidence["profile"]["levels"] = serde_json::to_value(super::skill_levels::project(
+        &evidence["catalog"],
+        &credits,
+    )?)?;
     evidence["profile"]["credits"] = serde_json::json!(credits);
+    if persona_id.is_some() {
+        evidence["profile"]["pendingLevelEvents"] = serde_json::json!([]);
+    }
     Ok(
         serde_json::json!({"evidence":evidence,"partners":partners,"scope":{"languageId":target,"personaId":persona_id}}),
     )
@@ -557,6 +564,21 @@ mod tests {
         let scoped = profile(&store, "spanish", Some(&persona), 0).unwrap();
         assert_eq!(all["evidence"]["profile"]["xp"], 2);
         assert_eq!(scoped["evidence"]["profile"]["xp"], 1);
+        let points = |value: &Value| {
+            value["evidence"]["profile"]["levels"]["skills"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|s| s["skillId"] == "questions_answers")
+                .unwrap()["points"]
+                .clone()
+        };
+        assert_eq!(points(&all), 2);
+        assert_eq!(points(&scoped), 1);
+        assert_eq!(
+            scoped["evidence"]["profile"]["pendingLevelEvents"],
+            json!([])
+        );
         assert_eq!(
             scoped["evidence"]["profile"]["credits"]
                 .as_array()

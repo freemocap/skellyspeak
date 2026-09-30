@@ -732,7 +732,7 @@ for scope and verification.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/README.md).
-Workspace format **46** supports automatic upgrades from format **45** onward.
+Workspace format **47** supports automatic upgrades from format **45** onward.
 Every stored-format change includes a consecutive migration; app releases do not
 necessarily change the database format. Startup retains a local recovery copy and
 upgrades the complete chain in one transaction, preserving learner history.

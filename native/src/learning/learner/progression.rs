@@ -68,6 +68,22 @@ pub(crate) fn snapshot_db(
     let source_catalog = registry.practice_catalog(target)?;
     let catalog = source_catalog;
     let mut skills = vec![];
+    let mut eligible_credits = vec![];
+    for record in &records {
+        if record["construct_registry_hash"] != construct_hash
+            || excluded.iter().any(|id| record["attempt_id"] == *id)
+        {
+            continue;
+        }
+        eligible_credits.extend(
+            record["reward_credits"]
+                .as_array()
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing reward ledger."))?
+                .iter()
+                .cloned(),
+        );
+    }
+    let levels = super::skill_levels::project(&catalog, &eligible_credits)?;
     let mut credits = vec![];
     for node in catalog
         .as_array()
@@ -78,30 +94,20 @@ pub(crate) fn snapshot_db(
         let mut experience = 0_u64;
         let mut effort = 0_u64;
         let mut skill_xp = 0_u64;
-        for record in &records {
-            if record["construct_registry_hash"] != construct_hash
-                || excluded.iter().any(|id| record["attempt_id"] == *id)
-            {
+        for credit in &eligible_credits {
+            if credit["skill_id"] != node["id"] {
                 continue;
             }
-            for credit in record["reward_credits"]
-                .as_array()
-                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing reward ledger."))?
-            {
-                if credit["skill_id"] != node["id"] {
-                    continue;
-                }
-                skill_xp += credit["xp"]
-                    .as_u64()
-                    .ok_or_else(|| AppError::new(ErrorCode::Storage, "Invalid reward XP."))?;
-                experience += credit["experience"].as_u64().ok_or_else(|| {
-                    AppError::new(ErrorCode::Storage, "Missing experience credit.")
-                })?;
-                effort += credit["effort"]
-                    .as_u64()
-                    .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing effort credit."))?;
-                credits.push(credit.clone());
-            }
+            skill_xp += credit["xp"]
+                .as_u64()
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Invalid reward XP."))?;
+            experience += credit["experience"]
+                .as_u64()
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing experience credit."))?;
+            effort += credit["effort"]
+                .as_u64()
+                .ok_or_else(|| AppError::new(ErrorCode::Storage, "Missing effort credit."))?;
+            credits.push(credit.clone());
         }
         skills.push(json!({"skill_id":node["id"],"experience":experience,"effort":effort,"xp":skill_xp,"checked":experience>0,"star":false}));
     }
@@ -127,9 +133,11 @@ pub(crate) fn snapshot_db(
         [target],
         |r| r.get(0),
     )?;
-    Ok(
-        json!({"guides":guides,"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"rules_version":3,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}}),
-    )
+    let mut result = json!({"guides":guides,"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"levels":levels,"rules_version":3,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}});
+    result["profile"]["pendingLevelEvents"] = serde_json::to_value(
+        crate::learning::rewards::skill_level_events::pending(db, &result)?,
+    )?;
+    Ok(result)
 }
 #[tauri::command]
 pub(crate) fn get_skill_evidence(

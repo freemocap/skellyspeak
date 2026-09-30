@@ -16,11 +16,30 @@ struct Step {
     validate: fn(&Connection) -> Result<()>,
 }
 
-const STEPS: &[Step] = &[Step {
-    from: 45,
-    apply: upgrade_45,
-    validate: validate_46,
-}];
+const STEPS: &[Step] = &[
+    Step {
+        from: 45,
+        apply: upgrade_45,
+        validate: validate_46,
+    },
+    Step {
+        from: 46,
+        apply: upgrade_46,
+        validate: validate_47,
+    },
+];
+
+fn upgrade_46(db: &Connection) -> Result<()> {
+    db.execute_batch(include_str!("v47_skill_level_events.sql"))?;
+    Ok(())
+}
+
+fn validate_47(db: &Connection) -> Result<()> {
+    validate_46(db)?;
+    let reference = Connection::open_in_memory()?;
+    reference.execute_batch(include_str!("v47_skill_level_events.sql"))?;
+    schema::validate_objects(db, &reference, false)
+}
 
 fn validate_45(db: &Connection) -> Result<()> {
     let reference = Connection::open_in_memory()?;
