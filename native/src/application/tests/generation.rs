@@ -14,11 +14,23 @@ async fn persona_proposal_uses_shared_receipts_without_creating_product_records(
             [url],
         )
         .unwrap();
+    app.lock().unwrap().connection.execute(
+        "UPDATE learner SET preferences=json_set(preferences,'$.explanationLanguage','spanish','$.explanationVarietyId','spanish-spain')", []
+    ).unwrap();
     let id =
         reserve_persona_generation(&app, "french".into(), Some("PRIVATE-BRIEF".into())).unwrap();
     let details = run_owned_persona_generation(&app, &id).await.unwrap();
     assert_eq!(details.name, proposed.name);
-    worker.join().unwrap();
+    let payload = worker.join().unwrap();
+    let request = &payload["items"][0]["request"];
+    let prompt = request["messages"][0]["content"].as_str().unwrap();
+    assert!(prompt.contains("Explanatory language: spanish (spanish-spain)."));
+    assert!(prompt.contains("Use Spanish"));
+    assert!(prompt.contains("Target language: French."));
+    assert_eq!(
+        request["response_format"]["json_schema"]["schema"]["properties"]["romanizedName"]["type"],
+        "null"
+    );
     assert!(run_owned_persona_generation(&app, &id).await.is_err());
     drop(app);
     let store = Store::open(&directory.path().join("generation.sqlite3")).unwrap();

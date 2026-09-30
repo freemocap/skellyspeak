@@ -379,6 +379,16 @@ from the retired provider namespace; existing sessions can be re-established.
 Deletion uses only the current namespace. Retired Keychain entries are left untouched
 so cleanup cannot provoke authorization for a removed access route.
 
+### Persona generation
+
+Generated persona descriptions use the learner's captured explanatory language
+and variety. Target writing guidance applies only to the person's name; pragmatics
+informs the described personality, not the description's language. The generation
+schema requires a romanized name or JSON null according to the same configured
+capability used by persona validation. Bundled default personas remain unchanged.
+Language choice is a prompt instruction; structural validation does not identify
+the language of generated prose.
+
 ### Reviewed phrase generation
 
 Drill and persona proposals use `application/commands/proposal_execution.rs` for

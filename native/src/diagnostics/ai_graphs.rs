@@ -268,9 +268,13 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
         }
         "persona_generation" => {
             node.source = "native/src/partners/persona/persona_prompt.rs".into();
-            node.description = "Standalone persona-generation request. Optional brief and language guidance are included; this is separate from conversation turns.".into();
+            node.description = "Standalone persona-generation request. Descriptions use the explanatory language; the name uses the target language. The live schema constrains romanizedName to text or null using the configured capability; this blueprint shows both possible types.".into();
+            let language = registry.language(&context.language_id)?;
+            let mut context = context.clone();
+            context.explanation_language_id = "{{explanationLanguage}}".into();
+            context.explanation_variety_id = "{{explanationVariety}}".into();
             node.templates = messages(persona_prompt::messages_with_context(
-                "{{targetLanguage}}",
+                &language,
                 Some("{{optionalPersonaBrief}}"),
                 &context,
             ));

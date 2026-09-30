@@ -38,24 +38,25 @@ function renderDialog(romanized = false) {
 
 const create = () => screen.getByRole('button', { name: 'Create' })
 
-it('Surprise me fills the form from a generation with no brief, and writes nothing', async () => {
+it('Surprise me automatically saves the generated partner without a brief', async () => {
   backend.run.mockResolvedValue(generated)
   const { onCreate } = renderDialog()
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
   expect(backend.begin).toHaveBeenCalledExactlyOnceWith('spanish', '')
   expect(screen.getByRole('textbox', { name: 'Interests' })).toHaveValue('- tides')
-  expect(onCreate).not.toHaveBeenCalled()
+  expect(onCreate).toHaveBeenCalledExactlyOnceWith(generated)
 })
 
-it('Describe and generate sends the brief and fills the form', async () => {
+it('Describe and generate sends the brief and automatically saves the result', async () => {
   backend.run.mockResolvedValue(generated)
-  renderDialog()
+  const { onCreate } = renderDialog()
   expect(screen.getByRole('button', { name: 'Generate' })).toBeDisabled()
   fireEvent.change(screen.getByRole('textbox', { name: /Describe them/ }), { target: { value: 'a blunt fisher' } })
   fireEvent.click(screen.getByRole('button', { name: 'Generate' }))
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
   expect(backend.begin).toHaveBeenCalledExactlyOnceWith('spanish', 'a blunt fisher')
+  expect(onCreate).toHaveBeenCalledExactlyOnceWith(generated)
 })
 
 it('a persona written by hand is created once, with what was typed', async () => {
@@ -134,7 +135,7 @@ it('closing before admission returns cancels its eventual ID without running inf
 it('closing cancels a running generation and discards its late result', async () => {
   let finish!: (value: PersonaDetails) => void
   backend.run.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
-  const { onClose } = renderDialog()
+  const { onClose, onCreate } = renderDialog()
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   await waitFor(() => expect(backend.run).toHaveBeenCalledExactlyOnceWith('generation'))
   fireEvent.keyDown(document, { key: 'Escape' })
@@ -142,6 +143,7 @@ it('closing cancels a running generation and discards its late result', async ()
   expect(backend.cancel).toHaveBeenCalledExactlyOnceWith('generation')
   await act(async () => finish(generated))
   expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('')
+  expect(onCreate).not.toHaveBeenCalled()
 })
 
 it('unmount cancels a running generation and reports cancellation failure globally', async () => {
@@ -169,8 +171,11 @@ it('unmount before admission cancels the delayed receipt without running', async
 it('submission collects a pending Vibe emoji before creating without relying on blur', async () => {
   backend.run.mockResolvedValue(generated)
   const { onCreate } = renderDialog()
+  onCreate.mockRejectedValueOnce(new Error('Save failed'))
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
+  await screen.findByText('Save failed')
+  onCreate.mockClear()
   fireEvent.change(screen.getByRole('textbox', { name: 'Add a Vibe emoji' }), { target: { value: '🍊' } })
   fireEvent.submit(screen.getByRole('form', { name: 'New partner' }))
   expect(onCreate).toHaveBeenCalledExactlyOnceWith({ ...generated, vibe: [...generated.vibe, '🍊'] })
@@ -179,8 +184,11 @@ it('submission collects a pending Vibe emoji before creating without relying on 
 it('submission preserves invalid pending Vibe input without creating', async () => {
   backend.run.mockResolvedValue(generated)
   const { onCreate } = renderDialog()
+  onCreate.mockRejectedValueOnce(new Error('Save failed'))
   fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Inés'))
+  await screen.findByText('Save failed')
+  onCreate.mockClear()
   const add = screen.getByRole('textbox', { name: 'Add a Vibe emoji' })
   fireEvent.change(add, { target: { value: 'unfinished' } })
   fireEvent.submit(screen.getByRole('form', { name: 'New partner' }))
@@ -197,4 +205,38 @@ it('preserves custom Manner text when personality chips are selected and removed
   expect(manner).toHaveValue('Answers in short sentences.; Curious')
   fireEvent.click(screen.getByRole('button', { name: 'Curious' }))
   expect(manner).toHaveValue('Answers in short sentences.')
+})
+
+it('keeps a generated draft after a save failure and retries saving without regenerating', async () => {
+  backend.run.mockResolvedValue(generated)
+  const { onCreate } = renderDialog()
+  onCreate.mockRejectedValueOnce(new Error('Save failed'))
+  fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
+  await screen.findByText('Save failed')
+  expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue(generated.name)
+  fireEvent.click(screen.getByRole('button', { name: 'Retry save' }))
+  await waitFor(() => expect(onCreate).toHaveBeenCalledTimes(2))
+  expect(backend.run).toHaveBeenCalledOnce()
+  expect(backend.cancel).not.toHaveBeenCalled()
+})
+
+it('puts Create before the generation controls and fields', () => {
+  renderDialog()
+  expect(create().compareDocumentPosition(screen.getByRole('button', { name: 'Surprise me' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(create().compareDocumentPosition(screen.getByRole('textbox', { name: 'Name' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+})
+
+it('prevents duplicate saves and closing while automatic creation is pending', async () => {
+  backend.run.mockResolvedValue(generated)
+  let finish!: () => void
+  const { onCreate, onClose } = renderDialog()
+  onCreate.mockImplementationOnce(() => new Promise<void>(resolve => { finish = resolve }))
+  fireEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
+  await waitFor(() => expect(onCreate).toHaveBeenCalledOnce())
+  fireEvent.submit(screen.getByRole('form', { name: 'New partner' }))
+  fireEvent.keyDown(document, { key: 'Escape' })
+  expect(onCreate).toHaveBeenCalledOnce()
+  expect(onClose).not.toHaveBeenCalled()
+  await act(async () => finish())
+  expect(backend.cancel).not.toHaveBeenCalled()
 })

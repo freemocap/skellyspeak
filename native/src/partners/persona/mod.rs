@@ -155,6 +155,17 @@ pub fn validate_for_language(
     Ok(())
 }
 
+/// Constrain generation to the same declared capability as persona validation.
+pub fn generation_schema(language: &crate::model::Language) -> serde_json::Value {
+    let mut schema = output_schema();
+    schema["properties"]["romanizedName"] = if language.romanization.is_some() {
+        serde_json::json!({"type": "string", "minLength": GENERATED_TEXT_MIN, "maxLength": NAME_MAX})
+    } else {
+        serde_json::json!({"type": "null"})
+    };
+    schema
+}
+
 /// The strict object a generation request must return, derived from the same
 /// limits the editor enforces. The romanized name is nullable here; `validate`
 /// decides from the language whether it must be present.
@@ -332,5 +343,27 @@ mod tests {
             schema["required"].as_array().unwrap().len(),
             properties.as_object().unwrap().len()
         );
+    }
+    #[test]
+    fn generation_schema_and_validation_agree_on_romanization_capability() {
+        let registry = crate::configuration::Registry::bundled().unwrap();
+        for id in ["english", "spanish", "arabic", "japanese"] {
+            let mut language = registry.language(id).unwrap();
+            // Exercise declared capabilities independently of the language identity.
+            for capability in [None, Some("configured-scheme".to_string())] {
+                language.romanization = capability;
+                let required = language.romanization.is_some();
+                let schema = generation_schema(&language);
+                assert_eq!(
+                    schema["properties"]["romanizedName"]["type"],
+                    if required { "string" } else { "null" }
+                );
+                let mut details = starter(id).unwrap();
+                details.romanized_name = required.then(|| "Name".into());
+                assert!(validate_for_language(&details, &language).is_ok());
+                details.romanized_name = (!required).then(|| "Name".into());
+                assert!(validate_for_language(&details, &language).is_err());
+            }
+        }
     }
 }

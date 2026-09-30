@@ -123,12 +123,6 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
         </div>
       </div>
     </div>
-    <div className="start-prompt-editor">
-      <button type="button" className="start-link" disabled={disabled}
-        onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>
-        <ToolbarIcon name="bot" size={16} />{tr('Open prompt editor…')}
-      </button>
-    </div>
     {/* The partner's side of the table, in the partner's colours, with the main start beside them. */}
     <div className="start-partner">
       <PersonaAvatar symbol={partnerSymbol} />
@@ -175,6 +169,12 @@ export function ConversationStart({ topics, busy, onStart, partnerName, partnerS
       <label className="start-own-save"><input type="checkbox" checked={saveOwn} disabled={disabled} onChange={event => setSaveOwn(event.target.checked)} />{tr('Save for later')}</label>
     </form>
     <p className="start-or-message">{tr('…or send a message to begin')}</p>
+    <div className="start-prompt-editor">
+      <button type="button" className="start-link" disabled={disabled}
+        onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>
+        <ToolbarIcon name="bot" size={16} />{tr('Open prompt editor…')}
+      </button>
+    </div>
     {error && <ErrorNotice as="p" error={error} className="start-error">{error}</ErrorNotice>}
     {workspace && persona && language && <ConversationPromptCreator conversationId={conversationId} initial={value} topics={topics} savedTopics={workspace.savedTopics} language={language} persona={persona.details} onClose={() => setWorkspace(null)} onApply={async (configuration, additions, deletions) => {
       await saveTopics(additions, deletions)

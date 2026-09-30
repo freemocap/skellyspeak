@@ -106,6 +106,15 @@ after reopening; they do not populate unrelated mounted cards automatically.
 Translation and explanation reuse is also native-owned. The analysis view passes
 the accepted translation when a quote exactly matches its owning message.
 
+## Partner creation
+
+The New partner dialog automatically creates the partner and opens its conversation
+when generation succeeds. Its top Create action saves manually entered details.
+If creation fails, generated details remain editable and Retry save retries only
+persistence, without generating again. Closing during generation cancels ownership
+and prevents a late result from creating a partner; closing is blocked while the
+creation request is saving. Existing partner edits retain their autosave behavior.
+
 ## Commands
 
 From the repository root, `npm ci` installs the UI workspace and development tools.

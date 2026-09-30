@@ -70,11 +70,11 @@ async fn run_owned_persona_generation(
         request.clone(),
         super::proposal_execution::Task {
             messages: persona_prompt::messages_with_context(
-                &request.language.name,
+                &request.language,
                 request.brief.as_deref(),
                 &request.language_context,
             ),
-            schema: persona::output_schema(),
+            schema: persona::generation_schema(&request.language),
             name: persona_prompt::SCHEMA_NAME,
             max_output_tokens: 2048,
         },
