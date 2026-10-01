@@ -7,8 +7,8 @@ import { domainColors, skillDomain } from '../../../domain/learning/catalog/skil
 export function SkillOverview({ node, snapshot, variety }: { node: TreeNode; snapshot: SkillSnapshot; variety?: string }) {
   const tr = useI18n()
   const domain = node.kind === 'root' ? null : skillDomain(snapshot, node)
-  // Levels exist only for the language scope; a conversation scope shows XP alone.
-  const level = snapshot.profile.levels?.skills.find(item => item.skillId === node.id)
+  // Variety-filtered evidence has no native level projection. Keep every value in scope.
+  const level = variety === undefined ? snapshot.profile.levels?.skills.find(item => item.skillId === node.id) : undefined
   const progress = variety === undefined ? snapshot.profile.skills.find(item => item.skill_id === node.id) : experienceProfile(snapshot, variety).skills.find(item => item.id === node.id)
   return <header className="skill-overview" style={domain ? { borderColor: domainColors(domain.id).bright } : undefined}>
     {domain && <small>{tr(domain.label)}</small>}<h2>{tr(node.label)}</h2><p>{tr(node.criterion || node.description)}</p>

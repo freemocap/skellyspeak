@@ -1,10 +1,9 @@
 # Skill radar and skill levels: UI ↔ integration handoff
 
-Status: **native integration implemented; UI integration pending**. The branch `skill-radar-levels` holds a
-UI prototype built from production components. Nothing on it is released
-behaviour. This note is for the integration owner (native/business logic) and the
-UI owner to pass questions back and forth; answer inline under each question and
-mark it **Answered**.
+Status: **native and UI integration implemented; real-app verification pending**.
+The latest hardening work and verification are recorded in §11. Earlier sections
+retain the proposal and implementation history; their pending work is superseded
+where later sections record a completed change. Nothing here establishes release.
 
 Integration update: the native implementation is ready for UI wiring; the contract and
 handoff in §6 supersede the original API proposals below. Product direction is
@@ -445,3 +444,42 @@ Native files did not change during this repair; native verification is recorded
 in §7. No new live inference, real workspace restart/mid-animation run, physical
 sound/haptic check, translation review or hosted CI run was performed. The full
 desktop publication-to-animation flow is therefore not newly certified here.
+
+## 11. Readiness hardening — 2026-10-01
+
+Implemented, uncommitted:
+
+- Claim only the next presentation's ordered event prefix, then refresh eligibility
+  before claiming another. Later presentations remain unclaimed across language
+  switches and settings refreshes. A claim finishing while hidden is retained for
+  the paused presenter. Native at-most-once semantics remain: a crash or scope
+  switch during the single in-flight claim can still omit that presentation.
+- Language-wide radar inspection now opens language-wide evidence. Variety-filtered
+  summaries omit language-wide levels rather than mixing them with filtered XP.
+- The Coach Skills tab has one radar/list with one set of reward destinations.
+  Pinning filters the panel; its explicit practice action selects the conversation
+  focus. The Conversation XP action retains the conversation-scoped evidence report.
+  Separate report/tour lists retain their existing category controls.
+
+Automated verification:
+
+- Full UI suite: 257 files, 1,667 tests passed using the runner config loader.
+  After the final conversation-button wording change, all 12 affected panel,
+  conversation and Skills-page tests passed again.
+- Final fast gate and production build passed; preview types passed. The build
+  retains the existing large-chunk advisory. The UI test environment emits its
+  existing canvas-not-implemented diagnostics without test failures.
+- Native source is unchanged in this pass. The preceding branch review passed
+  Clippy, contract checks and 754 native tests (5 ignored).
+- No hosted CI, live inference, device sound/haptics or real-app smoke run claimed.
+
+Real-app checks still required:
+
+1. Earn a skill level and a language level; check animation, sound and dismissal.
+2. During catch-up, switch languages and return; later milestones should resume.
+   Hide and restore the window during a celebration; its timer should pause.
+3. In Coach → Skills, pin a skill, select it for practice, open Conversation XP,
+   and clear the pin. Confirm only this conversation's credited examples appear.
+4. With a variety selected, inspect the language radar's evidence and then a
+   variety-filtered experience row. Levels appear only in the unfiltered inspector.
+5. Restart with pending milestones, and try a narrow window and reduced motion.

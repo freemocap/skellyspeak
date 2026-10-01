@@ -5,10 +5,7 @@ import { useI18n } from '../../../components/localization/i18n'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 import { ConversationProgress } from '../progress/ConversationProgress'
-import { SkillLevelsPanel } from '../../../components/learning/SkillLevelsPanel'
-import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
-import { conversationSkillPoints } from '../../../domain/learning/statistics/skill-levels'
-import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { isTauri } from '../../../platform/ipc/tauri'
 import { executeAction, nativeError, readWorkspace } from '../../../platform/ipc/workspace'
 import { useConversationSnapshot } from '../session/useConversationSnapshot'
@@ -24,7 +21,6 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
   const tr = useI18n()
-  const languageSnapshot = useContext(SkillEvidenceContext).snapshot
   const { snapshot, readError, retryRead } = useConversationSnapshot(isTauri ? chatId : null)
   const [input, setInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -105,7 +101,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   />
   return <>
     <CoachPanelTabs tab={tab} onTab={onTab} onCollapse={onCollapse} />
-    {tab === 'skills' && languageSnapshot && <ConversationProgress chatId={chatId}><SkillLevelsPanel snapshot={languageSnapshot} conversation={conversationSkillPoints(languageSnapshot, chatId)} onInspect={null} /></ConversationProgress>}
+    {tab === 'skills' && <ConversationProgress chatId={chatId} />}
     {coachDock}
   </>
 }

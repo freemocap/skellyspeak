@@ -2,7 +2,7 @@ import { TargetPhrase } from '../../../components/reading/TargetPhrase'
 import { RewardsLedger } from './RewardsLedger'
 import { useI18n } from '../../../components/localization/i18n'
 import { EvidenceMappingNotice } from '../../../components/learning/EvidenceMappingNotice'
-import { useContext, useState, type ReactNode } from 'react'
+import { useContext, useState } from 'react'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { conversationEvidence } from '../../../domain/learning/evidence/skills'
 import { skillDomain } from '../../../domain/learning/catalog/skill-domains'
@@ -12,7 +12,7 @@ import { ProgressSummary } from './ProgressSummary'
 import { MessageXpButton } from './MessageXpButton'
 import { InfoTip } from '../../../components/controls/InfoTip'
 
-export function ConversationProgress({ chatId, children }: { chatId: string; children?: ReactNode }) {
+export function ConversationProgress({ chatId }: { chatId: string }) {
   const tr = useI18n()
   const evidence = useContext(SkillEvidenceContext)
   const practice = useContext(PracticeContext)
@@ -25,9 +25,8 @@ export function ConversationProgress({ chatId, children }: { chatId: string; chi
   const records = snapshot.records.filter(record => record.assessment?.judgments.some(item => skills.has(item.skill_id)))
   return <>
     <div className="analysis-scroll conversation-evidence" role="region" aria-label={tr("Skills")} tabIndex={0}>
-      {children}
     <EvidenceMappingNotice snapshot={snapshot} />
-    <SkillEvidenceContext value={{ snapshot, error: evidence.error }}><ConversationMap /></SkillEvidenceContext>
+    <SkillEvidenceContext value={{ snapshot, error: evidence.error }}><ConversationMap languageSnapshot={evidence.snapshot} /></SkillEvidenceContext>
       <RewardsLedger snapshot={snapshot} />
       <details><summary>{tr("Conversation XP")}</summary>
       <div className="detail-actions"><strong>{domain ? tr(domain.label) : tr("Conversation XP")}</strong><InfoTip>{tr("XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.")}</InfoTip><button className="detail-action" onClick={() => setGlobal(true)}>{tr("Show language progression")}</button></div>

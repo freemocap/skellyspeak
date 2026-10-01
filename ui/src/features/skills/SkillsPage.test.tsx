@@ -30,9 +30,10 @@ it('holds order during reward presentation and shows XP without milestone bars',
 })
 it('saves focus before returning to conversation and keeps errors visible', async () => {
   const actions=handlers()
-  render(<SkillListView snapshot={skillDemo} demonstration={false} {...actions} />)
+  render(<SkillListView snapshot={skillDemo} initialVariety="unpractised-variety" demonstration={false} {...actions} />)
   fireEvent.click(document.querySelector('[data-reward-skill="identify_describe"]')!)
   fireEvent.click(screen.getByRole('button',{name:'See the evidence'}))
+  expect(screen.getByText(/Skill level \d+ · \d+ of \d+ points/)).toBeVisible()
   fireEvent.click(screen.getByRole('button',{name:'Use this in a conversation'}))
   await waitFor(()=>expect(actions.onPractice).toHaveBeenCalledOnce())
   expect(actions.save).toHaveBeenCalledWith(expect.objectContaining({focus:'identify_describe'}))

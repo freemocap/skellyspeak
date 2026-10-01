@@ -41,42 +41,38 @@ interface LevelEventState {
   /** A batch is being initialized or claimed. */
   working: boolean
   showing: LevelPresentation | null
-  queue: LevelPresentation[]
-  /** Show the next presentation, or finish the batch. Returns true when the batch finished. */
-  advance: () => boolean
+  /** Finish this presentation; the next one requires a fresh native claim. */
+  advance: () => void
 }
 
-export const useSkillLevelEventStore = create<LevelEventState>((set, get) => ({
+export const useSkillLevelEventStore = create<LevelEventState>((set) => ({
   initialized: null,
   working: false,
   showing: null,
-  queue: [],
-  advance: () => {
-    const [next, ...rest] = get().queue
-    set({ showing: next ?? null, queue: rest })
-    return next === undefined
-  },
+  advance: () => set({ showing: null }),
 }))
 
 const CLAIM_LIMIT = 100
 
-/** Claim an ordered prefix and queue what native returned. Only returned events are shown. */
+/** Claim only the next visible presentation. Later milestones remain durable and unclaimed. */
 async function claimAndPresent(target: string, pending: SkillLevelEvent[], stillCurrent: () => boolean, reload: () => void): Promise<void> {
   const batch = [...pending].sort((left, right) => left.sequence - right.sequence).slice(0, CLAIM_LIMIT)
   if (!batch.length) return
   // Prepare before claiming, so a claimed step always has a presentation ready.
-  const prepared = groupLevelEvents(batch)
-  if (!stillCurrent()) return
-  const claimed = await claimSkillLevelEvents(target, batch.map(event => event.id))
+  const prepared = groupLevelEvents(batch)[0]
+  const events = prepared.kind === 'skills' ? prepared.events : [prepared.event]
+  if (!stillCurrent() || !visible()) return
+  const claimed = await claimSkillLevelEvents(target, events.map(event => event.id))
   if (!stillCurrent()) return
   const returned = new Set(claimed.map(event => event.id))
-  const presentations = prepared
+  const presentations = [prepared]
     .map(group => group.kind === 'skills' ? { ...group, events: group.events.filter(event => returned.has(event.id)) } : group)
     .filter(group => group.kind === 'skills' ? group.events.length > 0 : returned.has(group.event.id))
-  const [first, ...rest] = presentations
+  const [first] = presentations
   // Nothing left to show (all claimed elsewhere): read again rather than claim the same steps twice.
   if (!first) { reload(); return }
-  useSkillLevelEventStore.setState({ showing: first, queue: rest })
+  // A window hidden during the claim retains this presentation; its timer pauses.
+  useSkillLevelEventStore.setState({ showing: first })
 }
 
 /** Each snapshot's pending list is acted on once; the next read brings the next batch. */
@@ -103,15 +99,15 @@ export function useSkillLevelEventQueue(snapshot: SkillSnapshot | null, reload: 
   const working = useSkillLevelEventStore(state => state.working)
   const initialized = useSkillLevelEventStore(state => state.initialized)
 
-  // A language switch drops anything queued for the previous language.
-  useEffect(() => { failed.current = null; useSkillLevelEventStore.setState({ initialized: null, showing: null, queue: [] }) }, [scope])
+  // Later presentations have not been claimed and survive a language switch.
+  useEffect(() => { failed.current = null; useSkillLevelEventStore.setState({ initialized: null, showing: null }) }, [scope])
 
   useEffect(() => {
     if (!enabled || !snapshot || !scope || !target || working || showing) return
     // Hidden windows claim nothing; becoming visible reads evidence again.
     if (processed.has(snapshot) || !visible()) return
     const generation = current.current.generation
-    const stillCurrent = () => mounted.current && current.current.enabled && current.current.scope === scope && current.current.generation === generation && visible()
+    const stillCurrent = () => mounted.current && current.current.enabled && current.current.scope === scope && current.current.generation === generation
     const signature = JSON.stringify([scope, snapshot.profile.pendingLevelEvents.map(event => event.id)])
     if (failed.current === signature) return
     const run = async (work: () => Promise<void>) => {
@@ -122,7 +118,7 @@ export function useSkillLevelEventQueue(snapshot: SkillSnapshot | null, reload: 
         reportFault('Skill level celebrations', error)
         if (stillCurrent()) { failed.current = signature; reload() }
       } finally {
-        if (!stillCurrent()) processed.delete(snapshot)
+        if (!stillCurrent() || !visible()) processed.delete(snapshot)
         useSkillLevelEventStore.setState({ working: false })
       }
     }
@@ -130,7 +126,7 @@ export function useSkillLevelEventQueue(snapshot: SkillSnapshot | null, reload: 
       // Initialize before reading pending events, so catch-up and live steps come from one answer.
       void run(async () => {
         const pending = await initializeSkillLevelEvents(target)
-        if (!stillCurrent()) return
+        if (!stillCurrent() || !visible()) return
         useSkillLevelEventStore.setState({ initialized: scope })
         await claimAndPresent(target, pending, stillCurrent, reload)
       })
@@ -147,8 +143,8 @@ export function useSkillLevelEventQueue(snapshot: SkillSnapshot | null, reload: 
     return () => document.removeEventListener('visibilitychange', again)
   }, [reload])
 
-  // When a batch finishes, read evidence again for the next one.
+  // Read current eligibility before claiming the next presentation.
   useEffect(() => useSkillLevelEventStore.subscribe((state, previous) => {
-    if (previous.showing && !state.showing && !state.queue.length) reload()
+    if (previous.showing && !state.showing) reload()
   }), [reload])
 }

@@ -59,10 +59,13 @@ it('puts the skill list inside the scroll region and opens only that conversatio
   const bar = view.container.querySelector<HTMLElement>('[data-reward-skill="identify_describe"]')!
   expect(bar.closest('.analysis-scroll')).toBe(view.container.querySelector('.conversation-evidence'))
   fireEvent.click(bar)
+  fireEvent.click(screen.getByRole('button', { name: 'Conversation XP' }))
   const report = screen.getByRole('dialog', { name: 'Identify and describe' })
   expect(within(report).getByText('Esa taza.')).toBeVisible()
   expect(within(report).queryByText('Otra taza.')).toBeNull()
   fireEvent.click(within(report).getByRole('button', { name: 'Close Identify and describe' }))
+  fireEvent.click(screen.getByRole('button', { name: /Show all/ }))
   fireEvent.click(view.container.querySelector<HTMLElement>('[data-reward-skill="quantity"]')!)
+  fireEvent.click(screen.getByRole('button', { name: 'Conversation XP' }))
   expect(within(screen.getByRole('dialog', { name: 'Express quantity' })).getByText('No credited messages.')).toBeVisible()
 })

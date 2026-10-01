@@ -45,7 +45,7 @@ export function SkillListView({ initialVariety, languageTag, snapshot, demonstra
     <EvidenceMappingNotice snapshot={snapshot} />
     {error && <ErrorNotice as="p" error={error}>{error}</ErrorNotice>}
     <ExperienceProfile snapshot={snapshot} initialVariety={initialVariety} onInspect={inspect} />
-    <SkillLevelsPanel key={snapshot.target} snapshot={snapshot} conversation={null} onInspect={id => inspect(id, initialVariety)} />
+    <SkillLevelsPanel key={snapshot.target} snapshot={snapshot} conversation={null} onInspect={id => inspect(id)} />
     <ProgressRules />
     {open && node && <DetailDialog title={tr(node.label)} onClose={() => setOpen(false)}>
       <SkillDetailContent variety={inspectedVariety} languageTag={languageTag} node={node} snapshot={snapshot} chatId={null} explanation={null} onSelect={inspect}

@@ -20,7 +20,7 @@ function snapshotWith(pending: SkillLevelEvent[]): SkillSnapshot {
 
 beforeEach(() => {
   ipc.initialize.mockReset(); ipc.claim.mockReset(); faults.report.mockReset()
-  useSkillLevelEventStore.setState({ initialized: null, working: false, showing: null, queue: [] })
+  useSkillLevelEventStore.setState({ initialized: null, working: false, showing: null })
 })
 
 describe('grouping', () => {
@@ -35,6 +35,41 @@ describe('grouping', () => {
 })
 
 describe('the language-level queue', () => {
+  it.each(['language switch', 'settings refresh'])('leaves later milestones unclaimed across a %s', async interruption => {
+    const events = [skill(1, 'quantity', 1), language(2, 1), skill(3, 'quantity', 2)]
+    const claimed = new Set<string>()
+    ipc.initialize.mockImplementation((target: string) => Promise.resolve(target === skillDemo.target ? events.filter(event => !claimed.has(event.id)) : []))
+    ipc.claim.mockImplementation((_target: string, ids: string[]) => {
+      const accepted = events.filter(event => ids.includes(event.id) && !claimed.has(event.id))
+      accepted.forEach(event => claimed.add(event.id))
+      return Promise.resolve(accepted)
+    })
+    const reload = vi.fn()
+    const view = renderHook(({ snapshot }: { snapshot: SkillSnapshot | null }) => useSkillLevelEventQueue(snapshot, reload), { initialProps: { snapshot: snapshotWith(events) as SkillSnapshot | null } })
+    await waitFor(() => expect(useSkillLevelEventStore.getState().showing?.kind).toBe('skills'))
+    expect([...claimed]).toEqual(['s1'])
+    view.rerender({ snapshot: interruption === 'settings refresh' ? null : { ...snapshotWith([]), target: 'arabic' } })
+    await waitFor(() => expect(useSkillLevelEventStore.getState().working).toBe(false))
+    view.rerender({ snapshot: snapshotWith(events.filter(event => !claimed.has(event.id))) })
+    await waitFor(() => expect(useSkillLevelEventStore.getState().showing).toMatchObject({ kind: 'language', event: { id: 'l2' } }))
+    expect([...claimed]).toEqual(['s1', 'l2'])
+    expect(claimed.has('s3')).toBe(false)
+  })
+  it('retains the current presentation when the window hides during its claim', async () => {
+    const events = [skill(1, 'quantity', 1), language(2, 1)]
+    let finish!: (events: SkillLevelEvent[]) => void
+    ipc.initialize.mockResolvedValue(events)
+    ipc.claim.mockImplementation(() => new Promise(resolve => { finish = resolve }))
+    const reload = vi.fn()
+    const view = renderHook(() => useSkillLevelEventQueue(snapshotWith(events), reload))
+    await waitFor(() => expect(ipc.claim).toHaveBeenCalledWith(skillDemo.target, ['s1']))
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+    try {
+      await act(async () => { finish([events[0]]) })
+      expect(useSkillLevelEventStore.getState().showing).toMatchObject({ kind: 'skills', events: [{ id: 's1' }] })
+      expect(ipc.claim).toHaveBeenCalledOnce()
+    } finally { view.unmount(); visibility.mockRestore() }
+  })
   it('does not claim an initialization response after switching languages', async () => {
     let finish!: (events: SkillLevelEvent[]) => void
     ipc.initialize.mockImplementationOnce(() => new Promise(resolve => { finish = resolve })).mockResolvedValue([])
@@ -91,16 +126,19 @@ describe('the language-level queue', () => {
     ipc.initialize.mockResolvedValue(events)
     ipc.claim.mockImplementation((_target: string, ids: string[]) => Promise.resolve([skill(1, 'quantity', 1), language(3, 1)].filter(event => ids.includes(event.id))))
     const reload = vi.fn()
-    renderHook(() => useSkillLevelEventQueue(snapshotWith([]), reload))
+    const view = renderHook(({ snapshot }) => useSkillLevelEventQueue(snapshot, reload), { initialProps: { snapshot: snapshotWith([]) } })
     await waitFor(() => expect(useSkillLevelEventStore.getState().showing).not.toBeNull())
     expect(ipc.initialize).toHaveBeenCalledWith(skillDemo.target)
-    expect(ipc.claim).toHaveBeenCalledWith(skillDemo.target, ['s1', 's2', 'l3'])
+    expect(ipc.claim).toHaveBeenCalledWith(skillDemo.target, ['s1', 's2'])
     expect(useSkillLevelEventStore.getState().showing).toMatchObject({ kind: 'skills', events: [{ id: 's1' }] })
     act(() => { useSkillLevelEventStore.getState().advance() })
-    expect(useSkillLevelEventStore.getState().showing).toMatchObject({ kind: 'language', event: { id: 'l3' } })
-    expect(reload).not.toHaveBeenCalled()
-    act(() => { useSkillLevelEventStore.getState().advance() })
+    expect(useSkillLevelEventStore.getState().showing).toBeNull()
     expect(reload).toHaveBeenCalledOnce()
+    view.rerender({ snapshot: snapshotWith([language(3, 1)]) })
+    await waitFor(() => expect(useSkillLevelEventStore.getState().showing).toMatchObject({ kind: 'language', event: { id: 'l3' } }))
+    expect(ipc.claim).toHaveBeenLastCalledWith(skillDemo.target, ['l3'])
+    act(() => { useSkillLevelEventStore.getState().advance() })
+    expect(reload).toHaveBeenCalledTimes(2)
   })
   it('claims pending steps from a fresh snapshot once the language is initialized', async () => {
     ipc.initialize.mockResolvedValue([])

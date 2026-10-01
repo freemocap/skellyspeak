@@ -10,7 +10,10 @@ import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
  * Pressing an arm (or a row) pins that skill and filters the list to it; pressing
  * it again, or Show all, clears the pin. `conversation`, when given, is one
  * conversation's evidence, overlaid on the radar as its own shape. */
-export function SkillLevelsPanel({ snapshot, conversation, onInspect }: { snapshot: SkillSnapshot; conversation: ConversationSkillPoints | null; onInspect: ((id: string) => void) | null }) {
+export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice, practiceSkill }: {
+  snapshot: SkillSnapshot; conversation: ConversationSkillPoints | null; onInspect: ((id: string) => void) | null
+  onPractice?: (id: string) => void; practiceSkill?: string
+}) {
   const tr = useI18n()
   const [pinned, setPinned] = useState<string | null>(null)
   const [pointed, setPointed] = useState<string | null>(null)
@@ -51,7 +54,8 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect }: { snapsh
       {focused
         ? <><strong>{tr(focused.label)}</strong><span>{tr(focused.description)}</span></>
         : <span>{tr('Point at a skill to see what it covers. Press it to show only that skill below.')}</span>}
-    {focused && onInspect && <button type="button" className="btn" onClick={() => onInspect(focused.id)}>{tr('See the evidence')}</button>}
+    {focused && onInspect && <button type="button" className="btn" onClick={() => onInspect(focused.id)}>{tr(conversation ? 'Conversation XP' : 'See the evidence')}</button>}
+    {focused && onPractice && <button type="button" className="btn" aria-pressed={practiceSkill === focused.id} onClick={() => onPractice(focused.id)}>{tr('Use this in a conversation')}</button>}
     </div>
     <div className="skill-levels-list-head">
       <h3>{tr('Skills')}</h3>

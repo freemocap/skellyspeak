@@ -20,7 +20,6 @@ import { skillLevelScope, useSkillLevelEventQueue, useSkillLevelEventStore } fro
 import { useSettingsStore } from '../src/state/settings/settings'
 import { skillDemo } from '../src/domain/learning/catalog/skillDemo'
 import { unreportedInput, type SkillSnapshot } from '../src/domain/learning/evidence/skills'
-import { conversationSkillPoints } from '../src/domain/learning/statistics/skill-levels'
 import { XpChip } from '../src/features/conversation/progress/XpChip'
 import { withFixtureLevels } from '../tests/fixtures/skill-levels'
 import type { SkillLevelEvent } from '../src/generated/contracts'
@@ -87,8 +86,8 @@ mockIPC((command, payload) => {
 })
 useSettingsStore.setState({ settings: { ...PREVIEW_SETTINGS, target_language: snapshot.target, my_languages: [snapshot.target] }, revision: 1 })
 useSkillEvidenceStore.setState({ snapshot, scope: 1 })
-if (celebrate === 'language') useSkillLevelEventStore.setState({ initialized: skillLevelScope(snapshot), showing: { kind: 'language', event: { id: 'held', sequence: 0, kind: 'language_level', fromLevel: 3, toLevel: 4 } }, queue: [], advance: () => false })
-if (celebrate === 'skills') useSkillLevelEventStore.setState({ initialized: skillLevelScope(snapshot), showing: { kind: 'skills', events: [{ id: 'a', sequence: 0, kind: 'skill_level', skillId: 'past_reference', fromLevel: 3, toLevel: 4 }, { id: 'b', sequence: 1, kind: 'skill_level', skillId: 'requests', fromLevel: 3, toLevel: 4 }] }, queue: [], advance: () => false })
+if (celebrate === 'language') useSkillLevelEventStore.setState({ initialized: skillLevelScope(snapshot), showing: { kind: 'language', event: { id: 'held', sequence: 0, kind: 'language_level', fromLevel: 3, toLevel: 4 } }, advance: () => false })
+if (celebrate === 'skills') useSkillLevelEventStore.setState({ initialized: skillLevelScope(snapshot), showing: { kind: 'skills', events: [{ id: 'a', sequence: 0, kind: 'skill_level', skillId: 'past_reference', fromLevel: 3, toLevel: 4 }, { id: 'b', sequence: 1, kind: 'skill_level', skillId: 'requests', fromLevel: 3, toLevel: 4 }] }, advance: () => false })
 
 function CatchUp() {
   // The real owner, reading a mocked native catch-up; reloading re-reads the fixture.
@@ -109,7 +108,7 @@ function Preview() {
           <div data-preview="surfaces" style={{ display: 'flex', gap: 24, padding: 24, alignItems: 'flex-start' }}>
             <section data-preview="coach" className="break" style={{ width: 420, height: 1300, flex: 'none', display: 'flex', flexDirection: 'column' }}>
               <CoachPanelTabs tab="skills" onTab={() => {}} />
-              <ConversationProgress chatId="preview"><SkillLevelsPanel snapshot={snapshot} conversation={conversationSkillPoints(snapshot, 'preview')} onInspect={null} /></ConversationProgress>
+              <ConversationProgress chatId="preview" />
             </section>
             <main data-preview="page" className="skills-page" style={{ flex: 1, minWidth: 0 }}>
               <SkillLevelsPanel snapshot={snapshot} conversation={null} onInspect={() => {}} />
