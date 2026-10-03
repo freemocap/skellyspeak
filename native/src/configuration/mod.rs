@@ -2,6 +2,8 @@
 //! Invalid bundled content blocks startup with ConfigLoadError.
 pub mod appearance;
 mod citations;
+pub mod communication;
+pub mod communication_guides;
 pub mod difficulty;
 mod documents;
 pub mod guides;
@@ -62,6 +64,9 @@ pub struct Registry {
     pub universal: Vec<Guidance>,
     constructs: Vec<Construct>,
     skills: skills::Catalog,
+    communication: communication::Catalog,
+    communication_guides: BTreeMap<String, communication_guides::Document>,
+    demonstration_instructions: crate::learning::practice_assessment::Instructions,
     presence_instructions: crate::learning::practice_assessment::Instructions,
     navigation: Vec<NavigationNode>,
     feedback: FeedbackPolicy,
@@ -81,6 +86,11 @@ pub struct Registry {
 include!(concat!(env!("OUT_DIR"), "/config_seeds.rs"));
 
 impl Registry {
+    /// Authoring inspection only until the single learning-system cutover.
+    pub fn communication_catalog(&self) -> &communication::Catalog {
+        &self.communication
+    }
+
     pub fn hash(&self) -> &str {
         &self.hash
     }

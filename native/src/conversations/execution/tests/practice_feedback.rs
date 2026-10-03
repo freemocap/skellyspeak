@@ -183,6 +183,7 @@ fn guidance_updates_reach_capture_without_erasing_experience() {
         ("conversation", "instructions.yaml"),
         ("drill", "instructions.yaml"),
         ("skills", "presence.yaml"),
+        ("skills", "demonstration.yaml"),
     ] {
         std::fs::create_dir_all(content.join("prompts").join(prompt)).unwrap();
         std::fs::copy(

@@ -60,6 +60,9 @@ impl Registry {
             universal: policy.guidance,
             constructs: parse(&files, "shared/learning-goals.yaml")?,
             skills: parse(&files, "shared/skills.yaml")?,
+            communication: parse(&files, communication::SOURCE)?,
+            communication_guides: BTreeMap::new(),
+            demonstration_instructions: parse(&files, "prompts/skills/demonstration.yaml")?,
             presence_instructions: parse(&files, "prompts/skills/presence.yaml")?,
             navigation: parse(&files, "shared/learning-map.yaml")?,
             feedback: policy.feedback,
@@ -88,7 +91,11 @@ impl Registry {
             &foundations.romanization_schemes,
         )?;
         for name in files.keys() {
-            if name.starts_with("guides/") && name.ends_with(".yaml") {
+            if name.starts_with("communication/") && name.ends_with(".yaml") {
+                registry
+                    .communication_guides
+                    .insert(name.clone(), parse(&files, name)?);
+            } else if name.starts_with("guides/") && name.ends_with(".yaml") {
                 registry.guides.insert(name.clone(), parse(&files, name)?);
             } else if name.starts_with("languages/") && name.ends_with(".yaml") {
                 let document: LanguageDocument = parse(&files, name)?;
@@ -110,6 +117,7 @@ impl Registry {
                 "shared/speech-routing.yaml",
                 "shared/learning-goals.yaml",
                 "shared/skills.yaml",
+                communication::SOURCE,
                 "shared/learning-map.yaml",
                 "shared/teaching-policy.yaml",
                 "shared/conversation-topics.yaml",
@@ -117,6 +125,7 @@ impl Registry {
                 "prompts/drill/instructions.yaml",
                 "prompts/conversation/ratings.yaml",
                 "prompts/skills/presence.yaml",
+                "prompts/skills/demonstration.yaml",
                 "references.bib",
             ]
             .contains(&name.as_str())
@@ -154,6 +163,30 @@ impl Registry {
         let citations = citations::parse_bib(bib).map_err(|e| error("references.bib", "bib", e))?;
         registry.validate_guides(&citations.keys().cloned().collect())?;
         registry.validate_skills(&citations.keys().cloned().collect())?;
+        registry
+            .communication
+            .validate(&citations.keys().cloned().collect())?;
+        registry.language_config(&registry.communication.definition_language)?;
+        registry.validate_communication_guides(&citations.keys().cloned().collect())?;
+        let group = &registry.communication.groups[0];
+        crate::learning::practice_assessment::request(
+            serde_json::json!({}),
+            &[crate::learning::practice_assessment::SkillPrompt {
+                id: group.id.clone(),
+                name: group.name.clone(),
+                overview: group.purpose.clone(),
+                boundary: group.boundary.clone(),
+                language_guidance: "Configuration validation.".into(),
+            }],
+            &registry.demonstration_instructions,
+        )
+        .map_err(|e| {
+            error(
+                "prompts/skills/demonstration.yaml",
+                "communication_prompt",
+                e.message,
+            )
+        })?;
         for source in &speech.sources {
             if !citations.contains_key(source) {
                 return Err(error("shared/speech-routing.yaml", "citation", source));
