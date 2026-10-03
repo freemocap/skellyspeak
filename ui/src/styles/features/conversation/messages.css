@@ -54,7 +54,7 @@
 
 @media (max-width: 860px) {
   .msg { max-width: 96%; }
-  .msg.chat-message { padding: var(--space-3) var(--space-5); }
+  .msg.chat-message { padding: var(--space-2) var(--space-5); }
 }
 
 .feedback-badge {
@@ -285,6 +285,19 @@
 .message-feedback-line :is(.feedback-badge, .feedback-fix, .message-xp) > svg { align-self: center; }
 .message-feedback-line .message-fixed { margin: 0; }
 @media (pointer: coarse) { .message-feedback-line > .feedback-badge, .message-feedback-line > .feedback-badge[data-verdict], .message-xp, .feedback-fix { min-height: var(--touch-target); } }
+@media (max-width: 860px) and (pointer: coarse) {
+  /* Match the compact composer pills while retaining the full tap area. */
+  .message-feedback-line > .feedback-badge[data-verdict] { position: relative; isolation: isolate; border-color: transparent; background: transparent; }
+  .message-feedback-line > .feedback-badge[data-verdict]::after {
+    content: ''; position: absolute; inset-block: var(--space-4); inset-inline: 0;
+    border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint);
+  }
+  .message-feedback-line > .feedback-badge[data-verdict=clear]::after { border-color: var(--success-line); background: var(--success-tint); }
+  .message-feedback-line > .feedback-badge[data-verdict]:hover { border-color: transparent; background: transparent; box-shadow: none; }
+  .message-feedback-line > .feedback-badge[data-verdict]:hover::after { border-color: var(--coach-mark); box-shadow: var(--shadow-sm); }
+  .message-feedback-line > .feedback-badge[data-verdict=clear]:hover::after { border-color: var(--success-ink); }
+  .message-feedback-line > .feedback-badge[data-verdict] > :is(svg, span) { position: relative; z-index: var(--z-raised); }
+}
 
 
 .message-feedback { align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; max-width: 85%; min-width: 0; }
@@ -313,7 +326,8 @@
   .message-actions .message-translate { min-height: 44px; }
 }
 
-.msg.chat-message .message-tools { gap: var(--space-1); margin-block-start: var(--space-3); padding-block-start: 0; border-block-start: 0; }
+.msg.chat-message .message-tools { flex-wrap: nowrap; gap: var(--space-1); margin-block-start: var(--space-2); padding-block-start: 0; border-block-start: 0; white-space: nowrap; }
+@media (max-width: 860px) { .msg.chat-message .message-tools { margin-block-start: 0; overflow-x: auto; scrollbar-width: none; } }
 
 /* While a message is being fixed, it carries a dashed coach outline and a tag;
    the rest of the thread fades so the message in question stands out. */

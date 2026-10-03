@@ -22,23 +22,7 @@ async fn speech_request(reference: bool) {
         store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.baseUrl',?1,'$.bearerAuth',json('false'))", [&base]).unwrap();
         access::resolve(&store.connection, access::Capability::Speech).unwrap()
     };
-    let mut wav = std::io::Cursor::new(Vec::new());
-    {
-        let mut writer = hound::WavWriter::new(
-            &mut wav,
-            hound::WavSpec {
-                channels: 1,
-                sample_rate: 24_000,
-                bits_per_sample: 16,
-                sample_format: hound::SampleFormat::Int,
-            },
-        )
-        .unwrap();
-        writer.write_sample(100_i16).unwrap();
-        writer.finalize().unwrap();
-    }
-    let encoded_audio = STANDARD.encode(wav.into_inner());
-    let body = serde_json::json!({"version":1,"format":"wav","audio_base64":encoded_audio,"alignment":{"sourceText":"كتاب","original":{"characters":["ك","ت","ا","ب"],"starts":[0,0,0,0],"ends":[0.00001,0.00001,0.00001,0.00001]},"normalized":null},"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
+    let body = serde_json::json!({"version":3,"response":{"audio_base64":"ZAA=","alignment":{"characters":["ك","ت","ا","ب"],"character_start_times_seconds":[0,0,0,0],"character_end_times_seconds":[0.00001,0.00001,0.00001,0.00001]}},"usage":{"requested_model":target.model,"actual_model":"eleven_v3","provider":"elevenlabs","request_id":"speech-receipt","cost_micros":null,"allowance_micros":12}}).to_string();
     let worker = std::thread::spawn(move || {
         let (mut socket, _) = listener.accept().unwrap();
         socket
@@ -69,9 +53,9 @@ async fn speech_request(reference: bool) {
         assert!(request.starts_with("POST /v1/audio/speech"));
         let payload: serde_json::Value =
             serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
-        assert_eq!(payload.as_object().unwrap().len(), 4);
-        assert_eq!(payload["language_tag"], "ar");
-        assert_eq!(payload["text"], "كتاب");
+        assert_eq!(payload.as_object().unwrap().len(), 3);
+        assert!(payload["language_code"].is_null());
+        assert!(payload["text"].as_str().unwrap().ends_with("accent]\nكتاب"));
         write!(
             socket,
             "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
@@ -226,7 +210,7 @@ async fn speech_request(reference: bool) {
             .is_some_and(serde_json::Value::is_null)
     );
     assert!(!receipts[0].to_string().contains("كتاب"));
-    assert!(!receipts[0].to_string().contains(&encoded_audio));
+    assert!(!receipts[0].to_string().contains("ZAA="));
     assert!(state.reading.claim(&id).is_err());
     {
         drop(state);

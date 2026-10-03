@@ -71,7 +71,7 @@ it('follows the selected repeated occurrence inside an independent helper', () =
   expect(document.querySelectorAll('.speech-follow-word')).toHaveLength(2)
 })
 
-it('keeps one highlight through word transitions and gaps, but repositions immediately on scroll', () => {
+it('keeps one highlight through word changes and gaps, and repositions immediately on scroll', () => {
   let scroll = 0
   Object.defineProperty(Range.prototype, 'getClientRects', { configurable: true, value: function (this: Range) {
     return [new DOMRect(10 + this.startOffset * 20, 40 - scroll, this.toString().length * 20, 22)]
@@ -86,10 +86,26 @@ it('keeps one highlight through word transitions and gaps, but repositions immed
   act(() => publishSpeechFollow({ text: 'go again', word: { start: 3, end: 8, from: 1.1, to: 2 } }))
   expect(document.querySelector('.speech-follow-word')).toBe(highlight)
   expect(highlight).toHaveStyle({ left: '70px', width: '100px' })
-  expect(document.querySelector('.speech-follow-overlay')).toHaveAttribute('data-motion', 'word')
   act(() => { scroll = 10; window.dispatchEvent(new Event('scroll')) })
   expect(highlight).toHaveStyle({ top: '30px' })
-  expect(document.querySelector('.speech-follow-overlay')).toHaveAttribute('data-motion', 'layout')
   view.unmount()
   expect(document.querySelector('.speech-follow-word')).toBeNull()
+})
+
+it('remeasures the highlighted word when its bubble moves without resizing', () => {
+  let shift = 0
+  const frames: FrameRequestCallback[] = []
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { frames.push(callback); return frames.length })
+  vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {})
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+    return new DOMRect(this.querySelector('[data-speech-source]') ? shift : 0, 0, 100, 20)
+  })
+  Object.defineProperty(Range.prototype, 'getClientRects', { configurable: true, value: () => [new DOMRect(10 + shift, 20, 40, 22)] })
+  const view = render(<div className="msg"><TargetText text="hello" /></div>)
+  act(() => publishSpeechFollow({ text: 'hello', word: { start: 0, end: 5, from: 0, to: 1 } }))
+  expect(document.querySelector('.speech-follow-word')).toHaveStyle({ left: '10px' })
+  shift = 30
+  act(() => frames.shift()!(0))
+  expect(document.querySelector('.speech-follow-word')).toHaveStyle({ left: '40px' })
+  view.unmount()
 })

@@ -14,17 +14,24 @@ pub(super) struct Decoder {
     sequence: u64,
     complete: bool,
     pcm: Vec<u8>,
-    alignment: Option<crate::speech::alignment::SpeechAlignment>,
+    source: String,
+    timings: super::synthesis_timing::Timings,
 }
 
 impl Decoder {
+    pub(super) fn new(source: &str) -> Self {
+        Self {
+            source: source.into(),
+            ..Self::default()
+        }
+    }
     fn invalid(&self, path: &str) -> AppError {
         AppError::new(
             ErrorCode::UnknownOutcome,
             "Speech stream was incomplete or invalid. No automatic retry was made.",
         )
         .with_diagnostics(json!({"stage":"speech_stream", "path":path,
-                "expected":"ordered version 2 PCM records and one complete terminal",
+                "expected":"ordered version 3 provider records and one complete terminal",
                 "sequence":self.sequence, "received_bytes":self.received,
                 "audio_samples":self.pcm.len()/2, "automatic_retries":[]}))
     }
@@ -63,8 +70,19 @@ impl Decoder {
                 .with_diagnostics(json!({"stage":"speech_stream", "line":e.line(),
                 "column":e.column(),"audio_samples":self.pcm.len()/2,"automatic_retries":[]}))
         })?;
+        self.record_value(value, outcome, emit)
+    }
+
+    // Complete JSON responses have a different framing limit than streamed lines.
+    // Both paths use identical audio, timing, receipt and sequence validation.
+    pub(super) fn record_value(
+        &mut self,
+        value: Value,
+        outcome: &mut SpeechOutcome,
+        emit: &crate::ai::audio::SpeechSink<'_>,
+    ) -> Result<()> {
         if self.complete
-            || value["version"] != 2
+            || value["version"] != 3
             || value["seq"].as_u64() != Some(self.sequence)
             || self.sequence > 4097
         {
@@ -90,10 +108,10 @@ impl Decoder {
             }
             match kind {
                 "audio" => {
-                    if value["sample_offset"].as_u64() != Some((self.pcm.len() / 2) as u64) {
-                        return Err(self.invalid("sample_offset"));
-                    }
-                    let encoded = value["audio_base64"]
+                    outcome.diagnostics.get_or_insert_with(|| json!({}))["streamResponse"] =
+                        crate::diagnostics::response::metadata(&value["response"], &[]);
+
+                    let encoded = value["response"]["audio_base64"]
                         .as_str()
                         .ok_or_else(|| self.invalid("audio_base64"))?;
                     let pcm = STANDARD
@@ -105,31 +123,26 @@ impl Decoder {
                     {
                         return Err(self.invalid("pcm_size"));
                     }
-                    self.merge_alignment(&value["alignment"], pcm.len());
+                    self.timings.append(&value["response"]);
                     self.pcm.extend_from_slice(&pcm);
-                    emit(&pcm, self.alignment.as_ref(), outcome)?;
+                    let alignment = self
+                        .timings
+                        .projection(&self.source, self.pcm.len() as f64 / 48000.0);
+                    emit(&pcm, Some(&alignment), outcome)?;
                 }
                 "complete" => {
-                    if self.pcm.is_empty()
-                        || value["total_samples"].as_u64() != Some((self.pcm.len() / 2) as u64)
-                    {
-                        return Err(self.invalid("total_samples"));
+                    if self.pcm.is_empty() {
+                        return Err(self.invalid("empty_audio"));
                     }
                     outcome.actual_model =
                         value["usage"]["actual_model"].as_str().map(str::to_owned);
                     outcome.cost_micros = value["usage"]["cost_micros"].as_u64();
                     outcome.diagnostics.get_or_insert_with(|| json!({}))["streamCompletion"] =
                         crate::diagnostics::response::metadata(&value, &[]);
-                    if let Ok(alignment) = serde_json::from_value::<
-                        crate::speech::alignment::SpeechAlignment,
-                    >(value["alignment"].clone())
-                        && alignment.valid(self.pcm.len() as f64 / 48000.0)
-                    {
-                        outcome.alignment = Some(alignment);
-                    } else {
-                        outcome.diagnostics.as_mut().unwrap()["alignmentValidation"] =
-                            json!({"status":"unavailable","reason":"invalid_or_missing_timing"});
-                    }
+                    let duration = self.pcm.len() as f64 / 48000.0;
+                    outcome.alignment = Some(self.timings.projection(&self.source, duration));
+                    outcome.diagnostics.as_mut().unwrap()["alignmentValidation"] =
+                        self.timings.diagnostics(duration);
                     self.complete = true;
                 }
                 "error" => {
@@ -144,50 +157,6 @@ impl Decoder {
         }
         self.sequence += 1;
         Ok(())
-    }
-
-    fn merge_alignment(&mut self, value: &Value, bytes: usize) {
-        use crate::speech::alignment::{CharacterAlignment, SpeechAlignment};
-        let Ok(mut chunk) = serde_json::from_value::<SpeechAlignment>(value.clone()) else {
-            self.alignment = None;
-            return;
-        };
-        if !chunk.valid(bytes as f64 / 48000.0) {
-            self.alignment = None;
-            return;
-        }
-        let offset = self.pcm.len() as f64 / 48000.0;
-        for lane in [&mut chunk.original, &mut chunk.normalized]
-            .into_iter()
-            .flatten()
-        {
-            lane.starts.iter_mut().for_each(|time| *time += offset);
-            lane.ends.iter_mut().for_each(|time| *time += offset);
-        }
-        if self.pcm.is_empty() {
-            self.alignment = Some(chunk);
-            return;
-        }
-        if let Some(previous) = &mut self.alignment {
-            if previous.source_text != chunk.source_text {
-                self.alignment = None;
-                return;
-            }
-            fn merge(previous: &mut Option<CharacterAlignment>, next: Option<CharacterAlignment>) {
-                if let (Some(a), Some(b)) = (previous.as_mut(), next) {
-                    a.characters.extend(b.characters);
-                    a.starts.extend(b.starts);
-                    a.ends.extend(b.ends);
-                } else {
-                    *previous = None;
-                }
-            }
-            merge(&mut previous.original, chunk.original);
-            merge(&mut previous.normalized, chunk.normalized);
-            if !previous.valid(offset + bytes as f64 / 48000.0) {
-                self.alignment = None;
-            }
-        }
     }
 
     pub(super) fn finish(
@@ -230,10 +199,11 @@ impl Decoder {
 
 pub(super) async fn receive(
     mut response: reqwest::Response,
+    source: &str,
     outcome: &mut SpeechOutcome,
     emit: &crate::ai::audio::SpeechSink<'_>,
 ) -> Result<Vec<u8>> {
-    let mut decoder = Decoder::default();
+    let mut decoder = Decoder::new(source);
     while let Some(chunk) = response.chunk().await.map_err(|cause| {
         let mut error = crate::diagnostics::response::network(&cause, "speech_stream");
         error.code = ErrorCode::UnknownOutcome;

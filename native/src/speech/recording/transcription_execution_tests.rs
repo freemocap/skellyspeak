@@ -83,7 +83,7 @@ fn server_on(
     (url, received, release, worker)
 }
 fn reply() -> serde_json::Value {
-    json!({"text":"Hola","request_id":"recognition-fixture","timing":{"text":"Hola","duration":1.0,"words":[{"word":"Hola","start":0.1,"end":0.6}]},"segments":[{"avg_logprob":-0.05,"no_speech_prob":0.01}]})
+    json!({"version":3,"response":{"text":"Hola","request_id":"recognition-fixture","duration":1.0,"words":[{"word":"Hola","start":0.1,"end":0.6}],"segments":[{"avg_logprob":-0.05,"no_speech_prob":0.01}]}})
 }
 fn setup(
     url: &str,
@@ -182,7 +182,7 @@ async fn chat_and_drill_share_recognition_but_publish_independently_and_reuse_af
     );
     let request = worker.join().unwrap();
     let wire = String::from_utf8_lossy(&request);
-    assert!(wire.contains("name=\"prompt\"\r\n\r\nHola"));
+    assert!(wire.contains("name=\"prompt\"\r\n\r\nes\nHola"));
     assert!(wire.contains("name=\"language\""));
     {
         let store = app.lock().unwrap();

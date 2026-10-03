@@ -58,6 +58,9 @@ async fn execute(
     if wav.is_empty() || wav.len() > 25 * 1024 * 1024 {
         return Err(error("Recording must contain audio and be at most 25 MB."));
     }
+    let duration = hound::WavReader::new(std::io::Cursor::new(&input.wav))
+        .ok()
+        .map(|reader| reader.duration() as f64 / reader.spec().sample_rate as f64);
     let form = Adapter::form(&target.model, input)?;
     let request = client.post(&target.url);
     let request = if key.is_empty() {
@@ -91,7 +94,7 @@ async fn execute(
         }
         error
     })?;
-    let mut result = Adapter::decode(&bytes);
+    let mut result = Adapter::decode_with_duration(&bytes, duration);
     match &mut result {
         Ok(value) => {
             value
@@ -164,9 +167,9 @@ mod tests {
             ] {
                 assert!(body.contains(expected), "{expected}");
             }
-            assert!(body.contains("name=\"response_format\"\r\n\r\njson"));
-            assert!(!body.contains("timestamp_granularities"));
-            let body = r#"{"text":"Hola, ¿cómo estás?"}"#;
+            assert!(body.contains("name=\"response_format\"\r\n\r\nverbose_json"));
+            assert!(body.contains("timestamp_granularities"));
+            let body = r#"{"version":3,"response":{"text":"Hola, ¿cómo estás?"}}"#;
             write!(
                 stream,
                 "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
@@ -202,12 +205,15 @@ mod tests {
 
     #[test]
     fn text_only_transcription_preserves_script_without_fabricating_evidence() {
-        let response =
-            transcription_response("{\"text\":\"അത് നല്ലതാണ്.\"}".as_bytes(), false).unwrap();
+        let response = transcription_response(
+            "{\"version\":3,\"response\":{\"text\":\"അത് നല്ലതാണ്.\"}}".as_bytes(),
+            false,
+        )
+        .unwrap();
         assert_eq!(response.result.text, "അത് നല്ലതാണ്.");
         assert!(response.result.timing.is_none());
         assert_eq!(
-            transcription_response(br#"{"text":" "}"#, false)
+            transcription_response(br#"{"version":3,"response":{"text":" "}}"#, false)
                 .unwrap()
                 .result
                 .text,
@@ -221,19 +227,18 @@ mod tests {
 mod service_timing_tests {
     use super::*;
     #[test]
-    fn normalized_service_timing_preserves_text_and_rejects_invalid_evidence() {
-        let mut value = serde_json::json!({"version":1,"text":"നമസ്കാരം","timing":{
-            "text":"നമസ്കാരം","duration":1.0,"words":[{"word":"നമസ്കാരം","start":0.1,"end":0.9}]}});
+    fn native_timing_projection_preserves_text_and_rejects_invalid_evidence() {
+        let mut value = serde_json::json!({"version":3,"response":{"text":"നമസ്കാരം",
+            "duration":1.0,"words":[{"word":"നമസ്കാരം","start":0.1,"end":0.9}]}});
         let result = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
         assert_eq!(result.result.timing.unwrap().words.len(), 1);
-        value["timing"]["words"][0]["end"] = serde_json::json!(2.0);
+        value["response"]["words"][0]["end"] = serde_json::json!(2.0);
         let out = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
         assert_eq!(out.result.text, "നമസ്കാരം");
         assert!(out.result.timing.is_none());
-        value["timing"]["words"] = serde_json::json!([]);
-        value["timing"]["text"] = serde_json::json!("different text");
-        let out = transcription_response(&serde_json::to_vec(&value).unwrap(), false).unwrap();
-        assert_eq!(out.result.text, "നമസ്കാരം");
-        assert!(out.result.timing.is_none());
+        assert_eq!(
+            out.diagnostics.unwrap()["timing"]["reason"],
+            "invalid_provider_timing"
+        );
     }
 }

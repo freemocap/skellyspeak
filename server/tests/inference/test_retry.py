@@ -76,7 +76,7 @@ async def test_group_retries_only_rejected_sibling_and_accounts_each_round(proxy
     upstream(monkeypatch, respond)
     a, b = envelope()['items']
     a['request']['model'], b['request']['model'] = 'busy', 'ready'
-    response = await proxy.post('/v1/operations', json={'version': 1, 'items': [a, b]})
+    response = await proxy.post('/v1/operations', json={'version': 3, 'items': [a, b]})
     events = [json.loads(line) for line in response.text.splitlines()]
     results = {e['response']['model']: e['response'] for e in events if e.get('type') == 'result'}
     assert calls == {'busy': 2, 'ready': 1}

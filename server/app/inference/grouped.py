@@ -10,7 +10,7 @@ import logging
 import re
 import uuid
 from collections.abc import AsyncIterator, Awaitable, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 
 import anyio
@@ -70,16 +70,16 @@ class Item:
     attempt_id: str
     contract: contracts.ChatRequest
     digest: str
-    # Protocol version 2 only: stream this prose item's text as delta events.
+    # Stream original provider frames for this prose item.
     deltas: bool = False
 
 
-SUPPORTED_VERSIONS = (1, 2)
+SUPPORTED_VERSIONS = (3,)
 
 
 def parse(payload: object, *, max_tokens: int) -> list[Item]:
     if not isinstance(payload, dict) or set(payload) != {"version", "items"} or type(payload["version"]) is not int or payload["version"] not in SUPPORTED_VERSIONS:
-        raise HTTPException(400, "Expected grouped protocol version 1 or 2.")
+        raise HTTPException(400, "Expected grouped protocol version 3.")
     version = payload["version"]
     entries = payload["items"]
     if not isinstance(entries, list) or not 1 <= len(entries) <= MAX_ITEMS:
@@ -89,7 +89,7 @@ def parse(payload: object, *, max_tokens: int) -> list[Item]:
     attempts: set[str] = set()
     for entry in entries:
         fields = {"operation_id", "attempt_id", "request"}
-        if not isinstance(entry, dict) or not (set(entry) == fields or version == 2 and set(entry) == fields | {"deltas"}):
+        if not isinstance(entry, dict) or not (set(entry) == fields or version == 3 and set(entry) == fields | {"deltas"}):
             raise HTTPException(400, "Invalid grouped operation fields.")
         deltas = entry.get("deltas", False)
         if type(deltas) is not bool:
@@ -183,7 +183,7 @@ DELTA_INTERVAL = 0.05
 @dataclass
 class _Outbound:
     """One item's ordered, lossless outbound state."""
-    pending: str = ""
+    pending: list[dict] = field(default_factory=list)
     sent: int = 0
     terminal: dict[str, object] | None = None
     last_flush: float = float("-inf")
@@ -192,8 +192,8 @@ class _Outbound:
 
 async def _ordered_results(items: list[Item], *, db: firestore.Client, who: quota.Principal, request_id: str,
                            execute: Callable[..., Awaitable[dict[str, object]]]) -> AsyncIterator[bytes]:
-    """Protocol version 2. Per item: deltas in order, offsets in Unicode scalar
-    values, the remaining text flushed before the terminal event, and nothing
+    """Protocol version 3. Per item: original frames in order, frame offsets,
+    pending frames flushed before the terminal event, and nothing
     for an item after its terminal event. Items are served round-robin, so a
     terminal waits at most one flush."""
     states = [_Outbound() for _ in items]
@@ -210,9 +210,9 @@ async def _ordered_results(items: list[Item], *, db: firestore.Client, who: quot
         runtime.emit("operation_started", request_id=request_id, item_index=item_index)
         event: dict[str, object] = {"operation_id": item.operation_id, "attempt_id": item.attempt_id}
 
-        def on_delta(text: str) -> None:
-            if state.terminal is None and text:
-                state.pending += text
+        def on_delta(frame: dict) -> None:
+            if state.terminal is None and frame is not None:
+                state.pending.append(frame)
                 notify()
         try:
             with anyio.CancelScope(shield=True):
@@ -238,10 +238,10 @@ async def _ordered_results(items: list[Item], *, db: firestore.Client, who: quot
 
     def delta_line(index: int) -> bytes:
         state = states[index]
-        event = {"type": "delta", "operation_id": items[index].operation_id, "attempt_id": items[index].attempt_id,
-                 "offset": state.sent, "text": state.pending}
+        event = {"type": "frames", "operation_id": items[index].operation_id, "attempt_id": items[index].attempt_id,
+                 "offset": state.sent, "frames": state.pending}
         state.sent += len(state.pending)
-        state.pending = ""
+        state.pending = []
         state.last_flush = anyio.current_time()
         return (json.dumps(event, ensure_ascii=False) + "\n").encode()
 
@@ -278,4 +278,4 @@ async def _ordered_results(items: list[Item], *, db: firestore.Client, who: quot
             tasks.cancel_scope.cancel()
             log.info(json.dumps({"event": "group_finished", "request_id": request_id,
                 "item_count": len(items), "delivered": delivered, "failures": failures,
-                "complete": complete, "version": 2}))
+                "complete": complete, "version": 3}))

@@ -1,49 +1,25 @@
-"""Validate an upload and decode at most 121 seconds of one audio track."""
+"""Validate bounded native PCM WAV for admission; forward original bytes."""
 
 from __future__ import annotations
 
 import math
 import re
-import subprocess
+import io
+import wave
 from dataclasses import dataclass
 from email import policy
 from email.parser import BytesParser
 
 from fastapi import HTTPException
-from server.app.diagnostics.exceptions import DiagnosticRuntimeError
 
 MAX_SECONDS = 120
 SAMPLE_RATE = 16_000
 MICROS_PER_HOUR = 111_000
 MAX_COST_MICROS: int = math.ceil(MAX_SECONDS * MICROS_PER_HOUR / 3600)
-DECODER_STARTUP_TIMEOUT_SECONDS = 60
-
-
-def verify_decoder() -> None:
-    # Cold container starts can take longer than normal decoding startup. Keep
-    # this bounded below Cloud Run's startup probe budget; never serve without
-    # a working decoder or silently retry a failed check.
-    try:
-        subprocess.run(["ffmpeg", "-version"], capture_output=True,
-                       timeout=DECODER_STARTUP_TIMEOUT_SECONDS, check=True)
-    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, OSError) as cause:
-        error = DiagnosticRuntimeError("Audio decoder startup verification failed.")
-        error.diagnostics = {
-            "stage": "decoder_startup",
-            "timeout_seconds": DECODER_STARTUP_TIMEOUT_SECONDS,
-            "reason": ("timeout" if isinstance(cause, subprocess.TimeoutExpired)
-                       else "nonzero_exit" if isinstance(cause, subprocess.CalledProcessError)
-                       else "execution_failed"),
-            "exit_code": cause.returncode if isinstance(cause, subprocess.CalledProcessError) else None,
-            "errno": cause.errno if isinstance(cause, OSError) else None,
-            "output_omitted": True,
-        }
-        raise error from cause
-
-
 @dataclass(frozen=True)
 class AudioInput:
-    pcm: bytes
+    wav: bytes
+    duration: float
     fields: dict[str, str | list[str]]
     cost_micros: int
 
@@ -60,7 +36,7 @@ def decode_upload(body: bytes, *, content_type: str, language_code_width: int = 
     granularities: list[str] = []
     for part in message.iter_parts():
         name = part.get_param("name", header="content-disposition")
-        if name not in {"file", "model", "language", "prompt", "response_format", "timestamp_granularities[]"} or name in values:
+        if name not in {"file", "model", "language", "prompt", "response_format", "timestamp_granularities[]", "timestamps_granularity", "tag_audio_events", "diarize", "no_verbatim"} or name in values:
             raise HTTPException(status_code=400, detail="Unknown or duplicate audio field.")
         value = part.get_payload(decode=True)
         if not isinstance(value, bytes) or part.defects or part.is_multipart():
@@ -81,41 +57,26 @@ def decode_upload(body: bytes, *, content_type: str, language_code_width: int = 
     model = fields.get("model", "")
     if not model or len(model) > 256 or any(c.isspace() or ord(c) < 32 for c in model):
         raise HTTPException(status_code=400, detail="model must be a nonempty identifier of at most 256 characters.")
-    if fields.get("response_format") not in {"json", "verbose_json"}:
+    if "response_format" in fields and fields["response_format"] not in {"json", "verbose_json"}:
         raise HTTPException(status_code=400, detail="Transcription requires json or verbose_json output.")
     # [@groq_transcription_api] Repeated multipart fields carry both granularities.
     if granularities and fields.get("response_format") != "verbose_json":
         raise HTTPException(status_code=400, detail="Timestamp granularities require verbose_json.")
     if "language" in fields and not re.fullmatch(r"[a-z]{2," + str(language_code_width) + "}(?:-[A-Za-z0-9]{1,8})*", fields["language"]):
         raise HTTPException(status_code=400, detail="Audio language code is invalid for the selected provider.")
-    if audio.startswith(b"RIFF") and audio[8:12] == b"WAVE":
-        container = "wav"
-    elif audio.startswith(bytes.fromhex("1a45dfa3")):
-        container = "matroska"
-    elif audio[4:8] == b"ftyp":
-        container = "mov"
-    elif audio.startswith(b"OggS"):
-        container = "ogg"
-    else:
-        raise HTTPException(status_code=400, detail="Unsupported audio container.")
+    # Clients supply native PCM WAV. Validate the declared bytes and duration for
+    # admission; do not run a media decoder or alter samples on the server.
     try:
-        decoded = subprocess.run(
-            ["ffmpeg", "-nostdin", "-v", "error", "-xerror", "-threads", "1",
-             "-max_alloc", "67108864", "-probesize", "1048576", "-analyzeduration", "5000000",
-             "-protocol_whitelist", "pipe", "-f", container, "-i", "pipe:0",
-             "-map", "0:a:0", "-t", str(MAX_SECONDS + 1), "-ac", "1", "-ar", str(SAMPLE_RATE),
-             "-f", "s16le", "pipe:1"],
-            input=audio, capture_output=True, timeout=20, check=True,
-        )
-    except subprocess.TimeoutExpired as exc:
-        raise HTTPException(status_code=400, detail="Audio decoding exceeded its time limit.") from exc
-    except subprocess.CalledProcessError as exc:
-        raise HTTPException(status_code=400, detail="The recording cannot be decoded.") from exc
-    pcm = decoded.stdout
-    duration = len(pcm) / (2 * SAMPLE_RATE)
-    if duration <= 0 or duration > MAX_SECONDS:
-        raise HTTPException(status_code=400, detail=f"Recording must contain 0–{MAX_SECONDS} seconds of audio.")
-    return AudioInput(
-        pcm=pcm, fields={**fields, **({"timestamp_granularities[]": granularities} if granularities else {})},
-        cost_micros=math.ceil(max(10, math.ceil(duration)) * MICROS_PER_HOUR / 3600),
-    )
+        with wave.open(io.BytesIO(audio), 'rb') as reader:
+            if (reader.getnchannels() != 1 or reader.getsampwidth() != 2
+                    or reader.getcomptype() != 'NONE' or not 8000 <= reader.getframerate() <= 192000):
+                raise ValueError()
+            count = reader.getnframes()
+            duration = count / reader.getframerate()
+            if not 0 < duration <= MAX_SECONDS or len(reader.readframes(count)) != count * 2:
+                raise ValueError()
+    except (wave.Error, EOFError, ValueError):
+        raise HTTPException(400, "Recording requires bounded mono 16-bit PCM WAV.") from None
+    return AudioInput(wav=audio, duration=duration,
+        fields={**fields, **({"timestamp_granularities[]": granularities} if granularities else {})},
+        cost_micros=math.ceil(max(10, math.ceil(duration)) * MICROS_PER_HOUR / 3600))

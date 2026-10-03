@@ -108,12 +108,13 @@ fn decode_available(value: &serde_json::Value, default: &str) -> Result<Vec<Stri
         crate::diagnostics::response::invalid(
             "speech_availability",
             "audio.routing",
-            "speech routing version 1 with available model IDs; update the SkellySpeak service",
+            "audio version 3 and speech routing version 1 with available model IDs; update the SkellySpeak service",
             value,
         )
     };
     if value["protocol"] != "skellyspeak"
         || value["version"] != 1
+        || value["audio"]["version"] != 3
         || value["audio"]["routing"]["version"] != 1
     {
         return Err(invalid());
@@ -174,7 +175,7 @@ mod tests {
     }
     #[test]
     fn inventory_is_explicit_bounded_and_does_not_imply_custom_support() {
-        let mut value = json!({"protocol":"skellyspeak","version":1,"audio":{"routing":{
+        let mut value = json!({"protocol":"skellyspeak","version":1,"audio":{"version":3,"routing":{
             "version":1,"available_models":["scribe_v2"],"accepts_custom_transcription_models":false}}});
         assert_eq!(decode_available(&value, "custom").unwrap(), ["scribe_v2"]);
         value["audio"]["routing"]["accepts_custom_transcription_models"] = json!(true);
@@ -234,7 +235,7 @@ mod integration_tests {
             assert!(request.starts_with("GET /v1/protocol "));
             assert!(!request.contains("PRIVATE_LEARNER_TEXT"));
             assert!(!request.to_lowercase().contains("authorization:"));
-            let body = r#"{"protocol":"skellyspeak","version":1,"audio":{"routing":{"version":1,"available_models":["scribe_v2"],"accepts_custom_transcription_models":false}}}"#;
+            let body = r#"{"protocol":"skellyspeak","version":1,"audio":{"version":3,"routing":{"version":1,"available_models":["scribe_v2"],"accepts_custom_transcription_models":false}}}"#;
             write!(
                 stream,
                 "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",

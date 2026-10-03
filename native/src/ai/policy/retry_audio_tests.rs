@@ -54,7 +54,7 @@ async fn wrapped_busy_transcription_reuses_recording_and_keeps_provider_reason()
                     "diagnostics":{"detail":{"request_id":"eleven-busy"},"http":{"status":429}}}),
                 )
             } else {
-                (200, json!({"text":"Hello"}))
+                (200, json!({"version":3,"response":{"text":"Hello"}}))
             };
             let body = body.to_string();
             socket.write_all(format!("HTTP/1.1 {status} Response\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();

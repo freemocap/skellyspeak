@@ -26,23 +26,23 @@ function FollowText({ text, children, source }: { text: string; children: ReactN
     return value && select(value) ? value : null
   }, () => null)
   const host = useRef<HTMLSpanElement>(null)
-  const [{ rects, motion }, setGeometry] = useState<{ rects: DOMRect[]; motion: 'word' | 'layout' }>({ rects: [], motion: 'word' })
+  const [rects, setGeometry] = useState<DOMRect[]>([])
   // Keep invisible geometry through timing gaps so the next word can slide from
   // the previous position. Different source text must start with fresh geometry.
-  useLayoutEffect(() => { setGeometry({ rects: [], motion: 'word' }) }, [text, source?.text, source?.start])
+  useLayoutEffect(() => { setGeometry([]) }, [text, source?.text, source?.start])
   useLayoutEffect(() => {
     const root = host.current
     if (!root || !follow) return
     const selected = select(follow)
-    if (!selected) { setGeometry({ rects: [], motion: 'word' }); return }
+    if (!selected) { setGeometry([]); return }
     const { start, end } = selected
-    const measure = (animate = false) => {
+    const measure = () => {
       const nodes = Array.from(root.querySelectorAll('[data-speech-source]')).filter(element => {
         const helper = element.closest('[data-reading-tools], .saved-word-help, dialog')
         return !helper || !root.contains(helper)
       })
         .flatMap(element => Array.from(element.childNodes).filter((node): node is Text => node.nodeType === Node.TEXT_NODE))
-      if (nodes.map(node => node.data).join('') !== text) { setGeometry({ rects: [], motion: 'word' }); return }
+      if (nodes.map(node => node.data).join('') !== text) { setGeometry([]); return }
       let cursor = 0
       const boxes: DOMRect[] = []
       for (const node of nodes) {
@@ -62,24 +62,40 @@ function FollowText({ text, children, source }: { text: string; children: ReactN
       }
       const origin = readingLayerOrigin(root.closest('dialog, [popover]') ?? document.body)
       const next = boxes.map(box => new DOMRect(Math.max(left, box.left) - origin.left, Math.max(top, box.top) - origin.top, Math.min(right, box.right) - Math.max(left, box.left), Math.min(bottom, box.bottom) - Math.max(top, box.top))).filter(box => box.width > 0 && box.height > 0)
-      setGeometry(previous => {
-        if (previous.rects.length === next.length && previous.rects.every((box, i) => box.x === next[i].x && box.y === next[i].y && box.width === next[i].width && box.height === next[i].height)) return previous
-        return { rects: next, motion: animate ? 'word' : 'layout' }
-      })
+      setGeometry(previous => previous.length === next.length && previous.every((box, i) => box.x === next[i].x && box.y === next[i].y && box.width === next[i].width && box.height === next[i].height) ? previous : next)
     }
-    measure(true)
+    measure()
     const reposition = () => measure()
-    const resize = new ResizeObserver(reposition); resize.observe(root); if (root.parentElement) resize.observe(root.parentElement)
+    const resize = new ResizeObserver(reposition)
+    resize.observe(root)
+    for (let ancestor = root.parentElement; ancestor; ancestor = ancestor.parentElement) {
+      resize.observe(ancestor)
+      if (ancestor.matches('.msg, dialog, [popover]')) break
+    }
+    // A message above this one can grow and move the bubble without resizing it.
+    // Check only the cheap host box each frame; remeasure word ranges on movement.
+    let lastBox = root.getBoundingClientRect()
+    let frame = 0
+    const trackPosition = () => {
+      const box = root.getBoundingClientRect()
+      if (box.x !== lastBox.x || box.y !== lastBox.y || box.width !== lastBox.width || box.height !== lastBox.height) {
+        lastBox = box
+        measure()
+      }
+      frame = requestAnimationFrame(trackPosition)
+    }
+    frame = requestAnimationFrame(trackPosition)
     window.addEventListener('resize', reposition); window.addEventListener('scroll', reposition, true)
     window.visualViewport?.addEventListener('resize', reposition)
     window.visualViewport?.addEventListener('scroll', reposition)
     return () => {
       resize.disconnect(); window.removeEventListener('resize', reposition); window.removeEventListener('scroll', reposition, true)
+      cancelAnimationFrame(frame)
       window.visualViewport?.removeEventListener('resize', reposition)
       window.visualViewport?.removeEventListener('scroll', reposition)
     }
   }, [follow, text, children, source?.text, source?.start])
   return <InsideFollowText value={true}><span ref={host}>{children}</span>
-    {rects.length > 0 && createPortal(<div aria-hidden="true" className="speech-follow-overlay" data-active={follow !== null} data-motion={motion}>{rects.map((rect, i) => <div key={i} className="speech-follow-word" style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }} />)}</div>, host.current?.closest('dialog, [popover]') ?? document.body)}
+    {rects.length > 0 && createPortal(<div aria-hidden="true" className="speech-follow-overlay" data-active={follow !== null}>{rects.map((rect, i) => <div key={i} className="speech-follow-word" style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }} />)}</div>, host.current?.closest('dialog, [popover]') ?? document.body)}
   </InsideFollowText>
 }

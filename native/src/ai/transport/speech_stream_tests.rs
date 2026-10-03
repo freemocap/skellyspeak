@@ -3,9 +3,9 @@ use std::sync::Mutex;
 
 fn records() -> Vec<Value> {
     vec![
-        json!({"version":2,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
-        json!({"version":2,"seq":1,"type":"audio","sample_offset":0,"audio_base64":"AQACAA==","receipt":{"request_id":"partial-receipt"}}),
-        json!({"version":2,"seq":2,"type":"complete","total_samples":2,"alignment":null,"usage":{"request_id":"receipt","cost_micros":null,"allowance_micros":10}}),
+        json!({"version":3,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+        json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":"AQACAA=="},"receipt":{"request_id":"partial-receipt"}}),
+        json!({"version":3,"seq":2,"type":"complete","total_samples":2,"alignment":null,"usage":{"request_id":"receipt","cost_micros":null,"allowance_micros":10}}),
     ]
 }
 
@@ -51,12 +51,12 @@ fn missing_terminal_reordered_offsets_and_trailing_records_fail_closed() {
             0 => {
                 records.pop();
             }
-            1 => records[1]["sample_offset"] = json!(1),
+            1 => records[1]["response"]["audio_base64"] = json!(""),
             2 => records[1]["seq"] = json!(2),
-            3 => records[2]["total_samples"] = json!(3),
+            3 => records[2]["seq"] = json!(3),
             4 => records.push(records[2].clone()),
             _ => {
-                records[2] = json!({"version":2,"seq":2,"type":"error","status":429,"provider_error":{"code":"rate_limit","request_id":"failure-id"}})
+                records[2] = json!({"version":3,"seq":2,"type":"error","status":429,"provider_error":{"code":"rate_limit","request_id":"failure-id"}})
             }
         }
         let mut decoder = Decoder::default();
@@ -86,7 +86,7 @@ fn frame_and_pcm_limits_are_enforced_before_delivery() {
             .is_err()
     );
     let mut values = records();
-    values[1]["audio_base64"] = json!("AQ==");
+    values[1]["response"]["audio_base64"] = json!("AQ==");
     let mut decoder = Decoder::default();
     let wire = values.iter().map(|v| format!("{v}\n")).collect::<String>();
     assert!(
@@ -182,4 +182,50 @@ async fn real_http_delivers_audio_while_the_terminal_is_blocked() {
     assert!(outcome.audio.is_ok());
     assert_eq!(outcome.provider_id.as_deref(), Some("receipt"));
     assert!(outcome.cost_micros.is_none());
+}
+
+#[test]
+fn completed_stream_alignment_survives_cache_and_reference_inspection() {
+    use crate::speech::{
+        alignment::SpeechAudio, analysis::audio_inspection, recording::owner::RecordingOwner,
+    };
+    let mut decoder = Decoder::new("one two");
+    let mut outcome = SpeechOutcome::empty();
+    let pcm = STANDARD.encode(vec![0u8; 4800]);
+    let values = [
+        records()[0].clone(),
+        json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":pcm,"alignment":{
+            "characters":["one "],"character_start_times_seconds":[0.0],"character_end_times_seconds":[0.1]}}}),
+        json!({"version":3,"seq":2,"type":"audio","response":{"audio_base64":pcm,"alignment":{
+            "characters":["two"],"character_start_times_seconds":[0.1],"character_end_times_seconds":[0.30000000000000004]}}}),
+        json!({"version":3,"seq":3,"type":"audio","response":{"audio_base64":pcm,"alignment":{"characters":[],"character_start_times_seconds":[],"character_end_times_seconds":[]}}}),
+        json!({"version":3,"seq":4,"type":"complete","usage":{}}),
+    ];
+    for value in values {
+        decoder
+            .feed(format!("{value}\n").as_bytes(), &mut outcome, &|_, _, _| {
+                Ok(())
+            })
+            .unwrap();
+    }
+    let wav = decoder.finish(&mut outcome, &|_, _, _| Ok(())).unwrap();
+    let saved = SpeechAudio::new(&wav, outcome.alignment);
+    let replay = SpeechAudio::decode(&serde_json::to_vec(&saved).unwrap()).unwrap();
+    let (mut inspection, _) = audio_inspection::inspect_wav(
+        &replay.wav().unwrap(),
+        "reference",
+        &RecordingOwner::DrillItem("fixture".into()),
+    )
+    .unwrap();
+    let words = replay
+        .alignment
+        .unwrap()
+        .words(inspection.duration)
+        .unwrap();
+    audio_inspection::attach_words(&mut inspection, Some(&words));
+    assert_eq!(inspection.word_timing.words.len(), 2);
+    assert_eq!(inspection.word_timing.words[0].word, "one");
+    assert_eq!(inspection.word_timing.words[1].word, "two");
+    assert_eq!(inspection.word_timing.words[1].start, 0.1);
+    assert_eq!(inspection.word_timing.words[1].end, 0.3);
 }

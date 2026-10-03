@@ -23,6 +23,7 @@ use std::{
 };
 
 const CAPACITY: usize = 256;
+const MICROPHONE_LOG_TARGET: &str = "skellyspeak_core::speech::recording::audio";
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -322,7 +323,7 @@ pub fn initialize(fallback_root: &Path) -> Result<PathBuf> {
     {
         log::set_logger(&NATIVE_LOGGER)
             .map_err(|_| unavailable_at("native_logger_already_installed"))?;
-        log::set_max_level(log::LevelFilter::Trace);
+        log::set_max_level(log::LevelFilter::Info);
     }
     // Panic messages explain the failure; redact sensitive spans before persistence.
     std::panic::set_hook(Box::new(|info| {
@@ -371,13 +372,17 @@ pub fn native_event(code: &'static str, metrics: &[(&'static str, u64)]) {
 struct NativeLogger;
 static NATIVE_LOGGER: NativeLogger = NativeLogger;
 impl log::Log for NativeLogger {
-    fn enabled(&self, _: &log::Metadata<'_>) -> bool {
-        true
+    fn enabled(&self, metadata: &log::Metadata<'_>) -> bool {
+        metadata.level() <= log::Level::Warn
+            || (metadata.level() == log::Level::Info && metadata.target() == MICROPHONE_LOG_TARGET)
     }
     fn log(&self, record: &log::Record<'_>) {
+        if !self.enabled(record.metadata()) {
+            return;
+        }
         // Target/module may be caller-controlled in dependencies: only local microphone
         // target receives an authored category; arbitrary payloads are never persisted.
-        let code = if record.target() == "skellyspeak_core::speech::recording::audio" {
+        let code = if record.target() == MICROPHONE_LOG_TARGET {
             "microphone_log"
         } else {
             "native_log"
@@ -388,7 +393,7 @@ impl log::Log for NativeLogger {
             event["message"] = serde_json::json!(response::scrub(&record.args().to_string(), &[]));
             event["redaction"] = serde_json::json!("sensitive spans removed");
         }
-        if record.target() == "skellyspeak_core::speech::recording::audio" {
+        if record.target() == MICROPHONE_LOG_TARGET {
             let message = record.args().to_string();
             if let Some(rate) = message
                 .strip_prefix("[mic] capture started at ")
@@ -463,6 +468,21 @@ pub fn read_frontend_diagnostics(after_sequence: Option<u64>) -> Result<Vec<Diag
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn native_logger_keeps_actionable_levels_without_dependency_trace_volume() {
+        use log::Log;
+        let allowed = |level, target| {
+            let metadata = log::Metadata::builder().level(level).target(target).build();
+            NATIVE_LOGGER.enabled(&metadata)
+        };
+        assert!(allowed(log::Level::Error, "jni::wrapper::jnienv"));
+        assert!(allowed(log::Level::Warn, "jni::wrapper::jnienv"));
+        assert!(allowed(log::Level::Info, MICROPHONE_LOG_TARGET));
+        assert!(!allowed(log::Level::Info, "jni::wrapper::jnienv"));
+        assert!(!allowed(log::Level::Debug, MICROPHONE_LOG_TARGET));
+        assert!(!allowed(log::Level::Trace, "jni::wrapper::jnienv"));
+    }
+
     fn event() -> FrontendDiagnostic {
         FrontendDiagnostic {
             diagnostics: None,

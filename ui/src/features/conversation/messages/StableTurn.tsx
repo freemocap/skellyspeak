@@ -1,8 +1,8 @@
 import { useCallback, useLayoutEffect, useRef, type ComponentProps } from 'react'
 
-/** Automatic hydration may grow a bubble, but must not collapse space already
- * allocated to it. Direct interaction and viewport resizing release this floor,
- * so the learner can still collapse aids and inspectors normally. */
+/** Keep a bubble steady while its reply or reading aids are still arriving.
+ * Once loading ends, release the temporary footprint so finished bubbles fit
+ * their visible content. Direct interaction and resizing also release it. */
 export function StableTurn({ children, ...props }: ComponentProps<'div'>) {
   const root = useRef<HTMLDivElement>(null)
   const floors = useRef(new Map<string, { width: number; height: number }>())
@@ -13,7 +13,8 @@ export function StableTurn({ children, ...props }: ComponentProps<'div'>) {
       const width = bubble.getBoundingClientRect().width
       if (previous && previous.width !== width) bubble.style.minBlockSize = ''
       // Inspector geometry is explicitly controlled by the learner.
-      if (bubble.classList.contains('inspecting')) {
+      const hydrating = bubble.matches('[aria-busy="true"], .aids-reserved') || bubble.querySelector('.hydrating-slot, .reply-unrevealed, .is-hydrating') !== null
+      if (bubble.classList.contains('inspecting') || !hydrating) {
         floors.current.delete(side); bubble.style.minBlockSize = ''; continue
       }
       const height = Math.max(bubble.getBoundingClientRect().height, previous?.width === width ? previous.height : 0)

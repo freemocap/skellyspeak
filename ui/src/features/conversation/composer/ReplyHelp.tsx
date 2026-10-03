@@ -50,7 +50,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
   if (!brief && !briefPending && !onExplainGrammar && !onSuggestReply && !errors.length && !grammar && !replies && !starters?.length && !lanes) return null
   if (!inline && !open) return <div className="reply-help-folded">
     <button type="button" className="reply-help-open" aria-expanded={false} aria-controls={id}
-      onClick={() => setOpen(true)}><ToolbarIcon name="help" size={15} />{tr("Help with this reply")}</button>
+      onClick={() => setOpen(true)}><ToolbarIcon name="help" size={15} /><span>{tr("Help with this reply")}</span></button>
   </div>
 
   return <section id={id} className="reply-help" aria-label={tr("Help with this reply")}>

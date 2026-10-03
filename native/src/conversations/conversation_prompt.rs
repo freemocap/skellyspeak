@@ -4,7 +4,7 @@ use crate::{
     configuration::{ConversationPromptContent, LanguageContext, Registry},
     model::*,
 };
-pub(crate) const VERSION: &str = "conversation-39-continuity";
+pub(crate) const VERSION: &str = "conversation-40-readable-single-message";
 
 /// No database, topic selection, provider, UI state or inference.
 fn render(
@@ -19,9 +19,9 @@ fn render(
     let mut parts = vec![content.base.clone()];
     if let Some(persona) = persona {
         parts.push(format!(
-            "{}\nPersona background (data): {}",
+            "{}\n\n## Partner background\n{}",
             content.persona,
-            serde_json::to_string(&persona)?
+            super::persona_projection::prompt_text(&persona)
         ));
     }
     let mut seen = std::collections::HashSet::new();
@@ -48,9 +48,9 @@ fn render(
     }
     if let Some(topic) = topic {
         parts.push(format!(
-            "{} {}",
+            "{}\n> {}",
             content.subject,
-            serde_json::to_string(topic)?
+            topic.replace('\n', "\n> ")
         ));
     }
     if let Some(angle) = angle {
@@ -196,13 +196,17 @@ mod tests {
                 settings.difficulty = level;
                 for opening in [true, false] {
                     let prompt = system(&r, &ctx, &settings, &persona, opening, "test").unwrap();
-                    assert!(prompt.contains("Take part in an ongoing conversation by messages with an adult learning the indicated language."));
+                    assert!(prompt.contains("You are the conversation partner in an ongoing message exchange with an adult learning the indicated language."));
                     assert_eq!(
                         prompt.contains("Start directly, without a greeting or introduction."),
                         opening
                     );
                     assert_eq!(
                         prompt.contains("Messages marked assistant are your own earlier words"),
+                        !opening
+                    );
+                    assert_eq!(
+                        prompt.contains("Write exactly one next message from the conversation partner, then stop."),
                         !opening
                     );
                     assert!(
@@ -216,7 +220,7 @@ mod tests {
                     }
                     assert!(!prompt.contains("Imagina una conversación"));
                     assert!(!prompt.contains("Tu interlocutor"));
-                    assert!(!prompt.contains("Persona background (data):"));
+                    assert!(!prompt.contains("## Partner background"));
                     if language != "spanish" {
                         assert!(!prompt.contains("Spanish"));
                         assert!(!prompt.contains("spanish-spain"));
@@ -342,14 +346,14 @@ mod tests {
         let persona = r.starter_persona("arabic").unwrap();
         let mut settings = r.defaults("arabic", "english").unwrap();
         settings.direction.use_persona_details = true;
-        let expected =
-            serde_json::to_string(&super::super::persona_projection::project(&persona, "one"))
-                .unwrap();
+        let expected = super::super::persona_projection::prompt_text(
+            &super::super::persona_projection::project(&persona, "one"),
+        );
         for level in crate::configuration::difficulty::LEVELS {
             settings.difficulty = level;
             for opening in [true, false] {
                 let prompt = system(&r, &ctx, &settings, &persona, opening, "one").unwrap();
-                assert!(prompt.contains(&format!("Persona background (data): {expected}")));
+                assert!(prompt.contains(&format!("## Partner background\n{expected}")));
             }
         }
     }
@@ -431,7 +435,7 @@ mod tests {
                 let prompt = system(&r, &ctx, &settings, &persona, true, "test-chat").unwrap();
                 assert!(prompt.contains("Beginner difficulty"));
                 assert!(prompt.contains("past events"));
-                assert!(!prompt.contains("Persona background"));
+                assert!(!prompt.contains("## Partner background"));
                 assert!(prompt.contains(&r.topic("food").unwrap().subject));
                 assert!(!prompt.contains("starterId"));
                 settings.direction.use_persona_details = true;

@@ -53,9 +53,12 @@ domain subfolders are deferred. Working notes belong in [docs/notes/](../docs/no
 
 `GET /v1/diagnostics` and `GET /v1/me` require the same signed, unrevoked
 session as chat. Together they use a separate Firestore admission lane, defaulting
-to 120 calls per account per UTC day and 600 calls globally. The owner panel can
+to 480 calls per account per UTC day and 600 calls globally. The owner panel can
 change those defaults through effective service overrides. They do not debit the
 inference/account daily request counter.
+
+The deployment configuration defaults to a maximum of 24 registered accounts.
+Saved owner-panel overrides take precedence over deployment defaults.
 
 Signed-session short-window admission has two lanes per process:
 
@@ -103,12 +106,8 @@ The separate owner-only administration surface is documented below.
 
 ## Verification and deployment
 
-Startup verifies FFmpeg with a single, bounded 60-second check before accepting
-requests. This accommodates slower cold starts; a timeout, missing executable or
-nonzero exit still fails startup. Runtime events `decoder_check_started`,
-`decoder_check_finished` and `decoder_check_failed` report completion/failure
-duration. Failure diagnostics retain the timeout budget, reason, exit code or OS
-error number, and explicitly mark process output as omitted.
+Startup has no media decoder dependency. Uploaded PCM WAV is validated in-process
+before provider dispatch; audio interpretation belongs to native code.
 
 From the repository root:
 
@@ -116,7 +115,7 @@ From the repository root:
 uv run --project server --frozen --group dev pytest server -q
 ```
 
-Requires Python >=3.12 and ffmpeg. Firestore emulator tests skip unless
+Requires Python >=3.12. No media decoder is required. Firestore emulator tests skip unless
 `SKELLYSPEAK_FIRESTORE_TEST=1`; the GitHub workflow runs these with the emulator.
 It also builds the container, checks liveness and unauthenticated rejection before
 deploying. The runtime image includes an explicit list of application modules;
@@ -201,18 +200,22 @@ Native client grouped integration is implemented; full live-provider and disconn
 
 ### Grouped HTTP contract
 
-The authenticated POST body has exactly `version: 1` and `items` (1–8), capped at
+The authenticated POST body has exactly `version: 3` and `items` (1–8), capped at
 1 MiB for the whole envelope. Each item has `operation_id` (32 lowercase hex),
 `attempt_id` (the timestamped identity above) and `request` (the validated text-chat
 payload). Operation and attempt identities must be unique within the envelope.
-This endpoint supports non-streaming text chat. Every text model ID goes unchanged
+An item may request streaming with `deltas: true` for prose. Structured requests use the ordinary result event. Every text model ID goes unchanged
 to OpenRouter; model names do not select a different provider. Audio is not encoded
 in these JSON groups.
 
 Responses are newline-delimited JSON (`application/x-ndjson`). Each item independently
 produces an event containing its operation/attempt identities and one of:
 
-- `type: result`, with `response` containing the bounded provider JSON.
+- `type: frames`, with `offset` counting prior provider JSON frames and `frames`
+  containing the original bounded payloads, including role/metadata/usage frames.
+- `type: result`, with `response` containing the bounded provider JSON for ordinary
+  requests. Streamed requests end with `stream_complete: true` and observed provider
+  metadata/usage; native reconstructs the completion from its received frames.
 - `type: duplicate`, with recorded `state`; no provider execution or result replay.
 - `type: error`, with a fixed `code`, HTTP `status`, and bounded `retry_after` when
   supplied by admission. Raw exception and provider-error text are not exposed.
@@ -461,7 +464,7 @@ same events immediately to `.local/logs/server-.../server-logging.jsonl`. Startu
 prints the selected directory; `SKELLYSPEAK_LOG_RUN_DIR` selects an explicit run
 directory. Existing run files are never overwritten or automatically deleted.
 
-Coverage includes Uvicorn startup/shutdown, decoder verification, request arrival,
+Coverage includes Uvicorn startup/shutdown, request arrival,
 response headers and full response completion, disconnects/cancellation, streamed
 byte/chunk progress (at most once per five seconds while chunks arrive), provider
 submission/status/duration, budget reservation/settlement, and grouped operation
@@ -528,52 +531,47 @@ the aggregate custom connection healthy when a provider fails. Provider-error lo
 retain the sanitized error body for investigation.
 
 
-## Dedicated ElevenLabs audio routes (September 18, 2026)
+## Audio relay and client interpretation
 
 The native service client uses `POST /v1/audio/speech` with exactly `model`,
-`text`, `language` (the captured language and variety, such as `Spanish — Mexico`)
-and `language_tag` (canonical identity, such as `es-MX`). The tag validates model
-capability; it is separate from the existing provider accent cue.
-Local request sharing and audio retention remain app-owned. The service owns
-its configured voice and processing; cached results do not imply provider freshness.
-The server supplies its configured voice profile and prefixes an Eleven v3 accent
-cue to the provider input; stored message text stays unchanged. The cue is included
-in the character-based allowance estimate. Missing/invalid variety, unsupported
-models and oversized tagged input fail before reservation. This wire change requires
-matching native and server versions. Accent tags guide pronunciation but still need
-listening verification with the configured voice. [@elevenlabs_accent_tags_20260920] The response contains
-version 1, base64 mono 24 kHz WAV, and a usage receipt. Existing OpenRouter chat
-routes are unchanged. Provider credentials remain on the service.
+prepared `text`, and nullable provider `language_code`. Native validates language
+capability and builds accent instructions while retaining the unchanged source text
+for display, alignment and cache identity. The server supplies its configured voice,
+checks request bounds and estimates allowance from the actual submitted text.
+Provider credentials remain on the service.
 
-Clients may opt into streamed speech with `Accept: application/x-ndjson` on the
-same route. Protocol discovery advertises `audio.speech_stream_versions: [2]`.
-Ordered PCM records arrive before completion; the terminal record carries final
-alignment and usage. Disconnects and partial failures retain unknown spending
-instead of reporting successful audio. The current native player has not yet
-adopted this path. See the [stream contract and staged implementation](../docs/notes/streaming-speech-implementation.md).
+Audio protocol version 3 returns `{version, response, usage}`: `response` is the
+bounded provider JSON with credentials removed. The server does not decode PCM,
+assemble WAV, merge timestamps, derive words, or drop malformed alignment. Shared
+native code performs these operations and retains explicit validation diagnostics.
 
-Transcription selects its adapter from each request's model, independently of the
-client access route. `whisper-large-v3` is the recommended default; `scribe_v2`
-uses ElevenLabs. Other model identifiers retain the Groq forwarding behavior.
-`STT_PROVIDER`, `STT_MODEL` and `STT_MICROS_PER_HOUR` no longer select or override
-transcription. Existing private environment files do not need to be rewritten.
+With `Accept: application/x-ndjson`, speech starts with a version 3 `start` record
+(format `pcm_s16le`, 24 kHz, mono). Each ordered `audio` record carries `response`
+(original provider frame) and a safe receipt. The final `complete` carries `usage`.
+The server keeps only bounded frame buffers. Native owns PCM accumulation, WAV
+creation, recording-clock character timing and projection to the original source.
+The existing player owns adaptive buffering and synchronized highlighting.
+Disconnects preserve uncertain spending and cancel upstream delivery.
 
-Every transcription request requires an explicit language tag. Adapters convert
-it to their provider's language field; neither selects automatic detection.
-Both return `{version, text, timing, usage}` with normalized optional word timing.
-Provider metadata remains in the redacted usage receipt. Scribe uses verbatim
-output (`no_verbatim=false`) to preserve learner disfluencies. [@elevenlabs_non_verbatim]
-Model selection belongs to the native configuration resolver, using the authored
-`content/shared/speech-routing.yaml` catalog and optional language/variety preferences.
-The service validates the captured model/language pair and never substitutes a
-provider. `speech_catalog.py` is generated by `npm run contracts`; do not edit it.
-Native operation/recording diagnostics retain the resolved route and decision reason.
-Listed language matches take priority. Models with `allow_unlisted_languages`
-also accept a valid explicit language tag for a best-effort attempt when no listed
-match is available. This does not claim verified support; the native receipt records
-`unlisted_language_attempt`. Missing credentials and malformed tags still fail before submission.
-No provider retry or switching after a failed submission is performed.
-[@whisper_language_tokens] [@elevenlabs_scribe_languages_20260923]
+Transcription forwards the app's original mono 16-bit PCM WAV without decoding or
+resampling. The server verifies its header, available sample bytes, rate and duration
+for abuse prevention/accounting (8–192 kHz, up to 120 seconds). Native prepares
+provider language codes, context and recognition options. The model binds only the
+credential/destination and rate: `scribe_v2` uses its speech provider; other model
+identifiers retain the existing transcription destination. No model substitution or
+automatic audio retry occurs.
+
+Transcription also returns `{version: 3, response, usage}`. Native derives optional
+word timing and recognition confidence from full provider data before diagnostic
+redaction/truncation. Invalid timing leaves transcript text intact with a recorded
+validation reason. Language policy remains in native configuration and
+`content/shared/speech-routing.yaml`. The generated server `speech_catalog.py`
+contains only model provider/task availability, not language support tables.
+
+Logs remain content-free. Successful client responses preserve content and unknown
+JSON fields within explicit size/depth limits; they are never used as raw log records.
+Credentials and echoed secrets are removed on the server. Protocol 3 requires
+matching native and server builds; no compatibility conversion is provided.
 
 Authenticated `/v1/protocol` includes `audio.routing` version 1 with
 `available_models` and `accepts_custom_transcription_models`. This lists configured
@@ -581,7 +579,7 @@ credentials/voice profiles, not live provider health or model quality. Microphon
 startup reads it without sending content or making an inference request, then
 captures the compatible model before audio capture. Older services lacking this
 contract are refused explicitly. Matching native/server builds are required for
-the new read-aloud language-tag contract. No deployment is implicit in source edits.
+the version 3 relay contract. No deployment is implicit in source edits.
 
 Set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` in the private local environment.
 The public sample uses George (`JBFqnCBsd6RMkjVDRZzb`). Synthesis currently binds

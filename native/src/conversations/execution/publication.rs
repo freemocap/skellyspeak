@@ -155,6 +155,23 @@ impl Store {
             "persona_opening" | "persona_reply" | "coach_reply"
         ) && let Ok(output) = &mut result
         {
+            if output.finish_reason == "stop"
+                && let Some(clean) = crate::conversations::reply_contract::clean(&output.text)
+            {
+                let removed_bytes = output.text.len() - clean.len();
+                output.text = clean.to_owned();
+                let diagnostics = output
+                    .diagnostics
+                    .get_or_insert_with(|| serde_json::json!({}));
+                diagnostics["role_transcript_cleanup"] = serde_json::json!({
+                    "first_assistant_turn": true, "removed_bytes": removed_bytes,
+                });
+                crate::diagnostics::inference::role_transcript_cleaned(
+                    dispatch,
+                    &kind,
+                    removed_bytes,
+                );
+            }
             let (clean, removed) = crate::ai::transport::provider::strip_prose_emojis(&output.text);
             if removed > 0 && !clean.is_empty() {
                 output.text = clean;
@@ -307,6 +324,14 @@ impl Store {
                 ErrorCode::Provider,
                 "Provider did not finish the reply normally. The reply was not saved to the conversation; the text that arrived is shown above.",
             )),
+            Ok(output)
+                if matches!(
+                    kind.as_str(),
+                    "persona_reply" | "persona_opening" | "coach_reply"
+                ) =>
+            {
+                crate::conversations::reply_contract::validate(&output.text)
+            }
             Ok(output) => crate::ai::transport::provider::validate_prose(&output.text),
             Err(error) => Err(error.clone()),
         };

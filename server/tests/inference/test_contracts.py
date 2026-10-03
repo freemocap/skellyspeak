@@ -107,19 +107,19 @@ def upload(seconds: int, model: str = "whisper-large-v3") -> httpx.Request:
 def test_decoded_duration_controls_reservation(seconds: int, charge: int) -> None:
     request = upload(seconds)
     result = audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
-    assert len(result.pcm) == seconds * audio_input.SAMPLE_RATE * 2
+    assert result.duration == seconds
     assert result.cost_micros == charge
 
 
 def test_long_recording_is_rejected_without_truncating_it_into_a_billable_request() -> None:
     request = upload(121)
-    with pytest.raises(HTTPException, match="120 seconds"):
+    with pytest.raises(HTTPException, match="PCM WAV"):
         audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
 
 
 def timing_upload(format="verbose_json", granularities=("word", "segment")):
     return httpx.Request("POST", "https://test.invalid", files=[
-        ("file", ("audio.wav", b"RIFF0000WAVE", "audio/wav")),
+        ("file", ("audio.wav", __import__("server.tests.inference.test_elevenlabs", fromlist=["wav"]).wav(), "audio/wav")),
         ("model", (None, "whisper-large-v3")),
         ("language", (None, "es")),
         ("response_format", (None, format)),
@@ -129,8 +129,6 @@ def timing_upload(format="verbose_json", granularities=("word", "segment")):
 
 @pytest.mark.parametrize("granularities", [("word",), ("segment",), ("word", "segment"), ()])
 def test_verbose_audio_preserves_timestamp_fields(monkeypatch, granularities):
-    import subprocess
-    monkeypatch.setattr(audio_input.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, stdout=bytes(32000)))
     request = timing_upload(granularities=granularities)
     decoded = audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
     assert decoded.fields["response_format"] == "verbose_json"
@@ -142,7 +140,6 @@ def test_verbose_audio_preserves_timestamp_fields(monkeypatch, granularities):
 def test_invalid_timing_fields_rejected_before_decode(monkeypatch, format, granularities):
     def forbidden(*args, **kwargs):
         raise AssertionError("Invalid fields must not reach the decoder")
-    monkeypatch.setattr(audio_input.subprocess, "run", forbidden)
     request = timing_upload(format, granularities)
     with pytest.raises(HTTPException) as error:
         audio_input.decode_upload(request.read(), content_type=request.headers["content-type"])
@@ -197,10 +194,8 @@ def test_output_shape_not_model_name_selects_speech_contract(model):
 
 @pytest.mark.parametrize("language", [None, "ga", "gd", "it", "", "irish", "gD"])
 def test_transcription_language_can_be_omitted_but_not_malformed(monkeypatch, language):
-    import subprocess
-    monkeypatch.setattr(audio_input.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, stdout=bytes(32000)))
     fields = [
-        ("file", ("audio.wav", b"RIFF0000WAVE", "audio/wav")),
+        ("file", ("audio.wav", __import__("server.tests.inference.test_elevenlabs", fromlist=["wav"]).wav(), "audio/wav")),
         ("model", (None, "whisper-large-v3")),
         ("prompt", (None, "Gaeilge")),
         ("response_format", (None, "json")),

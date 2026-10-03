@@ -141,8 +141,6 @@ async def test_audio_timestamps_survive_upstream_multipart_and_response(proxy, m
     from email import policy
     from email.parser import BytesParser
     from server.tests.inference.test_contracts import timing_upload
-    import subprocess
-    monkeypatch.setattr(main.audio_input.subprocess, "run", lambda *a, **k: subprocess.CompletedProcess([], 0, stdout=bytes(32000)))
     payload = {"text": "Hola", "duration": 1.0, "words": [{"word": "Hola", "start": 0.1, "end": 0.7}], "segments": []}
     def respond(sent):
         message = BytesParser(policy=policy.default).parsebytes(
@@ -155,9 +153,7 @@ async def test_audio_timestamps_survive_upstream_multipart_and_response(proxy, m
     upload = timing_upload()
     response = await proxy.post("/v1/audio/transcriptions", content=upload.read(), headers={"Content-Type": upload.headers["content-type"]})
     assert response.status_code == 200
-    assert response.json()["text"] == payload["text"]
-    assert response.json()["timing"]["words"] == payload["words"]
-    assert "segments" not in response.json()
+    assert response.json()["response"] == payload
 
 
 @pytest.mark.asyncio

@@ -5,13 +5,13 @@ import { StableTurn } from './StableTurn'
 
 afterEach(() => vi.restoreAllMocks())
 
-it('keeps allocated height across hydration and replacement, releasing it for resizing and direct interaction', () => {
+it('keeps allocated height during hydration, then fits finished content and responds to resizing and interaction', () => {
   let height = 120, width = 300
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
     return { width, height: Math.max(height, Number.parseFloat(this.style.minBlockSize) || 0) } as DOMRect
   })
-  const content = (key: string) => <StableTurn className="turn-stack"><div className="partner-turn">
-    <div key={key} className="msg chat-message bot"><button>Translate</button></div>
+  const content = (key: string, hydrating = true) => <StableTurn className="turn-stack"><div className="partner-turn">
+    <div key={key} className="msg chat-message bot" aria-busy={hydrating}><button>Translate</button></div>
   </div></StableTurn>
   const view = render(content('pending'))
   const bubble = () => view.container.querySelector<HTMLElement>('.msg')!
@@ -25,8 +25,13 @@ it('keeps allocated height across hydration and replacement, releasing it for re
   width = 500; height = 100
   view.rerender(content('saved'))
   expect(bubble().style.minBlockSize).toBe('100px')
-  fireEvent.click(view.getByRole('button'))
   height = 80
-  view.rerender(content('saved'))
+  view.rerender(content('complete', false))
+  expect(bubble().style.minBlockSize).toBe('')
+  view.rerender(content('complete', true))
   expect(bubble().style.minBlockSize).toBe('80px')
+  fireEvent.click(view.getByRole('button'))
+  height = 70
+  view.rerender(content('complete', true))
+  expect(bubble().style.minBlockSize).toBe('70px')
 })

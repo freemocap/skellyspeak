@@ -36,7 +36,7 @@ impl CharacterAlignment {
                         && end.is_finite()
                         && *start >= 0.0
                         && end >= start
-                        && *end <= duration
+                        && *end <= duration + 8.0 * f64::EPSILON * duration.abs().max(1.0)
                         && (i == 0 || *start >= self.starts[i - 1])
                 })
     }
@@ -158,8 +158,10 @@ impl SpeechAlignment {
                     let last = spans.iter().rfind(|(a, b, _)| *a < end && end <= *b)?.2;
                     Some(Word {
                         word: word.into(),
-                        start: alignment.starts[first],
-                        end: alignment.ends[last],
+                        // Projection clips only the floating-point boundary allowance.
+                        // Original provider timestamps remain unchanged above.
+                        start: alignment.starts[first].min(duration),
+                        end: alignment.ends[last].min(duration),
                     })
                 })
                 .collect();

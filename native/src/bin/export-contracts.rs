@@ -24,8 +24,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let speech_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../server/app/inference/speech_catalog.py");
-    let speech =
-        serde_json::to_string(skellyspeak_core::configuration::speech::Catalog::bundled())?;
+    // The service needs only credential/task availability, not language policy.
+    let models: std::collections::BTreeMap<_, _> =
+        skellyspeak_core::configuration::speech::Catalog::bundled()
+            .models
+            .iter()
+            .map(|(id, model)| {
+                (
+                    id.clone(),
+                    serde_json::json!({"provider":model.provider,"task":model.task}),
+                )
+            })
+            .collect();
+    let speech = serde_json::to_string(&serde_json::json!({"models":models}))?;
     let source = std::fs::read_to_string(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../content/shared/speech-routing.yaml"),

@@ -3,34 +3,7 @@
 //! Language detection is not recognition confidence. Truncated lists are incomplete.
 use serde_json::{Value, json};
 
-pub(super) fn summary(value: &Value) -> Option<Value> {
-    // Prefer the full-response summary: verbose diagnostic lists may be truncated.
-    if let Some(summary) = value
-        .get("transcription_confidence")
-        .or_else(|| value.pointer("/usage/diagnostics/transcription_confidence"))
-        .filter(|v| v.is_object())
-    {
-        let mut bounded = serde_json::Map::new();
-        for key in [
-            "score",
-            "complete",
-            "count",
-            "no_speech_probability",
-            "source",
-        ] {
-            if let Some(field) = summary.get(key).filter(|v| {
-                v.is_number()
-                    || v.is_boolean()
-                    || v.is_null()
-                    || (key == "source"
-                        && matches!(v.as_str(), Some("word_logprobs" | "segment_logprobs")))
-            }) {
-                bounded.insert(key.into(), field.clone());
-            }
-        }
-        return Some(Value::Object(bounded));
-    }
-    let response = value.pointer("/usage/diagnostics/response")?;
+pub(super) fn from_response(response: &Value) -> Option<Value> {
     let (rows, field, source, words) = if let Some(rows) = response["segments"].as_array() {
         (rows, "avg_logprob", "segment_logprobs", false)
     } else {
@@ -86,7 +59,7 @@ mod tests {
         let value = json!({"usage":{"provider":"groq","diagnostics":{"response":{"segments":[
             {"avg_logprob":-0.05339829,"no_speech_prob":0.0012197495}
         ]}}}});
-        let result = summary(&value).unwrap();
+        let result = from_response(value.pointer("/usage/diagnostics/response").unwrap()).unwrap();
         assert!((result["score"].as_f64().unwrap() - 0.9480023574202364).abs() < 1e-8);
         assert_eq!(result["no_speech_probability"], 0.0012197495);
         assert_eq!(result["complete"], true);
@@ -100,7 +73,8 @@ mod tests {
             json!({"avg_logprob":true}),
         ] {
             let value = json!({"usage":{"diagnostics":{"response":{"segments":[{"avg_logprob":-0.1},bad]}}}});
-            let result = summary(&value).unwrap();
+            let result =
+                from_response(value.pointer("/usage/diagnostics/response").unwrap()).unwrap();
             assert_eq!(result["complete"], false);
             assert!(result["score"].is_null());
         }
@@ -110,13 +84,10 @@ mod tests {
         let value = json!({"usage":{"diagnostics":{"response":{"language_probability":0.99,"words":[
             {"type":"word","logprob":-2.0},{"type":"spacing","logprob":0.0}
         ]}}}});
-        let result = summary(&value).unwrap();
+        let result = from_response(value.pointer("/usage/diagnostics/response").unwrap()).unwrap();
         assert_eq!(result["score"], (-2.0f64).exp());
         assert_eq!(result["count"], 1);
         assert_eq!(result["source"], "word_logprobs");
-        assert!(
-            summary(&json!({"usage":{"diagnostics":{"response":{"language_probability":0.99}}}}))
-                .is_none()
-        );
+        assert!(from_response(&json!({"language_probability":0.99})).is_none());
     }
 }

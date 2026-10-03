@@ -32,6 +32,21 @@ def request_strings(value):
             yield from request_strings(item)
 
 
+def response_content_strings(value, depth=0):
+    """Find content also echoed in error explanations without hiding error codes."""
+    if depth > 64:
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key.lower() in CONTENT or secret_field(key):
+                yield from request_strings(item)
+            else:
+                yield from response_content_strings(item, depth + 1)
+    elif isinstance(value, list):
+        for item in value:
+            yield from response_content_strings(item, depth + 1)
+
+
 def scrub(text: str, private=()) -> str:
     for rule in POLICY['rules']:
         if rule['kind'] == 'secret':
@@ -108,7 +123,7 @@ def reason(metadata):
 def record(provider: str, status: int, body, request=None, *, truncated=False, unreadable=False):
     from server.app.diagnostics import runtime
     # Never collect audio bytes, file objects or response headers.
-    private = tuple(request_strings(request))
+    private = tuple(request_strings(request)) + tuple(response_content_strings(body))
     runtime.emit("provider_error_response", provider=provider, status=status,
                  response_body=sanitize(body, private), body_truncated=truncated,
                  body_unreadable=unreadable)
@@ -141,6 +156,7 @@ async def capture(response: httpx.Response, provider: str, request=None):
         except (ValueError, UnicodeError, RecursionError):
             value = body.decode("utf-8", errors="replace")
     private = tuple(request_strings(request))
+    private += tuple(response_content_strings(value))
     cleaned = sanitize(value, private)
     if not isinstance(cleaned, dict):
         cleaned = {"reason": "non_json_error_body", "body": "[redacted: unstructured content]"}

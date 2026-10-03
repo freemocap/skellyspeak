@@ -43,6 +43,24 @@ export function speechWords(text: string, alignment: SpeechAlignment | null | un
   return []
 }
 
+/** A conservative duration estimate for buffering, never spelling or timing
+ * evidence. Exact source anchoring must succeed before extrapolation. */
+export function estimatedTotalSpeechSeconds(text: string, alignment: SpeechAlignment | null | undefined, receivedSeconds: number, aligned = speechWords(text, alignment, true)): number | null {
+  if (!Number.isFinite(receivedSeconds) || receivedSeconds <= 0) return null
+  if (aligned.length < 2) return null
+  const words = readingWords(text).filter(word => word.word)
+  const last = aligned.at(-1)!
+  if (words.length < 3 || last.to <= 0) return null
+  const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  const weight = (value: string) => Array.from(graphemes.segment(value)).length
+  const total = words.reduce((sum, word) => sum + weight(text.slice(word.start, word.end)), 0)
+  const covered = words.filter(word => word.end <= last.end)
+    .reduce((sum, word) => sum + weight(text.slice(word.start, word.end)), 0)
+  if (!total || covered / total < 0.2) return null
+  // Early word pace and pauses vary; leave a margin for later slow words.
+  return Math.max(receivedSeconds, last.to * total / covered * 1.25)
+}
+
 export function spokenWordAt(words: SpokenWord[], seconds: number): SpokenWord | null {
   return words.find(word => seconds >= word.from && seconds < word.to) ?? null
 }

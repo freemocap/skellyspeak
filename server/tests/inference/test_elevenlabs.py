@@ -10,11 +10,18 @@ import httpx
 import pytest
 
 from server.app.inference.audio_contracts import AudioFailure, SynthesisRequest, TranscriptionRequest
-from server.app.inference.elevenlabs import ElevenLabs, MAX_PCM_BYTES
+from server.app.inference.elevenlabs import ElevenLabs
 
 KEY = "test-elevenlabs-secret"
 SPEECH = SynthesisRequest("eleven_v3", "fixtureVoiceId", "നന്ദി", "ml")
-RECORDING = TranscriptionRequest(b"\0\0" * 16_000, "ml")
+def wav():
+    output = io.BytesIO()
+    with wave.open(output, 'wb') as writer:
+        writer.setparams((1, 2, 16000, 0, 'NONE', 'not compressed'))
+        writer.writeframes(bytes(32000))
+    return output.getvalue()
+
+RECORDING = TranscriptionRequest(wav(), "ml", {"no_verbatim":"false", "tag_audio_events":"false", "diarize":"false", "timestamps_granularity":"word"})
 
 
 def transcript():
@@ -25,7 +32,7 @@ def transcript():
 
 
 @pytest.mark.asyncio
-async def test_speech_sends_verbatim_source_and_returns_standard_wav():
+async def test_speech_sends_prepared_text_and_returns_original_provider_json():
     async def respond(request):
         assert str(request.url) == "https://api.elevenlabs.io/v1/text-to-speech/fixtureVoiceId/with-timestamps?output_format=pcm_24000"
         assert request.headers["xi-api-key"] == KEY
@@ -41,12 +48,9 @@ async def test_speech_sends_verbatim_source_and_returns_standard_wav():
                                 cookies={"session": "other-service-session"},
                                 auth=("other-user", "other-password")) as client:
         result = await ElevenLabs(client, api_key=KEY).synthesize(SPEECH)
-    with wave.open(io.BytesIO(result.wav)) as audio:
-        assert (audio.getframerate(), audio.getnchannels(), audio.getsampwidth()) == (24_000, 1, 2)
-        assert audio.getnframes() == 24_000
-    assert result.duration_seconds == 1
-    assert result.alignment["original"]["characters"] == list(SPEECH.text)
-    assert result.alignment["original"]["ends"] == [0.8] * len(SPEECH.text)
+    assert len(base64.b64decode(result.response["audio_base64"])) == 48000
+    assert result.response["alignment"]["characters"] == list(SPEECH.text)
+    assert result.response["alignment"]["character_end_times_seconds"] == [0.8] * len(SPEECH.text)
     assert result.receipt.request_id == "receipt-123"
     assert result.receipt.cost_micros is None
     assert "നന്ദി" not in repr(SPEECH)
@@ -72,14 +76,11 @@ async def test_transcription_language_is_not_limited_by_whisper(language):
             assert f'name="language_code"\r\n\r\n{language}'.encode() in body
         return httpx.Response(200, json=transcript())
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        result = await ElevenLabs(client, api_key=KEY).transcribe(replace(RECORDING, language_tag=language))
-    assert result.text == transcript()["text"]
-    assert result.duration_seconds == 1
-    assert [word.text for word in result.words] == ["അത്", "നല്ലതാണ്."]
-    assert result.receipt.diagnostics["response"]["language_probability"] == 0.87
+        result = await ElevenLabs(client, api_key=KEY).transcribe(replace(RECORDING, language_tag=language), model="scribe_v2")
+    assert result.response == transcript()
     assert result.receipt.provider == "elevenlabs"
     assert result.receipt.cost_micros is None
-    assert result.receipt.diagnostics["no_verbatim"] is False
+
 
 
 @pytest.mark.asyncio
@@ -105,7 +106,7 @@ async def test_refusals_do_not_retry_follow_redirects_or_expose_body(status):
 @pytest.mark.parametrize("body,media,code", [
     (b"", "audio/pcm", "AUDIO_RESPONSE_INVALID"),
     (b"x", "audio/pcm", "AUDIO_RESPONSE_INVALID"),
-    (b"{}", "application/json", "AUDIO_RESPONSE_INVALID"),
+    (b"[]", "application/json", "AUDIO_RESPONSE_INVALID"),
     pytest.param(b"x" * (8 * 1024 * 1024 + 2), "audio/pcm", "AUDIO_RESPONSE_LIMIT", id="oversized-pcm"),
 ])
 async def test_invalid_audio_retains_receipt_and_unknown_cost(body, media, code):
@@ -123,38 +124,29 @@ async def test_invalid_audio_retains_receipt_and_unknown_cost(body, media, code)
     {"text": 12}, {"words": "invalid"}, {"words": [{"type": "word", "text": "a", "start": 0, "end": 2}]},
     {"words": [{"type": "word", "text": "a", "start": -1, "end": 0.2}]},
     {"words": [{"type": "word", "text": "a", "start": True, "end": 0.2}]},
-    {"language_probability": float("nan")}, {"language_code": "malayalam"},
+ {"language_code": "malayalam"},
 ])
-async def test_unusable_text_fails_but_optional_metadata_does_not(change):
+async def test_response_fields_reach_native_without_semantic_interpretation(change):
     body = json.dumps(transcript() | change).encode()
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
             200, content=body, headers={"content-type": "application/json"}))) as client:
-        if "text" in change:
-            with pytest.raises(AudioFailure) as error:
-                await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
-            assert error.value.code == "AUDIO_RESPONSE_INVALID"
-        else:
-            result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
-            assert result.text == transcript()["text"]
-            if "words" in change:
-                assert result.words is None
-                assert result.receipt.diagnostics["timing"]["status"] == "unavailable"
+        result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING, model="scribe_v2")
+    assert result.response == transcript() | change
+
 
 
 @pytest.mark.asyncio
 async def test_silence_is_explicit_and_not_an_invented_transcript_or_zero_charge():
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(
             200, json={"text": "", "words": []}))) as client:
-        result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
-    assert result.text == ""
-    assert result.words == ()
+        result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING, model="scribe_v2")
+    assert result.response["text"] == ""
+    assert result.response["words"] == []
     assert result.receipt.cost_micros is None
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("audio_request", [replace(SPEECH, voice_id="../other"), replace(SPEECH, text=" "),
-    replace(SPEECH, language_code="mal"), replace(RECORDING, pcm=b"x"),
-    replace(RECORDING, language_tag="invalid_language")])
+@pytest.mark.parametrize("audio_request", [replace(SPEECH, voice_id="../other")])
 async def test_input_validation_happens_before_network(audio_request):
     def unexpected(_):
         pytest.fail("Invalid input reached the provider")
@@ -178,12 +170,12 @@ async def test_transport_error_is_unknown_and_cancellation_propagates():
     async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
         adapter = ElevenLabs(client, api_key=KEY)
         with pytest.raises(AudioFailure) as error:
-            await adapter.transcribe(RECORDING)
+            await adapter.transcribe(RECORDING, model="scribe_v2")
         assert error.value.unknown_outcome
         assert KEY not in str(error.value)
         assert calls == 1
         with pytest.raises(asyncio.CancelledError):
-            await adapter.transcribe(RECORDING)
+            await adapter.transcribe(RECORDING, model="scribe_v2")
 
 
 class InterruptedAudio(httpx.AsyncByteStream):
@@ -209,10 +201,10 @@ async def test_latin_recognition_is_preserved_as_evidence_not_retranslated():
     value = {"text": "athu nallathaanu", "language_code": "ml", "language_probability": 0.2,
              "words": []}
     async with httpx.AsyncClient(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=value))) as client:
-        result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING)
-    assert result.text == value["text"]
-    assert result.words == ()
-    assert result.receipt.diagnostics["response"]["language_probability"] == 0.2
+        result = await ElevenLabs(client, api_key=KEY).transcribe(RECORDING, model="scribe_v2")
+    assert result.response["text"] == value["text"]
+    assert result.response["words"] == []
+    assert result.response["language_probability"] == 0.2
 
 
 @pytest.mark.asyncio
@@ -234,28 +226,3 @@ async def test_provider_error_message_is_bounded_and_code_is_preserved():
             await ElevenLabs(client, api_key=KEY).synthesize(SPEECH)
     assert error.value.provider_error["code"] == "quota_exceeded"
     assert len(error.value.provider_error["message"]) == 1024
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("variety", ["Spanish — Mexico", "Spanish — Spain", "English — United Kingdom"])
-async def test_variety_reaches_provider_without_changing_source(variety):
-    source = replace(SPEECH, text="Gracias.", language_code="es", language_variety=variety)
-    def respond(request):
-        body = json.loads(request.content)
-        assert body["text"] == f"[{variety} accent]\nGracias."
-        assert body["language_code"] == "es"
-        return httpx.Response(200, json={"audio_base64": base64.b64encode(b"\0\0").decode()})
-    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        await ElevenLabs(client, api_key=KEY).synthesize(source)
-    assert source.text == "Gracias."
-
-
-@pytest.mark.asyncio
-async def test_variety_is_not_silently_dropped_for_unsupported_model():
-    def respond(request):
-        pytest.fail("Unsupported accent request reached provider")
-    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client:
-        with pytest.raises(AudioFailure) as failure:
-            await ElevenLabs(client, api_key=KEY).synthesize(
-                replace(SPEECH, model="eleven_multilingual_v2", language_variety="Spanish — Mexico"))
-    assert failure.value.code == "AUDIO_INPUT_INVALID"

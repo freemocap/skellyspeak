@@ -111,3 +111,36 @@ fn variety_counts_include_only_eligible_ledger_credits() {
     assert_eq!((result[0].experience, result[0].effort), (1, 0));
     assert_eq!(result[1].experience, 0);
 }
+
+#[test]
+fn practice_prompt_uses_readable_focus_without_assessment_or_selection_metadata() {
+    let registry = Registry::bundled().unwrap();
+    let captured = json!({
+        "identity": {"catalog": "private-catalog-id"},
+        "selection": {"policy": "internal-policy", "experience": 42},
+        "skill": {"id": "internal-skill-id", "name": "Everyday quantities",
+            "overview": "Talk about amounts.\nPreserve this second line.",
+            "boundary": "assessment-only-boundary", "language_guidance": "assessment-only-guidance"}
+    });
+    let original = captured.clone();
+    let task = "Immediate conversation task and difficulty.";
+    let mut prompt = task.to_owned();
+    append_prompt(&mut prompt, &registry, Some(&captured)).unwrap();
+    assert!(
+        prompt
+            .contains("> Everyday quantities\n> Talk about amounts.\n> Preserve this second line.")
+    );
+    assert!(prompt.ends_with(task));
+    for omitted in [
+        "private-catalog-id",
+        "internal-policy",
+        "internal-skill-id",
+        "assessment-only-boundary",
+        "assessment-only-guidance",
+        "42",
+    ] {
+        assert!(!prompt.contains(omitted));
+    }
+    assert_eq!(captured, original);
+    assert!(append_prompt(&mut String::new(), &registry, Some(&json!({"skill": {}}))).is_err());
+}

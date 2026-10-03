@@ -11,3 +11,7 @@ mod transcription_adapters;
 mod transcription_confidence;
 
 mod speech_stream;
+
+mod synthesis_timing;
+
+mod transcription_timing;

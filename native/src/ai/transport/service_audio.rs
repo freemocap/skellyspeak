@@ -3,8 +3,8 @@ use crate::ai::audio::{SpeechInput, SpeechOutcome};
 use crate::ai::connections::access::{ResolvedTarget, response_bytes};
 use crate::ai::hosted;
 use crate::model::{AppError, ConnectionRoute, ErrorCode, Result};
+#[cfg(test)]
 use base64::{Engine, engine::general_purpose::STANDARD};
-use serde::Deserialize;
 
 pub(in crate::ai) fn validate(input: &SpeechInput) -> Result<()> {
     if crate::configuration::speech::primary(&input.language_tag).is_none()
@@ -26,102 +26,33 @@ pub(in crate::ai) fn validate(input: &SpeechInput) -> Result<()> {
     Ok(())
 }
 
-#[derive(Deserialize)]
-struct Response {
-    version: u32,
-    audio_base64: String,
-    format: String,
-    alignment: Option<serde_json::Value>,
-}
-
-fn decode(bytes: &[u8], outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
-    let raw: serde_json::Value = serde_json::from_slice(bytes).map_err(|e| {
-        crate::diagnostics::response::invalid(
-            "speech_json",
-            "$",
-            &format!("JSON at line {} column {}", e.line(), e.column()),
-            &serde_json::Value::Null,
-        )
-    })?;
-    outcome.diagnostics = Some(crate::diagnostics::response::metadata(&raw, &[]));
-    // Usage is observability, not an audio decoder prerequisite.
-    outcome.actual_model = raw["usage"]["actual_model"].as_str().map(str::to_owned);
-    outcome.provider_id = raw["usage"]["request_id"].as_str().map(str::to_owned);
-    outcome.cost_micros = raw["usage"]["cost_micros"].as_u64();
-    outcome.diagnostics.as_mut().unwrap()["metadata_unavailable"] = serde_json::json!({
-        "actual_model": outcome.actual_model.is_none(), "request_id":outcome.provider_id.is_none(),
-        "cost_micros":outcome.cost_micros.is_none()
-    });
-    let invalid = || {
-        crate::diagnostics::response::invalid(
-            "speech",
-            "audio_base64",
-            "complete mono 24 kHz 16-bit PCM WAV",
-            &raw,
-        )
-    };
-    let value: Response = serde_json::from_value(raw.clone()).map_err(|cause| {
+fn decode(bytes: &[u8], source: &str, outcome: &mut SpeechOutcome) -> Result<Vec<u8>> {
+    let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|cause| {
         crate::diagnostics::response::json_context(
             &cause,
-            "service_audio.rs_decode",
-            crate::diagnostics::response::invalid(
-                "speech",
-                "$",
-                "version, format and audio_base64",
-                &raw,
-            ),
+            "speech_json",
+            AppError::new(ErrorCode::Provider, "Invalid speech response JSON."),
         )
     })?;
-    if value.version != 1 || value.format != "wav" {
+    outcome.diagnostics = Some(crate::diagnostics::response::metadata(&value, &[]));
+    outcome.provider_id = value["usage"]["request_id"].as_str().map(str::to_owned);
+    if value["version"] != 3 {
         return Err(crate::diagnostics::response::invalid(
             "speech",
-            "version/format",
-            "version 1, wav",
-            &raw,
+            "version",
+            "version 3 provider response",
+            &value,
         ));
     }
-    let wav = STANDARD.decode(value.audio_base64).map_err(|cause| {
-        crate::diagnostics::failures::base64(&cause, "speech_base64", invalid())
-    })?;
-    if wav.len() > crate::speech::delivery::AUDIO_LIMIT {
-        return Err(invalid());
+    let mut decoder = super::speech_stream::Decoder::new(source);
+    for record in [
+        serde_json::json!({"version":3,"seq":0,"type":"start","format":"pcm_s16le","sample_rate":24000,"channels":1}),
+        serde_json::json!({"version":3,"seq":1,"type":"audio","response":value["response"]}),
+        serde_json::json!({"version":3,"seq":2,"type":"complete","usage":value["usage"]}),
+    ] {
+        decoder.record_value(record, outcome, &|_, _, _| Ok(()))?;
     }
-    let reader = hound::WavReader::new(std::io::Cursor::new(&wav)).map_err(|cause| {
-        crate::diagnostics::failures::wav(&cause, "speech_wav_header", invalid())
-    })?;
-    let spec = reader.spec();
-    let duration = reader.duration() as f64 / spec.sample_rate as f64;
-    if spec.channels != 1
-        || spec.sample_rate != 24_000
-        || spec.bits_per_sample != 16
-        || spec.sample_format != hound::SampleFormat::Int
-        || reader.duration() == 0
-    {
-        return Err(invalid().with_diagnostics(serde_json::json!({"stage":"speech_wav_spec",
-            "expected":"nonempty mono 24000 Hz 16-bit integer PCM", "channels":spec.channels,
-            "sample_rate":spec.sample_rate,"bits_per_sample":spec.bits_per_sample,"duration_samples":reader.duration(),
-            "format":format!("{:?}",spec.sample_format)})));
-    }
-    // Fully consume samples so truncated PCM is not published.
-    for sample in reader.into_samples::<i16>() {
-        sample.map_err(|cause| {
-            crate::diagnostics::failures::wav(&cause, "speech_wav_samples", invalid())
-        })?;
-    }
-    if let Some(alignment) = value.alignment {
-        let decoded =
-            serde_json::from_value::<crate::speech::alignment::SpeechAlignment>(alignment);
-        if let Ok(alignment) = decoded.as_ref()
-            && alignment.valid(duration)
-        {
-            outcome.alignment = Some(alignment.clone());
-        } else {
-            outcome.diagnostics.as_mut().unwrap()["alignmentValidation"] = serde_json::json!({
-                "status":"unavailable", "reason":"invalid_timing", "stage":"speech_alignment"});
-        }
-    }
-    outcome.finish_reason = Some("stop".into());
-    Ok(wav)
+    decoder.finish(outcome, &|_, _, _| Ok(()))
 }
 
 #[cfg(test)]
@@ -146,10 +77,14 @@ pub(in crate::ai) async fn synthesize_stream(
     let mut outcome = SpeechOutcome::empty();
     outcome.audio = async {
         validate(input)?;
+        let prepared = format!("[{} accent]\n{}", input.language, input.text);
+        if prepared.len() > 16_384 || prepared.chars().count() > 5_000 {
+            return Err(AppError::new(ErrorCode::Validation, "Prepared speech exceeds the provider input limit."));
+        }
         let mut request = client
             .post(&target.url)
             .header(reqwest::header::ACCEPT, "application/x-ndjson")
-            .json(&serde_json::json!({"model": target.model, "text": input.text, "language": input.language, "language_tag": input.language_tag}));
+            .json(&serde_json::json!({"model": target.model, "text": prepared, "language_code": null}));
         if !key.is_empty() {
             request = request.bearer_auth(key);
         }
@@ -166,7 +101,7 @@ pub(in crate::ai) async fn synthesize_stream(
         let streaming = response.headers().get(reqwest::header::CONTENT_TYPE)
             .and_then(|v| v.to_str().ok()).is_some_and(|v| v.split(';').next().unwrap_or("").trim() == "application/x-ndjson");
         let result = if status.is_success() && streaming {
-            super::speech_stream::receive(response, &mut outcome, emit).await
+            super::speech_stream::receive(response, &input.text, &mut outcome, emit).await
         } else {
             let bytes = if !status.is_success()
                 && (target.route == ConnectionRoute::Hosted
@@ -182,7 +117,7 @@ pub(in crate::ai) async fn synthesize_stream(
                 }
                 error
             })?;
-            decode(&bytes, &mut outcome)
+            decode(&bytes, &input.text, &mut outcome)
         };
         if outcome.alignment.as_ref().is_some_and(|a| a.source_text != input.text) {
             outcome.alignment = None;
@@ -243,29 +178,20 @@ mod tests {
         }
     }
     fn body() -> serde_json::Value {
-        let mut output = std::io::Cursor::new(Vec::new());
-        {
-            let mut writer = hound::WavWriter::new(
-                &mut output,
-                hound::WavSpec {
-                    channels: 1,
-                    sample_rate: 24_000,
-                    bits_per_sample: 16,
-                    sample_format: hound::SampleFormat::Int,
-                },
-            )
-            .unwrap();
-            writer.write_sample(100_i16).unwrap();
-            writer.finalize().unwrap();
-        }
-        serde_json::json!({"version":1,"format":"wav","audio_base64":STANDARD.encode(output.into_inner()),
+        serde_json::json!({"version":3,"response":{"audio_base64":STANDARD.encode([100u8,0])},
             "usage":{"requested_model":"eleven_v3","actual_model":null,"provider":"elevenlabs","request_id":"receipt","cost_micros":null,
                 "allowance_micros":100,"allowance_basis":"estimate"}})
     }
+
     #[test]
     fn estimated_allowance_is_not_reported_as_actual_cost() {
         let mut outcome = SpeechOutcome::empty();
-        let wav = decode(&serde_json::to_vec(&body()).unwrap(), &mut outcome).unwrap();
+        let wav = decode(
+            &serde_json::to_vec(&body()).unwrap(),
+            "source",
+            &mut outcome,
+        )
+        .unwrap();
         assert!(wav.starts_with(b"RIFF"));
         assert_eq!(outcome.provider_id.as_deref(), Some("receipt"));
         assert_eq!(outcome.finish_reason.as_deref(), Some("stop"));
@@ -275,13 +201,13 @@ mod tests {
     #[test]
     fn malformed_audio_retains_receipt_without_publication() {
         let mut value = body();
-        value["audio_base64"] = serde_json::json!("YWJj");
+        value["response"]["audio_base64"] = serde_json::json!("YWJj");
         let mut outcome = SpeechOutcome::empty();
-        assert!(decode(&serde_json::to_vec(&value).unwrap(), &mut outcome).is_err());
+        assert!(decode(&serde_json::to_vec(&value).unwrap(), "source", &mut outcome).is_err());
         assert_eq!(outcome.provider_id.as_deref(), Some("receipt"));
         value = body();
         value["usage"]["requested_model"] = serde_json::json!("wrong-model");
-        assert!(decode(&serde_json::to_vec(&value).unwrap(), &mut outcome).is_ok());
+        assert!(decode(&serde_json::to_vec(&value).unwrap(), "source", &mut outcome).is_ok());
     }
     #[test]
     fn playable_audio_does_not_require_a_complete_usage_receipt() {
@@ -293,12 +219,8 @@ mod tests {
             let mut value = body();
             value["usage"] = usage;
             let mut outcome = SpeechOutcome::empty();
-            assert!(decode(&serde_json::to_vec(&value).unwrap(), &mut outcome).is_ok());
+            assert!(decode(&serde_json::to_vec(&value).unwrap(), "source", &mut outcome).is_ok());
             assert_eq!(outcome.cost_micros, None);
-            assert_eq!(
-                outcome.diagnostics.as_ref().unwrap()["metadata_unavailable"]["cost_micros"],
-                true
-            );
         }
     }
     #[tokio::test]
@@ -345,7 +267,7 @@ mod tests {
                 serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
             assert_eq!(
                 value,
-                serde_json::json!({"model":"eleven_v3","text":"Gracias.","language":"Spanish — Mexico","language_tag":"es-MX"})
+                serde_json::json!({"model":"eleven_v3","text":"[Spanish — Mexico accent]\nGracias.","language_code":null})
             );
             write!(
                 socket,
@@ -370,5 +292,19 @@ mod tests {
         .await;
         worker.join().unwrap();
         assert!(outcome.audio.is_ok());
+    }
+}
+
+#[cfg(test)]
+mod relay_tests {
+    use super::*;
+    #[test]
+    fn full_response_is_not_subject_to_stream_frame_limit() {
+        let pcm = vec![0u8; 3_200_000];
+        let value = serde_json::json!({"version":3,"response":{"audio_base64":STANDARD.encode(&pcm)},"usage":{"request_id":"whole"}});
+        let mut outcome = SpeechOutcome::empty();
+        let wav = decode(&serde_json::to_vec(&value).unwrap(), "source", &mut outcome).unwrap();
+        assert_eq!(wav.len(), pcm.len() + 44);
+        assert_eq!(outcome.provider_id.as_deref(), Some("whole"));
     }
 }

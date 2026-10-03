@@ -66,7 +66,7 @@ fn coach_opening_captures_preview_selection_and_keeps_it_without_awarding() {
         captured["messages"][0]["content"]
             .as_str()
             .unwrap()
-            .contains("Practice selection (data)")
+            .contains("## Practice focus")
     );
     assert_eq!(captured["practiceFocus"]["id"], expected["skill"]["id"]);
     finish_fixture_exchange(&mut store, &turn, "An opening.");
@@ -149,7 +149,7 @@ fn persona_and_custom_topic_do_not_receive_coach_targets() {
             !captured["messages"][0]["content"]
                 .as_str()
                 .unwrap()
-                .contains("Practice selection (data)")
+                .contains("## Practice focus")
         );
     }
 }

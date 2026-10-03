@@ -26,3 +26,5 @@ pub struct Completion {
     pub input_tokens: Option<i32>,
     pub output_tokens: Option<i32>,
 }
+
+pub(crate) mod stream;
