@@ -11,11 +11,11 @@ export function ModeTabs() {
   const tr = useI18n()
   const current = useNavigationStore(state => state.page === 'guided' ? state.practiceView : null)
   const setPracticeView = useNavigationStore(state => state.setPracticeView)
-  const openPractice = useNavigationStore(state => state.openPractice)
+  const openConversation = useNavigationStore(state => state.openConversation)
   return <nav className="mode-tabs mode-tabs-top" aria-label={tr('Main navigation')}>
     {(['chat', 'drill'] as const).map(view => <button key={view} type="button" className="mode-tab"
       data-place={view === 'chat' ? 'chat' : 'practice'} aria-current={current === view ? 'page' : undefined}
-      onClick={() => { setPracticeView(view); if (view === 'chat') openPractice('chat') }}>
+      onClick={() => { setPracticeView(view); if (view === 'chat') openConversation('chat') }}>
       <ToolbarIcon name={view === 'chat' ? 'chat' : 'cards'} size={18} />
       <span>{view === 'chat' ? tr('Chat') : tr('Practice')}</span>
     </button>)}

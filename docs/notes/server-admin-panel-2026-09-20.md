@@ -1,5 +1,52 @@
 # Hosted server administration — September 20, 2026
 
+## Table usability — implemented locally October 3, 2026
+
+The source now includes sortable headers and column controls for accounts,
+request events, allowance intervals, account daily usage, reservations and audit
+history. Accounts and events search loaded rows. Presentation choices survive
+refresh/live updates within the open document. Sort/search coverage is explicitly
+limited to loaded pages; no global sorting or expanded database reads are claimed.
+
+Account overview/live records now carry a masked email label, with fixed dots
+between the first/last characters of each email component. Components of one or
+two characters are fully hidden. Missing addresses have an explicit unavailable
+label. Full identity remains in the existing authenticated owner detail route;
+clicking the masked address fetches it, and a second click conceals it. No full
+email or name is added to overview/live payloads, logs, or browser storage.
+Masking reduces incidental visibility; it does not anonymize an account. Source
+identity is preserved without language-specific handling or normalization.
+
+Default account columns emphasize recent activity, spending today/90 days,
+inference admissions, allowance and exceptions. Internal IDs, credits, tokens,
+registration dates and session versions are available through column controls.
+Request events expose numeric durations, readable UTC dates, HTTP status/error
+badges and expandable sanitized metadata. Provider/method/bytes/chunks/tokens and
+request IDs are optional columns. Event names identify duration phase; reservation
+Created → updated is bookkeeping time, explicitly not inferred provider latency.
+Missing observations sort last in both directions and remain distinct from zero.
+
+The standalone layout uses existing shared tokens, compact report controls,
+sticky table headers and horizontal scrolling without splitting timestamps into
+individual characters. Service limit inputs are grouped in a collapsed section.
+The existing review/write flow remains in place. A read-only loopback fixture in
+`ui/tools/admin-preview.ts` serves synthetic records for browser review; it is
+excluded from the hosted runtime and never reads credentials or calls providers.
+
+Verification: full server suite **578 passed, 7 emulator tests skipped**; admin UI
+suite **10 passed**; application build, standalone admin/tool TypeScript checks,
+fast validation, documentation links and deterministic assets passed. Browser
+review used synthetic records to verify reveal/hide, account inspection,
+reservation rendering and numeric duration sorting. The initial server run hit
+an existing Windows ACL restriction on the global pytest temporary directory;
+rerunning with a fresh workspace test directory passed. Existing dependency
+deprecation and application bundle-size warnings remain. Real OAuth, hosted
+Firestore listeners and production data were not exercised in this pass.
+
+No commit, deployment, live administrative write or running local API restart
+was performed. Restart the local API to load the new overview field, then reload
+the panel; hosted availability requires a separately authorized deployment.
+
 ## Hosted login investigation — September 22, 2026
 
 Live observation supersedes the earlier deployment uncertainty: `/admin` is

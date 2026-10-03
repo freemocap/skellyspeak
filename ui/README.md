@@ -362,8 +362,11 @@ Reply suggestions, frames and starters use this same renderer and reading
 preferences, without a separate translation/pronunciation disclosure layout.
 
 MessageTools owns toolbar rendering, overflow and accessibility for both speakers.
-useMessageToolDefinitions owns the Words and detail actions: learner feedback
-supplies Coach; target-message analysis supplies Analysis. Conversation messages
+useMessageToolDefinitions owns Translate, Words, Pronunciation and Analysis in
+that order for both speakers. Pronunciation uses written phonetic notation and
+toggles saved reading aids; Play and Inspect recording retain distinct controls.
+Learner Analysis opens its coaching feedback with the existing disclosure rules;
+partner Analysis opens its explanation. Conversation messages
 and their coach copies share TurnView, including the learner's edit, recording
 and feedback behavior. Tour and preview message examples also use TargetMessage.
 

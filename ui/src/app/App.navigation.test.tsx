@@ -43,26 +43,22 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
+  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Skills'])
   expect(screen.queryByText('Guided conversation')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Keep my words' } })
-  // The skill tree and back keeps the conversation mounted.
-  fireEvent.click(screen.getByRole('button', { name: 'More' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Skill tree' }))
+  // Skills and back keeps the conversation mounted; the return strip leads back.
+  fireEvent.click(within(nav).getByRole('button', { name: 'Skills' }))
   await screen.findByRole('button', { name: 'Practice this skill' })
-  expect(within(nav).getByRole('button', { name: 'Chat' })).not.toHaveAttribute('aria-current')
-  fireEvent.click(within(nav).getByRole('button', { name: 'Chat' }))
-  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(within(nav).getByRole('button', { name: 'Skills' })).toHaveAttribute('aria-current', 'page')
+  fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
+  expect(within(nav).queryByRole('button', { current: 'page' })).toBeNull()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
-  // The coach opens from the conversation; the Chat tab brings the conversation back.
-  act(() => useNavigationStore.getState().openPractice('panel'))
+  // The coach opens from the conversation; the wordmark brings the conversation back.
+  act(() => useNavigationStore.getState().openConversation('panel'))
   expect(screen.getByText('Practice surface: panel')).toBeInTheDocument()
-  fireEvent.click(within(nav).getByRole('button', { name: 'Chat' }))
-  expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
-  act(() => useNavigationStore.getState().openPractice('panel'))
   fireEvent.click(screen.getByRole('button', { name: 'SkellySpeak home — Chat' }))
-  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
   fireEvent.click(screen.getByRole('button', { name: 'AI activity' }))
@@ -75,19 +71,36 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
 // The phone sheet's close control lives in the view's own header actions.
 vi.mock('../features/activity/AiView', () => ({ AiView: ({ actions }: { actions: React.ReactNode }) => <><p role="status">Live operations</p>{actions}</> }))
 
-it('switches the practice page and saves the selected destination', async () => {
+it('opens Practice over the mounted conversation, saves the destination and returns from its strip', async () => {
   render(<App />)
   const switcher = screen.getByRole('navigation', { name: 'Main navigation' })
+  fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Still here' } })
+  act(() => useNavigationStore.getState().openConversation('panel'))
   fireEvent.click(within(switcher).getByRole('button', { name: 'Practice' }))
-  expect(await screen.findByText('Drill surface')).toBeInTheDocument()
-  expect(screen.queryByLabelText('Draft')).not.toBeInTheDocument()
+  const holder = (element: HTMLElement) => element.closest('.page-holder')!
+  expect(holder(await screen.findByText('Drill surface'))).not.toHaveAttribute('aria-hidden', 'true')
+  // The conversation stays mounted underneath, hidden rather than destroyed.
+  expect(holder(screen.getByLabelText('Draft'))).toHaveAttribute('aria-hidden', 'true')
   expect(localStorage.getItem('skellyspeak.practice-view')).toBe('drill')
 
-  fireEvent.click(within(switcher).getByRole('button', { name: 'Chat' }))
-  expect(screen.getByLabelText('Draft')).toBeInTheDocument()
-  expect(screen.queryByText('Drill surface')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
+  expect(holder(screen.getByLabelText('Draft'))).not.toHaveAttribute('aria-hidden', 'true')
+  expect(screen.getByLabelText('Draft')).toHaveValue('Still here')
+  expect(screen.getByText('Practice surface: panel')).toBeInTheDocument()
+  expect(holder(screen.getByText('Drill surface'))).toHaveAttribute('aria-hidden', 'true')
   expect(localStorage.getItem('skellyspeak.practice-view')).toBe('chat')
   localStorage.removeItem('skellyspeak.practice-view')
+})
+
+it('reaches the conversation from a skill action even when Practice was the previous destination', async () => {
+  render(<App />)
+  const navigation = screen.getByRole('navigation', { name: 'Main navigation' })
+  fireEvent.click(within(navigation).getByRole('button', { name: 'Practice' }))
+  await screen.findByText('Drill surface')
+  fireEvent.click(within(navigation).getByRole('button', { name: 'Skills' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Practice this skill' }))
+  expect(screen.getByLabelText('Draft').closest('.page-holder')).toHaveAttribute('aria-hidden', 'false')
+  expect(useNavigationStore.getState()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: 'chat' })
 })
 
 it('connects the page stub to hosted sign-in through the session store', async () => {

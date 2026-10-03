@@ -13,17 +13,18 @@ import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
-import { ModeTabs } from './ModeTabs'
+import { Destinations } from './Destinations'
 import { SkillRadarGlyph } from '../../components/learning/SkillRadar'
 import { holdingBack, languageSkillLevels } from '../../domain/learning/statistics/skill-levels'
 import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { ThemeControls } from './ThemeControls'
 
-/** The global bar: the wordmark, the language, the Chat and Practice tabs at full
- * width, progress, Settings and More. Controls that belong to a place live in
- * that place (Conversations in the chat header; the AI status in the chat
- * composer, with AI activity under More everywhere). The theme and palette
- * sit here when the bar has room, and always in Settings.
+/** The global bar: the wordmark, the language, then the Practice and Skills
+ * destinations, progress, Settings and More. The conversation is home: the
+ * wordmark returns to it. Controls that belong to a place live in that place
+ * (Conversations in the chat header; the AI status in the chat composer, with
+ * AI activity under More everywhere). The theme and palette sit here when the
+ * bar has room, and always in Settings.
  * The injected picker supports the local layout fixture; production selection
  * uses the shared settings writer. */
 export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker?: ReactNode }) {
@@ -54,10 +55,9 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SkellySpeak</span>
       </button>
-      {/* Where you are comes first and leads the bar; the language and the rest follow. */}
-      <ModeTabs />
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
+      <Destinations />
       <ThemeControls />
       {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the full report. */}
       <div ref={progressAnchor} className="progress-anchor" {...progressCard.anchor}>

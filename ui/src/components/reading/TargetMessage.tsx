@@ -142,7 +142,9 @@ export function TargetMessage({
   const translationOpen = translationOverride ?? preferences.autoTranslate
   const sound = preferences.supportsRomanization && romanization ? romanization : pronunciation
   const [soundOverride, setSoundOverride] = useState<boolean | null>(null)
-  const soundOpen = soundOverride ?? (preferences.supportsRomanization && romanization ? preferences.alwaysRomanize : preferences.alwaysPronunciation)
+  const soundOpen = soundOverride ?? (sound
+    ? (preferences.supportsRomanization && romanization ? preferences.alwaysRomanize : preferences.alwaysPronunciation)
+    : wordsOpen && (wordsOverride === true || preferences.alwaysRomanize || preferences.alwaysPronunciation))
   useEffect(() => { setWordsOverride(null) }, [preferences.autoTranslate, preferences.alwaysRomanize, preferences.alwaysPronunciation])
 
   const words = useSourceRequest(sourceKey)
@@ -226,16 +228,16 @@ export function TargetMessage({
     {playback?.error && <ErrorDetails onRetry={() => playback.onToggle()} label={tr("Speech")} errorKey={playback.error.text} explanation={playback.error.text}><ResponseDetails value={playback.error.details} /></ErrorDetails>}
   </>
   const tools: MessageTool[] = [
-    ...(shownTranslation || canLookup || translationWorking ? [{ key: 'translate', label: tr("Translate"), ariaLabel: translateLabel ?? undefined,
-      pressed: translationShown, pending: translating.pending || translationWorking, disabled: translating.pending, onSelect: () => void toggleTranslation() }] : []),
+    ...(shownTranslation || canLookup || translationWorking ? [messageTools.translate({ ariaLabel: translateLabel ?? undefined,
+      pressed: translationShown, pending: translating.pending || translationWorking, disabled: translating.pending, onSelect: () => void toggleTranslation() })] : []),
   ]
   const more: MessageTool[] = [
     messageTools.words({ pressed: wordsOpen, pending: segmentsPending || words.pending,
       disabled: words.pending || (known.length === 0 && !canLookup), onSelect: () => void toggleWords() }),
-    ...(messageAnalysis ? [messageTools.details('analysis', { pending: messageAnalysis.pending, onSelect: messageAnalysis.onOpen })] : []),
-    ...(sound || hasPhonetics || bulkReading ? [{ key: 'sound', label: tr('Pronunciation'), pressed: soundOpen,
+    ...(sound || hasPhonetics || bulkReading ? [messageTools.pronunciation({ pressed: soundOpen,
       pending: phonetics.pending, disabled: !sound && !hasPhonetics && !canLookup,
-      onSelect: () => void showPhonetics(!soundOpen || phonetics.error != null) }] : []),
+      onSelect: () => void showPhonetics(!soundOpen || phonetics.error != null) })] : []),
+    ...(messageAnalysis ? [messageTools.analysis({ pending: messageAnalysis.pending, onSelect: messageAnalysis.onOpen })] : []),
   ]
   const actions = <MessageTools tools={tools} inspect={inspect} more={more}
     play={playback && { playing: playback.speaking, preparing: 'preparing' in playback && playback.preparing, disabled: playback.disabled, onToggle: playback.onToggle }}

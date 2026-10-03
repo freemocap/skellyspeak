@@ -151,7 +151,7 @@ function TurnContents({
   const replyText = turn.assistant?.reply || replyStream?.text || retainedReplyText(turn.execution) || ''
   const reveal = useReplyReveal(replyText, arrivedPending.current && (Boolean(turn.assistant) || turn.replyState?.state === 'pending'))
 
-  const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
+  const { autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization } = useReadingPreferences()
   // Your recording's inspector opens only when you ask for it.
   const [inspectorOpen, setInspectorOpen] = useState(false)
   const [partnerInspectorOpen, setPartnerInspectorOpen] = useState(false)
@@ -160,7 +160,9 @@ function TurnContents({
     enabled: recording?.enabled ?? false, rate: recording?.rate ?? 1, volume: recording?.volume ?? 1, onError: setRecordingFailure })
   const aidsEnabled = autoTranslate || alwaysRomanize || alwaysPronunciation
   const [userWordsOverride, setUserWordsOverride] = useState<boolean | null>(null)
+  const [userSoundOverride, setUserSoundOverride] = useState<boolean | null>(null)
   const userWordsOpen = userWordsOverride ?? aidsEnabled
+  const userSoundOpen = userSoundOverride ?? (userWordsOpen && (userWordsOverride === true || alwaysRomanize || alwaysPronunciation))
   const aidSpace = useReadingAidSpace(userWordsOverride === true)
   useEffect(() => { setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation])
   const { snapshot } = useContext(SkillEvidenceContext)
@@ -196,12 +198,14 @@ function TurnContents({
     ? { playing: recordingPlayback.playing, disabled: !inspectable.enabled || !inspectable.result.audioBase64, onToggle: recordingPlayback.toggle }
     : readAloud
   const learnerTools: MessageTool[] = userTranslation || translationPending(turn.userTranslationState)
-    ? [{ key: 'translate', label: tr("Translate"), ariaLabel: tr("Translate your message"),
-      pressed: showUserTranslation, pending: translationPending(turn.userTranslationState), onSelect: () => setShowUserTranslation(!showUserTranslation) }]
+    ? [messageTools.translate({ ariaLabel: tr("Translate your message"),
+      pressed: showUserTranslation && Boolean(userTranslation), pending: translationPending(turn.userTranslationState), onSelect: () => setShowUserTranslation(!showUserTranslation) })]
     : []
   const learnerMore = (coachTool: MessageTool): MessageTool[] => [
     messageTools.words({ pressed: userWordsOpen, pending: turn.userGlossState === 'running', disabled: !userSegments.length,
       onSelect: () => setUserWordsOverride(!userWordsOpen) }),
+    ...(userSegments.some(part => supportsRomanization ? part.romanization || part.pronunciation : part.pronunciation)
+      ? [messageTools.pronunciation({ pressed: userSoundOpen, onSelect: () => setUserSoundOverride(!userSoundOpen) })] : []),
     coachTool,
   ]
 
@@ -220,7 +224,7 @@ function TurnContents({
                 style={aidSpace}
               >
                 {userSegments.length > 0
-                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
+                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} showSound={userSoundOverride ?? undefined} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
                   : plainMarked}
                 {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
                 <TranslationStatus state={turn.userTranslationState} shown={showUserTranslation && !userTranslation} />

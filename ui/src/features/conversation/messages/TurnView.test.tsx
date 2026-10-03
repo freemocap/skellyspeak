@@ -27,6 +27,28 @@ function props(): Props {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
   return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onBubbleTap: vi.fn(), onSpeak: vi.fn(), onAskCoach: vi.fn(), editing: false }
 }
+it('uses matching reading tools and independently toggles pronunciation on either speaker', () => {
+  const input = props()
+  input.turn.assistant!.tokens[0].pronunciation = 'OH-lah'
+  input.turn.assistant!.user_tokens[0] = { ...input.turn.assistant!.tokens[0] }
+  const view = render(<TurnView {...input} />)
+  const learner = view.container.querySelector('.msg.me') as HTMLElement
+  const partner = view.container.querySelector('.msg.bot') as HTMLElement
+  for (const bubble of [learner, partner]) {
+    const toolbar = bubble.querySelector('.message-tools') as HTMLElement
+    expect(within(toolbar).getAllByRole('button').filter(button => ['Translate', 'Words', 'Pronunciation', 'Analysis'].includes(button.title)).map(button => button.title))
+      .toEqual(['Translate', 'Words', 'Pronunciation', 'Analysis'])
+    const pronunciation = within(toolbar).getByRole('button', { name: 'Pronunciation' })
+    expect(pronunciation).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(pronunciation)
+    expect(pronunciation).toHaveAttribute('aria-pressed', 'true')
+    expect(bubble.querySelector('.wpronunciation')).toHaveTextContent('OH-lah')
+    expect(bubble.querySelector('.wg')).toBeNull()
+    expect((bubble === learner ? partner : learner).querySelector('.wpronunciation')).toBeNull()
+    fireEvent.click(pronunciation)
+    expect(bubble.querySelector('.wpronunciation')).toBeNull()
+  }
+})
 it('places the persona reaction on the reply', () => {
   const input = props()
   input.turn.reaction = { kind: 'confused', answer: {choice:'confused',probabilities:{confused:1},confidence:1} }
@@ -204,7 +226,7 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   expect(grade).toHaveTextContent('Feedback')
   expect(grade.closest('.msg.me')).toBeNull()
   openMenus()
-  expect(screen.getByRole('button', { name: 'Coach your message' }).closest('.message-actions')).not.toBeNull()
+  expect(screen.getByRole('button', { name: 'Analysis' }).closest('.message-actions')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'false')
@@ -289,9 +311,10 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   openMenus()
   for (const bubble of [learner, partner]) {
     expect(within(bubble).getByRole('button', { name: /Translate/ }).closest('.message-actions')).not.toBeNull()
-    const detail = within(bubble).getByRole('button', { name: bubble === learner ? 'Coach your message' : 'Analysis' })
+    const detail = within(bubble).getByRole('button', { name: 'Analysis' })
     expect(detail.closest('.message-actions')).not.toBeNull()
-    expect(detail).toHaveTextContent(bubble === learner ? 'Coach' : 'Analysis')
+    // Row tools are icons: the name is the tooltip, not visible text.
+    expect(detail).toHaveAttribute('title', 'Analysis')
   }
   openMenus()
   const words = within(learner).getByRole('button', { name: 'Words' })
@@ -304,7 +327,7 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
   for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
   openMenus()
-  fireEvent.click(within(learner).getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Analysis' }))
   const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(dialog.parentElement).toBe(document.body)
 })

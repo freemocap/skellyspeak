@@ -276,7 +276,7 @@ export default function ConversationPage({
 
   const streamTail = pendingMessage ? `sending:${pendingMessage.key}:${pendingMessage.phase}`
     : (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
-  const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
+  const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail, active)
   // New messages go to the tail; revisions stay at the message being edited.
   const jumpToLatest = useRef(streamScroll.jumpToLatest)
   jumpToLatest.current = streamScroll.jumpToLatest
@@ -289,7 +289,7 @@ export default function ConversationPage({
     if (id !== undefined) setPinnedId(id)
     setPanelTab('coaching')
     if (!breakOpen) toggleBreak()
-    if (isMobile) useNavigationStore.getState().openPractice('panel')
+    if (isMobile) useNavigationStore.getState().openConversation('panel')
     // Phones: opening moves no focus, so nothing scrolls to reveal the field and
     // no keyboard opens over the popover. The learner taps the field to ask.
     if (!isMobile) requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus({ preventScroll: true }))
@@ -486,7 +486,7 @@ export default function ConversationPage({
     setSelectedMessage({ id, side })
     setPanelTab('coaching')
     if (!breakOpen) toggleBreak()
-    if (isMobile) useNavigationStore.getState().openPractice('panel')
+    if (isMobile) useNavigationStore.getState().openConversation('panel')
   }
   const coachedTurn = selectedTurn ?? activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
   const editBlocked = acceptingSend.current || acceptedEditSource !== null
@@ -595,14 +595,14 @@ export default function ConversationPage({
   // covers the conversation as a sheet: Back, Escape, the scrim and its close
   // control fold it away.
   const coachCovers = isMobile && mobileSurface === 'panel'
-  const closeCoach = useCallback(() => useNavigationStore.getState().openPractice('chat'), [])
+  const closeCoach = useCallback(() => useNavigationStore.getState().openConversation('chat'), [])
   useEffect(() => {
-    if (!coachCovers) return
+    if (!active || !coachCovers) return
     const release = openOverlay(closeCoach)
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeCoach() }
     window.addEventListener('keydown', onKey)
     return () => { release(); window.removeEventListener('keydown', onKey) }
-  }, [coachCovers, closeCoach])
+  }, [active, coachCovers, closeCoach])
   // The coach slides in only after the learner opens it, not on first open of the page.
   const [surfaceSwitched, setSurfaceSwitched] = useState(false)
   const shownSurface = useRef(mobileSurface)

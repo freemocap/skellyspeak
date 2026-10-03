@@ -36,6 +36,8 @@ interface SettingsState {
   /// key and as "a save has happened since mount", so a read must not look like
   /// one.
   revision: number
+  /** Settings invalidation for learning evidence; appearance-only writes retain it. */
+  evidenceRevision: number
   /// A language write is in flight. Kept separate from the reading-preference
   /// flag because the two gate different controls; one shared flag would disable
   /// the language pickers while a reading toggle saved, and the reverse.
@@ -81,8 +83,25 @@ const initialState = {
   settings: null as Settings | null,
   readRequest: null as { changed: boolean } | null,
   revision: 0,
+  evidenceRevision: 0,
   savingLanguage: false,
   savingPreference: false,
+}
+
+/** Theme/palette writes advance the native learner revision without changing
+ * evidence. Keep every other settings change and scope identity conservative. */
+function changesEvidenceScope(previous: Settings | null, next: Settings): boolean {
+  if (!previous) return true
+  if (previous.theme === next.theme && JSON.stringify(previous.appearance) === JSON.stringify(next.appearance)) return true
+  const keys = Object.keys({ ...previous, ...next }) as (keyof Settings)[]
+  return keys.some(key => {
+    if (key === 'theme' || key === 'appearance') return false
+    if (key === 'scope') return previous.scope?.sessionId !== next.scope?.sessionId
+      || previous.scope?.conversationId !== next.scope?.conversationId
+      || previous.scope?.settingsRevision !== next.scope?.settingsRevision
+      || previous.scope?.rewardRevision !== next.scope?.rewardRevision
+    return JSON.stringify(previous[key]) !== JSON.stringify(next[key])
+  })
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => {
@@ -90,7 +109,11 @@ export const useSettingsStore = create<SettingsState>((set, get) => {
   /// record, described again.
   const adopt = (saved: Settings, changed: boolean) => {
     applyUiLanguage(saved.interface_locale)
-    set((state) => ({ settings: saved, readRequest: null, revision: changed ? state.revision + 1 : state.revision }))
+    set((state) => ({
+      settings: saved, readRequest: null,
+      revision: changed ? state.revision + 1 : state.revision,
+      evidenceRevision: changed && changesEvidenceScope(state.settings, saved) ? state.evidenceRevision + 1 : state.evidenceRevision,
+    }))
   }
   const read = async (changed: boolean): Promise<Settings> => {
     // A newer read inherits an unadopted write notification. It may replace

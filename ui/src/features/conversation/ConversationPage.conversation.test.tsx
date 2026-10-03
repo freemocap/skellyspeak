@@ -238,10 +238,43 @@ async function draftField() {
 function page() {
   return <ConversationPage nativePicker={null} mobileSurface="chat" active />
 }
+it('retains the real draft, reading position and phone coach selection while the conversation is hidden', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    useNavigationStore.getState().openConversation('panel')
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot('a', 1, 'Hola')))
+    const draft = await draftField()
+    fireEvent.change(draft, { target: { value: 'Keep this draft' } })
+    const stream = document.querySelector<HTMLDivElement>('.stream')!
+    Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 1600 })
+    Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 400 })
+    stream.scrollTop = 120
+    fireEvent.scroll(stream)
+
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active={false} />)
+    // Hidden layout and scroll events must not overwrite the saved reading position.
+    Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 0 })
+    Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 0 })
+    stream.scrollTop = 0
+    fireEvent.scroll(stream)
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(useNavigationStore.getState().mobileSurface).toBe('panel')
+    Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 1600 })
+    Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 400 })
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    expect(document.querySelector('.stream')).toBe(stream)
+    expect(stream.scrollTop).toBe(120)
+    expect(draft).toHaveValue('Keep this draft')
+    expect(document.querySelector('.split.mobile-coach')).not.toBeNull()
+    view.unmount()
+  } finally { media.mockRestore() }
+})
 it('opens the conversation list from the chat header and lets the coach cover the chat on phones', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   const onHistory = vi.fn()
-  useNavigationStore.getState().openPractice('panel')
+  useNavigationStore.getState().openConversation('panel')
   const view = render(<ConversationPage nativePicker={null} mobileSurface="panel" active onHistoryOpenChange={onHistory} />)
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot()))
@@ -277,7 +310,7 @@ it('puts the recording panel’s divider on the panel’s own edge, with the row
 it('opens the coach on phones as a full-screen modal, over the recorder, without moving focus into it', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
@@ -302,7 +335,7 @@ it('opens the coach on phones as a full-screen modal, over the recorder, without
 it('gives the AI tray its place on phones, right above the AI pill, and takes it back under the coach', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
@@ -327,7 +360,7 @@ it('lets opened reply help on phones be dragged to a height it keeps', async () 
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
     localStorage.removeItem('skellyspeak_pane_reply-help')
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(exchangeSnapshot()))
@@ -348,7 +381,7 @@ it('lets opened reply help on phones be dragged to a height it keeps', async () 
 it('opens the coach from the row above the answer in the compact layout, as on phones', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
@@ -662,7 +695,7 @@ it('edits through the real page handler, sends durable identity and renders reta
   openMenus()
   const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
-  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(within(edit.closest('.msg') as HTMLElement).getByRole('button', { name: 'Analysis' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit and resend message' }))
   const composer = (await draftField())
   expect(composer).toHaveValue('Yo fue ayer')
@@ -1027,7 +1060,7 @@ it('keeps coach controls equal to chat and opens analysis and editing from the c
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close Message analysis' }))
   fireEvent.click(within(stream).getByRole('group', { name: 'Your message' }))
   expect(controls(panel.querySelector('.msg.me')!)).toEqual(controls(stream.querySelector('.msg.me')!))
-  fireEvent.click(within(panel).getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(within(panel).getByRole('button', { name: 'Analysis' }))
   const feedback = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(feedback).toBeVisible()
   fireEvent.click(within(feedback).getByRole('button', { name: 'Edit and resend message' }))

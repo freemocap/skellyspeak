@@ -27,7 +27,7 @@ it('leaves the AI status to the chat composer', () => {
   expect(screen.queryByRole('button', { name: /^AI (Not )?Connected$/ })).toBeNull()
   expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument()
 })
-it('keeps the target language reachable, with the Chat and Practice tabs leading the bar', () => {
+it('keeps the target language reachable, with Practice and Skills as destinations among the bar\'s controls', () => {
   const setLanguage = vi.fn().mockResolvedValue(undefined)
   useSettingsStore.setState({selectLanguageVariety:setLanguage})
   useNavigationStore.getState().openSkills()
@@ -40,14 +40,16 @@ it('keeps the target language reachable, with the Chat and Practice tabs leading
   // The conversation list opens from the chat header; the theme is in Settings.
   expect(screen.queryByRole('button', {name:'Conversations'})).toBeNull()
   expect(screen.queryByRole('button', {name:/Switch to (dark|light) mode/})).toBeNull()
-  // Chat and Practice come straight after the wordmark, before the language and
-  // the bar's controls, in the one row the bar has at every width.
-  const tabs = screen.getByRole('navigation', {name:'Main navigation'})
-  expect(within(tabs).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
+  // The conversation is home and has no button; Practice and Skills follow the
+  // language, with the bar's other controls, in the one row the bar has at
+  // every width.
+  const destinations = screen.getByRole('navigation', {name:'Main navigation'})
+  expect(within(destinations).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Skills'])
   const following = (first: Element, second: Element) => Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
-  expect(following(screen.getByRole('button', {name:/SkellySpeak home/}), tabs)).toBe(true)
-  expect(following(tabs, screen.getByRole('button', {name:'Target language'}))).toBe(true)
-  expect(following(tabs, screen.getByRole('button', {name:'More'}))).toBe(true)
+  expect(following(screen.getByRole('button', {name:/SkellySpeak home/}), destinations)).toBe(true)
+  expect(following(screen.getByRole('button', {name:'Target language'}), destinations)).toBe(true)
+  expect(following(destinations, screen.getByRole('button', {name:'More'}))).toBe(true)
+  expect(within(destinations).getByRole('button', {name:'Skills'})).toHaveAttribute('aria-current', 'page')
 })
 it('disables language switching during a save or settings edit', () => {
   useSettingsStore.setState({savingLanguage:true})
@@ -58,16 +60,18 @@ it('disables language switching during a save or settings edit', () => {
   view.rerender(<TopBar />)
   expect(screen.getByRole('button', {name:'Target language'})).toBeDisabled()
 })
-it('returns from review to Chat or Practice from the tabs and preserves secondary navigation', () => {
+it('moves between the destinations, returns home from the wordmark and preserves secondary navigation', () => {
   useNavigationStore.getState().setMode('review')
   render(<TopBar />)
-  const tabs = screen.getByRole('navigation', {name:'Main navigation'})
-  expect(within(tabs).getByRole('button', {name:'Chat'})).not.toHaveAttribute('aria-current')
-  fireEvent.click(within(tabs).getByRole('button', {name:'Practice'}))
-  expect(useNavigationStore.getState()).toMatchObject({mode:'practice',page:'guided',practiceView:'drill'})
-  expect(within(tabs).getByRole('button', {name:'Practice'})).toHaveAttribute('aria-current', 'page')
-  fireEvent.click(within(tabs).getByRole('button', {name:'Chat'}))
+  const destinations = screen.getByRole('navigation', {name:'Main navigation'})
+  expect(within(destinations).getByRole('button', {name:'Practice'})).not.toHaveAttribute('aria-current')
+  fireEvent.click(within(destinations).getByRole('button', {name:'Practice'}))
+  expect(useNavigationStore.getState()).toMatchObject({mode:'practice',page:'guided',practiceView:'drill',drillOpened:true})
+  expect(within(destinations).getByRole('button', {name:'Practice'})).toHaveAttribute('aria-current', 'page')
+  expect(within(destinations).getByRole('button', {name:'Skills'})).not.toHaveAttribute('aria-current')
+  fireEvent.click(screen.getByRole('button', {name:/SkellySpeak home/}))
   expect(useNavigationStore.getState()).toMatchObject({page:'guided',practiceView:'chat',mobileSurface:'chat'})
+  expect(within(destinations).queryByRole('button', {current:'page'})).toBeNull()
   fireEvent.click(screen.getByRole('button', {name:'More'}))
   expect(useNavigationStore.getState().overlay).toBe('more')
 })

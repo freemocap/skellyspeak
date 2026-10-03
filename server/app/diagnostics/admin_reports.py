@@ -29,6 +29,19 @@ def profile(doc, policy):
             'admin_revision': int(data.get('admin_revision', 0)), 'token_version': int(data.get('token_version', 0))}
 
 
+def email_label(value):
+    """Presentation masking only; full identity remains in the owner detail route."""
+    if not isinstance(value, str) or '@' not in value:
+        return None
+    local, domain = value.rsplit('@', 1)
+    if not local or not domain:
+        return None
+    # Fixed dots hide length. Short components are completely concealed.
+    def mask(part):
+        return part[0] + '•••' + part[-1] if len(part) > 2 else '•••'
+    return mask(local) + '@' + mask(domain)
+
+
 def overview(db, cfg, *, days=30, after=''):
     policy = admin_controls.effective(db, cfg)
     collection = db.collection(quota.USERS)
@@ -39,6 +52,7 @@ def overview(db, cfg, *, days=30, after=''):
     users = []
     for doc in docs[:25]:
         row = profile(doc, policy)
+        row['email_label'] = email_label((doc.to_dict() or {}).get('email'))
         ref = collection.document(doc.id)
         row['usage'] = usage(ref.collection(quota.USAGE), 1)[0]
         # Batch reads of existing UTC day records; never create an aggregate

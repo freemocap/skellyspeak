@@ -65,3 +65,16 @@ it('does not let a late startup read replace a new selection and orders writes',
   store.getState().setPracticeView('chat')
   await vi.waitFor(() => expect(api.savePracticeView.mock.calls.map(call => call[0])).toEqual(['drill', 'chat']))
 })
+
+it('does not reopen saved Drill after an explicit conversation request during startup', async () => {
+  runtime.isTauri = true
+  let resolve!: (view: string) => void
+  api.getPracticeView.mockReturnValue(new Promise(done => { resolve = done }))
+  const store = await reloadNavigation()
+  const restoring = store.getState().restorePracticeView()
+  store.getState().openConversation('panel')
+  resolve('drill')
+  await restoring
+  expect(store.getState()).toMatchObject({ practiceView: 'chat', mobileSurface: 'panel' })
+  await vi.waitFor(() => expect(api.savePracticeView).toHaveBeenCalledWith('chat'))
+})

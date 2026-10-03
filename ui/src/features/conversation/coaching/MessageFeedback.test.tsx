@@ -65,7 +65,7 @@ it('distinguishes pending, failed, and missing feedback', () => {
 })
 
 
-it.each(['Coach feedback for message 3', 'Coach your message'])('requires durable disclosure through %s before showing help', async label => {
+it.each(['Coach feedback for message 3', 'Analysis'])('requires durable disclosure through %s before showing help', async label => {
   let complete!: () => void
   const control = vi.fn(() => new Promise<void>(resolve => { complete = resolve }))
   const unexposed = { ...decision, exposedMove: null }
@@ -82,18 +82,18 @@ it.each(['Coach feedback for message 3', 'Coach your message'])('requires durabl
 it('keeps an unexposed hint hidden on a stale disclosure failure and allows explicit retry', async () => {
   const control = vi.fn().mockRejectedValue(new Error('Coaching is unavailable.'))
   render(<MessageFeedback {...frame} {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
-  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Coach your message' })))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Analysis' })))
   expect(screen.getByRole('dialog')).toBeVisible()
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   expect(screen.getByRole('alert')).toHaveTextContent('Coaching is unavailable.')
   expect(control).toHaveBeenCalledOnce()
-  expect(screen.getByRole('button', { name: 'Coach your message' })).toBeEnabled()
+  expect(screen.getByRole('button', { name: 'Analysis' })).toBeEnabled()
 })
 
 it('records disclosure before showing newly arrived feedback in the open dialog', async () => {
   const control = vi.fn().mockResolvedValue(undefined)
   const view = render(<MessageFeedback {...frame} {...base} decision={undefined} feedback={undefined} reviewing onControl={control} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
   view.rerender(<MessageFeedback {...frame} {...base} decision={{ ...decision, exposedMove: null }} onControl={control} />)
   expect(screen.queryByText('Which form goes with yo?')).toBeNull()
   await act(async () => {})
@@ -106,7 +106,7 @@ it('records disclosure before showing newly arrived feedback in the open dialog'
 it('opens the same modal immediately and keeps errors inside it', async () => {
   const control = vi.fn().mockRejectedValue(new Error('No correction is available.'))
   render(<MessageFeedback {...frame} {...base} decision={{...decision,shown:null}} onControl={control} analysis={<p>Me gusta means I like.</p>} />)
-  await act(async () => fireEvent.click(screen.getByRole('button', {name:'Coach your message'})))
+  await act(async () => fireEvent.click(screen.getByRole('button', {name:'Analysis'})))
   expect(screen.getByRole('dialog')).toHaveTextContent('Me gusta means I like.')
   expect(screen.getByRole('dialog')).toHaveTextContent('No correction is available.')
   expect(screen.getByRole('button', {name:'Coach feedback for message 3'})).not.toHaveTextContent('Reviewed')
@@ -134,7 +134,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
 it('uses the shared Ask action and closes feedback before handing off its question', () => {
   const ask = vi.fn()
   render(<MessageFeedback {...frame} {...base} onAsk={ask} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
   fireEvent.click(screen.getByRole('button', { name: 'Ask the coach' }))
   expect(screen.queryByRole('dialog')).toBeNull()
   expect(ask).toHaveBeenCalledWith(expect.stringContaining('Help me understand the feedback on my message:'))
@@ -143,7 +143,7 @@ it('uses the shared Ask action and closes feedback before handing off its questi
 it('closes both feedback and nested token details when asking about a token', () => {
   const ask = vi.fn()
   render(<MessageFeedback {...frame} {...base} onAsk={ask} analysis={<SavedGlossText text="Hola" segments={[{ start: 0, end: 4, kind: 'gloss', gloss: 'hello' }]} />} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
   fireEvent.click(screen.getByRole('button', { name: 'Hola' }))
   const help = screen.getByRole('group', { name: 'Word help' })
   fireEvent.click(within(help).getByRole('button', { name: 'Ask the coach' }))
@@ -183,7 +183,7 @@ it('reveals feedback that finishes while its window is already open', async () =
 
 it('places skill details after coaching corrections', () => {
   render(<MessageFeedback {...frame} {...base} skills={<details><summary>Skills</summary>Evidence</details>} />)
-  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Analysis' }))
   const hint = within(screen.getByRole('dialog')).getByText('Which form goes with yo?')
   const skills = screen.getByText('Skills')
   expect(hint.compareDocumentPosition(skills) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()

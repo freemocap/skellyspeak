@@ -36,8 +36,8 @@ export function PendingBubble({ side, text, visibleText, streaming = false, rtl,
     {text ? <ReceivedText text={text} visibleText={visibleText} streaming={streaming} rtl={rtl} /> : <p className="reply-received target-text reply-placeholder" aria-hidden="true" />}
     {translationSlot && <div className="trans hydrating-slot" data-phase="waiting" aria-hidden="true"><span className="hydrating-label">{tr("Translating…")}</span><span className="hydrating-line" /></div>}
     <MessageTools pending={activity} play={side === 'bot' || readAloud ? { playing: false, onToggle: noop } : null} inspect={null}
-      tools={[{ key: 'translate', label: tr("Translate"), onSelect: noop }]}
-      more={[messageTools.words({ onSelect: noop }), messageTools.details(side === 'me' ? 'coach' : 'analysis', { onSelect: noop })]}
+      tools={[messageTools.translate({ onSelect: noop })]}
+      more={[messageTools.words({ onSelect: noop }), messageTools.analysis({ onSelect: noop })]}
       actions={<>{side === 'me' && <button type="button" disabled className="message-tools-icon"><ToolbarIcon name="edit" /></button>}<AddToDrillButton text={text ?? ''} /></>} />
   </div>
 }

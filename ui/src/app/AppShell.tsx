@@ -41,6 +41,7 @@ import { useAppShortcuts } from './shortcuts/useAppShortcuts'
 /// is copied into component state and nothing can go stale behind a store update.
 export function AppShell() {
   const page = useNavigationStore((state) => state.page)
+  const practiceView = useNavigationStore(state => state.practiceView)
   // The place on screen colours the band under the top bar: Chat, Practice, or
   // neither (the skill tree).
   const place = useNavigationStore((state) => state.page === 'skills' ? 'skills' : state.practiceView === 'drill' ? 'practice' : 'chat')
@@ -63,9 +64,9 @@ export function AppShell() {
   // A skill-map request from anywhere opens the tree.
   const mapRequest = useSkillNavigationStore((state) => state.mapRequest)
   useEffect(() => { if (mapRequest) useNavigationStore.getState().openSkills() }, [mapRequest])
-  // Android back returns the narrow-window skill tree to the conversation.
+  // Android back returns either destination to the retained conversation.
   const isMobile = useIsMobile()
-  useEffect(() => isMobile && page === 'skills' ? openOverlay(() => useNavigationStore.getState().showPage('guided')) : undefined, [isMobile, page])
+  useEffect(() => isMobile && (page === 'skills' || practiceView === 'drill') ? openOverlay(() => useNavigationStore.getState().openConversation()) : undefined, [isMobile, page, practiceView])
   // A settings write can move the AI access projection with it.
   useEffect(() => {
     if (settingsVersion === 0) return
@@ -88,7 +89,7 @@ export function AppShell() {
     void onReadingQuestion(question => {
       const navigation = useNavigationStore.getState()
       navigation.draftReadingQuestion(question)
-      if (!navigation.settingsBusy) navigation.openPractice('panel')
+      if (!navigation.settingsBusy) navigation.openConversation('panel')
     }).then(stop => { if (closed) stop(); else unlisten = stop }).catch(error => reportFault('Reading question navigation', error))
     return () => { closed = true; unlisten?.() }
   }, [])
