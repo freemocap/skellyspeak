@@ -1,0 +1,386 @@
+# yaml-language-server: $schema=../schemas/communication.yaml
+# Replacement catalog under authoring validation; not yet used for runtime assessment.
+schema_version: 1
+revision: communication-2026-10-03
+definition_language: english
+origin: ai
+authorship: AI-generated editorial definitions from the agreed eight-group design; not human-reviewed language guides.
+review: needs_review
+sources: [threshold_general_notions, waystage_language_functions, bunt2020_dialogue_acts, dingemanse2015_communication_repair]
+groups:
+  - id: people_places
+    boundary: "Require an identifiable referent and a correctly expressed property, spatial relation, quantity or relationship. Naming alone does not demonstrate every function in this group."
+    name: "People, things, and places"
+    purpose: "Establish referents and describe properties, locations, quantities and relationships."
+    subskills:
+      - id: identification
+        name: "Identification"
+        purpose: "Establish who or what a referent is."
+        positive_evidence: "Names or distinguishes a referent, including a contextually identifying short answer."
+        counterexample: "A bare noun in a copied vocabulary list does not identify a referent in an exchange."
+        context: contribution
+        boundary: "Naming is not automatically describing a quality or locating an event in time."
+        neighbors: [qualities_states, answering_information]
+      - id: qualities_states
+        name: "Qualities and states"
+        purpose: "Describe a referent's properties or condition."
+        positive_evidence: "Attributes a quality or state to an identifiable referent."
+        counterexample: "Mentioning a person without saying anything about their properties."
+        context: contribution
+        boundary: "A current state does not separately establish temporal skill unless present-time meaning matters."
+        neighbors: [identification, present_events]
+      - id: location_movement
+        name: "Location and movement"
+        purpose: "Locate referents and describe spatial relations or paths."
+        positive_evidence: "Expresses where something is or how it moves relative to a place or reference point."
+        counterexample: "Naming a place as a title without locating anything there."
+        context: contribution
+        boundary: "A spatial path is distinct from the temporal ordering of events."
+        neighbors: [identification, event_sequence]
+      - id: possession_relations
+        name: "Possession and relationships"
+        purpose: "Express ownership, association or interpersonal relationships."
+        positive_evidence: "Relates participants or things through possession, kinship, association or belonging."
+        counterexample: "Listing two people without relating them."
+        context: contribution
+        boundary: "Association and access do not establish legal ownership; describe the relation actually expressed."
+        neighbors: [identification, qualities_states]
+      - id: quantity_comparison
+        name: "Quantity and comparison"
+        purpose: "Express amounts, proportions or comparative relationships."
+        positive_evidence: "Specifies a quantity or compares referents along an identifiable dimension."
+        counterexample: "A number used only as an identifier, such as a bus route."
+        context: contribution
+        boundary: "Comparison requires a scale or relation; describing one quality alone is not comparison."
+        neighbors: [qualities_states, duration_frequency]
+  - id: time_events
+    boundary: "One correctly expressed temporal relationship is sufficient. Present properties alone do not establish temporal skill. Judge meaning in context, not a tense label."
+    name: "Time and events"
+    purpose: "Locate events in time and express their temporal structure."
+    subskills:
+      - id: present_events
+        name: "Present situations"
+        purpose: "Situate a state, activity or habit in the current reference period."
+        positive_evidence: "Establishes current or habitual relevance through the contribution and context."
+        counterexample: "An identifying sentence with no meaningful temporal contrast or anchoring."
+        context: contribution
+        boundary: "No particular tense is required; a property assertion alone does not merit an additional temporal label."
+        neighbors: [qualities_states, duration_frequency]
+      - id: past_events
+        name: "Past events"
+        purpose: "Locate an event before now or another established reference time."
+        positive_evidence: "Communicates an earlier event, including a short answer under a clearly past-time question."
+        counterexample: "A verb form conventionally called past used only for politeness or hypothetical distance."
+        context: contribution
+        boundary: "Judge temporal reference rather than morphology; completed aspect alone need not mean past time."
+        neighbors: [event_phase, future_events]
+      - id: future_events
+        name: "Future events"
+        purpose: "Locate an event after now or another established reference time."
+        positive_evidence: "Places an expected, scheduled or intended event later than the reference time."
+        counterexample: "A desire or possibility with no future placement."
+        context: contribution
+        boundary: "Intention and prediction can imply future placement in context but do not guarantee it."
+        neighbors: [wants_intentions, possibility, past_events]
+      - id: duration_frequency
+        name: "Duration and frequency"
+        purpose: "Express how long or how often situations occur."
+        positive_evidence: "Specifies persistence, repetition, intervals or recurrence."
+        counterexample: "A quantity that does not measure time or occurrence frequency."
+        context: contribution
+        boundary: "A repeated event may be past, present or future; award temporal location only when supported."
+        neighbors: [quantity_comparison, present_events]
+      - id: event_sequence
+        name: "Sequence"
+        purpose: "Order events relative to one another."
+        positive_evidence: "Establishes before, after, overlap or a recoverable narrative sequence."
+        counterexample: "Two events listed without an interpretable ordering."
+        context: contribution
+        boundary: "Temporal sequence is not by itself causation or a condition."
+        neighbors: [causes_reasons, conditions, location_movement]
+      - id: event_phase
+        name: "Ongoing and completed events"
+        purpose: "Distinguish unfolding, bounded, completed or changing phases of an event."
+        positive_evidence: "Communicates whether an event is in progress, finished or entering a phase."
+        counterexample: "A past event without evidence about whether it ended."
+        context: contribution
+        boundary: "Languages may express phase through aspect, vocabulary or context; neither a tense nor a suffix is universally required."
+        neighbors: [past_events, present_events]
+  - id: feelings_viewpoints
+    boundary: "Require a correctly expressed feeling, desire, preference or position. An ordinary factual assertion is not automatically an opinion."
+    name: "Feelings and viewpoints"
+    purpose: "Express internal states, evaluations and positions."
+    subskills:
+      - id: wants_intentions
+        name: "Wants and intentions"
+        purpose: "Express desired outcomes or intended action."
+        positive_evidence: "States what someone wants or means to do."
+        counterexample: "A prediction without desire or intention."
+        context: contribution
+        boundary: "A desire is not automatically a request, commitment or future event."
+        neighbors: [future_events, requests, commitments]
+      - id: preferences
+        name: "Preferences"
+        purpose: "Express likes, dislikes or choices between alternatives."
+        positive_evidence: "Communicates a preference, including an answer selecting a favored option."
+        counterexample: "A factual comparison with no evaluative preference."
+        context: contribution
+        boundary: "A preference need not include a comparative construction or a plan to act."
+        neighbors: [opinions, quantity_comparison]
+      - id: emotions
+        name: "Emotions"
+        purpose: "Express a person's emotional response or feeling."
+        positive_evidence: "Communicates an affective state or response with a recoverable experiencer."
+        counterexample: "An assessment of factual likelihood without an emotional stance."
+        context: contribution
+        boundary: "Emotion differs from propositional opinion, though one contribution can support both."
+        neighbors: [opinions, qualities_states]
+      - id: opinions
+        name: "Opinions"
+        purpose: "Express an evaluative position or personal judgment."
+        positive_evidence: "Marks a position or evaluates a proposition, situation or course of action."
+        counterexample: "A neutral report does not become an opinion merely because the speaker says it."
+        context: contribution
+        boundary: "Providing support for a position is a separate function; certainty is not necessarily evaluation."
+        neighbors: [supporting_claims, certainty, preferences]
+      - id: agreement_disagreement
+        name: "Agreement and disagreement"
+        purpose: "Align with or oppose a previously expressed position."
+        positive_evidence: "Accepts, challenges or qualifies an identifiable claim or evaluation."
+        counterexample: "A generic negative statement with no position to agree or disagree with."
+        context: exchange
+        boundary: "Agreeing with a proposition differs from accepting a requested action or invitation."
+        neighbors: [accepting_declining, acknowledging, opinions]
+  - id: possibilities_constraints
+    boundary: "Distinguish ability, permission, obligation and likelihood. Similar wording can serve a request instead; judge the actual function."
+    name: "Possibilities and constraints"
+    purpose: "Express capability, permission, requirements and epistemic limits."
+    subskills:
+      - id: ability
+        name: "Ability"
+        purpose: "Express a participant's capability or practical capacity."
+        positive_evidence: "Communicates whether someone can perform an action in the relevant circumstances."
+        counterexample: "A question-shaped request using ability wording without actually asking about capability."
+        context: contribution
+        boundary: "Distinguish capability from permission, likelihood and the social function of a request."
+        neighbors: [permission, requests, possibility]
+      - id: permission
+        name: "Permission"
+        purpose: "Express whether an action is allowed."
+        positive_evidence: "Asks for, grants, refuses or reports permission under a relevant authority or convention."
+        counterexample: "Reporting skill or physical capability without an allowance relation."
+        context: contribution
+        boundary: "A request for permission can also seek information; it need not ask the partner to perform the action."
+        neighbors: [ability, requests, obligation]
+      - id: obligation
+        name: "Obligation and necessity"
+        purpose: "Express requirements, duties or practical necessity."
+        positive_evidence: "Communicates an action or condition as required rather than merely desired."
+        counterexample: "A strong preference that establishes no requirement."
+        context: contribution
+        boundary: "Distinguish action requirements from an inference expressed with similar modal wording."
+        neighbors: [permission, certainty, wants_intentions]
+      - id: possibility
+        name: "Possibility"
+        purpose: "Express an outcome as possible or contingent."
+        positive_evidence: "Presents an event or state as a live possibility."
+        counterexample: "A condition that relates two events without asserting likelihood."
+        context: contribution
+        boundary: "Possibility concerns an outcome; certainty concerns confidence in a proposition. Do not duplicate them from the same modal alone."
+        neighbors: [certainty, conditions, ability]
+      - id: certainty
+        name: "Certainty and uncertainty"
+        purpose: "Express confidence, doubt or limits of knowledge."
+        positive_evidence: "Qualifies commitment to a proposition or explicitly marks knowledge limits."
+        counterexample: "An unqualified statement is not automatically evidence of expressing certainty."
+        context: contribution
+        boundary: "Confidence differs from obligation and from emotion; evaluate what the qualifier scopes over."
+        neighbors: [possibility, obligation, opinions]
+  - id: reasons_connections
+    boundary: "Require a correctly expressed relationship between ideas. Sequence alone is not causation, a condition or an argument."
+    name: "Reasons and connections"
+    purpose: "Relate propositions through explanation, consequence, condition, contrast and support."
+    subskills:
+      - id: causes_reasons
+        name: "Causes and reasons"
+        purpose: "Explain why an event occurs or a state holds."
+        positive_evidence: "Expresses a causal or explanatory relationship with recoverable linked propositions."
+        counterexample: "Events occurring in sequence without an explanatory relation."
+        context: contribution
+        boundary: "Reasons explain events or choices; supporting a claim justifies accepting a proposition."
+        neighbors: [event_sequence, consequences, supporting_claims]
+      - id: consequences
+        name: "Consequences"
+        purpose: "Express a result or implication of a situation."
+        positive_evidence: "Presents one state or event as following from another."
+        counterexample: "The next event in a story with no result relation."
+        context: contribution
+        boundary: "A cause and its result are one relation viewed from different directions; do not double-count merely for mentioning both."
+        neighbors: [causes_reasons, event_sequence, conditions]
+      - id: conditions
+        name: "Conditions"
+        purpose: "Express when one proposition or outcome depends on another."
+        positive_evidence: "States a contingency linking an outcome to a condition."
+        counterexample: "Mentioning two possible events independently."
+        context: contribution
+        boundary: "A temporal occasion is not always a contingency; assess the expressed dependency."
+        neighbors: [possibility, event_sequence, consequences]
+      - id: contrast
+        name: "Contrast"
+        purpose: "Express an opposition, exception or unexpected relationship."
+        positive_evidence: "Contrasts recoverable alternatives or expectations."
+        counterexample: "Two unrelated statements joined without an opposing relation."
+        context: contribution
+        boundary: "Disagreeing with a partner can use contrast but requires a separate identifiable position."
+        neighbors: [agreement_disagreement, quantity_comparison]
+      - id: supporting_claims
+        name: "Supporting a claim"
+        purpose: "Give grounds for accepting a position or inference."
+        positive_evidence: "Offers evidence, an example or reasoning tied to a claim."
+        counterexample: "Repeating a claim more strongly without adding grounds."
+        context: contribution
+        boundary: "An explanation of an event need not be an argument for a position; identify the claim being supported."
+        neighbors: [opinions, causes_reasons, certainty]
+  - id: information_exchange
+    boundary: "Require successful information seeking or a relevant informative response. Question-shaped requests for action do not qualify just for their form."
+    name: "Information exchange"
+    purpose: "Seek, supply and verify information relevant to the exchange."
+    subskills:
+      - id: asking_information
+        name: "Asking for information"
+        purpose: "Seek an unknown fact, description or explanation."
+        positive_evidence: "Requests information that the partner could supply."
+        counterexample: "Question-shaped wording functioning solely as a request for action."
+        context: contribution
+        boundary: "Clarification concerns understanding a prior contribution; information seeking need not repair understanding."
+        neighbors: [requests, clarification, checking_facts]
+      - id: answering_information
+        name: "Answering relevantly"
+        purpose: "Supply information responsive to an identifiable question."
+        positive_evidence: "Provides an answer that addresses the question, including a contextually complete fragment."
+        counterexample: "An unrelated statement after a question."
+        context: exchange
+        boundary: "A relevant answer can express other meanings; do not infer them from missing context."
+        neighbors: [asking_information, useful_detail, acknowledging]
+      - id: checking_facts
+        name: "Checking facts"
+        purpose: "Verify whether a proposition or reported detail is correct."
+        positive_evidence: "Seeks confirmation or correction of an identifiable factual proposition."
+        counterexample: "Requesting repetition because the prior words were not heard."
+        context: contribution
+        boundary: "Checking truth differs from repairing interpretation or audibility."
+        neighbors: [asking_information, clarification, correcting_misunderstanding]
+      - id: useful_detail
+        name: "Providing useful detail"
+        purpose: "Elaborate or summarize information to meet the exchange's needs."
+        positive_evidence: "Adds a relevant distinction, example or focused summary that resolves the listener's information need."
+        counterexample: "Extra length or repetition with no additional communicative contribution."
+        context: exchange
+        boundary: "Usefulness requires the question or topic context; verbosity alone is not evidence."
+        neighbors: [answering_information, supporting_claims, rephrasing]
+  - id: coordinating_action
+    boundary: "Require a successful request, proposal, commitment or response about action. Merely describing a desire or future event is insufficient."
+    name: "Coordinating action"
+    purpose: "Request, propose and negotiate shared or individual action."
+    subskills:
+      - id: requests
+        name: "Requests"
+        purpose: "Ask another participant to do or stop doing something."
+        positive_evidence: "Seeks action from the addressee, whether direct, indirect or politely framed."
+        counterexample: "A genuine question about capability that seeks only information."
+        context: contribution
+        boundary: "Assess the intended response: action rather than merely an answer about the world."
+        neighbors: [ability, asking_information, wants_intentions]
+      - id: offers_invitations
+        name: "Offers and invitations"
+        purpose: "Propose one's help or another participant's involvement."
+        positive_evidence: "Offers to act for someone or invites them to participate."
+        counterexample: "A report of availability without an offer or invitation in context."
+        context: contribution
+        boundary: "An offer makes one's action available; a commitment undertakes it. An invitation differs from asking a favor."
+        neighbors: [commitments, requests, suggestions]
+      - id: suggestions
+        name: "Suggestions"
+        purpose: "Put forward a possible course of action for consideration."
+        positive_evidence: "Recommends or proposes an action without treating it as already agreed."
+        counterexample: "A prediction about what will happen without a recommendation."
+        context: contribution
+        boundary: "A suggestion need not be a request; negotiating a plan requires responding to constraints or proposals."
+        neighbors: [requests, negotiating_plans, offers_invitations]
+      - id: commitments
+        name: "Commitments"
+        purpose: "Undertake responsibility for a future action."
+        positive_evidence: "Promises, agrees to undertake or confirms responsibility for an action."
+        counterexample: "A statement of desire, ability or future prediction without undertaking responsibility."
+        context: contribution
+        boundary: "Future reference can accompany commitment, but chronology alone does not establish a promise."
+        neighbors: [wants_intentions, future_events, accepting_declining]
+      - id: accepting_declining
+        name: "Accepting and declining"
+        purpose: "Respond to a request, offer, invitation or proposed action."
+        positive_evidence: "Accepts, refuses or qualifies participation in an identifiable action proposal."
+        counterexample: "Agreeing with a factual opinion without an action proposal."
+        context: exchange
+        boundary: "Interpret the response relative to the proposal; a polite acknowledgment may leave acceptance unresolved."
+        neighbors: [agreement_disagreement, acknowledging, negotiating_plans]
+      - id: negotiating_plans
+        name: "Negotiating a plan"
+        purpose: "Adjust proposed action to reconcile participants' needs or constraints."
+        positive_evidence: "Counters, revises or settles a plan in response to an identifiable proposal or constraint."
+        counterexample: "An isolated suggestion with no coordination of alternatives or constraints."
+        context: exchange
+        boundary: "Mentioning a condition alone is not negotiation; identify the plan and the adjustment."
+        neighbors: [suggestions, accepting_declining, conditions]
+  - id: managing_conversation
+    boundary: "Require a successful opening, response, turn/topic action or repair. Sending any message or quoting a greeting does not automatically qualify."
+    name: "Managing conversation"
+    purpose: "Establish contact, coordinate turns and repair mutual understanding."
+    subskills:
+      - id: opening_closing
+        name: "Opening and closing"
+        purpose: "Establish or end a conversational encounter."
+        positive_evidence: "Greets, takes leave or manages a recognizable opening or closing sequence."
+        counterexample: "Quoting a greeting as vocabulary without using it to open an encounter."
+        context: contribution
+        boundary: "Thanks and apologies may participate in openings or closings, but their wording alone does not establish the sequence."
+        neighbors: [acknowledging, turns_topics]
+      - id: acknowledging
+        name: "Acknowledging and responding"
+        purpose: "Register receipt, attention or a socially relevant response."
+        positive_evidence: "Acknowledges a contribution or responds to a social act, including appropriate thanks, apology or apology acceptance."
+        counterexample: "Echoing words without a recoverable response function."
+        context: exchange
+        boundary: "Acknowledgment does not necessarily endorse a claim or accept an action proposal; politeness is not a standalone credit."
+        neighbors: [agreement_disagreement, accepting_declining, opening_closing]
+      - id: clarification
+        name: "Asking for clarification"
+        purpose: "Signal trouble hearing or understanding a contribution and seek repair."
+        positive_evidence: "Requests repetition, explanation or disambiguation of an identifiable prior contribution."
+        counterexample: "Checking a fact that was understood but may be false."
+        context: exchange
+        boundary: "The repair target must be available; a question mark or interrogative form alone is insufficient."
+        neighbors: [checking_facts, asking_information, rephrasing]
+      - id: rephrasing
+        name: "Rephrasing"
+        purpose: "Express a prior meaning differently to improve mutual understanding."
+        positive_evidence: "Reformulates an identifiable contribution in response to actual or anticipated understanding difficulty."
+        counterexample: "Copying a correction or repeating identical wording without a repair purpose."
+        context: exchange
+        boundary: "A revised form is not automatically a new communicative use; preserve the source and repair context."
+        neighbors: [clarification, correcting_misunderstanding, useful_detail]
+      - id: correcting_misunderstanding
+        name: "Correcting a misunderstanding"
+        purpose: "Replace an incorrect interpretation with the intended one."
+        positive_evidence: "Identifies and repairs a mismatch between intended and understood meaning."
+        counterexample: "Correcting an isolated spelling error without an interpretive misunderstanding."
+        context: exchange
+        boundary: "Factual disagreement alone is not repair unless it addresses what someone took the contribution to mean."
+        neighbors: [checking_facts, agreement_disagreement, rephrasing]
+      - id: turns_topics
+        name: "Managing turns and topics"
+        purpose: "Coordinate who contributes and what the exchange is about."
+        positive_evidence: "Takes, holds or yields a turn, introduces or returns to a topic, or signals a topic transition."
+        counterexample: "Merely taking a turn by sending any message."
+        context: exchange
+        boundary: "Narration and summaries can organize a topic; require evidence of interaction management beyond their content."
+        neighbors: [opening_closing, acknowledging, event_sequence]

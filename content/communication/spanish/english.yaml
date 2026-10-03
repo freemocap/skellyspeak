@@ -1,0 +1,390 @@
+# yaml-language-server: $schema=../../schemas/communication-guides.yaml
+schema_version: 1
+language: spanish
+explanation_language: english
+revision: spanish-communication-2026-10-03
+origin: ai
+review: needs_review
+authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic review; automated validation checks structure only.
+sources: [rae_possession2026, rae_future2026, rae_gracias2026, umass_spanish_copulas2026, yepesObligation20260924, yepesConditions20260924]
+groups:
+  people_places:
+    assessment: "Spanish can identify with ser, describe properties with ser or estar according to meaning, locate with estar and prepositions, express possession with possessives or de, and compare with más/menos ... que. Check the construction used, including agreement where it establishes the description. Do not reduce ser/estar to permanent/temporary. Correct identification alone is sufficient for this group; a wrong description elsewhere does not erase it."
+    sections:
+      - subskill: identification
+        explanation: "Use ser to identify a person or thing. Spanish can omit a subject pronoun when the verb and context identify the subject."
+        examples:
+          - text: "Soy Ana."
+            meaning: "I am Ana."
+            note: "Soy identifies the speaker."
+      - subskill: qualities_states
+        explanation: "Choose ser or estar for the intended description. They can change the meaning; permanence alone is not the rule."
+        examples:
+          - text: "La puerta está abierta."
+            meaning: "The door is open."
+            note: "Estar describes the door's current state."
+      - subskill: location_movement
+        explanation: "Use location or movement verbs with a phrase that names the place or path."
+        examples:
+          - text: "El libro está en la mesa."
+            meaning: "The book is on the table."
+            note: "Estar en locates the book relative to the table."
+      - subskill: possession_relations
+        explanation: "Possessives and de can express ownership or relationships. A possessive agrees with the possessed noun, not the owner."
+        examples:
+          - text: "Es el libro de mi hermana."
+            meaning: "It is my sister's book."
+            note: "De names the relationship to the book."
+      - subskill: quantity_comparison
+        explanation: "Use numbers and quantity words for amounts; más ... que and menos ... que compare a quality or quantity."
+        examples:
+          - text: "Esta caja es más grande que esa."
+            meaning: "This box is bigger than that one."
+            note: "Más grande que supplies the comparison and its reference."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  time_events:
+    assessment: "Judge the time relationship the learner actually expresses. Spanish uses present forms for current situations and habits; preterite for bounded past events; imperfect for past background or habits; and ir a + infinitive, future forms, or contextually future present forms for later events. Historical present can narrate past events when context supports it. Estar + gerund expresses an ongoing activity; ya + an appropriate completed construction can mark completion. Ayer fui al mercado correctly locates a completed event. Ayer yo ir al mercado is an unsuccessful finite past construction, not a correct past use. Ayer alone can be a correct contextual answer to ¿Cuándo fuiste? Missing an article elsewhere does not defeat a correctly formed temporal construction. Sequence does not imply cause. A hypothetical or polite past-form expression is not necessarily past reference."
+    sections:
+      - subskill: present_events
+        explanation: "Present-tense forms can describe current situations or habits. The surrounding exchange tells you which meaning applies."
+        examples:
+          - text: "Trabajo aquí."
+            meaning: "I work here."
+            note: "The present describes the speaker's current work situation."
+      - subskill: past_events
+        explanation: "Use a past construction that matches what you mean. Fui can describe a completed trip; iba can describe an ongoing or habitual past situation. A short answer can inherit its time frame from the question."
+        examples:
+          - text: "Ayer fui al mercado."
+            meaning: "Yesterday I went to the market."
+            note: "Fui with ayer expresses a completed earlier trip; an unrelated article mistake would not change that temporal construction."
+      - subskill: future_events
+        explanation: "Ir a followed by an infinitive is one way to talk about a planned future action. Future forms and contextually future present forms are also possible."
+        examples:
+          - text: "Mañana voy a cocinar."
+            meaning: "Tomorrow I am going to cook."
+            note: "Mañana and voy a cocinar establish future reference."
+      - subskill: duration_frequency
+        explanation: "Use time phrases to state how long or how often something happens."
+        examples:
+          - text: "Estudio español todos los días."
+            meaning: "I study Spanish every day."
+            note: "Todos los días states the frequency."
+      - subskill: event_sequence
+        explanation: "Primero, después and other linking expressions can place events in order without claiming that one caused another."
+        examples:
+          - text: "Primero cenamos y después salimos."
+            meaning: "First we had dinner and then we went out."
+            note: "The two events have an explicit order; context supplies their past reading."
+      - subskill: event_phase
+        explanation: "Estar with a gerund can describe an activity in progress. Completed actions use other constructions appropriate to the time frame."
+        examples:
+          - text: "Estoy leyendo."
+            meaning: "I am reading."
+            note: "Estoy plus leyendo presents the activity as ongoing."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  feelings_viewpoints:
+    assessment: "Spanish expresses desire with querer + infinitive for one's own action, preferences with preferir or gustar constructions, emotion with forms such as estar contento, and opinions with creo que or evaluative wording. In gustar constructions, the liked item controls agreement: me gusta el café; me gustan los libros. Estoy de acuerdo and no estoy de acuerdo respond to a position. Count a correct function, not every assertion as an opinion. A request framed with quiero is still an action request when context makes that its purpose."
+    sections:
+      - subskill: wants_intentions
+        explanation: "Querer followed by an infinitive can express what the subject wants to do."
+        examples:
+          - text: "Quiero descansar."
+            meaning: "I want to rest."
+            note: "The subject of wanting is also the intended subject of resting."
+      - subskill: preferences
+        explanation: "Preferir states a preference; gustar uses the thing liked as its grammatical subject."
+        examples:
+          - text: "Me gustan estos libros."
+            meaning: "I like these books."
+            note: "Gustan agrees with plural libros."
+      - subskill: emotions
+        explanation: "Name your feeling with an appropriate expression. Adjectives used with estar agree with the person described."
+        examples:
+          - text: "Estoy contenta."
+            meaning: "I am happy."
+            note: "A feminine speaker describes her emotional state."
+      - subskill: opinions
+        explanation: "Creo que can introduce your view of a proposition. An evaluation can also state your opinion directly."
+        examples:
+          - text: "Creo que es una buena idea."
+            meaning: "I think it is a good idea."
+            note: "The speaker presents an evaluation as their view."
+      - subskill: agreement_disagreement
+        explanation: "Respond to a known position with agreement, disagreement or a qualification."
+        examples:
+          - text: "No estoy de acuerdo."
+            meaning: "I disagree."
+            note: "The preceding position is needed to know what is being rejected."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  possibilities_constraints:
+    assessment: "Spanish poder can express ability, permission or possibility; use the exchange to distinguish them. Tengo que + infinitive and hay que + infinitive express requirements; tengo de ir is not the corresponding tener que construction. Puede que + subjunctive expresses possibility. No estoy seguro expresses uncertainty. A future form can express conjecture rather than future time. A question such as ¿Puedes cerrar la puerta? usually requests action rather than testing ability. Do not credit this group from its modal form alone."
+    sections:
+      - subskill: ability
+        explanation: "Poder plus an infinitive can express ability. Saber plus an infinitive can express knowing how to do something."
+        examples:
+          - text: "Sé nadar."
+            meaning: "I know how to swim."
+            note: "Saber describes learned ability."
+      - subskill: permission
+        explanation: "A question with poder can ask whether an action is allowed; the situation identifies the permission reading."
+        examples:
+          - text: "¿Puedo entrar?"
+            meaning: "May I come in?"
+            note: "At a doorway, the speaker asks for permission."
+      - subskill: obligation
+        explanation: "Tener que plus an infinitive states a personal requirement. Hay que can state a general requirement."
+        examples:
+          - text: "Tengo que salir."
+            meaning: "I have to leave."
+            note: "Que belongs between tengo and the infinitive."
+      - subskill: possibility
+        explanation: "Puede que plus a subjunctive clause presents something as possible."
+        examples:
+          - text: "Puede que llueva."
+            meaning: "It may rain."
+            note: "Llueva follows puede que in this possibility construction."
+      - subskill: certainty
+        explanation: "Expressions such as no estoy seguro state how certain the speaker is. They need not predict an event."
+        examples:
+          - text: "No estoy seguro."
+            meaning: "I am not sure."
+            note: "A masculine speaker marks uncertainty about the current proposition."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  reasons_connections:
+    assessment: "Spanish porque introduces a reason, por eso a consequence, si a condition, and pero an opposition. Ordinary open conditions can use si + present indicative with an appropriate outcome. Do not accept a connector alone as proof that the two clauses form its intended relation. A condition and a reason differ; primero ... después establishes sequence but not causation. Evidence such as the lights being on can support a stated inference. Check that the learner links recoverable propositions coherently."
+    sections:
+      - subskill: causes_reasons
+        explanation: "Porque connects an event or choice to its reason."
+        examples:
+          - text: "Me quedo porque estoy cansada."
+            meaning: "I am staying because I am tired."
+            note: "The second clause gives the reason for staying."
+      - subskill: consequences
+        explanation: "Por eso presents a result of the preceding situation."
+        examples:
+          - text: "Llueve; por eso llevo paraguas."
+            meaning: "It is raining, so I am carrying an umbrella."
+            note: "The umbrella follows as a response to the rain."
+      - subskill: conditions
+        explanation: "Si introduces a condition. For an open condition, present indicative can describe the condition."
+        examples:
+          - text: "Si llueve, me quedo en casa."
+            meaning: "If it rains, I will stay home."
+            note: "Staying home depends on the rain."
+      - subskill: contrast
+        explanation: "Pero can connect opposing facts or expectations."
+        examples:
+          - text: "Es caro, pero es útil."
+            meaning: "It is expensive, but it is useful."
+            note: "The second evaluation contrasts with the first."
+      - subskill: supporting_claims
+        explanation: "Give a reason or observation that supports accepting your claim, not just a stronger repetition."
+        examples:
+          - text: "Creo que está en casa porque la luz está encendida."
+            meaning: "I think they are home because the light is on."
+            note: "The light is evidence supporting the inference."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  information_exchange:
+    assessment: "Spanish questions can use interrogatives such as qué, dónde and cuándo, or yes/no intonation. Omitted opening punctuation alone should not defeat an otherwise correct conversational question. Contextually appropriate fragments can answer a question: en casa can answer ¿Dónde estás? Check relevance against the actual question, not sentence length. ¿Llegas a las ocho? can check a time; ¿Qué quieres decir? repairs understanding instead. Requests phrased with ¿Puedes...? need not ask for information."
+    sections:
+      - subskill: asking_information
+        explanation: "Use the question expression that matches the information you need. Context and intonation also form yes/no questions."
+        examples:
+          - text: "¿Dónde está la estación?"
+            meaning: "Where is the station?"
+            note: "Dónde asks for a location."
+      - subskill: answering_information
+        explanation: "A relevant short answer can supply exactly what the question asks for without repeating its verb."
+        examples:
+          - text: "En casa."
+            meaning: "At home."
+            note: "This answers ¿Dónde estás?; without that question its response function is uncertain."
+      - subskill: checking_facts
+        explanation: "Ask for confirmation of a proposition or detail you already have in mind."
+        examples:
+          - text: "¿Llegas a las ocho?"
+            meaning: "Are you arriving at eight?"
+            note: "When confirming an arrangement, this checks the proposed arrival time."
+      - subskill: useful_detail
+        explanation: "Add details that help answer the actual question. Length alone does not make an answer useful."
+        examples:
+          - text: "Está al lado del banco, frente al parque."
+            meaning: "It is beside the bank, opposite the park."
+            note: "In an exchange about directions, the two landmarks make the location more precise."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  coordinating_action:
+    assessment: "Spanish can request action with an imperative or a conventional question such as ¿Puedes repetirlo?; do not require an imperative. Te ayudo can offer assistance; ¿Quieres venir? can invite participation. Podemos... can propose joint action. Acepto and lo siento, no puedo can accept or decline an identifiable proposal. Promise or commitment requires an undertaking in context, not merely a future form. Suggestions and negotiating an alternative are distinct functions but earn at most one group award together."
+    sections:
+      - subskill: requests
+        explanation: "Ask for an action directly or with a conventional polite question. Poder in a request is not necessarily a question about physical ability."
+        examples:
+          - text: "¿Puedes cerrar la puerta, por favor?"
+            meaning: "Can you close the door, please?"
+            note: "The expected response is closing the door."
+      - subskill: offers_invitations
+        explanation: "Offer your help or invite the other person to join an activity."
+        examples:
+          - text: "¿Quieres venir a cenar?"
+            meaning: "Would you like to come for dinner?"
+            note: "In this setting the question invites participation."
+      - subskill: suggestions
+        explanation: "Podemos followed by an infinitive can propose something to do together."
+        examples:
+          - text: "Podemos ir mañana."
+            meaning: "We could go tomorrow."
+            note: "In a planning exchange, this proposes an option."
+      - subskill: commitments
+        explanation: "Use wording that undertakes responsibility when making a commitment; future time alone is not a promise."
+        examples:
+          - text: "Te prometo que voy a llamarte."
+            meaning: "I promise I will call you."
+            note: "Prometo makes the undertaking explicit."
+      - subskill: accepting_declining
+        explanation: "A short acceptance or refusal depends on the proposal it answers. You can decline politely without a long explanation."
+        examples:
+          - text: "Lo siento, no puedo."
+            meaning: "Sorry, I cannot."
+            note: "Following an invitation, this declines it."
+      - subskill: negotiating_plans
+        explanation: "Respond to a proposed plan with an alternative that addresses the obstacle."
+        examples:
+          - text: "A las seis no puedo; ¿quedamos a las siete?"
+            meaning: "I cannot make six; shall we meet at seven?"
+            note: "The speaker changes the proposed time to resolve a constraint."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+  managing_conversation:
+    assessment: "Spanish interaction can open with hola and close with hasta luego, acknowledge with entiendo, thank with gracias, and apologize with perdón or lo siento in an appropriate sequence. ¿Qué quieres decir? and ¿Puedes repetirlo? request repair when linked to an unclear prior contribution. Quiero decir... reformulates; no, me refiero a... corrects an interpretation. Por cierto can introduce a topic. Require the social or repair context, not just a memorized phrase or the fact that a message was sent."
+    sections:
+      - subskill: opening_closing
+        explanation: "Use a greeting or farewell as part of the actual encounter, rather than quoting it as a word."
+        examples:
+          - text: "Hasta luego."
+            meaning: "See you later."
+            note: "This closes an encounter; repeating it in a vocabulary exercise does not."
+      - subskill: acknowledging
+        explanation: "Show that you received a contribution or respond to a social act. Entiendo need not mean agreement."
+        examples:
+          - text: "Gracias por avisarme."
+            meaning: "Thank you for letting me know."
+            note: "The response acknowledges useful information and thanks the speaker."
+      - subskill: clarification
+        explanation: "Ask for repetition or an explanation when you cannot follow the preceding contribution."
+        examples:
+          - text: "¿Qué quieres decir?"
+            meaning: "What do you mean?"
+            note: "The question asks the partner to explain an unclear contribution, not verify a fact they already understood."
+      - subskill: rephrasing
+        explanation: "Quiero decir can introduce a different way to express the meaning you intended."
+        examples:
+          - text: "Quiero decir que llego después de las ocho."
+            meaning: "I mean that I arrive after eight."
+            note: "In a repair sequence, this restates the speaker's arrival time."
+      - subskill: correcting_misunderstanding
+        explanation: "Contrast the mistaken interpretation with what you meant."
+        examples:
+          - text: "No, me refiero al martes, no al jueves."
+            meaning: "No, I mean Tuesday, not Thursday."
+            note: "The speaker corrects which day the partner understood."
+      - subskill: turns_topics
+        explanation: "Use a transition or a turn-management expression when changing the conversation's direction."
+        examples:
+          - text: "Por cierto, ¿cómo está tu hermana?"
+            meaning: "By the way, how is your sister?"
+            note: "Por cierto marks a shift to a different topic."
+    varieties:
+      spanish-spain:
+        assessment: "These core examples are usable in Spain. Accept valid regional uses rather than requiring one national norm. Both simple and compound past constructions may be appropriate depending on context; do not require a compound past simply because an event happened today. Vosotros forms are available for informal plural address; ustedes forms are also grammatical in their appropriate variety or register."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.
+      spanish-mexico:
+        assessment: "These core examples are usable in Mexico. Ustedes is the usual plural address form and takes third-person plural agreement. Do not require vosotros or a Spain-specific past-tense preference. Judge the actual context and construction; valid local choices do not count as errors."
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: AI-generated variety supplement; no independent human review.

@@ -9,14 +9,25 @@ communicative groups, explicit subskills, complete authored language guides,
 personal evidence, contextual coaching, and targeted conversation starts. It is
 the working checklist for this replacement, not a description of working features.
 
-The initial task was documentation only. Follow-up work authorized the workspace
-navigation, message-tool changes and review corrections recorded below. This does
-not authorize the learning-data cutover, deletion, commits or deployment.
+Implementation was authorized on 2026-10-03 after the planning decisions below.
+The cutover must intentionally retire the old learning system and its data while
+preserving unrelated owners. Commits and deployment remain separately authorized.
 
 ## Agreed decisions
 
 - The eight groups below are the accepted design direction. Their precise subskill
   boundaries and identifiers still need a definition pass.
+- Only the eight main groups are assessment and XP units. Subskills organize
+  guides and conversation targets; they have no individual XP, levels or tracked
+  assessment results in this version.
+- Use the existing Jev Choice pipeline and its four-category probabilities.
+  Revise the criteria to judge correct use, tolerating errors unrelated to the
+  demonstrated function. Keep the current 0.6 combined-positive threshold and
+  experience/effort revision rules initially. Evaluate prompt quality later.
+- Every group question includes compact offline-authored language and variety
+  guidance. Merely naming the language is insufficient. Native code assembles
+  questions, validates answers and awards credit; the hosted server transports
+  bounded requests without learning or reward policy.
 - Replace the old learning and assessment system completely. Old learning records,
   XP, levels, and awards need not survive. Do not build credit conversion,
   compatibility assessment, a legacy reader, or two active assessment systems.
@@ -147,10 +158,10 @@ turns. No observed evidence is neither a failure nor an assertion of inability.
 Context insufficient for a judgment must not become zero ability. Technical
 assessment failure is shown separately from absence of evidence.
 
-The radar's metric is unresolved. The mockup uses subskills with evidence divided
-by subskills in the group. That metric measures coverage only; groups have unequal
-numbers of subskills, and one example does not establish mastery. No weakest-skill
-rule, Fibonacci thresholds, or old XP arithmetic is inherited by default.
+The mockup's subskill-coverage radar is superseded. The first implementation tracks
+only eight main-skill XP totals. There are no subskill counters or mastery claims.
+The existing experience/effort rules remain the starting credit policy; display
+and level integration must consume the same eight main-skill totals.
 
 ### Start a conversation from a phrase
 
@@ -199,7 +210,7 @@ the individual question.
 
 | Layer | Owns | Completeness requirement |
 | --- | --- | --- |
-| Shared catalog | Group/subskill identities, definitions, boundaries and evidence requirements | Every final subskill is defined and assessable with its declared context |
+| Shared catalog | Main skill and teaching subskill identities, definitions and boundaries | Eight assessable groups; each subskill has a teaching definition and declared context |
 | Shared learner explanation | Conceptual explanation independent of target-language grammar | Complete translations for declared explanation/interface locales |
 | Target-language realization | Examples, constructions, usage notes and compact assessment guidance | Explicit coverage of every required subskill and offered variety |
 | Language-specific detail | Additional distinctions that improve the selected language's guide | Authored detail or an explicit no-additional-detail disposition |
@@ -421,7 +432,7 @@ or retirement of the old learning system.
 | Decision | Specific question | Blocks |
 | --- | --- | --- |
 | Catalog boundaries | Which of the 42 candidates need splitting, combining, or sharper evidence definitions? | Assessment and full authoring |
-| Evidence and rewards | What earns credit; how are repeated, assisted, revised and overlapping uses treated; what do group levels mean? | New ledger, reward policy and radar |
+| Evidence and rewards | Decided: eight-group XP, correct direct/contextual use, existing 0.6 probability gate and revision/effort behavior initially. Prompt-quality experiments follow implementation. Group display and reward integration must use those same eight totals. | Implementation, not another scoring-design gate |
 | Coach context attachment | Decided: per-conversation thread. Remaining: the `CoachContext` shape and how `coach_prompt.rs` fences the attached guide/example (W7). | askCoach contract |
 | Phrase opening policy | Exact phrase or permitted adaptation; what happens with an incompatible language/persona or oversized bubble? | Start command and acceptance validator |
 | Target duration | How is a group reduced to a subskill and how long does conversational targeting last? | Skill-start prompts and controls |
@@ -445,13 +456,13 @@ and real-app restoration checks are complete.
 
 ### Phase 1 Finalize product behavior and definitions
 
-- [ ] D1 Write the final shared group/subskill catalog with stable proposed IDs and a boundary specification for each subskill.
+- [x] D1 Implement the initial shared catalog with eight stable group IDs, 42 teaching subskills, purposes, positive/counterexamples, context requirements and neighbor boundaries in `content/shared/communication.yaml`. Linguistic review and multilingual contrast fixtures remain D2.
 - [ ] D2 Create contrast cases for every boundary listed above, including multilingual examples and cases where context is insufficient.
 - [ ] D3 Design the complete Past events, Requests, and Asking for clarification guides as representative end-to-end specimens.
 - [x] D4 Mock up the workspace hierarchy (conversation + coach centre; Practice and Skills as destinations), coach context, and both conversation-start flows at wide and phone widths. Done on the Design canvas; language switching not yet drawn.
 - [x] D5 Decide coach thread ownership: per conversation (as built). Skills asks into the active conversation's thread with typed context (W7).
 - [ ] D6 Decide phrase inclusion/adaptation, source selection limits, and group-target selection/duration. Persona is decided: the current partner, no prompt.
-- [ ] D7 Define new evidence, progression and reward policies without importing the old scoring formulas. Keep proficiency claims separate from practice counts.
+- [x] D7 Set the initial assessment/credit policy: eight groups, correctness-aware Jev criteria, existing 0.6 probability gate and experience/effort revision handling. Retire old awards rather than converting them. This is a design decision, not implemented runtime behavior.
 - [ ] D8 Review the reset boundary and produce an explicit retirement list for code, prompts, content, persisted fields and derived data.
 
 Gate: reviewed definitions, three complete guide specimens, flow mockups, and
@@ -463,7 +474,7 @@ learning domain, conversation flow. No bulk generation against an unsettled sche
 - [ ] C1 Specify shared definitions, localized explanations, target-language realizations, variety sections, examples, and explicit inheritance/no-detail dispositions.
 - [ ] C2 Specify mandatory authorship/provenance and separate review fields; define how edits invalidate or preserve review at the correct scope.
 - [ ] C3 Generate a finite coverage matrix from the actual language, variety, explanation-language and interface-locale registries.
-- [ ] C4 Define new assessment inputs/outputs with source-turn ownership, context requirements, observation states, supported quotations and failure information.
+- [ ] C4 Adapt the existing Jev inputs/outputs to eight main groups with source-turn ownership, authored guidance, context requirements, probabilities, supported quotations and failure information. Do not add subskill assessment records.
 - [ ] C5 Define the two conversation-start intents and coach-context contract from the approved user behavior; retain their distinct semantics.
 - [ ] C6 Decide the runtime owners and data relationships, then specify persistence changes and generated UI contracts from those owners.
 - [ ] C7 Implement schema/content validators that reject duplicate/unknown IDs, missing required coverage, undeclared inheritance, missing provenance and locale gaps.
@@ -488,8 +499,8 @@ material cannot be deferred into a normal runtime state.
 
 ### Phase 4 Implement the single assessment and learning engine
 
-- [ ] L1 Implement subskill assessment with the required adjacent turns and speaker roles; validate source identity and evidence before publication.
-- [ ] L2 Implement the approved overlapping-evidence, repetition, assistance, revision, exclusion and deletion policies in one domain owner.
+- [ ] L1 Implement eight-group assessment with the required adjacent turns and speaker roles; validate source identity and evidence before publication. Subskills remain teaching and targeting content.
+- [ ] L2 Apply one award per accepted main group per submission; several subskills within a group do not multiply XP. Retain existing changed-revision experience/effort behavior, assistance treatment and duplicate-publication protection initially.
 - [ ] L3 Implement the new ledger/projections and enforce one-time publication/credit under retries, restarts and concurrent refreshes.
 - [ ] L4 Implement the approved group summary, level and reward calculations; keep presentation geometry out of evidence and scoring.
 - [ ] L5 Connect sound, animation and haptics to new reward events, respecting learner settings, visibility and reduced motion.
@@ -569,6 +580,49 @@ validated content contract. Phases 4 through 6 can then progress against the sam
 approved definitions, converging at the single cutover in Phase 7.
 
 ## Verification record
+
+### 2026-10-03 replacement content and request foundation
+
+This checkpoint implements authoring validation and offline request inspection.
+It does not switch runtime assessment, change persisted learning data or install a
+second runtime assessor. The existing twelve-skill engine remains active until
+the complete replacement is ready for the single cutover.
+
+- `content/shared/communication.yaml` defines eight assessed groups and 42
+  teaching subskills. Subskills have no scoring fields. Native validation rejects
+  ambiguous identities, broken neighbor references and missing provenance.
+- `content/communication/spanish/english.yaml` is the first complete
+  language/explanation specimen: all eight groups, 42 teaching sections, and
+  explicit Mexico/Spain assessment supplements. It is generated content marked
+  `needs_review`, not a claim of expert linguistic validation. Its cited sources
+  support selected constructions, not an exhaustive review of every example.
+- Compact assessment prose is authored separately from learner-facing prose in
+  the same guide. The request projection inserts the compact core and selected
+  variety supplement; it does not summarize guides online or substitute an
+  English-language grammar default.
+- `content/prompts/skills/demonstration.yaml` contains the revised Choice
+  criteria. Each question names the skill, defines its boundary and includes the
+  authored language guidance. The complete question belongs in instructions;
+  state retains the source message and preceding exchange. This follows
+  [@typesafePrimitives2026] and [@typesafeState2026]. The file is an offline
+  replacement input; the runtime still captures `presence.yaml` until cutover.
+- The authoring report enumerates every configured target/explanation-language
+  pair. These are language choices, distinct from the seven interface locales.
+  Every supplied group requires all of that language's varieties and subskill
+  sections. `--communication-ready` fails while any required pair is incomplete.
+  No normal runtime missing-guide state or implicit explanation fallback is added.
+- `inspect-content --communication-request <language> <variety> <explanation>`
+  reads state JSON from stdin and prints the assembled eight-question request.
+  It performs no provider call, stores no learner record and awards no XP.
+  `--communication`, `--communication-coverage`, and `--communication-ready`
+  inspect the catalog, authoring gaps and cutover prerequisite respectively.
+
+Still required: the remaining authored languages/explanations and UI translations,
+multilingual contrast fixtures, runtime capture/publication and retirement
+migration, the Skills view, targeted starts and coach context. No whole replacement
+or real-app readiness is claimed by this checkpoint.
+
+Verification: pending final checks for this checkpoint.
 
 - 2026-10-01: design and task list authored from the agreed discussion and inspected
   source entry points. No application implementation or data deletion performed.
