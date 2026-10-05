@@ -15,9 +15,10 @@ pub(super) fn assessment(store: &mut Store, turn: &str) -> Dispatch {
     work
 }
 pub(super) fn presence(work: &Dispatch, present: &[(&str, &str)]) -> Completion {
-    let answers: serde_json::Map<_,_> = work.decisions.as_ref().unwrap()["questions"].as_object().unwrap().keys().map(|id| {
-        let choice=present.iter().find(|(skill,_)| *skill == id).map(|(_,label)|*label).unwrap_or("absent");
-        let probabilities: serde_json::Map<_,_> = ["absent","contextual","direct","unclear"].into_iter().map(|label|(label.into(),json!(if label==choice {1.0}else{0.0}))).collect();
+    let answers: serde_json::Map<_,_> = work.decisions.as_ref().unwrap()["questions"].as_object().unwrap().iter().map(|(id, question)| {
+        let default = if matches!(id.as_str(), "grammar" | "understandability") { "insufficient_evidence" } else { "absent" };
+        let choice=present.iter().find(|(skill,_)| *skill == id).map(|(_,label)|*label).unwrap_or(default);
+        let probabilities: serde_json::Map<_,_> = question["criteria"].as_object().unwrap().keys().map(|label|(label.clone(),json!(if label==choice {1.0}else{0.0}))).collect();
         (id.clone(),json!({"type":"choice","choice":choice,"confidence":1.0,"probabilities":probabilities}))
     }).collect();
     reply(&json!(answers).to_string())
@@ -38,14 +39,14 @@ fn presence_dispatch_publishes_experience_once_without_quote_work() {
             .as_object()
             .unwrap()
             .len(),
-        12
+        10
     );
     let result = presence(
         &work,
         &[
-            ("questions_answers", "direct"),
-            ("past_reference", "contextual"),
-            ("quantity", "unclear"),
+            ("information_exchange", "direct"),
+            ("time_events", "contextual"),
+            ("people_places", "unclear"),
         ],
     );
     store.finish(&work, Ok(reply(&result.text))).unwrap();
@@ -59,7 +60,7 @@ fn presence_dispatch_publishes_experience_once_without_quote_work() {
             .iter()
             .filter(|n| n["kind"] == "skill")
             .count(),
-        12
+        8
     );
     assert_eq!(snapshot["profile"]["credits"][0]["experience"], 1);
     assert_eq!(snapshot["profile"]["credits"][0]["effort"], 0);
@@ -95,7 +96,7 @@ fn changed_retry_credits_retained_skills_and_new_skills_separately_then_survives
     store
         .finish(
             &work,
-            Ok(presence(&work, &[("questions_answers", "direct")])),
+            Ok(presence(&work, &[("information_exchange", "direct")])),
         )
         .unwrap();
     let next = store
@@ -113,7 +114,10 @@ fn changed_retry_credits_retained_skills_and_new_skills_separately_then_survives
             &work,
             Ok(presence(
                 &work,
-                &[("questions_answers", "direct"), ("quantity", "contextual")],
+                &[
+                    ("information_exchange", "direct"),
+                    ("people_places", "contextual"),
+                ],
             )),
         )
         .unwrap();
@@ -123,12 +127,12 @@ fn changed_retry_credits_retained_skills_and_new_skills_separately_then_survives
     assert!(
         credits
             .iter()
-            .any(|c| c["skill_id"] == "questions_answers" && c["effort"] == 1)
+            .any(|c| c["skill_id"] == "information_exchange" && c["effort"] == 1)
     );
     assert!(
         credits
             .iter()
-            .any(|c| c["skill_id"] == "quantity" && c["experience"] == 1)
+            .any(|c| c["skill_id"] == "people_places" && c["experience"] == 1)
     );
     let same = store
         .execute(revision_command(
@@ -145,7 +149,10 @@ fn changed_retry_credits_retained_skills_and_new_skills_separately_then_survives
             &work,
             Ok(presence(
                 &work,
-                &[("questions_answers", "direct"), ("quantity", "direct")],
+                &[
+                    ("information_exchange", "direct"),
+                    ("people_places", "direct"),
+                ],
             )),
         )
         .unwrap();
@@ -161,7 +168,7 @@ fn changed_retry_credits_retained_skills_and_new_skills_separately_then_survives
     store
         .finish(
             &work,
-            Ok(presence(&work, &[("questions_answers", "direct")])),
+            Ok(presence(&work, &[("information_exchange", "direct")])),
         )
         .unwrap();
     assert_eq!(profile(&store)["profile"]["xp"], 4);
@@ -174,9 +181,9 @@ fn out_of_range_probability_does_not_award_and_keeps_validation_diagnostics() {
         .unwrap()
         .entity_id;
     let work = assessment(&mut store, &turn);
-    let mut result = presence(&work, &[("quantity", "direct")]);
+    let mut result = presence(&work, &[("people_places", "direct")]);
     let mut raw: Value = serde_json::from_str(&result.text).unwrap();
-    raw["quantity"]["probabilities"]["absent"] = json!(1.5);
+    raw["people_places"]["probabilities"]["absent"] = json!(1.5);
     result.text = raw.to_string();
     store.finish(&work, Ok(result)).unwrap();
     assert_eq!(profile(&store)["profile"]["xp"], 0);
@@ -214,7 +221,7 @@ fn replaced_turn_rejects_late_presence_without_awarding() {
     store
         .finish(
             &work,
-            Ok(presence(&work, &[("questions_answers", "direct")])),
+            Ok(presence(&work, &[("information_exchange", "direct")])),
         )
         .unwrap();
     assert_eq!(profile(&store)["profile"]["xp"], 0);
@@ -322,8 +329,8 @@ fn spanish_pilot_connects_retry_profile_guides_and_next_practice() {
             Ok(presence(
                 &work,
                 &[
-                    ("questions_answers", "direct"),
-                    ("identify_describe", "direct"),
+                    ("information_exchange", "direct"),
+                    ("people_places", "direct"),
                 ],
             )),
         )
@@ -344,9 +351,9 @@ fn spanish_pilot_connects_retry_profile_guides_and_next_practice() {
             Ok(presence(
                 &work,
                 &[
-                    ("questions_answers", "direct"),
-                    ("identify_describe", "direct"),
-                    ("past_reference", "direct"),
+                    ("information_exchange", "direct"),
+                    ("people_places", "direct"),
+                    ("time_events", "direct"),
                 ],
             )),
         )
@@ -375,17 +382,16 @@ fn spanish_pilot_connects_retry_profile_guides_and_next_practice() {
         .iter()
         .find(|g| g["id"] == variety)
         .unwrap();
-    let markdown = guide["skills"]["past_reference"].as_str().unwrap();
+    let markdown = guide["skills"]["time_events"].as_str().unwrap();
     assert_eq!(
         markdown,
         store
             .config
-            .skill_markdown("spanish", variety, "past_reference")
+            .skill_guide_markdown("spanish", variety, "english", "time_events")
             .unwrap()
     );
-    assert!(
-        markdown.contains("How it works") && markdown.contains(guide["name"].as_str().unwrap())
-    );
+    assert!(markdown.contains("> Ayer fui al mercado."));
+    assert!(!markdown.contains("## Assessment input"));
     let ids: Vec<String> = snapshot["catalog"]
         .as_array()
         .unwrap()
@@ -401,7 +407,7 @@ fn spanish_pilot_connects_retry_profile_guides_and_next_practice() {
         recommendations::choose(&candidates, RecommendationMode::ContinuePracticing, "pilot")
             .unwrap();
     assert_eq!(depth.skill.effort, 1);
-    assert!(["questions_answers", "identify_describe"].contains(&depth.skill.skill_id.as_str()));
+    assert!(["information_exchange", "people_places"].contains(&depth.skill.skill_id.as_str()));
     drop(store);
     let reopened = Store::open(&dir.path().join("test.sqlite3")).unwrap();
     assert_eq!(profile(&reopened)["profile"], snapshot["profile"]);

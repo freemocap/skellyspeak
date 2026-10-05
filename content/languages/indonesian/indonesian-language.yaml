@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: indonesian
+  name: Indonesian
+  native_name: Bahasa Indonesia
+  family: austronesian
+  review: needs_review
+integrations:
+  language_tag: id
+  transcription: id
+definitions:
+  orthographies:
+    eyd-v:
+      script: latin
+      guidance:
+        - scope: target_writing
+          text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
+            including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted
+            source spelling exactly.
+          sources:
+            - indonesian_eyd_v
+        - scope: explanation_writing
+          text: Use contemporary Indonesian spelling following EYD V. Keep affixes and prepositions distinct,
+            including di- versus di, and retain appropriate reduplication hyphens. Preserve quoted
+            source spelling exactly.
+          sources:
+            - indonesian_eyd_v
+  romanization_schemes: {}
+defaults:
+  variety: indonesian-indonesia
+  orthography:
+    local: eyd-v
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+  - id: indonesian-indonesia
+    name: Indonesia
+    description: Contemporary Indonesian in Indonesia, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - indonesian_eyd_v
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: Halo
+    romanizations: {}
+  default_partner:
+    name: Dita
+    romanizedName: null
+    age: 30
+    location: Bandung, Indonesia
+    occupation: Runs a small printing workshop
+    background: Grew up in Bandung and learned printing from a neighbour.
+    currentSituation: Preparing posters for a community event and trying a new cycling route.
+    interests:
+      - printmaking
+      - cycling
+    opinions:
+      - A poster should make its main information easy to find.
+    interestingFacts:
+      - Collects unusual paper offcuts.
+    favoriteBooks:
+      - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+      - Laskar Pelangi (2008)
+    manner: Direct and good-humoured. Uses everyday Indonesian and explains unfamiliar local terms.
+    quirks:
+      - Writes reminders on the backs of test prints.
+    vibe:
+      - 🎨
+      - 🚲
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Ya.
+      - Tidak.
+      - Air, tolong.
+      - Saya di sini.
+      - Panas.
+      - Saya lapar.
+      - Apa ini?
+      - Saya tidak tahu.
+    beginner:
+      - Dia guru.
+      - Rumah itu besar.
+      - Saya punya sepeda.
+      - Ini kakak saya.
+      - Saya punya dua buku.
+      - Masih ada sedikit air.
+      - Saya bekerja di sini.
+      - Dia sedang membaca.
+    intermediate:
+      - Saya datang kemarin.
+      - Dulu saya tinggal di sini.
+      - Saya akan datang besok.
+      - Kami berangkat minggu depan.
+      - Saya suka kopi.
+      - Saya ingin pulang.
+      - Saya bisa berenang.
+      - Kamu tidak harus datang.
+    advanced:
+      - Seandainya saya tahu rapatnya akan berlangsung selama ini, saya pasti sudah mengubah rencana
+        pulang.
+      - Yang paling saya khawatirkan adalah dampak keputusan ini terhadap orang-orang yang tidak
+        diajak berdiskusi.
+      - Meskipun usulan itu tampak menjanjikan, kita tetap perlu mempertimbangkan berbagai
+        kemungkinan akibatnya.
+      - Saya lebih memilih menunda perjalanan daripada terburu-buru mengambil keputusan yang
+        nantinya kita sesali.
+      - Semakin teliti saya membaca laporan itu, semakin sulit bagi saya untuk menerima
+        kesimpulannya.
+      - Keberhasilan proyek ini akan sangat bergantung pada cara kita membagi tanggung jawab.
+      - Bukannya saya menolak gagasan itu, tetapi saya belum yakin apakah sekarang waktu yang tepat.
+      - Ketika kami akhirnya memahami apa yang terjadi, sudah tidak banyak yang bisa dilakukan untuk
+        memperbaiki keadaan.
+    social:
+      - Halo!
+      - Selamat pagi!
+      - Selamat siang!
+      - Selamat sore!
+      - Selamat malam!
+      - Apa kabar?
+      - Baik, terima kasih.
+      - Siapa nama Anda?
+      - Senang berkenalan dengan Anda.
+      - Terima kasih banyak.
+      - Sama-sama.
+      - Permisi.
+      - Maaf.
+      - Sampai jumpa!
+      - Selamat jalan!
+    idiomatic:
+      - Ini buah tangan untukmu.
+      - Mari kita bicarakan dengan kepala dingin.
+      - Dia tetap rendah hati.
+      - Penyanyi itu sedang naik daun.
+      - Toko itu gulung tikar.
+      - Dia jatuh hati padanya.
+      - Saya menerimanya dengan berat hati.
+      - Dia memang kepala batu.
+  varieties: {}

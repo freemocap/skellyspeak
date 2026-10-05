@@ -16,10 +16,10 @@ export function useLanguageTotals(evidence: unknown, effort: unknown, included: 
     return () => { current = false }
   }, [evidence, effort])
   const rows = state.rows && included ? state.rows.filter(row => included.includes(row.target)) : state.rows
-  const sum = (field: 'partnerUnderstood' | 'noIssuesFlagged' | 'revisionsSent' | 'practiceAttempts' | 'explorations' | 'bot') =>
+  const sum = (field: 'partnerUnderstood' | 'revisionsSent' | 'practiceAttempts' | 'explorations' | 'bot') =>
     state.rows!.reduce((total, row) => total + row[field], 0)
   const globalEffort: EffortProgress | null = state.rows ? {
-    target: '', recent: [], partnerUnderstood: sum('partnerUnderstood'), noIssuesFlagged: sum('noIssuesFlagged'),
+    target: '', recent: [], partnerUnderstood: sum('partnerUnderstood'),
     revisionsSent: sum('revisionsSent'), practiceAttempts: sum('practiceAttempts'), explorations: sum('explorations'), bot: sum('bot'),
   } : null
   return { rows, globalEffort, error: state.error, globalXp: state.rows ? state.rows.reduce((sum, row) => sum + row.xp, 0) : null }

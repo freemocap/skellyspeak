@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: कितने बजे requests an hour. The question phrase stays before the verb here; the
+      sentence does not need an extra question auxiliary.
+    examples:
+      - text: दुकान कितने बजे खुलती है?
+        meaning: What time does the shop open?
+        note: खुलती agrees with feminine दुकान. The missing information is the opening time.
+  - subskill_id: answering_information
+    explanation: A time phrase can answer a specific question without repeating its subject and
+      verb. Its relevance comes from that question.
+    examples:
+      - text: आठ बजे।
+        meaning: At eight.
+        note: Reply to the question about the shop’s opening time. बजे makes this an hour expression.
+  - subskill_id: checking_facts
+    explanation: A proposition followed by है न? can ask for confirmation. The listener must be able
+      to identify the claim being checked.
+    examples:
+      - text: दुकान आठ बजे खुलती है, है न?
+        meaning: The shop opens at eight, right?
+        note: The speaker has heard or inferred eight o’clock and checks that detail.
+  - subskill_id: useful_detail
+    explanation: वाला can distinguish a particular member of a set. A spatial description and a
+      distinguishing property can help the listener identify the intended object.
+    examples:
+      - text: पीछे वाला दरवाज़ा नीला है।
+        meaning: The door at the back is blue.
+        note: In directions to a visitor, पीछे वाला identifies which door and नीला adds a visible
+          identifying detail.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

@@ -6,7 +6,7 @@ fn receipt_failure_rolls_back_credit_publication_and_retry_remains_possible() {
     let (_dir, mut store, chat) = setup();
     let turn = store.execute(send(&store, &chat)).unwrap().entity_id;
     let work = skill_assessment::assessment(&mut store, &turn);
-    let result = skill_assessment::presence(&work, &[("questions_answers", "direct")]);
+    let result = skill_assessment::presence(&work, &[("information_exchange", "direct")]);
     store.connection.execute_batch("CREATE TRIGGER reject_level BEFORE INSERT ON skill_level_events BEGIN SELECT RAISE(ABORT,'fixture'); END;").unwrap();
     assert!(store.finish(&work, Ok(result.clone())).is_err());
     let snapshot = progression::snapshot(&store, "spanish").unwrap();
@@ -45,7 +45,7 @@ fn upgrades_preserve_actual_skill_awards_and_claims_from_both_supported_formats(
             progression::snapshot(&store, "spanish").unwrap()["profile"]["credits"].clone();
         store
             .connection
-            .execute_batch("DROP TABLE skill_level_events;")
+            .execute_batch("DROP TABLE skill_level_events; UPDATE learner SET preferences=json_remove(preferences,'$.execution');")
             .unwrap();
         store
             .connection
@@ -68,7 +68,7 @@ fn successful_publication_exposes_live_source_and_does_not_duplicate_on_replay()
     let (_dir, mut store, chat) = setup();
     let turn = store.execute(send(&store, &chat)).unwrap().entity_id;
     let work = skill_assessment::assessment(&mut store, &turn);
-    let result = skill_assessment::presence(&work, &[("questions_answers", "direct")]);
+    let result = skill_assessment::presence(&work, &[("information_exchange", "direct")]);
     store.finish(&work, Ok(result.clone())).unwrap();
     let snapshot = progression::snapshot(&store, "spanish").unwrap();
     let pending: Vec<events::SkillLevelEvent> =

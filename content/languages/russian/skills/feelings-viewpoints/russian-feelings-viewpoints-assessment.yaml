@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: feelings_viewpoints
+guidance: Assess wishes or intentions, preferences, emotions, opinions and alignment with
+  another view. Хочу научиться шить expresses a desire to acquire a skill; it is not a promise.
+  Мне больше нравится чай, чем кофе compares preferences with a dative experiencer. Я рада этой
+  новости expresses emotion, while По-моему marks personal judgment. Я не согласна с этим
+  предложением explicitly rejects a proposal. Понятно can acknowledge comprehension without
+  agreement. Чай can choose a preferred drink contextually after a preference question; the same
+  noun in an inventory is not preference evidence. An isolated copied хочу without a recoverable
+  desired action is absent. A neutral fact does not automatically count as an opinion. Assess
+  stance-bearing constructions and their relevant agreement, allowing recoverable omitted
+  subjects and avoiding assumptions about the speaker’s gender from the user profile alone.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

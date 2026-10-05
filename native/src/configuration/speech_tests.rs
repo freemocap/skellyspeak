@@ -150,7 +150,7 @@ fn authored_preferences_inherit_per_task_and_invalid_references_fail_loading() {
         .iter()
         .map(|(n, t)| (n.to_string(), t.to_string()))
         .collect();
-    let path = "languages/irish.yaml";
+    let path = "languages/irish/irish-language.yaml";
     let mut doc: serde_json::Value = serde_yaml_ng::from_str(&files[path]).unwrap();
     doc["defaults"]["speech_routes"] =
         serde_json::json!({"transcription":["scribe_v2"],"speech":["eleven_v3"]});

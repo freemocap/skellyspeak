@@ -3,10 +3,7 @@ use super::{
     EffortDimension, award,
     qualification::{self, Qualification},
 };
-use crate::{
-    learning::coaching::{CoachDecision, coach_policy},
-    model::Result,
-};
+use crate::model::Result;
 use rusqlite::{Connection, params};
 use serde_json::Value;
 
@@ -25,45 +22,25 @@ fn message_scope(db: &Connection, turn: &str) -> Result<(String, String, String,
     Ok((language, variety, conversation, context))
 }
 pub(crate) fn message(db: &Connection, turn: &str, kind: &str) -> Result<()> {
-    if !matches!(kind, "coach_reaction" | "coach_feedback") {
+    if kind != "skill_assessment" {
         return Ok(());
     }
     let (language, variety, conversation, context) = message_scope(db, turn)?;
-    if kind == "coach_reaction" {
-        let reaction = context
-            .get("partnerReaction")
-            .cloned()
-            .map(serde_json::from_value)
-            .transpose()?;
-        if qualification::understood(reaction.as_ref()) == Qualification::Qualified {
-            award(
-                db,
-                EffortDimension::PartnerUnderstood,
-                turn,
-                &language,
-                &variety,
-                Some(&conversation),
-            )?;
-        }
-    } else {
-        let feedback = coach_policy::view(&context)?;
-        let decision: Option<CoachDecision> = context
-            .get("coachDecision")
-            .cloned()
-            .map(serde_json::from_value)
-            .transpose()?;
-        if qualification::no_issues(feedback.as_ref(), decision.as_ref())
-            == Qualification::Qualified
-        {
-            award(
-                db,
-                EffortDimension::NoIssuesFlagged,
-                turn,
-                &language,
-                &variety,
-                Some(&conversation),
-            )?;
-        }
+    let reaction = context
+        .get("partnerReaction")
+        .filter(|v| !v.is_null())
+        .cloned()
+        .map(serde_json::from_value)
+        .transpose()?;
+    if qualification::understood(reaction.as_ref()) == Qualification::Qualified {
+        award(
+            db,
+            EffortDimension::PartnerUnderstood,
+            turn,
+            &language,
+            &variety,
+            Some(&conversation),
+        )?;
     }
     Ok(())
 }

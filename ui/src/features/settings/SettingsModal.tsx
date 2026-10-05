@@ -1,7 +1,8 @@
+import { AppLanguageFields } from './language/AppLanguageFields'
+import { useExecutionPreferences } from '../../state/settings/useExecutionPreferences'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { errorMessage } from '../../platform/diagnostics/error-details'
 import { ShowHelp } from './onboarding/ShowHelp'
-import { UI_LOCALE_METADATA } from '../../domain/localization'
 import { TEXT_SIZE } from '../../generated/contracts'
 import { AppearanceSettings } from './appearance/AppearanceSettings'
 import { messageKey } from '../../domain/localization'
@@ -26,6 +27,7 @@ import { languageLabel } from '../../domain/language/language-label'
 import { appVersion as loadAppVersion, openDownloads } from '../../platform/updates/updater'
 
 import { SettingsModels } from './models/SettingsModels'
+import { AiExecutionSettings } from '../../components/controls/AiExecutionSettings'
 import { SettingsAccess } from './access/SettingsAccess'
 import { FactoryReset } from './workspace/FactoryReset'
 import { InferenceCacheSettings } from './workspace/InferenceCacheSettings'
@@ -165,6 +167,7 @@ export function SettingsModal({
   onClose: () => void
   onBusyChange?: (busy: boolean) => void
 }) {
+  const executionPreferences = useExecutionPreferences()
   const tr = useI18n()
   const [settings, setSettings] = useState<Settings | null>(null)
   useEffect(() => { if (settings) configureRewardSounds(settings.xp_effects === false ? 'no' : settings.reward_sounds, settings.auto_speak) }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak])
@@ -299,8 +302,8 @@ export function SettingsModal({
       node: <ShowHelp onShown={onClose} />,
     },
     models: {
-      section: 'models', label: tr('Models'), kw: 'model standard fast transcription',
-      node: <div inert={routeBusy}><SettingsModels refreshKey={configurationRevision} onBusyChange={setModelsBusy} onChanged={refreshFromBackend} /></div>,
+      section: 'models', label: tr('Models'), kw: 'model standard fast transcription automatic on demand assessment coaching reading brief',
+      node: <div inert={routeBusy}><AiExecutionSettings {...executionPreferences} /><SettingsModels refreshKey={configurationRevision} onBusyChange={setModelsBusy} onChanged={refreshFromBackend} /></div>,
     },
     provider_mode: {
       section: 'keys', label: tr('AI access'), kw: 'provider server token key account custom hosted',
@@ -346,38 +349,9 @@ export function SettingsModal({
         </div>
       ),
     },
-    native_language: {
-      section: 'languages',
-      label: tr('Explain in'),
-      kw: 'native language explanations mother tongue',
-      node: (
-        <div className="form-row">
-          <label>{tr("Explain in")}</label>
-          <select
-            value={settings.native_language}
-            onChange={(e) => setSettings({ ...settings, native_language: e.target.value, native_variety: languages().find(l => l.code === e.target.value)!.defaultVariety })}
-          >
-            {languages().map((l) => (
-              <option key={l.base} value={l.base}>
-                {languageLabel(l, tr.locale)}
-              </option>
-            ))}
-          </select>
-        </div>
-      ),
-    },
-    native_variety: {
-      section: 'languages', label: tr('Explanation variety'), kw: 'native explanation variety dialect',
-      node: <div className="form-row"><label>{tr('Explanation variety')}</label><VarietyField label={tr('Explanation variety')}
-        presets={languages().find(l => l.code === settings.native_language)?.varieties ?? []}
-        value={settings.native_variety} onChange={native_variety => setSettings({ ...settings, native_variety })} /></div>,
-    },
     interface_locale: {
-      section: 'languages', label: tr('Interface language'), kw: 'interface ui locale',
-      node: <div className="form-row"><label>{tr('Interface language')}</label><select value={settings.interface_locale}
-        onChange={event => setSettings({ ...settings, interface_locale: event.target.value })}>
-        {Object.entries(UI_LOCALE_METADATA).map(([id, language]) => <option key={id} value={id}>{languageLabel(language, tr.locale)}</option>)}
-      </select></div>,
+      section: 'languages', label: tr('App language'), kw: 'interface ui locale native language explanations variety dialect',
+      node: <AppLanguageFields value={settings} onChange={choice => setSettings({ ...settings, ...choice })} />,
     },
     audio_volume: {
       section: 'voice', label: tr('Volume'), kw: 'audio master overall volume voice speech tts effects sound mute rewards',

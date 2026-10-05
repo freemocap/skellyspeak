@@ -57,6 +57,10 @@
     "macos:dev:check": "tsc --noEmit --strict --skipLibCheck --target es2022 --module nodenext --allowImportingTsExtensions tools/macos-dev.ts tools/macos-dev-runner.ts tools/macos-dev-runner.test.ts tools/macos-keychain.test.ts tools/tauri.ts",
     "macos:dev:test": "node --test tools/macos-dev-runner.test.ts tools/macos-keychain.test.ts",
     "content:workbench": "node tools/content-workbench/server.ts",
+    "content:check": "cargo run --manifest-path native/Cargo.toml --bin audit-content -- --check",
+    "content:coverage": "cargo run --manifest-path native/Cargo.toml --bin audit-content -- --coverage",
+    "content:ready": "cargo run --manifest-path native/Cargo.toml --bin audit-content -- --ready",
+    "content:schemas": "cargo run --manifest-path native/Cargo.toml --bin audit-content -- --write-schemas",
     "content:workbench:check": "tsc -p tools/content-workbench/tsconfig.json && node --test tools/content-workbench/*.test.ts"
   },
   "license": "AGPL-3.0-or-later",

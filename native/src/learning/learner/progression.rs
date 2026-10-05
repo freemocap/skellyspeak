@@ -7,7 +7,31 @@ use std::sync::Arc;
 
 pub fn snapshot(store: &Store, target: &str) -> Result<Value> {
     store.config.language(target)?;
-    snapshot_db(&store.connection, &store.config, &store.session_id, target)
+    let mut result = snapshot_db(&store.connection, &store.config, &store.session_id, target)?;
+    let raw: String = store
+        .connection
+        .query_row("SELECT preferences FROM learner", [], |r| r.get(0))?;
+    let preferences: Preferences = serde_json::from_str(&raw)?;
+    let mut guides = vec![];
+    for variety in store.config.language(target)?.varieties {
+        let mut skills = serde_json::Map::new();
+        for skill in store.config.skills_for_language(target)? {
+            store.config.guide_source(target, &skill.id)?;
+            skills.insert(
+                skill.id.clone(),
+                json!(
+                    store
+                        .config
+                        .guide_edition(target, &preferences.explanation_language, &skill.id)?
+                        .map(|edition| edition.markdown(&variety.id))
+                ),
+            );
+        }
+        guides.push(json!({"id":variety.id,"name":variety.name,"skills":skills}));
+    }
+    result["guides"] = json!(guides);
+    result["guide_explanation_language"] = json!(preferences.explanation_language);
+    Ok(result)
 }
 pub(crate) fn snapshot_db(
     db: &Connection,
@@ -15,19 +39,6 @@ pub(crate) fn snapshot_db(
     session: &str,
     target: &str,
 ) -> Result<Value> {
-    let mut guides = vec![];
-    for variety in registry.language(target)?.varieties {
-        let mut skills = serde_json::Map::new();
-        for coverage in registry.skill_coverage(target, &variety.id)? {
-            let markdown = if coverage.guide_available {
-                json!(registry.skill_markdown(target, &variety.id, &coverage.skill_id)?)
-            } else {
-                Value::Null
-            };
-            skills.insert(coverage.skill_id, markdown);
-        }
-        guides.push(json!({"id":variety.id,"name":variety.name,"skills":skills}));
-    }
     let construct_hash = crate::learning::coaching::construct_hash(registry);
     let catalog_version = crate::learning::coaching::version_for(registry);
     let learner: String = db.query_row("SELECT id FROM learner", [], |r| r.get(0))?;
@@ -112,7 +123,7 @@ pub(crate) fn snapshot_db(
         skills.push(json!({"skill_id":node["id"],"experience":experience,"effort":effort,"xp":skill_xp,"checked":experience>0,"star":false}));
     }
 
-    let branches:Vec<_>=catalog.as_array().unwrap().iter().filter(|n|n["kind"]=="skill").map(|n|json!({"skill_id":n["id"],"available":catalog.as_array().unwrap().iter().any(|p|p["id"]==n["parent"]&&p["kind"]=="domain")||skills.iter().any(|p|p["skill_id"]==n["parent"]&&p["star"]==true)})).collect();
+    let branches:Vec<_>=catalog.as_array().unwrap().iter().filter(|n|n["kind"]=="skill").map(|n|json!({"skill_id":n["id"],"available":catalog.as_array().unwrap().iter().any(|p|p["id"]==n["parent"]&&p["kind"]=="root")||skills.iter().any(|p|p["skill_id"]==n["parent"]&&p["star"]==true)})).collect();
     let recommended = skills
         .iter()
         .filter(|s| {
@@ -133,7 +144,7 @@ pub(crate) fn snapshot_db(
         [target],
         |r| r.get(0),
     )?;
-    let mut result = json!({"guides":guides,"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"levels":levels,"rules_version":3,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}});
+    let mut result = json!({"catalog":catalog,"catalog_version":catalog_version,"construct_registry_hash":construct_hash,"learner_id":learner,"target":target,"conversation_count":count,"records":records,"profile":{"levels":levels,"rules_version":3,"choices":{"version":1,"revision":revision,"learner_id":learner,"target":target,"focus":focus,"excluded_attempts":excluded},"xp":xp,"skills":skills,"branches":branches,"credits":credits,"recommended_focus":recommended,"active_focus":focus.map(Value::String).unwrap_or(recommended)}});
     result["profile"]["pendingLevelEvents"] = serde_json::to_value(
         crate::learning::rewards::skill_level_events::pending(db, &result)?,
     )?;
@@ -161,7 +172,6 @@ pub struct LanguageTotals {
     pub xp: u32,
     pub conversations: u32,
     pub partner_understood: u32,
-    pub no_issues_flagged: u32,
     pub revisions_sent: u32,
     pub practice_attempts: u32,
     pub explorations: u32,
@@ -177,7 +187,12 @@ pub(crate) fn get_language_totals(
 fn language_totals(store: &Store) -> Result<Vec<LanguageTotals>> {
     let mut rows = vec![];
     for language in store.snapshot()?.languages {
-        let evidence = snapshot(store, &language.id)?;
+        let evidence = snapshot_db(
+            &store.connection,
+            &store.config,
+            &store.session_id,
+            &language.id,
+        )?;
         let count = |value: &Value, field: &str| {
             value
                 .as_u64()
@@ -198,7 +213,6 @@ fn language_totals(store: &Store) -> Result<Vec<LanguageTotals>> {
             native_name: language.native_name,
             language_tag: language.language_tag,
             partner_understood: effort.partner_understood,
-            no_issues_flagged: effort.no_issues_flagged,
             revisions_sent: effort.revisions_sent,
             practice_attempts: effort.practice_attempts,
             explorations: effort.explorations,

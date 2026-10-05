@@ -1,0 +1,1 @@
+Write the first partner message. Use the selected topic if supplied; otherwise choose a concrete everyday subject yourself. Start directly, without a greeting or introduction. Contribute something small from your side and ask one connected question.

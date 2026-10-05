@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: feelings_viewpoints
+guidance: Assess desire or intention, preference, emotion, opinion and agreement. Dikiş dikmeyi
+  öğrenmek istiyorum names a desire rather than a commitment. Çayı kahveye tercih ediyorum
+  expresses a preference with an accusative preferred item and dative alternative. Bu habere
+  sevindim reports an emotional response. Bence frames a judgment; Bu öneriye katılmıyorum
+  rejects a proposal. Anladım acknowledges understanding without necessarily agreeing. Çay can
+  choose a preferred drink contextually; its presence in a shopping list is not preference
+  evidence. A copied istiyorum with no recoverable desired action is absent. Do not count
+  neutral factual reporting as opinion solely because the speaker asserts it. Turkish does not
+  require gender agreement in these forms. Preserve natural omitted pronouns and check the
+  relevant complement or case construction without withholding all evidence because of an
+  unrelated spelling mistake.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_possession2026
+    - tt_turkish_optative2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

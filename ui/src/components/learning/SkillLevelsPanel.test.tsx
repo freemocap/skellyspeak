@@ -13,32 +13,35 @@ function snapshotWithPoints(points: number[]) {
   return withFixtureLevels(snapshot)
 }
 
+const focusHeading = () => document.querySelector('.skill-levels-focus h3')?.textContent
+
 describe('SkillLevelsPanel', () => {
-  it('shows the weakest skill as the level and filters the list to a pressed arm', () => {
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6])} conversation={null} onInspect={null} />)
+  it('names every arm on the chart and shows a pressed arm right under it', () => {
+    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
     expect(screen.getByText('Skill level 4')).toBeTruthy()
-    const rows = () => document.querySelectorAll('.skill-levels-row')
-    expect(rows()).toHaveLength(12)
-    fireEvent.click(screen.getByRole('button', { name: /^Make and respond to requests: skill level 4/ }))
-    expect(rows()).toHaveLength(1)
-    expect(screen.getByText('Showing Make and respond to requests')).toBeTruthy()
-    fireEvent.click(screen.getByText('Show all'))
-    expect(rows()).toHaveLength(12)
+    expect(document.querySelectorAll('.skill-radar-label')).toHaveLength(8)
+    expect(screen.getByText('Lv 5 goal')).toBeTruthy()
+    expect(focusHeading()).toBe('Managing conversation')
+    fireEvent.click(screen.getByRole('button', { name: /^Possibilities and constraints: skill level 4/ }))
+    expect(focusHeading()).toBe('Possibilities and constraints')
+    expect(screen.getByText('3 more points for level 5')).toBeTruthy()
   })
-  it('names the skills holding the next level back and pins one when pressed', () => {
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6])} conversation={null} onInspect={null} />)
+  it('lists every skill holding the next level back and every skill already ready', () => {
+    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
     const next = screen.getByRole('heading', { name: 'To reach level 5' }).parentElement!
-    expect(within(next).getAllByRole('button')).toHaveLength(3)
-    expect(within(next).getByText('4 more skills')).toBeTruthy()
-    fireEvent.click(within(next).getByRole('button', { name: /Describe present situations/ }))
-    expect(document.querySelectorAll('.skill-levels-row')).toHaveLength(1)
+    expect(within(next).getAllByRole('button')).toHaveLength(4)
+    const ready = screen.getByRole('heading', { name: 'Ready for level 5' }).parentElement!
+    expect(within(ready).getAllByRole('button')).toHaveLength(4)
+    fireEvent.click(within(next).getByRole('button', { name: /Feelings and viewpoints/ }))
+    expect(focusHeading()).toBe('Feelings and viewpoints')
   })
-  it('opens evidence for the focused skill when the owner allows it', () => {
+  it('opens more about the focused skill when the owner allows it', () => {
     const inspect = vi.fn()
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])} conversation={null} onInspect={inspect} />)
-    fireEvent.click(document.querySelector('[data-reward-skill="quantity"]')!)
-    fireEvent.click(screen.getByRole('button', { name: 'See the evidence' }))
-    expect(inspect).toHaveBeenCalledWith('quantity')
+    render(<SkillLevelsPanel snapshot={snapshotWithPoints([1, 1, 1, 1, 1, 1, 1, 1])} conversation={null} onInspect={inspect} />)
+    const next = screen.getByRole('heading', { name: 'To reach level 2' }).parentElement!
+    fireEvent.click(within(next).getByRole('button', { name: /Possibilities and constraints/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'More about this skill' }))
+    expect(inspect).toHaveBeenCalledWith('possibilities_constraints')
   })
   it('tells a new learner how to reach level 1', () => {
     render(<SkillLevelsPanel snapshot={skillDemo} conversation={null} onInspect={null} />)

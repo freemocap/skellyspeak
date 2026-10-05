@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: possibilities_constraints
+language: french
+guidance: >-
+  Judge the intended modal function in context. Je sais réparer une roue demonstrates
+  know-how; je peux sortir may express ability, opportunity or permission. Il doit être
+  chez lui may be an inference, while nous devons rendre les clés can state an obligation.
+  Do not award every modal subskill merely because pouvoir or devoir occurs. Je dois
+  partir is correctly formed; je dois de partir is not the ordinary devoir-plus-infinitive
+  construction. Il faut que tu partes can correctly express necessity with a subordinate
+  clause. Peut-être and certainty expressions must fit the proposition and intended degree
+  of commitment. Do not verify real-world truth or infer certainty from confident
+  punctuation. Credit requires correct use of the function, not merely an attempt.
+  Unrelated errors do not erase a successful instance. Use unclear when the available
+  exchange does not establish the function. Examples illustrate possibilities, not an
+  exhaustive whitelist. Accept appropriate France and Canadian French usage and
+  conversational register; do not impose another variety’s lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_modals2026
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: feelings_viewpoints
+guidance: Look for wanting, liking, emotion, judgment and agreement. Saya ingin belajar menjahit
+  states a desire; saya suka menggambar states a preference without requiring an English
+  infinitive marker. Saya senang dengan hasilnya expresses satisfaction, and menurut saya frames
+  a judgment as the speaker’s position. Saya tidak setuju opposes an available view; mengerti
+  can register understanding without agreement. Saya suka by itself may be a contextual response
+  if the liked activity is established, but copying suka in a vocabulary list is absent. Plain
+  description does not become opinion merely because the learner asserted it. Lebih suka
+  identifies a preference; lebih murah alone compares price without necessarily preferring the
+  item. Saya ingin can express desire without committing the speaker to another participant’s
+  requested task. Do not demand gender or person endings absent from Indonesian, and judge
+  conversational pronouns and vocabulary in register rather than requiring saya in every
+  setting.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

@@ -1,3 +1,4 @@
+import type { GuideAction } from '../../../components/learning/GuideActions'
 import { useSkillEvidenceStore } from '../../../state/learning/skill-evidence'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChatSummary, Settings, StoredTurn } from '../../../types'
@@ -89,6 +90,53 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     finally { actionPending.current = false }
   }, [openChat, refresh, target])
 
+  const startFromPhrase = useCallback(async (sourceMessageId: string, phrase: string) => {
+    if (actionPending.current) return
+    actionPending.current = true
+    const owner = chatIdRef.current
+    try {
+      const directory = await refresh()
+      if (!owner || chatIdRef.current?.id !== owner.id) throw new Error('The conversation changed before starting.')
+      const conversation = directory.conversations.find(c => c.id === owner.id)
+      if (!conversation) throw new Error('Conversation is unavailable.')
+      const receipt = await executeAction(directory, { kind: 'startPhraseConversation', sourceMessageId, phrase, contactId: conversation.contactId, expectedRevision: directory.revision })
+      if (chatIdRef.current?.id === owner.id) await openChat(receipt.entityId)
+      await refresh()
+    } finally { actionPending.current = false }
+  }, [openChat, refresh])
+
+  const startFromSkill = useCallback(async (language: string, variety: string, skillId: string, subskillId: string | null = null) => {
+    if (actionPending.current) throw new Error('A conversation is already being started.')
+    actionPending.current = true
+    const owner = chatIdRef.current
+    try {
+      const directory = await refresh()
+      if (!owner || chatIdRef.current?.id !== owner.id) throw new Error('The conversation changed before starting.')
+      const receipt = await executeAction(directory, { kind: 'startSkillConversation', sourceConversationId: owner.id, language, variety, skillId, subskillId, expectedRevision: directory.revision })
+      if (chatIdRef.current?.id === owner.id) await openChat(receipt.entityId)
+      await refresh()
+    } finally { actionPending.current = false }
+  }, [openChat, refresh])
+
+  const runGuideAction = useCallback(async (action: GuideAction) => {
+    if (actionPending.current) throw new Error('A conversation action is already running.')
+    actionPending.current = true
+    const owner = chatIdRef.current
+    try {
+      const directory = await refresh()
+      if (!owner || chatIdRef.current?.id !== owner.id) throw new Error('The conversation changed before continuing.')
+      const conversation = directory.conversations.find(c => c.id === owner.id)
+      if (!conversation) throw new Error('Conversation is unavailable.')
+      const receipt = await executeAction(directory, action.kind === 'coach'
+        ? { kind: 'askGuideCoach', conversationId: owner.id, text: action.text, guide: action.guide, focus: action.focus, expectedRevision: conversation.revision }
+         : action.kind === 'skill'
+          ? { kind: 'startSkillConversation', sourceConversationId: owner.id, language: action.guide.language, variety: action.guide.variety, skillId: action.guide.skillId, subskillId: action.subskillId, expectedRevision: directory.revision }
+          : { kind: 'startGuideConversation', sourceConversationId: owner.id, guide: action.guide, example: action.example, phrase: action.phrase, expectedRevision: directory.revision })
+      if (action.kind !== 'coach' && chatIdRef.current?.id === owner.id) await openChat(receipt.entityId)
+      await refresh()
+    } finally { actionPending.current = false }
+  }, [openChat, refresh])
+
   const removeChat = useCallback(async (id: string) => {
     const directory = await refresh()
     const conversation = directory.conversations.find(c => c.id === id)
@@ -114,7 +162,7 @@ export function useConversation({ settings, setHistoryOpen, resetView }: Options
     return executeAction(directory, { kind: 'sendMessage', conversationId: owner.id, expectedRevision: conversation.revision, text, input })
   }, [])
 
-  return { ...observation, turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, removeChat, sendMessage,
+  return { ...observation, turns, turnsRef, chats, currentChatId, openingFailed, chatIdRef, openChat, startNew, startFromPhrase, startFromSkill, runGuideAction, removeChat, sendMessage,
     snapshot: snapshot?.conversationId === currentChatId ? snapshot : null,
     snapshotRevision: snapshot?.revision ?? -1,
     pendingReply: snapshot?.turns.some(t => t.state === 'pending') ?? false,

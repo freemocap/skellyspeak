@@ -1,18 +1,44 @@
-/* Language explanation cards: examples, level labels and comparisons. */
+/* Language explanation cards (components/reading/ExplanationCards.tsx and
+   SentenceCompletions.tsx): a numbered title, the quoted target text as a chat
+   bubble, the explanation (long ones start folded), an example and a comparison
+   with the learner's own language, each under its own small heading. */
+
+.exp-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-6); }
 
 .exp {
-  border: var(--border-width) solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  border: var(--border-width) solid var(--line-soft);
   border-radius: var(--radius-lg);
-  padding: var(--space-7) var(--space-8);
-  background: var(--field);
+  padding: var(--space-8) var(--space-9);
+  background: var(--sheet);
+  box-shadow: var(--shadow-sm);
   margin-top: var(--space-3);
 }
+.exp-list .exp { margin-top: 0; }
 
-.exp-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+.exp-top { display: flex; align-items: center; gap: var(--space-5); }
 
-.exp-title { font-weight: var(--weight-semibold); font-size: var(--type-body); }
+.exp-number {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height-sm);
+  height: var(--control-height-sm);
+  border: var(--border-width) solid var(--coach-line);
+  border-radius: var(--radius-pill);
+  background: var(--coach-tint);
+  color: var(--coach-ink);
+  font-size: var(--type-ui);
+  font-weight: var(--weight-semibold);
+}
+
+.exp-title { flex: 1; margin: 0; font-weight: var(--weight-semibold); font-size: var(--type-title); line-height: var(--leading-snug); color: var(--ink); }
 
 .exp-cefr {
+  flex: none;
   font-family: var(--font-sans);
   font-size: var(--type-meta);
   font-weight: var(--weight-semibold);
@@ -22,21 +48,53 @@
   padding: var(--space-hairline) var(--space-4);
 }
 
+.exp .reading-passage { margin: 0; }
 
-.exp-vs {
-  font-size: var(--type-ui);
-  color: var(--ink-2);
-  margin-top: var(--space-4);
-  line-height: var(--leading-normal);
+.exp-body { color: var(--ink); font-size: var(--type-body); line-height: var(--leading-normal); }
+.exp-body > :first-child { margin-top: 0; }
+.exp-body > :last-child { margin-bottom: 0; }
+/* A folded explanation shows its first three lines, fading out. */
+.exp-body[data-folded] {
+  max-height: calc(var(--type-body) * var(--leading-normal) * 3);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, var(--ink) 55%, transparent);
 }
 
-.exp-vs > span {
+.exp-fold {
+  align-self: flex-start;
+  min-height: var(--control-height-sm);
+  margin-top: calc(-1 * var(--space-4));
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--interaction-ink);
+  font-size: var(--type-ui);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+.exp-fold:hover { text-decoration: underline; }
+
+.exp-section { display: flex; flex-direction: column; gap: var(--space-3); }
+.exp-section > h5 {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: var(--type-meta);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-tag);
   text-transform: uppercase;
   color: var(--ink-3);
-  display: block;
-  margin-bottom: var(--space-1);
+}
+.exp-section > p { margin: 0; }
+.exp-examples { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-5); }
+.exp-examples li { display: flex; flex-direction: column; gap: var(--space-2); }
+.exp-examples .reading-passage { margin: 0; }
+.exp-example-meaning { padding-inline-start: var(--space-6); color: var(--ink-2); font-size: var(--type-ui); }
+
+.exp-vs {
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--chrome);
+  font-size: var(--type-ui);
+  color: var(--ink-2);
+  line-height: var(--leading-normal);
 }

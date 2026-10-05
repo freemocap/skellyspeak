@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: A che ora asks for a time; dove and other question words ask for other missing
+      information. Ordinary Italian questions do not add an auxiliary equivalent to English do.
+    examples:
+      - text: A che ora comincia il corso domani?
+        meaning: What time does the course start tomorrow?
+        note: A che ora asks for the start time; comincia is already the finite verb.
+  - subskill_id: answering_information
+    explanation: A relevant answer can consist of a phrase. The preceding question must make clear
+      what information that phrase supplies.
+    examples:
+      - text: Alle nove.
+        meaning: At nine.
+        note: Reply to someone asking what time the course starts. Alle is a + le; this answers the
+          identified time question.
+  - subskill_id: checking_facts
+    explanation: A proposition followed by vero? can seek confirmation. It checks what has been
+      reported rather than requesting a new definition.
+    examples:
+      - text: Il corso comincia alle nove, vero?
+        meaning: The course starts at nine, right?
+        note: Said when nine o’clock has been suggested as the start time. Vero asks the partner to
+          confirm that proposition.
+  - subskill_id: useful_detail
+    explanation: Use a specific location or distinction that helps resolve the information need. A
+      phrase with vicino a can narrow a location already named.
+    examples:
+      - text: L’ingresso è sul retro, vicino al parcheggio.
+        meaning: The entrance is at the back, near the car park.
+        note: Reply to someone looking for the entrance. Sul is su + il, and al is a + il; the parking
+          area supplies a useful landmark.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_questions2026
+    - zanichelli_it_prepositions2026
+    - zanichelli_it_location2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

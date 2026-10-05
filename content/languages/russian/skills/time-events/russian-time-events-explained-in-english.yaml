@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: An imperfective present can describe an activity happening now.
+    examples:
+      - text: Сейчас я чиню велосипед.
+        meaning: I am repairing a bicycle now.
+        note: Сейчас anchors чиню to the current activity rather than a general habit.
+  - subskill_id: past_events
+    explanation: A perfective past can present a repair as a completed event. Singular past forms
+      mark gender.
+    examples:
+      - text: Вчера я починила велосипед.
+        meaning: Yesterday I repaired a bicycle.
+        note: The speaker uses feminine починила. A masculine speaker would use починил.
+  - subskill_id: future_events
+    explanation: A perfective nonpast form can refer to a future event.
+    examples:
+      - text: Завтра я заберу детали.
+        meaning: Tomorrow I will collect the parts.
+        note: Завтра supplies the time; заберу presents the collection as a bounded event.
+  - subskill_id: duration_frequency
+    explanation: Раз counts occasions and в неделю establishes a recurring interval.
+    examples:
+      - text: Я плаваю два раза в неделю.
+        meaning: I swim twice a week.
+        note: This describes frequency, not the duration of one swim.
+  - subskill_id: event_sequence
+    explanation: Сначала and потом explicitly order actions.
+    examples:
+      - text: Сначала вымойте руки, потом начинайте готовить.
+        meaning: First wash your hands, then start cooking.
+        note: The polite or plural instructions give a sequence, not a claim that one event causes the
+          other.
+  - subskill_id: event_phase
+    explanation: The prefix in дочитать marks reading through to the end.
+    examples:
+      - text: Я дочитала книгу.
+        meaning: I finished reading the book.
+        note: The feminine speaker reports reaching the endpoint, rather than merely having read some of
+          it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_aspect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

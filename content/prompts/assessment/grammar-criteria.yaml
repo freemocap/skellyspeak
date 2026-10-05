@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../../rust-schemas/assessment-criteria.yaml
+schema_version: 1
+revision: grammar-criteria-2026-10-04
+criteria:
+  acceptable: The wording is grammatically acceptable for the intended contribution and context.
+  local_errors: Local grammatical errors occur, but the main construction remains interpretable.
+  major_errors: Grammatical errors substantially disrupt the construction or the relationships it expresses.
+  insufficient_evidence: There is not enough assessable wording or context to make a grammatical judgment.

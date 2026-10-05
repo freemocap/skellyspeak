@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: feelings_viewpoints
+guidance: Evaluate desire, preference, emotion, judgment and agreement without requiring a
+  separate English-like subject in each clause. 修理を習いたいです expresses desire with たい attached to a
+  verb stem; 好き describes liking and commonly marks the liked item with が. 安心しました reports an
+  emotional response. この案はいいと思います marks a judgment through a quoted plain proposition. 私もそう思います
+  can agree with an identifiable opinion, while わかりました may only acknowledge understanding or
+  accept instructions. A copied 好き in a vocabulary list with no attitude bearer or object
+  available is absent. 紅茶 can select a preferred drink contextually after a preference question.
+  Third-person feelings may be reported using suitable reporting or evidential constructions; do
+  not mechanically demand direct self-report forms. A wish is not by itself a commitment, and a
+  neutral factual report is not automatically an opinion. Mistakes in unrelated wording must not
+  cancel an otherwise correct expression of feeling.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

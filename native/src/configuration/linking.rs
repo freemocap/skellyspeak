@@ -171,8 +171,6 @@ impl Registry {
                 guidance: v.guidance.clone(),
             });
         }
-        self.goal_material
-            .insert(id.clone(), doc.learning.goal_material.clone());
         self.languages.push(Language {
             speech_routes: doc.defaults.speech_routes.clone(),
             id: id.clone(),
@@ -196,7 +194,7 @@ impl Registry {
     }
     pub(super) fn entity_source(&self, entity: &str) -> Option<String> {
         for (id, doc) in &self.documents {
-            let path = format!("languages/{id}.yaml");
+            let path = format!("languages/{id}/{id}-language.yaml");
             if id == entity {
                 return Some(path);
             }

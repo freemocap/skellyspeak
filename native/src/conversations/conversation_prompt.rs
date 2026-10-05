@@ -84,7 +84,14 @@ pub(crate) fn system(
 ) -> Result<String> {
     let topic = super::direction::topic_text(registry, &settings.direction)?;
     let content = registry.conversation_prompt();
-    let angle = if opening && topic.is_none() && !content.opening_angles.is_empty() {
+    let angle = if opening
+        && topic.is_none()
+        && !matches!(
+            settings.direction.topic,
+            Some(super::direction::TopicChoice::Skill { .. })
+        )
+        && !content.opening_angles.is_empty()
+    {
         use sha2::{Digest, Sha256};
         let digest = Sha256::digest(conversation_id.as_bytes());
         let index = (u64::from_le_bytes(digest[..8].try_into().unwrap())
@@ -93,7 +100,7 @@ pub(crate) fn system(
     } else {
         None
     };
-    render(
+    let mut prompt = render(
         content,
         language,
         settings,
@@ -104,7 +111,11 @@ pub(crate) fn system(
         topic.as_deref(),
         opening,
         angle,
-    )
+    )?;
+    if let Some(focus) = registry.skill_conversation_focus(&language.language_id, settings)? {
+        prompt.insert_str(0, &format!("{focus}\n\n"));
+    }
+    Ok(prompt)
 }
 pub(crate) fn preview(
     registry: &Registry,

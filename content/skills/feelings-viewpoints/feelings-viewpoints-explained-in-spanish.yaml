@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: feelings_viewpoints
+explanation_language: spanish
+title: Sentimientos y puntos de vista
+introduction: Expresar estados internos, valoraciones y posturas.
+sections:
+  - subskill_id: wants_intentions
+    title: Deseos e intenciones
+    concept: Expresar lo que se desea o se tiene intención de hacer.
+  - subskill_id: preferences
+    title: Preferencias
+    concept: Expresar gustos, desagrados o elecciones entre alternativas.
+  - subskill_id: emotions
+    title: Emociones
+    concept: Expresar sentimientos o reacciones emocionales.
+  - subskill_id: opinions
+    title: Opiniones
+    concept: Expresar una valoración o un juicio personal.
+  - subskill_id: agreement_disagreement
+    title: Acuerdo y desacuerdo
+    concept: Apoyar o rechazar una postura expresada por otra persona.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

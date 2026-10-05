@@ -57,7 +57,16 @@ impl Store {
             let partner_opening = captured["opening"]["kind"] == "partner";
             if messages.first().map(|m| m.role.as_str()) != Some("system")
                 || if partner_opening {
-                    kind != "persona_context" || messages.len() != 1 || !sources.is_empty()
+                    kind != "persona_context"
+                        || messages.len()
+                            != if captured.get("phraseSeed").is_some() {
+                                2
+                            } else {
+                                1
+                            }
+                        || !sources.is_empty()
+                        || (captured.get("phraseSeed").is_some()
+                            && messages.last().map(|m| m.role.as_str()) != Some("user"))
                 } else {
                     messages.last().map(|m| m.role.as_str()) != Some("user")
                 }
@@ -118,7 +127,6 @@ impl Store {
             }
         }
         if !crate::learning::coaching::conversation_support::owns(&kind)
-            && !crate::learning::coaching::message_assessment::owns(&kind)
             && kind != "skill_attribution"
             && kind != "skill_assessment"
             && kind != "persona_reply"
@@ -130,7 +138,6 @@ impl Store {
             && kind != "user_translation"
             && kind != "coach_feedback"
             && kind != "coach_suggestions"
-            && kind != "coach_reaction"
         {
             return Err(fail("No executor for declared operation."));
         }
@@ -151,13 +158,10 @@ impl Store {
             let jev = kind == "skill_assessment"
                 && crate::learning::coaching::assessment_adapter::selected(&captured)?
                     == AssessmentAdapter::JevChoice;
-            let rating = crate::learning::coaching::message_assessment::owns(&kind);
             let coaching_schema = if kind == "skill_attribution" {
                 Some(crate::learning::coaching::skill_attribution::schema(
                     &crate::learning::coaching::skill_attribution::selected(&captured)?,
                 ))
-            } else if rating {
-                None
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
                 Some(
                     crate::learning::coaching::conversation_support::schema_for_context(
@@ -175,8 +179,6 @@ impl Store {
             };
             let messages = if kind == "skill_attribution" {
                 crate::learning::coaching::skill_attribution::prompt(&tx, &turn, &captured)?
-            } else if rating {
-                crate::learning::coaching::message_assessment::prompt(&tx, &turn, &kind, &captured)?
             } else if kind == "skill_assessment" {
                 crate::learning::coaching::skill_assessment::prompt(&tx, &turn, &captured)?
             } else if crate::learning::coaching::conversation_support::owns(&kind) {
@@ -293,12 +295,7 @@ impl Store {
                 } else {
                     coaching_schema
                 };
-            let decisions = if rating {
-                target.model = crate::learning::coaching::message_assessment::model().into();
-                Some(crate::learning::coaching::message_assessment::request(
-                    &messages, &kind,
-                )?)
-            } else if jev {
+            let decisions = if jev {
                 target.model = crate::learning::coaching::assessment_adapter::MODEL.into();
                 Some(crate::learning::coaching::assessment_adapter::request(
                     &messages, &captured,

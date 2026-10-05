@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: reasons_connections
+guidance: Assess expressed reasons, results, dependencies, contrasts or grounds supporting a
+  claim. Ich bleibe zu Hause, weil ich krank bin gives a reason with the finite verb at the end
+  of the weil clause. Denn can also give a reason while retaining main-clause order. Deshalb
+  nehmen wir den Bus presents a consequence when the preceding situation explains that choice;
+  danach merely orders events. Falls es regnet, bleiben wir drinnen makes the outcome
+  conditional. Wenn may introduce a time or a contingency, so do not assign a condition from the
+  word alone. Der Weg ist kurz, aber steil contrasts properties. Der Weg ist kurz und steil
+  gives both properties without necessarily opposing an expectation. Die Werkstatt ist
+  zuverlässig; sie hat unsere Räder jedes Mal pünktlich repariert supplies grounds for the
+  judgment. Repeating zuverlässig more loudly adds no grounds. A reason fragment after Warum?
+  may work contextually. A bare weil or deshalb copied as vocabulary is absent use. Do not treat
+  conversational weil with main-clause order as universally incorrect; interpret register and
+  discourse role.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_connectors2026
+    - umich_de_adverbs2026
+    - umich_de_word_order2026
+    - umich_de_comparison2026
+    - goethe_de_discussion2026
+    - guenthner_spoken_grammar2000
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

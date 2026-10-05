@@ -5,7 +5,7 @@ import { OnboardingSetup } from './OnboardingSetup'
 import { I18nProvider } from '../../../components/localization/i18n'
 import { useOnboardingStore } from '../../../state/settings/onboarding'
 import { useSessionStore } from '../../../state/session/session'
-import { DEFAULT_APPEARANCE, type Preferences, type ConnectionConfig } from '../../../generated/contracts'
+import { DEFAULT_EXECUTION, DEFAULT_APPEARANCE, type Preferences, type ConnectionConfig } from '../../../generated/contracts'
 
 vi.mock('../../../platform/ipc/tauri', () => ({
   languages: () => ['english', 'spanish'].map(code => ({
@@ -20,7 +20,7 @@ vi.mock('../access/SettingsAccess', () => ({ SettingsAccess: () => <div>Existing
 vi.mock('@tauri-apps/plugin-opener', () => ({ openUrl: vi.fn() }))
 const save = vi.fn(), finish = vi.fn(), back = vi.fn()
 const initial: Preferences = {
-  theme: 'light', appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false,
+  theme: 'light', execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false,
   interfaceLocale: 'spanish', explanationLanguage: 'spanish', explanationVarietyId: 'spanish-default',
   myLanguages: [], targetVarieties: {}, onboarding: 'not_started', onboardingRequired: true, onboardingLanguage: null, onboardingHelp: false,
 }

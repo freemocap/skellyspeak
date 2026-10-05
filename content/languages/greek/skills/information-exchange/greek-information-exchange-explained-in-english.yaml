@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Πότε asks when something happens. A question can keep an ordinary verb construction
+      without an English-style auxiliary. Use the Greek question mark ; at the end of a written
+      question.
+    examples:
+      - text: Πότε ανοίγει το συνεργείο αύριο;
+        meaning: When does the repair shop open tomorrow?
+        note: Πότε requests a time; αύριο identifies the day. Ανοίγει is third person singular, with το
+          συνεργείο as its subject.
+  - subskill_id: answering_information
+    explanation: An answer can consist of the information requested. Clock times use στις with the
+      stated hour. You need not repeat the question’s entire clause when its event and day
+      remain clear.
+    examples:
+      - text: Στις εννέα το πρωί.
+        meaning: At nine in the morning.
+        note: Use this after someone asks what time the repair shop opens tomorrow. The phrase supplies
+          the requested time; it is not a standalone claim about an unidentified event.
+  - subskill_id: checking_facts
+    explanation: A yes/no question can present a specific proposition for confirmation. Its wording
+      may resemble a statement; punctuation or spoken intonation signals the question. Use it
+      when checking the proposed fact rather than asking for a new time.
+    examples:
+      - text: Το συνεργείο ανοίγει στις εννέα, σωστά;
+        meaning: The repair shop opens at nine, right?
+        note: Σωστά; requests confirmation of the opening time. If the problem is that the listener did
+          not hear a word, the same topic can instead become a repair question.
+  - subskill_id: useful_detail
+    explanation: Add a detail that helps someone identify the intended place or use the information.
+      An identifying noun phrase and a spatial phrase can be sufficient; no special “detail”
+      tense or discourse formula is required.
+    examples:
+      - text: Η είσοδος είναι στην πίσω πλευρά του κτιρίου.
+        meaning: The entrance is at the back of the building.
+        note: After giving the shop’s address, this locates its entrance more precisely. Του κτιρίου is
+          genitive and identifies which building’s back is meant.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A polite or plural imperative with будь ласка asks for a specific action.
+    examples:
+      - text: Перенесіть цю коробку до дверей, будь ласка.
+        meaning: Please move this box to the door.
+        note: До дверей gives the destination.
+  - subskill_id: offers_invitations
+    explanation: An infinitive question can offer help to a dative recipient.
+    examples:
+      - text: Вам допомогти із сумкою?
+        meaning: Shall I help you with the bag?
+        note: The speaker offers to act; вам identifies the recipient.
+  - subskill_id: suggestions
+    explanation: A first-person plural imperative can propose an action including the speaker.
+    examples:
+      - text: Зробімо перерву.
+        meaning: Let’s take a break.
+        note: Зробімо invites joint action rather than ordering only the listener.
+  - subskill_id: commitments
+    explanation: A future statement can undertake responsibility in an agreed plan.
+    examples:
+      - text: Я принесу інструменти завтра.
+        meaning: I will bring the tools tomorrow.
+        note: Use while assigning tasks; the speaker takes responsibility for the tools.
+  - subskill_id: accepting_declining
+    explanation: A polite inability statement can decline a prior invitation.
+    examples:
+      - text: Перепрошую, сьогодні я не можу прийти.
+        meaning: Sorry, I cannot come today.
+        note: The declined attendance is explicit; the previous invitation supplies its setting.
+  - subskill_id: negotiating_plans
+    explanation: State a scheduling constraint and propose a workable alternative.
+    examples:
+      - text: У п’ятницю я не можу. Зустріньмося в суботу.
+        meaning: I cannot on Friday. Let’s meet on Saturday.
+        note: The first clause relies on the proposed meeting, and the second proposes a replacement
+          day.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

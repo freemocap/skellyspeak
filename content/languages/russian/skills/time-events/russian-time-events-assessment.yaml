@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: time_events
+guidance: "Judge present, past and future reference, duration or recurrence, sequence and event
+  phase. Сейчас я чиню велосипед presents current activity. Вчера я починила велосипед reports a
+  past repair with feminine singular agreement and perfective aspect. Завтра я заберу детали
+  uses a perfective nonpast form for a future event; an imperfective future can use буду plus
+  infinitive. Do not equate every imperfective past with an unfinished action: it may simply
+  report that an activity occurred. Два раза в неделю gives recurrence; два часа can measure
+  duration. Сначала and потом order events, while дочитать specifies reaching the end of
+  reading. Вчера can supply a contextual answer to an identifiable when-question. A copied time
+  word without a recoverable event is absent. A timeless property assertion does not
+  independently prove temporal skill, and grammatical gender must follow the referent rather
+  than an assumed learner identity."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_aspect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

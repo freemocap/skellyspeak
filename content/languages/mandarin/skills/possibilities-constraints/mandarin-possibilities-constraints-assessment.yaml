@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, requirements, possible outcomes and confidence. 会 can
+  express learned ability, 能 capacity or circumstances, and 可以 permission or practical
+  acceptability; their meanings are not a one-to-one English can mapping. 我会修自行车 reports a
+  skill. 我可以坐这里吗 asks permission, not someone else’s ability. 必须 marks necessity; 不用 removes
+  need and 不能 can prohibit or express inability according to context. 可能下雨 presents possibility,
+  while 不确定 limits confidence. An unqualified weather report alone does not establish
+  possibility. A copied modal with no recoverable action or proposition is absent. 可以 from the
+  responsible person after a permission request can grant it contextually. A cooperative 能
+  request need not assert physical capability. When both capacity and opportunity readings
+  establish correct group use, subtype ambiguity alone is not unclear. Do not treat every 会 as
+  learned skill when the actual sentence predicts an outcome.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

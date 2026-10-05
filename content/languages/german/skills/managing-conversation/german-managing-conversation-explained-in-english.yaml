@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Guten Tag can open a neutral encounter. Auf Wiedersehen or a phrase such as bis
+      morgen can close it; the latter anticipates another meeting.
+    examples:
+      - text: Ich muss jetzt los. Bis morgen!
+        meaning: I have to go now. See you tomorrow!
+        note: The departure prepares the closing. Bis morgen takes leave while anticipating contact
+          tomorrow; no full sentence is needed for the farewell.
+  - subskill_id: acknowledging
+    explanation: "A response such as ah, jetzt verstehe ich can register understanding. Its
+      conversational position matters: understanding a position does not necessarily endorse
+      it."
+    examples:
+      - text: Ah, jetzt verstehe ich den Unterschied.
+        meaning: Ah, now I understand the difference.
+        note: After the partner explains two options, this acknowledges that explanation. Verstehe
+          follows jetzt, with ich after the verb.
+  - subskill_id: clarification
+    explanation: Ask what the partner means with was meinst du mit …? or request repetition. Specify
+      the trouble in the preceding contribution rather than introducing an unrelated fact
+      question.
+    examples:
+      - text: Was meinst du mit „vorläufig“?
+        meaning: What do you mean by “provisional”?
+        note: After the partner calls a plan vorläufig, this asks for its intended meaning. Du addresses
+          one familiar person; the quoted word remains German.
+  - subskill_id: rephrasing
+    explanation: Anders gesagt can introduce a clearer restatement. It must preserve or explain an
+      identifiable earlier meaning, not merely add a new topic.
+    examples:
+      - text: "Anders gesagt: Wir brauchen die Zusage vor der Buchung."
+        meaning: In other words, we need confirmation before booking.
+        note: After explaining that booking depends on prior confirmation, this restates the order more
+          plainly. The phrase introduces the reformulation; it is not itself the reformulated
+          content.
+  - subskill_id: correcting_misunderstanding
+    explanation: Ich meinte …, nicht … can replace the interpretation received with the one
+      intended. Meinte is a past form of meinen, used here to refer to the earlier intended
+      meaning.
+    examples:
+      - text: Ich meinte den Hintereingang, nicht den Haupteingang.
+        meaning: I meant the rear entrance, not the main entrance.
+        note: After the partner assumes the main entrance, the two accusative noun phrases identify the
+          intended and mistaken alternatives.
+  - subskill_id: turns_topics
+    explanation: Darf ich noch etwas zu … sagen? can request another turn on a named topic. A turn
+      request differs from merely sending a message about that topic.
+    examples:
+      - text: Darf ich noch etwas zum Preis sagen?
+        meaning: May I say something else about the price?
+        note: In a discussion moving toward a decision, this requests the floor on price. Zum is zu dem;
+          the infinitive sagen follows the modal construction.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - goethe_de_discourse2026
+    - goethe_de_discussion2026
+    - umich_de_questions2026
+    - umich_de_subjunctive2026
+    - umich_de_word_order2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

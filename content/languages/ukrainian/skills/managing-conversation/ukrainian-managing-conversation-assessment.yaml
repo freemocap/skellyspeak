@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: managing_conversation
+guidance: Assess opening or closing, acknowledgement, clarification, rephrasing, correcting
+  misunderstanding and managing turns or topics. До зустрічі closes contact. Тепер зрозуміло
+  acknowledges understanding without necessarily agreeing. Повторіть, будь ласка requests
+  repetition; Іншими словами introduces a reformulation of something already explained. Я мала
+  на увазі суботу, не п’ятницю corrects a mistaken interpretation. Можна перейти до іншого
+  питання? requests a conversational transition rather than permission for an unrelated external
+  action. A copied greeting word embedded in a vocabulary list is absent as interactional
+  evidence. A brief так may acknowledge a specific contribution contextually, but its function
+  depends on that exchange. Do not require long sentences for effective repair, invent missing
+  antecedents, or reject natural subject omission. A new question about an external fact is not
+  automatically a clarification of wording.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

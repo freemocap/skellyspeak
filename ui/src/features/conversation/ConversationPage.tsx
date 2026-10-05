@@ -1,3 +1,4 @@
+import type { RunGuideAction } from '../../components/learning/GuideActions'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
@@ -88,6 +89,8 @@ export default function ConversationPage({
   onHistoryOpenChange,
   onOpenSettings,
   onNewChatReady,
+  onSkillStartReady,
+  onGuideActionReady,
 }: {
   active: boolean
   /// The explanation-language picker, kept in the conversation settings panel.
@@ -98,6 +101,8 @@ export default function ConversationPage({
   /// Open the Settings modal. It lands on the AI provider section, which is
   /// where every "configure a provider" failure is asking the learner to go.
   onNewChatReady?: (action: (() => void) | null) => void
+  onGuideActionReady?: (action: RunGuideAction | null) => void
+  onSkillStartReady?: (action: ((language: string, variety: string, skillId: string, subskillId?: string | null) => Promise<void>) | null) => void
   onOpenSettings?: () => void
 }) {
   const tr = useI18n()
@@ -183,6 +188,9 @@ export default function ConversationPage({
     currentChatId,
     openChat,
     startNew: startNewConversation,
+    startFromPhrase,
+    startFromSkill,
+    runGuideAction,
     removeChat,
     sendMessage,
     pendingReply,
@@ -194,6 +202,11 @@ export default function ConversationPage({
     setHistoryOpen,
     resetView,
   })
+
+  useEffect(() => {
+    onSkillStartReady?.(settings && !sending ? startFromSkill : null)
+    return () => onSkillStartReady?.(null)
+  }, [onSkillStartReady, settings, sending, startFromSkill])
 
   // A sent message holds its place until native storage has its turn.
   const pending = usePendingMessage(turns)
@@ -299,6 +312,15 @@ export default function ConversationPage({
   useEffect(() => setInspectionOpen(false), [currentChatId, active])
   useEffect(() => { draftRecording.current = null; setSentRecording(null) }, [currentChatId, active])
   const [analysisOpen, setAnalysisOpen] = useState(false)
+  const guideCoachOpen = useRef(openCoach)
+  guideCoachOpen.current = openCoach
+  useEffect(() => {
+    onGuideActionReady?.(async action => {
+      await runGuideAction(action)
+      if (action.kind === 'coach') guideCoachOpen.current()
+    })
+    return () => onGuideActionReady?.(null)
+  }, [onGuideActionReady, runGuideAction])
   function askCoach(question: string) {
     setAnalysisOpen(false)
     setCoachDraft(question)
@@ -691,6 +713,7 @@ export default function ConversationPage({
   const renderTurn = (turn: typeof activeTurns[number], onlySide?: 'user' | 'assistant') => (
     <ConversationErrorScope key={onlySide ? `message:${onlySide}:${turn.turnId ?? turn.id}` : turn.turnId ? turnDisplayKeys.get(turn.turnId) : turn.id} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
       onlySide={onlySide}
+      onStartPhrase={startFromPhrase}
       turn={turn}
       pendingEdit={pendingMessage?.editing?.id === turn.id ? pendingMessage : undefined}
       editing={turn.id === editingTurnId}
@@ -820,6 +843,7 @@ export default function ConversationPage({
           ) : turns.length === 0 && !error && !pendingMessage && (
             snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
+          {snapshot?.phraseSeed && <details><summary>{tr('Starting phrase')}</summary><p dir="auto">{snapshot.phraseSeed}</p></details>}
           {activeTurns.map(turn => renderTurn(turn))}
           {pendingMessage && !pendingMessage.editing && <PendingTurn key={pendingMessage.key} message={pendingMessage} rtl={rtl} onOpenSettings={onOpenSettings}
             onDismiss={() => releasePending(pendingMessage.key)} />}

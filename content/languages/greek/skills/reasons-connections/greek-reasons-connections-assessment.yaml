@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: reasons_connections
+guidance: Γιατί and επειδή can connect a circumstance with its cause or reason; γιατί also asks
+  why, so its presence alone does not establish a causal link. Consequences can be stated with
+  an explicit result clause or linked to preceding circumstances through γι’ αυτό. Αν can
+  introduce a condition, with a suitable verb form and a consequence; it also introduces
+  indirect questions in other constructions. Αλλά and αν και can contrast propositions or
+  concede a fact against an expectation. Supporting a claim requires a premise that actually
+  bears on that claim, not simply appending another fact. For example, δεν παίρνω το ποδήλατο
+  επειδή το λάστιχο είναι χαλασμένο explains the transport decision. An isolated copied επειδή
+  without any recoverable reason is unsuccessful use. Το λάστιχο είναι χαλασμένο after an
+  identifiable why-question can supply a reason contextually without explicitly linking the
+  decision. Temporal succession is not automatically causation, and an αν clause need not be
+  conditional. Do not require an English connective if Greek context already supplies the
+  relationship.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

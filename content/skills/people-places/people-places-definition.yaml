@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-definition.yaml
+schema_version: 1
+revision: communication-2026-10-03
+id: people_places
+boundary: Require an identifiable referent and a correctly expressed property, spatial relation,
+  quantity or relationship. Naming alone does not demonstrate every function in this group.
+name: People, things, and places
+purpose: Establish referents and describe properties, locations, quantities and relationships.
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

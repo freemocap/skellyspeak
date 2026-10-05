@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: information_exchange
+guidance: Evaluate meaningful questions, responsive answers, factual confirmation and helpful
+  specification. Toko itu buka jam berapa? asks an opening time without English do-support.
+  Apakah can mark a yes/no question but is not obligatory in every conversational question. Jam
+  delapan can answer the opening-time question contextually. Toko itu buka jam delapan, kan?
+  checks a proposed fact. Bisa tutup pintunya? usually requests action in context rather than
+  seeking facts about physical capability. An isolated copied apa with no recoverable question
+  or repair function is absent. Yang dekat jendela can identify the right table after the
+  listener asks which table; extra length without a useful distinction is not enough. Siapa,
+  kapan and di mana request different kinds of information. A relevant short answer need not
+  repeat the whole clause, but an unrelated place name after a when-question does not
+  automatically count as an answer. Apa maksudnya? can instead repair interpretation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

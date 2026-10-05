@@ -151,9 +151,13 @@
 .coach-verdict .md-p { font-size: calc(var(--type-body) * var(--reading-scale)); color: var(--ink); line-height: var(--leading-normal); }
 
 .coach-assessment { display: grid; gap: var(--space-6); }
-/* Each judgment is one line: label, five-segment meter, value; the labels share a column. */
+/* Judgments share label/value columns; their optional evidence spans both. */
 .coach-scores { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-2) var(--space-6); }
 .coach-score { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; min-width: 0; }
+.coach-score > details { grid-column: 1 / -1; min-width: 0; }
+.coach-score table { width: 100%; font-size: var(--type-ui); }
+.coach-score th { text-align: start; font-weight: var(--weight-regular); }
+.coach-score td { text-align: end; font-variant-numeric: tabular-nums; }
 .coach-score-label { font-size: var(--type-ui); color: var(--ink-2); }
 .coach-score-row { flex: 1; display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
 .coach-score-row > strong { font-size: var(--type-ui); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }

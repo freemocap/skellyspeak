@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: information_exchange
+language: spanish
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Use the question expression that matches the information you need. Context and
+      intonation also form yes/no questions.
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: Where is the station?
+        note: Dónde asks for a location.
+  - subskill_id: answering_information
+    explanation: A relevant short answer can supply exactly what the question asks for without repeating
+      its verb.
+    examples:
+      - text: En casa.
+        meaning: At home.
+        note: This answers ¿Dónde estás?; without that question its response function is uncertain.
+  - subskill_id: checking_facts
+    explanation: Ask for confirmation of a proposition or detail you already have in mind.
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: Are you arriving at eight?
+        note: When confirming an arrangement, this checks the proposed arrival time.
+  - subskill_id: useful_detail
+    explanation: Add details that help answer the actual question. Length alone does not make an answer useful.
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: It is beside the bank, opposite the park.
+        note: In an exchange about directions, the two landmarks make the location more precise.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

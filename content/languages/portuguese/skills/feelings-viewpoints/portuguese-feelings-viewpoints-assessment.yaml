@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: feelings_viewpoints
+guidance: "Look for desire or intention, likes or preference, emotion, opinion, agreement or
+  disagreement. Quero aprender a fazer pão expresses a want; prefiro ir de ônibus selects an
+  option. Gostar takes de with an expressed complement, and the experiencer determines the verb
+  form: eu gosto de cozinhar. Eu gosto cozinhar, intended as the ordinary liking construction
+  and standing alone, fails to form it. Do not erase another successful viewpoint because of
+  that separate error. Estou contente com o resultado expresses emotion; acho que a biblioteca
+  precisa de mais mesas states a judgment, not necessarily uncertainty about a fact. A listener
+  saying concordo with an identified opinion can express agreement without restating it, while
+  concordo com essa ideia explicitly identifies its object. Entendi may acknowledge comprehension without
+  agreement. Não concordo, não is a documented Brazilian negation pattern rather than two
+  negatives cancelling out. A reported preference of the partner is not the learner's stance.
+  Establish whose feeling or viewpoint is expressed before interpreting a subjectless verb or an
+  isolated adjective."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

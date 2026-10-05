@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: reasons_connections
+guidance: "Recognize actual causal, consequential, conditional, contrastive and evidential
+  relations. क्योंकि can explain an action; इसलिए presents a consequence. अगर बारिश हुई तो हम घर
+  पर रहेंगे makes staying home conditional on rain: the perfective in this conditional does not
+  assert a past rainy event. लेकिन contrasts claims or expectations; और alone may merely add
+  information. दुकान खुली है, क्योंकि अंदर लोग हैं can offer evidence for the opening claim
+  rather than a cause of it. A copied क्योंकि without an intelligible reason or recoverable
+  connection is absent. बारिश हो रही थी can answer an identified why-question contextually even
+  without a connective. पहले and फिर order events but do not necessarily connect them causally.
+  कि often introduces reported or thought content, not a reason. Judge whether the supplied
+  premise actually supports the conclusion, and accept the relationship when context supplies
+  omitted material without requiring an English clause pattern."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

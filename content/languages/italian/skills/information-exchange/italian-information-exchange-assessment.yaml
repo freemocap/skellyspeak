@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: information_exchange
+guidance: "Assess information questions, relevant answers, checking a proposition and helpful
+  precision. A che ora comincia il corso? asks for an unknown time; comincia alle nove, vero?
+  checks a proposed time. Italian questions need no English-style do auxiliary. In an ordinary
+  exchange, puoi chiudere la finestra? primarily requests action rather than missing
+  information. A copied a che ora with no intelligible information need is absent. Alle nove
+  after a question about the start time can answer contextually without a full clause. Short
+  answers need their actual question: do not infer a time or place from an isolated sì.
+  L'ingresso è sul retro, vicino al parcheggio supplies useful detail when someone needs the
+  entrance; verbosity alone is not precision. Che cosa vuol dire provvisorio? can repair
+  understanding of the partner's word rather than check a fact. A confirmation question is
+  direct when it clearly presents the proposition being checked; question punctuation alone does
+  not establish the intended function."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_questions2026
+    - zanichelli_it_prepositions2026
+    - zanichelli_it_location2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

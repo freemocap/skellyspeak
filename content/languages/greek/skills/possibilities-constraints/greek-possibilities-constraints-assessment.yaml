@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: possibilities_constraints
+guidance: "Personal μπορώ with να can express ability; the impersonal μπορεί can express
+  possibility even when its following verb is first person. Permission can be requested with
+  μπορώ or a standalone να question, and granted by an appropriate respondent in context. Πρέπει
+  with να can state necessity; δεν χρειάζεται removes a need rather than prohibiting an action.
+  Ίσως or μπορεί να may qualify a possibility, while σίγουρα and comparable expressions can
+  communicate certainty about a proposition. For example, μπορεί να έρθω αργότερα expresses a
+  possible arrival, not somebody else’s ability. A copied isolated πρέπει without an
+  identifiable requirement or other successful modal function is absent. Ναι from the
+  responsible person after a permission question can grant permission contextually. Ο Νίκος
+  μπορεί να οδηγήσει may describe ability or a possible action: either established correct
+  reading can demonstrate this group; subtype ambiguity alone does not require unclear. A polite
+  μπορείτε να request does not automatically describe ability. Judge negation scope and the
+  actual meaning, not every modal-looking token."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

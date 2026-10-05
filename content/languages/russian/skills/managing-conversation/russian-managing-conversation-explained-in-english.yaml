@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A farewell can name the next expected meeting.
+    examples:
+      - text: До встречи на следующей неделе!
+        meaning: See you next week!
+        note: This closes the current exchange while referring to the planned next contact.
+  - subskill_id: acknowledging
+    explanation: Понятно can acknowledge that an explanation has become clear.
+    examples:
+      - text: А, теперь понятно.
+        meaning: Ah, now I understand.
+        note: Use after an explanation; comprehension does not necessarily mean agreement.
+  - subskill_id: clarification
+    explanation: A polite imperative can ask the speaker to repeat a contribution.
+    examples:
+      - text: Повторите, пожалуйста.
+        meaning: Please repeat that.
+        note: The prior contribution identifies what needs repeating; no quotation is required.
+  - subskill_id: rephrasing
+    explanation: Другими словами explicitly introduces an alternative formulation.
+    examples:
+      - text: Другими словами, нужно записаться заранее.
+        meaning: In other words, you need to book in advance.
+        note: Use after explaining an appointment procedure; this restates its practical implication.
+  - subskill_id: correcting_misunderstanding
+    explanation: Иметь в виду identifies the intended meaning and can contrast it with a mistaken
+      interpretation.
+    examples:
+      - text: Я имела в виду субботу, не пятницу.
+        meaning: I meant Saturday, not Friday.
+        note: The feminine speaker corrects the day understood by the listener.
+  - subskill_id: turns_topics
+    explanation: A permission-shaped question can request a topic transition.
+    examples:
+      - text: Можно я перейду к другому вопросу?
+        meaning: May I move on to another question?
+        note: The requested action concerns the conversation itself.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_imperative2026
+    - cornell_russian_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

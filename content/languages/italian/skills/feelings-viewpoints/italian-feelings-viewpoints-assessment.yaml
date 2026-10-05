@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: feelings_viewpoints
+guidance: Identify wants or intentions, preference, emotional states, personal evaluations and
+  agreement or disagreement. Voglio frequentare un corso expresses a wish or intended action; it
+  does not promise participation. Preferisco camminare selects a preference; mi piacciono i
+  funghi describes liking with plural agreement. Mi piace i funghi, intended as that
+  construction, is unsuccessful if no separate correct viewpoint function occurs. Sono felice
+  del risultato expresses emotion. Secondo me, il progetto costa troppo frames an evaluation; an
+  ordinary factual assertion alone need not express a personal opinion. Non sono d'accordo needs
+  a recoverable position being disputed. Sì after an evaluative claim can align contextually,
+  but after an invitation may accept action and after an explanation may merely acknowledge.
+  Vorrei can soften a wish or a service request; determine its role from the exchange. The same
+  wording can have more than one supported function, but never infer feelings from punctuation
+  or the partner's evaluation alone.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_preferences2026
+    - treccani_it_piace2026
+    - treccani_it_agreement2026
+    - treccani_it_discourse2026
+    - treccani_it_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

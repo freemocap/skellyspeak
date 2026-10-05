@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Perché can introduce the reason for an action or situation. Its because use differs
+      from asking perché? to find out why.
+    examples:
+      - text: Prendo l’autobus perché piove.
+        meaning: I am taking the bus because it is raining.
+        note: The clause after perché supplies the reason for the transport choice. Both verbs use the
+          present indicative here.
+  - subskill_id: consequences
+    explanation: Quindi can connect a situation with its consequence. It conveys a result rather
+      than simply saying what happens next.
+    examples:
+      - text: Il ponte è chiuso, quindi cambiamo strada.
+        meaning: The bridge is closed, so we are taking another road.
+        note: Quindi presents the route change as a response to the bridge closure.
+  - subskill_id: conditions
+    explanation: Se can introduce an open condition with an indicative verb. The following clause
+      gives what depends on that condition; it need not be an English-style would construction.
+    examples:
+      - text: Se domani piove, rimandiamo la passeggiata.
+        meaning: If it rains tomorrow, we will postpone the walk.
+        note: The postponement depends on tomorrow’s rain. These present forms express an open future
+          contingency.
+  - subskill_id: contrast
+    explanation: Ma links properties or ideas that pull in different directions. The words on each
+      side must supply the contrast; ma alone is not enough.
+    examples:
+      - text: Il percorso è più breve, ma è molto ripido.
+        meaning: The route is shorter, but it is very steep.
+        note: The advantage of a shorter route is contrasted with its steepness. Più breve is a
+          comparative description.
+  - subskill_id: supporting_claims
+    explanation: A linked statement can give grounds for a judgment. Explicit perché is one option;
+      a clearly presented explanation can also support the claim.
+    examples:
+      - text: "Questo laboratorio è affidabile: consegna sempre i lavori in tempo."
+        meaning: "This workshop is reliable: it always delivers the work on time."
+        note: The reported pattern of timely delivery supports the reliability judgment; it is not
+          offered as unrelated extra detail.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_causal2026
+    - treccani_it_conditions2026
+    - treccani_it_connectives2026
+    - zanichelli_it_comparison2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

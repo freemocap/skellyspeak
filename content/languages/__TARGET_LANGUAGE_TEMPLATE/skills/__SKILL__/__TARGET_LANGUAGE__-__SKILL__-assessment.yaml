@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: __REVISION__
+language: __TARGET_LANGUAGE__
+skill_id: __SKILL_ID__
+guidance: __OFFLINE_AUTHORED_LANGUAGE_ASSESSMENT_GUIDANCE__
+varieties:
+  __VARIETY__:
+    disposition: supplement
+    text: __VARIETY_ASSESSMENT_GUIDANCE__
+    provenance: &a1
+      origin: ai
+      authorship: __AUTHORSHIP__
+      sources:
+        - __CITATION_KEY__
+      generation: null
+      review:
+        status: needs_review
+        revision: __REVISION__
+        scope: __REVIEW_SCOPE__
+provenance: *a1

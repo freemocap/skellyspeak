@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Sampai with a future encounter time is a conventional leave-taking expression. It
+      can close the exchange without a full clause.
+    examples:
+      - text: Sampai besok!
+        meaning: See you tomorrow!
+        note: Say this at the end of a visit when another meeting is expected tomorrow.
+  - subskill_id: acknowledging
+    explanation: Mengerti can mark understanding of the preceding explanation. Adding sekarang can
+      indicate that it has become clear.
+    examples:
+      - text: Oh, sekarang saya mengerti.
+        meaning: Oh, now I understand.
+        note: Use after someone explains how the tool works. This acknowledges comprehension without
+          promising to use it.
+  - subskill_id: clarification
+    explanation: A passive question with diulangi can request repetition without specifying the
+      person who will repeat. The preceding utterance supplies what needs repeating.
+    examples:
+      - text: Bisa diulangi?
+        meaning: Could you repeat that?
+        note: Use after missing part of what the partner said. Di- belongs to the verb here and is
+          written attached.
+  - subskill_id: rephrasing
+    explanation: Dengan kata lain introduces another way of expressing the same point. Its following
+      content should clarify the earlier explanation.
+    examples:
+      - text: Dengan kata lain, kita perlu memesan lebih awal.
+        meaning: In other words, we need to order earlier.
+        note: Rephrases an explanation that orders placed on the day of the event cannot be fulfilled.
+          Lebih awal makes the practical consequence clear.
+  - subskill_id: correcting_misunderstanding
+    explanation: Maksud saya identifies the intended meaning. Bukan contrasts the mistaken nominal
+      alternative.
+    examples:
+      - text: Maksud saya hari Sabtu, bukan Jumat.
+        meaning: I mean Saturday, not Friday.
+        note: Use after the partner interprets the proposed meeting day as Friday. The sentence replaces
+          that interpretation.
+  - subskill_id: turns_topics
+    explanation: Boleh can ask for a turn or an opportunity to contribute. The setting establishes
+      that the request manages the discussion.
+    examples:
+      - text: Boleh saya menambahkan sesuatu?
+        meaning: May I add something?
+        note: Use when seeking a turn to contribute to the current discussion. Sesuatu leaves the
+          addition unspecified until the turn is granted.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

@@ -11,23 +11,47 @@
 
 .practice-rules summary { cursor: pointer; padding: var(--space-4) 0; }
 
+/* One reviewed reply (features/skills/evidence/SkillEvidenceRecord.tsx): the
+   learner's message in their own cool bubble, tags for how it counted, the
+   reviewer's reason, and everything else folded under Review details. */
 .skill-evidence-record {
-  border-top: var(--border-width) solid var(--line);
-  padding: var(--space-8) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin-block: var(--space-6);
+  padding: var(--space-8) var(--space-9);
+  border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  background: var(--sheet);
   overflow-wrap: anywhere;
-  font: var(--type-body)/1.55 var(--font-sans);
+  font: var(--type-body)/var(--leading-normal) var(--font-sans);
 }
-
-.skill-evidence-record header { display: flex; justify-content: space-between; gap: var(--space-6); }
-
-.skill-evidence-record blockquote {
-  margin: var(--space-6) 0;
-  padding-inline-start: var(--space-6);
-  border-inline-start: var(--border-width-strong) solid var(--line);
-  font-size: var(--type-title);
+.skill-evidence-record p { margin: 0; }
+.skill-evidence-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-6); }
+.skill-evidence-head strong { font-size: var(--type-ui); font-weight: var(--weight-semibold); color: var(--ink-2); }
+.skill-evidence-xp { flex: none; padding: var(--space-hairline) var(--space-5); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-pill); background: var(--progress-tint); color: var(--progress-ink); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.skill-evidence-message {
+  align-self: flex-end;
+  max-width: 90%;
+  margin: 0;
+  padding: var(--space-4) var(--space-6);
+  border: var(--border-width) solid var(--bubble-learner-line);
+  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-sm) var(--radius-xl);
+  background: var(--bubble-learner-bg);
+  color: var(--ink);
 }
-
-.skill-evidence-record dd { margin-inline-start: 0; }
+.skill-evidence-tags { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); }
+.skill-evidence-tag { padding: var(--space-hairline) var(--space-5); border: var(--border-width) solid var(--coach-line); border-radius: var(--radius-pill); background: var(--coach-tint); color: var(--coach-ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.skill-evidence-quotes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.skill-evidence-quotes li { padding-inline-start: var(--space-6); border-inline-start: var(--border-width-strong) solid var(--bubble-learner-line); }
+.skill-evidence-rationale { color: var(--ink-2); }
+.skill-evidence-details { border-top: var(--border-width) solid var(--line-soft); padding-top: var(--space-4); color: var(--ink-2); font-size: var(--type-ui); }
+.skill-evidence-details summary { cursor: pointer; min-height: var(--control-height-sm); display: flex; align-items: center; color: var(--interaction-ink); font-weight: var(--weight-medium); }
+.skill-evidence-details details { margin-block: var(--space-3); padding-inline-start: var(--space-6); }
+.skill-evidence-details details summary { color: var(--ink-2); }
+.skill-evidence-details pre { overflow-x: auto; font-family: var(--font-mono); font-size: var(--type-meta); }
+.skill-evidence-details dd { margin-inline-start: 0; margin-bottom: var(--space-3); color: var(--ink); }
+.skill-evidence-controls { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-4); }
 
 .skill-overview {
   border-inline-start: var(--border-width-thick) solid var(--ink);

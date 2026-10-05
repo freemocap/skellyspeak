@@ -21,7 +21,8 @@ import { useUiDirection } from '../../../components/localization/useUiDirection'
  * feedback; under the bubble, one quiet line holds the verdict (how many
  * errors the coach flagged, or Clean), Fix it and `reward` (the message's
  * XP). The verdict opens the same feedback. */
-export function MessageFeedback({ id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, bubble, reward, analysis, skills, onRetry, feedbackContext, onAddContext }: {
+export function MessageFeedback({ requests, id, text, conversationFeedback, feedback, decision, error, reviewing, onEdit, onAsk, onControl, bubble, reward, analysis, skills, onRetry, feedbackContext, onAddContext }: {
+  requests?: ReactNode
   feedbackContext?: string
   onAddContext?: (note: string) => Promise<void>
   conversationFeedback?: ConversationFeedback
@@ -84,7 +85,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
         {error ? tr("Feedback failed") : judged ? <>
           {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'clean'} size={14} />}
           <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Clean") : tr("Feedback")}</span>
-        </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
+        </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : requests ? tr("Not assessed") : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
       </button>
     {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={12} />{tr("Fix it")}</button>}
     {reward}
@@ -92,9 +93,10 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
     {!open && failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}
     {open && <AskCoachContext value={askCoach}><DetailDialog title={tr("Feedback on your message")} onClose={close}>
       {analysis}
+      {requests}
       <CoachEntry feedback={feedback} decision={decision} source={analysis ? null : text} error={error} />
       {conversationFeedback && <ConversationFeedbackCard feedback={conversationFeedback} />}
-      {!decision && !error && <p role="status">{reviewing ? tr("The coach is reviewing this message.") : feedback ? tr("Coaching decision is unavailable.") : tr("No feedback was saved for this message.")}</p>}
+      {!requests && !decision && !error && !conversationFeedback && <p role="status">{reviewing ? tr("The coach is reviewing this message.") : feedback ? tr("Coaching decision is unavailable.") : tr("No feedback was saved for this message.")}</p>}
       {skills}
       <div className="detail-actions">
         {error && onRetry && <button type="button" className="detail-action" disabled={busy} onClick={async () => { setBusy(true); setFailure(null); try { await onRetry() } catch (reason) { setFailure(nativeError(reason)) } finally { setBusy(false) } }}>{tr("Retry failed help")}</button>}
@@ -102,7 +104,7 @@ export function MessageFeedback({ id, text, conversationFeedback, feedback, deci
         {onEdit && <button type="button" disabled={busy} className="detail-action" onClick={() => { close(); onEdit() }}><ToolbarIcon name="edit" size={15} /> {tr("Edit and resend message")}</button>}
         {onControl && decision?.shown && decision.exposedMove === decision.shown.move && decision.shown.move !== 'explicit' && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('show_answer')}>{tr("Show answer")}</button>}
         {onControl && decision && !decision.keptGoing && <button type="button" disabled={busy} className="detail-action" onClick={() => void control('keep_going')}>{tr("Keep going")}</button>}
-        <AskCoachButton question={`Help me understand the feedback on my message: “${text}”. Saved feedback: ${JSON.stringify({ feedback, correction: shown })}`} />
+        <AskCoachButton question={`Help me understand the feedback on my message: “${text}”. Saved feedback: ${JSON.stringify({ feedback, assessment: conversationFeedback, correction: shown })}`} />
       </div>
       {onAddContext && <FeedbackContextForm saved={feedbackContext} reviewing={reviewing} onSubmit={onAddContext} />}
       {failure && <ErrorNotice as="p" error={failure}>{failure}</ErrorNotice>}

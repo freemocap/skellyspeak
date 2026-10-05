@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Là links a referent to an identifying noun phrase.
+    examples:
+      - text: Đây là hàng xóm của tôi.
+        meaning: This is my neighbour.
+        note: Của tôi relates the neighbour to the speaker; the sentence does not specify gender.
+  - subskill_id: qualities_states
+    explanation: An adjective can directly predicate a property without là.
+    examples:
+      - text: Con đường này hẹp.
+        meaning: This road is narrow.
+        note: Này follows the noun phrase and hẹp supplies its property.
+  - subskill_id: location_movement
+    explanation: Ở and a positional phrase locate an object.
+    examples:
+      - text: Chìa khóa ở trên bàn.
+        meaning: The key is on the table.
+        note: Trên bàn identifies the supporting surface.
+  - subskill_id: possession_relations
+    explanation: Có states possession, and a classifier can accompany a counted object.
+    examples:
+      - text: Tôi có hai cái ghế gấp.
+        meaning: I have two folding chairs.
+        note: Hai cái ghế gấp counts the possessed chairs; the noun has no plural ending.
+  - subskill_id: quantity_comparison
+    explanation: Hơn introduces the comparison with another item.
+    examples:
+      - text: Cái hộp này nhẹ hơn cái kia.
+        meaning: This box is lighter than that one.
+        note: Cái kia refers to the other box without repeating hộp.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_identity2026
+    - niu_vietnamese_patterns2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

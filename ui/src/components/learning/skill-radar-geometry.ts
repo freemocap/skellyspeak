@@ -4,7 +4,10 @@
 /// grow. Positions come from `SkillLevel.position`; nothing here knows a threshold.
 
 export interface RadarFrame { view: number; ring: number }
+/** The panel ring leaves room inside the square for a name at the end of every arm. */
 export const PANEL_FRAME: RadarFrame = { view: 480, ring: 125 }
+/** Arm names sit this far out, past the longest arm and its end dot. */
+export const LABEL_RADIUS = 1.22
 export const GLYPH_FRAME: RadarFrame = { view: 24, ring: 11 }
 /** Arms may pass the ring by this much before they are clipped. */
 const OVERSHOOT = 1.1
@@ -44,4 +47,27 @@ export function taperedArm(frame: RadarFrame, tip: { x: number; y: number }, wid
     `A ${half} ${half} 0 0 1 ${tip.x - px * half} ${tip.y - py * half}`,
     `L ${centre - px * base} ${centre - py * base} Z`,
   ].join(' ')
+}
+
+/** Midpoint of two points. */
+export function midpoint(a: { x: number; y: number }, b: { x: number; y: number }): { x: number; y: number } {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+}
+
+/** Each skill's share of the shape: centre, halfway to the previous tip, its own tip, halfway to the next. */
+export function skillWedges(frame: RadarFrame, tips: { x: number; y: number }[]): string[] {
+  const centre = { x: frame.view / 2, y: frame.view / 2 }
+  return tips.map((tip, index) => {
+    const before = midpoint(tips[(index + tips.length - 1) % tips.length], tip)
+    const after = midpoint(tip, tips[(index + 1) % tips.length])
+    return [centre, before, tip, after].map(point => `${point.x},${point.y}`).join(' ')
+  })
+}
+
+/** Where an arm's name anchors against its end: above the top arm, below the bottom one, beside the rest. */
+export function labelSide(index: number, count: number): 'top' | 'bottom' | 'left' | 'right' {
+  const angle = armAngle(index, count)
+  const [x, y] = [Math.cos(angle), Math.sin(angle)]
+  if (Math.abs(x) < 0.3) return y < 0 ? 'top' : 'bottom'
+  return x > 0 ? 'right' : 'left'
 }

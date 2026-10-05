@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A polite or plural imperative can request a concrete action.
+    examples:
+      - text: Bu kutuyu kapıya taşıyın, lütfen.
+        meaning: Please move this box to the door.
+        note: Kutuyu marks the specific object and kapıya the destination.
+  - subskill_id: offers_invitations
+    explanation: A first-person optative question can offer the speaker’s action.
+    examples:
+      - text: Çantanızı taşıyayım mı?
+        meaning: Shall I carry your bag?
+        note: The speaker offers to carry it for the politely addressed listener.
+  - subskill_id: suggestions
+    explanation: A first-person plural optative proposes joint action.
+    examples:
+      - text: Biraz ara verelim.
+        meaning: Let’s take a short break.
+        note: Verelim includes the speaker in the proposal.
+  - subskill_id: commitments
+    explanation: A future statement can take responsibility for an agreed task.
+    examples:
+      - text: Aletleri yarın getireceğim.
+        meaning: I will bring the tools tomorrow.
+        note: Use while allocating tasks; the speaker undertakes this one.
+  - subskill_id: accepting_declining
+    explanation: An inability statement can decline an invitation.
+    examples:
+      - text: Üzgünüm, bugün gelemem.
+        meaning: Sorry, I cannot come today.
+        note: The previous invitation supplies the event being declined.
+  - subskill_id: negotiating_plans
+    explanation: A constraint followed by a proposal supplies an alternative plan.
+    examples:
+      - text: Cuma günü uygun değilim. Cumartesi buluşalım.
+        meaning: I am not available on Friday. Let’s meet on Saturday.
+        note: The second sentence makes a concrete replacement proposal.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_optative2026
+    - tt_turkish_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

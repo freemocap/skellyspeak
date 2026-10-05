@@ -5,6 +5,7 @@ import type { Conversation, ConversationSnapshot, SavedGlossSource } from '../ge
 import { ReadingTools } from './ReadingTools'
 import { ConversationReadingProvider } from '../features/conversation/reading/ConversationReadingProvider'
 import { TargetText } from '../components/reading/TargetText'
+import { useReadingActions } from '../components/reading/ReadingContext'
 
 const native = vi.hoisted(() => ({ invoke: vi.fn() }))
 vi.mock('../platform/ipc/native', () => native)
@@ -95,10 +96,12 @@ it('shows partial accepted annotations in inspection and submits only when retry
     if (command === 'cancel_reading') return
     throw new Error(command)
   })
-  render(<ReadingTools settings={null} defaultScope={scope} onAsk={null}><TargetText text="Otra playa." /></ReadingTools>)
+  // Hover cards no longer link to the inspector; phrase and inspect icons open it with a selection.
+  function Inspect() { const actions = useReadingActions(); return <button onClick={() => actions?.inspect({ text: 'Otra playa.', start: 5, end: 10, scope })}>Inspect playa</button> }
+  render(<ReadingTools settings={null} defaultScope={scope} onAsk={null}><TargetText text="Otra playa." /><Inspect /></ReadingTools>)
   fireEvent.click(screen.getByRole('button', { name: 'playa' }))
   expect(await screen.findByText('beach')).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Word help' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Inspect playa' }))
   const retry = await screen.findByRole('button', { name: 'Retry word meanings' })
   expect(native.invoke.mock.calls.every(([command]) => command === 'get_saved_gloss_sources')).toBe(true)
   fireEvent.click(retry)

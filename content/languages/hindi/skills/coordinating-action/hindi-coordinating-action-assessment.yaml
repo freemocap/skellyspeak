@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: coordinating_action
+guidance: Assess whether the contribution seeks action, offers help, invites, suggests, commits,
+  accepts or declines, or adjusts a plan. Polite imperatives such as रखिए directly request
+  action without an English please formula. क्या मैं मदद करूँ? offers help; चलिए बैठते हैं
+  proposes shared action. मैं टिकट ले आऊँगी can undertake a task in planning, but a future form
+  alone may merely predict. नहीं after an identifiable invitation can decline contextually; a
+  free-standing negative with no action proposal is not automatically a refusal. मंगलवार नहीं,
+  बुधवार को मिलते हैं revises timing when responding to an earlier plan. An isolated copied
+  imperative ending is not a request, and a real information question about someone’s ability is
+  not necessarily one either. आप normally requires honorific agreement; assess register in
+  context rather than demanding one pronoun for every relationship. Do not collapse permission,
+  recommendation and commitment simply because they concern a possible future action.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

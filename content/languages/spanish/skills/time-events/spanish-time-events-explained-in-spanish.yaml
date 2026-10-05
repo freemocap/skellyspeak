@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: time_events
+language: spanish
+explanation_language: spanish
+shared_explanation: skills/time-events/time-events-explained-in-spanish.yaml
+sections:
+  - subskill_id: present_events
+    explanation: El presente puede describir situaciones actuales o hábitos. El contexto permite distinguirlos.
+    examples:
+      - text: Trabajo aquí.
+        meaning: Este es mi lugar de trabajo.
+        note: El presente describe la situación laboral actual.
+  - subskill_id: past_events
+    explanation: Elige la construcción de pasado según el significado. Fui puede presentar un viaje
+      completo; iba puede describir una situación en curso o habitual. Una respuesta breve puede
+      tomar su referencia temporal de la pregunta.
+    examples:
+      - text: Ayer fui al mercado.
+        meaning: El viaje al mercado ocurrió ayer.
+        note: Fui y ayer expresan un viaje anterior y completo. Un error ajeno a esta construcción no la
+          invalida.
+  - subskill_id: future_events
+    explanation: Ir a con infinitivo permite hablar de una acción futura prevista. También puedes usar
+      el futuro o un presente con referencia futura clara.
+    examples:
+      - text: Mañana voy a cocinar.
+        meaning: Tengo previsto cocinar mañana.
+        note: Mañana y voy a cocinar establecen la referencia futura.
+  - subskill_id: duration_frequency
+    explanation: Usa expresiones temporales para indicar duración o frecuencia.
+    examples:
+      - text: Estudio español todos los días.
+        meaning: Dedico tiempo al español diariamente.
+        note: Todos los días expresa la frecuencia.
+  - subskill_id: event_sequence
+    explanation: Primero y después ordenan acontecimientos, sin indicar necesariamente que uno cause el otro.
+    examples:
+      - text: Primero cenamos y después salimos.
+        meaning: Cenamos antes de salir.
+        note: El orden es explícito; el contexto permite interpretar las formas como pasadas.
+  - subskill_id: event_phase
+    explanation: Estar con gerundio puede presentar una actividad en curso. Para acciones terminadas,
+      usa una construcción adecuada al marco temporal.
+    examples:
+      - text: Estoy leyendo.
+        meaning: La lectura está en curso.
+        note: Estoy y leyendo presentan una actividad que se está desarrollando.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: feelings_viewpoints
+language: french
+guidance: >-
+  Judge successfully expressed desire, intention, preference, emotion, opinion or
+  agreement in the learner’s own contribution. Je préfère le train à l’avion specifies a
+  preference; je suis d’accord sur le prix limits agreement to one issue. J’ai peur and
+  cette nouvelle me fait plaisir are valid emotional expressions, so do not require être
+  plus an adjective. Je suis peur is not the ordinary construction for fear. Distinguish a
+  reported character’s feelings from the speaker’s stance. D’accord may acknowledge
+  receipt, accept a plan or agree with a claim; use its antecedent. A polite je voudrais
+  un café may function primarily as a request rather than independent evidence of
+  discussing intentions. Credit requires correct use of the function, not merely an
+  attempt. Unrelated errors do not erase a successful instance. Use unclear when the
+  available exchange does not establish the function. Examples illustrate possibilities,
+  not an exhaustive whitelist. Accept appropriate France and Canadian French usage and
+  conversational register; do not impose another variety’s lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_modals2026
+    - waystage_language_functions
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

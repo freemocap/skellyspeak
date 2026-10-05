@@ -13,7 +13,7 @@ import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
 
 
 /** Three independent help lanes; rendering and opening saved data never generate. */
-export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExplainGrammar,
+export function ReplyHelp({ brief, briefPending = false, onRequestBrief, onAsk, grammar, onExplainGrammar,
   replies, starters, onSuggestReply, opened = [], busy, errors, onUse, lanes, onRetry, onInspect, inline = false }: {
   inline?: boolean
   lanes?: Record<ReplyHelpKind, HelpLane>
@@ -21,6 +21,7 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
   onInspect?: () => void
   brief?: string
   briefPending?: boolean
+  onRequestBrief?: () => Promise<void>
   onAsk?: (question: string) => void
   grammar?: ReplyExplanation[]
   onExplainGrammar?: () => Promise<void>
@@ -44,24 +45,27 @@ export function ReplyHelp({ brief, briefPending = false, onAsk, grammar, onExpla
   const briefLane = lanes?.brief ?? { state: briefPending ? 'running' : brief ? 'succeeded' : null }
   const explain = useHelpRequest(grammarLane, onExplainGrammar, opened.includes('grammar'))
   const suggest = useHelpRequest(repliesLane, onSuggestReply, opened.includes('replies'))
-  const summary = useHelpRequest(briefLane)
+  const summary = useHelpRequest(briefLane, onRequestBrief)
+  const openBrief = () => {
+    if (briefLane.state === null && !summary.pending && !summary.failure) summary.submit(onRequestBrief)
+  }
   const status = (kind: ReplyHelpKind, request: typeof explain, lane: HelpLane, label: string) => <HelpStatus lane={lane} pending={request.pending} failure={request.failure} label={label} onInspect={onInspect}
     onRetry={onRetry ? () => request.submit(() => onRetry(kind)) : undefined} />
-  if (!brief && !briefPending && !onExplainGrammar && !onSuggestReply && !errors.length && !grammar && !replies && !starters?.length && !lanes) return null
+  if (!brief && !briefPending && !onRequestBrief && !onExplainGrammar && !onSuggestReply && !errors.length && !grammar && !replies && !starters?.length && !lanes) return null
   if (!inline && !open) return <div className="reply-help-folded">
     <button type="button" className="reply-help-open" aria-expanded={false} aria-controls={id}
-      onClick={() => setOpen(true)}><ToolbarIcon name="help" size={15} /><span>{tr("Help with this reply")}</span></button>
+      onClick={() => { setOpen(true); openBrief() }}><ToolbarIcon name="help" size={15} /><span>{tr("Help with this reply")}</span></button>
   </div>
 
   return <section id={id} className="reply-help" aria-label={tr("Help with this reply")}>
     {inline && <button type="button" className="reply-help-open" aria-expanded={hintOpen} aria-controls={`${id}-hint`}
-      onClick={() => setHintOpen(value => !value)}><ToolbarIcon name="help" size={15} />{tr("Help understanding this message")}</button>}
+      onClick={() => { if (!hintOpen) openBrief(); setHintOpen(value => !value) }}><ToolbarIcon name="help" size={15} />{tr("Help understanding this message")}</button>}
     <div id={`${id}-hint`} hidden={inline && !hintOpen}>
       {(!inline || hintOpen) && <>
         <div className="reply-help-brief">
           {brief
             ? <Markdown text={brief} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this conversation.`) : undefined} />
-            : briefPending ? null
+            : briefPending || summary.pending ? null
             : <p className="reply-help-empty">{tr("No brief for this turn yet.")}</p>}
           {!inline && <button type="button" className="reply-help-hide" aria-expanded={true} aria-controls={id}
             aria-label={tr("Hide reply help")} title={tr("Hide reply help")} onClick={() => setOpen(false)}>

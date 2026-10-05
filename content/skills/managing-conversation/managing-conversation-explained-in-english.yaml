@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: managing_conversation
+explanation_language: english
+title: Managing conversation
+introduction: Establish contact, coordinate turns and repair mutual understanding.
+sections:
+  - subskill_id: opening_closing
+    title: Opening and closing
+    concept: Establish or end a conversational encounter.
+  - subskill_id: acknowledging
+    title: Acknowledging and responding
+    concept: Register receipt, attention or a socially relevant response.
+  - subskill_id: clarification
+    title: Asking for clarification
+    concept: Signal trouble hearing or understanding a contribution and seek repair.
+  - subskill_id: rephrasing
+    title: Rephrasing
+    concept: Express a prior meaning differently to improve mutual understanding.
+  - subskill_id: correcting_misunderstanding
+    title: Correcting a misunderstanding
+    concept: Replace an incorrect interpretation with the intended one.
+  - subskill_id: turns_topics
+    title: Managing turns and topics
+    concept: Coordinate who contributes and what the exchange is about.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

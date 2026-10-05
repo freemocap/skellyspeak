@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Vì introduces the reason for a situation.
+    examples:
+      - text: Tôi ở nhà vì trời mưa.
+        meaning: I am staying home because it is raining.
+        note: The rain is the reason for staying home; context supplies current time.
+  - subskill_id: consequences
+    explanation: Nên introduces a consequence of the preceding situation.
+    examples:
+      - text: Xe buýt không đến nên tôi đi bộ.
+        meaning: The bus did not come, so I walked.
+        note: In a past-trip account, walking is the consequence; verbs do not need tense endings.
+  - subskill_id: conditions
+    explanation: Nếu and thì can connect a condition to its dependent outcome.
+    examples:
+      - text: Nếu ngày mai trời mưa thì chúng ta ở nhà.
+        meaning: If it rains tomorrow, we will stay home.
+        note: The future time phrase anchors the plan without requiring sẽ.
+  - subskill_id: contrast
+    explanation: Nhưng connects descriptions that contrast in context.
+    examples:
+      - text: Đường ngắn nhưng dốc.
+        meaning: The road is short but steep.
+        note: The properties matter differently when choosing a route.
+  - subskill_id: supporting_claims
+    explanation: A reason can provide evidence for a tentative conclusion.
+    examples:
+      - text: Tôi nghĩ có người ở nhà vì đèn vẫn sáng.
+        meaning: I think someone is home because the light is still on.
+        note: The light supports an inference rather than causing someone to be home.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_purpose2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

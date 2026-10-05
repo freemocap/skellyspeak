@@ -31,7 +31,7 @@ pub(crate) fn prompt_for_source(source: String, captured: &Value) -> Result<Vec<
         .rev()
         .collect();
     let system = super::assessment_adapter::VERSION.to_owned();
-    let mut data = json!({"currentLearnerMessage":source,"precedingExchange":previous,"input":captured["input"]});
+    let mut data = json!({"currentLearnerMessage":source,"precedingExchange":previous,"input":captured["input"],"language":captured["languageContext"]["target_name"],"variety":captured["languageContext"]["variety_name"]});
     while system.len() + data.to_string().len() > 16000 {
         let old = data["precedingExchange"]
             .as_array_mut()

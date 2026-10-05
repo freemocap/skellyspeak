@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: reasons_connections
+explanation_language: spanish
+title: Razones y conexiones
+introduction: Relacionar ideas mediante causas, consecuencias, condiciones, contrastes y argumentos.
+sections:
+  - subskill_id: causes_reasons
+    title: Causas y razones
+    concept: Explicar por qué ocurre algo o se mantiene una situación.
+  - subskill_id: consequences
+    title: Consecuencias
+    concept: Expresar el resultado o la implicación de una situación.
+  - subskill_id: conditions
+    title: Condiciones
+    concept: Expresar que algo depende de otra circunstancia.
+  - subskill_id: contrast
+    title: Contraste
+    concept: Expresar oposición, excepciones o relaciones inesperadas.
+  - subskill_id: supporting_claims
+    title: Apoyar una afirmación
+    concept: Aportar razones para aceptar una postura o una inferencia.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

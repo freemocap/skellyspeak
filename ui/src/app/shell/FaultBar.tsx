@@ -1,8 +1,25 @@
 import { useId, useRef, useState } from 'react'
 import { ShareLogsButton } from '../../components/feedback/ShareLogsButton'
-import { ResponseDetails } from '../../components/feedback/ResponseDetails'
+import { foldedText, useFriendlyCopy, useFriendlyError } from '../../components/feedback/FriendlyError'
 import { useI18n } from '../../components/localization/i18n'
-import { useFaultStore } from '../../platform/diagnostics/faults'
+import { useFaultStore, type Fault } from '../../platform/diagnostics/faults'
+
+/// One failure in plain words: where it happened, what it means and what to do.
+/// The recorded message and its diagnostics are the fold beneath.
+function FaultRow({ fault, onDismiss }: { fault: Fault; onDismiss: () => void }) {
+  const tr = useI18n()
+  const friendly = useFriendlyError(fault)
+  const { title, body } = useFriendlyCopy(friendly)
+  const folded = foldedText(friendly, fault.message)
+  return <div className="fault">
+    <b>{fault.context}: {title}</b> {body}
+    <button type="button" className="error-dismiss" aria-label={tr("Dismiss")} onClick={onDismiss}>✕</button>
+    {(folded || fault.diagnostics != null) && <details className="response-details"><summary>{tr('Technical details')}</summary>
+      {folded && <p className="error-raw">{folded}</p>}
+      {fault.diagnostics != null && <pre>{JSON.stringify(fault.diagnostics, null, 2)}</pre>}
+    </details>}
+  </div>
+}
 
 /// Everything that has gone wrong anywhere in the app, shown at the very top of
 /// the window until dismissed. This is the only destination for a failure.
@@ -21,20 +38,7 @@ export function FaultBar() {
     <button type="button" className="error-dismiss fault-dismiss-all" aria-label={tr("Dismiss all")} title={tr("Dismiss all")} onClick={dismissAll}>×</button>
     <div id={id} className="fault-bar" role="alert">
       <div className="fault-export"><ShareLogsButton compact /></div>
-      {faults.map((f) => (
-        <div key={f.id} className="fault">
-          <b>{f.context}:</b> {f.message}
-          <button
-            type="button"
-            className="error-dismiss"
-            aria-label={tr("Dismiss")}
-            onClick={() => dismiss(f.id)}
-          >
-            ✕
-          </button>
-          <ResponseDetails value={f.diagnostics} />
-        </div>
-      ))}
+      {faults.map((f) => <FaultRow key={f.id} fault={f} onDismiss={() => dismiss(f.id)} />)}
     </div>
     <div className="fault-resize" role="separator" tabIndex={0} aria-label={tr('Resize panel')}
       title={tr('Drag to resize')} aria-orientation="horizontal" aria-controls={id}

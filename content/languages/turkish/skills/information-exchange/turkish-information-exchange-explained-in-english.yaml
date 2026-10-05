@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Saat kaçta asks at what clock time an event occurs.
+    examples:
+      - text: Atölye saat kaçta kapanıyor?
+        meaning: What time does the workshop close?
+        note: Kaçta supplies the unknown closing hour.
+  - subskill_id: answering_information
+    explanation: A suffixed time word can answer a time question without repeating the event.
+    examples:
+      - text: Beşte.
+        meaning: At five.
+        note: Reply to the workshop closing-time question; the suffix marks at that hour.
+  - subskill_id: checking_facts
+    explanation: Değil mi after a proposition invites confirmation.
+    examples:
+      - text: Atölye beşte kapanıyor, değil mi?
+        meaning: The workshop closes at five, right?
+        note: The speaker offers five as the fact to check.
+  - subskill_id: useful_detail
+    explanation: A location-based modifier can identify the relevant object.
+    examples:
+      - text: Avlu tarafındaki kapıyı kullanın.
+        meaning: Use the door on the courtyard side.
+        note: The modifier distinguishes the door when the listener asks which entrance to use.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_possession2026
+    - tt_turkish_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

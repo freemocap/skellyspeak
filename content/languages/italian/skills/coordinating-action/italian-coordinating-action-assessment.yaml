@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: coordinating_action
+guidance: Identify requests, offers or invitations, suggestions, undertakings, acceptance or
+  refusal, and revisions of shared plans. Puoi chiudere la finestra, per favore? can request an
+  action in a cooperative exchange rather than test ability. Puoi chiudi la finestra
+  unsuccessfully forms that modal request when no separate successful action move occurs. Vuoi
+  venire al laboratorio con noi? can invite participation; potremmo fare una pausa proposes an
+  option. Porto i pennelli per tutti undertakes a contribution in a supplies discussion, even
+  with a present verb. A prediction about tomorrow's rain undertakes nothing. Volentieri after
+  an invitation can accept contextually; grazie alone may just acknowledge it. Possiamo spostare
+  l'incontro a sabato? negotiates a change when another day has been proposed. Desire stated
+  with voglio does not itself settle coordinated action. Accept suitable imperatives, indicative
+  requests and polite conditionals according to relationship and setting; one special polite
+  form is not mandatory. Without context, do not invent a commitment from a future event report.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_conditional2026
+    - treccani_it_questions2026
+    - treccani_it_present2026
+    - treccani_it_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

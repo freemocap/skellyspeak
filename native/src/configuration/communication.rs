@@ -1,11 +1,10 @@
-//! Shared communicative functions for the eight-group replacement.
-//! Validated authoring content; runtime assessment switches only at the full cutover.
+//! Shared communicative functions, grouped for assessment and teaching.
 use super::{Result, error, guides::GuideOrigin, identity::ReviewStatus};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-pub const SOURCE: &str = "shared/communication.yaml";
+pub const SOURCE: &str = "skills";
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]

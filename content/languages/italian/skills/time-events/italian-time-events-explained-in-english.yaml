@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Stare + gerund makes an ongoing activity explicit. The simple present can also
+      describe current or habitual activity when context supplies the time.
+    examples:
+      - text: Sto sistemando gli attrezzi.
+        meaning: I am putting the tools in order.
+        note: Sto is the first-person present of stare; sistemando is the gerund of sistemare.
+  - subskill_id: past_events
+    explanation: Passato prossimo uses a present form of avere or essere and a past participle.
+      Other past tenses also occur; the choice depends on the event, context and usage.
+    examples:
+      - text: Ieri ho comprato due pennelli.
+        meaning: Yesterday I bought two paintbrushes.
+        note: Ho comprato uses avere with the participle comprato. Ieri explicitly places the purchase
+          earlier.
+  - subskill_id: future_events
+    explanation: A present form can describe a programmed future event when a time expression
+      anchors it. A future form is another option, rather than a requirement for every later
+      event.
+    examples:
+      - text: Domani il corso comincia alle nove.
+        meaning: Tomorrow the course starts at nine.
+        note: Domani makes the reference future. Alle introduces the hour; comincia is a present form.
+  - subskill_id: duration_frequency
+    explanation: For a situation continuing now, a present verb with da + a duration can measure how
+      long it has lasted. A repeated-time expression such as ogni venerdì describes frequency
+      instead.
+    examples:
+      - text: Lavoro qui da sei mesi.
+        meaning: I have been working here for six months.
+        note: The situation continues now. Italian uses the present here; its English meaning uses a
+          perfect construction.
+  - subskill_id: event_sequence
+    explanation: Prima and poi can place actions in succession. Their temporal ordering does not
+      itself mean that the first action causes the second.
+    examples:
+      - text: Prima prepariamo il tavolo, poi mettiamo i piatti.
+        meaning: First we prepare the table, then we put out the plates.
+        note: Prima and poi establish the order of these two activities.
+  - subskill_id: event_phase
+    explanation: Finire di + infinitive names a completed process. Continuing to work on something
+      or stopping partway through is a different phase.
+    examples:
+      - text: Ho finito di dipingere la porta.
+        meaning: I have finished painting the door.
+        note: Finito di dipingere states completion of the painting process.
+      - text: Sto ancora dipingendo la porta.
+        meaning: I am still painting the door.
+        note: Sto dipingendo presents work in progress, and ancora indicates continuation. It contrasts
+          with the completed task.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_present2026
+    - treccani_it_past2026
+    - treccani_it_periphrases2026
+    - treccani_it_connectives2026
+    - zanichelli_it_prepositions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

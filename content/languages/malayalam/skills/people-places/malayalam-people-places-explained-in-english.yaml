@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: ആണ് can identify a referent with a noun phrase and join to its final word.
+    examples:
+      - text: ഇത് എന്റെ വീടാണ്.
+        meaning: This is my house.
+        note: എന്റെ marks my; വീടാണ് combines വീട് and ആണ്.
+  - subskill_id: qualities_states
+    explanation: An adjectival description can form a predicate with a nominal ending and ആണ്.
+    examples:
+      - text: ഈ വഴി ഇടുങ്ങിയതാണ്.
+        meaning: This path is narrow.
+        note: ഇടുങ്ങിയതാണ് predicates narrowness of the path.
+  - subskill_id: location_movement
+    explanation: A spatial expression with ഉണ്ട് can locate an object.
+    examples:
+      - text: താക്കോൽ മേശപ്പുറത്തുണ്ട്.
+        meaning: The key is on the table.
+        note: മേശപ്പുറത്ത് gives the location and joins with ഉണ്ട്.
+  - subskill_id: possession_relations
+    explanation: A dative possessor with ഉണ്ട് can state possession.
+    examples:
+      - text: എനിക്ക് രണ്ട് കസേരകളുണ്ട്.
+        meaning: I have two chairs.
+        note: എനിക്ക് identifies the possessor; രണ്ട് supplies the count.
+  - subskill_id: quantity_comparison
+    explanation: A comparison with കാൾ can contrast a measured property.
+    examples:
+      - text: ഈ പെട്ടിക്ക് അതിനെക്കാൾ ഭാരം കുറവാണ്.
+        meaning: This box is lighter than that one.
+        note: The sentence compares weight; അതിനെക്കാൾ identifies the other box as the standard.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

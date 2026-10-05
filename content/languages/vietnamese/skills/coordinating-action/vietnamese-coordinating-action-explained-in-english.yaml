@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: Giúp tôi can request help and nhé can soften the invitation to cooperate.
+    examples:
+      - text: Giúp tôi chuyển cái hộp này ra cửa nhé.
+        meaning: Please help me move this box to the door.
+        note: Suitable between familiar adults; relationship and tone affect the request.
+  - subskill_id: offers_invitations
+    explanation: Để tôi introduces an offer for the speaker to act.
+    examples:
+      - text: Để tôi xách túi giúp bạn.
+        meaning: Let me carry your bag for you.
+        note: Bạn addresses a peer here; another relationship may call for a different address term.
+  - subskill_id: suggestions
+    explanation: Chúng ta includes the listener in a proposed shared action.
+    examples:
+      - text: Chúng ta nghỉ một lát nhé.
+        meaning: Let’s take a short break.
+        note: Nhé seeks cooperative uptake rather than demanding a factual answer.
+  - subskill_id: commitments
+    explanation: A future statement can accept responsibility for an agreed task.
+    examples:
+      - text: Ngày mai tôi sẽ mang dụng cụ đến.
+        meaning: I will bring the tools tomorrow.
+        note: Use while allocating tasks; the speaker undertakes to bring them.
+  - subskill_id: accepting_declining
+    explanation: An inability statement can politely decline an invitation.
+    examples:
+      - text: Xin lỗi, hôm nay tôi không đến được.
+        meaning: Sorry, I cannot come today.
+        note: The preceding invitation identifies the event being declined.
+  - subskill_id: negotiating_plans
+    explanation: State a constraint and propose another workable time.
+    examples:
+      - text: Thứ sáu tôi bận. Chúng ta gặp nhau vào thứ bảy nhé.
+        meaning: I am busy on Friday. Let’s meet on Saturday.
+        note: The second sentence supplies a concrete alternative.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_suggestions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

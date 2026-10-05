@@ -1,7 +1,7 @@
 import { schemaPreview } from './schema.ts'
 import { createHash } from 'node:crypto'
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
-import { join, posix, resolve } from 'node:path'
+import { isAbsolute, join, posix, relative, resolve } from 'node:path'
 import { isMap, isScalar, isSeq, LineCounter, parseDocument, stringify } from 'yaml'
 
 export interface Anchor { file: string; line: number; label: string; key: string }
@@ -13,7 +13,7 @@ export interface Entry {
 }
 export interface Catalog { entries: Entry[]; links: Link[] }
 export const LIMIT = 1024 * 1024
-const roots = ['content', 'docs/notes/language-guides-and-xp']
+const roots = ['content']
 export const revision = (text: string) => createHash('sha256').update(text).digest('hex')
 
 export function allowed(path: string): boolean {
@@ -28,7 +28,7 @@ export function safePath(root: string, path: string): string {
     current = join(current, part)
     if (lstatSync(current).isSymbolicLink()) throw Error('Symbolic links are not editable or indexed.')
   }
-  if (!realpathSync(current).startsWith(`${realpathSync(root)}/`)) throw Error('File escaped repository.')
+  if (isAbsolute(relative(realpathSync(root), realpathSync(current))) || relative(realpathSync(root), realpathSync(current)).startsWith('..')) throw Error('File escaped repository.')
   if (!lstatSync(current).isFile() || lstatSync(current).size > LIMIT) throw Error('Expected a file of at most 1 MiB.')
   return current
 }
@@ -46,9 +46,7 @@ export function inspect(path: string, text: string): { value: unknown; errors: s
       if (isMap(node)) for (const pair of node.items) {
         const key = String(isScalar(pair.key) ? pair.key.value : '')
         const owner = keys.join('.')
-        const keyRole = owner === 'learning.goal_material' ? '$skill'
-          : owner === 'learning.skill_guides' ? '$practice_skill'
-          : /^learning\.skill_guides\.[^.]+\.varieties$/.test(owner) ? '$variety'
+        const keyRole = owner === 'varieties' ? '$variety'
           : /(^|\.)(orthographies|romanization_schemes)$/.test(owner) ? '$definition' : undefined
         if (isScalar(pair.key) && keyRole) {
           scalars.push({file: path, key: `${owner}.${keyRole}`, label: key, line: lines.linePos(pair.key.range?.[0] ?? 0).line})
@@ -76,10 +74,10 @@ export function readEntry(root: string, path: string): Entry {
     const bib = /^@\w+\{([^,]+),/.exec(line)
     if (heading || bib) headings.push({ file: path, line: index + 1, label: heading?.[2] ?? bib![1], key: bib ? 'citation' : 'heading' })
   })
-  const preview = path.startsWith('content/schemas/') && value && !errors.length ? schemaPreview(value) : undefined
+  const preview = path.startsWith('content/rust-schemas/') && value && !errors.length ? schemaPreview(value) : undefined
   return { schemaPreview: preview ? {yaml: stringify(preview.sample), fields: preview.fields, notes: preview.notes} : undefined, path, text, value, errors, headings, revision: revision(text),
-    editable: !path.startsWith('content/schemas/') && path !== 'references.bib',
-    group: path.startsWith('docs/') ? 'Planning & pilot drafts' : path.startsWith('content/languages/') ? 'Languages' : path.startsWith('content/prompts/') ? 'Prompts' : path.startsWith('content/schemas/') ? 'Generated schemas' : path === 'references.bib' ? 'References' : 'Shared content & guides' }
+    editable: !path.startsWith('content/rust-schemas/') && path !== 'references.bib',
+    group: path.startsWith('content/languages/') ? 'Languages' : path.startsWith('content/prompts/') ? 'Prompts' : path.startsWith('content/rust-schemas/') ? 'Generated schemas' : path === 'references.bib' ? 'References' : 'Content policies and skill definitions' }
 }
 export function catalog(root: string): Catalog {
   const paths: string[] = []
@@ -93,31 +91,36 @@ export function catalog(root: string): Catalog {
   const entries = paths.map(path => readEntry(root, path))
   const definitions = new Map<string, Anchor[]>()
   for (const entry of entries) for (const heading of entry.headings) {
-    if (heading.key.endsWith('.id') || heading.key === 'id' || heading.key === 'citation') {
+    if (!entry.path.includes('/__') && !entry.path.startsWith('content/rust-schemas/') && (heading.key.endsWith('.id') || heading.key === 'id' || heading.key === 'citation')) {
       definitions.set(heading.label, [...(definitions.get(heading.label) ?? []), heading])
     }
   }
   const links: Link[] = []
-  const declared = /(^|\.)(sources|requires|traits|script|family|language|variety|skill|shared_guides|\$skill|\$practice_skill|\$variety|category)(\.\d+)?$/
+  const declared = /(^|\.)(sources|traits|script|family|language|variety|\$variety|skill_id|subskill_id|explanation_language|neighbors)(\.\d+)?$/
   for (const entry of entries) {
     for (const scalar of inspect(entry.path, entry.text).scalars) {
       if (scalar.key.endsWith('.id') || scalar.key === 'id' || scalar.key.endsWith('.$definition')) continue
       let candidates = definitions.get(scalar.label) ?? []
       const role = scalar.key.replace(/\.\d+$/, '').split('.').at(-1)
       if (role === 'sources') candidates = candidates.filter(c => c.file === 'references.bib')
-      if (['requires', 'skill', '$skill'].includes(role ?? '')) candidates = candidates.filter(c => c.file === 'content/shared/learning-goals.yaml')
-      if (role === '$practice_skill') candidates = candidates.filter(c =>
-        c.file === 'content/shared/skills.yaml' && c.key.startsWith('skills.') || c.file === entry.path && c.key.startsWith('learning.skills.'))
-      if (role === 'category') candidates = candidates.filter(c => c.file === 'content/shared/skills.yaml' && c.key.startsWith('categories.'))
-      if (role === '$variety') candidates = candidates.filter(c => c.file === entry.path && c.key.startsWith('varieties.'))
+      if (role === '$variety') {
+        const languageOwner = entry.path.split('/').slice(0, 3).join('/')
+        candidates = candidates.filter(c => c.file.startsWith(`${languageOwner}/`) && c.file.endsWith('-language.yaml') && c.key.startsWith('varieties.'))
+      }
       const namespaces: Record<string, string> = {script: 'scripts.', family: 'families.', traits: 'traits.'}
-      if (role && namespaces[role]) candidates = candidates.filter(c => c.file === 'content/shared/language-foundations.yaml' && c.key.startsWith(namespaces[role]))
-      if (role === 'language') candidates = candidates.filter(c => c.file.startsWith('content/languages/') && c.key === 'identity.id')
+      if (role && namespaces[role]) candidates = candidates.filter(c => c.file === 'content/language-foundations/language-foundations.yaml' && c.key.startsWith(namespaces[role]))
+      if (role === 'skill_id') candidates = candidates.filter(c => c.file.startsWith('content/skills/') && c.file.endsWith('-definition.yaml') && c.key === 'id')
+      if (role === 'subskill_id' || role === 'neighbors') candidates = candidates.filter(c => c.file.startsWith('content/skills/') && c.file.endsWith('-subskills.yaml'))
+      if (role === 'shared_explanation') {
+        const target = entries.find(e => e.path === `content/${scalar.label}`)
+        links.push({from: scalar, to: target ? [{file: target.path, line: 1, label: target.path, key: 'file'}] : [], kind: 'Shared explanation'})
+      }
+      if (role === 'language' || role === 'explanation_language') candidates = candidates.filter(c => c.file.startsWith('content/languages/') && c.key === 'identity.id')
       if (role === 'variety') candidates = candidates.filter(c => c.file.startsWith('content/languages/') && c.key.startsWith('varieties.'))
       if (declared.test(scalar.key) || candidates.length) links.push({ from: scalar, to: candidates, kind: declared.test(scalar.key) ? 'Declared reference' : 'Identifier mention' })
       // Local/shared references point at named definitions, scoped to their actual owner.
       if (/\.(local|shared)$/.test(scalar.key)) {
-        const target = scalar.key.endsWith('.local') ? entry : entries.find(e => e.path === 'content/shared/language-foundations.yaml')
+        const target = scalar.key.endsWith('.local') ? entry : entries.find(e => e.path === 'content/language-foundations/language-foundations.yaml')
         const namespace = scalar.key.includes('orthograph') ? 'orthographies' : 'romanization_schemes'
         const match = target ? inspect(target.path, target.text).scalars.find(s => s.key.endsWith(`${namespace}.$definition`) && s.label === scalar.label) : undefined
         links.push({ from: scalar, kind: `${namespace} definition`, to: match ? [match] : [] })

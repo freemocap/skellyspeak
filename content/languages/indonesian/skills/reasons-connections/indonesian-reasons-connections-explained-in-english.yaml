@@ -1,0 +1,66 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Karena introduces an explanation for a situation or action. The clause after it
+      states the reason.
+    examples:
+      - text: Saya berhenti mencetak karena tintanya habis.
+        meaning: I stopped printing because the ink had run out.
+        note: The depleted ink explains stopping. The past reading comes from the situation, not a tense
+          ending.
+  - subskill_id: consequences
+    explanation: Jadi can introduce the consequence of a preceding circumstance in conversation. It
+      does not merely mark the next event in time.
+    examples:
+      - text: Tintanya habis, jadi saya membeli tinta baru.
+        meaning: The ink ran out, so I bought new ink.
+        note: Buying ink is presented as a response to its depletion. Baru modifies tinta here.
+  - subskill_id: conditions
+    explanation: Kalau can link a possible circumstance to what follows under that circumstance.
+      Indonesian does not require an English-style conditional tense sequence.
+    examples:
+      - text: Kalau hujan, kita bekerja di dalam.
+        meaning: If it rains, we will work inside.
+        note: Rain is the condition for the indoor work. The sentence need not assert that rain is
+          already occurring.
+  - subskill_id: contrast
+    explanation: Tetapi connects opposing considerations. Each clause contributes a proposition that
+      makes the contrast intelligible.
+    examples:
+      - text: Kertas ini murah, tetapi mudah robek.
+        meaning: This paper is cheap, but it tears easily.
+        note: The low price is contrasted with a drawback. Mudah robek describes susceptibility to
+          tearing.
+  - subskill_id: supporting_claims
+    explanation: Karena can supply grounds for a judgment. The reason should bear on the claimed
+      advantage or conclusion.
+    examples:
+      - text: Menurut saya, desain ini lebih baik karena tulisannya lebih jelas.
+        meaning: I think this design is better because its lettering is clearer.
+        note: Clearer lettering is offered as evidence for the design judgment, not merely as an
+          unrelated extra fact.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

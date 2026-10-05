@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: reasons_connections
+guidance: Judge the relationship between propositions, not isolated connective words. Karena can
+  give a cause or reason, jadi or oleh karena itu a consequence, kalau or jika a condition, and
+  tetapi or meskipun contrast or concession. Kalau hujan, kita bekerja di dalam makes indoor
+  work conditional without requiring a special subjunctive ending. Lebih jelas can support a
+  design preference if explicitly offered as its basis; repeating a preference more loudly
+  supplies no grounds. A copied karena with no recoverable reason is absent. Karena tintanya
+  habis can answer an identifiable why-question contextually. Lalu can order printing and
+  packing without asserting a causal link. Yang identifying an item is not automatically a
+  logical connection between claims. Distinguish a reason for an action from evidence for
+  believing a proposition, and accept ordinary colloquial connectors when they correctly convey
+  the relationship rather than prescribing formal written transitions throughout conversation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

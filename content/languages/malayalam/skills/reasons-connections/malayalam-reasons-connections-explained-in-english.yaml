@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: A clause with കാരണം can give the reason for a situation.
+    examples:
+      - text: ഞാൻ വീട്ടിൽ നിന്നു, കാരണം മഴ പെയ്യുന്നുണ്ടായിരുന്നു.
+        meaning: I stayed home because it was raining.
+        note: Rain explains the decision to stay home.
+  - subskill_id: consequences
+    explanation: അതുകൊണ്ട് can connect a situation to its consequence.
+    examples:
+      - text: ബസ് വന്നില്ല. അതുകൊണ്ട് ഞാൻ നടന്നു പോയി.
+        meaning: The bus did not come. So I walked there.
+        note: Walking is presented as the response to the missing bus.
+  - subskill_id: conditions
+    explanation: A conditional verb ending can establish a dependency.
+    examples:
+      - text: നാളെ മഴ പെയ്താൽ ഞങ്ങൾ വീട്ടിലിരിക്കും.
+        meaning: If it rains tomorrow, we will stay home.
+        note: പെയ്താൽ supplies the condition; the plan depends on it.
+  - subskill_id: contrast
+    explanation: പക്ഷേ links descriptions that contrast in context.
+    examples:
+      - text: ഈ വഴി ചെറുതാണ്, പക്ഷേ കുത്തനെയാണ്.
+        meaning: This route is short but steep.
+        note: Length and steepness matter differently when selecting a route.
+  - subskill_id: supporting_claims
+    explanation: A reason can give observable support for an inference.
+    examples:
+      - text: വീട്ടിൽ ആരോ ഉണ്ടെന്ന് തോന്നുന്നു, കാരണം വിളക്ക് തെളിഞ്ഞിരിക്കുന്നു.
+        meaning: It seems someone is home because the light is on.
+        note: The light supports the inference rather than causing someone’s presence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_dialogues2026
+    - ut_malayalam_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

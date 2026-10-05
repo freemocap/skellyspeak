@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: coordinating_action
+guidance: Identify action requests, offers or invitations, proposals, undertakings, responses to
+  proposals and adjustments of plans. Könntest du die Tür öffnen? is a softened request in an
+  ordinary cooperative exchange; it does not automatically establish ability. Könntest du die
+  Tür öffnest unsuccessfully forms that request if no other correct action function is present.
+  Soll ich die Taschen tragen? can offer help; wir könnten am Fluss essen proposes an option
+  rather than settling it. Ich bringe die Decke mit undertakes a contribution when responding to
+  a shared plan, even without future tense. A weather prediction does not undertake
+  responsibility. Gern after an invitation can accept contextually; danke alone may acknowledge
+  the invitation without accepting. Samstag statt Freitag negotiates only when it revises an
+  identifiable proposal or constraint. Ich möchte verreisen can report desire without
+  coordinating action. Accept appropriate direct imperatives and informal du or formal Sie
+  requests; politeness is contextual, not a requirement to use Konjunktiv II. Do not credit a
+  copied request formula without an intelligible action.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_subjunctive2026
+    - umich_de_modals2026
+    - umich_de_word_order2026
+    - umich_de_reflexive2026
+    - goethe_de_discussion2026
+    - goethe_de_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

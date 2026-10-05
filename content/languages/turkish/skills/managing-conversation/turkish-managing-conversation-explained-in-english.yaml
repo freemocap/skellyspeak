@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A farewell can refer to the next expected meeting.
+    examples:
+      - text: Gelecek hafta görüşürüz!
+        meaning: See you next week!
+        note: This closes the current exchange.
+  - subskill_id: acknowledging
+    explanation: Anladım can acknowledge successful comprehension.
+    examples:
+      - text: Tamam, şimdi anladım.
+        meaning: Okay, now I understand.
+        note: Use after an explanation; comprehension is not necessarily agreement.
+  - subskill_id: clarification
+    explanation: An aorist question can politely ask for repetition.
+    examples:
+      - text: Tekrar söyler misiniz?
+        meaning: Could you say that again?
+        note: The prior contribution supplies what should be repeated.
+  - subskill_id: rephrasing
+    explanation: Başka bir deyişle introduces a restatement.
+    examples:
+      - text: Başka bir deyişle, önceden randevu almak gerekiyor.
+        meaning: In other words, you need to make an appointment in advance.
+        note: Use after explaining how the booking procedure works.
+  - subskill_id: correcting_misunderstanding
+    explanation: Demek istemek can clarify what the speaker intended.
+    examples:
+      - text: Cuma değil, cumartesi demek istedim.
+        meaning: I meant Saturday, not Friday.
+        note: The speaker replaces the mistaken day with the intended one.
+  - subskill_id: turns_topics
+    explanation: A modal question can request a transition within the discussion.
+    examples:
+      - text: Başka bir soruya geçebilir miyiz?
+        meaning: Can we move on to another question?
+        note: The requested action concerns the conversation itself.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_modality2026
+    - tt_turkish_optative2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

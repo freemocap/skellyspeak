@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: time_events
+guidance: "Assess temporal reference, duration or recurrence, event order and phase without
+  demanding conjugation. กำลังซ่อมจักรยาน presents an ongoing repair; เมื่อวาน anchors an event
+  in the past without a required past suffix. จะ can place an action in the future, and context
+  may make time clear without it. แล้ว is not an all-purpose past-tense marker; อ่านจบแล้ว
+  specifically presents finished reading. สัปดาห์ละสองครั้ง gives recurrence; สองชั่วโมง can
+  measure duration. ก่อน and แล้วค่อย can sequence instructions. เมื่อวาน can answer a specific
+  when-question contextually. A copied time word with no recoverable event is absent. A property
+  statement alone is not temporal evidence. Do not interpret every ได้ as ability: position and
+  context affect its meaning. Preserve recoverable subject omission and natural particle
+  combinations rather than demanding an English tense template."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - fsi_thai_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

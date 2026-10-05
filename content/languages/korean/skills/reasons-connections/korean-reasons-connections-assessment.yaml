@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: reasons_connections
+guidance: Judge causal, consequential, conditional, contrastive and evidential links. 아서 or 어서
+  can give a reason, but also connects actions in other ways; 올라가서 may mean going up and then
+  doing something rather than because of going up. 그래서 commonly introduces a consequence. 비가 오면
+  expresses a rain condition; no future suffix is required inside it merely because the event is
+  anticipated. 지만 can contrast two properties. 소리가 들려서 links audible evidence to an inference
+  when the following clause states that inference. A copied 그래서 with no identifiable prior
+  circumstance or result is absent. 피곤해서요 can answer a why-question contextually without a
+  repeated main clause. 고 may simply list or order events, not claim causation. A reason for
+  acting and evidence supporting belief are distinct functions. Judge the clause relation
+  actually expressed, and do not award this group merely because two unrelated sentences occur
+  together.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_cause2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

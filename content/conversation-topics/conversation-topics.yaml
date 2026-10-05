@@ -1,0 +1,211 @@
+# yaml-language-server: $schema=../rust-schemas/conversation-topics.yaml
+- id: food
+  glyph: ☕
+  labels:
+    arabic: الطّعام والشّراب
+    english: Food and drink
+    french: Manger et boire
+    german: Essen und Trinken
+    hindi: खाना-पीना
+    irish: Bia agus deoch
+    italian: Cibo e bevande
+    malayalam: ഭക്ഷണവും പാനീയങ്ങളും
+    mandarin: 饮食
+    portuguese: Comida e bebida
+    spanish: Comida y bebida
+    korean: 음식과 음료
+    japanese: 食べ物と飲み物
+    vietnamese: Đồ ăn và thức uống
+    indonesian: Makanan dan minuman
+    turkish: Yiyecek ve içecek
+    russian: Еда и напитки
+    ukrainian: Їжа та напої
+    greek: Φαγητό και ποτό
+    thai: อาหารและเครื่องดื่ม
+  romanizations:
+    arabic:ala-lc-arabic: aṭ-ṭaʿām wa-al-sharāb
+    hindi:ala-lc-hindi: khānā-pīnā
+    malayalam:ala-lc-malayalam: bhakṣaṇavuṁ pānīyaṅṅaḷuṁ
+    mandarin:pinyin: yǐnshí
+    korean:revised-romanization: eumsikgwa eumnyo
+    japanese:hepburn-reading: tabemono to nomimono
+    russian:ala-lc-russian: Eda i napitki
+    ukrainian:ala-lc-ukrainian: Ïz͡ha ta napoï
+    greek:ala-lc-greek: Phagēto kai poto
+    thai:paiboon: aa-hǎan lɛ́ krʉ̂ʉang-dʉ̀ʉm
+  subject: You are serving at a café. Greet the learner and ask what they would like.
+- id: family
+  glyph: 👪
+  labels:
+    arabic: عائِلَتُك
+    english: Your family
+    french: Votre famille
+    german: Deine Familie
+    hindi: आपका परिवार
+    irish: Do theaghlach
+    italian: La tua famiglia
+    malayalam: നിങ്ങളുടെ കുടുംബം
+    mandarin: 你的家人
+    portuguese: Sua família
+    spanish: Tu familia
+    korean: 가족
+    japanese: 家族
+    vietnamese: Gia đình
+    indonesian: Keluarga
+    turkish: Ailen
+    russian: Твоя семья
+    ukrainian: Твоя родина
+    greek: Η οικογένειά σου
+    thai: ครอบครัวของคุณ
+  romanizations:
+    arabic:ala-lc-arabic: ʿāʾilatuka
+    hindi:ala-lc-hindi: āpkā parivār
+    malayalam:ala-lc-malayalam: niṅṅaḷuṭe kuṭumbaṁ
+    mandarin:pinyin: nǐ de jiārén
+    korean:revised-romanization: gajok
+    japanese:hepburn-reading: kazoku
+    russian:ala-lc-russian: Tvoi͡a semʹi͡a
+    ukrainian:ala-lc-ukrainian: Tvoi͡a rodyna
+    greek:ala-lc-greek: Hē oikogeneia sou
+    thai:paiboon: krɔ̂ɔp-kruua kɔ̌ɔng kun
+  subject: Ask about someone important to the learner. They may choose a friend or an invented person.
+- id: weekend
+  glyph: 🌤️
+  labels:
+    arabic: خُطَط نِهاية الأُسبوع
+    english: Weekend plans
+    french: Projets du week-end
+    german: Wochenendpläne
+    hindi: सप्ताहांत की योजनाएँ
+    irish: Pleananna don deireadh seachtaine
+    italian: Programmi per il fine settimana
+    malayalam: വാരാന്ത്യ പദ്ധതികൾ
+    mandarin: 周末计划
+    portuguese: Planos para o fim de semana
+    spanish: Planes de fin de semana
+    korean: 주말 계획
+    japanese: 週末の予定
+    vietnamese: Kế hoạch cuối tuần
+    indonesian: Rencana akhir pekan
+    turkish: Hafta sonu planları
+    russian: Планы на выходные
+    ukrainian: Плани на вихідні
+    greek: Σχέδια για το Σαββατοκύριακο
+    thai: แผนสำหรับวันหยุด
+  romanizations:
+    arabic:ala-lc-arabic: khuṭaṭ nihāyat al-usbūʿ
+    hindi:ala-lc-hindi: saptāhānta kī yojanāeṁ
+    malayalam:ala-lc-malayalam: vārāntya paddhatikaḷ
+    mandarin:pinyin: zhōumò jìhuà
+    korean:revised-romanization: jumal gyehoek
+    japanese:hepburn-reading: shūmatsu no yotei
+    russian:ala-lc-russian: Plany na vykhodnye
+    ukrainian:ala-lc-ukrainian: Plany na vykhidni
+    greek:ala-lc-greek: Schedia gia to Savvatokyriako
+    thai:paiboon: pɛ̌ɛn sǎm-ràp wan yùt
+  subject: Ask what the learner would like to do this weekend and share a plan of your own.
+- id: place
+  glyph: 🗺️
+  labels:
+    arabic: مَكان تُحِبّه
+    english: A place you like
+    french: Un endroit que vous aimez
+    german: Ein Ort, den du magst
+    hindi: आपकी पसंद की जगह
+    irish: Áit is maith leat
+    italian: Un posto che ti piace
+    malayalam: നിങ്ങൾക്ക് ഇഷ്ടമുള്ള സ്ഥലം
+    mandarin: 你喜欢的地方
+    portuguese: Um lugar de que você gosta
+    spanish: Un lugar que te gusta
+    korean: 좋아하는 장소
+    japanese: 好きな場所
+    vietnamese: Một nơi bạn thích
+    indonesian: Tempat yang kamu sukai
+    turkish: Sevdiğin bir yer
+    russian: Место, которое тебе нравится
+    ukrainian: Місце, яке тобі подобається
+    greek: Ένα μέρος που σου αρέσει
+    thai: สถานที่ที่คุณชอบ
+  romanizations:
+    arabic:ala-lc-arabic: makān tuḥibbuhu
+    hindi:ala-lc-hindi: āpkī pasand kī jagah
+    malayalam:ala-lc-malayalam: niṅṅaḷkk iṣṭamuḷḷa sthalaṁ
+    mandarin:pinyin: nǐ xǐhuān de dìfāng
+    korean:revised-romanization: joahaneun jangso
+    japanese:hepburn-reading: suki na basho
+    russian:ala-lc-russian: Mesto, kotoroe tebe nravit͡si͡a
+    ukrainian:ala-lc-ukrainian: Mist͡se, i͡ake tobi podobai͡etʹsi͡a
+    greek:ala-lc-greek: Hena meros pou sou aresei
+    thai:paiboon: sà-tǎan-tîi tîi kun chɔ̂ɔp
+  subject: Talk about a place the learner likes. Invite a small detail about it.
+- id: day
+  glyph: ☀️
+  labels:
+    arabic: يَومُك
+    english: Your day
+    french: Votre journée
+    german: Dein Tag
+    hindi: आपका दिन
+    irish: Do lá
+    italian: La tua giornata
+    malayalam: നിങ്ങളുടെ ദിവസം
+    mandarin: 你的一天
+    portuguese: Seu dia
+    spanish: Tu día
+    korean: 하루
+    japanese: 一日のこと
+    vietnamese: Ngày của bạn
+    indonesian: Harimu
+    turkish: Günün
+    russian: Твой день
+    ukrainian: Твій день
+    greek: Η μέρα σου
+    thai: วันของคุณ
+  romanizations:
+    arabic:ala-lc-arabic: yawmuka
+    hindi:ala-lc-hindi: āpkā din
+    malayalam:ala-lc-malayalam: niṅṅaḷuṭe divasaṁ
+    mandarin:pinyin: nǐ de yītiān
+    korean:revised-romanization: haru
+    japanese:hepburn-reading: ichinichi no koto
+    russian:ala-lc-russian: Tvoĭ denʹ
+    ukrainian:ala-lc-ukrainian: Tviĭ denʹ
+    greek:ala-lc-greek: Hē mera sou
+    thai:paiboon: wan kɔ̌ɔng kun
+  subject: Ask about something from the learner’s day. Keep the exchange open to their interests.
+- id: music
+  glyph: 🎵
+  labels:
+    arabic: المُوسيقى
+    english: Music
+    french: Musique
+    german: Musik
+    hindi: संगीत
+    irish: Ceol
+    italian: Musica
+    malayalam: സംഗീതം
+    mandarin: 音乐
+    portuguese: Música
+    spanish: Música
+    korean: 음악
+    japanese: 音楽
+    vietnamese: Âm nhạc
+    indonesian: Musik
+    turkish: Müzik
+    russian: Музыка
+    ukrainian: Музика
+    greek: Μουσική
+    thai: ดนตรี
+  romanizations:
+    arabic:ala-lc-arabic: al-mūsīqā
+    hindi:ala-lc-hindi: saṅgīt
+    malayalam:ala-lc-malayalam: saṅgītaṁ
+    mandarin:pinyin: yīnyuè
+    korean:revised-romanization: eumak
+    japanese:hepburn-reading: ongaku
+    russian:ala-lc-russian: Muzyka
+    ukrainian:ala-lc-ukrainian: Muzyka
+    greek:ala-lc-greek: Mousikē
+    thai:paiboon: don-dtrii
+  subject: Ask about music the learner enjoys and share a preference.

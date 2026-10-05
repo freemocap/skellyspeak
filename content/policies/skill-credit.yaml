@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../rust-schemas/skill-credit.yaml
+schema_version: 1
+revision: skill-credit-2026-10-04
+policy_id: correct-group-use
+positive_categories:
+  - contextual
+  - direct
+minimum_positive_probability: 0.6
+assessment_unit: main_skill
+subskill_credit: false

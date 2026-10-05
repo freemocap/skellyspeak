@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: reasons_connections
+language: spanish
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Porque connects an event or choice to its reason.
+    examples:
+      - text: Me quedo porque estoy cansada.
+        meaning: I am staying because I am tired.
+        note: The second clause gives the reason for staying.
+  - subskill_id: consequences
+    explanation: Por eso presents a result of the preceding situation.
+    examples:
+      - text: Llueve; por eso llevo paraguas.
+        meaning: It is raining, so I am carrying an umbrella.
+        note: The umbrella follows as a response to the rain.
+  - subskill_id: conditions
+    explanation: Si introduces a condition. For an open condition, present indicative can describe the
+      condition.
+    examples:
+      - text: Si llueve, me quedo en casa.
+        meaning: If it rains, I will stay home.
+        note: Staying home depends on the rain.
+  - subskill_id: contrast
+    explanation: Pero can connect opposing facts or expectations.
+    examples:
+      - text: Es caro, pero es útil.
+        meaning: It is expensive, but it is useful.
+        note: The second evaluation contrasts with the first.
+  - subskill_id: supporting_claims
+    explanation: Give a reason or observation that supports accepting your claim, not just a stronger
+      repetition.
+    examples:
+      - text: Creo que está en casa porque la luz está encendida.
+        meaning: I think they are home because the light is on.
+        note: The light is evidence supporting the inference.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

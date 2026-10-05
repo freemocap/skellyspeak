@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, necessity, possibility and confidence. Biết sửa xe đạp
+  can describe knowing how to repair bicycles; có thể and được have several context-dependent
+  modal or resultative functions. Tôi để túi ở đây được không? asks permission in a suitable
+  setting. Phải trả chìa khóa gives a requirement, while không cần removes need and không được
+  may prohibit an action. Có thể trời sẽ mưa presents a possible outcome. Không chắc limits
+  confidence. Được can grant an earlier permission request contextually. A copied modal with no
+  recoverable action is absent. A polite được không request does not necessarily establish a
+  factual ability assertion. If ability and practical opportunity are both plausible successful
+  meanings, subtype ambiguity alone is not unclear group use. Do not infer certainty or
+  obligation from the presence of a future marker alone.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_suggestions2026
+    - niu_vietnamese_patterns2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

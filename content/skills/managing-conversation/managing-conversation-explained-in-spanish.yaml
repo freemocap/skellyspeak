@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: managing_conversation
+explanation_language: spanish
+title: Gestionar la conversación
+introduction: Iniciar el contacto, organizar los turnos y resolver problemas de comprensión.
+sections:
+  - subskill_id: opening_closing
+    title: Abrir y cerrar la conversación
+    concept: Iniciar o terminar un encuentro comunicativo.
+  - subskill_id: acknowledging
+    title: Reconocer y responder
+    concept: Mostrar atención, recepción o una respuesta social pertinente.
+  - subskill_id: clarification
+    title: Pedir aclaraciones
+    concept: Señalar un problema de audición o comprensión y pedir ayuda para resolverlo.
+  - subskill_id: rephrasing
+    title: Reformular
+    concept: Expresar el mismo sentido de otra manera para facilitar la comprensión.
+  - subskill_id: correcting_misunderstanding
+    title: Corregir un malentendido
+    concept: Sustituir una interpretación equivocada por la intención correcta.
+  - subskill_id: turns_topics
+    title: Organizar turnos y temas
+    concept: Coordinar quién habla y de qué trata la conversación.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

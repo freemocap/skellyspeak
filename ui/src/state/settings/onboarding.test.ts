@@ -1,5 +1,5 @@
 import { beforeEach, expect, it, vi } from 'vitest'
-import { DEFAULT_APPEARANCE, type Preferences, type Snapshot } from '../../generated/contracts'
+import { DEFAULT_EXECUTION, DEFAULT_APPEARANCE, type Preferences, type Snapshot } from '../../generated/contracts'
 import { useOnboardingStore } from './onboarding'
 
 const mocks = vi.hoisted(() => ({ read: vi.fn(), update: vi.fn(), device: vi.fn(), refresh: vi.fn(), select: vi.fn(), save: vi.fn(), settings: vi.fn(), practice: vi.fn(), page: vi.fn() }))
@@ -14,7 +14,7 @@ vi.mock('./settings', () => ({ useSettingsStore: { getState: () => ({ refresh: m
 let preferences: Preferences
 beforeEach(() => {
   vi.clearAllMocks()
-  preferences = { theme: 'light', appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false, interfaceLocale: 'english', explanationLanguage: 'english', explanationVarietyId: 'english-default',
+  preferences = { theme: 'light', execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false, interfaceLocale: 'english', explanationLanguage: 'english', explanationVarietyId: 'english-default',
     myLanguages: [], targetVarieties: {}, onboarding: 'not_started', onboardingRequired: true, onboardingLanguage: null, onboardingHelp: false,
   }
   mocks.read.mockImplementation(async () => ({ learner: { revision: 1, preferences } }) as Snapshot)

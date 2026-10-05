@@ -1,0 +1,95 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Modern Standard can combine an imperfect verb with now. Levantine can use عَمْ with
+      a verb to present ongoing activity.
+    examples:
+      - text: أَكْتُبُ رِسَالَةً الْآنَ.
+        meaning: I am writing a letter now.
+        note: Modern Standard Arabic. The first-person verb identifies the writer without a separate
+          pronoun.
+      - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
+        meaning: I am writing a letter now.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          first-person verb identifies the writer without a separate pronoun.
+  - subskill_id: past_events
+    explanation: Past conjugation and a time expression can report a previous action.
+    examples:
+      - text: كَتَبْتُ رِسَالَةً أَمْسِ.
+        meaning: I wrote a letter yesterday.
+        note: Modern Standard Arabic. The verb is first-person singular in this context.
+      - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
+        meaning: I wrote a letter yesterday.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The verb is
+          first-person singular in this context.
+  - subskill_id: future_events
+    explanation: Modern Standard سَـ and conversational رَحْ can locate a planned event in the future.
+    examples:
+      - text: سَأَزُورُ صَدِيقِي غَدًا.
+        meaning: I will visit my friend tomorrow.
+        note: Modern Standard Arabic. The friend is male; this is a plan, not necessarily a promise.
+      - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
+        meaning: I will visit my friend tomorrow.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The friend
+          is male; this is a plan, not necessarily a promise.
+  - subskill_id: duration_frequency
+    explanation: A count of occasions with a weekly interval expresses recurrence.
+    examples:
+      - text: أَسْبَحُ مَرَّتَيْنِ فِي الْأُسْبُوعِ.
+        meaning: I swim twice a week.
+        note: Modern Standard Arabic. The count concerns occasions, not two swimmers.
+      - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
+        meaning: I swim twice a week.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The count
+          concerns occasions, not two swimmers.
+  - subskill_id: event_sequence
+    explanation: First and then order events without necessarily claiming causation.
+    examples:
+      - text: أَوَّلًا نَأْكُلُ، ثُمَّ نَخْرُجُ.
+        meaning: First we eat, then we go out.
+        note: Modern Standard Arabic. The speaker presents a sequence for the group.
+      - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
+        meaning: First we eat, then we go out.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
+          presents a sequence for the group.
+  - subskill_id: event_phase
+    explanation: A verb meaning finish can specify the endpoint of an activity.
+    examples:
+      - text: أَنْهَيْتُ قِرَاءَةَ الْكِتَابِ.
+        meaning: I finished reading the book.
+        note: Modern Standard Arabic. The claim is completion of reading, not merely past reading.
+      - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
+        meaning: I finished reading the book.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The claim
+          is completion of reading, not merely past reading.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Levantine uses conversational past forms, habitual b-prefixed verbs, progressive عَمْ and
+      future رَحْ. Prefix vowels and progressive patterns differ across regions.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Modern Standard uses سَـ or سَوْفَ with a suitable verb form for future reference. Context
+      and time expressions also establish when events happen.
+    provenance: *a1

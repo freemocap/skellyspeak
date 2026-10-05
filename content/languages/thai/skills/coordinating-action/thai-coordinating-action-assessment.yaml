@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and negotiation. ช่วยย้ายกล่องนี้ไปที่ประตูหน่อย requests help;
+  เดี๋ยวฉันถือกระเป๋าให้ offers to carry a bag. พักกันสักครู่ไหม proposes a shared break.
+  พรุ่งนี้ฉันจะเอาเครื่องมือมา can undertake a task in planning, but future marking alone does
+  not establish commitment. วันนี้ไปไม่ได้ can decline an invitation and a proposed Saturday
+  meeting can negotiate an alternative. ได้ can accept a prior concrete proposal contextually. A
+  copied หน่อย without a recoverable request is absent. Politeness depends on reference terms,
+  particles and social context; absence of ครับ or ค่ะ is not automatically failed coordination.
+  Determine who is to act and what response is sought, preserving natural omissions and
+  distinguishing permission questions from requests that the listener perform an action.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_thai_hai2026
+    - hartmann_thai_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

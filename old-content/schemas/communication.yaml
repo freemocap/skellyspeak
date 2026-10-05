@@ -1,0 +1,112 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  EvidenceContext:
+    oneOf:
+    - description: The current contribution can establish the function. Read available context to disambiguate it; this does not mean previous contributions are ignored.
+      enum:
+      - contribution
+      type: string
+    - description: A preceding contribution or shared proposal must be available to judge it.
+      enum:
+      - exchange
+      type: string
+  Group:
+    additionalProperties: false
+    properties:
+      boundary:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      purpose:
+        type: string
+      subskills:
+        items:
+          $ref: '#/definitions/Subskill'
+        type: array
+    required:
+    - boundary
+    - id
+    - name
+    - purpose
+    - subskills
+    type: object
+  GuideOrigin:
+    enum:
+    - human
+    - ai
+    - mixed
+    type: string
+  ReviewStatus:
+    enum:
+    - needs_review
+    - reviewed
+    type: string
+  Subskill:
+    additionalProperties: false
+    properties:
+      boundary:
+        type: string
+      context:
+        $ref: '#/definitions/EvidenceContext'
+      counterexample:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      neighbors:
+        items:
+          type: string
+        type: array
+      positive_evidence:
+        type: string
+      purpose:
+        type: string
+    required:
+    - boundary
+    - context
+    - counterexample
+    - id
+    - name
+    - neighbors
+    - positive_evidence
+    - purpose
+    type: object
+properties:
+  authorship:
+    type: string
+  definition_language:
+    description: Editorial definitions, not a fallback for localized learner explanations.
+    type: string
+  groups:
+    items:
+      $ref: '#/definitions/Group'
+    type: array
+  origin:
+    $ref: '#/definitions/GuideOrigin'
+  review:
+    $ref: '#/definitions/ReviewStatus'
+  revision:
+    type: string
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+  sources:
+    items:
+      type: string
+    type: array
+required:
+- authorship
+- definition_language
+- groups
+- origin
+- review
+- revision
+- schema_version
+- sources
+title: Catalog
+type: object

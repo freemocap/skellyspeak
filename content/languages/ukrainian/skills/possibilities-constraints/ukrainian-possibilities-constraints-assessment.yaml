@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, requirements, possibility and confidence. Умію лагодити
+  describes learned ability; можу may concern capacity or circumstances. Можна тут залишити
+  сумку? asks permission in an appropriate setting. Мені потрібно повернути ключ gives necessity
+  with a dative experiencer. Не потрібно removes necessity, whereas не можна can prohibit an
+  action; these are not interchangeable. Можливо, ввечері буде дощ presents an uncertain
+  outcome. Не впевнена limits confidence in a proposition. Можна can grant a preceding
+  permission request contextually. A copied modal without a recoverable action is absent. A
+  polite можете request need not assert actual capability. If multiple reasonable modal readings
+  all demonstrate correct group use, do not mark the entire group unclear merely because a
+  subtype is ambiguous. Keep the correctness judgment tied to the construction actually
+  attempted.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

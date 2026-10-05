@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and plan negotiation. Перенесите коробку, пожалуйста requests action; Вам помочь?
+  offers help through a question with an infinitive. Давайте сделаем перерыв proposes a shared
+  next step. Я принесу инструменты завтра can commit to an agreed task, but an unrelated future
+  prediction is not automatically a promise. Сегодня не могу прийти declines a contextually
+  identifiable invitation; naming Saturday instead can negotiate an alternative. Да contextually
+  accepts an actual offer, not every preceding assertion. A copied давайте without a recoverable
+  proposal is absent. Imperfective and perfective imperatives have discourse-sensitive uses;
+  neither aspect alone proves politeness or error. Judge whether the action and participants are
+  successfully coordinated, allowing ordinary omitted pronouns and polite plural forms for a
+  single addressee.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_imperative2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

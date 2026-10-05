@@ -1,34 +1,6 @@
-use super::*;
-use documents::*;
-/// Authoring schemas derive from the exact deserialization contracts.
+//! Schemas derive from the native authoring contracts.
+use std::collections::BTreeMap;
+
 pub fn schemas() -> BTreeMap<String, serde_json::Value> {
-    macro_rules! schema {
-        ($name:literal,$type:ty) => {
-            (
-                $name.into(),
-                serde_json::to_value(schemars::schema_for!($type)).expect("schema serialization"),
-            )
-        };
-    }
-    BTreeMap::from([
-        schema!("language.yaml", LanguageDocument),
-        schema!("teaching-guides.yaml", super::guides::GuideDocument),
-        schema!("speech-routing.yaml", super::speech::Catalog),
-        schema!("language-foundations.yaml", Foundations),
-        schema!("learning-goals.yaml", Vec<Construct>),
-        schema!("skills.yaml", super::skills::Catalog),
-        schema!("communication.yaml", super::communication::Catalog),
-        schema!(
-            "communication-guides.yaml",
-            super::communication_guides::Document
-        ),
-        schema!(
-            "skill-presence.yaml",
-            crate::learning::practice_assessment::Instructions
-        ),
-        schema!("learning-map.yaml", Vec<NavigationNode>),
-        schema!("teaching-policy.yaml", TeachingPolicy),
-        schema!("conversation-topics.yaml", Vec<ConversationTopic>),
-        schema!("conversation-prompt.yaml", ConversationPromptContent),
-    ])
+    super::authoring::schemas()
 }

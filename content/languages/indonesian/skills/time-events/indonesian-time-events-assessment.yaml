@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: time_events
+guidance: Assess temporal meaning without requiring tense inflection. Kemarin saya mencetak
+  poster locates an event in the past; the verb need not change form. Saya sedang menggambar
+  makes progress explicit, while saya menggambar can receive a current or habitual reading from
+  context. Besok with an event can express future time without obligatory akan. Sudah commonly
+  marks completion or a changed state and is not a universal past-tense suffix; belum means not
+  yet. Selama dua jam measures duration, setiap Jumat recurrence, and pertama followed by lalu
+  orders steps. Selesai and masih can distinguish finished from continuing activity. A copied
+  kemarin disconnected from any event is absent; kemarin sore can supply the time of an
+  identified past event contextually. A bare property such as kamar ini terang does not
+  automatically demonstrate temporal skill. Passive di- does not mark past time, and ingin or
+  mau alone need not locate a future event.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

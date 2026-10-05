@@ -208,7 +208,7 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
     store.execute(send(&store, &conversation)).unwrap();
     assert!(store.dispatch().unwrap().is_none());
     let reply_work = store.dispatch().unwrap().unwrap();
-    assert_eq!(reply_work.model, "google/gemini-2.5-flash");
+    assert_eq!(reply_work.model, "google/gemini-2.5-flash-lite");
     assert_eq!(reply_work.target.model, reply_work.model);
     assert_eq!(reply_work.credential, "hosted-token");
     assert_eq!(reply_work.messages.last().unwrap().role, "user");
@@ -226,14 +226,12 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
             )
             .unwrap();
         let expected = match kind.as_str() {
-            "conversation_feedback" | "coach_reaction" | "skill_assessment" => {
-                crate::learning::coaching::message_assessment::model()
-            }
-            "skill_attribution" | "user_translation" | "reply_translation" => {
+            "skill_assessment" => crate::learning::coaching::assessment_adapter::MODEL,
+            "skill_attribution" | "user_translation" | "reply_translation" | "reply_brief" => {
                 "google/gemini-2.5-flash-lite"
             }
-            "coach_feedback" | "user_word_gloss" | "persona_word_gloss" | "reply_brief"
-            | "reply_assistance" | "reply_explanations" => "google/gemini-2.5-flash",
+            "coach_feedback" | "user_word_gloss" | "persona_word_gloss" | "reply_assistance"
+            | "reply_explanations" => "google/gemini-2.5-flash",
             _ => panic!("Unexpected automatic task: {kind}"),
         };
         assert_eq!(work.model, expected);
@@ -257,7 +255,6 @@ fn hosted_turn_dispatches_captured_task_models_and_records_each_attempt() {
         "reply_translation",
         "user_word_gloss",
         "persona_word_gloss",
-        "conversation_feedback",
         "reply_brief",
     ] {
         assert!(kinds.contains(kind), "Missing {kind}");
@@ -281,7 +278,7 @@ fn custom_turn_captures_endpoint_and_revocation_blocks_publication() {
     store.select_route(2, ConnectionRoute::Custom).unwrap();
     let dispatched = begin(&mut store, &conversation);
     assert_eq!(dispatched.target.url, "http://localhost:1234/v1/operations");
-    assert_eq!(dispatched.model, "google/gemini-2.5-flash");
+    assert_eq!(dispatched.model, "google/gemini-2.5-flash-lite");
     assert!(dispatched.credential.is_empty());
     assert!(dispatched.target.credential.is_none());
     invalidate(&store.connection, Some(ConnectionRoute::Custom)).unwrap();

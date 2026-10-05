@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Muốn before an activity expresses wanting to do it.
+    examples:
+      - text: Tôi muốn học may.
+        meaning: I want to learn to sew.
+        note: Học may names the desired learning activity; this is not a promise.
+  - subskill_id: preferences
+    explanation: Thích with hơn compares how much alternatives are liked.
+    examples:
+      - text: Tôi thích trà hơn cà phê.
+        meaning: I prefer tea to coffee.
+        note: Trà is the favored option.
+  - subskill_id: emotions
+    explanation: Vui describes happiness without an obligatory linking verb.
+    examples:
+      - text: Tôi rất vui khi nghe tin này.
+        meaning: I am very happy to hear this news.
+        note: Khi nghe tin này identifies the occasion for the feeling.
+  - subskill_id: opinions
+    explanation: Tôi nghĩ can frame a following proposition as a judgment.
+    examples:
+      - text: Tôi nghĩ cách này dễ hơn.
+        meaning: I think this method is easier.
+        note: The comparison concerns methods under discussion.
+  - subskill_id: agreement_disagreement
+    explanation: Đồng ý expresses agreement, and không negates it.
+    examples:
+      - text: Tôi không đồng ý với đề xuất này.
+        meaning: I disagree with this proposal.
+        note: Với đề xuất này identifies what the speaker rejects.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_identity2026
+    - msu_vietnamese_suggestions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

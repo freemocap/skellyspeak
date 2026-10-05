@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: อยาก before an activity expresses desire.
+    examples:
+      - text: ฉันอยากเรียนเย็บผ้า
+        meaning: I want to learn to sew.
+        note: เรียนเย็บผ้า names the desired learning activity.
+  - subskill_id: preferences
+    explanation: ชอบ with มากกว่า compares liking for two alternatives.
+    examples:
+      - text: ฉันชอบชามากกว่ากาแฟ
+        meaning: I prefer tea to coffee.
+        note: Tea is the preferred option.
+  - subskill_id: emotions
+    explanation: ดีใจ describes gladness and can take a clause identifying its occasion.
+    examples:
+      - text: ฉันดีใจที่ได้ยินข่าวนี้
+        meaning: I am glad to hear this news.
+        note: The news prompts the feeling; no gender agreement is involved.
+  - subskill_id: opinions
+    explanation: คิดว่า introduces the content of a personal judgment.
+    examples:
+      - text: ฉันคิดว่าวิธีนี้ง่ายกว่า
+        meaning: I think this method is easier.
+        note: The comparison concerns methods already under discussion.
+  - subskill_id: agreement_disagreement
+    explanation: เห็นด้วย expresses agreement; ไม่ negates it.
+    examples:
+      - text: ฉันไม่เห็นด้วยกับข้อเสนอนี้
+        meaning: I disagree with this proposal.
+        note: กับข้อเสนอนี้ identifies what is rejected.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

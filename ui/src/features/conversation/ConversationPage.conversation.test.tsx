@@ -1,4 +1,4 @@
-import { DEFAULT_APPEARANCE } from '../../generated/contracts'
+import { DEFAULT_EXECUTION, DEFAULT_APPEARANCE } from '../../generated/contracts'
 // @vitest-environment jsdom
 import { StrictMode } from 'react'
 import userEvent from '@testing-library/user-event'
@@ -83,7 +83,7 @@ function deferred<T>() {
 function directory(): Snapshot {
   return {
     savedTopics: [], sessionId: 'native-session', revision: 10,
-    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
+    learner: { id: 'learner', name: '', revision: 1, preferences: { execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: 'spanish', title: id, archived: false,
@@ -138,6 +138,41 @@ beforeEach(async () => {
 })
 
 describe('native conversation ownership', () => {
+  it('starts a phrase conversation with the selected partner once, then opens the returned conversation', async () => {
+    const { result } = renderHook(() => useSubject())
+    await waitFor(() => expect(watches).toHaveLength(1))
+    const accepted = deferred<Receipt>()
+    submit = command => command.action.kind === 'startPhraseConversation'
+      ? accepted.promise : Promise.resolve({ actionId: command.actionId, entityId: 'new', revision: 12 })
+    let started!: Promise<void>
+    await act(async () => {
+      started = result.current.startFromPhrase('source', 'cafe\u0301')
+      void result.current.startFromPhrase('source', 'cafe\u0301')
+    })
+    expect(commands()).toHaveLength(1)
+    expect(commands()[0].action).toEqual({ kind: 'startPhraseConversation', sourceMessageId: 'source', phrase: 'cafe\u0301', contactId: 'contact', expectedRevision: 10 })
+    workspace = { ...workspace, conversations: [...workspace.conversations, { ...workspace.conversations[0], id: 'new' }] }
+    await act(async () => { accepted.resolve({ actionId: commands()[0].actionId, entityId: 'new', revision: 11 }); await started })
+    expect(commands()[1].action).toEqual({ kind: 'openConversation', conversationId: 'new' })
+    expect(result.current.currentChatId).toBe('new')
+  })
+
+  it('routes skill starts through the current conversation and attaches guide questions to its coach', async () => {
+    const { result } = renderHook(() => useSubject())
+    await waitFor(() => expect(watches).toHaveLength(1))
+    const guide = { language: 'spanish', variety: 'spanish-spain', skillId: 'time_events', editionLanguage: 'english', fingerprint: 'source' }
+    await act(async () => { await result.current.runGuideAction({ kind: 'coach', guide, text: 'Explain this skill.' }) })
+    expect(commands()[0].action).toEqual({ kind: 'askGuideCoach', conversationId: 'a', text: 'Explain this skill.', guide, expectedRevision: workspace.conversations[0].revision })
+    expect(result.current.currentChatId).toBe('a')
+    submit = async command => {
+      if (command.action.kind === 'startSkillConversation') workspace = { ...workspace, conversations: [...workspace.conversations, { ...workspace.conversations[0], id: 'skill-chat' }] }
+      return { actionId: command.actionId, entityId: 'skill-chat', revision: 12 }
+    }
+    await act(async () => { await result.current.startFromSkill('spanish', 'spanish-spain', 'time_events') })
+    expect(commands()[1].action).toEqual({ kind: 'startSkillConversation', sourceConversationId: 'a', language: 'spanish', variety: 'spanish-spain', skillId: 'time_events', subskillId: null, expectedRevision: 10 })
+    expect(result.current.currentChatId).toBe('skill-chat')
+  })
+
   it('mount, StrictMode replay, preferences and remount observe without greeting or saving', async () => {
     const view = renderHook(({ settings }) => useSubject(settings), { initialProps: { settings: SETTINGS }, wrapper: StrictMode })
     await waitFor(() => expect(watches).toHaveLength(1))
@@ -525,7 +560,6 @@ describe('native composer admission', () => {
     expect(failed).toHaveTextContent('Keep this unsent text')
     expect(composer).toHaveValue('')
     expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
-    fireEvent.click(screen.getByText('⚠ Request failed'))
     expect(screen.getByText('Admission refused')).toBeVisible()
     expect(commands()[0].action).toEqual({ kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 7, text: 'Keep this unsent text' })
     expect(commands()).toHaveLength(1)
@@ -701,9 +735,13 @@ it('edits through the real page handler, sends durable identity and renders reta
   expect(composer).toHaveValue('Yo fue ayer')
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-  await waitFor(() => expect(commands()).toHaveLength(1))
+  await waitFor(() => expect(commands()).toHaveLength(3))
+  expect(commands().filter(command => command.action.kind === 'requestMessageHelp').map(command => command.action)).toEqual([
+    { kind: 'requestMessageHelp', messageId: initial.messages[0].id, help: 'assessment', retry: false },
+    { kind: 'requestMessageHelp', messageId: initial.messages[0].id, help: 'coaching', retry: false },
+  ])
   expect(screen.getByText('Edit saved — updating conversation…')).toBeVisible()
-  expect(commands()[0].action).toEqual({ kind: 'reviseTurn', conversationId: 'a', turnId: 'a-turn', text: 'Yo fui ayer', expectedRevision: 31, input: { modality: 'text', suggestion: false, scaffold: false, revision: true } })
+  expect(commands().find(command => command.action.kind === 'reviseTurn')?.action).toEqual({ kind: 'reviseTurn', conversationId: 'a', turnId: 'a-turn', text: 'Yo fui ayer', expectedRevision: 31, input: { modality: 'text', suggestion: false, scaffold: false, revision: true } })
   const revised: ConversationSnapshot = { ...initial, revision: 32, messages: [
     ...initial.messages.map(message => ({ ...message, replacedBy: 'repair' })),
     { ...initial.messages[0], turnId: 'repair', replacesTurnId: 'a-turn', id: 'repair-user', sequence: 3, text: 'Yo fui ayer' },
@@ -797,8 +835,7 @@ it('retains a repair draft after a genuine connection failure', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
-  fireEvent.click(await screen.findByText('⚠ Request failed'))
-  expect(screen.getByText('The connection is unavailable.')).toBeVisible()
+  expect(await screen.findByText('The connection is unavailable.')).toBeVisible()
   expect((await draftField())).toHaveValue('Yo fue ayer')
   expect(commands()).toHaveLength(1)
 })

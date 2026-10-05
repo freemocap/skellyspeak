@@ -4,7 +4,7 @@ import { expect, it, vi } from 'vitest'
 import { ProgressCounters } from './ProgressCounters'
 import { ProgressCard } from './ProgressCard'
 import type { EffortProgress } from '../../generated/contracts'
-const effort: EffortProgress = { target: 'spanish', partnerUnderstood: 12, revisionsSent: 3, practiceAttempts: 45, noIssuesFlagged: 6, explorations: 0, bot: 0, recent: [] }
+const effort: EffortProgress = { target: 'spanish', partnerUnderstood: 12, revisionsSent: 3, practiceAttempts: 45, explorations: 0, bot: 0, recent: [] }
 it('keeps the numeric XP gain without duplicating effort icons at the counter', () => {
   const view = render(<ProgressCounters xp={1248} effort={effort} />)
   expect(screen.getByLabelText('XP: 1,248')).toBeVisible()
@@ -32,7 +32,8 @@ it('lists XP and each effort unit separately in the card', () => {
   render(<ProgressCard title="Language progress" xp={1248} effort={effort} expandLabel="Full report" onExpand={expand} />)
   const card = screen.getByRole('dialog', { name: 'Language progress' })
   expect(card).toHaveTextContent('1,248 XP')
-  for (const label of ['Understood: 12', 'Clean: 6', 'Fixes: 3', 'Practice: 45', 'Explore: 0']) expect(screen.getByLabelText(label)).toBeVisible()
+  for (const label of ['Understood: 12', 'Fixes: 3', 'Practice: 45', 'Explore: 0']) expect(screen.getByLabelText(label)).toBeVisible()
+  expect(screen.queryByLabelText(/^Clean:/)).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Full report' }))
   expect(expand).toHaveBeenCalledOnce()
 })

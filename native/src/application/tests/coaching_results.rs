@@ -16,10 +16,28 @@ fn fixture(base: &str) -> (tempfile::TempDir, Arc<Application>, execution::Dispa
                 session_id,
                 action_id: uuid::Uuid::new_v4().to_string(),
                 action: Action::SendMessage {
-                    conversation_id: conversation.id,
+                    conversation_id: conversation.id.clone(),
                     expected_revision: conversation.revision,
                     text: "Hola".into(),
                     input: Default::default(),
+                },
+            })
+            .unwrap();
+        let message = store
+            .conversation_snapshot(&conversation.id, None)
+            .unwrap()
+            .messages[0]
+            .id
+            .clone();
+        let session_id = store.session_id.clone();
+        store
+            .execute(Command {
+                session_id,
+                action_id: uuid::Uuid::new_v4().to_string(),
+                action: Action::RequestMessageHelp {
+                    message_id: message,
+                    help: execution::MessageHelp::Coaching,
+                    retry: false,
                 },
             })
             .unwrap();

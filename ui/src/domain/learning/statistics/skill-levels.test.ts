@@ -20,16 +20,16 @@ function learner(points: number[], chatFor: (skill: number, n: number) => string
 
 describe('language skill levels', () => {
   it('reads the native projection in catalog order and derives presentation values', () => {
-    const levels = languageSkillLevels(learner([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6]))
+    const levels = languageSkillLevels(learner([9, 6, 11, 5, 7, 5, 13, 8]))
     expect(levels.level).toBe(4)
     expect(levels.target).toBe(8)
     expect(levels.bands).toEqual([1, 2, 3, 5, 8])
-    expect(levels.ready).toBe(5)
+    expect(levels.ready).toBe(4)
     expect(levels.skills[1]).toMatchObject({ points: 6, level: 4, currentThreshold: 5, nextThreshold: 8 })
     expect(levels.skills[1].position).toBeCloseTo(4 + 1 / 3)
   })
   it('names what holds the next level back, largest gap first', () => {
-    const behind = holdingBack(languageSkillLevels(learner([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6])))
+    const behind = holdingBack(languageSkillLevels(learner([9, 6, 11, 5, 7, 5, 13, 8])))
     expect(behind[0].needed).toBe(3)
     expect(behind.map(item => item.needed)).toEqual([...behind.map(item => item.needed)].sort((a, b) => b - a))
     expect(behind.every(item => item.skill.points < 8)).toBe(true)

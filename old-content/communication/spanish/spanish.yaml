@@ -1,0 +1,637 @@
+# yaml-language-server: $schema=../../schemas/communication-guides.yaml
+schema_version: 1
+language: spanish
+explanation_language: spanish
+revision: spanish-communication-es-2026-10-04
+origin: ai
+review: needs_review
+authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+  validación automática comprueba la estructura.
+sources:
+  - rae_possession2026
+  - rae_future2026
+  - rae_gracias2026
+  - umass_spanish_copulas2026
+  - yepesObligation20260924
+  - yepesConditions20260924
+groups:
+  people_places:
+    title: Personas, cosas y lugares
+    introduction: Identificar referentes y describir sus propiedades, ubicación, cantidad y relaciones.
+    assessment: Spanish can identify with ser, describe properties with ser or estar according to
+      meaning, locate with estar and prepositions, express possession with possessives or de, and
+      compare with más/menos ... que. Check the construction used, including agreement where it
+      establishes the description. Do not reduce ser/estar to permanent/temporary. Correct
+      identification alone is sufficient for this group; a wrong description elsewhere does not
+      erase it.
+    sections:
+      - subskill: identification
+        title: Identificación
+        concept: Establecer quién es una persona o qué es una cosa.
+        explanation: Usa ser para identificar. Puedes omitir el pronombre sujeto si el verbo y el contexto
+          permiten identificarlo.
+        examples:
+          - text: Soy Ana.
+            meaning: La persona que habla se llama Ana.
+            note: Soy identifica a la hablante.
+      - subskill: qualities_states
+        title: Cualidades y estados
+        concept: Describir las propiedades o el estado de algo o alguien.
+        explanation: Elige ser o estar según el significado. La diferencia no se reduce a lo permanente
+          frente a lo temporal.
+        examples:
+          - text: La puerta está abierta.
+            meaning: La puerta no está cerrada.
+            note: Estar describe el estado actual de la puerta.
+      - subskill: location_movement
+        title: Ubicación y movimiento
+        concept: Situar algo y describir relaciones espaciales o recorridos.
+        explanation: Combina un verbo de ubicación o movimiento con una expresión de lugar o recorrido.
+        examples:
+          - text: El libro está en la mesa.
+            meaning: El libro se encuentra sobre la mesa.
+            note: Estar en sitúa el libro con respecto a la mesa.
+      - subskill: possession_relations
+        title: Posesión y relaciones
+        concept: Expresar pertenencia, asociación o vínculos entre personas.
+        explanation: Los posesivos y de expresan pertenencia o relaciones. El posesivo concuerda con lo
+          poseído, no con quien lo posee.
+        examples:
+          - text: Es el libro de mi hermana.
+            meaning: El libro pertenece a mi hermana.
+            note: De indica a quién pertenece el libro.
+      - subskill: quantity_comparison
+        title: Cantidad y comparación
+        concept: Expresar cantidades, proporciones o comparaciones.
+        explanation: Usa números y expresiones de cantidad; más ... que y menos ... que comparan cualidades
+          o cantidades.
+        examples:
+          - text: Esta caja es más grande que esa.
+            meaning: Esta caja tiene mayor tamaño que la otra.
+            note: Más grande que expresa la comparación y su punto de referencia.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  time_events:
+    title: Tiempo y acontecimientos
+    introduction: Situar los acontecimientos en el tiempo y expresar cómo se desarrollan.
+    assessment: Judge the time relationship the learner actually expresses. Spanish uses present forms
+      for current situations and habits; preterite for bounded past events; imperfect for past
+      background or habits; and ir a + infinitive, future forms, or contextually future present
+      forms for later events. Historical present can narrate past events when context supports it.
+      Estar + gerund expresses an ongoing activity; ya + an appropriate completed construction can
+      mark completion. Ayer fui al mercado correctly locates a completed event. Ayer yo ir al
+      mercado is an unsuccessful finite past construction, not a correct past use. Ayer alone can be
+      a correct contextual answer to ¿Cuándo fuiste? Missing an article elsewhere does not defeat a
+      correctly formed temporal construction. Sequence does not imply cause. A hypothetical or
+      polite past-form expression is not necessarily past reference.
+    sections:
+      - subskill: present_events
+        title: Situaciones presentes
+        concept: Situar un estado, una actividad o un hábito en el período actual.
+        explanation: El presente puede describir situaciones actuales o hábitos. El contexto permite
+          distinguirlos.
+        examples:
+          - text: Trabajo aquí.
+            meaning: Este es mi lugar de trabajo.
+            note: El presente describe la situación laboral actual.
+      - subskill: past_events
+        title: Acontecimientos pasados
+        concept: Situar algo antes del momento actual o de otro momento de referencia.
+        explanation: Elige la construcción de pasado según el significado. Fui puede presentar un viaje
+          completo; iba puede describir una situación en curso o habitual. Una respuesta breve puede
+          tomar su referencia temporal de la pregunta.
+        examples:
+          - text: Ayer fui al mercado.
+            meaning: El viaje al mercado ocurrió ayer.
+            note: Fui y ayer expresan un viaje anterior y completo. Un error ajeno a esta construcción no la
+              invalida.
+      - subskill: future_events
+        title: Acontecimientos futuros
+        concept: Situar algo después del momento actual o de otro momento de referencia.
+        explanation: Ir a con infinitivo permite hablar de una acción futura prevista. También puedes usar
+          el futuro o un presente con referencia futura clara.
+        examples:
+          - text: Mañana voy a cocinar.
+            meaning: Tengo previsto cocinar mañana.
+            note: Mañana y voy a cocinar establecen la referencia futura.
+      - subskill: duration_frequency
+        title: Duración y frecuencia
+        concept: Expresar cuánto dura algo o con qué frecuencia ocurre.
+        explanation: Usa expresiones temporales para indicar duración o frecuencia.
+        examples:
+          - text: Estudio español todos los días.
+            meaning: Dedico tiempo al español diariamente.
+            note: Todos los días expresa la frecuencia.
+      - subskill: event_sequence
+        title: Secuencia
+        concept: Ordenar unos acontecimientos con respecto a otros.
+        explanation: Primero y después ordenan acontecimientos, sin indicar necesariamente que uno cause el
+          otro.
+        examples:
+          - text: Primero cenamos y después salimos.
+            meaning: Cenamos antes de salir.
+            note: El orden es explícito; el contexto permite interpretar las formas como pasadas.
+      - subskill: event_phase
+        title: Acontecimientos en curso y terminados
+        concept: Distinguir las fases de desarrollo o finalización de una acción.
+        explanation: Estar con gerundio puede presentar una actividad en curso. Para acciones terminadas,
+          usa una construcción adecuada al marco temporal.
+        examples:
+          - text: Estoy leyendo.
+            meaning: La lectura está en curso.
+            note: Estoy y leyendo presentan una actividad que se está desarrollando.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  feelings_viewpoints:
+    title: Sentimientos y puntos de vista
+    introduction: Expresar estados internos, valoraciones y posturas.
+    assessment: "Spanish expresses desire with querer + infinitive for one's own action, preferences
+      with preferir or gustar constructions, emotion with forms such as estar contento, and opinions
+      with creo que or evaluative wording. In gustar constructions, the liked item controls
+      agreement: me gusta el café; me gustan los libros. Estoy de acuerdo and no estoy de acuerdo
+      respond to a position. Count a correct function, not every assertion as an opinion. A request
+      framed with quiero is still an action request when context makes that its purpose."
+    sections:
+      - subskill: wants_intentions
+        title: Deseos e intenciones
+        concept: Expresar lo que se desea o se tiene intención de hacer.
+        explanation: Querer con infinitivo expresa lo que el sujeto desea hacer.
+        examples:
+          - text: Quiero descansar.
+            meaning: Tengo ganas de descansar.
+            note: Quien desea es también quien descansaría.
+      - subskill: preferences
+        title: Preferencias
+        concept: Expresar gustos, desagrados o elecciones entre alternativas.
+        explanation: Preferir expresa una preferencia. Con gustar, lo que gusta funciona como sujeto gramatical.
+        examples:
+          - text: Me gustan estos libros.
+            meaning: Estos libros son de mi agrado.
+            note: Gustan concuerda con libros, que está en plural.
+      - subskill: emotions
+        title: Emociones
+        concept: Expresar sentimientos o reacciones emocionales.
+        explanation: Nombra el sentimiento con una expresión adecuada. Los adjetivos con estar concuerdan
+          con la persona descrita.
+        examples:
+          - text: Estoy contenta.
+            meaning: Me siento feliz.
+            note: Una hablante usa la forma femenina contenta.
+      - subskill: opinions
+        title: Opiniones
+        concept: Expresar una valoración o un juicio personal.
+        explanation: Creo que introduce una opinión. También puedes expresar una valoración directamente.
+        examples:
+          - text: Creo que es una buena idea.
+            meaning: En mi opinión, la idea es buena.
+            note: La hablante presenta la valoración como su punto de vista.
+      - subskill: agreement_disagreement
+        title: Acuerdo y desacuerdo
+        concept: Apoyar o rechazar una postura expresada por otra persona.
+        explanation: Responde a una postura con acuerdo, desacuerdo o una matización.
+        examples:
+          - text: No estoy de acuerdo.
+            meaning: No comparto esa postura.
+            note: Necesitamos conocer la postura anterior para saber qué se rechaza.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  possibilities_constraints:
+    title: Posibilidades y limitaciones
+    introduction: Expresar capacidades, permisos, obligaciones y límites de lo que sabemos.
+    assessment: Spanish poder can express ability, permission or possibility; use the exchange to
+      distinguish them. Tengo que + infinitive and hay que + infinitive express requirements; tengo
+      de ir is not the corresponding tener que construction. Puede que + subjunctive expresses
+      possibility. No estoy seguro expresses uncertainty. A future form can express conjecture
+      rather than future time. A question such as ¿Puedes cerrar la puerta? usually requests action
+      rather than testing ability. Do not credit this group from its modal form alone.
+    sections:
+      - subskill: ability
+        title: Capacidad
+        concept: Expresar lo que alguien es capaz de hacer.
+        explanation: Poder con infinitivo puede expresar capacidad. Saber con infinitivo expresa que se ha
+          aprendido a hacer algo.
+        examples:
+          - text: Sé nadar.
+            meaning: Tengo la capacidad de nadar.
+            note: Saber expresa una capacidad aprendida.
+      - subskill: permission
+        title: Permiso
+        concept: Expresar si una acción está permitida.
+        explanation: Una pregunta con poder puede pedir permiso. La situación ayuda a distinguir este
+          significado.
+        examples:
+          - text: ¿Puedo entrar?
+            meaning: Pido permiso para entrar.
+            note: En una puerta, la pregunta se interpreta como una solicitud de permiso.
+      - subskill: obligation
+        title: Obligación y necesidad
+        concept: Expresar deberes, requisitos o necesidades prácticas.
+        explanation: Tener que con infinitivo expresa una obligación personal. Hay que puede expresar una
+          necesidad general.
+        examples:
+          - text: Tengo que salir.
+            meaning: Es necesario que salga.
+            note: Que debe aparecer entre tengo y el infinitivo.
+      - subskill: possibility
+        title: Posibilidad
+        concept: Presentar algo como posible o dependiente de las circunstancias.
+        explanation: Puede que seguido de subjuntivo presenta una posibilidad.
+        examples:
+          - text: Puede que llueva.
+            meaning: Es posible que llueva.
+            note: Llueva va en subjuntivo después de puede que.
+      - subskill: certainty
+        title: Certeza e incertidumbre
+        concept: Expresar confianza, duda o límites del conocimiento.
+        explanation: No estoy seguro expresa el grado de certeza. No tiene por qué referirse a una predicción.
+        examples:
+          - text: No estoy seguro.
+            meaning: Tengo dudas sobre lo que se está diciendo.
+            note: Un hablante usa seguro para expresar incertidumbre sobre la idea en cuestión.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  reasons_connections:
+    title: Razones y conexiones
+    introduction: Relacionar ideas mediante causas, consecuencias, condiciones, contrastes y argumentos.
+    assessment: Spanish porque introduces a reason, por eso a consequence, si a condition, and pero an
+      opposition. Ordinary open conditions can use si + present indicative with an appropriate
+      outcome. Do not accept a connector alone as proof that the two clauses form its intended
+      relation. A condition and a reason differ; primero ... después establishes sequence but not
+      causation. Evidence such as the lights being on can support a stated inference. Check that the
+      learner links recoverable propositions coherently.
+    sections:
+      - subskill: causes_reasons
+        title: Causas y razones
+        concept: Explicar por qué ocurre algo o se mantiene una situación.
+        explanation: Porque introduce el motivo de una acción o decisión.
+        examples:
+          - text: Me quedo porque estoy cansada.
+            meaning: El cansancio es la razón por la que me quedo.
+            note: La segunda oración explica la decisión de quedarse.
+      - subskill: consequences
+        title: Consecuencias
+        concept: Expresar el resultado o la implicación de una situación.
+        explanation: Por eso presenta una consecuencia de lo que se acaba de mencionar.
+        examples:
+          - text: Llueve; por eso llevo paraguas.
+            meaning: Llevo paraguas debido a la lluvia.
+            note: Llevar paraguas se presenta como respuesta a la lluvia.
+      - subskill: conditions
+        title: Condiciones
+        concept: Expresar que algo depende de otra circunstancia.
+        explanation: Si introduce una condición. En una condición abierta, puede usarse el presente de
+          indicativo.
+        examples:
+          - text: Si llueve, me quedo en casa.
+            meaning: Quedarme en casa depende de que llueva.
+            note: La lluvia es la condición para quedarse en casa.
+      - subskill: contrast
+        title: Contraste
+        concept: Expresar oposición, excepciones o relaciones inesperadas.
+        explanation: Pero conecta hechos o valoraciones que contrastan.
+        examples:
+          - text: Es caro, pero es útil.
+            meaning: Aunque cuesta mucho, tiene utilidad.
+            note: La utilidad contrasta con la valoración negativa del precio.
+      - subskill: supporting_claims
+        title: Apoyar una afirmación
+        concept: Aportar razones para aceptar una postura o una inferencia.
+        explanation: Ofrece una razón u observación que apoye la afirmación; repetirla con más énfasis no
+          aporta una prueba.
+        examples:
+          - text: Creo que está en casa porque la luz está encendida.
+            meaning: La luz encendida me lleva a pensar que esa persona está en casa.
+            note: La luz funciona como indicio para la inferencia.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  information_exchange:
+    title: Intercambio de información
+    introduction: Pedir, aportar y comprobar información pertinente.
+    assessment: "Spanish questions can use interrogatives such as qué, dónde and cuándo, or yes/no
+      intonation. Omitted opening punctuation alone should not defeat an otherwise correct
+      conversational question. Contextually appropriate fragments can answer a question: en casa can
+      answer ¿Dónde estás? Check relevance against the actual question, not sentence length. ¿Llegas
+      a las ocho? can check a time; ¿Qué quieres decir? repairs understanding instead. Requests
+      phrased with ¿Puedes...? need not ask for information."
+    sections:
+      - subskill: asking_information
+        title: Pedir información
+        concept: Preguntar por un dato, una descripción o una explicación.
+        explanation: Elige la expresión interrogativa según la información que buscas. El contexto y la
+          entonación también permiten hacer preguntas de sí o no.
+        examples:
+          - text: ¿Dónde está la estación?
+            meaning: Pregunto por la ubicación de la estación.
+            note: Dónde pide información sobre un lugar.
+      - subskill: answering_information
+        title: Responder de forma pertinente
+        concept: Aportar la información que solicita una pregunta concreta.
+        explanation: Una respuesta breve puede aportar lo solicitado sin repetir el verbo de la pregunta.
+        examples:
+          - text: En casa.
+            meaning: La ubicación es la casa.
+            note: Responde a ¿Dónde estás? Sin esa pregunta, no podemos determinar su función de respuesta.
+      - subskill: checking_facts
+        title: Comprobar datos
+        concept: Verificar si una idea o un detalle es correcto.
+        explanation: Pide confirmación de un dato que ya tienes en mente.
+        examples:
+          - text: ¿Llegas a las ocho?
+            meaning: Quiero confirmar la hora de llegada.
+            note: Al confirmar un acuerdo, la pregunta comprueba la hora propuesta.
+      - subskill: useful_detail
+        title: Aportar detalles útiles
+        concept: Ampliar o resumir información según las necesidades de la conversación.
+        explanation: Añade detalles que ayuden a responder a la pregunta. Una respuesta más larga no es
+          necesariamente más útil.
+        examples:
+          - text: Está al lado del banco, frente al parque.
+            meaning: El banco y el parque sirven de referencia para encontrarlo.
+            note: En una conversación sobre direcciones, ambas referencias precisan la ubicación.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  coordinating_action:
+    title: Coordinar acciones
+    introduction: Pedir, proponer y negociar lo que hará cada participante.
+    assessment: Spanish can request action with an imperative or a conventional question such as ¿Puedes
+      repetirlo?; do not require an imperative. Te ayudo can offer assistance; ¿Quieres venir? can
+      invite participation. Podemos... can propose joint action. Acepto and lo siento, no puedo can
+      accept or decline an identifiable proposal. Promise or commitment requires an undertaking in
+      context, not merely a future form. Suggestions and negotiating an alternative are distinct
+      functions but earn at most one group award together.
+    sections:
+      - subskill: requests
+        title: Peticiones
+        concept: Pedir a otra persona que haga o deje de hacer algo.
+        explanation: Pide la acción directamente o mediante una pregunta cortés. Poder no pregunta
+          necesariamente por una capacidad física.
+        examples:
+          - text: ¿Puedes cerrar la puerta, por favor?
+            meaning: Te pido que cierres la puerta.
+            note: La respuesta esperada es realizar la acción de cerrar.
+      - subskill: offers_invitations
+        title: Ofrecimientos e invitaciones
+        concept: Ofrecer ayuda o proponer la participación de otra persona.
+        explanation: Ofrece tu ayuda o invita a la otra persona a compartir una actividad.
+        examples:
+          - text: ¿Quieres venir a cenar?
+            meaning: Te invito a cenar.
+            note: En esta situación, la pregunta invita a participar.
+      - subskill: suggestions
+        title: Sugerencias
+        concept: Proponer una acción para que se valore.
+        explanation: Podemos con infinitivo puede proponer una actividad conjunta.
+        examples:
+          - text: Podemos ir mañana.
+            meaning: Propongo que vayamos mañana.
+            note: En una conversación sobre planes, se presenta una opción.
+      - subskill: commitments
+        title: Compromisos
+        concept: Asumir la responsabilidad de realizar una acción futura.
+        explanation: Usa una expresión que indique que asumes el compromiso. Mencionar el futuro no equivale
+          por sí solo a prometer.
+        examples:
+          - text: Te prometo que voy a llamarte.
+            meaning: Me comprometo a llamarte.
+            note: Prometo hace explícito el compromiso.
+      - subskill: accepting_declining
+        title: Aceptar y rechazar
+        concept: Responder a una petición, una oferta, una invitación o una propuesta.
+        explanation: Una aceptación o un rechazo breve depende de la propuesta anterior. Puedes rechazar con
+          cortesía sin dar una explicación larga.
+        examples:
+          - text: Lo siento, no puedo.
+            meaning: Rechazo la propuesta y expreso que lo lamento.
+            note: Después de una invitación, esta respuesta la rechaza.
+      - subskill: negotiating_plans
+        title: Negociar un plan
+        concept: Ajustar una propuesta a las necesidades o limitaciones de quienes participan.
+        explanation: Responde al plan propuesto con una alternativa que resuelva el problema.
+        examples:
+          - text: A las seis no puedo; ¿quedamos a las siete?
+            meaning: Propongo reunirnos a las siete porque a las seis no puedo.
+            note: Se modifica la hora propuesta para resolver una limitación.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+  managing_conversation:
+    title: Gestionar la conversación
+    introduction: Iniciar el contacto, organizar los turnos y resolver problemas de comprensión.
+    assessment: Spanish interaction can open with hola and close with hasta luego, acknowledge with
+      entiendo, thank with gracias, and apologize with perdón or lo siento in an appropriate
+      sequence. ¿Qué quieres decir? and ¿Puedes repetirlo? request repair when linked to an unclear
+      prior contribution. Quiero decir... reformulates; no, me refiero a... corrects an
+      interpretation. Por cierto can introduce a topic. Require the social or repair context, not
+      just a memorized phrase or the fact that a message was sent.
+    sections:
+      - subskill: opening_closing
+        title: Abrir y cerrar la conversación
+        concept: Iniciar o terminar un encuentro comunicativo.
+        explanation: Usa un saludo o una despedida en el encuentro real, no solo como una palabra citada.
+        examples:
+          - text: Hasta luego.
+            meaning: Me despido de la otra persona.
+            note: Cierra un encuentro; repetirlo en un ejercicio de vocabulario no cumple esa función.
+      - subskill: acknowledging
+        title: Reconocer y responder
+        concept: Mostrar atención, recepción o una respuesta social pertinente.
+        explanation: Indica que has recibido lo dicho o responde a un acto social. Entiendo no implica
+          necesariamente estar de acuerdo.
+        examples:
+          - text: Gracias por avisarme.
+            meaning: Agradezco que me hayas informado.
+            note: Reconoce la información útil y da las gracias.
+      - subskill: clarification
+        title: Pedir aclaraciones
+        concept: Señalar un problema de audición o comprensión y pedir ayuda para resolverlo.
+        explanation: Pide que repitan o expliquen algo cuando no hayas entendido la intervención anterior.
+        examples:
+          - text: ¿Qué quieres decir?
+            meaning: Pido que expliques lo que intentas comunicar.
+            note: Se pide explicar una intervención poco clara, no comprobar un dato ya entendido.
+      - subskill: rephrasing
+        title: Reformular
+        concept: Expresar el mismo sentido de otra manera para facilitar la comprensión.
+        explanation: Quiero decir introduce otra forma de expresar lo que intentabas comunicar.
+        examples:
+          - text: Quiero decir que llego después de las ocho.
+            meaning: Aclaro que mi llegada será después de las ocho.
+            note: En una secuencia de aclaración, reformula la hora de llegada.
+      - subskill: correcting_misunderstanding
+        title: Corregir un malentendido
+        concept: Sustituir una interpretación equivocada por la intención correcta.
+        explanation: Contrasta la interpretación equivocada con lo que querías decir.
+        examples:
+          - text: No, me refiero al martes, no al jueves.
+            meaning: El día que quería indicar era el martes.
+            note: Corrige qué día entendió la otra persona.
+      - subskill: turns_topics
+        title: Organizar turnos y temas
+        concept: Coordinar quién habla y de qué trata la conversación.
+        explanation: Usa una expresión de transición o de gestión de turnos al cambiar la dirección de la
+          conversación.
+        examples:
+          - text: Por cierto, ¿cómo está tu hermana?
+            meaning: Introduzco una pregunta sobre tu hermana.
+            note: Por cierto señala un cambio de tema.
+    varieties:
+      spanish-spain:
+        assessment: These core examples are usable in Spain. Accept valid regional uses rather than
+          requiring one national norm. Both simple and compound past constructions may be
+          appropriate depending on context; do not require a compound past simply because an event
+          happened today. Vosotros forms are available for informal plural address; ustedes forms
+          are also grammatical in their appropriate variety or register.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.
+      spanish-mexico:
+        assessment: These core examples are usable in Mexico. Ustedes is the usual plural address form and
+          takes third-person plural agreement. Do not require vosotros or a Spain-specific
+          past-tense preference. Judge the actual context and construction; valid local choices do
+          not count as errors.
+        detail: null
+        origin: ai
+        review: needs_review
+        authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+          independiente.

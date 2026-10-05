@@ -472,7 +472,7 @@ mod tests {
         let ids = schema["properties"]["items"]["items"]["properties"]["construct"]["enum"]
             .as_array()
             .unwrap();
-        assert!(ids.iter().any(|id| id == "questions_answers"));
+        assert!(ids.iter().any(|id| id == "information_exchange"));
         assert!(!ids.iter().any(|id| id == "reference"));
     }
     fn token(text: &str, gloss: &str) -> super::ReplyToken {
@@ -527,12 +527,8 @@ mod tests {
             assert!(codes.insert(node["code"].as_str().unwrap()));
             if node["kind"] == "skill" {
                 let parent = nodes.iter().find(|n| n["id"] == node["parent"]).unwrap();
-                assert!(
-                    node["code"]
-                        .as_str()
-                        .unwrap()
-                        .starts_with(&format!("{}.", parent["code"].as_str().unwrap()))
-                );
+                assert_eq!(parent["kind"], "root");
+                assert_eq!(parent["id"], "experience");
             }
         }
         assert_ne!(super::catalog_version(), 4);

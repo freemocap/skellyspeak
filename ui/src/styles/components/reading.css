@@ -212,8 +212,6 @@
   cursor: pointer;
 }
 .reading-language-scope { display: contents; }
-.reading-language-controls { display: flex; flex-wrap: wrap; gap: var(--space-6); }
-.reading-language-controls label { display: flex; flex-direction: column; gap: var(--space-1); }
 .reading-selected-word { display: flex; align-items: center; gap: var(--space-2); }
 .reading-audio-status {
   z-index: var(--z-popover);

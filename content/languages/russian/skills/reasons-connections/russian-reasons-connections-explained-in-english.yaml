@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Потому что introduces the reason for the preceding situation.
+    examples:
+      - text: Я осталась дома, потому что пошёл дождь.
+        meaning: I stayed home because it started raining.
+        note: The feminine speaker gives rain as the reason for staying home.
+  - subskill_id: consequences
+    explanation: Поэтому links a situation to its consequence.
+    examples:
+      - text: Автобус не пришёл, поэтому я пошла пешком.
+        meaning: The bus did not come, so I walked.
+        note: The feminine speaker presents walking as a consequence of the missing bus.
+  - subskill_id: conditions
+    explanation: Если introduces a condition; both clauses can refer to future events.
+    examples:
+      - text: Если завтра пойдёт дождь, мы останемся дома.
+        meaning: If it rains tomorrow, we will stay home.
+        note: Staying home is conditional, not announced as an unconditional plan.
+  - subskill_id: contrast
+    explanation: Но connects descriptions that contrast in the present discussion.
+    examples:
+      - text: Дорога короткая, но крутая.
+        meaning: The road is short but steep.
+        note: The contrast concerns length and steepness, which may matter differently when choosing a
+          route.
+  - subskill_id: supporting_claims
+    explanation: An observation can be presented as evidence for an inference.
+    examples:
+      - text: Думаю, кто-то есть дома, потому что в окне горит свет.
+        meaning: I think someone is home because there is a light on in the window.
+        note: The light supports the inference; it does not cause someone to be home.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_condition2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

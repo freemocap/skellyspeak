@@ -137,6 +137,7 @@ pub fn run() {
             commands::drill::inspect_drill_audio,
             commands::reading::begin_reading,
             commands::reading::run_reading,
+            commands::skill_guides::get_skill_guide,
             commands::reading::get_cached_reading_audio,
             commands::reading::cancel_reading,
             commands::reading::get_reading_activity,

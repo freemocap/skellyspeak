@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: people_places
+guidance: Identify nominal descriptions, qualities, location or movement, possession or
+  relationships, and quantity or comparison. 이분은 제 동료예요 identifies a person; 방이 넓어요 predicates a
+  descriptive verb without adding English be. 에 with 있어요 locates something; 에서 normally locates
+  an activity rather than static existence. 제 contracts 저의 and can identify possession. 책 두 권
+  counts books with a counter; 2번 as a route label does not count two objects. 보다 with 더
+  can compare properties. A copied particle 의 with no recoverable relationship is absent. 책상 위에요
+  can answer a where-question contextually. Subjects and some particles may be omitted in
+  appropriate conversation, so do not require full written-style repetition. 방이 넓다예요, intended
+  as an ordinary descriptive predicate and standing alone, incorrectly combines predicate
+  endings. Register and honorific choices are part of the construction; polite 요 does not itself
+  demonstrate a spatial or descriptive function.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_predicates2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

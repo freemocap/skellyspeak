@@ -1,4 +1,4 @@
-//! Evidence of understanding in the actual reply, not inferred emotion.
+//! Display projection of assessed understandability, not inferred emotion.
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

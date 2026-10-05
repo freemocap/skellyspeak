@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: time_events
+subskills:
+  - id: present_events
+    name: Present situations
+    purpose: Situate a state, activity or habit in the current reference period.
+    positive_evidence: Establishes current or habitual relevance through the contribution and context.
+    counterexample: An identifying sentence with no meaningful temporal contrast or anchoring.
+    context: contribution
+    boundary: No particular tense is required; a property assertion alone does not merit an additional
+      temporal label.
+    neighbors:
+      - qualities_states
+      - duration_frequency
+  - id: past_events
+    name: Past events
+    purpose: Locate an event before now or another established reference time.
+    positive_evidence: Communicates an earlier event, including a short answer under a clearly past-time question.
+    counterexample: A verb form conventionally called past used only for politeness or hypothetical distance.
+    context: contribution
+    boundary: Judge temporal reference rather than morphology; completed aspect alone need not mean past
+      time.
+    neighbors:
+      - event_phase
+      - future_events
+  - id: future_events
+    name: Future events
+    purpose: Locate an event after now or another established reference time.
+    positive_evidence: Places an expected, scheduled or intended event later than the reference time.
+    counterexample: A desire or possibility with no future placement.
+    context: contribution
+    boundary: Intention and prediction can imply future placement in context but do not guarantee it.
+    neighbors:
+      - wants_intentions
+      - possibility
+      - past_events
+  - id: duration_frequency
+    name: Duration and frequency
+    purpose: Express how long or how often situations occur.
+    positive_evidence: Specifies persistence, repetition, intervals or recurrence.
+    counterexample: A quantity that does not measure time or occurrence frequency.
+    context: contribution
+    boundary: A repeated event may be past, present or future; award temporal location only when supported.
+    neighbors:
+      - quantity_comparison
+      - present_events
+  - id: event_sequence
+    name: Sequence
+    purpose: Order events relative to one another.
+    positive_evidence: Establishes before, after, overlap or a recoverable narrative sequence.
+    counterexample: Two events listed without an interpretable ordering.
+    context: contribution
+    boundary: Temporal sequence is not by itself causation or a condition.
+    neighbors:
+      - causes_reasons
+      - conditions
+      - location_movement
+  - id: event_phase
+    name: Ongoing and completed events
+    purpose: Distinguish unfolding, bounded, completed or changing phases of an event.
+    positive_evidence: Communicates whether an event is in progress, finished or entering a phase.
+    counterexample: A past event without evidence about whether it ended.
+    context: contribution
+    boundary: Languages may express phase through aspect, vocabulary or context; neither a tense nor a
+      suffix is universally required.
+    neighbors:
+      - past_events
+      - present_events
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

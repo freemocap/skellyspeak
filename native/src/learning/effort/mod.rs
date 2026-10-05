@@ -19,7 +19,6 @@ pub enum EffortDimension {
     PartnerUnderstood,
     RevisionsSent,
     PracticeAttempts,
-    NoIssuesFlagged,
     Explorations,
     Bot,
 }
@@ -29,7 +28,6 @@ impl EffortDimension {
             Self::PartnerUnderstood => "partner_understood",
             Self::RevisionsSent => "revisions_sent",
             Self::PracticeAttempts => "practice_attempts",
-            Self::NoIssuesFlagged => "no_issues_flagged",
             Self::Explorations => "explorations",
             Self::Bot => "bot",
         }
@@ -55,7 +53,6 @@ pub struct EffortProgress {
     pub partner_understood: u32,
     pub revisions_sent: u32,
     pub practice_attempts: u32,
-    pub no_issues_flagged: u32,
     pub explorations: u32,
     pub bot: u32,
     pub recent: Vec<EffortAward>,
@@ -75,6 +72,8 @@ fn award(
         "bot-engagement-1"
     } else if matches!(dimension, EffortDimension::Explorations) {
         "exploration-generation-1"
+    } else if matches!(dimension, EffortDimension::PartnerUnderstood) {
+        "jev-understandability-1"
     } else {
         qualification::POLICY
     };
@@ -106,14 +105,13 @@ fn read_scoped(
         partner_understood: 0,
         revisions_sent: 0,
         practice_attempts: 0,
-        no_issues_flagged: 0,
         explorations: 0,
         bot: 0,
         recent: vec![],
     };
     let counts = db
         .prepare(
-            "SELECT dimension,count(*) FROM effort_awards WHERE language_id=?1 AND (?2 IS NULL OR conversation_id=?2) GROUP BY dimension",
+            "SELECT dimension,count(*) FROM effort_awards WHERE dimension!='no_issues_flagged' AND language_id=?1 AND (?2 IS NULL OR conversation_id=?2) GROUP BY dimension",
         )?
         .query_map(params![target, conversation], |r| {
             Ok((r.get::<_, String>(0)?, r.get::<_, u32>(1)?))
@@ -124,7 +122,6 @@ fn read_scoped(
             "partner_understood" => progress.partner_understood = count,
             "revisions_sent" => progress.revisions_sent = count,
             "practice_attempts" => progress.practice_attempts = count,
-            "no_issues_flagged" => progress.no_issues_flagged = count,
             "explorations" => progress.explorations = count,
             "bot" => progress.bot = count,
             _ => {
@@ -135,7 +132,7 @@ fn read_scoped(
             }
         }
     }
-    let rows = db.prepare("SELECT id,dimension,source_id,language_id,variety_id,conversation_id,policy,created_at,claimed FROM effort_awards WHERE language_id=?1 AND (?2 IS NULL OR conversation_id=?2) ORDER BY rowid DESC LIMIT 100")?.query_map(params![target, conversation], |r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,Option<String>>(5)?,r.get::<_,String>(6)?,r.get::<_,String>(7)?,r.get::<_,bool>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    let rows = db.prepare("SELECT id,dimension,source_id,language_id,variety_id,conversation_id,policy,created_at,claimed FROM effort_awards WHERE dimension!='no_issues_flagged' AND language_id=?1 AND (?2 IS NULL OR conversation_id=?2) ORDER BY rowid DESC LIMIT 100")?.query_map(params![target, conversation], |r| Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?,r.get::<_,Option<String>>(5)?,r.get::<_,String>(6)?,r.get::<_,String>(7)?,r.get::<_,bool>(8)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
     for (
         id,
         dimension,
@@ -194,7 +191,7 @@ fn claim(db: &mut Connection, target: &str, ids: &[String]) -> Result<Vec<String
     let mut claimed = Vec::new();
     for id in ids {
         if tx.execute(
-            "UPDATE effort_awards SET claimed=1 WHERE id=?1 AND language_id=?2 AND claimed=0",
+            "UPDATE effort_awards SET claimed=1 WHERE id=?1 AND language_id=?2 AND dimension!='no_issues_flagged' AND claimed=0",
             params![id, target],
         )? == 1
         {

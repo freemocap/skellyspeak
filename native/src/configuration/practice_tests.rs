@@ -6,7 +6,7 @@ fn edited(edit: impl FnOnce(&mut Value)) -> types::Result<Registry> {
         .iter()
         .map(|(name, text)| (name.to_string(), text.to_string()))
         .collect();
-    let path = "languages/spanish.yaml";
+    let path = "languages/spanish/spanish-language.yaml";
     let mut document: Value = serde_yaml_ng::from_str(&files[path]).unwrap();
     edit(&mut document);
     files.insert(path.into(), serde_yaml_ng::to_string(&document).unwrap());

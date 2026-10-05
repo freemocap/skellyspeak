@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 几点 asks for a clock time and stays before the event predicate here. No
+      English-style auxiliary inversion is needed.
+    examples:
+      - text: 商店几点关门？
+        meaning: What time does the shop close?
+        note: 几点 supplies the unknown closing hour. 关门 describes closing for business.
+  - subskill_id: answering_information
+    explanation: A short time phrase can supply the answer without repeating the event. The prior
+      question identifies what is being timed.
+    examples:
+      - text: 五点。
+        meaning: At five o’clock.
+        note: Reply to the question about the shop’s closing hour. 点 makes this clock time rather than
+          five objects.
+  - subskill_id: checking_facts
+    explanation: A proposition followed by 对吗 asks whether the supplied information is correct. It
+      checks an available candidate answer.
+    examples:
+      - text: 商店五点关门，对吗？
+        meaning: The shop closes at five, right?
+        note: The speaker checks five o’clock, rather than asking an entirely open time question.
+  - subskill_id: useful_detail
+    explanation: A description before 的 can identify a particular item. A demonstrative and
+      classifier can further specify it.
+    examples:
+      - text: 请用靠窗的那张桌子。
+        meaning: Please use the table by the window.
+        note: When the listener asks which table to use, 靠窗的 supplies the distinguishing location and 那张
+          refers to the table.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

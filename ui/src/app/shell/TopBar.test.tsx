@@ -10,8 +10,8 @@ import type { Settings } from '../../types'
 
 vi.mock('../../state/learning/useSkillEvidence', () => ({ useSkillEvidence: () => ({ snapshot: null }) }))
 vi.mock('../../platform/ipc/skill-evidence', () => ({ getLanguageTotals: vi.fn(async () => [
-  { target: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: 12, conversations: 2, partnerUnderstood: 1, noIssuesFlagged: 1, explorations: 0, bot: 0, revisionsSent: 0, practiceAttempts: 3 },
-  { target: 'french', name: 'French', nativeName: 'Français', languageTag: 'fr', xp: 30, conversations: 1, partnerUnderstood: 0, noIssuesFlagged: 0, explorations: 0, bot: 0, revisionsSent: 0, practiceAttempts: 0 },
+  { target: 'spanish', name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: 12, conversations: 2, partnerUnderstood: 1, explorations: 0, bot: 0, revisionsSent: 0, practiceAttempts: 3 },
+  { target: 'french', name: 'French', nativeName: 'Français', languageTag: 'fr', xp: 30, conversations: 1, partnerUnderstood: 0, explorations: 0, bot: 0, revisionsSent: 0, practiceAttempts: 0 },
 ]) }))
 vi.mock('../../platform/ipc/tauri', () => ({ isTauri: true, languages: () => [
   {code:'spanish',base:'spanish',name:'Spanish',endonym:'Español',defaultVariety:'spanish-mexico',varieties:[{id:'spanish-mexico',label:'Mexico'}]}, {code:'french',base:'french',name:'French',endonym:'Français',defaultVariety:'french-france',varieties:[{id:'french-france',label:'France'}]}

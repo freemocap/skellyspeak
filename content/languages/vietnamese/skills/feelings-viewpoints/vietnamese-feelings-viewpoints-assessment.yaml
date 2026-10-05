@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: feelings_viewpoints
+guidance: Assess desire, preference, emotion, opinion and agreement. Muốn học may express
+  wanting to learn; it does not promise an action. Thích trà hơn cà phê compares preferences.
+  Vui khi nghe tin này expresses an emotional response, while Tôi nghĩ introduces a personal
+  judgment. Không đồng ý rejects a proposition or proposal. Hiểu rồi acknowledges comprehension
+  and does not necessarily indicate agreement. Trà can answer a preference question
+  contextually; the same noun in a stock list is not liking. A copied muốn without a recoverable
+  wanted action is absent. Do not treat every factual assertion as opinion or every future plan
+  as desire. Vietnamese does not require adjectival gender agreement or là before ordinary
+  emotional predicates. Judge the stance-bearing construction in context and preserve socially
+  appropriate alternatives to tôi and bạn.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_identity2026
+    - msu_vietnamese_suggestions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

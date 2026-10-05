@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: 请 can introduce a request. 把 brings the affected object before a verb phrase that
+      specifies what happens to it.
+    examples:
+      - text: 请把这个箱子搬到门口。
+        meaning: Please move this box to the doorway.
+        note: 搬到门口 supplies the destination of the requested move. 把 is not left with a bare unsupported
+          verb.
+  - subskill_id: offers_invitations
+    explanation: 要不要 with the speaker as actor can offer help. The question asks whether the
+      listener wants that assistance.
+    examples:
+      - text: 要不要我帮你拿工具？
+        meaning: Would you like me to help carry the tools?
+        note: 我 is the proposed helper, and 你 is the person offered help. The offer is not yet an
+          accepted obligation.
+  - subskill_id: suggestions
+    explanation: 吧 can soften a proposed action. 我们 can explicitly include the speaker in the shared plan.
+    examples:
+      - text: 我们在这里休息一下吧。
+        meaning: Let us rest here for a little while.
+        note: 一下 presents a short break, and 吧 makes this a suggestion rather than a report.
+  - subskill_id: commitments
+    explanation: 我来 can volunteer the speaker for a task. The planning context makes it an undertaking.
+    examples:
+      - text: 明天我来带工具。
+        meaning: I will bring the tools tomorrow.
+        note: Use while dividing responsibilities for a group activity. 我来 identifies who will take this
+          task.
+  - subskill_id: accepting_declining
+    explanation: An apology and a statement of inability can decline an invitation. 来不了 expresses
+      not being able to come.
+    examples:
+      - text: 不好意思，我今晚来不了。
+        meaning: Sorry, I cannot come tonight.
+        note: Reply to an invitation for tonight. The refusal concerns attendance, not a general dislike
+          of the partner.
+  - subskill_id: negotiating_plans
+    explanation: 不行 can rule out a proposed option, and 怎么样 can ask about an alternative. The
+      earlier proposal supplies the action under negotiation.
+    examples:
+      - text: 周五不行，周六怎么样？
+        meaning: Friday will not work. How about Saturday?
+        note: Reply to a proposed Friday meeting. The utterance revises its timing instead of merely
+          naming dates.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

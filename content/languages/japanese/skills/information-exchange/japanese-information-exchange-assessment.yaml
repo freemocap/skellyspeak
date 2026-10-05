@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: information_exchange
+guidance: Look for information questions, relevant answers, confirmation and useful specificity.
+  図書館は何時に閉まりますか asks a closing time; the question phrase remains in the clause and does not need
+  English inversion. 五時です answers that question contextually without naming the library again.
+  五時に閉まるんですね can check an inferred or heard closing time; ね also has other interpersonal uses.
+  もう一度言ってください after unclear speech requests repair rather than an unknown external fact. An
+  isolated copied 何時 without an identifiable question is absent. The choice of which entrance,
+  such as 公園に近いほう, can add needed precision when giving directions. A question ending in ませんか
+  may invite participation rather than request factual information. Do not require a question
+  mark or overt か in every natural conversational question, and do not penalize ordinary topic,
+  subject or object omission when the exchange clearly supplies the referent.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

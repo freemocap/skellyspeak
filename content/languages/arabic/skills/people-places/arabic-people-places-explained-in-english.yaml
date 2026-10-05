@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: A demonstrative and noun phrase can identify a person without an overt
+      present-tense copula. The demonstrative differs by variety.
+    examples:
+      - text: هٰذِهِ جَارَتِي.
+        meaning: This is my neighbor.
+        note: Modern Standard Arabic. The referent is a woman; the final possessive suffix means my.
+      - text: هَايْ جَارْتِي.
+        meaning: This is my neighbor.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          referent is a woman; the final possessive suffix means my.
+  - subskill_id: qualities_states
+    explanation: A nominal sentence can predicate a property. Modern Standard marks the adjective
+      with case; Levantine does not use these case endings.
+    examples:
+      - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
+        meaning: This road is narrow.
+        note: Modern Standard Arabic. The adjective describes the road.
+      - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+        meaning: This road is narrow.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          adjective describes the road.
+  - subskill_id: location_movement
+    explanation: A prepositional predicate can locate an object without an overt present-tense be verb.
+    examples:
+      - text: الْمِفْتَاحُ فِي الْبَيْتِ.
+        meaning: The key is in the house.
+        note: Modern Standard Arabic. The location belongs to the key; it is not a motion instruction.
+      - text: الْمِفْتَاحْ بِالْبَيْتْ.
+        meaning: The key is in the house.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          location belongs to the key; it is not a motion instruction.
+  - subskill_id: possession_relations
+    explanation: عِنْدِي expresses possession. Dual endings differ between the formal case system
+      and colloquial usage.
+    examples:
+      - text: عِنْدِي كُرْسِيَّانِ.
+        meaning: I have two chairs.
+        note: Modern Standard Arabic. The dual noun supplies the count of two.
+      - text: عِنْدِي كُرْسِيَّيْنْ.
+        meaning: I have two chairs.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The dual
+          noun supplies the count of two.
+  - subskill_id: quantity_comparison
+    explanation: A comparative adjective and مِنْ identify a comparison and its standard.
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
+        meaning: This box is lighter than that one.
+        note: Modern Standard Arabic. The comparison concerns weight, not size.
+      - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+        meaning: This box is lighter than that one.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          comparison concerns weight, not size.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: The Levantine examples use Southern forms such as هَادْ and هَايْ. Other regional
+      demonstratives are also used; colloquial nouns do not take formal case endings.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Modern Standard marks case on nouns and adjectives. Its demonstratives and dual endings
+      differ from the conversational examples.
+    provenance: *a1

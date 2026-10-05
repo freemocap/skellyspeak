@@ -52,7 +52,6 @@ describe('native private coaching', () => {
     fireEvent.change(screen.getByLabelText('Message your coach'), { target: { value: 'My question' } })
     fireEvent.click(screen.getByLabelText('Send to coach'))
     expect(await screen.findByRole('alert')).toHaveTextContent('Coach')
-    fireEvent.click(screen.getByText('⚠ Coach'))
     expect(screen.getByText(/Admission held/)).toBeVisible()
     expect(screen.getByLabelText('Message your coach')).toHaveValue('My question')
     expect(backend.execute).toHaveBeenCalledTimes(1)

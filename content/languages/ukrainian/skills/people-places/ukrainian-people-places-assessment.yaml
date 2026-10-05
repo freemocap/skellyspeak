@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: people_places
+guidance: Assess identification, properties, location or movement, possession or relationships,
+  and quantity or comparison. Це моя сусідка identifies a person without requiring an
+  English-style present copula. Ця вулиця вузька predicates a property with relevant agreement.
+  На полиці locates an object; до майстерні expresses a destination with the genitive. У мене є
+  два стільці states possession. Два стільці counts items, while автобус номер два identifies a
+  route without demonstrating a quantity relation. Легша за ту compares weight. A contextual На
+  полиці can answer a where-question; a copied на without a recoverable relation is absent. Do
+  not penalize natural word-order variation, omitted recoverable referents or ordinary у/в
+  alternation. Check Ukrainian forms on their own terms rather than imposing Russian vocabulary
+  or declension. Credit demonstrated relations even when an unrelated word elsewhere is
+  imperfect.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ukma_ukrainian_terms2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

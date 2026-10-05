@@ -45,15 +45,15 @@ content; changing views does not discard an unsaved source draft.
    refuses a stale revision instead of overwriting an external edit. On conflict,
    copy your draft before reloading and reconcile the changes.
 
-The collection includes `content/`, `references.bib` and
-`docs/notes/language-guides-and-xp/`, including future draft subfolders. Generated
-schemas and the bibliography are read-only. Hidden files, symlinks, paths outside
+The collection includes `content/` and `references.bib`. Generated schemas in
+`content/rust-schemas/` and the bibliography are read-only. Hidden files, symlinks, paths outside
 that collection and files above 1 MiB are excluded or rejected. Invalid YAML/JSON
 syntax, duplicate YAML keys and parser warnings block saving; app semantic and
 linguistic validation are separate. Unknown proposed draft fields are allowed.
 
 Reference indexing covers IDs, citation keys, declared scalar/list reference
-fields, language goal-material keys, scoped local/shared orthography and
+fields, skill/subskill identities, target-owned varieties, shared explanation files,
+scoped local/shared orthography and
 romanization references, Markdown document links and schema comments. Exact ID
 mentions are separately labeled; they are not authoritative runtime edges.
 Unresolved means unresolved within this index, not necessarily invalid app
@@ -79,7 +79,7 @@ The HTTP suite requires permission to bind a local socket.
 
 ## Schema shape previews
 
-For a document in `content/schemas/`, select **Schema shape** to inspect an
+For a document in `content/rust-schemas/`, select **Schema shape** to inspect an
 illustrative YAML instance and its field paths, types and required/optional
 status. Local references expand; alternatives, recursive references and depth
 limits are disclosed. Placeholders are explanatory, not valid completed content

@@ -33,13 +33,6 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 3,
     },
     Declaration {
-        kind: "coach_reaction",
-        activation: Activation::Automatic,
-        dependencies: &["persona_reply"],
-        role: "classifier",
-        contract_version: 1,
-    },
-    Declaration {
         kind: "reply_assistance",
         activation: Activation::Explicit,
         dependencies: &["persona_reply"],
@@ -61,17 +54,10 @@ pub const PLAN: &[Declaration] = &[
         contract_version: 1,
     },
     Declaration {
-        kind: "conversation_feedback",
-        activation: Activation::Automatic,
-        dependencies: &["persona_context"],
-        role: "classifier",
-        contract_version: 1,
-    },
-    Declaration {
         kind: "reply_brief",
         activation: Activation::Automatic,
         dependencies: &["persona_reply"],
-        role: crate::learning::coaching::conversation_support::ROLE,
+        role: "fast",
         contract_version: 1,
     },
     Declaration {
@@ -85,7 +71,7 @@ pub const PLAN: &[Declaration] = &[
         kind: "persona_reply",
         activation: Activation::Automatic,
         dependencies: &["persona_context"],
-        role: "standard",
+        role: "fast",
         contract_version: 3,
     },
     Declaration {
@@ -168,14 +154,14 @@ pub const OPENING_PLAN: &[Declaration] = &[
         kind: "persona_opening",
         activation: Activation::Automatic,
         dependencies: &["persona_context"],
-        role: "standard",
+        role: "fast",
         contract_version: 1,
     },
     Declaration {
         kind: "reply_brief",
         activation: Activation::Automatic,
         dependencies: &["persona_opening"],
-        role: crate::learning::coaching::conversation_support::ROLE,
+        role: "fast",
         contract_version: 1,
     },
     Declaration {
@@ -202,10 +188,27 @@ pub const OPENING_PLAN: &[Declaration] = &[
 ];
 
 // Explicit operations and retained observations; never automatically created.
-pub const RETAINED: &[Declaration] = &[Declaration {
-    kind: "coach_suggestions",
-    activation: Activation::Explicit,
-    dependencies: &[],
-    role: "standard",
-    contract_version: 3,
-}];
+pub const RETAINED: &[Declaration] = &[
+    // Metadata for immutable workspace records; no executor schedules these kinds.
+    Declaration {
+        kind: "conversation_feedback",
+        activation: Activation::Explicit,
+        dependencies: &[],
+        role: "record",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "coach_reaction",
+        activation: Activation::Explicit,
+        dependencies: &[],
+        role: "record",
+        contract_version: 1,
+    },
+    Declaration {
+        kind: "coach_suggestions",
+        activation: Activation::Explicit,
+        dependencies: &[],
+        role: "standard",
+        contract_version: 3,
+    },
+];

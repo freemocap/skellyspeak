@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Тому що introduces the reason for the preceding situation.
+    examples:
+      - text: Я залишилася вдома, тому що пішов дощ.
+        meaning: I stayed home because it started raining.
+        note: The feminine speaker identifies rain as the reason.
+  - subskill_id: consequences
+    explanation: Тому can introduce what followed as a result.
+    examples:
+      - text: Автобус не приїхав, тому я пішла пішки.
+        meaning: The bus did not come, so I walked.
+        note: The feminine speaker presents walking as a consequence.
+  - subskill_id: conditions
+    explanation: Якщо introduces a real condition whose outcome can be expressed in the future.
+    examples:
+      - text: Якщо завтра піде дощ, ми залишимося вдома.
+        meaning: If it rains tomorrow, we will stay home.
+        note: Both clauses use future forms; staying home depends on the condition.
+  - subskill_id: contrast
+    explanation: Але connects descriptions that pull in different directions in the discussion.
+    examples:
+      - text: Дорога коротка, але крута.
+        meaning: The road is short but steep.
+        note: The contrast matters when weighing routes.
+  - subskill_id: supporting_claims
+    explanation: An observable fact can support a tentative conclusion.
+    examples:
+      - text: Думаю, хтось є вдома, тому що у вікні горить світло.
+        meaning: I think someone is home because there is a light on in the window.
+        note: The light is evidence for the inference, not its physical cause.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_conditions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: greek
+  name: Greek
+  native_name: Ελληνικά
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: el
+  transcription: el
+definitions:
+  orthographies:
+    modern-greek:
+      script: greek
+      guidance:
+        - scope: target_writing
+          text: Write contemporary Modern Greek in Greek script with monotonic accents and diaeresis where
+            required. Preserve the distinction between medial σ and final ς. Keep question
+            punctuation and source quotations exactly as written; do not convert quotations, names
+            or learner evidence to monotonic spelling or Latin letters.
+          sources:
+            - unicode17_europe
+        - scope: explanation_writing
+          text: Write contemporary Modern Greek in Greek script with monotonic accents and diaeresis where
+            required. Preserve the distinction between medial σ and final ς. Keep question
+            punctuation and source quotations exactly as written; do not convert quotations, names
+            or learner evidence to monotonic spelling or Latin letters.
+          sources:
+            - unicode17_europe
+  romanization_schemes:
+    ala-lc-greek:
+      label: ALA-LC Greek
+      instructions: "Use the Modern Greek ALA-LC table (2010), not Ancient Greek sound values: β v, η ē, ω
+        ō, θ th, φ ph, χ ch, ψ ps, σ/ς s. Use γγ ng, γξ nx, γχ nch; γκ is gk initially/finally and
+        nk medially. Initial μπ is b and initial ντ is d̲; elsewhere use mp and nt. Render υ as y
+        except u in αυ, ευ, ηυ, ου, υι and ωυ. Apply the table’s historical rough-breathing h rule,
+        including where appropriate in monotonic words; rho takes rh only with an explicit rough
+        breathing. Omit other accents and diaeresis only in the separate romanized aid. This
+        bibliographic transliteration does not encode stress or reliably represent modern
+        pronunciation. Never modify the Greek source."
+      examples:
+        - original: καλημέρα
+          romanized: kalēmera
+        - original: ευχαριστώ
+          romanized: eucharistō
+        - original: θάλασσα
+          romanized: thalassa
+        - original: Ελλάδα
+          romanized: Hellada
+      sources:
+        - ala_lc_greek
+      review: needs_review
+defaults:
+  variety: greek-greece
+  orthography:
+    local: modern-greek
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme:
+      local: ala-lc-greek
+  supported_romanizations:
+    - local: ala-lc-greek
+traits: []
+varieties:
+  - id: greek-greece
+    name: Greece
+    description: Contemporary standard Modern Greek in Greece, using monotonic spelling and everyday
+      conversation; Ancient Greek and regional varieties are outside this profile.
+    review: needs_review
+    sources:
+      - unicode17_europe
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: Γεια σας
+    romanizations:
+      greek:ala-lc-greek: Geia sas
+  default_partner:
+    name: Άννα
+    romanizedName: Anna
+    age: 34
+    location: Thessaloniki, Greece
+    occupation: Repairs bicycles
+    background: Learned bicycle repair at a neighborhood workshop.
+    currentSituation: Preparing a repaired bicycle for a customer and planning a weekend ride.
+    interests:
+      - bicycle repair
+      - cooking
+    opinions:
+      - Repairing a useful object is worth taking time over.
+    interestingFacts:
+      - Keeps a notebook of routes with quiet streets.
+    favoriteBooks: []
+    favoriteMovies: []
+    manner: Practical and curious. Uses respectful everyday Greek with new acquaintances.
+    quirks:
+      - Checks the weather before choosing a route.
+    vibe:
+      - 🚲
+      - 🔧
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Ναι.
+      - Όχι.
+      - Νερό, παρακαλώ.
+      - Είμαι εδώ.
+      - Κάνει ζέστη.
+      - Πεινάω.
+      - Τι είναι αυτό;
+      - Δεν ξέρω.
+    beginner:
+      - Είναι γιατρός.
+      - Αυτό το δωμάτιο είναι μικρό.
+      - Έχω ένα ποδήλατο.
+      - Αυτή είναι η αδελφή μου.
+      - Χρειαζόμαστε δύο καρέκλες.
+      - Έχω λίγο χρόνο.
+      - Δουλεύω εδώ.
+      - Τώρα διαβάζει.
+    intermediate:
+      - Χθες πήγα στην αγορά.
+      - Έχω διαβάσει αυτό το βιβλίο.
+      - Θα έρθω αύριο.
+      - Θα δουλεύω όλο το πρωί.
+      - Μου αρέσει ο καφές.
+      - Θέλω να πάω σπίτι.
+      - Μπορείτε να το πείτε ξανά;
+      - Δεν χρειάζεται να έρθεις.
+    advanced:
+      - Αν είχα περισσότερο χρόνο, θα μάθαινα να παίζω κιθάρα.
+      - Παρόλο που έβρεχε, αποφασίσαμε να συνεχίσουμε τη βόλτα μας.
+      - Θα προτιμούσα να το συζητήσουμε πριν πάρουμε μια απόφαση.
+      - Όσο περισσότερο διαβάζω την έκθεση, τόσο περισσότερες απορίες έχω.
+      - Μέχρι να φτάσουμε στον σταθμό, το τρένο είχε ήδη φύγει.
+      - Δεν είναι ότι διαφωνώ μαζί σου, αλλά χρειάζομαι περισσότερες πληροφορίες.
+      - Αυτό που με ανησυχεί είναι πώς θα επηρεάσει η αλλαγή τους άλλους.
+      - Αν μας είχες ειδοποιήσει νωρίτερα, θα είχαμε αλλάξει τα σχέδιά μας.
+    social:
+      - Γεια σας!
+      - Καλημέρα!
+      - Καλησπέρα!
+      - Τι κάνετε;
+      - Καλά, ευχαριστώ.
+      - Πώς σας λένε;
+      - Χάρηκα πολύ.
+      - Συγγνώμη.
+      - Ευχαριστώ πολύ.
+      - Παρακαλώ.
+      - Τα λέμε!
+      - Καλό βράδυ!
+    idiomatic:
+      - Τα έκανα θάλασσα.
+      - Κάνω την πάπια.
+      - Βάζω νερό στο κρασί μου.
+      - Μου βγήκε ξινό.
+      - Τα κάνω άνω κάτω.
+      - Έγινε άλλος άνθρωπος.
+      - Βγήκα από τα ρούχα μου.
+      - Όποιος βιάζεται σκοντάφτει.
+  varieties: {}

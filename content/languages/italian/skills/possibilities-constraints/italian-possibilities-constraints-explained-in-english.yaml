@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Sapere + infinitive can express knowing how to do something. Potere can instead
+      concern whether circumstances allow the action; neither verb has only one conversational
+      role.
+    examples:
+      - text: So riparare una ruota.
+        meaning: I know how to repair a wheel.
+        note: So is the first-person present of sapere. Riparare remains an infinitive and names the
+          skill.
+  - subskill_id: permission
+    explanation: Posso + infinitive in a question can seek permission. Asking about one’s own
+      allowed action differs from requesting that the partner perform it.
+    examples:
+      - text: Posso lasciare la borsa qui?
+        meaning: May I leave the bag here?
+        note: Asked of the person responsible for the space, this asks for permission to leave the bag.
+  - subskill_id: obligation
+    explanation: Dovere + infinitive can express a requirement. The context must establish necessity
+      rather than merely suggesting what the speaker would like.
+    examples:
+      - text: Dobbiamo mostrare i biglietti all’ingresso.
+        meaning: We must show the tickets at the entrance.
+        note: Dobbiamo is plural and mostrare is an infinitive. The sentence states an entry
+          requirement.
+  - subskill_id: possibility
+    explanation: Forse can present a proposition as possible without adding a modal verb. The rest
+      of the clause states the event or situation under consideration.
+    examples:
+      - text: Forse il negozio è ancora aperto.
+        meaning: Perhaps the shop is still open.
+        note: Forse leaves the claim open; ancora says that the shop may remain open.
+  - subskill_id: certainty
+    explanation: Non so se introduces a limit on what the speaker knows. Se here means whether and
+      introduces an indirect question, rather than an if-condition with a consequence.
+    examples:
+      - text: Non so se il negozio è aperto.
+        meaning: I do not know whether the shop is open.
+        note: The speaker is uncertain about the shop’s state. This does not assert that it is closed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_conditional2026
+    - treccani_it_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

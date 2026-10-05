@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: people_places
+guidance: Assess identification, qualities, location or movement, possession or relationships,
+  and quantity or comparison. Đây là hàng xóm của tôi identifies a person; Con đường này hẹp
+  predicates a property without obligatory là. Ở trên bàn locates something; đến cửa gives a
+  destination. Của can link a possessor to an item, while có states having something. Hai cái
+  ghế counts chairs; xe buýt số hai identifies a route rather than asserting a quantity. Nhẹ hơn
+  compares weight. Trên bàn can answer a where-question contextually. A copied classifier or
+  noun list without a recoverable relation is absent. Judge actual classifier and word-order
+  choices in context rather than requiring a classifier with every noun. Do not invent gender
+  agreement, plural endings or an English copula requirement. Preserve meaningful tone and vowel
+  distinctions and relationship-appropriate reference terms.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_identity2026
+    - niu_vietnamese_patterns2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

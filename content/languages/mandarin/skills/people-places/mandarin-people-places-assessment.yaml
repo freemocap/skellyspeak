@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: people_places
+guidance: Assess identification, properties, location or movement, possession or relationships,
+  and quantity or comparison. 这是我的邻居 identifies a person; 这条路很窄 predicates a property without
+  requiring 是 before an adjective. 很 in a neutral adjective predicate need not mean an emphatic
+  very. 在桌子上 locates an object; 到公园去 expresses a destination. 的 can mark possession, but
+  ordinary close relationships such as 我姐姐 can omit it. 两把椅子 counts chairs with a classifier;
+  二号车 may identify a vehicle without counting two. 比 compares properties, while 更喜欢 expresses a
+  preference. A copied 的 or a noun list without an identifiable relation is absent. 桌子上 can
+  answer a where-question contextually. Do not invent gender agreement or English plural
+  endings. Judge an actual malformed construction rather than rejecting a legitimate
+  topic-comment order, an omitted recoverable noun or a contrastive use of 是.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

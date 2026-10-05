@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: reasons_connections
+guidance: Assess meaningful reasons, consequences, conditions, contrasts and grounds for a
+  claim. ので or から can introduce an explanation, but から after a noun may mark an origin and てから a
+  temporal sequence. そのため can introduce a result. 雨が降ったら、中で作業します states a conditional plan; the
+  た within たら does not assert past rain. けど and が can contrast propositions, but also soften or
+  open an unfinished request, so do not reward contrast from the particle alone. 声が聞こえるので offers
+  evidence that someone is present if linked to that conclusion, not necessarily the cause of
+  their presence. A copied ので without a recoverable reason is absent. 雨なので can complete a
+  why-question contextually. Merely listing two events with そして is not necessarily causation. An
+  omitted conclusion may be interpretable in conversation, but do not invent one if the intended
+  relationship is unrecoverable.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

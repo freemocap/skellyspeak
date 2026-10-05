@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: time_events
+guidance: Look for temporal reference, duration or recurrence, sequence and event phase. 지금 라디오를
+  고치고 있어요 presents an ongoing repair; a suitable simple present can describe a routine. 어제 고쳤어요
+  locates a repair earlier. 내일 갈 거예요 anticipates a later event, while 겠 can express intention,
+  inference or conventional acknowledgment and is not automatically future timing. 매주 marks
+  recurrence and 두 시간 동안 duration. 먼저 and 그다음 order actions; 다 읽었어요 explicitly presents a
+  completed reading. An isolated copied 어제 without an event or contextual answer is absent. 어제
+  저녁에 can answer a question about when an identified action happened. A current quality such as
+  방이 넓어요 does not automatically demonstrate temporal skill. Do not demand an English progressive
+  or perfect counterpart in every translation, and distinguish an appropriate shorter
+  conversational predicate from a genuinely broken tense or aspect construction.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_tense2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

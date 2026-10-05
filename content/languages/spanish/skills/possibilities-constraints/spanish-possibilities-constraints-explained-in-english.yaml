@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: possibilities_constraints
+language: spanish
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Poder plus an infinitive can express ability. Saber plus an infinitive can express
+      knowing how to do something.
+    examples:
+      - text: Sé nadar.
+        meaning: I know how to swim.
+        note: Saber describes learned ability.
+  - subskill_id: permission
+    explanation: A question with poder can ask whether an action is allowed; the situation identifies
+      the permission reading.
+    examples:
+      - text: ¿Puedo entrar?
+        meaning: May I come in?
+        note: At a doorway, the speaker asks for permission.
+  - subskill_id: obligation
+    explanation: Tener que plus an infinitive states a personal requirement. Hay que can state a general
+      requirement.
+    examples:
+      - text: Tengo que salir.
+        meaning: I have to leave.
+        note: Que belongs between tengo and the infinitive.
+  - subskill_id: possibility
+    explanation: Puede que plus a subjunctive clause presents something as possible.
+    examples:
+      - text: Puede que llueva.
+        meaning: It may rain.
+        note: Llueva follows puede que in this possibility construction.
+  - subskill_id: certainty
+    explanation: Expressions such as no estoy seguro state how certain the speaker is. They need not
+      predict an event.
+    examples:
+      - text: No estoy seguro.
+        meaning: I am not sure.
+        note: A masculine speaker marks uncertainty about the current proposition.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

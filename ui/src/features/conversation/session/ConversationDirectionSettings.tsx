@@ -1,3 +1,4 @@
+import catalog from '../../../generated/skill-catalogs/catalog.json'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useState } from 'react'
 import type { ConversationDirection, Snapshot, TopicCard } from '../../../generated/contracts'
@@ -15,7 +16,7 @@ export function ConversationDirectionSettings({ conversationId, topics, directio
   const contact = workspace?.contacts.find(item => item.id === owner?.contactId)
   const persona = workspace?.personas.find(item => item.id === contact?.personaId)
   const language = workspace?.languages.find(item => item.id === owner?.languageId)
-  const topic = direction.topic?.kind === 'custom' ? direction.topic.text : direction.topic?.kind === 'builtin' ? topics.find(item => direction.topic?.kind === 'builtin' && item.id === direction.topic.id)?.target : direction.topic?.kind === 'coach' ? tr(SKILL_FOCUS_LABELS[direction.topic.mode]) : tr('Partner chooses')
+  const topic = direction.topic?.kind === 'skill' ? tr(catalog.find(skill => direction.topic?.kind === 'skill' && skill.id === direction.topic.skillId)?.label ?? direction.topic.skillId) : direction.topic?.kind === 'custom' ? direction.topic.text : direction.topic?.kind === 'builtin' ? topics.find(item => direction.topic?.kind === 'builtin' && item.id === direction.topic.id)?.target : direction.topic?.kind === 'coach' ? tr(SKILL_FOCUS_LABELS[direction.topic.mode]) : tr('Partner chooses')
   return <section className="conversation-settings-group">
     <p className="prompt-topic-summary">{topic} · {tr(TIME_FRAME_LABELS[direction.timeReference])}</p>
     <button type="button" className="btn" onClick={async () => { setError(null); try { setWorkspace(await readWorkspace()) } catch (reason) { setError(nativeError(reason)) } }}>{tr('Conversation Prompt Creator')}</button>

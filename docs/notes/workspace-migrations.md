@@ -4,7 +4,23 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **47**. The 46 → 47 step adds an initially empty
+Current format: **51**, with explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
+preference: coaching is required on new turns. Captured turn policy, operations,
+learner revision, evidence and awards remain unchanged. The removed preference
+is intentionally retired; the three optional-work preferences retain their values.
+
+ The 48 → 49 step adds the four execution preferences to
+learner preferences. It preserves learner revision, accepted operations, captured
+turn policy and saved results. Defaults match new workspaces; malformed existing
+values fail validation and roll back.
+
+The 47 → 48 step cancels unfinished assessment operations
+while retaining completed results, source messages, awards and attempt metadata.
+Interrupted running attempts retain unknown provider/billing outcomes. New turns
+use the combined ten-question assessment. See the
+[ownership and verification record](eight-group-learning/content-implementation.md#workspace-format-48-ownership-treatment).
+
+The 46 → 47 step adds an initially empty
 `skill_level_events` table. Existing XP, evidence, settings and award claim flags
 are unchanged. Explicit runtime initialization derives catch-up from eligible
 credits; ordinary reads and the migration do not award or rewrite XP. Receipts
@@ -128,3 +144,19 @@ After the final startup ordering review,
 51 storage tests, including all ten migration tests.
 No live learner workspace was opened or upgraded during these tests; no deployment
 was performed. All work remains uncommitted.
+
+## Format 51: skill-directed conversations
+
+The conversation direction's closed `topic` union admits a `skill` value with a
+main `skillId` and optional `subskillId`. Format 50 → 51 validates the source
+contract and expands the permitted values without rewriting any settings,
+messages, captured turns, assessment records, receipts or earned awards. No SQL
+objects, audio files or credentials change. The migration runner owns the recovery
+copy, version write and transaction. A format-50 application rejects a format-51
+workspace before attempting to interpret its skill targets.
+
+Guide attachments are optional metadata in new turn contexts; existing contexts
+need no backfill. Guide translation cache payloads keep their existing shape;
+source action references are derived at retrieval time. Migration tests cover
+all supported starting formats, recovery-copy reuse, populated-record preservation,
+rollback and repeated startup. No live learner workspace was migrated by the agent.

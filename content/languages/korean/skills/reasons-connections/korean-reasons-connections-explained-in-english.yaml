@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 아서 or 어서 can link a reason to an action or state. With 피곤하다, the connective form is 피곤해서.
+    examples:
+      - text: 피곤해서 일찍 잤어요.
+        meaning: I went to bed early because I was tired.
+        note: The tiredness explains going to bed early. The past ending is on the main predicate 잤어요.
+  - subskill_id: consequences
+    explanation: 그래서 can introduce a consequence of a preceding circumstance. State enough of the
+      result to establish the connection.
+    examples:
+      - text: 버스가 오지 않았어요. 그래서 걸어갔어요.
+        meaning: The bus did not come, so I walked there.
+        note: 그래서 links the decision to walk to the absent bus, rather than merely listing a later
+          event.
+  - subskill_id: conditions
+    explanation: 으면 or 면 attaches to a predicate stem to introduce a condition. The choice follows
+      the stem’s form.
+    examples:
+      - text: 비가 오면 안에서 작업할 거예요.
+        meaning: If it rains, I will work inside.
+        note: 오면 is formed from 오다. The rain is a condition, not an asserted past event.
+  - subskill_id: contrast
+    explanation: 지만 attaches to a predicate stem and links it to a contrasting proposition.
+    examples:
+      - text: 이 길은 짧지만 가팔라요.
+        meaning: This route is short but steep.
+        note: The steepness offsets the advantage of a shorter route. 가팔라요 is an inflected form of 가파르다.
+  - subskill_id: supporting_claims
+    explanation: A reason clause can supply evidence for an inference. 것 같아요 can make the conclusion
+      explicitly tentative.
+    examples:
+      - text: 안에서 소리가 들려서 사람이 있는 것 같아요.
+        meaning: I think someone is inside because I can hear a sound from within.
+        note: The sound is evidence for someone’s presence, not claimed to be its cause. The conclusion
+          is qualified.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_cause2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

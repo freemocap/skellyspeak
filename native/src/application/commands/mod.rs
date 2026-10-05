@@ -9,6 +9,7 @@ pub(super) mod partners;
 pub(super) mod workspace;
 
 pub(super) mod reading;
+pub(crate) mod skill_guides;
 
 pub(super) mod proposal_execution;
 

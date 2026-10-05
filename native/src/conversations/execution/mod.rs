@@ -17,6 +17,8 @@ mod feedback_context;
 mod graph;
 pub use feedback_context::reassess_feedback;
 mod holds;
+mod optional_help;
+pub use optional_help::{MessageHelp, request_message_help};
 mod publication;
 mod reading;
 mod recovery;

@@ -1,13 +1,13 @@
-//! Required skill assessment uses Jev presence; grammar ratings have a separate owner.
+//! Combined, source-bound Jev assessment and deterministic skill-credit projection.
 use crate::ai::transport::provider::{Completion, PromptMessage};
-use crate::learning::practice_assessment::{self, Instructions, SkillPrompt};
+use crate::learning::practice_assessment::{Instructions, SkillPrompt};
 use crate::model::{AppError, AssessmentAdapter, ErrorCode, Result};
 use rusqlite::Connection;
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
 pub const MODEL: &str = "typesafe/jev-1.13";
-pub const VERSION: &str = "jev-skill-presence-1";
+pub const VERSION: &str = "jev-turn-assessment-1";
 pub fn version(_: AssessmentAdapter) -> &'static str {
     VERSION
 }
@@ -45,7 +45,8 @@ pub fn request(messages: &[PromptMessage], captured: &Value) -> Result<Value> {
         .ok_or_else(|| fail("Invalid assessment state."))?
         .remove("criteria");
     let shared: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
-    practice_assessment::request(state, &skills(captured)?, &shared)
+    let message = serde_json::from_value(captured["messageAssessmentQuestions"].clone())?;
+    crate::learning::turn_assessment::request(state, &skills(captured)?, &shared, &message)
 }
 pub fn validate(
     db: &Connection,
@@ -71,7 +72,8 @@ pub fn validate(
             fail("Invalid skill presence JSON."),
         )
     })?;
-    let answers = practice_assessment::validate(&raw, &ids)?;
+    let assessment = crate::learning::turn_assessment::validate(&raw, &ids)?;
+    let answers = &assessment.skills;
     let config: Instructions = serde_json::from_value(captured["presenceInstructions"].clone())?;
     config.attribution.validate()?;
     let presence = answers
@@ -95,6 +97,6 @@ pub fn validate(
         })
         .collect::<std::collections::BTreeMap<_, _>>();
     Ok(
-        json!({"presence":presence,"answers":answers,"model":output.actual_model,"adapter":"jev_choice","promptVersion":VERSION,"policy":{"version":crate::learning::practice::POLICY,"minimumPositiveProbability":config.attribution.minimum_positive_probability}}),
+        json!({"presence":presence,"answers":answers,"grammar":assessment.grammar,"understandability":assessment.understandability,"model":output.actual_model,"adapter":"jev_choice","promptVersion":VERSION,"policy":{"version":crate::learning::practice::POLICY,"minimumPositiveProbability":config.attribution.minimum_positive_probability}}),
     )
 }

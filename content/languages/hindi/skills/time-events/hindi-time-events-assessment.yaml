@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: time_events
+guidance: Distinguish habitual करता है, progressive कर रहा है and appropriate perfective forms
+  in their contexts. मैंने कल खिचड़ी बनाई reports a completed past action; बनाई agrees with the
+  unmarked feminine object, not the speaker. Do not impose ने on intransitives or every lexical
+  verb indiscriminately. कल can mean yesterday or tomorrow; verbal form and exchange
+  disambiguate it. मैं कल आऊँगी expresses a later arrival, while future morphology can elsewhere
+  convey an assumption about the present. दो घंटे से with ongoing activity measures duration; हर
+  रविवार gives recurrence. पहले and फिर order events, and चुका or समाप्त करना can explicitly
+  mark completion. An isolated copied कल with no recoverable event is absent. सुबह can complete
+  a question about when an identified action occurred. A copular property such as यह गली सँकरी
+  है is not automatically temporal evidence. Agreement must be appropriate to the construction,
+  but unrelated errors do not erase a correctly expressed event.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+    - msu_hindi_perfective2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Ba mhaith liom expresses a wish, followed by an action construction.
+    examples:
+      - text: Ba mhaith liom fuáil a fhoghlaim.
+        meaning: I would like to learn to sew.
+        note: Liom identifies the experiencer; a fhoghlaim follows the object fuáil.
+  - subskill_id: preferences
+    explanation: Is fearr liom can compare preferred alternatives with ná.
+    examples:
+      - text: Is fearr liom tae ná caife.
+        meaning: I prefer tea to coffee.
+        note: The construction expresses the speaker’s preference, not an objective ranking.
+  - subskill_id: emotions
+    explanation: An emotion noun with ar can describe a feeling experienced by someone.
+    examples:
+      - text: Tá áthas orm faoin nuacht seo.
+        meaning: I am happy about this news.
+        note: Orm identifies the experiencer; faoin nuacht seo gives the occasion.
+  - subskill_id: opinions
+    explanation: Ceapaim introduces a belief or judgment in a following clause.
+    examples:
+      - text: Ceapaim go bhfuil an modh seo níos éasca.
+        meaning: I think this method is easier.
+        note: Go bhfuil links the evaluation to the speaker’s opinion.
+  - subskill_id: agreement_disagreement
+    explanation: Aontaigh le expresses agreement with something; ní negates the present statement.
+    examples:
+      - text: Ní aontaím leis an moladh seo.
+        meaning: I disagree with this suggestion.
+        note: Leis an moladh seo identifies the suggestion being rejected.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

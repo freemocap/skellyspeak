@@ -1,5 +1,6 @@
+import { GuideActionContext, type RunGuideAction } from '../../components/learning/GuideActions'
 import { useI18n } from '../../components/localization/i18n'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useCallback, useRef } from 'react'
 import { ActiveSurfaceContext } from '../../components/dialogs/useOverlayLayer'
 import { SkillEvidenceContext, useSkillEvidence } from '../../state/learning/useSkillEvidence'
 import { useNavigationStore } from '../../state/navigation/navigation'
@@ -22,6 +23,10 @@ const DrillPage = lazy(() => import('../../features/drill/DrillPage'))
 /// return strip back to the conversation. That rule lives here with the markup
 /// it governs.
 export function SurfaceHost() {
+  const guideAction = useRef<RunGuideAction | null>(null)
+  const registerGuideAction = useCallback((action: RunGuideAction | null) => { guideAction.current = action }, [])
+  const skillStart = useRef<((language: string, variety: string, skillId: string, subskillId?: string | null) => Promise<void>) | null>(null)
+  const registerSkillStart = useCallback((action: typeof skillStart.current) => { skillStart.current = action }, [])
   const tr = useI18n()
   const evidence = useSkillEvidence()
   const page = useNavigationStore((state) => state.page)
@@ -48,10 +53,18 @@ export function SurfaceHost() {
   )
 
   return (
-    <div className="content" {...swipe}>
+    <GuideActionContext value={async action => {
+      if (!guideAction.current) throw new Error('The conversation is not ready.')
+      await guideAction.current(action)
+      openConversation(action.kind === 'coach' ? 'panel' : 'chat')
+    }}><div className="content" {...swipe}>
       {skillsOpened && <div className={`page-holder destination-page ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
         <ReturnStrip />
-        <ActiveSurfaceContext value={page === 'skills'}><PageBoundary><Suspense fallback={<p role="status">{tr("Loading skill tree…")}</p>}><SkillsPage onPractice={() => openConversation('chat')} /></Suspense></PageBoundary></ActiveSurfaceContext>
+        <ActiveSurfaceContext value={page === 'skills'}><PageBoundary><Suspense fallback={<p role="status">{tr("Loading skill tree…")}</p>}><SkillsPage onPractice={async (language, variety, skillId) => {
+          if (!skillStart.current) throw new Error('The conversation is not ready to start.')
+          await skillStart.current(language, variety, skillId)
+          openConversation('chat')
+        }} /></Suspense></PageBoundary></ActiveSurfaceContext>
       </div>}
       {!isTauri ? (page !== 'skills' &&
         <NotTauriNotice />
@@ -70,10 +83,12 @@ export function SurfaceHost() {
               onHistoryOpenChange={setHistoryOpen}
               onOpenSettings={() => showOverlay('settings')}
               onNewChatReady={registerNewChat}
+              onSkillStartReady={registerSkillStart}
+              onGuideActionReady={registerGuideAction}
             /></SkillEvidenceContext></ActiveSurfaceContext>
           </PageBoundary>
         </div>
       </>)}
-    </div>
+    </div></GuideActionContext>
   )
 }

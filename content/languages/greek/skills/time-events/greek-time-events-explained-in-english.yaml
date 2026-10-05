@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: The Greek present can describe something happening at the moment of speaking
+      without a separate progressive auxiliary. Τώρα makes the current timing explicit; the verb
+      ending identifies the speaker without εγώ.
+    examples:
+      - text: Τώρα φτιάχνω το ποδήλατο.
+        meaning: I am fixing the bicycle now.
+        note: Φτιάχνω is first person singular present. The current action is explicit, but this
+          sentence does not say the repair is finished.
+  - subskill_id: past_events
+    explanation: The aorist presents a past event as a whole. Learn irregular or less predictable
+      stems with the verb rather than guessing from its present ending. Χθες supplies an
+      explicit past time.
+    examples:
+      - text: Χθες άλλαξα το λάστιχο.
+        meaning: Yesterday I changed the tyre.
+        note: Άλλαξα is the first person aorist of αλλάζω. The sentence reports the tyre change as a
+          past event.
+  - subskill_id: future_events
+    explanation: Θα precedes the verb in a future expression. Here the perfective stem presents the
+      bringing as a whole anticipated event. The verb still has a person ending; θα does not
+      replace that information.
+    examples:
+      - text: Αύριο θα φέρω τα εργαλεία.
+        meaning: Tomorrow I will bring the tools.
+        note: Αύριο dates the event, and θα φέρω expresses the speaker’s future action. This can be a
+          forecast or a commitment depending on the exchange.
+  - subskill_id: duration_frequency
+    explanation: A time quantity can appear as a bare accusative phrase, while κάθε with a day names
+      a recurring schedule. A routine can use the present even when the English explanation
+      describes repeated occasions.
+    examples:
+      - text: Δουλεύω εδώ τρεις ώρες κάθε Παρασκευή.
+        meaning: I work here for three hours every Friday.
+        note: Τρεις ώρες gives the duration of each work period; κάθε Παρασκευή gives its frequency.
+  - subskill_id: event_sequence
+    explanation: Time adverbs can establish an order without requiring a different tense for each
+      step. Πρώτα identifies the first step and μετά a following one. The present is useful for
+      a routine or a description of a procedure.
+    examples:
+      - text: Πρώτα ανοίγω το κουτί και μετά βγάζω τα εργαλεία.
+        meaning: First I open the box and then I take out the tools.
+        note: The two actions are placed in sequence. Και joins them; πρώτα and μετά make their temporal
+          ordering explicit.
+  - subskill_id: event_phase
+    explanation: Use a verb of finishing to state completion rather than relying on any past form to
+      imply it. Ακόμα with a present activity can say that work is continuing. These lexical
+      choices make the stage of the task explicit.
+    examples:
+      - text: Τελείωσα την επισκευή.
+        meaning: I finished the repair.
+        note: Τελείωσα names completion of the specified repair, rather than merely placing some work in
+          the past.
+      - text: Ακόμα φτιάχνω το ποδήλατο.
+        meaning: I am still fixing the bicycle.
+        note: Ακόμα marks continuation; φτιάχνω describes the ongoing work rather than a completed
+          repair.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

@@ -1,173 +1,147 @@
 use super::*;
-use crate::learning::practice_assessment;
+use serde_json::json;
 
 #[test]
-fn every_offered_variety_has_composable_skill_guides() {
-    let registry = Registry::bundled().unwrap();
-    for language in &registry.languages {
-        for variety in &language.varieties {
-            let coverage = registry.skill_coverage(&language.id, &variety.id).unwrap();
-            assert_eq!(coverage.len(), 12, "{} / {}", language.id, variety.id);
-            assert!(coverage.iter().all(|skill| skill.guide_available));
-            registry
-                .skill_presence_request(&language.id, &variety.id, serde_json::json!({}))
-                .unwrap();
-            for skill in coverage {
-                let markdown = registry
-                    .skill_markdown(&language.id, &variety.id, &skill.skill_id)
-                    .unwrap();
-                assert!(
-                    markdown.contains("## Examples"),
-                    "{} / {} / {}",
-                    language.id,
-                    variety.id,
-                    skill.skill_id
-                );
-            }
-        }
-    }
-}
-
-#[test]
-fn twelve_shared_skills_and_explicit_pilot_coverage() {
-    let registry = Registry::bundled().unwrap();
-    assert_eq!(registry.shared_skills().skills.len(), 12);
-    assert_eq!(registry.shared_skills().categories.len(), 4);
-    for (language, variety) in [
-        ("spanish", "spanish-mexico"),
-        ("arabic", "arabic-levantine"),
-        ("mandarin", "mandarin-mainland-china"),
-    ] {
-        let coverage = registry.skill_coverage(language, variety).unwrap();
-        assert_eq!(coverage.len(), 12);
-        assert_eq!(coverage.iter().filter(|s| s.guide_available).count(), 12);
-        // Complete pilot content produces all twelve questions.
-        assert!(
-            registry
-                .skill_presence_request(language, variety, serde_json::json!({}))
-                .is_ok()
-        );
-    }
-    assert!(
-        registry
-            .skill_prompt("spanish", "spanish-spain", "past_reference")
-            .is_ok()
-    );
-    assert!(
-        registry
-            .skill_prompt("arabic", "spanish-mexico", "past_reference")
-            .is_err()
-    );
-}
-
-#[test]
-fn rich_content_and_compact_assessment_share_the_core_but_not_examples() {
+fn message_assessment_edits_change_the_captured_assessment_hash() {
     let mut registry = Registry::bundled().unwrap();
-    let before = registry
-        .skill_content_hash("spanish", "spanish-mexico")
+    let hash = registry
+        .skill_content_hash("spanish", "spanish-spain")
         .unwrap();
+    let questions = serde_json::to_value(registry.message_assessment_questions().unwrap()).unwrap();
     registry
-        .documents
-        .get_mut("spanish")
+        .source_files
+        .get_mut("prompts/assessment/grammar.md")
         .unwrap()
-        .learning
-        .skill_guides
-        .get_mut("possession_relationships")
-        .unwrap()
-        .varieties
-        .get_mut("spanish-mexico")
-        .unwrap()
-        .explanation
-        .push_str("\n\nHuman-only sentinel.");
-    let prompt = registry
-        .skill_prompt("spanish", "spanish-mexico", "possession_relationships")
-        .unwrap();
-    let markdown = registry
-        .skill_markdown("spanish", "spanish-mexico", "possession_relationships")
-        .unwrap();
-    assert!(markdown.contains("Human-only sentinel."));
-    assert!(markdown.contains("> Es el libro de mi hermana."));
-    assert!(!prompt.language_guidance.contains("Human-only sentinel."));
-    assert!(!prompt.language_guidance.contains("Es el libro"));
-    assert!(markdown.contains(&prompt.overview));
+        .push_str("\nAuthored criterion sentinel.");
     assert_ne!(
-        before,
+        hash,
         registry
-            .skill_content_hash("spanish", "spanish-mexico")
+            .skill_content_hash("spanish", "spanish-spain")
             .unwrap()
     );
+    let changed = serde_json::to_value(registry.message_assessment_questions().unwrap()).unwrap();
+    assert_ne!(questions["grammar"], changed["grammar"]);
+    assert_eq!(questions["understandability"], changed["understandability"]);
+}
+
+#[test]
+fn eight_main_skills_have_the_same_identity_in_every_language() {
+    let registry = Registry::bundled().unwrap();
+    let expected = [
+        "coordinating_action",
+        "feelings_viewpoints",
+        "information_exchange",
+        "managing_conversation",
+        "people_places",
+        "possibilities_constraints",
+        "reasons_connections",
+        "time_events",
+    ];
+    for language in &registry.languages {
+        let skills = registry.skills_for_language(&language.id).unwrap();
+        assert_eq!(
+            skills.iter().map(|s| s.id.as_str()).collect::<Vec<_>>(),
+            expected
+        );
+        let catalog = registry.practice_catalog(&language.id).unwrap();
+        let nodes = catalog.as_array().unwrap();
+        assert_eq!(nodes.len(), 9);
+        for node in nodes.iter().filter(|n| n["kind"] == "skill") {
+            assert_eq!(node["parent"], "experience");
+            assert_eq!(
+                node["criterion"],
+                registry
+                    .skill_definition(node["id"].as_str().unwrap())
+                    .unwrap()
+                    .boundary
+            );
+        }
+    }
+    assert!(registry.skills_for_language("unknown").is_err());
+}
+
+#[test]
+fn compact_assessments_use_explicit_variety_guidance_and_fail_on_missing_content() {
+    let registry = Registry::bundled().unwrap();
+    for variety in &registry.language("spanish").unwrap().varieties {
+        for skill in registry.skills_for_language("spanish").unwrap() {
+            let prompt = registry
+                .skill_prompt("spanish", &variety.id, &skill.id)
+                .unwrap();
+            assert!(!prompt.language_guidance.is_empty());
+        }
+    }
+    assert!(
+        registry
+            .skill_prompt("spanish", "arabic-levantine", "time_events")
+            .is_err()
+    );
+    assert!(
+        registry
+            .skill_prompt("spanish", "spanish-spain", "past_events")
+            .is_err()
+    );
+    let mut missing = registry.clone();
+    let path = "languages/spanish/skills/time-events/spanish-time-events-assessment.yaml";
+    missing.authored.assessments.remove(path);
+    let error = missing
+        .skill_prompt("spanish", "spanish-spain", "time_events")
+        .unwrap_err();
+    assert_eq!(error.path, path);
+    assert_eq!(error.code, "missing_skill_assessment");
+}
+
+#[test]
+fn teaching_edits_do_not_change_assessment_input_or_its_hash() {
+    let mut registry = Registry::bundled().unwrap();
+    let hash = registry
+        .skill_content_hash("spanish", "spanish-spain")
+        .unwrap();
+    let report_hash = registry.communication_content_hash();
+    let path = "languages/spanish/skills/time-events/spanish-time-events-explained-in-english.yaml";
+    registry.authored.guides.get_mut(path).unwrap().sections[0]
+        .explanation
+        .push_str(" Learner-only sentinel.");
+    let markdown = registry
+        .communication_markdown("spanish", "spanish-spain", "english", "time_events")
+        .unwrap();
+    assert!(markdown.contains("Learner-only sentinel"));
+    let prompt = registry
+        .skill_prompt("spanish", "spanish-spain", "time_events")
+        .unwrap();
+    assert!(!prompt.language_guidance.contains("Learner-only sentinel"));
+    assert_eq!(
+        hash,
+        registry
+            .skill_content_hash("spanish", "spanish-spain")
+            .unwrap()
+    );
+    assert_ne!(report_hash, registry.communication_content_hash());
     let request = practice_assessment::request(
-        serde_json::json!({"currentLearnerMessage":"Ana."}),
+        json!({"currentLearnerMessage":"Ayer fui.","precedingExchange":[]}),
         &[prompt],
-        &registry.presence_instructions,
+        registry.assessment_instructions(),
     )
     .unwrap();
     assert_eq!(
-        request["questions"]["possession_relationships"]["criteria"]
+        request["questions"]["time_events"]["criteria"]
             .as_object()
             .unwrap()
             .len(),
         4
     );
-}
-
-#[test]
-fn language_extensions_compose_without_inheritance_and_cannot_shadow_shared_ids() {
-    let mut registry = Registry::bundled().unwrap();
-    let mut extra = registry.skills.skills[0].clone();
-    extra.id = "spanish_test_extension".into();
-    let doc = registry.documents.get_mut("spanish").unwrap();
-    doc.learning.skills.push(extra);
-    assert_eq!(registry.skills_for_language("spanish").unwrap().len(), 13);
-    assert_eq!(registry.skills_for_language("arabic").unwrap().len(), 12);
-    let citations =
-        crate::configuration::citations::parse_bib(include_str!("../../../references.bib"))
-            .unwrap()
-            .into_keys()
-            .collect();
-    registry.validate_skills(&citations).unwrap();
+    let path = "languages/spanish/skills/time-events/spanish-time-events-assessment.yaml";
     registry
-        .documents
-        .get_mut("spanish")
+        .authored
+        .assessments
+        .get_mut(path)
         .unwrap()
-        .learning
-        .skills[0]
-        .id = "past_reference".into();
-    assert!(registry.validate_skills(&citations).is_err());
-}
-
-#[test]
-fn invalid_guide_references_and_shared_instructions_fail_loading() {
-    let registry = Registry::bundled().unwrap();
-    let citations =
-        crate::configuration::citations::parse_bib(include_str!("../../../references.bib"))
+        .guidance
+        .push_str(" Assessment sentinel.");
+    assert_ne!(
+        hash,
+        registry
+            .skill_content_hash("spanish", "spanish-spain")
             .unwrap()
-            .into_keys()
-            .collect();
-    let mut bad = registry.clone();
-    let guide = bad
-        .documents
-        .get_mut("arabic")
-        .unwrap()
-        .learning
-        .skill_guides
-        .get_mut("past_reference")
-        .unwrap();
-    let local = guide.varieties.remove("arabic-levantine").unwrap();
-    guide.varieties.insert("spanish-mexico".into(), local);
-    assert!(bad.validate_skills(&citations).is_err());
-    let mut bad = registry.clone();
-    bad.presence_instructions.criteria.remove("absent");
-    assert!(bad.validate_skills(&citations).is_err());
-    let mut bad = registry.clone();
-    bad.documents
-        .get_mut("spanish")
-        .unwrap()
-        .learning
-        .skill_guides
-        .get_mut("past_reference")
-        .unwrap()
-        .sources
-        .push("unknown_source".into());
-    assert!(bad.validate_skills(&citations).is_err());
+    );
 }

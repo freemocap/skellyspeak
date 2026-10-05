@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Können with an infinitive can express learned skill or practical capacity. In a
+      main clause the modal is finite and the other verb appears as a bare infinitive at the
+      end.
+    examples:
+      - text: Ich kann einen Fahrradreifen wechseln.
+        meaning: I can change a bicycle tyre.
+        note: Kann wechseln expresses skill when discussing what repairs the speaker knows how to do; it
+          does not itself grant permission.
+  - subskill_id: permission
+    explanation: Dürfen expresses permission. A verb-first question with darf ich asks whether the
+      speaker’s action is allowed; this differs from asking someone else to perform it.
+    examples:
+      - text: Darf ich mein Fahrrad hier abstellen?
+        meaning: May I leave my bicycle here?
+        note: Asked of the person responsible for the space, this seeks permission. Abstellen is a bare
+          infinitive after darf.
+  - subskill_id: obligation
+    explanation: Müssen can express a requirement with a bare infinitive. Nicht müssen removes
+      necessity; nicht dürfen instead expresses prohibition.
+    examples:
+      - text: Wir müssen die Fahrkarten vorzeigen.
+        meaning: We must show the tickets.
+        note: Müssen vorzeigen states a requirement. The compound verb stays together as the infinitive
+          after the modal.
+  - subskill_id: possibility
+    explanation: Vielleicht can qualify an event as possible. At the start of a main clause it is
+      followed by the finite verb; no additional modal is necessary.
+    examples:
+      - text: Vielleicht fällt der letzte Zug heute aus.
+        meaning: The last train may be cancelled today.
+        note: Vielleicht leaves the outcome open. Ausfallen separates into fällt … aus in this main
+          clause.
+  - subskill_id: certainty
+    explanation: Sicher sein, dass … expresses confidence; nicht sicher sein, ob … expresses
+      uncertainty about whether something holds. Ob introduces a subordinate question with the
+      finite verb at the end.
+    examples:
+      - text: Ich bin nicht sicher, ob der Laden noch offen ist.
+        meaning: I am not sure whether the shop is still open.
+        note: Nicht sicher marks a knowledge limit; ob gives the proposition in doubt. This does not
+          claim that the shop must be closed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_modals2026
+    - umich_de_word_order2026
+    - ids_de_epistemic2026
+    - goethe_de_discussion2026
+    - umich_de_connectors2026
+    - leo_de_modal_negation2026
+    - leo_de_permission2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

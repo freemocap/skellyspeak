@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: reasons_connections
+guidance: Assess causes, consequences, conditions, contrast and support for claims. Vì
+  introduces a reason and nên can connect it to a consequence. Nếu and thì can establish a
+  condition and its outcome; neither an English tense pattern nor verb conjugation is required.
+  Nhưng contrasts properties, while sau đó can merely order events. Để normally introduces a
+  purpose in an appropriate construction, not an already realized cause. An illuminated window
+  can be evidence for an occupancy claim without causing occupancy. Vì trời mưa can answer an
+  identifiable why-question contextually. A copied connector with no recoverable related
+  propositions is absent. Judge whether the stated evidence supports the actual inference. Do
+  not count any pair of sentences as reasoning, and do not reject an ordinary combination such
+  as vì with nên solely because its literal English translation sounds redundant.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_purpose2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

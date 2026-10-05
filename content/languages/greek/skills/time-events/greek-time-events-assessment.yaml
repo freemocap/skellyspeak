@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: time_events
+guidance: "The present can describe an action happening now, a routine, a scheduled event or an
+  activity continuing from earlier; English progressive or perfect wording does not demand a
+  matching Greek compound tense. Past reference can use an aorist such as άλλαξα, or an
+  imperfect when an ongoing or repeated perspective suits the meaning. Θα with a suitable verb
+  form can locate a future event. Aspect also matters: perfective presentation is not a rule
+  that every event lasted an instant. Bare accusative time expressions can state duration, dates
+  or frequency; κάθε Παρασκευή indicates repetition and τρεις ώρες a duration. Πρώτα and μετά
+  can order actions. Τελείωσα explicitly reports finishing, while ακόμα with a present action
+  can show continuation. A copied χθες unconnected to any event is not successful past-event
+  use. Χθες το πρωί can complete a recoverable event-time question contextually. Do not count
+  every θα token as a future event: discourse can give it another modal or interpersonal role."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

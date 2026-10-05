@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: An ability suffix with progressive marking can describe current capability.
+    examples:
+      - text: Bisiklet tamir edebiliyorum.
+        meaning: I can repair bicycles.
+        note: In a discussion of practical skills, this states the speaker’s capability.
+  - subskill_id: permission
+    explanation: A first-person modal question can request authorization.
+    examples:
+      - text: Çantamı burada bırakabilir miyim?
+        meaning: May I leave my bag here?
+        note: Ask the person responsible for the space. The question particle remains separate.
+  - subskill_id: obligation
+    explanation: A nominalized action with gerekiyor expresses necessity.
+    examples:
+      - text: Anahtarı bugün geri vermem gerekiyor.
+        meaning: I need to return the key today.
+        note: Vermem identifies the speaker’s returning action; bugün gives the deadline.
+  - subskill_id: possibility
+    explanation: The modal suffix can present an event as possible.
+    examples:
+      - text: Akşam yağmur yağabilir.
+        meaning: It may rain this evening.
+        note: This is a weather possibility, not a claim about someone’s ability.
+  - subskill_id: certainty
+    explanation: Emin değilim denies certainty about the supplied proposition.
+    examples:
+      - text: Dükkânın açık olduğundan emin değilim.
+        meaning: I am not sure that the shop is open.
+        note: The speaker is uncertain about opening, rather than asserting closure.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

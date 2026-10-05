@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: Μπορείτε να followed by the requested action can politely ask someone to do it. The
+      plural forms address either several people or one person respectfully. The action’s verb
+      carries the listener’s person rather than remaining an English-style infinitive.
+    examples:
+      - text: Μπορείτε να ανοίξετε την πόρτα, παρακαλώ;
+        meaning: Could you open the door, please?
+        note: Μπορείτε and ανοίξετε address the listener respectfully here. The speaker requests an
+          action rather than testing an ability.
+  - subskill_id: offers_invitations
+    explanation: Θέλετε να can invite someone to join an activity. The following verb identifies who
+      would participate. Here the respectful question addresses the listener, while μαζί μας
+      includes the speaker’s group in the activity.
+    examples:
+      - text: Θέλετε να έρθετε μαζί μας στη βόλτα;
+        meaning: Would you like to come with us on the outing?
+        note: Έρθετε is second person plural and can respectfully address one person. Μαζί μας makes
+          this an invitation to join the group.
+  - subskill_id: suggestions
+    explanation: A first-person plural να question can propose a joint action. The person ending
+      includes the speaker and the proposed companions. The exchange establishes it as a
+      suggestion, rather than a request for permission to act alone.
+    examples:
+      - text: Να πάμε από τον πιο ήσυχο δρόμο;
+        meaning: Shall we take the quieter street?
+        note: Πάμε proposes an action for us. Από τον πιο ήσυχο δρόμο specifies a route; the comparison
+          is with another route under discussion.
+  - subskill_id: commitments
+    explanation: "A first-person future expression can undertake responsibility in a shared plan. Θα
+      alone does not promise anything: the speaker’s action and the planning exchange establish
+      the commitment."
+    examples:
+      - text: Θα φέρω εγώ τα εργαλεία.
+        meaning: I will bring the tools.
+        note: Use this while dividing tasks for a repair. The explicit εγώ highlights the speaker taking
+          responsibility; it is optional in an ordinary future statement.
+  - subskill_id: accepting_declining
+    explanation: A short ναι with thanks can accept an identifiable offer. If no offer or invitation
+      has been made, the same words could simply confirm information; the preceding turn
+      supplies the action being accepted.
+    examples:
+      - text: Ναι, ευχαριστώ πολύ.
+        meaning: Yes, thank you very much.
+        note: Use this after someone offers to carry your bag. The response accepts that help, without
+          restating the action or claiming agreement with an opinion.
+  - subskill_id: negotiating_plans
+    explanation: State a constraint and propose an alternative, then leave room for the other person
+      to agree. A να question can put the new action or date forward. Days used as time
+      expressions normally appear in the accusative.
+    examples:
+      - text: Την Παρασκευή δεν μπορώ. Να έρθω το Σάββατο;
+        meaning: I cannot make it on Friday. Shall I come on Saturday?
+        note: The first sentence declines the proposed availability; the second asks about a replacement
+          day. Το Σάββατο dates the speaker’s proposed visit.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+    - archakis_el_politeness2026
+    - triantafyllides_el_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

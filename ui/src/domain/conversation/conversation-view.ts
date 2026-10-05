@@ -21,8 +21,9 @@ export function conversationTurns(snapshot: ConversationSnapshot): StoredTurn[] 
       turns.push(turn)
     }
     if (message.role === 'user') {
+      turn.userMessageId = message.id
       const feedback = message.feedback
-      Object.assign(turn, { userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userTranslationState: message.translationState, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, conversationFeedback: message.conversationFeedback, feedbackContext: message.feedbackContext, analysisState: feedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') ? 'pending' : null, coachError: message.feedbackError ?? undefined,
+      Object.assign(turn, { userGlossOperationId: message.glossOperationId, userSavedGloss: message.wordGloss, userTranslation: message.translation, userTranslationState: message.translationState, userGlossError: message.glossError, userGlossState: message.glossState, id: message.sequence, user: message.text, conversationFeedback: message.conversationFeedback, feedbackContext: message.feedbackContext, analysisState: feedback || message.conversationFeedback ? 'done' : ['ready', 'running', 'waiting_dependencies'].includes(message.feedbackState ?? '') || turn.execution?.operations.some(operation => operation.kind === 'skill_assessment' && ['ready', 'running', 'waiting_dependencies'].includes(operation.state)) ? 'pending' : null, coachError: message.feedbackError ?? undefined,
         ...(feedback ? { coach: feedback } : {}), ...(message.coachDecision ? { coachDecision: message.coachDecision } : {}) })
     } else if (message.role === 'assistant') {
       turn.reaction = message.reaction ?? undefined

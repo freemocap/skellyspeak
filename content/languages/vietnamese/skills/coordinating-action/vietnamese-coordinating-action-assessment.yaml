@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and negotiation. Giúp tôi chuyển cái hộp này ra cửa nhé asks for assistance; Để tôi
+  xách túi giúp bạn offers the speaker’s action. Chúng ta nghỉ một lát nhé proposes a shared
+  break. Ngày mai tôi sẽ mang dụng cụ đến can undertake a task in planning, but a future
+  statement is not automatically a commitment. Hôm nay tôi không đến được can decline an
+  invitation; naming Saturday can negotiate an alternative. Được can accept a prior concrete
+  proposal contextually. A copied nhé without a recoverable proposal is absent. Particles and
+  address terms express relationships, so do not require one formula for every speaker or reduce
+  politeness to adding ạ. Judge the action and participants being coordinated rather than merely
+  spotting a modal or imperative-shaped clause.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_suggestions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

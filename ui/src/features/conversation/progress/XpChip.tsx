@@ -71,7 +71,7 @@ function SkillList({ snapshot, chatId }: { snapshot: SkillSnapshot; chatId: stri
         <strong>+{tr.number(xp)}</strong>
       </li>
     })}</ol>
-    {skills.length > SHOWN_SKILLS && <p className="progress-card-empty">{tr('{value0} more skills', { value0: tr.number(skills.length - SHOWN_SKILLS) })}</p>}
+    {skills.length > SHOWN_SKILLS && <p className="progress-card-empty">{tr('{count} more skills', { count: skills.length - SHOWN_SKILLS })}</p>}
   </>
 }
 

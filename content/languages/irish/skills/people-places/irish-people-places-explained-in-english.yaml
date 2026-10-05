@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: The copula can identify someone with an appropriate pronoun and noun phrase.
+    examples:
+      - text: Is í seo mo chomharsa.
+        meaning: This is my neighbour.
+        note: Í identifies a female neighbour. Mo triggers lenition in chomharsa.
+  - subskill_id: qualities_states
+    explanation: Tá can predicate an adjective of a subject.
+    examples:
+      - text: Tá an tsráid seo cúng.
+        meaning: This street is narrow.
+        note: Cúng is the property; an tsráid shows the article-related initial change.
+  - subskill_id: location_movement
+    explanation: Tá with a prepositional phrase locates an object.
+    examples:
+      - text: Tá an eochair ar an mbord.
+        meaning: The key is on the table.
+        note: Ar an mbord uses eclipsis in this standard preposition-and-article construction.
+  - subskill_id: possession_relations
+    explanation: Tá with ag expresses having something; agam combines ag and the first-person pronoun.
+    examples:
+      - text: Tá dhá chathaoir agam.
+        meaning: I have two chairs.
+        note: Dhá chathaoir gives the quantity and associated lenition.
+  - subskill_id: quantity_comparison
+    explanation: Níos with a comparative and ná introduces a comparison.
+    examples:
+      - text: Tá an bosca seo níos éadroime ná an bosca sin.
+        meaning: This box is lighter than that box.
+        note: Éadroime is the comparative of éadrom; ná introduces the standard.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

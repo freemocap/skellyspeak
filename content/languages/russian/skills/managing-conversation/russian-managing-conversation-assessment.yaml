@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: managing_conversation
+guidance: Look for opening or closing contact, acknowledgement, clarification, rephrasing,
+  correction of misunderstanding and turn or topic management. До встречи closes contact with an
+  expectation of meeting again. Теперь понятно acknowledges understanding without necessarily
+  agreeing. Повторите, пожалуйста requests repetition; Другими словами introduces a
+  reformulation. Я имела в виду субботу, не пятницу repairs the listener’s interpretation of a
+  previous contribution. Можно я перейду к другому вопросу? manages the topic through a
+  permission-shaped question. An isolated copied пожалуйста does not establish successful repair
+  or turn management. A short ага may acknowledge the immediately preceding explanation
+  contextually. Distinguish asking for a new external fact from addressing trouble with what was
+  said. Do not demand formulaic wording if a different natural expression performs the same
+  function; uncertainty about which valid repair subtype applies is not uncertainty about
+  demonstrated group use.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_imperative2026
+    - cornell_russian_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

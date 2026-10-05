@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: managing_conversation
+guidance: Look for opening or closing contact, receipt or understanding, clarification,
+  reformulation, repair of an interpretation and management of turns or topics. A domani can
+  close an encounter while anticipating another meeting; quoting ciao as vocabulary does not
+  greet anyone. Ora ho capito registers understanding after an explanation, without necessarily
+  endorsing its claim. Che cosa intendi con provvisorio? seeks the meaning of a preceding word;
+  a new factual question is not automatically clarification. In altre parole, dobbiamo
+  confermare prima di prenotare reformulates an identifiable earlier requirement; the
+  introductory marker alone supplies no restated content. Intendevo il cortile, non il
+  parcheggio corrects the interpretation received. Posso aggiungere una cosa sul prezzo? can
+  request the floor, without asserting physical capacity. Sì after an explanation can
+  acknowledge contextually, but after an invitation can accept and after a claim can align.
+  Resolve the antecedent; use unclear only when the evidence fails to establish correct group
+  use, not merely because a marker has multiple possible subfunctions.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_discourse2026
+    - treccani_it_questions2026
+    - treccani_it_connectives2026
+    - zanichelli_it_modals2026
+    - treccani_it_past2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

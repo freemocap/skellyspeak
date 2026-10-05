@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: An imperative with a courtesy expression can request an action.
+    examples:
+      - text: أَغْلِقِ الْبَابَ، مِنْ فَضْلِكَ.
+        meaning: Close the door, please.
+        note: Modern Standard Arabic. Addressed to one man; the requested action is closing the door.
+      - text: سَكِّرْ الْبَابْ، لَوْ سَمَحْتْ.
+        meaning: Close the door, please.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Addressed
+          to one man; the requested action is closing the door.
+  - subskill_id: offers_invitations
+    explanation: A question about the speaker’s help can make an offer.
+    examples:
+      - text: هَلْ أُسَاعِدُكَ؟
+        meaning: Shall I help you?
+        note: Modern Standard Arabic. Addressed to one man; the speaker offers their own help.
+      - text: أَسَاعْدَكْ؟
+        meaning: Shall I help you?
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Addressed
+          to one man; the speaker offers their own help.
+  - subskill_id: suggestions
+    explanation: A why-not question can suggest a shared action.
+    examples:
+      - text: لِمَاذَا لَا نَجْلِسُ هُنَا؟
+        meaning: Why don’t we sit here?
+        note: Modern Standard Arabic. A proposal for the group, not necessarily a demand for an
+          explanation.
+      - text: لَيْشْ مَا نِقْعُدْ هُونْ؟
+        meaning: Why don’t we sit here?
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. A proposal
+          for the group, not necessarily a demand for an explanation.
+  - subskill_id: commitments
+    explanation: A future action can express a commitment when accepting responsibility in the exchange.
+    examples:
+      - text: سَأُحْضِرُ الْمَفَاتِيحَ غَدًا.
+        meaning: I will bring the keys tomorrow.
+        note: Modern Standard Arabic. Use when agreeing to take responsibility for bringing the keys.
+      - text: رَحْ أَجِيبْ الْمَفَاتِيحْ بُكْرَا.
+        meaning: I will bring the keys tomorrow.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Use when
+          agreeing to take responsibility for bringing the keys.
+  - subskill_id: accepting_declining
+    explanation: A negative ability statement can decline an invitation politely.
+    examples:
+      - text: شُكْرًا، لٰكِنَّنِي لَا أَسْتَطِيعُ الْحُضُورَ الْيَوْمَ.
+        meaning: Thank you, but I cannot come today.
+        note: Modern Standard Arabic. Reply to an invitation for today.
+      - text: شُكْرًا، بَسّ مَا بَقْدَرْ أَجِي الْيَوْمْ.
+        meaning: Thank you, but I cannot come today.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Reply to an
+          invitation for today.
+  - subskill_id: negotiating_plans
+    explanation: A proposal can substitute a new time for a previously discussed one.
+    examples:
+      - text: هَلْ يُمْكِنُ أَنْ نَلْتَقِيَ غَدًا بَدَلًا مِنَ الْيَوْمِ؟
+        meaning: Could we meet tomorrow instead of today?
+        note: Modern Standard Arabic. The speaker changes one part of an existing plan.
+      - text: مُمْكِنْ نِلْتَقِي بُكْرَا بَدَلْ الْيَوْمْ؟
+        meaning: Could we meet tomorrow instead of today?
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
+          changes one part of an existing plan.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Conversational requests can use colloquial imperatives or questions. لَيْشْ مَا can
+      propose a shared action; politeness wording varies with the relationship.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Modern Standard requests and offers can use different imperative or question
+      constructions. Addressee forms reflect who is being addressed.
+    provenance: *a1

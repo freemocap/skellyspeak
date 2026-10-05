@@ -26,3 +26,29 @@ it('dismisses the whole expanded error without triggering its parent or removing
   view.rerender(notice(new Error('Listening stopped')))
   expect(screen.getByRole('alert')).toBeVisible()
 })
+
+it('leads a recognised failure with plain words, folds the owner\'s text and keeps the owner\'s controls in view', async () => {
+  const user = userEvent.setup()
+  const recorded = 'grouped_request: transport_failed. Provider processing may have occurred; no automatic retry was made.'
+  const reload = vi.fn()
+  render(<ErrorNotice as="p" error={recorded}>{recorded} <button type="button" onClick={reload}>Reload</button></ErrorNotice>)
+  const alert = screen.getByRole('alert')
+  expect(alert.tagName).toBe('DIV')
+  expect(alert).toHaveAttribute('data-level', 'passing')
+  expect(alert).toHaveTextContent("The connection droppedThe answer didn't make it back. Try again.")
+  expect(screen.getByText(recorded)).not.toBeVisible()
+  await user.click(screen.getByRole('button', { name: 'Reload' }))
+  expect(reload).toHaveBeenCalledOnce()
+  await user.click(screen.getByText('Technical details'))
+  expect(screen.getByText(recorded)).toBeVisible()
+})
+
+it('shows an unrecognised failure, and any inline notice, exactly as its owner wrote it', () => {
+  const view = render(<ErrorNotice as="p" error="Name is required.">Name is required.</ErrorNotice>)
+  expect(screen.getByRole('alert').tagName).toBe('P')
+  expect(screen.getByRole('alert')).not.toHaveAttribute('data-level')
+  expect(screen.getByText('Name is required.')).toBeVisible()
+  view.rerender(<ErrorNotice as="span" error="Transcription is busy. Try again shortly.">Transcription is busy. Try again shortly.</ErrorNotice>)
+  expect(screen.getByRole('alert').tagName).toBe('SPAN')
+  expect(screen.getByText('Transcription is busy. Try again shortly.')).toBeVisible()
+})

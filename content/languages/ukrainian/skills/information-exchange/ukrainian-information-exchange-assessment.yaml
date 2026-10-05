@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: information_exchange
+guidance: Look for meaningful questions, relevant answers, factual confirmation and useful
+  detail. О котрій годині зачиняється майстерня? asks for a closing time. О п’ятій answers it
+  contextually without restating the event. Майстерня зачиняється о п’ятій, так? checks the
+  proposed hour. A можете question used to ask for help coordinates action rather than
+  necessarily seeking a report of ability. Вхід з боку двору supplies a useful location detail
+  when finding the entrance is the listener’s problem. A noun list is not automatically useful
+  elaboration, and a copied question word without an intelligible information need is absent. Що
+  ви маєте на увазі? repairs understanding of a previous contribution. Preserve natural brief
+  answers and question word order rather than requiring English auxiliaries. If contextual
+  reference cannot be recovered, record uncertainty instead of inventing it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ukma_ukrainian_terms2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: reasons_connections
+guidance: Assess causes, consequences, conditions, contrast and support for claims. കാരണം can
+  introduce a reason and അതുകൊണ്ട് a consequence. നാളെ മഴ പെയ്താൽ ഞങ്ങൾ വീട്ടിലിരിക്കും
+  establishes a condition through -ആൽ rather than requiring an English if word. പക്ഷേ contrasts
+  properties, while പിന്നെ can simply sequence actions. A light being on may support an
+  occupancy inference without causing someone to be there. മഴ പെയ്തതുകൊണ്ട് can answer an
+  identifiable why-question contextually. A copied connector without recoverable related content
+  is absent. Judge whether the claimed reason or evidence actually supports the outcome or
+  conclusion. Do not require each dependent action to be a separate finite English-shaped
+  clause. Preserve case, verbal compounds and natural word order, and do not let unrelated
+  errors erase a correctly expressed connection.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_dialogues2026
+    - ut_malayalam_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

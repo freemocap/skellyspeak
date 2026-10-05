@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A question with könntest du or könnten Sie and an infinitive can politely request
+      an action. Choose informal du or formal Sie according to the relationship.
+    examples:
+      - text: Könntest du bitte die Tür zum Hof öffnen?
+        meaning: Could you please open the door to the courtyard?
+        note: Könntest softens the request to one familiar addressee; öffnen is a bare infinitive, not a
+          second finite verb.
+  - subskill_id: offers_invitations
+    explanation: Soll ich …? can offer to undertake an action for someone. Context distinguishes
+      this from asking which duty has been assigned.
+    examples:
+      - text: Soll ich deine Tasche zum Bahnhof tragen?
+        meaning: Shall I carry your bag to the station?
+        note: Said to a travelling companion who has a heavy bag, this offers help. Tragen remains an
+          infinitive after soll.
+  - subskill_id: suggestions
+    explanation: Wir könnten with an infinitive presents a possible shared action for consideration.
+      Könnten is a Konjunktiv II form, not a statement that the plan is already agreed.
+    examples:
+      - text: Wir könnten am Sonntag am Fluss spazieren gehen.
+        meaning: We could go for a walk by the river on Sunday.
+        note: This proposes an outing. Könnten softens the proposal; am Sonntag supplies the proposed
+          day.
+  - subskill_id: commitments
+    explanation: German can undertake a future contribution with Präsens when the planning context
+      makes the promise clear. A future auxiliary is not necessary for a commitment.
+    examples:
+      - text: Ich bringe die Decke mit.
+        meaning: I will bring the blanket.
+        note: During a discussion of who will bring picnic supplies, this takes responsibility.
+          Mitbringen separates into bringe … mit in the main clause.
+  - subskill_id: accepting_declining
+    explanation: Gern can accept an identifiable invitation or offer. A refusal can use leider nicht
+      and a reason; acknowledgment alone need not settle participation.
+    examples:
+      - text: Danke für die Einladung, aber ich kann am Samstag leider nicht kommen.
+        meaning: Thank you for the invitation, but unfortunately I cannot come on Saturday.
+        note: This explicitly declines Saturday’s invitation. Danke acknowledges it; kann … nicht kommen
+          supplies the refusal rather than leaving acceptance unresolved.
+  - subskill_id: negotiating_plans
+    explanation: Respond to a proposed day, place or constraint and offer an adjustment. Stattdessen
+      signals that the proposed option replaces an earlier one.
+    examples:
+      - text: Am Freitag kann ich nicht. Können wir uns stattdessen am Samstag treffen?
+        meaning: I cannot make Friday. Can we meet on Saturday instead?
+        note: Reply to a proposed Friday meeting. Stattdessen links the new day to that proposal; uns
+          belongs to sich treffen, referring to the participants meeting each other.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_subjunctive2026
+    - umich_de_modals2026
+    - umich_de_word_order2026
+    - umich_de_reflexive2026
+    - goethe_de_discussion2026
+    - goethe_de_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

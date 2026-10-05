@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: ので can connect a reason to an action or decision. A verb appears in plain form
+      before it in this example.
+    examples:
+      - text: 雨が降っているので、歩くのはやめます。
+        meaning: Because it is raining, I will give up walking.
+        note: The rain explains the decision. 歩くの treats walking as the activity being abandoned.
+  - subskill_id: consequences
+    explanation: そのため can present a result of the preceding circumstance. The second clause should
+      follow meaningfully from the first.
+    examples:
+      - text: 橋が通れません。そのため、別の道を使います。
+        meaning: The bridge cannot be used, so I will take another road.
+        note: The unavailable bridge motivates the route change. その refers back to that circumstance.
+  - subskill_id: conditions
+    explanation: The たら form can establish a possible condition. Its form contains た but need not
+      refer to an event that already happened.
+    examples:
+      - text: 雨が降ったら、中で作業します。
+        meaning: If it rains, I will work inside.
+        note: 降ったら supplies the condition; the indoor work is the response under that condition.
+  - subskill_id: contrast
+    explanation: けど can contrast two properties or considerations in conversation. Both sides need
+      enough content to establish the contrast.
+    examples:
+      - text: この道は短いですけど、坂が急です。
+        meaning: This route is short, but the slope is steep.
+        note: The steep slope is a drawback despite the shorter route. This is an explicit contrast, not
+          just a softening clause ending.
+  - subskill_id: supporting_claims
+    explanation: An observation can support a conclusion with ので and と思います. The observation is
+      evidence for the belief, not necessarily a cause of the event.
+    examples:
+      - text: 中から声が聞こえるので、誰かいると思います。
+        meaning: I think someone is inside because I can hear voices from within.
+        note: The audible voices support the conclusion that a person is present. The conclusion remains
+          an inference.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

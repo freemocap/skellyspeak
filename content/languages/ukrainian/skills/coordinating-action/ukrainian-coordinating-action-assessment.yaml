@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: coordinating_action
+guidance: Look for requests, offers or invitations, proposals, commitments, acceptance or
+  refusal, and negotiation. Перенесіть коробку, будь ласка requests an action. Вам допомогти?
+  offers the speaker’s help through an infinitive question. Зробімо перерву proposes joint
+  action with a first-person plural imperative. Я принесу інструменти завтра can accept an
+  allocated task, but future reference alone does not establish commitment. Сьогодні не можу
+  прийти declines a contextually identifiable invitation. Naming Saturday instead negotiates an
+  alternative. Так can accept an actual offer contextually, not every preceding fact. A copied
+  будь ласка without a recoverable request or response is absent. Imperative aspect, number and
+  politeness depend on the action and relationship; do not require one fixed formula. Judge
+  successful coordination rather than merely finding a command ending or modal word.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

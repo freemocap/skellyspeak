@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A brief leave-taking can refer to the next encounter. Context makes it a closing
+      rather than a prediction about seeing someone.
+    examples:
+      - text: 我先走了，下次见！
+        meaning: I will get going. See you next time!
+        note: Use when leaving a visit. 我先走了 announces departure and 下次见 closes contact.
+  - subskill_id: acknowledging
+    explanation: 明白了 can register that an explanation has become clear. It need not express
+      agreement with a judgment.
+    examples:
+      - text: 哦，我明白了。
+        meaning: Oh, I understand now.
+        note: Reply after the partner explains the procedure. 了 marks the achieved understanding here.
+  - subskill_id: clarification
+    explanation: 再说一遍 asks for one repetition. 一遍 counts going through the utterance once.
+    examples:
+      - text: 不好意思，请再说一遍。
+        meaning: Sorry, please say that again.
+        note: Use immediately after unclear speech. The preceding utterance supplies what should be
+          repeated.
+  - subskill_id: rephrasing
+    explanation: 换句话说 introduces another formulation of an earlier point. State the clearer meaning
+      after it.
+    examples:
+      - text: 换句话说，我们得提前预约。
+        meaning: In other words, we need to book in advance.
+        note: Rephrases an explanation that visitors cannot arrange a visit on arrival. 得 expresses
+          necessity here; it is not a complement marker.
+  - subskill_id: correcting_misunderstanding
+    explanation: 说的是 identifies what was said, and 不是 rejects the mistaken alternative. The contrast
+      corrects the interpretation explicitly.
+    examples:
+      - text: 我说的是周六，不是周五。
+        meaning: I said Saturday, not Friday.
+        note: Use after the listener takes the proposed day to be Friday. The intended day is supplied
+          as the correction.
+  - subskill_id: turns_topics
+    explanation: 换个话题 explicitly names changing the subject. A follow-up question can introduce the
+      intended new topic.
+    examples:
+      - text: 我想换个话题，聊聊下周的安排，可以吗？
+        meaning: I would like to change the subject and talk about next week’s plans. Is that okay?
+        note: The speaker proposes a topic transition and gives its destination. 聊聊 makes the proposed
+          discussion conversational.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

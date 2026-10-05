@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Cén t-am asks for a time, followed here by a relative verb construction.
+    examples:
+      - text: Cén t-am a dhúnann an siopa?
+        meaning: What time does the shop close?
+        note: A dhúnann links the requested time to the closing event.
+  - subskill_id: answering_information
+    explanation: A time phrase can answer without restating the event.
+    examples:
+      - text: Ar a cúig a chlog.
+        meaning: At five o’clock.
+        note: Use after the shop closing-time question; the prior turn supplies the omitted event.
+  - subskill_id: checking_facts
+    explanation: An with a dependent verb form can check a proposed fact.
+    examples:
+      - text: An ndúnann an siopa ar a cúig a chlog?
+        meaning: Does the shop close at five o’clock?
+        note: The speaker supplies five as the hour to verify.
+  - subskill_id: useful_detail
+    explanation: A location description can provide a useful landmark.
+    examples:
+      - text: Tá an bealach isteach taobh leis an gclós.
+        meaning: The entrance is beside the courtyard.
+        note: This helps a listener who is trying to find the entrance.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_deisigh2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

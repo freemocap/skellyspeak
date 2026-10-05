@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: people_places
+guidance: Assess identification, properties, location or movement, possession or relationships,
+  and quantity or comparison. Bu benim komşum identifies a person; Bu sokak dar predicates a
+  property without mandatory third-person -dır. Anahtar rafta locates an object with the
+  locative; kapıya marks a destination. İki sandalyem var expresses possession with a possessive
+  suffix and var. Turkish normally keeps the counted noun singular after a numeral; iki sandalye
+  is not missing an English plural. Bundan daha hafif compares weight using an ablative
+  standard. Rafta can answer a where-question contextually. A copied case ending or disconnected
+  noun list is absent. Do not impose grammatical gender, obligatory pronouns or rigid verb-final
+  order where ordinary discourse permits another order. Judge meaningful case, possessive and
+  harmony distinctions in the construction rather than requiring every sentence to reproduce the
+  guide’s exact wording.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_possession2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

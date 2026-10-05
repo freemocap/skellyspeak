@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: reasons_connections
+language: french
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: >-
+      Parce que introduces a reason; puisque can present one as already accepted. A reason
+      phrase can answer pourquoi without restating the entire event.
+    examples:
+      - text: "Nous attendons parce que la route est fermée."
+        meaning: >-
+          We are waiting because the road is closed.
+        note: >-
+          Parce que relates the closure to the waiting as its reason, rather than merely
+          placing both events in time.
+  - subskill_id: consequences
+    explanation: >-
+      Donc, alors and suitable result constructions can connect a situation to a
+      consequence. Decide from the clauses whether a causal reading is actually intended.
+    examples:
+      - text: "Le dernier bus est parti, donc nous allons rentrer à pied."
+        meaning: >-
+          The last bus has left, so we are going to walk home.
+        note: >-
+          Donc presents walking home as the consequence of missing the bus; it is more
+          than a chronological next step.
+  - subskill_id: conditions
+    explanation: >-
+      For an open future condition, si commonly takes a present form and the consequence
+      can take a future. Hypothetical conditions can pair imparfait with conditional;
+      choose according to meaning.
+    examples:
+      - text: "Si la bibliothèque est ouverte, nous y travaillerons."
+        meaning: >-
+          If the library is open, we will work there.
+        note: >-
+          Est is present after conditional si; travaillerons states the future
+          consequence. Y refers back to the library.
+  - subskill_id: contrast
+    explanation: >-
+      Mais contrasts propositions; pourtant can mark an unexpected contrast. A
+      coordinating word only demonstrates contrast when the linked meanings support it.
+    examples:
+      - text: "Le sac est petit, mais il contient tout mon matériel."
+        meaning: >-
+          The bag is small, but it holds all my equipment.
+        note: >-
+          Mais contrasts its size with its capacity; the second clause is not a correction
+          of the first.
+  - subskill_id: supporting_claims
+    explanation: >-
+      Support a claim with an observation, example or explanation that bears on it. A
+      concrete basis is different from repeating the same judgement more strongly.
+    examples:
+      - text: "Ce trajet est plus rapide : hier, j’ai gagné vingt minutes."
+        meaning: >-
+          This route is faster; yesterday I saved twenty minutes.
+        note: >-
+          The stated time saving supports the comparison. It is the speaker’s evidence,
+          not a fact independently checked by the app.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_si2026
+    - threshold_general_notions
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

@@ -1,3 +1,4 @@
+import { ResponseDetails } from '../../../components/feedback/ResponseDetails'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { CoachChatLayout, type CoachChatLayoutHandle } from './CoachChatLayout'
 import { CoachPanelTabs } from './CoachPanelTabs'
@@ -82,7 +83,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
     onExpand={() => { if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight }}
     thread={<div className="coach-thread" ref={threadRef} aria-label={tr("Coach conversation")} aria-live="polite">
       {thread.length > 0 && <h3 className="coach-group-label">{tr("You asked")}</h3>}
-      {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} /></div>)}
+      {thread.map(message => <div key={message.id} className={`coach-msg ${message.role === 'user' ? 'user' : 'coach'}`}><Markdown text={message.text} onTerm={term => draft(`[[${term}]]`)} />{message.guideContext != null && <details><summary>{tr('Skill guide')}</summary><ResponseDetails value={message.guideContext} /></details>}</div>)}
       {busy && <ActivityIndicator compact label={tr("Coach replying…")} />}
     </div>}
     notices={<>{readError && <ErrorNotice as="div" error={readError}><p>{tr("Conversation updates stopped.")} {readError}</p><button type="button" onClick={retryRead}>{tr("Retry reading conversation")}</button></ErrorNotice>}

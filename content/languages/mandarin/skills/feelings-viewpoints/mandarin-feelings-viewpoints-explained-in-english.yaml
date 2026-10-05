@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 想 before an action can express wanting to do it. 学 introduces the skill to be learned.
+    examples:
+      - text: 我想学修自行车。
+        meaning: I want to learn to repair bicycles.
+        note: 想学 names the desire to learn; 修自行车 names the activity. No promise is made.
+  - subskill_id: preferences
+    explanation: 更喜欢 can select the more favored option. The alternatives may be named explicitly in
+      a topic-like phrase.
+    examples:
+      - text: 咖啡和红茶，我更喜欢红茶。
+        meaning: Between coffee and black tea, I prefer black tea.
+        note: The first phrase sets up the alternatives. 更喜欢 expresses preference rather than a physical
+          comparison.
+  - subskill_id: emotions
+    explanation: 高兴 describes happiness. A clause about the cause of the feeling can precede the
+      emotional statement.
+    examples:
+      - text: 听到这个消息，我很高兴。
+        meaning: I am happy to hear this news.
+        note: 听到 identifies what prompted the feeling; 高兴 is the speaker’s emotional response.
+  - subskill_id: opinions
+    explanation: 觉得 can frame a proposition as the speaker’s judgment. The following content states
+      what is being evaluated.
+    examples:
+      - text: 我觉得这个办法不错。
+        meaning: I think this method is quite good.
+        note: 不错 is a positive evaluation here, rather than a neutral statement that a method exists.
+  - subskill_id: agreement_disagreement
+    explanation: 也 and 这么想 can connect the speaker to a previously expressed view. The preceding
+      contribution supplies what so refers to.
+    examples:
+      - text: 我也这么想。
+        meaning: I think so too.
+        note: Reply to a clear opinion about the method. This endorses the view, not merely hearing or
+          understanding its wording.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

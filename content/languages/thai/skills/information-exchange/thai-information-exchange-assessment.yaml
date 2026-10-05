@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: information_exchange
+guidance: Look for information questions, relevant answers, factual checking and useful detail.
+  ร้านปิดกี่โมง asks a closing time; ห้าโมงเย็น answers it contextually with an afternoon hour.
+  ร้านปิดห้าโมงเย็นใช่ไหม checks a proposed fact. Content questions do not require English
+  auxiliary inversion. A ได้ไหม question can request an action rather than simply ask about
+  capability. ทางเข้าอยู่ทางด้านลาน supplies a useful entrance location when the listener needs
+  it. A copied ไหม with no recoverable proposition is absent. Repeating the relevant predicate
+  can answer yes/no questions naturally; do not require ใช่ in every positive answer.
+  พูดอีกครั้งได้ไหม requests repetition and addresses the exchange itself. Respect short answers
+  and recoverable omissions, but do not invent context that would make an otherwise ambiguous
+  fragment relevant. Additional length alone does not establish useful detail.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: reasons_connections
+language: english
+guidance: Judge correctly expressed cause, result, condition, contrast or
+  support for a claim. Because the road is closed can be a complete answer to
+  Why are we waiting? If it rains, we will stay is a valid open future
+  conditional. If it rain, we will stays does not correctly form those clauses.
+  Do not require one rigid tense pattern for all conditional meanings. First and
+  then alone establish sequence, not causation; and alone does not prove a
+  reason or contrast. Credit requires correct use of this function, not an
+  unsuccessful attempt. Unrelated errors do not invalidate a successful
+  instance. Use unclear when the available context cannot establish the
+  function. The listed forms are examples, not an exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_conditionals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

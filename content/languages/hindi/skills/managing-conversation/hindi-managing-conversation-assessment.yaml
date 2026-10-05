@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: managing_conversation
+guidance: Evaluate greetings and leave-taking, reception, clarification, reformulation,
+  correction and turn or topic management in their place in the exchange. नमस्ते can open or
+  close contact; repeating it as a vocabulary item does neither. अच्छा after an explanation can
+  register receipt without endorsing an opinion. दोबारा कहिए requests repetition when hearing or
+  interpretation failed; इसका मतलब क्या है? targets meaning. मेरा मतलब बुधवार था, मंगलवार नहीं
+  corrects a mistaken interpretation. यानी introduces a reformulation only when its following
+  content preserves or clarifies the prior meaning. A copied यानी with no recoverable
+  reformulation is absent. क्या मैं एक बात कहूँ? can seek the floor, not permission for a
+  physical ability demonstration. Short formulaic contributions can be complete conversational
+  acts. Use the previous exchange to distinguish acknowledgment from agreement and action
+  acceptance; do not infer those stronger functions merely from a polite affirmative response.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

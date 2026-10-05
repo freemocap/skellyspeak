@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: people_places
+guidance: Identification may use αυτός/αυτή/αυτό with είμαι, or a noun phrase whose referent the
+  exchange establishes. Ordinary personal names commonly take an article; judge the
+  identification rather than requiring an English-style indefinite article before occupations.
+  Descriptions use agreeing adjectives, including predicative forms. Spatial expressions such as
+  κοντά στην πλατεία and motion with πάω state different relations even though σε can introduce
+  both location and destination. Possession can use έχω, a genitive phrase or a postnominal
+  clitic such as μου; these clitics identify the possessor, not an English possessive ending on
+  the object. Quantities and comparisons may use numerals or πιο plus adjective and από. For
+  example, αυτό το κουτί είναι πιο βαρύ από τα άλλα makes a comparison. An isolated copied πιο
+  with no comparison does not. Ο φίλος μου after an identifiable person question can identify
+  someone contextually. Missing overt subject pronouns are normal where verb forms and context
+  identify participants. Do not infer a possessor or destination from an unrecoverable fragment.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

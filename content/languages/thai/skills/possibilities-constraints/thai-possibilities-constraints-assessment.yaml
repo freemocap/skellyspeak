@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, obligation, possibility and certainty. เป็น after a
+  skill verb phrase can express knowing how; ได้ after an action can concern ability,
+  opportunity or permission according to context. วางกระเป๋าไว้ตรงนี้ได้ไหม can ask permission
+  from the person responsible for a space. ต้องคืนกุญแจ gives necessity; ไม่ต้อง removes need
+  rather than prohibiting. อาจจะฝนตก presents possibility, while ไม่แน่ใจ limits confidence. ได้
+  can grant a preceding permission request contextually. An isolated copied modal without a
+  recoverable action is absent. A polite request with ได้ไหม does not automatically assert
+  capability. If ability and opportunity are both plausible successful group meanings, do not
+  label the entire use unclear merely because the subtype differs. Do not confuse preverbal ได้
+  in a past-event construction with postverbal permission or capacity.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_thai_hai2026
+    - fsi_thai_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

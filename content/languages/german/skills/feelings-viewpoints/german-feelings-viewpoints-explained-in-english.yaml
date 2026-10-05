@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Wollen with a bare infinitive can express a wish or intention. Möchte often
+      expresses a softer wish; neither form alone promises that an action will happen.
+    examples:
+      - text: Ich will im Herbst einen Sprachkurs besuchen.
+        meaning: I want to attend a language course in the autumn.
+        note: Will besuchen expresses the speaker’s intended action. Will is a form of wollen, not the
+          German future auxiliary.
+  - subskill_id: preferences
+    explanation: Gern describes enjoyment of an activity; lieber can express a preference for one
+      alternative. It is the comparative form associated with gern.
+    examples:
+      - text: Ich fahre lieber mit dem Zug als mit dem Bus.
+        meaning: I prefer travelling by train to travelling by bus.
+        note: Lieber … als compares the speaker’s preferences; mit takes dative in both transport
+          phrases.
+  - subskill_id: emotions
+    explanation: Sich freuen über with accusative expresses pleasure about something. The reflexive
+      pronoun agrees with the person experiencing the feeling.
+    examples:
+      - text: Ich freue mich über deine Nachricht.
+        meaning: I am happy about your message.
+        note: Mich belongs with ich in sich freuen; über deine Nachricht names what brings the pleasure.
+  - subskill_id: opinions
+    explanation: Meiner Meinung nach marks a personal position. When that phrase starts a main
+      clause, the finite verb follows it before the subject.
+    examples:
+      - text: Meiner Meinung nach ist dieser Weg zu lang.
+        meaning: In my opinion, this route is too long.
+        note: Ist follows the whole introductory phrase. Zu lang evaluates the route rather than merely
+          naming a distance.
+  - subskill_id: agreement_disagreement
+    explanation: Respond to the actual claim with wording such as das sehe ich auch so or da bin ich
+      anderer Meinung. Agreement with a claim differs from accepting an invitation.
+    examples:
+      - text: "Da bin ich anderer Meinung: Die Reparatur lohnt sich noch."
+        meaning: "I disagree on that point: the repair is still worthwhile."
+        note: Reply to a partner’s claim that repairing the item is no longer worth it. Da points back
+          to that position; the second clause states the opposing judgment.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_modals2026
+    - umich_de_comparison2026
+    - umich_de_prepositional2026
+    - goethe_de_discussion2026
+    - umich_de_connectors2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

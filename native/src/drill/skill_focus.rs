@@ -44,10 +44,9 @@ pub(crate) fn capture(
         DrillSkillTarget::Coach { mode } => {
             let ids = store
                 .config
-                .skill_coverage(&context.language_id, &context.variety_id)?
+                .skills_for_language(&context.language_id)?
                 .into_iter()
-                .filter(|entry| entry.guide_available)
-                .map(|entry| entry.skill_id)
+                .map(|entry| entry.id.clone())
                 .collect::<Vec<_>>();
             let snapshot = crate::learning::learner::progression::snapshot_db(
                 &store.connection,

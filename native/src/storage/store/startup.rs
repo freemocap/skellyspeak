@@ -56,6 +56,7 @@ impl Store {
             tx.pragma_update(None, "user_version", SCHEMA_VERSION)?;
             config.language("english")?;
             let preferences = Preferences {
+                execution: Default::default(),
                 practice_view: None,
                 theme: Theme::Light,
                 appearance: Default::default(),

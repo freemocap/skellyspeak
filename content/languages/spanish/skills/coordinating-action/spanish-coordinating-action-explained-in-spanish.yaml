@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: coordinating_action
+language: spanish
+explanation_language: spanish
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-spanish.yaml
+sections:
+  - subskill_id: requests
+    explanation: Pide la acción directamente o mediante una pregunta cortés. Poder no pregunta
+      necesariamente por una capacidad física.
+    examples:
+      - text: ¿Puedes cerrar la puerta, por favor?
+        meaning: Te pido que cierres la puerta.
+        note: La respuesta esperada es realizar la acción de cerrar.
+  - subskill_id: offers_invitations
+    explanation: Ofrece tu ayuda o invita a la otra persona a compartir una actividad.
+    examples:
+      - text: ¿Quieres venir a cenar?
+        meaning: Te invito a cenar.
+        note: En esta situación, la pregunta invita a participar.
+  - subskill_id: suggestions
+    explanation: Podemos con infinitivo puede proponer una actividad conjunta.
+    examples:
+      - text: Podemos ir mañana.
+        meaning: Propongo que vayamos mañana.
+        note: En una conversación sobre planes, se presenta una opción.
+  - subskill_id: commitments
+    explanation: Usa una expresión que indique que asumes el compromiso. Mencionar el futuro no equivale
+      por sí solo a prometer.
+    examples:
+      - text: Te prometo que voy a llamarte.
+        meaning: Me comprometo a llamarte.
+        note: Prometo hace explícito el compromiso.
+  - subskill_id: accepting_declining
+    explanation: Una aceptación o un rechazo breve depende de la propuesta anterior. Puedes rechazar con
+      cortesía sin dar una explicación larga.
+    examples:
+      - text: Lo siento, no puedo.
+        meaning: Rechazo la propuesta y expreso que lo lamento.
+        note: Después de una invitación, esta respuesta la rechaza.
+  - subskill_id: negotiating_plans
+    explanation: Responde al plan propuesto con una alternativa que resuelva el problema.
+    examples:
+      - text: A las seis no puedo; ¿quedamos a las siete?
+        meaning: Propongo reunirnos a las siete porque a las seis no puedo.
+        note: Se modifica la hora propuesta para resolver una limitación.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

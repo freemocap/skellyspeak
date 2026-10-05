@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: managing_conversation
+guidance: Recognize greetings or closings, acknowledgement, clarification, reformulation,
+  correction of misunderstanding and turn or topic management. Hẹn gặp lại closes contact. Bây
+  giờ tôi hiểu rồi acknowledges comprehension without necessarily agreeing. Bạn nói lại được
+  không? asks for repetition; Nói cách khác signals a rephrasing. Ý tôi là thứ bảy, không phải
+  thứ sáu repairs a mistaken interpretation. Chúng ta chuyển sang câu hỏi khác nhé proposes a
+  topic transition. A greeting quoted in a vocabulary list is absent as actual interactional
+  work. A short vâng or dạ can acknowledge a particular contribution contextually; its social
+  meaning depends on the relationship. Do not treat every question as repair or demand a pronoun
+  where the context permits omission. Preserve ordinary regional vocabulary and tone
+  distinctions without pretending textual evidence establishes pronunciation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_suggestions2026
+    - niu_vietnamese_patterns2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

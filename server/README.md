@@ -565,7 +565,7 @@ Transcription also returns `{version: 3, response, usage}`. Native derives optio
 word timing and recognition confidence from full provider data before diagnostic
 redaction/truncation. Invalid timing leaves transcript text intact with a recorded
 validation reason. Language policy remains in native configuration and
-`content/shared/speech-routing.yaml`. The generated server `speech_catalog.py`
+`content/speech/speech-routing.yaml`. The generated server `speech_catalog.py`
 contains only model provider/task availability, not language support tables.
 
 Logs remain content-free. Successful client responses preserve content and unknown

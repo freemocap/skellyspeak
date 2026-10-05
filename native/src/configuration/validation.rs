@@ -135,14 +135,12 @@ impl Registry {
         )?;
         let traits = unique("traits", self.traits.iter().map(|x| x.id.as_str()))?;
         let families = unique("families", self.families.iter().map(|x| x.id.as_str()))?;
-        let constructs = unique("constructs", self.constructs.iter().map(|x| x.id.as_str()))?;
-        let nav = unique("navigation", self.navigation.iter().map(|x| x.id.as_str()))?;
         unique("topics", self.topics.iter().map(|x| x.id.as_str()))?;
-        if langs.is_empty() || constructs.is_empty() || self.topics.is_empty() {
+        if langs.is_empty() || self.skills.skills.len() != 8 || self.topics.is_empty() {
             return Err(error(
                 "config",
                 "empty",
-                "Languages, constructs and topics cannot be empty.",
+                "Languages and topics are required, with exactly eight skills.",
             ));
         }
         for s in &self.scripts {
@@ -285,122 +283,7 @@ impl Registry {
             crate::partners::persona::validate_for_language(&l.starter_persona, &projected)
                 .map_err(|e| error(&l.id, "starter_persona", e))?;
         }
-        for c in &self.constructs {
-            checked_review(&c.id, &c.review, &c.sources)?;
-            nonempty(&c.id, &[&c.label, &c.criterion, &c.opportunity])?;
-            review(&c.id, &c.review)?;
-            citations(&c.id, &c.sources, &keys)?;
-            if !BANDS.contains(&c.band.as_str())
-                || ![
-                    "function",
-                    "form",
-                    "interaction",
-                    "pragmatics",
-                    "support",
-                    "fluency",
-                ]
-                .contains(&c.lens.as_str())
-            {
-                return Err(error(&c.id, "construct", "Unsupported band or lens."));
-            }
-            for dep in &c.requires {
-                reference(&c.id, dep, &constructs)?;
-            }
-            for id in &c.traits {
-                reference(&c.id, id, &traits)?;
-            }
-            if c.nav
-                .keys()
-                .any(|k| !["practical", "functional"].contains(&k.as_str()))
-                || c.nav.len() != 2
-            {
-                return Err(error(
-                    &c.id,
-                    "navigation",
-                    "Both practical and functional navigation are required.",
-                ));
-            }
-            reference(&c.id, &c.nav["practical"], &nav)?;
-            if ![
-                "function",
-                "form",
-                "interaction",
-                "pragmatics",
-                "support",
-                "fluency",
-            ]
-            .contains(&c.nav["functional"].as_str())
-            {
-                return Err(error(&c.id, "navigation", "Unknown functional navigation."));
-            }
-        }
-        acyclic(
-            "constructs",
-            &self
-                .constructs
-                .iter()
-                .map(|c| (c.id.clone(), c.requires.clone()))
-                .collect(),
-        )?;
-        unique(
-            "navigation codes",
-            self.navigation.iter().map(|n| n.code.as_str()),
-        )?;
-        if self.navigation.iter().filter(|n| n.kind == "root").count() != 1 {
-            return Err(error("navigation", "root", "Exactly one root is required."));
-        }
-        for c in &self.constructs {
-            reference(&c.id, &c.id, &nav)?;
-        }
-        for n in &self.navigation {
-            if n.kind == "root" {
-                if n.parent.is_some() || n.code != "ROOT" {
-                    return Err(error(&n.id, "root", "Root needs no parent and code ROOT."));
-                }
-            } else {
-                let parent = n
-                    .parent
-                    .as_ref()
-                    .and_then(|id| self.navigation.iter().find(|p| p.id == *id))
-                    .ok_or_else(|| error(&n.id, "parent", "Non-root requires a parent."))?;
-                if parent.kind != "root" && !n.code.starts_with(&format!("{}.", parent.code)) {
-                    return Err(error(&n.id, "code", "Code must descend from parent code."));
-                }
-                if parent.kind == "root" && n.kind != "domain" {
-                    return Err(error(
-                        &n.id,
-                        "parent",
-                        "Only domains may be direct root children.",
-                    ));
-                }
-            }
-            if !["root", "domain", "skill"].contains(&n.kind.as_str()) {
-                return Err(error(&n.id, "navigation", "Unknown node kind."));
-            }
-            if let Some(id) = &n.parent {
-                reference(&n.id, id, &nav)?;
-            }
-            if n.kind == "skill" {
-                reference(&n.id, &n.id, &constructs)?;
-                if !n.label.is_empty() || !n.criterion.is_empty() || !n.description.is_empty() {
-                    return Err(error(
-                        &n.id,
-                        "duplicate_content",
-                        "Skill label, description and criterion belong only in construct definitions.",
-                    ));
-                }
-            } else {
-                nonempty(&n.id, &[&n.label])?;
-            }
-        }
-        acyclic(
-            "navigation",
-            &self
-                .navigation
-                .iter()
-                .map(|n| (n.id.clone(), n.parent.iter().cloned().collect()))
-                .collect(),
-        )?;
+
         let g = &self.game;
         let same = |values: &[String], required: &[&str]| {
             values.len() == required.len()
@@ -456,12 +339,12 @@ impl Registry {
                 .any(|k| g.tiers.get(*k).is_none_or(|v| *v > 3))
         {
             return Err(error(
-                "shared/teaching-policy.yaml#game",
+                "policies/teaching-policy.yaml#game",
                 "game",
                 "Reward rules, evidence causes, tiers or numeric bounds are invalid.",
             ));
         }
-        citations("shared/teaching-policy.yaml#game", &g.sources, &keys)?;
+        citations("policies/teaching-policy.yaml#game", &g.sources, &keys)?;
         let e = &self.estimator;
         let steps = [
             "none",
@@ -509,16 +392,16 @@ impl Registry {
             || e.support.get("none") != Some(&1.0)
         {
             return Err(error(
-                "shared/teaching-policy.yaml#estimator",
+                "policies/teaching-policy.yaml#estimator",
                 "estimator",
                 "Invalid estimator bounds or support weights.",
             ));
         }
-        citations("shared/teaching-policy.yaml#estimator", &e.sources, &keys)?;
+        citations("policies/teaching-policy.yaml#estimator", &e.sources, &keys)?;
         let p = &self.feedback;
         if !["focus_and_meaning_blocking", "useful_language"].contains(&p.correct_only.as_str()) {
             return Err(error(
-                "shared/teaching-policy.yaml#feedback",
+                "policies/teaching-policy.yaml#feedback",
                 "policy",
                 "Unsupported correction policy.",
             ));
@@ -533,7 +416,7 @@ impl Registry {
             .collect()
         {
             return Err(error(
-                "shared/teaching-policy.yaml#feedback",
+                "policies/teaching-policy.yaml#feedback",
                 "policy",
                 "All three learner-agency protections are required.",
             ));
@@ -543,7 +426,7 @@ impl Registry {
             .any(|s| !["developmental", "slip", "transfer", "unknown"].contains(&s.as_str()))
         {
             return Err(error(
-                "shared/teaching-policy.yaml#feedback",
+                "policies/teaching-policy.yaml#feedback",
                 "policy",
                 "Unknown error source.",
             ));
@@ -555,7 +438,7 @@ impl Registry {
             != ["light", "standard", "thorough"].into_iter().collect()
         {
             return Err(error(
-                "shared/teaching-policy.yaml#feedback",
+                "policies/teaching-policy.yaml#feedback",
                 "policy",
                 "Expected light, standard and thorough intensities.",
             ));
@@ -563,13 +446,13 @@ impl Registry {
         for i in p.intensity.values() {
             if !["hint", "elicit", "metalinguistic", "explicit"].contains(&i.start_at.as_str()) {
                 return Err(error(
-                    "shared/teaching-policy.yaml#feedback",
+                    "policies/teaching-policy.yaml#feedback",
                     "policy",
                     "Unsupported starting move.",
                 ));
             }
         }
-        citations("shared/teaching-policy.yaml#feedback", &p.sources, &keys)?;
+        citations("policies/teaching-policy.yaml#feedback", &p.sources, &keys)?;
         let prompt = &self.conversation_prompt;
         nonempty(
             "conversation prompt",

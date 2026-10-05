@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: О котрій годині asks for the clock time of an event.
+    examples:
+      - text: О котрій годині зачиняється майстерня?
+        meaning: What time does the workshop close?
+        note: The speaker seeks the closing hour.
+  - subskill_id: answering_information
+    explanation: A time phrase can answer directly when the previous question supplies the event.
+    examples:
+      - text: О п’ятій.
+        meaning: At five o’clock.
+        note: Reply to the workshop closing-time question; the ordinal form identifies the hour.
+  - subskill_id: checking_facts
+    explanation: Так after a proposition can ask for confirmation of a candidate fact.
+    examples:
+      - text: Майстерня зачиняється о п’ятій, так?
+        meaning: The workshop closes at five, right?
+        note: The speaker checks five o’clock rather than asking an open question.
+  - subskill_id: useful_detail
+    explanation: A location phrase can distinguish the entrance the listener needs.
+    examples:
+      - text: Вхід з боку двору.
+        meaning: The entrance is on the courtyard side.
+        note: This answers a question about finding the entrance with a relevant landmark.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ukma_ukrainian_terms2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

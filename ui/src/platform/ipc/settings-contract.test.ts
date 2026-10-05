@@ -1,4 +1,4 @@
-import { DEFAULT_APPEARANCE } from '../../generated/contracts'
+import { DEFAULT_EXECUTION, DEFAULT_APPEARANCE } from '../../generated/contracts'
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AccessSettings, Command, ConnectionConfig, Snapshot } from '../../generated/contracts'
@@ -12,7 +12,7 @@ import { validateAudioVolumes } from '../../domain/audio/audio-settings'
 function directory(): Snapshot {
   return {
     savedTopics: [], sessionId: 'session', revision: 20,
-    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
+    learner: { id: 'learner', name: 'Learner', revision: 9, preferences: { execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 125, textSpacing: 3, highContrast: true, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
     personas: [], contacts: [], languages: [], languageProfiles: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: index ? 'french' : 'spanish', title: id,
@@ -28,6 +28,16 @@ let microphone: string | null
 function commands(): Command[] {
   return backend.invoke.mock.calls.filter(([name]) => name === 'execute_command').map(([, args]) => args.command as Command)
 }
+
+it('saves execution choices only on the learner and preserves concurrent changes to another choice', async () => {
+  const baseline = await getSettings()
+  workspace.learner.preferences.execution.reading = 'automatic'
+  workspace.learner.revision++
+  await saveSettings({ ...baseline, execution: { ...baseline.execution!, assessment: 'on_demand' } }, baseline)
+  expect(commands()).toHaveLength(1)
+  expect(commands()[0].action).toEqual({ kind: 'updateLearner', name: workspace.learner.name, expectedRevision: 10,
+    preferences: { ...workspace.learner.preferences, execution: { ...DEFAULT_EXECUTION, reading: 'automatic', assessment: 'on_demand' } } })
+})
 beforeEach(() => {
   backend.invoke.mockReset()
   workspace = directory()
@@ -227,7 +237,7 @@ it('saves explanation variety to the conversation and future defaults without ch
   const actions = commands().map(command => command.action)
   expect(actions).toHaveLength(2)
   expect(actions[0]).toMatchObject({ kind: 'updateSettings', settings: { varietyId: 'spanish-mexico', explanationLanguage: 'english', explanationVarietyId: 'english-united-kingdom' } })
-  expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-kingdom', interfaceLocale: 'english' } })
+  expect(actions[1]).toMatchObject({ kind: 'updateLearner', preferences: { execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-kingdom', interfaceLocale: 'english' } })
 })
 it('saves an explicit target variety as the per-language default', async () => {
   const settings = await getSettings()

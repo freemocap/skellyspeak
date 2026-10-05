@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-definition.yaml
+schema_version: 1
+revision: __REVISION__
+id: __SKILL_ID__
+name: __SKILL_NAME__
+purpose: __FUNCTION__
+boundary: __ASSESSMENT_BOUNDARY__
+provenance:
+  origin: ai
+  authorship: __AUTHORSHIP__
+  sources:
+    - __CITATION_KEY__
+  generation: null
+  review:
+    status: needs_review
+    revision: __REVISION__
+    scope: __REVIEW_SCOPE__

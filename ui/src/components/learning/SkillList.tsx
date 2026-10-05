@@ -27,11 +27,11 @@ export function SkillList({ snapshot, selected, onSelect, presenting = false }: 
   return <section aria-label={tr('Skills')}>
     <label>{tr('Category')} <select value={category} onChange={e => setCategory(e.target.value)}>
       <option value="">{tr('All categories')}</option>
-      {snapshot.catalog.filter(n => n.kind === 'domain').map(n => <option key={n.id} value={n.id}>{tr(n.label)}</option>)}
+      {snapshot.catalog.filter(n => n.kind === 'skill').map(n => <option key={n.id} value={n.id}>{tr(n.label)}</option>)}
     </select></label>
     <ol className="skill-list">{visibleRows.filter(r => !category || r.domain.id === category).map(({ node, xp, domain }) => <li key={node.id}>
       <button type="button" className="skill-list-row" data-reward-skill={node.id} aria-haspopup="dialog" aria-pressed={selected === node.id} onClick={() => onSelect(node.id)} style={{ color: domainColors(domain.id).ink }}>
-        <strong>{tr(node.label)}</strong><span>{tr.number(xp)} XP</span><small>{tr(domain.label)}</small>
+        <strong>{tr(node.label)}</strong><span>{tr.number(xp)} XP</span>
       </button>
     </li>)}</ol>
   </section>

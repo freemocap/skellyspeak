@@ -22,7 +22,7 @@ export function createSkillCatalog(catalog: TreeNode[]) {
     return path
   }
   const domain = (id: string): TreeNode => {
-    const found = ancestry(id).find(item => item.kind === 'domain')
+    const found = ancestry(id).find(item => item.kind === 'skill')
     if (!found) throw new Error(`No domain for ${id}`)
     return found
   }

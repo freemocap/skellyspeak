@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Use essere with a noun phrase to identify someone. A possessive such as mia agrees
+      with that noun, and an ordinary phrase such as la mia collega includes its article.
+    examples:
+      - text: Questa è la mia collega Sara.
+        meaning: This is my colleague Sara.
+        note: Questa and mia refer to a woman; collega has feminine agreement here. The sentence
+          introduces her identity.
+  - subskill_id: qualities_states
+    explanation: Adjectives describing a subject with essere agree in gender and number. They keep
+      that agreement even though they follow the verb rather than a noun.
+    examples:
+      - text: Le finestre sono aperte.
+        meaning: The windows are open.
+        note: Aperte is feminine plural like finestre; sono matches the plural subject.
+  - subskill_id: location_movement
+    explanation: "A spatial expression such as accanto a locates one thing relative to another.
+      Combine a with the required article: a + la becomes alla."
+    examples:
+      - text: La farmacia è accanto alla stazione.
+        meaning: The pharmacy is next to the station.
+        note: È accanto alla locates the pharmacy; the sentence does not describe a journey to the
+          station.
+  - subskill_id: possession_relations
+    explanation: Avere can state possession. With an unmodified singular close-family noun, a
+      possessive such as mia normally appears without an article.
+    examples:
+      - text: Mia sorella ha una macchina da cucire.
+        meaning: My sister has a sewing machine.
+        note: Mia sorella expresses the family relationship without la. Ha introduces what she
+          possesses; macchina da cucire means sewing machine.
+  - subskill_id: quantity_comparison
+    explanation: Use a number to count items. Più + adjective gives a comparative; di can introduce
+      the other noun phrase being compared.
+    examples:
+      - text: Abbiamo quattro sedie. Questa sedia è più leggera delle altre.
+        meaning: We have four chairs. This chair is lighter than the others.
+        note: Quattro counts chairs. Delle is di + le before altre; leggera agrees with feminine
+          singular sedia.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_agreement2026
+    - treccani_it_possessives2026
+    - zanichelli_it_comparison2026
+    - zanichelli_it_prepositions2026
+    - zanichelli_it_location2026
+    - treccani_it_essere2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

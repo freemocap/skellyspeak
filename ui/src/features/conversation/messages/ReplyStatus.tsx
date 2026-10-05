@@ -1,4 +1,5 @@
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
+import { FriendlyReason } from '../../../components/feedback/FriendlyError'
 import { useRef, useState } from 'react'
 import type { ReplyState } from '../../../domain/conversation/reply-state'
 import { nativeError } from '../../../platform/ipc/workspace'
@@ -33,7 +34,7 @@ export function ReplyStatus({ reply, stream, retainedText, visibleText, rtl, onC
   return <div className="partner-turn"><span className="partner-reaction-slot" aria-hidden="true" /><div className="msg chat-message bot" data-reply-state={state}>
     {received && <ReceivedText text={received} streaming={false} rtl={rtl} />}
     <p role={state === 'failed' || state === 'unknown' || state === 'unavailable' ? 'alert' : 'status'}>{label}</p>
-    {reply?.error && <p>{reply.error}</p>}
+    {reply?.error && <FriendlyReason error={reply.error} />}
     {reply?.control && onControl && <button type="button" disabled={pending} onClick={() => {
       if (locked.current) return
       locked.current = true; setPending(true); setError(null)

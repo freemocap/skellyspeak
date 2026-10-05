@@ -5,6 +5,39 @@ use crate::model::*;
 use rusqlite::{Connection, OptionalExtension, params};
 use serde_json::Value;
 
+/// Message-level judgments from the current, source-owned assessment. Numeric
+/// evidence remains readable for saved attempts that used that result shape.
+pub(crate) fn feedback(
+    db: &Connection,
+    turn: &str,
+) -> Result<Option<crate::learning::coaching::conversation_support::ConversationFeedback>> {
+    use crate::learning::coaching::conversation_support::ConversationFeedback;
+    if let Some((_, result)) = current(db, turn, "skill_assessment")?
+        && (result.get("grammar").is_some() || result.get("understandability").is_some())
+    {
+        let answers = ["grammar", "understandability"]
+            .into_iter()
+            .map(|key| Ok((key.to_owned(), serde_json::from_value(result[key].clone())?)))
+            .collect::<Result<_>>()?;
+        return Ok(Some(ConversationFeedback {
+            grammar: None,
+            conversation: None,
+            answers,
+        }));
+    }
+    // A captured combined assessment owns this view even while pending/failed.
+    let combined: bool = db.query_row(
+        "SELECT json_type(context,'$.messageAssessmentQuestions') IS NOT NULL FROM turns WHERE id=?1",
+        [turn], |r| r.get(0),
+    )?;
+    if combined {
+        return Ok(None);
+    }
+    current(db, turn, "conversation_feedback")?
+        .map(|(_, result)| Ok(serde_json::from_value(result)?))
+        .transpose()
+}
+
 pub(crate) fn owns(kind: &str) -> bool {
     matches!(
         kind,

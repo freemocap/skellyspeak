@@ -39,6 +39,10 @@ export interface TargetMessageAnalysis {
 }
 
 export interface TargetMessageProps {
+  additionalActions?: ReactNode
+  /** Durable message owners supply requests instead of generic text lookups. */
+  onRequestWords?: () => Promise<void>
+  onRequestTranslation?: () => Promise<void>
   /** Explicit list-wide actions; null leaves this aid under individual control. */
   bulkReading?: { translations: boolean | null; phonetics: boolean | null }
   /** Optional source presentation; the complete text still owns tools and speech. */
@@ -97,7 +101,7 @@ export interface TargetMessageProps {
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
   segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, practiceAction, provenance, readAloud = true, side = 'bot',
-  inspect = null, inspector, onSelect, sourcePresentation, bulkReading,
+  inspect = null, inspector, onSelect, sourcePresentation, bulkReading, onRequestWords, onRequestTranslation, additionalActions,
 }: TargetMessageProps) {
   const tr = useI18n()
   const messageTools = useMessageToolDefinitions()
@@ -149,6 +153,12 @@ export function TargetMessage({
 
   const words = useSourceRequest(sourceKey)
   async function toggleWords() {
+    if (onRequestWords) {
+      const request = known.length === 0 && !segmentsPending && !words.pending
+      setWordsOverride(request ? true : !wordsOpen)
+      if (request) await words.run(() => onRequestWords(), () => {})
+      return
+    }
     // Missing meanings: one explicit click requests the whole passage and shows
     // it, even when a preference already shows the partial meanings.
     const request = !lookedUp && !words.pending && readingScope !== null && lookup !== null && sourceKey !== null
@@ -174,6 +184,10 @@ export function TargetMessage({
     if (shownTranslation !== null) return
     // Nothing to show yet: one explicit click requests it and shows it.
     setTranslationOverride(true)
+    if (onRequestTranslation) {
+      await translating.run(() => onRequestTranslation(), () => {})
+      return
+    }
     if (readingScope === null || lookup === null || sourceKey === null) return
     const source = sourceKey
     await translating.run(signal => lookup({ ...readingScope, text, aid: 'translation' }, signal), result => {
@@ -217,9 +231,9 @@ export function TargetMessage({
   }, [bulkReading?.phonetics, sourceKey])
 
   const body = <>
-    {sourcePresentation ?? (known.length > 0
+    <span data-phrase-source>{sourcePresentation ?? (known.length > 0
       ? <SavedGlossText key={segmentsKey} text={text} segments={known} showAids={wordsOpen} revealAids={wordsOverride === true} showSound={soundOverride ?? undefined} />
-      : <TargetText text={text} />)}
+      : <TargetText text={text} />)}</span>
     {annotation}
     {translationShown && <div className="trans" dir="auto">{shownTranslation}</div>}
     {translationState !== undefined && <TranslationStatus state={translationState} shown={translationOpen && shownTranslation === null} />}
@@ -228,12 +242,12 @@ export function TargetMessage({
     {playback?.error && <ErrorDetails onRetry={() => playback.onToggle()} label={tr("Speech")} errorKey={playback.error.text} explanation={playback.error.text}><ResponseDetails value={playback.error.details} /></ErrorDetails>}
   </>
   const tools: MessageTool[] = [
-    ...(shownTranslation || canLookup || translationWorking ? [messageTools.translate({ ariaLabel: translateLabel ?? undefined,
+    ...(shownTranslation || canLookup || onRequestTranslation || translationWorking ? [messageTools.translate({ ariaLabel: translateLabel ?? undefined,
       pressed: translationShown, pending: translating.pending || translationWorking, disabled: translating.pending, onSelect: () => void toggleTranslation() })] : []),
   ]
   const more: MessageTool[] = [
     messageTools.words({ pressed: wordsOpen, pending: segmentsPending || words.pending,
-      disabled: words.pending || (known.length === 0 && !canLookup), onSelect: () => void toggleWords() }),
+      disabled: words.pending || (known.length === 0 && !canLookup && !onRequestWords), onSelect: () => void toggleWords() }),
     ...(sound || hasPhonetics || bulkReading ? [messageTools.pronunciation({ pressed: soundOpen,
       pending: phonetics.pending, disabled: !sound && !hasPhonetics && !canLookup,
       onSelect: () => void showPhonetics(!soundOpen || phonetics.error != null) })] : []),
@@ -241,7 +255,7 @@ export function TargetMessage({
   ]
   const actions = <MessageTools tools={tools} inspect={inspect} more={more}
     play={playback && { playing: playback.speaking, preparing: 'preparing' in playback && playback.preparing, disabled: playback.disabled, onToggle: playback.onToggle }}
-    actions={<>{provenance && <ProvenanceTip provenance={provenance} />}{practiceAction ?? (addToDrill && <AddToDrillButton text={text} />)}</>} />
+    actions={<>{provenance && <ProvenanceTip provenance={provenance} />}{practiceAction ?? (addToDrill && <AddToDrillButton text={text} />)}{additionalActions}</>} />
   const failure = <>
     {words.error != null && <ErrorDetails onRetry={toggleWords} label={tr('Word meanings')} errorKey={errorMessage(words.error)} explanation={errorMessage(words.error)}><ResponseDetails value={errorDetails(words.error)} /></ErrorDetails>}
     {translating.error != null && <ErrorDetails onRetry={toggleTranslation} label={tr('Translation')} errorKey={errorMessage(translating.error)} explanation={errorMessage(translating.error)}><ResponseDetails value={errorDetails(translating.error)} /></ErrorDetails>}

@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import App from './App'
 import { useSessionStore } from '../state/session/session'
 import { useNavigationStore } from '../state/navigation/navigation'
+
+const startSkill = vi.hoisted(() => vi.fn(async (_language: string, _variety: string, _skill: string) => {}))
 
 vi.mock('../components/layout/useIsMobile', () => ({ useIsMobile: () => true }))
 vi.mock('../state/learning/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/learning/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
@@ -27,11 +29,12 @@ const { native, state } = vi.hoisted(() => {
 vi.mock('../platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () => ({ native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english', target_language: 'spanish', provider_mode: 'custom' }), invoke: native, languageFor: () => null, languages: () => [] }))
 vi.mock('./shell/UpdateBanner', () => ({ UpdateBanner: () => null }))
 vi.mock('../features/settings/SettingsModal', () => ({ SettingsModal: () => null }))
-vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
+vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: (language: string, variety: string, skill: string) => Promise<void> }) => <button onClick={() => void onPractice('spanish', 'spanish-spain', 'time_events')}>Practice this skill</button> }))
 vi.mock('../features/drill/DrillPage', () => ({ default: () => <p>Drill surface</p> }))
 // The page is replaced, but it reads access the way the real one does — from the
 // session store — rather than through props the shell no longer threads down.
-vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
+vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobileSurface, onSkillStartReady }: { mobileSurface: string; onSkillStartReady: (action: typeof startSkill | null) => void }) => {
+  useEffect(() => { onSkillStartReady(startSkill); return () => onSkillStartReady(null) }, [onSkillStartReady])
   const [draft, setDraft] = useState('')
   const connection = useSessionStore((state) => state.connection)
   const startHostedSignIn = useSessionStore((state) => state.startHostedSignIn)
@@ -99,7 +102,8 @@ it('reaches the conversation from a skill action even when Practice was the prev
   await screen.findByText('Drill surface')
   fireEvent.click(within(navigation).getByRole('button', { name: 'Skills' }))
   fireEvent.click(await screen.findByRole('button', { name: 'Practice this skill' }))
-  expect(screen.getByLabelText('Draft').closest('.page-holder')).toHaveAttribute('aria-hidden', 'false')
+  await waitFor(() => expect(screen.getByLabelText('Draft').closest('.page-holder')).toHaveAttribute('aria-hidden', 'false'))
+  expect(startSkill).toHaveBeenCalledWith('spanish', 'spanish-spain', 'time_events')
   expect(useNavigationStore.getState()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: 'chat' })
 })
 

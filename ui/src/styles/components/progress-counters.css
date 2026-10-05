@@ -20,7 +20,6 @@
 /* Each effort unit keeps the colour of the place it comes from: the partner, the
    coach's clean badge, the coach's edit, the Practice tab. */
 [data-unit="partnerUnderstood"] { color: var(--partner-ink); }
-[data-unit="noIssuesFlagged"] { color: var(--success-ink); }
 [data-unit="revisionsSent"] { color: var(--coach-ink); }
 [data-unit="practiceAttempts"] { color: var(--practice-ink); }
 [data-unit="explorations"] { color: var(--interaction-ink); }

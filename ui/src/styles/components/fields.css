@@ -16,6 +16,10 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 
 .form-row { margin-bottom: var(--space-5); }
 
+/* Workspace execution choices are shared by settings and AI activity. */
+.ai-execution-settings { padding: var(--space-5); }
+.ai-execution-settings .form-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-5); }
+
 .field-note {
   margin: var(--space-3) 0 0;
   font-size: var(--type-ui);

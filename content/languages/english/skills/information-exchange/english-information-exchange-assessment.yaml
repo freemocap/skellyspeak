@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: information_exchange
+language: english
+guidance: Assess whether the learner correctly seeks, supplies, verifies or
+  usefully elaborates information. Where does she work? is valid; Where does she
+  works? fails the ordinary question construction. Who works here? is a valid
+  subject question without do. At the library can correctly answer Where do you
+  work? Treat fragments and declarative confirmation questions according to
+  context. A question requesting an action or repairing a misunderstood phrase
+  primarily serves a different function. Credit requires correct use of this
+  function, not an unsuccessful attempt. Unrelated errors do not invalidate a
+  successful instance. Use unclear when the available context cannot establish
+  the function. The listed forms are examples, not an exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

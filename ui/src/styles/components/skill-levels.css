@@ -1,48 +1,68 @@
 /* Skill levels panel (components/learning/SkillLevelsPanel.tsx): the level
-   header, the radar and the per-skill rows that the radar filters. Row colour is
-   the skill's own jewel tone, set inline as `color` on the row. */
-.skill-levels { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-6); }
-.skill-levels-head { display: flex; align-items: center; gap: var(--space-6); }
-.skill-level-badge { flex: none; width: var(--control-height); height: var(--control-height); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-pill); background: var(--chrome); border: var(--border-width-strong) solid var(--ink-2); color: var(--ink); font-size: var(--type-title); font-weight: var(--weight-bold); line-height: var(--leading-none); }
-.skill-level-badge small { font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-regular); color: var(--ink-3); }
-.skill-levels-summary { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
-.skill-levels-summary strong { font-size: var(--type-body); font-weight: var(--weight-semibold); }
-.skill-levels-summary > span { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); }
-.skill-levels-xp { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
-.skill-levels-band, .skill-levels-row progress { appearance: none; height: var(--space-3); border: 0; border-radius: var(--radius-pill); background: var(--track); overflow: hidden; }
-.skill-levels-band { flex: none; width: calc(120px * var(--layout-scale)); color: var(--progress-mark); }
-.skill-levels-band::-webkit-progress-bar, .skill-levels-row progress::-webkit-progress-bar { background: var(--track); }
-.skill-levels-band::-webkit-progress-value, .skill-levels-row progress::-webkit-progress-value { background: currentColor; border-radius: var(--radius-pill); }
-.skill-levels-band::-moz-progress-bar, .skill-levels-row progress::-moz-progress-bar { background: currentColor; border-radius: var(--radius-pill); }
+   header, the radar and its key, the focused skill's card, and the skills short
+   of and ready for the next level. Skill colours arrive inline: `color` on rows,
+   chips and pips (their marks use currentColor), `color` on names for the ink. */
+.skill-levels { display: flex; flex-direction: column; gap: var(--space-8); padding: var(--space-6); }
 
-.skill-levels-list-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: var(--control-height-sm); }
-.skill-levels-list-head h3 { margin: 0; font-size: var(--type-ui); font-weight: var(--weight-semibold); }
-.skill-levels-hint { color: var(--ink-3); font-size: var(--type-meta); }
-.skill-levels-filter { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-6); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink); font-size: var(--type-meta); font-weight: var(--weight-medium); cursor: pointer; }
-.skill-levels-filter span { color: var(--ink-3); }
+.skill-levels-head { display: flex; align-items: center; gap: var(--space-7); padding: var(--space-7) var(--space-8); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); }
+.skill-level-badge { flex: none; width: calc(var(--control-height) + var(--space-4)); height: calc(var(--control-height) + var(--space-4)); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-pill); border: var(--border-width-thick) solid var(--progress-mark); color: var(--ink); font-size: var(--type-display); font-weight: var(--weight-semibold); line-height: var(--leading-none); }
+.skill-level-badge small { font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); color: var(--ink-3); }
+.skill-levels-summary { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.skill-levels-title { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); }
+.skill-levels-title strong { font-size: var(--type-title); font-weight: var(--weight-semibold); }
+.skill-levels-xp { flex: none; color: var(--interaction-ink); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.skill-levels-summary p { margin: 0; color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-snug); }
+/* One segment per skill; gold once the skill has the points for the next level. */
+.skill-levels-readiness { display: flex; gap: var(--space-1); }
+.skill-levels-readiness span { flex: 1; height: var(--space-3); border-radius: var(--radius-pill); background: var(--track); }
+.skill-levels-readiness span[data-ready] { background: var(--progress-mark); }
 
-.skill-levels-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.skill-levels-row { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto calc(48px * var(--layout-scale)) auto auto; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-2); background: none; border: 0; border-bottom: var(--border-width) solid var(--line-soft); border-radius: 0; text-align: start; font-size: var(--type-ui); cursor: pointer; }
-.skill-levels-row:hover, .skill-levels-row[aria-pressed='true'] { background: var(--chrome); }
-.skill-levels-dot { width: var(--space-4); height: var(--space-4); border-radius: var(--radius-pill); background: currentColor; }
-.skill-levels-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-medium); }
-.skill-levels-level { padding: 0 var(--space-2); border-radius: var(--radius-xs); background: var(--chrome); color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
-.skill-levels-row progress { width: 100%; }
-.skill-levels-points, .skill-levels-row-xp { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
-.skill-levels-row-xp { color: var(--ink-2); font-weight: var(--weight-semibold); }
-
-.skill-levels-legend { display: flex; align-items: center; gap: var(--space-4); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
+/* How to read the chart, directly under it. */
+.skill-levels-key { list-style: none; margin: calc(-1 * var(--space-4)) 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3) var(--space-8); color: var(--ink-2); font-size: var(--type-ui); }
+.skill-levels-key li { display: inline-flex; align-items: center; gap: var(--space-3); }
+.skill-levels-key svg { width: var(--space-8); height: var(--space-8); flex: none; }
+.skill-levels-key-goal { fill: none; stroke: var(--progress-mark); stroke-width: 2; }
+.skill-levels-key-reached { fill: none; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1.6; stroke-dasharray: 3 2; }
+.skill-levels-key-shape { fill: var(--interaction-mark); fill-opacity: 0.55; stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 1; }
+.skill-levels-legend { display: flex; align-items: center; gap: var(--space-4); margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
 .skill-levels-legend-mark { flex: none; width: var(--space-8); height: var(--space-4); border: var(--border-width-strong) solid var(--ink-2); border-radius: var(--radius-xs); background: var(--chip); }
-/* What the pointed or pinned skill covers; the resting text says how to use the radar. */
-.skill-levels-focus { display: flex; flex-direction: column; gap: var(--space-1); min-height: calc(var(--type-body) * 3); padding: var(--space-4) var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-3); font-size: var(--type-ui); line-height: var(--leading-snug); }
-.skill-levels-focus strong { font-weight: var(--weight-semibold); }
-.skill-levels-focus span { color: var(--ink-2); }
 
-/* What holds the next language level back: one chip per short skill, pressing pins it. */
-.skill-levels-next { display: flex; flex-direction: column; gap: var(--space-3); }
-.skill-levels-next h3 { margin: 0; color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
-.skill-levels-next ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3); }
-.skill-levels-chip { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-5); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); font-size: var(--type-meta); font-weight: var(--weight-semibold); cursor: pointer; }
-.skill-levels-chip:hover, .skill-levels-chip[aria-pressed='true'] { border-color: currentColor; }
-.skill-levels-chip > span:last-child { color: var(--ink-3); font-family: var(--font-mono); font-weight: var(--weight-regular); }
-.skill-levels-more { display: flex; align-items: center; color: var(--ink-3); font-size: var(--type-meta); }
+/* The focused skill, right under the chart. Its border takes the skill's colour inline. */
+.skill-levels-focus { display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-7) var(--space-8); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); color: var(--ink-2); font-size: var(--type-body); line-height: var(--leading-normal); }
+.skill-levels-focus p { margin: 0; }
+.skill-levels-focus-head { display: flex; align-items: center; gap: var(--space-4); }
+.skill-levels-focus-head h3 { flex: 1; margin: 0; font-size: var(--type-title); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+.skill-levels-focus-need { color: var(--ink); font-weight: var(--weight-semibold); }
+.skill-levels-focus-hint { color: var(--ink-2); }
+.skill-levels-criterion { padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); background: var(--chrome); font-size: var(--type-ui); line-height: var(--leading-snug); }
+.skill-levels-criterion strong { color: var(--ink); font-weight: var(--weight-semibold); }
+.skill-levels-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.skill-levels-level { flex: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.skill-levels-dot { flex: none; width: var(--space-5); height: var(--space-5); border-radius: var(--radius-pill); background: currentColor; }
+
+/* Pips: one per point, filled in the skill's colour; the language goal pip is outlined gold. */
+.skill-levels-pips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.skill-levels-pips span { box-sizing: border-box; border-radius: var(--radius-xs); background: var(--track); }
+.skill-levels-pips span[data-filled] { background: currentColor; }
+.skill-levels-pips span[data-goal] { border: var(--border-width-strong) solid var(--progress-mark); }
+.skill-levels-pips[data-size='large'] span { width: var(--space-7); height: var(--space-7); }
+.skill-levels-pips[data-size='small'] { flex-wrap: nowrap; }
+.skill-levels-pips[data-size='small'] span { width: var(--space-3); height: var(--space-7); }
+.skill-levels-bar { appearance: none; width: 100%; height: var(--space-4); border: 0; border-radius: var(--radius-pill); background: var(--track); overflow: hidden; }
+.skill-levels-bar::-webkit-progress-bar { background: var(--track); }
+.skill-levels-bar::-webkit-progress-value { background: currentColor; border-radius: var(--radius-pill); }
+.skill-levels-bar::-moz-progress-bar { background: currentColor; border-radius: var(--radius-pill); }
+
+/* Skills short of the next level, as rows, and those ready for it, as chips. Pressing pins one. */
+.skill-levels-next { display: flex; flex-direction: column; gap: var(--space-4); }
+.skill-levels-next h3 { margin: 0 var(--space-2); color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.skill-levels-next ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.skill-levels-row { width: 100%; min-height: var(--touch-target); display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-5); padding: var(--space-4) var(--space-6); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); text-align: start; font-size: var(--type-body); cursor: pointer; }
+.skill-levels-row:hover, .skill-levels-row[data-active], .skill-levels-row[aria-pressed='true'] { border-color: currentColor; }
+.skill-levels-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-semibold); }
+.skill-levels-needed { min-width: calc(var(--space-13) + var(--space-4)); color: var(--ink); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); text-align: end; }
+.skill-levels-next ul.skill-levels-ready { flex-direction: row; flex-wrap: wrap; }
+.skill-levels-chip { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-6); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); font-size: var(--type-ui); font-weight: var(--weight-semibold); cursor: pointer; }
+.skill-levels-chip:hover, .skill-levels-chip[data-active], .skill-levels-chip[aria-pressed='true'] { border-color: currentColor; }
+.skill-levels-chip svg { width: var(--space-8); height: var(--space-8); fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.skill-levels-chip > span:last-child { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-regular); }

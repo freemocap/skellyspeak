@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: managing_conversation
+subskills:
+  - id: opening_closing
+    name: Opening and closing
+    purpose: Establish or end a conversational encounter.
+    positive_evidence: Greets, takes leave or manages a recognizable opening or closing sequence.
+    counterexample: Quoting a greeting as vocabulary without using it to open an encounter.
+    context: contribution
+    boundary: Thanks and apologies may participate in openings or closings, but their wording alone does
+      not establish the sequence.
+    neighbors:
+      - acknowledging
+      - turns_topics
+  - id: acknowledging
+    name: Acknowledging and responding
+    purpose: Register receipt, attention or a socially relevant response.
+    positive_evidence: Acknowledges a contribution or responds to a social act, including appropriate
+      thanks, apology or apology acceptance.
+    counterexample: Echoing words without a recoverable response function.
+    context: exchange
+    boundary: Acknowledgment does not necessarily endorse a claim or accept an action proposal;
+      politeness is not a standalone credit.
+    neighbors:
+      - agreement_disagreement
+      - accepting_declining
+      - opening_closing
+  - id: clarification
+    name: Asking for clarification
+    purpose: Signal trouble hearing or understanding a contribution and seek repair.
+    positive_evidence: Requests repetition, explanation or disambiguation of an identifiable prior contribution.
+    counterexample: Checking a fact that was understood but may be false.
+    context: exchange
+    boundary: The repair target must be available; a question mark or interrogative form alone is
+      insufficient.
+    neighbors:
+      - checking_facts
+      - asking_information
+      - rephrasing
+  - id: rephrasing
+    name: Rephrasing
+    purpose: Express a prior meaning differently to improve mutual understanding.
+    positive_evidence: Reformulates an identifiable contribution in response to actual or anticipated
+      understanding difficulty.
+    counterexample: Copying a correction or repeating identical wording without a repair purpose.
+    context: exchange
+    boundary: A revised form is not automatically a new communicative use; preserve the source and
+      repair context.
+    neighbors:
+      - clarification
+      - correcting_misunderstanding
+      - useful_detail
+  - id: correcting_misunderstanding
+    name: Correcting a misunderstanding
+    purpose: Replace an incorrect interpretation with the intended one.
+    positive_evidence: Identifies and repairs a mismatch between intended and understood meaning.
+    counterexample: Correcting an isolated spelling error without an interpretive misunderstanding.
+    context: exchange
+    boundary: Factual disagreement alone is not repair unless it addresses what someone took the
+      contribution to mean.
+    neighbors:
+      - checking_facts
+      - agreement_disagreement
+      - rephrasing
+  - id: turns_topics
+    name: Managing turns and topics
+    purpose: Coordinate who contributes and what the exchange is about.
+    positive_evidence: Takes, holds or yields a turn, introduces or returns to a topic, or signals a topic transition.
+    counterexample: Merely taking a turn by sending any message.
+    context: exchange
+    boundary: Narration and summaries can organize a topic; require evidence of interaction management
+      beyond their content.
+    neighbors:
+      - opening_closing
+      - acknowledging
+      - event_sequence
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: managing_conversation
+guidance: Look for opening or closing contact, acknowledging reception, asking for
+  clarification, rewording, correcting an interpretation, or managing the floor and topic. Até
+  amanhã closes a meeting rather than simply dating an event. Entendi can acknowledge a
+  just-given explanation without agreeing with its conclusion. O que você quer dizer com
+  provisório? repairs a word's meaning; a routine factual question about opening hours need not
+  be a comprehension repair. A copied greeting that does not serve contact, or an isolated
+  palavra with no clear repair need, is absent. Pode repetir? can request a repeat contextually
+  after an unclear utterance, even without a full restatement. Reformulation requires a
+  recoverable earlier formulation and a useful new expression; a marker such as ou seja alone is
+  insufficient. Eu quis dizer sábado, não sexta explicitly replaces a misunderstood day. Posso
+  falar dos horários agora? requests a topical turn when the conversation is moving between
+  agenda items. Distinguish receipt, agreement and permission from their actual sequential
+  roles; shortness and multifunctionality are not themselves errors.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

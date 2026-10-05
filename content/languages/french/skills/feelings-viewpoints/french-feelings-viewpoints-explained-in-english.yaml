@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: feelings_viewpoints
+language: french
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: >-
+      Vouloir or avoir envie de can express a desire. Avoir l’intention de makes an
+      intention explicit; these constructions do not all have the same interpersonal
+      force.
+    examples:
+      - text: "J’ai envie de marcher un peu après le déjeuner."
+        meaning: >-
+          I feel like walking a little after lunch.
+        note: >-
+          Avoir envie de introduces an infinitive describing the desired activity; this
+          states a wish rather than promising a walk.
+  - subskill_id: preferences
+    explanation: >-
+      Préférer compares or selects alternatives; aimer mieux is another resource. State
+      what is preferred rather than relying on a positive adjective alone.
+    examples:
+      - text: "Je préfère le train à l’avion pour ce trajet."
+        meaning: >-
+          I prefer the train to the plane for this journey.
+        note: >-
+          Préférer A à B explicitly ranks the two options within the stated journey.
+  - subskill_id: emotions
+    explanation: >-
+      Describe an emotional state with an appropriate adjective or expression. Adjectival
+      forms reflect the referent, while expressions such as avoir peur use avoir.
+    examples:
+      - text: "Cette nouvelle me fait plaisir."
+        meaning: >-
+          I am pleased by this news.
+        note: >-
+          Me identifies the person experiencing pleasure; the expression conveys a
+          reaction to the news rather than evaluating its truth.
+  - subskill_id: opinions
+    explanation: >-
+      Je pense que, je trouve que and à mon avis frame an evaluation as the speaker’s
+      view. An opinion is not automatically a claim of certainty.
+    examples:
+      - text: "À mon avis, ce chemin est trop étroit pour les vélos."
+        meaning: >-
+          In my opinion, this path is too narrow for bicycles.
+        note: >-
+          À mon avis marks the viewpoint; trop étroit states the judgement and pour les
+          vélos gives its practical scope.
+  - subskill_id: agreement_disagreement
+    explanation: >-
+      Express agreement or disagreement with the proposition actually under discussion.
+      D’accord alone may instead accept a practical proposal, depending on context.
+    examples:
+      - text: "Je suis d’accord sur le prix, mais pas sur la date."
+        meaning: >-
+          I agree about the price, but not the date.
+        note: >-
+          Sur identifies each point; mais pas limits the agreement rather than rejecting
+          everything the partner said.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_modals2026
+    - waystage_language_functions
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

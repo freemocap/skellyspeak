@@ -21,7 +21,7 @@ async fn skill_target_reaches_generation_and_survives_acceptance_without_xp() {
     use crate::drill::{previews::DrillSource, skill_focus::DrillSkillTarget};
     let (url, worker) = structured_server(|content| {
         let data: serde_json::Value = serde_json::from_str(content).unwrap();
-        assert_eq!(data["skillFocus"]["skill"]["id"], "past_reference");
+        assert_eq!(data["skillFocus"]["skill"]["id"], "time_events");
         assert!(
             !data["skillFocus"]["skill"]["language_guidance"]
                 .as_str()
@@ -36,11 +36,11 @@ async fn skill_target_reaches_generation_and_survives_acceptance_without_xp() {
     request.variety = Some("spanish-spain".into());
     request.length = crate::drill::generation::DrillLength::Sentence;
     request.skill_target = Some(DrillSkillTarget::Skill {
-        skill_id: "past_reference".into(),
+        skill_id: "time_events".into(),
     });
     let id = reserve(&app, request).unwrap();
     let captured = previews::input(&app.lock().unwrap().connection, &id).unwrap();
-    assert_eq!(captured.skill_focus.unwrap().skill.id, "past_reference");
+    assert_eq!(captured.skill_focus.unwrap().skill.id, "time_events");
     let preview = run(&app, &id).await.unwrap();
     worker.join().unwrap();
     let items = app
@@ -55,7 +55,7 @@ async fn skill_target_reaches_generation_and_survives_acceptance_without_xp() {
     else {
         panic!("Missing captured skill target")
     };
-    assert_eq!(focus.skill.id, "past_reference");
+    assert_eq!(focus.skill.id, "time_events");
     let store = app.lock().unwrap();
     let effort = crate::learning::effort::read(&store.connection, "spanish").unwrap();
     assert_eq!(effort.explorations, 1);
@@ -70,7 +70,7 @@ async fn skill_target_reaches_generation_and_survives_acceptance_without_xp() {
     let saved = store.drill_items("spanish").unwrap();
     assert_eq!(
         serde_json::to_value(&saved[0].source).unwrap()["skillFocus"]["skill"]["id"],
-        "past_reference"
+        "time_events"
     );
     assert_eq!(
         crate::learning::learner::progression::snapshot(&store, "spanish").unwrap()["profile"]["xp"],

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: feelings_viewpoints
+guidance: Assess wanting or intention, preference, emotion, opinion and agreement.
+  อยากเรียนเย็บผ้า expresses wanting to learn sewing rather than a promise. ชอบชามากกว่ากาแฟ
+  compares preferences. ดีใจที่ได้ยินข่าวนี้ expresses an emotional response, while คิดว่า
+  frames a judgment. ไม่เห็นด้วยกับข้อเสนอนี้ rejects a proposal. เข้าใจแล้ว acknowledges
+  comprehension without necessarily agreeing. ชา can answer a preference question contextually;
+  its occurrence in a stock list is not preference evidence. A copied อยาก without a recoverable
+  desired activity is absent. Do not count every fact as an opinion or require เป็น before an
+  emotional predicate. Self-reference terms such as ฉัน and ผม have social uses, and other
+  reference strategies can be natural. Evaluate the stance-bearing construction rather than
+  imposing one pronoun or sentence-final particle on all speakers.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

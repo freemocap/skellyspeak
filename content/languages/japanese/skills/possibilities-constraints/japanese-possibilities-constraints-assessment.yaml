@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: possibilities_constraints
+guidance: Identify ability, permission, necessity, possibility and confidence or uncertainty.
+  直すことができます expresses ability; potential forms provide another route. 座ってもいいですか requests
+  permission rather than asserting capacity. 返さなければなりません expresses necessity, while 返さなくてもいい
+  removes a requirement and 返してはいけない prohibits an action. 雨が降るかもしれません presents a possibility;
+  certainty can be qualified with 確か or 自信がない. A plain report of rain alone is not evidence of
+  possibility. 座るてもいい, intended as the ordinary permission construction and standing alone,
+  fails to form the required て-form. どうぞ from an appropriate listener after a permission request
+  may grant permission contextually. Potential wording in a request is not automatically
+  evidence of physical ability. Ambiguity between correct capacity and opportunity readings does
+  not make the entire group unclear. Accept appropriate conversational contractions instead of
+  requiring the most formal negative obligation form.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

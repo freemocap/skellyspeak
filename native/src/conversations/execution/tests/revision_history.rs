@@ -276,7 +276,7 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
         .execute(send(&store, &conversation))
         .unwrap()
         .entity_id;
-    store.connection.execute("DELETE FROM operations WHERE turn_id=?1 AND kind NOT IN ('persona_context','persona_reply','conversation_feedback')", [&first]).unwrap();
+    store.connection.execute("DELETE FROM operations WHERE turn_id=?1 AND kind NOT IN ('persona_context','persona_reply','skill_assessment')", [&first]).unwrap();
     store.dispatch().unwrap();
     let persona = store.dispatch().unwrap().unwrap();
     store.finish(&persona, Ok(reply("Old response."))).unwrap();
@@ -298,9 +298,9 @@ fn revised_sources_cannot_publish_late_analysis_or_reenter_future_context() {
     store
         .finish(
             &feedback,
-            Ok(super::message_ratings::result(
-                "conversation_feedback",
-                "score_10",
+            Ok(super::skill_assessment::presence(
+                &feedback,
+                &[("time_events", "direct")],
             )),
         )
         .unwrap();

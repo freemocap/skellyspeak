@@ -12,6 +12,8 @@ export interface SkillLevel {
   id: string
   label: string
   description: string
+  /** What a reply must do to count for this skill. */
+  criterion: string
   domainId: string
   points: number
   xp: number
@@ -61,7 +63,7 @@ export function languageSkillLevels(snapshot: SkillSnapshot): LanguageSkillLevel
     if (xp === undefined) throw new Error(`Missing skill progress: ${node.id}`)
     if (!node.parent) throw new Error(`Skill has no domain: ${node.id}`)
     return {
-      id: node.id, label: node.label, description: node.description, domainId: node.parent,
+      id: node.id, label: node.label, description: node.description, criterion: node.criterion, domainId: node.parent,
       points: progress.points, xp, level: progress.level,
       currentThreshold: progress.currentThreshold, nextThreshold: progress.nextThreshold,
       position: bandPosition(progress.level, progress.points, progress.currentThreshold, progress.nextThreshold),

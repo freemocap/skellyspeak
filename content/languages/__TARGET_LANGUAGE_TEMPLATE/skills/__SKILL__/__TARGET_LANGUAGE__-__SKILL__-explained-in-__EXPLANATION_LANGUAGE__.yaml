@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: __REVISION__
+language: __TARGET_LANGUAGE__
+skill_id: __SKILL_ID__
+explanation_language: __EXPLANATION_LANGUAGE__
+shared_explanation: skills/__SKILL__/__SKILL__-explained-in-__EXPLANATION_LANGUAGE__.yaml
+sections:
+  - subskill_id: __SUBSKILL_ID__
+    explanation: __TARGET_LANGUAGE_EXPLANATION__
+    examples:
+      - text: __TARGET_EXAMPLE__
+        meaning: __TRANSLATED_MEANING__
+        note: __EXPLANATORY_NOTE__
+varieties:
+  __VARIETY__:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: __AUTHORSHIP__
+      sources:
+        - __CITATION_KEY__
+      generation: null
+      review:
+        status: needs_review
+        revision: __REVISION__
+        scope: __REVIEW_SCOPE__
+provenance: *a1

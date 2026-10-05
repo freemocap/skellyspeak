@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: reasons_connections
+language: english
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Because can introduce the reason for a situation or decision.
+    examples:
+      - text: We stayed inside because the road was flooded.
+        meaning: Flooding explains why the group stayed inside.
+        note: The clauses are linked causally, not merely placed in time order.
+  - subskill_id: consequences
+    explanation: So can connect a situation to its result.
+    examples:
+      - text: The bus was full, so we walked.
+        meaning: The full bus led the group to walk.
+        note: The second clause is presented as a consequence.
+  - subskill_id: conditions
+    explanation: An if-clause can make an outcome depend on a condition. Choose
+      forms suited to an open possibility or an imagined situation.
+    examples:
+      - text: If it rains, we will eat indoors.
+        meaning: Eating indoors depends on rain.
+        note: The present form rains expresses the future condition here.
+  - subskill_id: contrast
+    explanation: But and although can relate ideas that contrast or create an
+      unexpected combination.
+    examples:
+      - text: The route is longer, but it is safer.
+        meaning: Greater distance is contrasted with greater safety.
+        note: But signals the relationship between the two evaluations.
+  - subskill_id: supporting_claims
+    explanation: Give grounds that support a claim, rather than only repeating the claim.
+    examples:
+      - text: The shop is open; I can see customers inside.
+        meaning: Visible customers support the claim that the shop is open.
+        note: The second clause supplies evidence for the first.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_conditionals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

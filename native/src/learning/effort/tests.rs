@@ -1,4 +1,52 @@
 use super::*;
+
+#[test]
+fn inactive_awards_are_preserved_but_not_counted_reported_or_claimed() {
+    let mut db = database();
+    db.execute("INSERT INTO effort_awards(id,dimension,source_id,language_id,variety_id,policy,claimed) VALUES('saved','no_issues_flagged','message','spanish','standard','saved-policy',0)", []).unwrap();
+    let before: (String, String, i64) = db
+        .query_row(
+            "SELECT source_id,policy,claimed FROM effort_awards WHERE id='saved'",
+            [],
+            |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)),
+        )
+        .unwrap();
+    assert!(read(&db, "spanish").unwrap().recent.is_empty());
+    let report = report::read(&db, "spanish", None, None).unwrap();
+    assert!(report.entries.is_empty());
+    assert!(report.activity.is_empty());
+    assert!(
+        claim(&mut db, "spanish", &["saved".into()])
+            .unwrap()
+            .is_empty()
+    );
+    let after = db
+        .query_row(
+            "SELECT source_id,policy,claimed FROM effort_awards WHERE id='saved'",
+            [],
+            |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, i64>(2)?,
+                ))
+            },
+        )
+        .unwrap();
+    assert_eq!(after, before);
+}
+
+#[test]
+fn coaching_feedback_cannot_create_effort_awards() {
+    let db = database();
+    message(&db, "source", "coach_feedback").unwrap();
+    assert_eq!(
+        db.query_row("SELECT count(*) FROM effort_awards", [], |r| r
+            .get::<_, i64>(0))
+            .unwrap(),
+        0
+    );
+}
 fn database() -> Connection {
     let db = Connection::open_in_memory().unwrap();
     db.execute_batch(include_str!("../../storage/schemas/schema.sql"))
@@ -91,7 +139,7 @@ fn awards_and_claims_survive_reopening() {
         .unwrap();
     award(
         &db,
-        EffortDimension::NoIssuesFlagged,
+        EffortDimension::RevisionsSent,
         "message",
         "spanish",
         "standard",
@@ -104,14 +152,14 @@ fn awards_and_claims_survive_reopening() {
     let mut db = Connection::open(&path).unwrap();
     award(
         &db,
-        EffortDimension::NoIssuesFlagged,
+        EffortDimension::RevisionsSent,
         "message",
         "spanish",
         "standard",
         None,
     )
     .unwrap();
-    assert_eq!(read(&db, "spanish").unwrap().no_issues_flagged, 1);
+    assert_eq!(read(&db, "spanish").unwrap().revisions_sent, 1);
     assert!(claim(&mut db, "spanish", &[id]).unwrap().is_empty());
 }
 
@@ -236,7 +284,7 @@ fn conversation_scope_counts_only_that_conversation() {
     let db = database();
     for (dimension, source, conversation) in [
         (EffortDimension::PartnerUnderstood, "a1", Some("chat-a")),
-        (EffortDimension::NoIssuesFlagged, "a1", Some("chat-a")),
+        (EffortDimension::RevisionsSent, "a1", Some("chat-a")),
         (EffortDimension::PartnerUnderstood, "b1", Some("chat-b")),
         (EffortDimension::PracticeAttempts, "take", None),
     ] {
@@ -246,7 +294,7 @@ fn conversation_scope_counts_only_that_conversation() {
     assert_eq!(
         (
             chat.partner_understood,
-            chat.no_issues_flagged,
+            chat.revisions_sent,
             chat.practice_attempts
         ),
         (1, 1, 0)

@@ -43,6 +43,30 @@
 /* Keep the actionable explanation visible before technical details are opened. */
 .error-details > summary > [role="alert"] { display: grid; gap: var(--space-1); overflow-wrap: anywhere; }
 
+/* Friendly errors: a plain-words summary coloured by how much it asks of the
+   learner. `passing` clears with a retry, `needs-you` waits on the learner or
+   the clock, `broke` is unexplained. The recorded explanation is the fold beneath. */
+.error-details[data-level], .error-notice[data-level] { font-family: var(--font-sans); line-height: var(--leading-normal); color: var(--ink-2); }
+.error-notice[data-level] { border: var(--border-width) solid var(--line); border-radius: var(--radius-md); padding-block: var(--space-4); padding-inline-start: var(--space-5); }
+.error-details[data-level='passing'], .error-notice[data-level='passing'] { border-color: var(--line); background: var(--chrome); }
+.error-details[data-level='needs-you'], .error-notice[data-level='needs-you'] { border-color: var(--warning-line); background: var(--warning-tint); }
+.error-details[data-level='broke'] { border-color: var(--danger-line); background: var(--danger-tint); }
+
+.error-title { font-weight: var(--weight-semibold); color: var(--ink); }
+/* What failed, in the owner's words, ahead of what it means. */
+.error-context { margin-inline-end: var(--space-4); font-weight: var(--weight-medium); color: var(--ink-3); }
+.error-notice[data-level] > .error-title, .error-notice[data-level] > .error-body,
+.error-reason > .error-title, .error-reason > .error-body { display: block; }
+/* The worded cue replaces the disclosure triangle, which would otherwise sit
+   alone on a line above the summary. */
+.error-details[data-level] > summary { list-style: none; }
+.error-details[data-level] > summary::-webkit-details-marker { display: none; }
+.error-more { color: var(--ink-3); text-decoration: underline; }
+.error-reason { margin-block: var(--space-3); }
+/* Keeps the unavailable control apart from a Retry beside it. */
+.error-credits { margin-inline-end: var(--space-4); }
+.error-raw { margin: 0; font-family: var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+
 /* Diagnostics use the available width and can grow instead of clipping long reasons. */
 .response-details { width: 100%; min-width: 0; }
 .response-details > pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: var(--space-3) 0; }

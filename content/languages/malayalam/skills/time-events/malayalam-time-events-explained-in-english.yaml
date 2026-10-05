@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: A verbal-noun construction with ആണ് can present an action as ongoing.
+    examples:
+      - text: ഇപ്പോൾ ഞാൻ സൈക്കിൾ നന്നാക്കുകയാണ്.
+        meaning: I am repairing a bicycle now.
+        note: ഇപ്പോൾ anchors the repair to now.
+  - subskill_id: past_events
+    explanation: A past verb form can report an earlier completed action.
+    examples:
+      - text: ഇന്നലെ ഞാൻ സൈക്കിൾ നന്നാക്കി.
+        meaning: Yesterday I repaired a bicycle.
+        note: നന്നാക്കി is past; it does not change for the speaker’s gender.
+  - subskill_id: future_events
+    explanation: A future verb form can describe a later plan.
+    examples:
+      - text: നാളെ ഞാൻ സാധനങ്ങൾ വാങ്ങും.
+        meaning: Tomorrow I will buy the supplies.
+        note: നാളെ establishes future time for വാങ്ങും.
+  - subskill_id: duration_frequency
+    explanation: A time interval and occurrence count express frequency.
+    examples:
+      - text: ഞാൻ ആഴ്ചയിൽ രണ്ടു പ്രാവശ്യം നീന്താറുണ്ട്.
+        meaning: I swim twice a week.
+        note: നീന്താറുണ്ട് presents a habitual activity; രണ്ടു പ്രാവശ്യം counts occasions.
+  - subskill_id: event_sequence
+    explanation: ആദ്യം and പിന്നെ establish first and subsequent steps.
+    examples:
+      - text: ആദ്യം കൈ കഴുകുക, പിന്നെ പച്ചക്കറി മുറിക്കുക.
+        meaning: First wash your hands, then cut the vegetables.
+        note: These procedural instructions give order rather than cause.
+  - subskill_id: event_phase
+    explanation: A compound with തീർക്കുക can specify finishing an activity.
+    examples:
+      - text: ഞാൻ പുസ്തകം വായിച്ചു തീർത്തു.
+        meaning: I finished reading the book.
+        note: The reading reaches its endpoint, rather than merely occurring in the past.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_time2026
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

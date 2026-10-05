@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Use ser to identify someone with a noun phrase. Esta and a possessive such as minha
+      match the feminine referent; colega can refer to a man or woman depending on its
+      agreement.
+    examples:
+      - text: Esta é minha colega Ana.
+        meaning: This is my colleague Ana.
+        note: Esta and minha indicate a woman. É identifies her rather than describing how she feels.
+  - subskill_id: qualities_states
+    explanation: With estar, an adjective can describe the present condition of something. The
+      adjective and verb still agree with the subject.
+    examples:
+      - text: As plantas estão secas.
+        meaning: The plants are dry.
+        note: "Plantas is feminine plural: estão is plural and secas has feminine plural agreement. This
+          describes their current condition."
+  - subskill_id: location_movement
+    explanation: Ficar can locate a building or other fixed place. In perto de + a, de combines with
+      the feminine article to give da.
+    examples:
+      - text: A biblioteca fica perto da praça.
+        meaning: The library is near the square.
+        note: Fica means is located here; perto da identifies the spatial relation, not a change into a
+          library.
+  - subskill_id: possession_relations
+    explanation: Ter states possession. Meu and minha agree with the noun naming the possessed item
+      or relationship, rather than with the speaker.
+    examples:
+      - text: Meu irmão tem uma bicicleta.
+        meaning: My brother has a bicycle.
+        note: Meu agrees with masculine irmão and introduces the family relationship; tem states what he
+          has.
+  - subskill_id: quantity_comparison
+    explanation: A number counts objects. Mais + adjective + que or do que compares a property of
+      one object with another.
+    examples:
+      - text: Temos três caixas. Esta caixa é mais leve que as outras.
+        meaning: We have three boxes. This box is lighter than the others.
+        note: Três supplies the count. Mais leve que compares weight; esta and outras have feminine
+          agreement with caixa and caixas.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

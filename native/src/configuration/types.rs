@@ -44,22 +44,7 @@ impl LanguageContext {
         &self.hash
     }
 }
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct Construct {
-    pub id: String,
-    pub label: String,
-    pub criterion: String,
-    pub opportunity: String,
-    pub band: String,
-    pub lens: String,
-    pub requires: Vec<String>,
-    pub traits: Vec<String>,
-    pub tokens: Vec<String>,
-    pub nav: BTreeMap<String, String>,
-    pub sources: Vec<String>,
-    pub review: String,
-}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Intensity {
@@ -174,21 +159,6 @@ pub struct Language {
     pub varieties: Vec<Variety>,
     pub guidance: Vec<Guidance>,
     pub review: String,
-}
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct NavigationNode {
-    pub id: String,
-    pub parent: Option<String>,
-    #[serde(default)]
-    pub label: String,
-    pub code: String,
-    pub kind: String,
-    pub color: String,
-    #[serde(default)]
-    pub description: String,
-    #[serde(default)]
-    pub criterion: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]

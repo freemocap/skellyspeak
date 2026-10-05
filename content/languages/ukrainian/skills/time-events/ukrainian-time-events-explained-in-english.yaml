@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: An imperfective present can describe an activity happening now.
+    examples:
+      - text: Зараз я ремонтую велосипед.
+        meaning: I am repairing a bicycle now.
+        note: Зараз anchors the activity to the present situation.
+  - subskill_id: past_events
+    explanation: Past forms mark gender and number. A perfective verb can present a bounded repair.
+    examples:
+      - text: Учора я полагодила велосипед.
+        meaning: Yesterday I repaired a bicycle.
+        note: Полагодила is feminine singular; a masculine speaker would use полагодив.
+  - subskill_id: future_events
+    explanation: A perfective future can name a later completed action without a separate auxiliary.
+    examples:
+      - text: Завтра я заберу деталі.
+        meaning: Tomorrow I will collect the parts.
+        note: Заберу is first-person singular; завтра gives the day.
+  - subskill_id: duration_frequency
+    explanation: Двічі counts two occurrences and на тиждень gives the recurring interval.
+    examples:
+      - text: Я плаваю двічі на тиждень.
+        meaning: I swim twice a week.
+        note: This gives frequency, not the length of one swimming session.
+  - subskill_id: event_sequence
+    explanation: Спочатку and потім establish first and subsequent steps.
+    examples:
+      - text: Спочатку вимийте руки, потім готуйте овочі.
+        meaning: First wash your hands, then prepare the vegetables.
+        note: The polite or plural imperatives describe a procedure.
+  - subskill_id: event_phase
+    explanation: Дочитати focuses on reading through to the endpoint.
+    examples:
+      - text: Я дочитала книжку.
+        meaning: I finished reading the book.
+        note: The feminine speaker reports finishing the reading, not simply spending time on it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

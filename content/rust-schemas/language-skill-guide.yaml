@@ -1,0 +1,165 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  Disposition:
+    oneOf:
+    - additionalProperties: false
+      properties:
+        disposition:
+          enum:
+          - use_core
+          type: string
+        provenance:
+          $ref: '#/definitions/Provenance'
+      required:
+      - disposition
+      - provenance
+      type: object
+    - additionalProperties: false
+      properties:
+        disposition:
+          enum:
+          - supplement
+          type: string
+        provenance:
+          $ref: '#/definitions/Provenance'
+        text:
+          type: string
+      required:
+      - disposition
+      - provenance
+      - text
+      type: object
+  Example:
+    additionalProperties: false
+    properties:
+      meaning:
+        type: string
+      note:
+        type: string
+      text:
+        type: string
+    required:
+    - meaning
+    - note
+    - text
+    type: object
+  Generation:
+    additionalProperties: false
+    properties:
+      model:
+        type: string
+      source_revisions:
+        additionalProperties:
+          type: string
+        type: object
+    required:
+    - model
+    - source_revisions
+    type: object
+  GenerationRecord:
+    anyOf:
+    - $ref: '#/definitions/Generation'
+    - type: 'null'
+  GuideOrigin:
+    enum:
+    - human
+    - ai
+    - mixed
+    type: string
+  Provenance:
+    additionalProperties: false
+    properties:
+      authorship:
+        type: string
+      generation:
+        allOf:
+        - $ref: '#/definitions/GenerationRecord'
+        description: Null is an explicit statement that generation metadata was not recorded.
+      origin:
+        $ref: '#/definitions/GuideOrigin'
+      review:
+        $ref: '#/definitions/Review'
+      sources:
+        items:
+          type: string
+        type: array
+    required:
+    - authorship
+    - generation
+    - origin
+    - review
+    - sources
+    type: object
+  Review:
+    additionalProperties: false
+    properties:
+      revision:
+        type: string
+      scope:
+        type: string
+      status:
+        $ref: '#/definitions/ReviewStatus'
+    required:
+    - revision
+    - scope
+    - status
+    type: object
+  ReviewStatus:
+    enum:
+    - needs_review
+    - reviewed
+    type: string
+  Section:
+    additionalProperties: false
+    properties:
+      examples:
+        items:
+          $ref: '#/definitions/Example'
+        type: array
+      explanation:
+        type: string
+      subskill_id:
+        type: string
+    required:
+    - examples
+    - explanation
+    - subskill_id
+    type: object
+properties:
+  explanation_language:
+    type: string
+  language:
+    type: string
+  provenance:
+    $ref: '#/definitions/Provenance'
+  revision:
+    type: string
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+  sections:
+    items:
+      $ref: '#/definitions/Section'
+    type: array
+  shared_explanation:
+    type: string
+  skill_id:
+    type: string
+  varieties:
+    additionalProperties:
+      $ref: '#/definitions/Disposition'
+    type: object
+required:
+- explanation_language
+- language
+- provenance
+- revision
+- schema_version
+- sections
+- shared_explanation
+- skill_id
+- varieties
+title: Guide
+type: object

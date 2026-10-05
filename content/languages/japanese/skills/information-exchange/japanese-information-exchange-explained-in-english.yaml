@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 何時 asks for a clock time, and に attaches to that time expression. Polite か marks
+      the question at the end.
+    examples:
+      - text: 図書館は何時に閉まりますか。
+        meaning: What time does the library close?
+        note: The question seeks a closing hour. 閉まります describes the library closing, not someone
+          shutting an object.
+  - subskill_id: answering_information
+    explanation: A time followed by です can answer the question directly. The event being timed
+      remains understood.
+    examples:
+      - text: 五時です。
+        meaning: At five.
+        note: Reply to a question about the library’s closing time. Five is an hour here, not a count of
+          books.
+  - subskill_id: checking_facts
+    explanation: A question with a stated time can verify a proposed fact. ですね can also seek
+      confirmation of something just learned or inferred.
+    examples:
+      - text: 図書館は五時に閉まるんですね。
+        meaning: So the library closes at five, right?
+        note: Use after hearing a schedule explanation. んですね checks the speaker’s understanding of that
+          concrete time.
+  - subskill_id: useful_detail
+    explanation: A noun phrase with ほう can distinguish one side or option from another. A preceding
+      description identifies which one.
+    examples:
+      - text: 入口は、公園に近いほうです。
+        meaning: The entrance is the one nearer the park.
+        note: After giving a building’s location, this distinguishes the usable entrance from another
+          entrance.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

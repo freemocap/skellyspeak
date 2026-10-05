@@ -69,6 +69,7 @@ export function requireCatalogVersion(snapshot: SkillSnapshot, record: SkillReco
 }
 
 export interface SkillSnapshot {
+  guide_explanation_language?: string
   guides?: { id: string; name: string; skills: Record<string, string | null> }[]
   construct_registry_hash: string
   catalog: TreeNode[]

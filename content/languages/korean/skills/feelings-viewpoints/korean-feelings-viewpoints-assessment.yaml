@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: feelings_viewpoints
+guidance: Evaluate desire, preference, emotion, judgment and agreement. 배우고 싶어요 expresses the
+  speaker’s desire to learn; 싶다 behaves as a descriptive predicate rather than an action verb.
+  좋아해요 can take a liked object, while 좋아요 describes something as pleasing or good with a
+  different construction. 저는 커피가 좋아해요, intended as an ordinary transitive liking statement
+  without another correct use, mismatches the object construction. Do not erase a separate
+  correctly expressed preference. 기뻐요 expresses happiness; 좋다고 생각해요 frames a judgment. 저도 그렇게
+  생각해요 aligns with an identifiable viewpoint, while 알겠어요 can simply acknowledge comprehension.
+  차요 can select a preferred drink contextually when that choice is being asked, but naming a
+  drink in a list does not establish liking. Recover omitted experiencers from context;
+  third-person feelings may require reporting or appropriate evidence rather than indiscriminate
+  reuse of first-person self-report patterns.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_predicates2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

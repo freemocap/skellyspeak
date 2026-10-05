@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: turkish
+  name: Turkish
+  native_name: Türkçe
+  family: turkic
+  review: needs_review
+integrations:
+  language_tag: tr
+  transcription: tr
+definitions:
+  orthographies:
+    standard-turkish:
+      script: latin
+      guidance:
+        - scope: target_writing
+          text: Use contemporary Turkish spelling, retaining ç, ğ, ı, ö, ş and ü. Keep dotted İ/i distinct
+            from dotless I/ı, including in capitals. Preserve quoted text exactly and retain
+            required apostrophes in proper-name suffixes.
+          sources:
+            - tdk_alphabet
+        - scope: explanation_writing
+          text: Use contemporary Turkish spelling, retaining ç, ğ, ı, ö, ş and ü. Keep dotted İ/i distinct
+            from dotless I/ı, including in capitals. Preserve quoted text exactly and retain
+            required apostrophes in proper-name suffixes.
+          sources:
+            - tdk_alphabet
+  romanization_schemes: {}
+defaults:
+  variety: turkish-turkiye
+  orthography:
+    local: standard-turkish
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+  - id: turkish-turkiye
+    name: Türkiye
+    description: Contemporary Turkish in Türkiye, with standard writing and context-appropriate everyday
+      conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - tdk_alphabet
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: Merhaba
+    romanizations: {}
+  default_partner:
+    name: Deniz
+    romanizedName: null
+    age: 34
+    location: İzmir, Türkiye
+    occupation: Repairs furniture in a shared workshop
+    background: Grew up near İzmir and learned woodworking from family members.
+    currentSituation: Restoring a small table and planning a ferry trip with friends.
+    interests:
+      - woodworking
+      - photography
+    opinions:
+      - Old furniture deserves a useful second life.
+    interestingFacts:
+      - Can identify several woods by their smell.
+    favoriteBooks:
+      - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+      - Kedi (2016)
+    manner: Calm and candid. Uses everyday Turkish and asks specific follow-up questions.
+    quirks:
+      - Keeps small wood samples in a tin.
+    vibe:
+      - 🪵
+      - 📷
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Evet.
+      - Hayır.
+      - Su, lütfen.
+      - Buradayım.
+      - Hava sıcak.
+      - Açım.
+      - Bu ne?
+      - Bilmiyorum.
+    beginner:
+      - Ben öğretmenim.
+      - Bu oda sessiz.
+      - Bir bisikletim var.
+      - Bu benim kardeşim.
+      - Üç sandalye lazım.
+      - Biraz su istiyorum.
+      - Burada çalışıyorum.
+      - Her gün kitap okurum.
+    intermediate:
+      - Dün geldim.
+      - Ali gelmiş.
+      - Yarın geleceğim.
+      - Yarın gidiyoruz.
+      - Kahve istiyorum.
+      - Yüzmeyi seviyorum.
+      - Yüzebilirim.
+      - Gitmem lazım.
+    advanced:
+      - Toplantının bu kadar uzayacağını bilseydim, eve dönmek için daha erken bir tren seçerdim.
+      - Beni en çok endişelendiren şey, bu kararın görüşü sorulmayan insanları nasıl etkileyeceği.
+      - Öneri umut verici görünse de olası sonuçlarını dikkatlice değerlendirmemiz gerekiyor.
+      - Sonradan pişman olacağımız bir karar vermektense yolculuğu ertelemeyi tercih ederim.
+      - Raporu ne kadar dikkatli okusam da sonuçlarının yeterince gerekçelendirildiğine ikna
+        olamıyorum.
+      - Projenin başarılı olup olmayacağı, sorumlulukları ne kadar adil paylaşacağımıza bağlı.
+      - Bu fikre karşı olduğumdan değil, şu an doğru zaman olup olmadığından emin değilim.
+      - Neler olduğunu fark ettiğimizde durumu düzeltmek için yapabileceğimiz pek bir şey kalmamıştı.
+    social:
+      - Merhaba!
+      - Günaydın!
+      - İyi akşamlar!
+      - İyi geceler!
+      - Nasılsınız?
+      - İyiyim, teşekkür ederim.
+      - Adınız ne?
+      - Memnun oldum.
+      - Çok teşekkür ederim.
+      - Rica ederim.
+      - Affedersiniz.
+      - Özür dilerim.
+      - Hoşça kalın!
+      - Görüşmek üzere!
+      - İyi günler!
+    idiomatic:
+      - Dilimde tüy bitti.
+      - Baltayı taşa vurdum.
+      - İğneyle kuyu kazıyoruz.
+      - Yine çam devirdim.
+      - Ağzını bıçak açmıyor.
+      - Kaşla göz arasında kayboldu.
+      - Gözden düştü.
+      - Eski çamlar bardak oldu.
+  varieties: {}

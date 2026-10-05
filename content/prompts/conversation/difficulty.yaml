@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../rust-schemas/prompt-options.yaml
+absolute_zero: Your conversation partner is starting from zero. They cannot yet follow a story or
+  understand what someone else said. Give them one concrete image and a very easy question. Three to
+  five words in total are enough. Use the present and common words. Their answer can be one word,
+  yes or no. The interest should come from the small situation, not the complexity of the sentence.
+beginner: "Your conversation partner already understands simple everyday sentences. You can share
+  one concrete detail and ask a connected question: two sentences and six to eleven words in total.
+  They do not need to justify their answer much. Use independent sentences and common vocabulary."
+intermediate: Your conversation partner can discuss everyday experiences and opinions. Contribute a
+  detail and a reason, contrast or point of view; then ask a question that lets them participate.
+  Use thirteen to twenty-three words in two or three sentences. Do not turn the conversation into a
+  lecture.
+advanced: "C1: use two to four sentences of precise natural language, with nuance and implications.
+  A specific observation, tension or point of view can start a worthwhile exchange. Allow humor and
+  disagreement without becoming a lecture or an interview."
+fluent: "C2: use two to four sentences of natural adult conversation, with idiom and flexible
+  register when appropriate. Bring a distinct perspective and respond to tone. Sophistication does
+  not require length, obscure vocabulary or an abstract debate."

@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: russian
+  name: Russian
+  native_name: Русский
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: ru
+  transcription: ru
+definitions:
+  orthographies:
+    modern-russian:
+      script: cyrillic
+      guidance:
+        - scope: target_writing
+          text: Write modern Russian in Cyrillic. Preserve ё when it is present and use it in new text where
+            needed to make the intended word clear. Retain ъ and ь; never silently rewrite quoted
+            spelling, add stress marks to source text, or replace Russian with Latin letters.
+          sources:
+            - ala_lc_russian2012
+        - scope: explanation_writing
+          text: Write modern Russian in Cyrillic. Preserve ё when it is present and use it in new text where
+            needed to make the intended word clear. Retain ъ and ь; never silently rewrite quoted
+            spelling, add stress marks to source text, or replace Russian with Latin letters.
+          sources:
+            - ala_lc_russian2012
+  romanization_schemes:
+    ala-lc-russian:
+      label: ALA-LC Russian
+      instructions: Use the ALA-LC Russian table as a spelling-based aid, not a phonetic transcription.
+        Preserve е as e, ё as ë, й as ĭ, ы as y, э as ė, ъ as ʺ and ь as ʹ. Use zh, kh, ch, sh and
+        shch; use tied t͡s, i͡u and i͡a for ц, ю and я. Preserve case and word boundaries. Do not
+        add unmarked stress or rewrite the Cyrillic source.
+      examples:
+        - original: спасибо
+          romanized: spasibo
+        - original: ёлка
+          romanized: ëlka
+        - original: семья
+          romanized: semʹi͡a
+        - original: чай
+          romanized: chaĭ
+      sources:
+        - ala_lc_russian2012
+      review: needs_review
+defaults:
+  variety: russian-russia
+  orthography:
+    local: modern-russian
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme: &a1
+      local: ala-lc-russian
+  supported_romanizations:
+    - *a1
+traits: []
+varieties:
+  - id: russian-russia
+    name: Russia
+    description: Contemporary Russian in Russia, with standard writing and context-appropriate everyday
+      conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - ala_lc_russian2012
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: Здравствуйте
+    romanizations:
+      russian:ala-lc-russian: Zdravstvuĭte
+  default_partner:
+    name: Нина
+    romanizedName: Nina
+    age: 35
+    location: Saint Petersburg, Russia
+    occupation: Repairs musical instruments
+    background: Grew up nearby and learned instrument repair at a small workshop.
+    currentSituation: Restoring a violin and arranging a weekend walk with friends.
+    interests:
+      - instrument repair
+      - walking
+    opinions:
+      - A careful repair should preserve what makes an instrument distinctive.
+    interestingFacts:
+      - Keeps notes about the sound of each repair.
+    favoriteBooks:
+      - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+      - My Neighbor Totoro (1988)
+    manner: Matter-of-fact and curious. Uses respectful everyday Russian with new acquaintances.
+    quirks:
+      - Checks the weather before choosing a walking route.
+    vibe:
+      - 🎻
+      - 📓
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Да.
+      - Нет.
+      - Воды, пожалуйста.
+      - Я здесь.
+      - Жарко.
+      - Я хочу есть.
+      - Что это?
+      - Я не знаю.
+    beginner:
+      - Она врач.
+      - Эта комната тихая.
+      - У меня есть велосипед.
+      - Это моя сестра.
+      - Нам нужны два стула.
+      - У меня мало времени.
+      - Я работаю здесь.
+      - Она сейчас читает.
+    intermediate:
+      - Я читал вчера.
+      - Она прочитала книгу.
+      - Я буду работать завтра.
+      - Я прочитаю эту книгу.
+      - Мне нравится чай.
+      - Я хочу домой.
+      - Я умею плавать.
+      - Мне нужно идти.
+    advanced:
+      - Если бы мы знали, что встреча так затянется, мы бы заранее изменили свои планы.
+      - Больше всего меня беспокоит, как это решение повлияет на людей, с которыми никто не
+        посоветовался.
+      - Хотя предложение кажется перспективным, стоит внимательно оценить его возможные последствия.
+      - Мне бы хотелось, чтобы мы отложили поездку, а не принимали решение в спешке.
+      - Чем внимательнее я читаю отчёт, тем меньше доверия вызывают у меня его выводы.
+      - Успех проекта во многом будет зависеть от того, насколько разумно мы распределим обязанности.
+      - Дело не в том, что я против этой идеи; просто сейчас, по-моему, не самое подходящее время.
+      - К тому времени, когда мы поняли, что произошло, исправить положение было уже трудно.
+    social:
+      - Здравствуйте!
+      - Привет!
+      - Доброе утро!
+      - Добрый вечер!
+      - Как дела?
+      - Хорошо, спасибо.
+      - Как вас зовут?
+      - Очень приятно.
+      - Большое спасибо.
+      - Не за что.
+      - Извините.
+      - Простите, пожалуйста.
+      - До свидания!
+      - До скорого!
+      - Хорошего дня!
+    idiomatic:
+      - Возьми себя в руки.
+      - Шутки в сторону.
+      - Ни пуха ни пера!
+      - Пора смотреть правде в глаза.
+      - Не смотри на это сквозь пальцы.
+      - От него ни слуху ни духу.
+      - Не работай спустя рукава.
+      - Смотри в оба!
+  varieties: {}

@@ -2,8 +2,11 @@ use super::*;
 
 mod assistance;
 mod conversations;
+mod guide_actions;
 mod learning;
 mod partners;
+mod phrase;
+mod skill_start;
 
 struct Handlers<'a> {
     tx: &'a Connection,
@@ -56,6 +59,61 @@ impl Store {
             conversation_scope: None,
         };
         let entity_id = match command.action {
+            Action::AskGuideCoach {
+                conversation_id,
+                text,
+                guide,
+                focus,
+                expected_revision,
+            } => {
+                handlers.ask_guide_coach(conversation_id, text, guide, focus, expected_revision)?
+            }
+            Action::StartGuideConversation {
+                source_conversation_id,
+                guide,
+                example,
+                phrase,
+                expected_revision,
+            } => handlers.start_guide_conversation(
+                source_conversation_id,
+                guide,
+                example,
+                phrase,
+                expected_revision,
+            )?,
+            Action::StartSkillConversation {
+                source_conversation_id,
+                language,
+                variety,
+                skill_id,
+                subskill_id,
+                expected_revision,
+            } => handlers.start_skill_conversation(
+                source_conversation_id,
+                language,
+                variety,
+                crate::conversations::direction::TopicChoice::Skill {
+                    skill_id,
+                    subskill_id,
+                },
+                expected_revision,
+            )?,
+            Action::StartPhraseConversation {
+                source_message_id,
+                phrase,
+                contact_id,
+                expected_revision,
+            } => handlers.start_phrase_conversation(
+                source_message_id,
+                phrase,
+                contact_id,
+                expected_revision,
+            )?,
+            Action::RequestMessageHelp {
+                message_id,
+                help,
+                retry,
+            } => handlers.request_message_help(message_id, help, retry)?,
             Action::StartConversation {
                 conversation_id,
                 configuration,

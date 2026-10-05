@@ -114,24 +114,24 @@ filters exact surface candidates and bounds input/output without silently
 truncating results. Generated glosses are a separate evictable projection from
 `language/reading/text_sources.rs`; accepted records keep their durable owners.
 
-Normal and opening turns automatically schedule `reply_brief`. Grammar
-(`reply_explanations`) and suggestions (`reply_assistance`) are created only by
-explicit requests for a published partner message. `conversations/execution/assistance.rs`
-checks source eligibility, reuses existing operations and retries only the selected
-failed/unknown help kind. New requests and retries bind current access settings;
-the turn's captured language and source context remain fixed. Store commands retain
-the transaction, receipt and replay boundary. Existing dispatch, holds, validation,
-publication and safe response diagnostics serve all three operations.
+Workspace execution preferences in `configuration/execution.rs` control assessment,
+reply briefs and reading support. Assessment defaults to Automatic; the other two
+default to On demand. Coaching feedback always runs automatically beside the reply. New turns capture the values and learner
+revision; changes do not backfill or cancel accepted work. Suggested replies and
+usage explanations remain explicit requests.
 
-Schema 26 replaced the former automatic assistance graph. The current workspace
-migration policy below governs stored-format changes. Contracts come from Rust and include each operation's reply-help kind
-and each partner message's captured reading scope.
+`conversations/execution/optional_help.rs` handles source-bound message requests.
+Repeated opens reuse the same operation; failed/unknown work requires an explicit
+retry. Requests bind current access authority while preserving captured language and
+source context. Assessment also schedules its dependent quote extraction. Store
+commands own the transaction, receipt and replay boundary. Settings and the AI panel edit the same preferences. Message feedback, reply-help
+and reading controls request missing work through this command.
 
 ### Message versions and assessment ownership
 
 Accepted `messages` rows are immutable in text, role and ownership. A fix creates
 a new message and turn, linked by `turns.replaces_turn_id`; the predecessor remains
-available for inspection. Each version schedules ordinary `coach_feedback` with
+available for inspection. Each version can request `coach_feedback` under its execution policy with
 its current text and conversation context. Prior correction results and private
 coaching dialogue are excluded from that assessment request. Fix counting retains
 the same revision chain and does not assert that an issue was resolved.
@@ -191,9 +191,9 @@ conversation execution and speech lifecycle keep their respective domain owners.
 
 ## Content and packaging
 
-- [../content/](../content/): app-owned language documents, shared learning goals,
-  conversation topics and teaching policy. The [AI behavior index](../content/README.md) links prompt code.
-- [../content/schemas/](../content/schemas/): generated configuration schemas,
+- [../content/](../content/): app-owned language documents, skill definitions,
+  conversation topics and teaching policy. The [content guide](../content/CONTENT_README.md) links prompt code.
+- [../content/rust-schemas/](../content/rust-schemas/): generated configuration schemas,
   verified by Rust tests.
 - `capabilities/`, `icons/`, Tauri configuration and platform property lists:
   native permissions and packaging.
@@ -411,7 +411,7 @@ revalidates their source before adoption. Schema 36 uses fresh development data.
 
 ### Workspace migrations
 
-Workspace format **47** upgrades supported files from baseline **45**. The format
+Workspace format **51** upgrades supported files from baseline **45**. The format
 covers SQL and persisted JSON; application release numbers are independent.
 `storage/store/migrations/` owns consecutive steps and frozen historical contracts.
 `storage/schemas/` owns the current schema, including settings and result tables
@@ -477,4 +477,4 @@ and revalidates the access revision and language context before opening the mic.
 The availability check is metadata-only, with no inference or quota reservation.
 Read-aloud validates the canonical language before queuing; the service checks its
 voice and credentials before inference. Provider failure does not trigger rerouting.
-See [speech content](../content/README.md#speech-routing) for authoring and precedence.
+See [speech content](../content/speech/SPEECH_README.md) for authoring and precedence.

@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: Tolong with an imperative requests help with an action. The imperative need not
+      have the active prefix used in a declarative verb.
+    examples:
+      - text: Tolong pindahkan kursi ini.
+        meaning: Please move this chair.
+        note: Pindahkan asks the listener to move the chair. Tolong frames the action as a request for
+          help.
+  - subskill_id: offers_invitations
+    explanation: A question offering an item can use mau with the offered object. Context supplies
+      the listener as the person being offered it.
+    examples:
+      - text: Mau secangkir teh?
+        meaning: Would you like a cup of tea?
+        note: Said by a host offering tea to a visitor. Secangkir specifies one cup.
+  - subskill_id: suggestions
+    explanation: Mari can introduce a shared proposed action. Kita explicitly includes the listener
+      in that action.
+    examples:
+      - text: Mari kita periksa warnanya bersama.
+        meaning: Let us check the colour together.
+        note: The speaker proposes a joint check; bersama reinforces the shared participation.
+  - subskill_id: commitments
+    explanation: A future statement can accept responsibility during planning. The exchange
+      distinguishes an undertaking from a prediction.
+    examples:
+      - text: Saya akan membawa alatnya besok.
+        meaning: I will bring the equipment tomorrow.
+        note: Use this when volunteering to supply the equipment for an agreed activity. -nya refers to
+          that equipment.
+  - subskill_id: accepting_declining
+    explanation: Maaf can soften a refusal. A statement of inability may decline an invitation when
+      that invitation supplies the action.
+    examples:
+      - text: Maaf, saya tidak bisa datang malam ini.
+        meaning: Sorry, I cannot come tonight.
+        note: Reply to an invitation for tonight. The sentence declines attendance.
+  - subskill_id: negotiating_plans
+    explanation: Bagaimana kalau introduces an alternative for discussion. State the conflicting
+      constraint so the listener can see why the plan changes.
+    examples:
+      - text: Jumat saya sibuk. Bagaimana kalau kita bertemu Sabtu?
+        meaning: I am busy on Friday. How about meeting on Saturday?
+        note: Reply to a proposal to meet Friday. The new day addresses the stated conflict.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

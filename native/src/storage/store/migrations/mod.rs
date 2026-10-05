@@ -5,6 +5,10 @@ use rusqlite::TransactionBehavior;
 mod recovery_copy;
 #[cfg(test)]
 mod tests;
+mod v48_assessment;
+mod v49_execution;
+mod v50_coaching;
+mod v51_skill_direction;
 
 const MIN_VERSION: i32 = 45;
 const BASELINE: &str = include_str!("v45.sql");
@@ -26,6 +30,26 @@ const STEPS: &[Step] = &[
         from: 46,
         apply: upgrade_46,
         validate: validate_47,
+    },
+    Step {
+        from: 47,
+        apply: v48_assessment::apply,
+        validate: v48_assessment::validate,
+    },
+    Step {
+        from: 48,
+        apply: v49_execution::apply,
+        validate: v49_execution::validate,
+    },
+    Step {
+        from: 49,
+        apply: v50_coaching::apply,
+        validate: v50_coaching::validate,
+    },
+    Step {
+        from: 50,
+        apply: v51_skill_direction::apply,
+        validate: v51_skill_direction::validate,
     },
 ];
 

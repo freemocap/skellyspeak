@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 몇 시 asks a clock time. 에 follows the time expression, and the polite sentence can
+      serve as a question without an extra interrogative auxiliary.
+    examples:
+      - text: 가게가 몇 시에 닫아요?
+        meaning: What time does the shop close?
+        note: The question seeks a closing hour. The question mark represents the interrogative reading.
+  - subskill_id: answering_information
+    explanation: A time expression with polite 요 can answer a specific question without restating
+      its whole clause.
+    examples:
+      - text: 다섯 시에요.
+        meaning: At five o’clock.
+        note: Reply to a question about when the shop closes. This is 다섯 시에 plus 요, not an attempt to
+          write the copula 예요.
+  - subskill_id: checking_facts
+    explanation: 지요, often contracted to 죠, can ask the listener to confirm a proposition assumed or
+      previously mentioned.
+    examples:
+      - text: 가게가 다섯 시에 닫죠?
+        meaning: The shop closes at five, right?
+        note: The speaker checks a proposed closing time. 죠 here seeks confirmation rather than
+          introducing an entirely unknown hour.
+  - subskill_id: useful_detail
+    explanation: A clause before a noun can identify which item is meant. With 있다, 있는 links a
+      location description to that noun.
+    examples:
+      - text: 창문 옆에 있는 의자를 쓰세요.
+        meaning: Use the chair next to the window.
+        note: When the listener asks which chair to use, 창문 옆에 있는 supplies the distinguishing location.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_predicates2026
+    - htsk_permission2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

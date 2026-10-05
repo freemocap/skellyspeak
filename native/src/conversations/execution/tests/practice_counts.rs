@@ -17,7 +17,7 @@ fn observe(store: &mut Store, turn: &str) -> practice::Observation {
             .unwrap();
         if kind == "skill_assessment" {
             let tx = store.connection.transaction().unwrap();
-            let presence = BTreeMap::from([("past_reference".into(), Presence::Direct)]);
+            let presence = BTreeMap::from([("time_events".into(), Presence::Direct)]);
             let result = practice::publish(
                 &tx,
                 turn,

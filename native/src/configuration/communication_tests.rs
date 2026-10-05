@@ -1,9 +1,31 @@
 use super::*;
 
 fn bundled() -> (Catalog, BTreeSet<String>) {
-    let catalog =
-        serde_yaml_ng::from_str(include_str!("../../../content/shared/communication.yaml"))
-            .unwrap();
+    let content = crate::configuration::authoring::Content::load(
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../content"),
+    )
+    .unwrap();
+    let first = content.definitions.values().next().unwrap();
+    let catalog = Catalog {
+        schema_version: 1,
+        revision: first.revision.clone(),
+        definition_language: "english".into(),
+        origin: first.provenance.origin.clone(),
+        authorship: first.provenance.authorship.clone(),
+        review: first.provenance.review.status.clone(),
+        sources: first.provenance.sources.clone(),
+        groups: content
+            .definitions
+            .values()
+            .map(|d| Group {
+                id: d.id.clone(),
+                name: d.name.clone(),
+                purpose: d.purpose.clone(),
+                boundary: d.boundary.clone(),
+                subskills: content.subskills[&d.id].subskills.clone(),
+            })
+            .collect(),
+    };
     let citations =
         crate::configuration::citations::parse_bib(include_str!("../../../references.bib"))
             .unwrap()

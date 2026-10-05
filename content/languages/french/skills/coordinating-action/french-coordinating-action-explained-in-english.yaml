@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: coordinating_action
+language: french
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: >-
+      Ask for an action using an imperative or a suitable question. A conditional such as
+      pourriez-vous can soften a request; tu and vous should fit the relationship.
+    examples:
+      - text: "Pourriez-vous déplacer cette chaise, s’il vous plaît ?"
+        meaning: >-
+          Could you move this chair, please?
+        note: >-
+          Pourriez-vous followed by an infinitive requests an action politely; the
+          conversational aim is not an ability test.
+  - subskill_id: offers_invitations
+    explanation: >-
+      Offer help or invite participation with an action the other person can accept or
+      decline. A question with vouloir can serve this function in context.
+    examples:
+      - text: "Tu veux venir au marché avec nous samedi ?"
+        meaning: >-
+          Would you like to come to the market with us on Saturday?
+        note: >-
+          The speaker offers participation in a specific plan; the question is an
+          invitation rather than a general survey of preferences.
+  - subskill_id: suggestions
+    explanation: >-
+      Propose an option without treating it as settled. On pourrait followed by an
+      infinitive or si followed by an imparfait question can introduce a suggestion.
+    examples:
+      - text: "On pourrait déjeuner près de la gare."
+        meaning: >-
+          We could have lunch near the station.
+        note: >-
+          Pourrait frames lunch there as a proposal; on refers to the participants here,
+          not people in general.
+  - subskill_id: commitments
+    explanation: >-
+      Make your own intended contribution clear. A future form can function as a
+      commitment when responding to a shared plan; its tense alone does not prove a
+      promise.
+    examples:
+      - text: "D’accord, j’apporterai les assiettes."
+        meaning: >-
+          All right, I will bring the plates.
+        note: >-
+          After a discussion of who will bring what, apporterai commits the speaker to
+          supplying the plates.
+  - subskill_id: accepting_declining
+    explanation: >-
+      Respond to an actual offer or proposal. A short acceptance or a polite refusal can
+      be sufficient; a reason is optional unless the situation needs it.
+    examples:
+      - text: "Merci pour l’invitation, mais je ne pourrai pas venir."
+        meaning: >-
+          Thank you for the invitation, but I will not be able to come.
+        note: >-
+          The thanks acknowledges the invitation and ne pourrai pas declines attendance
+          without rejecting the person.
+  - subskill_id: negotiating_plans
+    explanation: >-
+      Respond to the other person’s proposal with a workable alternative, constraint or
+      check. Keep the relationship between the proposed options explicit.
+    examples:
+      - text: "Vendredi ne me convient pas. Est-ce que samedi vous irait ?"
+        meaning: >-
+          Friday does not work for me. Would Saturday suit you?
+        note: >-
+          The first sentence states the constraint; the conditional irait proposes an
+          alternative and leaves agreement open.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

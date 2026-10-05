@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: managing_conversation
+guidance: Recognize opening or closing contact, acknowledgment, clarification, reformulation,
+  correcting an interpretation and managing turns or topics. こんにちは opens contact; では、また closes
+  it in a suitable exchange. なるほど can register understanding without agreement. もう一度お願いします can
+  seek repetition contextually after unclear speech; a routine question about a schedule is not
+  repair merely because it asks something. つまり introduces a summary or rephrasing only when it
+  actually reformulates identifiable prior content. 土曜日ではなく、日曜日のつもりでした corrects a mistaken day
+  rather than merely disagreeing about an external fact. 話は変わりますが signals a topic shift, whereas
+  sending any new message does not by itself demonstrate topic management. An isolated copied
+  つまり without a recoverable reformulation is absent. Natural unfinished endings and omitted
+  subjects can be sufficient; assess their communicative function instead of requiring every
+  utterance to be a complete formal sentence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

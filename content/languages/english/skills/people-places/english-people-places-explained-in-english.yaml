@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: people_places
+language: english
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Use names, pronouns or noun phrases to establish who or what you mean.
+    examples:
+      - text: That is our new neighbour.
+        meaning: The indicated person is the new neighbour.
+        note: That identifies a referent in the shared situation.
+  - subskill_id: qualities_states
+    explanation: Adjectives after be can describe a property or current condition.
+    examples:
+      - text: The room is quiet.
+        meaning: There is little noise in the room.
+        note: Quiet is predicated of the room through is.
+  - subskill_id: location_movement
+    explanation: Use spatial expressions to place things or describe a path.
+    examples:
+      - text: The bicycle is behind the shed.
+        meaning: The shed is in front of the bicycle.
+        note: Behind expresses the spatial relationship.
+  - subskill_id: possession_relations
+    explanation: Possessive forms can express ownership and relationships.
+    examples:
+      - text: This is my brother’s bicycle.
+        meaning: The bicycle belongs to the speaker’s brother.
+        note: My marks the family relationship; brother’s marks the bicycle’s
+          association with him.
+  - subskill_id: quantity_comparison
+    explanation: Quantifiers express amounts; comparative constructions relate two
+      values or properties.
+    examples:
+      - text: This bag is lighter than that one.
+        meaning: The first bag weighs less than the second.
+        note: Lighter than forms the comparison.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

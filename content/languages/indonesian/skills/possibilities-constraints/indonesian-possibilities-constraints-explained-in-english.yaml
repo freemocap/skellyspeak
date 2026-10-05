@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Bisa before an activity can state the speaker’s ability. The following verb does
+      not take a person or tense ending.
+    examples:
+      - text: Saya bisa memperbaiki sepeda.
+        meaning: I can repair bicycles.
+        note: In a discussion of practical skills, bisa describes ability. It does not automatically
+          grant permission.
+  - subskill_id: permission
+    explanation: Boleh can ask whether an action is permitted. The person addressed and their
+      authority establish the permission reading.
+    examples:
+      - text: Boleh saya memakai meja ini?
+        meaning: May I use this table?
+        note: Ask the person responsible for the workspace. The speaker seeks permission for their own
+          action.
+  - subskill_id: obligation
+    explanation: Harus before a verb states a requirement. Tidak harus removes that requirement,
+      while tidak boleh expresses prohibition.
+    examples:
+      - text: Kita harus mengembalikan alat ini hari ini.
+        meaning: We must return this tool today.
+        note: Kita includes the listener. Harus makes returning it a requirement, and hari ini supplies
+          the deadline.
+  - subskill_id: possibility
+    explanation: Mungkin introduces an outcome as possible. It does not assert that the event will
+      certainly happen.
+    examples:
+      - text: Mungkin nanti hujan.
+        meaning: It may rain later.
+        note: Mungkin qualifies the forecast; nanti places the possible rain later.
+  - subskill_id: certainty
+    explanation: Yakin describes confidence. Belum can say that confidence has not yet been reached.
+    examples:
+      - text: Saya belum yakin bahwa cara ini aman.
+        meaning: I am not yet sure that this method is safe.
+        note: Bahwa introduces the proposition under assessment. The uncertainty concerns safety, not
+          word comprehension.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

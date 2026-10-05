@@ -1,3 +1,4 @@
+import catalog from '../../../generated/skill-catalogs/catalog.json'
 import { DIFFICULTY_LEVELS, type ConversationStartConfig, type RecommendationMode, type TimeReference, type TopicCard, type TopicChoice } from '../../../generated/contracts'
 import { difficultyLabel } from '../../../components/controls/DifficultySelect'
 import { SegmentedChoice } from '../../../components/controls/SegmentedChoice'
@@ -59,6 +60,7 @@ export function TopicChoices({ value, topics, partnerName, disabled, targetTag, 
   return <fieldset className="start-topics" disabled={disabled}>
     <legend>{tr('Topic')}</legend>
     <div className="topic-chips">
+      {topic?.kind === 'skill' && <button type="button" className="topic-chip" aria-pressed="true">{tr(catalog.find(skill => skill.id === topic.skillId)?.label ?? topic.skillId)}</button>}
       <button type="button" className="topic-chip" aria-pressed={partnerChooses} onClick={() => { if (!partnerChooses) onChange(withTopic(value, null)) }}>
         <span className="topic-chip-label">{tr('{name} chooses', { name: partnerName })}</span></button>
       {topics.map(item => <button type="button" className="topic-chip" key={item.id} aria-pressed={topic?.kind === 'builtin' && topic.id === item.id}

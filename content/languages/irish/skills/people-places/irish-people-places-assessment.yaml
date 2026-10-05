@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: people_places
+guidance: Assess identification, properties, location or movement, possession or relationships,
+  and quantity or comparison. Is í seo mo chomharsa identifies a female neighbour with the
+  copula; Tá an tsráid seo cúng uses bí to predicate a property. Do not substitute tá directly
+  for every copular noun identification. Ar an mbord locates an object; go dtí an doras
+  expresses a destination. Tá dhá chathaoir agam states possession with ag and a prepositional
+  pronoun. Dhá chathaoir counts chairs, while uimhir a dó can label a route without a quantity
+  relation. Níos éadroime ná compares weight. Ar an mbord can answer a where-question
+  contextually. A copied mutation or preposition with no recoverable relation is absent. Assess
+  the actual construction and initial mutations, while recognizing valid dialectal alternatives
+  rather than rejecting them solely for differing from a standard teaching example.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

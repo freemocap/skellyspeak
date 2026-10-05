@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 正在 before an action verb explicitly presents it as ongoing. It does not conjugate
+      the verb for person or tense.
+    examples:
+      - text: 我正在画地图。
+        meaning: I am drawing a map.
+        note: 正在 makes the activity in progress explicit. Context anchors it to now in this example.
+  - subskill_id: past_events
+    explanation: A time word can locate an action in the past. Verb-final 了 can mark its occurrence
+      as a bounded event, but 了 is not simply a past-tense ending.
+    examples:
+      - text: 昨天我修了自行车。
+        meaning: Yesterday I repaired the bicycle.
+        note: 昨天 supplies the past anchor. 修了 reports the repair event.
+  - subskill_id: future_events
+    explanation: A future time expression can locate a planned action later without a dedicated
+      future-tense ending.
+    examples:
+      - text: 明天我去取零件。
+        meaning: Tomorrow I will go and collect the parts.
+        note: 明天 establishes future time. 去取 combines going with the purpose of collecting.
+  - subskill_id: duration_frequency
+    explanation: 每 with a time period and a counted occurrence can express frequency. 次 counts
+      occasions rather than objects.
+    examples:
+      - text: 我每周游泳两次。
+        meaning: I swim twice a week.
+        note: 每周 sets the interval, and 两次 gives the number of swimming occasions in it.
+  - subskill_id: event_sequence
+    explanation: 先 and 再 specify the first step and what follows. They establish sequence without
+      inherently asserting causation.
+    examples:
+      - text: 先洗手，再准备食材。
+        meaning: First wash your hands, then prepare the ingredients.
+        note: 先 and 再 order the two actions. The implied addressee is the person following the
+          procedure.
+  - subskill_id: event_phase
+    explanation: 完 after an action verb can indicate reaching the activity’s endpoint. 已经 makes the
+      achieved status explicit.
+    examples:
+      - text: 我已经看完说明书了。
+        meaning: I have finished reading the instructions.
+        note: 看完 states completion of the reading. It is more specific than merely saying that reading
+          happened.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

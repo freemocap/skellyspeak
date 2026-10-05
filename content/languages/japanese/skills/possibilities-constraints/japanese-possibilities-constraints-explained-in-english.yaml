@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: A dictionary-form verb followed by ことができます expresses being able to perform the
+      activity. It is one option alongside potential verb forms.
+    examples:
+      - text: 簡単な家具を直すことができます。
+        meaning: I can repair simple furniture.
+        note: 直す names the activity that the speaker can perform. The sentence concerns practical
+          ability.
+  - subskill_id: permission
+    explanation: Attach もいいですか to a verb’s て-form to ask whether an action is allowed. Context
+      identifies whose permission is sought.
+    examples:
+      - text: ここに荷物を置いてもいいですか。
+        meaning: May I put my luggage here?
+        note: 置いて is the て-form of 置く. Ask the person responsible for the space.
+  - subskill_id: obligation
+    explanation: Replace the final ない in a negative verb form with なければなりません to state necessity. Its
+      combined meaning is positive obligation despite the negative components.
+    examples:
+      - text: 今日、鍵を返さなければなりません。
+        meaning: I must return the key today.
+        note: 返さない supplies the stem for 返さなければ. The statement requires returning the key; it does not
+          forbid it.
+  - subskill_id: possibility
+    explanation: A plain proposition followed by かもしれません marks a possibility. The speaker leaves the
+      outcome uncertain.
+    examples:
+      - text: 午後は風が強くなるかもしれません。
+        meaning: The wind may get stronger in the afternoon.
+        note: 強くなる describes becoming stronger. かもしれません qualifies that event as possible.
+  - subskill_id: certainty
+    explanation: 自信がありません can explicitly limit confidence. A preceding question clause can identify
+      what the speaker is unsure about.
+    examples:
+      - text: この答えで合っているか、自信がありません。
+        meaning: I am not sure this answer is correct.
+        note: か embeds the issue of correctness. The speaker expresses uncertainty rather than declaring
+          the answer false.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

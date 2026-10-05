@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Different leave-taking formulas address the person leaving and the person staying.
+      Choose the one matching the encounter.
+    examples:
+      - text: 안녕히 가세요. 다음 주에 봬요.
+        meaning: Goodbye. See you next week.
+        note: Say this to a departing visitor while you remain. 봬요 is the polite contracted form used
+          here for seeing the person again.
+  - subskill_id: acknowledging
+    explanation: 알겠어요 can signal that an explanation or instruction has been understood. The form
+      with 겠 need not describe future knowledge.
+    examples:
+      - text: 네, 이제 알겠어요.
+        meaning: Yes, now I understand.
+        note: Reply after an explanation resolves confusion. Agreement with an opinion is not required
+          for this acknowledgment.
+  - subskill_id: clarification
+    explanation: 다시 with 말씀해 주세요 respectfully asks the partner to repeat. The preceding words supply
+      the repair target.
+    examples:
+      - text: 죄송하지만 다시 말씀해 주세요.
+        meaning: Sorry, please say that again.
+        note: Use after missing or not understanding an utterance. 말씀해 respectfully refers to the
+          partner’s speech.
+  - subskill_id: rephrasing
+    explanation: 다시 말하면 introduces a reformulation. The following clause should make the earlier
+      meaning clearer.
+    examples:
+      - text: 다시 말하면 미리 예약해야 해요.
+        meaning: In other words, we need to book in advance.
+        note: Rephrases an explanation that same-day requests cannot be accommodated. 미리 makes the
+          practical requirement explicit.
+  - subskill_id: correcting_misunderstanding
+    explanation: 이 아니라 contrasts an incorrect nominal interpretation with the correct one. Supply
+      the intended alternative explicitly.
+    examples:
+      - text: 제가 말한 날은 금요일이 아니라 토요일이었어요.
+        meaning: The day I meant was Saturday, not Friday.
+        note: Use after the listener interprets the proposed day as Friday. 말한 modifies 날 and identifies
+          which earlier contribution is being corrected.
+  - subskill_id: turns_topics
+    explanation: A permission question can manage a shift to another topic. The new topic or
+      proposed change should be identifiable.
+    examples:
+      - text: 잠깐 다른 이야기를 해도 될까요?
+        meaning: May I briefly change the subject?
+        note: 다른 이야기를 names a different subject. The question manages the discussion rather than
+          describing speech ability.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_permission2026
+    - htsk_tense2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

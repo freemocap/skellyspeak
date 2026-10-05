@@ -102,7 +102,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   }, [stop])
   return <SavedReadingRegistryContext value={registerSources}><SavedReadingContext value={savedIndex}><ReadingActionsContext value={{ inspect, speak, stop, speaking }}>
     <ReadingPeekContext value={peek}><ReadingLookupContext value={lookup}><ReadingCompletionsContext value={SentenceCompletions}>{children}
-    {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} services={services} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
+    {selection && <ReadingInspector key={JSON.stringify(selection)} selection={selection} languages={languages} onClose={() => { stop(); setSelection(null) }} />}
     {(speechError != null || speechReceipt != null || speaking != null) && createPortal(<div ref={audioStatus} popover={nativePopover ? "manual" : undefined} className="reading-audio-status" data-reading-tools>
       {speaking && <><span role="status">{tr(loadingAudio ? 'Loading speech…' : 'Reading aloud…')}</span><button className="btn" onClick={stop}>{tr('Stop reading')}</button></>}
       {speechError != null && <ErrorNotice onRetry={() => { if (lastSpeech.current) speak(lastSpeech.current) }} error={speechError}>{message(speechError)}<ResponseDetails value={details(speechError)} /></ErrorNotice>}
@@ -112,7 +112,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   </ReadingCompletionsContext></ReadingLookupContext></ReadingPeekContext></ReadingActionsContext></SavedReadingContext></SavedReadingRegistryContext>
 }
 
-function ReadingInspector({ selection, services, languages, onClose }: { selection: ReadingSelection; services: ReadingServices; languages: ReadingLanguage[]; onClose: () => void }) {
+function ReadingInspector({ selection, languages, onClose }: { selection: ReadingSelection; languages: ReadingLanguage[]; onClose: () => void }) {
   const tr = useI18n()
   const aid = selection.aid ?? (isSentenceBlank(selection.text, selection.start, selection.end) ? 'explanations' : 'word_gloss')
   const analyzing = aid !== 'word_gloss'
@@ -124,12 +124,11 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
   // They must not cancel an in-flight request for the open inspector.
   const readers = useRef({ lookup, peek })
   readers.current = { lookup, peek }
-  const [scope, setScope] = useState(selection.scope)
+  const scope = selection.scope
   const [result, setResult] = useState<ReadingResult | null>(null)
   const [failure, setFailure] = useState<unknown>(null)
   const [pending, setPending] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  const [activity, setActivity] = useState<unknown>(null)
   const lastRequest = useRef<string | null>(null)
   useEffect(() => {
     const { lookup, peek } = readers.current
@@ -148,21 +147,14 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
     return () => controller.abort()
   }, [scope, attempt, selection.text, selection.start, selection.end, aid])
   const language = languages.find(item => item.code === scope.language)
+  // A whole-text selection (phrase and inspect icons, message analysis) reads once,
+  // with its meanings shown; a word inside a sentence keeps its own line first.
+  const whole = selection.start === 0 && selection.end === selection.text.length
   return <DetailDialog title={title} onClose={onClose}><div data-reading-tools>
     <h2>{title}</h2>
-    <div className="reading-language-controls">
-      <label>{tr('Source language')}<select className="field" value={scope.language} onChange={event => {
-        const language = languages.find(item => item.code === event.target.value)!
-        setScope({ ...scope, language: language.code, variety: language.defaultVariety,
-          conversationId: language.code === selection.scope.language ? selection.scope.conversationId : undefined })
-      }}>{languages.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
-      <label>{tr('Variety')}<select className="field" value={scope.variety ?? language?.defaultVariety} onChange={event => setScope({ ...scope, variety: event.target.value })}>
-        {language?.varieties.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}
-      </select></label>
-    </div>
     <ReadingScopeContext value={scope}><ReadingLanguageScope language={scope.language} variety={scope.variety}>
-      <p className="reading-selected-word" dir="auto" lang={language?.languageTag}><span>{selection.text.slice(selection.start, selection.end)}</span>{!blankSelection && <TokenAudio text={selection.text} start={selection.start} end={selection.end} />}</p>
-      <p dir="auto" lang={language?.languageTag}><SavedGlossText text={selection.text} segments={result?.gloss?.segments ?? []} /></p>
+      {!whole && <p className="reading-selected-word" dir="auto" lang={language?.languageTag}><span>{selection.text.slice(selection.start, selection.end)}</span>{!blankSelection && <TokenAudio text={selection.text} start={selection.start} end={selection.end} />}</p>}
+      <p className={whole ? 'reading-selected-word' : undefined} dir="auto" lang={language?.languageTag}><SavedGlossText text={selection.text} segments={result?.gloss?.segments ?? []} revealAids />{whole && !blankSelection && <TokenAudio text={selection.text} />}</p>
     </ReadingLanguageScope></ReadingScopeContext>
     {analyzing && result?.explanations && <ReadingScopeContext value={scope}>{aid === 'completions' || sentenceBlanks(selection.text).length
       ? <SentenceCompletions cards={result.explanations.cards} />
@@ -171,8 +163,5 @@ function ReadingInspector({ selection, services, languages, onClose }: { selecti
     {failure != null && <ErrorNotice error={failure}>{message(failure)}<ResponseDetails value={details(failure)} /></ErrorNotice>}
     {(failure != null || result?.gloss?.coverage === 'partial') && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr(analyzing ? 'Retry' : 'Retry word meanings')}</button>}
     <AskCoachButton question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${scope.language} passage: “${selection.text}”.`} onClose={onClose} />
-    <ResponseDetails value={result?.receipt} />
-    <button className="btn" onClick={() => { void services.activity().then(setActivity).catch(setFailure) }}>{tr('Reading request history')}</button>
-    <ResponseDetails value={activity} />
   </div></DetailDialog>
 }

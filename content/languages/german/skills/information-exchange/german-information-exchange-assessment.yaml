@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: information_exchange
+guidance: Assess genuine information questions, relevant answers, factual checks and useful
+  elaboration. Wann fährt der nächste Bus? uses a question word followed by the finite verb;
+  fährt der Bus heute? is a verb-first yes/no question. German needs no English do-support.
+  Context can license a declarative confirmation question such as der Bus fährt um acht?; do not
+  demand inversion in every conversational check. Um acht Uhr after Wann fährt er? is a
+  contextual answer, not an incomplete failure. The same fragment without a recoverable
+  information need does not establish answering. Stimmt es, dass der Laden heute geschlossen
+  ist? checks the truth of a proposition; requesting repetition because words were missed
+  repairs understanding instead. Bei Gleis vier, neben dem Aufzug adds useful location detail in
+  response to a platform question. A bare question word copied from a list is absent use.
+  Könntest du den Koffer tragen? ordinarily seeks action, not knowledge about carrying ability.
+  Use unclear when the exchange leaves the intended information or response role unresolved.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_questions2026
+    - umich_de_word_order2026
+    - umich_de_connectors2026
+    - umich_de_prepositions2026
+    - goethe_de_discourse2026
+    - victoria_de_clock2026
+    - ids_de_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

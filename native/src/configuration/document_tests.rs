@@ -13,7 +13,7 @@ fn edit(files: &mut BTreeMap<String, String>, path: &str, f: impl FnOnce(&mut Va
 }
 #[test]
 fn documents_reject_invalid_fields_references_defaults_and_content() {
-    let path = "languages/arabic.yaml";
+    let path = "languages/arabic/arabic-language.yaml";
     let mutations: Vec<fn(&mut Value)> = vec![
         |v| v["extra"] = json!(true),
         |v| v["schema_version"] = json!(99),
@@ -28,7 +28,6 @@ fn documents_reject_invalid_fields_references_defaults_and_content() {
         |v| v["definitions"]["romanization_schemes"]["ala-lc-arabic"]["review"] = json!("reviewed"),
         |v| v["conversation"]["default_partner"]["age"] = json!(2),
         |v| v["conversation"]["starters"]["food"]["varieties"] = json!(["missing"]),
-        |v| v["learning"]["goal_material"]["missing"] = json!({"tokens":["word"]}),
         |v| {
             v["varieties"][0]["overrides"]["romanization"] =
                 json!({"mode":"disabled","scheme":{"local":"ala-lc-arabic"}})
@@ -44,26 +43,32 @@ fn documents_reject_invalid_fields_references_defaults_and_content() {
 fn shared_schemes_have_one_owner_and_explicit_references() {
     let mut source = files();
     let mut scheme = Value::Null;
-    edit(&mut source, "languages/arabic.yaml", |v| {
+    edit(&mut source, "languages/arabic/arabic-language.yaml", |v| {
         scheme = v["definitions"]["romanization_schemes"]["ala-lc-arabic"].take();
         v["definitions"]["romanization_schemes"] = json!({});
         v["defaults"]["romanization"]["scheme"] = json!({"shared":"ala-lc-arabic"});
         v["defaults"]["supported_romanizations"] = json!([{"shared":"ala-lc-arabic"}]);
     });
     assert!(Registry::from_files(source.clone()).is_err());
-    edit(&mut source, "shared/language-foundations.yaml", |v| {
-        v["romanization_schemes"]["ala-lc-arabic"] = scheme
-    });
+    edit(
+        &mut source,
+        "language-foundations/language-foundations.yaml",
+        |v| v["romanization_schemes"]["ala-lc-arabic"] = scheme,
+    );
     // Moving a scheme from a language to the shared namespace renames its key,
     // and authored romanizations are stored under that key.
-    edit(&mut source, "shared/conversation-topics.yaml", |v| {
-        for topic in v.as_array_mut().expect("topic list") {
-            let romanizations = &mut topic["romanizations"];
-            let value = romanizations["arabic:ala-lc-arabic"].take();
-            romanizations["shared:ala-lc-arabic"] = value;
-        }
-    });
-    edit(&mut source, "languages/arabic.yaml", |v| {
+    edit(
+        &mut source,
+        "conversation-topics/conversation-topics.yaml",
+        |v| {
+            for topic in v.as_array_mut().expect("topic list") {
+                let romanizations = &mut topic["romanizations"];
+                let value = romanizations["arabic:ala-lc-arabic"].take();
+                romanizations["shared:ala-lc-arabic"] = value;
+            }
+        },
+    );
+    edit(&mut source, "languages/arabic/arabic-language.yaml", |v| {
         let romanizations = &mut v["conversation"]["greeting"]["romanizations"];
         let value = romanizations["arabic:ala-lc-arabic"].take();
         romanizations["shared:ala-lc-arabic"] = value;
@@ -73,19 +78,23 @@ fn shared_schemes_have_one_owner_and_explicit_references() {
         .inspect_language("arabic", None, "english", None)
         .unwrap();
     assert_eq!(report.schemes[0].id, "shared:ala-lc-arabic");
-    assert!(report.schemes[0].source.starts_with("shared/"));
+    assert!(
+        report.schemes[0]
+            .source
+            .starts_with("language-foundations/")
+    );
     assert_eq!(report.schemes[0].used_by.len(), 2);
 }
 #[test]
 fn duplicate_yaml_keys_and_duplicate_language_varieties_fail() {
     let mut source = files();
     source
-        .get_mut("languages/arabic.yaml")
+        .get_mut("languages/arabic/arabic-language.yaml")
         .unwrap()
         .push_str("\nschema_version: 1\n");
     assert!(Registry::from_files(source).is_err());
     let mut source = files();
-    edit(&mut source, "languages/arabic.yaml", |v| {
+    edit(&mut source, "languages/arabic/arabic-language.yaml", |v| {
         v["varieties"][1]["id"] = v["varieties"][0]["id"].clone()
     });
     assert!(Registry::from_files(source).is_err());
@@ -95,13 +104,17 @@ fn content_hash_is_semantic_and_includes_bibliography() {
     let source = files();
     let baseline = Registry::from_files(source.clone()).unwrap();
     let mut formatted = source.clone();
-    edit(&mut formatted, "languages/arabic.yaml", |_| {});
+    edit(
+        &mut formatted,
+        "languages/arabic/arabic-language.yaml",
+        |_| {},
+    );
     assert_eq!(
         baseline.hash(),
         Registry::from_files(formatted).unwrap().hash()
     );
     let mut changed = source.clone();
-    edit(&mut changed, "languages/arabic.yaml", |v| {
+    edit(&mut changed, "languages/arabic/arabic-language.yaml", |v| {
         v["identity"]["name"] = json!("Arabic fixture")
     });
     assert_ne!(
@@ -126,20 +139,28 @@ fn content_hash_is_semantic_and_includes_bibliography() {
 #[test]
 fn language_without_browser_or_speech_mapping_loads_and_resolves() {
     let mut source = files();
-    let mut custom: Value = serde_yaml_ng::from_str(&source["languages/spanish.yaml"]).unwrap();
+    let mut custom: Value =
+        serde_yaml_ng::from_str(&source["languages/spanish/spanish-language.yaml"]).unwrap();
     custom["identity"]["id"] = json!("test-language");
     custom["integrations"] = json!({});
     source.insert(
-        "languages/test-language.yaml".into(),
+        "languages/test-language/test-language-language.yaml".into(),
         serde_yaml_ng::to_string(&custom).unwrap(),
     );
     // A reachable language needs a name for every starter card, because each
     // card is also the translation shown to learners explaining into it.
-    edit(&mut source, "shared/conversation-topics.yaml", |v| {
-        for topic in v.as_array_mut().expect("topic list") {
-            let spanish = topic["labels"]["spanish"].clone();
-            topic["labels"]["test-language"] = spanish;
-        }
+    edit(
+        &mut source,
+        "conversation-topics/conversation-topics.yaml",
+        |v| {
+            for topic in v.as_array_mut().expect("topic list") {
+                let spanish = topic["labels"]["spanish"].clone();
+                topic["labels"]["test-language"] = spanish;
+            }
+        },
+    );
+    edit(&mut source, "policies/guide-authoring.yaml", |v| {
+        v["source_explanation_languages"]["test-language"] = json!("english");
     });
     let registry = Registry::from_files(source).unwrap();
     let context = registry.resolve("test-language", None, "english").unwrap();
@@ -162,7 +183,7 @@ fn policy_bounds_and_learner_protections_remain_required() {
         ("feedback", "correct_only", json!("all_errors")),
     ] {
         let mut source = files();
-        edit(&mut source, "shared/teaching-policy.yaml", |v| {
+        edit(&mut source, "policies/teaching-policy.yaml", |v| {
             v[field][key] = value
         });
         assert!(Registry::from_files(source).is_err());
@@ -182,7 +203,7 @@ fn browser_reports_effective_values_and_ordered_rule_sources() {
                 report
                     .sources
                     .iter()
-                    .any(|s| s.path == format!("languages/{}.yaml", l.id))
+                    .any(|s| s.path == format!("languages/{0}/{0}-language.yaml", l.id))
             );
         }
     }
@@ -215,7 +236,7 @@ fn language_browser_separates_local_content_from_assembled_policy() {
     let evidence = report
         .rules
         .iter()
-        .find(|rule| rule.source == "languages/arabic.yaml#guidance.0")
+        .find(|rule| rule.source == "languages/arabic/arabic-language.yaml#guidance.0")
         .unwrap();
     assert!(evidence.text.contains("Arabic learner evidence"));
     assert_eq!(
@@ -229,7 +250,7 @@ fn language_browser_separates_local_content_from_assembled_policy() {
     let serialized = serde_json::to_value(&report).unwrap();
     assert!(serialized.get("goals").is_none());
     assert!(serialized.get("topics").is_none());
-    assert!(report.learning_json.contains("goal_material"));
+    assert!(report.learning_json.contains("definitions"));
     let instructions = &report.schemes[0].instructions;
     assert!(
         !report
@@ -249,6 +270,6 @@ fn language_browser_separates_local_content_from_assembled_policy() {
         report
             .sources
             .iter()
-            .any(|source| source.path == "shared/teaching-policy.yaml")
+            .any(|source| source.path == "policies/teaching-policy.yaml")
     );
 }

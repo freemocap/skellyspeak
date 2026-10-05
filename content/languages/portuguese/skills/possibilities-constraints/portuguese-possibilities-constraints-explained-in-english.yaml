@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Saber + infinitive can express knowing how to perform an activity. Sei is the
+      first-person present; a bare fact known by the speaker is a different use of saber.
+    examples:
+      - text: Sei consertar uma bicicleta.
+        meaning: I know how to repair a bicycle.
+        note: Sei followed by consertar expresses practical skill, rather than knowledge of a
+          proposition.
+  - subskill_id: permission
+    explanation: Poder + infinitive can ask whether an action is allowed. Context distinguishes this
+      from a question about physical ability or available opportunity.
+    examples:
+      - text: Posso usar esta mesa?
+        meaning: May I use this table?
+        note: Addressed to the person managing a shared workspace. The speaker asks for permission to
+          use the table.
+  - subskill_id: obligation
+    explanation: Ter que + infinitive expresses a requirement. Tenho is first-person present; the
+      verb after que remains an infinitive.
+    examples:
+      - text: Tenho que devolver os livros hoje.
+        meaning: I have to return the books today.
+        note: Tenho que states a requirement; hoje gives its timing. It does not say that the return has
+          already happened.
+  - subskill_id: possibility
+    explanation: É possível que introduces an uncertain event with the subjunctive in this
+      construction. Chova is the present subjunctive of chover.
+    examples:
+      - text: É possível que chova amanhã.
+        meaning: It may rain tomorrow.
+        note: The rain is presented as possible. Amanhã supplies future time although chova is a
+          present-subjunctive form.
+  - subskill_id: certainty
+    explanation: Não sei se can mark that the speaker does not know whether a proposition is true.
+      This se introduces an indirect yes/no question, rather than an if-condition for another
+      action.
+    examples:
+      - text: Não sei se a biblioteca está aberta.
+        meaning: I do not know whether the library is open.
+        note: The uncertainty concerns its present open status. Está is indicative inside this indirect
+          question.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

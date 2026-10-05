@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: coordinating_action
+guidance: Assess requests, offers, suggestions, undertakings, acceptance or refusal and changes
+  to plans. 옮겨 주세요 asks help with moving something; 도와드릴까요 offers the speaker’s help, and 같이 쉴까요
+  proposes shared action in context. 제가 가져올게요 can undertake responsibility with a
+  listener-oriented intention, whereas a prediction in 을 거예요 need not promise. 좋아요 after a
+  concrete invitation can accept contextually; elsewhere it may just evaluate an object. 오늘은
+  어려워요 can decline a proposed activity indirectly when the difficulty is clear. 토요일은 어때요 adjusts
+  timing in response to a Friday conflict. An isolated copied 주세요 without an object or
+  recoverable request is absent. A question about capability is not automatically a request.
+  Honorific and speech-level choices should fit the relationship, but do not require maximal
+  formality in ordinary conversation or explicit pronouns when the participants are clear.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_permission2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,99 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: time_events
+language: french
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: >-
+      The present can describe habits, current states or activities happening now. En ce
+      moment makes the current activity explicit without requiring a separate progressive
+      tense.
+    examples:
+      - text: "Je prépare le dîner en ce moment."
+        meaning: >-
+          I am preparing dinner right now.
+        note: >-
+          Prépare is a present form; en ce moment identifies the current occasion rather
+          than a general habit.
+  - subskill_id: past_events
+    explanation: >-
+      Choose a past construction that presents the intended event. The passé composé often
+      advances a narrative; the imparfait often supplies an ongoing situation or habit.
+      Neither is selected by a time word alone.
+    examples:
+      - text: "Hier, il pleuvait quand nous avons quitté la maison."
+        meaning: >-
+          Yesterday it was raining when we left the house.
+        note: >-
+          Pleuvait supplies the ongoing background; avons quitté presents the departure as
+          an event within it.
+  - subskill_id: future_events
+    explanation: >-
+      Aller in the present followed by an infinitive can express a plan. The simple future
+      and a present form with a clear future context are other resources.
+    examples:
+      - text: "Nous allons visiter le jardin demain."
+        meaning: >-
+          We are going to visit the garden tomorrow.
+        note: >-
+          Allons visiter expresses the plan; demain anchors it after now. Aller is
+          conjugated and visiter stays infinitive.
+  - subskill_id: duration_frequency
+    explanation: >-
+      Depuis with a present situation often measures how long it has continued up to now.
+      Pendant measures a duration; chaque and frequency adverbs describe repetition.
+    examples:
+      - text: "Je travaille ici depuis trois mois."
+        meaning: >-
+          I have been working here for three months.
+        note: >-
+          The French present works with depuis for a situation continuing now; an English
+          perfect translation is not a French tense requirement.
+  - subskill_id: event_sequence
+    explanation: >-
+      D’abord, puis and ensuite order events. Before and after constructions need their
+      own appropriate complements; sequence does not by itself assert a cause.
+    examples:
+      - text: "D’abord, nous avons acheté les billets, puis nous avons choisi nos places."
+        meaning: >-
+          First we bought the tickets, then we chose our seats.
+        note: >-
+          D’abord and puis establish order without claiming that buying the tickets caused
+          the choice of seats.
+  - subskill_id: event_phase
+    explanation: >-
+      Use constructions such as commencer à, être en train de or finir de with an
+      infinitive to locate an activity within its development.
+    examples:
+      - text: "Je viens de finir de ranger la cuisine."
+        meaning: >-
+          I have just finished tidying the kitchen.
+        note: >-
+          Finir de marks completion; viens de additionally places that completion in the
+          recent past.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_past_aspect2026
+    - tex_depuis2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

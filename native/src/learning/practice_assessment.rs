@@ -1,4 +1,4 @@
-//! Compact presence-only question composition and validation for the new catalog.
+//! Compact correct-use question composition and Choice response validation.
 //! Caller captures authored content and owns transport, diagnostics and publication.
 use crate::learning::practice::Presence;
 use crate::model::{AppError, ErrorCode, Result};
@@ -127,10 +127,11 @@ mod tests {
     use super::*;
     #[test]
     fn composes_presence_only_without_catalog_size_or_language_branches() {
-        let shared: Instructions = serde_yaml_ng::from_str(include_str!(
-            "../../../content/prompts/skills/presence.yaml"
-        ))
+        let files = crate::configuration::content_files::read(
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../content"),
+        )
         .unwrap();
+        let shared = crate::configuration::authoring::prompts::instructions(&files).unwrap();
         let skills = [SkillPrompt {
             id: "language_extension".into(),
             name: "Example".into(),

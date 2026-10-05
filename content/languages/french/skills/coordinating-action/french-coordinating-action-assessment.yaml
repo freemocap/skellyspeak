@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: coordinating_action
+language: french
+guidance: >-
+  Judge whether the contribution successfully requests, offers, invites, suggests,
+  commits, accepts, declines or negotiates an action. Pourriez-vous déplacer cette chaise
+  ? is a request in an ordinary cooperative exchange, not automatically evidence about
+  ability. On pourrait déjeuner ici proposes an option; d’accord, j’apporterai les
+  assiettes commits the speaker when a shared plan is being arranged. Pourriez-vous
+  déplacez does not correctly form the modal-plus-infinitive request. Accept appropriate
+  imperatives and short contextual answers; do not require the politest possible form in
+  every relationship. A future prediction alone is not a promise. Negotiation must respond
+  to an actual plan or constraint rather than just mention a day. Credit requires correct
+  use of the function, not merely an attempt. Unrelated errors do not erase a successful
+  instance. Use unclear when the available exchange does not establish the function.
+  Examples illustrate possibilities, not an exhaustive whitelist. Accept appropriate
+  France and Canadian French usage and conversational register; do not impose another
+  variety’s lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: coordinating_action
+language: spanish
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: Ask for an action directly or with a conventional polite question. Poder in a request
+      is not necessarily a question about physical ability.
+    examples:
+      - text: ¿Puedes cerrar la puerta, por favor?
+        meaning: Can you close the door, please?
+        note: The expected response is closing the door.
+  - subskill_id: offers_invitations
+    explanation: Offer your help or invite the other person to join an activity.
+    examples:
+      - text: ¿Quieres venir a cenar?
+        meaning: Would you like to come for dinner?
+        note: In this setting the question invites participation.
+  - subskill_id: suggestions
+    explanation: Podemos followed by an infinitive can propose something to do together.
+    examples:
+      - text: Podemos ir mañana.
+        meaning: We could go tomorrow.
+        note: In a planning exchange, this proposes an option.
+  - subskill_id: commitments
+    explanation: Use wording that undertakes responsibility when making a commitment; future time alone
+      is not a promise.
+    examples:
+      - text: Te prometo que voy a llamarte.
+        meaning: I promise I will call you.
+        note: Prometo makes the undertaking explicit.
+  - subskill_id: accepting_declining
+    explanation: A short acceptance or refusal depends on the proposal it answers. You can decline
+      politely without a long explanation.
+    examples:
+      - text: Lo siento, no puedo.
+        meaning: Sorry, I cannot.
+        note: Following an invitation, this declines it.
+  - subskill_id: negotiating_plans
+    explanation: Respond to a proposed plan with an alternative that addresses the obstacle.
+    examples:
+      - text: A las seis no puedo; ¿quedamos a las siete?
+        meaning: I cannot make six; shall we meet at seven?
+        note: The speaker changes the proposed time to resolve a constraint.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

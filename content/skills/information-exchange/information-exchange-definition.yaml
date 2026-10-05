@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-definition.yaml
+schema_version: 1
+revision: communication-2026-10-03
+id: information_exchange
+boundary: Require successful information seeking or a relevant informative response. Question-shaped
+  requests for action do not qualify just for their form.
+name: Information exchange
+purpose: Seek, supply and verify information relevant to the exchange.
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

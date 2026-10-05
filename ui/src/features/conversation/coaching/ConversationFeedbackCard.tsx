@@ -1,5 +1,28 @@
 import { useI18n } from '../../../components/localization/i18n'
-import type { ConversationFeedback } from '../../../generated/contracts'
+import type { ChoiceAssessment, ConversationFeedback } from '../../../generated/contracts'
+
+function Judgment({ label, answer }: { label: string; answer: ChoiceAssessment }) {
+  const tr = useI18n()
+  const labels: Record<string, string> = {
+    acceptable: tr('Acceptable'), local_errors: tr('Local errors'), major_errors: tr('Major errors'),
+    understandable: tr('Understood'), needs_clarification: tr('Needs clarification'),
+    unrecoverable: tr('Meaning not recovered'), insufficient_evidence: tr('Insufficient evidence'),
+  }
+  return <div className="coach-score">
+    <span>{label}</span><strong>{labels[answer.choice] ?? answer.choice}</strong>
+    <details>
+      <summary>{tr('Assessment details')}</summary>
+      <p>{tr('Model confidence')}: {tr.number(answer.confidence, { style: 'percent', maximumFractionDigits: 1 })}</p>
+      <table>
+        <caption>{tr('Model probabilities')}</caption>
+        <tbody>{Object.entries(answer.probabilities).map(([choice, probability]) => <tr key={choice}>
+          <th scope="row">{labels[choice] ?? choice}</th>
+          <td>{tr.number(probability, { style: 'percent', maximumFractionDigits: 1 })}</td>
+        </tr>)}</tbody>
+      </table>
+    </details>
+  </div>
+}
 
 export function scoreText(value: number | null) { return value === null ? '—' : `${value}/10` }
 /** How a 0–10 score reads: low, partial or strong. */
@@ -31,8 +54,12 @@ function ScoreMeter({ label, value }: { label: string; value: number | null }) {
 }
 export function ConversationFeedbackCard({ feedback }: { feedback: ConversationFeedback }) {
   const tr = useI18n()
+  const grammar = feedback.answers.grammar
+  const understanding = feedback.answers.understandability
   return <section className="coach-assessment" aria-label={tr('Message assessment')}>
-    <div className="coach-scores"><ScoreMeter label={tr('Grammar')} value={feedback.grammar}/><ScoreMeter label={tr('Conversation fit')} value={feedback.conversation}/></div>
-
+    <div className="coach-scores">{grammar && understanding ? <>
+      <Judgment label={tr('Grammar')} answer={grammar} />
+      <Judgment label={tr('Understandability')} answer={understanding} />
+    </> : <><ScoreMeter label={tr('Grammar')} value={feedback.grammar}/><ScoreMeter label={tr('Conversation fit')} value={feedback.conversation}/></>}</div>
   </section>
 }

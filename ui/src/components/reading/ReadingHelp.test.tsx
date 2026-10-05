@@ -401,3 +401,19 @@ it('keeps word help and speech status usable without WebView popover methods', a
     if (hide) Object.defineProperty(HTMLElement.prototype, 'hidePopover', hide)
   }
 })
+
+it('shows word meanings in the inspector without auto-translate and carries no selects, receipts or history', async () => {
+  function Controls() {
+    const actions = useReadingActions()
+    return <button onClick={() => actions?.inspect({scope, text:'Hola', start:0, end:4})}>Inspect</button>
+  }
+  render(<ReadingPreferencesContext value={{autoTranslate:false, alwaysRomanize:false, alwaysPronunciation:false}}><ReadingScopeContext value={scope}><ReadingHelp services={services} languages={languages}><Controls /></ReadingHelp></ReadingScopeContext></ReadingPreferencesContext>)
+  fireEvent.click(screen.getByRole('button', {name:'Inspect'}))
+  const dialog = await screen.findByRole('dialog', {name:'Word help'})
+  await waitFor(() => expect(within(dialog).getByText('hello')).toBeVisible())
+  expect(within(dialog).queryAllByRole('combobox')).toHaveLength(0)
+  expect(within(dialog).queryByRole('button', {name:'Reading request history'})).toBeNull()
+  expect(within(dialog).queryByText('Response details')).toBeNull()
+  expect(within(dialog).queryByRole('button', {name:'Start a conversation from this phrase'})).toBeNull()
+  expect(services.activity).not.toHaveBeenCalled()
+})

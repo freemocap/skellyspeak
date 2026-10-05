@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: time_events
+explanation_language: english
+title: Time and events
+introduction: Locate events in time and express their temporal structure.
+sections:
+  - subskill_id: present_events
+    title: Present situations
+    concept: Situate a state, activity or habit in the current reference period.
+  - subskill_id: past_events
+    title: Past events
+    concept: Locate an event before now or another established reference time.
+  - subskill_id: future_events
+    title: Future events
+    concept: Locate an event after now or another established reference time.
+  - subskill_id: duration_frequency
+    title: Duration and frequency
+    concept: Express how long or how often situations occur.
+  - subskill_id: event_sequence
+    title: Sequence
+    concept: Order events relative to one another.
+  - subskill_id: event_phase
+    title: Ongoing and completed events
+    concept: Distinguish unfolding, bounded, completed or changing phases of an event.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

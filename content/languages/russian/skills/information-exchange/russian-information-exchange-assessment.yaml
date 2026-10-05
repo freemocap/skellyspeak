@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: information_exchange
+guidance: Look for actual information questions, relevant answers, factual checking and useful
+  detail. Во сколько закрывается мастерская? asks a closing time; В пять часов answers it
+  contextually without repeating the event. Мастерская закрывается в пять, верно? checks a
+  proposed fact. A question about whether the listener can help often requests an action rather
+  than merely seeking a capability report. Вход со стороны двора can supply the identifying
+  detail needed to find an entrance. More words are not automatically more useful information. A
+  copied вопрос or сколько without an intelligible question is absent. Переспросите, пожалуйста
+  asks for conversational repair rather than confirming an external fact. Preserve ordinary
+  short answers and flexible question order; do not require English auxiliary inversion. If the
+  preceding exchange is unavailable, do not invent the referent that would make an otherwise
+  ambiguous fragment a successful answer.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

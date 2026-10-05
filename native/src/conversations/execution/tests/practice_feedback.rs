@@ -93,7 +93,7 @@ fn fresh_fix_feedback_does_not_award_direct_skill_credit() {
         &store,
         &second,
         "coach_feedback",
-        serde_json::json!({"meaning_recovered":"full","items":[{"construct":"questions_answers","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
+        serde_json::json!({"meaning_recovered":"full","items":[{"construct":"information_exchange","quote":"¿Cómo está tu hermana?","outcome":"demonstrated","error":null,"rationale":"The question now includes its linking verb."}]}),
     );
     assert!(checked["decision"]["shown"].is_null());
     assert!(checked["decision"]["repairStatus"].is_null());
@@ -169,42 +169,29 @@ fn guidance_updates_reach_capture_without_erasing_experience() {
     drop(store);
     let content = dir.path().join("content");
     std::fs::create_dir(&content).unwrap();
-    for folder in ["languages", "shared"] {
-        std::fs::create_dir(content.join(folder)).unwrap();
-        let original = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../content")
-            .join(folder);
-        for entry in std::fs::read_dir(original).unwrap() {
+    fn copy_tree(source: &std::path::Path, target: &std::path::Path) {
+        std::fs::create_dir_all(target).unwrap();
+        for entry in std::fs::read_dir(source).unwrap() {
             let entry = entry.unwrap();
-            std::fs::copy(entry.path(), content.join(folder).join(entry.file_name())).unwrap();
+            if entry.file_type().unwrap().is_dir() {
+                copy_tree(&entry.path(), &target.join(entry.file_name()));
+            } else {
+                std::fs::copy(entry.path(), target.join(entry.file_name())).unwrap();
+            }
         }
     }
-    for (prompt, file) in [
-        ("conversation", "instructions.yaml"),
-        ("drill", "instructions.yaml"),
-        ("skills", "presence.yaml"),
-        ("skills", "demonstration.yaml"),
-    ] {
-        std::fs::create_dir_all(content.join("prompts").join(prompt)).unwrap();
-        std::fs::copy(
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../content/prompts")
-                .join(prompt)
-                .join(file),
-            content.join("prompts").join(prompt).join(file),
-        )
-        .unwrap();
-    }
+    copy_tree(
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../content"),
+        &content,
+    );
     std::fs::copy(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../references.bib"),
         dir.path().join("references.bib"),
     )
     .unwrap();
-    let path = content.join("languages/spanish.yaml");
+    let path = content.join("languages/spanish/spanish-language.yaml");
     let mut document: serde_json::Value =
         serde_yaml_ng::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
-    document["learning"]["goal_material"]["greeting"] =
-        serde_json::json!({"tokens":["custom_semantic_token"]});
     document["guidance"] = serde_json::json!([{"scope":"assessment","text":"Preserve CUSTOM_ASSESSMENT_GUIDANCE.","sources":["cefr2020"]}]);
     std::fs::write(path, serde_yaml_ng::to_string(&document).unwrap()).unwrap();
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();

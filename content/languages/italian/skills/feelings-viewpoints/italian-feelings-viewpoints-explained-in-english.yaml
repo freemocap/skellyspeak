@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Voglio with an infinitive can express a wish or intention. Vorrei can soften a
+      wish; either form needs context to distinguish desire from a request.
+    examples:
+      - text: Voglio frequentare un corso di disegno.
+        meaning: I want to attend a drawing course.
+        note: Voglio is first-person volere; frequentare remains an infinitive. This states a wish, not
+          an agreed commitment.
+  - subskill_id: preferences
+    explanation: Preferire can choose one activity over another. When the same person performs both
+      actions, a following verb can be an infinitive.
+    examples:
+      - text: Preferisco camminare invece di prendere l’autobus.
+        meaning: I prefer walking to taking the bus.
+        note: Preferisco introduces the preferred activity; invece di contrasts it with the alternative.
+  - subskill_id: emotions
+    explanation: Essere with an appropriate adjective can express an emotional state. Felice has the
+      same singular form for a woman or a man, while its plural is felici.
+    examples:
+      - text: Sono felice del risultato.
+        meaning: I am happy with the result.
+        note: Sono felice describes the speaker’s emotional state. Del risultato specifies what the
+          speaker is happy about.
+  - subskill_id: opinions
+    explanation: Secondo me can introduce the speaker’s own judgment. The assessment or evaluation
+      that follows supplies the content of the position.
+    examples:
+      - text: Secondo me, questo progetto costa troppo.
+        meaning: In my opinion, this project costs too much.
+        note: Secondo me attributes the judgment to the speaker; troppo evaluates the cost rather than
+          just naming an amount.
+  - subskill_id: agreement_disagreement
+    explanation: Non sono d’accordo can reject an identifiable position. State what differs when
+      that helps the other person understand the disagreement.
+    examples:
+      - text: "Non sono d’accordo: il percorso è troppo lungo."
+        meaning: "I disagree: the route is too long."
+        note: Reply to the claim that this route is a good choice for a short walk. The second clause
+          explains the opposing evaluation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_preferences2026
+    - treccani_it_piace2026
+    - treccani_it_agreement2026
+    - treccani_it_discourse2026
+    - treccani_it_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

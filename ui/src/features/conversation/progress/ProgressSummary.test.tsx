@@ -15,7 +15,7 @@ it('separates global activity from language tabs and shows every skill at zero f
   HTMLDialogElement.prototype.close = function () { this.open = false }
   const spanish = structuredClone(skillDemo)
   spanish.conversation_count = 1
-  const skill = spanish.profile.skills[0]
+  const skill = spanish.profile.skills.find(s => s.skill_id === 'people_places')!
   Object.assign(skill, { xp: 1, experience: 1, checked: true })
   spanish.profile.xp = 1
   spanish.profile.credits = [{ attempt_id: 'a', skill_id: skill.skill_id, xp: 1, experience: 1, effort: 0, event: { id: `a:${skill.skill_id}`, attemptId: 'a', constructId: skill.skill_id, kind: 'experience', tier: 1, xp: 1, experience: 1, effort: 0, quote: 'Esa taza.', support: 'not_weighted', difficulty: 'not_weighted', novelty: 'not_weighted', policyHash: 'experience-effort-1', atSecs: 100n, claimed: false } }]
@@ -27,16 +27,16 @@ it('separates global activity from language tabs and shows every skill at zero f
   expect(await screen.findByRole('heading', { name: 'Spanish progress' })).toBeVisible()
   expect(screen.getByText('Total XP').parentElement).toHaveTextContent('1')
   expect(screen.getByText('XP').parentElement).toHaveTextContent('1')
-  const domain = skillDemo.catalog.find(node => node.kind === 'domain')!
+  const domain = skillDemo.catalog.find(node => node.id === 'people_places')!
   fireEvent.click(document.querySelector(`[data-reward-skill="${skill.skill_id}"]`)!)
   expect(screen.getByRole('heading', { name: `${domain.label} · skill evidence` })).toBeVisible()
-  const report = screen.getByRole('dialog', { name: 'Identify and describe' })
+  const report = screen.getByRole('dialog', { name: 'People, things, and places' })
   expect(within(report).getByText('Esa taza.')).toBeVisible()
   expect(within(report).getByText('Identifies the cup.')).toBeVisible()
-  fireEvent.click(within(report).getByRole('button', { name: 'Close Identify and describe' }))
+  fireEvent.click(within(report).getByRole('button', { name: 'Close People, things, and places' }))
   fireEvent.click(screen.getByRole('tab', { name: 'Arabic 0 XP' }))
   expect(screen.getByRole('heading', { name: 'Arabic progress' })).toBeVisible()
-  expect(document.querySelectorAll('[data-reward-skill]')).toHaveLength(12)
+  expect(document.querySelectorAll('[data-reward-skill]')).toHaveLength(8)
   expect(screen.getByText('XP').parentElement).toHaveTextContent('0')
   expect(screen.getByRole('checkbox', { name: 'Include skills without credit' })).toBeChecked()
   expect(screen.queryByRole('heading', { name: 'Spanish progress' })).toBeNull()
@@ -52,11 +52,11 @@ it('keeps an open skill inspector mounted while a saved-data refresh is pending'
   backend.getPracticeOverview.mockResolvedValueOnce({languages:[{name:'Spanish',endonym:'Español',snapshot}]})
   const view = render(<ProgressSummary snapshot={snapshot} onClose={vi.fn()} />)
   await screen.findByRole('heading',{name:'Spanish progress'})
-  fireEvent.click(document.querySelector('[data-reward-skill]')!)
-  expect(screen.getByRole('dialog',{name:'Identify and describe'})).toBeVisible()
+  fireEvent.click(document.querySelector('[data-reward-skill="people_places"]')!)
+  expect(screen.getByRole('dialog',{name:'People, things, and places'})).toBeVisible()
   backend.getPracticeOverview.mockReturnValue(new Promise(() => {}))
   view.rerender(<ProgressSummary snapshot={structuredClone(snapshot)} onClose={vi.fn()} />)
-  expect(screen.getByRole('dialog',{name:'Identify and describe'})).toBeVisible()
+  expect(screen.getByRole('dialog',{name:'People, things, and places'})).toBeVisible()
 })
 
 beforeEach(() => { useSettingsStore.setState({settings: {my_languages: [skillDemo.target, 'arabic']} as Settings}) })

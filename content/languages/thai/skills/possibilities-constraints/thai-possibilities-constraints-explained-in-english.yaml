@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: เป็น after an activity can indicate knowing how to perform it.
+    examples:
+      - text: ฉันว่ายน้ำเป็น
+        meaning: I know how to swim.
+        note: เป็น here expresses acquired ability, not an identifying copula.
+  - subskill_id: permission
+    explanation: An action followed by ได้ไหม can request permission.
+    examples:
+      - text: ฉันวางกระเป๋าไว้ตรงนี้ได้ไหม
+        meaning: May I leave my bag here?
+        note: Address the person responsible for the space to establish the permission context.
+  - subskill_id: obligation
+    explanation: ต้อง before an action states a requirement.
+    examples:
+      - text: ฉันต้องคืนกุญแจวันนี้
+        meaning: I must return the key today.
+        note: วันนี้ gives the deadline and ต้อง makes returning necessary.
+  - subskill_id: possibility
+    explanation: อาจจะ can qualify an event as possible.
+    examples:
+      - text: เย็นนี้ฝนอาจจะตก
+        meaning: It may rain this evening.
+        note: The weather outcome remains uncertain.
+  - subskill_id: certainty
+    explanation: ไม่แน่ใจ expresses uncertainty about a following proposition.
+    examples:
+      - text: ฉันไม่แน่ใจว่าร้านยังเปิดอยู่
+        meaning: I am not sure the shop is still open.
+        note: The speaker does not assert that the shop has closed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_thai_hai2026
+    - fsi_thai_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: यह can introduce someone; a possessive before the relationship noun identifies how
+      that person relates to the speaker. The copula links the two.
+    examples:
+      - text: यह मेरी सहेली है।
+        meaning: This is my female friend.
+        note: मेरी agrees with feminine सहेली; it does not specify the speaker’s gender.
+  - subskill_id: qualities_states
+    explanation: Variable adjectives agree with the noun they describe. A property can be predicated
+      with है without expressing an action.
+    examples:
+      - text: यह गली सँकरी है।
+        meaning: This lane is narrow.
+        note: सँकरी has feminine agreement with गली. The statement gives a physical property.
+  - subskill_id: location_movement
+    explanation: में follows the place expression. A masculine noun ending in आ generally changes to
+      its oblique form before this postposition.
+    examples:
+      - text: कुर्सी कमरे में है।
+        meaning: The chair is in the room.
+        note: कमरा becomes कमरे before में. The chair is located inside the room.
+  - subskill_id: possession_relations
+    explanation: के पास with a possessor commonly expresses having an object available. With the
+      speaker, use मेरे पास. Family relationships also use possessive phrases, rather than
+      requiring पास.
+    examples:
+      - text: मेरे पास दो टिकट हैं।
+        meaning: I have two tickets.
+        note: हैं agrees with plural टिकट. मेरे identifies whose possession is being described.
+  - subskill_id: quantity_comparison
+    explanation: Place से after the standard of comparison and use the appropriate adjective for the
+      item being compared. A comparative does not need an English-style comparative ending.
+    examples:
+      - text: यह गली दूसरी गली से सँकरी है।
+        meaning: This lane is narrower than the other lane.
+        note: दूसरी गली से supplies the comparison standard; सँकरी describes यह गली.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

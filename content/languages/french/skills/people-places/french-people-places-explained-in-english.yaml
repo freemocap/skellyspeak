@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: people_places
+language: french
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: >-
+      Use c’est with a name or a noun phrase to identify someone; an occupation after il
+      or elle est normally has no article when unmodified.
+    examples:
+      - text: "C’est mon voisin. Il est vétérinaire."
+        meaning: >-
+          That is my neighbour. He is a vet.
+        note: >-
+          C’est introduces the person; il est vétérinaire gives his occupation without an
+          indefinite article.
+  - subskill_id: qualities_states
+    explanation: >-
+      Use an adjective that agrees with the noun or pronoun it describes. Être links many
+      descriptions; avoir appears in expressions such as avoir faim.
+    examples:
+      - text: "La petite cuisine est lumineuse."
+        meaning: >-
+          The small kitchen is bright.
+        note: >-
+          Petite and lumineuse agree with the feminine singular noun cuisine.
+  - subskill_id: location_movement
+    explanation: >-
+      Use a preposition to distinguish a location from a destination or a point of
+      departure. À and de contract with le and les.
+    examples:
+      - text: "Nous allons au musée près de la gare."
+        meaning: >-
+          We are going to the museum near the station.
+        note: >-
+          Au combines à and le; près de situates the museum relative to the station.
+  - subskill_id: possession_relations
+    explanation: >-
+      Possessive determiners agree with the possessed noun, not the possessor’s gender. A
+      de phrase can name the owner or relationship.
+    examples:
+      - text: "C’est la sœur de mon collègue."
+        meaning: >-
+          That is my colleague’s sister.
+        note: >-
+          De mon collègue identifies the relationship; sœur remains feminine regardless of
+          the colleague’s gender.
+  - subskill_id: quantity_comparison
+    explanation: >-
+      Numbers and quantity phrases specify amounts. Plus… que and moins… que compare a
+      stated quality; agreement still belongs to the adjective.
+    examples:
+      - text: "Cette valise est plus légère que mon sac."
+        meaning: >-
+          This suitcase is lighter than my bag.
+        note: >-
+          Plus légère que compares weight; légère agrees with valise. The comparison is
+          not an extra comparative ending.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

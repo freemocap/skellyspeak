@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Ingin before an activity expresses a desire. Belajar can then name the skill the
+      speaker wants to learn.
+    examples:
+      - text: Saya ingin belajar menjahit.
+        meaning: I want to learn to sew.
+        note: Ingin places the desire with saya. The sentence does not promise anyone that the learning
+          will happen.
+  - subskill_id: preferences
+    explanation: Lebih suka compares preferences. Daripada introduces the less preferred alternative.
+    examples:
+      - text: Saya lebih suka menggambar daripada menulis.
+        meaning: I prefer drawing to writing.
+        note: The comparison concerns what the speaker likes, not an objective ranking of the
+          activities.
+  - subskill_id: emotions
+    explanation: Senang can describe a positive feeling. Dengan can identify what the speaker is
+      pleased with.
+    examples:
+      - text: Saya senang dengan hasilnya.
+        meaning: I am happy with the result.
+        note: The ending -nya makes the result refer to the work being discussed. Senang describes the
+          speaker’s reaction.
+  - subskill_id: opinions
+    explanation: Menurut saya introduces the speaker’s judgment. The following proposition contains
+      the actual assessment.
+    examples:
+      - text: Menurut saya, warna ini terlalu gelap.
+        meaning: In my opinion, this colour is too dark.
+        note: Terlalu marks excess relative to the speaker’s purpose or standard.
+  - subskill_id: agreement_disagreement
+    explanation: Setuju expresses agreement; tidak negates it. Dengan can identify the position
+      being discussed.
+    examples:
+      - text: Saya tidak setuju dengan usulan itu.
+        meaning: I disagree with that proposal.
+        note: Reply to a stated proposal or viewpoint. This opposes it rather than simply failing to
+          understand it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

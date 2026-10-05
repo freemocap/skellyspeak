@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, requirements, possibility and confidence. Bisa can
+  express ability or practical opportunity; boleh commonly expresses permission. Saya tidak
+  harus datang removes a requirement, while saya tidak boleh datang forbids coming. Mungkin
+  hujan nanti presents possible rain; saya belum yakin states incomplete confidence. A
+  straightforward rain report without a qualifier does not express possibility merely because
+  rain could occur. A copied harus with no identifiable action or contextual requirement is
+  absent. Boleh from the responsible person after a permission question can grant permission
+  contextually. Distinguish harus as an obligation from any inference supported by context. A
+  bisa question used to request another person’s help does not automatically assert their
+  physical capacity. Ambiguity between correctly expressed ability and opportunity does not
+  itself make group use unclear. Belum adds not-yet meaning and should not be treated as
+  interchangeable with an unrestricted negative.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

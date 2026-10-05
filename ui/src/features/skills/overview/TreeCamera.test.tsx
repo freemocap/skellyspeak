@@ -16,7 +16,7 @@ it('keeps camera stable on refresh and restores the actual viewport on Back', as
   await waitFor(() => expect(flow.fitView).toHaveBeenCalledTimes(1))
   view.rerender(<TreeCamera catalog={skillIndex(skillDemo).catalog} {...props} request={{ sequence: 1, target: 'time_events', action: 'focus' }} />)
   await waitFor(() => expect(flow.fitView).toHaveBeenCalledTimes(2))
-  expect(flow.fitView).toHaveBeenLastCalledWith(expect.objectContaining({ duration: 0, nodes: expect.arrayContaining([{ id: 'time_events' }, { id: 'experience' }, { id: 'past_reference' }]) }))
+  expect(flow.fitView).toHaveBeenLastCalledWith(expect.objectContaining({ duration: 0, nodes: expect.arrayContaining([{ id: 'time_events' }, { id: 'experience' }, { id: 'time_events' }]) }))
   view.rerender(<TreeCamera catalog={skillIndex(skillDemo).catalog} {...props} request={{ sequence: 1, target: 'time_events', action: 'focus' }} />)
   view.rerender(<TreeCamera catalog={skillIndex(skillDemo).catalog} {...props} request={{ sequence: 2, target: 'time_events', action: 'back' }} />)
   await waitFor(() => expect(flow.setViewport).toHaveBeenCalledWith({ x: 123, y: 456, zoom: 0.7 }, { duration: 0 }))

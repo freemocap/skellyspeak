@@ -6,7 +6,7 @@ import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
 
 it('does not carry language-wide levels into a variety-filtered summary', () => {
   const snapshot = structuredClone(skillDemo)
-  const node = snapshot.catalog.find(item => item.id === 'quantity')!
+  const node = snapshot.catalog.find(item => item.id === 'possibilities_constraints')!
   snapshot.profile.levels!.skills.find(item => item.skillId === node.id)!.level = 4
   const view = render(<SkillOverview snapshot={snapshot} node={node} />)
   expect(screen.getByText(/Skill level 4/)).toBeVisible()

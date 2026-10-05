@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: people_places
+language: french
+guidance: >-
+  Judge correctly expressed identification, description, location or movement, possession
+  or relationship, quantity or comparison. C’est ma voisine and elle est médecin are
+  ordinary identification patterns; elle est un médecin needs a licensing context or a
+  modified noun rather than being assumed equivalent everywhere. Ma sœur and son frère
+  distinguish noun agreement from the possessor’s gender. Cette valise est plus légère que
+  le sac correctly compares weight; plus meilleur is not the ordinary comparative.
+  Consider agreement and prepositions where they carry the assessed relation. A bare noun
+  copied from a list is not contextual identification. A short identifying reply can count
+  when its referent is clear. Credit requires correct use of the function, not merely an
+  attempt. Unrelated errors do not erase a successful instance. Use unclear when the
+  available exchange does not establish the function. Examples illustrate possibilities,
+  not an exhaustive whitelist. Accept appropriate France and Canadian French usage and
+  conversational register; do not impose another variety’s lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: coordinating_action
+guidance: Assess requests, offers, suggestions, undertakings, acceptance or refusal and
+  negotiated changes. Tolong pindahkan kursi ini directly asks action; silakan can invite or
+  permit a listener to proceed. Mau saya bantu? can offer the speaker’s help; mari or ayo with a
+  shared action can suggest participation. Saya akan membawa alatnya commits in a
+  task-allocation exchange, but akan alone is not a promise. Tidak bisa after a concrete
+  invitation may decline contextually; the same words elsewhere can simply report inability.
+  Bagaimana kalau Sabtu? proposes a revised day if Friday has been ruled out. Merely naming
+  Sabtu without any proposal or recoverable exchange is absent. A question about physical
+  capability is not automatically a request. Accept appropriate everyday register without
+  requiring every active-voice prefix in conversational imperatives. Kita includes the listener,
+  whereas kami excludes them; use that distinction when identifying who is being asked or
+  committed to act.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: managing_conversation
+language: english
+guidance: Look for an appropriate greeting, closing, acknowledgement,
+  clarification request, rephrasing, repair or turn/topic management. What do
+  you mean by that? correctly requests clarification. What you meaning by that?
+  does not correctly form that request. Sorry? can be a valid contextual request
+  for repetition. Judge whether a repair or acknowledgement refers coherently to
+  prior speech. An ordinary question about a new fact does not become
+  conversational repair merely because it is a question. Credit requires correct
+  use of this function, not an unsuccessful attempt. Unrelated errors do not
+  invalidate a successful instance. Use unclear when the available context
+  cannot establish the function. The listed forms are examples, not an
+  exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - dingemanse2015_communication_repair
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

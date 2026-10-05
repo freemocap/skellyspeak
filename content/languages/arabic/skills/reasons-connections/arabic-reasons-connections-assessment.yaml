@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: reasons_connections
+guidance: Assess causes, consequences, conditions, contrast and support for a claim. A reason
+  connective links an outcome to its cause or motivation. A result expression presents the
+  following event as a consequence. A conditional establishes a dependency rather than asserting
+  that its antecedent happened. Contrast requires opposed expectations or alternatives, not just
+  two adjacent clauses. Supporting a claim requires relevant evidence and a recoverable claim;
+  naming a connective alone is absent. A because-fragment can succeed after a clear
+  why-question. Do not impose English conditional tense matching on Arabic constructions.
+  Recognize selected-variety connectives and evaluate the relationship actually expressed,
+  allowing natural omitted material without inventing the missing relationship.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Recognize conversational reason, result and contrast forms such as لِأَنّ, عَشَانْ هَيْكْ
+      and بَسّ. Conditional verb forms depend on meaning and construction; do not transfer
+      formal mood endings into speech.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Evaluate formal causal and conditional syntax, including clause linking appropriate to the
+      consequence. A perfect-form verb after إِذَا can refer to a future condition.
+    provenance: *a1

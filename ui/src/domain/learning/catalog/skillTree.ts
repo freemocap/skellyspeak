@@ -1,7 +1,7 @@
 export type TreeLayout = 'radial' | 'down' | 'right' | 'left'
 export type TreeNode = {
   id: string; parent: string | null; label: string; code: string
-  kind: 'root' | 'domain' | 'skill'
+  kind: 'root' | 'skill'
   color: string; description: string; criterion: string
 }
 /** Ordered leaf spans keep variable-width branches separate in every layout. */

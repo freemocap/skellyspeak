@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: information_exchange
+language: spanish
+explanation_language: spanish
+shared_explanation: skills/information-exchange/information-exchange-explained-in-spanish.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Elige la expresión interrogativa según la información que buscas. El contexto y la
+      entonación también permiten hacer preguntas de sí o no.
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: Pregunto por la ubicación de la estación.
+        note: Dónde pide información sobre un lugar.
+  - subskill_id: answering_information
+    explanation: Una respuesta breve puede aportar lo solicitado sin repetir el verbo de la pregunta.
+    examples:
+      - text: En casa.
+        meaning: La ubicación es la casa.
+        note: Responde a ¿Dónde estás? Sin esa pregunta, no podemos determinar su función de respuesta.
+  - subskill_id: checking_facts
+    explanation: Pide confirmación de un dato que ya tienes en mente.
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: Quiero confirmar la hora de llegada.
+        note: Al confirmar un acuerdo, la pregunta comprueba la hora propuesta.
+  - subskill_id: useful_detail
+    explanation: Añade detalles que ayuden a responder a la pregunta. Una respuesta más larga no es
+      necesariamente más útil.
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: El banco y el parque sirven de referencia para encontrarlo.
+        note: En una conversación sobre direcciones, ambas referencias precisan la ubicación.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

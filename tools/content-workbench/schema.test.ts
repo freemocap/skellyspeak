@@ -12,8 +12,8 @@ test('schema shapes expand local references and mark optional keys, maps and alt
   assert.equal((p.sample as any).mode, 'a')
 })
 test('all current generated schemas produce bounded illustrative shapes', () => {
-  for (const name of readdirSync('content/schemas').filter(n=>n.endsWith('.yaml'))) {
-    const p = schemaPreview(parse(readFileSync(`content/schemas/${name}`,'utf8')))
+  for (const name of readdirSync('content/rust-schemas').filter(n=>n.endsWith('.yaml'))) {
+    const p = schemaPreview(parse(readFileSync(`content/rust-schemas/${name}`,'utf8')))
     assert(p.fields.length > 0, name)
     assert(JSON.stringify(p).length < 500000, name)
   }

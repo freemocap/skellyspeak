@@ -77,7 +77,7 @@ impl Catalog {
         static VALUE: std::sync::OnceLock<Catalog> = std::sync::OnceLock::new();
         VALUE.get_or_init(|| {
             let value: Catalog = serde_yaml_ng::from_str(include_str!(
-                "../../../content/shared/speech-routing.yaml"
+                "../../../content/speech/speech-routing.yaml"
             ))
             .expect("invalid bundled speech catalog");
             value.validate().expect("invalid bundled speech policy");
@@ -112,7 +112,7 @@ impl Catalog {
             || self.sources.is_empty()
         {
             return Err(error(
-                "shared/speech-routing.yaml",
+                "speech/speech-routing.yaml",
                 "catalog",
                 "Invalid speech catalog version or defaults.",
             ));
@@ -134,7 +134,7 @@ impl Catalog {
                 })
             {
                 return Err(error(
-                    "shared/speech-routing.yaml",
+                    "speech/speech-routing.yaml",
                     "capability",
                     "Invalid provider or language capability set.",
                 ));

@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: reasons_connections
+subskills:
+  - id: causes_reasons
+    name: Causes and reasons
+    purpose: Explain why an event occurs or a state holds.
+    positive_evidence: Expresses a causal or explanatory relationship with recoverable linked propositions.
+    counterexample: Events occurring in sequence without an explanatory relation.
+    context: contribution
+    boundary: Reasons explain events or choices; supporting a claim justifies accepting a proposition.
+    neighbors:
+      - event_sequence
+      - consequences
+      - supporting_claims
+  - id: consequences
+    name: Consequences
+    purpose: Express a result or implication of a situation.
+    positive_evidence: Presents one state or event as following from another.
+    counterexample: The next event in a story with no result relation.
+    context: contribution
+    boundary: A cause and its result are one relation viewed from different directions; do not
+      double-count merely for mentioning both.
+    neighbors:
+      - causes_reasons
+      - event_sequence
+      - conditions
+  - id: conditions
+    name: Conditions
+    purpose: Express when one proposition or outcome depends on another.
+    positive_evidence: States a contingency linking an outcome to a condition.
+    counterexample: Mentioning two possible events independently.
+    context: contribution
+    boundary: A temporal occasion is not always a contingency; assess the expressed dependency.
+    neighbors:
+      - possibility
+      - event_sequence
+      - consequences
+  - id: contrast
+    name: Contrast
+    purpose: Express an opposition, exception or unexpected relationship.
+    positive_evidence: Contrasts recoverable alternatives or expectations.
+    counterexample: Two unrelated statements joined without an opposing relation.
+    context: contribution
+    boundary: Disagreeing with a partner can use contrast but requires a separate identifiable position.
+    neighbors:
+      - agreement_disagreement
+      - quantity_comparison
+  - id: supporting_claims
+    name: Supporting a claim
+    purpose: Give grounds for accepting a position or inference.
+    positive_evidence: Offers evidence, an example or reasoning tied to a claim.
+    counterexample: Repeating a claim more strongly without adding grounds.
+    context: contribution
+    boundary: An explanation of an event need not be an argument for a position; identify the claim
+      being supported.
+    neighbors:
+      - opinions
+      - causes_reasons
+      - certainty
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

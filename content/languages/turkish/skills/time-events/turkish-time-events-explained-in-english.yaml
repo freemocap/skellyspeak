@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: The progressive form can present an activity as underway.
+    examples:
+      - text: Şimdi bisikleti tamir ediyorum.
+        meaning: I am repairing the bicycle now.
+        note: Ediyorum identifies the first-person activity; şimdi anchors it to now.
+  - subskill_id: past_events
+    explanation: The past suffix combines with a person ending.
+    examples:
+      - text: Dün bisikleti tamir ettim.
+        meaning: Yesterday I repaired the bicycle.
+        note: Ettim is the past first-person form of etmek in tamir etmek; it has no gender marking.
+  - subskill_id: future_events
+    explanation: The future suffix and person ending can express a later plan.
+    examples:
+      - text: Yarın parçaları alacağım.
+        meaning: Tomorrow I will collect the parts.
+        note: Alacağım marks the future first-person action; yarın gives the day.
+  - subskill_id: duration_frequency
+    explanation: A locative time unit and occurrence count can express frequency.
+    examples:
+      - text: Haftada iki kez yüzüyorum.
+        meaning: I swim twice a week.
+        note: Haftada sets the recurring interval and iki kez counts occasions.
+  - subskill_id: event_sequence
+    explanation: Önce and sonra specify ordered steps.
+    examples:
+      - text: Önce ellerinizi yıkayın, sonra sebzeleri hazırlayın.
+        meaning: First wash your hands, then prepare the vegetables.
+        note: The polite or plural instructions establish order, not causation.
+  - subskill_id: event_phase
+    explanation: Bitirmek with a nominalized action names its completion.
+    examples:
+      - text: Kitabı okumayı bitirdim.
+        meaning: I finished reading the book.
+        note: Okumayı names the reading activity that has ended.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_past2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

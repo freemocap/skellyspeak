@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: A because-clause can supply the reason for an action.
+    examples:
+      - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
+        meaning: I stayed home because I was ill.
+        note: Modern Standard Arabic. A woman explains her decision to stay home.
+      - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+        meaning: I stayed home because I was ill.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. A woman
+          explains her decision to stay home.
+  - subskill_id: consequences
+    explanation: A result expression links a situation to a consequence.
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
+        meaning: The shop is closed, so we will return tomorrow.
+        note: Modern Standard Arabic. Closure motivates the later return.
+      - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+        meaning: The shop is closed, so we will return tomorrow.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Closure
+          motivates the later return.
+  - subskill_id: conditions
+    explanation: إِذَا can introduce an open condition whose result depends on it.
+    examples:
+      - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
+        meaning: If you arrive early, wait here.
+        note: Modern Standard Arabic. Addressed to one man; the arrival is conditional, not asserted
+          past fact.
+      - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+        meaning: If you arrive early, wait here.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Addressed
+          to one man; the arrival is conditional, not asserted past fact.
+  - subskill_id: contrast
+    explanation: A but-clause can contrast two properties without cancelling either.
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
+        meaning: This box is small, but it is heavy.
+        note: Modern Standard Arabic. The weight contrasts with an expectation associated with size.
+      - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+        meaning: This box is small, but it is heavy.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The weight
+          contrasts with an expectation associated with size.
+  - subskill_id: supporting_claims
+    explanation: A claim can be supported by a concrete observation introduced as its reason.
+    examples:
+      - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
+        meaning: This route is shorter because we measured the distance.
+        note: Modern Standard Arabic. The measurement supports the comparison rather than merely
+          describing another event.
+      - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+        meaning: This route is shorter because we measured the distance.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          measurement supports the comparison rather than merely describing another event.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Conversational connectives include لِأَنّ for because, عَشَانْ هَيْكْ for so and بَسّ for
+      but. Regional alternatives are common.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: A perfect-form verb after إِذَا can describe an open future condition. The condition does
+      not assert that the event already happened.
+    provenance: *a1

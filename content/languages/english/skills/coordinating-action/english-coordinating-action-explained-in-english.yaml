@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: coordinating_action
+language: english
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: Use a direct request or a polite question when asking someone to act.
+    examples:
+      - text: Could you hold this box for a moment?
+        meaning: The speaker asks the listener to hold the box.
+        note: This seeks an action, not a report about physical ability.
+  - subskill_id: offers_invitations
+    explanation: Offer your own help or invite the listener to participate. The
+      expected response is acceptance or refusal.
+    examples:
+      - text: Would you like to join us for lunch?
+        meaning: The listener is invited to lunch.
+        note: The question proposes participation rather than merely asking about a
+          preference.
+  - subskill_id: suggestions
+    explanation: Present an action as a proposal that others can consider.
+    examples:
+      - text: We could take the quieter route.
+        meaning: Taking the quieter route is proposed.
+        note: Could presents an option; context determines whether this is a suggestion
+          or a statement of possibility.
+  - subskill_id: commitments
+    explanation: State what you undertake to do. A prediction alone does not
+      necessarily make a promise.
+    examples:
+      - text: I will send you the address tonight.
+        meaning: The speaker undertakes to send the address.
+        note: In response to a request for the address, this commits the speaker to an
+          action.
+  - subskill_id: accepting_declining
+    explanation: Respond to the actual proposal. A short response can be complete
+      when the preceding exchange supplies its content.
+    examples:
+      - text: Thanks, but I cannot stay for dinner.
+        meaning: The speaker declines the dinner invitation.
+        note: The refusal responds to an invitation; it is not simply a statement about
+          time.
+  - subskill_id: negotiating_plans
+    explanation: Offer an alternative that addresses a constraint in an existing plan.
+    examples:
+      - text: Could we meet at six instead of five?
+        meaning: The speaker proposes changing the meeting time.
+        note: Instead of relates the counterproposal to the previous plan.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

@@ -115,7 +115,7 @@ export function isModule(path: string): boolean {
 
 /// Directories that are never application source. Excluding them keeps the walk
 /// to a few thousand files and away from `node_modules` entirely.
-const IGNORED = new Set(['node_modules', '.git', 'dist', 'build', 'target', '.local', '.build-artifacts', 'old'])
+const IGNORED = new Set(['node_modules', '.git', 'dist', 'build', 'target', '.local', '.local-server', '.venv', '__pycache__', '.pytest_cache', '.build-artifacts', 'old', 'old-content'])
 
 export interface Tree {
   files: Set<string>
