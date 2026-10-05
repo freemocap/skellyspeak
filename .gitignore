@@ -42,6 +42,8 @@ local.env.*
 **/.cxx/
 **/.externalNativeBuild/
 **/local.properties
+native/src/diagnostics/ios/.tauri/
+native/src/diagnostics/ios/swift/.build/
 **/keystore.properties
 
 # Documentation build cache.

@@ -752,6 +752,8 @@ Copy failures leave no published partial backup.
 Use the single log-export control in More or an error surface. On Android,
 **Share logs** opens the system chooser, whose **Save logs** destination opens a
 file picker. Error panels use a compact export icon beside the dismiss control.
+On iOS, **Share logs** presents the system share sheet with the ZIP attached;
+choose a sharing app or **Save to Files**. Dismissing the sheet cancels export.
 Desktop uses **Save logs** and saves to Downloads. The ZIP excludes conversations,
 recordings and credentials.
 

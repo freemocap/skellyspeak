@@ -4376,6 +4376,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-deep-link",
+ "tauri-plugin-diagnostic-sharing",
  "tauri-plugin-opener",
  "tauri-plugin-process",
  "tauri-plugin-updater",
@@ -4841,6 +4842,15 @@ dependencies = [
  "url",
  "windows-registry 0.5.3",
  "windows-result 0.3.4",
+]
+
+[[package]]
+name = "tauri-plugin-diagnostic-sharing"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
 ]
 
 [[package]]

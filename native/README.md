@@ -4,6 +4,15 @@ The application code running on the user's device: persistence, credentials,
 AI execution, recording, and native integration. This is separate from the
 remote [Python server](../server/).
 
+iOS diagnostic export uses the private plugin crate and Swift package under
+`src/diagnostics/ios/`. Tauri's plugin build helper links it during the normal
+iOS build; no generated Xcode project edits are required. Rust creates a ZIP
+of the existing structured-log allowlist in app cache. UIKit presents the share
+sheet, including Save to Files, and Rust removes the temporary ZIP after completion
+or cancellation. Desktop continues to export to Downloads. iOS presentation must
+be verified on macOS/Xcode and on an iPhone/iPad; Windows native checks do not
+compile that target.
+
 ## Shared language behavior
 
 Follow the repository's [language-independent behavior rule](../AGENTS.md#language-independent-behavior).

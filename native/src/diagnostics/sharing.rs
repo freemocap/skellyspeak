@@ -1,5 +1,10 @@
-//! The Android bridge owns the share sheet; only the native log root crosses it.
+//! Mobile bridges present system share sheets; desktop exports to Downloads.
+#[cfg(not(target_os = "ios"))]
 use tauri::Manager;
+
+#[cfg(target_os = "ios")]
+#[path = "sharing_ios.rs"]
+mod ios;
 
 #[cfg(target_os = "android")]
 struct ShareBridge(tauri::plugin::PluginHandle<tauri::Wry>);
@@ -57,19 +62,24 @@ pub async fn share_diagnostic_logs(app: tauri::AppHandle) -> crate::model::Resul
             })?;
         Ok(())
     }
-    #[cfg(not(target_os = "android"))]
+    #[cfg(target_os = "ios")]
+    {
+        ios::share(&app).await
+    }
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     {
         let _ = app;
         Err(crate::model::AppError::new(
             crate::model::ErrorCode::Validation,
-            "Native log sharing is available on Android.",
+            "Native log sharing is available on mobile devices.",
         ))
     }
 }
 
-/// Android owns the document picker; desktop saves to Downloads, iOS to Files/Documents.
+/// Mobile uses system export UI; desktop saves to Downloads.
 #[tauri::command]
 pub async fn save_diagnostic_logs(app: tauri::AppHandle) -> crate::model::Result<Option<String>> {
+    #[cfg(not(target_os = "ios"))]
     let root = super::log_root()?;
     #[cfg(target_os = "android")]
     {
@@ -92,11 +102,14 @@ pub async fn save_diagnostic_logs(app: tauri::AppHandle) -> crate::model::Result
                 )
             })
     }
-    #[cfg(not(target_os = "android"))]
+    #[cfg(target_os = "ios")]
     {
-        #[cfg(target_os = "ios")]
-        let directory = app.path().document_dir();
-        #[cfg(not(target_os = "ios"))]
+        ios::share(&app).await?;
+        // The system handles the destination; never claim a private path was saved.
+        Ok(None)
+    }
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    {
         let directory = app.path().download_dir();
         let directory = directory.map_err(|cause| {
             super::failures::platform(

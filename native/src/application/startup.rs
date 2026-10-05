@@ -5,6 +5,8 @@ pub fn run() {
     let builder = tauri::Builder::default().plugin(tauri_plugin_opener::init());
     #[cfg(target_os = "android")]
     let builder = builder.plugin(diagnostics::sharing::plugin());
+    #[cfg(target_os = "ios")]
+    let builder = builder.plugin(tauri_plugin_diagnostic_sharing::init());
     #[cfg(target_os = "android")]
     let builder = builder.plugin(tauri_plugin_deep_link::init());
     #[cfg(target_os = "ios")]
