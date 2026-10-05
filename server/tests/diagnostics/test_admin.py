@@ -168,3 +168,53 @@ async def test_cloud_permission_failure_is_explicit(monkeypatch):
     assert failure.value.diagnostics['upstream_status'] == 403
     assert failure.value.diagnostics['response']['error']['status'] == 'PERMISSION_DENIED'
     assert 'private' not in str(failure.value)
+
+
+def test_sign_in_and_inference_are_distinct_and_settlement_is_not_activity(database):
+    ref = database.collection('users').document('google:test01')
+    signed_in = datetime(2026, 10, 1, 22, 38, 14, tzinfo=timezone.utc)
+    requested = datetime(2026, 10, 5, 10, tzinfo=timezone.utc)
+    ref.set({'last_seen': signed_in}, merge=True)
+    ref.collection('reservations').document('new').set({
+        'created_at': requested, 'status': 'pending'})
+    ref.collection('reservations').document('old').set({
+        'created_at': signed_in, 'updated_at': requested + timedelta(hours=1),
+        'status': 'settled'})
+    report = admin_reports.overview(database, main.CFG)
+    row = next(row for row in report['users'] if row['id'] == 'google:test01')
+    assert row['last_seen'] == signed_in
+    assert row['last_inference_at'] == requested
+    empty = next(row for row in report['users'] if row['id'] == 'google:test02')
+    assert empty['last_inference_at'] is None
+    assert ref.get().to_dict()['last_seen'] == signed_in
+
+
+def test_overview_pins_all_daily_reads_to_report_start_at_midnight(database, monkeypatch):
+    start = datetime(2026, 10, 5, 23, 59, 59, tzinfo=timezone.utc)
+    class MidnightClock:
+        calls = 0
+
+        @classmethod
+        def now(cls, tz):
+            cls.calls += 1
+            return start if cls.calls == 1 else start + timedelta(seconds=2)
+
+    monkeypatch.setattr(admin_reports, 'datetime', MidnightClock)
+    # A separately sampled quota clock must never pick the next day.
+    monkeypatch.setattr(quota, 'utc_day', lambda: '2026-10-06')
+    ref = database.collection('users').document('google:test01')
+    for day, micros in [('2026-10-05', 407191), ('2026-10-06', 900000)]:
+        ref.collection('usage').document(day).set({'micros': micros, 'micros_credit': 123})
+        ref.collection('admission').document(day).set({'requests': micros})
+        database.collection('global_usage').document(day).set({'micros': micros})
+        database.collection('admission').document(day).set({'account_requests': micros})
+    report = admin_reports.overview(database, main.CFG, days=1)
+    row = next(row for row in report['users'] if row['id'] == 'google:test01')
+    assert report['generated_at'] == start
+    assert row['usage']['day'] == '2026-10-05'
+    assert row['usage']['micros'] == row['usage_90_days_micros'] == 407191
+    assert row['usage']['micros_credit'] == 123
+    assert row['admission']['requests'] == 407191
+    assert report['global_admission']['account_requests'] == 407191
+    assert report['global_usage'][0]['day'] == '2026-10-05'
+    assert report['global_usage'][0]['micros'] == 407191

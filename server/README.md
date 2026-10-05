@@ -627,7 +627,17 @@ Account rows show masked email components, such as `l•••r@e•••d`; cl
 address fetches its full identity through the existing owner-only account route.
 Click again to hide it. Full emails and names are excluded from overview and live
 snapshot payloads. Masking reduces incidental exposure; it is not anonymization.
-Internal IDs are an optional column and remain available in account details.
+User IDs are visible by default, masked as `google:123...678901` (first three
+and last six subject digits, with an ellipsis); clicking reveals the full account
+ID and clicking again conceals it. Short subjects are fully masked. Hosted IDs
+are the existing `google:<subject>` identity, not email-derived identifiers.
+
+Last sign-in is the user profile timestamp written by Google authentication.
+Last inference request is the newest retained reservation creation timestamp,
+including pending/failed attempts. Neither measures human interaction or proves
+successful completion; missing request history is unknown. Settlement timestamps
+are not activity timestamps. Reports use one UTC date captured at generation for
+all daily and 90-day reads, while retaining the sequential-read disclosure.
 
 Accounts, request events, allowance intervals, daily account history, reservations
 and change history offer sortable headers and column controls. Account and event

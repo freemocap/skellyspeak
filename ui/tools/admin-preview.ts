@@ -12,7 +12,8 @@ const policy = { max_users: 24, free_daily_micros: 1000000, extended_daily_micro
 const now = new Date(), stamp = (age: number) => new Date(now.getTime() - age).toISOString()
 const users = Array.from({ length: 8 }, (_, i) => ({
   id: `preview:account-${i}`, email_label: `${String.fromCharCode(97 + i)}•••r@e•••d`,
-  created_at: stamp((i + 1) * 86400000), last_seen: i === 7 ? null : stamp(i * 3600000),
+  created_at: stamp((i + 1) * 86400000), last_seen: i === 7 ? null : stamp((i + 4) * 86400000),
+  last_inference_at: i === 7 ? null : stamp(i * 3600000),
   daily_limit_micros: i === 2 ? 3000000 : null, effective_limit_micros: i === 2 ? 3000000 : 1000000,
   admin_revision: 0, token_version: 0, usage_90_days_micros: (8 - i) * 2500000,
   usage: { day: stamp(0).slice(0, 10), present: true, micros: (8 - i) * 71000, tokens: (8 - i) * 1300, requests: 12, micros_credit: 0 },

@@ -7,14 +7,14 @@ from fastapi import HTTPException
 from server.app.accounting import quota, admin_controls
 
 
-def window(days):
-    today = datetime.now(timezone.utc).date()
+def window(days, *, today=None):
+    today = today or datetime.now(timezone.utc).date()
     return [(today - timedelta(days=i)).isoformat() for i in reversed(range(days))]
 
 
-def usage(ref, days):
+def usage(ref, days, *, today=None):
     rows = []
-    for day in window(days):
+    for day in window(days, today=today):
         data = ref.document(day).get().to_dict() or {}
         rows.append({'day': day, 'present': bool(data), **{key: int(data.get(key, 0))
             for key in ('micros', 'tokens', 'requests', 'micros_credit')}})
@@ -43,6 +43,10 @@ def email_label(value):
 
 
 def overview(db, cfg, *, days=30, after=''):
+    # One UTC reporting date even when sequential reads cross midnight.
+    generated_at = datetime.now(timezone.utc)
+    today = generated_at.date()
+    day = today.isoformat()
     policy = admin_controls.effective(db, cfg)
     collection = db.collection(quota.USERS)
     query = collection.order_by('__name__').limit(26)
@@ -54,25 +58,28 @@ def overview(db, cfg, *, days=30, after=''):
         row = profile(doc, policy)
         row['email_label'] = email_label((doc.to_dict() or {}).get('email'))
         ref = collection.document(doc.id)
-        row['usage'] = usage(ref.collection(quota.USAGE), 1)[0]
+        row['usage'] = usage(ref.collection(quota.USAGE), 1, today=today)[0]
         # Batch reads of existing UTC day records; never create an aggregate
         # or count expired history as lifetime usage.
-        history = db.get_all([ref.collection(quota.USAGE).document(day) for day in window(90)])
+        history = db.get_all([ref.collection(quota.USAGE).document(key) for key in window(90, today=today)])
         row['usage_90_days_micros'] = sum(int((doc.to_dict() or {}).get('micros', 0)) for doc in history)
-        admission = ref.collection('admission').document(quota.utc_day()).get().to_dict() or {}
+        # Creation records an admitted inference attempt, not its later settlement.
+        latest = list(ref.collection('reservations').order_by('created_at', direction=firestore.Query.DESCENDING).limit(1).stream())
+        row['last_inference_at'] = (latest[0].to_dict() or {}).get('created_at') if latest else None
+        admission = ref.collection('admission').document(day).get().to_dict() or {}
         row['admission'] = {k: int(admission.get(k, 0)) for k in
                             ('requests', 'requests_credit', 'diagnostics_requests', 'diagnostics_requests_credit')}
         users.append(row)
     spending = db.collection('service_controls').document('spending').get().to_dict() or {}
-    shared = db.collection(quota.GLOBAL_USAGE).document(quota.utc_day()).get().to_dict() or {}
-    requests = db.collection('admission').document(quota.utc_day()).get().to_dict() or {}
-    return {'usage_limits_enforced': usage_limits.enforced(db), 'generated_at': datetime.now(timezone.utc), 'revision': os.environ.get('K_REVISION', 'local'),
+    shared = db.collection(quota.GLOBAL_USAGE).document(day).get().to_dict() or {}
+    requests = db.collection('admission').document(day).get().to_dict() or {}
+    return {'usage_limits_enforced': usage_limits.enforced(db), 'generated_at': generated_at, 'revision': os.environ.get('K_REVISION', 'local'),
             'policy': policy, 'environment_defaults': admin_controls.defaults(cfg),
             'spending_paused': bool(spending.get('blocked') or shared.get('blocked')),
             'global_admission': {key: int(requests.get(key, 0)) for key in ('auth_requests', 'account_requests', 'diagnostics_requests')},
             'account_count': sum(1 for _ in collection.select([]).limit(10001).stream()),
             'users': users, 'next_cursor': docs[24].id if len(docs) > 25 else None,
-            'global_usage': usage(db.collection(quota.GLOBAL_USAGE), days),
+            'global_usage': usage(db.collection(quota.GLOBAL_USAGE), days, today=today),
             'scope': 'Sequential live reads, not one atomic snapshot. Allowance usage includes holds and estimated charges; it is not a provider invoice.'}
 
 

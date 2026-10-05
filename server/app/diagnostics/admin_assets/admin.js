@@ -480,38 +480,49 @@ var policyLabels = {
   diagnostics_requests: "Account checks / account / day",
   global_diagnostics: "Account checks / service / day"
 };
-function accountIdentity(user) {
+function maskedAccountId(id) {
+  const separator = id.indexOf(":");
+  const prefix = separator < 0 ? "" : id.slice(0, separator + 1);
+  const subject = id.slice(separator + 1);
+  return prefix + (subject.length > 9 ? `${subject.slice(0, 3)}\u2026${subject.slice(-6)}` : "\u2022\u2022\u2022");
+}
+function accountIdentity(user, field2 = "email") {
+  const masked = field2 === "email" ? user.email_label ?? "Email unavailable" : maskedAccountId(user.id);
   const node = el("div");
   node.className = "account-identity";
-  const hint = el("small", user.email_label ? "Click to reveal email" : "Inspect account for identifiers");
-  const control = button(user.email_label ?? "Email unavailable", () => {
+  const hint = el("small", `Click to reveal ${field2}`);
+  const control = button(masked, () => {
     if (control.dataset.revealed) {
-      control.textContent = user.email_label ?? "Email unavailable";
+      control.textContent = masked;
       delete control.dataset.revealed;
-      hint.textContent = user.email_label ? "Click to reveal email" : "Inspect account for identifiers";
+      hint.textContent = `Click to reveal ${field2}`;
       control.setAttribute("aria-expanded", "false");
       void renderLive();
       return;
     }
     void run(async () => {
-      const result = await api(`/admin/api/users/${encodeURIComponent(user.id)}?days=1`);
-      control.textContent = result.identity.email ?? "Email unavailable";
-      hint.textContent = "Click to hide email";
+      if (field2 === "email") {
+        const result = await api(`/admin/api/users/${encodeURIComponent(user.id)}?days=1`);
+        control.textContent = result.identity.email ?? "Email unavailable";
+      } else control.textContent = user.id;
+      hint.textContent = `Click to hide ${field2}`;
       control.dataset.revealed = "true";
       control.setAttribute("aria-expanded", "true");
     });
   });
   control.className = "identity-toggle";
   control.setAttribute("aria-expanded", "false");
-  control.title = "Click to reveal email; click again to hide";
+  control.title = `Click to reveal ${field2}; click again to hide`;
   node.append(control, hint);
   return node;
 }
 var accountTable = new ReportTable([
-  { key: "identity", label: "Account", required: true, value: (u) => u.email_label ?? u.id, render: accountIdentity },
-  { key: "seen", label: "Last active (UTC)", value: (u) => timestamp(u.last_seen), render: (u) => dateTime(u.last_seen) },
-  { key: "used", label: "Used today (USD)", numeric: true, value: (u) => u.usage.micros, render: (u) => money(u.usage.micros) },
-  { key: "history", label: "Used \xB7 90 days (USD)", numeric: true, value: (u) => u.usage_90_days_micros, render: (u) => money(u.usage_90_days_micros) },
+  { key: "identity", label: "Account", required: true, value: (u) => u.email_label ?? u.id, render: (u) => accountIdentity(u) },
+  { key: "id", label: "User ID", value: (u) => u.id, render: (u) => accountIdentity(u, "user ID") },
+  { key: "inference", label: "Last inference request (UTC)", value: (u) => timestamp(u.last_inference_at), render: (u) => dateTime(u.last_inference_at) },
+  { key: "seen", label: "Last sign-in (UTC)", value: (u) => timestamp(u.last_seen), render: (u) => dateTime(u.last_seen) },
+  { key: "used", label: "Allowance used today (USD)", numeric: true, value: (u) => u.usage.micros, render: (u) => money(u.usage.micros) },
+  { key: "history", label: "Allowance used \xB7 90 days (USD)", numeric: true, value: (u) => u.usage_90_days_micros, render: (u) => money(u.usage_90_days_micros) },
   { key: "requests", label: "Inference admissions today", numeric: true, value: (u) => number(u.admission.requests), render: (u) => count(u.admission.requests) },
   { key: "limit", label: "Daily allowance (USD)", numeric: true, value: (u) => limitsEnforced ? u.effective_limit_micros : null, render: (u) => limitsEnforced ? money(u.effective_limit_micros) : "Disabled" },
   { key: "source", label: "Limit source", value: (u) => u.daily_limit_micros == null ? "Default" : "Custom", render: (u) => badge(u.daily_limit_micros == null ? "Default" : "Custom") },
@@ -522,12 +533,11 @@ var accountTable = new ReportTable([
   { key: "tokens", label: "Tokens today", numeric: true, hidden: true, value: (u) => u.usage.tokens, render: (u) => count(u.usage.tokens) },
   { key: "created", label: "Registered (UTC)", hidden: true, value: (u) => timestamp(u.created_at), render: (u) => dateTime(u.created_at) },
   { key: "version", label: "Session version", numeric: true, hidden: true, value: (u) => u.token_version, render: (u) => count(u.token_version) },
-  { key: "id", label: "Internal account ID", hidden: true, value: (u) => u.id, render: (u) => u.id },
   { key: "inspect", label: "Details", required: true, render: (u) => button("Inspect account", () => void run(() => inspectUser(u))) }
 ], {
   label: "Accounts",
   scope: "Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. Admissions include restored credit; usage includes holds and estimates.",
-  sort: "seen",
+  sort: "inference",
   descending: true,
   search: { label: "Search masked email or account ID", text: (u) => `${u.email_label ?? ""} ${u.id}` }
 });

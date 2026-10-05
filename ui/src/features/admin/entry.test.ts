@@ -107,8 +107,8 @@ it('labels local daily limits as disabled while retaining usage counts', async (
 })
 
 it('keeps email masked until clicked, hides it again and supports account inspection', async () => {
-  const user = { id: 'google:test', email_label: 'l•••r@e•••d', effective_limit_micros: 500000, daily_limit_micros: null,
-    admin_revision: 0, token_version: 0, created_at: '2026-09-01T12:00:00Z', last_seen: '2026-09-20T12:00:00Z',
+  const user = { id: 'google:123456789012345678901', email_label: 'l•••r@e•••d', effective_limit_micros: 500000, daily_limit_micros: null,
+    admin_revision: 0, token_version: 0, created_at: '2026-09-01T12:00:00Z', last_seen: '2026-10-01T22:38:14Z', last_inference_at: '2026-10-05T10:00:00Z',
     usage: { micros: 1000, micros_credit: 0, tokens: 20 }, usage_90_days_micros: 20000,
     admission: { requests: 5, diagnostics_requests: 2, diagnostics_requests_credit: 0 } }
   const original = vi.mocked(fetch).getMockImplementation()!
@@ -122,6 +122,18 @@ it('keeps email masked until clicked, hides it again and supports account inspec
   fireEvent.click(document.querySelector('#refresh')!)
   await waitFor(() => expect(document.querySelector('#users')!.textContent).toContain(user.email_label))
   expect(document.querySelector('#users')!.textContent).not.toContain(user.id)
+  expect(document.querySelector('#users')!.textContent).toContain('google:123…678901')
+  expect(document.querySelector('#users thead')!.textContent).toContain('Last sign-in (UTC)')
+  expect(document.querySelector('#users thead')!.textContent).toContain('Last inference request (UTC)')
+  expect(document.querySelector('#users tbody')!.textContent).toContain('01 Oct 2026')
+  expect(document.querySelector('#users tbody')!.textContent).toContain('05 Oct 2026')
+  const idToggle = document.querySelectorAll('#users .identity-toggle')[1]
+  fireEvent.click(idToggle)
+  await waitFor(() => expect(idToggle.textContent).toBe(user.id))
+  await waitFor(() => expect(document.body.hasAttribute('aria-busy')).toBe(false))
+  fireEvent.click(idToggle)
+  expect(idToggle.textContent).toBe('google:123…678901')
+  expect(idToggle.getAttribute('aria-expanded')).toBe('false')
   expect(document.body.textContent).not.toContain('learner@example.invalid')
   expect(vi.mocked(fetch).mock.calls.some(call => String(call[0]).includes('/users/'))).toBe(false)
   fireEvent.click(document.querySelector('#users .identity-toggle')!)

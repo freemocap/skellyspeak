@@ -3,7 +3,7 @@ import { ReportTable, badge, count, dateTime, duration, metadata, number, timest
 /** Standalone hosted admin surface. All access decisions remain on the server. */
 type Row = Record<string, unknown>
 type Usage = { day: string; present: boolean; micros: number; tokens: number; requests: number; micros_credit: number }
-type User = { id: string; email_label?: string | null; created_at?: string; last_seen?: string; effective_limit_micros: number; daily_limit_micros: number | null; admin_revision: number; token_version: number; usage: Usage; usage_90_days_micros: number; admission: Record<string, number> }
+type User = { id: string; email_label?: string | null; created_at?: string; last_seen?: string; last_inference_at?: string | null; effective_limit_micros: number; daily_limit_micros: number | null; admin_revision: number; token_version: number; usage: Usage; usage_90_days_micros: number; admission: Record<string, number> }
 type Overview = { usage_limits_enforced?: boolean; environment: string; administrator: string; generated_at: string; revision: string; policy: Record<string, number>; environment_defaults: Record<string, number>; spending_paused: boolean; account_count: number; global_admission: Record<string, number>; users: User[]; next_cursor: string | null; global_usage: Usage[]; scope: string }
 type Logs = { entries: Row[]; next_page_token?: string; scope: string; since: string }
 type Command = { operation_id: string; expected_revision: number; action: string; target: string; values: Row }
@@ -26,32 +26,43 @@ const policyLabels: Record<string, string> = {
   account_requests: 'Inference requests / account / day', global_requests: 'Inference requests / service / day',
   diagnostics_requests: 'Account checks / account / day', global_diagnostics: 'Account checks / service / day',
 }
-function accountIdentity(user: User) {
+function maskedAccountId(id: string) {
+  const separator = id.indexOf(':')
+  const prefix = separator < 0 ? '' : id.slice(0, separator + 1)
+  const subject = id.slice(separator + 1)
+  return prefix + (subject.length > 9 ? `${subject.slice(0, 3)}…${subject.slice(-6)}` : '•••')
+}
+function accountIdentity(user: User, field: 'email' | 'user ID' = 'email') {
+  const masked = field === 'email' ? user.email_label ?? 'Email unavailable' : maskedAccountId(user.id)
   const node = el('div'); node.className = 'account-identity'
-  const hint = el('small', user.email_label ? 'Click to reveal email' : 'Inspect account for identifiers')
-  const control = button(user.email_label ?? 'Email unavailable', () => {
+  const hint = el('small', `Click to reveal ${field}`)
+  const control = button(masked, () => {
     if (control.dataset.revealed) {
-      control.textContent = user.email_label ?? 'Email unavailable'; delete control.dataset.revealed
-      hint.textContent = user.email_label ? 'Click to reveal email' : 'Inspect account for identifiers'
+      control.textContent = masked; delete control.dataset.revealed
+      hint.textContent = `Click to reveal ${field}`
       control.setAttribute('aria-expanded', 'false'); void renderLive(); return
     }
     void run(async () => {
-      const result = await api<{ identity: { email: string | null } }>(`/admin/api/users/${encodeURIComponent(user.id)}?days=1`)
-      control.textContent = result.identity.email ?? 'Email unavailable'
-      hint.textContent = 'Click to hide email'
+      if (field === 'email') {
+        const result = await api<{ identity: { email: string | null } }>(`/admin/api/users/${encodeURIComponent(user.id)}?days=1`)
+        control.textContent = result.identity.email ?? 'Email unavailable'
+      } else control.textContent = user.id
+      hint.textContent = `Click to hide ${field}`
       control.dataset.revealed = 'true'; control.setAttribute('aria-expanded', 'true')
     })
   })
   control.className = 'identity-toggle'; control.setAttribute('aria-expanded', 'false')
-  control.title = 'Click to reveal email; click again to hide'
+  control.title = `Click to reveal ${field}; click again to hide`
   node.append(control, hint)
   return node
 }
 const accountTable = new ReportTable<User>([
-  { key: 'identity', label: 'Account', required: true, value: u => u.email_label ?? u.id, render: accountIdentity },
-  { key: 'seen', label: 'Last active (UTC)', value: u => timestamp(u.last_seen), render: u => dateTime(u.last_seen) },
-  { key: 'used', label: 'Used today (USD)', numeric: true, value: u => u.usage.micros, render: u => money(u.usage.micros) },
-  { key: 'history', label: 'Used · 90 days (USD)', numeric: true, value: u => u.usage_90_days_micros, render: u => money(u.usage_90_days_micros) },
+  { key: 'identity', label: 'Account', required: true, value: u => u.email_label ?? u.id, render: u => accountIdentity(u) },
+  { key: 'id', label: 'User ID', value: u => u.id, render: u => accountIdentity(u, 'user ID') },
+  { key: 'inference', label: 'Last inference request (UTC)', value: u => timestamp(u.last_inference_at), render: u => dateTime(u.last_inference_at) },
+  { key: 'seen', label: 'Last sign-in (UTC)', value: u => timestamp(u.last_seen), render: u => dateTime(u.last_seen) },
+  { key: 'used', label: 'Allowance used today (USD)', numeric: true, value: u => u.usage.micros, render: u => money(u.usage.micros) },
+  { key: 'history', label: 'Allowance used · 90 days (USD)', numeric: true, value: u => u.usage_90_days_micros, render: u => money(u.usage_90_days_micros) },
   { key: 'requests', label: 'Inference admissions today', numeric: true, value: u => number(u.admission.requests), render: u => count(u.admission.requests) },
   { key: 'limit', label: 'Daily allowance (USD)', numeric: true, value: u => limitsEnforced ? u.effective_limit_micros : null, render: u => limitsEnforced ? money(u.effective_limit_micros) : 'Disabled' },
   { key: 'source', label: 'Limit source', value: u => u.daily_limit_micros == null ? 'Default' : 'Custom', render: u => badge(u.daily_limit_micros == null ? 'Default' : 'Custom') },
@@ -62,9 +73,8 @@ const accountTable = new ReportTable<User>([
   { key: 'tokens', label: 'Tokens today', numeric: true, hidden: true, value: u => u.usage.tokens, render: u => count(u.usage.tokens) },
   { key: 'created', label: 'Registered (UTC)', hidden: true, value: u => timestamp(u.created_at), render: u => dateTime(u.created_at) },
   { key: 'version', label: 'Session version', numeric: true, hidden: true, value: u => u.token_version, render: u => count(u.token_version) },
-  { key: 'id', label: 'Internal account ID', hidden: true, value: u => u.id, render: u => u.id },
   { key: 'inspect', label: 'Details', required: true, render: u => button('Inspect account', () => void run(() => inspectUser(u))) },
-], { label: 'Accounts', scope: 'Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. Admissions include restored credit; usage includes holds and estimates.', sort: 'seen', descending: true,
+], { label: 'Accounts', scope: 'Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. Admissions include restored credit; usage includes holds and estimates.', sort: 'inference', descending: true,
   search: { label: 'Search masked email or account ID', text: u => `${u.email_label ?? ''} ${u.id}` } })
 $('users').replaceChildren(accountTable.node)
 const eventTable = new ReportTable<Row>([
