@@ -1,0 +1,135 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+definitions:
+  Example:
+    additionalProperties: false
+    properties:
+      meaning:
+        type: string
+      note:
+        type: string
+      text:
+        type: string
+    required:
+    - meaning
+    - note
+    - text
+    type: object
+  Guide:
+    additionalProperties: false
+    properties:
+      assessment:
+        description: Written offline, not a runtime summary of learner-facing prose.
+        type: string
+      introduction:
+        type: string
+      sections:
+        items:
+          $ref: '#/definitions/Section'
+        type: array
+      title:
+        description: Learner-facing text in the document's explanation language.
+        type: string
+      varieties:
+        additionalProperties:
+          $ref: '#/definitions/Variety'
+        type: object
+    required:
+    - assessment
+    - introduction
+    - sections
+    - title
+    - varieties
+    type: object
+  GuideOrigin:
+    enum:
+    - human
+    - ai
+    - mixed
+    type: string
+  ReviewStatus:
+    enum:
+    - needs_review
+    - reviewed
+    type: string
+  Section:
+    additionalProperties: false
+    properties:
+      concept:
+        type: string
+      examples:
+        items:
+          $ref: '#/definitions/Example'
+        type: array
+      explanation:
+        type: string
+      subskill:
+        type: string
+      title:
+        type: string
+    required:
+    - concept
+    - examples
+    - explanation
+    - subskill
+    - title
+    type: object
+  Variety:
+    additionalProperties: false
+    properties:
+      assessment:
+        type: string
+      authorship:
+        type: string
+      detail:
+        description: Explicit null means no additional learner-facing detail beyond the core.
+        type:
+        - string
+        - 'null'
+      origin:
+        $ref: '#/definitions/GuideOrigin'
+      review:
+        $ref: '#/definitions/ReviewStatus'
+    required:
+    - assessment
+    - authorship
+    - origin
+    - review
+    type: object
+properties:
+  authorship:
+    type: string
+  explanation_language:
+    type: string
+  groups:
+    additionalProperties:
+      $ref: '#/definitions/Guide'
+    type: object
+  language:
+    type: string
+  origin:
+    $ref: '#/definitions/GuideOrigin'
+  review:
+    $ref: '#/definitions/ReviewStatus'
+  revision:
+    type: string
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+  sources:
+    items:
+      type: string
+    type: array
+required:
+- authorship
+- explanation_language
+- groups
+- language
+- origin
+- review
+- revision
+- schema_version
+- sources
+title: Document
+type: object

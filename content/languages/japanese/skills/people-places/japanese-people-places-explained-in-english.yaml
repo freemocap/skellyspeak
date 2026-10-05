@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: こちら can politely introduce someone. の links the colleague relationship to the
+      person named, and さん respectfully follows that person’s name.
+    examples:
+      - text: こちらは同僚の田中さんです。
+        meaning: This is my colleague Tanaka.
+        note: The introduction supplies whose colleague is meant through the situation. It does not need
+          an explicit 私の.
+  - subskill_id: qualities_states
+    explanation: An い-adjective can describe a property. In polite speech, です follows the adjective;
+      it does not require an additional だ.
+    examples:
+      - text: この道は狭いです。
+        meaning: This road is narrow.
+        note: 狭い is the adjective. は marks この道 as the topic being described.
+  - subskill_id: location_movement
+    explanation: Use に with あります to locate an inanimate object. A relational noun such as 上
+      identifies the location relative to another object.
+    examples:
+      - text: 鍵は棚の上にあります。
+        meaning: The key is on the shelf.
+        note: 棚の上 means the top of the shelf; に marks that as the key’s location.
+  - subskill_id: possession_relations
+    explanation: の after a person can form a possessive expression. When the possessed item is
+      already identified, の can stand without repeating its noun.
+    examples:
+      - text: この傘は姉のです。
+        meaning: This umbrella is my older sister’s.
+        note: 姉 refers to the speaker’s older sister here. の indicates possession and leaves 傘
+          understood.
+  - subskill_id: quantity_comparison
+    explanation: Comparisons can put the standard before より and the preferred side of the scale
+      before のほうが. The final adjective supplies the property being compared.
+    examples:
+      - text: あの箱より、この箱のほうが軽いです。
+        meaning: This box is lighter than that box.
+        note: 軽い compares weight. The statement does not itself express a preference about which box to
+          choose.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

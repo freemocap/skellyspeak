@@ -12,7 +12,7 @@ export interface SkillEvidenceState {
   /** Desired scope and its request bookkeeping reset together with the store. */
   read: Read | null
   snapshot: SkillSnapshot | null
-  /// The settings revision the snapshot was read at. A snapshot read at another
+  /// The evidence settings revision the snapshot was read at. A snapshot read at another
   /// revision was read for settings that no longer apply.
   scope: number
   error: string | null

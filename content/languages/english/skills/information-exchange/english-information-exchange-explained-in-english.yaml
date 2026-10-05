@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: information_exchange
+language: english
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Many questions place an auxiliary before the subject.
+      Present-simple questions often use do or does; subject questions can omit
+      do.
+    examples:
+      - text: Where does your sister work?
+        meaning: The speaker asks for the location of the sister’s workplace.
+        note: Does carries the question construction; work stays in its base form.
+  - subskill_id: answering_information
+    explanation: Give the requested information. A phrase can answer a question
+      without repeating its entire clause.
+    examples:
+      - text: At the library.
+        meaning: In answer to Where do you work?, the workplace is the library.
+        note: The preceding question makes this fragment a relevant and complete answer.
+  - subskill_id: checking_facts
+    explanation: Ask whether a specific detail or proposition is correct.
+    examples:
+      - text: Does the shop close at seven?
+        meaning: The speaker checks the proposed closing time.
+        note: The question seeks confirmation of a concrete fact.
+  - subskill_id: useful_detail
+    explanation: Add information that helps the listener identify or understand the
+      relevant thing.
+    examples:
+      - text: The entrance is on the left, beside the blue sign.
+        meaning: The speaker identifies the entrance precisely.
+        note: Beside the blue sign adds a useful identifying detail.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

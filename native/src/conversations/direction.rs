@@ -19,6 +19,10 @@ pub enum TimeReference {
     deny_unknown_fields
 )]
 pub enum TopicChoice {
+    Skill {
+        skill_id: String,
+        subskill_id: Option<String>,
+    },
     Builtin {
         id: String,
     },
@@ -108,6 +112,24 @@ pub(crate) fn topic_text(
 ) -> Result<Option<String>> {
     match &direction.topic {
         None | Some(TopicChoice::Coach { .. }) => Ok(None),
+        Some(TopicChoice::Skill {
+            skill_id,
+            subskill_id,
+        }) => {
+            registry.skill_definition(skill_id)?;
+            if subskill_id.as_ref().is_some_and(|id| {
+                !registry.communication_catalog().groups.iter().any(|group| {
+                    group.id == *skill_id
+                        && group.subskills.iter().any(|subskill| subskill.id == *id)
+                })
+            }) {
+                return Err(AppError::new(
+                    ErrorCode::Validation,
+                    "The subskill does not belong to the selected skill.",
+                ));
+            }
+            Ok(None)
+        }
         Some(TopicChoice::Builtin { id }) => Ok(Some(registry.topic(id)?.subject.clone())),
         Some(TopicChoice::Custom { text }) => {
             validate_text(text)?;

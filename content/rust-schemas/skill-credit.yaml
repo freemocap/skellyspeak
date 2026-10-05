@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+properties:
+  assessment_unit:
+    type: string
+  minimum_positive_probability:
+    format: double
+    type: number
+  policy_id:
+    type: string
+  positive_categories:
+    items:
+      type: string
+    type: array
+  revision:
+    type: string
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+  subskill_credit:
+    type: boolean
+required:
+- assessment_unit
+- minimum_positive_probability
+- policy_id
+- positive_categories
+- revision
+- schema_version
+- subskill_credit
+title: CreditPolicy
+type: object

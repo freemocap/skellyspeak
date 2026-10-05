@@ -2,6 +2,18 @@
    .chat-message is the conversation-stream variant: compact padding, bubble
    corners, focused border and width caps. It does not depend on a .chat ancestor.
    Partner excerpt layout is owned by persona.css (.reaction-excerpt .msg). */
+/* Quiet per-line progress under source text; never reserves space or hides text.
+   Completed coaching replaces this with the existing phrase error marks. */
+.message-coaching-pending {
+  background: linear-gradient(90deg, var(--line-soft), var(--ink-3), var(--line-soft)) 0 100% / 200% 1px repeat-x;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  animation: message-coaching-scan var(--dur-loop-slow) linear infinite;
+}
+@keyframes message-coaching-scan { to { background-position-x: 200%; } }
+@media (prefers-reduced-motion: reduce) {
+  .message-coaching-pending { animation: none; }
+}
 .msg {
   min-width: 0;
   overflow-wrap: anywhere;

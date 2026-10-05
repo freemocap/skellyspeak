@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: time_events
+language: english
+guidance: Judge the temporal relationship actually expressed, using the prior
+  exchange. Yesterday we went is correct; Yesterday we go is not an ordinary
+  completed-past construction, although narrative present may be licensed by a
+  clear storytelling context. Tomorrow we are leaving correctly expresses an
+  arrangement. Yesterday can answer When did you leave? without repeating a
+  finite verb. I was working presents an ongoing past event. Past forms in
+  politeness or hypothetical clauses do not automatically refer to past time. Do
+  not infer temporal mastery from an isolated time word without relevant
+  context. Credit requires correct use of this function, not an unsuccessful
+  attempt. Unrelated errors do not invalidate a successful instance. Use unclear
+  when the available context cannot establish the function. The listed forms are
+  examples, not an exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_present2026
+        - bc_past2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

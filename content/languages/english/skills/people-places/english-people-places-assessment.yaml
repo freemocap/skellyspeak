@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: people_places
+language: english
+guidance: Assess correctly expressed identification, description, location,
+  movement, possession, relationships, quantities and comparison. The bag is
+  behind the chair and my brother's bicycle are valid. This bag is more lighter
+  is not a correctly formed ordinary comparative. Me too may supply a contextual
+  relation when the prior turn establishes it, but do not infer a specific
+  construction from a name alone. Accept grammatical regional spelling and
+  vocabulary without imposing another variety's preference. Credit requires
+  correct use of this function, not an unsuccessful attempt. Unrelated errors do
+  not invalidate a successful instance. Use unclear when the available context
+  cannot establish the function. The listed forms are examples, not an
+  exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

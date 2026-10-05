@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: An infinitive with आना can express knowing how to do an activity. The experiencer
+      is marked by मुझे, rather than made the subject of an English-style know verb.
+    examples:
+      - text: मुझे तैरना आता है।
+        meaning: I know how to swim.
+        note: तैरना names the skill. This describes practical knowledge, not the arrival of a person.
+  - subskill_id: permission
+    explanation: A first-person subjunctive question can seek permission. The proposed action and
+      the listener’s authority make that reading clear.
+    examples:
+      - text: क्या मैं यहाँ बैठूँ?
+        meaning: May I sit here?
+        note: बैठूँ is first-person subjunctive. Ask this of someone responsible for the seat or space.
+  - subskill_id: obligation
+    explanation: A dative experiencer with an infinitive and है can express an action the speaker
+      needs to perform. Context distinguishes obligation from a stated plan.
+    examples:
+      - text: मुझे आज दवा लेनी है।
+        meaning: I have to take medicine today.
+        note: In a prescribed treatment schedule, this expresses a requirement. लेनी agrees with
+          feminine दवा.
+  - subskill_id: possibility
+    explanation: शायद can present an uncertain proposition with a subjunctive. The speaker leaves
+      its truth open.
+    examples:
+      - text: शायद दुकान अभी खुली हो।
+        meaning: Perhaps the shop is still open.
+        note: हो is subjunctive; खुली agrees with दुकान. The statement does not assert that the shop is
+          definitely open.
+  - subskill_id: certainty
+    explanation: नहीं पता can explicitly mark lack of knowledge. कि introduces what is unknown, and
+      या नहीं gives the alternative.
+    examples:
+      - text: मुझे नहीं पता कि दुकान खुली है या नहीं।
+        meaning: I do not know whether the shop is open.
+        note: The uncertainty is about the shop’s status. It does not mean the speaker misunderstood a
+          previous word.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

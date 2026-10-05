@@ -14,22 +14,23 @@ export const SkillEvidenceContext = createContext<{ snapshot: SkillSnapshot | nu
 /// The snapshot to show for `target` at `revision`, or null when there is none
 /// to show.
 ///
-/// One rule, in one place: evidence read for another language, or read under a
-/// settings revision that no longer applies, describes something the learner is
+/// One rule, in one place: evidence read for another language, or read under an
+/// evidence settings revision that no longer applies, describes something the learner is
 /// not looking at, and is hidden until the read that answers this one lands.
 export function selectSkillSnapshot(state: SkillEvidenceState, target: string | undefined, revision: number): SkillSnapshot | null {
   const snapshot = state.snapshot
   return target && snapshot?.target === target && state.scope === revision ? snapshot : null
 }
 
-/// Keep evidence read for the active language at the current settings revision.
+/// Keep evidence read for the active language at its settings revision.
+/// Theme and palette changes retain that revision and the visible evidence.
 ///
 /// The read belongs to the store, so this only has to say what is wanted. It is
 /// idempotent, so the shell can own it without a surface that reads evidence
 /// early causing a second request.
 export function useLoadSkillEvidence(): void {
   const target = useSettingsStore((state) => state.settings?.target_language)
-  const revision = useSettingsStore((state) => state.revision)
+  const revision = useSettingsStore((state) => state.evidenceRevision)
   useEffect(() => { if (target) useSkillEvidenceStore.getState().load(target, revision) }, [target, revision])
 }
 
@@ -40,7 +41,7 @@ export function useLoadSkillEvidence(): void {
 /// decides to fetch it.
 export function useSkillEvidence() {
   const target = useSettingsStore((state) => state.settings?.target_language)
-  const revision = useSettingsStore((state) => state.revision)
+  const revision = useSettingsStore((state) => state.evidenceRevision)
   const snapshot = useSkillEvidenceStore((state) => selectSkillSnapshot(state, target, revision))
   const error = useSkillEvidenceStore((state) => state.error)
   const saving = useSkillEvidenceStore((state) => state.saving)

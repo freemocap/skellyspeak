@@ -177,13 +177,13 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
             ];
         }
         "skill_attribution" => {
-            node.source = "native/src/learning/coaching/skill_attribution.rs; content/prompts/skills/presence.yaml".into();
+            node.source = "native/src/learning/coaching/skill_attribution.rs; content/prompts/assessment/evidence-attribution.md".into();
             node.description = "After thresholded skill presence, one fast request locates supporting spans for the selected skills. Exact quotes and occurrences are validated against the original text. Unlocalized evidence uses the full message; attribution never changes XP. No eligible skills means no network request.".into();
             node.templates = vec![
                 section(
                     "system",
                     registry
-                        .presence_instructions()
+                        .assessment_instructions()
                         .attribution
                         .instructions
                         .clone(),
@@ -196,24 +196,14 @@ fn operation(kind: &str, registry: &Registry) -> Result<AiOperationDefinition> {
         }
         "skill_assessment" => {
             node.source = "native/src/learning/coaching/assessment_adapter.rs; native/src/learning/coaching/skill_assessment.rs".into();
-            node.description = "Jev returns presence for every selected skill: direct, contextual, absent or unclear. Validated presence and deterministic experience/effort credit publish in one transaction. No quote-localization call or grammar grade gates XP.".into();
+            node.description = "One Jev request assesses eight skills, grammar and understandability. All ten results must validate before skill credit or partner-understood credit is published. Grammar does not gate otherwise correct skill use.".into();
             let request = registry.skill_presence_request("spanish", "spanish-mexico", json!({"currentLearnerMessage":"{{currentLearnerMessage}}","precedingExchange":[],"input":{"modality":"text","suggestion":false,"revision":false,"scaffold":false}}))?;
             node.templates.push(section(
-                "Jev presence request · Spanish/Mexico specimen",
+                "Combined Jev request · Spanish/Mexico specimen",
                 serde_json::to_string_pretty(&request)?,
             ));
         }
 
-        kind if crate::learning::coaching::message_assessment::owns(kind) => {
-            node.source = "native/src/learning/coaching/message_assessment.rs; content/prompts/conversation/ratings.yaml".into();
-            node.description = "Typed 0–10 utterance ratings run alongside the reply. Understanding uses the actual reply in a separate dependent request. Missing evidence remains unscored; neither result grants learning credit.".into();
-            node.templates.push(section(
-                "Choice questions",
-                serde_json::to_string_pretty(
-                    &crate::learning::coaching::message_assessment::questions(kind)?,
-                )?,
-            ));
-        }
         kind if conversation_support::owns(kind) => {
             node.source = "native/src/learning/coaching/conversation_support.rs".into();
             node.description = "Uses the current partner reply, latest learner input and up to eight preceding messages. The request drops only whole older messages to fit its budget. Romanization is empty for Latin-script targets.".into();
@@ -399,6 +389,6 @@ mod tests {
                 .contains("{{currentLearnerMessage}}")
         );
         let request: Value = serde_json::from_str(&assessment.templates[0].text).unwrap();
-        assert_eq!(request["questions"].as_object().unwrap().len(), 12);
+        assert_eq!(request["questions"].as_object().unwrap().len(), 10);
     }
 }

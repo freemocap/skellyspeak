@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-definition.yaml
+schema_version: 1
+revision: communication-2026-10-03
+id: coordinating_action
+boundary: Require a successful request, proposal, commitment or response about action. Merely
+  describing a desire or future event is insufficient.
+name: Coordinating action
+purpose: Request, propose and negotiate shared or individual action.
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: The て-form followed by います can describe an activity in progress. The interpretation
+      depends on the verb; not every ている expression means an ongoing action.
+    examples:
+      - text: 今、地図を描いています。
+        meaning: I am drawing a map now.
+        note: 今 makes the current activity explicit. The speaker is understood without a separate 私は.
+  - subskill_id: past_events
+    explanation: The polite past ending ました can report an earlier event. A time word makes its
+      placement explicit.
+    examples:
+      - text: 昨日、木の箱を作りました。
+        meaning: Yesterday I made a wooden box.
+        note: 昨日 anchors the event before today. 木の describes the box’s material.
+  - subskill_id: future_events
+    explanation: A non-past verb can describe a planned future action. A word such as 明日 supplies
+      the future anchor; Japanese does not need a separate future-tense ending.
+    examples:
+      - text: 明日、図書館で本を返します。
+        meaning: Tomorrow I will return the books at the library.
+        note: 返します is non-past. で identifies where the returning activity takes place.
+  - subskill_id: duration_frequency
+    explanation: 毎週 gives weekly recurrence. A time quantity such as 二時間 measures how long the
+      activity lasts without an English for preposition.
+    examples:
+      - text: 毎週、二時間泳ぎます。
+        meaning: I swim for two hours every week.
+        note: 二時間 is duration, not a clock time. 毎週 establishes the repeated schedule.
+  - subskill_id: event_sequence
+    explanation: A verb’s て-form followed by から places that action before the next one. The link can
+      express a procedural sequence.
+    examples:
+      - text: 手を洗ってから、料理を始めます。
+        meaning: I wash my hands before starting to cook.
+        note: 洗ってから explicitly places washing first. This use of から is not the reason-giving use after a
+          clause.
+  - subskill_id: event_phase
+    explanation: A verb stem combined with 終わる explicitly marks finishing an activity. It identifies
+      the stage reached rather than only a past time.
+    examples:
+      - text: その本を読み終わりました。
+        meaning: I finished reading that book.
+        note: 読み is the combining stem of 読む. 読み終わりました states that the reading is complete.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

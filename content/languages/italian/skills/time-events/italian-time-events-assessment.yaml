@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: time_events
+guidance: Evaluate current or habitual events, past and future reference, duration or
+  recurrence, sequence and event phase. Sto sistemando gli attrezzi presents an activity in
+  progress; a suitable simple present also works. Ho comprato i pennelli ieri reports a past
+  event with an auxiliary and participle. Ieri ho comprare, intended as that ordinary compound
+  past, is unsuccessful alone. Accept contextually appropriate imperfetto and passato remoto
+  rather than prescribing one past form throughout Italy. Domani il corso comincia alle nove
+  expresses future scheduling without requiring a future inflection. Lavoro qui da sei mesi
+  measures a situation continuing now; ogni venerdì marks recurrence. Prima prepariamo il
+  tavolo, poi mettiamo i piatti orders actions, without asserting causation. Ho finito di
+  dipingere marks completion; smettere can instead mean interruption. After Quando hai
+  telefonato?, Ieri sera completes earlier-event reference contextually. A property statement
+  with è alone need not establish temporal meaning. A conditional used to soften a current
+  request is not past-event evidence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_present2026
+    - treccani_it_past2026
+    - treccani_it_periphrases2026
+    - treccani_it_connectives2026
+    - zanichelli_it_prepositions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

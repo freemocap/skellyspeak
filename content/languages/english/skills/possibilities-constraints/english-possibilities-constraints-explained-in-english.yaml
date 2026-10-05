@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: possibilities_constraints
+language: english
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Can followed by a base verb can express capability.
+    examples:
+      - text: I can carry both bags.
+        meaning: The speaker is able to carry the two bags.
+        note: The statement concerns ability; it is not automatically an offer without
+          supporting context.
+  - subskill_id: permission
+    explanation: Use an appropriate permission question or statement to discuss
+      whether an action is allowed.
+    examples:
+      - text: May I use this chair?
+        meaning: The speaker requests permission to use the chair.
+        note: May asks about permission rather than physical ability.
+  - subskill_id: obligation
+    explanation: Must, have to and need to can express requirements. Their force
+      depends on context.
+    examples:
+      - text: We have to leave by eight.
+        meaning: Leaving no later than eight is required.
+        note: Have to marks the constraint on departure.
+  - subskill_id: possibility
+    explanation: Might and may can present an outcome as possible rather than certain.
+    examples:
+      - text: The delivery might arrive today.
+        meaning: Arrival today is possible.
+        note: Might leaves the outcome uncertain.
+  - subskill_id: certainty
+    explanation: State confidence or uncertainty explicitly when the evidence does
+      not settle the issue.
+    examples:
+      - text: I am not sure whether the door is locked.
+        meaning: The speaker does not know if the door is locked.
+        note: Not sure marks an explicit limit of knowledge.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_modals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

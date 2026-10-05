@@ -1,0 +1,167 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: korean
+  name: Korean
+  native_name: 한국어
+  family: koreanic
+  review: needs_review
+integrations:
+  language_tag: ko
+  transcription: ko
+definitions:
+  orthographies:
+    standard-korean:
+      script: hangul
+      guidance:
+        - scope: target_writing
+          text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
+            source text exactly, including jamo sequences; do not replace the source with
+            romanization.
+          sources:
+            - nikl_romanization
+        - scope: explanation_writing
+          text: Write contemporary South Korean Korean in Hangul with normal word spacing. Preserve quoted
+            source text exactly, including jamo sequences; do not replace the source with
+            romanization.
+          sources:
+            - nikl_romanization
+  romanization_schemes:
+    revised-romanization:
+      label: Revised Romanization
+      instructions: Use the National Institute of Korean Language Revised Romanization based on standard
+        pronunciation, including its assimilation and aspiration rules and exceptions for names. Use
+        eo and eu, distinguish tense consonants, and use r or l by position. Keep word boundaries
+        and never rewrite the Hangul source. This reading aid does not encode all pronunciation
+        detail.
+      examples:
+        - original: 한국어
+          romanized: hangugeo
+        - original: 서울
+          romanized: Seoul
+        - original: 음악
+          romanized: eumak
+        - original: 감사합니다
+          romanized: gamsahamnida
+      sources:
+        - nikl_romanization
+      review: needs_review
+defaults:
+  variety: korean-south-korea
+  orthography:
+    local: standard-korean
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme: &a1
+      local: revised-romanization
+  supported_romanizations:
+    - *a1
+traits: []
+varieties:
+  - id: korean-south-korea
+    name: South Korea
+    description: Contemporary Korean in South Korea, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - nikl_romanization
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: 안녕하세요
+    romanizations:
+      korean:revised-romanization: annyeonghaseyo
+  default_partner:
+    name: 민서
+    romanizedName: Minseo
+    age: 29
+    location: Seoul, South Korea
+    occupation: Repairs audio equipment at a small workshop
+    background: Grew up in Suwon and moved to Seoul for work. Shares a flat with a cousin.
+    currentSituation: Preparing a listening evening with friends and repairing an old radio.
+    interests:
+      - field recording
+      - weekend walks
+    opinions:
+      - A repair is better when its owner understands what changed.
+    interestingFacts:
+      - Keeps a notebook of interesting sounds.
+    favoriteBooks:
+      - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+      - Little Forest (2018)
+    manner: Practical and curious. Uses polite everyday Korean with new acquaintances.
+    quirks:
+      - Labels spare parts by hand.
+    vibe:
+      - 📻
+      - 🌿
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - 네.
+      - 아니요.
+      - 물 주세요.
+      - 여기예요.
+      - 더워요.
+      - 배고파요.
+      - 이게 뭐예요?
+      - 몰라요.
+    beginner:
+      - 저는 학생이에요.
+      - 방이 조용해요.
+      - 저는 자전거가 있어요.
+      - 제 동생이에요.
+      - 책이 두 권 있어요.
+      - 물을 조금 주세요.
+      - 여기에서 일해요.
+      - 지금 책을 읽고 있어요.
+    intermediate:
+      - 어제 왔어요.
+      - 어제는 추웠어요.
+      - 내일 갈 거예요.
+      - 다음 주에 만나요.
+      - 커피를 좋아해요.
+      - 집에 가고 싶어요.
+      - 수영할 수 있어요.
+      - 지금 가야 해요.
+    advanced:
+      - 회의가 이렇게 오래 걸릴 줄 알았더라면 집에 돌아갈 계획을 미리 바꿨을 거예요.
+      - 가장 걱정되는 것은 의견을 낼 기회가 없었던 사람들에게 이 결정이 어떤 영향을 미칠지 하는 점입니다.
+      - 이 제안이 유망해 보이기는 하지만, 실행했을 때 생길 수 있는 문제도 신중하게 검토해야 합니다.
+      - 나중에 후회할 결정을 서둘러 내리느니 차라리 여행을 미루는 편이 낫겠어요.
+      - 보고서를 자세히 읽으면 읽을수록 그 결론을 뒷받침할 근거가 부족하다는 생각이 듭니다.
+      - 이 사업의 성공 여부는 우리가 책임을 어떻게 나누느냐에 크게 달려 있습니다.
+      - 그 생각에 반대하는 것은 아니지만, 지금이 적절한 시기인지는 확신이 서지 않습니다.
+      - 무슨 일이 일어났는지 알아차렸을 때는 이미 상황을 바로잡기가 어려웠습니다.
+    social:
+      - 안녕하세요.
+      - 안녕히 주무셨어요?
+      - 잘 지내세요?
+      - 네, 잘 지내요.
+      - 성함이 어떻게 되세요?
+      - 만나서 반갑습니다.
+      - 감사합니다.
+      - 정말 고마워요.
+      - 아니에요.
+      - 실례합니다.
+      - 죄송합니다.
+      - 괜찮아요.
+      - 안녕히 가세요.
+      - 안녕히 계세요.
+      - 다음에 또 봐요.
+      - 안녕히 주무세요.
+    idiomatic:
+      - 귀가 얇아요.
+      - 입이 무거워요.
+      - 발이 넓어요.
+      - 손이 커요.
+      - 눈이 높아요.
+      - 손이 모자라요.
+      - 우리 머리를 맞대 봐요.
+      - 발 디딜 틈이 없어요.
+  varieties: {}

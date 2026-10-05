@@ -1,0 +1,54 @@
+/* Skill radar (components/learning/SkillRadar.tsx). One square holds the SVG
+   (disc, wedges, rings, arms, hit wedges) and, over it, HTML ring tags and one
+   name button per arm. Skill colours arrive inline: `fill` on each wedge,
+   `stroke` on each axis, `color` on each arm and name button. Focusing a skill
+   (pointer or keyboard) brightens its wedge, dims the others and enlarges its dot. */
+.skill-radar { position: relative; width: 100%; max-width: 440px; aspect-ratio: 1; margin-inline: auto; }
+.skill-radar-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+.skill-radar-disc { fill: var(--track); fill-opacity: 0.55; }
+.skill-radar-axis { stroke-opacity: 0.35; stroke-width: 1; }
+.skill-radar-wedge { fill-opacity: 0.78; transition: fill-opacity var(--dur-fast) var(--ease-out); }
+.skill-radar-wedges[data-focus] .skill-radar-wedge { fill-opacity: 0.38; }
+.skill-radar-wedges[data-focus] .skill-radar-wedge[data-active] { fill-opacity: 0.95; }
+.skill-radar-fade-core { stop-color: var(--skill-radar-core); }
+.skill-radar-fade-mid { stop-color: var(--skill-radar-mid); }
+.skill-radar-fade-edge { stop-color: var(--skill-radar-mid); stop-opacity: 0; }
+.skill-radar-earned { fill: none; stroke: var(--ink); stroke-opacity: 0.22; stroke-width: 1.2; stroke-dasharray: 3 3; }
+.skill-radar-earned[data-current] { stroke-opacity: 0.6; stroke-width: 1.8; stroke-dasharray: 6 4; }
+.skill-radar-edge { fill: none; stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 1.4; stroke-linejoin: round; }
+.skill-radar-target { fill: none; stroke: var(--progress-mark); stroke-width: 2.6; }
+.skill-radar-conversation { fill: var(--ink); fill-opacity: 0.05; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1.2; stroke-linejoin: round; pointer-events: none; }
+
+.skill-radar-line { stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; transition: stroke-width var(--dur-fast) var(--ease-out); }
+.skill-radar-arm[data-active] .skill-radar-line { stroke-width: 4.5; }
+.skill-radar-tip { fill: var(--skill-radar-tip); stroke: currentColor; stroke-width: 2.6; }
+.skill-radar-hit { fill: transparent; cursor: pointer; }
+.skill-radar-line, .skill-radar-tip, .skill-radar-wedge, .skill-radar-earned, .skill-radar-edge, .skill-radar-target { pointer-events: none; }
+
+/* Ring tags name the gold goal ring and the current level's ring, between the last and first arms. */
+.skill-radar-ring-tag { position: absolute; transform: translate(-50%, -50%); padding: 0 var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-snug); white-space: nowrap; pointer-events: none; }
+.skill-radar-ring-tag[data-goal] { border-color: var(--progress-line); background: var(--progress-tint); color: var(--progress-ink); }
+
+/* One name per arm, anchored at the arm's end on the side facing away from the centre. */
+.skill-radar-label { position: absolute; display: flex; flex-direction: column; gap: var(--space-hairline); padding: var(--space-1) var(--space-3); border: var(--border-width-strong) solid transparent; border-radius: var(--radius-sm); background: transparent; font-size: var(--type-ui); line-height: var(--leading-tight); white-space: nowrap; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+.skill-radar-label strong { font-weight: var(--weight-semibold); }
+.skill-radar-label span { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-medium); }
+.skill-radar-label[data-active] { border-color: currentColor; background: color-mix(in srgb, currentColor 12%, var(--sheet)); }
+.skill-radar-label[aria-pressed='true'] { border-color: currentColor; }
+.skill-radar-label[data-side='top'] { transform: translate(-50%, -100%); align-items: center; text-align: center; }
+.skill-radar-label[data-side='bottom'] { transform: translate(-50%, 0); align-items: center; text-align: center; }
+.skill-radar-label[data-side='right'] { transform: translate(0, -50%); align-items: flex-start; text-align: start; }
+.skill-radar-label[data-side='left'] { transform: translate(-100%, -50%); align-items: flex-end; text-align: end; }
+
+/* The chip glyph: the resting picture only, sized by its owner. */
+.skill-radar-glyph { display: inline-block; flex: none; max-width: none; margin-inline: 0; }
+/* Glyph strokes keep their pixel width at any size the owner chooses. */
+.skill-radar-glyph :is(.skill-radar-target, .skill-radar-edge, .skill-radar-earned) { vector-effect: non-scaling-stroke; }
+.skill-radar-glyph .skill-radar-target { stroke-width: 1.6; }
+.skill-radar-glyph .skill-radar-edge { stroke-width: 0.8; }
+.skill-radar-glyph .skill-radar-earned { stroke-width: 0.8; stroke-dasharray: 2 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-radar-wedge, .skill-radar-line, .skill-radar-label { transition: none; }
+}

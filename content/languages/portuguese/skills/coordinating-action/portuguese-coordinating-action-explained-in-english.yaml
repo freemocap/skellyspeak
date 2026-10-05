@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A question with você pode + infinitive can politely ask the other person to perform
+      an action. Por favor makes the request explicit in its cooperative setting.
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: Could you put these books away, please?
+        note: Said while handing the books to a colleague. It asks for their action, rather than testing
+          whether they possess the ability.
+  - subskill_id: offers_invitations
+    explanation: Quer + a thing can offer it when the speaker is in a position to provide it. The
+      verb alone does not distinguish an offer from a detached question about desire.
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: Would you like a slice of bread?
+        note: Said by someone with freshly baked bread to share. The context makes this an offer; quer
+          addresses one person.
+  - subskill_id: suggestions
+    explanation: Vamos + infinitive can propose joint action. It can also describe what will happen,
+      so the planning context matters.
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: Shall we organize the book exchange on Saturday?
+        note: A proposal during a conversation about choosing the exchange day. No sábado specifies the
+          proposed timing.
+  - subskill_id: commitments
+    explanation: A present form with a future time can undertake a task in a planning exchange. A
+      commitment depends on taking responsibility, not just naming the future.
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: I will bring the boxes tomorrow.
+        note: Said when the group asks who will supply the boxes. Eu takes responsibility and amanhã
+          places the delivery later.
+  - subskill_id: accepting_declining
+    explanation: A relevant refusal can state that the speaker cannot participate. Não before the
+      finite verb negates that participation; no full restatement of the invitation is needed.
+    examples:
+      - text: Não posso ir hoje.
+        meaning: I cannot go today.
+        note: Reply to an invitation to help at the book exchange today. It declines that identified
+          invitation, rather than merely reporting an unrelated inability.
+  - subskill_id: negotiating_plans
+    explanation: To negotiate timing, state a constraint on the proposed day and ask about an
+      alternative. Podemos + infinitive can present a possible shared arrangement.
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: I cannot on Friday. Can we arrange it for Saturday?
+        note: Reply to a proposal to meet on Friday. The activity omitted from não posso is supplied by
+          that proposal; the speaker suggests a different day.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: feelings_viewpoints
+language: spanish
+explanation_language: spanish
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-spanish.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Querer con infinitivo expresa lo que el sujeto desea hacer.
+    examples:
+      - text: Quiero descansar.
+        meaning: Tengo ganas de descansar.
+        note: Quien desea es también quien descansaría.
+  - subskill_id: preferences
+    explanation: Preferir expresa una preferencia. Con gustar, lo que gusta funciona como sujeto gramatical.
+    examples:
+      - text: Me gustan estos libros.
+        meaning: Estos libros son de mi agrado.
+        note: Gustan concuerda con libros, que está en plural.
+  - subskill_id: emotions
+    explanation: Nombra el sentimiento con una expresión adecuada. Los adjetivos con estar concuerdan
+      con la persona descrita.
+    examples:
+      - text: Estoy contenta.
+        meaning: Me siento feliz.
+        note: Una hablante usa la forma femenina contenta.
+  - subskill_id: opinions
+    explanation: Creo que introduce una opinión. También puedes expresar una valoración directamente.
+    examples:
+      - text: Creo que es una buena idea.
+        meaning: En mi opinión, la idea es buena.
+        note: La hablante presenta la valoración como su punto de vista.
+  - subskill_id: agreement_disagreement
+    explanation: Responde a una postura con acuerdo, desacuerdo o una matización.
+    examples:
+      - text: No estoy de acuerdo.
+        meaning: No comparto esa postura.
+        note: Necesitamos conocer la postura anterior para saber qué se rechaza.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: time_events
+guidance: Assess temporal reference, duration or recurrence, ordering and phases of events.
+  Зараз я ремонтую велосипед describes an ongoing activity with an imperfective present. Учора я
+  полагодила велосипед uses a feminine past form for a bounded repair. Завтра я заберу деталі
+  uses a perfective future; буду читати and читатиму are both legitimate imperfective futures.
+  Do not require an auxiliary in every future sentence or infer noncompletion from every
+  imperfective past. Двічі на тиждень gives frequency; дві години can measure duration. Спочатку
+  and потім sequence actions; дочитала marks reaching the reading endpoint. Учора can answer a
+  specific when-question contextually. A copied time word without an identifiable event is
+  absent. A property assertion alone is not evidence of temporal organization. Judge the
+  relevant aspect and agreement while preserving contextual subject omission and without
+  inferring the speaker’s gender from unrelated information.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

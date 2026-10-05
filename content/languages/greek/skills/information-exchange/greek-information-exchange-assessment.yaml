@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: information_exchange
+guidance: "Information questions may use πού, πότε, ποιος, τι, πόσο or γιατί; ordinary yes/no
+  questions need no English do auxiliary or mandatory subject-verb inversion. Greek question
+  punctuation is ;, while conversational force still depends on the utterance and exchange. Πότε
+  ανοίγει το συνεργείο; asks for opening time. Answers can be concise: στις εννέα supplies that
+  time if the question is identifiable. A relevant negative answer or δεν ξέρω can also answer
+  an information request. Checking a proposed fact may repeat it as a question or use σωστά;,
+  but verification of truth differs from asking what a misunderstood word means. Useful detail
+  may add a precise location, date, quantity or restriction that helps the other person use the
+  answer. Quoting πότε as a vocabulary item without asking anything does not perform this group.
+  Subject pronouns may be omitted, and second-person plural forms can address one person
+  respectfully. Do not require a full clause when the exchange supplies the missing material."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

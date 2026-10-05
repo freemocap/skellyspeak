@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: time_events
+language: spanish
+guidance: Judge the time relationship the learner actually expresses. Spanish uses present forms for
+  current situations and habits; preterite for bounded past events; imperfect for past background or
+  habits; and ir a + infinitive, future forms, or contextually future present forms for later
+  events. Historical present can narrate past events when context supports it. Estar + gerund
+  expresses an ongoing activity; ya + an appropriate completed construction can mark completion.
+  Ayer fui al mercado correctly locates a completed event. Ayer yo ir al mercado is an unsuccessful
+  finite past construction, not a correct past use. Ayer alone can be a correct contextual answer to
+  ¿Cuándo fuiste? Missing an article elsewhere does not defeat a correctly formed temporal
+  construction. Sequence does not imply cause. A hypothetical or polite past-form expression is not
+  necessarily past reference.
+varieties:
+  spanish-spain:
+    disposition: supplement
+    text: These core examples are usable in Spain. Accept valid regional uses rather than requiring one
+      national norm. Both simple and compound past constructions may be appropriate depending on
+      context; do not require a compound past simply because an event happened today. Vosotros forms
+      are available for informal plural address; ustedes forms are also grammatical in their
+      appropriate variety or register.
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: supplement
+    text: These core examples are usable in Mexico. Ustedes is the usual plural address form and takes
+      third-person plural agreement. Do not require vosotros or a Spain-specific past-tense
+      preference. Judge the actual context and construction; valid local choices do not count as
+      errors.
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

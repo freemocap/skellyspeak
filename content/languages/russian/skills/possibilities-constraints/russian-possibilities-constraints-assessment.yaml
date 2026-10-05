@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, obligation, possibility and degrees of confidence. Умею
+  чинить names a learned skill. Можно здесь оставить сумку? asks permission from someone
+  responsible for the space; можно can also concern practical possibility. Мне нужно вернуть
+  ключ expresses necessity with a dative experiencer and infinitive. Нельзя may prohibit an
+  action or report that it cannot be achieved; не нужно removes a requirement rather than
+  prohibiting it. Возможно, вечером будет дождь leaves an outcome open. Не уверена limits
+  certainty about a proposition. Можно can grant a prior permission request contextually. A
+  copied modal without a recoverable proposition is absent. Do not count a polite можете request
+  automatically as a factual ability assertion. If two plausible readings both demonstrate
+  correct group use, subtype uncertainty alone does not make the whole group unclear.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_modality2026
+    - cornell_russian_need2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

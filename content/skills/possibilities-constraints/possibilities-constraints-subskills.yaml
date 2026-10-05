@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: possibilities_constraints
+subskills:
+  - id: ability
+    name: Ability
+    purpose: Express a participant's capability or practical capacity.
+    positive_evidence: Communicates whether someone can perform an action in the relevant circumstances.
+    counterexample: A question-shaped request using ability wording without actually asking about capability.
+    context: contribution
+    boundary: Distinguish capability from permission, likelihood and the social function of a request.
+    neighbors:
+      - permission
+      - requests
+      - possibility
+  - id: permission
+    name: Permission
+    purpose: Express whether an action is allowed.
+    positive_evidence: Asks for, grants, refuses or reports permission under a relevant authority or convention.
+    counterexample: Reporting skill or physical capability without an allowance relation.
+    context: contribution
+    boundary: A request for permission can also seek information; it need not ask the partner to perform
+      the action.
+    neighbors:
+      - ability
+      - requests
+      - obligation
+  - id: obligation
+    name: Obligation and necessity
+    purpose: Express requirements, duties or practical necessity.
+    positive_evidence: Communicates an action or condition as required rather than merely desired.
+    counterexample: A strong preference that establishes no requirement.
+    context: contribution
+    boundary: Distinguish action requirements from an inference expressed with similar modal wording.
+    neighbors:
+      - permission
+      - certainty
+      - wants_intentions
+  - id: possibility
+    name: Possibility
+    purpose: Express an outcome as possible or contingent.
+    positive_evidence: Presents an event or state as a live possibility.
+    counterexample: A condition that relates two events without asserting likelihood.
+    context: contribution
+    boundary: Possibility concerns an outcome; certainty concerns confidence in a proposition. Do not
+      duplicate them from the same modal alone.
+    neighbors:
+      - certainty
+      - conditions
+      - ability
+  - id: certainty
+    name: Certainty and uncertainty
+    purpose: Express confidence, doubt or limits of knowledge.
+    positive_evidence: Qualifies commitment to a proposition or explicitly marks knowledge limits.
+    counterexample: An unqualified statement is not automatically evidence of expressing certainty.
+    context: contribution
+    boundary: Confidence differs from obligation and from emotion; evaluate what the qualifier scopes over.
+    neighbors:
+      - possibility
+      - obligation
+      - opinions
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

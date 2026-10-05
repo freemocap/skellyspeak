@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: กำลัง before an activity presents it as ongoing.
+    examples:
+      - text: ตอนนี้ฉันกำลังซ่อมจักรยาน
+        meaning: I am repairing a bicycle now.
+        note: ตอนนี้ anchors the activity to the present situation.
+  - subskill_id: past_events
+    explanation: A past time expression can locate an event without changing the verb.
+    examples:
+      - text: เมื่อวานฉันซ่อมจักรยาน
+        meaning: Yesterday I repaired a bicycle.
+        note: เมื่อวาน establishes past time; ซ่อม has no tense ending.
+  - subskill_id: future_events
+    explanation: จะ can introduce a future action with a time expression.
+    examples:
+      - text: พรุ่งนี้ฉันจะไปรับอะไหล่
+        meaning: Tomorrow I will go and collect the parts.
+        note: พรุ่งนี้ names the day; ไปรับ combines going with collecting.
+  - subskill_id: duration_frequency
+    explanation: ละ can establish a per-period rate and ครั้ง counts occasions.
+    examples:
+      - text: ฉันว่ายน้ำสัปดาห์ละสองครั้ง
+        meaning: I swim twice a week.
+        note: This gives frequency, not the length of a swim.
+  - subskill_id: event_sequence
+    explanation: ก่อน and แล้วค่อย order steps.
+    examples:
+      - text: ล้างมือก่อน แล้วค่อยเตรียมผัก
+        meaning: Wash your hands first, then prepare the vegetables.
+        note: The instruction context supplies the addressee.
+  - subskill_id: event_phase
+    explanation: จบ after reading expresses reaching the endpoint; แล้ว presents the achieved situation.
+    examples:
+      - text: ฉันอ่านหนังสือเล่มนี้จบแล้ว
+        meaning: I have finished reading this book.
+        note: The sentence says the reading is finished, not merely that it happened earlier.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - fsi_thai_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

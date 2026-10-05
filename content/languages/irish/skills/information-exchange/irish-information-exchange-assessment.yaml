@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: information_exchange
+guidance: "Look for information questions, relevant answers, factual checks and useful detail.
+  Cén t-am a dhúnann an siopa? asks a closing time, while Ar a cúig a chlog answers it
+  contextually. An ndúnann an siopa ar a cúig a chlog? checks a candidate hour with a dependent
+  interrogative form. Do not require a universal yes/no word: repeating an appropriate verb form
+  is natural. An féidir leat cabhrú liom? normally requests help rather than merely seeking a
+  capability report. Tá an bealach isteach taobh leis an gclós can supply a relevant landmark. A
+  copied question particle without an intelligible question is absent. A request to repeat a
+  word concerns conversational repair rather than an external fact. Preserve short answers and
+  valid dialectal constructions, but do not invent the context needed to make an ambiguous
+  fragment informative."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_deisigh2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

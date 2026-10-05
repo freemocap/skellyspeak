@@ -1,0 +1,118 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: __TARGET_LANGUAGE__
+  name: __TARGET_LANGUAGE_DISPLAY_NAME__
+  native_name: __NATIVE_NAME__
+  family: __FAMILY_ID__
+  review: needs_review
+integrations:
+  language_tag: __LANGUAGE_TAG__
+  transcription: __TRANSCRIPTION_CODE__
+definitions:
+  orthographies: {}
+  romanization_schemes: {}
+defaults:
+  variety: __VARIETY__
+  orthography:
+    shared: __ORTHOGRAPHY_ID__
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+  - id: __VARIETY__
+    name: __VARIETY_DISPLAY_NAME__
+    description: __VARIETY_DESCRIPTION__
+    review: needs_review
+    sources:
+      - __CITATION_KEY__
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: __TARGET_GREETING__
+    romanizations: {}
+  default_partner:
+    name: __NAME__
+    romanizedName: null
+    age: 34
+    location: __LOCATION__
+    occupation: __OCCUPATION__
+    background: __BACKGROUND__
+    currentSituation: __CURRENTSITUATION__
+    interests:
+      - __INTERESTS__
+    opinions:
+      - __OPINIONS__
+    interestingFacts:
+      - __INTERESTINGFACTS__
+    favoriteBooks:
+      - __FAVORITEBOOKS__
+    favoriteMovies:
+      - __FAVORITEMOVIES__
+    manner: __MANNER__
+    quirks:
+      - __QUIRKS__
+    vibe:
+      - __VIBE__
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - __ABSOLUTE_ZERO_PHRASE_1__
+      - __ABSOLUTE_ZERO_PHRASE_2__
+      - __ABSOLUTE_ZERO_PHRASE_3__
+      - __ABSOLUTE_ZERO_PHRASE_4__
+      - __ABSOLUTE_ZERO_PHRASE_5__
+      - __ABSOLUTE_ZERO_PHRASE_6__
+      - __ABSOLUTE_ZERO_PHRASE_7__
+      - __ABSOLUTE_ZERO_PHRASE_8__
+    beginner:
+      - __BEGINNER_PHRASE_1__
+      - __BEGINNER_PHRASE_2__
+      - __BEGINNER_PHRASE_3__
+      - __BEGINNER_PHRASE_4__
+      - __BEGINNER_PHRASE_5__
+      - __BEGINNER_PHRASE_6__
+      - __BEGINNER_PHRASE_7__
+      - __BEGINNER_PHRASE_8__
+    intermediate:
+      - __INTERMEDIATE_PHRASE_1__
+      - __INTERMEDIATE_PHRASE_2__
+      - __INTERMEDIATE_PHRASE_3__
+      - __INTERMEDIATE_PHRASE_4__
+      - __INTERMEDIATE_PHRASE_5__
+      - __INTERMEDIATE_PHRASE_6__
+      - __INTERMEDIATE_PHRASE_7__
+      - __INTERMEDIATE_PHRASE_8__
+    advanced:
+      - __ADVANCED_PHRASE_1__
+      - __ADVANCED_PHRASE_2__
+      - __ADVANCED_PHRASE_3__
+      - __ADVANCED_PHRASE_4__
+      - __ADVANCED_PHRASE_5__
+      - __ADVANCED_PHRASE_6__
+      - __ADVANCED_PHRASE_7__
+      - __ADVANCED_PHRASE_8__
+    social:
+      - __SOCIAL_PHRASE_1__
+      - __SOCIAL_PHRASE_2__
+      - __SOCIAL_PHRASE_3__
+      - __SOCIAL_PHRASE_4__
+      - __SOCIAL_PHRASE_5__
+      - __SOCIAL_PHRASE_6__
+      - __SOCIAL_PHRASE_7__
+      - __SOCIAL_PHRASE_8__
+    idiomatic:
+      - __IDIOMATIC_PHRASE_1__
+      - __IDIOMATIC_PHRASE_2__
+      - __IDIOMATIC_PHRASE_3__
+      - __IDIOMATIC_PHRASE_4__
+      - __IDIOMATIC_PHRASE_5__
+      - __IDIOMATIC_PHRASE_6__
+      - __IDIOMATIC_PHRASE_7__
+      - __IDIOMATIC_PHRASE_8__
+  varieties: {}

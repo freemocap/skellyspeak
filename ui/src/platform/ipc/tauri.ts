@@ -105,6 +105,7 @@ export async function getSettings(): Promise<Settings> {
     hosted_email: connection.email,
     custom_base_url: access.custom.baseUrl, custom_model: connection.standardModel,
     standard_model: connection.standardModel, observer_model: null,
+    execution: preferences.execution,
     my_languages: preferences.myLanguages, target_varieties: preferences.targetVarieties, script_scales: preferences.scriptScales ?? {},
     target_language: conversation.languageId, target_variety: conversation.settings.varietyId,
     native_language: conversation.settings.explanationLanguage,
@@ -133,6 +134,13 @@ export function saveSettings(settings: Settings, baseline?: Settings): Promise<v
       }
       const merged = { ...fresh }
       for (const key of Object.keys(settings) as (keyof Settings)[]) {
+        if (key === 'execution' && settings.execution && baseline.execution && fresh.execution) {
+          merged.execution = { ...fresh.execution }
+          for (const feature of Object.keys(settings.execution) as (keyof typeof settings.execution)[]) {
+            if (settings.execution[feature] !== baseline.execution[feature]) merged.execution[feature] = settings.execution[feature]
+          }
+          continue
+        }
         if (key !== 'scope' && JSON.stringify(settings[key]) !== JSON.stringify(baseline[key])) Object.assign(merged, { [key]: settings[key] })
       }
       try { await writeSettings(merged); return }
@@ -171,7 +179,7 @@ async function writeSettings(settings: Settings): Promise<void> {
   const practice = { ...conversation.settings, explanationLanguage: settings.native_language, varietyId: settings.target_variety, explanationVarietyId: settings.native_variety,
     autoSend: settings.auto_send, readAloud: settings.auto_speak, speechVoice: conversation.settings.speechVoice,
     translation: settings.auto_translate, pronunciation: settings.always_pronunciation, romanization: settings.always_romanize }
-  const preferences = { ...snapshot.learner.preferences, interfaceLocale: settings.interface_locale,
+  const preferences = { ...snapshot.learner.preferences, ...(settings.execution ? { execution: settings.execution } : {}), interfaceLocale: settings.interface_locale,
     ...(settings.native_language !== conversation.settings.explanationLanguage || settings.native_variety !== conversation.settings.explanationVarietyId ? { explanationLanguage: settings.native_language, explanationVarietyId: settings.native_variety } : {}),
     targetVarieties: settings.target_variety !== conversation.settings.varietyId && settings.target_language === conversation.languageId ? { ...snapshot.learner.preferences.targetVarieties, [settings.target_language]: settings.target_variety } : snapshot.learner.preferences.targetVarieties, textSize: settings.text_size, textSpacing: settings.text_spacing, ...(settings.theme ? {theme:settings.theme} : {}), ...(settings.appearance ? {appearance:settings.appearance} : {}) }
   const practiceChanged = JSON.stringify(practice) !== JSON.stringify(conversation.settings)

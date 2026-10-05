@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: coordinating_action
+guidance: Requests can use μπορείτε να with a person-marked action, or other polite
+  constructions; second-person plural may address one person respectfully. This request role
+  does not require a literal inquiry into ability. Offers and invitations may ask whether the
+  listener wants an object or wants to join an action with θέλετε να. A first-person plural να
+  question can propose doing something together. Θα with an undertaking can commit the speaker
+  to a task, but an ordinary future forecast is not necessarily a commitment. Acceptance or
+  refusal must respond to an identifiable proposal; ναι, ευχαριστώ can accept contextually
+  without repeating it. Negotiation may state availability, a competing time and a question that
+  seeks agreement. For example, την Παρασκευή δεν μπορώ· να έρθω το Σάββατο; proposes an
+  alternative to the original arrangement. Quoting παρακαλώ as vocabulary without requesting or
+  offering anything is absent. Politeness choices vary with the relationship; ordinary singular
+  address between familiar people is not inherently erroneous or unsuccessful coordination.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+    - archakis_el_politeness2026
+    - triantafyllides_el_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

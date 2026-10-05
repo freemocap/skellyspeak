@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: time_events
+guidance: Assess current, past and future events, duration or recurrence, sequence and event
+  phase. Past conjugation can locate an event before the speech time; future particles combine
+  with a suitable verb form. Time adverbs and the exchange can establish reference without a
+  unique mandatory tense marker. Frequency requires a recurring interval or equivalent context.
+  Finishing an activity is event-phase evidence, whereas a past event alone need not entail
+  completion. An answer meaning yesterday can succeed after a clear when-question. A copied time
+  word with no recoverable event is absent. Do not demand English progressive auxiliaries or
+  overt subject pronouns. Evaluate verbal prefixes, aspect and negation within the selected
+  variety; do not mistake a legitimate colloquial form for broken Modern Standard Arabic.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Evaluate past, habitual b-prefixed forms, progressive عَمْ and future رَحْ in context.
+      Progressive patterns and prefix vowels vary regionally. Examples use Southern Levantine
+      first-person future forms; do not require one regional realization throughout the Levant.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Evaluate past and imperfect morphology, contextual time and future سَـ or سَوْفَ. Do not
+      demand an explicit pronoun when conjugation supplies the subject. Formal agreement depends
+      on the actual construction.
+    provenance: *a1

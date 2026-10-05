@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: "Θέλω can take a να clause for a wanted action. The following verb expresses its
+      own person and number: here να μάθω says that the speaker wants to learn. This
+      construction is not a bare, invariant infinitive."
+    examples:
+      - text: Θέλω να μάθω να φτιάχνω ποδήλατα.
+        meaning: I want to learn to repair bicycles.
+        note: The first να clause names the desired learning; να φτιάχνω names the skill to be learned.
+          No overt εγώ is needed.
+  - subskill_id: preferences
+    explanation: With μου αρέσει or μου αρέσουν, the liked thing is the grammatical subject. The
+      verb is singular or plural according to that thing, while μου identifies the person who
+      likes it. Προτιμώ can instead state a choice between alternatives.
+    examples:
+      - text: Μου αρέσουν οι ήσυχοι δρόμοι.
+        meaning: I like quiet streets.
+        note: Οι ήσυχοι δρόμοι is plural, so the verb is αρέσουν. Μου identifies the speaker as
+          experiencer; it is not a possessive pronoun here.
+  - subskill_id: emotions
+    explanation: A lexical verb can express an emotion directly. Φοβάμαι means I am afraid of or
+      fear something, with its object in the accusative. It uses a middle/passive form but does
+      not describe an external agent acting on the speaker.
+    examples:
+      - text: Φοβάμαι τα μεγάλα σκυλιά.
+        meaning: I am afraid of large dogs.
+        note: The sentence states the speaker’s fear. Τα μεγάλα σκυλιά identifies what causes it; it
+          does not make a claim that those dogs are actually dangerous.
+  - subskill_id: opinions
+    explanation: Νομίζω ότι introduces what the speaker thinks is the case. The proposition after
+      ότι supplies the viewpoint. This differs from σκέφτομαι used for thinking about a person
+      or considering an action.
+    examples:
+      - text: Νομίζω ότι αυτή η διαδρομή είναι πιο ασφαλής.
+        meaning: I think this route is safer.
+        note: Αυτή η διαδρομή is the subject of είναι. The comparison can use a route already mentioned
+          as its standard; the sentence marks the safety judgement as the speaker’s view.
+  - subskill_id: agreement_disagreement
+    explanation: Συμφωνώ and διαφωνώ express agreement and disagreement. Με can specify the opinion,
+      proposal or person involved. The object or preceding claim makes clear whether you are
+      aligning with a viewpoint or agreeing to a practical arrangement.
+    examples:
+      - text: Διαφωνώ με αυτή την πρόταση.
+        meaning: I disagree with this proposal.
+        note: Με αυτή την πρόταση explicitly identifies the target of disagreement. A reply to a
+          proposed itinerary might also negotiate a plan; context determines that additional
+          role.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - triantafyllides_el_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

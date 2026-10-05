@@ -6,6 +6,7 @@ export interface Shortcuts {
 }
 
 export interface Settings {
+  execution?: import('./generated/contracts').ExecutionPreferences
   appearance?: import('./generated/contracts').AppearancePreferences
   theme?: 'light' | 'dark' | 'system'
   scope?: { sessionId: string; conversationId: string; settingsRevision: number; learnerRevision: number; rewardRevision: number }
@@ -65,6 +66,7 @@ export type PersonaReaction = import('./generated/contracts').PartnerReaction
 /// ConversationPage is this plus `pendingText`, the streaming buffer, which is
 /// transient by definition and never written to disk.
 export interface StoredTurn {
+  userMessageId?: string
   replyState?: import('./domain/conversation/reply-state').ReplyState
   /// The turn's recorded operations and attempts, for live activity.
   execution?: import('./generated/contracts').TurnView

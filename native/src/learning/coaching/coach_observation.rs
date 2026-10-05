@@ -72,7 +72,7 @@ pub(crate) fn validate_captured(
     if output.text.len() > 32768 {
         return Err(rejected("output exceeds 32768 bytes"));
     }
-    if kind != "coach_feedback" && kind != "coach_reaction" {
+    if kind != "coach_feedback" {
         return Err(rejected("unknown observation kind"));
     }
     let mut observation = crate::diagnostics::structured::decode::<CoachObservation>(

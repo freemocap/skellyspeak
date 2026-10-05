@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: managing_conversation
+guidance: Recognize opening or closing, acknowledgement, clarification, rephrasing, correction
+  of misunderstanding and turn or topic management. Slán go fóill closes contact. Tuigim anois
+  acknowledges understanding without necessarily agreement. Abair é sin arís, le do thoil
+  requests repetition of a prior contribution. Is é sin le rá introduces reformulation. Dé
+  Sathairn atá i gceist agam, ní Dé hAoine corrects an interpreted day. Maidir leis an gcéad
+  cheist eile frames a topic transition. A quoted greeting in a vocabulary list is absent as
+  conversational work. A short tuigim can acknowledge a clear explanation contextually. Do not
+  require long sentences, invent missing antecedents or treat every new information question as
+  repair. Judge whether the utterance manages this exchange and preserve natural mutation and
+  prepositional constructions rather than translating an English discourse marker mechanically.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_maidir2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: people_places
+guidance: Assess identification, properties, location or movement, possession or relationships,
+  and quantity or comparison. ഇത് എന്റെ വീടാണ് identifies a house; ഈ വഴി ഇടുങ്ങിയതാണ് predicates
+  a property. താക്കോൽ മേശപ്പുറത്തുണ്ട് locates an object with a spatial expression and
+  existential predicate. എനിക്ക് രണ്ട് കസേരകളുണ്ട് states possession with a dative possessor,
+  while എന്റെ marks possession inside a noun phrase. അതിനെക്കാൾ ഭാരം കുറവാണ് compares weight. A
+  route number alone does not establish a quantity relation. മേശപ്പുറത്ത് can answer an
+  identifiable where-question contextually; a copied case ending with no recoverable relation is
+  absent. Do not demand an English have verb, articles or agreement endings on every predicate.
+  Judge case and predicate choices in their own constructions. Preserve natural sandhi,
+  contemporary script and recoverable omissions instead of penalizing ordinary written
+  combinations merely because English separates the corresponding words.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: people_places
+guidance: Assess identification, qualities or states, location or movement, possession or
+  relationships, and quantity or comparison. Esta é minha colega identifies someone; as plantas
+  estão secas describes their state with feminine plural agreement. As plantas está seco,
+  intended as that ordinary description and standing alone, unsuccessfully forms it. Fica perto
+  da praça locates a place; vou à biblioteca gives a destination. Meu irmão names a family
+  relationship and tenho uma bicicleta expresses possession. Possessives agree with what is
+  possessed; dele can disambiguate an owner without changing the noun's gender. Temos três
+  caixas states an amount; caixa três may simply label a box. Mais leve que a outra compares
+  weight, whereas prefiro esta states preference. After Onde fica a biblioteca?, Perto da praça
+  can complete location contextually. Noun lists alone establish no relationship. Interpret
+  missing subjects and possessive referents from the exchange; do not reject documented
+  Brazilian existential tem merely because a formal example uses há.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_possessives2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

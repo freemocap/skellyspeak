@@ -1,11 +1,8 @@
 import { MessageSkillAnalysis } from './MessageSkillAnalysis'
 import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
-import { MixedText } from '../../../components/reading/MixedText'
-import { Markdown } from '../../../components/reading/Markdown'
 import { useI18n } from '../../../components/localization/i18n'
 import { AnalysisSentence } from './AnalysisSentence'
-import { TargetMessage } from '../../../components/reading/TargetMessage'
-import { ReadingExample } from '../../../components/reading/ReadingExample'
+import { ExplanationCards } from '../../../components/reading/ExplanationCards'
 import { SavedReadingProvider } from '../../../components/reading/SavedReadingProvider'
 import { useReadingScope } from '../../../components/reading/ReadingContext'
 import { anchoredTokenGlosses } from '../../../domain/reading/gloss-display'
@@ -101,28 +98,11 @@ export const AnalysisContent = memo(function AnalysisContent({
         {a.help?.grammar?.cards.length === 0 && lane.state === 'succeeded' && <p>{tr('Nothing to flag in this reply.')}</p>}
       </>}
       {!partnerOnly && turn.user && <MessageSkillAnalysis messageId={turn.id} source={turn.user} conversationId={conversationId} />}
-      {!replyHelp && a.mechanics.length > 0 && (
-        <>
-          <p className="sect-k">{tr("What's happening")}</p>
-          {a.mechanics.map((mech) => (
-            <div key={mech.title} className="exp">
-              <div className="exp-top">
-                <span className="exp-title">{mech.title}</span>
-                {mech.cefr && <span className="exp-cefr">{mech.cefr}</span>}
-              </div>
-              {mech.quote && <TargetMessage provenance={null} key={mech.quote} layout="passage" text={mech.quote} segments={[]} segmentsKey={mech.quote} translation={quoteTranslation(mech.quote)} romanization={null} pronunciation={null} translateLabel={null} segmentsPending={false} lookupWords status={null} annotation={null} speech={null} analysis={null} focused={false} rtl={false} />}
-              <Markdown text={mech.body} onTerm={onAsk ? term => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(mech)}`) : undefined} />
-              {mech.example && <ReadingExample text={mech.example} />}
-              {mech.contrast && (
-                <p className="exp-vs">
-                  <span>{tr("vs ")}{nativeLanguageName || tr("your language")}</span>
-                  <MixedText text={mech.contrast} />
-                </p>
-              )}
-            </div>
-          ))}
-        </>
-      )}
+      {!replyHelp && a.mechanics.length > 0 && <>
+        <p className="sect-k">{tr("What's happening")}</p>
+        <ExplanationCards cards={a.mechanics} nativeLanguageName={nativeLanguageName} translationOf={quoteTranslation}
+          onTerm={onAsk ? (term, card) => onAsk(`Explain [[${term}]] in this partner message: ${a.reply}. Saved explanation: ${JSON.stringify(card)}`) : undefined} />
+      </>}
 
     </SavedReadingProvider></MessageReadingScope>
   )

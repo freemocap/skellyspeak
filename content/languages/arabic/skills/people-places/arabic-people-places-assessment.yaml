@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: people_places
+guidance: Assess identification, descriptions, location or movement, possession or
+  relationships, and quantity or comparison. A present nominal sentence may identify or describe
+  without an overt be verb. A preposition with a suffixed possessor can express having; an
+  attached possessive suffix can identify whose object it is. Comparison needs a recoverable
+  standard or ordered alternatives, not merely a route number. A place phrase answering a
+  where-question can succeed contextually. A copied demonstrative with no identifiable referent
+  or relation is absent. Judge gender, number, definiteness and construction choices against the
+  selected variety. Do not demand English articles or a have verb, and do not require Modern
+  Standard case endings in Levantine conversation. Clear unsuccessful realization is not
+  successful group evidence; ordinary subject omission is not itself failure.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Use conversational demonstratives and possessive constructions. Examples use Southern
+      Levantine forms such as هَادْ and هَايْ; other established regional forms are valid. Do
+      not import the formal nominative dual ending or formal case vowels into colloquial
+      assessment.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Use Modern Standard demonstratives, agreement and case where the written or spoken
+      register makes them relevant. Distinguish a definite noun plus indefinite predicate from a
+      definite attributive adjective. Pausal pronunciation is not automatically an error.
+    provenance: *a1

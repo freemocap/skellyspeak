@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: coordinating_action
+subskills:
+  - id: requests
+    name: Requests
+    purpose: Ask another participant to do or stop doing something.
+    positive_evidence: Seeks action from the addressee, whether direct, indirect or politely framed.
+    counterexample: A genuine question about capability that seeks only information.
+    context: contribution
+    boundary: "Assess the intended response: action rather than merely an answer about the world."
+    neighbors:
+      - ability
+      - asking_information
+      - wants_intentions
+  - id: offers_invitations
+    name: Offers and invitations
+    purpose: Propose one's help or another participant's involvement.
+    positive_evidence: Offers to act for someone or invites them to participate.
+    counterexample: A report of availability without an offer or invitation in context.
+    context: contribution
+    boundary: An offer makes one's action available; a commitment undertakes it. An invitation differs
+      from asking a favor.
+    neighbors:
+      - commitments
+      - requests
+      - suggestions
+  - id: suggestions
+    name: Suggestions
+    purpose: Put forward a possible course of action for consideration.
+    positive_evidence: Recommends or proposes an action without treating it as already agreed.
+    counterexample: A prediction about what will happen without a recommendation.
+    context: contribution
+    boundary: A suggestion need not be a request; negotiating a plan requires responding to constraints
+      or proposals.
+    neighbors:
+      - requests
+      - negotiating_plans
+      - offers_invitations
+  - id: commitments
+    name: Commitments
+    purpose: Undertake responsibility for a future action.
+    positive_evidence: Promises, agrees to undertake or confirms responsibility for an action.
+    counterexample: A statement of desire, ability or future prediction without undertaking responsibility.
+    context: contribution
+    boundary: Future reference can accompany commitment, but chronology alone does not establish a promise.
+    neighbors:
+      - wants_intentions
+      - future_events
+      - accepting_declining
+  - id: accepting_declining
+    name: Accepting and declining
+    purpose: Respond to a request, offer, invitation or proposed action.
+    positive_evidence: Accepts, refuses or qualifies participation in an identifiable action proposal.
+    counterexample: Agreeing with a factual opinion without an action proposal.
+    context: exchange
+    boundary: Interpret the response relative to the proposal; a polite acknowledgment may leave
+      acceptance unresolved.
+    neighbors:
+      - agreement_disagreement
+      - acknowledging
+      - negotiating_plans
+  - id: negotiating_plans
+    name: Negotiating a plan
+    purpose: Adjust proposed action to reconcile participants' needs or constraints.
+    positive_evidence: Counters, revises or settles a plan in response to an identifiable proposal or constraint.
+    counterexample: An isolated suggestion with no coordination of alternatives or constraints.
+    context: exchange
+    boundary: Mentioning a condition alone is not negotiation; identify the plan and the adjustment.
+    neighbors:
+      - suggestions
+      - accepting_declining
+      - conditions
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

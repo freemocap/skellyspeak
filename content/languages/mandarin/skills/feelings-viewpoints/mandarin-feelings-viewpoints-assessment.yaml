@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: feelings_viewpoints
+guidance: Assess desire, preference, emotion, personal judgment and agreement. 我想学修自行车 expresses
+  a desire with 想 before an action, while 想 followed by a person can instead concern missing or
+  thinking about them. 我更喜欢红茶 expresses preference; 我很高兴 expresses emotion without an English
+  copula. 我觉得这个办法不错 marks a judgment. 我也这么想 can align with an identifiable opinion, but 我明白了 may
+  only acknowledge comprehension. 红茶 can choose the preferred drink contextually after a
+  preference question; a drink name in a list is not automatically liking. A copied 喜欢 without a
+  recoverable experiencer or object is absent. A neutral factual report does not become opinion
+  merely because it is asserted. Distinguish wanting an action from offering or promising it.
+  Correct stance expression survives unrelated errors, and assess constructions rather than
+  demanding pronouns or 的 where ordinary Mandarin permits omission.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

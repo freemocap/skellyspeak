@@ -13,6 +13,9 @@ pub(super) fn apply(store: &mut Store, action: Action) -> Receipt {
 pub(super) fn setup() -> (tempfile::TempDir, Store, String) {
     let dir = tempfile::tempdir().unwrap();
     let mut store = Store::open(&dir.path().join("test.sqlite3")).unwrap();
+    // Lifecycle suites explicitly exercise automatic assistance. Default and
+    // on-demand policies have their own activation tests.
+    store.connection.execute("UPDATE learner SET preferences=json_set(preferences,'$.execution',json(?1))", [serde_json::json!({"assessment":"automatic","replyBrief":"automatic","reading":"automatic"}).to_string()]).unwrap();
     store
         .connection
         .execute(
@@ -268,7 +271,7 @@ pub(super) fn fixture_evidence(store: &Store, turn: &str, _wording: &str) {
         .map(|s| {
             (
                 s.id.clone(),
-                if s.id == "questions_answers" {
+                if s.id == "information_exchange" {
                     crate::learning::practice::Presence::Direct
                 } else {
                     crate::learning::practice::Presence::Absent
@@ -284,7 +287,7 @@ pub(super) fn fixture_evidence(store: &Store, turn: &str, _wording: &str) {
         &presence.keys().cloned().collect(),
     )
     .unwrap();
-    let value = serde_json::json!({"adapter":"jev_choice","answers":{"questions_answers":{"choice":"direct","confidence":1.0,"probabilities":{"direct":1.0,"contextual":0.0,"absent":0.0,"unclear":0.0}}}});
+    let value = serde_json::json!({"adapter":"jev_choice","answers":{"information_exchange":{"choice":"direct","confidence":1.0,"probabilities":{"direct":1.0,"contextual":0.0,"absent":0.0,"unclear":0.0}}}});
     tx.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3),state='succeeded' WHERE id=?1",params![turn,value.to_string(),attempt]).unwrap();
     crate::learning::rewards::publish(&tx, turn, &attempt).unwrap();
     tx.execute(
@@ -305,7 +308,7 @@ pub(super) fn wave2_context(store: &Store, turn: &str) -> serde_json::Value {
 }
 
 pub(super) fn wave2_error(quote: &str) -> serde_json::Value {
-    serde_json::json!({"construct":"questions_answers","quote":quote,"outcome":"partial","rationale":"Use está to ask how someone is.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"","elicitation":"","metalinguistic":""}})
+    serde_json::json!({"construct":"information_exchange","quote":quote,"outcome":"partial","rationale":"Use está to ask how someone is.","error":{"op":"missing","category":"AUX","source":"unknown","blocks_meaning":true,"target_hypothesis":"¿Cómo está tu hermana?","hint":"","elicitation":"","metalinguistic":""}})
 }
 
 pub(super) fn wave2_observe(

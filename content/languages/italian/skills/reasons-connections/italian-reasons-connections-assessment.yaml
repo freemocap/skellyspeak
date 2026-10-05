@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: reasons_connections
+guidance: "Assess reasons, consequences, contingencies, contrast and grounds for a claim. Prendo
+  l'autobus perché piove states a reason; perché alone copied from a list states none. Il ponte
+  è chiuso, quindi cambiamo strada presents a consequence rather than mere chronological order.
+  Se domani piove, rimandiamo la passeggiata establishes an open condition with indicative
+  forms. Italian may also use future forms in suitable open conditions; do not import a
+  different language's tense restriction. Il percorso è breve, ma ripido presents opposed
+  properties. Questa officina è affidabile: consegna sempre in tempo links a judgment to
+  supporting experience, without proving it beyond doubt. After Perché prendi l'autobus?, Piove
+  can supply the reason contextually without spelling out the causal relationship. Distinguish
+  perché as why in a question from because introducing grounds, and se as whether from a genuine
+  contingency. A grammatical connector attached to unrelated statements is not automatically a
+  successful logical connection; inspect the relationship conveyed."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_causal2026
+    - treccani_it_conditions2026
+    - treccani_it_connectives2026
+    - zanichelli_it_comparison2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, necessity, possibility and certainty. Tá mé in ann
+  snámh expresses capability. An bhfuil cead agam an mála a fhágáil anseo? explicitly asks
+  permission, whereas is féidir constructions can concern ability or practical possibility.
+  Caithfidh mé an eochair a thabhairt ar ais states obligation; ní gá dom removes necessity
+  rather than forbidding action. B’fhéidir go mbeidh sé ag cur báistí presents a possible
+  outcome. Nílim cinnte limits confidence. Tá in reply to a clear cead question can grant
+  permission contextually. A copied modal phrase with no recoverable action is absent. A polite
+  an féidir request does not automatically assert physical ability. Multiple plausible
+  successful modal readings within this group are not alone grounds for unclear. Preserve the
+  relevant prepositional pronouns, verbal-noun order and dependent verb forms without demanding
+  an English modal-plus-bare-verb structure.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_cead2026
+    - teanglann_caith2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

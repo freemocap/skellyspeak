@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, obligation, possibility and confidence. Capability and
+  permission can share an expression, with the exchange identifying which is intended. A
+  deadline can ground an obligation. A possibility expression weakens commitment to a
+  proposition, while uncertainty wording reports limited confidence. A contextual grant of
+  permission can be short. A copied modal without a recoverable action or proposition is absent.
+  A polite ability-shaped request does not necessarily assert the listener’s skill. Do not turn
+  ambiguity between two successful subtypes within this group into uncertainty about whether any
+  group function occurred. Distinguish prohibition, inability and lack of necessity. Evaluate
+  negation and following verb forms in the selected variety, and do not require a formal modal
+  construction in colloquial speech.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Recognize بَقْدَرْ, مُمْكِنْ, لَازِمْ and colloquial confidence predicates. Northern forms
+      such as فِينِي can also express capability; do not restrict the whole declared Levantine
+      variety to the Southern examples.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Recognize formal capability, permission and necessity constructions, including the
+      following subordinate verb. Evaluate لَيْسَ inflection in nominal negation without
+      demanding its use in every negative sentence.
+    provenance: *a1

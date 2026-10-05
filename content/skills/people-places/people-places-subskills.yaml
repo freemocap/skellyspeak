@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: people_places
+subskills:
+  - id: identification
+    name: Identification
+    purpose: Establish who or what a referent is.
+    positive_evidence: Names or distinguishes a referent, including a contextually identifying short answer.
+    counterexample: A bare noun in a copied vocabulary list does not identify a referent in an exchange.
+    context: contribution
+    boundary: Naming is not automatically describing a quality or locating an event in time.
+    neighbors:
+      - qualities_states
+      - answering_information
+  - id: qualities_states
+    name: Qualities and states
+    purpose: Describe a referent's properties or condition.
+    positive_evidence: Attributes a quality or state to an identifiable referent.
+    counterexample: Mentioning a person without saying anything about their properties.
+    context: contribution
+    boundary: A current state does not separately establish temporal skill unless present-time meaning
+      matters.
+    neighbors:
+      - identification
+      - present_events
+  - id: location_movement
+    name: Location and movement
+    purpose: Locate referents and describe spatial relations or paths.
+    positive_evidence: Expresses where something is or how it moves relative to a place or reference point.
+    counterexample: Naming a place as a title without locating anything there.
+    context: contribution
+    boundary: A spatial path is distinct from the temporal ordering of events.
+    neighbors:
+      - identification
+      - event_sequence
+  - id: possession_relations
+    name: Possession and relationships
+    purpose: Express ownership, association or interpersonal relationships.
+    positive_evidence: Relates participants or things through possession, kinship, association or belonging.
+    counterexample: Listing two people without relating them.
+    context: contribution
+    boundary: Association and access do not establish legal ownership; describe the relation actually
+      expressed.
+    neighbors:
+      - identification
+      - qualities_states
+  - id: quantity_comparison
+    name: Quantity and comparison
+    purpose: Express amounts, proportions or comparative relationships.
+    positive_evidence: Specifies a quantity or compares referents along an identifiable dimension.
+    counterexample: A number used only as an identifier, such as a bus route.
+    context: contribution
+    boundary: Comparison requires a scale or relation; describing one quality alone is not comparison.
+    neighbors:
+      - qualities_states
+      - duration_frequency
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

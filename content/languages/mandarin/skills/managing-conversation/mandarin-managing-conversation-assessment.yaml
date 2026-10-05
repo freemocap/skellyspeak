@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: managing_conversation
+guidance: Recognize contact opening or closing, acknowledgment, clarification, reformulation,
+  correction and topic or floor management. 下次见 can take leave in an encounter, while quoting it
+  as vocabulary does not. 我明白了 registers comprehension without necessarily endorsing an opinion.
+  请再说一遍 requests repetition after unclear speech; 你说的是什么意思 asks about interpretation. 换句话说
+  introduces a reformulation only when the following words clarify the same prior meaning.
+  我说的是周六，不是周五 corrects a misunderstood day. 说到交通 can link a new contribution to a relevant
+  topic, while 我想换个话题 explicitly proposes a topic change. A copied 换句话说 without any
+  reformulation is absent. Short 好 or 对 responses require their preceding contribution to
+  distinguish acknowledgment, factual agreement and action acceptance. Do not require subjects
+  where referents are available or reward every question as conversational repair.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

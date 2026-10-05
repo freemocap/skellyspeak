@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: __REVISION__
+skill_id: __SKILL_ID__
+subskills:
+  - id: __SUBSKILL_ID__
+    name: __SUBSKILL_NAME__
+    purpose: __FUNCTION__
+    positive_evidence: __POSITIVE_EVIDENCE__
+    counterexample: __COUNTEREXAMPLE__
+    context: contribution
+    boundary: __BOUNDARY__
+    neighbors:
+      - __NEIGHBOR_SUBSKILL_ID__
+provenance:
+  origin: ai
+  authorship: __AUTHORSHIP__
+  sources:
+    - __CITATION_KEY__
+  generation: null
+  review:
+    status: needs_review
+    revision: __REVISION__
+    scope: __REVIEW_SCOPE__

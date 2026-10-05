@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: people_places
+guidance: Look for identification, attributes, spatial relations, possession and comparison or
+  quantity. Ini teman saya identifies a person without obligatory adalah; kamar ini terang
+  predicates an adjective without English be. Di locates, ke marks a destination, and dari gives
+  an origin. Keep the separate preposition di distinct from the verbal prefix di-. Saya punya
+  tiga kotak expresses possession and count; kotak saya identifies the possessor after the noun.
+  Lebih ringan daripada compares a property, whereas saya lebih suka selects a preference. A
+  numbered label such as bus tiga need not quantify three buses. A copied noun list with no
+  identifiable relation is absent. Di sebelah pintu can answer a where-question contextually. Do
+  not require plural reduplication after a number or grammatical gender agreement. Indonesian
+  has meaningful word order and morphology despite lacking English inflection; assess the
+  construction actually used. Register-appropriate punya is not invalid merely because mempunyai
+  appears in formal teaching.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

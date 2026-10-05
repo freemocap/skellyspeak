@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: reasons_connections
+guidance: Assess reasons, consequences, conditions, contrast and evidential support. Тому що
+  introduces a reason; тому can introduce a consequence. Якщо завтра піде дощ, ми залишимося
+  вдома makes staying home conditional and legitimately uses future forms in both clauses. Якби
+  with conditional forms presents a different, hypothetical relation; do not collapse every
+  condition into an English tense template. Але contrasts properties. Спочатку and потім
+  establish order without necessarily establishing cause. Light in a window can support an
+  inference of occupancy rather than cause it. Тому що пішов дощ can answer a specific
+  why-question contextually. A copied connector without recoverable linked propositions is
+  absent. Check whether evidence supports the actual claim, and distinguish a condition from an
+  already asserted cause. Unrelated mistakes do not erase a correctly expressed relationship.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_conditions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

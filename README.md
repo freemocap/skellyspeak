@@ -683,7 +683,7 @@ and requires the ignored `server/local.env` OpenRouter key.
 
 ## Adding languages
 
-See the [language content guide](content/README.md) for typed YAML authoring,
+See the [language content guide](content/CONTENT_README.md) for typed YAML authoring,
 local/shared definitions and inspection. The app bundles teaching content;
 workspace data contains learner preferences and history. Learning-language IDs
 use readable names and are independent of browser locales and UI translations.
@@ -706,7 +706,7 @@ with changes applying to subsequent turns. Preview and actual requests share the
 same native composer; editable prose lives under `content/prompts/conversation/`.
 
 The active prompt source is
-[`content/prompts/conversation/instructions.yaml`](content/prompts/conversation/instructions.yaml).
+[`content/prompts/conversation/`](content/prompts/conversation/).
 When persona background is enabled, the native composer keeps name, location,
 occupation and age (when provided), then samples 1–3 secondary details from
 background, current situation, manner, interests, opinions, interesting facts,
@@ -731,8 +731,8 @@ evidence and conversation rewards remain. See the
 for scope and verification.
 
 Variety support uses separate target and explanation choices, plus an independent
-interface locale. See the [content guide](content/README.md).
-Workspace format **46** supports automatic upgrades from format **45** onward.
+interface locale. See the [content guide](content/CONTENT_README.md).
+Workspace format **47** supports automatic upgrades from format **45** onward.
 Every stored-format change includes a consecutive migration; app releases do not
 necessarily change the database format. Startup retains a local recovery copy and
 upgrades the complete chain in one transaction, preserving learner history.

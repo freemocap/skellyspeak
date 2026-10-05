@@ -30,10 +30,12 @@ impl DefinitionRef {
     pub fn source(&self, language: &str, collection: &str) -> String {
         match self {
             Self::Local { local } => {
-                format!("languages/{language}.yaml#definitions.{collection}.{local}")
+                format!(
+                    "languages/{language}/{language}-language.yaml#definitions.{collection}.{local}"
+                )
             }
             Self::Shared { shared } => {
-                format!("shared/language-foundations.yaml#{collection}.{shared}")
+                format!("language-foundations/language-foundations.yaml#{collection}.{shared}")
             }
         }
     }
@@ -53,19 +55,7 @@ impl RomanizationSelection {
     }
 }
 
-document!(LanguageDocument {
-    schema_version: u32,
-    identity: LanguageIdentity,
-    integrations: Integrations,
-    definitions: Definitions,
-    defaults: LanguageDefaults,
-    traits: Vec<String>,
-    varieties: Vec<VarietyDocument>,
-    guidance: Vec<Guidance>,
-    learning: LearningContent,
-    conversation: ConversationContent,
-    practice: super::practice::PracticeContent,
-});
+pub type LanguageDocument = super::authoring::Language;
 document!(LanguageIdentity {
     id: LanguageId,
     name: String,
@@ -125,22 +115,13 @@ pub struct VarietyOverrides {
     #[serde(default)]
     pub integrations: Integrations,
 }
-document!(LearningContent {
-    goal_material: BTreeMap<String, GoalMaterial>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    skills: Vec<super::skills::Skill>,
-    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
-    skill_guides: BTreeMap<String, super::skills::Guide>
-});
-document!(GoalMaterial { tokens: Vec<String> });
 document!(ConversationContent {
     default_partner: crate::model::PersonaDetails,
     greeting: GreetingContent
 });
 document!(
 /// The greeting the start surface offers as a first thing to say. Display
-/// content with one canonical wording, kept apart from `goal_material`, which is
-/// retrieval data for the learning system and whose token order means nothing here.
+/// content with one canonical wording.
 GreetingContent {
     text: String,
     /// Keyed by romanization scheme key, as ConversationTopic::romanizations is.
@@ -174,5 +155,5 @@ document!(ConversationPromptContent {
     base: String, persona: String, interaction: String,
     examples_intro: String, examples: BTreeMap<String, String>, opening_angles: Vec<String>,
     difficulty: BTreeMap<String,String>, ceiling: String,
-    coach_focus: String, past: String, future: String, opening: String, response: String, subject: String
+    coach_focus: String, past: String, future: String, opening: String, phrase_opening: String, response: String, subject: String
 });

@@ -18,6 +18,19 @@ function passage(overrides: Partial<TargetMessageProps> & Pick<TargetMessageProp
     segmentsPending: false, lookupWords: true, status: null, annotation: null, speech: null, analysis: null, focused: false, rtl: false, provenance: null, ...overrides }
 }
 
+it('uses durable owner requests for missing aids without a generic lookup or a mount request', async () => {
+  const words = vi.fn().mockResolvedValue(undefined), translation = vi.fn().mockResolvedValue(undefined)
+  const lookup = vi.fn()
+  render(<ReadingLookupContext value={lookup}><TargetMessage {...passage({ text: 'Hola', lookupWords: false, onRequestWords: words, onRequestTranslation: translation })} /></ReadingLookupContext>)
+  expect(words).not.toHaveBeenCalled(); expect(translation).not.toHaveBeenCalled()
+  openMenus()
+  fireEvent.click(screen.getByRole('button', { name: 'Words' }))
+  await waitFor(() => expect(words).toHaveBeenCalledOnce())
+  fireEvent.click(screen.getByRole('button', { name: 'Translate' }))
+  await waitFor(() => expect(translation).toHaveBeenCalledOnce())
+  expect(lookup).not.toHaveBeenCalled()
+})
+
 it('shows requested missing word help on the first click with always-visible aids off', async () => {
   const read = vi.fn().mockResolvedValue({gloss:{segments:[{start:0,end:4,kind:'gloss',gloss:'hello',romanization:'roman',pronunciation:'redundant'}]}} as ReadingResult)
   const source = (enabled:boolean) => <ReadingPreferencesContext value={{autoTranslate:enabled,alwaysRomanize:enabled,alwaysPronunciation:enabled}}>

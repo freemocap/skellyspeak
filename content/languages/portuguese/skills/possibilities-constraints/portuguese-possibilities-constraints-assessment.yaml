@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: possibilities_constraints
+guidance: "Assess ability, permission, requirements, possibility and strength or limits of
+  knowledge. Sei consertar uma bicicleta expresses learned ability; posso usar esta mesa? can
+  ask permission. Tenho que devolver os livros states a requirement, whereas não preciso
+  devolver hoje removes a need and does not forbid returning them. Eu tenho devolver, intended
+  as that requirement construction and with no other successful use, omits its connecting
+  element and is unsuccessful. É possível que chova amanhã presents a possibility with a present
+  subjunctive; não sei se a biblioteca está aberta expresses a limit of knowledge with an
+  indirect question. A description of actual rain alone does not express its possibility. Sim
+  from the responsible person after Posso usar esta mesa? can grant permission contextually. Pode and posso have
+  several readings: permission, practical opportunity or ability can all establish this group
+  when correctly expressed. Subtype ambiguity alone is not unclear. Use unclear only when
+  correct group use cannot be established. A modal in a cooperative request is not automatically
+  a claim about physical capacity."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

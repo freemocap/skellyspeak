@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: managing_conversation
+language: spanish
+explanation_language: spanish
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-spanish.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Usa un saludo o una despedida en el encuentro real, no solo como una palabra citada.
+    examples:
+      - text: Hasta luego.
+        meaning: Me despido de la otra persona.
+        note: Cierra un encuentro; repetirlo en un ejercicio de vocabulario no cumple esa función.
+  - subskill_id: acknowledging
+    explanation: Indica que has recibido lo dicho o responde a un acto social. Entiendo no implica
+      necesariamente estar de acuerdo.
+    examples:
+      - text: Gracias por avisarme.
+        meaning: Agradezco que me hayas informado.
+        note: Reconoce la información útil y da las gracias.
+  - subskill_id: clarification
+    explanation: Pide que repitan o expliquen algo cuando no hayas entendido la intervención anterior.
+    examples:
+      - text: ¿Qué quieres decir?
+        meaning: Pido que expliques lo que intentas comunicar.
+        note: Se pide explicar una intervención poco clara, no comprobar un dato ya entendido.
+  - subskill_id: rephrasing
+    explanation: Quiero decir introduce otra forma de expresar lo que intentabas comunicar.
+    examples:
+      - text: Quiero decir que llego después de las ocho.
+        meaning: Aclaro que mi llegada será después de las ocho.
+        note: En una secuencia de aclaración, reformula la hora de llegada.
+  - subskill_id: correcting_misunderstanding
+    explanation: Contrasta la interpretación equivocada con lo que querías decir.
+    examples:
+      - text: No, me refiero al martes, no al jueves.
+        meaning: El día que quería indicar era el martes.
+        note: Corrige qué día entendió la otra persona.
+  - subskill_id: turns_topics
+    explanation: Usa una expresión de transición o de gestión de turnos al cambiar la dirección de la
+      conversación.
+    examples:
+      - text: Por cierto, ¿cómo está tu hermana?
+        meaning: Introduzco una pregunta sobre tu hermana.
+        note: Por cierto señala un cambio de tema.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

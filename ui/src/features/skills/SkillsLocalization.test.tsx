@@ -10,36 +10,35 @@ import { SkillEvidenceRecord } from './evidence/SkillEvidenceRecord'
 import type { SkillRecord } from '../../domain/learning/evidence/skills'
 
 it.each(Object.keys(LOCALES))('renders translated categories, skill labels and criteria in %s', locale => {
-  const node = skillDemo.catalog.find(item => item.id === 'identify_describe')!
+  const node = skillDemo.catalog.find(item => item.id === 'people_places')!
   render(<I18nProvider locale={locale}><SkillList snapshot={skillDemo} onSelect={vi.fn()} /><SkillOverview node={node} snapshot={skillDemo} /></I18nProvider>)
   expect(screen.getByRole('heading', { name: t(locale, node.label) })).toBeVisible()
   expect(screen.getByText(t(locale, node.criterion))).toBeVisible()
-  expect(screen.getByRole('option', { name: t(locale, 'People and things') })).toHaveValue('people_things')
-  expect(screen.getAllByRole('progressbar').length).toBe(12)
+  expect(screen.getByRole('option', { name: t(locale, 'People, things, and places') })).toHaveValue('people_places')
+  expect(screen.queryAllByRole('progressbar')).toHaveLength(0)
 })
 it('switches labels and number formatting without resetting selection or changing evidence', () => {
   const snapshot = structuredClone(skillDemo)
-  snapshot.profile.skills.find(item => item.skill_id === 'quantity')!.xp = 1234
+  snapshot.profile.skills.find(item => item.skill_id === 'possibilities_constraints')!.xp = 1234
   const original = structuredClone(snapshot)
   const select = vi.fn()
-  const view = render(<I18nProvider locale="german"><SkillList snapshot={snapshot} selected="quantity" onSelect={select} /></I18nProvider>)
-  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'people_things' } })
+  const view = render(<I18nProvider locale="german"><SkillList snapshot={snapshot} selected="possibilities_constraints" onSelect={select} /></I18nProvider>)
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'possibilities_constraints' } })
   expect(screen.getByText('1.234 XP')).toBeVisible()
-  expect(screen.getByText('Menge ausdrücken')).toBeVisible()
-  view.rerender(<I18nProvider locale="arabic"><SkillList snapshot={snapshot} selected="quantity" onSelect={select} /></I18nProvider>)
-  expect(screen.getByRole('combobox')).toHaveValue('people_things')
-  expect(screen.getByText('التعبير عن الكمية')).toBeVisible()
-  const row = document.querySelector('[data-reward-skill="quantity"]')!
+  expect(screen.getByRole('button', { name: /Möglichkeiten und Einschränkungen/ })).toBeVisible()
+  view.rerender(<I18nProvider locale="arabic"><SkillList snapshot={snapshot} selected="possibilities_constraints" onSelect={select} /></I18nProvider>)
+  expect(screen.getByRole('combobox')).toHaveValue('possibilities_constraints')
+  expect(screen.getByRole('button', { name: /الإمكانات والقيود/ })).toBeVisible()
+  const row = document.querySelector('[data-reward-skill="possibilities_constraints"]')!
   expect(row).toHaveAttribute('aria-pressed', 'true')
-  expect(row.querySelector('progress')).toHaveAttribute('value', '34')
-  expect(row.querySelector('progress')!.getAttribute('aria-valuetext')).toContain(new Intl.NumberFormat('ar').format(1234))
+  expect(row).toHaveTextContent(new Intl.NumberFormat('ar').format(1234))
   fireEvent.click(row)
-  expect(select).toHaveBeenCalledWith('quantity')
+  expect(select).toHaveBeenCalledWith('possibilities_constraints')
   expect(snapshot).toEqual(original)
 })
 it('translates assessment and assistance labels while preserving source quotations and rationale', () => {
   const snapshot = structuredClone(skillDemo)
-  const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'c', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Ese café', input: { modality: 'text', suggestion: true, scaffold: false, revision: false }, at_secs: 100, model: 'fixture', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'fixture', status: 'complete', assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Ese café'], rationale: 'Original assessment text.' }] }, error: null }
+  const record: SkillRecord = { attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'c', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Ese café', input: { modality: 'text', suggestion: true, scaffold: false, revision: false }, at_secs: 100, model: 'fixture', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'fixture', status: 'complete', assessment: { judgments: [{ skill_id: 'people_places', presence: 'direct', quotes: ['Ese café'], rationale: 'Original assessment text.' }] }, error: null }
   snapshot.records = [record]
   render(<I18nProvider locale="german"><SkillEvidenceRecord record={record} judgment={record.assessment!.judgments[0]} snapshot={snapshot}>{null}</SkillEvidenceRecord></I18nProvider>)
   expect(screen.getByText('Direkte Verwendung')).toBeVisible()

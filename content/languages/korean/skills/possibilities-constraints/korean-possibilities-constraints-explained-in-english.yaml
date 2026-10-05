@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: 을 수 있어요 with a verb stem can express ability. The bound noun 수 is spaced separately
+      in ordinary writing.
+    examples:
+      - text: 간단한 고장은 고칠 수 있어요.
+        meaning: I can fix simple faults.
+        note: 고칠 수 있어요 describes practical capability. 은 makes simple faults the topic or scope of that
+          claim.
+  - subskill_id: permission
+    explanation: 아도 or 어도 followed by 돼요 can ask whether an action is allowed. The listener’s role
+      supplies the authority to grant it.
+    examples:
+      - text: 여기에 자전거를 세워도 돼요?
+        meaning: May I park my bicycle here?
+        note: 세워도 comes from 세우다. Ask the person responsible for the space.
+  - subskill_id: obligation
+    explanation: 아야 or 어야 with 해요 states an action that is required. The requirement is distinct
+      from a desire.
+    examples:
+      - text: 오늘 이 책을 돌려줘야 해요.
+        meaning: I have to return this book today.
+        note: 돌려줘야 해요 states the duty; 오늘 supplies its timing. It does not say the book has already been
+          returned.
+  - subskill_id: possibility
+    explanation: 을 수도 있어요 can present an event as one possible outcome. It is not always a statement
+      of someone’s practical skill.
+    examples:
+      - text: 오후에 비가 올 수도 있어요.
+        meaning: It may rain in the afternoon.
+        note: 비가 올 supplies the possible event. 도 helps present it as a possibility among alternatives.
+  - subskill_id: certainty
+    explanation: 확실하지 않아요 explicitly denies certainty. A topic phrase can identify which fact is uncertain.
+    examples:
+      - text: 정확한 날짜는 아직 확실하지 않아요.
+        meaning: The exact date is not yet certain.
+        note: 아직 marks the continuing uncertainty. The sentence does not claim the proposed date is
+          definitely wrong.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_permission2026
+    - htsk_tense2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

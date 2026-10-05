@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: possibilities_constraints
+guidance: Look for ability, permission, necessity, possibility and certainty or uncertainty.
+  मुझे तैरना आता है expresses knowing how to swim; stem plus सकना expresses ability or practical
+  possibility. May-I questions can use a subjunctive such as क्या मैं यहाँ बैठूँ? rather than an
+  English auxiliary. मुझे जाना है can express a requirement, while जाना चाहिए often conveys
+  advice or obligation. शायद दुकान खुली हो presents uncertainty with a subjunctive; मुझे नहीं
+  पता कि दुकान खुली है या नहीं explicitly limits knowledge. A factual description that the shop
+  is open does not by itself express possibility. मैं तैरना सकता हूँ, intended as the ordinary
+  सकना construction and alone, incorrectly uses the infinitive in place of the stem. An
+  appropriate हाँ from the responsible person can grant requested permission contextually. Where
+  a correct सकना expression supports ability or opportunity, ambiguity between those readings
+  does not make the whole group unclear. Requests do not automatically assert physical ability.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

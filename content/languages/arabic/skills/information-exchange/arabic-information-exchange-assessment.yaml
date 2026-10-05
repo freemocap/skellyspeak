@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: information_exchange
+guidance: Look for an actual information question, relevant answer, factual check or useful
+  detail. Questions can use an interrogative expression or suitable interrogative delivery;
+  English-style auxiliary inversion is not required. A clock time can answer a recoverable
+  closing-time question without repeating the event. Confirmation supplies a candidate
+  proposition and asks whether it holds. Detail must help resolve the current information need,
+  not merely lengthen a message. A copied question word without an identifiable request is
+  absent. A capability-shaped question asking the listener to do something usually coordinates
+  action rather than merely asking about capacity. A request to repeat an unheard message
+  repairs conversation. Judge question forms and short answers in the selected variety,
+  including colloquial particles and omitted material recoverable from the exchange.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Recognize colloquial questions and confirmation صَحّ. Regional alternatives such as شُو
+      and إِيشْ are legitimate; selecting one guide example does not make the other an error.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Recognize formal interrogatives and confirmation expressions. Case and word order must be
+      evaluated within the chosen question construction, without imposing English question
+      syntax.
+    provenance: *a1

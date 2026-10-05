@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and negotiation. Bu kutuyu kapıya taşıyın, lütfen requests action with a polite or
+  plural imperative. Çantanızı taşıyayım mı? offers to carry the listener’s bag. Biraz ara
+  verelim proposes a shared break. Aletleri yarın getireceğim can undertake an assigned task,
+  while an unrelated future prediction is not automatically a promise. Bugün gelemem can decline
+  an invitation; Cumartesi buluşalım proposes an alternative. Olur contextually accepts a
+  concrete proposal, not every preceding assertion. An isolated copied lütfen without a
+  recoverable action is absent. A modal question may be a request rather than a genuine ability
+  inquiry. Judge who is to act and whether a workable contribution to coordination is made,
+  allowing ordinary pronoun omission and contextually polite forms.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_optative2026
+    - tt_turkish_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

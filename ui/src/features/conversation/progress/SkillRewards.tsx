@@ -40,14 +40,10 @@ export function SkillRewards({ chatId, active }: { chatId: string | null; active
     }))
     const present = (accepted: SkillReward[]) => {
       if (!visible.current.active || !visible.current.enabled || visible.current.chatId !== chatId) return
-    const totals = new Map(baseline.snapshot.profile.skills.map(skill => [skill.skill_id, skill.xp]))
+    // Ordinary XP arrivals only; level-ups belong to the one language-level queue.
     for (const reward of accepted) {
-      const before = totals.get(reward.skillId) ?? 0
-      const after = before + reward.xp
-      totals.set(reward.skillId, after)
-      const milestone = Math.floor(after / 50) > Math.floor(before / 50) ? Math.floor(after / 50) * 50 : undefined
       const { record, evidence } = presentation.get(reward.id)!
-      arrive(evidence.map(item => ({ ...item, xp: reward.xp, milestone })), reward.messageId, record.source)
+      arrive(evidence.map(item => ({ ...item, xp: reward.xp })), reward.messageId, record.source)
     }
     setQueue(items => [...items.filter(item => snapshot.profile.credits.some(credit => `${credit.attempt_id}:${credit.skill_id}` === item.id)), ...accepted])
     }

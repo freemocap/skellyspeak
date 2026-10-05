@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: नमस्ते can establish contact or take leave. A reference to the next encounter can
+      make a closing explicit.
+    examples:
+      - text: नमस्ते, फिर मिलेंगे।
+        meaning: Goodbye; see you again.
+        note: At the end of a visit, फिर मिलेंगे looks forward to another meeting and closes the present
+          exchange.
+  - subskill_id: acknowledging
+    explanation: A response such as अच्छा with an expression of understanding acknowledges an
+      explanation. It need not endorse a judgment.
+    examples:
+      - text: अच्छा, अब समझ में आया।
+        meaning: Oh, now I understand.
+        note: Reply after a difficult point is explained. समझ में आया marks achieved comprehension.
+  - subskill_id: clarification
+    explanation: A polite imperative with दोबारा asks the partner to repeat. The preceding exchange
+      supplies what was not heard or understood.
+    examples:
+      - text: ज़रा दोबारा कहिए।
+        meaning: Please say that again.
+        note: Use this immediately after an unclear utterance. कहिए respectfully addresses the partner;
+          ज़रा softens the request.
+  - subskill_id: rephrasing
+    explanation: यानी can introduce an equivalent formulation. State the useful reformulation after
+      the marker rather than relying on the marker alone.
+    examples:
+      - text: यानी, हम शाम तक रुक सकते हैं।
+        meaning: In other words, we can stay until evening.
+        note: Rephrases a previous explanation that the group is allowed to remain for the rest of the
+          afternoon. शाम तक makes the endpoint explicit.
+  - subskill_id: correcting_misunderstanding
+    explanation: मेरा मतलब names the intended meaning; a contrast with नहीं excludes the mistaken
+      alternative. The correction can be compact.
+    examples:
+      - text: मेरा मतलब बुधवार था, मंगलवार नहीं।
+        meaning: I meant Wednesday, not Tuesday.
+        note: Say this after the listener interprets the proposed day as Tuesday. था agrees with
+          masculine मतलब.
+  - subskill_id: turns_topics
+    explanation: A first-person subjunctive question can ask for space to contribute. Its
+      conversational role is established by the current turn-taking situation.
+    examples:
+      - text: क्या मैं एक बात कहूँ?
+        meaning: May I say something?
+        note: Use this while seeking a turn in a discussion. कहूँ is first-person subjunctive, not a
+          claim about speaking ability.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

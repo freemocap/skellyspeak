@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A farewell can specify the next expected contact.
+    examples:
+      - text: До зустрічі наступного тижня!
+        meaning: See you next week!
+        note: The utterance closes the current exchange.
+  - subskill_id: acknowledging
+    explanation: Зрозуміло can acknowledge that an explanation has become clear.
+    examples:
+      - text: А, тепер зрозуміло.
+        meaning: Ah, now I understand.
+        note: Use after an explanation; understanding does not necessarily mean agreement.
+  - subskill_id: clarification
+    explanation: A polite imperative asks the other speaker to repeat something.
+    examples:
+      - text: Повторіть, будь ласка.
+        meaning: Please repeat that.
+        note: The preceding contribution supplies what needs repeating.
+  - subskill_id: rephrasing
+    explanation: Іншими словами introduces a restatement.
+    examples:
+      - text: Іншими словами, потрібно записатися заздалегідь.
+        meaning: In other words, you need to book in advance.
+        note: Use after explaining an appointment procedure.
+  - subskill_id: correcting_misunderstanding
+    explanation: Мати на увазі identifies what was intended and can replace a mistaken interpretation.
+    examples:
+      - text: Я мала на увазі суботу, не п’ятницю.
+        meaning: I meant Saturday, not Friday.
+        note: The feminine speaker corrects the day understood by the listener.
+  - subskill_id: turns_topics
+    explanation: A permission-shaped question can request movement to another topic.
+    examples:
+      - text: Можна перейти до іншого питання?
+        meaning: May we move on to another question?
+        note: The omitted actor is recoverable in a shared discussion; the requested transition concerns
+          the conversation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

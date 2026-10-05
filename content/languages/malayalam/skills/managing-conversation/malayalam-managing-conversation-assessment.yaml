@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: managing_conversation
+guidance: Recognize opening or closing, acknowledgement, clarification, rephrasing, correcting
+  misunderstanding and managing turns or topics. പിന്നെ കാണാം closes contact. ഇപ്പോൾ മനസ്സിലായി
+  acknowledges understanding without necessarily agreement. ഒന്നുകൂടി പറയാമോ? asks for
+  repetition of the preceding contribution. മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ introduces a reformulation.
+  ഞാൻ ഉദ്ദേശിച്ചത് ശനിയാഴ്ചയാണ് corrects an interpreted day. അടുത്ത ചോദ്യത്തിലേക്ക് കടക്കാമോ?
+  requests a topic transition. A quoted greeting in a vocabulary list is absent as actual
+  conversational work. ശരി may acknowledge or accept depending on the prior turn; do not assign
+  its function without context. Preserve short natural repairs and recoverable subject omission,
+  while declining to invent missing antecedents. A question about a new external fact is not
+  automatically clarification of wording. Judge the communicative action rather than the
+  presence of a particular formula.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

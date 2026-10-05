@@ -192,7 +192,7 @@ function Preview() {
   }
   useEffect(() => () => aiPlay.current.forEach(clearTimeout), [])
   const aiStatus = <div className="composer-activity"><AiStatus {...ai} onInspectLatest={() => setNotice('AI activity for the latest exchange')} /></div>
-  const [tab, setTab] = useState<'coaching' | 'evidence'>('coaching')
+  const [tab, setTab] = useState<'coaching' | 'skills'>('coaching')
   const [configOpen, setConfigOpen] = useState(false)
   const [partnerMenu, setPartnerMenu] = useState(false)
   const [quick, setQuick] = useState(PREVIEW_SETTINGS)
@@ -234,7 +234,7 @@ function Preview() {
               onResize={setReplyHelpHeight} measure={() => composer.current?.querySelector('.composer-assist .reply-help')?.getBoundingClientRect().height ?? 0} />
             {!opening &&<MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}
             <div className="ai-tray-slot" ref={surface === 'panel' ? undefined : aiTraySlot} />{aiStatus}
-            <button type="button" className="chat-coach" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openPractice('panel')}><ToolbarIcon name="idea" size={15} /><span>Coach</span></button></div>}
+            <button type="button" className="chat-coach" aria-expanded={surface === 'panel'} onClick={() => useNavigationStore.getState().openConversation('panel')}><ToolbarIcon name="idea" size={15} /><span>Coach</span></button></div>}
           <ResizeHandle className="composer-voice-resize" label="Resize the recording panel" axis="y" grow={-1} size={voiceHeight} min={150} max={640}
             measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           <ComposerInput input={input} onInput={setInput} available sending={false} recording={recording} transcribing={false} autoSend={autoSend} onAutoSend={setAutoSend} layout={recorder}
@@ -248,7 +248,7 @@ function Preview() {
   const coachPanel = (
       <section className={`break ${coach || mobile ? '' : 'collapsed'}`} ref={breakRef}>
         {!coach && !mobile && <button className="break-head" onClick={() => setCoach(true)}><ToolbarIcon name="idea" size={16} /><span>Coach</span></button>}
-        <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={mobile ? () => useNavigationStore.getState().openPractice('chat') : () => setCoach(false)} />
+        <CoachPanelTabs tab={tab} onTab={setTab} onCollapse={mobile ? () => useNavigationStore.getState().openConversation('chat') : () => setCoach(false)} />
         <CoachChatLayout hidden={tab !== 'coaching'} content={!opening && tab === 'coaching' && <>{!mobile && <MessageReadingScope scope={{language:'mandarin',variety:'mandarin-mainland',explanation:'english',explanationVariety:'english-united-states'}}><ReplyHelp {...replyHelpFixture} busy={false} errors={[]} onUse={setInput} /></MessageReadingScope>}<h3 className="coach-group-label">On your message</h3><ConversationFeedbackCard feedback={feedback} /></>} thread={<div className="coach-thread" aria-label="Coach conversation" />} composer={<form className="coach-input-row" onSubmit={event=>event.preventDefault()}><textarea className="coach-input" placeholder="Ask about a message…" aria-label="Message your coach" rows={2}/><button className="coach-send" disabled aria-label="Send to coach">↑</button></form>} />
       </section>
   )
@@ -272,13 +272,13 @@ function Preview() {
               formatVersion: 'preview', templateVersion: 'preview', boundaryPolicy: 'preview', operationId: 'preview-arabic-gloss', attemptId: 'preview-arabic-attempt', coverage: 'complete', segments: arabicSegments,
             } }} reviewing={false} onAskCoach={setNotice} focused={false} selectedSide={selected.id === 2 ? selected.side : undefined} onSelectMessage={select} ttsReady={false} speaking={false} rtl onBubbleTap={() => setNotice('Message analysis')} />
           </ReadingPreferencesContext></div>
-          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView editing={false} turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',fixes:2,conversationFeedback:feedback, coachDecision:{ exposedMove:'explicit',shown:{construct:'past',quote:'Ayer go.',move:'explicit',text:'Ayer fui al mercado.',explanation:'Use fui for a completed trip yesterday.'},retryInvited:false,alsoNoticed:[],keptGoing:false }}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onAddContext={async note => { setNotice(note); setCoach(true); if(mobile) useNavigationStore.getState().openPractice('panel') }} focused={false} selectedSide={selected.id === 1 ? selected.side : undefined} onSelectMessage={select} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
+          <MessageReadingScope scope={{ language: 'spanish', variety: 'spanish-spain', explanation: 'english', explanationVariety: 'english-united-states' }}><TurnView editing={false} turn={{id:1,user:'Ayer go.',assistant:null,pendingText:'',fixes:2,conversationFeedback:feedback, coachDecision:{ exposedMove:'explicit',shown:{construct:'past',quote:'Ayer go.',move:'explicit',text:'Ayer fui al mercado.',explanation:'Use fui for a completed trip yesterday.'},retryInvited:false,alsoNoticed:[],keptGoing:false }}} reviewing={false} onEditUser={turn => { setInput(turn.user ?? ''); setNotice('Sample edit loaded into composer; no message sent') }} onAskCoach={setNotice} onAddContext={async note => { setNotice(note); setCoach(true); if(mobile) useNavigationStore.getState().openConversation('panel') }} focused={false} selectedSide={selected.id === 1 ? selected.side : undefined} onSelectMessage={select} ttsReady speaking={false} rtl={false} onBubbleTap={() => setNotice('Message analysis')} onSpeak={() => setNotice('Playback control — sample only')} /></MessageReadingScope>
         </>}</div>
         {!mobile && composerBlock}
       </section>
       {mobile && <div className="chat mobile-composer">{composerBlock}</div>}
       {coach && !mobile && <PracticeDivider workspace={workspace} />}
-      {mobile && surface === 'panel' && <div className="coach-scrim" aria-hidden="true" onClick={() => useNavigationStore.getState().openPractice('chat')} />}
+      {mobile && surface === 'panel' && <div className="coach-scrim" aria-hidden="true" onClick={() => useNavigationStore.getState().openConversation('chat')} />}
       {coachPanel}
     </div>
     {/* The production AI View, opened by the AI pill as the app shell opens it. */}

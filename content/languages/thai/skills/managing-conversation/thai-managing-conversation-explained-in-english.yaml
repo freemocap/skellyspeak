@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A farewell can name the next expected meeting.
+    examples:
+      - text: แล้วเจอกันสัปดาห์หน้า
+        meaning: See you next week.
+        note: This closes the current exchange.
+  - subskill_id: acknowledging
+    explanation: เข้าใจแล้ว acknowledges that understanding has been reached.
+    examples:
+      - text: อ๋อ ตอนนี้เข้าใจแล้ว
+        meaning: Ah, now I understand.
+        note: Use after an explanation; understanding need not mean agreement.
+  - subskill_id: clarification
+    explanation: A question can ask the other speaker to repeat the preceding contribution.
+    examples:
+      - text: พูดอีกครั้งได้ไหม
+        meaning: Could you say that again?
+        note: The context supplies the speaker and material to repeat.
+  - subskill_id: rephrasing
+    explanation: พูดอีกอย่างก็คือ introduces another formulation.
+    examples:
+      - text: พูดอีกอย่างก็คือ ต้องจองล่วงหน้า
+        meaning: In other words, you need to book in advance.
+        note: Use after explaining how a booking procedure works.
+  - subskill_id: correcting_misunderstanding
+    explanation: หมายถึง identifies the intended meaning and contrasts it with a mistaken one.
+    examples:
+      - text: ฉันหมายถึงวันเสาร์ ไม่ใช่วันศุกร์
+        meaning: I mean Saturday, not Friday.
+        note: The speaker corrects the day understood by the listener.
+  - subskill_id: turns_topics
+    explanation: A permission-shaped request can manage a topic transition.
+    examples:
+      - text: ขอถามเรื่องอื่นหน่อยได้ไหม
+        meaning: May I ask about something else?
+        note: The requested action concerns the conversation itself.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

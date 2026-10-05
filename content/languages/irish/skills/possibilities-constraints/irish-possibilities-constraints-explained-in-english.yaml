@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: In ann with a verbal noun can express ability.
+    examples:
+      - text: Tá mé in ann snámh.
+        meaning: I can swim.
+        note: The construction reports capability rather than permission.
+  - subskill_id: permission
+    explanation: Cead with ag explicitly concerns permission.
+    examples:
+      - text: An bhfuil cead agam an mála a fhágáil anseo?
+        meaning: May I leave the bag here?
+        note: Agam identifies who seeks permission; an mála precedes a fhágáil.
+  - subskill_id: obligation
+    explanation: Caithfidh can express necessity and take a verbal-noun construction.
+    examples:
+      - text: Caithfidh mé an eochair a thabhairt ar ais inniu.
+        meaning: I must return the key today.
+        note: The object precedes a thabhairt; inniu gives the deadline.
+  - subskill_id: possibility
+    explanation: B’fhéidir with a following clause presents an uncertain possibility.
+    examples:
+      - text: B’fhéidir go mbeidh sé ag cur báistí tráthnóna.
+        meaning: It may rain in the evening.
+        note: Go mbeidh introduces the possible future weather situation.
+  - subskill_id: certainty
+    explanation: Nílim cinnte explicitly limits confidence in a proposition.
+    examples:
+      - text: Nílim cinnte go bhfuil an siopa oscailte.
+        meaning: I am not sure the shop is open.
+        note: The speaker is uncertain and does not assert that it is closed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_cead2026
+    - teanglann_caith2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

@@ -18,7 +18,7 @@ vi.mock('../../platform/ipc/skill-evidence', () => ({ getSkillEvidence: backend.
 /// test rather than once at module load.
 const mount = () => renderHook(() => { useLoadSkillEvidence(); return useSkillEvidence() })
 function seed(language: string, revision = 0) {
-  useSettingsStore.setState({ settings: { target_language: language } as Settings, revision })
+  useSettingsStore.setState({ settings: { target_language: language } as Settings, revision, evidenceRevision: revision })
 }
 
 beforeEach(() => {

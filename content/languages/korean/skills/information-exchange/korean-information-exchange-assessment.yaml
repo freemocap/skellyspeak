@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: information_exchange
+guidance: Assess unknown-information questions, responsive answers, confirmation and useful
+  detail. 가게가 몇 시에 닫아요? asks for closing time without English subject-verb inversion. 다섯 시에요 can
+  supply the time contextually. 다섯 시에 닫죠? checks a proposition, but 지요 has other uses and is not
+  automatically a question about truth. A polite 줄 수 있어요? request may primarily seek action
+  rather than information about capability. A copied 어디 from a word list without a recoverable
+  question is absent. A relative description such as 창문 옆에 있는 helps select a needed object;
+  extra length alone does not establish useful detail. 뭐라고 하셨어요? after unclear speech repairs
+  hearing rather than verifies an understood fact. Question force can be conveyed by context and
+  intonation with ordinary 요 endings; do not require 까 for every question or an explicit
+  second-person pronoun.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_predicates2026
+    - htsk_permission2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

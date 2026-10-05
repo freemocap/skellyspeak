@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: time_events
+guidance: Evaluate current or habitual relevance, earlier or later events, duration or
+  recurrence, ordering, and unfolding or completed phases. Ich lese gerade anchors an activity
+  now; a bare property such as das Haus ist groß does not independently establish temporal
+  skill. Gestern habe ich die Reifen geprüft correctly places an event in the past. Gestern ich
+  die Reifen prüfen is an unsuccessful ordinary past-clause attempt when no other correct
+  temporal use occurs. Accept suitable Perfekt, Präteritum and contextually licensed narrative
+  present; tense morphology alone does not establish an event-phase contrast. Morgen fährt der Bus früher correctly
+  locates a future event without werden. Seit zwei Wochen with a continuing present situation
+  expresses elapsed duration; jeden Freitag expresses recurrence. Erst … dann orders actions
+  without establishing their cause. Fertig sein mit identifies completion, whereas gerade or
+  noch can help establish ongoing activity. After Wann hast du angerufen?, Gestern Abend can
+  complete past reference contextually. Ich wollte Sie etwas fragen can soften a current
+  request; wanted-form morphology alone is not earlier-event evidence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_tenses2026
+    - umich_de_prepositions2026
+    - umich_de_connectors2026
+    - umich_de_adverbs2026
+    - umich_de_prepositional2026
+    - duden_de_fertig2026
+    - goethe_de_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

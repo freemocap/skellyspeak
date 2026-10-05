@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Präsens can describe an activity happening now as well as a habit. Gerade makes
+      current activity explicit without requiring an English-style progressive construction.
+    examples:
+      - text: Ich prüfe gerade die Reifen.
+        meaning: I am checking the tyres right now.
+        note: Prüfe is first-person Präsens; gerade anchors the checking in the current moment.
+  - subskill_id: past_events
+    explanation: Perfekt uses a finite form of haben or sein and a past participle. It is common in
+      conversation; Präteritum also expresses past events, with choice depending on verb and
+      register.
+    examples:
+      - text: Gestern habe ich den Fahrradkorb repariert.
+        meaning: Yesterday I repaired the bicycle basket.
+        note: Habe repariert forms Perfekt with haben. Repariert, from a verb in -ieren, has no ge-
+          prefix.
+  - subskill_id: future_events
+    explanation: A present-tense verb with a future time phrase can describe a scheduled later
+      event. Werden plus an infinitive is another option, but is not required for every future
+      reference.
+    examples:
+      - text: Nächsten Freitag fährt unser Zug um sieben Uhr ab.
+        meaning: Next Friday our train departs at seven.
+        note: Nächsten Freitag places the event in the future. The prefix ab of abfahren is separated in
+          this main clause.
+  - subskill_id: duration_frequency
+    explanation: For a situation that began earlier and continues now, use seit with dative and
+      Präsens. Expressions such as jeden Freitag specify recurrence rather than elapsed
+      duration.
+    examples:
+      - text: Ich arbeite seit zwei Wochen in dieser Werkstatt.
+        meaning: I have been working in this workshop for two weeks.
+        note: Seit zwei Wochen measures the continuing situation; the English perfect translation does
+          not require a German perfect tense.
+  - subskill_id: event_sequence
+    explanation: Erst and dann can order successive actions. Dann can occupy the first position of a
+      main clause, followed by the finite verb.
+    examples:
+      - text: Erst packen wir die Taschen, dann schließen wir die Tür ab.
+        meaning: First we pack the bags, then we lock the door.
+        note: The two adverbs establish order. Schließen … ab is the separated form of abschließen; no
+          causal relationship is asserted.
+  - subskill_id: event_phase
+    explanation: Gerade or noch can describe work in progress; fertig sein mit says that work is
+      finished. The work named after mit takes dative.
+    examples:
+      - text: Ich bin jetzt mit dem Bericht fertig.
+        meaning: I have now finished the report.
+        note: Mit dem Bericht specifies the completed task; fertig marks its phase rather than simply
+          dating a past event.
+      - text: Ich arbeite noch am Bericht.
+        meaning: I am still working on the report.
+        note: Noch indicates continuation. Am is an dem in arbeiten an with dative; this contrasts with
+          the completed task above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_tenses2026
+    - umich_de_prepositions2026
+    - umich_de_connectors2026
+    - umich_de_adverbs2026
+    - umich_de_prepositional2026
+    - duden_de_fertig2026
+    - goethe_de_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

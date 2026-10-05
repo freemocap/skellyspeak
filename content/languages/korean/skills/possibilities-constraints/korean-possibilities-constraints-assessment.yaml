@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: possibilities_constraints
+guidance: Recognize ability, allowance, requirements, possible outcomes and confidence. 고칠 수 있어요
+  expresses ability or practical possibility; 고쳐도 돼요 can grant permission. 해야 해요 states a
+  requirement, 안 해도 돼요 removes it, and 하면 안 돼요 prohibits an action. 비가 올 수도 있어요 presents
+  possible rain rather than learned skill. 확실하지 않아요 limits confidence. A factual unqualified
+  rain report does not automatically demonstrate possibility. A copied 수 without an identifiable
+  predicate is absent. 네 after a permission question can grant permission contextually if spoken
+  by the appropriate person. An indirect request using 수 있어요 need not assert physical ability.
+  Where correct wording supports capacity or practical opportunity, uncertainty between those
+  subfunctions does not itself make group use unclear. Preserve the difference between 안 for
+  negation and 못 for inability where relevant, and accept suitable everyday contractions rather
+  than imposing a formal written ending.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_permission2026
+    - htsk_tense2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

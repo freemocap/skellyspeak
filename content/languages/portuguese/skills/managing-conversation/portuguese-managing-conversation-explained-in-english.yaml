@@ -1,0 +1,78 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Greetings and leave-taking expressions organize contact. Até + a time can close an
+      exchange with an expected next encounter.
+    examples:
+      - text: Até amanhã! Boa noite!
+        meaning: See you tomorrow! Good night!
+        note: Said at the end of an evening conversation with someone the speaker expects to see the
+          next day. These formulas close contact.
+  - subskill_id: acknowledging
+    explanation: A short verbal response such as entendi can show that the preceding explanation has
+      been received and understood. Its tense form does not require a separate narrative about
+      yesterday.
+    examples:
+      - text: Entendi.
+        meaning: I understand.
+        note: Reply immediately after someone explains how to return the borrowed books. This
+          acknowledges comprehension and does not necessarily endorse an opinion.
+  - subskill_id: clarification
+    explanation: O que você quer dizer com + an expression can ask the partner to explain what they
+      meant by that expression. The preceding wording supplies the trouble being repaired.
+    examples:
+      - text: O que você quer dizer com provisório?
+        meaning: What do you mean by provisional?
+        note: Said after the partner calls the opening schedule provisório. The speaker asks about that
+          word’s intended meaning.
+  - subskill_id: rephrasing
+    explanation: Em outras palavras can introduce a simpler restatement of an earlier expression. A
+      useful reformulation preserves the relevant meaning; naming the marker alone is
+      insufficient.
+    examples:
+      - text: Em outras palavras, você pode ficar com o livro até sexta.
+        meaning: In other words, you can keep the book until Friday.
+        note: Rephrases an earlier explanation that the loan expires on Friday. Até sexta makes the
+          deadline concrete; the speaker keeps the same permission and endpoint.
+  - subskill_id: correcting_misunderstanding
+    explanation: Eu quis dizer can replace a wording or interpretation with the intended one. Quis
+      is the first-person preterite of querer in this repair expression.
+    examples:
+      - text: Eu quis dizer sábado, não sexta.
+        meaning: I meant Saturday, not Friday.
+        note: Said after the partner interprets the agreed exchange day as Friday. The speaker
+          explicitly replaces that day with Saturday.
+  - subskill_id: turns_topics
+    explanation: A question with posso falar de can request room for a topic. Its conversational
+      role differs from a detached question about speech ability.
+    examples:
+      - text: Posso falar dos horários agora?
+        meaning: May I talk about the schedule now?
+        note: Said as the discussion moves from book selection to practical arrangements. Dos is de +
+          os; the question requests a topical turn.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

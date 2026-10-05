@@ -16,6 +16,10 @@ it('reconciles the source before explicitly enqueueing absent grammar', async ()
   expect(backend.watchConversation).toHaveBeenCalledWith('c')
   expect(backend.executeAction).toHaveBeenCalledExactlyOnceWith({sessionId:'session'},{kind:'requestExplanations',messageId:'m'})
 })
+it('requests an absent brief without treating its first request as a retry', async () => {
+  await requestReplyHelp('c', 'm', 'brief')
+  expect(backend.executeAction).toHaveBeenCalledExactlyOnceWith({ sessionId: 'session' }, { kind: 'requestMessageHelp', messageId: 'm', help: 'reply_brief', retry: false })
+})
 it.each(['ready','running','held','succeeded','failed','unknown'])('opening a %s operation never resubmits it', async state => {
   backend.watchConversation.mockResolvedValue(snapshot(state))
   await requestReplyHelp('c','m','grammar')

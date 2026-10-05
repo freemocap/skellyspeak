@@ -29,3 +29,19 @@ export function readingPassage(text: string, start: number, end: number, locale?
   if (sentence && sentence.segment.length <= 2048) return { text: sentence.segment, start: start - sentence.index, end: end - sentence.index }
   return { text: text.slice(start, end), start: 0, end: end - start }
 }
+
+/** Expand touched words and graphemes without changing any source characters. */
+export function wholeWordRange(text: string, start: number, end: number, locale?: string) {
+  if (start === end) return { start, end }
+  for (const part of new Intl.Segmenter(locale || undefined, { granularity: 'grapheme' }).segment(text)) {
+    const next = part.index + part.segment.length
+    if (part.index < start && start < next) start = part.index
+    if (part.index < end && end < next) end = next
+  }
+  for (const part of readingWords(text, locale)) {
+    if (!part.word) continue
+    if (part.start < start && start < part.end) start = part.start
+    if (part.start < end && end < part.end) end = part.end
+  }
+  return { start, end }
+}

@@ -24,6 +24,23 @@ it('treats holds and both pause gates as stopped, even while turn state remains 
   expect(project(execution('running', 'pending'))).toMatchObject({ state: 'pending', control: null })
   expect(replyState(undefined, { turns: [], connection: { paused: false } } as unknown as ConversationSnapshot)).toMatchObject({ state: 'unavailable', control: null })
 })
+it('explains a hold for spent credits in plain words, with the recorded reason folded and adding credits marked as coming', () => {
+  const recorded = 'Your remaining daily allowance cannot cover this request. Wait for pending requests to finish or for the 00:00 UTC reset.'
+  const held = execution('ready', 'pending'); held.hold = { message: recorded } as TurnView['hold']
+  render(<ReplyStatus reply={project(held)} />)
+  expect(screen.getByText('Partner reply is held.')).toBeVisible()
+  expect(screen.getByText("You're out of credits for today")).toBeVisible()
+  expect(screen.getByText(/^You get new credits at \d{1,2}:\d{2}/)).toBeVisible()
+  expect(screen.getByText(recorded)).not.toBeVisible()
+  expect(screen.getByRole('button', { name: 'Add credits · Coming soon' })).toBeDisabled()
+  fireEvent.click(screen.getByText('Technical details'))
+  expect(screen.getByText(recorded)).toBeVisible()
+})
+it('shows a readable failure reason as recorded, with nothing folded', () => {
+  render(<ReplyStatus reply={project(execution('failed'))} />)
+  expect(screen.getByText('Provider rejected reply')).toBeVisible()
+  expect(screen.queryByText('Technical details')).toBeNull()
+})
 it('does not offer retry for an earlier exchange or cancelled work', () => {
   const turn = execution('failed')
   expect(replyState(turn, { turns: [execution('running', 'pending'), turn].map((item, i) => ({ ...item, id: i ? 'turn' : 'later' })), connection: { paused: false } } as ConversationSnapshot).control).toBeNull()

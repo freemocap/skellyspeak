@@ -102,13 +102,14 @@ it('completes in normal mode too, and does not replay identical snapshots', asyn
   expect(document.querySelector('.message-xp-coin')).toBeNull()
   expect(playRewardSound).toHaveBeenCalledOnce()
 })
-it('retains the milestone cue at the message counter', async () => {
+it('plays an ordinary coin at the message counter; XP totals no longer mark milestones', async () => {
   const base = structuredClone(skillDemo)
   base.profile.skills[0].xp = 49
   const view = render(<Fixture snapshot={base} fastMode />)
   await act(async () => view.rerender(<Fixture snapshot={earn(base, 1)} fastMode />))
   act(() => vi.advanceTimersByTime(0))
-  expect(playRewardSound).toHaveBeenCalledWith({ kind: 'milestone' }, counter())
+  expect(playRewardSound).toHaveBeenCalledWith({ kind: 'xp', xp: 1 }, counter())
+  expect(playRewardSound).not.toHaveBeenCalledWith({ kind: 'milestone' }, expect.anything())
 })
 it('finishes without a mounted message anchor instead of blocking later rewards', async () => {
   const view = render(<Fixture snapshot={skillDemo} fastMode />)

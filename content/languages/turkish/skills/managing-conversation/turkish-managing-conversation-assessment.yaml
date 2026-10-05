@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: managing_conversation
+guidance: Assess opening or closing contact, acknowledgement, clarification, rephrasing,
+  correcting misunderstanding and turn or topic management. Gelecek hafta görüşürüz closes an
+  exchange with expected future contact. Şimdi anladım acknowledges understanding without
+  necessarily agreement. Tekrar söyler misiniz? requests repetition of the preceding
+  contribution. Başka bir deyişle introduces a reformulation. Cuma değil, cumartesi demek
+  istedim corrects the listener’s interpretation. Başka bir soruya geçebilir miyiz? requests a
+  conversational transition, not merely an external permission. A copied greeting in a
+  vocabulary list is absent as interactional evidence. A brief tamam can acknowledge a specific
+  explanation contextually, but its function depends on the exchange. Do not invent an
+  antecedent, require long repair sentences or equate all questions with clarification. Preserve
+  successful short and formulaic expressions when they do real conversational work.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_modality2026
+    - tt_turkish_optative2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

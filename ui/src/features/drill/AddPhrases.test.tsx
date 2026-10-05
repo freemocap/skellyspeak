@@ -369,13 +369,13 @@ function fetchCalls() {
 }
 
 it('sends a selected skill only after Generate and keeps the length choice', async () => {
-  profiles.getLearnerProfile.mockResolvedValue({ evidence: { catalog: [{id:'past_reference',label:'Refer to the past',kind:'skill'},{id:'root',label:'Root',kind:'root'}] } })
+  profiles.getLearnerProfile.mockResolvedValue({ evidence: { catalog: [{id:'time_events',label:'Time and events',kind:'skill'},{id:'root',label:'Root',kind:'root'}] } })
   open()
-  await screen.findByRole('option', { name: 'Refer to the past' })
-  fireEvent.change(screen.getByLabelText('Skill'), { target: { value: 'past_reference' } })
+  await screen.findByRole('option', { name: 'Time and events' })
+  fireEvent.change(screen.getByLabelText('Skill'), { target: { value: 'time_events' } })
   expect(fetchCalls()).toBe(0)
   generate()
-  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledWith(expect.objectContaining({skillTarget:{kind:'skill',skillId:'past_reference'},length:'shortPhrase'}),expect.any(AbortSignal)))
+  await waitFor(() => expect(api.previewDrillItems).toHaveBeenCalledWith(expect.objectContaining({skillTarget:{kind:'skill',skillId:'time_events'},length:'shortPhrase'}),expect.any(AbortSignal)))
 })
 it('omits skill focus when no skill is selected', async () => {
   open()

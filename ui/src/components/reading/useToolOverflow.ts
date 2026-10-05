@@ -1,7 +1,8 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 
-/** Fit tools to their container, including translated labels and touch targets. */
-export function useToolOverflow(count: number, labels: string) {
+/** Fit tools to their container: the icons are one size, but touch targets and
+ * the set of tools change, so the row is measured rather than counted. */
+export function useToolOverflow(count: number, keys: string) {
   const root = useRef<HTMLDivElement>(null)
   const measure = useRef<HTMLSpanElement>(null)
   const [visible, setVisible] = useState(count)
@@ -41,6 +42,6 @@ export function useToolOverflow(count: number, labels: string) {
     let mounted = true
     void document.fonts?.ready.then(() => { if (mounted) update() })
     return () => { mounted = false; observer.disconnect() }
-  }, [count, labels])
+  }, [count, keys])
   return { root, measure, visible: Math.min(visible, count) }
 }

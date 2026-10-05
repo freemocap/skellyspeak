@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: coordinating_action
+guidance: Look for requesting action, offering or inviting, suggesting, undertaking, accepting
+  or refusing and revising a plan. 请把箱子搬到门口 asks for action; 要不要我帮你 can offer help despite its
+  question form. 我们休息一下吧 proposes a joint break. 我来带工具 can undertake a task during planning; a
+  simple future prediction does not necessarily commit. 好 after an invitation can accept
+  contextually, while 好 describing an object only evaluates it. 周五不行，周六怎么样 adjusts a proposed
+  schedule when Friday has been offered. A copied 请 without any recoverable action is absent.
+  Modal questions can be requests rather than tests of ability. 一下 may soften a short requested
+  action, but the particle alone is not successful coordination. Accept ordinary omitted
+  participants and contextually clear indirect refusals; do not require an explicit promise
+  verb, 请 in every request or an English-style complete clause for acceptance.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

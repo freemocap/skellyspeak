@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Ini can introduce a person with a noun phrase. An overt copula is not required in
+      this everyday identification, and the possessor follows the relationship noun.
+    examples:
+      - text: Ini teman saya, Rina.
+        meaning: This is my friend Rina.
+        note: Teman saya means my friend. The sentence identifies Rina without adding adalah.
+  - subskill_id: qualities_states
+    explanation: An adjective can serve as the predicate directly. The demonstrative ini follows the
+      noun in the subject phrase.
+    examples:
+      - text: Kamar ini terang.
+        meaning: This room is bright.
+        note: Kamar ini is the thing described; terang supplies its property. No word corresponding to
+          English is is necessary.
+  - subskill_id: location_movement
+    explanation: Di introduces a location, while ke introduces a destination. These prepositions are
+      written separately from the following words.
+    examples:
+      - text: Tas saya di bawah meja.
+        meaning: My bag is under the table.
+        note: Di bawah meja locates the bag. Di is a preposition here, not a passive prefix.
+  - subskill_id: possession_relations
+    explanation: Punya commonly states possession in conversation. A possessive noun phrase instead
+      places the possessor after the object or relationship noun.
+    examples:
+      - text: Saya punya tiga kotak.
+        meaning: I have three boxes.
+        note: Saya identifies the possessor. Tiga kotak gives the number of objects without requiring
+          reduplication.
+  - subskill_id: quantity_comparison
+    explanation: Lebih before an adjective and daripada before the comparison standard express a
+      comparison. The adjective does not acquire an English-style comparative ending.
+    examples:
+      - text: Kotak ini lebih ringan daripada kotak itu.
+        meaning: This box is lighter than that box.
+        note: "Ringan supplies the scale of comparison: weight. The two demonstratives distinguish the
+          boxes."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

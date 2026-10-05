@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Attach たい to the verb stem used before ます to express a desired action. Polite です
+      can follow it.
+    examples:
+      - text: 自転車の修理を習いたいです。
+        meaning: I want to learn bicycle repair.
+        note: 習い is the stem of 習う. The speaker expresses a wish, not a promise to take a course.
+  - subskill_id: preferences
+    explanation: 好き describes liking, often with が for the liked item. のほうが can select a favored
+      alternative in a comparison.
+    examples:
+      - text: コーヒーより、紅茶のほうが好きです。
+        meaning: I prefer black tea to coffee.
+        note: より introduces coffee as the comparison standard. The contrast concerns the speaker’s
+          preference.
+  - subskill_id: emotions
+    explanation: 安心する describes becoming or feeling relieved. Its polite past form can report the
+      emotional response to news just received.
+    examples:
+      - text: 無事だと聞いて、安心しました。
+        meaning: I was relieved to hear that everyone was safe.
+        note: The preceding exchange must identify who was safe. 安心しました names the speaker’s relief, not
+          a claim about someone else’s private feelings.
+  - subskill_id: opinions
+    explanation: A plain proposition followed by と思います states what the speaker thinks. An
+      い-adjective retains its plain form before と.
+    examples:
+      - text: この案はいいと思います。
+        meaning: I think this proposal is good.
+        note: いい is quoted as part of the judgment. It does not become いいです before と in this ordinary
+          construction.
+  - subskill_id: agreement_disagreement
+    explanation: そう can refer back to a position already expressed. も aligns the speaker with
+      another person’s view.
+    examples:
+      - text: 私もそう思います。
+        meaning: I think so too.
+        note: Reply to an identifiable opinion about the proposal. This expresses shared judgment, not
+          merely that the words were heard.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

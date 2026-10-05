@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: possibilities_constraints
+guidance: "Recognize ability, permission, obligation, possibility and confidence. എനിക്ക്
+  നീന്താൻ കഴിയും expresses capability with an infinitive. ഇവിടെ ബാഗ് വെക്കാമോ? can ask
+  permission from the person responsible for a space. ഞാൻ ഇന്ന് താക്കോൽ തിരികെ കൊടുക്കണം states
+  an obligation. വേണ്ട can remove need or express refusal, while പാടില്ല can prohibit; do not
+  treat every negative modal as the same meaning. മഴ പെയ്തേക്കാം presents possibility and
+  ഉറപ്പില്ല limits certainty. വെക്കാം can grant a preceding permission request contextually. A
+  copied modal ending with no recoverable proposition is absent. Dative and nominative frames
+  can affect modal meaning, but context still matters: do not enforce a simplistic
+  case-to-meaning lookup. A polite capability-shaped request need not assert ability. Ambiguity
+  between successful group subtypes alone does not make the whole group unclear."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

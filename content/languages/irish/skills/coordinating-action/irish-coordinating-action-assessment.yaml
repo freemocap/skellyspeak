@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and negotiation. Bog an bosca seo go dtí an doras, le do thoil requests action. Ar
+  mhaith leat cupán tae? offers tea through a preference-shaped question. Glacaimis sos proposes
+  a shared break. Tabharfaidh mé na huirlisí liom amárach can undertake an assigned task, but
+  future marking alone is not a promise. Ní féidir liom teacht inniu declines an invitation in
+  context, and a Saturday alternative can negotiate the schedule. Ba mhaith can accept a prior
+  ar mhaith question contextually. A copied le do thoil without a recoverable action is absent.
+  Judge the actual coordinated action and participants, allowing singular or plural address
+  appropriate to the setting. Do not confuse an offer with a neutral preference survey or
+  require the English word let in a shared suggestion.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+    - teanglann_cead2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

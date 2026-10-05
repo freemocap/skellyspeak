@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A singular imperative with le do thoil requests an action.
+    examples:
+      - text: Bog an bosca seo go dtí an doras, le do thoil.
+        meaning: Please move this box to the door.
+        note: Go dtí an doras gives the destination; the request addresses one person.
+  - subskill_id: offers_invitations
+    explanation: Ar mhaith leat can offer something by asking whether the listener would like it.
+    examples:
+      - text: Ar mhaith leat cupán tae?
+        meaning: Would you like a cup of tea?
+        note: Use while offering tea, not merely researching someone’s tastes.
+  - subskill_id: suggestions
+    explanation: A first-person plural imperative can propose joint action.
+    examples:
+      - text: Glacaimis sos gairid.
+        meaning: Let’s take a short break.
+        note: Glacaimis includes the speaker in the proposal.
+  - subskill_id: commitments
+    explanation: A future statement can accept responsibility in a shared plan.
+    examples:
+      - text: Tabharfaidh mé na huirlisí liom amárach.
+        meaning: I will bring the tools with me tomorrow.
+        note: Use when allocating tasks; liom relates bringing the tools to the speaker.
+  - subskill_id: accepting_declining
+    explanation: An inability statement can politely decline an invitation.
+    examples:
+      - text: Tá brón orm, ní féidir liom teacht inniu.
+        meaning: Sorry, I cannot come today.
+        note: The prior invitation identifies the event being declined.
+  - subskill_id: negotiating_plans
+    explanation: State a constraint and propose a concrete alternative.
+    examples:
+      - text: Nílim saor Dé hAoine. An mbuailfimid le chéile Dé Sathairn?
+        meaning: I am not free on Friday. Shall we meet on Saturday?
+        note: The question proposes a replacement day for the meeting.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+    - teanglann_cead2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

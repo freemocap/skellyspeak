@@ -14,6 +14,14 @@ function snapshot(messages: ChatMessage[]): ConversationSnapshot {
 }
 
 describe('durable conversation projection', () => {
+  it('keeps the learner source identity and exposes pending assessment independently of coaching', () => {
+    const source = snapshot([message(1, 'user', 'Hola')])
+    source.turns = [{ id: 'turn-1', operations: [{ kind: 'skill_assessment', state: 'running' }] }] as unknown as ConversationSnapshot['turns']
+    const turn = conversationTurns(source)[0]
+    expect(turn.userMessageId).toBe('source-1')
+    expect(turn.analysisState).toBe('pending')
+    expect(turn.conversationFeedback).toBeUndefined()
+  })
   it('preserves exact multilingual text and saved translation without manufacturing analysis', () => {
     const source = snapshot([
       message(1, 'user', '  Sí, sí!\ne\u0301 你好 👩🏽‍💻  '),
@@ -145,7 +153,7 @@ it('projects independent support on its own exchange without manufacturing skill
   ]))
   expect(turns[0].conversationFeedback).toEqual(feedback)
   expect(turns[0].coach).toBeUndefined()
-  expect(turns[0].analysisState).toBeNull()
+  expect(turns[0].analysisState).toBe('done')
   expect(turns[0].assistant?.assistance).toEqual(assistance)
   expect(turns[0].assistant?.mechanics[0].quote).toBe('Hola')
   expect(turns[1].conversationFeedback).toBeUndefined()

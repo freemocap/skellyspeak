@@ -5,6 +5,8 @@ import { TurnView as SharedTurnView, type TurnViewProps } from './TurnView'
 
 import { ReadingPreferencesContext } from '../../../components/reading/ReadingPreferences'
 import type { TranscriptionInspectionResult } from '../../../generated/contracts'
+const requestHelp = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('../../../platform/ipc/message-help', () => ({ requestMessageHelp: requestHelp }))
 
 /** Opens every message's ⋯ menu, where Words, Analysis and Pronunciation live. */
 const openMenus = () => screen.queryAllByRole('button', { name: 'More actions' }).forEach(button => { if (button.getAttribute('aria-expanded') !== 'true') fireEvent.click(button) })
@@ -19,6 +21,7 @@ function TurnView({ autoTranslate, alwaysRomanize, alwaysPronunciation, showRoma
 }
 
 beforeEach(() => {
+  requestHelp.mockClear()
   HTMLDialogElement.prototype.showModal = function () { this.open = true }
   HTMLDialogElement.prototype.close = function () { this.open = false }
 })
@@ -27,6 +30,57 @@ function props(): Props {
   const token = { text: 'Hola', gloss: 'Hello', pos: null, notable: false, romanization: null, pronunciation: null }
   return { turn: { id: 1, user: 'Hola', pendingText: '', assistant: { reply: 'Hola', tokens: [token], user_tokens: [token], translation: 'Persona translation', user_translation: 'Learner translation', mechanics: [], scaffolds: { replies: [], frames: [], starters: [] }, errors: [] } }, reviewing: false, focused: false, ttsReady: true, speaking: false, showRomanization: false, alwaysRomanize: false, alwaysPronunciation: false, autoTranslate: false, rtl: false, onBubbleTap: vi.fn(), onSpeak: vi.fn(), onAskCoach: vi.fn(), editing: false }
 }
+it('offers phrase starts on both durable speakers without starting on render', () => {
+  const input = props()
+  input.turn.userMessageId = 'user-source'
+  input.turn.assistant!.messageId = 'partner-source'
+  input.turn.assistant!.reply = 'Buenas tardes.'
+  input.turn.assistant!.tokens = []
+  const start = vi.fn().mockResolvedValue(undefined)
+  render(<TurnView {...input} onStartPhrase={start} />)
+  expect(start).not.toHaveBeenCalled()
+  const buttons = screen.getAllByRole('button', { name: 'Start conversation from this message' })
+  fireEvent.click(buttons[0]); fireEvent.click(buttons[1])
+  expect(start).toHaveBeenNthCalledWith(1, 'user-source', 'Hola')
+  expect(start).toHaveBeenNthCalledWith(2, 'partner-source', 'Buenas tardes.')
+})
+
+it('requests translations for the exact speaker source only after a click', async () => {
+  const input = props()
+  input.autoTranslate = true
+  input.turn.userMessageId = 'learner-source'
+  input.turn.assistant!.messageId = 'partner-source'
+  input.turn.assistant!.translation = null
+  input.turn.assistant!.user_translation = null
+  render(<TurnView {...input} />)
+  expect(requestHelp).not.toHaveBeenCalled()
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Translate your message' })) })
+  expect(requestHelp).toHaveBeenCalledExactlyOnceWith('learner-source', 'translation', false)
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Translate partner message' })) })
+  expect(requestHelp).toHaveBeenLastCalledWith('partner-source', 'translation', false)
+})
+it('uses matching reading tools and independently toggles pronunciation on either speaker', () => {
+  const input = props()
+  input.turn.assistant!.tokens[0].pronunciation = 'OH-lah'
+  input.turn.assistant!.user_tokens[0] = { ...input.turn.assistant!.tokens[0] }
+  const view = render(<TurnView {...input} />)
+  const learner = view.container.querySelector('.msg.me') as HTMLElement
+  const partner = view.container.querySelector('.msg.bot') as HTMLElement
+  for (const bubble of [learner, partner]) {
+    const toolbar = bubble.querySelector('.message-tools') as HTMLElement
+    expect(within(toolbar).getAllByRole('button').filter(button => ['Translate', 'Words', 'Pronunciation', 'Analysis'].includes(button.title)).map(button => button.title))
+      .toEqual(['Translate', 'Words', 'Pronunciation', 'Analysis'])
+    const pronunciation = within(toolbar).getByRole('button', { name: 'Pronunciation' })
+    expect(pronunciation).toHaveAttribute('aria-pressed', 'false')
+    fireEvent.click(pronunciation)
+    expect(pronunciation).toHaveAttribute('aria-pressed', 'true')
+    expect(bubble.querySelector('.wpronunciation')).toHaveTextContent('OH-lah')
+    expect(bubble.querySelector('.wg')).toBeNull()
+    expect((bubble === learner ? partner : learner).querySelector('.wpronunciation')).toBeNull()
+    fireEvent.click(pronunciation)
+    expect(bubble.querySelector('.wpronunciation')).toBeNull()
+  }
+})
 it('places the persona reaction on the reply', () => {
   const input = props()
   input.turn.reaction = { kind: 'confused', answer: {choice:'confused',probabilities:{confused:1},confidence:1} }
@@ -204,7 +258,7 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   expect(grade).toHaveTextContent('Feedback')
   expect(grade.closest('.msg.me')).toBeNull()
   openMenus()
-  expect(screen.getByRole('button', { name: 'Coach your message' }).closest('.message-actions')).not.toBeNull()
+  expect(screen.getByRole('button', { name: 'Analysis' }).closest('.message-actions')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'false')
@@ -289,9 +343,10 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   openMenus()
   for (const bubble of [learner, partner]) {
     expect(within(bubble).getByRole('button', { name: /Translate/ }).closest('.message-actions')).not.toBeNull()
-    const detail = within(bubble).getByRole('button', { name: bubble === learner ? 'Coach your message' : 'Analysis' })
+    const detail = within(bubble).getByRole('button', { name: 'Analysis' })
     expect(detail.closest('.message-actions')).not.toBeNull()
-    expect(detail).toHaveTextContent(bubble === learner ? 'Coach' : 'Analysis')
+    // Row tools are icons: the name is the tooltip, not visible text.
+    expect(detail).toHaveAttribute('title', 'Analysis')
   }
   openMenus()
   const words = within(learner).getByRole('button', { name: 'Words' })
@@ -304,7 +359,7 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
   for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
   openMenus()
-  fireEvent.click(within(learner).getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Analysis' }))
   const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(dialog.parentElement).toBe(document.body)
 })
@@ -479,8 +534,8 @@ it('preserves source text and reading controls without inline XP tags', async ()
   const { skillDemo } = await import('../../../domain/learning/catalog/skillDemo')
   const { unreportedInput } = await import('../../../domain/learning/evidence/skills')
   const snapshot = structuredClone(skillDemo)
-  snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
-  snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'identify_describe', xp: 10 }]
+  snapshot.records = [{ attempt_id: 'jev', session_id: 'test', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: 'chat', learner_id: snapshot.learner_id, target: snapshot.target, native: 'english', source: 'Hola', input: unreportedInput(), at_secs: 1, model: 'typesafe/jev-1.13', provider_mode: 'custom', catalog_version: snapshot.catalog_version, prompt_version: 'jev-choice-assessment-1', assessment_adapter: 'jev_choice', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'people_places', presence: 'direct', quotes: ['Hola'], rationale: '', evidence_kind: 'quoted' }] } }]
+  snapshot.profile.credits = [{ attempt_id: 'jev', skill_id: 'people_places', xp: 10 }]
   const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selectionVersion: 0, selected: null, select: vi.fn() }}><RewardInspectionContext value={{ arrive: vi.fn() }}><TurnView {...props()} /></RewardInspectionContext></PracticeContext></SkillEvidenceContext>)
   expect(view.container.querySelector('.msg.me')).toHaveTextContent('Hola')
   expect(view.container.querySelector('.message-evidence')).toBeNull()
@@ -515,6 +570,30 @@ it('keeps pending word meanings out of the layout and follow-on activity out of 
   expect(view.container.querySelector('.msg.bot .trans[aria-label="Word meanings"]')).toBeNull()
   expect(screen.getByText('Word meanings pending')).toHaveClass('hydrating-announce')
   expect(view.container.querySelector('.turn-activity')).toBeNull()
+})
+
+it('shows coaching progress and then error marks without opening Analysis, independently of Jev', () => {
+  const input = props()
+  input.turn.conversationFeedback = { grammar: 4, conversation: 3 } as never
+  input.turn.execution = { state: 'assisting', operations: [{ id: 'coach', kind: 'coach_feedback', state: 'running' }], attempts: [] } as never
+  const view = render(<TurnView {...input} />)
+  expect(view.container.querySelector('.message-coaching-pending')).toHaveTextContent('Hola')
+  expect(view.container.querySelector('.msg.bot')).toHaveTextContent('Hola')
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  input.turn.execution = { state: 'succeeded', operations: [{ id: 'coach', kind: 'coach_feedback', state: 'succeeded' }], attempts: [] } as never
+  input.turn.coach = { issues: [{ quote: 'Hola', severity: 'error' }], corrections: [], notes: [], meaningRecovered: 'full', candidatesSent: 1, itemsReturned: 1, items: [] }
+  view.rerender(<TurnView {...input} />)
+  expect(view.container.querySelector('.message-coaching-pending')).toBeNull()
+  expect(view.container.querySelector('.msg.me .coach-flag')).toHaveTextContent('Hola')
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(requestHelp).not.toHaveBeenCalled()
+})
+
+it.each(['succeeded', 'failed', 'unknown', 'cancelled', 'held'])('stops the coaching underline when work is %s', state => {
+  const input = props()
+  input.turn.execution = { state: 'assisting', operations: [{ kind: 'coach_feedback', state }], attempts: [] } as never
+  const view = render(<TurnView {...input} reviewing />)
+  expect(view.container.querySelector('.message-coaching-pending')).toBeNull()
 })
 
 it('keeps the feedback line under the learner message in every feedback state without replacing the bubble', () => {

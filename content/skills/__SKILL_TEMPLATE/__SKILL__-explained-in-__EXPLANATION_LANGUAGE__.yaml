@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: __REVISION__
+skill_id: __SKILL_ID__
+explanation_language: __EXPLANATION_LANGUAGE__
+title: __TRANSLATED_TITLE__
+introduction: __TRANSLATED_INTRODUCTION__
+sections:
+  - subskill_id: __SUBSKILL_ID__
+    title: __TRANSLATED_TITLE__
+    concept: __TRANSLATED_CONCEPT__
+provenance:
+  origin: ai
+  authorship: __AUTHORSHIP__
+  sources:
+    - __CITATION_KEY__
+  generation: null
+  review:
+    status: needs_review
+    revision: __REVISION__
+    scope: __REVIEW_SCOPE__

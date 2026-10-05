@@ -30,7 +30,7 @@ describe('native private coaching', () => {
     expect(backend.execute).not.toHaveBeenCalled()
     expect(screen.getByLabelText('Coach conversation')).not.toBeVisible()
     expect(screen.getByRole('tab', { name: 'Coach' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
-    expect(screen.getByRole('tab', { name: 'Experience' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Skills' })).toBeVisible()
     expect(screen.getAllByText('Coach')).toHaveLength(1)
   })
   it('submits once with current conversation revision and displays only saved replies', async () => {
@@ -52,7 +52,6 @@ describe('native private coaching', () => {
     fireEvent.change(screen.getByLabelText('Message your coach'), { target: { value: 'My question' } })
     fireEvent.click(screen.getByLabelText('Send to coach'))
     expect(await screen.findByRole('alert')).toHaveTextContent('Coach')
-    fireEvent.click(screen.getByText('⚠ Coach'))
     expect(screen.getByText(/Admission held/)).toBeVisible()
     expect(screen.getByLabelText('Message your coach')).toHaveValue('My question')
     expect(backend.execute).toHaveBeenCalledTimes(1)

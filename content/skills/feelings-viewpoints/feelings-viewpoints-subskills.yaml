@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: feelings_viewpoints
+subskills:
+  - id: wants_intentions
+    name: Wants and intentions
+    purpose: Express desired outcomes or intended action.
+    positive_evidence: States what someone wants or means to do.
+    counterexample: A prediction without desire or intention.
+    context: contribution
+    boundary: A desire is not automatically a request, commitment or future event.
+    neighbors:
+      - future_events
+      - requests
+      - commitments
+  - id: preferences
+    name: Preferences
+    purpose: Express likes, dislikes or choices between alternatives.
+    positive_evidence: Communicates a preference, including an answer selecting a favored option.
+    counterexample: A factual comparison with no evaluative preference.
+    context: contribution
+    boundary: A preference need not include a comparative construction or a plan to act.
+    neighbors:
+      - opinions
+      - quantity_comparison
+  - id: emotions
+    name: Emotions
+    purpose: Express a person's emotional response or feeling.
+    positive_evidence: Communicates an affective state or response with a recoverable experiencer.
+    counterexample: An assessment of factual likelihood without an emotional stance.
+    context: contribution
+    boundary: Emotion differs from propositional opinion, though one contribution can support both.
+    neighbors:
+      - opinions
+      - qualities_states
+  - id: opinions
+    name: Opinions
+    purpose: Express an evaluative position or personal judgment.
+    positive_evidence: Marks a position or evaluates a proposition, situation or course of action.
+    counterexample: A neutral report does not become an opinion merely because the speaker says it.
+    context: contribution
+    boundary: Providing support for a position is a separate function; certainty is not necessarily
+      evaluation.
+    neighbors:
+      - supporting_claims
+      - certainty
+      - preferences
+  - id: agreement_disagreement
+    name: Agreement and disagreement
+    purpose: Align with or oppose a previously expressed position.
+    positive_evidence: Accepts, challenges or qualifies an identifiable claim or evaluation.
+    counterexample: A generic negative statement with no position to agree or disagree with.
+    context: exchange
+    boundary: Agreeing with a proposition differs from accepting a requested action or invitation.
+    neighbors:
+      - accepting_declining
+      - acknowledging
+      - opinions
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Personal μπορώ changes with the person who can do the action and takes a να clause.
+      The second verb also carries person information. Here the statement describes an existing
+      practical ability, rather than asking someone to do a favour.
+    examples:
+      - text: Μπορώ να αλλάξω το λάστιχο μόνος μου.
+        meaning: I can change the tyre on my own.
+        note: Μπορώ and αλλάξω are first person singular. Μόνος μου describes a male speaker doing it
+          independently; a female speaker would use μόνη μου.
+  - subskill_id: permission
+    explanation: A first-person να question can ask whether an action is allowed. The responsible
+      listener and the setting establish permission; the construction need not have an explicit
+      μπορώ. Do not treat every να question as a permission request.
+    examples:
+      - text: Να αφήσω το ποδήλατο εδώ;
+        meaning: May I leave the bicycle here?
+        note: Use this when asking the person responsible for the space. Αφήσω identifies the speaker’s
+          proposed action, and εδώ identifies the proposed location.
+  - subskill_id: obligation
+    explanation: "Πρέπει is impersonal: it does not change to agree with the person under the
+      obligation. A να clause names the required action and its participant through the verb
+      ending. Context can make πρέπει an inference instead, so read the entire utterance."
+    examples:
+      - text: Πρέπει να κλείσουμε την πόρτα πριν φύγουμε.
+        meaning: We must close the door before we leave.
+        note: Κλείσουμε and φύγουμε are first person plural. In a shop-closing routine, this is a
+          requirement on the group.
+  - subskill_id: possibility
+    explanation: Impersonal μπορεί stays third person singular even if the possible event involves
+      the speaker. Its να clause has the appropriate person ending. This differs from personal
+      μπορώ, which can describe the speaker’s ability.
+    examples:
+      - text: Μπορεί να έρθω αργότερα.
+        meaning: I may come later.
+        note: Μπορεί expresses possibility and έρθω is first person singular. The sentence leaves the
+          later arrival uncertain; it does not promise it.
+  - subskill_id: certainty
+    explanation: An adverb such as σίγουρα can express confidence in a stated proposition. Put
+      enough content alongside it to show what you are confident about. This is a speaker
+      stance, not evidence that the proposition is objectively proven.
+    examples:
+      - text: Η συνάντηση είναι σίγουρα αύριο.
+        meaning: The meeting is definitely tomorrow.
+        note: Σίγουρα presents the meeting’s date as certain. A bare agreement response could have a
+          different conversational role.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

@@ -18,5 +18,9 @@ export function saveSkillProfile(choices: ProfileChoices): Promise<SkillSnapshot
 
 export function getPracticeOverview(): Promise<PracticeOverview> { return invoke('get_practice_overview') }
 
+export function getSkillGuide(language: string, variety: string, skill: string, explanation: string, retry = false): Promise<import('../../generated/contracts').SkillGuideResult> {
+  return invoke('get_skill_guide', { language, variety, skill, explanation, retry })
+}
+
 /** XP, conversations and lifetime effort per catalog language, without full snapshots. */
 export function getLanguageTotals(): Promise<import('../../generated/contracts').LanguageTotals[]> { return invoke('get_language_totals') }

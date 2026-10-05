@@ -11,8 +11,11 @@ it('resizes the error panel by keyboard and keeps expanded diagnostics and dismi
   render(<FaultBar />)
   const handle = screen.getByRole('separator', { name: 'Resize panel' })
   const panel = handle.parentElement!
-  fireEvent.click(screen.getByText('Response details'))
-  expect(screen.getByText('Response details').parentElement).toHaveAttribute('open')
+  expect(screen.getByRole('alert')).toHaveTextContent('Microphone: The AI service is busy Wait a few seconds, then try again.')
+  expect(screen.getByText('ElevenLabs system_busy')).not.toBeVisible()
+  fireEvent.click(screen.getByText('Technical details'))
+  expect(screen.getByText('Technical details').parentElement).toHaveAttribute('open')
+  expect(screen.getByText('ElevenLabs system_busy')).toBeVisible()
   fireEvent.keyDown(handle, { key: 'End' })
   expect(panel.style.height).toBe(`${window.innerHeight * 0.85}px`)
   expect(screen.getByText(/Heavy traffic/)).toBeVisible()
@@ -22,6 +25,18 @@ it('resizes the error panel by keyboard and keeps expanded diagnostics and dismi
   expect(panel.style.height).toBe('80px')
   fireEvent.click(screen.getByRole('button', { name: 'Dismiss all' }))
   expect(screen.queryByRole('separator')).toBeNull()
+})
+
+it('shows a readable message as written and folds only machine output', () => {
+  useFaultStore.setState({ faults: [
+    { id: 1, context: 'Saving settings', message: 'The settings file is read-only.' },
+    { id: 2, context: 'Speech', message: 'speech_stream: schema_mismatch at $.items[0]' },
+  ] })
+  render(<FaultBar />)
+  expect(screen.getByText('The settings file is read-only.', { exact: false })).toBeVisible()
+  expect(screen.getByText('speech_stream: schema_mismatch at $.items[0]')).not.toBeVisible()
+  expect(screen.getAllByText('Technical details')).toHaveLength(1)
+  expect(screen.getByRole('alert')).toHaveTextContent('Speech: Something went wrong Try again, and open the details if it keeps happening.')
 })
 
 it('supports pointer dragging with capture, and ignores movement before a drag', () => {

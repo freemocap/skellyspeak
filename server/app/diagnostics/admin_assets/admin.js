@@ -239,7 +239,7 @@ function errorDetails(error, extra = void 0) {
   collect(extra);
   const visited = /* @__PURE__ */ new WeakSet();
   let budget = diagnosticPolicy.limits.nodes;
-  function metadata(value, key = "", depth = 0) {
+  function metadata2(value, key = "", depth = 0) {
     if (depth > diagnosticPolicy.limits.depth || budget-- <= 0) return "[truncated: metadata limit]";
     if (typeof value === "string") return publicField.test(key) ? scrubErrorText(value, privateValues) : diagnosticPolicy.contentTag;
     if (value == null || typeof value === "number" || typeof value === "boolean") return value;
@@ -247,14 +247,14 @@ function errorDetails(error, extra = void 0) {
     if (visited.has(value)) return "[omitted: circular reference]";
     visited.add(value);
     if (Array.isArray(value)) {
-      const items = value.slice(0, diagnosticPolicy.limits.array).map((item) => metadata(item, key, depth + 1));
+      const items = value.slice(0, diagnosticPolicy.limits.array).map((item) => metadata2(item, key, depth + 1));
       if (value.length > diagnosticPolicy.limits.array) items.push({ truncated_items: value.length - diagnosticPolicy.limits.array });
       return items;
     }
     const names = keys(value).sort((a, b) => Number(!["error", "message", "code", "reason", "stage", "diagnostics", "cause"].includes(a)) - Number(!["error", "message", "code", "reason", "stage", "diagnostics", "cause"].includes(b)));
     const result = Object.fromEntries(names.slice(0, diagnosticPolicy.limits.fields).map((name, index) => {
       if (!/^[\w.-]{1,64}$/.test(name) || privateValues.includes(name)) return [`redacted_field_${index}`, diagnosticPolicy.contentTag];
-      return [name, sensitive.test(name) ? isSecret(name) ? diagnosticPolicy.secretTag : diagnosticPolicy.contentTag : metadata(field(value, name), name, depth + 1)];
+      return [name, sensitive.test(name) ? isSecret(name) ? diagnosticPolicy.secretTag : diagnosticPolicy.contentTag : metadata2(field(value, name), name, depth + 1)];
     }));
     if (names.length > diagnosticPolicy.limits.fields) result.truncated_fields = names.length - diagnosticPolicy.limits.fields;
     return result;
@@ -271,15 +271,186 @@ function errorDetails(error, extra = void 0) {
     return {
       name: typeof field(value, "name") === "string" ? scrubErrorText(String(field(value, "name")), privateValues) : void 0,
       message: typeof message === "string" && message.trim() ? scrubErrorText(message, privateValues) : "The error did not include an explanation. Inspect the recorded details.",
-      code: field(value, "code") == null ? void 0 : metadata(field(value, "code"), "code"),
+      code: field(value, "code") == null ? void 0 : metadata2(field(value, "code"), "code"),
       stack: errorStack(field(value, "stack"), privateValues),
       ...cause !== void 0 ? { cause: describe(cause, depth + 1) } : {}
     };
   }
-  const envelope = metadata(typeof error === "string" ? { message: error } : error);
+  const envelope = metadata2(typeof error === "string" ? { message: error } : error);
   const diagnosticMetadata = field(envelope, "diagnostics");
-  return { ...describe(error), metadata: diagnosticMetadata, fields: envelope, ...extra !== void 0 ? { context: metadata(extra) } : {}, redaction: "sensitive spans and unclassified fields removed" };
+  return { ...describe(error), metadata: diagnosticMetadata, fields: envelope, ...extra !== void 0 ? { context: metadata2(extra) } : {}, redaction: "sensitive spans and unclassified fields removed" };
 }
+
+// ui/src/features/admin/report-table.ts
+var element = (tag, text2) => {
+  const node = document.createElement(tag);
+  if (text2 !== void 0) node.textContent = text2;
+  return node;
+};
+var number = (value) => typeof value === "number" && Number.isFinite(value) ? value : null;
+var count = (value) => number(value)?.toLocaleString("en-US") ?? "\u2014";
+var timestamp = (value) => {
+  if (typeof value !== "string") return null;
+  const time = Date.parse(value);
+  return Number.isFinite(time) ? time : null;
+};
+var dateTime = (value) => {
+  const time = timestamp(value);
+  return time === null ? "\u2014" : new Date(time).toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "UTC"
+  });
+};
+var duration = (value) => {
+  const ms = number(value);
+  if (ms === null || ms < 0) return "\u2014";
+  if (ms < 1e3) return `${ms.toLocaleString("en-US")} ms`;
+  if (ms < 6e4) return `${(ms / 1e3).toFixed(2)} s`;
+  return `${Math.floor(ms / 6e4)}m ${(ms % 6e4 / 1e3).toFixed(1)}s`;
+};
+function metadata(value) {
+  const details = element("details");
+  details.className = "metadata-details";
+  details.append(element("summary", "Inspect"), element("pre", JSON.stringify(value, null, 2)));
+  return details;
+}
+function badge(value, tone = "") {
+  const node = element("span", value == null ? "\u2014" : String(value));
+  node.className = `report-badge ${tone}`;
+  return node;
+}
+var ReportTable = class {
+  constructor(columns, options) {
+    this.columns = columns;
+    this.sortKey = options.sort;
+    this.descending = options.descending ?? false;
+    this.visible = new Set(columns.filter((c) => !c.hidden || c.required).map((c) => c.key));
+    this.node.className = "report-table";
+    this.body.className = "scroll report-scroll";
+    const tools = element("div");
+    tools.className = "table-tools";
+    if (options.search) {
+      const label = element("label", options.search.label), input = element("input");
+      input.type = "search";
+      input.placeholder = options.search.label;
+      input.oninput = () => {
+        this.query = input.value;
+        this.render();
+      };
+      label.append(input);
+      tools.append(label);
+    }
+    const choices = element("details");
+    choices.className = "column-choices";
+    choices.append(element("summary", "Columns"));
+    const list = element("div");
+    list.className = "column-list";
+    columns.forEach((column) => {
+      const label = element("label"), input = element("input");
+      input.type = "checkbox";
+      input.checked = this.visible.has(column.key);
+      input.disabled = !!column.required;
+      input.onchange = () => {
+        if (input.checked) this.visible.add(column.key);
+        else this.visible.delete(column.key);
+        if (!this.visible.size) {
+          this.visible.add(column.key);
+          input.checked = true;
+        }
+        this.render();
+      };
+      label.append(input, document.createTextNode(column.label));
+      list.append(label);
+    });
+    choices.append(list);
+    tools.append(this.summary, choices);
+    const scope = element("p", options.scope);
+    scope.className = "table-scope";
+    this.body.setAttribute("aria-label", options.label);
+    this.node.append(tools, scope, this.body);
+    this.label = options.label;
+    this.search = options.search;
+  }
+  rows = [];
+  sortKey;
+  descending;
+  visible;
+  query = "";
+  body = element("div");
+  summary = element("span");
+  node = element("div");
+  label;
+  search;
+  update(rows) {
+    this.rows = rows;
+    this.render();
+  }
+  render() {
+    const query = this.query.toLocaleLowerCase();
+    const selected = this.search && query ? this.rows.filter((row) => this.search.text(row).toLocaleLowerCase().includes(query)) : [...this.rows];
+    const sorter = this.columns.find((c) => c.key === this.sortKey);
+    if (sorter?.value) selected.sort((a, b) => {
+      const left = sorter.value(a), right = sorter.value(b);
+      if (left == null) return right == null ? 0 : 1;
+      if (right == null) return -1;
+      const order = typeof left === "number" && typeof right === "number" ? left - right : String(left).localeCompare(String(right));
+      return this.descending ? -order : order;
+    });
+    const columns = this.columns.filter((c) => this.visible.has(c.key)), table2 = element("table");
+    table2.setAttribute("aria-label", this.label);
+    const head = element("thead"), heading = element("tr"), body = element("tbody");
+    columns.forEach((column) => {
+      const th = element("th");
+      th.scope = "col";
+      if (column.numeric) th.className = "numeric";
+      if (column.value) {
+        const active = column.key === this.sortKey;
+        th.setAttribute("aria-sort", active ? this.descending ? "descending" : "ascending" : "none");
+        const control = element("button", `${column.label} ${active ? this.descending ? "\u2193" : "\u2191" : "\u2195"}`);
+        control.type = "button";
+        control.className = "sort-button";
+        control.dataset.sortKey = column.key;
+        control.setAttribute("aria-label", `Sort by ${column.label}${active ? this.descending ? ", ascending" : ", descending" : ""}`);
+        control.onclick = () => {
+          this.descending = active ? !this.descending : !!column.numeric;
+          this.sortKey = column.key;
+          this.render();
+          this.body.querySelector(`[data-sort-key="${column.key}"]`)?.focus();
+        };
+        th.append(control);
+      } else th.textContent = column.label;
+      heading.append(th);
+    });
+    head.append(heading);
+    selected.forEach((row) => {
+      const tr = element("tr");
+      columns.forEach((column) => {
+        const td = element("td"), value = column.render(row);
+        if (column.numeric) td.className = "numeric";
+        if (value instanceof HTMLElement) td.append(value);
+        else td.textContent = value == null ? "\u2014" : String(value);
+        tr.append(td);
+      });
+      body.append(tr);
+    });
+    if (!selected.length) {
+      const tr = element("tr"), td = element("td", query ? "No loaded records match this search." : "No records loaded in this window.");
+      td.colSpan = columns.length;
+      td.className = "empty-table";
+      tr.append(td);
+      body.append(tr);
+    }
+    table2.append(head, body);
+    this.body.replaceChildren(table2);
+    this.summary.textContent = `${count(selected.length)} of ${count(this.rows.length)} loaded records`;
+    this.summary.setAttribute("role", "status");
+  }
+};
 
 // ui/src/features/admin/entry.ts
 var $ = (id) => document.getElementById(id);
@@ -298,6 +469,7 @@ var nextLogPage;
 var activeLogQuery = "";
 var logSince = "";
 var busy = false;
+var limitsEnforced = true;
 var policyLabels = {
   max_users: "Maximum registered accounts",
   free_daily_micros: "Default daily allowance (USD)",
@@ -308,6 +480,97 @@ var policyLabels = {
   diagnostics_requests: "Account checks / account / day",
   global_diagnostics: "Account checks / service / day"
 };
+function accountIdentity(user) {
+  const node = el("div");
+  node.className = "account-identity";
+  const hint = el("small", user.email_label ? "Click to reveal email" : "Inspect account for identifiers");
+  const control = button(user.email_label ?? "Email unavailable", () => {
+    if (control.dataset.revealed) {
+      control.textContent = user.email_label ?? "Email unavailable";
+      delete control.dataset.revealed;
+      hint.textContent = user.email_label ? "Click to reveal email" : "Inspect account for identifiers";
+      control.setAttribute("aria-expanded", "false");
+      void renderLive();
+      return;
+    }
+    void run(async () => {
+      const result = await api(`/admin/api/users/${encodeURIComponent(user.id)}?days=1`);
+      control.textContent = result.identity.email ?? "Email unavailable";
+      hint.textContent = "Click to hide email";
+      control.dataset.revealed = "true";
+      control.setAttribute("aria-expanded", "true");
+    });
+  });
+  control.className = "identity-toggle";
+  control.setAttribute("aria-expanded", "false");
+  control.title = "Click to reveal email; click again to hide";
+  node.append(control, hint);
+  return node;
+}
+var accountTable = new ReportTable([
+  { key: "identity", label: "Account", required: true, value: (u) => u.email_label ?? u.id, render: accountIdentity },
+  { key: "seen", label: "Last active (UTC)", value: (u) => timestamp(u.last_seen), render: (u) => dateTime(u.last_seen) },
+  { key: "used", label: "Used today (USD)", numeric: true, value: (u) => u.usage.micros, render: (u) => money(u.usage.micros) },
+  { key: "history", label: "Used \xB7 90 days (USD)", numeric: true, value: (u) => u.usage_90_days_micros, render: (u) => money(u.usage_90_days_micros) },
+  { key: "requests", label: "Inference admissions today", numeric: true, value: (u) => number(u.admission.requests), render: (u) => count(u.admission.requests) },
+  { key: "limit", label: "Daily allowance (USD)", numeric: true, value: (u) => limitsEnforced ? u.effective_limit_micros : null, render: (u) => limitsEnforced ? money(u.effective_limit_micros) : "Disabled" },
+  { key: "source", label: "Limit source", value: (u) => u.daily_limit_micros == null ? "Default" : "Custom", render: (u) => badge(u.daily_limit_micros == null ? "Default" : "Custom") },
+  { key: "checks", label: "Account checks today", numeric: true, hidden: true, value: (u) => number(u.admission.diagnostics_requests), render: (u) => count(u.admission.diagnostics_requests) },
+  { key: "check-credit", label: "Restored account checks", numeric: true, hidden: true, value: (u) => number(u.admission.diagnostics_requests_credit), render: (u) => count(u.admission.diagnostics_requests_credit) },
+  { key: "request-credit", label: "Restored inference requests", numeric: true, hidden: true, value: (u) => number(u.admission.requests_credit), render: (u) => count(u.admission.requests_credit) },
+  { key: "allowance-credit", label: "Restored allowance (USD)", numeric: true, hidden: true, value: (u) => u.usage.micros_credit, render: (u) => money(u.usage.micros_credit) },
+  { key: "tokens", label: "Tokens today", numeric: true, hidden: true, value: (u) => u.usage.tokens, render: (u) => count(u.usage.tokens) },
+  { key: "created", label: "Registered (UTC)", hidden: true, value: (u) => timestamp(u.created_at), render: (u) => dateTime(u.created_at) },
+  { key: "version", label: "Session version", numeric: true, hidden: true, value: (u) => u.token_version, render: (u) => count(u.token_version) },
+  { key: "id", label: "Internal account ID", hidden: true, value: (u) => u.id, render: (u) => u.id },
+  { key: "inspect", label: "Details", required: true, render: (u) => button("Inspect account", () => void run(() => inspectUser(u))) }
+], {
+  label: "Accounts",
+  scope: "Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. Admissions include restored credit; usage includes holds and estimates.",
+  sort: "seen",
+  descending: true,
+  search: { label: "Search masked email or account ID", text: (u) => `${u.email_label ?? ""} ${u.id}` }
+});
+$("users").replaceChildren(accountTable.node);
+var eventTable = new ReportTable([
+  { key: "time", label: "Time (UTC)", required: true, value: (r) => timestamp(r.timestamp), render: (r) => dateTime(r.timestamp) },
+  { key: "event", label: "Event", required: true, value: (r) => text(r.event), render: (r) => badge(text(r.event).replaceAll("_", " "), String(r.event).endsWith("failed") || r.event === "provider_error_response" ? "report-danger" : "") },
+  { key: "duration", label: "Duration", numeric: true, value: (r) => number(r.duration_ms), render: (r) => duration(r.duration_ms) },
+  { key: "route", label: "Route", value: (r) => typeof r.route === "string" ? r.route : null, render: (r) => r.route },
+  { key: "status", label: "HTTP status", numeric: true, value: (r) => number(r.status), render: (r) => badge(r.status, Number(r.status) >= 400 ? "report-danger" : "") },
+  { key: "provider", label: "Provider", hidden: true, value: (r) => typeof r.provider === "string" ? r.provider : null, render: (r) => r.provider },
+  { key: "method", label: "Method", hidden: true, value: (r) => typeof r.method === "string" ? r.method : null, render: (r) => r.method },
+  { key: "code", label: "Error code", value: (r) => typeof r.code === "string" ? r.code : null, render: (r) => r.code },
+  { key: "bytes", label: "Bytes", numeric: true, hidden: true, value: (r) => number(r.bytes), render: (r) => count(r.bytes) },
+  { key: "chunks", label: "Chunks", numeric: true, hidden: true, value: (r) => number(r.chunks), render: (r) => count(r.chunks) },
+  { key: "tokens", label: "Tokens", numeric: true, hidden: true, value: (r) => number(r.tokens), render: (r) => count(r.tokens) },
+  { key: "request", label: "Request ID", hidden: true, value: (r) => typeof r.request_id === "string" ? r.request_id : null, render: (r) => r.request_id },
+  { key: "metadata", label: "Metadata", required: true, render: metadata }
+], {
+  label: "Request events",
+  scope: "Sorts loaded events only. Duration measures the named phase: HTTP headers, full request, provider, reservation or settlement. Missing duration is unknown. Search filters this table; the arrival chart uses all loaded events.",
+  sort: "time",
+  descending: true,
+  search: { label: "Search event, route, code or request ID", text: (r) => ["event", "route", "code", "request_id", "provider"].map((k) => text(r[k])).join(" ") }
+});
+$("logs").replaceChildren(eventTable.node);
+var timelineTable = new ReportTable([
+  { key: "time", label: "Interval start (UTC)", required: true, value: (p) => timestamp(p.time), render: (p) => dateTime(p.time) },
+  { key: "record", label: "Record", value: (p) => p.present ? "Present" : "Missing", render: (p) => p.present ? "Present" : "No record" },
+  { key: "usage", label: "Allowance used (USD)", numeric: true, value: (p) => p.present ? p.micros : null, render: (p) => p.present ? money(p.micros) : "\u2014" },
+  { key: "tokens", label: "Tokens", numeric: true, value: (p) => p.present ? p.tokens : null, render: (p) => p.present ? count(p.tokens) : "\u2014" },
+  { key: "requests", label: "Requests", numeric: true, value: (p) => p.present ? p.requests : null, render: (p) => p.present ? count(p.requests) : "\u2014" }
+], { label: "Allowance intervals", scope: "Sorts intervals in the selected chart window. Missing records are unknown.", sort: "time", descending: true });
+$("usage-table").replaceChildren(timelineTable.node);
+var auditTable = new ReportTable([
+  { key: "time", label: "Time (UTC)", required: true, value: (r) => timestamp(r.created_at), render: (r) => dateTime(r.created_at) },
+  { key: "action", label: "Action", value: (r) => text(r.action), render: (r) => text(r.action).replaceAll("_", " ") },
+  { key: "target", label: "Target", value: (r) => text(r.target), render: (r) => r.target },
+  { key: "before", label: "Before", render: (r) => metadata(r.before) },
+  { key: "after", label: "After", render: (r) => metadata(r.after) },
+  { key: "actor", label: "Administrator", hidden: true, value: (r) => text(r.actor), render: (r) => r.actor }
+], { label: "Administrative changes", scope: "Sorts the latest 100 loaded changes.", sort: "time", descending: true });
+$("audit-table").replaceChildren(auditTable.node);
 async function api(path, body) {
   const response = await fetch(path, {
     credentials: "same-origin",
@@ -426,7 +689,7 @@ async function loadTimeline(pushed) {
   const data = pushed ?? await api(`/admin/api/timeline?span=${span}&interval=${interval}`);
   renderChart($("usage-chart"), data.points);
   $("chart-scope").textContent = data.scope;
-  $("usage-table").replaceChildren(table(["Interval start (UTC)", "Record", "Allowance used", "Tokens", "Requests"], data.points.map((p) => [p.time, p.present ? "Present" : "No record", money(p.micros), p.tokens, p.requests])));
+  timelineTable.update(data.points);
 }
 function moneyInput(input) {
   input.type = "text";
@@ -460,7 +723,16 @@ function moneyInput(input) {
   return group;
 }
 function usageTable(rows) {
-  return table(["UTC day", "Record", "Allowance used", "Tokens", "Requests", "Restored allowance"], rows.map((row) => [row.day, row.present ? "Present" : "Missing", money(row.micros), row.tokens, row.requests, money(row.micros_credit)]));
+  const report = new ReportTable([
+    { key: "day", label: "UTC day", required: true, value: (r) => r.day, render: (r) => r.day },
+    { key: "record", label: "Record", value: (r) => r.present ? "Present" : "Missing", render: (r) => r.present ? "Present" : "Missing" },
+    { key: "usage", label: "Used (USD)", numeric: true, value: (r) => r.present ? r.micros : null, render: (r) => r.present ? money(r.micros) : "\u2014" },
+    { key: "tokens", label: "Tokens", numeric: true, value: (r) => r.present ? r.tokens : null, render: (r) => r.present ? count(r.tokens) : "\u2014" },
+    { key: "requests", label: "Requests", numeric: true, value: (r) => r.present ? r.requests : null, render: (r) => r.present ? count(r.requests) : "\u2014" },
+    { key: "credit", label: "Restored allowance (USD)", numeric: true, value: (r) => r.present ? r.micros_credit : null, render: (r) => r.present ? money(r.micros_credit) : "\u2014" }
+  ], { label: "Account daily usage", scope: "Sorts the selected account history. Missing records are unknown.", sort: "day", descending: true });
+  report.update(rows);
+  return report.node;
 }
 function review(action, target, revision, values, before, effect) {
   command = { operation_id: crypto.randomUUID(), expected_revision: revision, action, target, values };
@@ -478,9 +750,9 @@ function parseNumber(input, dollars) {
   if (dollars && !/^\d+(?:\.\d{1,6})?$/.test(input.value.trim())) throw new Error("Enter a USD amount such as 5 or 0.50, with at most six decimal places.");
   if (input.max && Number(input.value) > Number(input.max)) throw new Error(`Maximum allowed value is ${dollars ? "$" : ""}${input.max}.`);
   const scaled = Number(input.value) * (dollars ? 1e6 : 1);
-  const number = Math.round(scaled);
-  if (!Number.isSafeInteger(number) || number < 0 || Math.abs(number - scaled) > 1e-6) throw new Error("Use a nonnegative whole number or at most six decimal places for USD.");
-  return number;
+  const number2 = Math.round(scaled);
+  if (!Number.isSafeInteger(number2) || number2 < 0 || Math.abs(number2 - scaled) > 1e-6) throw new Error("Use a nonnegative whole number or at most six decimal places for USD.");
+  return number2;
 }
 async function loadOverview(live = false, pushed, pushedTimeline) {
   const days = $("days").value;
@@ -490,6 +762,7 @@ async function loadOverview(live = false, pushed, pushedTimeline) {
   $("environment").textContent = data.environment;
   $("administrator").textContent = data.administrator;
   const limited = data.usage_limits_enforced !== false;
+  limitsEnforced = limited;
   $("status").textContent = `Snapshot ${new Date(data.generated_at).toLocaleString()} \xB7 ${limited ? "UTC daily limits reset at 00:00." : "Daily usage limits disabled; usage is still recorded."}`;
   $("revision").textContent = `Revision: ${data.revision}`;
   $("summary").replaceChildren(...[
@@ -505,16 +778,7 @@ async function loadOverview(live = false, pushed, pushedTimeline) {
     return card;
   }));
   await loadTimeline(pushedTimeline);
-  $("users").replaceChildren(table(["Account", "Limit source", "Daily allowance", "Used today", "Used \xB7 90 days", "Account checks / credit", "Sessions version", "Inspect"], data.users.map((user) => [
-    user.id,
-    user.daily_limit_micros == null ? "Default" : "Custom exception",
-    limited ? money(user.effective_limit_micros) : "Disabled",
-    money(user.usage.micros),
-    money(user.usage_90_days_micros),
-    `${user.admission.diagnostics_requests} / ${user.admission.diagnostics_requests_credit}`,
-    user.token_version,
-    button("Inspect account", () => void run(() => inspectUser(user)))
-  ])));
+  if (!live || !document.querySelector("#users [data-revealed]")) accountTable.update(data.users);
   $("next-users").disabled = !data.next_cursor;
   if (live) return;
   $("user-detail").hidden = true;
@@ -538,12 +802,14 @@ async function loadOverview(live = false, pushed, pushedTimeline) {
   }
 }
 async function inspectUser(user) {
+  const label = user.email_label ?? "Account details";
   const result = await api(`/admin/api/users/${encodeURIComponent(user.id)}?days=${$("days").value}`);
   user = result.user;
   const pane = $("user-detail");
   pane.hidden = false;
-  pane.replaceChildren(el("h3", user.id), button("Close account details", () => {
+  pane.replaceChildren(el("h3", label), button("Close account details", () => {
     pane.hidden = true;
+    pane.replaceChildren();
   }));
   const identity = el("details");
   identity.append(el("summary", "Identity details"), table(["User ID", "Email", "Name"], [[user.id, result.identity.email, result.identity.name]]));
@@ -556,16 +822,16 @@ async function inspectUser(user) {
   pane.append(history);
   const controls = el("div");
   controls.className = "filters";
-  const label = el("label", "Custom daily allowance (USD)"), input = el("input");
+  const limitLabel = el("label", "Custom daily allowance (USD)"), input = el("input");
   input.type = "number";
   input.min = "0";
   input.id = "custom-daily-allowance";
-  label.htmlFor = input.id;
+  limitLabel.htmlFor = input.id;
   input.step = "any";
   input.max = "1000";
   input.value = String(user.effective_limit_micros / 1e6);
-  label.append(moneyInput(input));
-  controls.append(label);
+  limitLabel.append(moneyInput(input));
+  controls.append(limitLabel);
   const limitChange = (limit) => review("user_limit", user.id, user.admin_revision, { daily_limit_micros: limit }, { daily_limit_micros: user.daily_limit_micros }, "Applies to subsequent requests. Shared spending and request limits still apply.");
   controls.append(
     button("Set custom limit", () => {
@@ -588,21 +854,33 @@ async function inspectUser(user) {
     ["reset_allowance", "Restore spending allowance", "Grants allowance equal to currently recorded usage, including pending holds. Usage, shared totals, reservations and later settlements remain intact. This can permit additional spending today."],
     ["revoke_sessions", "Revoke sessions", "Invalidates existing app and admin sessions for this account. The user can sign in again; this does not ban the account."]
   ]) resets.append(button(label2, () => review(action, user.id, user.admin_revision, {}, { token_version: user.token_version, today: result.usage.at(-1) }, effect)));
+  const reservations = new ReportTable([
+    { key: "created", label: "Created (UTC)", required: true, value: (r) => timestamp(r.created_at), render: (r) => dateTime(r.created_at) },
+    { key: "state", label: "State", value: (r) => text(r.status), render: (r) => badge(r.status) },
+    { key: "elapsed", label: "Created \u2192 updated", numeric: true, value: (r) => reservationDuration(r), render: (r) => duration(reservationDuration(r)) },
+    { key: "reserved", label: "Reserved (USD)", numeric: true, value: (r) => number(r.reserved_micros), render: (r) => money(Number(r.reserved_micros)) },
+    { key: "recorded", label: "Recorded (USD)", numeric: true, value: (r) => number(r.actual_micros), render: (r) => r.actual_micros == null ? "Unknown" : money(Number(r.actual_micros)) },
+    { key: "basis", label: "Cost basis", value: (r) => typeof r.cost_basis === "string" ? r.cost_basis : null, render: (r) => r.cost_basis ?? "Pending / unknown" },
+    { key: "tokens", label: "Tokens", hidden: true, numeric: true, value: (r) => number(r.tokens), render: (r) => count(r.tokens) },
+    { key: "provider", label: "Provider receipt", hidden: true, value: (r) => typeof r.provider_id === "string" ? r.provider_id : null, render: (r) => r.provider_id },
+    { key: "metadata", label: "Metadata", required: true, render: metadata }
+  ], { label: "Account reservations", scope: "Latest 100 reservations. Created \u2192 updated is recorded bookkeeping time, not provider execution duration. Unknown cost is not zero.", sort: "created", descending: true });
+  reservations.update(result.reservations);
   pane.append(
     resets,
-    el("h4", "Registered installations"),
-    table(["Platform", "App version", "First seen", "Last seen"], result.devices.map((row) => ["platform", "app_version", "first_seen", "last_seen"].map((key) => row[key]))),
+    el("h4", `Registered installations${result.devices_truncated ? " \xB7 limited to 100" : ""}`),
+    table(["Platform", "App version", "First seen (UTC)", "Last seen (UTC)"], result.devices.map((row) => [row.platform, row.app_version, dateTime(row.first_seen), dateTime(row.last_seen)])),
     el("h4", `Latest reservations${result.reservations_truncated ? " \xB7 limited to 100" : ""}`),
-    table(["Created at", "State", "Reserved", "Recorded", "Basis", "Provider receipt"], result.reservations.map((row) => [row.created_at, row.status, money(Number(row.reserved_micros)), row.actual_micros == null ? "Unknown" : money(Number(row.actual_micros)), row.cost_basis ?? "Pending / unknown", row.provider_id]))
+    reservations.node
   );
   pane.scrollIntoView({ block: "start", behavior: "smooth" });
 }
+function reservationDuration(row) {
+  const start = timestamp(row.created_at), end = timestamp(row.updated_at);
+  return start == null || end == null || end < start ? null : end - start;
+}
 function renderLogs() {
-  $("logs").replaceChildren(table(["Time (UTC)", "Event", "Route", "Status", "Code", "Request", "Metadata"], logRows.map((row) => {
-    const details = el("details");
-    details.append(el("summary", "Inspect"), el("pre", JSON.stringify(row, null, 2)));
-    return [row.timestamp, row.event, row.route, row.status, row.code, row.request_id, details];
-  })));
+  eventTable.update(logRows);
   const counts = /* @__PURE__ */ new Map(), unique = /* @__PURE__ */ new Set();
   for (const row of logRows) if (row.event === "request_started" && typeof row.timestamp === "string" && typeof row.request_id === "string" && !unique.has(row.request_id)) {
     const date = new Date(row.timestamp);
@@ -613,9 +891,9 @@ function renderLogs() {
   }
   const days = [...new Set([...counts.keys()].map((key) => key.slice(0, 10)))].sort(), max = Math.max(1, ...counts.values());
   const heatmap = table(["UTC day", ...Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, "0"))], days.map((day) => [day, ...Array.from({ length: 24 }, (_, hour) => {
-    const count = counts.get(`${day}T${String(hour).padStart(2, "0")}`) ?? 0, cell = el("span", String(count));
-    cell.className = `heat heat-${Math.ceil(count / max * 4)}`;
-    cell.title = `${day} ${hour}:00 UTC: ${count} arrivals in loaded events`;
+    const count2 = counts.get(`${day}T${String(hour).padStart(2, "0")}`) ?? 0, cell = el("span", String(count2));
+    cell.className = `heat heat-${Math.ceil(count2 / max * 4)}`;
+    cell.title = `${day} ${hour}:00 UTC: ${count2} arrivals in loaded events`;
     return cell;
   })]));
   $("heatmap").replaceChildren(heatmap);
@@ -663,7 +941,7 @@ async function renderLive() {
   const packet = latestLive;
   if (JSON.stringify(packet.selection) !== JSON.stringify(liveSelection())) return;
   await loadOverview(true, packet.overview, packet.timeline);
-  if (!document.querySelector("#logs details[open]")) {
+  if (!document.querySelector("#logs .metadata-details[open]")) {
     const data = packet.logs;
     logRows = data.entries;
     nextLogPage = void 0;
@@ -775,8 +1053,7 @@ $("more-logs").onclick = () => {
   void run(() => loadLogs(true));
 };
 $("load-audit").onclick = () => void run(async () => {
-  const rows = await api("/admin/api/audit");
-  $("audit-table").replaceChildren(table(["Time", "Action", "Target", "Before", "After", "Actor"], rows.map((row) => ["created_at", "action", "target", "before", "after", "actor"].map((key) => row[key]))));
+  auditTable.update(await api("/admin/api/audit"));
 });
 $("logout").onclick = () => void run(async () => {
   stopLive();

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: information_exchange
+guidance: Assess meaningful information questions, relevant answers, factual confirmation and
+  useful detail. Cửa hàng đóng cửa lúc mấy giờ? asks a closing time without English-style
+  inversion. Lúc năm giờ answers that question contextually. Cửa hàng đóng cửa lúc năm giờ, đúng
+  không? checks a proposed fact. Bạn giúp tôi được không? normally requests help rather than
+  merely asking about capability. Cửa vào ở phía sân supplies an entrance location when that is
+  needed. An isolated copied gì without an identifiable question is absent; extra words alone do
+  not prove useful detail. Bạn nói vậy nghĩa là gì? asks for interpretation of a contribution
+  rather than confirming an external schedule. Respect ordinary brief answers and
+  relationship-sensitive address terms. Do not invent omitted referents or treat a socially
+  different but intelligible pronoun choice as failure of every informational function.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_identity2026
+    - msu_vietnamese_duration2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

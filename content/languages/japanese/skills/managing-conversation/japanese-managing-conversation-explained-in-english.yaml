@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: では can prepare a conversational closing. また with a time anticipates the next encounter.
+    examples:
+      - text: では、また来週。
+        meaning: Well then, see you next week.
+        note: Use at the end of a meeting. 来週 names the next encounter’s time without an explicit
+          meeting verb.
+  - subskill_id: acknowledging
+    explanation: なるほど signals that an explanation makes sense to the listener. It need not express
+      endorsement of an opinion.
+    examples:
+      - text: なるほど、そういうことですね。
+        meaning: I see; that is what you mean.
+        note: Reply after an explanation resolves confusion. The speaker acknowledges the explanation’s
+          meaning.
+  - subskill_id: clarification
+    explanation: もう一度 means once more. With お願いします, it can request repetition of an unclear
+      preceding utterance.
+    examples:
+      - text: すみません、もう一度お願いします。
+        meaning: Sorry, could you say that again?
+        note: The previous utterance supplies what should be repeated. This is not a request to verify
+          whether the understood fact is true.
+  - subskill_id: rephrasing
+    explanation: つまり can introduce a clearer summary of an earlier point. The new wording must
+      preserve the relevant meaning.
+    examples:
+      - text: つまり、予約が必要ということです。
+        meaning: In other words, a reservation is required.
+        note: Use to simplify an earlier explanation that visitors must arrange their visit in advance.
+          ということです presents its practical meaning.
+  - subskill_id: correcting_misunderstanding
+    explanation: ではなく contrasts the unintended interpretation with the intended one. つもりでした can
+      explain what the speaker had meant.
+    examples:
+      - text: 土曜日ではなく、日曜日のつもりでした。
+        meaning: I meant Sunday, not Saturday.
+        note: Say this after the listener interprets the proposed meeting day as Saturday. The intended
+          plan is corrected explicitly.
+  - subskill_id: turns_topics
+    explanation: 話は変わりますが announces a change of topic. Follow it with the new subject rather than
+      leaving the transition unexplained.
+    examples:
+      - text: 話は変わりますが、来週の予定を確認してもいいですか。
+        meaning: Changing the subject, may I check next week’s plans?
+        note: The opening manages the topic shift, and the question introduces the next topic for
+          discussion.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

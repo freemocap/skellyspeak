@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: reasons_connections
+guidance: Evaluate causes, consequences, conditions, contrast and support for claims. Потому что
+  introduces a reason; поэтому presents a consequence. Если завтра пойдёт дождь, мы останемся
+  дома establishes a real future condition and may use future forms in both clauses. Do not
+  impose the English restriction against will-like future marking in an if-clause. Но contrasts
+  properties, while сначала and потом alone only sequence events. Свет в окне can support a
+  claim that someone is home without causing their presence. Потому что пошёл дождь can answer a
+  specific why-question contextually. A copied connector without recoverable linked content is
+  absent. Judge whether the supplied support actually bears on the claim, not merely whether two
+  statements appear. Correct causal or conditional structure can be evidenced despite an
+  unrelated lexical error elsewhere in the message.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_condition2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

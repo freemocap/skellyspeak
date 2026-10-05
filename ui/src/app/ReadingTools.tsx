@@ -27,7 +27,7 @@ export function ReadingTools({ settings, defaultScope, onAsk, children }: { sett
   const ask = (question: string) => {
     useNavigationStore.getState().draftReadingQuestion(question)
     // Preserve unsaved settings: defer navigation until the settings dialog closes.
-    if (!useNavigationStore.getState().settingsBusy) useNavigationStore.getState().openPractice('panel')
+    if (!useNavigationStore.getState().settingsBusy) useNavigationStore.getState().openConversation('panel')
   }
   return <AskCoachContext value={onAsk === undefined ? ask : onAsk}><ReadingProvider settings={settings}>{defaultScope ? <ReadingScopeContext value={defaultScope}>{reading}</ReadingScopeContext> : reading}</ReadingProvider></AskCoachContext>
 }

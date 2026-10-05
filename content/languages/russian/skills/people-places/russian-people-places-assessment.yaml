@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: people_places
+guidance: Assess identification, properties, location or movement, possession or relationships,
+  and quantity or comparison. Это моя соседка identifies a person without an obligatory present
+  copula. Эта улица узкая predicates a property; relevant adjective and demonstrative agreement
+  matters. Ключ лежит на полке locates an object; к двери expresses a destination with the
+  dative. У меня есть две коробки states possession with у and the genitive, not an
+  English-style have verb. Две коробки counts objects, whereas автобус номер два identifies a
+  route. Легче compares weight without an obligatory чем when the standard is genitive. На полке
+  can answer a where-question contextually. An isolated copied preposition with no recoverable
+  relation is absent. Flexible word order is not itself incorrect. Judge the case or agreement
+  involved in the demonstrated relation without making unrelated mistakes erase correct
+  evidence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_agreement2026
+    - cornell_russian_possession2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

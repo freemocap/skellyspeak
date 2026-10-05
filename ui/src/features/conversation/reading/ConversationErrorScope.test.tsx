@@ -12,7 +12,7 @@ it('opens the originating operation, even with several failures and an older exc
   render(<ConversationErrorScope conversationId="conversation" turn={turn} onInspect={close}>
     <ErrorDetails label="Reply ideas" errorKey='["romanization is not in Latin script"]'>romanization is not in Latin script</ErrorDetails>
   </ConversationErrorScope>)
-  fireEvent.click(screen.getByText('⚠ Reply ideas'))
+  fireEvent.click(screen.getByText('Technical details'))
   fireEvent.click(screen.getByRole('button', {name:'Open AI activity'}))
   expect(close).toHaveBeenCalledOnce()
   expect(useNavigationStore.getState().overlay).toBe('activity')

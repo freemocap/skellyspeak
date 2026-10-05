@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Хочу followed by an infinitive names what the speaker wants to do.
+    examples:
+      - text: Я хочу научиться шить.
+        meaning: I want to learn to sew.
+        note: Научиться focuses on acquiring the ability; this is desire rather than a commitment.
+  - subskill_id: preferences
+    explanation: Нравится takes the experiencer in the dative. Больше and чем compare preferences.
+    examples:
+      - text: Мне больше нравится чай, чем кофе.
+        meaning: I prefer tea to coffee.
+        note: Мне identifies whose preference is expressed. The drinks are alternatives.
+  - subskill_id: emotions
+    explanation: Рад expresses gladness and agrees with the person experiencing it.
+    examples:
+      - text: Я рада этой новости.
+        meaning: I am glad about this news.
+        note: A feminine speaker uses рада. Этой новости is dative after the adjective.
+  - subskill_id: opinions
+    explanation: По-моему frames the following evaluation as the speaker’s view.
+    examples:
+      - text: По-моему, этот способ удобнее.
+        meaning: In my opinion, this method is more convenient.
+        note: The comparison is an evaluation of a method already under discussion.
+  - subskill_id: agreement_disagreement
+    explanation: Согласен with с plus instrumental expresses agreement; не reverses it.
+    examples:
+      - text: Я не согласна с этим предложением.
+        meaning: I disagree with this proposal.
+        note: The speaker uses feminine согласна and identifies the proposal being rejected.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

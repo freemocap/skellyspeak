@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-subskills.yaml
+schema_version: 1
+revision: communication-2026-10-03
+skill_id: information_exchange
+subskills:
+  - id: asking_information
+    name: Asking for information
+    purpose: Seek an unknown fact, description or explanation.
+    positive_evidence: Requests information that the partner could supply.
+    counterexample: Question-shaped wording functioning solely as a request for action.
+    context: contribution
+    boundary: Clarification concerns understanding a prior contribution; information seeking need not
+      repair understanding.
+    neighbors:
+      - requests
+      - clarification
+      - checking_facts
+  - id: answering_information
+    name: Answering relevantly
+    purpose: Supply information responsive to an identifiable question.
+    positive_evidence: Provides an answer that addresses the question, including a contextually complete fragment.
+    counterexample: An unrelated statement after a question.
+    context: exchange
+    boundary: A relevant answer can express other meanings; do not infer them from missing context.
+    neighbors:
+      - asking_information
+      - useful_detail
+      - acknowledging
+  - id: checking_facts
+    name: Checking facts
+    purpose: Verify whether a proposition or reported detail is correct.
+    positive_evidence: Seeks confirmation or correction of an identifiable factual proposition.
+    counterexample: Requesting repetition because the prior words were not heard.
+    context: contribution
+    boundary: Checking truth differs from repairing interpretation or audibility.
+    neighbors:
+      - asking_information
+      - clarification
+      - correcting_misunderstanding
+  - id: useful_detail
+    name: Providing useful detail
+    purpose: Elaborate or summarize information to meet the exchange's needs.
+    positive_evidence: Adds a relevant distinction, example or focused summary that resolves the
+      listener's information need.
+    counterexample: Extra length or repetition with no additional communicative contribution.
+    context: exchange
+    boundary: Usefulness requires the question or topic context; verbosity alone is not evidence.
+    neighbors:
+      - answering_information
+      - supporting_claims
+      - rephrasing
+provenance:
+  origin: ai
+  authorship: AI-generated editorial definitions from the agreed eight-group design; not
+    human-reviewed language guides.
+  sources:
+    - threshold_general_notions
+    - waystage_language_functions
+    - bunt2020_dialogue_acts
+    - dingemanse2015_communication_repair
+  generation: null
+  review:
+    status: needs_review
+    revision: communication-2026-10-03
+    scope: Entire document; linguistic review pending.

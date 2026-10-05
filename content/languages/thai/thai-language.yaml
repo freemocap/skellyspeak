@@ -1,0 +1,175 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: thai
+  name: Thai
+  native_name: ไทย
+  family: kra-dai
+  review: needs_review
+integrations:
+  language_tag: th
+  transcription: th
+definitions:
+  orthographies:
+    modern-thai:
+      script: thai
+      guidance:
+        - scope: target_writing
+          text: Write standard Thai in Thai script, retaining vowels, tone marks and other orthographic signs.
+            Use natural phrase spacing; do not insert spaces between every word or separate
+            combining marks from their bases. Preserve quoted source text exactly, including its
+            original spacing. Romanization belongs only in a separate reading aid.
+          sources:
+            - unicode17_southeast_asia
+        - scope: explanation_writing
+          text: Write standard Thai in Thai script, retaining vowels, tone marks and other orthographic signs.
+            Use natural phrase spacing; do not insert spaces between every word or separate
+            combining marks from their bases. Preserve quoted source text exactly, including its
+            original spacing. Romanization belongs only in a separate reading aid.
+          sources:
+            - unicode17_southeast_asia
+  romanization_schemes:
+    paiboon:
+      label: Paiboon (tone-marked)
+      instructions: Use the Paiboon convention documented in the cited comparison table. Mark mid tone
+        with no accent, low with grave (à), falling with circumflex (â), high with acute (á), and
+        rising with caron (ǎ), placing the mark on the first vowel. Double vowels for length,
+        including aa, ii, ʉʉ, uu, ee, ɛɛ, oo, ɔɔ and əə; distinguish short/long diphthongs ia/iia,
+        ʉa/ʉʉa and ua/uua. Initial ก is g, ต dt, ป bp, จ j; aspirated counterparts use k, t, p and
+        ch. Final stops are k, t, p. Keep voiced b/d distinct. Separate spoken syllables with
+        hyphens and words with spaces. Resolve pronunciation and lexical tone in context; Thai
+        written tone signs are not a direct one-to-one mapping to spoken tones. Expand repetition in
+        the aid and omit silent letters there only. This is a pronunciation-oriented aid, not
+        reversible spelling or evidence of the learner’s actual pronunciation. Preserve the Thai
+        source exactly.
+      examples:
+        - original: มา
+          romanized: maa
+        - original: ม้า
+          romanized: máa
+        - original: หมา
+          romanized: mǎa
+        - original: ข่า
+          romanized: kàa
+        - original: ข้าว
+          romanized: kâao
+        - original: ขอบคุณ
+          romanized: kɔ̀ɔp kun
+      sources:
+        - thai_paiboon_conventions
+      review: needs_review
+defaults:
+  variety: thai-thailand
+  orthography:
+    local: modern-thai
+  scalars: {}
+  romanization:
+    mode: scheme
+    scheme:
+      local: paiboon
+  supported_romanizations:
+    - local: paiboon
+traits:
+  - tones
+  - unspaced-words
+varieties:
+  - id: thai-thailand
+    name: Thailand
+    description: Standard Thai in Thailand, using contemporary Thai spelling and everyday conversation;
+      regional languages are outside this profile.
+    review: needs_review
+    sources:
+      - unicode17_southeast_asia
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: สวัสดี
+    romanizations:
+      thai:paiboon: sà-wàt-dii
+  default_partner:
+    name: มาลี
+    romanizedName: Maa-lii
+    age: 34
+    location: Bangkok, Thailand
+    occupation: Repairs bicycles
+    background: Learned bicycle repair at a neighborhood workshop.
+    currentSituation: Preparing a repaired bicycle for a customer and planning a weekend ride.
+    interests:
+      - bicycle repair
+      - cooking
+    opinions:
+      - Repairing a useful object is worth taking time over.
+    interestingFacts:
+      - Keeps a notebook of routes with quiet streets.
+    favoriteBooks: []
+    favoriteMovies: []
+    manner: Practical and curious. Uses respectful everyday Thai with new acquaintances.
+    quirks:
+      - Checks the weather before choosing a route.
+    vibe:
+      - 🚲
+      - 🔧
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - สวัสดี
+      - ขอบคุณ
+      - ขอน้ำหน่อย
+      - อยู่ที่นี่
+      - ร้อน
+      - หิว
+      - นี่อะไร
+      - ไม่รู้
+    beginner:
+      - เขาเป็นหมอ
+      - ห้องนี้เล็ก
+      - มีจักรยานหนึ่งคัน
+      - นี่คือพี่สาวของฉัน
+      - ต้องการเก้าอี้สองตัว
+      - มีเวลานิดหน่อย
+      - ทำงานที่นี่
+      - เขากำลังอ่านหนังสือ
+    intermediate:
+      - เมื่อวานไปตลาด
+      - เคยไปเชียงใหม่
+      - พรุ่งนี้จะมา
+      - เราจะเจอกันสัปดาห์หน้า
+      - ชอบกาแฟมากกว่าชา
+      - อยากกลับบ้าน
+      - ช่วยพูดอีกครั้งได้ไหม
+      - ไม่ต้องมาพรุ่งนี้
+    advanced:
+      - ถ้ามีเวลามากกว่านี้ก็อยากเรียนเล่นกีตาร์
+      - ถึงแม้ฝนจะตก เราก็ตัดสินใจเดินต่อ
+      - อยากให้เราคุยกันก่อนที่จะตัดสินใจ
+      - ยิ่งอ่านรายงานนี้ก็ยิ่งมีคำถามมากขึ้น
+      - กว่าจะไปถึงสถานี รถไฟก็ออกไปแล้ว
+      - ไม่ใช่ว่าไม่เห็นด้วย แต่ยังต้องการข้อมูลเพิ่มเติม
+      - สิ่งที่กังวลคือการเปลี่ยนแปลงนี้จะส่งผลต่อคนอื่นอย่างไร
+      - ถ้ารู้ล่วงหน้าว่าการประชุมจะนานขนาดนี้ก็คงเปลี่ยนแผนไปแล้ว
+    social:
+      - สวัสดีค่ะ
+      - สวัสดีครับ
+      - สบายดีไหม
+      - สบายดี ขอบคุณ
+      - คุณชื่ออะไร
+      - ยินดีที่ได้รู้จัก
+      - ขอบคุณมาก
+      - ไม่เป็นไร
+      - ขอโทษค่ะ
+      - ขอโทษครับ
+      - แล้วเจอกัน
+      - เดินทางปลอดภัย
+    idiomatic:
+      - ขี่ช้างจับตั๊กแตน
+      - เข็นครกขึ้นเขา
+      - เข้าหูซ้ายทะลุหูขวา
+      - ขนหัวลุก
+      - ขิงก็รา ข่าก็แรง
+      - ไข่ในหิน
+      - แข่งกับเวลา
+      - ขวานผ่าซาก
+  varieties: {}

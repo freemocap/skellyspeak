@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 因为 introduces an explanation. The main statement can precede it when the speaker
+      gives the reason after describing the decision.
+    examples:
+      - text: 我坐公交车，因为自行车坏了。
+        meaning: I am taking the bus because my bicycle is broken.
+        note: The broken bicycle explains the transport choice. 了 presents the changed condition of the
+          bicycle.
+  - subskill_id: consequences
+    explanation: 所以 introduces the consequence of a preceding circumstance. Its relation must be
+      supplied by the two clauses.
+    examples:
+      - text: 桥封了，所以我们换了一条路。
+        meaning: The bridge was closed, so we took another route.
+        note: The closure explains changing routes. 一条路 uses the classifier 条 for a road or route.
+  - subskill_id: conditions
+    explanation: 如果 can introduce a condition, with 就 linking the consequence. No special
+      conditional verb conjugation is needed.
+    examples:
+      - text: 如果明天下雨，我们就改天去。
+        meaning: If it rains tomorrow, we will go another day.
+        note: Rain is hypothetical. 改天 gives the proposed change under that condition.
+  - subskill_id: contrast
+    explanation: 虽然 and 但是 can be paired to present a concession and a contrasting main point. This
+      pairing is normal Mandarin.
+    examples:
+      - text: 虽然路很短，但是坡很陡。
+        meaning: Although the route is short, the slope is steep.
+        note: The steep slope is a drawback despite the route’s short length.
+  - subskill_id: supporting_claims
+    explanation: 觉得 can state an inference and 因为 its supporting observation. Distinguish evidence
+      for a belief from the cause of the observed event.
+    examples:
+      - text: 我觉得里面还有人，因为灯还亮着。
+        meaning: I think someone is still inside because the light is still on.
+        note: The light supports the inference. 还 marks continuation; the sentence does not claim the
+          light caused someone to be inside.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

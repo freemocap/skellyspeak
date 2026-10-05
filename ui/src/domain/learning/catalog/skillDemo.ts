@@ -10,8 +10,11 @@ export const skillDemo: SkillSnapshot = {
   profile: {
     credits: [],
     rules_version: 3, choices: { version: 1, revision: 0, learner_id: 'demo', target: 'spanish-spain', focus: null, excluded_attempts: [] },
-    xp: 0, recommended_focus: 'identify_describe', active_focus: 'identify_describe',
+    xp: 0, recommended_focus: 'people_places', active_focus: 'people_places',
     skills: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skill_id: s.id, experience: 0, effort: 0, xp: 0, checked: false, star: false })),
-    branches: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skill_id: s.id, available: skillTree.some((parent) => parent.id === s.parent && parent.kind === 'domain') })),
+    branches: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skill_id: s.id, available: skillTree.some((parent) => parent.id === s.parent && parent.kind === 'root') })),
+    // No credits yet: every skill and the language sit at level 0, with level 1 at one point.
+    levels: { policyId: 'fixture', skills: skillTree.filter((s) => s.kind === 'skill').map((s) => ({ skillId: s.id, points: 0, level: 0, currentThreshold: 0, nextThreshold: 1 })), level: 0, currentThreshold: 0, nextThreshold: 1, bands: [1] },
+    pendingLevelEvents: [],
   },
 }

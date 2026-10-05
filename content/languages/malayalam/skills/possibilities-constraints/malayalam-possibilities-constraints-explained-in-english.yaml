@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: An infinitive with കഴിയും can express ability.
+    examples:
+      - text: എനിക്ക് നീന്താൻ കഴിയും.
+        meaning: I can swim.
+        note: എനിക്ക് identifies the person with the capability.
+  - subskill_id: permission
+    explanation: A question ending in ആമോ can ask whether an action is permitted.
+    examples:
+      - text: ഇവിടെ ബാഗ് വെക്കാമോ?
+        meaning: May I leave the bag here?
+        note: Ask the person responsible for the space; the actor is recoverable from context.
+  - subskill_id: obligation
+    explanation: The ending in കൊടുക്കണം can state a required action.
+    examples:
+      - text: ഞാൻ ഇന്ന് താക്കോൽ തിരികെ കൊടുക്കണം.
+        meaning: I must return the key today.
+        note: The context is a return deadline, establishing obligation rather than a wish.
+  - subskill_id: possibility
+    explanation: A form with ഏക്കാം can express a possible event.
+    examples:
+      - text: വൈകുന്നേരം മഴ പെയ്തേക്കാം.
+        meaning: It may rain in the evening.
+        note: The weather outcome is left uncertain.
+  - subskill_id: certainty
+    explanation: ഉറപ്പില്ല states lack of certainty about a proposition.
+    examples:
+      - text: കട തുറന്നിട്ടുണ്ടോ എന്ന് എനിക്ക് ഉറപ്പില്ല.
+        meaning: I am not sure whether the shop is open.
+        note: The embedded question identifies the uncertainty without asserting closure.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

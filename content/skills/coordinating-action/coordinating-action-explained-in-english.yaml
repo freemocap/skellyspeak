@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: coordinating_action
+explanation_language: english
+title: Coordinating action
+introduction: Request, propose and negotiate shared or individual action.
+sections:
+  - subskill_id: requests
+    title: Requests
+    concept: Ask another participant to do or stop doing something.
+  - subskill_id: offers_invitations
+    title: Offers and invitations
+    concept: Propose one's help or another participant's involvement.
+  - subskill_id: suggestions
+    title: Suggestions
+    concept: Put forward a possible course of action for consideration.
+  - subskill_id: commitments
+    title: Commitments
+    concept: Undertake responsibility for a future action.
+  - subskill_id: accepting_declining
+    title: Accepting and declining
+    concept: Respond to a request, offer, invitation or proposed action.
+  - subskill_id: negotiating_plans
+    title: Negotiating a plan
+    concept: Adjust proposed action to reconcile participants' needs or constraints.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

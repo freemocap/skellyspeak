@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: feelings_viewpoints
+language: spanish
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Querer followed by an infinitive can express what the subject wants to do.
+    examples:
+      - text: Quiero descansar.
+        meaning: I want to rest.
+        note: The subject of wanting is also the intended subject of resting.
+  - subskill_id: preferences
+    explanation: Preferir states a preference; gustar uses the thing liked as its grammatical subject.
+    examples:
+      - text: Me gustan estos libros.
+        meaning: I like these books.
+        note: Gustan agrees with plural libros.
+  - subskill_id: emotions
+    explanation: Name your feeling with an appropriate expression. Adjectives used with estar agree with
+      the person described.
+    examples:
+      - text: Estoy contenta.
+        meaning: I am happy.
+        note: A feminine speaker describes her emotional state.
+  - subskill_id: opinions
+    explanation: Creo que can introduce your view of a proposition. An evaluation can also state your
+      opinion directly.
+    examples:
+      - text: Creo que es una buena idea.
+        meaning: I think it is a good idea.
+        note: The speaker presents an evaluation as their view.
+  - subskill_id: agreement_disagreement
+    explanation: Respond to a known position with agreement, disagreement or a qualification.
+    examples:
+      - text: No estoy de acuerdo.
+        meaning: I disagree.
+        note: The preceding position is needed to know what is being rejected.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

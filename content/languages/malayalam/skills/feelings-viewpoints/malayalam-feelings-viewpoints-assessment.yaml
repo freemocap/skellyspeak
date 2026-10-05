@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: feelings_viewpoints
+guidance: "Assess desire, preference, emotion, opinion and agreement. എനിക്ക് തയ്യൽ പഠിക്കാൻ
+  ആഗ്രഹമുണ്ട് expresses wanting to learn sewing. എനിക്ക് കാപ്പിയെക്കാൾ ചായയാണ് ഇഷ്ടം compares
+  preferences with a dative experiencer. സന്തോഷമായി can express an emotional response, while
+  തോന്നുന്നു can frame a personal impression. ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നില്ല rejects a
+  proposal. മനസ്സിലായി acknowledges understanding without necessarily agreeing. ചായ can answer a
+  preference question contextually; its appearance in an inventory is not evidence of liking. A
+  copied ഇഷ്ടം without a recoverable experiencer or object is absent. Do not replace all
+  experiencer frames with a nominative ഞാൻ construction: case depends on the predicate.
+  Conversely, not every emotional verb requires a dative subject. Judge the actual stance
+  expression rather than treating every assertion or future event as opinion or desire."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

@@ -64,63 +64,6 @@ fn every_target_and_explanation_variety_has_the_shared_topics() {
 }
 
 #[test]
-fn courtesy_retrieval_uses_only_the_target_languages_material() {
-    let registry = Registry::bundled().unwrap();
-    let examples = [
-        ("greek", "ευχαριστώ"),
-        ("thai", "ขอบคุณ"),
-        ("korean", "감사합니다"),
-        ("japanese", "ありがとう"),
-        ("vietnamese", "cảm ơn"),
-        ("indonesian", "terima kasih"),
-        ("turkish", "teşekkür ederim"),
-        ("russian", "спасибо"),
-        ("ukrainian", "дякую"),
-        ("english", "thanks"),
-        ("spanish", "gracias"),
-        ("french", "merci"),
-        ("german", "danke"),
-        ("portuguese", "obrigado"),
-        ("arabic", "شكرا"),
-        ("mandarin", "谢谢"),
-        ("hindi", "धन्यवाद"),
-        ("malayalam", "നന്ദി"),
-        ("italian", "grazie"),
-        ("irish", "go raibh maith agat"),
-    ];
-    for (language, local) in examples {
-        let ctx = registry.resolve(language, None, "english").unwrap();
-        for (_, token) in examples {
-            let candidates = registry
-                .candidates(
-                    &ctx,
-                    "A1",
-                    &[],
-                    &[],
-                    &token
-                        .split_whitespace()
-                        .map(str::to_owned)
-                        .collect::<Vec<_>>(),
-                )
-                .unwrap();
-            assert_eq!(
-                candidates.iter().any(|c| c.id == "courtesy"),
-                token == local,
-                "{language}: {token}"
-            );
-        }
-        // Explicit learning focus remains independent of lexical hints.
-        assert!(
-            registry
-                .candidates(&ctx, "A1", &["courtesy".into()], &[], &[])
-                .unwrap()
-                .iter()
-                .any(|c| c.id == "courtesy")
-        );
-    }
-}
-
-#[test]
 fn indic_scripts_and_romanization_resolve_in_both_language_roles() {
     let registry = Registry::bundled().unwrap();
     for (language, script, tag) in [

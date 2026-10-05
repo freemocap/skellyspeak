@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: എത്ര മണിക്ക് asks at what clock time an event occurs.
+    examples:
+      - text: കട എത്ര മണിക്കാണ് അടയ്ക്കുന്നത്?
+        meaning: What time does the shop close?
+        note: The question asks for the shop’s closing hour.
+  - subskill_id: answering_information
+    explanation: A dative-marked clock time can answer a preceding time question.
+    examples:
+      - text: അഞ്ചു മണിക്ക്.
+        meaning: At five o’clock.
+        note: Reply to the shop closing-time question; the event need not be repeated.
+  - subskill_id: checking_facts
+    explanation: അല്ലേ after a proposition can ask for confirmation.
+    examples:
+      - text: കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്, അല്ലേ?
+        meaning: The shop closes at five, right?
+        note: The speaker supplies five as a candidate fact.
+  - subskill_id: useful_detail
+    explanation: A location predicate can distinguish an entrance for the listener.
+    examples:
+      - text: പ്രവേശനം മുറ്റത്തിന്റെ വശത്താണ്.
+        meaning: The entrance is on the courtyard side.
+        note: Use when the listener is trying to locate the entrance.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_time2026
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

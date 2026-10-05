@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: feelings_viewpoints
+language: english
+guidance: Look for a correctly expressed desire, intention, preference, emotion,
+  opinion or alignment with a position. I want to leave and I prefer tea to
+  coffee are valid; I want leave is not a correct ordinary want-plus-infinitive
+  construction. I agree can be a complete contextual response to a stated
+  opinion. A factual description without a viewpoint is not sufficient just
+  because it includes I. Do not treat every future statement as an intention.
+  Credit requires correct use of this function, not an unsuccessful attempt.
+  Unrelated errors do not invalidate a successful instance. Use unclear when the
+  available context cannot establish the function. The listed forms are
+  examples, not an exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - cefr2020
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

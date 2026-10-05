@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: information_exchange
+guidance: Look for meaningful information questions, relevant answers, factual confirmation and
+  useful detail. 商店几点关门？ asks a closing time with the interrogative in its ordinary clause
+  position. 五点 answers that question contextually. 商店五点关门，对吗？ checks a proposed fact; an
+  alternative question may use 还是 without adding 吗. 你能帮我搬箱子吗？ normally asks for help rather than
+  merely testing the truth of a capability claim. An isolated copied 什么 without an identifiable
+  question or repair need is absent. 靠窗的那张桌子 can specify which table the listener needs;
+  verbosity alone does not establish useful detail. 你说的是什么意思？ addresses trouble interpreting an
+  earlier contribution, not simply uncertainty about a schedule’s truth. Do not require English
+  auxiliary inversion, a full subject in a contextual answer, or a universal yes/no word when a
+  repeated predicate supplies a natural answer.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

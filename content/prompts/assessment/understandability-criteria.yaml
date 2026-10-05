@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=../../rust-schemas/assessment-criteria.yaml
+schema_version: 1
+revision: understandability-criteria-2026-10-04
+criteria:
+  understandable: The partner can recover the intended contribution from the wording and available context without needing clarification.
+  needs_clarification: The partner can recover part of the intended contribution but needs clarification of a material ambiguity.
+  unrecoverable: The wording and available context do not support a coherent interpretation of the intended contribution.
+  insufficient_evidence: The available material does not permit a useful judgment of partner understanding.

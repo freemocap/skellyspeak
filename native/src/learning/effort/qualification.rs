@@ -1,6 +1,5 @@
 //! Source-domain qualification for unit effort awards. No storage side effects.
 use crate::drill::comparison::DrillComparison;
-use crate::learning::coaching::{CoachDecision, CoachObservationView, MeaningLevel, Outcome};
 use crate::partners::partner_reaction::{PartnerReaction, ReactionKind};
 
 /// Versioned product inclusion policy, not an accuracy or proficiency threshold.
@@ -23,30 +22,6 @@ pub fn understood(reaction: Option<&PartnerReaction>) -> Qualification {
             Qualification::Qualified
         }
         Some(_) => Qualification::NotQualified,
-    }
-}
-
-/// Call with complete, currently authoritative feedback only. Missing data is
-/// pending, never a clean result. Hidden corrections count as flags too.
-pub fn no_issues(
-    feedback: Option<&CoachObservationView>,
-    decision: Option<&CoachDecision>,
-) -> Qualification {
-    let (Some(feedback), Some(decision)) = (feedback, decision) else {
-        return Qualification::Pending;
-    };
-    if feedback.meaning_recovered != MeaningLevel::Full
-        || decision.shown.is_some()
-        || !feedback.corrections.is_empty()
-        || !feedback.notes.is_empty()
-        || feedback
-            .items
-            .iter()
-            .any(|item| matches!(item.outcome, Outcome::Partial | Outcome::NotDemonstrated))
-    {
-        Qualification::NotQualified
-    } else {
-        Qualification::Qualified
     }
 }
 

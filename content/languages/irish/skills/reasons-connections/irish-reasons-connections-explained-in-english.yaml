@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Mar can introduce a reason.
+    examples:
+      - text: D’fhan mé sa bhaile mar bhí sé ag cur báistí.
+        meaning: I stayed home because it was raining.
+        note: Rain is presented as the reason for staying home.
+  - subskill_id: consequences
+    explanation: Mar sin can introduce a consequence.
+    examples:
+      - text: Níor tháinig an bus, mar sin shiúil mé.
+        meaning: The bus did not come, so I walked.
+        note: Walking is presented as a response to the missing bus.
+  - subskill_id: conditions
+    explanation: Má introduces an open condition with a dependent outcome.
+    examples:
+      - text: Má bhíonn sé ag cur báistí amárach, fanfaimid sa bhaile.
+        meaning: If it is raining tomorrow, we will stay home.
+        note: Bíonn has the lenited form bhíonn after má; fanfaimid gives the result.
+  - subskill_id: contrast
+    explanation: Ach links descriptions that contrast in the discussion.
+    examples:
+      - text: Tá an bealach gearr ach géar.
+        meaning: The route is short but steep.
+        note: The properties may matter differently when choosing a route.
+  - subskill_id: supporting_claims
+    explanation: A reason clause can supply evidence for an inference.
+    examples:
+      - text: Ceapaim go bhfuil duine sa teach mar tá solas ar siúl.
+        meaning: I think someone is in the house because a light is on.
+        note: The light supports the inference rather than causing the person’s presence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+    - teanglann_deisigh2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

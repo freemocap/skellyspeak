@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Tá with ag and a verbal noun can describe an activity in progress.
+    examples:
+      - text: Tá mé ag deisiú rothair anois.
+        meaning: I am repairing a bicycle now.
+        note: Rothair is the genitive form used with the verbal noun here; anois anchors the activity.
+  - subskill_id: past_events
+    explanation: A past form of the verb reports an earlier event.
+    examples:
+      - text: Dheisigh mé an rothar inné.
+        meaning: I repaired the bicycle yesterday.
+        note: Dheisigh is the past form; inné supplies the day.
+  - subskill_id: future_events
+    explanation: A future verb form can express a later action.
+    examples:
+      - text: Gheobhaidh mé na páirteanna amárach.
+        meaning: I will get the parts tomorrow.
+        note: Gheobhaidh is a future form of faigh; amárach specifies tomorrow.
+  - subskill_id: duration_frequency
+    explanation: Bím can present a habitual situation and a time phrase gives its frequency.
+    examples:
+      - text: Bím ag snámh dhá uair sa tseachtain.
+        meaning: I swim twice a week.
+        note: Dhá uair counts occasions here; dhá uair an chloig would measure two hours.
+  - subskill_id: event_sequence
+    explanation: Ar dtús and ansin explicitly order steps.
+    examples:
+      - text: Nigh do lámha ar dtús, ansin ullmhaigh na glasraí.
+        meaning: Wash your hands first, then prepare the vegetables.
+        note: These singular instructions establish sequence rather than cause.
+  - subskill_id: event_phase
+    explanation: Críochnaithe with ag and a verbal noun can state that an activity has finished.
+    examples:
+      - text: Tá mé críochnaithe ag léamh.
+        meaning: I have finished reading.
+        note: The preceding situation identifies what was being read; the sentence marks completion of
+          the activity.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_deisigh2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

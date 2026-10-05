@@ -1,0 +1,283 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: arabic
+  name: Arabic
+  native_name: العربية
+  family: afro-asiatic
+  review: needs_review
+integrations:
+  language_tag: ar
+  transcription: ar
+definitions:
+  orthographies:
+    arabic-vocalized:
+      script: arabic
+      guidance:
+        - scope: target_writing
+          text: Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at
+            every difficulty level. Include short vowels, shadda, sukun and tanwin wherever
+            appropriate to the selected variety and intended pronunciation; do not default to
+            unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern
+            Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
+            grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+            exactly as written; this exception does not apply to newly generated replies, examples
+            or corrections.
+          sources:
+            - unicode17_arabic
+        - scope: explanation_writing
+          text: Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at
+            every difficulty level. Include short vowels, shadda, sukun and tanwin wherever
+            appropriate to the selected variety and intended pronunciation; do not default to
+            unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern
+            Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
+            grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+            exactly as written; this exception does not apply to newly generated replies, examples
+            or corrections.
+          sources:
+            - unicode17_arabic
+  romanization_schemes:
+    ala-lc-arabic:
+      label: ALA-LC Arabic
+      instructions: Use ā, ī, ū for long vowels; final alif maqṣūrah is á. Preserve ḥ, ṣ, ḍ, ṭ, ẓ; use th,
+        kh, dh, sh, gh. Represent ayn with ‘ and medial/final hamzah with ’ (the table's distinct
+        signs); omit initial hamzah. Retain al- before sun letters without assimilation; after
+        inseparable prefixes retain al-, except li + article becomes lil-. Tā’ marbūṭah is h outside
+        construct state, t in construct state, tan in adverbial use. Omit noun/adjective case vowels
+        except before pronominal suffixes or in verse. Normally omit tanwīn, retaining it for
+        indefinite defective-root nouns and adverbials. Retain verb final inflections except in
+        pause. For shaddah use ūw or aww over wāw, medial īy or ayy over yā’, and final ī for the
+        nisbah; otherwise double the consonant or digraph. Use ʹ to separate adjacent consonants
+        that could be mistaken for a digraph. These are transliteration rules, not a pronunciation
+        respelling. Never alter the Arabic source.
+      examples:
+        - original: كِتاب
+          romanized: kitāb
+        - original: صُورة
+          romanized: ṣūrah
+        - original: عَلى
+          romanized: ‘alá
+        - original: مَسأَلة
+          romanized: mas’alah
+        - original: إِيمان
+          romanized: īmān
+        - original: الشّمس
+          romanized: al-shams
+        - original: وِزارة التّربية
+          romanized: Wizārat al-Tarbiyah
+        - original: فَجأَةً
+          romanized: faj’atan
+        - original: قاضٍ
+          romanized: qāḍin
+        - original: أَدهم
+          romanized: Adʹham
+      sources:
+        - ala_lc_arabic
+      review: needs_review
+defaults:
+  variety: arabic-levantine
+  orthography:
+    local: arabic-vocalized
+  scalars:
+    font_scale: 1
+  romanization:
+    mode: scheme
+    scheme:
+      local: ala-lc-arabic
+  supported_romanizations:
+    - local: ala-lc-arabic
+traits:
+  - abjad-vowel-omission
+  - construct-state
+varieties:
+  - id: arabic-levantine
+    name: Levantine
+    description: Conversational Levantine Arabic; regional coverage remains under review.
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
+  - id: arabic-modern-standard
+    name: Modern Standard
+    description: Modern Standard Arabic
+    review: needs_review
+    sources: []
+    overrides: {}
+    guidance: []
+guidance:
+  - scope: assessment
+    text: "For Arabic learner evidence, copy quotes character-for-character: never add diacritics,
+      normalize letters, correct spelling, or translate quotes. Put corrections only in correction."
+    sources:
+      - ryding2005
+conversation:
+  greeting:
+    text: مَرْحَبًا
+    romanizations:
+      arabic:ala-lc-arabic: marḥaban
+  default_partner:
+    name: نور
+    romanizedName: Nūr
+    age: 29
+    location: Amman, Jordan
+    occupation: Architect at a firm that restores old buildings
+    background: Studied in Amman and spent a year in Tunis. Lives with her grandmother, who does most of
+      the cooking and all of the opinions.
+    currentSituation: Documenting a 1930s house before it is renovated, and learning to make her
+      grandmother's maqluba.
+    interests:
+      - sketching doorways
+      - old maps
+      - oud music
+      - walking the same hill every Friday
+    opinions:
+      - New buildings should be shorter.
+      - Mint belongs in almost everything.
+    interestingFacts:
+      - Can read the decade a building was built from its stonework.
+    favoriteBooks:
+      - Season of Migration to the North — Tayeb Salih
+      - The Cairo Trilogy — Naguib Mahfouz
+    favoriteMovies:
+      - Theeb (2014)
+      - Cairo Station (1958)
+    manner: Curious and direct. Asks precise questions and laughs easily.
+    quirks:
+      - Photographs doors wherever she goes.
+    vibe:
+      - 🏛️
+      - 🎻
+      - 🌿
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - إيه.
+      - لا.
+      - مَيّ، لو سَمَحت.
+      - أَنا هون.
+      - الدّنيا شوب.
+      - بِدّي آكُل.
+      - شو هاد؟
+      - ما بَعرِف.
+    beginner:
+      - الغُرفة كْبيرة.
+      - أَحمد بالبيت.
+      - كِتابي هون.
+      - أُختي هون.
+      - عِندي كِتابين.
+      - بِدّي شْوَي مَيّ.
+      - بِشتغِل هون.
+      - عَم بِشتغِل.
+    intermediate:
+      - مبارِح رُحت عالسّوق.
+      - كُنت ناطِر التّاكسي.
+      - بِشتغِل هون.
+      - رَح اِشتغِل هون بُكرا.
+      - بِدّي أَشرَب قَهوة.
+      - بِحِبّ القَهوة.
+      - بِقدَر أَجي بُكرا.
+      - لازِم أَروح.
+    advanced:
+      - لو كُنت بَعرِف إِنّو الاجتِماع رَح يطَوّل لَهالدّرَجة، كُنت غَيّرت خُطّتي للرّجعة عالبيت.
+      - أَكتر شي مْقَلّقني هو كيف هالقَرار رَح يأَثّر عالنّاس اللّي ما حَدا أَخَد رَأيهم.
+      - مَع إِنّو الاقتِراح مُبَشّر، لازِم نْفَكّر مْنيح بالنّتائِج اللّي مُمكِن تِتْرَتّب عليه.
+      - بْفَضّل نْأَجّل السّفرة بَدَل ما ناخُد قَرار بِسُرعة ونِندَم عليه بَعدين.
+      - كُلّ ما بَقرأ التّقرير بِتَمَعّن أَكتر، بِحِسّ إِنّو الاستِنتاجات اللّي فيه ما إِلها دَليل
+        كافي.
+      - نَجاح المَشروع بيعْتَمِد لَحَدّ كْبير على كيف رَح نِتقاسَم المَسؤوليّات بيناتنا.
+      - مو إِنّي ضِدّ الفِكرة، بَسّ لِسّه مو مِتأَكّد إِذا هَلّق هو الوَقت المُناسِب إِلها.
+      - لَمّا فْهِمنا شو اللّي صار، كان صار صَعب نِعمَل شي يصَلّح الوَضع.
+    social:
+      - مَرحَبا!
+      - صَباح الخَير!
+      - مَسا الخَير!
+      - كيفَك؟
+      - مْنيح، الحَمد لله.
+      - شو اِسمَك؟
+      - تْشَرّفنا.
+      - شُكراً كْتير.
+      - أَهلاً وسَهلاً.
+      - عَفواً.
+      - لو سَمَحت.
+      - آسِف.
+      - ولا يهِمّك.
+      - مَع السّلامة!
+      - بْشوفَك بَعدين!
+      - تِصبَح على خَير!
+    idiomatic:
+      - اللّي بِدّو يِلعَب مَع القِطّ بِدّو يِلقى خَراميشه.
+      - الدّم ما بيصير مَيّ.
+      - البَحصة بِتسنِد خابية.
+      - الحَرَكة بَرَكة.
+      - ما تْقول فول ليصير بالمَكيول.
+      - طَنجَرة ولاقَت غَطاها.
+      - على قَدّ بِساطَك مِدّ اِجريك.
+      - اِبعَد عَن الشّر وغَنّيله.
+  varieties:
+    arabic-modern-standard:
+      absolute_zero:
+        - نَعَم.
+        - لا.
+        - ماء، مِن فَضلِك.
+        - أَنا هُنا.
+        - الجَوّ حارّ.
+        - أَنا جائِع.
+        - ما هَذا؟
+        - لا أَعرِف.
+      beginner:
+        - هَذه الغُرفة كَبيرة.
+        - أَحمد في البَيت.
+        - عِندي كِتاب.
+        - هَذا بَيت أُختي.
+        - عِندي ثَلاثة كُتُب.
+        - أُريد بَعض الماء.
+        - أَعمَل هُنا.
+        - هِي تَقرَأ الآن.
+      intermediate:
+        - وَصَلتُ أَمس.
+        - كُنتُ أَنتَظِر الحافِلة.
+        - سَأَذهَب غَداً.
+        - سَأَعود إِلى البَيت الأُسبوع المُقبِل.
+        - أُحِبّ القَهوة.
+        - أُريد أَن أَستَريح قَليلاً.
+        - أَستَطيع أَن أَسبَح.
+        - هَل يُمكِنني الجُلوس هُنا؟
+      advanced:
+        - لو كُنتُ أَعلَم أَنّ الاجتِماع سَيَستَغرِق كُلّ هَذا الوَقت، لَغَيّرتُ خُطّتي للعَودة إِلى
+          البَيت.
+        - أَكثَر ما يُقلِقني هو تَأثير هَذا القَرار على الأَشخاص الّذين لَم تُستَشَر آراؤُهم.
+        - على الرّغم مِن أَنّ الاقتِراح يَبدو واعِداً، يَنبَغي أَن نَدرُس عَواقِبه المُحتَمَلة
+          بِعِناية.
+        - أُفَضّل أَن نُؤَجّل الرّحلة على أَن نَتّخِذ قَراراً مُتَسَرّعاً قَد نَندَم عليه لاحِقاً.
+        - كُلّما أَعَدتُ قِراءة التّقرير، ازداد شَكّي في أَنّ نَتائِجه تَستَنِد إِلى أَدِلّة كافِية.
+        - سَيَعتَمِد نَجاح المَشروع إِلى حَدّ كَبير على كَيفيّة تَوزيع المَسؤوليّات بَينَنا.
+        - لَستُ مُعارِضاً للفِكرة في حَدّ ذاتِها، لكنّني غَير مُتَأَكّد مِن أَنّ الوَقت مُناسِب
+          لتَنفيذِها.
+        - بِحُلول الوَقت الّذي فَهِمنا فيه ما حَدَث، كان مِن الصّعب اتّخاذ إِجراء يُصلِح الوَضع.
+      social:
+        - مَرحَباً!
+        - صَباح الخَير!
+        - مَساء الخَير!
+        - كَيف حالَك؟
+        - أَنا بِخَير، شُكراً.
+        - ما اسمُك؟
+        - سُرِرتُ بِلِقائِك.
+        - شُكراً جَزيلاً.
+        - أَهلاً وسَهلاً.
+        - عَفواً.
+        - مِن فَضلِك.
+        - أَعتَذِر.
+        - لا بَأس.
+        - إِلى اللّقاء!
+        - أَراك لاحِقاً!
+        - تُصبِح على خَير!
+      idiomatic:
+        - تَجري الرّياح بِما لا تَشتَهي السّفُن.
+        - الحاجة أُمّ الاختِراع.
+        - الأُمور بِخَواتِمها.
+        - الطّيور على أَشكالِها تَقَع.
+        - يَحصُد المَرء ما زَرَع.
+        - خَير الكَلام ما قَلّ ودَلّ.
+        - الصّديق وَقت الضّيق.
+        - ما يَأتي بِسُرعة يَذهَب بِسُرعة.

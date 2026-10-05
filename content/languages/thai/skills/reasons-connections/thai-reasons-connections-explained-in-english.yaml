@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: เพราะ introduces a reason for the preceding situation.
+    examples:
+      - text: ฉันอยู่บ้านเพราะฝนตก
+        meaning: I am staying home because it is raining.
+        note: The current context supplies time; rain is the reason.
+  - subskill_id: consequences
+    explanation: เลย can link an event to a consequence.
+    examples:
+      - text: รถเมล์ไม่มา ฉันเลยเดินไป
+        meaning: The bus did not come, so I walked there.
+        note: In an account of a past trip, walking follows as the response to the missing bus.
+  - subskill_id: conditions
+    explanation: ถ้า introduces a condition whose outcome follows in another clause.
+    examples:
+      - text: ถ้าพรุ่งนี้ฝนตก เราจะอยู่บ้าน
+        meaning: If it rains tomorrow, we will stay home.
+        note: The plan depends on the weather condition.
+  - subskill_id: contrast
+    explanation: แต่ links descriptions that contrast in the discussion.
+    examples:
+      - text: ทางสั้นแต่ชัน
+        meaning: The route is short but steep.
+        note: The two properties matter differently when choosing a route.
+  - subskill_id: supporting_claims
+    explanation: A reason clause can offer evidence for an inference.
+    examples:
+      - text: ฉันคิดว่ามีคนอยู่บ้าน เพราะไฟยังเปิดอยู่
+        meaning: I think someone is home because the light is still on.
+        note: The light supports the inference rather than causing the person’s presence.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - fsi_thai_time2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A short future-oriented expression can close the exchange.
+    examples:
+      - text: പിന്നെ കാണാം!
+        meaning: See you later!
+        note: This is a conversational farewell, not merely a prediction of visual perception.
+  - subskill_id: acknowledging
+    explanation: മനസ്സിലായി can acknowledge comprehension.
+    examples:
+      - text: ശരി, ഇപ്പോൾ മനസ്സിലായി.
+        meaning: Okay, now I understand.
+        note: Use after an explanation; it need not indicate agreement with a view.
+  - subskill_id: clarification
+    explanation: A question with ഒന്നുകൂടി asks for another repetition.
+    examples:
+      - text: ഒന്നുകൂടി പറയാമോ?
+        meaning: Could you say that again?
+        note: The preceding contribution supplies what should be repeated.
+  - subskill_id: rephrasing
+    explanation: മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ introduces an alternative formulation.
+    examples:
+      - text: മറ്റൊരു രീതിയിൽ പറഞ്ഞാൽ, മുൻകൂട്ടി ബുക്ക് ചെയ്യണം.
+        meaning: In other words, you need to book in advance.
+        note: Use after explaining a booking procedure; ബുക്ക് is a conventional borrowing written in
+          Malayalam.
+  - subskill_id: correcting_misunderstanding
+    explanation: ഉദ്ദേശിച്ചത് identifies what the speaker intended.
+    examples:
+      - text: ഞാൻ ഉദ്ദേശിച്ചത് ശനിയാഴ്ചയാണ്, വെള്ളിയാഴ്ചയല്ല.
+        meaning: I meant Saturday, not Friday.
+        note: The speaker corrects the day understood by the listener.
+  - subskill_id: turns_topics
+    explanation: A question can propose moving the conversation to another topic.
+    examples:
+      - text: അടുത്ത ചോദ്യത്തിലേക്ക് കടക്കാമോ?
+        meaning: Can we move on to the next question?
+        note: The requested transition concerns the discussion itself.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

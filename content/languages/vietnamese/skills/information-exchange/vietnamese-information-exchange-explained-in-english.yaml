@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Mấy giờ asks for clock time within the normal clause order.
+    examples:
+      - text: Cửa hàng đóng cửa lúc mấy giờ?
+        meaning: What time does the shop close?
+        note: Lúc mấy giờ identifies the missing closing time.
+  - subskill_id: answering_information
+    explanation: A short time phrase can answer a previously identified question.
+    examples:
+      - text: Lúc năm giờ.
+        meaning: At five o’clock.
+        note: Use after the shop closing-time question; giờ identifies clock time.
+  - subskill_id: checking_facts
+    explanation: Đúng không after a proposition asks whether it is correct.
+    examples:
+      - text: Cửa hàng đóng cửa lúc năm giờ, đúng không?
+        meaning: The shop closes at five, right?
+        note: The speaker checks a candidate hour.
+  - subskill_id: useful_detail
+    explanation: A location phrase can supply the distinguishing information the listener needs.
+    examples:
+      - text: Cửa vào ở phía sân.
+        meaning: The entrance is on the courtyard side.
+        note: This is useful when the listener is trying to locate the entrance.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_identity2026
+    - msu_vietnamese_duration2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

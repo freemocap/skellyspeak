@@ -138,17 +138,10 @@ pub(crate) fn capture(
             return Ok(Some(saved.clone()));
         }
     }
-    let coverage =
-        registry.skill_coverage(&conversation.language_id, &conversation.settings.variety_id)?;
-    if coverage.iter().any(|s| !s.guide_available) {
-        return Err(fail(
-            "Coach-led practice requires complete skill guidance for the selected variety.",
-        ));
-    }
-    let ids: Vec<_> = coverage
-        .into_iter()
-        .filter(|s| s.guide_available)
-        .map(|s| s.skill_id)
+    let ids: Vec<_> = registry
+        .skills_for_language(&conversation.language_id)?
+        .iter()
+        .map(|s| s.id.clone())
         .collect();
     let snapshot =
         super::learner::progression::snapshot_db(db, registry, session, &conversation.language_id)?;

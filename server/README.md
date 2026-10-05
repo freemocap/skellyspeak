@@ -565,7 +565,7 @@ Transcription also returns `{version: 3, response, usage}`. Native derives optio
 word timing and recognition confidence from full provider data before diagnostic
 redaction/truncation. Invalid timing leaves transcript text intact with a recorded
 validation reason. Language policy remains in native configuration and
-`content/shared/speech-routing.yaml`. The generated server `speech_catalog.py`
+`content/speech/speech-routing.yaml`. The generated server `speech_catalog.py`
 contains only model provider/task availability, not language support tables.
 
 Logs remain content-free. Successful client responses preserve content and unknown
@@ -623,6 +623,20 @@ bounded pagination. Time-of-day heat maps summarize loaded request-arrival event
 geographic origin is not collected. Usage includes reservations and estimated
 charges and must not be read as a provider invoice.
 
+Account rows show masked email components, such as `l•••r@e•••d`; clicking the
+address fetches its full identity through the existing owner-only account route.
+Click again to hide it. Full emails and names are excluded from overview and live
+snapshot payloads. Masking reduces incidental exposure; it is not anonymization.
+Internal IDs are an optional column and remain available in account details.
+
+Accounts, request events, allowance intervals, daily account history, reservations
+and change history offer sortable headers and column controls. Account and event
+tables also search their loaded rows. Sorting/searching is limited to loaded
+pages, not all retained records. Choices survive refreshes/live snapshots for the
+open page and reset on reload. Numeric values sort numerically, with unknown
+observations last in either direction. Request-event durations measure the named
+phase; reservation Created → updated measures bookkeeping, not provider latency.
+
 Changes require a review dialog, same-origin request, current revision and operation
 UUID. Daily allowance resets preserve usage/history and shared counters; they
 restore personal allowance through credit offsets. Session revocation invalidates
@@ -649,9 +663,14 @@ Generated browser assets are explicitly included in the runtime image:
 
 ```sh
 node ui/tools/admin-build.ts
-node_modules/.bin/tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler ui/src/features/admin/entry.ts ui/tools/admin-build.ts
+node_modules/.bin/tsc --noEmit --strict --skipLibCheck --target es2022 --module esnext --moduleResolution bundler ui/src/features/admin/entry.ts ui/tools/admin-build.ts ui/tools/admin-preview.ts
 node ui/tools/admin-build.ts --check
 ```
+
+For a read-only browser review with synthetic identities and records, run
+`node ui/tools/admin-preview.ts` after rebuilding the assets, then open
+`http://127.0.0.1:4318/admin`. This loopback fixture is separate from the local
+API, does not load credentials, and is not packaged in the hosted image.
 
 Cloud log access requires the runtime identity to have `logging.logEntries.list`
 (e.g. Logs Viewer). The panel reports missing permissions as an error. Admin audit

@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: 이분 politely refers to a person being introduced. A noun ending in a vowel takes 예요
+      in this polite identification.
+    examples:
+      - text: 이분은 제 동료예요.
+        meaning: This person is my colleague.
+        note: 제 is the modest possessive my; 동료예요 identifies the relationship.
+  - subskill_id: qualities_states
+    explanation: A descriptive predicate takes a sentence ending directly. 넓다 becomes 넓어요 without an
+      additional copula.
+    examples:
+      - text: 이 방은 넓어요.
+        meaning: This room is spacious.
+        note: 은 marks the room as topic; 넓어요 supplies its physical property.
+  - subskill_id: location_movement
+    explanation: A place expression with 에 and 있다 locates an object. The noun 위 identifies the top
+      of another object.
+    examples:
+      - text: 열쇠가 책상 위에 있어요.
+        meaning: The key is on the desk.
+        note: 책상 위에 is the location. 있어요 states presence there, rather than an action performed there.
+  - subskill_id: possession_relations
+    explanation: 제 can modify a possessed noun. 것 can stand for an object already identified, with
+      거예요 as its common contracted polite form.
+    examples:
+      - text: 이 우산은 제 거예요.
+        meaning: This umbrella is mine.
+        note: 제 거 identifies ownership without repeating 우산. It does not indicate the speaker’s gender.
+  - subskill_id: quantity_comparison
+    explanation: 보다 follows the comparison standard, and 더 can mark the greater degree. Descriptive
+      predicates still use their normal sentence endings.
+    examples:
+      - text: 이 상자가 저 상자보다 더 가벼워요.
+        meaning: This box is lighter than that box.
+        note: 가벼워요 is the inflected form of 가볍다. 보다 relates the two boxes on the weight scale.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_predicates2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

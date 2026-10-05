@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: An infinitive before चाहना names the desired action. The habitual form of चाहना
+      agrees with the person who wants it.
+    examples:
+      - text: मैं तैरना सीखना चाहती हूँ।
+        meaning: I want to learn to swim.
+        note: सीखना चाहती हूँ expresses a female speaker’s desire. चाहती would be चाहता for a male
+          speaker.
+  - subskill_id: preferences
+    explanation: मुझे identifies the experiencer in a पसंद construction. ज़्यादा and a comparison
+      phrase can distinguish a preferred option.
+    examples:
+      - text: मुझे कॉफ़ी से ज़्यादा चाय पसंद है।
+        meaning: I like tea more than coffee.
+        note: कॉफ़ी से gives the comparison; चाय is what the speaker prefers.
+  - subskill_id: emotions
+    explanation: खुश can describe happiness with a present copula. A phrase with से can name what
+      the emotion concerns.
+    examples:
+      - text: मैं इस ख़बर से खुश हूँ।
+        meaning: I am happy about this news.
+        note: इस ख़बर से connects the happiness to the news; खुश does not change for the speaker’s
+          gender.
+  - subskill_id: opinions
+    explanation: मेरे ख़याल से introduces the speaker’s assessment. It frames the following
+      description as a personal judgment.
+    examples:
+      - text: मेरे ख़याल से यह योजना अच्छी है।
+        meaning: In my opinion, this plan is good.
+        note: अच्छी agrees with feminine योजना. The opening phrase identifies the viewpoint as the
+          speaker’s.
+  - subskill_id: agreement_disagreement
+    explanation: सहमत with से relates agreement to a person or position. नहीं negates agreement
+      without implying failure to hear.
+    examples:
+      - text: मैं आपसे सहमत नहीं हूँ।
+        meaning: I do not agree with you.
+        note: Use this after the partner expresses an opinion. आपसे identifies the person whose position
+          is opposed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

@@ -1,5 +1,7 @@
+import { useExecutionPreferences } from '../../state/settings/useExecutionPreferences'
 import { bindRewardOrigin } from '../../platform/ipc/reward-origin'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
+import { AiExecutionSettings } from '../../components/controls/AiExecutionSettings'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { ReadingActivity } from './ReadingActivity'
 import { AiSplit } from './AiSplit'
@@ -53,6 +55,7 @@ function turnLabel(turn: TurnView, tr: ReturnType<typeof useI18n>): string {
 /// A live view of the selected conversation's recorded AI operations.
 export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode }) {
   const inspection = useNavigationStore(state => state.aiInspection)
+  const executionPreferences = useExecutionPreferences()
   const tr = useI18n()
   const activity = useConversationActivity()
   const { snapshot, turns } = activity
@@ -152,6 +155,7 @@ export function AiView({ mode, actions }: { mode: AiViewMode; actions: ReactNode
 
   return <section className="ai-view" data-mode={mode} aria-label={tr('AI activity')}>
     {!definition && renderHeader()}
+    {!definition && <AiExecutionSettings {...executionPreferences} />}
     {(!definition && activity.error || selectionError) && <ErrorNotice as="p" className="ai-error" error={selectionError || activity.error}>{selectionError || activity.error}</ErrorNotice>}
     {definition ? <GraphDefinitions selection={definition} onSelect={setDefinition} renderHeader={renderHeader} /> : <>
     <AiSplit inspector={turn && operation && <OperationInspector turn={turn} operation={operation} turns={turns} now={now} onPickTurn={pick} onExpand={() => { if (selectedAttempt) bindRewardOrigin(`inspection:${selectedAttempt.id}`); setInspectedAttempt(selectedAttempt?.id ?? null); setDetailOpen(true) }}>

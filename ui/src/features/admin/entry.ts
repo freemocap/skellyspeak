@@ -1,8 +1,9 @@
 import { errorDetails } from '../../platform/diagnostics/error-details'
+import { ReportTable, badge, count, dateTime, duration, metadata, number, timestamp } from './report-table'
 /** Standalone hosted admin surface. All access decisions remain on the server. */
 type Row = Record<string, unknown>
 type Usage = { day: string; present: boolean; micros: number; tokens: number; requests: number; micros_credit: number }
-type User = { id: string; effective_limit_micros: number; daily_limit_micros: number | null; admin_revision: number; token_version: number; usage: Usage; usage_90_days_micros: number; admission: Record<string, number> }
+type User = { id: string; email_label?: string | null; created_at?: string; last_seen?: string; effective_limit_micros: number; daily_limit_micros: number | null; admin_revision: number; token_version: number; usage: Usage; usage_90_days_micros: number; admission: Record<string, number> }
 type Overview = { usage_limits_enforced?: boolean; environment: string; administrator: string; generated_at: string; revision: string; policy: Record<string, number>; environment_defaults: Record<string, number>; spending_paused: boolean; account_count: number; global_admission: Record<string, number>; users: User[]; next_cursor: string | null; global_usage: Usage[]; scope: string }
 type Logs = { entries: Row[]; next_page_token?: string; scope: string; since: string }
 type Command = { operation_id: string; expected_revision: number; action: string; target: string; values: Row }
@@ -18,12 +19,88 @@ let nextLogPage: string | undefined
 let activeLogQuery = ''
 let logSince = ''
 let busy = false
+let limitsEnforced = true
 const policyLabels: Record<string, string> = {
   max_users: 'Maximum registered accounts', free_daily_micros: 'Default daily allowance (USD)',
   extended_daily_micros: 'Extended allowance preset (USD)', global_daily_micros: 'Shared daily allowance (USD)',
   account_requests: 'Inference requests / account / day', global_requests: 'Inference requests / service / day',
   diagnostics_requests: 'Account checks / account / day', global_diagnostics: 'Account checks / service / day',
 }
+function accountIdentity(user: User) {
+  const node = el('div'); node.className = 'account-identity'
+  const hint = el('small', user.email_label ? 'Click to reveal email' : 'Inspect account for identifiers')
+  const control = button(user.email_label ?? 'Email unavailable', () => {
+    if (control.dataset.revealed) {
+      control.textContent = user.email_label ?? 'Email unavailable'; delete control.dataset.revealed
+      hint.textContent = user.email_label ? 'Click to reveal email' : 'Inspect account for identifiers'
+      control.setAttribute('aria-expanded', 'false'); void renderLive(); return
+    }
+    void run(async () => {
+      const result = await api<{ identity: { email: string | null } }>(`/admin/api/users/${encodeURIComponent(user.id)}?days=1`)
+      control.textContent = result.identity.email ?? 'Email unavailable'
+      hint.textContent = 'Click to hide email'
+      control.dataset.revealed = 'true'; control.setAttribute('aria-expanded', 'true')
+    })
+  })
+  control.className = 'identity-toggle'; control.setAttribute('aria-expanded', 'false')
+  control.title = 'Click to reveal email; click again to hide'
+  node.append(control, hint)
+  return node
+}
+const accountTable = new ReportTable<User>([
+  { key: 'identity', label: 'Account', required: true, value: u => u.email_label ?? u.id, render: accountIdentity },
+  { key: 'seen', label: 'Last active (UTC)', value: u => timestamp(u.last_seen), render: u => dateTime(u.last_seen) },
+  { key: 'used', label: 'Used today (USD)', numeric: true, value: u => u.usage.micros, render: u => money(u.usage.micros) },
+  { key: 'history', label: 'Used · 90 days (USD)', numeric: true, value: u => u.usage_90_days_micros, render: u => money(u.usage_90_days_micros) },
+  { key: 'requests', label: 'Inference admissions today', numeric: true, value: u => number(u.admission.requests), render: u => count(u.admission.requests) },
+  { key: 'limit', label: 'Daily allowance (USD)', numeric: true, value: u => limitsEnforced ? u.effective_limit_micros : null, render: u => limitsEnforced ? money(u.effective_limit_micros) : 'Disabled' },
+  { key: 'source', label: 'Limit source', value: u => u.daily_limit_micros == null ? 'Default' : 'Custom', render: u => badge(u.daily_limit_micros == null ? 'Default' : 'Custom') },
+  { key: 'checks', label: 'Account checks today', numeric: true, hidden: true, value: u => number(u.admission.diagnostics_requests), render: u => count(u.admission.diagnostics_requests) },
+  { key: 'check-credit', label: 'Restored account checks', numeric: true, hidden: true, value: u => number(u.admission.diagnostics_requests_credit), render: u => count(u.admission.diagnostics_requests_credit) },
+  { key: 'request-credit', label: 'Restored inference requests', numeric: true, hidden: true, value: u => number(u.admission.requests_credit), render: u => count(u.admission.requests_credit) },
+  { key: 'allowance-credit', label: 'Restored allowance (USD)', numeric: true, hidden: true, value: u => u.usage.micros_credit, render: u => money(u.usage.micros_credit) },
+  { key: 'tokens', label: 'Tokens today', numeric: true, hidden: true, value: u => u.usage.tokens, render: u => count(u.usage.tokens) },
+  { key: 'created', label: 'Registered (UTC)', hidden: true, value: u => timestamp(u.created_at), render: u => dateTime(u.created_at) },
+  { key: 'version', label: 'Session version', numeric: true, hidden: true, value: u => u.token_version, render: u => count(u.token_version) },
+  { key: 'id', label: 'Internal account ID', hidden: true, value: u => u.id, render: u => u.id },
+  { key: 'inspect', label: 'Details', required: true, render: u => button('Inspect account', () => void run(() => inspectUser(u))) },
+], { label: 'Accounts', scope: 'Sorting and search apply to this loaded page (up to 25 accounts). Dates are UTC. Admissions include restored credit; usage includes holds and estimates.', sort: 'seen', descending: true,
+  search: { label: 'Search masked email or account ID', text: u => `${u.email_label ?? ''} ${u.id}` } })
+$('users').replaceChildren(accountTable.node)
+const eventTable = new ReportTable<Row>([
+  { key: 'time', label: 'Time (UTC)', required: true, value: r => timestamp(r.timestamp), render: r => dateTime(r.timestamp) },
+  { key: 'event', label: 'Event', required: true, value: r => text(r.event), render: r => badge(text(r.event).replaceAll('_', ' '), String(r.event).endsWith('failed') || r.event === 'provider_error_response' ? 'report-danger' : '') },
+  { key: 'duration', label: 'Duration', numeric: true, value: r => number(r.duration_ms), render: r => duration(r.duration_ms) },
+  { key: 'route', label: 'Route', value: r => typeof r.route === 'string' ? r.route : null, render: r => r.route },
+  { key: 'status', label: 'HTTP status', numeric: true, value: r => number(r.status), render: r => badge(r.status, Number(r.status) >= 400 ? 'report-danger' : '') },
+  { key: 'provider', label: 'Provider', hidden: true, value: r => typeof r.provider === 'string' ? r.provider : null, render: r => r.provider },
+  { key: 'method', label: 'Method', hidden: true, value: r => typeof r.method === 'string' ? r.method : null, render: r => r.method },
+  { key: 'code', label: 'Error code', value: r => typeof r.code === 'string' ? r.code : null, render: r => r.code },
+  { key: 'bytes', label: 'Bytes', numeric: true, hidden: true, value: r => number(r.bytes), render: r => count(r.bytes) },
+  { key: 'chunks', label: 'Chunks', numeric: true, hidden: true, value: r => number(r.chunks), render: r => count(r.chunks) },
+  { key: 'tokens', label: 'Tokens', numeric: true, hidden: true, value: r => number(r.tokens), render: r => count(r.tokens) },
+  { key: 'request', label: 'Request ID', hidden: true, value: r => typeof r.request_id === 'string' ? r.request_id : null, render: r => r.request_id },
+  { key: 'metadata', label: 'Metadata', required: true, render: metadata },
+], { label: 'Request events', scope: 'Sorts loaded events only. Duration measures the named phase: HTTP headers, full request, provider, reservation or settlement. Missing duration is unknown. Search filters this table; the arrival chart uses all loaded events.', sort: 'time', descending: true,
+  search: { label: 'Search event, route, code or request ID', text: r => ['event', 'route', 'code', 'request_id', 'provider'].map(k => text(r[k])).join(' ') } })
+$('logs').replaceChildren(eventTable.node)
+const timelineTable = new ReportTable<Point>([
+  { key: 'time', label: 'Interval start (UTC)', required: true, value: p => timestamp(p.time), render: p => dateTime(p.time) },
+  { key: 'record', label: 'Record', value: p => p.present ? 'Present' : 'Missing', render: p => p.present ? 'Present' : 'No record' },
+  { key: 'usage', label: 'Allowance used (USD)', numeric: true, value: p => p.present ? p.micros : null, render: p => p.present ? money(p.micros) : '—' },
+  { key: 'tokens', label: 'Tokens', numeric: true, value: p => p.present ? p.tokens : null, render: p => p.present ? count(p.tokens) : '—' },
+  { key: 'requests', label: 'Requests', numeric: true, value: p => p.present ? p.requests : null, render: p => p.present ? count(p.requests) : '—' },
+], { label: 'Allowance intervals', scope: 'Sorts intervals in the selected chart window. Missing records are unknown.', sort: 'time', descending: true })
+$('usage-table').replaceChildren(timelineTable.node)
+const auditTable = new ReportTable<Row>([
+  { key: 'time', label: 'Time (UTC)', required: true, value: r => timestamp(r.created_at), render: r => dateTime(r.created_at) },
+  { key: 'action', label: 'Action', value: r => text(r.action), render: r => text(r.action).replaceAll('_', ' ') },
+  { key: 'target', label: 'Target', value: r => text(r.target), render: r => r.target },
+  { key: 'before', label: 'Before', render: r => metadata(r.before) },
+  { key: 'after', label: 'After', render: r => metadata(r.after) },
+  { key: 'actor', label: 'Administrator', hidden: true, value: r => text(r.actor), render: r => r.actor },
+], { label: 'Administrative changes', scope: 'Sorts the latest 100 loaded changes.', sort: 'time', descending: true })
+$('audit-table').replaceChildren(auditTable.node)
 async function api<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(path, { credentials: 'same-origin', cache: 'no-store',
     ...(body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Action': '1' }, body: JSON.stringify(body) }) })
@@ -101,7 +178,7 @@ async function loadTimeline(pushed?: Timeline) {
   const data = pushed ?? await api<Timeline>(`/admin/api/timeline?span=${span}&interval=${interval}`)
   renderChart($('usage-chart'), data.points)
   $('chart-scope').textContent = data.scope
-  $('usage-table').replaceChildren(table(['Interval start (UTC)', 'Record', 'Allowance used', 'Tokens', 'Requests'], data.points.map(p => [p.time, p.present ? 'Present' : 'No record', money(p.micros), p.tokens, p.requests])))
+  timelineTable.update(data.points)
 }
 function moneyInput(input: HTMLInputElement) {
   input.type = 'text'; input.inputMode = 'decimal'; input.required = true
@@ -111,7 +188,17 @@ function moneyInput(input: HTMLInputElement) {
     button('+ $1', () => { try { adjust(1) } catch (e) { $('error').textContent = String(e); $('error').hidden = false } }))
   return group
 }
-function usageTable(rows: Usage[]) { return table(['UTC day', 'Record', 'Allowance used', 'Tokens', 'Requests', 'Restored allowance'], rows.map(row => [row.day, row.present ? 'Present' : 'Missing', money(row.micros), row.tokens, row.requests, money(row.micros_credit)])) }
+function usageTable(rows: Usage[]) {
+  const report = new ReportTable<Usage>([
+    { key: 'day', label: 'UTC day', required: true, value: r => r.day, render: r => r.day },
+    { key: 'record', label: 'Record', value: r => r.present ? 'Present' : 'Missing', render: r => r.present ? 'Present' : 'Missing' },
+    { key: 'usage', label: 'Used (USD)', numeric: true, value: r => r.present ? r.micros : null, render: r => r.present ? money(r.micros) : '—' },
+    { key: 'tokens', label: 'Tokens', numeric: true, value: r => r.present ? r.tokens : null, render: r => r.present ? count(r.tokens) : '—' },
+    { key: 'requests', label: 'Requests', numeric: true, value: r => r.present ? r.requests : null, render: r => r.present ? count(r.requests) : '—' },
+    { key: 'credit', label: 'Restored allowance (USD)', numeric: true, value: r => r.present ? r.micros_credit : null, render: r => r.present ? money(r.micros_credit) : '—' },
+  ], { label: 'Account daily usage', scope: 'Sorts the selected account history. Missing records are unknown.', sort: 'day', descending: true })
+  report.update(rows); return report.node
+}
 function review(action: string, target: string, revision: number, values: Row, before: unknown, effect: string) {
   command = { operation_id: crypto.randomUUID(), expected_revision: revision, action, target, values }
   const labels: Record<string, string> = { user_limit: 'Change daily allowance', reset_diagnostics: 'Restore account checks', reset_requests: 'Restore inference requests', reset_allowance: 'Restore spending allowance', revoke_sessions: 'Revoke sessions', policy: 'Change service limits' }
@@ -139,6 +226,7 @@ async function loadOverview(live = false, pushed?: Overview, pushedTimeline?: Ti
   $('environment').textContent = data.environment
   $('administrator').textContent = data.administrator
   const limited = data.usage_limits_enforced !== false
+  limitsEnforced = limited
   $('status').textContent = `Snapshot ${new Date(data.generated_at).toLocaleString()} · ${limited ? 'UTC daily limits reset at 00:00.' : 'Daily usage limits disabled; usage is still recorded.'}`
   $('revision').textContent = `Revision: ${data.revision}`
   $('summary').replaceChildren(...[
@@ -149,11 +237,7 @@ async function loadOverview(live = false, pushed?: Overview, pushedTimeline?: Ti
     ['Account checks', limited ? `${data.global_admission.diagnostics_requests} / ${data.policy.global_diagnostics}` : String(data.global_admission.diagnostics_requests)],
   ].map(([label, value]) => { const card = el('div'); card.append(el('span', label), el('strong', value)); return card }))
   await loadTimeline(pushedTimeline)
-  $('users').replaceChildren(table(['Account', 'Limit source', 'Daily allowance', 'Used today', 'Used · 90 days', 'Account checks / credit', 'Sessions version', 'Inspect'], data.users.map(user => [
-    user.id, user.daily_limit_micros == null ? 'Default' : 'Custom exception', limited ? money(user.effective_limit_micros) : 'Disabled', money(user.usage.micros), money(user.usage_90_days_micros),
-    `${user.admission.diagnostics_requests} / ${user.admission.diagnostics_requests_credit}`, user.token_version,
-    button('Inspect account', () => void run(() => inspectUser(user))),
-  ])))
+  if (!live || !document.querySelector('#users [data-revealed]')) accountTable.update(data.users)
   $<HTMLButtonElement>('next-users').disabled = !data.next_cursor
   if (live) return // Keep editable values and their revision even if typing starts during this fetch.
   $('user-detail').hidden = true
@@ -170,14 +254,15 @@ async function loadOverview(live = false, pushed?: Overview, pushedTimeline?: Ti
   }
 }
 async function inspectUser(user: User) {
+  const label = user.email_label ?? 'Account details'
   const result = await api<{ user: User; identity: { email: string | null; name: string | null }; usage: Usage[]; devices: Row[]; reservations: Row[]; devices_truncated: boolean; reservations_truncated: boolean }>(`/admin/api/users/${encodeURIComponent(user.id)}?days=${$<HTMLSelectElement>('days').value}`)
   user = result.user
-  const pane = $('user-detail'); pane.hidden = false; pane.replaceChildren(el('h3', user.id), button('Close account details', () => { pane.hidden = true }))
+  const pane = $('user-detail'); pane.hidden = false; pane.replaceChildren(el('h3', label), button('Close account details', () => { pane.hidden = true; pane.replaceChildren() }))
   const identity = el('details'); identity.append(el('summary', 'Identity details'), table(['User ID', 'Email', 'Name'], [[user.id, result.identity.email, result.identity.name]])); pane.append(identity)
   const chart = el('div'); usageView(chart, result.usage); pane.append(chart)
   const history = el('details'); history.append(el('summary', 'Daily numeric table'), usageTable(result.usage)); pane.append(history)
   const controls = el('div'); controls.className = 'filters'
-  const label = el('label', 'Custom daily allowance (USD)'), input = el('input'); input.type = 'number'; input.min = '0'; input.id = 'custom-daily-allowance'; label.htmlFor = input.id; input.step = 'any'; input.max = '1000'; input.value = String(user.effective_limit_micros / 1e6); label.append(moneyInput(input)); controls.append(label)
+  const limitLabel = el('label', 'Custom daily allowance (USD)'), input = el('input'); input.type = 'number'; input.min = '0'; input.id = 'custom-daily-allowance'; limitLabel.htmlFor = input.id; input.step = 'any'; input.max = '1000'; input.value = String(user.effective_limit_micros / 1e6); limitLabel.append(moneyInput(input)); controls.append(limitLabel)
   const limitChange = (limit: number | null) => review('user_limit', user.id, user.admin_revision, { daily_limit_micros: limit }, { daily_limit_micros: user.daily_limit_micros }, 'Applies to subsequent requests. Shared spending and request limits still apply.')
   controls.append(button('Set custom limit', () => { try { limitChange(parseNumber(input, true)) } catch (error) { $('error').textContent = String(error); $('error').hidden = false } }),
     button('Use default', () => limitChange(null)), button('Use extended preset', () => limitChange(overview!.policy.extended_daily_micros)))
@@ -189,16 +274,28 @@ async function inspectUser(user: User) {
     ['reset_allowance', 'Restore spending allowance', 'Grants allowance equal to currently recorded usage, including pending holds. Usage, shared totals, reservations and later settlements remain intact. This can permit additional spending today.'],
     ['revoke_sessions', 'Revoke sessions', 'Invalidates existing app and admin sessions for this account. The user can sign in again; this does not ban the account.'],
   ]) resets.append(button(label, () => review(action, user.id, user.admin_revision, {}, { token_version: user.token_version, today: result.usage.at(-1) }, effect)))
-  pane.append(resets, el('h4', 'Registered installations'), table(['Platform', 'App version', 'First seen', 'Last seen'], result.devices.map(row => ['platform', 'app_version', 'first_seen', 'last_seen'].map(key => row[key]))),
-    el('h4', `Latest reservations${result.reservations_truncated ? ' · limited to 100' : ''}`),
-    table(['Created at', 'State', 'Reserved', 'Recorded', 'Basis', 'Provider receipt'], result.reservations.map(row => [row.created_at, row.status, money(Number(row.reserved_micros)), row.actual_micros == null ? 'Unknown' : money(Number(row.actual_micros)), row.cost_basis ?? 'Pending / unknown', row.provider_id])))
+  const reservations = new ReportTable<Row>([
+    { key: 'created', label: 'Created (UTC)', required: true, value: r => timestamp(r.created_at), render: r => dateTime(r.created_at) },
+    { key: 'state', label: 'State', value: r => text(r.status), render: r => badge(r.status) },
+    { key: 'elapsed', label: 'Created → updated', numeric: true, value: r => reservationDuration(r), render: r => duration(reservationDuration(r)) },
+    { key: 'reserved', label: 'Reserved (USD)', numeric: true, value: r => number(r.reserved_micros), render: r => money(Number(r.reserved_micros)) },
+    { key: 'recorded', label: 'Recorded (USD)', numeric: true, value: r => number(r.actual_micros), render: r => r.actual_micros == null ? 'Unknown' : money(Number(r.actual_micros)) },
+    { key: 'basis', label: 'Cost basis', value: r => typeof r.cost_basis === 'string' ? r.cost_basis : null, render: r => r.cost_basis ?? 'Pending / unknown' },
+    { key: 'tokens', label: 'Tokens', hidden: true, numeric: true, value: r => number(r.tokens), render: r => count(r.tokens) },
+    { key: 'provider', label: 'Provider receipt', hidden: true, value: r => typeof r.provider_id === 'string' ? r.provider_id : null, render: r => r.provider_id },
+    { key: 'metadata', label: 'Metadata', required: true, render: metadata },
+  ], { label: 'Account reservations', scope: 'Latest 100 reservations. Created → updated is recorded bookkeeping time, not provider execution duration. Unknown cost is not zero.', sort: 'created', descending: true })
+  reservations.update(result.reservations)
+  pane.append(resets, el('h4', `Registered installations${result.devices_truncated ? ' · limited to 100' : ''}`), table(['Platform', 'App version', 'First seen (UTC)', 'Last seen (UTC)'], result.devices.map(row => [row.platform, row.app_version, dateTime(row.first_seen), dateTime(row.last_seen)])),
+    el('h4', `Latest reservations${result.reservations_truncated ? ' · limited to 100' : ''}`), reservations.node)
   pane.scrollIntoView({ block: 'start', behavior: 'smooth' })
 }
+function reservationDuration(row: Row) {
+  const start = timestamp(row.created_at), end = timestamp(row.updated_at)
+  return start == null || end == null || end < start ? null : end - start
+}
 function renderLogs() {
-  $('logs').replaceChildren(table(['Time (UTC)', 'Event', 'Route', 'Status', 'Code', 'Request', 'Metadata'], logRows.map(row => {
-    const details = el('details'); details.append(el('summary', 'Inspect'), el('pre', JSON.stringify(row, null, 2)))
-    return [row.timestamp, row.event, row.route, row.status, row.code, row.request_id, details]
-  })))
+  eventTable.update(logRows)
   const counts = new Map<string, number>(), unique = new Set<string>()
   for (const row of logRows) if (row.event === 'request_started' && typeof row.timestamp === 'string' && typeof row.request_id === 'string' && !unique.has(row.request_id)) {
     const date = new Date(row.timestamp); if (!Number.isFinite(date.getTime())) continue
@@ -240,7 +337,7 @@ async function renderLive() {
   const packet = latestLive
   if (JSON.stringify(packet.selection) !== JSON.stringify(liveSelection())) return
   await loadOverview(true, packet.overview, packet.timeline)
-  if (!document.querySelector('#logs details[open]')) {
+  if (!document.querySelector('#logs .metadata-details[open]')) {
     const data = packet.logs
     logRows = data.entries; nextLogPage = undefined; logSince = data.since
     $('log-scope').textContent = data.scope
@@ -300,7 +397,7 @@ $('next-users').onclick = () => { cursor = (liveSocket && latestLive ? latestLiv
 $('load-logs').onclick = () => { stopLive('Live is off while loading historical logs.'); void run(() => loadLogs()) }
 for (const id of ['hours', 'errors-only', 'request-id']) $(id).onchange = () => { if (liveSocket) subscribeLive() }
 $('more-logs').onclick = () => { stopLive('Live is off while browsing older log pages.'); void run(() => loadLogs(true)) }
-$('load-audit').onclick = () => void run(async () => { const rows = await api<Row[]>('/admin/api/audit'); $('audit-table').replaceChildren(table(['Time', 'Action', 'Target', 'Before', 'After', 'Actor'], rows.map(row => ['created_at', 'action', 'target', 'before', 'after', 'actor'].map(key => row[key])))) })
+$('load-audit').onclick = () => void run(async () => { auditTable.update(await api<Row[]>('/admin/api/audit')) })
 $('logout').onclick = () => void run(async () => { stopLive(); await api('/admin/logout', {}); location.assign('/admin') })
 $('policy-form').onsubmit = event => { event.preventDefault(); if (!overview) return; try {
   const values: Row = {}, before: Row = {}

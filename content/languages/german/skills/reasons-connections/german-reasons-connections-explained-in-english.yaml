@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: In the written weil construction used here, the finite verb ends the subordinate
+      clause. Denn is another way to give a reason, with main-clause word order.
+    examples:
+      - text: Ich nehme den Bus, weil mein Fahrrad kaputt ist.
+        meaning: I am taking the bus because my bicycle is broken.
+        note: Weil links the choice to its reason; ist comes at the end of that clause.
+  - subskill_id: consequences
+    explanation: Deshalb can connect a situation to its consequence. When it starts a main clause,
+      the finite verb follows before the subject.
+    examples:
+      - text: Die Straße ist gesperrt. Deshalb fahren wir über die Brücke.
+        meaning: The road is closed. Therefore we are going via the bridge.
+        note: Deshalb presents the route change as a result; fahren follows it. A simple danach would
+          primarily express sequence.
+  - subskill_id: conditions
+    explanation: Falls introduces a contingency with the finite verb at the end. If its clause comes
+      first, the following main clause begins with its finite verb.
+    examples:
+      - text: Falls es morgen regnet, bleiben wir zu Hause.
+        meaning: If it rains tomorrow, we will stay at home.
+        note: Regnet ends the condition; bleiben starts the following clause. Present forms are
+          sufficient for this open future contingency.
+  - subskill_id: contrast
+    explanation: Aber connects opposing properties or ideas while preserving main-clause word order.
+      Obwohl can express a concession with a subordinate clause instead.
+    examples:
+      - text: Der neue Weg ist kürzer, aber er ist viel steiler.
+        meaning: The new route is shorter, but it is much steeper.
+        note: Aber contrasts the advantage of a shorter route with the drawback of greater steepness;
+          kürzer and steiler are comparatives.
+  - subskill_id: supporting_claims
+    explanation: Give grounds that bear on a judgment, using a reason clause or a linked statement.
+      An example or observed result can support a position without proving it beyond doubt.
+    examples:
+      - text: Ich halte die Werkstatt für zuverlässig, denn unsere Fahrräder waren jedes Mal pünktlich
+          fertig.
+        meaning: I consider the workshop reliable, because our bicycles were ready on time every time.
+        note: Halte … für states the evaluation. The clause after denn retains main-clause order and
+          supplies the reported experience supporting it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_connectors2026
+    - umich_de_adverbs2026
+    - umich_de_word_order2026
+    - umich_de_comparison2026
+    - goethe_de_discussion2026
+    - guenthner_spoken_grammar2000
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

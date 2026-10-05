@@ -1,6 +1,22 @@
 use super::*;
 
 impl Handlers<'_> {
+    pub(super) fn request_message_help(
+        &mut self,
+        message_id: String,
+        help: crate::conversations::execution::MessageHelp,
+        retry: bool,
+    ) -> Result<String> {
+        let (conversation, operation) = crate::conversations::execution::request_message_help(
+            self.tx,
+            &message_id,
+            help,
+            retry,
+        )?;
+        self.conversation_scope = Some(conversation);
+        Ok(operation)
+    }
+
     pub(super) fn reassess_feedback(&mut self, turn_id: String, note: String) -> Result<String> {
         self.conversation_scope = Some(crate::conversations::execution::reassess_feedback(
             self.tx, &turn_id, &note,

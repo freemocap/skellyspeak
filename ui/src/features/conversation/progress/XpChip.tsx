@@ -14,6 +14,8 @@ import { conversationSkills } from './conversationSkills'
 import { conversationUnits } from '../../../components/learning/effort-dimensions'
 import { domainColors, skillDomain } from '../../../domain/learning/catalog/skill-domains'
 import { XpEvidenceReport, type XpMessageScope } from './XpEvidenceReport'
+import { ConversationShapeGlyph } from '../../../components/learning/SkillRadar'
+import { conversationSkillPoints } from '../../../domain/learning/statistics/skill-levels'
 
 type Report = { message: XpMessageScope } | { skillId: string }
 
@@ -30,9 +32,14 @@ export function XpChip({ chatId }: { chatId: string | null }) {
   const [report, setReport] = useState<Report | null>(null)
   const anchor = useRef<HTMLDivElement>(null)
   if (!snapshot || !chatId) return null
-  const xp = conversationEvidence(snapshot, chatId).profile.xp
+  const conversation = conversationEvidence(snapshot, chatId)
+  const xp = conversation.profile.xp
+  // This conversation's skill points, drawn as its own shape: a conversation has no level.
+  const shape = conversationSkillPoints(snapshot, chatId)
+  const points = shape.total
   return <div ref={anchor} className="progress-anchor" {...card.anchor}>
     <button type="button" className="xp-chip progress-trigger" aria-label={tr('Conversation XP')} aria-haspopup="dialog" aria-expanded={card.open || ledger} onClick={card.press}>
+      <span className="skill-level-chip" title={tr('{value0} skill points in this conversation', { value0: points })}><ConversationShapeGlyph points={shape} /><strong>{tr('+{value0} pt', { value0: points })}</strong></span>
       <ProgressCounters xp={xp} xpLabel="Conversation XP" scope={chatId} icon="chat" effort={effort.value} effects={shell.effects} error={effort.error} />
     </button>
     {card.open && <CardLayer anchor={anchor} onClose={card.close}>
@@ -64,7 +71,7 @@ function SkillList({ snapshot, chatId }: { snapshot: SkillSnapshot; chatId: stri
         <strong>+{tr.number(xp)}</strong>
       </li>
     })}</ol>
-    {skills.length > SHOWN_SKILLS && <p className="progress-card-empty">{tr('{value0} more skills', { value0: tr.number(skills.length - SHOWN_SKILLS) })}</p>}
+    {skills.length > SHOWN_SKILLS && <p className="progress-card-empty">{tr('{count} more skills', { count: skills.length - SHOWN_SKILLS })}</p>}
   </>
 }
 

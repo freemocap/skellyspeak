@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A benefactive compound in a question can politely request an action for the speaker.
+    examples:
+      - text: ഈ പെട്ടി വാതിലിനടുത്തേക്ക് മാറ്റിത്തരാമോ?
+        meaning: Could you move this box near the door for me?
+        note: The destination is explicit; the actor is understood as the listener.
+  - subskill_id: offers_invitations
+    explanation: A first-person question with ട്ടെ can offer the speaker’s action.
+    examples:
+      - text: ഞാൻ ബാഗ് എടുത്തുതരട്ടെ?
+        meaning: Shall I pick up the bag for you?
+        note: The speaker volunteers help rather than directing the listener to act.
+  - subskill_id: suggestions
+    explanation: നമുക്ക് with an ആം form can propose shared action.
+    examples:
+      - text: നമുക്ക് ഒരു ചെറിയ ഇടവേള എടുക്കാം.
+        meaning: Let’s take a short break.
+        note: നമുക്ക് includes the listener in the proposed action.
+  - subskill_id: commitments
+    explanation: An ആം form can undertake a task in the right planning context.
+    examples:
+      - text: നാളെ ഞാൻ ഉപകരണങ്ങൾ കൊണ്ടുവരാം.
+        meaning: I will bring the tools tomorrow.
+        note: Use when allocating tasks; the speaker takes responsibility for bringing them.
+  - subskill_id: accepting_declining
+    explanation: An inability statement can decline a preceding invitation.
+    examples:
+      - text: ക്ഷമിക്കണം, ഇന്ന് എനിക്ക് വരാൻ കഴിയില്ല.
+        meaning: Sorry, I cannot come today.
+        note: The invitation supplies the event being declined.
+  - subskill_id: negotiating_plans
+    explanation: State a constraint and propose another time.
+    examples:
+      - text: വെള്ളിയാഴ്ച എനിക്ക് തിരക്കാണ്. ശനിയാഴ്ച കാണാമോ?
+        meaning: I am busy on Friday. Can we meet on Saturday?
+        note: The question supplies a concrete replacement day.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

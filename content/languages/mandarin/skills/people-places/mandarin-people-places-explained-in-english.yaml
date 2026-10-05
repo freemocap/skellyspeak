@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: 是 links a referent with an identifying noun phrase. 的 can connect the person to the
+      speaker through a relationship.
+    examples:
+      - text: 这是我的邻居。
+        meaning: This is my neighbour.
+        note: 这 introduces the person, and 我的邻居 identifies the relationship.
+  - subskill_id: qualities_states
+    explanation: An adjective can be the predicate without 是. 很 often makes a neutral descriptive
+      predicate natural without strongly emphasizing degree.
+    examples:
+      - text: 这条路很窄。
+        meaning: This road is narrow.
+        note: 条 is the classifier for this road. 很窄 describes its width.
+  - subskill_id: location_movement
+    explanation: 在 with a place expression locates something. A position word such as 上 specifies
+      the relation to the reference object.
+    examples:
+      - text: 钥匙在桌子上。
+        meaning: The key is on the table.
+        note: 桌子上 supplies the location; 在 relates the key to it.
+  - subskill_id: possession_relations
+    explanation: 有 expresses having something. A number and classifier can specify what is possessed.
+    examples:
+      - text: 我有两把折叠椅。
+        meaning: I have two folding chairs.
+        note: 两把 counts chairs with 把 as classifier. 有 states possession; it does not mark a past event.
+  - subskill_id: quantity_comparison
+    explanation: Place 比 and the standard of comparison before the adjective. A degree phrase can
+      specify how large the difference is.
+    examples:
+      - text: 这个箱子比那个轻一点。
+        meaning: This box is a little lighter than that one.
+        note: 一点 limits the difference in weight. The noun after 那个 is recoverable and need not be
+          repeated.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

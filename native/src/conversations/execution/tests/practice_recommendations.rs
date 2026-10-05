@@ -199,7 +199,7 @@ fn depth_uses_saved_retry_effort_respects_exclusions_and_does_not_transfer_betwe
     .unwrap();
     assert_eq!(
         recommendation["selection"]["skill"]["skillId"],
-        "questions_answers"
+        "information_exchange"
     );
     assert_eq!(recommendation["selection"]["skill"]["effort"], 1);
     owner.settings.variety_id = "spanish-mexico".into();

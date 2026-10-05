@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: information_exchange
+language: french
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: >-
+      Use question words such as où, quand and pourquoi for the missing information.
+      Est-ce que, inversion and conversational question intonation provide different
+      question forms.
+    examples:
+      - text: "À quelle heure est-ce que le magasin ferme ?"
+        meaning: >-
+          What time does the shop close?
+        note: >-
+          À quelle heure identifies the information sought; est-ce que marks the question
+          without subject–verb inversion.
+  - subskill_id: answering_information
+    explanation: >-
+      Answer the information actually requested. A short phrase can be complete in context
+      and need not repeat the question’s whole sentence.
+    examples:
+      - text: "À dix-huit heures."
+        meaning: >-
+          At six in the evening.
+        note: >-
+          This answers a question about closing time. Without that question it is only a
+          time expression, not evidence of answering accurately.
+  - subskill_id: checking_facts
+    explanation: >-
+      Use a question or a confirmation expression to check a proposition already under
+      discussion. The check depends on the preceding exchange.
+    examples:
+      - text: "Le rendez-vous est bien jeudi, c’est ça ?"
+        meaning: >-
+          The appointment is on Thursday, is that right?
+        note: >-
+          Bien and c’est ça ask the partner to confirm the date; they do not supply
+          independent proof that it is correct.
+  - subskill_id: useful_detail
+    explanation: >-
+      Add identifying details that address a practical gap. Relative clauses with qui or
+      que can connect a detail to the appropriate referent.
+    examples:
+      - text: "Le café que tu cherches est au deuxième étage, près de l’escalier."
+        meaning: >-
+          The café you are looking for is on the second floor, near the stairs.
+        note: >-
+          Que links the café to tu cherches; the floor and nearby landmark help locate it
+          rather than adding unrelated description.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - oqlf_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

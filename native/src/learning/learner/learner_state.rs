@@ -120,7 +120,7 @@ pub fn fold(registry: &Registry, evidence: &Value, as_of_secs: i64) -> Result<Le
                 _ => return Err(invalid("Unknown observation outcome.")),
             };
             let construct = string(item, "skill_id")?;
-            registry.construct(construct)?;
+            registry.skill_definition(construct)?;
             let source = string(record, "source")?;
             let quotes = item["quotes"]
                 .as_array()
@@ -276,7 +276,14 @@ fn profile(store: &Store, target: &str, persona_id: Option<&str>, _at: i64) -> R
             .map(|c| c["xp"].as_u64().unwrap())
             .sum::<u64>()
     );
+    evidence["profile"]["levels"] = serde_json::to_value(super::skill_levels::project(
+        &evidence["catalog"],
+        &credits,
+    )?)?;
     evidence["profile"]["credits"] = serde_json::json!(credits);
+    if persona_id.is_some() {
+        evidence["profile"]["pendingLevelEvents"] = serde_json::json!([]);
+    }
     Ok(
         serde_json::json!({"evidence":evidence,"partners":partners,"scope":{"languageId":target,"personaId":persona_id}}),
     )
@@ -375,7 +382,7 @@ mod tests {
     use super::*;
     use serde_json::json;
     fn record(registry: &Registry, id: &str, outcome: &str, step: &str, at: i64) -> Value {
-        json!({"attempt_id":id,"learner_id":"l","target":"spanish","variety":"","chat_id":"c","message_id":at,"source":format!("¿Cómo estás {id}?"),"at_secs":at,"status":"complete","construct_registry_hash":crate::learning::coaching::construct_hash(registry),"input":{},"support_step":step,"assessment":{"judgments":[{"skill_id":"question","outcome":outcome,"quotes":["¿Cómo estás"]}]}})
+        json!({"attempt_id":id,"learner_id":"l","target":"spanish","variety":"","chat_id":"c","message_id":at,"source":format!("¿Cómo estás {id}?"),"at_secs":at,"status":"complete","construct_registry_hash":crate::learning::coaching::construct_hash(registry),"input":{},"support_step":step,"assessment":{"judgments":[{"skill_id":"information_exchange","outcome":outcome,"quotes":["¿Cómo estás"]}]}})
     }
     fn evidence(records: Vec<Value>) -> Value {
         json!({"target":"spanish","learner_id":"l","records":records,"profile":{"choices":{"excluded_attempts":[]}}})
@@ -502,7 +509,7 @@ mod tests {
                 "not_demonstrated",
             ),
         ] {
-            let context = json!({"constructRegistryHash":crate::learning::coaching::construct_hash(&store.config),"catalogVersion":crate::learning::coaching::version_for(&store.config),"translationLanguage":"english","practiceSettings":{"varietyId":"spanish-spain"},"input":{},"skillAssessmentAttempt":turn,"skillAssessment":{"adapter":"jev_choice","answers":{"questions_answers":{"choice":"direct"}}}});
+            let context = json!({"constructRegistryHash":crate::learning::coaching::construct_hash(&store.config),"catalogVersion":crate::learning::coaching::version_for(&store.config),"translationLanguage":"english","practiceSettings":{"varietyId":"spanish-spain"},"input":{},"skillAssessmentAttempt":turn,"skillAssessment":{"adapter":"jev_choice","answers":{"information_exchange":{"choice":"direct"}}}});
             store.connection.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,route,model,context) VALUES(?1,?2,'succeeded',0,1,'fixture','custom','fixture',?3)",rusqlite::params![turn,chat,context.to_string()]).unwrap();
             store.connection.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text,created_at) VALUES(?1,?2,?1,1,'user',?3,'2020-01-01T00:00:00Z')",rusqlite::params![turn,chat,source]).unwrap();
             store.connection.execute("INSERT INTO operations(id,turn_id,kind,state) VALUES(?1,?1,'skill_assessment','succeeded')",[turn]).unwrap();
@@ -546,7 +553,7 @@ mod tests {
     fn partner_counts_and_exports_follow_eligible_credit_scope() {
         let (_dir, store, persona, _) = partner_fixture();
         for turn in ["first-turn", "second-turn"] {
-            let event = json!({"id":turn,"attemptId":turn,"constructId":"questions_answers",
+            let event = json!({"id":turn,"attemptId":turn,"constructId":"information_exchange",
                 "kind":"experience","tier":1,"xp":1,"experience":1,"effort":0,
                 "quote":"","support":"not_weighted","difficulty":"not_weighted",
                 "novelty":"not_weighted","policyHash":"experience-effort-1","atSecs":1,"claimed":false});
@@ -557,6 +564,21 @@ mod tests {
         let scoped = profile(&store, "spanish", Some(&persona), 0).unwrap();
         assert_eq!(all["evidence"]["profile"]["xp"], 2);
         assert_eq!(scoped["evidence"]["profile"]["xp"], 1);
+        let points = |value: &Value| {
+            value["evidence"]["profile"]["levels"]["skills"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|s| s["skillId"] == "information_exchange")
+                .unwrap()["points"]
+                .clone()
+        };
+        assert_eq!(points(&all), 2);
+        assert_eq!(points(&scoped), 1);
+        assert_eq!(
+            scoped["evidence"]["profile"]["pendingLevelEvents"],
+            json!([])
+        );
         assert_eq!(
             scoped["evidence"]["profile"]["credits"]
                 .as_array()

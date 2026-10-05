@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: reasons_connections
+guidance: "Look for an intelligible reason, consequence, condition, contrast or grounds for a
+  claim. Fiquei em casa porque estava chovendo gives a reason; estava chovendo, por isso fiquei
+  em casa presents the decision as a consequence. Primeiro and depois can order the same events
+  without asserting a reason. Se chover amanhã, vamos fazer a troca na biblioteca establishes a
+  projected condition with the future subjunctive chover; this regular form resembles its
+  infinitive. Do not impose an indicative pattern borrowed from another language. A broken
+  porque fragment with neither a recoverable reason nor another correct connection is absent.
+  After Por que você ficou em casa?, Porque estava chovendo can give a reason contextually. Mas
+  contrasts an expectation or options when the relationship is real, rather than being credited
+  as an isolated keyword. Acho que este caminho é melhor: é mais curto supplies grounds for a
+  judgment even without porque. If que introduces reported content rather than a reason, assess
+  the actual relationship instead of the connector's appearance."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

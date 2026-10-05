@@ -19,6 +19,19 @@ const annotatedReplies = replyHelpFixture.saved
 const { replies, grammar } = replyHelpFixture
 const base = { brief: replyHelpFixture.brief, busy: false, errors: [] as string[], onUse: () => {} }
 
+it.each([false, true])('requests a missing brief once on deliberate open (inline=%s)', inline => {
+  const request = vi.fn().mockResolvedValue(undefined)
+  render(<ReplyHelp {...base} brief={undefined} inline={inline} onRequestBrief={request} />)
+  expect(request).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: inline ? 'Help understanding this message' : 'Help with this reply' }))
+  expect(request).toHaveBeenCalledOnce()
+  if (inline) {
+    fireEvent.click(screen.getByRole('button', { name: 'Help understanding this message' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Help understanding this message' }))
+    expect(request).toHaveBeenCalledOnce()
+  }
+})
+
 it('exposes both coach actions immediately without generating on mount', () => {
   const explain = vi.fn().mockResolvedValue(undefined)
   const suggest = vi.fn().mockResolvedValue(undefined)
@@ -146,9 +159,9 @@ it('stays folded while no brief has arrived', () => {
 it('reports a failed suggestions job without hiding the brief', () => {
   show({ errors: ['Coach feedback rejected: suggestion_token_not_in_reply.'] })
   expect(screen.getByText(/She asked how you are/)).toBeVisible()
-  expect(screen.getByRole('alert')).toHaveTextContent('Reply help')
-  expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).toBeVisible()
-  fireEvent.click(screen.getByText('⚠ Reply help'))
+  expect(screen.getByRole('alert')).toHaveTextContent("Reply helpThe AI's answer wasn't usable")
+  expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).not.toBeVisible()
+  fireEvent.click(screen.getByText('Technical details'))
   expect(screen.getByText('Coach feedback rejected: suggestion_token_not_in_reply.')).toBeVisible()
 })
 

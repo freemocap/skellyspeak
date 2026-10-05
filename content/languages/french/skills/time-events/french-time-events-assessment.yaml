@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: time_events
+language: french
+guidance: >-
+  Judge the temporal relation and event structure in context, not a tense label or time
+  word alone. Hier, il pleuvait quand nous sommes sortis correctly contrasts ongoing
+  background with a bounded event. Do not demand passé composé for every past event:
+  imparfait, plus-que-parfait and narrative present can be licensed by their context. Hier
+  nous aller au marché is not a correctly formed ordinary past clause. Nous partons demain
+  can express an arrangement; depuis deux ans with a present situation can express
+  continuation until now. First-then ordering is not automatically causation. In je
+  voulais vous demander, a past form can soften a current request rather than locate an
+  earlier event. Credit requires correct use of the function, not merely an attempt.
+  Unrelated errors do not erase a successful instance. Use unclear when the available
+  exchange does not establish the function. Examples illustrate possibilities, not an
+  exhaustive whitelist. Accept appropriate France and Canadian French usage and
+  conversational register; do not impose another variety’s lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_past_aspect2026
+    - tex_depuis2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

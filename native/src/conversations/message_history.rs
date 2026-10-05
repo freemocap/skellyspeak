@@ -67,10 +67,7 @@ impl Store {
                 .cloned()
                 .map(serde_json::from_value)
                 .transpose()?;
-            version.conversation_feedback =
-                super::assessments::current(db, &version.turn_id, "conversation_feedback")?
-                    .map(|(_, value)| serde_json::from_value(value))
-                    .transpose()?;
+            version.conversation_feedback = super::assessments::feedback(db, &version.turn_id)?;
             version.assessments = db.prepare(
                 "SELECT o.kind,o.state,a.id,a.error FROM operations o LEFT JOIN attempts a ON a.id=(SELECT id FROM attempts WHERE operation_id=o.id ORDER BY rowid DESC LIMIT 1) WHERE o.turn_id=?1 AND o.kind IN ('coach_feedback','conversation_feedback','skill_assessment') ORDER BY o.kind",
             )?.query_map([&version.turn_id], |r| Ok(VersionAssessmentState {kind:r.get(0)?,state:r.get(1)?,attempt_id:r.get(2)?,error:r.get(3)?}))?

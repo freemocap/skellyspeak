@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Das ist followed by a noun phrase can identify a person or thing. Possessive
+      articles take the endings appropriate to that noun phrase.
+    examples:
+      - text: Das ist unsere Nachbarin aus dem zweiten Stock.
+        meaning: That is our neighbour from the second floor.
+        note: Unsere agrees with feminine singular Nachbarin. The example identifies a woman; Nachbar is
+          the corresponding masculine noun.
+  - subskill_id: qualities_states
+    explanation: An adjective used after sein to describe the subject normally has no adjective
+      ending. An adjective before a noun follows a different pattern.
+    examples:
+      - text: Der Rucksack ist schwer, aber die Tasche ist leicht.
+        meaning: The backpack is heavy, but the bag is light.
+        note: Schwer and leicht describe the two objects without endings; aber introduces a contrast.
+  - subskill_id: location_movement
+    explanation: With spatial in, use dative for the location of an action and accusative for its
+      destination. Physical movement alone does not decide the case.
+    examples:
+      - text: Die Kinder laufen im Garten.
+        meaning: The children are running in the garden.
+        note: "Im is in dem: dative marks the garden as the location where they run."
+      - text: Die Kinder laufen in den Garten.
+        meaning: The children are running into the garden.
+        note: In den Garten uses masculine accusative to mark the destination. The contrast is location
+          versus entry, not stillness versus movement.
+  - subskill_id: possession_relations
+    explanation: Use haben with an accusative object to say what someone has. A possessive article
+      such as mein also expresses belonging or a relationship, with endings suited to its noun.
+    examples:
+      - text: Ich habe ein Fahrrad. Meine Schwester hat zwei.
+        meaning: I have a bicycle. My sister has two.
+        note: Ein Fahrrad is the object of habe. Meine Schwester identifies the family relationship;
+          zwei refers back to bicycles.
+  - subskill_id: quantity_comparison
+    explanation: Numbers specify amounts. German adjective comparatives commonly add -er; als
+      introduces the other term of an unequal comparison.
+    examples:
+      - text: Wir haben drei Kisten. Diese Kiste ist leichter als die anderen.
+        meaning: We have three crates. This crate is lighter than the others.
+        note: Drei counts crates; leichter als compares weight. The number and comparison each express
+          their own relation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_articles2026
+    - umich_de_adjectives2026
+    - umich_de_prepositions2026
+    - umich_de_comparison2026
+    - umich_de_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

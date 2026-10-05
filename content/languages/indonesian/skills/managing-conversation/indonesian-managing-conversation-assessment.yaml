@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: managing_conversation
+guidance: "Look for contact management, acknowledgment, clarification, reformulation, correction
+  and topic or floor management. Sampai besok can take leave, while quoting that phrase as
+  vocabulary does not close contact. Saya mengerti responds to an explanation without
+  necessarily agreeing. Bisa diulangi? can request repetition after an unclear utterance; apa
+  maksudnya? asks about meaning. Maksud saya hari Sabtu, bukan Jumat replaces the listener’s
+  mistaken day. Dengan kata lain introduces a reformulation only if the new content actually
+  clarifies an earlier meaning. A copied marker without any such relationship is absent. Boleh
+  saya menambahkan sesuatu? can seek a turn in a discussion, not merely ask about abstract
+  permission. A short ya or baik must be interpreted relative to the preceding contribution:
+  receipt, agreement and accepting a task are different functions. Do not demand a full subject
+  and verb for conventional greetings, acknowledgments or contextually sufficient repair
+  requests."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

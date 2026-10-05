@@ -1,3 +1,4 @@
+import type { RunGuideAction } from '../../components/learning/GuideActions'
 import { ErrorNotice } from '../../components/feedback/ErrorNotice'
 import { ConversationErrorScope } from './reading/ConversationErrorScope'
 import { ConversationReadingProvider } from './reading/ConversationReadingProvider'
@@ -88,6 +89,8 @@ export default function ConversationPage({
   onHistoryOpenChange,
   onOpenSettings,
   onNewChatReady,
+  onSkillStartReady,
+  onGuideActionReady,
 }: {
   active: boolean
   /// The explanation-language picker, kept in the conversation settings panel.
@@ -98,6 +101,8 @@ export default function ConversationPage({
   /// Open the Settings modal. It lands on the AI provider section, which is
   /// where every "configure a provider" failure is asking the learner to go.
   onNewChatReady?: (action: (() => void) | null) => void
+  onGuideActionReady?: (action: RunGuideAction | null) => void
+  onSkillStartReady?: (action: ((language: string, variety: string, skillId: string, subskillId?: string | null) => Promise<void>) | null) => void
   onOpenSettings?: () => void
 }) {
   const tr = useI18n()
@@ -136,7 +141,7 @@ export default function ConversationPage({
     if (!active) stopRewardSounds()
   }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'coaching' | 'evidence'>('coaching')
+  const [panelTab, setPanelTab] = useState<'coaching' | 'skills'>('coaching')
   const [coachDraft, setCoachDraft] = useState('')
   const mode = useNavigationStore(state => state.mode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
@@ -183,6 +188,9 @@ export default function ConversationPage({
     currentChatId,
     openChat,
     startNew: startNewConversation,
+    startFromPhrase,
+    startFromSkill,
+    runGuideAction,
     removeChat,
     sendMessage,
     pendingReply,
@@ -194,6 +202,11 @@ export default function ConversationPage({
     setHistoryOpen,
     resetView,
   })
+
+  useEffect(() => {
+    onSkillStartReady?.(settings && !sending ? startFromSkill : null)
+    return () => onSkillStartReady?.(null)
+  }, [onSkillStartReady, settings, sending, startFromSkill])
 
   // A sent message holds its place until native storage has its turn.
   const pending = usePendingMessage(turns)
@@ -276,7 +289,7 @@ export default function ConversationPage({
 
   const streamTail = pendingMessage ? `sending:${pendingMessage.key}:${pendingMessage.phase}`
     : (() => { const last = turns.filter(turn => !turn.replacedBy).at(-1); return last ? `${last.id}:${last.assistant ? 'reply' : 'pending'}` : null })()
-  const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail)
+  const streamScroll = useConversationScroll(streamRef, currentChatId, snapshot?.messages[0]?.sequence, turns, streamTail, active)
   // New messages go to the tail; revisions stay at the message being edited.
   const jumpToLatest = useRef(streamScroll.jumpToLatest)
   jumpToLatest.current = streamScroll.jumpToLatest
@@ -289,7 +302,7 @@ export default function ConversationPage({
     if (id !== undefined) setPinnedId(id)
     setPanelTab('coaching')
     if (!breakOpen) toggleBreak()
-    if (isMobile) useNavigationStore.getState().openPractice('panel')
+    if (isMobile) useNavigationStore.getState().openConversation('panel')
     // Phones: opening moves no focus, so nothing scrolls to reveal the field and
     // no keyboard opens over the popover. The learner taps the field to ask.
     if (!isMobile) requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus({ preventScroll: true }))
@@ -299,6 +312,15 @@ export default function ConversationPage({
   useEffect(() => setInspectionOpen(false), [currentChatId, active])
   useEffect(() => { draftRecording.current = null; setSentRecording(null) }, [currentChatId, active])
   const [analysisOpen, setAnalysisOpen] = useState(false)
+  const guideCoachOpen = useRef(openCoach)
+  guideCoachOpen.current = openCoach
+  useEffect(() => {
+    onGuideActionReady?.(async action => {
+      await runGuideAction(action)
+      if (action.kind === 'coach') guideCoachOpen.current()
+    })
+    return () => onGuideActionReady?.(null)
+  }, [onGuideActionReady, runGuideAction])
   function askCoach(question: string) {
     setAnalysisOpen(false)
     setCoachDraft(question)
@@ -486,7 +508,7 @@ export default function ConversationPage({
     setSelectedMessage({ id, side })
     setPanelTab('coaching')
     if (!breakOpen) toggleBreak()
-    if (isMobile) useNavigationStore.getState().openPractice('panel')
+    if (isMobile) useNavigationStore.getState().openConversation('panel')
   }
   const coachedTurn = selectedTurn ?? activeTurns.find(turn => turn.id === pinnedId) ?? activeTurns.at(-1)
   const editBlocked = acceptingSend.current || acceptedEditSource !== null
@@ -595,14 +617,14 @@ export default function ConversationPage({
   // covers the conversation as a sheet: Back, Escape, the scrim and its close
   // control fold it away.
   const coachCovers = isMobile && mobileSurface === 'panel'
-  const closeCoach = useCallback(() => useNavigationStore.getState().openPractice('chat'), [])
+  const closeCoach = useCallback(() => useNavigationStore.getState().openConversation('chat'), [])
   useEffect(() => {
-    if (!coachCovers) return
+    if (!active || !coachCovers) return
     const release = openOverlay(closeCoach)
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') closeCoach() }
     window.addEventListener('keydown', onKey)
     return () => { release(); window.removeEventListener('keydown', onKey) }
-  }, [coachCovers, closeCoach])
+  }, [active, coachCovers, closeCoach])
   // The coach slides in only after the learner opens it, not on first open of the page.
   const [surfaceSwitched, setSurfaceSwitched] = useState(false)
   const shownSurface = useRef(mobileSurface)
@@ -691,6 +713,7 @@ export default function ConversationPage({
   const renderTurn = (turn: typeof activeTurns[number], onlySide?: 'user' | 'assistant') => (
     <ConversationErrorScope key={onlySide ? `message:${onlySide}:${turn.turnId ?? turn.id}` : turn.turnId ? turnDisplayKeys.get(turn.turnId) : turn.id} conversationId={snapshot?.conversationId} turn={turn.execution}><TurnView
       onlySide={onlySide}
+      onStartPhrase={startFromPhrase}
       turn={turn}
       pendingEdit={pendingMessage?.editing?.id === turn.id ? pendingMessage : undefined}
       editing={turn.id === editingTurnId}
@@ -820,6 +843,7 @@ export default function ConversationPage({
           ) : turns.length === 0 && !error && !pendingMessage && (
             snapshot && (snapshot.opening ? <OpeningStatus snapshot={snapshot} onActivity={() => useNavigationStore.getState().showOverlay('activity')} /> : startConfiguration && <ConversationStart conversationId={snapshot.conversationId} value={startConfiguration} onChange={value => setStartDraft({ id: snapshot.conversationId, value })} partnerSymbol={contactChoices.find(choice => choice.id === activeContactId)?.symbol} partnerName={details.persona ? personaName(details.persona.details) : undefined} key={snapshot.conversationId} topics={snapshot.topicChoices} busy={sending || pendingReply} onStart={startConversation} targetTag={targetLanguage?.languageTag ?? undefined} targetDir={rtl ? 'rtl' : 'ltr'} recording={mic.recording} transcribing={mic.transcribing} canPartnerStart={!input.trim() && !mic.recording && !mic.transcribing} onChangePartner={() => setPartnerMenuOpen(true)} onAboutPartner={details.persona ? () => setEditingPersonaId(details.persona!.id) : undefined} />)
           )}
+          {snapshot?.phraseSeed && <details><summary>{tr('Starting phrase')}</summary><p dir="auto">{snapshot.phraseSeed}</p></details>}
           {activeTurns.map(turn => renderTurn(turn))}
           {pendingMessage && !pendingMessage.editing && <PendingTurn key={pendingMessage.key} message={pendingMessage} rtl={rtl} onOpenSettings={onOpenSettings}
             onDismiss={() => releasePending(pendingMessage.key)} />}

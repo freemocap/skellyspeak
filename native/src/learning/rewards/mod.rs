@@ -1,5 +1,6 @@
 //! Immutable effort awards, saved alongside the validated source observation.
 pub(crate) mod reward_settings;
+pub mod skill_level_events;
 use crate::configuration::GamePolicy;
 use crate::model::*;
 use rusqlite::{Connection, params};

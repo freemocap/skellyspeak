@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: possibilities_constraints
+language: spanish
+explanation_language: spanish
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-spanish.yaml
+sections:
+  - subskill_id: ability
+    explanation: Poder con infinitivo puede expresar capacidad. Saber con infinitivo expresa que se ha
+      aprendido a hacer algo.
+    examples:
+      - text: Sé nadar.
+        meaning: Tengo la capacidad de nadar.
+        note: Saber expresa una capacidad aprendida.
+  - subskill_id: permission
+    explanation: Una pregunta con poder puede pedir permiso. La situación ayuda a distinguir este significado.
+    examples:
+      - text: ¿Puedo entrar?
+        meaning: Pido permiso para entrar.
+        note: En una puerta, la pregunta se interpreta como una solicitud de permiso.
+  - subskill_id: obligation
+    explanation: Tener que con infinitivo expresa una obligación personal. Hay que puede expresar una
+      necesidad general.
+    examples:
+      - text: Tengo que salir.
+        meaning: Es necesario que salga.
+        note: Que debe aparecer entre tengo y el infinitivo.
+  - subskill_id: possibility
+    explanation: Puede que seguido de subjuntivo presenta una posibilidad.
+    examples:
+      - text: Puede que llueva.
+        meaning: Es posible que llueva.
+        note: Llueva va en subjuntivo después de puede que.
+  - subskill_id: certainty
+    explanation: No estoy seguro expresa el grado de certeza. No tiene por qué referirse a una predicción.
+    examples:
+      - text: No estoy seguro.
+        meaning: Tengo dudas sobre lo que se está diciendo.
+        note: Un hablante usa seguro para expresar incertidumbre sobre la idea en cuestión.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Contenido generado por IA para esta variedad; pendiente de revisión lingüística
+        independiente.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-es-2026-10-04
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

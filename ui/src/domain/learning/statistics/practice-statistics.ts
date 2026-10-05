@@ -17,7 +17,7 @@ export interface DomainStatistics {
 export function practiceStatistics(snapshot: SkillSnapshot) {
   if (snapshot.profile.choices.target !== snapshot.target || snapshot.profile.choices.learner_id !== snapshot.learner_id || snapshot.records.some(record => record.target !== snapshot.target || record.learner_id !== snapshot.learner_id)) throw new Error('Practice evidence belongs to another language or learner')
   if (snapshot.profile.rules_version !== 3) throw new Error('Unsupported practice scoring rules')
-  const domains: DomainStatistics[] = snapshot.catalog.filter(node => node.kind === 'domain').map(node => ({ node, xp: 0, experience: 0, effort: 0, stars: 0, practiced: 0, skills: [] }))
+  const domains: DomainStatistics[] = snapshot.catalog.filter(node => node.kind === 'skill').map(node => ({ node, xp: 0, experience: 0, effort: 0, stars: 0, practiced: 0, skills: [] }))
   const seen = new Set<string>()
   for (const progress of snapshot.profile.skills) {
     const node = snapshot.catalog.find(item => item.id === progress.skill_id && item.kind === 'skill')

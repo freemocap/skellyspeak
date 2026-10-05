@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: A farewell can close contact without specifying a permanent departure.
+    examples:
+      - text: Slán go fóill!
+        meaning: Goodbye for now!
+        note: Use at the end of the current exchange.
+  - subskill_id: acknowledging
+    explanation: Tuigim can acknowledge comprehension of an explanation.
+    examples:
+      - text: Tuigim anois, go raibh maith agat.
+        meaning: I understand now, thank you.
+        note: Understanding need not mean agreement with an opinion.
+  - subskill_id: clarification
+    explanation: A request to repeat points back to the previous contribution.
+    examples:
+      - text: Abair é sin arís, le do thoil.
+        meaning: Please say that again.
+        note: É sin identifies what should be repeated; the request addresses one listener.
+  - subskill_id: rephrasing
+    explanation: Is é sin le rá introduces a restatement.
+    examples:
+      - text: Is é sin le rá, caithfimid áit a chur in áirithe roimh ré.
+        meaning: In other words, we must book a place in advance.
+        note: Use after explaining a reservation procedure.
+  - subskill_id: correcting_misunderstanding
+    explanation: I gceist agam identifies what the speaker has in mind.
+    examples:
+      - text: Dé Sathairn atá i gceist agam, ní Dé hAoine.
+        meaning: I mean Saturday, not Friday.
+        note: The speaker corrects the day understood by the listener.
+  - subskill_id: turns_topics
+    explanation: Maidir le frames what the following contribution is about.
+    examples:
+      - text: Maidir leis an gcéad cheist eile, cad a cheapann tú?
+        meaning: As for the next question, what do you think?
+        note: The speaker shifts topic and invites the listener’s turn.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_maidir2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

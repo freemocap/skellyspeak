@@ -1,0 +1,25 @@
+/* Level celebrations (features/skills/levels/LevelUpPresenter.tsx). Skill steps are a
+   receipt in the corner; a language step is a floating card whose badge rolls from the
+   old level to the new one while the radar settles. Both dismiss themselves. */
+.level-up { position: fixed; z-index: var(--z-reward); display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-8) var(--space-10); border: var(--border-width) solid var(--line); border-radius: var(--radius-xl); background: var(--sheet); box-shadow: var(--shadow-floating); color: var(--ink); animation: level-up-enter var(--dur-slow) var(--ease-out); }
+.level-up-skills { inset-inline-end: var(--space-12); inset-block-end: var(--space-12); min-width: calc(var(--control-height) * 7); }
+.level-up-skills header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); font-size: var(--type-ui); }
+.level-up-skills ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.level-up-skills li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-4); font-size: var(--type-ui); font-weight: var(--weight-medium); animation: level-up-enter var(--dur-slow) var(--ease-out) backwards; }
+.level-up-dot { width: var(--space-4); height: var(--space-4); border-radius: var(--radius-pill); }
+.level-up-step { padding: 0 var(--space-3); border-radius: var(--radius-xs); background: var(--chrome); color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.level-up-close { min-width: var(--control-height-sm); min-height: var(--control-height-sm); border: 0; border-radius: var(--radius-sm); background: none; color: var(--ink-3); font-size: var(--type-title); cursor: pointer; }
+.level-up-language { inset-inline: 0; inset-block-start: var(--space-13); width: fit-content; margin-inline: auto; align-items: center; text-align: center; }
+.level-up-language strong { font-size: var(--type-display); font-weight: var(--weight-semibold); }
+.level-up-language > span { color: var(--ink-2); font-size: var(--type-ui); }
+.level-up-radar .skill-radar-glyph { width: calc(var(--control-height) * 4.5); animation: level-up-settle var(--dur-deliberate) var(--ease-out); }
+.level-up-badge { width: var(--control-height); height: var(--control-height); margin-block-start: calc(-1 * var(--control-height)); overflow: hidden; border: var(--border-width-strong) solid var(--progress-mark); border-radius: var(--radius-pill); background: var(--chrome); font-size: var(--type-title); font-weight: var(--weight-bold); line-height: var(--leading-none); }
+.level-up-roll { display: flex; flex-direction: column; animation: level-up-roll var(--dur-slow) var(--ease-out) var(--dur-deliberate) forwards; }
+.level-up-roll span { height: var(--control-height); display: flex; align-items: center; justify-content: center; }
+@keyframes level-up-enter { from { opacity: 0; transform: translateY(var(--space-4)); } }
+@keyframes level-up-settle { 0% { transform: scale(1.08); filter: drop-shadow(0 0 var(--space-8) var(--progress-mark)); } 60% { filter: drop-shadow(0 0 var(--space-4) var(--progress-mark)); } 100% { transform: scale(1); filter: none; } }
+@keyframes level-up-roll { to { transform: translateY(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .level-up, .level-up-skills li, .level-up-radar .skill-radar-glyph { animation: none; }
+  .level-up-roll { animation: none; transform: translateY(-50%); }
+}

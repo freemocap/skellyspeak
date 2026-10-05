@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Querer + infinitive expresses what the subject wants to do. Aprender a introduces
+      the skill being learned with another infinitive.
+    examples:
+      - text: Quero aprender a fazer pão.
+        meaning: I want to learn to make bread.
+        note: Quero identifies the speaker’s desire; aprender a fazer specifies the desired learning.
+  - subskill_id: preferences
+    explanation: Gostar takes de before an expressed activity or thing that is liked. Preferir can
+      instead select a favored option; prefiro is its first-person present form.
+    examples:
+      - text: Gosto de cozinhar, mas prefiro fazer pão.
+        meaning: I like cooking, but I prefer making bread.
+        note: Gosto agrees with the person who likes the activity. De introduces cozinhar; prefiro
+          identifies the favored activity.
+  - subskill_id: emotions
+    explanation: Estar with an adjective can express how the speaker feels. Com can link the feeling
+      to the thing giving rise to it.
+    examples:
+      - text: Estou contente com o resultado.
+        meaning: I am happy with the result.
+        note: Contente works with either a male or female speaker in this singular example. Com o
+          resultado identifies what the happiness concerns.
+  - subskill_id: opinions
+    explanation: Acho que can introduce a personal judgment. It does not by itself mean that the
+      speaker has failed to understand the partner.
+    examples:
+      - text: Acho que a biblioteca precisa de mais mesas.
+        meaning: I think the library needs more tables.
+        note: Acho introduces the speaker’s judgment; precisa de names what is needed.
+  - subskill_id: agreement_disagreement
+    explanation: Concordar com relates agreement to a person, proposal or idea. Add não before the
+      verb to express disagreement.
+    examples:
+      - text: Não concordo com essa ideia.
+        meaning: I do not agree with that idea.
+        note: Said in response to a proposal to close the library on Saturdays. The speaker rejects that
+          identified idea; this is stronger than merely acknowledging receipt.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

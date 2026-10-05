@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: time_events
+guidance: Assess present, past and future reference, duration or recurrence, sequencing and
+  event phase. Tá mé ag deisiú rothair describes an ongoing repair with bí and a verbal noun.
+  Dheisigh mé an rothar inné reports a past action; deisigh has distinct past and present forms.
+  Gheobhaidh mé na páirteanna amárach refers to a future event. Bím ag snámh describes a habit
+  rather than merely an activity happening now. Dhá uair sa tseachtain gives recurrence; dhá
+  uair an chloig measures duration. Ar dtús and ansin order steps; críochnaithe with a verbal
+  noun can express having finished an activity. Inné can answer an identifiable when-question
+  contextually. A copied time word without a recoverable event is absent. Do not credit timeless
+  property assertions automatically, or require English perfect auxiliaries where Irish uses its
+  own aspect constructions. Preserve genuine dialectal variants.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - teanglann_deisigh2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

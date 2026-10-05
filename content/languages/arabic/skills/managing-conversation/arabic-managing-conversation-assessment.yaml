@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: managing_conversation
+guidance: Assess opening or closing an exchange, acknowledging, asking for clarification,
+  rephrasing, correcting misunderstanding, and managing turns or topics. A greeting can open
+  contact. An acknowledgement may show receipt without agreement. A clarification question
+  targets unclear wording or reference in the current exchange. Rephrasing makes an existing
+  meaning clearer; correcting misunderstanding replaces an incorrect interpretation. A topic
+  transition manages the conversation rather than merely mentioning a noun. A short conventional
+  formula can work when its interactional purpose is clear. A copied greeting in a vocabulary
+  list is absent. Do not invent a preceding misunderstanding to credit an isolated unrelated
+  sentence. Evaluate conversational formulas and addressee forms within the selected variety
+  without making Modern Standard prose the default measure of natural colloquial interaction.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Recognize conversational greeting, receipt and repair formulas such as طَيِّبْ and
+      قَصْدِي. Regional wording differences are not themselves failed repair. Spelling and vowel
+      choices represent spoken forms, not formal case inflection.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Recognize formal greetings, clarification and restatement formulas. A successful brief
+      acknowledgement need not be expanded into a formal full sentence.
+    provenance: *a1

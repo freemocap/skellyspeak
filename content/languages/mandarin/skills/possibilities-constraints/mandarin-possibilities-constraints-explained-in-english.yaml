@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: 会 before an activity commonly expresses an acquired skill. Other modals can instead
+      concern present circumstances or permission.
+    examples:
+      - text: 我会修自行车。
+        meaning: I know how to repair bicycles.
+        note: In a discussion of practical skills, 会 states learned ability, not a prediction of a
+          particular repair.
+  - subskill_id: permission
+    explanation: 可以 in a first-person question can request permission. The listener’s role and the
+      setting make that reading clear.
+    examples:
+      - text: 我可以把包放在这里吗？
+        meaning: May I put my bag here?
+        note: 把包 introduces the object to be placed. Ask the person responsible for the space.
+  - subskill_id: obligation
+    explanation: 必须 before a predicate states a requirement. It is stronger than simply expressing a
+      preference.
+    examples:
+      - text: 我们今天必须还书。
+        meaning: We must return the books today.
+        note: 今天 supplies the deadline. 必须 makes returning them necessary.
+  - subskill_id: possibility
+    explanation: 可能 before a proposition leaves the event open as a possibility. It does not assert
+      certainty.
+    examples:
+      - text: 下午可能下雨。
+        meaning: It may rain in the afternoon.
+        note: 可能 qualifies 下雨. 下午 locates the possible event later in the day.
+  - subskill_id: certainty
+    explanation: 不确定 can state lack of confidence about a proposition. An embedded 是不是 question
+      identifies the uncertainty.
+    examples:
+      - text: 我不确定明天是不是休息日。
+        meaning: I am not sure whether tomorrow is a day off.
+        note: 是不是 presents the two possibilities within the uncertainty statement. It does not assert
+          that tomorrow is not a day off.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

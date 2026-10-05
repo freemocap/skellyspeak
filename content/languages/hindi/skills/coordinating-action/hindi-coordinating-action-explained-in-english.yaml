@@ -1,0 +1,72 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A respectful imperative can ask the listener to act. रखिए is used with polite
+      address, including आप when it is stated.
+    examples:
+      - text: किताब यहाँ रखिए।
+        meaning: Please put the book here.
+        note: रखिए requests placement of the book. यहाँ gives the location; कृपया is not required for
+          every polite request.
+  - subskill_id: offers_invitations
+    explanation: A first-person subjunctive question can offer the speaker’s help. The offer
+      concerns an action for the listener.
+    examples:
+      - text: क्या मैं आपकी मदद करूँ?
+        meaning: Shall I help you?
+        note: करूँ proposes the speaker’s action. आपकी agrees with feminine मदद and respectfully
+          addresses the listener.
+  - subskill_id: suggestions
+    explanation: चलिए can introduce a proposal for shared action. The following first-person plural
+      form presents what the participants might do together.
+    examples:
+      - text: चलिए, थोड़ी देर बैठते हैं।
+        meaning: Let us sit for a little while.
+        note: बैठते हैं includes the speaker and listener in the proposed action; it is not a report of
+          a habitual seating arrangement.
+  - subskill_id: commitments
+    explanation: A future statement can undertake responsibility when made during planning. Its role
+      as a commitment comes from that exchange, not from future morphology alone.
+    examples:
+      - text: मैं टिकट ले आऊँगी।
+        meaning: I will bring the tickets.
+        note: Use this to take responsibility for getting the group’s tickets. आऊँगी identifies a female
+          speaker.
+  - subskill_id: accepting_declining
+    explanation: A short constraint statement can decline an invitation. The invitation supplies the
+      action that the speaker cannot undertake.
+    examples:
+      - text: माफ़ कीजिए, आज मेरे पास समय नहीं है।
+        meaning: Sorry, I do not have time today.
+        note: Reply to an invitation to visit today. The apology and lack of time decline that
+          invitation.
+  - subskill_id: negotiating_plans
+    explanation: Contrast an unsuitable time with an alternative. A first-person plural form can
+      propose the revised arrangement.
+    examples:
+      - text: मंगलवार नहीं, बुधवार को मिलते हैं।
+        meaning: Not Tuesday; let us meet on Wednesday.
+        note: Reply to a proposal for Tuesday. बुधवार को supplies the alternative meeting day.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

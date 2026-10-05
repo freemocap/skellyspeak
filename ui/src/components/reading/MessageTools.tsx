@@ -2,15 +2,19 @@ import { MessageToolMenu } from './MessageToolMenu'
 import { useToolOverflow } from './useToolOverflow'
 import { useInspectorAnchor } from './useInspectorAnchor'
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { ToolbarIcon } from '../controls/ToolbarIcon'
+import { ToolbarIcon, type ToolbarIconName } from '../controls/ToolbarIcon'
 import { useI18n } from '../localization/i18n'
 import { useUiDirection } from '../localization/useUiDirection'
 
-/** A reading tool: quiet text in the row, or an item in the ⋯ menu. */
+/** A reading tool: an icon in the row, or an icon with its name in the ⋯ menu. */
 export interface MessageTool {
   key: string
+  /** The tool's name: the row button's accessible name and tooltip, and the
+   * menu item's visible label. */
   label: string
-  /** Accessible name when it differs from the visible label. */
+  /** The row's icon, from the shared toolbar set. */
+  icon: ToolbarIconName
+  /** Accessible name when it differs from the label. */
   ariaLabel?: string
   /** A toggle's state; omitted for actions. */
   pressed?: boolean
@@ -33,9 +37,10 @@ export interface MessagePlay {
 export type MessageInspect = { kind: 'available'; open: boolean; disabled?: boolean; onToggle: () => void }
 
 /** One row of tools, identical on every message and for both speakers: Play
- * and Inspect audio lead; then the reading tools as quiet text; then the
- * message's actions as icons (Edit, Add to Practice), always in view; and ⋯
- * last, holding only reading tools that do not fit in the available width. */
+ * and Inspect audio lead; then the reading tools as icons, each named by its
+ * tooltip; then the message's actions as icons (Edit, Add to Practice), always
+ * in view; and ⋯ last, holding only reading tools that do not fit in the
+ * available width, each shown there with its name. */
 export function MessageTools({ play, inspect, tools, actions, more, pending }: {
   /** Admission feedback occupies the existing tools without changing their footprint. */
   pending?: ReactNode
@@ -52,7 +57,7 @@ export function MessageTools({ play, inspect, tools, actions, more, pending }: {
   const waiting = pending !== undefined
   const uiDirection = useUiDirection()
   const [open, setOpen] = useState(false)
-  const { root, measure, visible } = useToolOverflow(more.length, [...tools, ...more].map(tool => tool.label).join('|'))
+  const { root, measure, visible } = useToolOverflow(more.length, [...tools, ...more].map(tool => tool.key).join('|'))
   const overflow = more.slice(visible)
   const anchorInspector = useInspectorAnchor(inspect?.open)
   const panelId = useId()
@@ -61,9 +66,11 @@ export function MessageTools({ play, inspect, tools, actions, more, pending }: {
   useEffect(() => { if (!overflow.length) setOpen(false) }, [overflow.length])
   const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
   const toolButton = (tool: MessageTool, inMenu: boolean) => <button key={tool.key} type="button"
-    className={`${inMenu ? 'message-tools-item' : 'message-translate'}${tool.pending ? ' is-hydrating' : ''}`}
-    aria-label={tool.ariaLabel} aria-pressed={tool.pressed} aria-expanded={tool.pressed} aria-haspopup={tool.opensDialog ? 'dialog' : undefined}
-    aria-hidden={waiting || undefined} disabled={waiting || tool.disabled} onKeyDown={stop} onClick={event => { stop(event); if (inMenu && tool.opensDialog) setOpen(false); tool.onSelect() }}>{tool.label}</button>
+    className={`${inMenu ? 'message-tools-item' : 'message-tools-icon'}${tool.pending ? ' is-hydrating' : ''}`}
+    aria-label={inMenu ? tool.ariaLabel : tool.ariaLabel ?? tool.label} title={inMenu ? undefined : tool.label}
+    aria-pressed={tool.pressed} aria-expanded={tool.pressed} aria-haspopup={tool.opensDialog ? 'dialog' : undefined}
+    aria-hidden={waiting || undefined} disabled={waiting || tool.disabled} onKeyDown={stop} onClick={event => { stop(event); if (inMenu && tool.opensDialog) setOpen(false); tool.onSelect() }}>
+    <ToolbarIcon name={tool.icon} />{inMenu && tool.label}</button>
   return <div className={`message-actions message-tools${waiting ? ' reply-activity' : ''}`} data-pending={waiting ? '' : undefined} dir={uiDirection} ref={root} onDoubleClick={stop}
     onKeyDown={event => { if (event.key === 'Escape' && open) { event.stopPropagation(); setOpen(false) } }}>
     <span className="message-tools-primary" aria-hidden={waiting || undefined} inert={waiting}>
@@ -87,7 +94,7 @@ export function MessageTools({ play, inspect, tools, actions, more, pending }: {
       {overflow.map(tool => toolButton(tool, true))}
     </MessageToolMenu>}
     <span className="message-tools-measure" ref={measure} aria-hidden="true" inert>
-      {more.map(tool => <button key={tool.key} type="button" tabIndex={-1} className="message-translate" data-measured-tool data-label={tool.label} />)}
+      {more.map(tool => <span key={tool.key} className="message-tools-icon" data-measured-tool><ToolbarIcon name={tool.icon} /></span>)}
       <span className="message-tools-icon message-tools-more"><ToolbarIcon name="more" /></span>
     </span>
     {waiting && <span className="message-tools-progress" role="status">{pending}</span>}

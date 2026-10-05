@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: information_exchange
+guidance: Assess questions for missing information, relevant answers, confirmation and useful
+  precision. A que horas a biblioteca abre? asks for an opening time. A biblioteca abre às oito,
+  não é? checks a proposition already under consideration. Brazilian Portuguese questions do not
+  require English do or obligatory subject–verb inversion. In a normal cooperative exchange,
+  você pode abrir a janela? usually requests an action rather than asking for unknown facts. A
+  copied question word with no identifiable information need is absent. Às oito can answer the
+  actual opening-time question contextually; its missing full clause is not a failure. Verbal
+  replies such as abre, sim may confirm an identified proposition; an isolated sim has no
+  recoverable content without context. A entrada fica na lateral, ao lado do jardim narrows a
+  useful location when someone needs the entrance. Extra length alone is not helpful detail. O
+  que você quer dizer com isso? can address a comprehension problem; distinguish that repair
+  from checking whether a fact is true.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

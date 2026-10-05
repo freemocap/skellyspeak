@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Porque can connect an action or situation to its reason. Distinguish this
+      explanatory porque from question forms asking why.
+    examples:
+      - text: Fiquei em casa porque estava chovendo.
+        meaning: I stayed home because it was raining.
+        note: Fiquei reports the decision; porque links it to the ongoing rain expressed by estava
+          chovendo.
+  - subskill_id: consequences
+    explanation: Por isso presents the following action or conclusion as a consequence of what came
+      before. It is more specific than simply naming the next event.
+    examples:
+      - text: O pneu furou, por isso voltei a pé.
+        meaning: The tire got punctured, so I walked back.
+        note: Por isso explicitly relates walking back to the puncture. Voltei is a past event and a pé
+          means on foot.
+  - subskill_id: conditions
+    explanation: For a projected future condition, se can introduce the future subjunctive. With
+      regular chover, that form looks like the infinitive; the context gives its grammatical
+      role.
+    examples:
+      - text: Se chover amanhã, vamos fazer a troca de livros na biblioteca.
+        meaning: If it rains tomorrow, we will hold the book exchange at the library.
+        note: Se chover gives the condition; vamos fazer gives the planned consequence. Rain is possible
+          rather than reported as having occurred.
+  - subskill_id: contrast
+    explanation: Mas can contrast an initial intention or expectation with an obstacle or different
+      outcome. The two clauses must actually stand in that relation.
+    examples:
+      - text: Quero ir de bicicleta, mas o pneu está furado.
+        meaning: I want to go by bicycle, but the tire is punctured.
+        note: Mas links the travel preference to a problem that interferes with it.
+  - subskill_id: supporting_claims
+    explanation: A judgment can be supported by a further assertion that explains its basis. The
+      support need not always begin with porque.
+    examples:
+      - text: "Acho que este caminho é melhor: é mais curto."
+        meaning: "I think this route is better: it is shorter."
+        note: The shorter distance is offered as grounds for the judgment melhor. The two assertions are
+          related as claim and support.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_ficar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

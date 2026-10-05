@@ -8,7 +8,7 @@ export function DomainEvidenceTree({ snapshot, onSelect }: { snapshot: SkillSnap
   const tr = useI18n()
   const domains = useMemo(() => {
     const catalog = skillIndex(snapshot).catalog
-    return catalog.nodes.filter(node => node.kind === 'domain').map(domain => {
+    return catalog.nodes.filter(node => node.kind === 'skill').map(domain => {
       const skills = new Set(catalog.descendants(domain.id))
       const attempts = new Set(snapshot.profile.credits.filter(credit => credit.xp > 0 && skills.has(credit.skill_id)).map(credit => credit.attempt_id))
       return { ...domain, count: attempts.size }

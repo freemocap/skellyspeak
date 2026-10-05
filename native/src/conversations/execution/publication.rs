@@ -155,6 +155,23 @@ impl Store {
             "persona_opening" | "persona_reply" | "coach_reply"
         ) && let Ok(output) = &mut result
         {
+            if output.finish_reason == "stop"
+                && let Some(clean) = crate::conversations::reply_contract::clean(&output.text)
+            {
+                let removed_bytes = output.text.len() - clean.len();
+                output.text = clean.to_owned();
+                let diagnostics = output
+                    .diagnostics
+                    .get_or_insert_with(|| serde_json::json!({}));
+                diagnostics["role_transcript_cleanup"] = serde_json::json!({
+                    "first_assistant_turn": true, "removed_bytes": removed_bytes,
+                });
+                crate::diagnostics::inference::role_transcript_cleaned(
+                    dispatch,
+                    &kind,
+                    removed_bytes,
+                );
+            }
             let (clean, removed) = crate::ai::transport::provider::strip_prose_emojis(&output.text);
             if removed > 0 && !clean.is_empty() {
                 output.text = clean;
@@ -224,10 +241,6 @@ impl Store {
                     coaching = Some(value);
                 })
             }
-            Ok(output) if crate::learning::coaching::message_assessment::owns(&kind) => {
-                crate::learning::coaching::message_assessment::validate(&kind, output)
-                    .map(|v| coaching = Some(v))
-            }
             Ok(output) if crate::learning::coaching::conversation_support::owns(&kind) => {
                 crate::learning::coaching::conversation_support::validate(&kind, output).map(|v| {
                     coaching = Some(v);
@@ -237,10 +250,8 @@ impl Store {
                 if kind == "skill_attribution"
                     || kind == "skill_assessment"
                     || crate::learning::coaching::conversation_support::owns(&kind)
-                    || crate::learning::coaching::message_assessment::owns(&kind)
                     || kind == "coach_feedback"
-                    || kind == "coach_suggestions"
-                    || kind == "coach_reaction" =>
+                    || kind == "coach_suggestions" =>
             {
                 (if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::validate(&tx, &turn, &kind, output)
@@ -313,7 +324,13 @@ impl Store {
                     "persona_reply" | "persona_opening" | "coach_reply"
                 ) =>
             {
-                crate::conversations::reply_contract::validate(&output.text)
+                crate::conversations::reply_contract::validate(&output.text).and_then(|()| {
+                    if kind == "persona_opening" {
+                        crate::conversations::phrase_start::validate(&tx, &turn, &output.text)
+                    } else {
+                        Ok(())
+                    }
+                })
             }
             Ok(output) => crate::ai::transport::provider::validate_prose(&output.text),
             Err(error) => Err(error.clone()),
@@ -337,9 +354,46 @@ impl Store {
             let presence: std::collections::BTreeMap<String, crate::learning::practice::Presence> =
                 serde_json::from_value(value["presence"].clone())?;
             let expected = presence.keys().cloned().collect();
+            let (level_target, level_chat, level_message): (String, String, i32) = tx.query_row(
+                "SELECT c.language_id,c.id,m.sequence FROM turns t JOIN conversations c ON c.id=t.conversation_id JOIN messages m ON m.turn_id=t.id AND m.role='user' WHERE t.id=?1",
+                [&turn], |r| Ok((r.get(0)?,r.get(1)?,r.get(2)?)))?;
+            // First materialize prior evidence without attributing it to this new message.
+            let before = crate::learning::learner::progression::snapshot_db(
+                &tx,
+                &self.config,
+                &self.session_id,
+                &level_target,
+            )?;
+            crate::learning::rewards::skill_level_events::synchronize(&tx, &before, None)?;
             crate::learning::practice::publish(&tx, &turn, &dispatch.attempt, presence, &expected)?;
             tx.execute("UPDATE turns SET context=json_set(context,'$.skillAssessment',json(?2),'$.skillAssessmentAttempt',?3) WHERE id=?1",params![turn,value.to_string(),dispatch.attempt])?;
+            let understanding = &value["understandability"];
+            let reaction = match understanding["choice"].as_str() {
+                Some("understandable") => {
+                    serde_json::json!({"kind":"understood","answer":understanding})
+                }
+                Some("needs_clarification" | "unrecoverable") => {
+                    serde_json::json!({"kind":"confused","answer":understanding})
+                }
+                _ => serde_json::Value::Null,
+            };
+            tx.execute("UPDATE turns SET context=json_set(context,'$.partnerReaction',json(?2)) WHERE id=?1", params![turn, reaction.to_string()])?;
             crate::learning::rewards::publish(&tx, &turn, &dispatch.attempt)?;
+            let after = crate::learning::learner::progression::snapshot_db(
+                &tx,
+                &self.config,
+                &self.session_id,
+                &level_target,
+            )?;
+            crate::learning::rewards::skill_level_events::synchronize(
+                &tx,
+                &after,
+                Some(crate::learning::rewards::skill_level_events::Source {
+                    attempt: &dispatch.attempt,
+                    chat: &level_chat,
+                    message: level_message,
+                }),
+            )?;
         }
         let (state, error) = match valid {
             Ok(()) => ("succeeded", None),
@@ -361,10 +415,8 @@ impl Store {
         if kind == "skill_attribution"
             || kind == "skill_assessment"
             || crate::learning::coaching::conversation_support::owns(&kind)
-            || crate::learning::coaching::message_assessment::owns(&kind)
             || kind == "coach_feedback"
             || kind == "coach_suggestions"
-            || kind == "coach_reaction"
         {
             tx.execute(
                 "UPDATE turns SET context=json_set(context,?2,?3) WHERE id=?1",
@@ -398,8 +450,6 @@ impl Store {
                     crate::learning::coaching::conversation_support::publish(
                         &tx, &turn, &kind, &value,
                     )?;
-                } else if kind == "coach_reaction" {
-                    tx.execute("UPDATE turns SET context=json_set(context,'$.partnerReaction',json(?2)) WHERE id=?1",params![turn,value.to_string()])?;
                 } else if kind == crate::learning::coaching::SUGGESTIONS {
                     crate::learning::coaching::publish(
                         &tx,

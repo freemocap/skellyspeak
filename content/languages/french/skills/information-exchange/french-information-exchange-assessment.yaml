@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: information_exchange
+language: french
+guidance: >-
+  Judge whether the learner asks for, supplies, checks or usefully specifies information
+  in this exchange. Accept grammatical questions with est-ce que, inversion or
+  conversational declarative order; do not require inversion. À dix-huit heures can
+  correctly answer a time question without a finite verb. Où est la gare ? asks for
+  location; a correctly formed pourquoi question does not answer a request for a location.
+  C’est bien jeudi ? can check an already proposed date. A question mark or an
+  interrogative word alone is not sufficient evidence when the requested information is
+  unclear. Additional detail must identify or resolve something relevant, not merely
+  lengthen the message. Credit requires correct use of the function, not merely an
+  attempt. Unrelated errors do not erase a successful instance. Use unclear when the
+  available exchange does not establish the function. Examples illustrate possibilities,
+  not an exhaustive whitelist. Accept appropriate France and Canadian French usage and
+  conversational register; do not impose another variety’s lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - oqlf_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

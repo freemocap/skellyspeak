@@ -68,7 +68,7 @@ fn script_scale_defaults_to_standard_and_language_overrides_remain_effective() {
 fn shipped_config_loads_resolves_and_projects() {
     let r = Registry::bundled().unwrap();
     assert!(!r.languages.is_empty());
-    assert_eq!(r.constructs().len(), 45);
+    assert_eq!(r.shared_skills().skills.len(), 8);
     let c = r
         .resolve("arabic", Some("arabic-modern-standard"), "mandarin")
         .unwrap();
@@ -89,15 +89,17 @@ fn shipped_config_loads_resolves_and_projects() {
     );
     assert_eq!(c.hash.len(), 64);
     assert_ne!(c.hash, r.resolve("arabic", None, "english").unwrap().hash);
-    assert_eq!(r.catalog().as_array().unwrap().len(), 54);
+    assert_eq!(r.catalog().as_array().unwrap().len(), 9);
     assert_eq!(
         r.catalog()
             .as_array()
             .unwrap()
             .iter()
-            .find(|n| n["id"] == "greeting")
+            .find(|n| n["id"] == "managing_conversation")
             .unwrap()["criterion"],
-        r.construct("greeting").unwrap().criterion
+        r.skill_definition("managing_conversation")
+            .unwrap()
+            .boundary
     );
     assert!(
         r.resolve("arabic", Some("mandarin-mainland-china"), "english")
@@ -106,29 +108,17 @@ fn shipped_config_loads_resolves_and_projects() {
     assert!(r.resolve("xx", None, "english").is_err());
 }
 #[test]
-fn candidates_preserve_required_members() {
-    let r = Registry::bundled().unwrap();
-    let ctx = r.resolve("spanish", None, "english").unwrap();
-    let candidates = r
-        .candidates(&ctx, "A1", &["nested_reference".into()], &[], &[])
-        .unwrap();
-    assert!(candidates.iter().any(|c| c.id == "nested_reference"));
-    assert!(!candidates.iter().any(|c| c.id == "ix.self_repair"));
-    // Most migrated criteria are functional; mandatory coverage legitimately exceeds25.
-    assert!(candidates.len() > 25);
-}
-#[test]
 fn export_schemas() {
     let schemas = super::schemas();
     if std::env::var_os("SKELLY_WRITE_CONFIG_SCHEMAS").is_some() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../content/schemas");
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../content/rust-schemas");
         for (name, value) in &schemas {
             fs::write(root.join(name), serde_yaml_ng::to_string(value).unwrap()).unwrap();
         }
     }
     for (name, value) in schemas {
         let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../content/schemas")
+            .join("../content/rust-schemas")
             .join(name);
         let actual: serde_json::Value =
             serde_yaml_ng::from_str(&fs::read_to_string(&path).unwrap()).unwrap();
@@ -165,60 +155,6 @@ fn scoped_resolution_orders_traits_and_honors_leaf_scalar_overrides() {
     assert_eq!(&notes[4..], &["Language rule", "Variety rule"]);
     assert_eq!(ctx.font_scale, 1.8);
     assert_eq!(r.language("arabic").unwrap().font_scale, 1.8);
-}
-#[test]
-fn catalog_is_45_generic_skills_under_eight_flat_categories() {
-    let r = Registry::bundled().unwrap();
-    assert_eq!(r.constructs.len(), 45);
-    let catalog = r.catalog();
-    let nodes = catalog.as_array().unwrap();
-    let categories: Vec<_> = nodes
-        .iter()
-        .filter(|n| n["kind"] == "domain")
-        .map(|n| n["id"].as_str().unwrap())
-        .collect();
-    assert_eq!(
-        categories,
-        vec![
-            "reference",
-            "properties",
-            "events",
-            "time",
-            "space",
-            "operators",
-            "connections",
-            "social"
-        ]
-    );
-    let ids: std::collections::HashSet<_> = r.constructs.iter().map(|c| c.id.as_str()).collect();
-    assert_eq!(ids.len(), 45);
-    assert!(!ids.contains("arabic.idafa") && !ids.contains("ix.self_repair"));
-    assert!(r.constructs.iter().all(|c| c.requires.is_empty()));
-    assert!(
-        nodes
-            .iter()
-            .filter(|n| n["kind"] == "skill")
-            .all(|n| categories.contains(&n["parent"].as_str().unwrap()))
-    );
-    for language in &r.languages {
-        let context = r.resolve(&language.id, None, "english").unwrap();
-        let candidates = r
-            .candidates(
-                &context,
-                "A1",
-                &r.constructs
-                    .iter()
-                    .map(|c| c.id.clone())
-                    .collect::<Vec<_>>(),
-                &[],
-                &[],
-            )
-            .unwrap();
-        assert_eq!(candidates.len(), 45);
-        for c in candidates {
-            assert_eq!(c.criterion, r.construct(&c.id).unwrap().criterion);
-        }
-    }
 }
 #[test]
 fn captured_custom_language_context_reaches_gloss_prompt_and_decoder() {

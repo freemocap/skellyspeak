@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: possibilities_constraints
+language: french
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: >-
+      Savoir followed by an infinitive expresses learned know-how. Pouvoir can express
+      capacity or an available opportunity; context distinguishes these from permission.
+    examples:
+      - text: "Je sais réparer une roue de vélo."
+        meaning: >-
+          I know how to repair a bicycle wheel.
+        note: >-
+          Sais réparer expresses a learned ability; it does not claim that a repair is
+          possible with the tools currently available.
+  - subskill_id: permission
+    explanation: >-
+      Pouvoir in a question can request permission when the other participant has
+      authority over the action. The same verb in a different exchange can express
+      ability.
+    examples:
+      - text: "Est-ce que je peux ouvrir la fenêtre ?"
+        meaning: >-
+          May I open the window?
+        note: >-
+          In a shared room this asks whether opening the window is permitted; it does not
+          test the speaker’s physical ability.
+  - subskill_id: obligation
+    explanation: >-
+      Devoir followed by an infinitive can express an obligation. Il faut also expresses
+      necessity; il faut que introduces a clause with its own subject and subjunctive
+      form.
+    examples:
+      - text: "Nous devons rendre les clés avant midi."
+        meaning: >-
+          We must return the keys before noon.
+        note: >-
+          Devons rendre places the obligation on nous; avant midi specifies the deadline.
+  - subskill_id: possibility
+    explanation: >-
+      Peut-être or a suitable modal construction can leave an event uncertain. Match the
+      grammatical construction to the strength of the claim.
+    examples:
+      - text: "Il va peut-être neiger cette nuit."
+        meaning: >-
+          It may snow tonight.
+        note: >-
+          Peut-être qualifies the prediction; this is a possibility rather than a definite
+          announcement of snow.
+  - subskill_id: certainty
+    explanation: >-
+      Expressions such as je suis certain que identify commitment to a proposition. Devoir
+      can signal an inference, so its presence alone does not establish certainty or
+      obligation.
+    examples:
+      - text: "Je suis certaine que le guichet est fermé : je viens de vérifier."
+        meaning: >-
+          I am certain that the counter is closed; I have just checked.
+        note: >-
+          Certaine is the feminine speaker’s certainty claim; the following clause states
+          the basis, without making the assessor a verifier of the real-world fact.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_modals2026
+    - tex_conditional2026
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

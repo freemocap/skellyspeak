@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Hẹn gặp lại closes contact with an expectation of meeting again.
+    examples:
+      - text: Hẹn gặp lại tuần sau!
+        meaning: See you next week!
+        note: The closing names the next expected contact.
+  - subskill_id: acknowledging
+    explanation: Hiểu rồi acknowledges reaching understanding.
+    examples:
+      - text: À, bây giờ tôi hiểu rồi.
+        meaning: Ah, now I understand.
+        note: Use after an explanation; it need not endorse the speaker’s opinion.
+  - subskill_id: clarification
+    explanation: A question with nói lại asks for repetition of a prior contribution.
+    examples:
+      - text: Bạn nói lại được không?
+        meaning: Could you say that again?
+        note: Bạn suits a peer in this example; the prior utterance supplies what to repeat.
+  - subskill_id: rephrasing
+    explanation: Nói cách khác introduces another formulation.
+    examples:
+      - text: Nói cách khác, cần đặt lịch trước.
+        meaning: In other words, you need to book in advance.
+        note: Use after explaining a booking procedure.
+  - subskill_id: correcting_misunderstanding
+    explanation: Ý tôi là identifies intended meaning and can contrast it with an incorrect interpretation.
+    examples:
+      - text: Ý tôi là thứ bảy, không phải thứ sáu.
+        meaning: I mean Saturday, not Friday.
+        note: The speaker corrects which day was intended.
+  - subskill_id: turns_topics
+    explanation: A proposal can manage a transition within the conversation.
+    examples:
+      - text: Chúng ta chuyển sang câu hỏi khác nhé.
+        meaning: Let’s move on to another question.
+        note: The requested action concerns the discussion itself.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_suggestions2026
+    - niu_vietnamese_patterns2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

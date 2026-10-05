@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and negotiation of plans. A request tries to get an addressee to act; an offer makes
+  the speaker’s help available. A suggestion proposes a shared option without necessarily
+  settling it. A future statement becomes a commitment only when the exchange supports an
+  undertaking. A short acceptance can succeed after an identifiable invitation. A copied polite
+  formula without a recoverable action is absent. Distinguish permission questions from action
+  requests using context, rather than crediting every possible action function. Evaluate
+  addressee agreement and politeness in the selected variety. Do not require a particular
+  courtesy phrase or formal imperative when an ordinary conversational request is already
+  successful.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Evaluate colloquial imperatives, offers, لَيْشْ مَا suggestions and commitments in
+      context. Accept regional invitation and politeness forms; do not require formal
+      interrogative particles in ordinary spoken questions.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Evaluate imperative and interrogative request constructions with their actual addressee.
+      Formal agreement and linking vowels are relevant to the form used, but one isolated error
+      need not erase a clearly successful action function.
+    provenance: *a1

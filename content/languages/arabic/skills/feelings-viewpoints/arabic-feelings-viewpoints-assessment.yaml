@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: feelings_viewpoints
+guidance: Assess desire, preference, emotion, opinion and agreement or disagreement. A desire
+  construction names a wanted state or action; a future statement alone need not do so. A
+  comparison of liking expresses preference. An emotional adjective can report a feeling without
+  an overt present copula. An opinion marker can frame a judgment, while an agreement or
+  rejection expression explicitly takes a stance on an identifiable proposition. A short choice
+  can answer a preference question contextually; a drink name in an inventory does not establish
+  liking. A bare acknowledgement need not mean agreement. A copied feeling word with no
+  recoverable experiencer or stance is absent. Judge agreement and negation against the selected
+  variety, preserving ordinary subject omission and avoiding an English-only model of how
+  feelings must be expressed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Recognize بِدِّي, liking comparisons and colloquial adjective negation. مِشْ and مُو occur
+      in different regional usage; the guide’s choice is not an exclusive standard.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Recognize أُرِيدُ with أَنْ, agreement verbs and nominal feeling predicates. Do not
+      confuse a polite request with a report of personal preference merely because it contains a
+      desire verb.
+    provenance: *a1

@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=../rust-schemas/teaching-policy.yaml
+guidance:
+  - scope: assessment
+    text: Copy evidence character-for-character from learner text. Never correct spelling or translate
+      evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's
+      response schema. Never invent errors.
+    sources:
+      - hattie_timperley2007
+  - scope: pragmatics
+    text: Support the learner’s chosen purpose through dialogue. The conversation partner remains a
+      partner, never an examiner; feedback concerns the work, never the person.
+    sources:
+      - freire1970
+      - hooks1994
+      - illich1973
+feedback:
+  correct_only: useful_language
+  skip_sources: []
+  intensity:
+    light:
+      start_at: explicit
+      show_logged: false
+    standard:
+      start_at: explicit
+      show_logged: true
+    thorough:
+      start_at: explicit
+      show_logged: true
+  never:
+    - praise_the_person
+    - correct_in_partner_voice
+    - block_continuing
+  sources:
+    - lyster_ranta1997
+    - lyster_saito2010
+    - aljaafreh_lantolf1994
+    - hattie_timperley2007
+estimator:
+  version: 1
+  initial_rating: 0
+  learning_rate: 0.4
+  initial_half_life_days: 3
+  min_half_life_days: 0.25
+  max_half_life_days: 180
+  success_growth: 1.5
+  failure_shrink: 0.7
+  due_recall: 0.7
+  minimum_independent_observations: 5
+  support:
+    none: 1
+    partner_clarify: 0.85
+    hint: 0.7
+    elicit: 0.55
+    metalinguistic: 0.4
+    suggestion: 0.2
+    revision: 0.2
+    explicit: 0.1
+  sources:
+    - pelanek2016
+    - settles_meeder2016
+game:
+  version: 1
+  rules:
+    - evidence_caused
+    - truthful
+    - never_punish_stopping
+  base:
+    demonstrated: 10
+    partial: 4
+    repair: 12
+  support:
+    none: 1.5
+    partner_clarify: 1.3
+    hint: 1.2
+    elicit: 1
+    metalinguistic: 0.8
+    suggestion: 0.5
+    revision: 0.5
+    explicit: 0.3
+  difficulty:
+    absolute_zero: 1
+    beginner: 1
+    intermediate: 1.2
+    advanced: 1.4
+    fluent: 1.5
+  novelty:
+    first_ever: 2
+    first_this_week: 1.2
+    routine: 1
+  tiers:
+    construct_discovered: 3
+    repair: 2
+    xp_tick: 0
+  never_from:
+    - time
+    - message_count
+    - login
+    - coach_output
+  sources:
+    - zagal2013

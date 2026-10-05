@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: managing_conversation
+guidance: Γεια σας can open an encounter with respectful address; closing expressions depend on
+  the point reached in the exchange, not a greeting token in isolation. Κατάλαβα or other short
+  responses can acknowledge receipt of an explanation without necessarily endorsing it. Repair
+  questions can request a repetition or ask τι εννοείτε με a quoted term. Δηλαδή can clarify a
+  prior formulation or, as a question, ask for a clearer one; it is not proof of repair when
+  used in another discourse role. Εννοώ plus a contrast can correct an interpretation, while
+  requests to speak and reference phrases such as σχετικά με can manage turns or introduce a
+  topic. For example, εννοώ το Σάββατο, όχι την Παρασκευή identifies the intended day against
+  the mistaken one. Quoting γεια σας as vocabulary does not greet the partner. Κατάλαβα after a
+  recoverable explanation may acknowledge contextually. Check whether a question addresses
+  trouble in hearing or meaning, or only verifies an external fact; punctuation and a question
+  word cannot decide this alone.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+    - archakis_el_politeness2026
+    - triantafyllides_el_diladi2026
+    - triantafyllides_el_mean2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

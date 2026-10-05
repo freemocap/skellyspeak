@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: possibilities_constraints
+guidance: Recognize ability, permission, obligation, possibility and confidence. The -abil/-ebil
+  family can express different modal meanings according to context. Bisiklet tamir edebiliyorum
+  describes capability, while Çantamı burada bırakabilir miyim? can ask permission from the
+  space’s owner. Anahtarı bugün geri vermem gerekiyor states necessity; gerek yok removes need
+  rather than prohibiting the action. Akşam yağmur yağabilir gives possibility. Gelmeyebilir
+  means someone may not come, unlike gelemeyebilir, which can mean they may be unable to come.
+  Emin değilim limits confidence. Olur can grant a prior permission request contextually. A
+  copied modal ending with no recoverable proposition is absent. A polite ability-shaped request
+  does not necessarily assert capability. Do not label a correctly formed modal unclear solely
+  because ability and opportunity are both plausible and both establish the group.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

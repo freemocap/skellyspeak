@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: possibilities_constraints
+explanation_language: english
+title: Possibilities and constraints
+introduction: Express capability, permission, requirements and epistemic limits.
+sections:
+  - subskill_id: ability
+    title: Ability
+    concept: Express a participant's capability or practical capacity.
+  - subskill_id: permission
+    title: Permission
+    concept: Express whether an action is allowed.
+  - subskill_id: obligation
+    title: Obligation and necessity
+    concept: Express requirements, duties or practical necessity.
+  - subskill_id: possibility
+    title: Possibility
+    concept: Express an outcome as possible or contingent.
+  - subskill_id: certainty
+    title: Certainty and uncertainty
+    concept: Express confidence, doubt or limits of knowledge.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

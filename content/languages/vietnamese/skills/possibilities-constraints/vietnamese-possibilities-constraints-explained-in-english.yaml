@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Biết followed by an activity can describe knowing how to perform it.
+    examples:
+      - text: Tôi biết sửa xe đạp.
+        meaning: I know how to repair bicycles.
+        note: Here biết concerns a learned skill, not knowledge of a particular fact.
+  - subskill_id: permission
+    explanation: An action followed by được không can request permission.
+    examples:
+      - text: Tôi để túi ở đây được không?
+        meaning: May I leave my bag here?
+        note: Ask the person responsible for the space to establish the permission context.
+  - subskill_id: obligation
+    explanation: Phải before an action expresses a requirement.
+    examples:
+      - text: Tôi phải trả chìa khóa hôm nay.
+        meaning: I must return the key today.
+        note: Hôm nay gives the deadline; phải makes the action necessary.
+  - subskill_id: possibility
+    explanation: Có thể can qualify an entire proposition as possible.
+    examples:
+      - text: Có thể chiều nay trời sẽ mưa.
+        meaning: It may rain this afternoon.
+        note: The outcome remains uncertain despite the future marker sẽ.
+  - subskill_id: certainty
+    explanation: Không chắc explicitly limits confidence in a proposition.
+    examples:
+      - text: Tôi không chắc cửa hàng còn mở cửa.
+        meaning: I am not sure the shop is still open.
+        note: The speaker does not assert that the shop has closed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - msu_vietnamese_suggestions2026
+    - niu_vietnamese_patterns2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

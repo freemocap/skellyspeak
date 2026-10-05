@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: possibilities_constraints
+language: english
+guidance: Assess a correctly expressed capability, permission, requirement,
+  possibility or degree of certainty. She can drive is valid; She can to drive
+  fails the modal construction. May I leave? asks permission; I might leave
+  expresses possibility. Could you pass that? is normally a request, not
+  evidence of describing ability. Distinguish must expressing an obligation from
+  must expressing a conclusion from evidence. I am not sure can correctly
+  express uncertainty about an identifiable prior proposition. Credit requires
+  correct use of this function, not an unsuccessful attempt. Unrelated errors do
+  not invalidate a successful instance. Use unclear when the available context
+  cannot establish the function. The listed forms are examples, not an
+  exhaustive whitelist.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_modals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

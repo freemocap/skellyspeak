@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Bu can introduce a person identified by a possessive noun phrase.
+    examples:
+      - text: Bu benim komşum.
+        meaning: This is my neighbour.
+        note: Benim and the ending of komşum both relate the neighbour to the speaker; no gender is
+          specified.
+  - subskill_id: qualities_states
+    explanation: A third-person adjective predicate can stand without an overt copular ending.
+    examples:
+      - text: Bu sokak dar.
+        meaning: This street is narrow.
+        note: Dar states the property; an extra word corresponding to English is is unnecessary.
+  - subskill_id: location_movement
+    explanation: A locative suffix expresses position. Its consonant changes after a voiceless consonant.
+    examples:
+      - text: Anahtar rafta.
+        meaning: The key is on the shelf.
+        note: Raf takes -ta in this location expression.
+  - subskill_id: possession_relations
+    explanation: A possessed noun and var can state what someone has.
+    examples:
+      - text: İki sandalyem var.
+        meaning: I have two chairs.
+        note: Sandalyem marks my chair; iki supplies the quantity without a plural suffix.
+  - subskill_id: quantity_comparison
+    explanation: Daha with an adjective and an ablative standard expresses comparison.
+    examples:
+      - text: Bu kutu ondan daha hafif.
+        meaning: This box is lighter than that one.
+        note: Ondan identifies the comparison object; hafif describes weight.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_possession2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

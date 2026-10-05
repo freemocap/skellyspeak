@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: people_places
+guidance: Assess identification, properties or states, spatial location or paths, possession or
+  relationships, and quantity or comparison. Das ist unsere Nachbarin identifies a person; die
+  Tasche ist schwer attributes a property without an adjective ending. In spatial uses of
+  two-way prepositions, distinguish location im Zimmer from destination ins Zimmer; movement
+  within a location does not itself require accusative. Possessive articles such as mein and
+  meine take endings according to the following noun's case, gender and number. Meine Schwester
+  establishes a relationship when its referent is recoverable. Drei Taschen expresses quantity;
+  Linie drei merely identifies a route. Diese Tasche ist leichter als der Koffer correctly
+  compares weight. Diese Tasche ist mehr leicht, as an attempted ordinary comparative, is
+  unsuccessful. A copied noun list does not establish referents in this interaction. After Wer
+  ist das?, Unsere Nachbarin can identify contextually. A present-tense description alone does
+  not establish meaningful temporal reference. Consider case or agreement where it forms the
+  assessed relation, and preserve another successful relation despite unrelated errors.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_articles2026
+    - umich_de_adjectives2026
+    - umich_de_prepositions2026
+    - umich_de_comparison2026
+    - umich_de_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

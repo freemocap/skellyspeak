@@ -12,6 +12,41 @@ pub(super) fn parse<T: DeserializeOwned>(
         serde_yaml_ng::from_str(text).map_err(|e| error(name, "yaml", e))?;
     serde_yaml_ng::from_str(text).map_err(|e| error(name, "yaml", e))
 }
+fn required_text<'a>(files: &'a BTreeMap<String, String>, name: &str) -> Result<&'a str> {
+    let text = files
+        .get(name)
+        .ok_or_else(|| error(name, "missing", "Required content file is missing."))?;
+    if text.trim().is_empty() || text.len() > 16000 || text.contains('\0') {
+        return Err(error(
+            name,
+            "text",
+            "Expected nonempty, bounded, NUL-free content.",
+        ));
+    }
+    Ok(text)
+}
+fn conversation_prompt(files: &BTreeMap<String, String>) -> Result<ConversationPromptContent> {
+    let markdown = |name: &str| {
+        required_text(files, &format!("prompts/conversation/{name}.md")).map(String::from)
+    };
+    Ok(ConversationPromptContent {
+        base: markdown("base")?,
+        persona: markdown("persona")?,
+        interaction: markdown("interaction")?,
+        examples_intro: markdown("examples-intro")?,
+        ceiling: markdown("ceiling")?,
+        coach_focus: markdown("coach-focus")?,
+        past: markdown("past")?,
+        future: markdown("future")?,
+        opening: markdown("opening")?,
+        phrase_opening: markdown("phrase-opening")?,
+        response: markdown("response")?,
+        subject: markdown("subject")?,
+        examples: parse(files, "prompts/conversation/examples.yaml")?,
+        difficulty: parse(files, "prompts/conversation/difficulty.yaml")?,
+        opening_angles: parse(files, "prompts/conversation/opening-angles.yaml")?,
+    })
+}
 
 impl Registry {
     pub fn bundled() -> Result<Self> {
@@ -24,8 +59,9 @@ impl Registry {
     }
     /// Repository tooling only. Runtime always loads the packaged content.
     pub fn load(dir: &Path) -> Result<Self> {
-        let mut files = BTreeMap::new();
-        collect_files(dir, Path::new(""), &mut files)?;
+        authoring::templates::validate(dir)?;
+        let mut files =
+            super::content_files::read(dir).map_err(|e| error(dir.display(), "inventory", e))?;
         let bibliography = dir.parent().unwrap_or(dir).join("references.bib");
         files.insert(
             "references.bib".into(),
@@ -34,12 +70,59 @@ impl Registry {
         );
         Self::from_files(files)
     }
-    pub(super) fn from_files(files: BTreeMap<String, String>) -> Result<Self> {
-        let speech: speech::Catalog = parse(&files, "shared/speech-routing.yaml")?;
-        speech.validate()?;
-        let foundations: Foundations = parse(&files, "shared/language-foundations.yaml")?;
-        let policy: TeachingPolicy = parse(&files, "shared/teaching-policy.yaml")?;
-        let topics: Vec<ConversationTopic> = parse(&files, "shared/conversation-topics.yaml")?;
+    pub(super) fn from_files(mut files: BTreeMap<String, String>) -> Result<Self> {
+        let bib = files.remove("references.bib").ok_or_else(|| {
+            error(
+                "references.bib",
+                "missing",
+                "Citation bibliography is missing.",
+            )
+        })?;
+        let authored = authoring::Content::from_files(&files, &bib)?;
+        let speech: speech::Catalog = parse(&files, "speech/speech-routing.yaml")?;
+        let foundations: Foundations =
+            parse(&files, "language-foundations/language-foundations.yaml")?;
+        let policy: TeachingPolicy = parse(&files, "policies/teaching-policy.yaml")?;
+        let topics: Vec<ConversationTopic> =
+            parse(&files, "conversation-topics/conversation-topics.yaml")?;
+        let communication = communication::Catalog {
+            schema_version: 1,
+            revision: fingerprint(&authored.definitions),
+            definition_language: "english".into(),
+            origin: guides::GuideOrigin::Mixed,
+            authorship: "Assembled from the authored skill definitions and subskills.".into(),
+            review: identity::ReviewStatus::NeedsReview,
+            sources: authored
+                .definitions
+                .values()
+                .flat_map(|d| d.provenance.sources.clone())
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect(),
+            groups: authored
+                .definitions
+                .values()
+                .map(|d| communication::Group {
+                    id: d.id.clone(),
+                    name: d.name.clone(),
+                    purpose: d.purpose.clone(),
+                    boundary: d.boundary.clone(),
+                    subskills: authored.subskills[&d.id].subskills.clone(),
+                })
+                .collect(),
+        };
+        let skills = skills::Catalog {
+            skills: authored
+                .definitions
+                .values()
+                .map(|d| skills::Skill {
+                    id: d.id.clone(),
+                    name: d.name.clone(),
+                    overview: d.purpose.clone(),
+                    boundary: d.boundary.clone(),
+                })
+                .collect(),
+        };
         let mut registry = Self {
             languages: vec![],
             scripts: foundations.scripts,
@@ -58,151 +141,51 @@ impl Registry {
             orthographies: vec![],
             romanizations: vec![],
             universal: policy.guidance,
-            constructs: parse(&files, "shared/learning-goals.yaml")?,
-            skills: parse(&files, "shared/skills.yaml")?,
-            presence_instructions: parse(&files, "prompts/skills/presence.yaml")?,
-            navigation: parse(&files, "shared/learning-map.yaml")?,
+            skills,
+            communication,
+            authored,
+            assessment_instructions: authoring::prompts::instructions(&files)?,
             feedback: policy.feedback,
             estimator: policy.estimator,
             game: policy.game,
             topics,
-            conversation_prompt: parse(&files, "prompts/conversation/instructions.yaml")?,
-            drill_instruction: parse(&files, "prompts/drill/instructions.yaml")?,
+            conversation_prompt: conversation_prompt(&files)?,
+            drill_instruction: required_text(&files, "prompts/practice/practice.md")?.into(),
             hash: String::new(),
             documents: BTreeMap::new(),
-            source_files: files.clone(),
-            goal_material: BTreeMap::new(),
-            guides: BTreeMap::new(),
+            source_files: files,
         };
-        if registry.drill_instruction.trim().is_empty() || registry.drill_instruction.len() > 16000
-        {
-            return Err(error(
-                "prompts/drill/instructions.yaml",
-                "instruction",
-                "Drill instructions must be nonempty and bounded.",
-            ));
-        }
+        registry
+            .source_files
+            .insert("references.bib".into(), bib.clone());
         registry.add_definitions(
             "shared",
             &foundations.orthographies,
             &foundations.romanization_schemes,
         )?;
-        for name in files.keys() {
-            if name.starts_with("guides/") && name.ends_with(".yaml") {
-                registry.guides.insert(name.clone(), parse(&files, name)?);
-            } else if name.starts_with("languages/") && name.ends_with(".yaml") {
-                let document: LanguageDocument = parse(&files, name)?;
-                speech.validate_preferences(&document.defaults.speech_routes)?;
-                for variety in &document.varieties {
-                    speech.validate_preferences(&variety.overrides.speech_routes)?;
-                }
-                let expected = format!("languages/{}.yaml", document.identity.id);
-                if *name != expected {
-                    return Err(error(
-                        name,
-                        "identity",
-                        format!("Filename must be {expected}."),
-                    ));
-                }
-                registry.add_language(name, document)?;
-            } else if ![
-                "shared/language-foundations.yaml",
-                "shared/speech-routing.yaml",
-                "shared/learning-goals.yaml",
-                "shared/skills.yaml",
-                "shared/learning-map.yaml",
-                "shared/teaching-policy.yaml",
-                "shared/conversation-topics.yaml",
-                "prompts/conversation/instructions.yaml",
-                "prompts/drill/instructions.yaml",
-                "prompts/conversation/ratings.yaml",
-                "prompts/skills/presence.yaml",
-                "references.bib",
-            ]
-            .contains(&name.as_str())
-            {
-                return Err(error(name, "unknown_file", "Unknown content file."));
+        for (id, document) in registry.authored.languages.clone() {
+            speech.validate_preferences(&document.defaults.speech_routes)?;
+            for variety in &document.varieties {
+                speech.validate_preferences(&variety.overrides.speech_routes)?;
             }
-        }
-        for (language, materials) in &registry.goal_material {
-            for goal in materials.keys() {
-                registry.construct(goal).map_err(|e| {
-                    error(
-                        format!("languages/{language}.yaml#learning.goal_material.{goal}"),
-                        &e.code,
-                        e.message,
-                    )
-                })?;
-            }
+            registry.add_language(&format!("languages/{id}/{id}-language.yaml"), document)?;
         }
         registry.validate_starter_content()?;
         registry.validate_practice_content()?;
-        let bib = files.get("references.bib").ok_or_else(|| {
-            error(
-                "references.bib",
-                "missing",
-                "Citation bibliography is missing.",
-            )
-        })?;
-        registry.validate(bib).map_err(|mut e| {
-            // Existing semantic validators name stable entities. Attach their authored owner.
+        registry.validate(&bib).map_err(|mut e| {
             if let Some(path) = registry.entity_source(&e.path) {
                 e.path = path;
             }
             e
         })?;
-        let citations = citations::parse_bib(bib).map_err(|e| error("references.bib", "bib", e))?;
-        registry.validate_guides(&citations.keys().cloned().collect())?;
-        registry.validate_skills(&citations.keys().cloned().collect())?;
+        let citations =
+            citations::parse_bib(&bib).map_err(|e| error("references.bib", "bib", e))?;
         for source in &speech.sources {
             if !citations.contains_key(source) {
-                return Err(error("shared/speech-routing.yaml", "citation", source));
+                return Err(error("speech/speech-routing.yaml", "citation", source));
             }
         }
-        // Hash typed authored content as well as runtime projections, including unused definitions.
         registry.hash = fingerprint(&(&registry, &registry.documents, &speech, citations));
         Ok(registry)
     }
-}
-fn collect_files(root: &Path, relative: &Path, files: &mut BTreeMap<String, String>) -> Result<()> {
-    let dir = root.join(relative);
-    let metadata = fs::symlink_metadata(&dir).map_err(|e| error(dir.display(), "io", e))?;
-    if metadata.file_type().is_symlink() || !metadata.is_dir() {
-        return Err(error(
-            dir.display(),
-            "directory",
-            "Content must be a directory, not a symlink.",
-        ));
-    }
-    for entry in fs::read_dir(&dir).map_err(|e| error(dir.display(), "io", e))? {
-        let entry = entry.map_err(|e| error(dir.display(), "io", e))?;
-        let path = relative.join(entry.file_name());
-        let name = path
-            .to_str()
-            .ok_or_else(|| error(path.display(), "filename", "Use UTF-8 filenames."))?
-            .replace('\\', "/");
-        let kind = entry.file_type().map_err(|e| error(&name, "io", e))?;
-        if kind.is_symlink() {
-            return Err(error(&name, "symlink", "Content symlinks are not allowed."));
-        }
-        if name == "diagnostics"
-            || name == "schemas"
-            || entry.file_name().to_string_lossy().starts_with('.')
-            || name.ends_with(".md")
-        {
-            continue;
-        }
-        if kind.is_dir() {
-            collect_files(root, &path, files)?;
-        } else if kind.is_file() {
-            if entry.metadata().map_err(|e| error(&name, "io", e))?.len() > 2 * 1024 * 1024 {
-                return Err(error(&name, "size", "Content file exceeds 2 MiB."));
-            }
-            files.insert(
-                name.clone(),
-                fs::read_to_string(entry.path()).map_err(|e| error(&name, "io", e))?,
-            );
-        }
-    }
-    Ok(())
 }

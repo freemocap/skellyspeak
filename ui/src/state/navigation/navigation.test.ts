@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import { useNavigationStore } from './navigation'
 
@@ -45,7 +46,7 @@ describe('navigation store', () => {
 
   it('opens a practice surface and closes the dialog it covers', () => {
     store().showOverlay('more')
-    store().openPractice('panel')
+    store().openConversation('panel')
     expect(store().page).toBe('guided')
     expect(store().mobileSurface).toBe('panel')
     expect(store().overlay).toBeNull()
@@ -63,12 +64,28 @@ describe('navigation store', () => {
   })
 
   it('goes home to the conversation with everything over it closed', () => {
-    store().openPractice('panel')
+    store().openConversation('panel')
     store().setHistoryOpen(true)
     store().showOverlay('profile')
     store().goHome()
     const state = store()
     expect([state.page, state.mobileSurface, state.historyOpen, state.overlay]).toEqual(['guided', 'chat', false, null])
+  })
+
+  it.each(['guided', 'skills'] as const)('returns from %s after Drill with the coach panel retained', page => {
+    store().openConversation('panel')
+    store().setPracticeView('drill')
+    if (page === 'skills') store().openSkills()
+    store().openConversation()
+    expect(store()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: 'panel', drillOpened: true })
+    expect(localStorage.getItem('skellyspeak.practice-view')).toBe('chat')
+  })
+
+  it.each(['chat', 'panel'] as const)('opens the requested conversation surface %s after Drill and Skills', surface => {
+    store().setPracticeView('drill')
+    store().openSkills()
+    store().openConversation(surface)
+    expect(store()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: surface })
   })
 
   it('toggles the contacts drawer', () => {

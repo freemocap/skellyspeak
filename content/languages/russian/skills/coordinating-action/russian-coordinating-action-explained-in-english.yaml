@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A polite or plural imperative with пожалуйста asks the listener to perform an action.
+    examples:
+      - text: Перенесите эту коробку к двери, пожалуйста.
+        meaning: Please move this box to the door.
+        note: К двери names the destination. The perfective imperative requests a particular completed
+          move.
+  - subskill_id: offers_invitations
+    explanation: An infinitive question can offer the speaker’s help.
+    examples:
+      - text: Вам помочь с сумкой?
+        meaning: Shall I help you with the bag?
+        note: Вам identifies the recipient of help; the speaker is offering to act.
+  - subskill_id: suggestions
+    explanation: Давайте with a first-person plural form proposes joint action.
+    examples:
+      - text: Давайте сделаем перерыв.
+        meaning: Let’s take a break.
+        note: The speaker includes themself in the proposed break.
+  - subskill_id: commitments
+    explanation: A future statement can undertake a task already being allocated.
+    examples:
+      - text: Я принесу инструменты завтра.
+        meaning: I will bring the tools tomorrow.
+        note: During planning, this accepts responsibility for bringing the tools.
+  - subskill_id: accepting_declining
+    explanation: An inability statement can politely decline an invitation in context.
+    examples:
+      - text: Извините, сегодня я не могу прийти.
+        meaning: Sorry, I cannot come today.
+        note: Use after an invitation for today; the declined action is explicit.
+  - subskill_id: negotiating_plans
+    explanation: State a constraint and propose another time to keep planning moving.
+    examples:
+      - text: В пятницу я не могу. Давайте встретимся в субботу.
+        meaning: I cannot on Friday. Let’s meet on Saturday.
+        note: The first sentence relies on the proposed meeting; the second supplies a concrete
+          alternative.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_imperative2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

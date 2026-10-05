@@ -13,7 +13,11 @@ export async function requestReplyHelp(conversationId: string, messageId: string
   const operation = turn?.operations.find(item => item.replyHelpKind === helpKind)
   if (operation && (!retry || !['failed', 'unknown'].includes(operation.state))) return
   const workspace = await readWorkspace()
-  await executeAction(workspace, operation || helpKind === 'brief'
+  if (helpKind === 'brief') {
+    await executeAction(workspace, { kind: 'requestMessageHelp', messageId, help: 'reply_brief', retry })
+    return
+  }
+  await executeAction(workspace, operation
     ? {kind:'retryReplyHelp', messageId, helpKind}
     : {kind:helpKind === 'grammar' ? 'requestExplanations' : 'requestSuggestions', messageId})
 }
@@ -31,6 +35,7 @@ export function TurnReplyHelp({ turn, conversationId, busy, onAsk, onUse, inline
     grammar={help.grammar?.cards} replies={help.assistance?.replies}
     starters={help.assistance ? [...help.assistance.frames, ...help.assistance.starters] : undefined}
     lanes={help.lanes} onExplainGrammar={eligible ? () => request('grammar') : undefined}
+    onRequestBrief={eligible ? () => request('brief') : undefined}
     onSuggestReply={eligible ? () => request('replies') : undefined} onRetry={eligible ? kind => request(kind, true) : undefined}
     onInspect={() => useNavigationStore.getState().inspectAi({conversationId, turnId:turn!.turnId!, operationKind:null})}
     onAsk={onAsk ? question => onAsk(`${question}\nPartner message: ${a.reply}`) : undefined}

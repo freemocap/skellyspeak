@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Modern Standard can use want plus a subordinate verb. Levantine often uses بَدّ
+      with a personal suffix and following verb.
+    examples:
+      - text: أُرِيدُ أَنْ أَتَعَلَّمَ السِّبَاحَةَ.
+        meaning: I want to learn to swim.
+        note: Modern Standard Arabic. This states a desire, not a commitment to lessons.
+      - text: بِدِّي أَتْعَلَّمْ السِّبَاحَة.
+        meaning: I want to learn to swim.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. This states
+          a desire, not a commitment to lessons.
+  - subskill_id: preferences
+    explanation: A preference can be expressed by a comparison of liking or a verb meaning prefer.
+    examples:
+      - text: أُفَضِّلُ الشَّايَ عَلَى الْقَهْوَةِ.
+        meaning: I prefer tea to coffee.
+        note: Modern Standard Arabic. Tea is the preferred alternative.
+      - text: بَحِبّ الشَّايْ أَكْتَرْ مِنْ الْقَهْوِة.
+        meaning: I prefer tea to coffee.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Tea is the
+          preferred alternative.
+  - subskill_id: emotions
+    explanation: A nominal sentence can describe the speaker’s emotional state.
+    examples:
+      - text: أَنَا سَعِيدَةٌ بِهٰذَا الْخَبَرِ.
+        meaning: I am happy about this news.
+        note: Modern Standard Arabic. A woman is speaking; adjective agreement reflects that.
+      - text: أَنَا مَبْسُوطَة بِهَادْ الْخَبَرْ.
+        meaning: I am happy about this news.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. A woman is
+          speaking; adjective agreement reflects that.
+  - subskill_id: opinions
+    explanation: An expression meaning in my opinion frames a judgment as the speaker’s view.
+    examples:
+      - text: فِي رَأْيِي، هٰذَا الْحَلُّ أَفْضَلُ.
+        meaning: In my opinion, this solution is better.
+        note: Modern Standard Arabic. A comparison is recoverable from the solutions under discussion.
+      - text: بِرَأْيِي، هَادْ الْحَلّ أَحْسَنْ.
+        meaning: In my opinion, this solution is better.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. A
+          comparison is recoverable from the solutions under discussion.
+  - subskill_id: agreement_disagreement
+    explanation: An explicitly negative agreement statement rejects an identifiable proposal.
+    examples:
+      - text: لَا أُوَافِقُ عَلَى هٰذَا الِاقْتِرَاحِ.
+        meaning: I do not agree with this proposal.
+        note: Modern Standard Arabic. The Levantine adjective here is masculine; the speaker is a man.
+      - text: أَنَا مِشْ مُوَافِقْ عَ هَادْ الِاقْتِرَاحْ.
+        meaning: I do not agree with this proposal.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
+          Levantine adjective here is masculine; the speaker is a man.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: Levantine frequently uses بِدِّي for I want. Colloquial negative predicates may use مِشْ
+      or مُو according to regional usage.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Modern Standard often expresses wanting with أُرِيدُ and a following clause with أَنْ.
+      Feeling adjectives agree with the person described.
+    provenance: *a1

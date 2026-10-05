@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: possibilities_constraints
+guidance: "Look for ability, permission, obligation, possible outcomes and certainty or doubt.
+  So riparare una ruota expresses learned ability; posso entrare? can seek permission from the
+  responsible person. Dobbiamo mostrare i biglietti states a requirement. In these modal
+  constructions the following action remains infinitive: devo partire works, while devo parto is
+  unsuccessful alone. Potere can express practical opportunity, ability or permission; if
+  plausible readings all correctly demonstrate a function in this group, subtype ambiguity alone
+  does not justify unclear. Forse il negozio è ancora aperto marks a possible state; non so se
+  il negozio è aperto establishes a knowledge limit. A simple unqualified assertion does not
+  independently demonstrate confidence. A modal question directed at someone else's action can
+  be a request, so puoi aprire la porta? need not show their ability. Posso after a clearly
+  identified permission question can complete the modal meaning contextually. A copied posso
+  with no recoverable proposition is insufficient; inspect the exchange before inferring the
+  function."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_conditional2026
+    - treccani_it_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

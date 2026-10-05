@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: information_exchange
+guidance: Look for a meaningful information need, a relevant answer, verification of a fact or
+  useful detail. दुकान कितने बजे खुलती है? requests a time; the interrogative remains within the
+  clause and needs no English do-support. Initial क्या can mark a yes/no question, while क्या
+  inside another construction may mean what. आठ बजे answers an identified opening-time question
+  without a full clause. दुकान आठ बजे खुलती है, है न? asks confirmation of a proposition. A
+  request such as खिड़की खोल दीजिए or the question-shaped क्या आप खिड़की खोल सकते हैं? primarily
+  seeks action in a cooperative setting, not facts. An isolated copied क्या without a
+  recoverable question is absent. पीछे वाला दरवाज़ा usefully identifies which entrance when the
+  listener needs directions; extra words without added relevant information do not establish
+  this function. क्या मतलब है? after a misunderstood phrase repairs interpretation rather than
+  checking its factual truth.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

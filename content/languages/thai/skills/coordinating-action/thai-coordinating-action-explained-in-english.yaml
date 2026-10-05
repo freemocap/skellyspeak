@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: ช่วย with an action and หน่อย can ask for help.
+    examples:
+      - text: ช่วยย้ายกล่องนี้ไปที่ประตูหน่อย
+        meaning: Please help move this box to the door.
+        note: Suitable in a cooperative context; additional polite particles depend on the speaker and
+          relationship.
+  - subskill_id: offers_invitations
+    explanation: A near-future statement with ให้ can offer a helpful action.
+    examples:
+      - text: เดี๋ยวฉันถือกระเป๋าให้
+        meaning: I’ll carry the bag for you.
+        note: The listener is the understood beneficiary; the speaker volunteers the action.
+  - subskill_id: suggestions
+    explanation: กัน can mark joint participation, and ไหม can invite uptake of a proposal.
+    examples:
+      - text: พักกันสักครู่ไหม
+        meaning: Shall we take a short break?
+        note: The proposed break includes the speaker and listener.
+  - subskill_id: commitments
+    explanation: A future statement can take responsibility for an agreed task.
+    examples:
+      - text: พรุ่งนี้ฉันจะเอาเครื่องมือมา
+        meaning: I will bring the tools tomorrow.
+        note: Use while allocating tasks; the speaker undertakes to bring them.
+  - subskill_id: accepting_declining
+    explanation: An inability statement can decline an invitation.
+    examples:
+      - text: ขอโทษ วันนี้ฉันไปไม่ได้
+        meaning: Sorry, I cannot go today.
+        note: The preceding invitation identifies the event being declined.
+  - subskill_id: negotiating_plans
+    explanation: State a scheduling constraint and propose an alternative.
+    examples:
+      - text: วันศุกร์ฉันไม่ว่าง เจอกันวันเสาร์แทนได้ไหม
+        meaning: I am not free on Friday. Can we meet on Saturday instead?
+        note: แทน marks Saturday as the replacement day.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_thai_hai2026
+    - hartmann_thai_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

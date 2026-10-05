@@ -58,39 +58,3 @@ fn added_languages_resolve_through_the_standard_registry() {
         );
     }
 }
-
-#[test]
-fn courtesy_hints_preserve_unicode_and_language_specific_case() {
-    use unicode_normalization::UnicodeNormalization;
-    let registry = Registry::bundled().unwrap();
-    for (id, phrase) in [
-        ("greek", "ΕΥΧΑΡΙΣΤΏ"),
-        ("thai", "ขอบคุณ"),
-        ("korean", "감사합니다"),
-        ("japanese", "ありがとうございます"),
-        ("vietnamese", "CẢM ƠN"),
-        ("indonesian", "TERIMA KASIH"),
-        ("turkish", "TEŞEKKÜR EDERİM"),
-        ("russian", "СПАСИБО"),
-        ("ukrainian", "ДЯКУЮ"),
-    ] {
-        let context = registry.resolve(id, None, "english").unwrap();
-        for spelling in [
-            phrase.to_owned(),
-            phrase.nfd().collect(),
-            if id == "turkish" {
-                "teşekkür ederim".to_owned()
-            } else {
-                phrase.to_lowercase()
-            },
-        ] {
-            let candidates = registry
-                .candidates(&context, "A1", &[], &[], std::slice::from_ref(&spelling))
-                .unwrap();
-            assert!(
-                candidates.iter().any(|c| c.id == "courtesy"),
-                "{id}: {spelling}"
-            );
-        }
-    }
-}

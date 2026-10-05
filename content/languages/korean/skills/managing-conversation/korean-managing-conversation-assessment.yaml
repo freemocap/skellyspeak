@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: managing_conversation
+guidance: Recognize greetings, leave-taking, acknowledgment, clarification, reformulation,
+  correction and floor or topic management. 안녕히 가세요 addresses a departing person, while 안녕히 계세요
+  addresses someone staying; choose according to the encounter. 알겠어요 can acknowledge
+  understanding, not necessarily future knowledge or agreement. 다시 말씀해 주세요 seeks repetition
+  after trouble hearing or understanding. 다시 말하면 introduces another formulation only if it
+  clarifies identifiable prior content. 금요일이 아니라 토요일이었어요 can repair a misheard day. 다른 이야기를 해도
+  될까요? seeks a topic transition, whereas every sent message is not automatically turn
+  management. Quoting a greeting as vocabulary or copying a transition ending alone is absent.
+  Short responses with 요 can be complete social acts. Distinguish acknowledgment from agreeing
+  with a position or accepting a task using the preceding exchange, and preserve appropriate
+  register instead of judging every conversation against formal written style.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_permission2026
+    - htsk_tense2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

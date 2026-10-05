@@ -80,37 +80,6 @@ fn low_recognition_confidence_does_not_erase_on_target_effort() {
     assert_eq!(practice(&comparison, true), Qualification::NotQualified);
 }
 
-fn clear() -> (CoachObservationView, CoachDecision) {
-    (
-        serde_json::from_value(json!({"issues":[],"corrections":[],"notes":[],"meaningRecovered":"full","items":[],"candidatesSent":3,"itemsReturned":0})).unwrap(),
-        serde_json::from_value(json!({"exposedMove":null,"shown":null,"retryInvited":false,"alsoNoticed":[],"keptGoing":false})).unwrap(),
-    )
-}
-
-#[test]
-fn missing_feedback_is_never_assumed_clean() {
-    let (mut feedback, decision) = clear();
-    assert_eq!(no_issues(None, Some(&decision)), Qualification::Pending);
-    assert_eq!(no_issues(Some(&feedback), None), Qualification::Pending);
-    assert_eq!(
-        no_issues(Some(&feedback), Some(&decision)),
-        Qualification::Qualified
-    );
-    feedback.meaning_recovered = MeaningLevel::Partial;
-    assert_eq!(
-        no_issues(Some(&feedback), Some(&decision)),
-        Qualification::NotQualified
-    );
-    feedback.meaning_recovered = MeaningLevel::Full;
-    feedback
-        .notes
-        .push("Unusable assessment item omitted.".into());
-    assert_eq!(
-        no_issues(Some(&feedback), Some(&decision)),
-        Qualification::NotQualified
-    );
-}
-
 #[test]
 fn no_op_revisions_do_not_count() {
     assert!(!changed_revision("hello", "hello"));
@@ -132,31 +101,6 @@ fn only_validated_understood_reactions_qualify() {
         })).unwrap();
         assert_eq!(understood(Some(&reaction)), expected);
     }
-}
-
-#[test]
-fn hidden_and_partial_corrections_are_not_clean() {
-    let (mut feedback, mut decision) = clear();
-    feedback.items = serde_json::from_value(json!([{
-        "construct":"past", "quote":"go", "outcome":"partial", "rationale":"Partial evidence"
-    }]))
-    .unwrap();
-    assert_eq!(
-        no_issues(Some(&feedback), Some(&decision)),
-        Qualification::NotQualified
-    );
-    feedback.items.clear();
-    decision.shown = Some(
-        serde_json::from_value(json!({
-            "construct":"past", "quote":"go", "move":"hint", "text":"Check the tense."
-        }))
-        .unwrap(),
-    );
-    assert_eq!(
-        no_issues(Some(&feedback), Some(&decision)),
-        Qualification::NotQualified
-    );
-    assert!(decision.exposed_move.is_none());
 }
 
 #[test]

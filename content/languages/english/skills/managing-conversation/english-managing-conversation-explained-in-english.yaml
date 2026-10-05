@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: managing_conversation
+language: english
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Use a greeting or farewell appropriate to the encounter. A closing
+      can also signal that the interaction is ending.
+    examples:
+      - text: It was good to talk. See you tomorrow.
+        meaning: The speaker closes the conversation and anticipates another meeting.
+        note: The farewell manages the encounter rather than just describing a future
+          event.
+  - subskill_id: acknowledging
+    explanation: Show that you received or followed what the other person said.
+    examples:
+      - text: Right, I understand.
+        meaning: The speaker acknowledges the preceding explanation.
+        note: This response depends on something another participant has just said.
+  - subskill_id: clarification
+    explanation: Identify what was unclear and request the information needed to repair it.
+    examples:
+      - text: What do you mean by the second option?
+        meaning: The speaker asks the partner to explain a phrase.
+        note: The question repairs understanding of prior speech rather than introducing
+          an unrelated topic.
+  - subskill_id: rephrasing
+    explanation: Restate your meaning with a different formulation when the first
+      version was unclear.
+    examples:
+      - text: In other words, we need to leave before lunch.
+        meaning: The speaker restates the intended departure constraint.
+        note: In other words marks the connection to the earlier formulation.
+  - subskill_id: correcting_misunderstanding
+    explanation: Contrast the mistaken interpretation with the meaning you intended.
+    examples:
+      - text: I meant Tuesday, not Thursday.
+        meaning: The intended day is Tuesday.
+        note: Meant and not explicitly repair the mistaken day.
+  - subskill_id: turns_topics
+    explanation: Signal a turn request or a topic change so the listener can follow
+      the conversation.
+    examples:
+      - text: Before we move on, can I ask about the price?
+        meaning: The speaker requests a turn about the price.
+        note: Before we move on manages the discussion, not the time of an external
+          event.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - dingemanse2015_communication_repair
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

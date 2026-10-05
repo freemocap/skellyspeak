@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: indonesian-skills-2026-10-04
+language: indonesian
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Jam berapa asks for a clock time. It can follow the predicate without inversion or
+      an extra auxiliary.
+    examples:
+      - text: Toko itu buka jam berapa?
+        meaning: What time does that shop open?
+        note: The question seeks the opening hour. Berapa asks for the number in the time expression.
+  - subskill_id: answering_information
+    explanation: A clock-time phrase can answer an opening-time question. Jam precedes the number
+      when it means o’clock.
+    examples:
+      - text: Jam delapan.
+        meaning: At eight o’clock.
+        note: Reply to a question about when the shop opens. This differs from delapan jam, meaning
+          eight hours.
+  - subskill_id: checking_facts
+    explanation: Conversational kan can invite confirmation of a proposition already available to
+      both participants. Its role depends on the exchange.
+    examples:
+      - text: Toko itu buka jam delapan, kan?
+        meaning: That shop opens at eight, right?
+        note: The speaker checks an opening time that has already been suggested, rather than asking for
+          an unknown hour.
+  - subskill_id: useful_detail
+    explanation: Yang can introduce a description distinguishing the intended item. Spatial detail
+      helps identify it among alternatives.
+    examples:
+      - text: Pakai meja yang dekat jendela.
+        meaning: Use the table near the window.
+        note: When the listener asks which table to use, yang dekat jendela supplies the needed
+          distinction.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: indonesian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Çünkü introduces an explanation for the preceding situation.
+    examples:
+      - text: Evde kaldım çünkü yağmur başladı.
+        meaning: I stayed home because it started raining.
+        note: The rain is presented as the reason for staying home.
+  - subskill_id: consequences
+    explanation: Bu yüzden links a situation to a resulting action.
+    examples:
+      - text: Otobüs gelmedi, bu yüzden yürüdüm.
+        meaning: The bus did not come, so I walked.
+        note: Walking is presented as the consequence.
+  - subskill_id: conditions
+    explanation: A conditional suffix can establish a dependency without eğer.
+    examples:
+      - text: Yarın yağmur yağarsa evde kalacağız.
+        meaning: If it rains tomorrow, we will stay home.
+        note: Yağarsa marks the condition; kalacağız states the dependent plan.
+  - subskill_id: contrast
+    explanation: Ama connects descriptions that contrast in context.
+    examples:
+      - text: Yol kısa ama dik.
+        meaning: The road is short but steep.
+        note: Length and steepness pull in different directions when choosing a route.
+  - subskill_id: supporting_claims
+    explanation: A reason clause can give evidence for an inference.
+    examples:
+      - text: Sanırım evde biri var çünkü ışık yanıyor.
+        meaning: I think someone is home because the light is on.
+        note: The light supports the inference; it does not cause someone to be home.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_conditions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

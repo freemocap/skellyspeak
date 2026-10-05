@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Đang before the verb can explicitly mark an ongoing activity.
+    examples:
+      - text: Tôi đang sửa xe đạp.
+        meaning: I am repairing a bicycle.
+        note: The ordinary present context anchors the activity to now.
+  - subskill_id: past_events
+    explanation: A past time expression can locate an action without changing the verb.
+    examples:
+      - text: Hôm qua tôi sửa xe đạp.
+        meaning: Yesterday I repaired a bicycle.
+        note: Hôm qua supplies the past anchor; the verb remains sửa.
+  - subskill_id: future_events
+    explanation: Sẽ can present a later action, with a time phrase specifying when.
+    examples:
+      - text: Ngày mai tôi sẽ đi lấy phụ tùng.
+        meaning: Tomorrow I will go and collect the parts.
+        note: Ngày mai gives the day; đi lấy combines going with collecting.
+  - subskill_id: duration_frequency
+    explanation: Mỗi with a time interval and lần with a number express frequency.
+    examples:
+      - text: Mỗi tuần tôi đi bơi hai lần.
+        meaning: I go swimming twice a week.
+        note: Hai lần counts occasions rather than hours.
+  - subskill_id: event_sequence
+    explanation: Trước tiên and sau đó order the actions in a procedure.
+    examples:
+      - text: Trước tiên rửa tay, sau đó chuẩn bị rau.
+        meaning: First wash your hands, then prepare the vegetables.
+        note: The addressee is understood from the instruction context.
+  - subskill_id: event_phase
+    explanation: Xong after an activity marks reaching its endpoint.
+    examples:
+      - text: Tôi đọc xong cuốn sách rồi.
+        meaning: I have finished reading the book.
+        note: Đọc xong specifically completes the reading; rồi presents the achieved situation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_vietnamese_patterns2026
+    - msu_vietnamese_duration2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

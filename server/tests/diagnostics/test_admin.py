@@ -52,6 +52,8 @@ def test_account_overview_totals_retained_90_days_and_separates_identity(databas
     assert user['usage']['micros'] == 100
     assert user['usage_90_days_micros'] == 600
     assert all('email' not in row and 'name' not in row for row in report['users'])
+    assert user['email_label'] == 'u•••1@e•••d'
+    assert 'user1@example.invalid' not in str(report)
     empty = next(row for row in report['users'] if row['id'] == 'google:test02')
     assert empty['usage_90_days_micros'] == 0
     detail = admin_reports.user_detail(database, main.CFG, 'google:test01', 7)
@@ -59,6 +61,19 @@ def test_account_overview_totals_retained_90_days_and_separates_identity(databas
     assert detail['identity']['email'] == 'user1@example.invalid'
     assert 'email' not in detail['user']
     assert ref.get().to_dict()['email'] == 'user1@example.invalid'
+
+
+@pytest.mark.parametrize(('address', 'expected'), [
+    ('learner@example.invalid', 'l•••r@e•••d'),
+    ('a@b', '•••@•••'), ('ab@xy', '•••@•••'),
+    ('学習者@例示.テスト', '学•••者@例•••ト'),
+    ('متعلم@مثال.اختبار', 'م•••م@م•••ر'),
+    ('élève@example.invalid', 'é•••e@e•••d'),
+    ('e\u0301lève@example.invalid', 'e•••e@e•••d'),
+    (None, None), ('not-an-email', None), ('@example.invalid', None), ('a@', None),
+])
+def test_email_label_masks_components_without_changing_source(address, expected):
+    assert admin_reports.email_label(address) == expected
 
 
 @pytest.mark.asyncio

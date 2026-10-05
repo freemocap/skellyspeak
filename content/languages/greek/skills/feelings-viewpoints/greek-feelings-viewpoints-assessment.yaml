@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: feelings_viewpoints
+guidance: Wants and intentions can use θέλω or a planning expression with να and a person-marked
+  verb; να is not an unchanging English infinitive. Preferences may use προτιμώ, while μου
+  αρέσει/αρέσουν makes the liked thing the grammatical subject and the experiencer a weak
+  genitive pronoun. Feelings can use a lexical verb such as φοβάμαι or an agreeing adjective
+  with είμαι. Opinions can use νομίζω ότι plus a proposition, or a contextually clear evaluation
+  without a prefatory label. Συμφωνώ and διαφωνώ can establish alignment or disagreement with an
+  identifiable opinion; agreement on a practical plan may also coordinate action. For example,
+  διαφωνώ με αυτή την πρόταση explicitly identifies a position. A quoted isolated γνώμη with no
+  speaker stance does not express an opinion. Ναι after a recoverable evaluative claim can align
+  contextually; the same reply to an invitation can accept it instead. An ordinary factual
+  report is not automatically an opinion, and tense or person morphology alone does not
+  establish a feeling.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - triantafyllides_el_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

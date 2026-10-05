@@ -1,13 +1,13 @@
 /* Standalone server-admin document. Scoped to its body so the learner shell is unaffected. */
 #admin-console { margin: 0; background: var(--bg); color: var(--ink); font: var(--type-ui)/var(--leading-normal) var(--font-sans); color-scheme: light; }
 #admin-console * { box-sizing: border-box; }
-#admin-console header { background: var(--interaction-fill); color: var(--ink-on-fill); padding: var(--space-11) var(--space-13); display: flex; align-items: center; justify-content: space-between; gap: var(--space-10); }
-#admin-console h1 { margin: var(--space-2) 0 0; font-size: var(--type-display); font-weight: var(--weight-semibold); }
-#admin-console .eyebrow { font-size: var(--type-meta); letter-spacing: .12em; color: var(--ink-on-fill); }
-#admin-console main { max-width: 1500px; margin: auto; padding: var(--space-10) var(--space-13) var(--space-13); }
-#admin-console nav { display: flex; flex-wrap: wrap; gap: var(--space-10); padding: var(--space-4) 0 var(--space-10); }
+#admin-console header { background: var(--sheet); color: var(--ink); border-bottom: var(--border-width) solid var(--line); padding: var(--space-10) var(--space-13); display: flex; align-items: center; justify-content: space-between; gap: var(--space-10); }
+#admin-console h1 { margin: var(--space-2) 0 0; font-size: var(--type-title); font-weight: var(--weight-semibold); }
+#admin-console .eyebrow { font-size: var(--type-meta); letter-spacing: .06em; color: var(--ink-3); }
+#admin-console main { max-width: 1700px; margin: auto; padding: var(--space-8) var(--space-11) var(--space-13); }
+#admin-console nav { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: var(--space-4) 0 var(--space-10); }
 #admin-console a { color: var(--interaction-ink); }
-#admin-console section { margin: 0 0 var(--space-11); padding: var(--space-11); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); scroll-margin-top: var(--space-8); }
+#admin-console section { margin: 0 0 var(--space-10); padding: var(--space-9); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); scroll-margin-top: var(--space-8); }
 #admin-console h2 { margin: 0 0 var(--space-6); font-size: var(--type-title); }
 #admin-console h3 { font-size: var(--type-body); margin: var(--space-10) 0 var(--space-6); }
 #admin-console p, #admin-console small { color: var(--ink-3); }
@@ -26,7 +26,7 @@
 #admin-console .scroll { overflow: auto; }
 #admin-console table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: var(--type-ui); }
 #admin-console th, #admin-console td { padding: var(--space-5) var(--space-6); text-align: left; border-bottom: var(--border-width) solid var(--line-soft); vertical-align: top; }
-#admin-console th { background: var(--chrome); color: var(--ink-3); font-size: var(--type-meta); text-transform: uppercase; letter-spacing: .04em; }
+#admin-console th { background: var(--chrome); color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
 #admin-console .fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: var(--space-9); margin: var(--space-10) 0; }
 #admin-console .fields label { display: flex; flex-direction: column; gap: var(--space-3); }
 #admin-console small { font-size: var(--type-meta); }
@@ -58,3 +58,36 @@
 #admin-console .money-input { display: flex; align-items: center; gap: var(--space-3); }
 #admin-console .money-input input { min-width: 0; width: 100%; }
 #admin-console .money-input button { white-space: nowrap; }
+
+/* Report controls belong to this standalone surface, including its sortable header variant. */
+#admin-console header > div:last-child { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-5); }
+#admin-console nav a { text-decoration: none; padding: var(--space-4) var(--space-7); background: var(--sheet); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+#admin-console nav a:hover { background: var(--interaction-tint); }
+#admin-console #status, #admin-console #live-status, #admin-console #revision { font-size: var(--type-meta); margin: var(--space-3) 0; }
+#admin-console #live-status { color: var(--interaction-ink); }
+#admin-console .table-tools { display: flex; align-items: flex-start; flex-wrap: wrap; gap: var(--space-6); margin: var(--space-8) 0 var(--space-4); }
+#admin-console .table-tools > label { display: flex; flex-direction: column; gap: var(--space-3); flex: 1; max-width: 440px; font-size: var(--type-meta); }
+#admin-console .table-tools input[type=search] { width: 100%; background: var(--field); }
+#admin-console .table-tools > span { margin: auto var(--space-2) auto auto; color: var(--ink-3); font-size: var(--type-meta); }
+#admin-console summary { cursor: pointer; color: var(--ink-2); padding-block: var(--space-3); }
+#admin-console .column-choices { min-width: 120px; }
+#admin-console .column-choices > summary { border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-4) var(--space-6); }
+#admin-console .column-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); background: var(--chrome); border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-6); margin-top: var(--space-3); }
+#admin-console .column-list label { display: flex; align-items: center; gap: var(--space-3); font-size: var(--type-meta); }
+#admin-console .table-scope { font-size: var(--type-meta); margin: var(--space-3) 0 var(--space-6); max-width: 100ch; }
+#admin-console .report-scroll { max-height: 650px; border: var(--border-width) solid var(--line); border-radius: var(--radius-sm); }
+#admin-console .report-scroll th { position: sticky; top: 0; z-index: var(--z-raised); vertical-align: middle; }
+#admin-console .sort-button { display: block; width: 100%; text-align: inherit; min-height: 32px; border: none; background: transparent; padding: 0; font-size: inherit; font-weight: inherit; }
+#admin-console th[aria-sort=ascending], #admin-console th[aria-sort=descending] { color: var(--interaction-ink); background: var(--interaction-tint); }
+#admin-console .numeric { text-align: right; white-space: nowrap; }
+#admin-console tbody tr:hover { background: var(--chrome); }
+#admin-console .empty-table { padding: var(--space-11); text-align: center; color: var(--ink-3); }
+#admin-console .account-identity { min-width: 155px; }
+#admin-console .account-identity small { display: block; margin-top: var(--space-2); }
+#admin-console .identity-toggle { padding: 0; min-height: 32px; border: none; text-align: left; color: var(--interaction-ink); overflow-wrap: anywhere; background: transparent; }
+#admin-console .report-badge { display: inline-block; padding: var(--space-2) var(--space-4); border-radius: var(--radius-xs); background: var(--chrome); font-size: var(--type-meta); white-space: nowrap; }
+#admin-console .report-danger { background: var(--danger-tint); color: var(--danger-ink); }
+#admin-console .metadata-details pre { min-width: 250px; max-width: 600px; }
+#admin-console .report-table td { max-width: 500px; white-space: nowrap; }
+#admin-console .report-table th { min-width: 110px; }
+#admin-console .metadata-details { white-space: normal; }

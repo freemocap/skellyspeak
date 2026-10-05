@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: time_events
+guidance: "Assess event timing, duration or recurrence, sequence and phase through meaning.
+  今、地図を描いています presents an ongoing activity; non-past 描きます can describe a habit or a future
+  action with an appropriate anchor. 昨日、箱を作りました reports an earlier event. Do not treat every た
+  form as a finished past event: subordinate and conditional contexts can place it differently.
+  ている may describe a resulting state or a habit rather than activity in progress. 毎週 and 二時間
+  measure recurrence and duration; てから can order actions. 読み終わりました explicitly marks completion.
+  An isolated copied 昨日 without a recoverable event is absent. 昨日の夜 can supply timing after a
+  question about an identified event. A copular identification alone does not demonstrate
+  temporal skill. Subjects and repeated objects can be omitted when recoverable, and plain past
+  作った is valid in a suitable register, not an error for lacking ました."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Estar + gerund explicitly presents an activity in progress. The simple present can
+      describe habitual or contextually current activity without this construction.
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: I am preparing the bread dough.
+        note: Estou is first-person present; preparando is the gerund of preparar. The activity is
+          underway.
+  - subskill_id: past_events
+    explanation: The simple pretérito perfeito reports a completed past action. Its form changes
+      with person and verb class; it need not contain an auxiliary corresponding to English
+      have.
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: Yesterday I changed the bicycle tire.
+        note: Troquei is the first-person preterite of trocar; the spelling qu preserves the consonant
+          before ei. Ontem anchors the event in the past.
+  - subskill_id: future_events
+    explanation: Present ir + infinitive can express a planned later action. A time expression makes
+      that future reference explicit.
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: Tomorrow I am going to take the books to the library.
+        note: Vou levar combines the first-person present of ir with levar. À is a + a before
+          biblioteca.
+  - subskill_id: duration_frequency
+    explanation: A present verb with há + a length of time can measure a situation continuing now.
+      An expression such as toda sexta-feira instead gives its frequency.
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: I have been working here for six months.
+        note: The work continues now. Há seis meses measures its duration here; with a completed past
+          event, há can instead mean ago.
+  - subskill_id: event_sequence
+    explanation: Primeiro and depois can put actions in order. They describe succession without
+      themselves asserting a causal explanation.
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: First I mix the flour, then I add the water.
+        note: The two present verbs describe successive recipe steps; primeiro and depois make their
+          order explicit.
+  - subskill_id: event_phase
+    explanation: A verb such as terminar names completion. Ainda with a progressive instead presents
+      the activity as continuing.
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: I have already finished reading the book.
+        note: Terminei states completion of the reading; já indicates that point has been reached. The
+          English perfect meaning is expressed with a Portuguese simple preterite.
+      - text: Ainda estou lendo o livro.
+        meaning: I am still reading the book.
+        note: Ainda estou lendo describes continuation and contrasts with the completed reading.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Это introduces an identification. A present-tense linking verb is normally unnecessary.
+    examples:
+      - text: Это моя соседка.
+        meaning: This is my neighbour.
+        note: Моя agrees with the feminine noun соседка; the identified neighbour is female.
+  - subskill_id: qualities_states
+    explanation: A property can be predicated directly, with the adjective agreeing with its subject.
+    examples:
+      - text: Эта улица узкая.
+        meaning: This street is narrow.
+        note: Эта and узкая are feminine singular, matching улица.
+  - subskill_id: location_movement
+    explanation: На with the prepositional case locates the key on a surface. The verb describes its
+      position.
+    examples:
+      - text: Ключ лежит на полке.
+        meaning: The key is on the shelf.
+        note: Полке is the prepositional form of полка. A destination would require a different
+          construction.
+  - subskill_id: possession_relations
+    explanation: У plus a genitive possessor and есть can express possession. Counted nouns have
+      number-dependent forms.
+    examples:
+      - text: У меня есть две коробки.
+        meaning: I have two boxes.
+        note: Меня follows у; две agrees with the feminine counted noun, whose form here is коробки.
+  - subskill_id: quantity_comparison
+    explanation: A comparative can take a genitive standard without чем.
+    examples:
+      - text: Эта коробка легче той.
+        meaning: This box is lighter than that one.
+        note: Легче compares weight. Той stands for the other box, so the noun need not be repeated.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_agreement2026
+    - cornell_russian_possession2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

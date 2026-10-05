@@ -1,5 +1,6 @@
 use super::*;
 
+mod activation;
 mod fixtures;
 mod model_comparison;
 mod model_comparison_synthetic;
@@ -13,6 +14,7 @@ mod grouped_transport;
 mod language_context;
 mod message_versions;
 mod partner_feedback;
+mod phrase_start;
 mod practice_feedback;
 mod practice_openings;
 mod reading_gloss;
@@ -30,7 +32,10 @@ mod translation;
 mod turn_lifecycle;
 mod work_budgets;
 
+mod assessment_capture;
+mod communication_assessment;
 mod skill_assessment;
+mod skill_levels;
 
 mod retry_connections;
 
@@ -38,7 +43,7 @@ mod reply_help;
 
 mod graph;
 
-mod message_ratings;
+mod turn_assessment;
 
 mod practice_counts;
 
@@ -46,5 +51,7 @@ mod practice_recommendations;
 
 mod feedback_context;
 
+mod guide_actions;
 mod local_feedback;
 mod skill_attribution;
+mod skill_start;

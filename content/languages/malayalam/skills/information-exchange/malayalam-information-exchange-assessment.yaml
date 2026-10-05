@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: information_exchange
+guidance: Look for actual information questions, relevant answers, factual checks and useful
+  detail. കട എത്ര മണിക്കാണ് അടയ്ക്കുന്നത്? asks a closing time. അഞ്ചു മണിക്ക് answers it
+  contextually with time case marking. കട അഞ്ചു മണിക്കാണ് അടയ്ക്കുന്നത്, അല്ലേ? checks a
+  candidate fact. An ability-shaped question asking the listener to help normally requests
+  action rather than merely collecting information about capacity. പ്രവേശനം മുറ്റത്തിന്റെ
+  വശത്താണ് supplies an entrance location when the listener needs it. A copied question word with
+  no identifiable information need is absent. Repeating a predicate or using a short phrase can
+  be a valid answer; do not demand a full English-shaped sentence. ഒന്നുകൂടി പറയാമോ? repairs
+  hearing or understanding of the exchange. Judge the relevant information function, preserve
+  ordinary omitted subjects and do not invent context needed to make an ambiguous fragment
+  meaningful.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_time2026
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

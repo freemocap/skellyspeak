@@ -94,7 +94,7 @@ fn writing_guidance_keeps_target_and_explanation_languages_independent_and_captu
                 .entity_id
             };
             store.connection.execute(
-                "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3,'$.readAloud',json('false'),'$.translation',json('true')) WHERE conversation_id=?1",
+                "UPDATE conversation_settings SET settings=json_set(settings,'$.explanationLanguage',?2,'$.explanationVarietyId',?3,'$.readAloud',json('false'),'$.translation',json('true'),'$.direction.topic',NULL) WHERE conversation_id=?1",
                 params![conversation, explanation, store.config.language(explanation).unwrap().default_variety],
             ).unwrap();
             let mut command = send(&store, &conversation);
@@ -168,7 +168,7 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
     store
         .connection
         .execute(
-            "INSERT INTO skill_choices VALUES('spanish',1,'questions_answers','[]')",
+            "INSERT INTO skill_choices VALUES('spanish',1,'information_exchange','[]')",
             [],
         )
         .unwrap();
@@ -195,7 +195,7 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
     store
         .connection
         .execute(
-            "UPDATE skill_choices SET focus='identify_describe',revision=2",
+            "UPDATE skill_choices SET focus='people_places',revision=2",
             [],
         )
         .unwrap();
@@ -208,7 +208,7 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
         if kind == crate::learning::coaching::FEEDBACK {
             assert!(!prompt[0].content.contains(&block));
             let data: serde_json::Value = serde_json::from_str(&prompt[1].content).unwrap();
-            assert_eq!(data["focus"], "questions_answers");
+            assert_eq!(data["focus"], "information_exchange");
         } else {
             assert!(prompt[0].content.contains(&block));
         }
@@ -229,8 +229,8 @@ fn focus_is_frozen_for_coaching_without_directing_partner() {
         })
         .unwrap();
     let next: serde_json::Value = serde_json::from_str(&next).unwrap();
-    assert_eq!(next["practiceFocus"]["id"], "identify_describe");
-    assert_eq!(captured["practiceFocus"]["id"], "questions_answers");
+    assert_eq!(next["practiceFocus"]["id"], "people_places");
+    assert_eq!(captured["practiceFocus"]["id"], "information_exchange");
 }
 
 #[test]
@@ -290,7 +290,7 @@ fn every_language_guidance_reaches_coach_prompts_and_all_outcomes_validate() {
         "not_observed",
         "uncertain",
     ] {
-        let body=serde_json::json!({"meaning_recovered":"full","items":[{"construct":"questions_answers","quote":"¿cómo estás?","outcome":outcome,"error":null,"rationale":"Fixture context."}]}).to_string();
+        let body=serde_json::json!({"meaning_recovered":"full","items":[{"construct":"information_exchange","quote":"¿cómo estás?","outcome":outcome,"error":null,"rationale":"Fixture context."}]}).to_string();
         let value = crate::learning::coaching::validate(
             &store.connection,
             &turn,

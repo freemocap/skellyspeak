@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: time_events
+guidance: Assess current, past and future events, duration or frequency, sequencing and event
+  phase. Şimdi bisikleti tamir ediyorum presents an ongoing repair. Dün bisikleti tamir ettim
+  uses a past form; Turkish does not mark the speaker’s gender on it. Yarın parçaları alacağım
+  places collection in the future. Reported or inferred -miş forms should not be rejected merely
+  because a direct past form was expected. Haftada iki kez gives recurrence, while iki saat can
+  measure duration. Önce and sonra order actions; okumayı bitirdim specifies completion of
+  reading. Dün can answer a recoverable when-question contextually. A copied time adverb without
+  an identifiable event is absent. A bare property statement does not establish temporal skill.
+  Preserve natural pronoun omission and assess suffix combinations in context; -iyor can also
+  occur with planned future reference when the surrounding time expression establishes it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_past2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

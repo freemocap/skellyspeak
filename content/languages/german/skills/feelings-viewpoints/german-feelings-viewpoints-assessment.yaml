@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: feelings_viewpoints
+guidance: Look for desire or intention, preference, emotion, evaluation, or alignment with an
+  identifiable position. Ich will den Kurs wechseln expresses an intention or wish, not an
+  automatic promise. Möchte can express a wish, but in a service exchange it can primarily
+  request something. Ich fahre lieber mit dem Zug expresses preference; a neutral speed
+  comparison alone does not. Ich freue mich über die Nachricht uses a reflexive emotional
+  construction. Ich freue über die Nachricht, when intended as that construction, is
+  unsuccessful if no other correct feeling or viewpoint is expressed. Meiner Meinung nach ist
+  der Weg zu lang explicitly frames an evaluation; an ordinary factual report need not be an
+  opinion. Da bin ich anderer Meinung responds to a prior position. Ja after a factual opinion
+  can align contextually, but after an invitation it may accept action, and after an explanation
+  it may simply acknowledge receipt. Establish the antecedent rather than assigning all these
+  functions. Third-person feelings may be reported correctly without being the learner's own
+  stance.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_modals2026
+    - umich_de_comparison2026
+    - umich_de_prepositional2026
+    - goethe_de_discussion2026
+    - umich_de_connectors2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

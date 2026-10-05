@@ -4,7 +4,7 @@ import { effortDimensions } from './effort-dimensions'
 import type { LanguageTotals } from '../../generated/contracts'
 import { useI18n } from '../localization/i18n'
 
-type Column = 'language' | 'xp' | 'conversations' | 'partnerUnderstood' | 'noIssuesFlagged' | 'revisionsSent' | 'practiceAttempts' | 'explorations' | 'bot'
+type Column = 'language' | 'xp' | 'conversations' | 'partnerUnderstood' | 'revisionsSent' | 'practiceAttempts' | 'explorations' | 'bot'
 
 /** The language's short code: the primary subtag of its declared language tag. */
 export function languageCode(row: Pick<LanguageTotals, 'languageTag' | 'target'>) {

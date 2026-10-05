@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=../rust-schemas/guide-authoring.yaml
+schema_version: 1
+bundled_explanation_languages: [english, spanish, arabic]
+# Explicit authoring editions, not grammatical defaults or display fallbacks.
+source_explanation_languages:
+  arabic: english
+  english: english
+  french: english
+  german: english
+  greek: english
+  hindi: english
+  indonesian: english
+  irish: english
+  italian: english
+  japanese: english
+  korean: english
+  malayalam: english
+  mandarin: english
+  portuguese: english
+  russian: english
+  spanish: english
+  thai: english
+  turkish: english
+  ukrainian: english
+  vietnamese: english

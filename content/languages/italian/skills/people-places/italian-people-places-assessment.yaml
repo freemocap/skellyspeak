@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: people_places
+guidance: "Look for identification, properties or states, spatial relations, ownership or
+  personal relationships, and amounts or comparison. Questa è la mia collega identifies a
+  person; le finestre sono aperte attributes a state, with feminine plural agreement. Le
+  finestre sono aperto unsuccessfully forms that property construction when no other successful
+  relation is expressed. La farmacia è accanto alla stazione locates a place; vado alla stazione
+  gives a destination. Possessives agree with the possessed noun: la mia borsa, but mia sorella
+  normally has no article as an unmodified singular kinship expression. Ho due pennelli states
+  possession and amount; autobus due can merely name a route. Più leggera delle altre compares
+  weight rather than expressing a preference. After Di chi è questa borsa?, Di Sara can complete
+  ownership contextually. A copied noun list establishes none of these relations. Recover
+  referents from the exchange; do not reject regional possessive placement solely because the
+  neutral teaching example uses another order."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_agreement2026
+    - treccani_it_possessives2026
+    - zanichelli_it_comparison2026
+    - zanichelli_it_prepositions2026
+    - zanichelli_it_location2026
+    - treccani_it_essere2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

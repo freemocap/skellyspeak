@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: reasons_connections
+guidance: Assess reasons, consequences, conditions, contrast and support for claims. Çünkü
+  introduces a reason; bu yüzden presents a consequence. Yarın yağmur yağarsa evde kalacağız
+  makes staying home conditional, with the condition carried by -sa rather than requiring a
+  separate eğer. Ama contrasts properties. Önce and sonra alone indicate order, not necessarily
+  cause. An illuminated window can support an occupancy inference without causing the occupancy.
+  Çünkü yağmur başladı can answer an identifiable why-question contextually. A copied connector
+  or conditional ending without recoverable connected content is absent. Check whether evidence
+  actually supports the claim. Do not demand an English conjunction pattern where Turkish uses a
+  suffixed clause, and do not treat every clause containing için as a cause when it may express
+  purpose. Judge the intended connection and the forms that establish it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_conditions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

@@ -1,5 +1,6 @@
+import { GuideActionContext, type RunGuideAction } from '../../components/learning/GuideActions'
 import { useI18n } from '../../components/localization/i18n'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useCallback, useRef } from 'react'
 import { ActiveSurfaceContext } from '../../components/dialogs/useOverlayLayer'
 import { SkillEvidenceContext, useSkillEvidence } from '../../state/learning/useSkillEvidence'
 import { useNavigationStore } from '../../state/navigation/navigation'
@@ -9,16 +10,23 @@ import { NativePicker } from '../../features/settings/language/LanguagePickers'
 import { usePracticeSwipe } from '../navigation/usePracticeSwipe'
 import { NotTauriNotice } from './NotTauriNotice'
 import { PageBoundary } from './PageBoundary'
+import { ReturnStrip } from './ReturnStrip'
 
 const SkillsPage = lazy(() => import('../../features/skills/SkillsPage'))
 const DrillPage = lazy(() => import('../../features/drill/DrillPage'))
 
 /// Which surface is on screen, and how it is mounted.
 ///
-/// Both surfaces stay MOUNTED once shown and are hidden with CSS rather than
-/// unmounted: unmounting the conversation on a tab switch destroyed it. That rule
-/// lives here with the markup it governs.
+/// Every surface stays MOUNTED once shown and is hidden with CSS rather than
+/// unmounted: the conversation keeps its draft, scroll position and coach panel
+/// while the learner is in Practice or Skills. The two destinations carry a
+/// return strip back to the conversation. That rule lives here with the markup
+/// it governs.
 export function SurfaceHost() {
+  const guideAction = useRef<RunGuideAction | null>(null)
+  const registerGuideAction = useCallback((action: RunGuideAction | null) => { guideAction.current = action }, [])
+  const skillStart = useRef<((language: string, variety: string, skillId: string, subskillId?: string | null) => Promise<void>) | null>(null)
+  const registerSkillStart = useCallback((action: typeof skillStart.current) => { skillStart.current = action }, [])
   const tr = useI18n()
   const evidence = useSkillEvidence()
   const page = useNavigationStore((state) => state.page)
@@ -28,41 +36,59 @@ export function SurfaceHost() {
   const overlay = useNavigationStore((state) => state.overlay)
   const setHistoryOpen = useNavigationStore((state) => state.setHistoryOpen)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
-  const openPractice = useNavigationStore((state) => state.openPractice)
+  const openConversation = useNavigationStore((state) => state.openConversation)
   const registerNewChat = useNavigationStore((state) => state.registerNewChat)
   const practiceView = useNavigationStore((state) => state.practiceView)
-  // Drill replaces the conversation rather than sitting beside it, and is
-  // mounted only once it has been asked for.
+  const drillOpened = useNavigationStore((state) => state.drillOpened)
+  // Practice takes the conversation's place on screen while it shows; the
+  // conversation stays mounted underneath. Practice itself is mounted only once
+  // it has been asked for.
   const drilling = page === 'guided' && practiceView === 'drill'
+  const conversing = page === 'guided' && !drilling
 
   // Swiping between the halves is only meaningful with nothing over them.
   const swipe = usePracticeSwipe(
-    direction => useNavigationStore.getState().openPractice(direction === 'next' ? 'panel' : 'chat'),
+    direction => useNavigationStore.getState().openConversation(direction === 'next' ? 'panel' : 'chat'),
     page === 'guided' && !drilling && !historyOpen && overlay === null,
   )
 
   return (
-    <div className="content" {...swipe}>
-      {skillsOpened && <div className={`page-holder ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
-        <PageBoundary><Suspense fallback={<p role="status">{tr("Loading skill tree…")}</p>}><SkillsPage onPractice={() => openPractice('chat')} /></Suspense></PageBoundary>
+    <GuideActionContext value={async action => {
+      if (!guideAction.current) throw new Error('The conversation is not ready.')
+      await guideAction.current(action)
+      openConversation(action.kind === 'coach' ? 'panel' : 'chat')
+    }}><div className="content" {...swipe}>
+      {skillsOpened && <div className={`page-holder destination-page ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
+        <ReturnStrip />
+        <ActiveSurfaceContext value={page === 'skills'}><PageBoundary><Suspense fallback={<p role="status">{tr("Loading skill tree…")}</p>}><SkillsPage onPractice={async (language, variety, skillId) => {
+          if (!skillStart.current) throw new Error('The conversation is not ready to start.')
+          await skillStart.current(language, variety, skillId)
+          openConversation('chat')
+        }} /></Suspense></PageBoundary></ActiveSurfaceContext>
       </div>}
       {!isTauri ? (page !== 'skills' &&
         <NotTauriNotice />
-      ) : (
-        <div className={`page-holder ${page === 'guided' ? '' : 'hidden'}`} aria-hidden={page !== 'guided'}>
-          {drilling ? <PageBoundary>
-            <Suspense fallback={<p role="status">{tr("Loading Practice…")}</p>}><DrillPage active /></Suspense>
-          </PageBoundary> : <PageBoundary>
-            <ActiveSurfaceContext value={page === 'guided' && !drilling}><SkillEvidenceContext value={evidence}><ConversationPage active={page === 'guided' && !drilling} mobileSurface={mobileSurface}
+      ) : (<>
+        {drillOpened && <div className={`page-holder destination-page ${drilling ? '' : 'hidden'}`} aria-hidden={!drilling}>
+          <ReturnStrip />
+          <ActiveSurfaceContext value={drilling}><PageBoundary>
+            <Suspense fallback={<p role="status">{tr("Loading Practice…")}</p>}><DrillPage active={drilling} /></Suspense>
+          </PageBoundary></ActiveSurfaceContext>
+        </div>}
+        <div className={`page-holder ${conversing ? '' : 'hidden'}`} aria-hidden={!conversing}>
+          <PageBoundary>
+            <ActiveSurfaceContext value={conversing}><SkillEvidenceContext value={evidence}><ConversationPage active={conversing} mobileSurface={mobileSurface}
               nativePicker={<NativePicker />}
               historyOpen={historyOpen}
               onHistoryOpenChange={setHistoryOpen}
               onOpenSettings={() => showOverlay('settings')}
               onNewChatReady={registerNewChat}
+              onSkillStartReady={registerSkillStart}
+              onGuideActionReady={registerGuideAction}
             /></SkillEvidenceContext></ActiveSurfaceContext>
-          </PageBoundary>}
+          </PageBoundary>
         </div>
-      )}
-    </div>
+      </>)}
+    </div></GuideActionContext>
   )
 }

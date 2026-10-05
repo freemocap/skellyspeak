@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: reasons_connections
+guidance: Assess reasons, consequences, conditions, contrast and support for claims. เพราะ
+  introduces a reason; เลย can present a consequence. ถ้าพรุ่งนี้ฝนตก เราจะอยู่บ้าน establishes
+  a condition and a dependent plan without tense conjugation. แต่ contrasts properties, whereas
+  แล้ว can simply order events. An illuminated window can support an inference of occupancy
+  rather than cause occupancy. เพราะฝนตก can answer an identifiable why-question contextually. A
+  copied connector without recoverable related propositions is absent. Do not count every
+  sequence as causation or require a separate explicit connector when a coherent relation is
+  already expressed. Judge whether stated evidence actually supports the claim. Preserve
+  contextual omission and correct particle placement, and distinguish a future plan conditional
+  on weather from an unconditional prediction about what will happen.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - fsi_thai_time2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

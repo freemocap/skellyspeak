@@ -13,14 +13,18 @@ import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
-import { ModeTabs } from './ModeTabs'
+import { Destinations } from './Destinations'
+import { SkillRadarGlyph } from '../../components/learning/SkillRadar'
+import { holdingBack, languageSkillLevels } from '../../domain/learning/statistics/skill-levels'
+import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { ThemeControls } from './ThemeControls'
 
-/** The global bar: the wordmark, the language, the Chat and Practice tabs at full
- * width, progress, Settings and More. Controls that belong to a place live in
- * that place (Conversations in the chat header; the AI status in the chat
- * composer, with AI activity under More everywhere). The theme and palette
- * sit here when the bar has room, and always in Settings.
+/** The global bar: the wordmark, the language, then the Practice and Skills
+ * destinations, progress, Settings and More. The conversation is home: the
+ * wordmark returns to it. Controls that belong to a place live in that place
+ * (Conversations in the chat header; the AI status in the chat composer, with
+ * AI activity under More everywhere). The theme and palette sit here when the
+ * bar has room, and always in Settings.
  * The injected picker supports the local layout fixture; production selection
  * uses the shared settings writer. */
 export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker?: ReactNode }) {
@@ -35,6 +39,8 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   // A summary of the language profile: which language, and its XP. There is
   // nothing to show until evidence for the active language has landed.
   const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
+  // The language's skill level: its weakest skill, drawn as the resting radar.
+  const levels = evidence.snapshot ? languageSkillLevels(evidence.snapshot) : null
   const savingLanguage = useSettingsStore((state) => state.savingLanguage)
   const included = useSettingsStore((state) => state.settings?.my_languages)
   const totals = useLanguageTotals(evidence.snapshot, effort.value, included)
@@ -49,18 +55,26 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
         <img src="/skellyspeak-logo.png" alt="" width="28" height="28" />
         <span>SkellySpeak</span>
       </button>
-      {/* Where you are comes first and leads the bar; the language and the rest follow. */}
-      <ModeTabs />
       <div className="topbar-language">{languagePicker}</div>
       <div className="topbar-actions">
+      <Destinations />
       <ThemeControls />
       {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the full report. */}
       <div ref={progressAnchor} className="progress-anchor" {...progressCard.anchor}>
         <button ref={counter} type="button" className="profile-trigger progress-trigger" aria-label={tr("Language progress")} aria-haspopup="dialog" aria-expanded={progressCard.open} onClick={progressCard.press}>
+          {levels && <span className="skill-level-chip" title={tr('Skill level {value0}', { value0: levels.level })}><SkillRadarGlyph levels={levels} /><strong>{tr('Lv {value0}', { value0: levels.level })}</strong></span>}
           <ProgressCounters xp={profile?.xp ?? null} xpLabel="Language XP" code={activeRow ? languageCode(activeRow) : undefined} global={totals.globalXp} effort={effort.value} effects={effort.effects} error={effort.error ?? totals.error} />
         </button>
         {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>
           <ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={totals.globalEffort} units={['explorations', 'bot']} error={totals.error} expandLabel="Full report" onExpand={() => { progressCard.close(); showOverlay('profile') }}>
+            {levels && <div className="progress-card-levels">
+              <SkillRadarGlyph levels={levels} />
+              <div>
+                <strong>{tr('Skill level {value0}', { value0: levels.level })}</strong>
+                <span>{levels.level === 0 && levels.ready === 0 ? tr('Get a skill point in each skill to reach level 1.') : tr('{value0} of {value1} skills at {value2} points for level {value3}', { value0: levels.ready, value1: levels.skills.length, value2: levels.target, value3: levels.level + 1 })}</span>
+                <ul>{holdingBack(levels).slice(0, 3).map(({ skill, needed }) => <li key={skill.id} style={{ color: skillColors(skill.id).ink }}>{tr(skill.label)}<span>{tr('{value0} more', { value0: needed })}</span></li>)}</ul>
+              </div>
+            </div>}
             {totals.rows ? <LanguageTable rows={totals.rows} active={profile?.target} compact /> : <p role="status" className="progress-card-empty">{tr('Loading…')}</p>}
           </ProgressCard>
         </CardLayer>}

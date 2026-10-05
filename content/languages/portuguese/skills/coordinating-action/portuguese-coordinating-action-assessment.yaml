@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: coordinating_action
+guidance: "Assess requests, offers or invitations, proposals, commitments, acceptance or
+  refusal, and adjusting shared plans. Você pode guardar estes livros, por favor? normally
+  requests the addressee's action; it need not seek an ability report. Quer uma fatia de pão? is
+  an offer when the speaker can provide it. Vamos organizar a troca no sábado proposes joint
+  action, while eu levo as caixas amanhã commits the speaker to a task in a planning exchange. A
+  copied por favor without a recoverable requested action is absent. Posso, sim can accept an
+  identified task contextually; its shortness is not failure. Não posso ir na sexta; podemos
+  combinar no sábado? refuses one timing and proposes another. A general schedule description is
+  not negotiation without an existing shared plan. Vou plus infinitive can state a future
+  intention without automatically becoming a promise; use conversational responsibility to
+  distinguish it. A bare sim may accept or merely acknowledge: recover the preceding move. Do
+  not require one imperative form or reject documented colloquial Brazilian negative responses."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

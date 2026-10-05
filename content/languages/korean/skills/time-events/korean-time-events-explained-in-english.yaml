@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 고 있어요 after an action-verb stem can present an activity in progress. 지금 anchors it
+      to the present.
+    examples:
+      - text: 지금 라디오를 고치고 있어요.
+        meaning: I am repairing a radio now.
+        note: 고치고 있어요 presents ongoing work. The person doing it is understood from the exchange.
+  - subskill_id: past_events
+    explanation: A past marker combines with the polite ending to report an earlier event. 어제
+      explicitly places the action yesterday.
+    examples:
+      - text: 어제 라디오를 고쳤어요.
+        meaning: I repaired a radio yesterday.
+        note: 고쳤어요 comes from 고치다. The sentence reports a past repair, rather than a present repair in
+          progress.
+  - subskill_id: future_events
+    explanation: The construction 을 거예요 after an appropriate verb stem can express a future plan or
+      expectation. Tomorrow provides an explicit time anchor.
+    examples:
+      - text: 내일 부품을 살 거예요.
+        meaning: I will buy the parts tomorrow.
+        note: 살 거예요 combines 사다 with the future-oriented construction. The sentence does not by itself
+          promise to buy them for someone.
+  - subskill_id: duration_frequency
+    explanation: 동안 follows a time quantity to mark duration. 매주 supplies weekly recurrence
+      independently of that duration.
+    examples:
+      - text: 매주 두 시간 동안 수영해요.
+        meaning: I swim for two hours every week.
+        note: 두 시간 is two hours, whereas 두 시 names two o’clock. 매주 gives the repeated schedule.
+  - subskill_id: event_sequence
+    explanation: 먼저 and 그다음 state the order of steps. Polite requests can specify what the listener
+      should do at each stage.
+    examples:
+      - text: 먼저 전원을 끄세요. 그다음 뚜껑을 여세요.
+        meaning: First switch off the power. Then open the lid.
+        note: The adverbs explicitly order the actions. 여세요 is the polite request form of 열다.
+  - subskill_id: event_phase
+    explanation: 다 with a completed action can state that the whole task is finished. It adds
+      completion information beyond placing an action in the past.
+    examples:
+      - text: 설명서를 다 읽었어요.
+        meaning: I finished reading the instructions.
+        note: 다 indicates the full reading is complete. The example does not merely say that some
+          reading occurred.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_tense2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

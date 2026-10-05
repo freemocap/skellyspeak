@@ -127,6 +127,7 @@ pub enum PracticeView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Preferences {
+    pub execution: crate::configuration::execution::ExecutionPreferences,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
     pub practice_view: Option<PracticeView>,
@@ -289,6 +290,38 @@ pub struct Snapshot {
     deny_unknown_fields
 )]
 pub enum Action {
+    AskGuideCoach {
+        conversation_id: String,
+        text: String,
+        guide: crate::configuration::guide_translation::GuideReference,
+        #[serde(default)]
+        #[ts(optional, inline)]
+        focus: Option<crate::configuration::guide_translation::GuideCoachFocus>,
+        expected_revision: i32,
+    },
+    StartGuideConversation {
+        source_conversation_id: String,
+        guide: crate::configuration::guide_translation::GuideReference,
+        example: usize,
+        #[serde(default)]
+        #[ts(optional)]
+        phrase: Option<String>,
+        expected_revision: i32,
+    },
+    StartSkillConversation {
+        source_conversation_id: String,
+        language: String,
+        variety: String,
+        skill_id: String,
+        subskill_id: Option<String>,
+        expected_revision: i32,
+    },
+    StartPhraseConversation {
+        source_message_id: String,
+        phrase: String,
+        contact_id: String,
+        expected_revision: i32,
+    },
     StartConversation {
         conversation_id: String,
         configuration: crate::conversations::direction::ConversationStartConfig,
@@ -342,6 +375,11 @@ pub enum Action {
     },
     RequestSuggestions {
         message_id: String,
+    },
+    RequestMessageHelp {
+        message_id: String,
+        help: crate::conversations::execution::MessageHelp,
+        retry: bool,
     },
     RequestExplanations {
         message_id: String,
@@ -578,6 +616,10 @@ pub fn bindings() -> String {
         crate::speech::recording::continuous::ListeningTakeState::decl(&config),
         Theme::decl(&config),
         crate::learning::rewards::RewardEvent::decl(&config),
+        crate::learning::rewards::skill_level_events::SkillLevelEventKind::decl(&config),
+        crate::learning::rewards::skill_level_events::SkillLevelEvent::decl(&config),
+        crate::learning::learner::skill_levels::SkillLevelProgress::decl(&config),
+        crate::learning::learner::skill_levels::SkillLevelSummary::decl(&config),
         crate::learning::effort::EffortDimension::decl(&config),
         crate::learning::effort::EffortAward::decl(&config),
         crate::learning::effort::EffortProgress::decl(&config),
@@ -590,6 +632,9 @@ pub fn bindings() -> String {
         ConnectionRoute::decl(&config),
         crate::configuration::appearance::SurfacePalette::decl(&config),
         crate::configuration::appearance::AppearancePreferences::decl(&config),
+        crate::configuration::execution::ExecutionMode::decl(&config),
+        crate::configuration::execution::ExecutionPreferences::decl(&config),
+        crate::conversations::execution::MessageHelp::decl(&config),
         AccessSettings::decl(&config),
         ProviderCredentialCheck::decl(&config),
         AccessCheck::decl(&config),
@@ -756,6 +801,9 @@ pub fn bindings() -> String {
         crate::language::reading::ReadingAid::decl(&config),
         crate::language::reading::ReadingInput::decl(&config),
         crate::language::reading::ReadingResult::decl(&config),
+        crate::configuration::guide_translation::SkillGuideResult::decl(&config),
+        crate::configuration::guide_translation::GuideReference::decl(&config),
+        crate::configuration::guide_translation::GuideContext::decl(&config),
         crate::speech::alignment::SpeechAudio::decl(&config),
         crate::ai::audio::TranscriptionResult::decl(&config),
         crate::speech::analysis::fluency::TranscriptTiming::decl(&config),
@@ -789,8 +837,12 @@ pub fn bindings() -> String {
             crate::learning::coaching::catalog_version()
         ),
         format_args!(
-            "{}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}\nexport const DIFFICULTY_LEVELS: readonly Difficulty[] = {} as const\nexport const DRILL_RECORDING_MAX_MB = {} as const\nexport const DRILL_LENGTHS: readonly DrillLength[] = {} as const\nexport const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {} as const",
+            "{}\nexport const DEFAULT_EXECUTION: ExecutionPreferences = {}\nexport const DEFAULT_APPEARANCE: AppearancePreferences = {}\nexport const DIFFICULTY_LEVELS: readonly Difficulty[] = {} as const\nexport const DRILL_RECORDING_MAX_MB = {} as const\nexport const DRILL_LENGTHS: readonly DrillLength[] = {} as const\nexport const CONTINUOUS_RECORDING_POLICY: ContinuousRecordingPolicy = {} as const",
             text_size_limits(),
+            serde_json::to_string(
+                &crate::configuration::execution::ExecutionPreferences::default()
+            )
+            .expect("execution defaults serialize"),
             serde_json::to_string(
                 &crate::configuration::appearance::AppearancePreferences::default()
             )
@@ -898,6 +950,9 @@ pub struct WordGlossView {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatMessage {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional, type = "unknown")]
+    pub guide_context: Option<serde_json::Value>,
     #[ts(optional)]
     pub feedback_context: Option<String>,
     #[ts(optional)]
@@ -1074,6 +1129,9 @@ pub struct TurnHistoryPage {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationSnapshot {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub phrase_seed: Option<String>,
     pub topic_choices: Vec<crate::conversations::direction::TopicCard>,
     /// The greeting the start surface offers as a first thing to say, resolved
     /// for this conversation's target language and variety.
@@ -1091,8 +1149,7 @@ pub struct ConversationSnapshot {
     pub has_older: bool,
 }
 /// Authored display content: one canonical greeting per language, with the
-/// transliteration for the variety in force. Separate from `goal_material`,
-/// which is the learning system's retrieval data.
+/// transliteration for the variety in force.
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct StarterGreeting {
@@ -1295,7 +1352,7 @@ mod appearance_tests {
     use super::*;
     #[test]
     fn appearance_defaults_and_rejects_unknown_values() {
-        let original = serde_json::json!({"explanationLanguage":"english","explanationVarietyId":"english-united-states","interfaceLocale":"english","targetVarieties":{},"textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
+        let original = serde_json::json!({"execution":crate::configuration::execution::ExecutionPreferences::default(),"explanationLanguage":"english","explanationVarietyId":"english-united-states","interfaceLocale":"english","targetVarieties":{},"textSize":100,"textSpacing":0,"highContrast":false,"onboarding":"completed"});
         let preferences: Preferences = serde_json::from_value(original.clone()).unwrap();
         assert_eq!(preferences.theme, Theme::Light);
         assert_eq!(

@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: time_events
+language: english
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Use a present construction appropriate to a current state, habit or
+      unfolding event.
+    examples:
+      - text: She works at the museum.
+        meaning: Working at the museum is her current regular situation.
+        note: Works presents a regular situation rather than an activity necessarily
+          happening this instant.
+  - subskill_id: past_events
+    explanation: Use an appropriate past construction for an earlier event. Many
+      common verbs have irregular past forms.
+    examples:
+      - text: Yesterday we went to the harbour.
+        meaning: The trip happened yesterday.
+        note: Went correctly expresses the past of go; yesterday supplies the time
+          frame.
+  - subskill_id: future_events
+    explanation: Plans and future events can use going to, will or present forms
+      with suitable context.
+    examples:
+      - text: We are meeting at the station tomorrow.
+        meaning: The meeting is arranged for tomorrow.
+        note: The present continuous has a future interpretation supported by tomorrow.
+  - subskill_id: duration_frequency
+    explanation: Time phrases can express how long or how often something happens.
+    examples:
+      - text: I practise for twenty minutes every evening.
+        meaning: The practice lasts twenty minutes and happens each evening.
+        note: For twenty minutes gives duration; every evening gives frequency.
+  - subskill_id: event_sequence
+    explanation: Order events with expressions such as first, then, before or after.
+    examples:
+      - text: First we packed, then we called a taxi.
+        meaning: Packing happened before the taxi call.
+        note: Then marks sequence without itself asserting a cause.
+  - subskill_id: event_phase
+    explanation: Progressive constructions can present an event as ongoing; other
+      constructions can mark its completion.
+    examples:
+      - text: I was cooking when the lights went out.
+        meaning: Cooking was in progress when the interruption occurred.
+        note: Was cooking gives the ongoing background; went out introduces the
+          interrupting event.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - bc_present2026
+        - bc_past2026
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

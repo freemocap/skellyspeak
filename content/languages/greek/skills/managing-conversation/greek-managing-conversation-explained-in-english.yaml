@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: "Γεια σας is an everyday greeting with respectful or plural address. Its
+      conversational place matters: it opens the encounter here. A brief greeting can be a
+      complete social contribution without a separate verb or self-introduction."
+    examples:
+      - text: Γεια σας! Τι κάνετε;
+        meaning: Hello! How are you?
+        note: Use this on meeting a new acquaintance. Σας and κάνετε maintain respectful address; the
+          question has Greek ; punctuation.
+  - subskill_id: acknowledging
+    explanation: Κατάλαβα can show that you have understood what the other person explained. It is a
+      first-person past form used here as a present conversational response. Understanding an
+      explanation does not necessarily mean agreeing with its opinion.
+    examples:
+      - text: Κατάλαβα, ευχαριστώ.
+        meaning: I understand, thank you.
+        note: Use this after the other person explains where to leave the bicycle. It acknowledges
+          receipt and understanding rather than promising to perform another task.
+  - subskill_id: clarification
+    explanation: Ask τι εννοείτε με to identify a word or expression whose meaning you need
+      clarified. Respectful εννοείτε addresses the listener. Quoting the troublesome expression
+      focuses the repair on that part of the prior utterance.
+    examples:
+      - text: Τι εννοείτε με «πίσω είσοδο»;
+        meaning: What do you mean by “back entrance”?
+        note: Use this after the other person mentions a back entrance and you do not know which
+          entrance that means. The question repairs understanding; it does not just check an
+          opening time.
+  - subskill_id: rephrasing
+    explanation: Δηλαδή can introduce a clearer explanation of what you just said. The new
+      formulation should help the listener understand the previous one rather than silently
+      change its meaning. It can also request clarification when used as a question.
+    examples:
+      - text: Χρειάζεται ακόμα δουλειά. Δηλαδή, η επισκευή δεν είναι έτοιμη.
+        meaning: It still needs work. In other words, the repair is not ready.
+        note: The second sentence explains the repair’s unfinished state more explicitly. Both sentences
+          belong to the same speaker; this is not a two-person dialogue.
+  - subskill_id: correcting_misunderstanding
+    explanation: Εννοώ can name what you intend to say, and όχι can contrast it with the mistaken
+      interpretation. State both referents when that makes the correction easier to follow; no
+      particular past tense is required to perform this repair.
+    examples:
+      - text: Εννοώ το Σάββατο, όχι την Παρασκευή.
+        meaning: I mean Saturday, not Friday.
+        note: Use this after the listener takes the proposed visit to be on Friday. The sentence
+          explicitly corrects the intended day.
+  - subskill_id: turns_topics
+    explanation: "A question with μπορώ να can ask for a turn to speak, while σχετικά με names the
+      topic. The physical ability to speak is not the point: the speaker is managing
+      participation and focus in the exchange."
+    examples:
+      - text: Μπορώ να πω κάτι σχετικά με τη διαδρομή;
+        meaning: May I say something about the route?
+        note: Use this during a group discussion when seeking a turn. Να πω names the proposed
+          contribution, and σχετικά με τη διαδρομή introduces its subject.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+    - archakis_el_politeness2026
+    - triantafyllides_el_diladi2026
+    - triantafyllides_el_mean2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: A que horas asks for a time. In an ordinary Brazilian Portuguese question, the
+      subject can stay before the finite verb; no auxiliary corresponding to English do is
+      added.
+    examples:
+      - text: A que horas a biblioteca abre amanhã?
+        meaning: What time does the library open tomorrow?
+        note: A que horas requests the opening time. A biblioteca precedes abre without preventing the
+          sentence from being a question.
+  - subskill_id: answering_information
+    explanation: A relevant answer may be a phrase rather than a complete sentence. The exchange
+      must supply the question that makes its information clear.
+    examples:
+      - text: Às oito.
+        meaning: At eight.
+        note: Reply to a question about what time the library opens. Às combines a + as in the time
+          expression; the phrase supplies the requested hour.
+  - subskill_id: checking_facts
+    explanation: A proposition followed by não é? can ask the listener to confirm it. The intended
+      proposition should be recoverable from the words and context.
+    examples:
+      - text: A biblioteca abre às oito, não é?
+        meaning: The library opens at eight, right?
+        note: Said when eight o’clock has already been suggested. The speaker checks that proposed
+          opening time.
+  - subskill_id: useful_detail
+    explanation: A further spatial expression can narrow a location that the listener needs. Ao
+      combines a with o, while do combines de with o.
+    examples:
+      - text: A entrada fica na lateral, ao lado do jardim.
+        meaning: The entrance is at the side, next to the garden.
+        note: The second location phrase identifies which side-area contains the entrance. It helps
+          someone looking for the way in.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

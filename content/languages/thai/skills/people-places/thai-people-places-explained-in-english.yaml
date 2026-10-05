@@ -1,0 +1,57 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: นี่คือ introduces an identification, and ของ can connect a person to the speaker.
+    examples:
+      - text: นี่คือเพื่อนบ้านของฉัน
+        meaning: This is my neighbour.
+        note: ฉัน is one first-person choice; speakers may use other socially appropriate self-reference
+          terms.
+  - subskill_id: qualities_states
+    explanation: An adjective can directly predicate a property.
+    examples:
+      - text: ถนนสายนี้แคบ
+        meaning: This road is narrow.
+        note: สายนี้ identifies this road; แคบ supplies the property without เป็น.
+  - subskill_id: location_movement
+    explanation: อยู่ with a positional phrase locates an object.
+    examples:
+      - text: กุญแจอยู่บนโต๊ะ
+        meaning: The key is on the table.
+        note: บนโต๊ะ identifies the supporting surface.
+  - subskill_id: possession_relations
+    explanation: มี can state possession, with a classifier after a counted noun’s number.
+    examples:
+      - text: ฉันมีเก้าอี้พับสองตัว
+        meaning: I have two folding chairs.
+        note: สองตัว counts the chairs; no plural ending is added.
+  - subskill_id: quantity_comparison
+    explanation: กว่า introduces the standard in a comparison.
+    examples:
+      - text: กล่องนี้เบากว่ากล่องนั้น
+        meaning: This box is lighter than that box.
+        note: เบา concerns weight, and กว่า links it to the other box.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

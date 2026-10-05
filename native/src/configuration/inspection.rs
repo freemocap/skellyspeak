@@ -74,7 +74,7 @@ impl Registry {
             .iter()
             .find(|v| v.id == context.variety_id)
             .expect("resolved variety");
-        let path = format!("languages/{language}.yaml");
+        let path = format!("languages/{language}/{language}-language.yaml");
         let orth = v
             .overrides
             .orthography
@@ -135,7 +135,7 @@ impl Registry {
                 format!("{path}#defaults.scalars.{field}")
             } else {
                 format!(
-                    "shared/language-foundations.yaml#scripts.{}.{field}",
+                    "language-foundations/language-foundations.yaml#scripts.{}.{field}",
                     context.script
                 )
             }
@@ -215,8 +215,11 @@ impl Registry {
                     || guides
                         .iter()
                         .any(|g| g.source.split('#').next() == Some(name.as_str()))
-                    || *name == &format!("languages/{explanation}.yaml")
-                    || name.starts_with("shared/")
+                    || *name == &format!("languages/{explanation}/{explanation}-language.yaml")
+                    || name.starts_with("language-foundations/")
+                    || name.starts_with("policies/")
+                    || name.starts_with("skills/")
+                    || name.starts_with(&format!("languages/{language}/skills/"))
                     || name.as_str() == "references.bib"
             })
             .map(|(path, yaml)| ContentSource {
@@ -253,7 +256,7 @@ impl Registry {
                 &serde_json::json!({"language":self.language_config(language)?,"context":context}),
             )
             .unwrap(),
-            learning_json: serde_json::to_string_pretty(&doc.learning).unwrap(),
+            learning_json: serde_json::to_string_pretty(&serde_json::json!({"definitions": self.authored.definitions, "assessments": self.authored.assessments.iter().filter(|(_, d)| d.language == language).collect::<BTreeMap<_, _>>(), "guides": self.authored.guides.iter().filter(|(_, d)| d.language == language && d.explanation_language == explanation).collect::<BTreeMap<_, _>>() })).unwrap(),
             conversation_json: serde_json::to_string_pretty(&doc.conversation).unwrap(),
         })
     }

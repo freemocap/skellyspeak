@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: arabic-skills-2026-10-04
+language: arabic
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: A capability predicate can introduce the action the speaker can perform.
+    examples:
+      - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
+        meaning: I can swim.
+        note: Modern Standard Arabic. This reports ability in a discussion of swimming skills.
+      - text: بَقْدَرْ أَسْبَحْ.
+        meaning: I can swim.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. This
+          reports ability in a discussion of swimming skills.
+  - subskill_id: permission
+    explanation: A question about whether an action is possible can ask permission in the
+      appropriate exchange.
+    examples:
+      - text: هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَا؟
+        meaning: May I sit here?
+        note: Modern Standard Arabic. Ask the person responsible for the seat; the point is permission.
+      - text: مُمْكِنْ أَقْعُدْ هُونْ؟
+        meaning: May I sit here?
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. Ask the
+          person responsible for the seat; the point is permission.
+  - subskill_id: obligation
+    explanation: An obligation expression and a following action can state a requirement.
+    examples:
+      - text: يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ الْيَوْمَ.
+        meaning: I must return the key today.
+        note: Modern Standard Arabic. A return deadline establishes necessity.
+      - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
+        meaning: I must return the key today.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. A return
+          deadline establishes necessity.
+  - subskill_id: possibility
+    explanation: A possibility word can qualify a proposition without asserting that it is certain.
+    examples:
+      - text: رُبَّمَا يَتَأَخَّرُ الْقِطَارُ.
+        meaning: The train may be late.
+        note: Modern Standard Arabic. The speaker leaves the outcome open.
+      - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
+        meaning: The train may be late.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
+          leaves the outcome open.
+  - subskill_id: certainty
+    explanation: A negative certainty predicate can limit confidence in a claim.
+    examples:
+      - text: لَسْتُ مُتَأَكِّدَةً مِنْ ذٰلِكَ.
+        meaning: I am not sure about that.
+        note: Modern Standard Arabic. A woman is speaking about the preceding claim.
+      - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
+        meaning: I am not sure about that.
+        note: Levantine Arabic; conversational wording, with regional alternatives possible. A woman is
+          speaking about the preceding claim.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: arabic-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: The examples use Southern Levantine بَقْدَرْ for capability. Northern expressions such as
+      فِينِي also occur. Context distinguishes capability, permission and requests.
+    provenance: *a1
+  arabic-modern-standard:
+    disposition: supplement
+    text: Modern Standard has formal capability and necessity constructions. لَسْتُ negates a
+      nominal predicate for a first-person speaker.
+    provenance: *a1

@@ -1,0 +1,162 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: irish
+  name: Irish
+  native_name: Gaeilge
+  family: indo-european
+  review: needs_review
+integrations:
+  language_tag: ga
+  transcription: null
+definitions:
+  orthographies:
+    caighdean-oifigiuil:
+      script: latin
+      guidance:
+        - scope: target_writing
+          text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
+            (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required.
+            Preserve quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not
+            substitute Scottish Gaelic vocabulary or grave-accent conventions.
+          sources:
+            - irish_caighdean_2017
+        - scope: explanation_writing
+          text: Use contemporary Irish spelling following An Caighdeán Oifigiúil. Retain acute vowel accents
+            (á, é, í, ó, ú), grammatical initial mutations, apostrophes and hyphens where required.
+            Preserve quoted source spelling exactly. Irish is Gaeilge, not Scottish Gaelic; do not
+            substitute Scottish Gaelic vocabulary or grave-accent conventions.
+          sources:
+            - irish_caighdean_2017
+  romanization_schemes: {}
+defaults:
+  variety: irish-ireland
+  orthography:
+    local: caighdean-oifigiuil
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits: []
+varieties:
+  - id: irish-ireland
+    name: Ireland
+    description: Contemporary Irish in Ireland. An Caighdeán Oifigiúil guides writing; this selection
+      does not prescribe a single spoken dialect.
+    review: needs_review
+    sources:
+      - irish_caighdean_2017
+    overrides: {}
+    guidance: []
+guidance:
+  - scope: assessment
+    text: The written standard is not a single spoken dialect. Recognise valid Connacht, Munster and
+      Ulster forms without treating every departure from the written standard as an error. Do not
+      infer pronunciation from spelling alone.
+    sources:
+      - irish_caighdean_2017
+      - irish_spoken_dialects
+conversation:
+  greeting:
+    text: dia duit
+    romanizations: {}
+  default_partner:
+    name: Nóra
+    romanizedName: null
+    age: 39
+    location: An Cheathrú Rua, County Galway, Ireland
+    occupation: Coordinates bookings at a community centre
+    background: Grew up speaking Irish in Connemara and uses it with family and neighbours. Previously
+      worked in a bookshop in Galway.
+    currentSituation: Sorting out a timetable clash between a craft class and a film evening.
+    interests:
+      - gardening in small spaces
+      - photography
+    opinions:
+      - Public timetables should be easy to read.
+      - Borrowing equipment makes more sense than buying it for one job.
+    interestingFacts:
+      - Grows herbs in reused containers.
+      - Takes photographs of changing shopfronts.
+    favoriteBooks:
+      - Cré na Cille — Máirtín Ó Cadhain
+      - Small Things Like These — Claire Keegan
+    favoriteMovies:
+      - An Cailín Ciúin (2022)
+      - The Straight Story (1999)
+    manner: Practical and attentive. Uses everyday Irish and asks follow-up questions without turning
+      the conversation into a lesson.
+    quirks:
+      - Writes reminders on the backs of envelopes.
+      - Checks the weather before making weekend plans.
+    vibe:
+      - 🌱
+      - 📷
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Uisce, le do thoil.
+      - Tá mé anseo.
+      - Tá sé te.
+      - Tá ocras orm.
+      - Cad é seo?
+      - Níl a fhios agam.
+      - Tá mé réidh.
+      - Tá sé fuar.
+    beginner:
+      - Is múinteoir mé.
+      - Tá an seomra ciúin.
+      - Tá rothar agam.
+      - Seo mo dheirfiúr.
+      - Tá dhá leabhar agam.
+      - Tá beagán uisce ann.
+      - Oibrím anseo.
+      - Tá sí ag léamh.
+    intermediate:
+      - Tháinig mé inné.
+      - Bhí mé sa bhaile.
+      - Tiocfaidh mé amárach.
+      - Beidh mé sa bhaile.
+      - Is maith liom tae.
+      - Ba mhaith liom dul abhaile.
+      - Is féidir liom snámh.
+      - Caithfidh mé imeacht.
+    advanced:
+      - Dá mbeadh a fhios agam go mairfeadh an cruinniú chomh fada sin, bheinn tar éis mo chuid
+        pleananna a athrú.
+      - Is é an rud is mó a chuireann imní orm ná an tionchar a bheidh ag an gcinneadh ar na daoine
+        nár cuireadh ceist orthu.
+      - Cé go bhfuil cuma mhaith ar an moladh, ba cheart dúinn smaoineamh ar na deacrachtaí a
+        d'fhéadfadh teacht as.
+      - B'fhearr liom go gcuirfimis an turas siar ná go ndéanfaimis cinneadh róthapa.
+      - Dá mhéad a léim an tuairisc, is ea is lú muinín atá agam as na conclúidí inti.
+      - Beidh rath an tionscadail ag brath ar an gcaoi a roinnfimid an obair eadrainn.
+      - Níl mé i gcoinne an smaoinimh féin, ach níl mé cinnte gurb é seo an t-am ceart dó.
+      - Faoin am ar thuigeamar cad a bhí tar éis tarlú, bhí sé deacair an scéal a chur ina cheart.
+    social:
+      - Dia duit!
+      - Dia is Muire duit!
+      - Maidin mhaith!
+      - Tráthnóna maith!
+      - Conas atá tú?
+      - Tá mé go maith, go raibh maith agat.
+      - Cad is ainm duit?
+      - Is deas bualadh leat.
+      - Go raibh maith agat.
+      - Tá fáilte romhat.
+      - Gabh mo leithscéal.
+      - Tá brón orm.
+      - Slán!
+      - Feicfidh mé arís thú!
+      - Oíche mhaith!
+    idiomatic:
+      - Táim ar mhuin na muice.
+      - Is fiú ór í.
+      - Tá mé ar ais ar mo bhonnaí.
+      - Tá mo theanga amuigh.
+      - Tóg go bog é.
+      - Tá an áit dubh le daoine.
+      - Tá tuirse an domhain orm.
+      - Gan duine, gan daoine.
+  varieties: {}

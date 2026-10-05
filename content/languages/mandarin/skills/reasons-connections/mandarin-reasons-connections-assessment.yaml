@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: reasons_connections
+guidance: Evaluate reasons, consequences, conditions, contrast and support for claims. 因为 can
+  introduce a reason and 所以 its consequence; using both is ordinary Mandarin, not an error based
+  on English style. 如果明天下雨，我们就改天去 makes a plan conditional. 虽然 and 但是 can similarly occur
+  together to express concession. 先 and 再 only order actions unless a causal relationship is
+  also established. 灯还亮着 can support an inference that someone is inside when explicitly offered
+  as evidence; it need not cause their presence. A copied 所以 with no intelligible antecedent or
+  consequence is absent. 因为车坏了 can answer an identifiable why-question contextually without
+  repeating the result. 就 has several uses, so its occurrence alone does not prove a conditional
+  relation. Check whether the expressed support bears on the claim rather than counting any
+  extra assertion as a reason.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

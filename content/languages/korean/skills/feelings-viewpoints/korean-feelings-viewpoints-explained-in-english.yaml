@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 고 싶어요 after an action stem expresses wanting to perform that action. The speaker
+      can be implicit.
+    examples:
+      - text: 가구를 만드는 법을 배우고 싶어요.
+        meaning: I want to learn how to make furniture.
+        note: 배우고 싶어요 expresses desire. 만드는 법 names the method or skill to be learned.
+  - subskill_id: preferences
+    explanation: 좋아하다 can take the liked thing as its object. 보다 and 더 can compare how much
+      alternatives are liked.
+    examples:
+      - text: 저는 커피보다 차를 더 좋아해요.
+        meaning: I prefer tea to coffee.
+        note: 차를 marks tea as the object of liking; 커피보다 supplies the comparison.
+  - subskill_id: emotions
+    explanation: 기쁘다 directly describes happiness and takes a polite ending. A reason clause can
+      name what prompted the feeling.
+    examples:
+      - text: 다시 만나서 기뻐요.
+        meaning: I am happy to see you again.
+        note: 만나서 links the meeting to the feeling. The omitted participants are supplied by the
+          encounter.
+  - subskill_id: opinions
+    explanation: A proposition with the quoting form 다고 and 생각해요 can state a personal judgment. The
+      quoted predicate uses its appropriate plain form.
+    examples:
+      - text: 이 방법이 좋다고 생각해요.
+        meaning: I think this method is good.
+        note: 좋다고 quotes the descriptive predicate 좋다. The speaker presents an assessment of the method.
+  - subskill_id: agreement_disagreement
+    explanation: 그렇게 can refer back to the way another person thinks. 도 adds the speaker to that viewpoint.
+    examples:
+      - text: 저도 그렇게 생각해요.
+        meaning: I think so too.
+        note: Reply to an identifiable opinion about the method. The sentence aligns with that opinion
+          rather than merely acknowledging hearing it.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_predicates2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

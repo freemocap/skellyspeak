@@ -105,3 +105,57 @@ it('labels local daily limits as disabled while retaining usage counts', async (
   expect(document.querySelector('#summary')!.textContent).toContain('$0.012345')
   expect(document.querySelector('#policy-fields')!.textContent).toContain('--enforce-usage-limits')
 })
+
+it('keeps email masked until clicked, hides it again and supports account inspection', async () => {
+  const user = { id: 'google:test', email_label: 'l•••r@e•••d', effective_limit_micros: 500000, daily_limit_micros: null,
+    admin_revision: 0, token_version: 0, created_at: '2026-09-01T12:00:00Z', last_seen: '2026-09-20T12:00:00Z',
+    usage: { micros: 1000, micros_credit: 0, tokens: 20 }, usage_90_days_micros: 20000,
+    admission: { requests: 5, diagnostics_requests: 2, diagnostics_requests_credit: 0 } }
+  const original = vi.mocked(fetch).getMockImplementation()!
+  vi.mocked(fetch).mockImplementation(async (...args) => {
+    if (String(args[0]).includes('/users/')) return { ok: true, status: 200, json: async () => ({ user,
+      identity: { email: 'learner@example.invalid', name: '<script>private</script>' }, usage: [], devices: [], reservations: [],
+    }) } as Response
+    const response = await original(...args), data = await response.json()
+    return { ...response, json: async () => ({ ...data, users: [user] }) } as Response
+  })
+  fireEvent.click(document.querySelector('#refresh')!)
+  await waitFor(() => expect(document.querySelector('#users')!.textContent).toContain(user.email_label))
+  expect(document.querySelector('#users')!.textContent).not.toContain(user.id)
+  expect(document.body.textContent).not.toContain('learner@example.invalid')
+  expect(vi.mocked(fetch).mock.calls.some(call => String(call[0]).includes('/users/'))).toBe(false)
+  fireEvent.click(document.querySelector('#users .identity-toggle')!)
+  await waitFor(() => expect(document.querySelector('#users')!.textContent).toContain('learner@example.invalid'))
+  await waitFor(() => expect(document.body.hasAttribute('aria-busy')).toBe(false))
+  fireEvent.click(document.querySelector('#users .identity-toggle')!)
+  expect(document.querySelector('#users')!.textContent).not.toContain('learner@example.invalid')
+  fireEvent.click([...document.querySelectorAll('#users button')].find(b => b.textContent === 'Inspect account')!)
+  await waitFor(() => expect(document.querySelector<HTMLElement>('#user-detail')!.hidden).toBe(false))
+  expect(document.querySelector('#user-detail h3')!.textContent).toBe(user.email_label)
+  expect(document.querySelector('#user-detail script')).toBeNull()
+  expect(document.querySelector('#user-detail')!.textContent).toContain('Latest reservations')
+  expect(document.querySelector('#user-detail')!.textContent).toContain('Restore spending allowance')
+})
+
+it('sorts loaded log events by numeric duration and exposes optional timing context', async () => {
+  const original = vi.mocked(fetch).getMockImplementation()!
+  vi.mocked(fetch).mockImplementation(async (...args) => {
+    if (String(args[0]).includes('/logs')) return { ok: true, status: 200, json: async () => ({ scope: 'Test logs', since: '', entries: [
+      { timestamp: '2026-09-20T12:03:00Z', event: 'request_started' },
+      { timestamp: '2026-09-20T12:02:00Z', event: 'provider_finished', duration_ms: 12000, provider: 'GROQ' },
+      { timestamp: '2026-09-20T12:01:00Z', event: 'request_headers', duration_ms: 200, status: 200 },
+    ] }) } as Response
+    return original(...args)
+  })
+  fireEvent.click(document.querySelector('#load-logs')!)
+  await waitFor(() => expect(document.querySelector('#logs')!.textContent).toContain('12.00 s'))
+  await waitFor(() => expect(document.body.hasAttribute('aria-busy')).toBe(false))
+  fireEvent.click(document.querySelector('#logs [data-sort-key=duration]')!)
+  const rows = [...document.querySelectorAll('#logs tbody tr')]
+  expect(rows[0].textContent).toContain('provider finished')
+  expect(rows[1].textContent).toContain('200 ms')
+  expect(rows[2].textContent).toContain('request started')
+  fireEvent.click([...document.querySelectorAll<HTMLLabelElement>('#logs .column-list label')].find(l => l.textContent === 'Provider')!.querySelector('input')!)
+  expect(document.querySelector('#logs thead')!.textContent).toContain('Provider')
+  expect(document.querySelector('#logs tbody')!.textContent).toContain('GROQ')
+})

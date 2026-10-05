@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: english-skills-2026-10-04
+skill_id: feelings_viewpoints
+language: english
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Want to and plan to introduce an action the subject desires or intends.
+    examples:
+      - text: I plan to study tonight.
+        meaning: The speaker intends to study tonight.
+        note: The plan expresses intention; it does not promise another person anything.
+  - subskill_id: preferences
+    explanation: Use like, prefer or a comparison to state a choice or taste.
+    examples:
+      - text: I prefer tea to coffee.
+        meaning: The speaker likes tea better than coffee.
+        note: Prefer links the preferred choice to the alternative.
+  - subskill_id: emotions
+    explanation: Name a feeling and, when useful, what prompted it.
+    examples:
+      - text: I feel nervous about the interview.
+        meaning: The interview makes the speaker nervous.
+        note: Nervous describes an emotional state.
+  - subskill_id: opinions
+    explanation: Mark an evaluation as your view when that distinction matters.
+    examples:
+      - text: I think this plan is too expensive.
+        meaning: The speaker judges the plan to cost too much.
+        note: I think introduces a viewpoint rather than presenting agreement with an
+          earlier claim.
+  - subskill_id: agreement_disagreement
+    explanation: Connect your response to the position you accept or challenge.
+    examples:
+      - text: I agree that we need more time.
+        meaning: The speaker accepts the claim that more time is needed.
+        note: Agreement needs an identifiable proposition, stated here in the
+          that-clause.
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance: &a1
+      origin: ai
+      authorship: AI-authored English teaching guidance and original examples; no
+        independent linguistic review.
+      sources:
+        - cefr2020
+      generation: null
+      review:
+        status: needs_review
+        revision: english-skills-2026-10-04
+        scope: Entire document; source references inform guidance but do not validate
+          generated examples.
+  english-united-kingdom:
+    disposition: use_core
+    provenance: *a1
+provenance: *a1

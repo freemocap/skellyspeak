@@ -7,12 +7,12 @@ import { skillIndex } from '../../domain/learning/catalog/skill-index'
 
 it('shows uncertainty instead of an empty proficiency bar without credited observations', () => {
   render(<DomainEvidenceTree snapshot={skillDemo} onSelect={vi.fn()} />)
-  expect(screen.getAllByText('Not enough evidence to estimate')).toHaveLength(4)
+  expect(screen.getAllByText('Not enough evidence to estimate')).toHaveLength(8)
   expect(screen.queryByRole('meter')).toBeNull()
 })
-it('counts an attempt once per domain even when it credits multiple skills', () => {
+it('counts an attempt once per main skill', () => {
   const catalog = skillIndex(skillDemo).catalog
-  const domain = catalog.nodes.find(node => node.kind === 'domain')!
+  const domain = catalog.nodes.find(node => node.kind === 'skill')!
   const skills = catalog.nodes.filter(node => node.kind === 'skill' && catalog.domain(node.id).id === domain.id)
   const snapshot = { ...skillDemo, profile: { ...skillDemo.profile, credits: skills.slice(0, 2).map(skill => ({ attempt_id: 'one-attempt', skill_id: skill.id, xp: 2 })) } }
   const select = vi.fn()

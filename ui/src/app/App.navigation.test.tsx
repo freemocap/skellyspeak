@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import App from './App'
 import { useSessionStore } from '../state/session/session'
 import { useNavigationStore } from '../state/navigation/navigation'
+
+const startSkill = vi.hoisted(() => vi.fn(async (_language: string, _variety: string, _skill: string) => {}))
 
 vi.mock('../components/layout/useIsMobile', () => ({ useIsMobile: () => true }))
 vi.mock('../state/learning/useSkillEvidence', async importOriginal => ({ ...await importOriginal<typeof import('../state/learning/useSkillEvidence')>(), useSkillEvidence: () => ({ snapshot: null, error: null }) }))
@@ -27,11 +29,12 @@ const { native, state } = vi.hoisted(() => {
 vi.mock('../platform/ipc/tauri', () => ({ isTauri: true, getSettings: async () => ({ native_language: 'english', native_variety: 'english-united-states', interface_locale: 'english', target_language: 'spanish', provider_mode: 'custom' }), invoke: native, languageFor: () => null, languages: () => [] }))
 vi.mock('./shell/UpdateBanner', () => ({ UpdateBanner: () => null }))
 vi.mock('../features/settings/SettingsModal', () => ({ SettingsModal: () => null }))
-vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: () => void }) => <button onClick={onPractice}>Practice this skill</button> }))
+vi.mock('../features/skills/SkillsPage', () => ({ default: ({ onPractice }: { onPractice: (language: string, variety: string, skill: string) => Promise<void> }) => <button onClick={() => void onPractice('spanish', 'spanish-spain', 'time_events')}>Practice this skill</button> }))
 vi.mock('../features/drill/DrillPage', () => ({ default: () => <p>Drill surface</p> }))
 // The page is replaced, but it reads access the way the real one does — from the
 // session store — rather than through props the shell no longer threads down.
-vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobileSurface }: { mobileSurface: string }) => {
+vi.mock('../features/conversation/ConversationPage', () => ({ default: ({ mobileSurface, onSkillStartReady }: { mobileSurface: string; onSkillStartReady: (action: typeof startSkill | null) => void }) => {
+  useEffect(() => { onSkillStartReady(startSkill); return () => onSkillStartReady(null) }, [onSkillStartReady])
   const [draft, setDraft] = useState('')
   const connection = useSessionStore((state) => state.connection)
   const startHostedSignIn = useSessionStore((state) => state.startHostedSignIn)
@@ -43,26 +46,22 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Chat', 'Practice'])
+  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Skills'])
   expect(screen.queryByText('Guided conversation')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Keep my words' } })
-  // The skill tree and back keeps the conversation mounted.
-  fireEvent.click(screen.getByRole('button', { name: 'More' }))
-  fireEvent.click(screen.getByRole('button', { name: 'Skill tree' }))
+  // Skills and back keeps the conversation mounted; the return strip leads back.
+  fireEvent.click(within(nav).getByRole('button', { name: 'Skills' }))
   await screen.findByRole('button', { name: 'Practice this skill' })
-  expect(within(nav).getByRole('button', { name: 'Chat' })).not.toHaveAttribute('aria-current')
-  fireEvent.click(within(nav).getByRole('button', { name: 'Chat' }))
-  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(within(nav).getByRole('button', { name: 'Skills' })).toHaveAttribute('aria-current', 'page')
+  fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
+  expect(within(nav).queryByRole('button', { current: 'page' })).toBeNull()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
-  // The coach opens from the conversation; the Chat tab brings the conversation back.
-  act(() => useNavigationStore.getState().openPractice('panel'))
+  // The coach opens from the conversation; the wordmark brings the conversation back.
+  act(() => useNavigationStore.getState().openConversation('panel'))
   expect(screen.getByText('Practice surface: panel')).toBeInTheDocument()
-  fireEvent.click(within(nav).getByRole('button', { name: 'Chat' }))
-  expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
-  act(() => useNavigationStore.getState().openPractice('panel'))
   fireEvent.click(screen.getByRole('button', { name: 'SkellySpeak home — Chat' }))
-  expect(within(nav).getByRole('button', { name: 'Chat' })).toHaveAttribute('aria-current', 'page')
+  expect(screen.getByText('Practice surface: chat')).toBeInTheDocument()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
   fireEvent.click(screen.getByRole('button', { name: 'More' }))
   fireEvent.click(screen.getByRole('button', { name: 'AI activity' }))
@@ -75,19 +74,37 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
 // The phone sheet's close control lives in the view's own header actions.
 vi.mock('../features/activity/AiView', () => ({ AiView: ({ actions }: { actions: React.ReactNode }) => <><p role="status">Live operations</p>{actions}</> }))
 
-it('switches the practice page and saves the selected destination', async () => {
+it('opens Practice over the mounted conversation, saves the destination and returns from its strip', async () => {
   render(<App />)
   const switcher = screen.getByRole('navigation', { name: 'Main navigation' })
+  fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Still here' } })
+  act(() => useNavigationStore.getState().openConversation('panel'))
   fireEvent.click(within(switcher).getByRole('button', { name: 'Practice' }))
-  expect(await screen.findByText('Drill surface')).toBeInTheDocument()
-  expect(screen.queryByLabelText('Draft')).not.toBeInTheDocument()
+  const holder = (element: HTMLElement) => element.closest('.page-holder')!
+  expect(holder(await screen.findByText('Drill surface'))).not.toHaveAttribute('aria-hidden', 'true')
+  // The conversation stays mounted underneath, hidden rather than destroyed.
+  expect(holder(screen.getByLabelText('Draft'))).toHaveAttribute('aria-hidden', 'true')
   expect(localStorage.getItem('skellyspeak.practice-view')).toBe('drill')
 
-  fireEvent.click(within(switcher).getByRole('button', { name: 'Chat' }))
-  expect(screen.getByLabelText('Draft')).toBeInTheDocument()
-  expect(screen.queryByText('Drill surface')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
+  expect(holder(screen.getByLabelText('Draft'))).not.toHaveAttribute('aria-hidden', 'true')
+  expect(screen.getByLabelText('Draft')).toHaveValue('Still here')
+  expect(screen.getByText('Practice surface: panel')).toBeInTheDocument()
+  expect(holder(screen.getByText('Drill surface'))).toHaveAttribute('aria-hidden', 'true')
   expect(localStorage.getItem('skellyspeak.practice-view')).toBe('chat')
   localStorage.removeItem('skellyspeak.practice-view')
+})
+
+it('reaches the conversation from a skill action even when Practice was the previous destination', async () => {
+  render(<App />)
+  const navigation = screen.getByRole('navigation', { name: 'Main navigation' })
+  fireEvent.click(within(navigation).getByRole('button', { name: 'Practice' }))
+  await screen.findByText('Drill surface')
+  fireEvent.click(within(navigation).getByRole('button', { name: 'Skills' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Practice this skill' }))
+  await waitFor(() => expect(screen.getByLabelText('Draft').closest('.page-holder')).toHaveAttribute('aria-hidden', 'false'))
+  expect(startSkill).toHaveBeenCalledWith('spanish', 'spanish-spain', 'time_events')
+  expect(useNavigationStore.getState()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: 'chat' })
 })
 
 it('connects the page stub to hosted sign-in through the session store', async () => {

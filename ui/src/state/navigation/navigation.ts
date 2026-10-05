@@ -52,6 +52,9 @@ interface NavigationState {
   /// Whether the skill tree has ever been opened. It is mounted lazily and then
   /// kept mounted, so this is not the same as `page === 'skills'`.
   skillsOpened: boolean
+  /// Whether Practice has ever been opened. Like the skill tree it is mounted
+  /// lazily and then kept mounted, so this is not the same as `practiceView`.
+  drillOpened: boolean
   /// The settings modal has unsaved work. The modal owns this; the shell carries
   /// it so the settings shortcut can ask before closing a modal with edits in it.
   settingsBusy: boolean
@@ -63,11 +66,13 @@ interface NavigationState {
   suggestionsCollapsed: boolean
 
   showPage: (page: Page) => void
-  /// Show the guided surface at a given place in it, closing the dialog over it.
-  openPractice: (surface: MobileLocation) => void
+  /// Return to the conversation, preserving its coach panel unless specified.
+  /// This also clears and saves a previously selected Drill destination.
+  openConversation: (surface?: MobileLocation) => void
   openSkills: () => void
-  /// The wordmark: home is the guided conversation, with everything over it
-  /// closed.
+  /// The wordmark: home is the guided
+  /// conversation, with everything over it closed. Leaving Practice this way
+  /// saves the conversation as the practice destination, as choosing it does.
   goHome: () => void
   toggleHistory: () => void
   setHistoryOpen: (open: boolean) => void
@@ -99,12 +104,13 @@ const initialState = {
   overlay: null as Overlay | null,
   languageInfo: null as string | null,
   skillsOpened: false,
+  drillOpened: savedPracticeView === 'drill',
   settingsBusy: false,
   newChatAction: null as (() => void) | null,
   suggestionsCollapsed: true,
 }
 
-export const useNavigationStore = create<NavigationState>((set) => ({
+export const useNavigationStore = create<NavigationState>((set, get) => ({
   ...initialState,
   aiInspection: null,
   inspectAi: aiInspection => set({ aiInspection: { ...aiInspection }, overlay: 'activity' }),
@@ -115,7 +121,7 @@ export const useNavigationStore = create<NavigationState>((set) => ({
     if (!isTauri) return
     const revision = selectionRevision
     const practiceView = await getPracticeView()
-    if (revision === selectionRevision) set({ practiceView })
+    if (revision === selectionRevision) set(state => ({ practiceView, drillOpened: state.drillOpened || practiceView === 'drill' }))
   },
   setPracticeView: (practiceView) => {
     selectionRevision++
@@ -124,13 +130,24 @@ export const useNavigationStore = create<NavigationState>((set) => ({
         .catch(error => { reportFault('Saving practice destination', error) })
     }
     window.localStorage.setItem(practiceViewKey, practiceView)
-    set({ practiceView, mode: 'practice', page: 'guided', overlay: null })
+    set(state => ({ practiceView, drillOpened: state.drillOpened || practiceView === 'drill', mode: 'practice', page: 'guided', overlay: null }))
   },
-  setMode: (mode) => set(state => ({ mode, page: mode === 'review' ? 'skills' : 'guided', skillsOpened: state.skillsOpened || mode === 'review', mobileSurface: 'chat', overlay: null })),
-  showPage: (page) => set(state => ({ page, mode: page === 'skills' ? 'review' : 'practice', skillsOpened: state.skillsOpened || page === 'skills' })),
-  openPractice: (surface) => set({ mode: 'practice', page: 'guided', mobileSurface: surface, overlay: null }),
+  setMode: (mode) => {
+    if (mode === 'practice') get().openConversation('chat')
+    else { get().openSkills(); set({ mobileSurface: 'chat', overlay: null }) }
+  },
+  showPage: (page) => page === 'skills' ? get().openSkills() : get().openConversation(),
+  openConversation: (surface) => {
+    // Always register an explicit selection, including while startup's saved
+    // destination is still loading. A late read must not reopen Practice.
+    get().setPracticeView('chat')
+    if (surface !== undefined) set({ mobileSurface: surface })
+  },
   openSkills: () => set({ mode: 'review', skillsOpened: true, page: 'skills' }),
-  goHome: () => set({ mode: 'practice', page: 'guided', mobileSurface: 'chat', overlay: null, historyOpen: false }),
+  goHome: () => {
+    get().openConversation('chat')
+    set({ historyOpen: false })
+  },
   toggleHistory: () => set((state) => ({ historyOpen: !state.historyOpen })),
   setHistoryOpen: (historyOpen) => set({ historyOpen }),
   showLanguageInfo: (languageInfo) => set({ overlay: 'languages', languageInfo }),

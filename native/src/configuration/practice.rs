@@ -94,7 +94,7 @@ impl Registry {
         let variety = variety.unwrap_or(&config.default_variety);
         if !config.varieties.iter().any(|entry| entry.id == variety) {
             return Err(error(
-                format!("languages/{language}.yaml#practice"),
+                format!("languages/{language}/{language}-language.yaml#practice"),
                 "unknown_variety",
                 variety,
             )
@@ -122,7 +122,7 @@ impl Registry {
 
     pub(super) fn validate_practice_content(&self) -> Result<()> {
         for (language, document) in &self.documents {
-            let path = format!("languages/{language}.yaml#practice");
+            let path = format!("languages/{language}/{language}-language.yaml#practice");
             validate_sets(&document.practice.sets, &format!("{path}.sets"))?;
             for (variety, sets) in &document.practice.varieties {
                 let path = format!("{path}.varieties.{variety}");

@@ -1,3 +1,4 @@
+import { AppLanguageFields } from '../language/AppLanguageFields'
 import { InspectText } from '../../../components/reading/InspectText'
 import { useState } from 'react'
 import type { Preferences } from '../../../generated/contracts'
@@ -103,8 +104,8 @@ function LanguageForm({ choice, setChoice, explanation, locale, busy, setExplana
       </div>}
 
       <div className="onboarding-secondary">
-        <div className="form-row"><label htmlFor="setup-explanation">{tr('Explain in')}</label><select id="setup-explanation" value={explanation} onChange={event => setExplanation(event.target.value)}>{catalog.map(item => <option key={item.code} value={item.code} lang={item.languageTag}>{languageLabel(item, locale)}</option>)}</select></div>
-        <div className="form-row"><label htmlFor="setup-locale">{tr('Interface language')}</label><select id="setup-locale" value={locale} onChange={event => setLocale(event.target.value)}>{Object.entries(UI_LOCALE_METADATA).map(([id, item]) => <option key={id} value={id} lang={item.tag}>{item.endonym}</option>)}</select></div>
+        <AppLanguageFields value={{ interface_locale: locale, native_language: explanation, native_variety: catalog.find(item => item.code === explanation)!.defaultVariety }}
+          showVariety={false} onChange={choice => { setLocale(choice.interface_locale); setExplanation(choice.native_language) }} />
       </div>
     </fieldset>
   </form>

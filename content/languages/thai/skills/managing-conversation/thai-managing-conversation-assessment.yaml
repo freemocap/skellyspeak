@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: managing_conversation
+guidance: Recognize contact opening or closing, acknowledgement, clarification, rephrasing,
+  correcting misunderstanding and managing turns or topics. แล้วเจอกัน closes contact with
+  expected future meeting. ตอนนี้เข้าใจแล้ว acknowledges comprehension without necessarily
+  agreement. พูดอีกครั้งได้ไหม asks for repetition of the prior contribution. พูดอีกอย่างก็คือ
+  introduces a reformulation; หมายถึง identifies intended meaning in a repair.
+  ขอถามเรื่องอื่นหน่อยได้ไหม requests a topic transition. A greeting quoted in a vocabulary list
+  is absent as actual conversational work. A short อ๋อ can acknowledge a particular explanation
+  contextually, but its function depends on the exchange. Do not demand long repair sentences,
+  assume a missing antecedent or equate every information question with clarification. Judge the
+  interactional effect and allow appropriate variations in pronouns and polite particles.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

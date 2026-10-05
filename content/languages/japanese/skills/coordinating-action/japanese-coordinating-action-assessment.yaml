@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: coordinating_action
+guidance: Look for requests, offers or invitations, suggestions, commitments, responses and
+  negotiated plans. 持ってください asks the listener to act, and 手伝いましょうか offers the speaker’s help. A
+  negative question in ませんか may invite participation rather than seek a factual negative answer.
+  休みましょう can propose a joint break; a non-past first-person statement can undertake a task when
+  responsibilities are being divided. はい after a concrete invitation can accept contextually,
+  but the same acknowledgment after an explanation need not commit anyone. 金曜はちょっと… can decline
+  politely when Friday is being proposed; do not demand an explicit いいえ if the refusal is
+  contextually clear. 土曜日なら大丈夫です can negotiate an alternative, not just name a day. A copied
+  ましょう ending or an unrelated noun with no proposed action is absent. Apply register-sensitive
+  interpretation and recover omitted participants from the exchange rather than requiring overt
+  私 or あなた.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

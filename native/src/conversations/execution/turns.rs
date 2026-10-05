@@ -172,7 +172,7 @@ fn accept_turn(
         let saved: Vec<(String,String)> = db.prepare("SELECT t.id,t.context FROM turns t WHERE t.conversation_id=?1 AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=t.id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=t.id AND o.kind IN ('persona_reply','persona_opening')) ORDER BY t.rowid DESC LIMIT 4")?.query_map([conversation_id], |r|Ok((r.get(0)?,r.get(1)?)))?.collect::<rusqlite::Result<_>>()?;
         let mut support = saved.iter().map(|(turn, raw)| -> Result<serde_json::Value> {
             let context: serde_json::Value = serde_json::from_str(raw)?;
-            let feedback = crate::conversations::assessments::current(db, turn, "conversation_feedback")?.map(|(_, result)| result);
+            let feedback = crate::conversations::assessments::feedback(db, turn)?;
             Ok(serde_json::json!({"feedback":feedback,"assistance":context["reply_assistance"],"explanations":context["reply_explanations"]}))
         }).collect::<Result<Vec<_>>>()?;
         support.push(serde_json::json!({"messageEdits":crate::conversations::revision::coach_edits(db, conversation_id)?}));
@@ -199,7 +199,14 @@ fn accept_turn(
             recommendation.as_ref(),
         )?;
     }
-    let focus = if let Some(value) = &recommendation {
+    let focus = if let Some(crate::conversations::direction::TopicChoice::Skill {
+        skill_id,
+        subskill_id,
+    }) = &conversation.settings.direction.topic
+    {
+        let skill = registry.skill_definition(skill_id)?;
+        serde_json::json!({"id":skill_id,"subskillId":subskill_id,"label":skill.name,"opportunity":skill.purpose,"source":"learner","reason":"explicit conversation target"})
+    } else if let Some(value) = &recommendation {
         serde_json::json!({"id":value["skill"]["id"],"label":value["skill"]["name"],"opportunity":value["skill"]["overview"],"source":"coach","reason":value["basis"]})
     } else {
         crate::learning::learner::progression::capture_focus(
@@ -214,6 +221,21 @@ fn accept_turn(
         .collect();
 
     let mut history=db.prepare("SELECT role,text,id FROM messages m WHERE conversation_id=?1 AND (?3 IS NULL OR m.turn_id!=?3) AND NOT EXISTS(SELECT 1 FROM turns child WHERE child.replaces_turn_id=m.turn_id) AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND (o.kind=?2 OR (?2='persona_reply' AND o.kind='persona_opening'))) ORDER BY sequence DESC LIMIT 40")?.query_map(params![conversation_id,channel,replaced],|r|Ok((PromptMessage{role:r.get(0)?,content:r.get(1)?},r.get::<_,String>(2)?)))?.collect::<rusqlite::Result<Vec<_>>>()?;
+    if coach {
+        // A guide belongs to its original question in the coach thread. Carry it
+        // with that history message so follow-ups retain their referent, while
+        // the partner's separate channel never receives teaching context.
+        for (message, message_id) in &mut history {
+            if message.role == "user" {
+                let guide: Option<String> = db.query_row("SELECT json_extract(t.context,'$.guideContext') FROM messages m JOIN turns t ON t.id=m.turn_id WHERE m.id=?1", [message_id.as_str()], |r| r.get(0))?;
+                if let Some(guide) = guide {
+                    message.content.push_str(&format!(
+                        "\n\nAttached guide (reference data for this question):\n{guide}"
+                    ));
+                }
+            }
+        }
+    }
     history.reverse();
     let mut context = vec![PromptMessage {
         role: "system".into(),
@@ -257,7 +279,11 @@ fn accept_turn(
     admit_network_work(
         db,
         plan.iter()
-            .filter(|node| node.role != "local" && node.activation.enabled(speech_enabled))
+            .filter(|node| {
+                node.role != "local"
+                    && node.activation.enabled(speech_enabled)
+                    && snapshot.learner.preferences.execution.automatic(node.kind)
+            })
             .count() as i64,
     )?;
     let coach_sources = db.prepare("SELECT id,role,text FROM messages m WHERE conversation_id=?1 AND EXISTS(SELECT 1 FROM operations o WHERE o.turn_id=m.turn_id AND o.kind='coach_reply') ORDER BY sequence DESC LIMIT 8")?.query_map([conversation_id], |r| Ok(serde_json::json!({"id":r.get::<_,String>(0)?,"role":r.get::<_,String>(1)?,"text":r.get::<_,String>(2)?})))?.collect::<rusqlite::Result<Vec<_>>>()?;
@@ -276,13 +302,18 @@ fn accept_turn(
         Ok(skills) => (serde_json::to_value(skills)?, serde_json::Value::Null),
         Err(error) => (serde_json::Value::Null, serde_json::to_value(error)?),
     };
-    let captured = serde_json::json!({"practiceRecommendation":recommendation,"skillContentHash":registry.skill_content_hash(&conversation.language_id, &conversation.settings.variety_id)?,"presenceSkills":presence_skills,"presenceContentError":presence_error,"presenceInstructions":registry.presence_instructions(),"assessmentAdapter":AssessmentAdapter::JevChoice,"skillCriteria":registry.skills_for_language(&conversation.language_id)?.iter().map(|c|serde_json::json!({"id":c.id,"criterion":c.overview})).collect::<Vec<_>>(),"skillAssessmentPromptVersion":crate::learning::coaching::assessment_adapter::version(profile.assessment_adapter),"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::learning::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"opening":opening,"practiceFocus":focus,"catalogVersion":crate::learning::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":crate::conversations::conversation_prompt::VERSION,"conversationSupportPromptVersion":"conversation-support-5","coachFeedbackPromptVersion":crate::learning::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::learning::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
+    let mut captured = serde_json::json!({"practiceRecommendation":recommendation,"skillContentHash":registry.skill_content_hash(&conversation.language_id, &conversation.settings.variety_id)?,"presenceSkills":presence_skills,"presenceContentError":presence_error,"presenceInstructions":registry.assessment_instructions(),"messageAssessmentQuestions":registry.message_assessment_questions()?,"assessmentAdapter":AssessmentAdapter::JevChoice,"skillCriteria":registry.skills_for_language(&conversation.language_id)?.iter().map(|c|serde_json::json!({"id":c.id,"criterion":c.overview})).collect::<Vec<_>>(),"skillAssessmentPromptVersion":crate::learning::coaching::assessment_adapter::version(profile.assessment_adapter),"gamePolicy":registry.game_policy(),"gamePolicyHash":registry.game_hash(),"languageContext":language_context,"configHash":registry.hash(),"constructRegistryHash":crate::learning::coaching::construct_hash(registry),"candidateConstructs":candidates,"candidatesSent":candidates.len(),"feedbackPolicy":registry.feedback_policy(),"opening":opening,"practiceFocus":focus,"catalogVersion":crate::learning::coaching::version_for(registry),"coachSources":coach_sources,"practiceSettings":conversation.settings,"speechEnabled":speech_enabled,"speechTarget":speech_target,"speechVoice":conversation.settings.speech_voice,"target":target,"messages":context,"sourceIds":source_ids,"targetLanguage":conversation.language_id,"translationLanguage":conversation.settings.explanation_language,"translationEnabled":conversation.settings.translation,"settingsRevision":conversation.settings_revision,"personaRevision":persona.revision,"templateVersion":crate::conversations::conversation_prompt::VERSION,"conversationSupportPromptVersion":"conversation-support-5","coachFeedbackPromptVersion":crate::learning::coaching::FEEDBACK_PROMPT_VERSION,"coachSuggestionsPromptVersion":crate::learning::coaching::SUGGESTIONS_PROMPT_VERSION,"selectionPolicy":"recent-40-bounded-96kb-v1","routingPolicy":"task-models-v1","fastModel":profile.fast_model});
+    captured["executionPreferences"] =
+        serde_json::to_value(&snapshot.learner.preferences.execution)?;
+    captured["executionPreferencesRevision"] = snapshot.learner.revision.into();
     db.execute("INSERT INTO turns(id,conversation_id,state,paused,profile_revision,credential_id,model,context,route) VALUES(?1,?2,'pending',0,?3,?4,?5,?6,?7)",params![turn,conversation_id,profile.revision,credential,target.model,serde_json::to_string(&captured)?,profile.route.label()])?;
     if opening.is_none() {
         db.execute("INSERT INTO messages(id,conversation_id,turn_id,sequence,role,text) SELECT ?1,?2,?3,COALESCE(MAX(sequence),0)+1,'user',?4 FROM messages WHERE conversation_id=?2",params![id(),conversation_id,turn,text])?;
     }
     for node in plan {
-        if !node.activation.enabled(speech_enabled) {
+        if !node.activation.enabled(speech_enabled)
+            || !snapshot.learner.preferences.execution.automatic(node.kind)
+        {
             continue;
         }
         db.execute(

@@ -2,7 +2,7 @@ import { skillIndex } from '../catalog/skill-index'
 import { requireCatalogVersion, type SkillSnapshot } from './skills'
 import { domainColors } from '../catalog/skill-domains'
 
-export interface MessageEvidence { evidenceKind?: 'quoted' | 'whole_message'; milestone?: number; skillId: string; domainId: string; label: string; xp: number; quote: string; ambiguous: boolean; rationale: string; id: string; start: number; end: number; color: string; explanation: string }
+export interface MessageEvidence { evidenceKind?: 'quoted' | 'whole_message'; skillId: string; domainId: string; label: string; xp: number; quote: string; ambiguous: boolean; rationale: string; id: string; start: number; end: number; color: string; explanation: string }
 export function messageEvidence(snapshot: SkillSnapshot | null, chatId: string | null, messageId: number, source: string): MessageEvidence[] {
   return projectEvidence(snapshot, chatId, messageId, source, false)
 }

@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: portuguese-skills-2026-10-04
+language: portuguese
+skill_id: time_events
+guidance: "Look for current or habitual activity, earlier and later events, duration or
+  frequency, order and event phase. Estou preparando a massa explicitly presents progress; the
+  simple present can also express suitable current or habitual activity. Ontem troquei o pneu
+  reports a completed past action; ontem eu trocar, alone as an attempted ordinary past report,
+  is unsuccessful. Do not map every English perfect meaning to tenho plus participle: the
+  Portuguese compound commonly expresses activity repeated or continuing across a recent period.
+  Vou levar os livros amanhã marks a later intention, and a scheduled present can also refer to
+  the future. Trabalho aqui há seis meses measures continuing duration; toda sexta-feira gives
+  frequency. Primeiro and depois order steps without necessarily asserting cause. Já terminei a
+  leitura establishes completion; ainda estou lendo continuation. After Quando você chegou?,
+  Ontem à noite can answer contextually. A bare date copied from the partner is insufficient,
+  and an ongoing state is not automatically an explicit duration."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: portuguese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance: *a1

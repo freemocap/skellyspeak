@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=../../rust-schemas/assessment-criteria.yaml
+schema_version: 1
+revision: skill-criteria-2026-10-04
+criteria:
+  absent: The reply does not use this skill, or every attempted use has an error that makes the
+    relevant construction incorrect.
+  contextual: The reply correctly completes a meaning established by the preceding exchange, without
+    stating the relationship itself. There is no correct explicit use in the reply.
+  direct: The reply explicitly and correctly expresses at least one function in this skill group.
+    Errors elsewhere do not disqualify that use.
+  unclear: The wording or available context is too ambiguous to judge whether the learner uses this
+    skill correctly.

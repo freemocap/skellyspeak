@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: managing_conversation
+language: spanish
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Use a greeting or farewell as part of the actual encounter, rather than quoting it as a word.
+    examples:
+      - text: Hasta luego.
+        meaning: See you later.
+        note: This closes an encounter; repeating it in a vocabulary exercise does not.
+  - subskill_id: acknowledging
+    explanation: Show that you received a contribution or respond to a social act. Entiendo need not
+      mean agreement.
+    examples:
+      - text: Gracias por avisarme.
+        meaning: Thank you for letting me know.
+        note: The response acknowledges useful information and thanks the speaker.
+  - subskill_id: clarification
+    explanation: Ask for repetition or an explanation when you cannot follow the preceding contribution.
+    examples:
+      - text: ¿Qué quieres decir?
+        meaning: What do you mean?
+        note: The question asks the partner to explain an unclear contribution, not verify a fact they
+          already understood.
+  - subskill_id: rephrasing
+    explanation: Quiero decir can introduce a different way to express the meaning you intended.
+    examples:
+      - text: Quiero decir que llego después de las ocho.
+        meaning: I mean that I arrive after eight.
+        note: In a repair sequence, this restates the speaker's arrival time.
+  - subskill_id: correcting_misunderstanding
+    explanation: Contrast the mistaken interpretation with what you meant.
+    examples:
+      - text: No, me refiero al martes, no al jueves.
+        meaning: No, I mean Tuesday, not Thursday.
+        note: The speaker corrects which day the partner understood.
+  - subskill_id: turns_topics
+    explanation: Use a transition or a turn-management expression when changing the conversation's direction.
+    examples:
+      - text: Por cierto, ¿cómo está tu hermana?
+        meaning: By the way, how is your sister?
+        note: Por cierto marks a shift to a different topic.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

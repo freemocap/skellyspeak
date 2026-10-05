@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Хочу with an infinitive names a desired action.
+    examples:
+      - text: Я хочу навчитися шити.
+        meaning: I want to learn to sew.
+        note: Навчитися concerns acquiring the ability; the sentence expresses desire.
+  - subskill_id: preferences
+    explanation: Подобається takes a dative experiencer; більше and ніж compare alternatives.
+    examples:
+      - text: Мені більше подобається чай, ніж кава.
+        meaning: I prefer tea to coffee.
+        note: Мені identifies whose preference is being described.
+  - subskill_id: emotions
+    explanation: Рада expresses gladness and agrees with a feminine experiencer.
+    examples:
+      - text: Я рада цій новині.
+        meaning: I am glad about this news.
+        note: Цій новині is dative; a masculine speaker would use радий.
+  - subskill_id: opinions
+    explanation: На мою думку marks the following proposition as a personal assessment.
+    examples:
+      - text: На мою думку, цей спосіб зручніший.
+        meaning: In my opinion, this method is more convenient.
+        note: The speaker evaluates a method under discussion.
+  - subskill_id: agreement_disagreement
+    explanation: Погоджуватися з links agreement to a person or proposal; не negates it.
+    examples:
+      - text: Я не погоджуюся з цією пропозицією.
+        meaning: I disagree with this proposal.
+        note: З цією пропозицією identifies the proposal being rejected.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_terms2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

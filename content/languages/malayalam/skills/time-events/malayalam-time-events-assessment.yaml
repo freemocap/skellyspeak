@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: time_events
+guidance: Assess present, past and future reference, duration or recurrence, sequence and event
+  phase. ഇപ്പോൾ ഞാൻ സൈക്കിൾ നന്നാക്കുകയാണ് presents a current repair. ഇന്നലെ ഞാൻ സൈക്കിൾ
+  നന്നാക്കി reports a past event. നാളെ ഞാൻ സാധനങ്ങൾ വാങ്ങും uses a future form; -ഉം can also
+  occur in habitual statements when context establishes recurrence. ആഴ്ചയിൽ രണ്ടു പ്രാവശ്യം
+  gives frequency; രണ്ടു മണിക്കൂർ measures duration. ആദ്യം and പിന്നെ order actions. വായിച്ചു
+  തീർത്തു explicitly presents finishing reading. ഇന്നലെ can answer a recoverable when-question
+  contextually. A copied time word without an identifiable event is absent. Do not infer an
+  unsuccessful action merely because a learner did not use a particular progressive
+  construction, and do not require person or gender endings on Malayalam finite verbs. A
+  property assertion alone is not temporal evidence. Preserve ordinary contextual omission and
+  judge the actual temporal relationship.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ut_malayalam_time2026
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

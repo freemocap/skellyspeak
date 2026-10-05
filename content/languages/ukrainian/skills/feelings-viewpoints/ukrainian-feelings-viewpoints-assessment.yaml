@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: feelings_viewpoints
+guidance: Judge desire or intention, preference, emotion, opinion and agreement. Я хочу
+  навчитися шити expresses wanting to acquire a skill, not a promise to complete a task. Мені
+  більше подобається чай, ніж кава compares preferences with a dative experiencer. Я рада цій
+  новині expresses gladness; На мою думку frames a personal evaluation. Я не погоджуюся з цією
+  пропозицією rejects a proposal. Зрозуміло acknowledges comprehension without necessarily
+  endorsing the view. Чай can select a preferred drink contextually after a preference question;
+  naming it in an inventory is not preference evidence. A copied хочу with no recoverable
+  desired action is absent. Do not treat every factual assertion as opinion. Assess Ukrainian
+  stance constructions and their relevant agreement without demanding a redundant personal
+  pronoun or importing another language’s preferred expression.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_terms2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

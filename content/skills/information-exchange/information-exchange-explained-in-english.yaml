@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: information_exchange
+explanation_language: english
+title: Information exchange
+introduction: Seek, supply and verify information relevant to the exchange.
+sections:
+  - subskill_id: asking_information
+    title: Asking for information
+    concept: Seek an unknown fact, description or explanation.
+  - subskill_id: answering_information
+    title: Answering relevantly
+    concept: Supply information responsive to an identifiable question.
+  - subskill_id: checking_facts
+    title: Checking facts
+    concept: Verify whether a proposition or reported detail is correct.
+  - subskill_id: useful_detail
+    title: Providing useful detail
+    concept: Elaborate or summarize information to meet the exchange's needs.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Use αυτός, αυτή or αυτό to identify a referent, with the form appropriate to that
+      referent. The verb είναι links the person to an identifying noun phrase. Personal names
+      normally have a definite article in this ordinary introduction.
+    examples:
+      - text: Αυτός είναι ο φίλος μου, ο Νίκος.
+        meaning: This is my friend Nikos.
+        note: Αυτός refers to a man. Ο φίλος μου identifies his relationship to the speaker, and ο Νίκος
+          supplies the name.
+  - subskill_id: qualities_states
+    explanation: An adjective describing a noun agrees with its gender and number, including after
+      είναι. Learn the noun with its article so that a description uses the appropriate
+      adjective form.
+    examples:
+      - text: Η γέφυρα είναι στενή.
+        meaning: The bridge is narrow.
+        note: Γέφυρα is feminine singular, so its predicative adjective is στενή. The sentence describes
+          a physical property.
+  - subskill_id: location_movement
+    explanation: Κοντά σε introduces proximity; σε combines with definite articles in forms such as
+      στον, στην and στο. The same preposition can introduce a destination with a motion verb,
+      so the verb and context distinguish being somewhere from going there.
+    examples:
+      - text: Το συνεργείο είναι κοντά στην πλατεία.
+        meaning: The repair shop is near the square.
+        note: Κοντά στην πλατεία locates the shop. Στην combines σε with την; the noun is accusative.
+      - text: Πάω στο συνεργείο.
+        meaning: I am going to the repair shop.
+        note: With πάω, στο συνεργείο gives a destination rather than the speaker’s present location.
+  - subskill_id: possession_relations
+    explanation: "A weak genitive possessive pronoun follows the noun: μου identifies the speaker as
+      possessor. The noun normally keeps its article. A noun stressed on its third-to-last
+      syllable acquires another written accent before this clitic."
+    examples:
+      - text: Αυτό είναι το ποδήλατό μου.
+        meaning: This is my bicycle.
+        note: Μου means my here. The additional accent in ποδήλατό preserves the stress pattern of the
+          noun together with its following clitic.
+  - subskill_id: quantity_comparison
+    explanation: Numerals quantify nouns, while πιο with an adjective and από can compare an object
+      with a stated standard. The adjective agrees with the object being described; πιο itself
+      does not change.
+    examples:
+      - text: Χρειαζόμαστε τρία κουτιά. Αυτό το κουτί είναι πιο βαρύ από τα άλλα.
+        meaning: We need three boxes. This box is heavier than the others.
+        note: Τρία and κουτιά are neuter plural. Βαρύ describes the singular neuter κουτί, and από τα
+          άλλα supplies the comparison set.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

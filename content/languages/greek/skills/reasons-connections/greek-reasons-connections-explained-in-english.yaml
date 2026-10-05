@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: greek-skills-2026-10-04
+language: greek
+skill_id: reasons_connections
+explanation_language: english
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-english.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Επειδή introduces a reason clause. The clause explains the decision or circumstance
+      in the main clause; it can appear before or after it. Γιατί can also introduce a reason,
+      and has a different role when it asks why.
+    examples:
+      - text: Δεν παίρνω το ποδήλατο επειδή το λάστιχο είναι χαλασμένο.
+        meaning: I am not taking the bicycle because the tyre is damaged.
+        note: The damaged tyre explains the transport decision. Χαλασμένο agrees with the neuter
+          singular λάστιχο.
+  - subskill_id: consequences
+    explanation: Γι’ αυτό links a consequence or resulting decision to a reason just stated. The
+      pronoun αυτό refers back to the preceding circumstance. Supply a real connection rather
+      than treating any two successive sentences as cause and effect.
+    examples:
+      - text: Το συνεργείο είναι κλειστό. Γι’ αυτό θα έρθω αύριο.
+        meaning: The repair shop is closed. That is why I will come tomorrow.
+        note: The closure motivates the later visit. Γι’ αυτό makes that relationship explicit; αύριο
+          gives the new date.
+  - subskill_id: conditions
+    explanation: Αν introduces a condition. A perfective dependent form can describe an anticipated
+      event, with θα in the consequence. Greek verb forms here should be chosen for the actual
+      meaning, rather than copied from an English conditional tense formula.
+    examples:
+      - text: Αν βρέξει αύριο, θα πάμε με το λεωφορείο.
+        meaning: If it rains tomorrow, we will go by bus.
+        note: Βρέξει names the possible rain event. Θα πάμε gives the planned consequence if that
+          condition is met; the rain is not asserted as certain.
+  - subskill_id: contrast
+    explanation: Αλλά joins propositions whose meanings contrast. The contradiction or unexpected
+      difference should be recoverable from what the clauses say; the conjunction alone is not
+      the entire contrast.
+    examples:
+      - text: Η διαδρομή είναι όμορφη, αλλά έχει πολλή κίνηση.
+        meaning: The route is beautiful, but it has a lot of traffic.
+        note: The second clause raises a drawback against the positive description. Πολλή is feminine
+          accusative with κίνηση.
+  - subskill_id: supporting_claims
+    explanation: A reason clause can support the truth of a claim as well as explain the cause of an
+      event. State an observation that warrants the conclusion. Νομίζω can mark the conclusion
+      as a judgement rather than a proved fact.
+    examples:
+      - text: Νομίζω ότι το συνεργείο είναι ανοιχτό, γιατί έχει φως μέσα.
+        meaning: I think the repair shop is open because there is a light on inside.
+        note: The visible light is evidence for the judgement that the shop is open. It is not claimed
+          to cause the shop to open, and the inference could be mistaken.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: greek-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance: *a1

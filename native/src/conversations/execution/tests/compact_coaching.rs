@@ -18,8 +18,8 @@ fn repeated_skills_keep_distinct_evidence_and_collapse_exact_repeats() {
     let (_dir, mut store, conversation) = setup();
     let command = send(&store, &conversation);
     let turn = store.execute(command).unwrap().entity_id;
-    let first = candidate("questions_answers", "¿cómo estás?", "");
-    let second = candidate("questions_answers", "cómo", "A separate observation.");
+    let first = candidate("information_exchange", "¿cómo estás?", "");
+    let second = candidate("information_exchange", "cómo", "A separate observation.");
     let mut output = json!({"meaning_recovered":"full","items":[first, second, first]});
     let validated = validate(&store, &turn, &output).unwrap();
     assert_eq!(validated["observation"]["items"], json!([first, second]));
@@ -50,7 +50,7 @@ fn extra_help_longer_text_and_unused_cues_do_not_discard_coaching() {
     let (_dir, mut store, conversation) = setup();
     let command = send(&store, &conversation);
     let turn = store.execute(command).unwrap().entity_id;
-    let mut output = json!({"meaning_recovered":"full","items":[candidate("questions_answers","¿cómo estás?","")]});
+    let mut output = json!({"meaning_recovered":"full","items":[candidate("information_exchange","¿cómo estás?","")]});
     assert!(validate(&store, &turn, &output).is_ok());
     output["items"][0]["rationale"] = json!("Another tip.");
     assert!(validate(&store, &turn, &output).is_ok());

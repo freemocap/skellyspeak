@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: spanish-communication-es-2026-10-04
+skill_id: time_events
+explanation_language: spanish
+title: Tiempo y acontecimientos
+introduction: Situar los acontecimientos en el tiempo y expresar cómo se desarrollan.
+sections:
+  - subskill_id: present_events
+    title: Situaciones presentes
+    concept: Situar un estado, una actividad o un hábito en el período actual.
+  - subskill_id: past_events
+    title: Acontecimientos pasados
+    concept: Situar algo antes del momento actual o de otro momento de referencia.
+  - subskill_id: future_events
+    title: Acontecimientos futuros
+    concept: Situar algo después del momento actual o de otro momento de referencia.
+  - subskill_id: duration_frequency
+    title: Duración y frecuencia
+    concept: Expresar cuánto dura algo o con qué frecuencia ocurre.
+  - subskill_id: event_sequence
+    title: Secuencia
+    concept: Ordenar unos acontecimientos con respecto a otros.
+  - subskill_id: event_phase
+    title: Acontecimientos en curso y terminados
+    concept: Distinguir las fases de desarrollo o finalización de una acción.
+provenance:
+  origin: ai
+  authorship: Contenido generado por IA. Ejemplos y criterios pendientes de revisión lingüística; la
+    validación automática comprueba la estructura.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-es-2026-10-04
+    scope: Entire document; linguistic review pending.

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: thai-skills-2026-10-04
+language: thai
+skill_id: people_places
+guidance: Assess identification, qualities, location or movement, possession or relationships,
+  and quantity or comparison. นี่คือเพื่อนบ้านของฉัน identifies a person; ถนนสายนี้แคบ
+  predicates narrowness without requiring เป็น before the adjective. กุญแจอยู่บนโต๊ะ locates an
+  object; ไปที่ประตู gives a destination. ของ can mark possession and มี can state having
+  something. เก้าอี้สองตัว counts chairs with the classifier after the number; รถเมล์สายสอง
+  identifies a route rather than a quantity. เบากว่า compares weight. บนโต๊ะ can answer a
+  where-question contextually. A copied classifier or disconnected noun list is absent. Do not
+  impose gender agreement, plural endings or spaces between every written word. Thai reference
+  terms and omitted subjects depend on social and discourse context. Judge the relation actually
+  expressed and relevant ordering rather than requiring one memorized copular formula.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - hartmann_thai_questions2026
+    - niu_thai_hai2026
+  generation: null
+  review:
+    status: needs_review
+    revision: thai-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  thai-thailand:
+    disposition: use_core
+    provenance: *a1

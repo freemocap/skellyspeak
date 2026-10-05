@@ -200,6 +200,25 @@ pub(crate) fn emojis_removed(dispatch: &Dispatch, operation_kind: &str, count: u
     }));
 }
 
+/// No user-facing fault: the original transcript remains in attempt inspection.
+pub(crate) fn role_transcript_cleaned(
+    dispatch: &Dispatch,
+    operation_kind: &str,
+    removed_bytes: usize,
+) {
+    emit(&role_cleanup_event(dispatch, operation_kind, removed_bytes));
+}
+
+fn role_cleanup_event(dispatch: &Dispatch, operation_kind: &str, removed_bytes: usize) -> Value {
+    json!({
+        "code": "conversation_role_transcript_cleaned", "level": "WARN",
+        "attemptId": identity(&dispatch.attempt),
+        "operationId": identity(&dispatch.operation),
+        "operationKind": kind(operation_kind), "removedBytes": removed_bytes,
+        "firstAssistantTurn": true,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -235,6 +254,13 @@ mod tests {
             gloss_source: None,
             speech_source: None,
         };
+        let warning = role_cleanup_event(&dispatch, "persona_reply", 24);
+        assert_eq!(warning["code"], "conversation_role_transcript_cleaned");
+        assert_eq!(warning["level"], "WARN");
+        assert_eq!(warning["attemptId"], dispatch.attempt);
+        assert_eq!(warning["operationId"], dispatch.operation);
+        assert_eq!(warning["removedBytes"], 24);
+        assert!(!warning.to_string().contains("SECRET"));
         let result = Ok(Completion {
             diagnostics: None,
             text: r#"{"kind":"SECRET"}"#.into(),

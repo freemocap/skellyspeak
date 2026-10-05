@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: vietnamese-skills-2026-10-04
+language: vietnamese
+skill_id: time_events
+guidance: Judge present, past and future reference, duration or recurrence, ordering and phases
+  without demanding verb conjugation. Tôi đang sửa xe đạp presents an ongoing activity; hôm qua
+  can anchor a repair in the past without mandatory đã. Sẽ can mark future reference, but a
+  clear future time phrase may suffice. Đã and rồi have aspectual or discourse uses and are not
+  mechanical replacements for English tense endings. Mỗi tuần hai lần gives frequency; hai giờ
+  can measure duration. Trước tiên and sau đó order actions, while đọc xong marks finishing
+  reading. Hôm qua can answer a recoverable when-question contextually. A copied particle
+  without an identifiable event is absent. A timeless property assertion does not establish
+  temporal organization. Judge the meaning created by particles, time phrases and context,
+  preserving natural omission rather than requiring all available markers.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - niu_vietnamese_patterns2026
+    - msu_vietnamese_duration2026
+  generation: null
+  review:
+    status: needs_review
+    revision: vietnamese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance: *a1

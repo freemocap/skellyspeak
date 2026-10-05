@@ -14,18 +14,18 @@ it('silently loads history, announces new credit, and clears it on chat changes'
   vi.useFakeTimers()
   const arrive = vi.fn()
   const snapshot = structuredClone(skillDemo)
-  snapshot.profile.skills.find(skill => skill.skill_id === 'identify_describe')!.xp = 2
+  snapshot.profile.skills.find(skill => skill.skill_id === 'people_places')!.xp = 2
   const ui = (value: SkillSnapshot, chatId = 'chat') => <SkillEvidenceContext value={{ snapshot: value, error: null }}><RewardInspectionContext value={{ arrive }}><SkillRewards chatId={chatId} active={true} /></RewardInspectionContext></SkillEvidenceContext>
   const view = render(ui(snapshot))
   try {
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
     const next = structuredClone(snapshot)
-    next.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
-    next.profile.credits = [{ attempt_id: 'a', skill_id: 'identify_describe', xp: 10 }]
-    next.profile.skills.find(skill => skill.skill_id === 'identify_describe')!.xp = 10
+    next.records = [{ attempt_id: 'a', session_id: 's', turn_id: 1, message_id: 1, replaces_message_id: null, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: 'demo', target: 'spanish-spain', native: 'english', source: 'Ese café.', input: unreportedInput(), at_secs: 1, model: 'test', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'test', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'people_places', presence: 'direct', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
+    next.profile.credits = [{ attempt_id: 'a', skill_id: 'people_places', xp: 10 }]
+    next.profile.skills.find(skill => skill.skill_id === 'people_places')!.xp = 10
     await act(async () => view.rerender(ui(next)))
-    expect(screen.getByRole('status')).toHaveTextContent('8 XP for Identify and describe: Ese café')
-    expect(arrive).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ id: 'a:identify_describe', xp: 8 })]), 1, 'Ese café.')
+    expect(screen.getByRole('status')).toHaveTextContent('8 XP for People, things, and places: Ese café')
+    expect(arrive).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ id: 'a:people_places', xp: 8 })]), 1, 'Ese café.')
     act(() => { vi.advanceTimersByTime(3000) })
     expect(screen.getByRole('status')).toBeEmptyDOMElement()
     await act(async () => view.rerender(ui(structuredClone(next))))
@@ -41,15 +41,15 @@ it('presents effort revision credit once and does not replay it after reopening'
   const arrive = vi.fn()
   const baseline = structuredClone(skillDemo)
   const earned = structuredClone(skillDemo)
-  earned.records = [{ attempt_id: 'repair', session_id: 's', turn_id: 2, message_id: 3, replaces_message_id: 1, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: earned.learner_id, target: earned.target, native: 'english', source: 'Ese café.', input: { ...unreportedInput(), revision: true }, at_secs: 1, model: 'fixture', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'fixture', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'identify_describe', presence: 'direct', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
-  earned.profile.credits = [{ attempt_id: 'repair', skill_id: 'identify_describe', xp: 2 }]
-  earned.profile.skills.find(skill => skill.skill_id === 'identify_describe')!.xp = 2
+  earned.records = [{ attempt_id: 'repair', session_id: 's', turn_id: 2, message_id: 3, replaces_message_id: 1, construct_registry_hash: 'fixture-registry', mapping_error: null, support_step: null, chat_id: 'chat', learner_id: earned.learner_id, target: earned.target, native: 'english', source: 'Ese café.', input: { ...unreportedInput(), revision: true }, at_secs: 1, model: 'fixture', provider_mode: 'hosted', catalog_version: SKILL_CATALOG_VERSION, prompt_version: 'fixture', status: 'complete', error: null, assessment: { judgments: [{ skill_id: 'people_places', presence: 'direct', quotes: ['Ese café'], rationale: 'Identifies the coffee.' }] } }]
+  earned.profile.credits = [{ attempt_id: 'repair', skill_id: 'people_places', xp: 2 }]
+  earned.profile.skills.find(skill => skill.skill_id === 'people_places')!.xp = 2
   earned.profile.xp = 2
   const ui = (snapshot: SkillSnapshot) => <SkillEvidenceContext value={{ snapshot, error: null }}><RewardInspectionContext value={{ arrive }}><SkillRewards chatId="chat" active /></RewardInspectionContext></SkillEvidenceContext>
   const view = render(ui(baseline))
   await act(async () => view.rerender(ui(earned)))
   expect(arrive).toHaveBeenCalledOnce()
-  expect(screen.getByRole('status')).toHaveTextContent('2 XP for Identify and describe: Ese café')
+  expect(screen.getByRole('status')).toHaveTextContent('2 XP for People, things, and places: Ese café')
   await act(async () => view.rerender(ui(structuredClone(earned))))
   expect(arrive).toHaveBeenCalledOnce()
   view.unmount()
@@ -66,16 +66,16 @@ it('waits for a durable claim and suppresses events another window already consu
   const baseline=structuredClone(skillDemo)
   baseline.profile.rules_version=3
   const earned=structuredClone(baseline)
-  earned.records=[{attempt_id:'partial',session_id:'s',turn_id:1,message_id:1,replaces_message_id:null,construct_registry_hash:'fixture-registry',mapping_error:null,support_step:null,chat_id:'chat',learner_id:earned.learner_id,target:earned.target,native:'english',source:'Ese café.',input:unreportedInput(),at_secs:1,model:'fixture',provider_mode:'hosted',catalog_version:SKILL_CATALOG_VERSION,prompt_version:'fixture',status:'complete',error:null,assessment:{judgments:[{skill_id:'identify_describe',presence:'direct',quotes:['Ese café'],rationale:'Reference is partly clear.'}]}}]
-  earned.profile.credits=[{attempt_id:'partial',skill_id:'identify_describe',xp:12}]
-  earned.profile.skills.find(s=>s.skill_id==='identify_describe')!.xp=12
+  earned.records=[{attempt_id:'partial',session_id:'s',turn_id:1,message_id:1,replaces_message_id:null,construct_registry_hash:'fixture-registry',mapping_error:null,support_step:null,chat_id:'chat',learner_id:earned.learner_id,target:earned.target,native:'english',source:'Ese café.',input:unreportedInput(),at_secs:1,model:'fixture',provider_mode:'hosted',catalog_version:SKILL_CATALOG_VERSION,prompt_version:'fixture',status:'complete',error:null,assessment:{judgments:[{skill_id:'people_places',presence:'direct',quotes:['Ese café'],rationale:'Reference is partly clear.'}]}}]
+  earned.profile.credits=[{attempt_id:'partial',skill_id:'people_places',xp:12}]
+  earned.profile.skills.find(s=>s.skill_id==='people_places')!.xp=12
   const ui=(snapshot:SkillSnapshot, enabled = true)=><SkillEvidenceContext value={{snapshot,error:null}}><RewardInspectionContext value={{enabled,arrive}}><SkillRewards chatId="chat" active /></RewardInspectionContext></SkillEvidenceContext>
   const view=render(ui(baseline))
   await act(async()=>view.rerender(ui(earned)))
-  expect(claim).toHaveBeenCalledWith(earned.target,['partial:identify_describe'])
+  expect(claim).toHaveBeenCalledWith(earned.target,['partial:people_places'])
   expect(arrive).not.toHaveBeenCalled()
   // A successful durable claim is still consumed while effects are disabled.
-  claim.mockResolvedValue([{ id: 'partial:identify_describe' } as Awaited<ReturnType<typeof claimRewardEvents>>[number]])
+  claim.mockResolvedValue([{ id: 'partial:people_places' } as Awaited<ReturnType<typeof claimRewardEvents>>[number]])
   await act(async () => view.rerender(ui(baseline, false)))
   await act(async () => view.rerender(ui(earned, false)))
   expect(arrive).not.toHaveBeenCalled()

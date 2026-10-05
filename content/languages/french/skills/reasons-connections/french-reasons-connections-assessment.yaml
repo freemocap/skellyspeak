@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: french-skills-2026-10-04
+skill_id: reasons_connections
+language: french
+guidance: >-
+  Judge a correctly expressed reason, consequence, condition, contrast or evidential
+  support. Parce que la route est fermée can answer Pourquoi attendons-nous ? without
+  repeating the main clause. Donc must connect a meaningful consequence; puis alone only
+  orders events. Si la bibliothèque est ouverte, nous y travaillerons is an open
+  conditional; si elle était ouverte, nous y travaillerions is a possible hypothetical
+  pattern. Si elle serait ouverte is not the ordinary conditional-si protasis for that
+  intended pattern; distinguish si meaning whether in an indirect question before
+  diagnosing it. Mais should connect a relevant contrast. A claim repeated more
+  emphatically is not additional supporting evidence. Credit requires correct use of the
+  function, not merely an attempt. Unrelated errors do not erase a successful instance.
+  Use unclear when the available exchange does not establish the function. Examples
+  illustrate possibilities, not an exhaustive whitelist. Accept appropriate France and
+  Canadian French usage and conversational register; do not impose another variety’s
+  lexical preference.
+provenance: &provenance
+  origin: ai
+  authorship: >-
+    AI-authored French explanations, assessment guidance and original examples, informed
+    by the cited sources; no independent linguistic review.
+  sources:
+    - tex_si2026
+    - threshold_general_notions
+  generation: null
+  review:
+    status: needs_review
+    revision: french-skills-2026-10-04
+    scope: >-
+      Entire document, including examples and applicability to both declared varieties.
+      References support the named grammatical or functional claims; they do not certify
+      generated examples.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance: *provenance
+  french-canada:
+    disposition: use_core
+    provenance: *provenance

@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: Уметь with an infinitive describes learned ability.
+    examples:
+      - text: Я умею чинить велосипеды.
+        meaning: I know how to repair bicycles.
+        note: The statement concerns a practical skill, not permission to perform a particular repair.
+  - subskill_id: permission
+    explanation: Можно with an infinitive can ask whether an action is permitted.
+    examples:
+      - text: Можно здесь оставить сумку?
+        meaning: May I leave my bag here?
+        note: Address the person responsible for the space; that context establishes permission.
+  - subskill_id: obligation
+    explanation: Нужно with an infinitive states necessity; a dative phrase identifies who must act.
+    examples:
+      - text: Мне нужно вернуть ключ сегодня.
+        meaning: I need to return the key today.
+        note: Мне identifies the responsible person and сегодня gives the deadline.
+  - subskill_id: possibility
+    explanation: Возможно qualifies the following proposition as possible.
+    examples:
+      - text: Возможно, вечером будет дождь.
+        meaning: It may rain this evening.
+        note: This leaves the weather outcome open instead of asserting it as certain.
+  - subskill_id: certainty
+    explanation: Не уверен can state uncertainty about a clause introduced by что.
+    examples:
+      - text: Я не уверена, что магазин открыт.
+        meaning: I am not sure that the shop is open.
+        note: The feminine speaker expresses uncertainty; she does not assert that it is closed.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_modality2026
+    - cornell_russian_need2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

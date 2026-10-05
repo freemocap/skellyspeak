@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: turkish-skills-2026-10-04
+language: turkish
+skill_id: information_exchange
+guidance: Look for actual questions, relevant answers, fact checking and useful detail. Atölye
+  saat kaçta kapanıyor? asks a closing time; Beşte answers contextually. Atölye beşte kapanıyor,
+  değil mi? checks a candidate fact. The separate question particle follows vowel harmony, but a
+  content question with kaç does not require an extra mı. Bana yardım edebilir misiniz? normally
+  requests help rather than merely collecting an ability fact. Avlu tarafındaki kapı identifies
+  which entrance to use if that distinction is needed. Extra words alone are not useful detail.
+  A copied question particle with no recoverable question is absent. Ne demek istediniz? repairs
+  interpretation of an earlier contribution. Preserve short answers and ordinary subject
+  omission, and do not infer a missing conversational antecedent when it is unavailable.
+  Distinguish the function of the question from its surface form.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - tt_turkish_possession2026
+    - tt_turkish_modality2026
+  generation: null
+  review:
+    status: needs_review
+    revision: turkish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance: *a1

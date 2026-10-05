@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: people_places
+guidance: Recognize identification, attributes, location or movement, possession or
+  relationships, and quantity or comparison. こちらは同僚の田中さんです identifies a colleague; この道は狭いです
+  describes a property. に with あります locates a nonliving object, while で often locates an
+  activity; destination に or へ is different again. の can relate an owner and object without an
+  English possessive ending. 三冊 counts books, whereas 三番 can identify a numbered item without
+  giving a quantity. より or のほうが can make a comparison. An isolated copied particle の without a
+  relation is absent. 棚の上 can answer an identifiable where-question contextually. Omitted
+  subjects are normal when recoverable, and は and が are not interchangeable English subject
+  labels. この道は狭いだです, offered as an ordinary adjective predicate with no separate successful use,
+  is malformed. Do not reject a valid plain-style description solely because a guide illustrates
+  polite です.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

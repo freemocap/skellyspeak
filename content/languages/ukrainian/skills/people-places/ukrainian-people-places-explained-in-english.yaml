@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: ukrainian-skills-2026-10-04
+language: ukrainian
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Це introduces an identifying noun phrase without a required present linking verb.
+    examples:
+      - text: Це моя сусідка.
+        meaning: This is my neighbour.
+        note: Моя matches the feminine noun сусідка; the neighbour is female.
+  - subskill_id: qualities_states
+    explanation: A predicative adjective agrees with the subject it describes.
+    examples:
+      - text: Ця вулиця вузька.
+        meaning: This street is narrow.
+        note: Ця and вузька are feminine singular, matching вулиця.
+  - subskill_id: location_movement
+    explanation: На with a locative form places the object on a surface.
+    examples:
+      - text: Ключ лежить на полиці.
+        meaning: The key is on the shelf.
+        note: Полиці is the locative form of полиця in this construction.
+  - subskill_id: possession_relations
+    explanation: У with a genitive possessor and є expresses possession.
+    examples:
+      - text: У мене є два стільці.
+        meaning: I have two chairs.
+        note: Мене identifies the possessor; два стільці specifies the possessed quantity.
+  - subskill_id: quantity_comparison
+    explanation: A comparative can introduce its standard with за.
+    examples:
+      - text: Ця коробка легша за ту.
+        meaning: This box is lighter than that one.
+        note: Легша agrees with коробка. Ту refers to the other box without repeating the noun.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - ukma_ukrainian_terms2026
+  generation: null
+  review:
+    status: needs_review
+    revision: ukrainian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: japanese-skills-2026-10-04
+language: japanese
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: A verb’s て-form plus ください asks the listener to perform an action. An object and a
+      destination can make the request precise.
+    examples:
+      - text: この箱を入口まで運んでください。
+        meaning: Please carry this box to the entrance.
+        note: 運んで is the て-form of 運ぶ. まで marks how far the box should be carried.
+  - subskill_id: offers_invitations
+    explanation: ましょうか can offer the speaker’s assistance. The question leaves acceptance to the
+      other person.
+    examples:
+      - text: 荷物を持ちましょうか。
+        meaning: Shall I carry your luggage?
+        note: Use when the partner is carrying bags. 持ちましょうか offers help rather than announcing an
+          agreed commitment.
+  - subskill_id: suggestions
+    explanation: ましょう can propose an activity shared by speaker and listener. The participants can
+      remain implicit.
+    examples:
+      - text: ここで少し休みましょう。
+        meaning: Let us rest here for a little while.
+        note: 休みましょう suggests a break. で marks the location of that activity.
+  - subskill_id: commitments
+    explanation: A non-past statement can undertake an assigned action. Explicit 私が can identify the
+      speaker as the person taking responsibility.
+    examples:
+      - text: 私が道具を持ってきます。
+        meaning: I will bring the tools.
+        note: Say this while dividing tasks for an activity. が identifies who will take that
+          responsibility; a neutral future report would have a different role.
+  - subskill_id: accepting_declining
+    explanation: A polite apology and a negative ability statement can decline an invitation. The
+      invitation supplies the proposed visit.
+    examples:
+      - text: すみません、今日は行けません。
+        meaning: Sorry, I cannot come today.
+        note: Reply to an invitation for today. 行けません is the negative potential of 行く, not a claim that
+          the destination does not exist.
+  - subskill_id: negotiating_plans
+    explanation: Contrast an unsuitable date with one that works. なら can frame the alternative as
+      the condition under which the plan is acceptable.
+    examples:
+      - text: 金曜日は難しいですが、土曜日なら大丈夫です。
+        meaning: Friday is difficult, but Saturday would work.
+        note: Reply to a proposed Friday meeting. 難しい politely marks the difficulty; 土曜日なら gives a
+          workable alternative.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: japanese-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance: *a1

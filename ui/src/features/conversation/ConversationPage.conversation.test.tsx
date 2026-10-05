@@ -1,4 +1,4 @@
-import { DEFAULT_APPEARANCE } from '../../generated/contracts'
+import { DEFAULT_EXECUTION, DEFAULT_APPEARANCE } from '../../generated/contracts'
 // @vitest-environment jsdom
 import { StrictMode } from 'react'
 import userEvent from '@testing-library/user-event'
@@ -83,7 +83,7 @@ function deferred<T>() {
 function directory(): Snapshot {
   return {
     savedTopics: [], sessionId: 'native-session', revision: 10,
-    learner: { id: 'learner', name: '', revision: 1, preferences: { appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
+    learner: { id: 'learner', name: '', revision: 1, preferences: { execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, explanationVarietyId: 'english-united-states', interfaceLocale: 'english', myLanguages: [], targetVarieties: {}, theme: 'dark', explanationLanguage: 'english', textSize: 100, textSpacing: 2, highContrast: false, onboarding: 'completed', onboardingRequired: false, onboardingLanguage: null, onboardingHelp: false } },
     languages: [], languageProfiles: [], personas: [], contacts: [],
     conversations: ['a', 'b'].map((id, index) => ({
       id, contactId: 'contact', languageId: 'spanish', title: id, archived: false,
@@ -138,6 +138,41 @@ beforeEach(async () => {
 })
 
 describe('native conversation ownership', () => {
+  it('starts a phrase conversation with the selected partner once, then opens the returned conversation', async () => {
+    const { result } = renderHook(() => useSubject())
+    await waitFor(() => expect(watches).toHaveLength(1))
+    const accepted = deferred<Receipt>()
+    submit = command => command.action.kind === 'startPhraseConversation'
+      ? accepted.promise : Promise.resolve({ actionId: command.actionId, entityId: 'new', revision: 12 })
+    let started!: Promise<void>
+    await act(async () => {
+      started = result.current.startFromPhrase('source', 'cafe\u0301')
+      void result.current.startFromPhrase('source', 'cafe\u0301')
+    })
+    expect(commands()).toHaveLength(1)
+    expect(commands()[0].action).toEqual({ kind: 'startPhraseConversation', sourceMessageId: 'source', phrase: 'cafe\u0301', contactId: 'contact', expectedRevision: 10 })
+    workspace = { ...workspace, conversations: [...workspace.conversations, { ...workspace.conversations[0], id: 'new' }] }
+    await act(async () => { accepted.resolve({ actionId: commands()[0].actionId, entityId: 'new', revision: 11 }); await started })
+    expect(commands()[1].action).toEqual({ kind: 'openConversation', conversationId: 'new' })
+    expect(result.current.currentChatId).toBe('new')
+  })
+
+  it('routes skill starts through the current conversation and attaches guide questions to its coach', async () => {
+    const { result } = renderHook(() => useSubject())
+    await waitFor(() => expect(watches).toHaveLength(1))
+    const guide = { language: 'spanish', variety: 'spanish-spain', skillId: 'time_events', editionLanguage: 'english', fingerprint: 'source' }
+    await act(async () => { await result.current.runGuideAction({ kind: 'coach', guide, text: 'Explain this skill.' }) })
+    expect(commands()[0].action).toEqual({ kind: 'askGuideCoach', conversationId: 'a', text: 'Explain this skill.', guide, expectedRevision: workspace.conversations[0].revision })
+    expect(result.current.currentChatId).toBe('a')
+    submit = async command => {
+      if (command.action.kind === 'startSkillConversation') workspace = { ...workspace, conversations: [...workspace.conversations, { ...workspace.conversations[0], id: 'skill-chat' }] }
+      return { actionId: command.actionId, entityId: 'skill-chat', revision: 12 }
+    }
+    await act(async () => { await result.current.startFromSkill('spanish', 'spanish-spain', 'time_events') })
+    expect(commands()[1].action).toEqual({ kind: 'startSkillConversation', sourceConversationId: 'a', language: 'spanish', variety: 'spanish-spain', skillId: 'time_events', subskillId: null, expectedRevision: 10 })
+    expect(result.current.currentChatId).toBe('skill-chat')
+  })
+
   it('mount, StrictMode replay, preferences and remount observe without greeting or saving', async () => {
     const view = renderHook(({ settings }) => useSubject(settings), { initialProps: { settings: SETTINGS }, wrapper: StrictMode })
     await waitFor(() => expect(watches).toHaveLength(1))
@@ -238,10 +273,43 @@ async function draftField() {
 function page() {
   return <ConversationPage nativePicker={null} mobileSurface="chat" active />
 }
+it('retains the real draft, reading position and phone coach selection while the conversation is hidden', async () => {
+  const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
+  try {
+    useNavigationStore.getState().openConversation('panel')
+    const view = render(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    await waitFor(() => expect(watches).toHaveLength(1))
+    await act(async () => watches[0].resolve(snapshot('a', 1, 'Hola')))
+    const draft = await draftField()
+    fireEvent.change(draft, { target: { value: 'Keep this draft' } })
+    const stream = document.querySelector<HTMLDivElement>('.stream')!
+    Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 1600 })
+    Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 400 })
+    stream.scrollTop = 120
+    fireEvent.scroll(stream)
+
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active={false} />)
+    // Hidden layout and scroll events must not overwrite the saved reading position.
+    Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 0 })
+    Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 0 })
+    stream.scrollTop = 0
+    fireEvent.scroll(stream)
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(useNavigationStore.getState().mobileSurface).toBe('panel')
+    Object.defineProperty(stream, 'scrollHeight', { configurable: true, value: 1600 })
+    Object.defineProperty(stream, 'clientHeight', { configurable: true, value: 400 })
+    view.rerender(<ConversationPage nativePicker={null} mobileSurface="panel" active />)
+    expect(document.querySelector('.stream')).toBe(stream)
+    expect(stream.scrollTop).toBe(120)
+    expect(draft).toHaveValue('Keep this draft')
+    expect(document.querySelector('.split.mobile-coach')).not.toBeNull()
+    view.unmount()
+  } finally { media.mockRestore() }
+})
 it('opens the conversation list from the chat header and lets the coach cover the chat on phones', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   const onHistory = vi.fn()
-  useNavigationStore.getState().openPractice('panel')
+  useNavigationStore.getState().openConversation('panel')
   const view = render(<ConversationPage nativePicker={null} mobileSurface="panel" active onHistoryOpenChange={onHistory} />)
   await waitFor(() => expect(watches).toHaveLength(1))
   await act(async () => watches[0].resolve(snapshot()))
@@ -277,7 +345,7 @@ it('puts the recording panel’s divider on the panel’s own edge, with the row
 it('opens the coach on phones as a full-screen modal, over the recorder, without moving focus into it', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
@@ -302,7 +370,7 @@ it('opens the coach on phones as a full-screen modal, over the recorder, without
 it('gives the AI tray its place on phones, right above the AI pill, and takes it back under the coach', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
@@ -327,7 +395,7 @@ it('lets opened reply help on phones be dragged to a height it keeps', async () 
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: true, media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
     localStorage.removeItem('skellyspeak_pane_reply-help')
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(exchangeSnapshot()))
@@ -348,7 +416,7 @@ it('lets opened reply help on phones be dragged to a height it keeps', async () 
 it('opens the coach from the row above the answer in the compact layout, as on phones', async () => {
   const media = vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query === '(max-width: 860px)', media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }) as unknown as MediaQueryList)
   try {
-    useNavigationStore.getState().openPractice('chat')
+    useNavigationStore.getState().openConversation('chat')
     const view = render(<ConversationPage nativePicker={null} mobileSurface="chat" active />)
     await waitFor(() => expect(watches).toHaveLength(1))
     await act(async () => watches[0].resolve(snapshot()))
@@ -492,7 +560,6 @@ describe('native composer admission', () => {
     expect(failed).toHaveTextContent('Keep this unsent text')
     expect(composer).toHaveValue('')
     expect(await screen.findByRole('alert')).toHaveTextContent('Request failed')
-    fireEvent.click(screen.getByText('⚠ Request failed'))
     expect(screen.getByText('Admission refused')).toBeVisible()
     expect(commands()[0].action).toEqual({ kind: 'sendMessage', input: { modality: 'text', suggestion: false, scaffold: false, revision: false }, conversationId: 'a', expectedRevision: 7, text: 'Keep this unsent text' })
     expect(commands()).toHaveLength(1)
@@ -662,15 +729,19 @@ it('edits through the real page handler, sends durable identity and renders reta
   openMenus()
   const edit = screen.getByRole('button', { name: 'Edit message' })
   expect(edit).toBeEnabled()
-  fireEvent.click(screen.getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(within(edit.closest('.msg') as HTMLElement).getByRole('button', { name: 'Analysis' }))
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Edit and resend message' }))
   const composer = (await draftField())
   expect(composer).toHaveValue('Yo fue ayer')
   fireEvent.change(composer, { target: { value: 'Yo fui ayer' } })
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
-  await waitFor(() => expect(commands()).toHaveLength(1))
+  await waitFor(() => expect(commands()).toHaveLength(3))
+  expect(commands().filter(command => command.action.kind === 'requestMessageHelp').map(command => command.action)).toEqual([
+    { kind: 'requestMessageHelp', messageId: initial.messages[0].id, help: 'assessment', retry: false },
+    { kind: 'requestMessageHelp', messageId: initial.messages[0].id, help: 'coaching', retry: false },
+  ])
   expect(screen.getByText('Edit saved — updating conversation…')).toBeVisible()
-  expect(commands()[0].action).toEqual({ kind: 'reviseTurn', conversationId: 'a', turnId: 'a-turn', text: 'Yo fui ayer', expectedRevision: 31, input: { modality: 'text', suggestion: false, scaffold: false, revision: true } })
+  expect(commands().find(command => command.action.kind === 'reviseTurn')?.action).toEqual({ kind: 'reviseTurn', conversationId: 'a', turnId: 'a-turn', text: 'Yo fui ayer', expectedRevision: 31, input: { modality: 'text', suggestion: false, scaffold: false, revision: true } })
   const revised: ConversationSnapshot = { ...initial, revision: 32, messages: [
     ...initial.messages.map(message => ({ ...message, replacedBy: 'repair' })),
     { ...initial.messages[0], turnId: 'repair', replacesTurnId: 'a-turn', id: 'repair-user', sequence: 3, text: 'Yo fui ayer' },
@@ -764,8 +835,7 @@ it('retains a repair draft after a genuine connection failure', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Edit message' }))
   fireEvent.click(screen.getByRole('button', { name: 'Send' }))
   await waitFor(() => expect(commands()).toHaveLength(1))
-  fireEvent.click(await screen.findByText('⚠ Request failed'))
-  expect(screen.getByText('The connection is unavailable.')).toBeVisible()
+  expect(await screen.findByText('The connection is unavailable.')).toBeVisible()
   expect((await draftField())).toHaveValue('Yo fue ayer')
   expect(commands()).toHaveLength(1)
 })
@@ -1027,7 +1097,7 @@ it('keeps coach controls equal to chat and opens analysis and editing from the c
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close Message analysis' }))
   fireEvent.click(within(stream).getByRole('group', { name: 'Your message' }))
   expect(controls(panel.querySelector('.msg.me')!)).toEqual(controls(stream.querySelector('.msg.me')!))
-  fireEvent.click(within(panel).getByRole('button', { name: 'Coach your message' }))
+  fireEvent.click(within(panel).getByRole('button', { name: 'Analysis' }))
   const feedback = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(feedback).toBeVisible()
   fireEvent.click(within(feedback).getByRole('button', { name: 'Edit and resend message' }))

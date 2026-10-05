@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: german-skills-2026-10-04
+language: german
+skill_id: possibilities_constraints
+guidance: "Distinguish capability, permission, necessity, possible outcomes and confidence or
+  doubt. Ich kann den Reifen wechseln expresses ability in a discussion of skills; darf ich hier
+  warten? asks permission under a relevant rule or authority. Wir müssen die Karten zeigen
+  states a requirement. A modal ordinarily takes a bare infinitive here: ich muss zu gehen is an
+  unsuccessful attempt at müssen plus gehen. Nicht müssen means lack of necessity, whereas nicht
+  dürfen prohibits; do not reverse those meanings. Er muss schon zu Hause sein can infer his
+  whereabouts rather than impose a duty. Vielleicht fällt der Zug aus presents a possible event;
+  ich bin nicht sicher, ob er kommt marks uncertainty. Unqualified assertion alone does not
+  separately demonstrate certainty. Können in kann ich hier warten? may concern permission or
+  practical opportunity. Either reading can establish correct use in this group; subtype ambiguity
+  alone does not justify unclear. Use unclear only when correct group use cannot be established.
+  Könntest du helfen? commonly requests action instead of testing ability. Preserve
+  genuine contextual modal answers, while a copied modal term alone supplies no successful
+  function."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored German assessment guidance, learner explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - umich_de_modals2026
+    - umich_de_word_order2026
+    - ids_de_epistemic2026
+    - goethe_de_discussion2026
+    - umich_de_connectors2026
+    - leo_de_modal_negation2026
+    - leo_de_permission2026
+  generation: null
+  review:
+    status: needs_review
+    revision: german-skills-2026-10-04
+    scope: Entire document, including examples, English meanings, context and applicability to
+      german-germany. Sources support the specified constructions; they do not certify the
+      original examples.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance: *a1

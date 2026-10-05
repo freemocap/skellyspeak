@@ -162,6 +162,32 @@
   /* Text on a domain ink (di-*): the XP badge. */
   --ink-on-domain: #ffffff;
 
+  /* Skill colours: one jewel tone per catalog skill, equal lightness and chroma,
+     hue stepping from orchid to peridot (no reds, oranges or yellows). The mark
+     draws radar arms, row dots and bars; -ink is the skill as text on sheet.
+     Read from domain/learning/catalog/skill-domains.ts. */
+  --skill-people-places: #9656ba;  /* Orchid */
+  --skill-people-places-ink: #65407a;
+  --skill-managing-conversation: #4372d4;  /* Sapphire */
+  --skill-managing-conversation-ink: #345189;
+  --skill-time-events: #057dc7;  /* Cobalt */
+  --skill-time-events-ink: #175686;
+  --skill-feelings-viewpoints: #00869a;  /* Lagoon */
+  --skill-feelings-viewpoints-ink: #075d6b;
+  --skill-possibilities-constraints: #0c888a;  /* Aquamarine */
+  --skill-possibilities-constraints-ink: #005f60;
+  --skill-information-exchange: #0e8d63;  /* Jade */
+  --skill-information-exchange-ink: #006243;
+  --skill-coordinating-action: #198f38;  /* Emerald */
+  --skill-coordinating-action-ink: #266130;
+  --skill-reasons-connections: #59880a;  /* Peridot */
+  --skill-reasons-connections-ink: #405d1a;
+  /* The skill radar fill fades from the sheet at the centre to full colour at the edge. */
+  --skill-radar-core: color-mix(in srgb, var(--sheet) 92%, transparent);
+  --skill-radar-mid: color-mix(in srgb, var(--sheet) 35%, transparent);
+  /* The dot on the end of a pointed or pinned radar arm. */
+  --skill-radar-tip: #ffffff;
+
   /* Recording spectrum intensity; independent of skill-domain colours. */
   --spectrogram-cursor: #46ff9a;
   --spectrogram-low: #171b36;
@@ -409,6 +435,22 @@
   --di-descriptions: #bfa4f0;
   --d-situating: #3fc0af;
   --di-situating: #3fc0af;
+  --skill-people-places: #c289e4;
+  --skill-people-places-ink: #dcbcf1;
+  --skill-managing-conversation: #75a3fc;
+  --skill-managing-conversation-ink: #b1cbfc;
+  --skill-time-events: #50acf6;
+  --skill-time-events-ink: #a0d0fc;
+  --skill-feelings-viewpoints: #09b8d3;
+  --skill-feelings-viewpoints-ink: #8bd9ea;
+  --skill-possibilities-constraints: #15bbbd;
+  --skill-possibilities-constraints-ink: #89dbdb;
+  --skill-information-exchange: #35bf8b;
+  --skill-information-exchange-ink: #9adbbc;
+  --skill-coordinating-action: #62bc6f;
+  --skill-coordinating-action-ink: #a8d9ad;
+  --skill-reasons-connections: #87b651;
+  --skill-reasons-connections-ink: #b9d69e;
   --ink-on-domain: var(--bg);
 }
 

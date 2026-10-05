@@ -3,42 +3,20 @@ use std::{
     path::{Path, PathBuf},
 };
 
-fn collect(root: &Path, dir: &Path, files: &mut Vec<(String, PathBuf)>) {
-    println!("cargo:rerun-if-changed={}", dir.display());
-    for entry in fs::read_dir(dir).expect("read bundled configuration directory") {
-        let entry = entry.expect("read configuration entry");
-        let path = entry.path();
-        let kind = entry.file_type().expect("read configuration file type");
-        assert!(
-            !kind.is_symlink(),
-            "configuration symlink: {}",
-            path.display()
-        );
-        if entry
-            .file_name()
-            .to_str()
-            .expect("UTF-8 configuration filename")
-            .starts_with('.')
-        {
-            continue;
-        }
-        if path.file_name().is_some_and(|name| name == "schemas") {
-            continue;
-        }
-        if kind.is_dir() {
-            collect(root, &path, files);
-        } else if kind.is_file() && path.extension().is_none_or(|ext| ext != "md") {
-            let name = path
-                .strip_prefix(root)
-                .unwrap()
-                .to_str()
-                .expect("UTF-8 configuration path")
-                .replace('\\', "/");
-            files.push((
-                name,
-                path.canonicalize().expect("resolve configuration file"),
-            ));
-        }
+#[path = "src/configuration/content_files.rs"]
+mod content_files;
+
+fn collect(root: &Path, _dir: &Path, files: &mut Vec<(String, PathBuf)>) {
+    println!("cargo:rerun-if-changed={}", root.display());
+    for name in content_files::read(root)
+        .expect("read bundled content")
+        .into_keys()
+    {
+        let path = root
+            .join(&name)
+            .canonicalize()
+            .expect("resolve content file");
+        files.push((name, path));
     }
 }
 

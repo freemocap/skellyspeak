@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: feelings_viewpoints
+guidance: Assess desire, preference, emotion, opinion and agreement using Irish constructions.
+  Ba mhaith liom fuáil a fhoghlaim expresses wanting to learn sewing; it is not a promise. Is
+  fearr liom tae ná caife compares preferences with liom identifying the experiencer. Tá áthas
+  orm faoin nuacht expresses emotion through a noun and prepositional pronoun. Ceapaim go bhfuil
+  marks a personal judgment. Ní aontaím leis an moladh rejects a proposal. Tuigim can
+  acknowledge comprehension without agreement. Tae can select a preferred drink contextually
+  after a preference question; listing tea does not itself express liking. A copied maith
+  without a recoverable stance is absent. Do not treat every assertion as opinion, demand a verb
+  meaning like with English syntax, or confuse correct prepositional experiencer constructions
+  with missing subjects. Judge relevant forms while allowing standard and valid dialectal
+  alternatives.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1

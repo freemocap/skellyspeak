@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: mandarin-skills-2026-10-04
+language: mandarin
+skill_id: time_events
+guidance: "Judge event timing and structure without requiring tense conjugation. 昨天我修了自行车
+  reports an earlier repair; 昨天 supplies past time and 了 marks aspect, not a universal past
+  tense. 我正在画地图 presents an ongoing activity. 明天我去取零件 places an event later without a mandatory
+  future auxiliary. 每周两次 gives recurrence by combining an interval with an occurrence count;
+  两个小时 measures duration. 先 and 再 order actions; 完 in 看完 can mark reaching an endpoint.
+  Sentence-final 了 may signal a changed situation, and 过 can express experience rather than
+  simple completion. A copied 昨天 with no recoverable event is absent. 昨天晚上 can answer an
+  identifiable when-question contextually. A property assertion alone is not temporal evidence.
+  Do not credit every 会 as future time: it may express learned ability. Preserve ordinary
+  contextual omission and distinguish 没 negating occurrence from 不 expressing habitual negation
+  or intention."
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: mandarin-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance: *a1

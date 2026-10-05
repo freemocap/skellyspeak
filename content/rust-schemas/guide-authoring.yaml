@@ -1,0 +1,21 @@
+$schema: http://json-schema.org/draft-07/schema#
+additionalProperties: false
+properties:
+  bundled_explanation_languages:
+    items:
+      type: string
+    type: array
+  schema_version:
+    format: uint32
+    minimum: 0.0
+    type: integer
+  source_explanation_languages:
+    additionalProperties:
+      type: string
+    type: object
+required:
+- bundled_explanation_languages
+- schema_version
+- source_explanation_languages
+title: GuidePolicy
+type: object

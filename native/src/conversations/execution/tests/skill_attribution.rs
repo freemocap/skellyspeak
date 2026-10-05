@@ -42,17 +42,17 @@ fn judgment(store: &Store) -> Value {
         .as_array()
         .unwrap()
         .iter()
-        .find(|j| j["skill_id"] == "questions_answers")
+        .find(|j| j["skill_id"] == "information_exchange")
         .unwrap()
         .clone()
 }
 fn result(quote: &str) -> Completion {
-    reply(&json!({"skills":[{"skill_id":"questions_answers","spans":[{"quote":quote,"occurrence":0}]}]}).to_string())
+    reply(&json!({"skills":[{"skill_id":"information_exchange","spans":[{"quote":quote,"occurrence":0}]}]}).to_string())
 }
 #[test]
 fn attribution_depends_on_presence_uses_fast_route_and_does_not_award_twice() {
     let (dir, mut store, conversation, turn, assessment) = start();
-    let response = skill_assessment::presence(&assessment, &[("questions_answers", "direct")]);
+    let response = skill_assessment::presence(&assessment, &[("information_exchange", "direct")]);
     store.finish(&assessment, Ok(response)).unwrap();
     assert_eq!(profile(&store)["profile"]["xp"], 1);
     assert_eq!(judgment(&store)["evidence_kind"], "whole_message");
@@ -64,7 +64,7 @@ fn attribution_depends_on_presence_uses_fast_route_and_does_not_award_twice() {
     );
     let data: Value = serde_json::from_str(&attribution.messages[1].content).unwrap();
     assert_eq!(data["skills"].as_array().unwrap().len(), 1);
-    assert_eq!(data["skills"][0]["id"], "questions_answers");
+    assert_eq!(data["skills"][0]["id"], "information_exchange");
     assert_eq!(data["learnerMessage"], "Hola, ¿cómo estás?");
     store
         .finish(&attribution, Ok(result("¿cómo estás?")))
@@ -98,7 +98,7 @@ fn attribution_depends_on_presence_uses_fast_route_and_does_not_award_twice() {
 fn empty_or_unmatched_spans_use_original_message_without_fabricated_highlights() {
     for response in [
         result("invented phrase"),
-        reply(r#"{"skills":[{"skill_id":"questions_answers","spans":[]}]}"#),
+        reply(r#"{"skills":[{"skill_id":"information_exchange","spans":[]}]}"#),
     ] {
         let (_dir, mut store, _, _, assessment) = start();
         store
@@ -106,7 +106,7 @@ fn empty_or_unmatched_spans_use_original_message_without_fabricated_highlights()
                 &assessment,
                 Ok(skill_assessment::presence(
                     &assessment,
-                    &[("questions_answers", "contextual")],
+                    &[("information_exchange", "contextual")],
                 )),
             )
             .unwrap();
@@ -126,7 +126,7 @@ fn threshold_blocks_weak_positive_and_skips_network_when_nothing_qualifies() {
     let (_dir, mut store, _, _, assessment) = start();
     let mut response = skill_assessment::presence(&assessment, &[]);
     let mut value: Value = serde_json::from_str(&response.text).unwrap();
-    value["questions_answers"] = json!({"type":"choice","choice":"direct","confidence":0.4,"probabilities":{"direct":0.4,"contextual":0.1,"absent":0.3,"unclear":0.2}});
+    value["information_exchange"] = json!({"type":"choice","choice":"direct","confidence":0.4,"probabilities":{"direct":0.4,"contextual":0.1,"absent":0.3,"unclear":0.2}});
     response.text = value.to_string();
     store.finish(&assessment, Ok(response)).unwrap();
     assert_eq!(profile(&store)["profile"]["xp"], 0);
@@ -145,7 +145,7 @@ fn malformed_response_keeps_credit_and_exposes_error() {
             &assessment,
             Ok(skill_assessment::presence(
                 &assessment,
-                &[("questions_answers", "direct")],
+                &[("information_exchange", "direct")],
             )),
         )
         .unwrap();
@@ -172,7 +172,7 @@ fn retry_only_localization_preserves_presence_credit_and_rejects_old_completion(
             &assessment,
             Ok(skill_assessment::presence(
                 &assessment,
-                &[("questions_answers", "direct")],
+                &[("information_exchange", "direct")],
             )),
         )
         .unwrap();
@@ -201,7 +201,7 @@ async fn local_attribution_round_trip() {
             &assessment,
             Ok(skill_assessment::presence(
                 &assessment,
-                &[("questions_answers", "direct")],
+                &[("information_exchange", "direct")],
             )),
         )
         .unwrap();

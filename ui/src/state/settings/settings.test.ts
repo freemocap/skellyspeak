@@ -43,6 +43,40 @@ it('counts a read of something another surface wrote as a change', async () => {
   native.get.mockResolvedValue(record())
   await useSettingsStore.getState().refresh()
   expect(useSettingsStore.getState().revision).toBe(1)
+  expect(useSettingsStore.getState().evidenceRevision).toBe(1)
+})
+
+it.each([
+  { theme: 'dark' as const },
+  { appearance: { palette: 'warm' as const } },
+])('retains the evidence scope for appearance-only writes: %j', async change => {
+  const scope = { sessionId: 'session', conversationId: 'chat', settingsRevision: 2, learnerRevision: 3, rewardRevision: 4 }
+  const current = record({ theme: 'light', appearance: { palette: 'cool' }, scope })
+  const saved = record({ ...current, ...change, scope: { ...scope, learnerRevision: 4 } })
+  native.get.mockResolvedValue(current)
+  await useSettingsStore.getState().load()
+  native.get.mockResolvedValueOnce(current).mockResolvedValue(saved)
+  await useSettingsStore.getState().update(settings => ({ ...settings, ...change }), 'Changing appearance')
+  expect(native.save).toHaveBeenCalledWith({ ...current, ...change }, current)
+  expect(useSettingsStore.getState().settings).toEqual(saved)
+  expect(useSettingsStore.getState().revision).toBe(1)
+  expect(useSettingsStore.getState().evidenceRevision).toBe(0)
+})
+
+it.each([
+  { target_language: 'french' },
+  { fast_mode: false },
+  { scope: { sessionId: 'other', conversationId: 'chat', settingsRevision: 2, learnerRevision: 4, rewardRevision: 4 } },
+  { scope: { sessionId: 'session', conversationId: 'other', settingsRevision: 2, learnerRevision: 4, rewardRevision: 4 } },
+  { scope: { sessionId: 'session', conversationId: 'chat', settingsRevision: 3, learnerRevision: 4, rewardRevision: 4 } },
+  { scope: { sessionId: 'session', conversationId: 'chat', settingsRevision: 2, learnerRevision: 4, rewardRevision: 5 } },
+])('invalidates evidence when an appearance save also changes its scope: %j', async change => {
+  const current = record({ theme: 'light', scope: { sessionId: 'session', conversationId: 'chat', settingsRevision: 2, learnerRevision: 3, rewardRevision: 4 } })
+  native.get.mockResolvedValue(current)
+  await useSettingsStore.getState().load()
+  native.get.mockResolvedValue(record({ ...current, theme: 'dark', ...change }))
+  await useSettingsStore.getState().refresh()
+  expect(useSettingsStore.getState().evidenceRevision).toBe(1)
 })
 
 it('writes a preference against a fresh read and adopts what Rust reports', async () => {

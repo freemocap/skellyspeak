@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: coordinating_action
+guidance: Assess requests, offers or invitations, suggestions, commitments, acceptance or
+  refusal, and negotiation. ഈ പെട്ടി വാതിലിനടുത്തേക്ക് മാറ്റിത്തരാമോ? asks someone to move a box
+  for the speaker. ഞാൻ ബാഗ് എടുത്തുതരട്ടെ? offers help. നമുക്ക് ഒരു ചെറിയ ഇടവേള എടുക്കാം
+  proposes joint action with an inclusive dative form. നാളെ ഞാൻ ഉപകരണങ്ങൾ കൊണ്ടുവരാം can commit
+  to an allocated task, but the same modal family has other meanings. ഇന്ന് വരാൻ കഴിയില്ല can
+  decline an invitation; naming Saturday can negotiate a new date. വരാം can accept an
+  identifiable invitation contextually. A copied modal ending without a recoverable action is
+  absent. Judge the participants and response sought, not only the surface question. Politeness
+  is contextual; do not require a separate please word or an English imperative when a
+  benefactive question coordinates the action naturally.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

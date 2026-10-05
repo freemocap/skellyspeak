@@ -1,11 +1,19 @@
 //! App-owned teaching content, parsed and validated into one resolved registry.
 //! Invalid bundled content blocks startup with ConfigLoadError.
 pub mod appearance;
+pub mod authoring;
 mod citations;
+pub mod communication;
+pub mod communication_guides;
+mod communication_inspection;
+pub(crate) mod content_files;
 pub mod difficulty;
 mod documents;
+pub mod execution;
+pub(crate) mod guide_translation;
 pub mod guides;
 pub mod practice;
+mod skill_conversation;
 mod skill_navigation;
 pub mod skills;
 pub mod speech;
@@ -19,7 +27,6 @@ mod types;
 pub use inspection::{
     ContentRule, ContentSource, ContentValue, LanguageInspection, SchemeInspection,
 };
-mod lexical_hints;
 mod schemas;
 use crate::model;
 pub use schemas::schemas;
@@ -60,10 +67,10 @@ pub struct Registry {
     pub traits: Vec<Trait>,
     pub families: Vec<Family>,
     pub universal: Vec<Guidance>,
-    constructs: Vec<Construct>,
     skills: skills::Catalog,
-    presence_instructions: crate::learning::practice_assessment::Instructions,
-    navigation: Vec<NavigationNode>,
+    communication: communication::Catalog,
+    authored: authoring::Content,
+    assessment_instructions: crate::learning::practice_assessment::Instructions,
     feedback: FeedbackPolicy,
     estimator: EstimatorPolicy,
     game: GamePolicy,
@@ -75,32 +82,26 @@ pub struct Registry {
     documents: BTreeMap<String, documents::LanguageDocument>,
     #[serde(skip)]
     source_files: BTreeMap<String, String>,
-    goal_material: BTreeMap<String, BTreeMap<String, documents::GoalMaterial>>,
-    guides: BTreeMap<String, guides::GuideDocument>,
 }
 include!(concat!(env!("OUT_DIR"), "/config_seeds.rs"));
 
 impl Registry {
+    /// Shared definitions of the eight main groups and their teaching subskills.
+    pub fn communication_catalog(&self) -> &communication::Catalog {
+        &self.communication
+    }
+
     pub fn hash(&self) -> &str {
         &self.hash
     }
     pub fn learning_content_hash(&self) -> String {
-        fingerprint(&(
-            &self.skills,
-            self.documents
-                .iter()
-                .map(|(id, d)| (id, &d.learning.skills))
-                .collect::<Vec<_>>(),
-        ))
+        fingerprint(&self.authored.definitions)
     }
-    pub fn constructs(&self) -> &[Construct] {
-        &self.constructs
-    }
-    pub fn construct(&self, id: &str) -> Result<&Construct> {
-        self.constructs
-            .iter()
-            .find(|c| c.id == id)
-            .ok_or_else(|| error("constructs", "unknown_construct", id))
+    pub fn skill_definition(&self, id: &str) -> Result<&authoring::Definition> {
+        self.authored
+            .definitions
+            .get(id)
+            .ok_or_else(|| error("skills", "unknown_skill", id))
     }
     pub fn game_policy(&self) -> &GamePolicy {
         &self.game
@@ -118,17 +119,7 @@ impl Registry {
         &self.feedback
     }
     pub fn catalog(&self) -> serde_json::Value {
-        let mut nodes = self.navigation.clone();
-        for c in &self.constructs {
-            let node = nodes
-                .iter_mut()
-                .find(|n| n.id == c.id)
-                .expect("validated navigation entry");
-            node.label = c.label.clone();
-            node.criterion = c.criterion.clone();
-            node.description = c.opportunity.clone();
-        }
-        serde_json::to_value(nodes).expect("catalog is serializable")
+        self.shared_practice_catalog()
     }
     fn language_config(&self, id: &str) -> Result<&Language> {
         self.languages
@@ -207,7 +198,7 @@ impl Registry {
             }
         }
         for topic in &self.topics {
-            let path = format!("shared/conversation-topics.yaml#{}", topic.id);
+            let path = format!("conversation-topics/conversation-topics.yaml#{}", topic.id);
             if topic.glyph.trim().is_empty() {
                 return Err(error(&path, "missing_glyph", "Give the topic a glyph."));
             }
@@ -243,7 +234,10 @@ impl Registry {
                 .expect("added language document")
                 .conversation
                 .greeting;
-            let path = format!("languages/{}.yaml#conversation.greeting", language.id);
+            let path = format!(
+                "languages/{0}/{0}-language.yaml#conversation.greeting",
+                language.id
+            );
             if greeting.text.trim().is_empty() {
                 return Err(error(
                     &path,
@@ -303,7 +297,7 @@ impl Registry {
         let romanized = match self.active_romanization_scheme(language, variety)? {
             Some(key) => Some(greeting.romanizations.get(&key).cloned().ok_or_else(|| {
                 error(
-                    format!("languages/{language}.yaml#conversation.greeting.romanizations"),
+                    format!("languages/{language}/{language}-language.yaml#conversation.greeting.romanizations"),
                     "missing_romanization",
                     format!("The greeting has no {key} romanization."),
                 )
@@ -447,92 +441,6 @@ impl Registry {
         }
         Ok(())
     }
-    /// Mandatory focus/prerequisites, due, function and interaction constructs
-    /// are never silently truncated. Optional neighboring-band/token matches fill
-    /// up to 25 optional matches beyond required members. Hints match contiguous Unicode
-    /// words, including multiword expressions; this is retrieval, not proficiency evidence.
-    pub fn candidates(
-        &self,
-        ctx: &LanguageContext,
-        band: &str,
-        focus: &[String],
-        due: &[String],
-        tokens: &[String],
-    ) -> Result<Vec<Construct>> {
-        let band_index = BANDS
-            .iter()
-            .position(|b| *b == band)
-            .ok_or_else(|| error("constructs", "unknown_band", band))?;
-        let hints = lexical_hints::LexicalHints::new(
-            tokens,
-            ctx.external_tags.get("language_tag").map(String::as_str),
-        );
-        let mut selected = BTreeSet::new();
-        for id in focus.iter().chain(due) {
-            self.add_required(id, &ctx.language_id, &mut selected)?;
-        }
-        for c in &self.constructs {
-            if self.applies(c, &ctx.language_id)
-                && ["function", "interaction"].contains(&c.lens.as_str())
-            {
-                selected.insert(c.id.clone());
-            }
-        }
-        let mut optional = 0;
-        for c in &self.constructs {
-            if optional >= 25 {
-                break;
-            }
-            if !selected.contains(&c.id)
-                && self.applies(c, &ctx.language_id)
-                && BANDS
-                    .iter()
-                    .position(|b| *b == c.band)
-                    .expect("validated band")
-                    .abs_diff(band_index)
-                    <= 1
-                && (!c.traits.is_empty()
-                    && c.traits.iter().any(|t| {
-                        self.language_config(&ctx.language_id)
-                            .expect("resolved language")
-                            .traits
-                            .contains(t)
-                    })
-                    || self
-                        .goal_material
-                        .get(&ctx.language_id)
-                        .and_then(|m| m.get(&c.id))
-                        .map(|m| m.tokens.as_slice())
-                        .unwrap_or(&c.tokens)
-                        .iter()
-                        .any(|phrase| hints.contains(phrase)))
-            {
-                selected.insert(c.id.clone());
-                optional += 1;
-            }
-        }
-        Ok(self
-            .constructs
-            .iter()
-            .filter(|c| selected.contains(&c.id))
-            .cloned()
-            .collect())
-    }
-    fn applies(&self, _c: &Construct, _language: &str) -> bool {
-        true
-    }
-    fn add_required(&self, id: &str, language: &str, out: &mut BTreeSet<String>) -> Result<()> {
-        let c = self.construct(id)?;
-        if !self.applies(c, language) {
-            return Err(error("constructs", "language_mismatch", id));
-        }
-        if out.insert(id.into()) {
-            for dep in &c.requires {
-                self.add_required(dep, language, out)?;
-            }
-        }
-        Ok(())
-    }
     pub(crate) fn drill_instruction(&self) -> &str {
         &self.drill_instruction
     }
@@ -559,7 +467,6 @@ const SCOPES: &[&str] = &[
     "assessment",
     "pragmatics",
 ];
-const BANDS: &[&str] = &["PreA1", "A1", "A2", "B1", "B2", "C1", "C2"];
 #[cfg(test)]
 mod tests;
 mod validation;

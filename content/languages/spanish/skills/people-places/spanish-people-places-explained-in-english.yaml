@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: people_places
+language: spanish
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: Use ser to identify a person or thing. Spanish can omit a subject pronoun when the verb
+      and context identify the subject.
+    examples:
+      - text: Soy Ana.
+        meaning: I am Ana.
+        note: Soy identifies the speaker.
+  - subskill_id: qualities_states
+    explanation: Choose ser or estar for the intended description. They can change the meaning;
+      permanence alone is not the rule.
+    examples:
+      - text: La puerta está abierta.
+        meaning: The door is open.
+        note: Estar describes the door's current state.
+  - subskill_id: location_movement
+    explanation: Use location or movement verbs with a phrase that names the place or path.
+    examples:
+      - text: El libro está en la mesa.
+        meaning: The book is on the table.
+        note: Estar en locates the book relative to the table.
+  - subskill_id: possession_relations
+    explanation: Possessives and de can express ownership or relationships. A possessive agrees with the
+      possessed noun, not the owner.
+    examples:
+      - text: Es el libro de mi hermana.
+        meaning: It is my sister's book.
+        note: De names the relationship to the book.
+  - subskill_id: quantity_comparison
+    explanation: Use numbers and quantity words for amounts; más ... que and menos ... que compare a
+      quality or quantity.
+    examples:
+      - text: Esta caja es más grande que esa.
+        meaning: This box is bigger than that one.
+        note: Más grande que supplies the comparison and its reference.
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

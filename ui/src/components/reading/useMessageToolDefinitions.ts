@@ -1,15 +1,17 @@
 import { useI18n } from '../localization/i18n'
 import type { MessageTool } from './MessageTools'
 
-type ToolBehavior = Omit<MessageTool, 'key' | 'label' | 'opensDialog'>
+type ToolBehavior = Omit<MessageTool, 'key' | 'label' | 'icon' | 'opensDialog'>
 
 /** Shared tool identity; each owner supplies the behavior and progress it owns. */
 export function useMessageToolDefinitions() {
   const tr = useI18n()
   return {
-    words: (behavior: ToolBehavior): MessageTool => ({ key: 'words', label: tr('Words'), ...behavior }),
-    details: (kind: 'coach' | 'analysis', behavior: ToolBehavior): MessageTool => ({
-      key: kind, label: kind === 'coach' ? tr('Coach') : tr('Analysis'), opensDialog: true, ...behavior,
+    translate: (behavior: ToolBehavior): MessageTool => ({ key: 'translate', label: tr('Translate'), icon: 'translate', ...behavior }),
+    words: (behavior: ToolBehavior): MessageTool => ({ key: 'words', label: tr('Words'), icon: 'words', ...behavior }),
+    pronunciation: (behavior: ToolBehavior): MessageTool => ({ key: 'sound', label: tr('Pronunciation'), icon: 'pronunciation', ...behavior }),
+    analysis: (behavior: ToolBehavior): MessageTool => ({
+      key: 'analysis', label: tr('Analysis'), icon: 'analysis', opensDialog: true, ...behavior,
     }),
   }
 }

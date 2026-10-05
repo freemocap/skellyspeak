@@ -170,7 +170,7 @@ fn retry_without_prior_observation_earns_experience() {
         .as_array()
         .unwrap()
         .iter()
-        .find(|s| s["skill_id"] == "questions_answers")
+        .find(|s| s["skill_id"] == "information_exchange")
         .unwrap();
     assert_eq!(skill["experience"], 1);
     assert_eq!(skill["effort"], 0);

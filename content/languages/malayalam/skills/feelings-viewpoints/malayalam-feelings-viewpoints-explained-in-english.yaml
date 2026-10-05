@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: malayalam-skills-2026-10-04
+language: malayalam
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: A dative experiencer and ആഗ്രഹമുണ്ട് can express desire for an action.
+    examples:
+      - text: എനിക്ക് തയ്യൽ പഠിക്കാൻ ആഗ്രഹമുണ്ട്.
+        meaning: I want to learn to sew.
+        note: പഠിക്കാൻ names the desired learning action; no commitment is made.
+  - subskill_id: preferences
+    explanation: ഇഷ്ടം can express liking with a dative experiencer and a comparative alternative.
+    examples:
+      - text: എനിക്ക് കാപ്പിയെക്കാൾ ചായയാണ് ഇഷ്ടം.
+        meaning: I prefer tea to coffee.
+        note: ചായയാണ് focuses tea as the favored option.
+  - subskill_id: emotions
+    explanation: A feeling construction can describe an emotional response to news.
+    examples:
+      - text: ഈ വാർത്ത കേട്ടപ്പോൾ എനിക്ക് സന്തോഷമായി.
+        meaning: I was happy when I heard this news.
+        note: എനിക്ക് identifies the experiencer of the happiness.
+  - subskill_id: opinions
+    explanation: തോന്നുന്നു can present a following or preceding proposition as an impression.
+    examples:
+      - text: ഈ രീതി എളുപ്പമാണെന്ന് എനിക്ക് തോന്നുന്നു.
+        meaning: I think this method is easy.
+        note: എന്ന് links the content of the impression.
+  - subskill_id: agreement_disagreement
+    explanation: യോജിക്കുക with an appropriate complement expresses agreement; negation rejects it.
+    examples:
+      - text: ഞാൻ ഈ നിർദ്ദേശത്തോട് യോജിക്കുന്നില്ല.
+        meaning: I disagree with this suggestion.
+        note: നിർദ്ദേശത്തോട് identifies the suggestion being rejected.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: malayalam-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance: *a1

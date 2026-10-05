@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: korean-skills-2026-10-04
+language: korean
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: 아 or 어 주세요 asks someone to do an action for the speaker or another beneficiary. The
+      form includes polite 요.
+    examples:
+      - text: 이 상자를 문 옆으로 옮겨 주세요.
+        meaning: Please move this box next to the door.
+        note: 옮겨 주세요 requests help moving the box. 옆으로 marks the destination.
+  - subskill_id: offers_invitations
+    explanation: 을까요 can offer the speaker’s action. 드리다 respectfully frames the offered help as
+      benefiting the listener.
+    examples:
+      - text: 제가 도와드릴까요?
+        meaning: Shall I help you?
+        note: 제가 identifies the speaker as helper. The question leaves acceptance of the offer to the
+          listener.
+  - subskill_id: suggestions
+    explanation: A question in 을까요 with 같이 can propose joint action. Context distinguishes a
+      suggestion from wondering what someone might do.
+    examples:
+      - text: 같이 잠깐 쉴까요?
+        meaning: Shall we take a short break together?
+        note: 같이 includes both participants in the proposal; 잠깐 limits its duration.
+  - subskill_id: commitments
+    explanation: 을게요 can express the speaker’s intention in relation to the listener. It can
+      undertake a task during planning.
+    examples:
+      - text: 제가 내일 공구를 가져올게요.
+        meaning: I will bring the tools tomorrow.
+        note: Use when taking responsibility for the group’s tools. The statement addresses what the
+          listener can expect from the speaker.
+  - subskill_id: accepting_declining
+    explanation: An apology followed by inability can decline an invitation. The invitation supplies
+      what attendance would mean.
+    examples:
+      - text: 미안해요. 오늘은 못 가요.
+        meaning: Sorry. I cannot come today.
+        note: Reply to an invitation for today. 못 expresses inability; the two sentences together
+          decline the invitation.
+  - subskill_id: negotiating_plans
+    explanation: 어때요 asks how an alternative would suit the participants. State the original
+      conflict to make the adjustment clear.
+    examples:
+      - text: 금요일은 바빠요. 토요일은 어때요?
+        meaning: I am busy Friday. How about Saturday?
+        note: Reply to a proposed Friday meeting. 은 contrasts the two days in the negotiation.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - htsk_permission2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: korean-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance: *a1

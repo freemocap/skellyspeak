@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: russian-skills-2026-10-04
+language: russian
+skill_id: information_exchange
+explanation_language: english
+shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Во сколько asks at what clock time an event occurs.
+    examples:
+      - text: Во сколько закрывается мастерская?
+        meaning: What time does the workshop close?
+        note: The unknown information is its closing time, not whether a workshop exists.
+  - subskill_id: answering_information
+    explanation: A prepositional time phrase can answer the previous question directly.
+    examples:
+      - text: В пять часов.
+        meaning: At five o’clock.
+        note: Use after the closing-time question; the prior exchange supplies the omitted event.
+  - subskill_id: checking_facts
+    explanation: Верно after a proposition invites confirmation of the supplied information.
+    examples:
+      - text: Мастерская закрывается в пять, верно?
+        meaning: The workshop closes at five, right?
+        note: Five is offered as a candidate fact to check.
+  - subskill_id: useful_detail
+    explanation: A location description can distinguish the entrance the listener needs.
+    examples:
+      - text: Вход со стороны двора.
+        meaning: The entrance is on the courtyard side.
+        note: In response to a question about finding the entrance, this supplies a useful landmark.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - cornell_russian_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: russian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance: *a1

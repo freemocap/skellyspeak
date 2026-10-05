@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: italian-skills-2026-10-04
+language: italian
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: Ciao can open or close an informal encounter. A domani takes leave while
+      anticipating another meeting the next day.
+    examples:
+      - text: Devo andare. A domani!
+        meaning: I have to go. See you tomorrow!
+        note: The first clause prepares departure; a domani closes contact without requiring a complete
+          sentence.
+  - subskill_id: acknowledging
+    explanation: A reply such as ho capito can register understanding of the preceding explanation.
+      Receipt or understanding does not automatically imply agreement with its content.
+    examples:
+      - text: Ora ho capito la differenza.
+        meaning: Now I understand the difference.
+        note: After someone explains two alternatives, this acknowledges the explanation and its result.
+          Ho capito is a compound form of capire.
+  - subskill_id: clarification
+    explanation: Che cosa intendi con …? asks what the partner means by an expression. The preceding
+      contribution must identify the expression being clarified.
+    examples:
+      - text: Che cosa intendi con «provvisorio»?
+        meaning: What do you mean by “provisional”?
+        note: After the partner calls a plan provvisorio, this requests clarification of that word.
+          Intendi addresses one person informally.
+  - subskill_id: rephrasing
+    explanation: In altre parole introduces a reformulation. The new wording must preserve or
+      explain the earlier point instead of switching to unrelated information.
+    examples:
+      - text: In altre parole, dobbiamo confermare prima di prenotare.
+        meaning: In other words, we need to confirm before booking.
+        note: After explaining that booking depends on prior confirmation, the speaker restates that
+          sequence more plainly.
+  - subskill_id: correcting_misunderstanding
+    explanation: Intendevo …, non … can replace an interpretation with the intended one. The
+      contrast must address a recoverable misunderstanding.
+    examples:
+      - text: Intendevo il cortile, non il parcheggio.
+        meaning: I meant the courtyard, not the car park.
+        note: After the partner assumes the meeting place is the car park, this supplies the intended
+          place and rejects the mistaken one.
+  - subskill_id: turns_topics
+    explanation: A question with posso aggiungere can seek another turn on a topic. Its role is to
+      gain space in the discussion, rather than merely state a fact about that topic.
+    examples:
+      - text: Posso aggiungere una cosa sul prezzo?
+        meaning: May I add something about the price?
+        note: In a discussion nearing a decision, this requests the floor on price. Sul is su + il.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - treccani_it_discourse2026
+    - treccani_it_questions2026
+    - treccani_it_connectives2026
+    - zanichelli_it_modals2026
+    - treccani_it_past2026
+  generation: null
+  review:
+    status: needs_review
+    revision: italian-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance: *a1

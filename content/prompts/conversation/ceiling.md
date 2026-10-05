@@ -1,0 +1,1 @@
+A request for clarification overrides the normal length target: simplify the same meaning. A goodbye gets a brief goodbye and no question. For languages without word spaces, apply the same scale of meaning and grammatical simplicity rather than counting spaces.

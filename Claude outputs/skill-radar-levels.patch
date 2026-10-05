@@ -1,0 +1,1241 @@
+diff --git a/ui/src/app/shell/TopBar.tsx b/ui/src/app/shell/TopBar.tsx
+index dae84cb..d7cd7cb 100644
+--- a/ui/src/app/shell/TopBar.tsx
++++ b/ui/src/app/shell/TopBar.tsx
+@@ -14,6 +14,8 @@ import { useNavigationStore } from '../../state/navigation/navigation'
+ import { useSettingsStore } from '../../state/settings/settings'
+ import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
+ import { ModeTabs } from './ModeTabs'
++import { SkillRadarGlyph } from '../../components/learning/SkillRadar'
++import { skillLevels } from '../../domain/learning/statistics/skill-levels'
+ import { ThemeControls } from './ThemeControls'
+ 
+ /** The global bar: the wordmark, the language, the Chat and Practice tabs at full
+@@ -35,6 +37,8 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
+   // A summary of the language profile: which language, and its XP. There is
+   // nothing to show until evidence for the active language has landed.
+   const profile = evidence.snapshot ? { target: evidence.snapshot.target, xp: evidence.snapshot.profile.xp } : null
++  // The language's skill level: its weakest skill, drawn as the resting radar.
++  const levels = evidence.snapshot ? skillLevels(evidence.snapshot) : null
+   const savingLanguage = useSettingsStore((state) => state.savingLanguage)
+   const included = useSettingsStore((state) => state.settings?.my_languages)
+   const totals = useLanguageTotals(evidence.snapshot, effort.value, included)
+@@ -57,6 +61,7 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
+       {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the full report. */}
+       <div ref={progressAnchor} className="progress-anchor" {...progressCard.anchor}>
+         <button ref={counter} type="button" className="profile-trigger progress-trigger" aria-label={tr("Language progress")} aria-haspopup="dialog" aria-expanded={progressCard.open} onClick={progressCard.press}>
++          {levels && <span className="skill-level-chip" title={tr('Skill level {value0}', { value0: levels.level })}><SkillRadarGlyph levels={levels} /><strong>{tr('Lv {value0}', { value0: levels.level })}</strong></span>}
+           <ProgressCounters xp={profile?.xp ?? null} xpLabel="Language XP" code={activeRow ? languageCode(activeRow) : undefined} global={totals.globalXp} effort={effort.value} effects={effort.effects} error={effort.error ?? totals.error} />
+         </button>
+         {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>
+diff --git a/ui/src/components/learning/ProgressCounters.tsx b/ui/src/components/learning/ProgressCounters.tsx
+index ed68cb2..5609ce9 100644
+--- a/ui/src/components/learning/ProgressCounters.tsx
++++ b/ui/src/components/learning/ProgressCounters.tsx
+@@ -12,7 +12,7 @@ export function ProgressCounters({ xp, xpLabel = 'XP', scope, effort, effects =
+   xp: number | null; xpLabel?: string; scope?: string; effort: EffortProgress | null; effects?: boolean; error?: string | null
+   /** Marks the XP number; replaced by `code` when a language code is given. */
+   icon?: ToolbarIconName; code?: string
+-  /** All languages' XP, shown before the language's own number when given. */
++  /** All languages' XP, shown after the language's own number when given. */
+   global?: number | null
+ }) {
+   const tr = useI18n()
+@@ -22,16 +22,16 @@ export function ProgressCounters({ xp, xpLabel = 'XP', scope, effort, effects =
+   const full = xp === null ? tr('Loading…') : tr.number(xp)
+   const globalFull = global == null ? tr('Loading…') : tr.number(global)
+   return <span className="progress-counters">
+-    {global !== undefined && <span className="progress-counter progress-counter-global" title={`${tr('Total XP')}: ${globalFull}`} aria-label={`${tr('Total XP')}: ${globalFull}`}>
+-      <span className="progress-counter-mark" aria-hidden="true"><ToolbarIcon name="globe" size={14} /></span>
+-      <strong className="progress-counter-number" aria-hidden="true">{global === null ? '—' : compact(tr, global)}</strong>
+-    </span>}
+     <span className="progress-counter progress-counter-xp" data-gaining={xpGain > 0 || undefined} title={`${tr(xpLabel)}: ${full}`} aria-label={`${tr(xpLabel)}: ${full}`}>
+       {code ? <span className="language-code" aria-hidden="true">{code}</span> : <span className="progress-counter-mark" data-icon={icon} aria-hidden="true"><ToolbarIcon name={icon} size={14} /></span>}
+       <strong key={`${identity}:${xp}`} className="progress-counter-number" aria-hidden="true">{formatted}</strong>
+       {' '}<span className="progress-counter-icon" aria-hidden="true">XP</span>
+       {xpGain > 0 && <span key={xp} className="progress-counter-gain" aria-hidden="true">+{compact(tr, xpGain)}</span>}
+     </span>
++    {global !== undefined && <span className="progress-counter progress-counter-global" title={`${tr('Total XP')}: ${globalFull}`} aria-label={`${tr('Total XP')}: ${globalFull}`}>
++      <span className="progress-counter-mark" aria-hidden="true"><ToolbarIcon name="globe" size={14} /></span>
++      <strong className="progress-counter-number" aria-hidden="true">{global === null ? '—' : compact(tr, global)}</strong>
++    </span>}
+     {error && <span className="progress-counter-error" role="status" title={error} aria-label={error}>!</span>}
+   </span>
+ }
+diff --git a/ui/src/components/learning/SkillRadar.tsx b/ui/src/components/learning/SkillRadar.tsx
+new file mode 100644
+index 0000000..d0fdeef
+--- /dev/null
++++ b/ui/src/components/learning/SkillRadar.tsx
+@@ -0,0 +1,157 @@
++import type { KeyboardEvent } from 'react'
++import { useI18n } from '../localization/i18n'
++import { skillColors } from '../../domain/learning/catalog/skill-domains'
++import type { LanguageSkillLevels, SkillLevel } from '../../domain/learning/statistics/skill-levels'
++import { armRadius, GLYPH_FRAME, PANEL_FRAME, polar, ringRadius, taperedArm, type RadarFrame } from './skill-radar-geometry'
++
++/** The skill shape: a colour-wheel fill that grows from white toward the gold ring
++ * of the next overall level, each earned level a dark dashed ring behind it, a thin
++ * axis per skill in its colour and each skill's name and level beside its axis.
++ * Pointing at the chart adds the value lines and ring numbers; pointing at one arm
++ * thickens it, puts a white dot on its end and expands its label. Pressing an arm
++ * pins it. `conversation`, when given, overlays one conversation's points per skill
++ * (catalog order), scaled so its busiest skill reaches the gold ring. */
++export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversation }: {
++  levels: LanguageSkillLevels
++  pinned: string | null; onPin: (id: string | null) => void
++  pointed: string | null; onPoint: (id: string | null) => void
++  conversation: number[] | null
++}) {
++  const tr = useI18n()
++  const frame = PANEL_FRAME
++  const count = levels.skills.length
++  const tips = levels.skills.map((skill, index) => polar(frame, armRadius(frame, skill.points, levels.level), index, count))
++  const centre = frame.view / 2
++  const toggle = (id: string) => onPin(pinned === id ? null : id)
++  const key = (id: string) => (event: KeyboardEvent) => {
++    if (event.key !== 'Enter' && event.key !== ' ') return
++    event.preventDefault(); toggle(id)
++  }
++  const leave = (id: string) => { if (pointed === id) onPoint(null) }
++  return <div className="skill-radar" data-pinned={pinned ? 'true' : undefined}>
++    <RadarBase frame={frame} levels={levels} detailed />
++    <RadarFill frame={frame} levels={levels} tips={tips} />
++    <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`} role="group" aria-label={tr('Skill radar')}>
++      <polygon className="skill-radar-edge" points={tips.map(tip => `${tip.x},${tip.y}`).join(' ')} />
++      <circle className="skill-radar-target" cx={centre} cy={centre} r={frame.ring} />
++      {conversation && <ConversationOverlay frame={frame} points={conversation} />}
++      {levels.skills.map((skill, index) => {
++        const tip = tips[index]
++        const active = pointed === skill.id || pinned === skill.id
++        const reach = polar(frame, frame.ring * 1.6, index - 0.5, count)
++        const reachEnd = polar(frame, frame.ring * 1.6, index + 0.5, count)
++        return <g key={skill.id} className="skill-radar-arm" data-active={active ? 'true' : undefined} role="button" tabIndex={0}
++          aria-pressed={pinned === skill.id} aria-label={tr('{value0}: skill level {value1}, {value2} points', { value0: tr(skill.label), value1: skill.level, value2: skill.points })}
++          style={{ color: skillColors(skill.id).mark }}
++          onClick={() => toggle(skill.id)} onKeyDown={key(skill.id)}
++          onPointerEnter={() => onPoint(skill.id)} onPointerLeave={() => leave(skill.id)}
++          onFocus={() => onPoint(skill.id)} onBlur={() => leave(skill.id)}>
++          <polygon className="skill-radar-hit" points={`${centre},${centre} ${reach.x},${reach.y} ${reachEnd.x},${reachEnd.y}`} />
++          <line className="skill-radar-line" x1={centre} y1={centre} x2={tip.x} y2={tip.y} />
++          {active && <>
++            <path className="skill-radar-thick" d={taperedArm(frame, tip, 11)} />
++            <circle className="skill-radar-tip" cx={tip.x} cy={tip.y} r={5} />
++          </>}
++        </g>
++      })}
++      {/* Labels sit above every arm, with the active ones last so their expanded box is never covered. */}
++      {levels.skills.map((skill, index) => ({ skill, index, active: pointed === skill.id || pinned === skill.id }))
++        .sort((left, right) => Number(left.active) - Number(right.active))
++        .map(({ skill, index, active }) => <ArmLabel key={skill.id} frame={frame} skill={skill} index={index} count={count} active={active} />)}
++    </svg>
++  </div>
++}
++
++/** The language radar at badge size: the fill, its edge, the earned rings and the gold ring. */
++export function SkillRadarGlyph({ levels }: { levels: LanguageSkillLevels }) {
++  const frame = GLYPH_FRAME
++  const count = levels.skills.length
++  const tips = levels.skills.map((skill, index) => polar(frame, armRadius(frame, skill.points, levels.level), index, count))
++  return <span className="skill-radar skill-radar-glyph" aria-hidden="true">
++    <RadarBase frame={frame} levels={levels} detailed={false} />
++    <RadarFill frame={frame} levels={levels} tips={tips} />
++    <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`}>
++      <polygon className="skill-radar-edge" points={tips.map(tip => `${tip.x},${tip.y}`).join(' ')} />
++      <circle className="skill-radar-target" cx={frame.view / 2} cy={frame.view / 2} r={frame.ring} />
++    </svg>
++  </span>
++}
++
++/** One conversation's shape at badge size: its points per skill scaled so the
++ * busiest skill reaches the edge. No rings: a conversation has no level. */
++export function ConversationShapeGlyph({ levels }: { levels: LanguageSkillLevels }) {
++  const frame = GLYPH_FRAME
++  const count = levels.skills.length
++  const most = Math.max(...levels.skills.map(skill => skill.points))
++  const tips = levels.skills.map((skill, index) => polar(frame, most === 0 ? 0 : frame.ring * skill.points / most, index, count))
++  return <span className="skill-radar skill-radar-glyph" aria-hidden="true">
++    <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`}>
++      <circle className="skill-radar-disc" cx={frame.view / 2} cy={frame.view / 2} r={frame.ring} />
++    </svg>
++    {most > 0 && <RadarFill frame={frame} levels={levels} tips={tips} />}
++    <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`}>
++      {most > 0 && <polygon className="skill-radar-edge" points={tips.map(tip => `${tip.x},${tip.y}`).join(' ')} />}
++    </svg>
++  </span>
++}
++
++/** Behind the fill: the unfilled disc, a thin axis per skill in its colour, the
++ * earned-level rings and, while pointing, the ring numbers. */
++function RadarBase({ frame, levels, detailed }: { frame: RadarFrame; levels: LanguageSkillLevels; detailed: boolean }) {
++  const tr = useI18n()
++  const centre = frame.view / 2
++  const count = levels.skills.length
++  const earned = Array.from({ length: levels.level }, (_, index) => index + 1)
++  return <svg className="skill-radar-layer" viewBox={`0 0 ${frame.view} ${frame.view}`} aria-hidden="true">
++    <circle className="skill-radar-disc" cx={centre} cy={centre} r={frame.ring} />
++    {detailed && levels.skills.map((skill, index) => {
++      const end = polar(frame, frame.ring, index, count)
++      return <line key={skill.id} className="skill-radar-axis" x1={centre} y1={centre} x2={end.x} y2={end.y} style={{ stroke: skillColors(skill.id).mark }} />
++    })}
++    {detailed && <g className="skill-radar-detail">
++      {[...earned, levels.level + 1].map(ring => <text key={ring} className="skill-radar-ring-number" x={centre + 5} y={centre - ringRadius(frame, ring, levels.level) - 4}>{tr.number(ring)}</text>)}
++    </g>}
++    {earned.map(ring => <circle key={ring} className="skill-radar-earned" cx={centre} cy={centre} r={ringRadius(frame, ring, levels.level)} />)}
++  </svg>
++}
++
++/** The colour wheel, pale at the centre, clipped to a shape. */
++function RadarFill({ frame, levels, tips }: { frame: RadarFrame; levels: LanguageSkillLevels; tips: { x: number; y: number }[] }) {
++  const count = levels.skills.length
++  const stops = levels.skills.map((skill, index) => `${skillColors(skill.id).mark} ${360 * index / count}deg`)
++  const wheel = `conic-gradient(from 0deg, ${stops.join(', ')}, ${skillColors(levels.skills[0].id).mark} 360deg)`
++  const half = frame.view / 2
++  const fade = `radial-gradient(closest-side, var(--skill-radar-core) 0%, var(--skill-radar-mid) ${45 * frame.ring / half}%, transparent ${90 * frame.ring / half}%)`
++  const clip = `polygon(${tips.map(tip => `${tip.x / frame.view * 100}% ${tip.y / frame.view * 100}%`).join(', ')})`
++  return <div className="skill-radar-fill" style={{ background: `${fade}, ${wheel}`, clipPath: clip }} />
++}
++
++/** One conversation's points per skill as an outline over the language shape, scaled to its busiest skill. */
++function ConversationOverlay({ frame, points }: { frame: RadarFrame; points: number[] }) {
++  const most = Math.max(...points)
++  if (most === 0) return null
++  const outline = points.map((value, index) => polar(frame, frame.ring * value / most, index, points.length))
++  return <polygon className="skill-radar-conversation" points={outline.map(point => `${point.x},${point.y}`).join(' ')} />
++}
++
++const LABEL_WIDTH = 96
++const LABEL_HEIGHT = 96
++
++/** A skill's name and level beside its axis; the active arm's label grows a line and a background. */
++function ArmLabel({ frame, skill, index, count, active }: { frame: RadarFrame; skill: SkillLevel; index: number; count: number; active: boolean }) {
++  const tr = useI18n()
++  const at = polar(frame, frame.ring * 1.1 + 24, index, count)
++  const side = at.x - frame.view / 2
++  const rise = at.y - frame.view / 2
++  const align = Math.abs(side) < 8 ? 'center' : side > 0 ? 'start' : 'end'
++  const vertical = rise < -frame.ring * 0.5 ? 'end' : rise > frame.ring * 0.5 ? 'start' : 'center'
++  const x = align === 'center' ? at.x - LABEL_WIDTH / 2 : align === 'start' ? at.x - 6 : at.x - LABEL_WIDTH + 6
++  const y = vertical === 'center' ? at.y - LABEL_HEIGHT / 2 : vertical === 'start' ? at.y - 10 : at.y - LABEL_HEIGHT + 10
++  return <foreignObject x={x} y={y} width={LABEL_WIDTH} height={LABEL_HEIGHT} className="skill-radar-label-frame">
++    <div className="skill-radar-label" data-align={align} data-vertical={vertical} data-active={active ? 'true' : undefined} style={{ color: skillColors(skill.id).ink }}>
++      <strong>{tr(skill.label)}</strong>
++      <span>{tr('Lv {value0} · {value1}', { value0: skill.level, value1: skill.points })}</span>
++      {active && <span>{tr('{value0} more for level {value1}', { value0: skill.nextThreshold - skill.points, value1: skill.level + 1 })}</span>}
++    </div>
++  </foreignObject>
++}
+diff --git a/ui/src/components/learning/skill-radar-geometry.ts b/ui/src/components/learning/skill-radar-geometry.ts
+new file mode 100644
+index 0000000..da30aa5
+--- /dev/null
++++ b/ui/src/components/learning/skill-radar-geometry.ts
+@@ -0,0 +1,48 @@
++import { levelPosition, levelThreshold } from '../../domain/learning/statistics/skill-levels'
++
++/// Radar geometry in viewBox units. Arm 0 points up; arms run clockwise in
++/// catalog order. The next overall level sits on the ring; each earned level is
++/// an equal-width band inside it, so rings stay evenly spaced as thresholds grow.
++
++export interface RadarFrame { view: number; ring: number }
++export const PANEL_FRAME: RadarFrame = { view: 480, ring: 125 }
++export const GLYPH_FRAME: RadarFrame = { view: 24, ring: 11 }
++/** Arms may pass the ring by this much before they are clipped. */
++const OVERSHOOT = 1.1
++
++export function armAngle(index: number, count: number): number {
++  return (-90 + 360 * index / count) * Math.PI / 180
++}
++
++export function polar(frame: RadarFrame, radius: number, index: number, count: number): { x: number; y: number } {
++  const angle = armAngle(index, count)
++  const centre = frame.view / 2
++  return { x: centre + radius * Math.cos(angle), y: centre + radius * Math.sin(angle) }
++}
++
++/** Radius of `points` on a radar whose ring is overall level `level + 1`. */
++export function armRadius(frame: RadarFrame, points: number, level: number): number {
++  return frame.ring * Math.min(levelPosition(points) / (level + 1), OVERSHOOT)
++}
++
++/** Radius of the ring for `ringLevel` while the learner is at overall `level`. */
++export function ringRadius(frame: RadarFrame, ringLevel: number, level: number): number {
++  return armRadius(frame, levelThreshold(ringLevel), level)
++}
++
++/** A thick arm that widens from a point at the centre to a rounded end at `tip`. */
++export function taperedArm(frame: RadarFrame, tip: { x: number; y: number }, width: number): string {
++  const centre = frame.view / 2
++  const length = Math.hypot(tip.x - centre, tip.y - centre)
++  if (length === 0) return ''
++  const [ux, uy] = [(tip.x - centre) / length, (tip.y - centre) / length]
++  const [px, py] = [-uy, ux]
++  const base = width * 0.12
++  const half = width / 2
++  return [
++    `M ${centre + px * base} ${centre + py * base}`,
++    `L ${tip.x + px * half} ${tip.y + py * half}`,
++    `A ${half} ${half} 0 0 1 ${tip.x - px * half} ${tip.y - py * half}`,
++    `L ${centre - px * base} ${centre - py * base} Z`,
++  ].join(' ')
++}
+diff --git a/ui/src/domain/learning/catalog/skill-domains.ts b/ui/src/domain/learning/catalog/skill-domains.ts
+index 543b296..76886e9 100644
+--- a/ui/src/domain/learning/catalog/skill-domains.ts
++++ b/ui/src/domain/learning/catalog/skill-domains.ts
+@@ -12,6 +12,26 @@ export function domainColors(id: string) {
+   if (!palette) throw new Error(`Unknown skill domain ${id}`)
+   return palette
+ }
++/** One jewel tone per catalog skill: `mark` for arms, dots and bars, `ink` for the skill as text. */
++const skillPalette: Record<string, { mark: string; ink: string }> = {
++  identify_describe: { mark: 'var(--skill-identify-describe)', ink: 'var(--skill-identify-describe-ink)' },
++  possession_relationships: { mark: 'var(--skill-possession-relationships)', ink: 'var(--skill-possession-relationships-ink)' },
++  quantity: { mark: 'var(--skill-quantity)', ink: 'var(--skill-quantity-ink)' },
++  present_situations: { mark: 'var(--skill-present-situations)', ink: 'var(--skill-present-situations-ink)' },
++  past_reference: { mark: 'var(--skill-past-reference)', ink: 'var(--skill-past-reference-ink)' },
++  future_reference: { mark: 'var(--skill-future-reference)', ink: 'var(--skill-future-reference-ink)' },
++  wants_preferences: { mark: 'var(--skill-wants-preferences)', ink: 'var(--skill-wants-preferences-ink)' },
++  ability_permission_necessity: { mark: 'var(--skill-ability-permission-necessity)', ink: 'var(--skill-ability-permission-necessity-ink)' },
++  affirm_negate: { mark: 'var(--skill-affirm-negate)', ink: 'var(--skill-affirm-negate-ink)' },
++  questions_answers: { mark: 'var(--skill-questions-answers)', ink: 'var(--skill-questions-answers-ink)' },
++  requests: { mark: 'var(--skill-requests)', ink: 'var(--skill-requests-ink)' },
++  reasons_conditions: { mark: 'var(--skill-reasons-conditions)', ink: 'var(--skill-reasons-conditions-ink)' },
++}
++export function skillColors(id: string) {
++  const palette = skillPalette[id]
++  if (!palette) throw new Error(`Unknown skill colour ${id}`)
++  return palette
++}
+ export function skillDomain(snapshot: SkillSnapshot, node: TreeNode): TreeNode {
+   if (node.kind === 'domain') return node
+   const parent = snapshot.catalog.find(item => item.id === node.parent)
+diff --git a/ui/src/domain/learning/statistics/skill-levels.test.ts b/ui/src/domain/learning/statistics/skill-levels.test.ts
+new file mode 100644
+index 0000000..a8af679
+--- /dev/null
++++ b/ui/src/domain/learning/statistics/skill-levels.test.ts
+@@ -0,0 +1,39 @@
++import { describe, expect, it } from 'vitest'
++import { levelFor, levelPosition, levelThreshold, skillLevels } from './skill-levels'
++import { skillDemo } from '../catalog/skillDemo'
++
++describe('skill levels', () => {
++  it('uses Fibonacci thresholds without the repeated 1', () => {
++    expect([0, 1, 2, 3, 4, 5, 6, 7, 8].map(levelThreshold)).toEqual([0, 1, 2, 3, 5, 8, 13, 21, 34])
++  })
++  it('maps points to the highest reached level', () => {
++    expect([0, 1, 2, 3, 4, 5, 7, 8, 12, 13].map(levelFor)).toEqual([0, 1, 2, 3, 3, 4, 4, 5, 5, 6])
++  })
++  it('interpolates inside a band', () => {
++    expect(levelPosition(0)).toBe(0)
++    expect(levelPosition(5)).toBe(4)
++    expect(levelPosition(6)).toBeCloseTo(4 + 1 / 3)
++  })
++  it('rejects fractional and negative inputs', () => {
++    expect(() => levelFor(-1)).toThrow()
++    expect(() => levelThreshold(1.5)).toThrow()
++  })
++  it('counts credited messages per skill and takes the weakest skill as the level', () => {
++    const snapshot = structuredClone(skillDemo)
++    const skills = snapshot.catalog.filter(node => node.kind === 'skill')
++    skills.forEach((skill, index) => {
++      for (let n = 0; n < (index === 0 ? 1 : 3); n++) snapshot.profile.credits.push({ attempt_id: `${skill.id}-${n}`, skill_id: skill.id, xp: 1 })
++    })
++    const levels = skillLevels(snapshot)
++    expect(levels.level).toBe(1)
++    expect(levels.target).toBe(2)
++    expect(levels.ready).toBe(skills.length - 1)
++    expect(levels.skills[0]).toMatchObject({ points: 1, level: 1, nextThreshold: 2 })
++    expect(levels.skills[1]).toMatchObject({ points: 3, level: 3, nextThreshold: 5 })
++  })
++  it('fails on a credit for an unknown skill', () => {
++    const snapshot = structuredClone(skillDemo)
++    snapshot.profile.credits.push({ attempt_id: 'a', skill_id: 'not_a_skill', xp: 1 })
++    expect(() => skillLevels(snapshot)).toThrow('outside the catalog')
++  })
++})
+diff --git a/ui/src/domain/learning/statistics/skill-levels.ts b/ui/src/domain/learning/statistics/skill-levels.ts
+new file mode 100644
+index 0000000..71c6090
+--- /dev/null
++++ b/ui/src/domain/learning/statistics/skill-levels.ts
+@@ -0,0 +1,87 @@
++import type { SkillSnapshot } from '../evidence/skills'
++
++/// Skill levels: a skill point is one credited message for that skill, each skill
++/// earns its own level from its points on a Fibonacci scale, and the language's
++/// skill level is the level of its weakest skill. XP is a separate running total;
++/// it never sets a level.
++
++/** Points a skill needs to reach `level`: 0, 1, 2, 3, 5, 8, 13… (Fibonacci, first 1 skipped). */
++export function levelThreshold(level: number): number {
++  if (!Number.isInteger(level) || level < 0) throw new Error(`Skill level must be a non-negative integer, got ${level}`)
++  if (level === 0) return 0
++  let [current, next] = [1, 2]
++  for (let step = 1; step < level; step++) [current, next] = [next, current + next]
++  return current
++}
++
++/** The highest level whose threshold `points` has reached. */
++export function levelFor(points: number): number {
++  if (!Number.isInteger(points) || points < 0) throw new Error(`Skill points must be a non-negative integer, got ${points}`)
++  let level = 0
++  while (levelThreshold(level + 1) <= points) level++
++  return level
++}
++
++/** Position on the radar's level scale: ring k sits at k, points interpolate inside a band. */
++export function levelPosition(points: number): number {
++  const level = levelFor(points)
++  const low = levelThreshold(level)
++  return level + (points - low) / (levelThreshold(level + 1) - low)
++}
++
++export interface SkillLevel {
++  id: string
++  label: string
++  description: string
++  domainId: string
++  points: number
++  xp: number
++  level: number
++  /** Points needed for this skill's next level. */
++  nextThreshold: number
++}
++
++export interface LanguageSkillLevels {
++  skills: SkillLevel[]
++  /** The weakest skill's level. */
++  level: number
++  /** Points every skill needs for the next overall level. */
++  target: number
++  /** Skills already at or past `target`. */
++  ready: number
++  /** Share of the band from `level` to `level + 1` filled across all skills, 0–1. */
++  progress: number
++  xp: number
++}
++
++/** Count credited messages per skill from awarded credits, in catalog order. */
++export function skillLevels(snapshot: SkillSnapshot): LanguageSkillLevels {
++  const nodes = snapshot.catalog.filter(node => node.kind === 'skill')
++  if (!nodes.length) throw new Error('Skill catalog has no skills')
++  const points = new Map(nodes.map(node => [node.id, 0]))
++  for (const credit of snapshot.profile.credits) {
++    const count = points.get(credit.skill_id)
++    if (count === undefined) throw new Error(`Credit names a skill outside the catalog: ${credit.skill_id}`)
++    points.set(credit.skill_id, count + 1)
++  }
++  const skills = nodes.map(node => {
++    const progress = snapshot.profile.skills.find(skill => skill.skill_id === node.id)
++    if (!progress) throw new Error(`Missing skill progress: ${node.id}`)
++    if (!node.parent) throw new Error(`Skill has no domain: ${node.id}`)
++    const count = points.get(node.id)!
++    const level = levelFor(count)
++    return { id: node.id, label: node.label, description: node.description, domainId: node.parent, points: count, xp: progress.xp, level, nextThreshold: levelThreshold(level + 1) }
++  })
++  const level = Math.min(...skills.map(skill => skill.level))
++  const low = levelThreshold(level)
++  const target = levelThreshold(level + 1)
++  const band = target - low
++  return {
++    skills,
++    level,
++    target,
++    ready: skills.filter(skill => skill.points >= target).length,
++    progress: skills.reduce((sum, skill) => sum + Math.min(Math.max(skill.points - low, 0), band), 0) / (band * skills.length),
++    xp: snapshot.profile.xp,
++  }
++}
+diff --git a/ui/src/domain/localization/locales/arabic.json b/ui/src/domain/localization/locales/arabic.json
+index 5c75dc4..d2a89ff 100644
+--- a/ui/src/domain/localization/locales/arabic.json
++++ b/ui/src/domain/localization/locales/arabic.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} تصحيحات",
+     "many": "{count} تصحيحًا",
+     "other": "{count} تصحيح"
+-  }
++  },
++  "Skill radar": "رادار المهارات",
++  "{value0}: skill level {value1}, {value2} points": "{value0}: مستوى المهارة {value1}، {value2} نقاط",
++  "Lv {value0} · {value1}": "م {value0} · {value1}",
++  "{value0} more for level {value1}": "{value0} أخرى للمستوى {value1}",
++  "Skill levels": "مستويات المهارات",
++  "Lv": "م",
++  "Skill level {value0}": "مستوى المهارة {value0}",
++  "Progress to the next skill level": "التقدم نحو مستوى المهارة التالي",
++  "Get a skill point in each skill to reach level 1.": "احصل على نقطة في كل مهارة للوصول إلى المستوى 1.",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} من {value1} مهارات بلغت {value2} نقاط للمستوى {value3}",
++  "Showing {value0}": "عرض {value0}",
++  "Show all": "عرض الكل",
++  "Press an arm to filter": "اضغط على محور للتصفية",
++  "Lv {value0}": "م {value0}",
++  "{value0} of {value1} points": "{value0} من {value1} نقاط",
++  "{value0} skill points in this conversation": "{value0} نقاط مهارة في هذه المحادثة",
++  "+{value0} pt": "+{value0} ن",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "هذه المحادثة: {value0} نقاط مهارة، بمقياس تبلغ فيه أكثر مهارة استخدامًا الحلقة الذهبية",
++  "No skill points in this conversation yet": "لا توجد نقاط مهارة في هذه المحادثة بعد",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "أشر إلى مهارة لترى ما تشمله. اضغط عليها لعرضها وحدها في الأسفل."
+ }
+diff --git a/ui/src/domain/localization/locales/english.json b/ui/src/domain/localization/locales/english.json
+index 4d7cc74..ccb1e4c 100644
+--- a/ui/src/domain/localization/locales/english.json
++++ b/ui/src/domain/localization/locales/english.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} fixes",
+     "many": "{count} fixes",
+     "other": "{count} fixes"
+-  }
++  },
++  "Skill radar": "Skill radar",
++  "{value0}: skill level {value1}, {value2} points": "{value0}: skill level {value1}, {value2} points",
++  "Lv {value0} · {value1}": "Lv {value0} · {value1}",
++  "{value0} more for level {value1}": "{value0} more for level {value1}",
++  "Skill levels": "Skill levels",
++  "Lv": "Lv",
++  "Skill level {value0}": "Skill level {value0}",
++  "Progress to the next skill level": "Progress to the next skill level",
++  "Get a skill point in each skill to reach level 1.": "Get a skill point in each skill to reach level 1.",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} of {value1} skills at {value2} points for level {value3}",
++  "Showing {value0}": "Showing {value0}",
++  "Show all": "Show all",
++  "Press an arm to filter": "Press an arm to filter",
++  "Lv {value0}": "Lv {value0}",
++  "{value0} of {value1} points": "{value0} of {value1} points",
++  "{value0} skill points in this conversation": "{value0} skill points in this conversation",
++  "+{value0} pt": "+{value0} pt",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring",
++  "No skill points in this conversation yet": "No skill points in this conversation yet",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "Point at a skill to see what it covers. Press it to show only that skill below."
+ }
+diff --git a/ui/src/domain/localization/locales/french.json b/ui/src/domain/localization/locales/french.json
+index 9a64806..9cb2af1 100644
+--- a/ui/src/domain/localization/locales/french.json
++++ b/ui/src/domain/localization/locales/french.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} corrections",
+     "many": "{count} corrections",
+     "other": "{count} corrections"
+-  }
++  },
++  "Skill radar": "Radar des compétences",
++  "{value0}: skill level {value1}, {value2} points": "{value0} : niveau de compétence {value1}, {value2} points",
++  "Lv {value0} · {value1}": "Niv. {value0} · {value1}",
++  "{value0} more for level {value1}": "Encore {value0} pour le niveau {value1}",
++  "Skill levels": "Niveaux de compétence",
++  "Lv": "Niv.",
++  "Skill level {value0}": "Niveau de compétence {value0}",
++  "Progress to the next skill level": "Progression vers le prochain niveau de compétence",
++  "Get a skill point in each skill to reach level 1.": "Obtenez un point dans chaque compétence pour atteindre le niveau 1.",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} compétences sur {value1} à {value2} points pour le niveau {value3}",
++  "Showing {value0}": "Affichage : {value0}",
++  "Show all": "Tout afficher",
++  "Press an arm to filter": "Appuyez sur un axe pour filtrer",
++  "Lv {value0}": "Niv. {value0}",
++  "{value0} of {value1} points": "{value0} points sur {value1}",
++  "{value0} skill points in this conversation": "{value0} points de compétence dans cette conversation",
++  "+{value0} pt": "+{value0} pt",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Cette conversation : {value0} points de compétence, à l’échelle de sa compétence la plus travaillée sur l’anneau doré",
++  "No skill points in this conversation yet": "Aucun point de compétence dans cette conversation pour l’instant",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "Pointez une compétence pour voir ce qu’elle couvre. Appuyez dessus pour n’afficher qu’elle ci-dessous."
+ }
+diff --git a/ui/src/domain/localization/locales/german.json b/ui/src/domain/localization/locales/german.json
+index 45d9712..3d8c8dd 100644
+--- a/ui/src/domain/localization/locales/german.json
++++ b/ui/src/domain/localization/locales/german.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} Korrekturen",
+     "many": "{count} Korrekturen",
+     "other": "{count} Korrekturen"
+-  }
++  },
++  "Skill radar": "Kompetenzradar",
++  "{value0}: skill level {value1}, {value2} points": "{value0}: Kompetenzstufe {value1}, {value2} Punkte",
++  "Lv {value0} · {value1}": "St. {value0} · {value1}",
++  "{value0} more for level {value1}": "Noch {value0} bis Stufe {value1}",
++  "Skill levels": "Kompetenzstufen",
++  "Lv": "St.",
++  "Skill level {value0}": "Kompetenzstufe {value0}",
++  "Progress to the next skill level": "Fortschritt zur nächsten Kompetenzstufe",
++  "Get a skill point in each skill to reach level 1.": "Sammle in jeder Kompetenz einen Punkt, um Stufe 1 zu erreichen.",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} von {value1} Kompetenzen mit {value2} Punkten für Stufe {value3}",
++  "Showing {value0}": "Angezeigt: {value0}",
++  "Show all": "Alle anzeigen",
++  "Press an arm to filter": "Achse wählen zum Filtern",
++  "Lv {value0}": "St. {value0}",
++  "{value0} of {value1} points": "{value0} von {value1} Punkten",
++  "{value0} skill points in this conversation": "{value0} Kompetenzpunkte in diesem Gespräch",
++  "+{value0} pt": "+{value0} P.",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Dieses Gespräch: {value0} Kompetenzpunkte, so skaliert, dass die meistgenutzte Kompetenz den goldenen Ring erreicht",
++  "No skill points in this conversation yet": "Noch keine Kompetenzpunkte in diesem Gespräch",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "Zeige auf eine Kompetenz, um zu sehen, was sie umfasst. Wähle sie, um unten nur sie anzuzeigen."
+ }
+diff --git a/ui/src/domain/localization/locales/mandarin.json b/ui/src/domain/localization/locales/mandarin.json
+index 4a08db2..c82aae6 100644
+--- a/ui/src/domain/localization/locales/mandarin.json
++++ b/ui/src/domain/localization/locales/mandarin.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} 次修改",
+     "many": "{count} 次修改",
+     "other": "{count} 次修改"
+-  }
++  },
++  "Skill radar": "技能雷达图",
++  "{value0}: skill level {value1}, {value2} points": "{value0}：技能等级 {value1}，{value2} 分",
++  "Lv {value0} · {value1}": "等级 {value0} · {value1}",
++  "{value0} more for level {value1}": "再得 {value0} 分达到等级 {value1}",
++  "Skill levels": "技能等级",
++  "Lv": "等级",
++  "Skill level {value0}": "技能等级 {value0}",
++  "Progress to the next skill level": "距下一技能等级的进度",
++  "Get a skill point in each skill to reach level 1.": "在每项技能中获得一分即可达到等级 1。",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value1} 项技能中有 {value0} 项已达 {value2} 分（等级 {value3}）",
++  "Showing {value0}": "显示：{value0}",
++  "Show all": "显示全部",
++  "Press an arm to filter": "点按一条轴进行筛选",
++  "Lv {value0}": "等级 {value0}",
++  "{value0} of {value1} points": "{value0}/{value1} 分",
++  "{value0} skill points in this conversation": "本次对话中的 {value0} 个技能点",
++  "+{value0} pt": "+{value0} 分",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "本次对话：{value0} 个技能点，按最常用的技能缩放至金色圆环",
++  "No skill points in this conversation yet": "本次对话尚无技能点",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "指向一项技能可查看其内容。点按即可在下方只显示该技能。"
+ }
+diff --git a/ui/src/domain/localization/locales/portuguese.json b/ui/src/domain/localization/locales/portuguese.json
+index b82c449..170a46a 100644
+--- a/ui/src/domain/localization/locales/portuguese.json
++++ b/ui/src/domain/localization/locales/portuguese.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} correções",
+     "many": "{count} correções",
+     "other": "{count} correções"
+-  }
++  },
++  "Skill radar": "Radar de habilidades",
++  "{value0}: skill level {value1}, {value2} points": "{value0}: nível de habilidade {value1}, {value2} pontos",
++  "Lv {value0} · {value1}": "Nv. {value0} · {value1}",
++  "{value0} more for level {value1}": "Mais {value0} para o nível {value1}",
++  "Skill levels": "Níveis de habilidade",
++  "Lv": "Nv.",
++  "Skill level {value0}": "Nível de habilidade {value0}",
++  "Progress to the next skill level": "Progresso até o próximo nível de habilidade",
++  "Get a skill point in each skill to reach level 1.": "Ganhe um ponto em cada habilidade para chegar ao nível 1.",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} de {value1} habilidades com {value2} pontos para o nível {value3}",
++  "Showing {value0}": "Mostrando {value0}",
++  "Show all": "Mostrar tudo",
++  "Press an arm to filter": "Toque em um eixo para filtrar",
++  "Lv {value0}": "Nv. {value0}",
++  "{value0} of {value1} points": "{value0} de {value1} pontos",
++  "{value0} skill points in this conversation": "{value0} pontos de habilidade nesta conversa",
++  "+{value0} pt": "+{value0} pt",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Esta conversa: {value0} pontos de habilidade, em escala para que a habilidade mais usada alcance o anel dourado",
++  "No skill points in this conversation yet": "Ainda não há pontos de habilidade nesta conversa",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "Aponte para uma habilidade para ver o que ela abrange. Toque nela para mostrar só essa habilidade abaixo."
+ }
+diff --git a/ui/src/domain/localization/locales/spanish.json b/ui/src/domain/localization/locales/spanish.json
+index 45847c4..a30db5d 100644
+--- a/ui/src/domain/localization/locales/spanish.json
++++ b/ui/src/domain/localization/locales/spanish.json
+@@ -1568,5 +1568,25 @@
+     "few": "{count} correcciones",
+     "many": "{count} correcciones",
+     "other": "{count} correcciones"
+-  }
++  },
++  "Skill radar": "Radar de habilidades",
++  "{value0}: skill level {value1}, {value2} points": "{value0}: nivel de habilidad {value1}, {value2} puntos",
++  "Lv {value0} · {value1}": "Nv. {value0} · {value1}",
++  "{value0} more for level {value1}": "{value0} más para el nivel {value1}",
++  "Skill levels": "Niveles de habilidad",
++  "Lv": "Nv.",
++  "Skill level {value0}": "Nivel de habilidad {value0}",
++  "Progress to the next skill level": "Progreso hacia el siguiente nivel de habilidad",
++  "Get a skill point in each skill to reach level 1.": "Consigue un punto en cada habilidad para llegar al nivel 1.",
++  "{value0} of {value1} skills at {value2} points for level {value3}": "{value0} de {value1} habilidades con {value2} puntos para el nivel {value3}",
++  "Showing {value0}": "Mostrando {value0}",
++  "Show all": "Mostrar todo",
++  "Press an arm to filter": "Pulsa un eje para filtrar",
++  "Lv {value0}": "Nv. {value0}",
++  "{value0} of {value1} points": "{value0} de {value1} puntos",
++  "{value0} skill points in this conversation": "{value0} puntos de habilidad en esta conversación",
++  "+{value0} pt": "+{value0} pt",
++  "This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring": "Esta conversación: {value0} puntos de habilidad, escalados para que su habilidad más usada llegue al anillo dorado",
++  "No skill points in this conversation yet": "Aún no hay puntos de habilidad en esta conversación",
++  "Point at a skill to see what it covers. Press it to show only that skill below.": "Señala una habilidad para ver qué abarca. Púlsala para mostrar solo esa habilidad abajo."
+ }
+diff --git a/ui/src/features/conversation/ConversationPage.tsx b/ui/src/features/conversation/ConversationPage.tsx
+index 129a593..8bab14a 100644
+--- a/ui/src/features/conversation/ConversationPage.tsx
++++ b/ui/src/features/conversation/ConversationPage.tsx
+@@ -136,7 +136,7 @@ export default function ConversationPage({
+     if (!active) stopRewardSounds()
+   }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak, active])
+   useEffect(() => () => stopRewardSounds(), [])
+-  const [panelTab, setPanelTab] = useState<'coaching' | 'evidence'>('coaching')
++  const [panelTab, setPanelTab] = useState<'coaching' | 'skills'>('coaching')
+   const [coachDraft, setCoachDraft] = useState('')
+   const mode = useNavigationStore(state => state.mode)
+   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
+diff --git a/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx b/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx
+index b5aa27f..f280529 100644
+--- a/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx
++++ b/ui/src/features/conversation/coaching/CoachAnalysisPanel.test.tsx
+@@ -30,7 +30,7 @@ describe('native private coaching', () => {
+     expect(backend.execute).not.toHaveBeenCalled()
+     expect(screen.getByLabelText('Coach conversation')).not.toBeVisible()
+     expect(screen.getByRole('tab', { name: 'Coach' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
+-    expect(screen.getByRole('tab', { name: 'Experience' })).toBeVisible()
++    expect(screen.getByRole('tab', { name: 'Skills' })).toBeVisible()
+     expect(screen.getAllByText('Coach')).toHaveLength(1)
+   })
+   it('submits once with current conversation revision and displays only saved replies', async () => {
+diff --git a/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx b/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx
+index ff40b6c..63fc548 100644
+--- a/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx
++++ b/ui/src/features/conversation/coaching/CoachAnalysisPanel.tsx
+@@ -5,7 +5,10 @@ import { useI18n } from '../../../components/localization/i18n'
+ import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
+ import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
+ import { ConversationProgress } from '../progress/ConversationProgress'
+-import { useEffect, useRef, useState, type ReactNode } from 'react'
++import { SkillLevelsPanel } from '../../skills/levels/SkillLevelsPanel'
++import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
++import { conversationEvidence } from '../../../domain/learning/evidence/skills'
++import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+ import { isTauri } from '../../../platform/ipc/tauri'
+ import { executeAction, nativeError, readWorkspace } from '../../../platform/ipc/workspace'
+ import { useConversationSnapshot } from '../session/useConversationSnapshot'
+@@ -16,11 +19,12 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
+   autoSendDraft?: boolean
+   onCollapse?: () => void
+   coachingContent?: ReactNode
+-  conversationBusy: boolean; chatId: string; tab: 'coaching' | 'evidence'; onTab: (tab: 'coaching' | 'evidence') => void
++  conversationBusy: boolean; chatId: string; tab: 'coaching' | 'skills'; onTab: (tab: 'coaching' | 'skills') => void
+   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
+   nativeLanguageName: string; showRomanization: boolean; rtl: boolean
+ }) {
+   const tr = useI18n()
++  const languageSnapshot = useContext(SkillEvidenceContext).snapshot
+   const { snapshot, readError, retryRead } = useConversationSnapshot(isTauri ? chatId : null)
+   const [input, setInput] = useState('')
+   const [submitting, setSubmitting] = useState(false)
+@@ -101,7 +105,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
+   />
+   return <>
+     <CoachPanelTabs tab={tab} onTab={onTab} onCollapse={onCollapse} />
+-    {tab === 'evidence' && <ConversationProgress chatId={chatId} />}
++    {tab === 'skills' && languageSnapshot && <ConversationProgress chatId={chatId}><SkillLevelsPanel snapshot={languageSnapshot} conversation={conversationEvidence(languageSnapshot, chatId)} /></ConversationProgress>}
+     {coachDock}
+   </>
+ }
+diff --git a/ui/src/features/conversation/coaching/CoachPanelTabs.tsx b/ui/src/features/conversation/coaching/CoachPanelTabs.tsx
+index 741a035..5225470 100644
+--- a/ui/src/features/conversation/coaching/CoachPanelTabs.tsx
++++ b/ui/src/features/conversation/coaching/CoachPanelTabs.tsx
+@@ -1,15 +1,15 @@
+ import { useI18n } from '../../../components/localization/i18n'
+ 
+ export function CoachPanelTabs({ tab, onTab, onCollapse }: {
+-  tab: 'coaching' | 'evidence'
+-  onTab: (tab: 'coaching' | 'evidence') => void
++  tab: 'coaching' | 'skills'
++  onTab: (tab: 'coaching' | 'skills') => void
+   onCollapse?: () => void
+ }) {
+   const tr = useI18n()
+   return <div className="coach-heading">
+     <div className="panel-tabs" role="tablist" aria-label={tr("Learning panel")}>
+       <button type="button" role="tab" aria-selected={tab === 'coaching'} className={`panel-tab ${tab === 'coaching' ? 'active' : ''}`} onClick={() => onTab('coaching')}>{tr("Coach")}</button>
+-      <button type="button" role="tab" aria-selected={tab === 'evidence'} className={`panel-tab ${tab === 'evidence' ? 'active' : ''}`} onClick={() => onTab('evidence')}>{tr("Experience")}</button>
++      <button type="button" role="tab" aria-selected={tab === 'skills'} className={`panel-tab ${tab === 'skills' ? 'active' : ''}`} onClick={() => onTab('skills')}>{tr("Skills")}</button>
+     </div>
+     {onCollapse && <button type="button" className="coach-collapse" aria-label={tr("Close coach")} onClick={onCollapse}>›</button>}
+   </div>
+diff --git a/ui/src/features/conversation/progress/ConversationProgress.tsx b/ui/src/features/conversation/progress/ConversationProgress.tsx
+index 06e0ae2..2a0444e 100644
+--- a/ui/src/features/conversation/progress/ConversationProgress.tsx
++++ b/ui/src/features/conversation/progress/ConversationProgress.tsx
+@@ -24,10 +24,10 @@ export function ConversationProgress({ chatId, children }: { chatId: string; chi
+   const skills = new Set(snapshot.catalog.filter(node => node.kind === 'skill' && skillDomain(snapshot, node).id === domain?.id).map(node => node.id))
+   const records = snapshot.records.filter(record => record.assessment?.judgments.some(item => skills.has(item.skill_id)))
+   return <>
+-    <div className="analysis-scroll conversation-evidence" role="region" aria-label={tr("Experience")} tabIndex={0}>
++    <div className="analysis-scroll conversation-evidence" role="region" aria-label={tr("Skills")} tabIndex={0}>
++      {children}
+     <EvidenceMappingNotice snapshot={snapshot} />
+     <SkillEvidenceContext value={{ snapshot, error: evidence.error }}><ConversationMap /></SkillEvidenceContext>
+-      {children}
+       <RewardsLedger snapshot={snapshot} />
+       <details><summary>{tr("Conversation XP")}</summary>
+       <div className="detail-actions"><strong>{domain ? tr(domain.label) : tr("Conversation XP")}</strong><InfoTip>{tr("XP attributed to saved learner messages in this conversation. Repeated wording already credited elsewhere does not earn additional XP.")}</InfoTip><button className="detail-action" onClick={() => setGlobal(true)}>{tr("Show language progression")}</button></div>
+diff --git a/ui/src/features/conversation/progress/XpChip.tsx b/ui/src/features/conversation/progress/XpChip.tsx
+index 697aa86..29149b1 100644
+--- a/ui/src/features/conversation/progress/XpChip.tsx
++++ b/ui/src/features/conversation/progress/XpChip.tsx
+@@ -14,6 +14,8 @@ import { conversationSkills } from './conversationSkills'
+ import { conversationUnits } from '../../../components/learning/effort-dimensions'
+ import { domainColors, skillDomain } from '../../../domain/learning/catalog/skill-domains'
+ import { XpEvidenceReport, type XpMessageScope } from './XpEvidenceReport'
++import { ConversationShapeGlyph } from '../../../components/learning/SkillRadar'
++import { skillLevels } from '../../../domain/learning/statistics/skill-levels'
+ 
+ type Report = { message: XpMessageScope } | { skillId: string }
+ 
+@@ -30,9 +32,14 @@ export function XpChip({ chatId }: { chatId: string | null }) {
+   const [report, setReport] = useState<Report | null>(null)
+   const anchor = useRef<HTMLDivElement>(null)
+   if (!snapshot || !chatId) return null
+-  const xp = conversationEvidence(snapshot, chatId).profile.xp
++  const conversation = conversationEvidence(snapshot, chatId)
++  const xp = conversation.profile.xp
++  // This conversation's skill points, drawn as its own shape: a conversation has no level.
++  const shape = skillLevels(conversation)
++  const points = shape.skills.reduce((sum, skill) => sum + skill.points, 0)
+   return <div ref={anchor} className="progress-anchor" {...card.anchor}>
+     <button type="button" className="xp-chip progress-trigger" aria-label={tr('Conversation XP')} aria-haspopup="dialog" aria-expanded={card.open || ledger} onClick={card.press}>
++      <span className="skill-level-chip" title={tr('{value0} skill points in this conversation', { value0: points })}><ConversationShapeGlyph levels={shape} /><strong>{tr('+{value0} pt', { value0: points })}</strong></span>
+       <ProgressCounters xp={xp} xpLabel="Conversation XP" scope={chatId} icon="chat" effort={effort.value} effects={shell.effects} error={effort.error} />
+     </button>
+     {card.open && <CardLayer anchor={anchor} onClose={card.close}>
+diff --git a/ui/src/features/skills/levels/SkillLevelsPanel.test.tsx b/ui/src/features/skills/levels/SkillLevelsPanel.test.tsx
+new file mode 100644
+index 0000000..1de5417
+--- /dev/null
++++ b/ui/src/features/skills/levels/SkillLevelsPanel.test.tsx
+@@ -0,0 +1,31 @@
++// @vitest-environment jsdom
++import { describe, expect, it } from 'vitest'
++import { fireEvent, render, screen, within } from '@testing-library/react'
++import { SkillLevelsPanel } from './SkillLevelsPanel'
++import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
++
++function snapshotWithPoints(points: number[]) {
++  const snapshot = structuredClone(skillDemo)
++  snapshot.catalog.filter(node => node.kind === 'skill').forEach((skill, index) => {
++    for (let n = 0; n < points[index]; n++) snapshot.profile.credits.push({ attempt_id: `${skill.id}-${n}`, skill_id: skill.id, xp: 1 })
++  })
++  return snapshot
++}
++
++describe('SkillLevelsPanel', () => {
++  it('shows the weakest skill as the level and filters the list to a pressed arm', () => {
++    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6])} conversation={null} />)
++    expect(screen.getByText('Skill level 4')).toBeTruthy()
++    const list = screen.getByRole('list')
++    expect(within(list).getAllByRole('button')).toHaveLength(12)
++    fireEvent.click(screen.getByRole('button', { name: /^Make and respond to requests: skill level 4/ }))
++    expect(within(list).getAllByRole('button')).toHaveLength(1)
++    expect(screen.getByText('Showing Make and respond to requests')).toBeTruthy()
++    fireEvent.click(screen.getByText('Show all'))
++    expect(within(list).getAllByRole('button')).toHaveLength(12)
++  })
++  it('tells a new learner how to reach level 1', () => {
++    render(<SkillLevelsPanel snapshot={skillDemo} conversation={null} />)
++    expect(screen.getByText('Get a skill point in each skill to reach level 1.')).toBeTruthy()
++  })
++})
+diff --git a/ui/src/features/skills/levels/SkillLevelsPanel.tsx b/ui/src/features/skills/levels/SkillLevelsPanel.tsx
+new file mode 100644
+index 0000000..90e2499
+--- /dev/null
++++ b/ui/src/features/skills/levels/SkillLevelsPanel.tsx
+@@ -0,0 +1,69 @@
++import { useState } from 'react'
++import { useI18n } from '../../../components/localization/i18n'
++import { SkillRadar } from '../../../components/learning/SkillRadar'
++import { skillColors } from '../../../domain/learning/catalog/skill-domains'
++import { levelThreshold, skillLevels } from '../../../domain/learning/statistics/skill-levels'
++import type { SkillSnapshot } from '../../../domain/learning/evidence/skills'
++
++/** A language's skill level: the badge and the band toward the next level, the
++ * radar, what the pointed or pinned skill covers, and every skill's own level.
++ * Pressing an arm (or a row) pins that skill and filters the list to it; pressing
++ * it again, or Show all, clears the pin. `conversation`, when given, is one
++ * conversation's evidence, overlaid on the radar as its own shape. */
++export function SkillLevelsPanel({ snapshot, conversation }: { snapshot: SkillSnapshot; conversation: SkillSnapshot | null }) {
++  const tr = useI18n()
++  const [pinned, setPinned] = useState<string | null>(null)
++  const [pointed, setPointed] = useState<string | null>(null)
++  const levels = skillLevels(snapshot)
++  const conversationPoints = conversation ? skillLevels(conversation).skills.map(skill => skill.points) : null
++  const conversationTotal = conversationPoints?.reduce((sum, value) => sum + value, 0) ?? 0
++  const shown = pinned ? levels.skills.filter(skill => skill.id === pinned) : levels.skills
++  const pinnedSkill = levels.skills.find(skill => skill.id === pinned)
++  const focused = levels.skills.find(skill => skill.id === (pointed ?? pinned))
++  return <section className="skill-levels" aria-label={tr('Skill levels')}>
++    <header className="skill-levels-head">
++      <span className="skill-level-badge" aria-hidden="true"><small>{tr('Lv')}</small>{tr.number(levels.level)}</span>
++      <div className="skill-levels-summary">
++        <strong>{tr('Skill level {value0}', { value0: levels.level })}</strong>
++        <span><progress className="skill-levels-band" value={levels.progress} max={1} aria-label={tr('Progress to the next skill level')} />
++          {levels.level === 0 && levels.ready === 0
++            ? tr('Get a skill point in each skill to reach level 1.')
++            : tr('{value0} of {value1} skills at {value2} points for level {value3}', { value0: levels.ready, value1: levels.skills.length, value2: levels.target, value3: levels.level + 1 })}</span>
++      </div>
++      <strong className="skill-levels-xp">{tr('{value0} XP', { value0: levels.xp })}</strong>
++    </header>
++    <SkillRadar levels={levels} pinned={pinned} onPin={setPinned} pointed={pointed} onPoint={setPointed} conversation={conversationTotal > 0 ? conversationPoints : null} />
++    {conversationPoints && <p className="skill-levels-legend">
++      <span className="skill-levels-legend-mark" aria-hidden="true" />
++      {conversationTotal > 0
++        ? tr('This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring', { value0: conversationTotal })
++        : tr('No skill points in this conversation yet')}
++    </p>}
++    <div className="skill-levels-focus" style={focused ? { color: skillColors(focused.id).ink } : undefined}>
++      {focused
++        ? <><strong>{tr(focused.label)}</strong><span>{tr(focused.description)}</span></>
++        : <span>{tr('Point at a skill to see what it covers. Press it to show only that skill below.')}</span>}
++    </div>
++    <div className="skill-levels-list-head">
++      <h3>{tr('Skills')}</h3>
++      {pinnedSkill
++        ? <button type="button" className="skill-levels-filter" onClick={() => setPinned(null)}>{tr('Showing {value0}', { value0: tr(pinnedSkill.label) })}<span>{tr('Show all')}</span></button>
++        : <span className="skill-levels-hint">{tr('Press an arm to filter')}</span>}
++    </div>
++    <ol className="skill-levels-list">{shown.map(skill => {
++      const low = levelThreshold(skill.level)
++      const colours = skillColors(skill.id)
++      return <li key={skill.id}>
++        <button type="button" className="skill-levels-row" aria-pressed={pinned === skill.id} onClick={() => setPinned(pinned === skill.id ? null : skill.id)}
++          onPointerEnter={() => setPointed(skill.id)} onPointerLeave={() => setPointed(current => current === skill.id ? null : current)} style={{ color: colours.mark }}>
++          <span className="skill-levels-dot" aria-hidden="true" />
++          <span className="skill-levels-name" style={{ color: colours.ink }}>{tr(skill.label)}</span>
++          <span className="skill-levels-level">{tr('Lv {value0}', { value0: skill.level })}</span>
++          <progress value={skill.points - low} max={skill.nextThreshold - low} aria-label={tr('{value0} of {value1} points', { value0: skill.points, value1: skill.nextThreshold })} />
++          <span className="skill-levels-points">{tr.number(skill.points)}/{tr.number(skill.nextThreshold)}</span>
++          <span className="skill-levels-row-xp">{tr('{value0} XP', { value0: skill.xp })}</span>
++        </button>
++      </li>
++    })}</ol>
++  </section>
++}
+diff --git a/ui/src/styles/components/progress-counters.css b/ui/src/styles/components/progress-counters.css
+index 42630d0..1d44657 100644
+--- a/ui/src/styles/components/progress-counters.css
++++ b/ui/src/styles/components/progress-counters.css
+@@ -7,7 +7,7 @@
+ .progress-counter-mark { display: inline-flex; color: var(--progress-mark); }
+ .progress-counter-mark[data-icon="star"] svg { fill: currentColor; }
+ /* All languages first, behind a globe; then the language's code and its own XP. */
+-.progress-counter-global { padding-inline-end: var(--space-3); border-inline-end: var(--border-width) solid var(--progress-line); }
++.progress-counter-global { padding-inline-start: var(--space-3); border-inline-start: var(--border-width) solid var(--progress-line); }
+ .progress-counter-global .progress-counter-mark { color: var(--progress-ink); }
+ .language-code { display: inline-flex; align-items: center; padding: var(--space-hairline) var(--space-2); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-sm); background: var(--sheet); color: var(--progress-ink); font: var(--weight-bold) var(--type-meta)/var(--leading-none) var(--font-mono); letter-spacing: var(--tracking-tag); }
+ .progress-counter-number { font-size: var(--type-ui); font-weight: var(--weight-bold); min-width: 1ch; }
+@@ -103,3 +103,9 @@ button.language-table-name:hover { color: var(--interaction-ink); }
+ .action-reward-center { animation: action-reward-pop calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
+ .action-reward-particle { animation: action-reward-scatter calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
+ @media (prefers-reduced-motion: reduce) { .action-reward-burst { display: none; } }
++
++/* The language's skill level in the top-bar trigger: the resting radar glyph and the level. */
++.skill-level-chip { display: inline-flex; align-items: center; gap: var(--space-2); padding-inline-end: var(--space-3); margin-inline-end: var(--space-2); border-inline-end: var(--border-width) solid var(--line-soft); }
++.skill-level-chip strong { color: var(--ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
++/* As tall as the trigger allows without growing it. */
++.skill-level-chip .skill-radar-glyph { width: calc(var(--control-height) - var(--space-3)); }
+diff --git a/ui/src/styles/components/skill-radar.css b/ui/src/styles/components/skill-radar.css
+new file mode 100644
+index 0000000..c2633db
+--- /dev/null
++++ b/ui/src/styles/components/skill-radar.css
+@@ -0,0 +1,60 @@
++/* Skill radar (components/learning/SkillRadar.tsx). Three stacked layers share one
++   square: the base SVG (disc, earned-level rings, axes), the clipped colour-wheel
++   fill, and the arm SVG (edge, gold target ring, arms, labels). At rest only the
++   fill, rings, thin skill axes and labels show; pointing at the chart, focusing
++   inside it or pinning an arm adds value lines and ring numbers. Skill colours
++   arrive inline as `color` on each arm and label and as `stroke` on each axis. */
++.skill-radar { position: relative; width: 100%; max-width: 480px; aspect-ratio: 1; margin-inline: auto; }
++.skill-radar-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
++.skill-radar-fill { position: absolute; inset: 0; opacity: 0.82; }
++
++.skill-radar-disc { fill: var(--track); fill-opacity: 0.45; }
++.skill-radar-earned { fill: none; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1.8; stroke-dasharray: 5 4; }
++.skill-radar-edge { fill: none; stroke: var(--ink-3); stroke-width: 1.4; stroke-linejoin: round; }
++.skill-radar-target { fill: none; stroke: var(--progress-mark); stroke-width: 2.2; }
++
++.skill-radar-detail,
++.skill-radar-line { opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); }
++.skill-radar:hover .skill-radar-detail,
++.skill-radar:focus-within .skill-radar-detail,
++.skill-radar[data-pinned] .skill-radar-detail,
++.skill-radar:hover .skill-radar-line,
++.skill-radar:focus-within .skill-radar-line,
++.skill-radar[data-pinned] .skill-radar-line { opacity: 1; }
++.skill-radar-axis { stroke-opacity: 0.45; stroke-width: 1; }
++.skill-radar-ring-number { fill: var(--ink-3); fill-opacity: 0.7; font-family: var(--font-mono); font-size: var(--type-meta); }
++
++.skill-radar-arm { cursor: pointer; outline: none; }
++.skill-radar-hit { fill: currentColor; fill-opacity: 0; }
++.skill-radar-line { stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
++.skill-radar-thick { fill: currentColor; }
++.skill-radar-tip { fill: var(--skill-radar-tip); stroke: currentColor; stroke-width: 2; }
++.skill-radar-conversation { fill: var(--ink); fill-opacity: 0.05; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1.2; stroke-linejoin: round; pointer-events: none; }
++.skill-radar-arm:focus-visible .skill-radar-thick { stroke: var(--focus-ring); stroke-width: 2; }
++
++.skill-radar-label-frame { overflow: visible; pointer-events: none; }
++.skill-radar-label { transition: opacity var(--dur-fast) var(--ease-out); box-sizing: border-box; height: 100%; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); font-size: var(--type-meta); line-height: var(--leading-tight); }
++.skill-radar-label[data-align='start'] { align-items: flex-start; text-align: start; }
++.skill-radar-label[data-align='end'] { align-items: flex-end; text-align: end; }
++.skill-radar-label[data-align='center'] { align-items: center; text-align: center; }
++.skill-radar-label[data-vertical='start'] { justify-content: flex-start; }
++.skill-radar-label[data-vertical='end'] { justify-content: flex-end; }
++.skill-radar-label[data-vertical='center'] { justify-content: center; }
++.skill-radar-label strong { font-weight: var(--weight-semibold); }
++.skill-radar-label span { color: var(--ink-3); font-family: var(--font-mono); }
++.skill-radar-label[data-active] { height: auto; max-height: 100%; background: var(--sheet); border: var(--border-width) solid currentColor; box-shadow: var(--shadow-sm); }
++.skill-radar-label[data-active][data-vertical='end'] { margin-top: auto; }
++.skill-radar-label[data-active][data-vertical='center'] { margin-block: auto; }
++.skill-radar-label[data-active] span { color: var(--ink-2); }
++/* While one arm is active, the other labels step back so the expanded one reads first. */
++.skill-radar:has(.skill-radar-label[data-active]) .skill-radar-label:not([data-active]) { opacity: 0.3; }
++
++/* The chip glyph: the resting picture only, sized by its owner. */
++.skill-radar-glyph { display: inline-block; flex: none; max-width: none; margin-inline: 0; }
++.skill-radar-glyph .skill-radar-target { stroke-width: 1; }
++.skill-radar-glyph .skill-radar-edge { stroke-width: 0.5; }
++.skill-radar-glyph .skill-radar-earned { stroke-width: 0.4; stroke-dasharray: 1 0.8; }
++
++@media (prefers-reduced-motion: reduce) {
++  .skill-radar-detail, .skill-radar-line, .skill-radar-label { transition: none; }
++}
+diff --git a/ui/src/styles/features/skills/skill-levels.css b/ui/src/styles/features/skills/skill-levels.css
+new file mode 100644
+index 0000000..8fdbd3f
+--- /dev/null
++++ b/ui/src/styles/features/skills/skill-levels.css
+@@ -0,0 +1,39 @@
++/* Skill levels panel (features/skills/levels/SkillLevelsPanel.tsx): the level
++   header, the radar and the per-skill rows that the radar filters. Row colour is
++   the skill's own jewel tone, set inline as `color` on the row. */
++.skill-levels { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-6); }
++.skill-levels-head { display: flex; align-items: center; gap: var(--space-6); }
++.skill-level-badge { flex: none; width: var(--control-height); height: var(--control-height); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-pill); background: var(--chrome); border: var(--border-width-strong) solid var(--ink-2); color: var(--ink); font-size: var(--type-title); font-weight: var(--weight-bold); line-height: var(--leading-none); }
++.skill-level-badge small { font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-regular); color: var(--ink-3); }
++.skill-levels-summary { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
++.skill-levels-summary strong { font-size: var(--type-body); font-weight: var(--weight-semibold); }
++.skill-levels-summary > span { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); }
++.skill-levels-xp { flex: none; color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
++.skill-levels-band, .skill-levels-row progress { appearance: none; height: var(--space-3); border: 0; border-radius: var(--radius-pill); background: var(--track); overflow: hidden; }
++.skill-levels-band { flex: none; width: calc(120px * var(--layout-scale)); color: var(--progress-mark); }
++.skill-levels-band::-webkit-progress-bar, .skill-levels-row progress::-webkit-progress-bar { background: var(--track); }
++.skill-levels-band::-webkit-progress-value, .skill-levels-row progress::-webkit-progress-value { background: currentColor; border-radius: var(--radius-pill); }
++.skill-levels-band::-moz-progress-bar, .skill-levels-row progress::-moz-progress-bar { background: currentColor; border-radius: var(--radius-pill); }
++
++.skill-levels-list-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: var(--control-height-sm); }
++.skill-levels-list-head h3 { margin: 0; font-size: var(--type-ui); font-weight: var(--weight-semibold); }
++.skill-levels-hint { color: var(--ink-3); font-size: var(--type-meta); }
++.skill-levels-filter { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-6); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink); font-size: var(--type-meta); font-weight: var(--weight-medium); cursor: pointer; }
++.skill-levels-filter span { color: var(--ink-3); }
++
++.skill-levels-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
++.skill-levels-row { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr) auto calc(48px * var(--layout-scale)) auto auto; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-2); background: none; border: 0; border-bottom: var(--border-width) solid var(--line-soft); border-radius: 0; text-align: start; font-size: var(--type-ui); cursor: pointer; }
++.skill-levels-row:hover, .skill-levels-row[aria-pressed='true'] { background: var(--chrome); }
++.skill-levels-dot { width: var(--space-4); height: var(--space-4); border-radius: var(--radius-pill); background: currentColor; }
++.skill-levels-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-medium); }
++.skill-levels-level { padding: 0 var(--space-2); border-radius: var(--radius-xs); background: var(--chrome); color: var(--ink); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
++.skill-levels-row progress { width: 100%; }
++.skill-levels-points, .skill-levels-row-xp { color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
++.skill-levels-row-xp { color: var(--ink-2); font-weight: var(--weight-semibold); }
++
++.skill-levels-legend { display: flex; align-items: center; gap: var(--space-4); margin: 0; color: var(--ink-2); font-size: var(--type-meta); }
++.skill-levels-legend-mark { flex: none; width: var(--space-8); height: var(--space-4); border: var(--border-width-strong) solid var(--ink-2); border-radius: var(--radius-xs); background: var(--chip); }
++/* What the pointed or pinned skill covers; the resting text says how to use the radar. */
++.skill-levels-focus { display: flex; flex-direction: column; gap: var(--space-1); min-height: calc(var(--type-body) * 3); padding: var(--space-4) var(--space-6); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); color: var(--ink-3); font-size: var(--type-ui); line-height: var(--leading-snug); }
++.skill-levels-focus strong { font-weight: var(--weight-semibold); }
++.skill-levels-focus span { color: var(--ink-2); }
+diff --git a/ui/src/styles/foundations/tokens.css b/ui/src/styles/foundations/tokens.css
+index f7b6421..dc690c7 100644
+--- a/ui/src/styles/foundations/tokens.css
++++ b/ui/src/styles/foundations/tokens.css
+@@ -162,6 +162,40 @@
+   /* Text on a domain ink (di-*): the XP badge. */
+   --ink-on-domain: #ffffff;
+ 
++  /* Skill colours: one jewel tone per catalog skill, equal lightness and chroma,
++     hue stepping from orchid to peridot (no reds, oranges or yellows). The mark
++     draws radar arms, row dots and bars; -ink is the skill as text on sheet.
++     Read from domain/learning/catalog/skill-domains.ts. */
++  --skill-identify-describe: #9656ba;  /* Orchid */
++  --skill-identify-describe-ink: #65407a;
++  --skill-possession-relationships: #815fc9;  /* Amethyst */
++  --skill-possession-relationships-ink: #584583;
++  --skill-quantity: #6668d3;  /* Iris */
++  --skill-quantity-ink: #474b88;
++  --skill-present-situations: #4372d4;  /* Sapphire */
++  --skill-present-situations-ink: #345189;
++  --skill-past-reference: #057dc7;  /* Cobalt */
++  --skill-past-reference-ink: #175686;
++  --skill-future-reference: #1082ab;  /* Cerulean */
++  --skill-future-reference-ink: #085a78;
++  --skill-wants-preferences: #00869a;  /* Lagoon */
++  --skill-wants-preferences-ink: #075d6b;
++  --skill-ability-permission-necessity: #0c888a;  /* Aquamarine */
++  --skill-ability-permission-necessity-ink: #005f60;
++  --skill-affirm-negate: #118a7a;  /* Teal */
++  --skill-affirm-negate-ink: #006154;
++  --skill-questions-answers: #0e8d63;  /* Jade */
++  --skill-questions-answers-ink: #006243;
++  --skill-requests: #198f38;  /* Emerald */
++  --skill-requests-ink: #266130;
++  --skill-reasons-conditions: #59880a;  /* Peridot */
++  --skill-reasons-conditions-ink: #405d1a;
++  /* The skill radar fill fades from the sheet at the centre to full colour at the edge. */
++  --skill-radar-core: color-mix(in srgb, var(--sheet) 92%, transparent);
++  --skill-radar-mid: color-mix(in srgb, var(--sheet) 35%, transparent);
++  /* The dot on the end of a pointed or pinned radar arm. */
++  --skill-radar-tip: #ffffff;
++
+   /* Recording spectrum intensity; independent of skill-domain colours. */
+   --spectrogram-cursor: #46ff9a;
+   --spectrogram-low: #171b36;
+@@ -409,6 +443,30 @@
+   --di-descriptions: #bfa4f0;
+   --d-situating: #3fc0af;
+   --di-situating: #3fc0af;
++  --skill-identify-describe: #c289e4;
++  --skill-identify-describe-ink: #dcbcf1;
++  --skill-possession-relationships: #ad91f2;
++  --skill-possession-relationships-ink: #cfc0f9;
++  --skill-quantity: #929afa;
++  --skill-quantity-ink: #bfc6ff;
++  --skill-present-situations: #75a3fc;
++  --skill-present-situations-ink: #b1cbfc;
++  --skill-past-reference: #50acf6;
++  --skill-past-reference-ink: #a0d0fc;
++  --skill-future-reference: #16b3eb;
++  --skill-future-reference-ink: #93d5f5;
++  --skill-wants-preferences: #09b8d3;
++  --skill-wants-preferences-ink: #8bd9ea;
++  --skill-ability-permission-necessity: #15bbbd;
++  --skill-ability-permission-necessity-ink: #89dbdb;
++  --skill-affirm-negate: #06bfa8;
++  --skill-affirm-negate-ink: #8fdccc;
++  --skill-questions-answers: #35bf8b;
++  --skill-questions-answers-ink: #9adbbc;
++  --skill-requests: #62bc6f;
++  --skill-requests-ink: #a8d9ad;
++  --skill-reasons-conditions: #87b651;
++  --skill-reasons-conditions-ink: #b9d69e;
+   --ink-on-domain: var(--bg);
+ }
+ 
+diff --git a/ui/src/styles/index.css b/ui/src/styles/index.css
+index 659689c..61d49f6 100644
+--- a/ui/src/styles/index.css
++++ b/ui/src/styles/index.css
+@@ -34,6 +34,7 @@
+ @import './components/reading.css';
+ @import './components/activity.css';
+ @import './components/skill-list.css';
++@import './components/skill-radar.css';
+ @import './components/progress-counters.css';
+ @import './components/skill-guide.css';
+ @import './components/errors.css';
+@@ -67,6 +68,7 @@
+ @import './features/conversation/progress-report.css';
+ @import './components/inspection-controls.css';
+ @import './features/skills/learner-model.css';
++@import './features/skills/skill-levels.css';
+ @import './components/yaml-export.css';
+ @import './components/spectrogram.css';
+ @import './components/inspection-tracks.css';
+diff --git a/ui/tools/skill-levels-preview.html b/ui/tools/skill-levels-preview.html
+new file mode 100644
+index 0000000..d5bc8f9
+--- /dev/null
++++ b/ui/tools/skill-levels-preview.html
+@@ -0,0 +1 @@
++<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Skill levels review</title></head><body><div id="root"></div><script type="module" src="/tools/skill-levels-preview.tsx"></script></body></html>
+diff --git a/ui/tools/skill-levels-preview.tsx b/ui/tools/skill-levels-preview.tsx
+new file mode 100644
+index 0000000..fefa892
+--- /dev/null
++++ b/ui/tools/skill-levels-preview.tsx
+@@ -0,0 +1,85 @@
++/** Production skill-level surfaces with local fixture data: the top bar's level
++ * chip, the coach panel's Skills tab, a wide panel as on the Skills page, and a
++ * new learner. `?theme=dark` renders the dark theme. */
++import { createRoot } from 'react-dom/client'
++import { mockIPC } from '@tauri-apps/api/mocks'
++import { TopBar } from '../src/app/shell/TopBar'
++import { CoachPanelTabs } from '../src/features/conversation/coaching/CoachPanelTabs'
++import { ConversationProgress } from '../src/features/conversation/progress/ConversationProgress'
++import { PracticeContext } from '../src/features/conversation/session/PracticeContext'
++import { SkillLevelsPanel } from '../src/features/skills/levels/SkillLevelsPanel'
++import { SkillEvidenceContext } from '../src/state/learning/useSkillEvidence'
++import { EffortProgressContext } from '../src/state/learning/EffortProgressContext'
++import { useSkillEvidenceStore } from '../src/state/learning/skill-evidence'
++import { useSettingsStore } from '../src/state/settings/settings'
++import { skillDemo } from '../src/domain/learning/catalog/skillDemo'
++import { conversationEvidence, unreportedInput, type SkillSnapshot } from '../src/domain/learning/evidence/skills'
++import { XpChip } from '../src/features/conversation/progress/XpChip'
++import { PREVIEW_SETTINGS } from './preview-settings'
++import '../src/styles/index.css'
++
++const theme = new URLSearchParams(location.search).get('theme')
++if (theme) document.documentElement.dataset.theme = theme
++
++/** Credited messages per skill, in catalog order: a level-4 learner whose weakest skills have 5. */
++const POINTS = [9, 6, 11, 5, 7, 5, 13, 8, 6, 9, 5, 6]
++/** How many of each skill's credits came from the preview conversation. */
++const IN_CONVERSATION = [1, 0, 2, 1, 1, 0, 2, 0, 1, 2, 0, 1]
++
++function learner(points: number[], inConversation: number[]): SkillSnapshot {
++  const snapshot = structuredClone(skillDemo)
++  const skills = snapshot.catalog.filter(node => node.kind === 'skill')
++  if (skills.length !== points.length) throw new Error(`Fixture has ${points.length} skills; catalog has ${skills.length}`)
++  let message = 0
++  skills.forEach((skill, index) => {
++    for (let n = 0; n < points[index]; n++) {
++      const attempt = `${skill.id}-${n}`
++      const chat = n < inConversation[index] ? 'preview' : 'earlier'
++      const xp = 10 + ((index * 7 + n * 3) % 9)
++      snapshot.records.push({ attempt_id: attempt, session_id: 's', turn_id: message, message_id: message, replaces_message_id: null, construct_registry_hash: snapshot.construct_registry_hash, mapping_error: null, support_step: null, chat_id: chat, learner_id: 'demo', target: snapshot.target, native: 'english', source: 'Quisiera un café, por favor.', input: unreportedInput(), at_secs: 1790000000 + message * 60, model: 'preview', provider_mode: 'hosted', catalog_version: snapshot.catalog_version, prompt_version: 'preview', status: 'complete', error: null, assessment: { judgments: [{ skill_id: skill.id, presence: 'direct', quotes: ['Quisiera un café'], rationale: 'Preview evidence.' }] } })
++      snapshot.profile.credits.push({ attempt_id: attempt, skill_id: skill.id, xp })
++      snapshot.profile.skills.find(item => item.skill_id === skill.id)!.xp += xp
++      snapshot.profile.xp += xp
++      message++
++    }
++  })
++  return snapshot
++}
++
++const snapshot = learner(POINTS, IN_CONVERSATION)
++const newcomer = structuredClone(skillDemo)
++
++mockIPC((command) => {
++  if (command === 'get_language_totals') return [{ target: snapshot.target, name: 'Spanish', nativeName: 'Español', languageTag: 'es', xp: snapshot.profile.xp, conversations: 4, partnerUnderstood: 128, noIssuesFlagged: 82, explorations: 0, bot: 0, revisionsSent: 24, practiceAttempts: 306 }]
++  if (command === 'get_effort_progress') return { target: snapshot.target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, noIssuesFlagged: 1, explorations: 0, bot: 0, recent: [] }
++  throw new Error(`Preview has no fixture for ${command}`)
++})
++useSettingsStore.setState({ settings: { ...PREVIEW_SETTINGS, target_language: snapshot.target, my_languages: [snapshot.target] }, revision: 1 })
++useSkillEvidenceStore.setState({ snapshot, scope: 1 })
++
++function Preview() {
++  const effort = { target: snapshot.target, partnerUnderstood: 128, revisionsSent: 24, practiceAttempts: 306, noIssuesFlagged: 82, explorations: 0, bot: 0, recent: [] }
++  return <EffortProgressContext value={{ target: snapshot.target, value: effort, error: null, arrived: [], effects: false }}>
++    <SkillEvidenceContext value={{ snapshot, error: null }}>
++      <PracticeContext value={{ chatId: 'preview', selected: null, selectionVersion: 0, select: () => {} }}>
++        <div className="app" data-place="chat" style={{ height: 'auto', minHeight: '100vh' }}>
++          <TopBar languagePicker={<button className="learning-picker"><span className="learning-picker-identity"><span>Español</span></span><span>▾</span></button>} />
++          <div data-preview="chat-head" className="chat-head" style={{ margin: '12px 24px 0' }}><strong className="conversation-title">María</strong><XpChip chatId="preview" /></div>
++          <div data-preview="surfaces" style={{ display: 'flex', gap: 24, padding: 24, alignItems: 'flex-start' }}>
++            <section data-preview="coach" className="break" style={{ width: 420, height: 1100, flex: 'none', display: 'flex', flexDirection: 'column' }}>
++              <CoachPanelTabs tab="skills" onTab={() => {}} />
++              <ConversationProgress chatId="preview"><SkillLevelsPanel snapshot={snapshot} conversation={conversationEvidence(snapshot, 'preview')} /></ConversationProgress>
++            </section>
++            <main data-preview="page" className="skills-page" style={{ flex: 1, minWidth: 0 }}>
++              <SkillLevelsPanel snapshot={snapshot} conversation={null} />
++            </main>
++            <aside data-preview="newcomer" style={{ width: 360, flex: 'none' }}>
++              <SkillLevelsPanel snapshot={newcomer} conversation={null} />
++            </aside>
++          </div>
++        </div>
++      </PracticeContext>
++    </SkillEvidenceContext>
++  </EffortProgressContext>
++}
++createRoot(document.getElementById('root')!).render(<Preview />)

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: hindi-skills-2026-10-04
+language: hindi
+skill_id: feelings_viewpoints
+guidance: Evaluate wanting, preferences, emotion, judgment and agreement as expressed in Hindi.
+  मैं सीखना चाहती हूँ expresses a female speaker’s desire; चाहना takes an infinitive here. मुझे
+  चाय पसंद है uses an experiencer construction, not an English subject plus like; मैं चाय पसंद
+  है alone fails that intended ordinary construction. मेरा मन or मुझे लगना may locate a stance
+  with the speaker. मैं खुश हूँ expresses emotion; मेरे ख़याल से introduces a judgment. मैं आपसे
+  सहमत हूँ relates agreement to a person or expressed position; समझ में आया can instead
+  acknowledge comprehension without endorsement. चाय can answer a question about which drink is
+  preferred contextually, but merely naming the drink without that setting does not establish
+  liking. A gender mismatch in a separate event does not cancel another correct expression of
+  preference. Establish whose stance is expressed and distinguish a desire from an undertaking
+  to act for another person.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - snell_hindi_skeleton2026
+  generation: null
+  review:
+    status: needs_review
+    revision: hindi-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance: *a1

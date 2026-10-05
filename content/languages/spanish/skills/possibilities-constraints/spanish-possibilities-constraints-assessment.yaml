@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: spanish-communication-2026-10-03
+skill_id: possibilities_constraints
+language: spanish
+guidance: Spanish poder can express ability, permission or possibility; use the exchange to
+  distinguish them. Tengo que + infinitive and hay que + infinitive express requirements; tengo de
+  ir is not the corresponding tener que construction. Puede que + subjunctive expresses possibility.
+  No estoy seguro expresses uncertainty. A future form can express conjecture rather than future
+  time. A question such as ¿Puedes cerrar la puerta? usually requests action rather than testing
+  ability. Do not credit this group from its modal form alone.
+varieties:
+  spanish-spain:
+    disposition: supplement
+    text: These core examples are usable in Spain. Accept valid regional uses rather than requiring one
+      national norm. Both simple and compound past constructions may be appropriate depending on
+      context; do not require a compound past simply because an event happened today. Vosotros forms
+      are available for informal plural address; ustedes forms are also grammatical in their
+      appropriate variety or register.
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: &a1
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+  spanish-mexico:
+    disposition: supplement
+    text: These core examples are usable in Mexico. Ustedes is the usual plural address form and takes
+      third-person plural agreement. Do not require vosotros or a Spain-specific past-tense
+      preference. Judge the actual context and construction; valid local choices do not count as
+      errors.
+    provenance:
+      origin: ai
+      authorship: AI-generated variety supplement; no independent human review.
+      sources: *a1
+      generation: null
+      review:
+        status: needs_review
+        revision: spanish-communication-2026-10-03
+        scope: Entire document; linguistic review pending.
+provenance:
+  origin: ai
+  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
+    review; automated validation checks structure only.
+  sources: *a1
+  generation: null
+  review:
+    status: needs_review
+    revision: spanish-communication-2026-10-03
+    scope: Entire document; linguistic review pending.

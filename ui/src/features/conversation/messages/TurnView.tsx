@@ -35,11 +35,15 @@ import { PracticeContext } from '../session/PracticeContext'
 import { coachFlags, coachMarks } from '../../../domain/conversation/coach-marks'
 import { memo, useContext, useEffect, useRef, useState } from 'react'
 import { MessageFeedback } from '../coaching/MessageFeedback'
+import { MessageAssessmentRequests } from '../coaching/MessageAssessmentRequests'
+import { StartPhraseButton } from './StartPhraseButton'
+import { useDeferredReading } from '../reading/useDeferredReading'
 import { PersonaReaction } from '../partners/PersonaReaction'
 import type { GuidedTurnResult } from '../../../types'
 import type { CoachControl, CoachDecision, CoachObservationView } from '../../../generated/contracts'
 
 export interface TurnShape {
+  userMessageId?: string
   replyState?: import('../../../domain/conversation/reply-state').ReplyState
   execution?: import('../../../generated/contracts').TurnView
   turnId?: string
@@ -76,6 +80,7 @@ export interface TurnRecording {
 }
 
 export interface TurnViewProps {
+  onStartPhrase?: (messageId: string, phrase: string) => Promise<void>
   /** Restrict the coach copy to its selected message without changing its controls. */
   onlySide?: 'user' | 'assistant'
   turn: TurnShape
@@ -119,6 +124,7 @@ export const TurnView = memo(function TurnView(props: TurnViewProps) {
 
 // Record-specific controls reset on revision; the presentation floor stays put.
 function TurnContents({
+  onStartPhrase,
   onlySide,
   turn,
   reviewing,
@@ -151,7 +157,7 @@ function TurnContents({
   const replyText = turn.assistant?.reply || replyStream?.text || retainedReplyText(turn.execution) || ''
   const reveal = useReplyReveal(replyText, arrivedPending.current && (Boolean(turn.assistant) || turn.replyState?.state === 'pending'))
 
-  const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
+  const { autoTranslate, alwaysRomanize, alwaysPronunciation, supportsRomanization } = useReadingPreferences()
   // Your recording's inspector opens only when you ask for it.
   const [inspectorOpen, setInspectorOpen] = useState(false)
   const [partnerInspectorOpen, setPartnerInspectorOpen] = useState(false)
@@ -160,7 +166,9 @@ function TurnContents({
     enabled: recording?.enabled ?? false, rate: recording?.rate ?? 1, volume: recording?.volume ?? 1, onError: setRecordingFailure })
   const aidsEnabled = autoTranslate || alwaysRomanize || alwaysPronunciation
   const [userWordsOverride, setUserWordsOverride] = useState<boolean | null>(null)
+  const [userSoundOverride, setUserSoundOverride] = useState<boolean | null>(null)
   const userWordsOpen = userWordsOverride ?? aidsEnabled
+  const userSoundOpen = userSoundOverride ?? (userWordsOpen && (userWordsOverride === true || alwaysRomanize || alwaysPronunciation))
   const aidSpace = useReadingAidSpace(userWordsOverride === true)
   useEffect(() => { setUserWordsOverride(null) }, [autoTranslate, alwaysRomanize, alwaysPronunciation])
   const { snapshot } = useContext(SkillEvidenceContext)
@@ -179,6 +187,14 @@ function TurnContents({
     return mark ? <span key={start} className="coach-flag" data-severity={mark.severity}><TargetText text={text} /></span> : <TargetText key={start} text={text} />
   })
   const assistant = turn.assistant
+  const eligible = !turn.replacedBy && !['cancelled', 'invalidated'].includes(turn.execution?.state ?? '')
+  const coaching = turn.execution?.operations.find(operation => operation.kind === 'coach_feedback')
+  // Jev can finish before coaching. Its result must not hide the error check.
+  const coachingPending = eligible && !turn.coachError && (coaching
+    ? ['ready', 'running', 'waiting_dependencies'].includes(coaching.state)
+    : reviewing && !turn.coach)
+  const userReading = useDeferredReading(eligible ? turn.userMessageId : undefined, turn.userTranslationState, turn.userGlossState)
+  const partnerReading = useDeferredReading(eligible ? assistant?.messageId : undefined, assistant?.translationState, assistant?.glossState)
   const userTranslation = turn.userTranslation ?? assistant?.user_translation
 
   const userSegments = turn.userSavedGloss?.segments ?? (turn.user && assistant ? anchoredTokenGlosses(turn.user, assistant.user_tokens) : [])
@@ -195,13 +211,15 @@ function TurnContents({
   const learnerPlay = inspectable
     ? { playing: recordingPlayback.playing, disabled: !inspectable.enabled || !inspectable.result.audioBase64, onToggle: recordingPlayback.toggle }
     : readAloud
-  const learnerTools: MessageTool[] = userTranslation || translationPending(turn.userTranslationState)
-    ? [{ key: 'translate', label: tr("Translate"), ariaLabel: tr("Translate your message"),
-      pressed: showUserTranslation, pending: translationPending(turn.userTranslationState), onSelect: () => setShowUserTranslation(!showUserTranslation) }]
+  const learnerTools: MessageTool[] = userTranslation || translationPending(turn.userTranslationState) || (eligible && turn.userMessageId)
+    ? [messageTools.translate({ ariaLabel: tr("Translate your message"),
+      pressed: showUserTranslation && Boolean(userTranslation), pending: translationPending(turn.userTranslationState), onSelect: () => { setShowUserTranslation(!userTranslation || !showUserTranslation); if (!userTranslation) void userReading.request('translation') } })]
     : []
   const learnerMore = (coachTool: MessageTool): MessageTool[] => [
-    messageTools.words({ pressed: userWordsOpen, pending: turn.userGlossState === 'running', disabled: !userSegments.length,
-      onSelect: () => setUserWordsOverride(!userWordsOpen) }),
+    messageTools.words({ pressed: userWordsOpen, pending: turn.userGlossState === 'running', disabled: !userSegments.length && !(eligible && turn.userMessageId),
+      onSelect: () => { setUserWordsOverride(!userSegments.length || !userWordsOpen); if (!userSegments.length) void userReading.request('word_gloss') } }),
+    ...(userSegments.some(part => supportsRomanization ? part.romanization || part.pronunciation : part.pronunciation)
+      ? [messageTools.pronunciation({ pressed: userSoundOpen, onSelect: () => setUserSoundOverride(!userSoundOpen) })] : []),
     coachTool,
   ]
 
@@ -211,7 +229,7 @@ function TurnContents({
         <div className="learner-turn">
           {editing && <span className="learner-turn-editing"><ToolbarIcon name="edit" size={12} />{tr("Fixing this message")}</span>}
           {pendingEdit ? <PendingLearner message={pendingEdit} rtl={rtl} /> : <>
-          <MessageFeedback onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={reviewing} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
+          <MessageFeedback requests={turn.userMessageId && !turn.replacedBy && !['cancelled', 'invalidated'].includes(turn.execution?.state ?? '') ? <MessageAssessmentRequests messageId={turn.userMessageId} execution={turn.execution} assessed={Boolean(turn.conversationFeedback)} coached={Boolean(turn.coach)} /> : undefined} onAddContext={onAddContext} feedbackContext={turn.feedbackContext} conversationFeedback={turn.conversationFeedback} onRetry={onRetryHelp} analysis={<AnalysisSentence label={tr("Your message")} text={turn.user} translation={userTranslation} gloss={turn.userSavedGloss} tokens={assistant?.user_tokens} />} skills={<MessageSkillAnalysis messageId={turn.id} source={turn.user} />} id={turn.id} text={turn.user} feedback={turn.coach} decision={turn.coachDecision} onControl={onCoachControl ? control => onCoachControl(turn, control) : undefined} error={turn.coachError} reviewing={coachingPending} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} onAsk={onAskCoach}
             reward={<>{(turn.fixes ?? 0) > 0 && <FixCount count={turn.fixes!} />}<MessageXpButton messageId={turn.id} source={turn.user} /></>}
             bubble={coachTool => (
               <div
@@ -219,11 +237,14 @@ function TurnContents({
                 className={`msg chat-message me${selectedSide === 'user' ? ' focused' : ''}${userSegments.length ? '' : ' plain'}${userAidsReserved ? ' aids-reserved' : ''}${rtl ? ' rtl' : ''}${inspectable && inspectorOpen ? ' inspecting' : ''} with-actions`}
                 style={aidSpace}
               >
+                <span data-phrase-source className={coachingPending ? 'message-coaching-pending' : undefined}>
                 {userSegments.length > 0
-                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
+                  ? <SavedGlossText revealAids={userWordsOverride === true} showAids={userWordsOpen} showSound={userSoundOverride ?? undefined} key={turn.userSavedGloss?.attemptId ?? 'tokens'} text={turn.user!} segments={userSegments} decorateSegment={decorateMarks} />
                   : plainMarked}
+                </span>
                 {showUserTranslation && userTranslation && <div className="trans" dir="auto">{userTranslation}</div>}
                 <TranslationStatus state={turn.userTranslationState} shown={showUserTranslation && !userTranslation} />
+                {userReading.status}
                 <GlossAssistance assistant={{ savedGloss: turn.userSavedGloss, glossState: turn.userGlossState, glossError: turn.userGlossError, glossOperationId: turn.userGlossOperationId }} onRetryGloss={onRetryGloss} />
                 <EvidenceMappingNotice snapshot={snapshot} chatId={practice?.chatId ?? null} messageId={turn.id} />
                 {inspectable && inspectorOpen && <CompactInspection inspection={inspectable.result.inspection} playback={recordingPlayback}
@@ -236,6 +257,7 @@ function TurnContents({
                     {onEditUser && flags.length === 0 && <button type="button" className="message-tools-icon" disabled={editDisabled} aria-label={tr("Edit message")} title={tr("Edit message")}
                       onClick={event => { event.stopPropagation(); onEditUser(turn) }}><ToolbarIcon name="edit" /></button>}
                     <AddToDrillButton text={turn.user!} />
+                    {eligible && turn.userMessageId && onStartPhrase && <StartPhraseButton messageId={turn.userMessageId} text={turn.user!} onStart={onStartPhrase} />}
                   </>} />
                 {recordingFailure != null && <ErrorNotice as="p" error={recordingFailure}>{tr("Audio playback failed.")}</ErrorNotice>}
                 {(onSelectMessage || selectedSide === 'user') && <SelectionRing />}
@@ -250,6 +272,7 @@ function TurnContents({
             {turn.user && <PersonaReaction userGloss={turn.userSavedGloss} replyGloss={assistant.savedGloss} reaction={turn.reaction} error={turn.reactionError} message={turn.user} reply={assistant.reply} onEdit={!editDisabled && onEditUser ? () => onEditUser(turn) : undefined} />}
           </span>
           <TargetMessage provenance={null}
+            additionalActions={eligible && assistant.messageId && onStartPhrase && <StartPhraseButton messageId={assistant.messageId} text={assistant.reply} onStart={onStartPhrase} />}
             layout="bubble"
             text={assistant.reply}
             sourcePresentation={reveal.revealing ? <ReceivedText text={assistant.reply} visibleText={reveal.text} streaming rtl={rtl} /> : undefined}
@@ -257,13 +280,15 @@ function TurnContents({
             segmentsKey={assistant.savedGloss ? `${assistant.savedGloss.operationId}:${assistant.savedGloss.attemptId}` : 'tokens'}
             segmentsPending={['ready', 'waiting_dependencies', 'running'].includes(assistant.glossState ?? '')}
             lookupWords={false}
+            onRequestWords={eligible && assistant.messageId ? () => partnerReading.request('word_gloss') : undefined}
+            onRequestTranslation={eligible && assistant.messageId ? () => partnerReading.request('translation') : undefined}
             translation={assistant.translation || null}
             translateLabel={tr("Translate partner message")}
             romanization={null}
             pronunciation={null}
             annotation={null}
             translationState={assistant.translationState}
-            status={<GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />}
+            status={<><GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />{partnerReading.status}</>}
             speech={ttsReady && onSpeak ? { speaking, preparing: partnerSpeech?.preparing, disabled: partnerSpeech && !partnerSpeech.enabled, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
             analysis={{ pending: assistant.explanationsState === 'running', onOpen: () => onBubbleTap(turn.id) }}
             inspect={partnerSpeech ? { kind: 'available', open: partnerInspectorOpen, disabled: !partnerSpeech.enabled, onToggle: () => {

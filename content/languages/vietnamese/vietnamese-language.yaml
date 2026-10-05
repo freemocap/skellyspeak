@@ -1,0 +1,145 @@
+# yaml-language-server: $schema=../../rust-schemas/language.yaml
+schema_version: 1
+identity:
+  id: vietnamese
+  name: Vietnamese
+  native_name: Tiếng Việt
+  family: austroasiatic
+  review: needs_review
+integrations:
+  language_tag: vi
+  transcription: vi
+definitions:
+  orthographies:
+    quoc-ngu:
+      script: latin
+      guidance:
+        - scope: target_writing
+          text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks,
+            including stacked diacritics. Preserve quoted source spelling and Unicode sequences
+            exactly. Do not strip accents or replace Vietnamese text with an ASCII approximation.
+          sources:
+            - unicode17_europe
+        - scope: explanation_writing
+          text: Write Vietnamese in chữ Quốc ngữ, retaining vowel distinctions, đ and all tone marks,
+            including stacked diacritics. Preserve quoted source spelling and Unicode sequences
+            exactly. Do not strip accents or replace Vietnamese text with an ASCII approximation.
+          sources:
+            - unicode17_europe
+  romanization_schemes: {}
+defaults:
+  variety: vietnamese-vietnam
+  orthography:
+    local: quoc-ngu
+  scalars: {}
+  romanization:
+    mode: disabled
+  supported_romanizations: []
+traits:
+  - tones
+varieties:
+  - id: vietnamese-vietnam
+    name: Vietnam
+    description: Contemporary Vietnamese in Vietnam, with standard writing and context-appropriate
+      everyday conversation; no single regional accent is prescribed.
+    review: needs_review
+    sources:
+      - unicode17_europe
+    overrides: {}
+    guidance: []
+guidance: []
+conversation:
+  greeting:
+    text: Xin chào
+    romanizations: {}
+  default_partner:
+    name: Linh
+    romanizedName: null
+    age: 28
+    location: Hanoi, Vietnam
+    occupation: Designs signs for small shops
+    background: Grew up in Hanoi and shares a studio with another designer.
+    currentSituation: Making signs for a neighbourhood market and planning a visit to a friend.
+    interests:
+      - drawing
+      - walking by the lake
+    opinions:
+      - Signs should be easy to read from across the street.
+    interestingFacts:
+      - Keeps sketches of old shopfronts.
+    favoriteBooks:
+      - The Little Prince — Antoine de Saint-Exupéry
+    favoriteMovies:
+      - My Neighbor Totoro (1988)
+    manner: Observant and practical. Uses everyday Vietnamese and context-sensitive forms of address.
+    quirks:
+      - Tests lettering on scraps of cardboard.
+    vibe:
+      - ✏️
+      - 🌳
+practice:
+  review: needs_review
+  sets:
+    absolute_zero:
+      - Có.
+      - Không.
+      - Cho tôi nước.
+      - Tôi ở đây.
+      - Trời nóng.
+      - Tôi đói.
+      - Đây là gì?
+      - Tôi không biết.
+    beginner:
+      - Tôi là giáo viên.
+      - Căn phòng này yên tĩnh.
+      - Tôi có một chiếc xe đạp.
+      - Đây là chị tôi.
+      - Tôi có hai quyển sách.
+      - Tôi muốn một ít nước.
+      - Tôi làm việc ở đây.
+      - Cô ấy đang đọc sách.
+    intermediate:
+      - Hôm qua tôi đến đây.
+      - Tôi ăn rồi.
+      - Ngày mai tôi sẽ đến.
+      - Chúng tôi sắp đi.
+      - Tôi thích cà phê.
+      - Tôi muốn về nhà.
+      - Tôi có thể bơi.
+      - Tôi cần đi.
+    advanced:
+      - Nếu biết cuộc họp kéo dài đến thế, tôi đã thay đổi kế hoạch về nhà từ trước.
+      - Điều khiến tôi lo nhất là quyết định này sẽ ảnh hưởng thế nào đến những người chưa được hỏi
+        ý kiến.
+      - Mặc dù đề xuất có vẻ hứa hẹn, chúng ta vẫn nên cân nhắc kỹ những hệ quả có thể xảy ra.
+      - Tôi thà hoãn chuyến đi còn hơn vội vàng đưa ra một quyết định mà sau này có thể hối tiếc.
+      - Càng đọc kỹ bản báo cáo, tôi càng thấy những kết luận trong đó chưa thực sự thuyết phục.
+      - Dự án có thành công hay không phụ thuộc rất nhiều vào cách chúng ta phân chia trách nhiệm.
+      - Không phải tôi phản đối ý tưởng đó, chỉ là tôi chưa chắc đây có phải thời điểm thích hợp hay
+        không.
+      - Đến khi chúng tôi hiểu ra chuyện gì đã xảy ra thì đã rất khó để khắc phục tình hình.
+    social:
+      - Xin chào!
+      - Chào bạn!
+      - Bạn khỏe không?
+      - Tôi khỏe, cảm ơn.
+      - Bạn tên là gì?
+      - Rất vui được gặp bạn.
+      - Cảm ơn bạn nhiều.
+      - Không có gì.
+      - Xin lỗi.
+      - Cho tôi hỏi một chút.
+      - Tạm biệt!
+      - Hẹn gặp lại!
+      - Chúc bạn một ngày tốt lành!
+      - Chúc ngủ ngon!
+    idiomatic:
+      - Ba chân bốn cẳng.
+      - Ba chìm bảy nổi.
+      - Chạy mất dép.
+      - Chờ sung rụng.
+      - Có mới nới cũ.
+      - Có tật giật mình.
+      - Đàn gảy tai trâu.
+      - Nước đến chân mới nhảy.
+  varieties: {}

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: irish-skills-2026-10-04
+language: irish
+skill_id: reasons_connections
+guidance: Assess causes, consequences, conditions, contrast and support for claims. Mar can
+  introduce a reason and mar sin a consequence. Má bhíonn sé ag cur báistí amárach, fanfaimid sa
+  bhaile establishes a condition and dependent plan. Do not impose an English word-by-word tense
+  template on this construction. Ach contrasts properties, while ansin alone can merely sequence
+  events. A light in a window can support an occupancy inference without causing occupancy. Mar
+  bhí sé ag cur báistí can answer an identifiable why-question contextually. A copied connector
+  without recoverable linked content is absent. Judge whether the evidence actually bears on the
+  claim, whether the condition is hypothetical or asserted, and whether the chosen dependent or
+  independent forms fit the construction. Unrelated mistakes do not erase a correctly expressed
+  causal or conditional relationship.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored language-specific guidance, English explanations and original examples,
+    informed by the cited sources; no independent linguistic review.
+  sources:
+    - brasicke_irish_copula2026
+    - teanglann_deisigh2026
+  generation: null
+  review:
+    status: needs_review
+    revision: irish-skills-2026-10-04
+    scope: Entire document, including constructions, original examples, English meanings,
+      conversational contexts and declared variety applicability. Source-informed AI editorial
+      review does not certify linguistic correctness.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance: *a1
