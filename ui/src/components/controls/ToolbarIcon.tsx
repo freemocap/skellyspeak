@@ -58,6 +58,8 @@ const LIBRARY_ICONS = {
 
 // Deliberate custom variants retained after icon review.
 const PATHS = {
+  // Analysis scan brackets with a question: coaching on the learner's message.
+  coach: <><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3" /><path d="M9.4 9a2.6 2.6 0 1 1 3.9 2.25c-.8.46-1.3 1.05-1.3 1.95v.3M12 17h.01" /></>,
   // Written phonetic notation /ə/, distinct from playback and audio inspection.
   pronunciation: <><path d="m6 4-4 16m20-16-4 16" /><path d="M8 12h8c0-3-1.5-5-4-5-1.5 0-2.6.6-3.3 1.6M16 12c0 3-1.5 5-4 5s-4-2-4-5" /></>,
   appearance: <><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" /></>,

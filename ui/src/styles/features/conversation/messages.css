@@ -66,7 +66,7 @@
 
 @media (max-width: 860px) {
   .msg { max-width: 96%; }
-  .msg.chat-message { padding: var(--space-2) var(--space-5); }
+  .msg.chat-message { max-width: 96%; padding: var(--space-2) var(--space-5); }
 }
 
 .feedback-badge {
@@ -339,6 +339,10 @@
 }
 
 .msg.chat-message .message-tools { flex-wrap: nowrap; gap: var(--space-1); margin-block-start: var(--space-2); padding-block-start: 0; border-block-start: 0; white-space: nowrap; }
+/* Touch targets supply their own spacing; extra gaps hide tools prematurely. */
+@media (pointer: coarse) {
+  .msg.chat-message .message-tools { gap: 0; }
+}
 @media (max-width: 860px) { .msg.chat-message .message-tools { margin-block-start: 0; overflow-x: auto; scrollbar-width: none; } }
 
 /* While a message is being fixed, it carries a dashed coach outline and a tag;

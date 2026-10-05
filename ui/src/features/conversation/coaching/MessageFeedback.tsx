@@ -17,7 +17,7 @@ import type { MessageTool } from '../../../components/reading/MessageTools'
 import { useUiDirection } from '../../../components/localization/useUiDirection'
 
 /** The coach's feedback on one of the learner's messages. `bubble` draws the
- * message with its tools and receives the Analysis tool, which opens this
+ * message with its tools and receives the Coach tool, which opens this
  * feedback; under the bubble, one quiet line holds the verdict (how many
  * errors the coach flagged, or Clean), Fix it and `reward` (the message's
  * XP). The verdict opens the same feedback. */
@@ -79,7 +79,7 @@ export function MessageFeedback({ requests, id, text, conversationFeedback, feed
   const clear = Boolean(feedback && decision && !flags.length && !feedback.notes.length && feedback.meaningRecovered === 'full')
   const verdict = flags.length ? 'errors' : clear ? 'clear' : 'open'
   return <>
-    {bubble(messageTools.analysis({ disabled: busy, onSelect: () => void openCard() }))}
+    {bubble(messageTools.coach({ disabled: busy, onSelect: () => void openCard() }))}
     <div className="message-feedback-line" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
     <button type="button" data-feedback-state={error ? 'failed' : judged ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${error ? ' feedback-error' : ''}`} data-verdict={judged && !error ? verdict : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
         {error ? tr("Feedback failed") : judged ? <>

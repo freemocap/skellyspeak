@@ -64,3 +64,48 @@ The build retains its existing large-chunk warning. Server tests initially hit
 Windows permissions on the shared pytest temp directory; the successful rerun
 used a dedicated .local/admin-audit-pytest-20261005 directory. No hosted CI,
 Firestore emulator or live provider reconciliation was run.
+
+## Deployment CI follow-up
+
+Commit `e01792e2` passed the entire ordinary CI workflow. The separate
+[Deploy server run](https://github.com/freemocap/skellyspeak/actions/runs/37358469846)
+passed ordinary server tests, the upload boundary and container startup. Its
+Firestore integration phase passed six tests and failed
+`test_work_claims_coordinate_separate_server_processes` during capacity filling:
+an aborted commit exhausted the existing six-attempt retry policy with
+`409 Transaction lock timeout`. Deployment was consequently skipped.
+
+The same log contains Python's warning that `fork()` was called from a
+multithreaded process. The integration suite opened parent Firestore/gRPC clients
+before Linux/Python 3.12's default fork-based process pools. gRPC documents this
+as unsafe because channels and background-thread state are inherited. The work
+claim worker additionally failed to close its client after each task.
+See [gRPC's fork support documentation](https://github.com/grpc/grpc/blob/master/doc/fork_support.md).
+
+Implemented test-harness repair: explicitly spawn fresh interpreters for all
+four process pools, close parent clients through fixture teardown, and close
+each work-claim client in `finally`. The unsafe-fork warning now fails these
+tests. Keep the four-worker load, 64-slot capacity, eight duplicate submissions,
+128 distinct submissions and original success-count assertions. Also verify
+the persisted active-slot IDs exactly match the 64 retained attempt receipts.
+No production code, retry limits, allowance calculations or workflow gates change.
+
+Local investigation used official checksum-verified emulator 1.22.0 and then
+1.21.0 (the exact component shipped with CI's Cloud SDK 568). Both exhibited
+lock aborts while baseline tests passed repeatedly on Windows, whose process
+default is already spawn. Therefore this machine cannot establish that unsafe
+fork was the sole cause of CI's intermittent retry exhaustion. A lock-order
+experiment did not help; SDK-only immediate retries failed on their first run.
+Both experiments were removed rather than changing production behavior without
+evidence.
+
+After the harness repair, the full server suite passed **586 tests with no
+skips**, including all seven emulator tests, against emulator 1.21.0 on Windows
+with the existing Java 25 runtime. `npm run check:fast` and `git diff --check`
+passed. The remaining warning is the pre-existing Starlette/httpx deprecation.
+Three additional final-state contention runs passed (14.69s, 10.26s, 10.09s).
+Linux fork comparison is unavailable locally (no Linux/WSL or Docker runtime).
+Hosted confirmation of the repair remains outstanding. Do not describe this
+as a proven elimination of transaction contention. No commit, push, workflow
+rerun or deployment was performed; rerunning the deploy workflow can promote
+production and requires authorization.

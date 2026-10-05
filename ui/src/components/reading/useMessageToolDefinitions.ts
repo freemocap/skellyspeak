@@ -13,5 +13,8 @@ export function useMessageToolDefinitions() {
     analysis: (behavior: ToolBehavior): MessageTool => ({
       key: 'analysis', label: tr('Analysis'), icon: 'analysis', opensDialog: true, ...behavior,
     }),
+    coach: (behavior: ToolBehavior): MessageTool => ({
+      key: 'coach', label: tr('Coach'), icon: 'coach', opensDialog: true, ...behavior,
+    }),
   }
 }

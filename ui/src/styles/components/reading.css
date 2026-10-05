@@ -302,6 +302,10 @@
 
 /* Measure optional controls without contributing to the bubble's intrinsic width. */
 .message-tools-primary, .message-tools-fixed { display: inline-flex; align-items: center; gap: var(--space-1); flex: none; }
+@media (pointer: coarse) {
+  .message-tools-primary, .message-tools-fixed, .message-tools-actions { gap: 0; }
+  .message-tools-divider { margin-inline: 0; }
+}
 .message-tools-measure { position: absolute; visibility: hidden; pointer-events: none; display: inline-flex; inline-size: 0; block-size: 0; overflow: hidden; white-space: nowrap; inset-block-start: 0; inset-inline-start: 0; }
 .message-tools-measure > * { display: inline-flex; flex: none; }
 

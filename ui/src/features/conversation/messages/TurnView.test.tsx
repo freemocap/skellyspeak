@@ -68,8 +68,8 @@ it('uses matching reading tools and independently toggles pronunciation on eithe
   const partner = view.container.querySelector('.msg.bot') as HTMLElement
   for (const bubble of [learner, partner]) {
     const toolbar = bubble.querySelector('.message-tools') as HTMLElement
-    expect(within(toolbar).getAllByRole('button').filter(button => ['Translate', 'Words', 'Pronunciation', 'Analysis'].includes(button.title)).map(button => button.title))
-      .toEqual(['Translate', 'Words', 'Pronunciation', 'Analysis'])
+    expect(within(toolbar).getAllByRole('button').filter(button => ['Translate', 'Words', 'Pronunciation', 'Analysis', 'Coach'].includes(button.title)).map(button => button.title))
+      .toEqual(['Translate', 'Words', 'Pronunciation', bubble === learner ? 'Coach' : 'Analysis'])
     const pronunciation = within(toolbar).getByRole('button', { name: 'Pronunciation' })
     expect(pronunciation).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(pronunciation)
@@ -258,7 +258,7 @@ it('uses saved human glosses before a reply and separates scores from bottom act
   expect(grade).toHaveTextContent('Feedback')
   expect(grade.closest('.msg.me')).toBeNull()
   openMenus()
-  expect(screen.getByRole('button', { name: 'Analysis' }).closest('.message-actions')).not.toBeNull()
+  expect(screen.getByRole('button', { name: 'Coach' }).closest('.message-actions')).not.toBeNull()
   expect(view.container.querySelector('.msg.me .trans')).toHaveTextContent('Hello there')
   fireEvent.click(word)
   expect(word).toHaveAttribute('aria-expanded', 'false')
@@ -343,11 +343,17 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   openMenus()
   for (const bubble of [learner, partner]) {
     expect(within(bubble).getByRole('button', { name: /Translate/ }).closest('.message-actions')).not.toBeNull()
-    const detail = within(bubble).getByRole('button', { name: 'Analysis' })
+    const label = bubble === learner ? 'Coach' : 'Analysis'
+    const detail = within(bubble).getByRole('button', { name: label })
     expect(detail.closest('.message-actions')).not.toBeNull()
     // Row tools are icons: the name is the tooltip, not visible text.
-    expect(detail).toHaveAttribute('title', 'Analysis')
+    expect(detail).toHaveAttribute('title', label)
   }
+  expect(within(learner).queryByRole('button', { name: 'Analysis' })).toBeNull()
+  expect(within(partner).queryByRole('button', { name: 'Coach' })).toBeNull()
+  fireEvent.click(within(partner).getByRole('button', { name: 'Analysis' }))
+  expect(input.onBubbleTap).toHaveBeenCalledExactlyOnceWith(input.turn.id)
+  expect(screen.queryByRole('dialog', { name: 'Feedback on your message' })).toBeNull()
   openMenus()
   const words = within(learner).getByRole('button', { name: 'Words' })
   expect(words).toHaveAttribute('aria-pressed', 'true')
@@ -359,7 +365,8 @@ it('attaches both assistance rows to their source bubble and toggles only the le
   for (const action of learner.querySelectorAll('.message-feedback button')) fireEvent.doubleClick(action)
   for (const action of partner.querySelectorAll('.message-actions button')) fireEvent.doubleClick(action)
   openMenus()
-  fireEvent.click(within(learner).getByRole('button', { name: 'Analysis' }))
+  fireEvent.click(within(learner).getByRole('button', { name: 'Coach' }))
+  expect(input.onBubbleTap).toHaveBeenCalledTimes(1)
   const dialog = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(dialog.parentElement).toBe(document.body)
 })
