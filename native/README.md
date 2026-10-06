@@ -379,8 +379,10 @@ arrays. Missing or incompatible timing leaves visual word alignment unavailable.
 Model selection is shared by Hosted sign-in and Custom URL. Both routes use
 SkellySpeak service contracts for text, transcription and speech. Provider
 credentials and provider-specific transports belong on the server. There is no
-model or route fallback. New workspaces default to `scribe_v2` transcription and
-`eleven_v3` speech; existing model selections are preserved.
+model or route fallback after provider failure. New workspaces default to
+`whisper-large-v3` transcription and `eleven_v4_turbo` speech. Format 54 restores
+saved v3 speech selections to v4 once; later learner choices are preserved.
+Shared declared capabilities select alternatives before dispatch when needed.
 
 Only the current schema is supported. Desktop credentials use
 `com.freemocap.skellyspeak.credentials`. There is no fallback read or relocation
@@ -420,7 +422,7 @@ revalidates their source before adoption. Schema 36 uses fresh development data.
 
 ### Workspace migrations
 
-Workspace format **52** upgrades supported files from baseline **45**. The format
+Workspace format **54** upgrades supported files from baseline **45**. The format
 covers SQL and persisted JSON; application release numbers are independent.
 `storage/store/migrations/` owns consecutive steps and frozen historical contracts.
 `storage/schemas/` owns the current schema, including settings and result tables

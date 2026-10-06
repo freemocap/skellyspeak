@@ -28,7 +28,6 @@ import { SettingsModal } from '../features/settings/SettingsModal'
 import { UpdateBanner } from './shell/UpdateBanner'
 import { FaultBar } from './shell/FaultBar'
 import { MoreDialog } from './shell/MoreDialog'
-import { ProfileOverlay } from './shell/ProfileOverlay'
 import { SurfaceHost } from './shell/SurfaceHost'
 import { TopBar } from './shell/TopBar'
 import { useConnectionHealthChecks } from './useConnectionHealthChecks'
@@ -43,7 +42,7 @@ export function AppShell() {
   const page = useNavigationStore((state) => state.page)
   const practiceView = useNavigationStore(state => state.practiceView)
   // The place on screen colours the band under the top bar: Chat, Practice, or
-  // neither (the skill tree).
+  // neither (the Progress page).
   const place = useNavigationStore((state) => state.page === 'skills' ? 'skills' : state.practiceView === 'drill' ? 'practice' : 'chat')
   const languageInfo = useNavigationStore(state => state.languageInfo)
   const overlay = useNavigationStore((state) => state.overlay)
@@ -61,9 +60,9 @@ export function AppShell() {
   const onboarding = useOnboardingStore(state => state.preferences)
   useAppearance(settings)
 
-  // A skill-map request from anywhere opens the tree.
+  // A request to show a skill, from anywhere, opens it on the Progress page.
   const mapRequest = useSkillNavigationStore((state) => state.mapRequest)
-  useEffect(() => { if (mapRequest) useNavigationStore.getState().openSkills() }, [mapRequest])
+  useEffect(() => { if (mapRequest) useNavigationStore.getState().openProgress('skills') }, [mapRequest])
   // Android back returns either destination to the retained conversation.
   const isMobile = useIsMobile()
   useEffect(() => isMobile && (page === 'skills' || practiceView === 'drill') ? openOverlay(() => useNavigationStore.getState().openConversation()) : undefined, [isMobile, page, practiceView])
@@ -106,7 +105,6 @@ export function AppShell() {
       <TopBar />
       <FaultBar />
       <CredentialCleanup />
-      <ProfileOverlay />
       <SurfaceHost />
       <MoreDialog />
       {overlay === 'languages' && <LanguageBrowser key={languageInfo} initialLanguage={languageInfo} onClose={closeOverlay} />}

@@ -27,10 +27,10 @@ it('leaves the AI status to the chat composer', () => {
   expect(screen.queryByRole('button', { name: /^AI (Not )?Connected$/ })).toBeNull()
   expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument()
 })
-it('keeps the target language reachable, with Practice and Skills as destinations among the bar\'s controls', () => {
+it('keeps the target language reachable, with Practice and Progress as destinations among the bar\'s controls', () => {
   const setLanguage = vi.fn().mockResolvedValue(undefined)
   useSettingsStore.setState({selectLanguageVariety:setLanguage})
-  useNavigationStore.getState().openSkills()
+  useNavigationStore.getState().openProgress('skills')
   render(<TopBar />)
   fireEvent.click(screen.getByRole('button', {name:'Target language'}))
   fireEvent.click(screen.getByRole('button', {name:'Français (French)'}))
@@ -40,16 +40,16 @@ it('keeps the target language reachable, with Practice and Skills as destination
   // The conversation list opens from the chat header; the theme is in Settings.
   expect(screen.queryByRole('button', {name:'Conversations'})).toBeNull()
   expect(screen.queryByRole('button', {name:/Switch to (dark|light) mode/})).toBeNull()
-  // The conversation is home and has no button; Practice and Skills follow the
+  // The conversation is home and has no button; Practice and Progress follow the
   // language, with the bar's other controls, in the one row the bar has at
   // every width.
   const destinations = screen.getByRole('navigation', {name:'Main navigation'})
-  expect(within(destinations).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Skills'])
+  expect(within(destinations).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Progress'])
   const following = (first: Element, second: Element) => Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
   expect(following(screen.getByRole('button', {name:/SkellySpeak home/}), destinations)).toBe(true)
   expect(following(screen.getByRole('button', {name:'Target language'}), destinations)).toBe(true)
   expect(following(destinations, screen.getByRole('button', {name:'More'}))).toBe(true)
-  expect(within(destinations).getByRole('button', {name:'Skills'})).toHaveAttribute('aria-current', 'page')
+  expect(within(destinations).getByRole('button', {name:'Progress'})).toHaveAttribute('aria-current', 'page')
 })
 it('disables language switching during a save or settings edit', () => {
   useSettingsStore.setState({savingLanguage:true})
@@ -68,7 +68,7 @@ it('moves between the destinations, returns home from the wordmark and preserves
   fireEvent.click(within(destinations).getByRole('button', {name:'Practice'}))
   expect(useNavigationStore.getState()).toMatchObject({mode:'practice',page:'guided',practiceView:'drill',drillOpened:true})
   expect(within(destinations).getByRole('button', {name:'Practice'})).toHaveAttribute('aria-current', 'page')
-  expect(within(destinations).getByRole('button', {name:'Skills'})).not.toHaveAttribute('aria-current')
+  expect(within(destinations).getByRole('button', {name:'Progress'})).not.toHaveAttribute('aria-current')
   fireEvent.click(screen.getByRole('button', {name:/SkellySpeak home/}))
   expect(useNavigationStore.getState()).toMatchObject({page:'guided',practiceView:'chat',mobileSurface:'chat'})
   expect(within(destinations).queryByRole('button', {current:'page'})).toBeNull()
@@ -84,42 +84,35 @@ it('opens the language browser from the compact selector', () => {
   expect(screen.getByRole('button', { name: 'Target language' })).toBeInTheDocument()
 })
 
-it('opens the progress card first and the full report on the second press', () => {
+it('shows the all-languages card on the first press and opens the XP tab on the second', () => {
   render(<TopBar />)
-  const progress = screen.getByRole('button', { name: 'Language progress' })
-  fireEvent.click(progress)
+  const xp = screen.getByRole('button', { name: 'Language XP' })
+  fireEvent.click(xp)
   expect(screen.getByRole('dialog', { name: 'All languages' })).toBeVisible()
-  expect(useNavigationStore.getState().overlay).not.toBe('profile')
-  fireEvent.click(progress)
+  expect(useNavigationStore.getState().page).toBe('guided')
+  fireEvent.click(xp)
   expect(screen.queryByRole('dialog', { name: 'All languages' })).toBeNull()
-  expect(useNavigationStore.getState().overlay).toBe('profile')
+  expect(useNavigationStore.getState()).toMatchObject({ page: 'skills', progressTab: 'xp' })
 })
-it('shows the progress card on mouse hover, where a click then opens the full report', async () => {
+it('shows the card on mouse hover, where a click then opens the XP tab', () => {
   vi.useFakeTimers()
   render(<TopBar />)
-  const progress = screen.getByRole('button', { name: 'Language progress' })
-  fireEvent.pointerEnter(progress.parentElement!, { pointerType: 'mouse' })
+  const xp = screen.getByRole('button', { name: 'Language XP' })
+  fireEvent.pointerEnter(xp, { pointerType: 'mouse' })
   expect(screen.getByRole('dialog', { name: 'All languages' })).toBeVisible()
-  fireEvent.pointerLeave(progress.parentElement!, { pointerType: 'mouse' })
+  fireEvent.pointerLeave(xp, { pointerType: 'mouse' })
   act(() => { vi.advanceTimersByTime(300) })
   expect(screen.queryByRole('dialog', { name: 'All languages' })).toBeNull()
-  fireEvent.pointerEnter(progress.parentElement!, { pointerType: 'mouse' })
-  fireEvent.click(progress)
-  expect(useNavigationStore.getState().overlay).toBe('profile')
+  fireEvent.pointerEnter(xp, { pointerType: 'mouse' })
+  fireEvent.click(xp)
+  expect(useNavigationStore.getState().progressTab).toBe('xp')
   vi.useRealTimers()
 })
-it('ignores touch hover so a tap opens the card', () => {
-  render(<TopBar />)
-  const progress = screen.getByRole('button', { name: 'Language progress' })
-  fireEvent.pointerEnter(progress.parentElement!, { pointerType: 'touch' })
-  expect(screen.queryByRole('dialog', { name: 'All languages' })).toBeNull()
-  fireEvent.click(progress)
-  expect(screen.getByRole('dialog', { name: 'All languages' })).toBeVisible()
-})
-it('shows the total across languages behind a globe, and lists every language in the card', async () => {
+it('shows the total across languages behind a globe, and every language with its effort in the card', async () => {
   render(<TopBar />)
   expect(await screen.findByLabelText('Total XP: 42')).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Language progress' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Language XP' }))
   const card = screen.getByRole('dialog', { name: 'All languages' })
   expect(within(card).getAllByRole('row').slice(1).map(row => within(row).getByRole('rowheader').textContent)).toEqual(['FRFrench', 'ESSpanish'])
+  expect(within(card).getByRole('button', { name: 'Practice' })).toBeVisible()
 })

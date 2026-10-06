@@ -44,7 +44,9 @@ import type { PersonaDetails } from '../../generated/contracts'
 import { unreportedInput, type InputEvidence } from '../../domain/learning/evidence/skills'
 import { PracticeContext } from './session/PracticeContext'
 import { SkillRewards } from './progress/SkillRewards'
-import { XpChip } from './progress/XpChip'
+import { XpChip, type ConversationProgressSection } from './progress/XpChip'
+import { translatedName } from '../../domain/localization'
+import { conversationProgressSectionId } from './progress/ConversationProgress'
 import { isTauri, languageFor } from '../../platform/ipc/tauri'
 import { languageLabel } from '../../domain/language/language-label'
 import { personaName } from './partners/personaLimits'
@@ -143,7 +145,7 @@ export default function ConversationPage({
     if (!active) stopRewardSounds()
   }, [settings?.xp_effects, settings?.reward_sounds, settings?.auto_speak, active])
   useEffect(() => () => stopRewardSounds(), [])
-  const [panelTab, setPanelTab] = useState<'coaching' | 'skills'>('coaching')
+  const [panelTab, setPanelTab] = useState<'coaching' | 'progress'>('coaching')
   const [coachDraft, setCoachDraft] = useState('')
   const mode = useNavigationStore(state => state.mode)
   const [reviewing, setReviewing] = useState<Set<number>>(new Set())
@@ -308,6 +310,13 @@ export default function ConversationPage({
     // Phones: opening moves no focus, so nothing scrolls to reveal the field and
     // no keyboard opens over the popover. The learner taps the field to ask.
     if (!isMobile) requestAnimationFrame(() => breakRef.current?.querySelector<HTMLTextAreaElement>('.coach-input')?.focus({ preventScroll: true }))
+  }
+  /** A header counter: the learning panel's Progress tab, scrolled to the section that leads with the counter's number. */
+  function openProgress(section: ConversationProgressSection) {
+    setPanelTab('progress')
+    if (!breakOpen) toggleBreak()
+    if (isMobile) useNavigationStore.getState().openConversation('panel')
+    requestAnimationFrame(() => document.getElementById(conversationProgressSectionId(section))?.scrollIntoView({ block: 'start', behavior: 'smooth' }))
   }
   const [exportOpen, setExportOpen] = useState(false)
   const [inspectionOpen, setInspectionOpen] = useState(false)
@@ -770,6 +779,7 @@ export default function ConversationPage({
 
         {/* Private coaching and message assessment. */}
         {currentChatId && <CoachAnalysisPanel
+          targetLanguageName={targetLanguage ? translatedName(tr.locale, targetLanguage.name) : ''}
           key={`${currentChatId}:${settings?.target_language}:${settings?.native_language}:${threadReload}`}
           coachingContent={<>{selectedTurn && renderTurn(selectedTurn, selectedSide)}{selectedTurn && selectedSide === 'assistant' ? <AnalysisContent showMessages={false} replyHelp={replyHelp(selectedTurn, true)} partnerOnly requestOnOpen={false} key={selectedTurn.turnId} turn={selectedTurn} conversationId={snapshot?.conversationId} onAsk={askCoach} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /> : <>
           <LiveCoachReview key={coachedTurn?.id} revealOnView={!selectedTurn} turn={coachedTurn} onEdit={coachedTurn && canEdit(coachedTurn) && !editBlocked && editingTurnId !== coachedTurn.id ? () => startEdit(coachedTurn) : undefined} visible={active && mode === 'practice' && panelTab === 'coaching' && (isMobile || breakOpen)} nativeLanguageName={nativeLanguageName} rtl={rtl} onControl={async control => {
@@ -819,7 +829,7 @@ export default function ConversationPage({
           busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}
           difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />}>
           <div className="chat-heading-actions">
-          <XpChip chatId={currentChatId} />
+          <XpChip chatId={currentChatId} onOpen={openProgress} />
           <ConversationSettings summary={settings?.auto_speak ? tr("Reading aloud") : undefined} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
             nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
             promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />} />

@@ -60,7 +60,7 @@ export function SurfaceHost() {
     }}><div className="content" {...swipe}>
       {skillsOpened && <div className={`page-holder destination-page ${page === 'skills' ? '' : 'hidden'}`} aria-hidden={page !== 'skills'}>
         <ReturnStrip />
-        <ActiveSurfaceContext value={page === 'skills'}><PageBoundary><Suspense fallback={<p role="status">{tr("Loading skill tree…")}</p>}><SkillsPage onPractice={async (language, variety, skillId) => {
+        <ActiveSurfaceContext value={page === 'skills'}><PageBoundary><Suspense fallback={<p role="status">{tr("Loading progress…")}</p>}><SkillsPage onPractice={async (language, variety, skillId) => {
           if (!skillStart.current) throw new Error('The conversation is not ready to start.')
           await skillStart.current(language, variety, skillId)
           openConversation('chat')

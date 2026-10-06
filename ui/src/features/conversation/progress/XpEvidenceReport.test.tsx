@@ -53,18 +53,9 @@ it('reports whole-message evidence and excludes invalidated or uncredited attemp
   expect(xpReportCredits(snapshot, 'people_places')).toEqual([])
 })
 
-it('puts the skill list inside the scroll region and opens only that conversation’s examples', () => {
+it('puts the skill chart inside the panel’s scroll region', () => {
   const snapshot = fixture()
-  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selected: null, selectionVersion: 0, select: vi.fn() }}><ConversationProgress chatId="chat" /></PracticeContext></SkillEvidenceContext>)
+  const view = render(<SkillEvidenceContext value={{ snapshot, error: null }}><PracticeContext value={{ chatId: 'chat', selected: null, selectionVersion: 0, select: vi.fn() }}><ConversationProgress chatId="chat" languageName="Spanish" /></PracticeContext></SkillEvidenceContext>)
   const bar = view.container.querySelector<HTMLElement>('[data-reward-skill="people_places"]')!
   expect(bar.closest('.analysis-scroll')).toBe(view.container.querySelector('.conversation-evidence'))
-  fireEvent.click(bar)
-  fireEvent.click(screen.getByRole('button', { name: 'More about this skill' }))
-  const report = screen.getByRole('dialog', { name: 'People, things, and places' })
-  expect(within(report).getByText('Esa taza.')).toBeVisible()
-  expect(within(report).queryByText('Otra taza.')).toBeNull()
-  fireEvent.click(within(report).getByRole('button', { name: 'Close People, things, and places' }))
-  fireEvent.click(view.container.querySelector<HTMLElement>('[data-reward-skill="possibilities_constraints"]')!)
-  fireEvent.click(screen.getByRole('button', { name: 'More about this skill' }))
-  expect(within(screen.getByRole('dialog', { name: 'Possibilities and constraints' })).getByText('No credited messages.')).toBeVisible()
 })

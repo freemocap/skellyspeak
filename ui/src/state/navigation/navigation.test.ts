@@ -52,21 +52,30 @@ describe('navigation store', () => {
     expect(store().overlay).toBeNull()
   })
 
-  it('opens the skill tree once and remembers it was opened', () => {
-    store().openSkills()
+  it('opens the Progress page once and remembers it was opened', () => {
+    store().openProgress('skills')
     expect(store().page).toBe('skills')
     expect(store().skillsOpened).toBe(true)
     store().showPage('guided')
     expect(store().page).toBe('guided')
-    // Still opened: the tree stays mounted once it has been shown, which is why
+    // Still opened: the page stays mounted once it has been shown, which is why
     // this is not the same as `page === 'skills'`.
     expect(store().skillsOpened).toBe(true)
+  })
+
+  it('opens Progress on the requested tab and closes any dialog over it', () => {
+    store().showOverlay('more')
+    store().openProgress('xp')
+    expect(store()).toMatchObject({ page: 'skills', progressTab: 'xp', overlay: null })
+    store().showPage('guided')
+    store().showPage('skills')
+    expect(store().progressTab).toBe('xp')
   })
 
   it('goes home to the conversation with everything over it closed', () => {
     store().openConversation('panel')
     store().setHistoryOpen(true)
-    store().showOverlay('profile')
+    store().showOverlay('more')
     store().goHome()
     const state = store()
     expect([state.page, state.mobileSurface, state.historyOpen, state.overlay]).toEqual(['guided', 'chat', false, null])
@@ -75,7 +84,7 @@ describe('navigation store', () => {
   it.each(['guided', 'skills'] as const)('returns from %s after Drill with the coach panel retained', page => {
     store().openConversation('panel')
     store().setPracticeView('drill')
-    if (page === 'skills') store().openSkills()
+    if (page === 'skills') store().openProgress('skills')
     store().openConversation()
     expect(store()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: 'panel', drillOpened: true })
     expect(localStorage.getItem('skellyspeak.practice-view')).toBe('chat')
@@ -83,7 +92,7 @@ describe('navigation store', () => {
 
   it.each(['chat', 'panel'] as const)('opens the requested conversation surface %s after Drill and Skills', surface => {
     store().setPracticeView('drill')
-    store().openSkills()
+    store().openProgress('skills')
     store().openConversation(surface)
     expect(store()).toMatchObject({ page: 'guided', practiceView: 'chat', mobileSurface: surface })
   })

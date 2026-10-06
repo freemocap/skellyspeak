@@ -91,7 +91,7 @@ export function DrillPage({ active }: { active: boolean }) {
   const [speaking, setSpeaking] = useState(false)
   // A card's audio has been requested and has not arrived.
   const [fetchingAudio, setFetchingAudio] = useState(false)
-  const [mode, setMode] = useState<RecordMode>('live')
+  const [mode, setMode] = useState<RecordMode>('tap')
   const [autoDetect, setAutoDetect] = useState(true)
   const [listening, setListening] = useState<ListeningSettings>({
     pauseMs: CONTINUOUS_RECORDING_POLICY.defaultPauseMs,

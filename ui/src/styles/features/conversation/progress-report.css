@@ -4,17 +4,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-statistics { max-width: none; color: var(--ink); }
 
-.practice-statistics-header > p:first-child {
-  color: var(--interaction-ink);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-tag);
-  font-size: var(--type-meta);
-}
-
-.practice-statistics-header h2 { font-size: var(--type-display); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); margin: 0; }
-
-.practice-statistics-header > p:last-child { color: var(--ink-2); font-size: var(--type-ui); }
-
 .practice-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -55,54 +44,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-statistics section { margin-block: var(--space-4); }
 
-.practice-demonstrations {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2) var(--space-4);
-  border-block: var(--border-width) solid var(--line);
-  padding: var(--space-2) 0;
-}
-
-.practice-demonstrations > div { display: flex; gap: var(--space-5); align-items: center; }
-
-.practice-demonstrations strong {
-  color: var(--interaction-ink);
-  font-size: var(--type-reading);
-  font-variant-numeric: tabular-nums;
-}
-
-.practice-demonstrations span { font-size: var(--type-ui); }
-
-.practice-demonstrations p {
-  grid-column: 1 / -1;
-  margin: var(--space-2) 0 0;
-  color: var(--ink-2);
-  font-size: var(--type-meta);
-  line-height: var(--leading-normal);
-}
-
-.practice-section-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
-
-.practice-section-title h3 { margin: 0; font-size: var(--type-reading); }
-
-.practice-section-title > span { font: var(--type-ui) var(--font-sans); color: var(--ink-3); }
-
-.practice-unpracticed {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: var(--space-7) 0;
-  font-size: var(--type-ui);
-}
-
-.practice-skill-list { display: grid; gap: var(--space-3); }
-
 .practice-skill {
   padding: var(--space-6) var(--space-8);
   background: var(--field);
@@ -120,8 +61,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
   margin-top: var(--space-2);
   padding-inline-start: var(--space-7);
 }
-
-.practice-star { color: var(--interaction-ink); }
 
 .practice-credit {
   border-top: var(--border-width) solid var(--line);
@@ -152,27 +91,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-credit p { font-size: var(--type-ui); line-height: var(--leading-relaxed); }
 
-.practice-methods {
-  padding: var(--space-7) 0;
-  border-block: var(--border-width) solid var(--line);
-  font-size: var(--type-ui);
-  line-height: var(--leading-relaxed);
-}
-
-.practice-methods summary { cursor: pointer; font-weight: var(--weight-semibold); }
-
-.practice-record-counts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3) var(--space-10);
-}
-
-.practice-record-counts > div { display: flex; justify-content: space-between; gap: var(--space-4); }
-
-.practice-record-counts dd { margin: 0; font-variant-numeric: tabular-nums; }
-
-.practice-focus { font-size: var(--type-ui); }
-
 @media (max-width: 600px) {
   .practice-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
 }
@@ -190,8 +108,6 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 }
 
 /* Included languages form the tabs of one sheet; catalog access stays beside them. */
-.practice-language-tabbar { display: flex; align-items: stretch; gap: var(--space-3); margin-top: var(--space-8); border-bottom: var(--border-width) solid var(--line); }
-.practice-language-add { flex: none; align-self: center; min-width: var(--control-height); min-height: var(--control-height); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--chrome); color: var(--ink); cursor: pointer; }
 
 .practice-language-tabs > button {
   flex: none;
@@ -221,20 +137,8 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .practice-language-tabs small { color: inherit; opacity: .7; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
 
-.practice-language-empty { padding: var(--space-10) 0; }
-
-.practice-language-empty p { font-size: var(--type-ui); color: var(--ink-2); line-height: var(--leading-relaxed); }
-
 .conversation-evidence .practice-credit { padding: var(--space-3); }
 
-#practice-language-panel {
-  border: var(--border-width) solid var(--line);
-  border-top: 0;
-  background: var(--sheet);
-  padding: var(--space-6);
-}
-
-.practice-statistics-header { display: flex; align-items: center; gap: var(--space-2); margin: 0; }
 
 .xp-evidence-report h2 { font-size: var(--type-title); margin: 0; }
 .xp-evidence-report details { font-size: var(--type-meta); overflow-wrap: anywhere; }
@@ -244,26 +148,47 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 .message-skill-credit-count { min-width: var(--space-8); padding: 0 var(--space-3); border-radius: var(--radius-pill); background: var(--sheet); font-family: var(--font-mono); text-align: center; }
 .message-skill-credit > details[open] > summary { margin-bottom: var(--space-5); }
 
-/* Effort reports lead with independent summaries, then source instances. */
-.effort-report { margin-block: var(--space-5); }
-.effort-report-heading, .effort-history-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
-.effort-report-heading h3, .effort-history-heading h4 { margin: 0; font-size: var(--type-ui); }
-.effort-stat-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-block: var(--space-4); }
-.effort-stat-card { padding: var(--space-4); background: var(--field); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); }
-.effort-stat-card h4 { display: flex; align-items: center; gap: var(--space-2); font-size: var(--type-meta); color: var(--ink-2); margin: 0 0 var(--space-3); }
-.effort-stat-card h4 svg { flex: none; }
-.effort-stat-total { font-size: var(--type-title); font-variant-numeric: tabular-nums; }
-.effort-stat-card dl { margin: var(--space-3) 0 0; display: grid; gap: var(--space-2); font-size: var(--type-meta); }
+/* The Progress page's Effort tab (features/skills/progress/EffortReport.tsx):
+   every language's XP and effort, then one card per effort kind in its own
+   colour (data-unit sets `color`; marks use currentColor), then the effort
+   history in its own card. */
+.effort-report { display: flex; flex-direction: column; gap: var(--space-8); }
+.effort-languages { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-8) var(--space-9); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-xl); background: var(--sheet); box-shadow: var(--shadow-surface); }
+.effort-report-title { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: var(--type-title); font-weight: var(--weight-semibold); }
+.effort-stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: var(--space-5); }
+.effort-stat-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-6) var(--space-7); border: var(--border-width) solid color-mix(in srgb, currentColor 30%, var(--line-soft)); border-top: var(--border-width-thick) solid currentColor; border-radius: var(--radius-lg); background: color-mix(in srgb, currentColor 6%, var(--sheet)); box-shadow: var(--shadow-surface); }
+.effort-stat-card header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+.effort-stat-icon { display: inline-flex; align-items: center; justify-content: center; width: var(--control-height-sm); height: var(--control-height-sm); border-radius: var(--radius-pill); background: color-mix(in srgb, currentColor 16%, var(--sheet)); }
+.effort-stat-card h3 { margin: 0; color: var(--ink); font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.effort-stat-total { font: var(--weight-bold) var(--type-display)/var(--leading-none) var(--font-mono); font-variant-numeric: tabular-nums; }
+.effort-stat-week { color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.effort-stat-card dl { display: grid; gap: var(--space-1); margin: var(--space-3) 0 0; padding-top: var(--space-3); border-top: var(--border-width) solid color-mix(in srgb, currentColor 20%, var(--line-soft)); font-size: var(--type-meta); }
 .effort-stat-card dl > div { display: flex; justify-content: space-between; gap: var(--space-2); }
 .effort-stat-card dt { color: var(--ink-2); }
-.effort-stat-card dd { margin: 0; font-variant-numeric: tabular-nums; }
-.effort-history-heading { flex-wrap: wrap; margin-block: var(--space-4); font-size: var(--type-meta); }
-.effort-history-scroll { max-height: 22rem; overflow-y: auto; border-block: var(--border-width) solid var(--line-soft); padding-block: var(--space-2); }
+.effort-stat-card dd { margin: 0; color: var(--ink); font-family: var(--font-mono); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+.effort-history { display: flex; flex-direction: column; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-xl); background: var(--sheet); box-shadow: var(--shadow-surface); overflow: hidden; }
+.effort-history-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-5) var(--space-7); border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome); font-size: var(--type-meta); }
+.effort-history-heading h3 { margin: 0; font-size: var(--type-body); font-weight: var(--weight-semibold); }
+.effort-history-scroll { max-height: 28rem; overflow-y: auto; overscroll-behavior: contain; }
+.effort-history-scroll > p { margin: 0; padding: var(--space-7); color: var(--ink-3); }
+.effort-history-scroll > .btn { margin: var(--space-5) var(--space-7); }
 .effort-history-list { list-style: none; padding: 0; margin: 0; }
-.effort-history-list li { padding: var(--space-3); border-bottom: var(--border-width) solid var(--line-soft); }
-.effort-history-list header, .effort-history-list header > span { display: flex; align-items: center; gap: var(--space-3); font-size: var(--type-meta); }
-.effort-history-list header { flex-wrap: wrap; }
-.effort-history-list time { margin-inline-start: auto; color: var(--ink-3); }
-.effort-history-list blockquote { margin: var(--space-3) 0 0; font-size: var(--type-body); white-space: pre-wrap; overflow-wrap: anywhere; }
+.effort-history-list li { padding: var(--space-4) var(--space-7); border-bottom: var(--border-width) solid var(--line-soft); border-inline-start: var(--border-width-thick) solid currentColor; }
+.effort-history-list header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); font-size: var(--type-meta); }
+.effort-history-kind { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-1) var(--space-4); border-radius: var(--radius-pill); background: color-mix(in srgb, currentColor 14%, var(--sheet)); font-weight: var(--weight-semibold); }
+.effort-history-list header strong { font-family: var(--font-mono); }
+.effort-history-list time { margin-inline-start: auto; color: var(--ink-3); font-family: var(--font-mono); }
+.effort-history-list blockquote { margin: var(--space-3) 0 0; color: var(--ink); font: var(--type-body)/var(--leading-snug) var(--font-serif); white-space: pre-wrap; overflow-wrap: anywhere; }
 .effort-history-list small { color: var(--ink-3); }
-@media (max-width: 860px) { .effort-stat-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* The learning panel's Progress tab (features/conversation/progress/ConversationProgress.tsx):
+   Skills, XP and Effort sections, in the Progress page's order. */
+.conversation-progress-section { display: flex; flex-direction: column; gap: var(--space-4); scroll-margin-top: var(--space-4); }
+.conversation-progress-section + .conversation-progress-section { padding-top: var(--space-6); border-top: var(--border-width) solid var(--line-soft); }
+.conversation-progress-title { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.conversation-progress-open { align-self: flex-start; }
+.effort-counts { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.effort-counts li { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); white-space: nowrap; }
+.effort-count { display: inline-flex; align-items: center; gap: var(--space-2); }
+.effort-counts strong { font: var(--weight-bold) var(--type-body)/var(--leading-none) var(--font-mono); font-variant-numeric: tabular-nums; }
+.effort-counts span { font-size: var(--type-meta); font-weight: var(--weight-semibold); }

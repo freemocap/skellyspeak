@@ -34,7 +34,7 @@ fn speech_default_upgrades_all_supported_formats_and_preserves_history() {
                 |r| r.get(0),
             )
             .unwrap();
-        assert_eq!(model, "eleven_v3");
+        assert_eq!(model, "eleven_v4_turbo");
         assert_eq!(version(&store.connection), SCHEMA_VERSION);
         assert_eq!(rows(&store.connection, "effort_awards"), awards);
         assert_eq!(rows(&store.connection, "saved_topics"), topics);

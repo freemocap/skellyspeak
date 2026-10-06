@@ -14,51 +14,91 @@
   background: var(--bg);
   font-family: var(--font-sans);
 }
-.tree-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-5);
-  padding: var(--space-5) var(--space-7);
-  flex: none;
-  border-bottom: var(--border-width) solid var(--line);
-}
-.tree-header h1 { margin: 0; font-size: var(--type-body); letter-spacing: var(--tracking-label); }
-.tree-header h1 span { color: var(--ink-2); font-size: var(--type-ui); }
 :where(.skills-page) button, :where(.skills-page) select { font: inherit; }
 
 /* The overview and a skill's page share one centred column. */
 .skills-page > * { flex: none; box-sizing: border-box; width: 100%; max-width: 72rem; margin-inline: auto; }
 .skills-page-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-6); }
-.skills-page-head h1 { margin: 0; font-size: var(--type-display); font-weight: var(--weight-semibold); line-height: var(--leading-tight); }
-.skills-page-language { color: var(--ink-2); font-size: var(--type-body); }
-.skills-page-demo { margin: 0; color: var(--warning-ink); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tag); }
+.skills-page-head h1 { display: flex; align-items: center; gap: var(--space-4); margin: 0; font-size: var(--type-display); font-weight: var(--weight-semibold); line-height: var(--leading-tight); }
+.skills-page-demo { margin-block: 0; color: var(--warning-ink); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tag); }
 .skills-page .skill-levels { padding: var(--space-9); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-xl); background: var(--sheet); box-shadow: var(--shadow-surface); }
 .skills-page .skill-levels-head { border-color: var(--progress-line); background: var(--progress-tint); }
 
-/* Wide panes: one screen. The level header spans the top; the radar and its key
-   hold the left column; the focused skill, the skills short of the next level
-   and those ready for it stack on the right. */
+/* Wide panes: one screen. The level header spans the top; the chart card
+   (switches, chart, key and notes) holds the left column; the focused skill, the skills
+   short of the next level and those ready for it stack on the right. */
 @media (min-width: 860px) {
   .skills-page .skill-levels { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; align-content: start; gap: var(--space-8) var(--space-11); }
   .skills-page .skill-levels > * { grid-column: 2; }
   .skills-page .skill-levels > .skill-levels-head { grid-column: 1 / -1; }
-  .skills-page .skill-levels > .skill-radar { grid-column: 1; grid-row: 2 / span 3; }
-  .skills-page .skill-levels > .skill-levels-key { grid-column: 1; grid-row: 5; }
-  .skills-page .skill-levels > .skill-levels-hint { grid-column: 1; grid-row: 6; }
+  .skills-page .skill-levels > .skill-chart { grid-column: 1; grid-row: 2 / span 3; }
 }
 
-/* XP by skill, Experience and Effort: kept on the page, folded under the overview. */
-.skills-xp-breakdown { padding: var(--space-4) var(--space-8); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--chrome); }
-.skills-xp-breakdown > summary { display: flex; align-items: center; min-height: var(--control-height); cursor: pointer; color: var(--interaction-ink); font-size: var(--type-ui); font-weight: var(--weight-medium); }
+/* Skills · XP · Actions: underlined tabs under the heading; the panel's
+   content fades in when the tab changes. */
+.progress-tabs { display: flex; gap: var(--space-2); border-bottom: var(--border-width) solid var(--line); }
+.progress-tabs button { min-height: var(--control-height); padding: 0 var(--space-7); border: 0; border-bottom: var(--border-width-thick) solid transparent; margin-bottom: calc(-1 * var(--border-width)); background: transparent; color: var(--ink-2); font-size: var(--type-body); font-weight: var(--weight-semibold); cursor: pointer; transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+.progress-tabs button:hover { color: var(--ink); }
+.progress-tabs button[aria-selected='true'] { border-bottom-color: var(--progress-mark); color: var(--ink); }
+.progress-tab-panel { display: flex; flex-direction: column; gap: var(--space-8); animation: hydrate-arrive var(--dur-base) var(--ease-out); }
+.progress-tab-lead { margin: 0; color: var(--ink-2); font-size: var(--type-body); line-height: var(--leading-normal); }
+
+/* The XP tab: all languages, then this language's XP as an equation
+   (XP = Experience + Effort), its skills beside its history, then the footer.
+   Solid marks are Experience and pale marks Effort, in the equation and bars. */
+.progress-xp { display: flex; flex-direction: column; gap: var(--space-10); }
+.progress-section { display: flex; flex-direction: column; gap: var(--space-4); }
+.progress-section h2 { display: flex; align-items: center; gap: var(--space-3); margin: 0; font-size: var(--type-title); font-weight: var(--weight-semibold); }
+.progress-section h3 { margin: 0; color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.progress-section-note { margin: 0; color: var(--ink-2); font-size: var(--type-ui); }
+/* Each top-level section of the XP tab is its own card. */
+.progress-xp > .progress-section { padding: var(--space-8) var(--space-9); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-xl); background: var(--sheet); box-shadow: var(--shadow-surface); }
+.progress-xp-equation { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--space-4); margin: 0; }
+.progress-xp-equation > div { flex: 1 1 10rem; display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--chrome); }
+.progress-xp-equation > div[data-total='xp'] { border-color: var(--progress-line); background: var(--progress-tint); }
+.progress-xp-equation > div[data-total='xp'] dd { color: var(--progress-ink); }
+.progress-xp-equation dt { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.progress-xp-equation > div[data-kind] dt::before { content: ''; width: var(--space-5); height: var(--space-5); border-radius: var(--radius-xs); background: var(--ink-2); }
+.progress-xp-equation > div[data-kind='effort'] dt::before { background: color-mix(in srgb, var(--ink-2) 35%, var(--sheet)); }
+.progress-xp-equation dd { margin: 0; color: var(--ink); font: var(--weight-bold) var(--type-display)/var(--leading-none) var(--font-mono); font-variant-numeric: tabular-nums; }
+.progress-xp-operator { align-self: center; color: var(--ink-3); font: var(--weight-bold) var(--type-title) var(--font-mono); }
+.progress-xp-columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-9); margin-top: var(--space-4); }
+.progress-xp-skills { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.progress-xp-skill { width: 100%; display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) auto; align-items: center; gap: var(--space-5); min-height: var(--control-height); padding: var(--space-2) var(--space-4); border: var(--border-width) solid transparent; border-radius: var(--radius-md); background: transparent; text-align: start; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+.progress-xp-skill:hover { border-color: var(--line-soft); background: var(--chrome); }
+.progress-xp-skill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-ui); font-weight: var(--weight-semibold); }
+.progress-xp-skill-bar { display: flex; height: var(--space-6); border-radius: var(--radius-pill); background: var(--track); overflow: hidden; }
+.progress-xp-skill-bar > span[data-kind='experience'] { background: currentColor; }
+.progress-xp-skill-bar > span[data-kind='effort'] { background: color-mix(in srgb, currentColor 35%, var(--sheet)); }
+.progress-xp-skill strong { min-width: 3ch; color: var(--ink); font: var(--weight-bold) var(--type-ui) var(--font-mono); text-align: end; font-variant-numeric: tabular-nums; }
+.rewards-ledger-list { display: flex; flex-direction: column; max-height: 28rem; margin: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; border-block: var(--border-width) solid var(--line-soft); }
+.rewards-ledger-list > li + li { border-top: var(--border-width) solid var(--line-soft); }
+.xp-history-row summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-4); min-height: var(--control-height); padding: var(--space-2) var(--space-4); cursor: pointer; list-style: none; font-size: var(--type-ui); }
+.xp-history-row summary::-webkit-details-marker { display: none; }
+.xp-history-row summary:hover { background: var(--chrome); }
+.xp-history-row summary strong { font: var(--weight-bold) var(--type-ui) var(--font-mono); }
+.xp-history-skill { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-semibold); }
+.xp-history-kind { padding: 0 var(--space-3); border-radius: var(--radius-pill); background: var(--ink-2); color: var(--sheet); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.xp-history-kind[data-kind='effort'] { background: color-mix(in srgb, var(--ink-2) 35%, var(--sheet)); color: var(--ink); }
+.xp-history-row time { color: var(--ink-3); font: var(--type-meta) var(--font-mono); white-space: nowrap; }
+.xp-history-row blockquote { margin: 0 var(--space-4) var(--space-3); font: var(--type-body)/var(--leading-snug) var(--font-serif); color: var(--ink); }
+.xp-history-policy { margin: 0 var(--space-4) var(--space-4); color: var(--ink-3); font: var(--type-meta) var(--font-mono); overflow-wrap: anywhere; }
+.progress-xp-foot { display: flex; flex-direction: column; gap: var(--space-6); }
+.progress-xp-evidence { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-6); color: var(--ink-2); font-size: var(--type-ui); }
+@media (min-width: 860px) {
+  .progress-xp-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-tab-panel { animation: none; }
+  .progress-tabs button, .progress-xp-skill { transition: none; }
+}
 
 /* One skill's page: back to the overview, then the skill (features/skills/evidence/SkillDetailContent.tsx). */
 .skill-detail-page { display: flex; flex-direction: column; gap: var(--space-8); }
 .skill-detail-back { align-self: flex-start; }
 
 .skills-page-explain { display: inline-flex; align-items: center; gap: var(--space-3); margin-inline-start: auto; }
-.skills-page-lead { flex: 1 1 100%; margin: 0; color: var(--ink-2); font-size: var(--type-body); }
 
 /* First-visit explainer (features/skills/SkillsIntro.tsx): four numbered points and one button. */
 .skills-intro h2 { margin: 0 0 var(--space-4); font-size: var(--type-display); }

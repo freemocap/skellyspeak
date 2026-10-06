@@ -11,17 +11,19 @@ export function languageCode(row: Pick<LanguageTotals, 'languageTag' | 'target'>
   return (row.languageTag ?? row.target).split('-')[0].toUpperCase()
 }
 
-/** Every language's totals side by side, sortable by any column. `compact` names
- * the unit columns by icon only and leaves out conversations. */
-export function LanguageTable({ rows, active, compact = false, onSelect }: {
-  rows: LanguageTotals[]; active?: string; compact?: boolean; onSelect?: (target: string) => void
+/** Every language's XP and effort side by side, sortable by any column.
+ * `compact` (the top bar's card) names the effort columns by icon only and
+ * leaves out conversations. Pressing a row (or its language's name) calls
+ * `onSelect` with that language. */
+export function LanguageTable({ rows, active, compact, onSelect }: {
+  rows: LanguageTotals[]; active: string | undefined; compact: boolean; onSelect: (target: string) => void
 }) {
   const tr = useI18n()
   const [sort, setSort] = useState<{ column: Column; descending: boolean }>({ column: 'xp', descending: true })
-  const columns: { id: Column; label: string; icon?: ToolbarIconName }[] = [
+  const columns: { id: Column; label: string; icon?: ToolbarIconName; description?: string }[] = [
     { id: 'xp', label: 'XP', icon: 'star' },
     ...(compact ? [] : [{ id: 'conversations' as const, label: 'Conversations', icon: 'chat' as const }]),
-    ...effortDimensions.map(({ field, label, icon }) => ({ id: field, label, icon })),
+    ...effortDimensions.map(({ field, label, icon, description }) => ({ id: field, label, icon, description })),
   ]
   const value = (row: LanguageTotals, column: Column) => column === 'language' ? row.name : row[column]
   const sorted = [...rows].sort((a, b) => {
@@ -30,10 +32,10 @@ export function LanguageTable({ rows, active, compact = false, onSelect }: {
     const order = typeof left === 'string' ? left.localeCompare(String(right), tr.browserLocale) : left - Number(right)
     return (sort.descending ? -order : order) || b.xp - a.xp || a.name.localeCompare(b.name, tr.browserLocale)
   })
-  const header = (id: Column, label: string, icon?: ToolbarIconName) => {
+  const header = (id: Column, label: string, icon?: ToolbarIconName, description?: string) => {
     const current = sort.column === id
     return <th key={id} scope="col" data-column={id} data-unit={unitColumn(id)} aria-sort={current ? (sort.descending ? 'descending' : 'ascending') : 'none'}>
-      <button type="button" title={tr(label)} aria-label={tr(label)} onClick={() => setSort({ column: id, descending: current ? !sort.descending : id !== 'language' })}>
+      <button type="button" title={tr(description ?? label)} aria-label={tr(label)} onClick={() => setSort({ column: id, descending: current ? !sort.descending : id !== 'language' })}>
         {icon && <ToolbarIcon name={icon} size={14} />}{(!compact || !icon) && <span>{tr(label)}</span>}
         {/* Every header reserves the arrow's space, so sorting never changes a column's width. */}
         <span className="language-table-sort" data-shown={current || undefined} aria-hidden="true">{current && !sort.descending ? '▴' : '▾'}</span>
@@ -41,17 +43,17 @@ export function LanguageTable({ rows, active, compact = false, onSelect }: {
     </th>
   }
   return <table className="language-table" data-compact={compact || undefined}>
-    <thead><tr>{header('language', 'Languages')}{columns.map(column => header(column.id, column.label, column.icon))}</tr></thead>
-    <tbody>{sorted.map(row => <tr key={row.target} data-active={row.target === active || undefined}>
+    <thead><tr>{header('language', 'Languages')}{columns.map(column => header(column.id, column.label, column.icon, column.description))}</tr></thead>
+    <tbody>{sorted.map(row => <tr key={row.target} data-active={row.target === active || undefined} onClick={() => onSelect(row.target)}>
       <th scope="row">
-        {onSelect ? <button type="button" className="language-table-name" onClick={() => onSelect(row.target)}><Name row={row} /></button> : <span className="language-table-name"><Name row={row} /></span>}
+        <button type="button" className="language-table-name" onClick={event => { event.stopPropagation(); onSelect(row.target) }}><Name row={row} /></button>
       </th>
       {columns.map(column => <td key={column.id} data-column={column.id} data-unit={unitColumn(column.id)}>{tr.number(row[column.id as Exclude<Column, 'language'>])}</td>)}
     </tr>)}</tbody>
   </table>
 }
 
-/** Effort columns carry their unit so they take its colour. */
+/** Effort columns carry their unit so they take its colour; hovering their header says what counts. */
 function unitColumn(id: Column) {
   return effortDimensions.some(({ field }) => field === id) ? id : undefined
 }

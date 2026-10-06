@@ -4,7 +4,7 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **52**. The 51 → 52 step adopts the bundled v4 Turbo synthesis default while preserving historical receipts and custom model IDs. The preceding format 51 introduced explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
+Current format: **54**. Format 53 → 54 restores v4 Turbo for saved v3 selections after listening tests reproduced an accent regression; plain-source synthesis remains in place. See the format-54 section below. The 51 → 52 step adopts the bundled v4 Turbo synthesis default while preserving historical receipts and custom model IDs. The preceding format 51 introduced explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
 preference: coaching is required on new turns. Captured turn policy, operations,
 learner revision, evidence and awards remain unchanged. The removed preference
 is intentionally retired; the three optional-work preferences retain their values.
@@ -167,7 +167,7 @@ Format 52 → 53 changes only `ai_config.audio_settings.speech.model` from
 `eleven_v4_turbo` to `eleven_v3`, incrementing the connection revision when changed.
 Other model selections and settings remain intact. The released format-52 step
 is preserved, so older supported formats still traverse the complete chain.
-Fresh workspaces also start with v3. Shared declared capabilities select v4 when
+At format 53, fresh workspaces also started with v3. Shared declared capabilities select v4 when
 v3 cannot serve the language; there is no retry after a provider failure.
 
 The existing setting has no provenance distinguishing the former default from
@@ -177,3 +177,24 @@ This is a workspace format increment, not an application release version change.
 No conversation, receipt, learner evidence, audio blob, cache, or file migration
 is involved. The ordinary migration runner provides transaction rollback and a
 recovery copy. Tests use temporary workspaces only.
+
+## Format 54: restore speech fidelity
+
+Format 53 → 54 changes saved `eleven_v3` speech selections to `eleven_v4_turbo`
+once and increments the connection revision only for changed rows. The learner
+explicitly approved including deliberate v3 selections because format 53 retained
+no provenance distinguishing them from automatic changes. Later explicit model
+choices remain respected; other models and transcription settings are preserved.
+Historical migration steps remain unchanged.
+
+Fresh workspaces and the server's advertised default prefer v4 Turbo. Shared
+capability routing retains v3 for languages without listed v4 support, including
+Irish. Exact-source synthesis without accent instructions remains in place.
+The [listening investigation](arabic-speech-investigation-2026-10-06.md) records
+the reproduced v3 accent failure and accepted v4 Arabic/repetition controls.
+
+No conversation, audio, cache, evidence or receipt is deleted or rewritten by
+this migration. The existing transaction and recovery-copy protocol applies.
+Tests cover every supported start, all non-settings tables across the new step,
+unchanged custom models, rollback, fresh-default equivalence, repeated startup
+and learner changes after migration. Tests use temporary workspaces only.

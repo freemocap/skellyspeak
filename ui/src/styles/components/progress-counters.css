@@ -1,7 +1,8 @@
-/* Shared progress face: one XP number in the progress gold. Effort units live in
-   the progress card and surface on the face only as a brief "+N icon" when they
-   rise. Gains and the card position against the owner's .progress-anchor. */
-.progress-anchor { position: relative; flex: none; }
+/* Shared progress face: one XP number in the progress gold. A .progress-anchor
+   groups an owner's counters (a skill-level or skill-point button, then an XP
+   button) into one pill. Effort units live in the progress card that the XP
+   button shows on hover; gains and the card position against the anchor. */
+.progress-anchor { position: relative; flex: none; display: inline-flex; align-items: center; }
 .progress-counters { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--progress-ink); font-family: var(--font-mono); font-size: var(--type-meta); line-height: var(--leading-none); font-variant-numeric: tabular-nums; }
 .progress-counter { display: inline-flex; position: relative; align-items: center; gap: var(--space-2); white-space: nowrap; min-width: 0; }
 .progress-counter-mark { display: inline-flex; color: var(--progress-mark); }
@@ -77,13 +78,16 @@
 .language-table-sort[data-shown] { visibility: visible; }
 .language-table td { font-family: var(--font-mono); font-weight: var(--weight-semibold); }
 .language-table td[data-column="xp"] { color: var(--progress-ink); font-weight: var(--weight-bold); }
-.language-table-name { display: inline-flex; align-items: center; gap: var(--space-3); min-height: 0; padding: 0; border: 0; background: transparent; color: var(--ink); font: var(--weight-semibold) var(--type-meta) var(--font-sans); text-align: start; }
-button.language-table-name { cursor: pointer; }
-button.language-table-name:hover { color: var(--interaction-ink); }
+.language-table-name { display: inline-flex; align-items: center; gap: var(--space-3); min-height: 0; padding: 0; border: 0; background: transparent; color: var(--ink); font: var(--weight-semibold) var(--type-meta) var(--font-sans); text-align: start; cursor: pointer; }
 .language-table tr[data-active] :is(th, td) { background: var(--progress-tint); }
+/* Every row opens that language's Progress page. */
+.language-table tbody tr { cursor: pointer; }
+.language-table tbody tr:hover :is(th, td) { background: var(--chrome); }
+.language-table tbody tr[data-active]:hover :is(th, td) { background: color-mix(in srgb, var(--progress-mark) 22%, var(--sheet)); }
+.language-table tbody tr:hover .language-table-name { color: var(--interaction-ink); text-decoration: underline; }
 .language-table:not([data-compact]) { font-size: var(--type-ui); }
 .language-table:not([data-compact]) :is(.language-table-name, thead button) { font-size: var(--type-ui); }
-@media (pointer: coarse) { .language-table thead button, button.language-table-name { min-height: var(--touch-target); } }
+@media (pointer: coarse) { .language-table thead button, .language-table-name { min-height: var(--touch-target); } }
 
 .effort-mini-stats { width: 100%; border-collapse: collapse; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
 .effort-mini-stats caption { text-align: start; font-weight: var(--weight-semibold); padding-bottom: var(--space-3); }
@@ -93,7 +97,7 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .effort-mini-stats svg { flex: none; }
 .effort-mini-stats thead { color: var(--ink-2); }
 
-[data-unit="bot"] { color: var(--interaction-ink); }
+[data-unit="bot"] { color: var(--success-ink); }
 
 /* Manual popovers keep the action burst above dialogs without intercepting input. */
 .action-reward-burst { position: fixed; inset: auto; margin: 0; padding: 0; width: 0; height: 0; overflow: visible; border: 0; background: transparent; pointer-events: none; z-index: var(--z-reward); }
@@ -103,10 +107,12 @@ button.language-table-name:hover { color: var(--interaction-ink); }
 .action-reward-particle { animation: action-reward-scatter calc(var(--dur-deliberate) * 2) var(--ease-out) both; }
 @media (prefers-reduced-motion: reduce) { .action-reward-burst { display: none; } }
 
-/* The language's skill level in the top-bar trigger: the resting radar glyph and the level. */
-.skill-level-chip { display: inline-flex; align-items: center; gap: var(--space-2); padding-inline-end: var(--space-3); margin-inline-end: var(--space-2); border-inline-end: var(--border-width) solid var(--line-soft); }
+/* The skill level (top bar) or a conversation's skill points (chat header): a
+   button before the XP button, its glyph and number, divided from the XP. */
+.skill-level-chip { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--control-height); padding: 0 var(--space-3) 0 var(--space-2); border: 0; border-inline-end: var(--border-width) solid var(--line-soft); border-radius: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.skill-level-chip:hover strong { color: var(--interaction-ink); }
 .skill-level-chip strong { color: var(--ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
-/* As tall as the trigger allows without growing it. */
+/* As tall as the button allows without growing it. */
 .skill-level-chip .skill-radar-glyph { width: calc(var(--control-height) - var(--space-3)); }
 /* The language's skill level in the progress card: the radar and what holds the next level back. */
 .progress-card-levels { display: flex; gap: var(--space-6); align-items: center; padding: var(--space-4) var(--space-2); border-top: var(--border-width) solid var(--line-soft); }

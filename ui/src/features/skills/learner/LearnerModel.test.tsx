@@ -33,7 +33,7 @@ beforeEach(() => {
   api.saveLearnerState.mockResolvedValue('/Downloads/learning.yaml')
 })
 it('shows counts and source evidence with a guide, without rating estimates or refresh controls', async () => {
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience')
   inspect()
   expect(screen.getAllByText('Hola.').some(element => element.closest('blockquote'))).toBe(true)
@@ -47,7 +47,7 @@ it('persists exclusions and restoration and reloads the same scope', async () =>
   excluded.evidence.profile.credits = []; excluded.evidence.profile.xp = 0
   Object.assign(excluded.evidence.profile.skills[0], { xp: 0, experience: 0 })
   api.getLearnerProfile.mockResolvedValueOnce(data).mockResolvedValue(excluded)
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience'); inspect()
   fireEvent.click(screen.getByRole('button', { name: 'Exclude assessment' }))
   await screen.findByRole('button', { name: 'Restore assessment' })
@@ -59,14 +59,14 @@ it('persists exclusions and restoration and reloads the same scope', async () =>
 })
 it('keeps failed exclusions visible without claiming a change', async () => {
   api.saveSkillProfile.mockRejectedValue(new Error('Revision changed'))
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience'); inspect()
   fireEvent.click(screen.getByRole('button', { name: 'Exclude assessment' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('Revision changed')
   expect(screen.getByRole('button', { name: 'Exclude assessment' })).toBeEnabled()
 })
 it('updates automatically when new evidence is published', async () => {
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience')
   act(() => useSkillEvidenceStore.setState({ snapshot: structuredClone(skillDemo) }))
   await waitFor(() => expect(api.getLearnerProfile).toHaveBeenCalledTimes(2))
@@ -74,16 +74,16 @@ it('updates automatically when new evidence is published', async () => {
 it('ignores a late language result', async () => {
   let finish!: (value: LearnerProfile) => void
   api.getLearnerProfile.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
-  const view = render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  const view = render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   api.getLearnerProfile.mockResolvedValue(profile('arabic'))
-  view.rerender(<LearnerModel target="arabic" onClose={vi.fn()} />)
+  view.rerender(<LearnerModel languageName="Spanish" target="arabic" onClose={vi.fn()} />)
   await screen.findByText('Experience')
   await act(async () => finish(profile()))
   expect(api.getLearnerProfile).toHaveBeenLastCalledWith('arabic', null)
   expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 })
 it('keeps evidence and guide in the inspected variety', async () => {
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience')
   fireEvent.change(screen.getByLabelText('Variety'), { target: { value: 'two' } }); inspect()
   expect(screen.queryByText('Hola.')).not.toBeInTheDocument()
@@ -93,7 +93,7 @@ it('keeps evidence and guide in the inspected variety', async () => {
 it('rejects a wrong partner result and ignores a late prior partner', async () => {
   let finish!: (value: LearnerProfile) => void
   api.getLearnerProfile.mockResolvedValueOnce(profile()).mockReturnValueOnce(new Promise(resolve => { finish = resolve })).mockResolvedValue(profile())
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience')
   fireEvent.change(screen.getByLabelText('Partner'), { target: { value: 'p1' } })
   fireEvent.change(screen.getByLabelText('Partner'), { target: { value: 'p2' } })
@@ -104,7 +104,7 @@ it('rejects a wrong partner result and ignores a late prior partner', async () =
   expect(screen.queryByText('Experience')).not.toBeInTheDocument()
 })
 it('exports native language-wide evidence and reports failure', async () => {
-  render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience')
   fireEvent.click(screen.getByRole('button', { name: 'Save YAML' }))
   expect(await screen.findByText('Saved to /Downloads/learning.yaml')).toBeVisible()
@@ -116,11 +116,11 @@ it('exports native language-wide evidence and reports failure', async () => {
 it('ignores export completion after a language switch', async () => {
   let finish!: (path: string) => void
   api.saveLearnerState.mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
-  const view = render(<LearnerModel target={skillDemo.target} onClose={vi.fn()} />)
+  const view = render(<LearnerModel languageName="Spanish" target={skillDemo.target} onClose={vi.fn()} />)
   await screen.findByText('Experience')
   fireEvent.click(screen.getByRole('button', { name: 'Save YAML' }))
   api.getLearnerProfile.mockResolvedValue(profile('arabic'))
-  view.rerender(<LearnerModel target="arabic" onClose={vi.fn()} />)
+  view.rerender(<LearnerModel languageName="Spanish" target="arabic" onClose={vi.fn()} />)
   await screen.findByText('Experience')
   await act(async () => finish('/Downloads/old.yaml'))
   expect(screen.queryByText(/old.yaml/)).not.toBeInTheDocument()

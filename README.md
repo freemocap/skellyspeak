@@ -294,8 +294,9 @@ through the selected AI route and automatically sends the transcript when Auto-s
 When disabled, the transcript stays in the composer for review and manual Send.
 Discard cancels capture. Audio stays in memory, is capped at two minutes, and is
 uploaded only on Stop. Hosted uses Google sign-in. Custom URL and Hosted audio use the service audio contract; new workspaces
-select `scribe_v2` for STT and `eleven_v3` for TTS. Existing selections are
-preserved. See [audio setup](docs/notes/audio-provider-setup.md).
+select `whisper-large-v3` for STT and `eleven_v4_turbo` for TTS. Format 54
+restores saved v3 speech selections to v4 once; later learner choices are preserved.
+See [speech routing](content/speech/SPEECH_README.md).
 Desktop capture uses native audio; Android/iOS use browser capture connected to the
 same native transcription lifecycle. Automatic reading defaults on; both voice
 preferences save per conversation. Desktop voice interaction has prior user
@@ -732,7 +733,7 @@ for scope and verification.
 
 Variety support uses separate target and explanation choices, plus an independent
 interface locale. See the [content guide](content/CONTENT_README.md).
-Workspace format **47** supports automatic upgrades from format **45** onward.
+Workspace format **54** supports automatic upgrades from format **45** onward.
 Every stored-format change includes a consecutive migration; app releases do not
 necessarily change the database format. Startup retains a local recovery copy and
 upgrades the complete chain in one transaction, preserving learner history.

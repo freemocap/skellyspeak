@@ -11,7 +11,7 @@ vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../progress/ConversationMap', () => ({ ConversationMap: () => null }))
 const snapshot = { conversationId: 'chat-1', sessionId: 'session', revision: 7, coachMessages: [], turns: [], messages: [], revisionSuffixCounts: [], hasOlder: false } as unknown as ConversationSnapshot
 function panel(chatId = 'chat-1', draftQuestion = '', autoSendDraft = false, conversationBusy = false) {
-  return <CoachAnalysisPanel autoSendDraft={autoSendDraft} chatId={chatId} conversationBusy={conversationBusy} tab="coaching" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
+  return <CoachAnalysisPanel targetLanguageName="Spanish" autoSendDraft={autoSendDraft} chatId={chatId} conversationBusy={conversationBusy} tab="coaching" onTab={vi.fn()} draftQuestion={draftQuestion} onDraftConsumed={vi.fn()} pinnedTurn={null} nativeLanguageName="English" showRomanization={false} rtl={false} />
 }
 beforeEach(() => {
   vi.resetAllMocks()
@@ -30,7 +30,7 @@ describe('native private coaching', () => {
     expect(backend.execute).not.toHaveBeenCalled()
     expect(screen.getByLabelText('Coach conversation')).not.toBeVisible()
     expect(screen.getByRole('tab', { name: 'Coach' })).toBeVisible(); expect(screen.queryByRole('tab', { name: 'Analysis' })).toBeNull()
-    expect(screen.getByRole('tab', { name: 'Skills' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Progress' })).toBeVisible()
     expect(screen.getAllByText('Coach')).toHaveLength(1)
   })
   it('submits once with current conversation revision and displays only saved replies', async () => {

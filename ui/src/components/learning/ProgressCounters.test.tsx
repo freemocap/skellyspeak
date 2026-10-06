@@ -29,12 +29,12 @@ it('honors the effects preference while still updating numbers', () => {
 })
 it('lists XP and each effort unit separately in the card', () => {
   const expand = vi.fn()
-  render(<ProgressCard title="Language progress" xp={1248} effort={effort} expandLabel="Full report" onExpand={expand} />)
+  render(<ProgressCard title="Language progress" xp={1248} effort={effort} expandLabel="Open the Progress page" onExpand={expand} />)
   const card = screen.getByRole('dialog', { name: 'Language progress' })
   expect(card).toHaveTextContent('1,248 XP')
   for (const label of ['Understood: 12', 'Fixes: 3', 'Practice: 45', 'Explore: 0']) expect(screen.getByLabelText(label)).toBeVisible()
   expect(screen.queryByLabelText(/^Clean:/)).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Full report' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Open the Progress page' }))
   expect(expand).toHaveBeenCalledOnce()
 })
 

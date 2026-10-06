@@ -1,7 +1,9 @@
 # Practice reference word timing lost during streamed synthesis
 
-Status: source fix and regression verification complete. Server deployment and
-regeneration of the affected cached reference remain pending. No commit or release.
+Status: October 6 native correction and automated verification complete; see the
+latest follow-up below. Rebuilt-app visual verification remains pending. Earlier
+server-deployment and endpoint-tolerance statements describe historical fixes.
+No commit or release.
 
 ## Observed evidence
 
@@ -85,3 +87,57 @@ one invalid reference result and its unshared derived cache data; retained pract
 items, attempts, execution receipts and other audio. The local development app was
 rebuilt, signed and relaunched successfully. Visual confirmation of regenerated
 reference words remains a user check. No server changes or deployment were needed.
+
+
+## October 6 recurrence: approximate generated endpoints
+
+The current local saved results include three v4 Turbo clips with durations
+5.28, 5.60 and 5.84 seconds and maximum timestamp ends 5.36, 5.68 and 5.92.
+Both timing lanes were discarded as `timing_exceeds_audio_duration`. The 5.60
+second result matches the duration shown in the reported screenshot. This was
+confirmed by read-only queries of execution diagnostics and cached audio shape;
+no live workspace records were modified and no source text/audio is copied here.
+This investigation did not audit all historical run logs.
+
+The learner explicitly rejected treating generated timestamp endpoints as exact
+measurements. This supersedes the endpoint-tolerance policy described above.
+Implemented behavior now preserves structurally valid finite, ordered provider
+intervals regardless of their relationship to the recording endpoint. Source
+identity, bounded arrays/text and malformed-data checks remain. Word inspection
+clips display intervals to the recording, retains `providerStart`/`providerEnd`,
+and sets `clipped`. Diagnostics report `display_clipped_to_audio` with the raw
+maximum endpoint and recording duration. No timestamps are stretched or inferred.
+
+Existing cache entries with timing discarded by the old endpoint validator are
+not reused on the next speech request, unless another timing lane was retained.
+Their receipts and blobs are not deleted. Opening practice performs a cache read,
+not inference; explicit reference playback can generate the replacement. New
+clipped results are reusable, so endpoint differences do not cause repeated calls.
+No server deployment or database-format change is required for this correction.
+
+Practice now starts in Tap mode, matching conversation's default. Both currently
+keep mode in page state rather than a durable shared preference; Auto and Hold
+remain explicit choices. Auto-specific regression tests now select Auto.
+
+Release-blocker cleanup removes unused ActionReport/ActionCounts prototypes
+whose functionality and paging test already exist in the wired Effort owners,
+regenerates native gloss fixtures, updates README's format number to 54, and
+removes the extra stylesheet EOF blank line. No version bump, commit or release.
+
+Final verification:
+
+- Root `npm test`: fast gate passed; 1,866 UI tests passed across 278 files.
+- Root `npm run build`: passed.
+- Final native library suite with `--test-threads=4`: 845 passed, five ignored.
+  The default-parallel run passed 844 but one unrelated mock transcription test
+  exceeded its five-second request deadline. That test passed alone, then the
+  complete four-thread suite passed. No deadline or assertion was weakened.
+- Clippy for library/tests with warnings denied, generated contracts, benchmark
+  fixture freshness, documentation links and diff whitespace: passed.
+- End-to-end regression covers stream decoding, cache serialization and reference
+  inspection across six scripts/encodings, with roundoff, 80 ms and one-second
+  endpoint overruns; original provider times survive and display clipping is marked.
+  Existing multi-frame/empty-tail and malformed-timing regressions remain.
+
+A rebuilt-app visual check of regenerated reference overlays remains distinct
+from this automated coverage. No live synthesis or deployment was performed.

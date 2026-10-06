@@ -293,9 +293,9 @@ pub(crate) fn attach_words(
                 word: word.word.clone(),
                 provider_start: word.start,
                 provider_end: word.end,
-                start: word.start,
-                end: word.end,
-                clipped: false,
+                start: word.start.min(inspection.duration),
+                end: word.end.min(inspection.duration),
+                clipped: word.end > inspection.duration,
             })
             .collect(),
         unsupported: vec![],

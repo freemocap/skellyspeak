@@ -16,7 +16,7 @@ fn reliability_default_changes_only_settings_and_is_transactional() {
         let tables: Vec<String> = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name!='ai_config' ORDER BY name").unwrap().query_map([], |r| r.get(0)).unwrap().map(|r| r.unwrap()).collect();
         let history: Vec<_> = tables.iter().map(|t| rows(&db, t)).collect();
         assert!(
-            run_chain(&mut db, 52, 53, STEPS, |_| Err(AppError::new(
+            run_chain(&mut db, 52, 53, &STEPS[..8], |_| Err(AppError::new(
                 ErrorCode::Storage,
                 "injected"
             )))
@@ -24,7 +24,7 @@ fn reliability_default_changes_only_settings_and_is_transactional() {
         );
         assert_eq!(version(&db), 52);
         assert_eq!(rows(&db, "ai_config"), before);
-        run_chain(&mut db, 52, 53, STEPS, validate_current_schema).unwrap();
+        run_chain(&mut db, 52, 53, &STEPS[..8], validate_current_schema).unwrap();
         // Compare immediately after migration: ordinary Store startup separately
         // increments the workspace metadata revision during recovery.
         for (table, expected) in tables.iter().zip(&history) {
@@ -33,10 +33,7 @@ fn reliability_default_changes_only_settings_and_is_transactional() {
         if model != "eleven_v4_turbo" {
             assert_eq!(rows(&db, "ai_config"), before);
         }
-        drop(db);
-        let store = Store::open(&path).unwrap();
-        let audio: String = store
-            .connection
+        let audio: String = db
             .query_row("SELECT audio_settings FROM ai_config", [], |r| r.get(0))
             .unwrap();
         let audio: serde_json::Value = serde_json::from_str(&audio).unwrap();
@@ -49,6 +46,8 @@ fn reliability_default_changes_only_settings_and_is_transactional() {
             }
         );
         assert_eq!(audio["transcription"]["model"], "fixture");
+        drop(db);
+        let store = Store::open(&path).unwrap();
         let after = rows(&store.connection, "ai_config");
         drop(store);
         let reopened = Store::open(&path).unwrap();

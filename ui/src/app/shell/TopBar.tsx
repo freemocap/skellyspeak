@@ -1,8 +1,8 @@
 import { ProgressCounters } from '../../components/learning/ProgressCounters'
+import { LanguageTable, languageCode } from '../../components/learning/LanguageTable'
 import { ProgressCard } from '../../components/learning/ProgressCard'
 import { useOverlayLayer } from '../../components/dialogs/useOverlayLayer'
 import { useHoverCard } from '../../components/learning/useHoverCard'
-import { LanguageTable, languageCode } from '../../components/learning/LanguageTable'
 import { useLanguageTotals } from '../../state/learning/useLanguageTotals'
 import { useVisibleEffort } from '../../state/learning/EffortProgressContext'
 import { playRewardSound } from '../../platform/audio/reward-sounds'
@@ -11,6 +11,7 @@ import { LearningPicker } from '../../features/settings/language/LanguagePickers
 import { useI18n } from '../../components/localization/i18n'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { useNavigationStore } from '../../state/navigation/navigation'
+import { openLanguageProgress } from '../../state/navigation/language-progress'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSkillEvidence } from '../../state/learning/useSkillEvidence'
 import { Destinations } from './Destinations'
@@ -19,8 +20,11 @@ import { holdingBack, languageSkillLevels } from '../../domain/learning/statisti
 import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { ThemeControls } from './ThemeControls'
 
-/** The global bar: the wordmark, the language, then the Practice and Skills
- * destinations, progress, Settings and More. The conversation is home: the
+/** The global bar: the wordmark, the language, then the Practice and Progress
+ * destinations, the progress counters, Settings and More. The skill level
+ * opens the Progress page's Skills tab. Hovering the XP (or a first tap) shows
+ * a card with every language's XP and effort; pressing it opens the XP tab,
+ * and pressing a language's row opens the XP tab for that language. The conversation is home: the
  * wordmark returns to it. Controls that belong to a place live in that place
  * (Conversations in the chat header; the AI status in the chat composer, with
  * AI activity under More everywhere). The theme and palette sit here when the
@@ -48,7 +52,8 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
   const overlay = useNavigationStore((state) => state.overlay)
   const goHome = useNavigationStore((state) => state.goHome)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
-  const progressCard = useHoverCard(() => showOverlay('profile'))
+  const openProgress = useNavigationStore((state) => state.openProgress)
+  const progressCard = useHoverCard(() => openProgress('xp'))
   return (
     <div className="topbar">
       <button type="button" className="wordmark app-home" aria-label={tr("SkellySpeak home — Chat")} onClick={goHome}>
@@ -59,14 +64,16 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
       <div className="topbar-actions">
       <Destinations />
       <ThemeControls />
-      {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the full report. */}
-      <div ref={progressAnchor} className="progress-anchor" {...progressCard.anchor}>
-        <button ref={counter} type="button" className="profile-trigger progress-trigger" aria-label={tr("Language progress")} aria-haspopup="dialog" aria-expanded={progressCard.open} onClick={progressCard.press}>
-          {levels && <span className="skill-level-chip" title={tr('Skill level {value0}', { value0: levels.level })}><SkillRadarGlyph levels={levels} /><strong>{tr('Lv {value0}', { value0: levels.level })}</strong></span>}
+      <div ref={progressAnchor} className="progress-anchor">
+        {levels && <button type="button" className="progress-trigger skill-level-chip" aria-label={tr('Skill level {value0}', { value0: levels.level })} title={tr('Skill level {value0}', { value0: levels.level })} onClick={() => openProgress('skills')}>
+          <SkillRadarGlyph levels={levels} /><strong>{tr('Lv {value0}', { value0: levels.level })}</strong>
+        </button>}
+        {/* Hover (mouse) or a first tap shows the card; pressing while it shows opens the XP tab. */}
+        <button ref={counter} type="button" className="profile-trigger progress-trigger" aria-label={tr("Language XP")} aria-haspopup="dialog" aria-expanded={progressCard.open} onClick={progressCard.press} {...progressCard.anchor}>
           <ProgressCounters xp={profile?.xp ?? null} xpLabel="Language XP" code={activeRow ? languageCode(activeRow) : undefined} global={totals.globalXp} effort={effort.value} effects={effort.effects} error={effort.error ?? totals.error} />
         </button>
         {progressCard.open && <CardLayer anchor={progressAnchor} onClose={progressCard.close}>
-          <ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={totals.globalEffort} units={['explorations', 'bot']} error={totals.error} expandLabel="Full report" onExpand={() => { progressCard.close(); showOverlay('profile') }}>
+          <div {...progressCard.anchor}><ProgressCard title={tr("All languages")} icon="globe" xp={totals.globalXp} effort={totals.globalEffort} units={['explorations', 'bot']} error={totals.error} expandLabel="Open the Progress page" onExpand={() => { progressCard.close(); openProgress('xp') }}>
             {levels && <div className="progress-card-levels">
               <SkillRadarGlyph levels={levels} />
               <div>
@@ -75,8 +82,8 @@ export function TopBar({ languagePicker = <LearningPicker /> }: { languagePicker
                 <ul>{holdingBack(levels).slice(0, 3).map(({ skill, needed }) => <li key={skill.id} style={{ color: skillColors(skill.id).ink }}>{tr(skill.label)}<span>{tr('{value0} more', { value0: needed })}</span></li>)}</ul>
               </div>
             </div>}
-            {totals.rows ? <LanguageTable rows={totals.rows} active={profile?.target} compact /> : <p role="status" className="progress-card-empty">{tr('Loading…')}</p>}
-          </ProgressCard>
+            {totals.rows ? <LanguageTable rows={totals.rows} active={profile?.target} compact onSelect={target => { progressCard.close(); void openLanguageProgress(target, 'xp') }} /> : <p role="status" className="progress-card-empty">{tr('Loading…')}</p>}
+          </ProgressCard></div>
         </CardLayer>}
       </div>
 

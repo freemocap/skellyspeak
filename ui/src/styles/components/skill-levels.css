@@ -17,8 +17,8 @@
 .skill-levels-readiness span { flex: 1; height: var(--space-3); border-radius: var(--radius-pill); background: var(--track); }
 .skill-levels-readiness span[data-ready] { background: var(--progress-mark); }
 
-/* How to read the chart, directly under it. */
-.skill-levels-key { list-style: none; margin: calc(-1 * var(--space-4)) 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3) var(--space-8); color: var(--ink-2); font-size: var(--type-ui); }
+/* How to read the chart, in the chart card's notes. */
+.skill-levels-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3) var(--space-8); color: var(--ink-2); font-size: var(--type-ui); }
 .skill-levels-key li { display: inline-flex; align-items: center; gap: var(--space-3); }
 .skill-levels-key svg { width: var(--space-8); height: var(--space-8); flex: none; }
 .skill-levels-key-goal { fill: none; stroke: var(--progress-mark); stroke-width: 2; }

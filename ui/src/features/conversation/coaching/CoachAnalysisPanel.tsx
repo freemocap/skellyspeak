@@ -13,11 +13,11 @@ import { useConversationSnapshot } from '../session/useConversationSnapshot'
 import { type AnalysedTurn } from '../reading/AnalysisContent'
 import { Markdown } from '../../../components/reading/Markdown'
 
-export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, autoSendDraft = false, coachingContent, onCollapse }: {
+export function CoachAnalysisPanel({ chatId, targetLanguageName, conversationBusy, tab, onTab, draftQuestion, onDraftConsumed, autoSendDraft = false, coachingContent, onCollapse }: {
   autoSendDraft?: boolean
   onCollapse?: () => void
   coachingContent?: ReactNode
-  conversationBusy: boolean; chatId: string; tab: 'coaching' | 'skills'; onTab: (tab: 'coaching' | 'skills') => void
+  conversationBusy: boolean; chatId: string; targetLanguageName: string; tab: 'coaching' | 'progress'; onTab: (tab: 'coaching' | 'progress') => void
   draftQuestion: string; onDraftConsumed: () => void; pinnedTurn: AnalysedTurn | null
   nativeLanguageName: string; showRomanization: boolean; rtl: boolean
 }) {
@@ -102,7 +102,7 @@ export function CoachAnalysisPanel({ chatId, conversationBusy, tab, onTab, draft
   />
   return <>
     <CoachPanelTabs tab={tab} onTab={onTab} onCollapse={onCollapse} />
-    {tab === 'skills' && <ConversationProgress chatId={chatId} />}
+    {tab === 'progress' && <ConversationProgress chatId={chatId} languageName={targetLanguageName} />}
     {coachDock}
   </>
 }

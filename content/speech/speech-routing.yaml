@@ -5,8 +5,8 @@ defaults:
     - whisper-large-v3
     - scribe_v2
   speech:
-    - eleven_v3
     - eleven_v4_turbo
+    - eleven_v3
 language_sets:
   whisper:
     af: af

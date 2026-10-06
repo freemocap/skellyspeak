@@ -5,6 +5,7 @@ use crate::learning::coaching::*;
 use crate::model::*;
 use rusqlite::Connection;
 use serde_json::{Value, json};
+mod response_guard;
 fn rejected(reason: &str) -> AppError {
     AppError::new(
         ErrorCode::Validation,
@@ -29,14 +30,15 @@ pub(crate) fn schema(captured: &Value) -> Result<Value> {
         return Err(rejected("empty candidates"));
     }
     let help_move = crate::learning::coaching::coach_policy::requested_move(captured)?;
-    let cue_schema = |active: bool| {
-        if active {
-            text_schema(CUE_LIMIT)
-        } else {
-            json!({"type":"string","const":""})
-        }
-    };
-    let error = json!({"type":["object","null"],"additionalProperties":false,"required":["op","category","source","blocks_meaning","target_hypothesis","hint","elicitation","metalinguistic"],"properties":{"op":{"type":"string","enum":["missing","replace","unnecessary"]},"category":{"type":"string","minLength":1,"maxLength":80},"source":{"type":"string","enum":["transfer","developmental","slip","unknown"]},"blocks_meaning":{"type":"boolean"},"target_hypothesis":text_schema(TARGET_LIMIT),"hint":cue_schema(help_move == CoachMove::Hint),"elicitation":cue_schema(matches!(help_move, CoachMove::Elicit | CoachMove::PartnerClarify)),"metalinguistic":cue_schema(help_move == CoachMove::Metalinguistic)}});
+    let mut target = text_schema(TARGET_LIMIT);
+    target["description"] = json!(
+        "One corrected replacement for the quoted span. Choose one wording; no alternatives, slash-separated options, explanations or repeated versions. Close this string after the replacement."
+    );
+    let mut error = json!({"type":["object","null"],"additionalProperties":false,"required":["op","category","source","blocks_meaning","target_hypothesis"],"properties":{"op":{"type":"string","enum":["missing","replace","unnecessary"]},"category":{"type":"string","minLength":1,"maxLength":80},"source":{"type":"string","enum":["unknown"]},"blocks_meaning":{"type":"boolean"},"target_hypothesis":target}});
+    if let Some(field) = cue_field(&help_move) {
+        error["properties"][field] = text_schema(CUE_LIMIT);
+        error["required"].as_array_mut().unwrap().push(json!(field));
+    }
     let item = json!({"type":"object","additionalProperties":false,"required":["construct","quote","outcome","error","rationale"],"properties":{"construct":{"type":"string","enum":ids},"quote":text_schema(QUOTE_LIMIT),"outcome":{"type":"string","enum":Outcome::ALL},"error":error,"rationale":{"type":"string","maxLength":RATIONALE_LIMIT}}});
     let result = json!({"type":"object","additionalProperties":false,"required":["meaning_recovered","items"],"properties":{"meaning_recovered":{"type":"string","enum":["full","partial","none"]},"items":{"type":"array","items":item}}});
     Ok(result)
@@ -46,6 +48,53 @@ fn prose(field: &str, text: &str) -> Result<()> {
         return Err(rejected(&format!("{field} is empty")));
     }
     crate::ai::transport::provider::validate_prose(text)
+}
+fn cue_field(help_move: &CoachMove) -> Option<&'static str> {
+    match help_move {
+        CoachMove::Hint => Some("hint"),
+        CoachMove::Elicit | CoachMove::PartnerClarify => Some("elicitation"),
+        CoachMove::Metalinguistic => Some("metalinguistic"),
+        _ => None,
+    }
+}
+
+// The generation contract omits unused cues. Populate only those absent fields
+// at this boundary; persisted observations retain their established shape, and
+// older responses with all three fields remain accepted. Required active cues
+// must still be returned by the provider.
+fn decode_observation(text: &str, captured: &Value) -> Result<CoachObservation> {
+    let mut schema = schema(captured)?;
+    let mut value: Value =
+        crate::diagnostics::structured::decode(text, &schema, "Coach observation rejected")?;
+    let active = cue_field(&coach_policy::requested_move(captured)?);
+    if let Some(items) = value.get_mut("items").and_then(Value::as_array_mut) {
+        for item in items {
+            if let Some(error) = item.get_mut("error").and_then(Value::as_object_mut) {
+                for field in ["hint", "elicitation", "metalinguistic"] {
+                    if Some(field) != active {
+                        error.entry(field).or_insert_with(|| json!(""));
+                    }
+                }
+            }
+        }
+    }
+    // Inspect typed decoding against the normalized shape, so an unrelated
+    // missing/invalid field is not masked by our inserted legacy cue fields.
+    let error_schema = &mut schema["properties"]["items"]["items"]["properties"]["error"];
+    for field in ["hint", "elicitation", "metalinguistic"] {
+        if Some(field) != active {
+            error_schema["properties"][field] = json!({"type":"string"});
+            error_schema["required"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!(field));
+        }
+    }
+    crate::diagnostics::structured::decode(
+        &value.to_string(),
+        &schema,
+        "Coach observation rejected",
+    )
 }
 pub(crate) fn validate(
     db: &Connection,
@@ -66,6 +115,7 @@ pub(crate) fn validate_captured(
     kind: &str,
     output: &Completion,
 ) -> Result<Value> {
+    response_guard::complete(output)?;
     if output.finish_reason == "error" {
         return Err(rejected("provider reported an error"));
     }
@@ -75,11 +125,7 @@ pub(crate) fn validate_captured(
     if kind != "coach_feedback" {
         return Err(rejected("unknown observation kind"));
     }
-    let mut observation = crate::diagnostics::structured::decode::<CoachObservation>(
-        &output.text,
-        &schema(captured)?,
-        "Coach observation rejected",
-    )?;
+    let mut observation = decode_observation(&output.text, captured)?;
     let help_move = crate::learning::coaching::coach_policy::requested_move(captured)?;
     let candidates = captured["candidateConstructs"]
         .as_array()
@@ -88,9 +134,26 @@ pub(crate) fn validate_captured(
     // left out and the rest of the coaching is kept. A quote that is not a
     // verbatim piece of the message is kept; the display marks only exact matches.
     let submitted_items = observation.items.len();
+    let mut repetitive_items = 0usize;
     observation.items = std::mem::take(&mut observation.items)
         .into_iter()
         .filter_map(|mut item| {
+            if response_guard::repetitive(&item.rationale)
+                || item.error.as_ref().is_some_and(|error| {
+                    response_guard::repetitive(&error.target_hypothesis)
+                        || match cue_field(&help_move) {
+                            Some("hint") => response_guard::repetitive(&error.hint),
+                            Some("elicitation") => response_guard::repetitive(&error.elicitation),
+                            Some("metalinguistic") => {
+                                response_guard::repetitive(&error.metalinguistic)
+                            }
+                            _ => false,
+                        }
+                })
+            {
+                repetitive_items += 1;
+                return None;
+            }
             if !candidates.iter().any(|c| c["id"] == item.construct)
                 || prose("quote", &item.quote).is_err()
                 || (!item.rationale.is_empty() && prose("rationale", &item.rationale).is_err())
@@ -129,7 +192,8 @@ pub(crate) fn validate_captured(
         return Err(
             rejected("no usable assessment items").with_diagnostics(json!({
                 "stage":"coach_observation_validation", "submitted_items":submitted_items,
-                "omitted_items":validation_omissions, "reason":"unusable_assessment"
+                "omitted_items":validation_omissions, "reason":"unusable_assessment",
+                "repetitive_items":repetitive_items
             })),
         );
     }
@@ -154,6 +218,52 @@ mod text_contract_tests {
     use super::*;
     fn captured() -> Value {
         json!({"candidateConstructs":[{"id":"question"}],"practiceSettings":{"coachProactivity":"on_request"},"feedbackPolicy":crate::configuration::Registry::bundled().unwrap().feedback_policy()})
+    }
+    #[test]
+    fn malformed_shapes_are_rejected_without_panicking_or_leaking_content() {
+        for text in ["null", "[]", "7", "\"PRIVATE_TEXT\"", "{\"items\":[7]}"] {
+            let error = decode_observation(text, &captured()).unwrap_err();
+            assert!(!error.message.contains("PRIVATE_TEXT"));
+        }
+    }
+    #[test]
+    fn slim_wire_contract_preserves_saved_shape_and_requires_the_active_cue() {
+        for (mode, active) in [
+            ("explicit", None),
+            ("hint", Some("hint")),
+            ("elicit", Some("elicitation")),
+            ("partner_clarify", Some("elicitation")),
+            ("metalinguistic", Some("metalinguistic")),
+        ] {
+            let mut context = captured();
+            context["feedbackPolicy"]["intensity"]["light"]["start_at"] = json!(mode);
+            let contract = schema(&context).unwrap();
+            let properties =
+                &contract["properties"]["items"]["items"]["properties"]["error"]["properties"];
+            let mut value = json!({"meaning_recovered":"full","items":[{"construct":"question","quote":"source","outcome":"partial","rationale":"Explanation","error":{"op":"replace","category":"grammar","source":"unknown","blocks_meaning":false,"target_hypothesis":"replacement"}}]});
+            for field in ["hint", "elicitation", "metalinguistic"] {
+                assert_eq!(properties.get(field).is_some(), Some(field) == active);
+            }
+            if let Some(field) = active {
+                assert!(decode_observation(&value.to_string(), &context).is_err());
+                value["items"][0]["error"][field] = json!("Active help");
+            }
+            let decoded = decode_observation(&value.to_string(), &context).unwrap();
+            let saved = serde_json::to_value(decoded).unwrap();
+            for field in ["hint", "elicitation", "metalinguistic"] {
+                assert_eq!(
+                    saved["items"][0]["error"][field],
+                    if Some(field) == active {
+                        "Active help"
+                    } else {
+                        ""
+                    }
+                );
+                value["items"][0]["error"][field] = json!("Legacy help");
+            }
+            let legacy = decode_observation(&value.to_string(), &context).unwrap();
+            assert_eq!(legacy.items[0].error.as_ref().unwrap().hint, "Legacy help");
+        }
     }
     #[test]
     fn unchanged_replacement_is_omitted_without_losing_other_corrections() {
@@ -209,10 +319,7 @@ mod text_contract_tests {
             json!({"type":"string","maxLength":RATIONALE_LIMIT})
         );
         for field in ["hint", "elicitation", "metalinguistic"] {
-            assert_eq!(
-                item["error"]["properties"][field],
-                json!({"type":"string","const":""})
-            );
+            assert_eq!(item["error"]["properties"].get(field), None);
         }
         for (field, max) in [
             ("quote", QUOTE_LIMIT),

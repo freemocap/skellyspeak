@@ -41,9 +41,7 @@ impl Timings {
             }) {
                 continue;
             }
-            let Some(next) =
-                decoded.filter(|v| v.valid(crate::speech::delivery::AUDIO_LIMIT as f64 / 48000.0))
-            else {
+            let Some(next) = decoded.filter(|v| v.valid()) else {
                 self.invalid[index] = true;
                 continue;
             };
@@ -69,12 +67,11 @@ impl Timings {
             }
         }
     }
-    pub fn projection(&self, source: &str, duration: f64) -> SpeechAlignment {
+    // Provider endpoints are approximate display positions, not audio integrity
+    // checks. Preserve both lanes unchanged; the inspection clips its display.
+    pub fn projection(&self, source: &str, _duration: f64) -> SpeechAlignment {
         let lane = |value: &Option<CharacterAlignment>, invalid: bool| {
-            value
-                .as_ref()
-                .filter(|v| !invalid && v.valid(duration))
-                .cloned()
+            value.as_ref().filter(|_| !invalid).cloned()
         };
         SpeechAlignment {
             source_text: source.into(),
@@ -93,14 +90,17 @@ impl Timings {
         {
             let reason = if self.invalid[index] {
                 "invalid_provider_timing"
-            } else if lane.as_ref().is_some_and(|v| !v.valid(duration)) {
-                "timing_exceeds_audio_duration"
+            } else if lane
+                .as_ref()
+                .is_some_and(|v| v.ends.iter().any(|end| *end > duration))
+            {
+                "display_clipped_to_audio"
             } else if lane.is_none() {
                 "not_supplied"
             } else {
                 "available"
             };
-            result[field] = json!({"status": if reason == "available" {"available"} else {"unavailable"}, "reason":reason, "duration_seconds":duration, "maximum_end_seconds":lane.as_ref().and_then(|v| v.ends.iter().copied().reduce(f64::max)), "character_count":lane.as_ref().map_or(0, |v| v.characters.len())});
+            result[field] = json!({"status": if matches!(reason, "available" | "display_clipped_to_audio") {"available"} else {"unavailable"}, "reason":reason, "duration_seconds":duration, "maximum_end_seconds":lane.as_ref().and_then(|v| v.ends.iter().copied().reduce(f64::max)), "character_count":lane.as_ref().map_or(0, |v| v.characters.len())});
         }
         result
     }
@@ -119,7 +119,7 @@ mod tests {
         for source in ["café", "cafe\u{301}", "مرحبا", "你好", "नमस्ते"] {
             let mut timings = Timings::default();
             timings.append(&json!({"alignment":lane(source,0.1,0.8)}));
-            assert!(timings.projection(source, 0.2).original.is_none());
+            assert!(timings.projection(source, 0.2).original.is_some());
             timings.append(&json!({"alignment":null}));
             let result = timings.projection(source, 1.0);
             assert_eq!(result.source_text, source);
@@ -178,8 +178,11 @@ mod provider_boundary_tests {
             6.720000000000001
         );
         let words = alignment.words(6.72).unwrap();
-        assert_eq!(words.words[0].end, 6.72);
-        assert_eq!(timing.diagnostics(6.72)["original"]["reason"], "available");
-        assert!(timing.projection("one", 6.719).original.is_none());
+        assert_eq!(words.words[0].end, 6.720000000000001);
+        assert_eq!(
+            timing.diagnostics(6.72)["original"]["reason"],
+            "display_clipped_to_audio"
+        );
+        assert!(timing.projection("one", 6.719).original.is_some());
     }
 }

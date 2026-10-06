@@ -15,7 +15,8 @@ pub struct CharacterAlignment {
     pub ends: Vec<f64>,
 }
 impl CharacterAlignment {
-    pub fn valid(&self, duration: f64) -> bool {
+    // Validate structure and finite ordered intervals, not endpoint precision.
+    pub fn valid(&self) -> bool {
         let n = self.characters.len();
         n > 0
             && n <= 20000
@@ -36,7 +37,6 @@ impl CharacterAlignment {
                         && end.is_finite()
                         && *start >= 0.0
                         && end >= start
-                        && *end <= duration + 8.0 * f64::EPSILON * duration.abs().max(1.0)
                         && (i == 0 || *start >= self.starts[i - 1])
                 })
     }
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn invalid_or_ambiguous_alignment_cannot_become_word_evidence() {
         let mut value = alignment("Hola");
-        value.original.as_mut().unwrap().ends[0] = 10.0;
+        value.original.as_mut().unwrap().ends[0] = f64::NAN;
         assert!(value.words(1.0).is_none());
         let mut value = alignment("Hola");
         value.source_text = "different".into();
@@ -111,21 +111,22 @@ pub struct SpeechAlignment {
     pub normalized: Option<CharacterAlignment>,
 }
 impl SpeechAlignment {
-    pub fn valid(&self, duration: f64) -> bool {
+    pub fn valid(&self) -> bool {
         self.source_text.len() <= 16384
             && !self.source_text.contains('\0')
             && self
                 .original
                 .iter()
                 .chain(self.normalized.iter())
-                .all(|a| a.valid(duration))
+                .all(CharacterAlignment::valid)
     }
 
     /// Derive word intervals using shared Unicode boundaries. Retain both source
     /// alignments unchanged. A cue or normalization mismatch cannot become evidence
     /// for a word the learner was shown: only an exact source span is projected.
     pub fn words(&self, duration: f64) -> Option<TranscriptTiming> {
-        if !self.valid(duration) || self.source_text.is_empty() {
+        if !duration.is_finite() || duration <= 0.0 || !self.valid() || self.source_text.is_empty()
+        {
             return None;
         }
         for alignment in self.normalized.iter().chain(self.original.iter()) {
@@ -158,10 +159,9 @@ impl SpeechAlignment {
                     let last = spans.iter().rfind(|(a, b, _)| *a < end && end <= *b)?.2;
                     Some(Word {
                         word: word.into(),
-                        // Projection clips only the floating-point boundary allowance.
-                        // Original provider timestamps remain unchanged above.
-                        start: alignment.starts[first].min(duration),
-                        end: alignment.ends[last].min(duration),
+                        // Provider timing is approximate; inspection clips only the display.
+                        start: alignment.starts[first],
+                        end: alignment.ends[last],
                     })
                 })
                 .collect();

@@ -8,7 +8,7 @@ export function MoreDialog() {
   const tr = useI18n()
   const closeOverlay = useNavigationStore((state) => state.closeOverlay)
   const showOverlay = useNavigationStore((state) => state.showOverlay)
-  const openSkills = useNavigationStore((state) => state.openSkills)
+  const openProgress = useNavigationStore((state) => state.openProgress)
   const open = useNavigationStore((state) => state.overlay === 'more')
   if (!open) return null
   return (
@@ -18,7 +18,7 @@ export function MoreDialog() {
         <ShareLogsButton />
         <button className="btn" onClick={() => showOverlay('settings')}>{tr("Settings")}</button>
         <button className="btn" onClick={() => showOverlay('languages')}>{tr("Browse languages")}</button>
-        <button className="btn" onClick={() => { closeOverlay(); openSkills() }}>{tr("Skill tree")}</button>
+        <button className="btn" onClick={() => openProgress('skills')}>{tr("Progress")}</button>
         <button className="btn" onClick={() => showOverlay('activity')}>{tr("AI activity")}</button>
         <button className="btn" onClick={() => window.location.reload()}>{tr("Reload app")}</button>
       </div>

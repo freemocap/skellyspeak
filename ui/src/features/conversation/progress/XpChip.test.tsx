@@ -5,21 +5,21 @@ import { XpChip } from './XpChip'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { skillDemo } from '../../../domain/learning/catalog/skillDemo'
 import { getEffortProgress } from '../../../platform/ipc/effort'
-vi.mock('../../../domain/input/back', () => ({ openOverlay: () => () => {} }))
 vi.mock('../../../platform/ipc/effort', () => ({
   getEffortProgress: vi.fn(async (target: string) => ({ target, partnerUnderstood: 2, revisionsSent: 1, practiceAttempts: 0, explorations: 0, bot: 0, recent: [] })),
-  getEffortReport: vi.fn(async () => ({ activity: [], entries: [], next: null })),
 }))
-it('shows this conversation’s effort in the card, then the ledger on the second press', async () => {
+it('opens the panel’s Progress tab at skills from the points, and shows this conversation’s effort before opening XP', async () => {
   const snapshot = structuredClone(skillDemo)
-  render(<SkillEvidenceContext value={{ snapshot, error: null }}><XpChip chatId="chat" /></SkillEvidenceContext>)
+  const open = vi.fn()
+  render(<SkillEvidenceContext value={{ snapshot, error: null }}><XpChip chatId="chat" onOpen={open} /></SkillEvidenceContext>)
   await waitFor(() => expect(getEffortProgress).toHaveBeenCalledWith(snapshot.target, 'chat'))
-  const chip = screen.getByRole('button', { name: 'Conversation XP' })
-  fireEvent.click(chip)
+  fireEvent.click(screen.getByRole('button', { name: '0 skill points in this conversation' }))
+  expect(open).toHaveBeenLastCalledWith('skills')
+  const xp = screen.getByRole('button', { name: 'Conversation XP' })
+  fireEvent.click(xp)
   expect(screen.getByRole('dialog', { name: 'This conversation' })).toBeVisible()
   expect(await screen.findByLabelText('Understood: 2')).toBeVisible()
-  expect(screen.getByLabelText('Fixes: 1')).toBeVisible()
-  fireEvent.click(chip)
-  expect(screen.queryByRole('dialog', { name: 'This conversation' })).toBeNull()
-  expect(await screen.findByRole('dialog', { name: 'Conversation XP' })).toBeVisible()
+  expect(open).toHaveBeenCalledTimes(1)
+  fireEvent.click(xp)
+  expect(open).toHaveBeenLastCalledWith('xp')
 })

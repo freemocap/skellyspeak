@@ -36,6 +36,7 @@
 @import './components/activity.css';
 @import './components/skill-list.css';
 @import './components/skill-radar.css';
+@import './components/skill-chart.css';
 @import './components/skill-levels.css';
 @import './components/progress-counters.css';
 @import './components/skill-guide.css';

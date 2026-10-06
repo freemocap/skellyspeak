@@ -44,7 +44,7 @@ beforeEach(() => {
 
 it('keeps the skill badge and XP mounted through light/dark saves', async () => {
   render(<ShellBar />)
-  const progress = screen.getByRole('button', { name: 'Language progress' })
+  const progress = screen.getByRole('button', { name: 'Language XP' }).parentElement!
   await within(progress).findByLabelText('Total XP: 0')
   const badge = within(progress).getByText('Lv 0')
   const xp = within(progress).getByLabelText('Language XP: 1,234')
@@ -64,7 +64,7 @@ it('keeps the skill badge and XP mounted through light/dark saves', async () => 
 
 it('keeps the progress content mounted through palette saves', async () => {
   render(<ShellBar />)
-  const progress = screen.getByRole('button', { name: 'Language progress' })
+  const progress = screen.getByRole('button', { name: 'Language XP' }).parentElement!
   await within(progress).findByLabelText('Total XP: 0')
   const content = progress.innerHTML
   fireEvent.click(screen.getByRole('button', { name: 'Surface palette' }))

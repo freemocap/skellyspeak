@@ -18,7 +18,7 @@ it('explains points, levels and the weakest-skill rule, and closes from its butt
 
 it('reopens the explainer from the Skills page header', () => {
   const explain = vi.fn()
-  render(<SkillListView snapshot={skillDemo} demonstration refresh={vi.fn()} save={vi.fn()} saving={false} onPractice={vi.fn()} onExplain={explain} />)
+  render(<SkillListView languageName="Spanish" snapshot={skillDemo} demonstration refresh={vi.fn()} save={vi.fn()} saving={false} onPractice={vi.fn()} onExplain={explain} />)
   fireEvent.click(screen.getByRole('button', { name: 'How skills work' }))
   expect(explain).toHaveBeenCalled()
 })

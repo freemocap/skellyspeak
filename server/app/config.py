@@ -91,8 +91,8 @@ class Config:
 
     elevenlabs_key: str = field(default="", repr=False)
     elevenlabs_voice_id: str = ""
-    tts_model: str = "eleven_v3"
-    tts_models: tuple[str, ...] = ("eleven_v3", "eleven_v4_turbo")
+    tts_model: str = "eleven_v4_turbo"
+    tts_models: tuple[str, ...] = ("eleven_v4_turbo", "eleven_v3")
     tts_micros_per_character: int = 100
     tts_turbo_micros_per_character: int = 40
 

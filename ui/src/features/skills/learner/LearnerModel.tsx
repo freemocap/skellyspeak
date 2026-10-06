@@ -10,11 +10,11 @@ import { useSkillEvidenceStore } from '../../../state/learning/skill-evidence'
 import { ExperienceProfile } from './ExperienceProfile'
 import { SkillDetailContent } from '../evidence/SkillDetailContent'
 
-export function LearnerModel(props: { target: string; onClose: () => void }) {
+export function LearnerModel(props: { target: string; languageName: string; onClose: () => void }) {
   return <LiveLearnerProfile key={props.target} {...props} />
 }
 
-function LiveLearnerProfile({ target, onClose }: { target: string; onClose: () => void }) {
+function LiveLearnerProfile({ target, languageName, onClose }: { target: string; languageName: string; onClose: () => void }) {
   const tr = useI18n()
   const published = useSkillEvidenceStore(state => state.snapshot)
   const [data, setData] = useState<LearnerProfile | null>(null)
@@ -84,7 +84,7 @@ function LiveLearnerProfile({ target, onClose }: { target: string; onClose: () =
       {savedTo && <p role="status">{tr('Saved to ')}{savedTo}</p>}
       {visible && <>
         <ExperienceProfile snapshot={visible.evidence} selectedVariety={variety} onVarietyChange={setVariety} onInspect={select} />
-        {node && <SkillDetailContent variety={variety === '*' ? undefined : variety} node={node} snapshot={visible.evidence} chatId={null} explanation={null} controls={null} onSelect={select} guideOpen={false}
+        {node && <SkillDetailContent languageName={languageName} variety={variety === '*' ? undefined : variety} node={node} snapshot={visible.evidence} chatId={null} explanation={null} controls={null} onSelect={select} guideOpen={false}
           recordControls={record => <button className="inspection-action" disabled={saving} onClick={() => void exclude(record.attempt_id)}>{visible.evidence.profile.choices.excluded_attempts.includes(record.attempt_id) ? tr('Restore assessment') : tr('Exclude assessment')}</button>} />}
       </>}
     </section>

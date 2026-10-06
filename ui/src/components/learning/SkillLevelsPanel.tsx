@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useI18n } from '../localization/i18n'
-import { SkillRadar } from './SkillRadar'
+import { SkillChart, useSkillChartView } from './SkillChart'
 import { skillColors } from '../../domain/learning/catalog/skill-domains'
 import { holdingBack, languageSkillLevels, type ConversationSkillPoints, type SkillLevel } from '../../domain/learning/statistics/skill-levels'
 import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
@@ -9,15 +9,18 @@ import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
 const MAX_PIPS = 21
 
 /** A language's skill level: the badge and how many skills are ready for the
- * next level, the radar with every arm named, the selected skill's card, then
+ * next level, the skill chart (radial or bars, normalized or to scale, with
+ * every skill named), the selected skill's card, then
  * the skills still short of the next level and those already ready. Exactly one
  * skill is selected at a time; pressing an arm, row or chip selects it, and the
  * radar, row, chip and card all mark the same skill. Hover never changes the
  * selection, and the card keeps one size for every skill, so nothing moves
- * under the pointer. The first skill holding the level back starts selected. `conversation`, when given, is one conversation's
- * evidence, overlaid on the radar as its own shape. */
-export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice, practiceSkill }: {
-  snapshot: SkillSnapshot; conversation: ConversationSkillPoints | null; onInspect: ((id: string) => void) | null
+ * under the pointer. The first skill holding the level back starts selected.
+ * `conversation`, when given, is one conversation's evidence, overlaid on the
+ * chart as an outline. `languageName` names the language in the heading and the
+ * selected skill's buttons, so the panel always says whose levels these are. */
+export function SkillLevelsPanel({ snapshot, languageName, conversation, onInspect, onPractice, practiceSkill }: {
+  snapshot: SkillSnapshot; languageName: string; conversation: ConversationSkillPoints | null; onInspect: ((id: string) => void) | null
   onPractice?: (id: string) => void; practiceSkill?: string
 }) {
   const tr = useI18n()
@@ -25,6 +28,8 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
   const behind = holdingBack(levels)
   const ready = levels.skills.filter(skill => skill.points >= levels.target)
   const [selected, setSelected] = useState<string>(behind[0]?.skill.id ?? levels.skills[0].id)
+  const view = useSkillChartView()
+  const bars = view.type === 'bars'
   const conversationPoints = conversation ? conversation.skills.map(skill => skill.points) : null
   const conversationTotal = conversationPoints?.reduce((sum, value) => sum + value, 0) ?? 0
   const focused = levels.skills.find(skill => skill.id === selected)
@@ -35,7 +40,7 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
       <span className="skill-level-badge" aria-hidden="true"><small>{tr('Lv')}</small>{tr.number(levels.level)}</span>
       <div className="skill-levels-summary">
         <div className="skill-levels-title">
-          <strong>{tr('Skill level {value0}', { value0: levels.level })}</strong>
+          <strong>{tr('{value0} skill level {value1}', { value0: languageName, value1: levels.level })}</strong>
           <span className="skill-levels-xp">{tr('{value0} XP', { value0: levels.xp })}</span>
         </div>
         {/* Ready skills fill from the start, so the bar reads as progress toward the next level. */}
@@ -48,24 +53,29 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
       </div>
     </header>
 
-    <SkillRadar levels={levels} selected={selected} onSelect={setSelected} conversation={conversationTotal > 0 ? conversationPoints : null} />
-    <ul className="skill-levels-key" aria-label={tr('How to read the chart')}>
-      <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle className="skill-levels-key-goal" cx="8" cy="8" r="6" /></svg>{tr('Level {value0} goal', { value0: nextLevel })}</li>
-      {levels.level > 0 && <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle className="skill-levels-key-reached" cx="8" cy="8" r="6" /></svg>{tr('Levels reached')}</li>}
-      <li><svg viewBox="0 0 16 16" aria-hidden="true"><polygon className="skill-levels-key-shape" points="8,2 14,7 11,14 4,13 2,6" /></svg>{tr('Your points')}</li>
-    </ul>
-    {conversationPoints && <p className="skill-levels-legend">
-      <span className="skill-levels-legend-mark" aria-hidden="true" />
-      {conversationTotal > 0
-        ? tr('This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring', { value0: conversationTotal })
-        : tr('No skill points in this conversation yet')}
-    </p>}
+    <SkillChart levels={levels} conversation={conversationTotal > 0 ? conversationPoints : null} view={view} selected={selected} onSelect={setSelected}>
+      <ul className="skill-levels-key" aria-label={tr('How to read the chart')}>
+        <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <line className="skill-levels-key-goal" x1="8" y1="1" x2="8" y2="15" /> : <circle className="skill-levels-key-goal" cx="8" cy="8" r="6" />}</svg>{tr('Level {value0} goal', { value0: nextLevel })}</li>
+        {levels.level > 0 && <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <line className="skill-levels-key-reached" x1="8" y1="1" x2="8" y2="15" /> : <circle className="skill-levels-key-reached" cx="8" cy="8" r="6" />}</svg>{tr('Levels reached')}</li>}
+        <li><svg viewBox="0 0 16 16" aria-hidden="true">{bars ? <rect className="skill-levels-key-shape" x="1" y="5" width="14" height="6" rx="2" /> : <polygon className="skill-levels-key-shape" points="8,2 14,7 11,14 4,13 2,6" />}</svg>{tr('Your points')}</li>
+      </ul>
+      {conversationPoints && <p className="skill-levels-legend">
+        <span className="skill-levels-legend-mark" aria-hidden="true" />
+        {conversationTotal === 0
+          ? tr('No skill points in this conversation yet')
+          : view.scale === 'normalized'
+            ? tr('This conversation: {value0} skill points, scaled so its busiest skill reaches the gold ring', { value0: conversationTotal })
+            : tr('This conversation: {value0} skill points, drawn to the same scale as your totals', { value0: conversationTotal })}
+      </p>}
+      <p className="skill-levels-hint">{bars
+        ? tr('Each bar is one skill. Press a bar, or a skill in the lists, to show it in the card.')
+        : tr('Each arm of the chart is one skill. Press an arm, or a skill in the lists, to show it in the card.')}</p>
+    </SkillChart>
 
-    <p className="skill-levels-hint">{tr('Each arm of the chart is one skill. Press an arm, or a skill in the lists, to show it in the card.')}</p>
     <div className="skill-levels-focus" aria-live="polite" style={{ borderColor: skillColors(focused.id).mark }}>
       {/* Keyed by skill, so each change of selection replays the card's entrance. */}
       <div className="skill-levels-focus-body" key={focused.id}>
-        <SkillFocus skill={focused} target={levels.target} nextLevel={nextLevel}
+        <SkillFocus skill={focused} languageName={languageName} target={levels.target} nextLevel={nextLevel}
           onInspect={onInspect} onPractice={onPractice} practicing={practiceSkill === focused.id} />
       </div>
     </div>
@@ -105,8 +115,8 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
 
 /** The focused skill: its level and points toward its own next level (the
  * language goal marked), what it covers, what counts, and what to do next. */
-function SkillFocus({ skill, target, nextLevel, onInspect, onPractice, practicing }: {
-  skill: SkillLevel; target: number; nextLevel: number
+function SkillFocus({ skill, languageName, target, nextLevel, onInspect, onPractice, practicing }: {
+  skill: SkillLevel; languageName: string; target: number; nextLevel: number
   onInspect: ((id: string) => void) | null; onPractice?: (id: string) => void; practicing: boolean
 }) {
   const tr = useI18n()
@@ -125,8 +135,8 @@ function SkillFocus({ skill, target, nextLevel, onInspect, onPractice, practicin
     <p className="skill-levels-description">{tr(skill.description)}</p>
     <p className="skill-levels-criterion"><strong>{tr('Counts when')}</strong> {tr(skill.criterion)}</p>
     {(onInspect || onPractice) && <div className="skill-levels-actions">
-      {onInspect && <button type="button" className="btn primary" onClick={() => onInspect(skill.id)}>{tr('More about this skill')}</button>}
-      {onPractice && <button type="button" className="btn outline" aria-pressed={practicing} onClick={() => onPractice(skill.id)}>{tr('Use this in a conversation')}</button>}
+      {onInspect && <button type="button" className="btn primary" onClick={() => onInspect(skill.id)}>{tr('{value0} in {value1}', { value0: tr(skill.label), value1: languageName })}</button>}
+      {onPractice && <button type="button" className="btn outline" aria-pressed={practicing} onClick={() => onPractice(skill.id)}>{tr('Use this in a {value0} conversation', { value0: languageName })}</button>}
     </div>}
   </>
 }

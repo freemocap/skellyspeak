@@ -1,7 +1,6 @@
 /// Radar geometry in viewBox units. Arm 0 points up; arms run clockwise in
-/// catalog order. The next language level sits on the ring; each earned level is
-/// an equal-width band inside it, so rings stay evenly spaced as native thresholds
-/// grow. Positions come from `SkillLevel.position`; nothing here knows a threshold.
+/// catalog order. `ring` is the gold goal ring's radius in normalized view;
+/// lengths along an arm come from `skill-chart-scale.ts` as fractions of it.
 
 export interface RadarFrame { view: number; ring: number }
 /** The panel ring leaves room inside the square for a name at the end of every arm. */
@@ -9,8 +8,6 @@ export const PANEL_FRAME: RadarFrame = { view: 480, ring: 125 }
 /** Arm names sit this far out, past the longest arm and its end dot. */
 export const LABEL_RADIUS = 1.22
 export const GLYPH_FRAME: RadarFrame = { view: 24, ring: 11 }
-/** Arms may pass the ring by this much before they are clipped. */
-const OVERSHOOT = 1.1
 
 export function armAngle(index: number, count: number): number {
   return (-90 + 360 * index / count) * Math.PI / 180
@@ -20,16 +17,6 @@ export function polar(frame: RadarFrame, radius: number, index: number, count: n
   const angle = armAngle(index, count)
   const centre = frame.view / 2
   return { x: centre + radius * Math.cos(angle), y: centre + radius * Math.sin(angle) }
-}
-
-/** Radius of a band position on a radar whose ring is language level `level + 1`. */
-export function positionRadius(frame: RadarFrame, position: number, level: number): number {
-  return frame.ring * Math.min(position / (level + 1), OVERSHOOT)
-}
-
-/** Radius of the ring for `ringLevel` while the learner is at language `level`. */
-export function ringRadius(frame: RadarFrame, ringLevel: number, level: number): number {
-  return positionRadius(frame, ringLevel, level)
 }
 
 /** A thick arm that widens from a point at the centre to a rounded end at `tip`. */
@@ -55,12 +42,12 @@ export function midpoint(a: { x: number; y: number }, b: { x: number; y: number 
 }
 
 /** Each skill's share of the shape: centre, halfway to the previous tip, its own tip, halfway to the next. */
-export function skillWedges(frame: RadarFrame, tips: { x: number; y: number }[]): string[] {
+export function skillWedges(frame: RadarFrame, tips: { x: number; y: number }[]): { x: number; y: number }[][] {
   const centre = { x: frame.view / 2, y: frame.view / 2 }
   return tips.map((tip, index) => {
     const before = midpoint(tips[(index + tips.length - 1) % tips.length], tip)
     const after = midpoint(tip, tips[(index + 1) % tips.length])
-    return [centre, before, tip, after].map(point => `${point.x},${point.y}`).join(' ')
+    return [centre, before, tip, after]
   })
 }
 

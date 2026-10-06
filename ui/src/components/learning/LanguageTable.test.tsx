@@ -8,7 +8,7 @@ const row = (target: string, name: string, languageTag: string | null, xp: numbe
 const rows = [row('french', 'French', 'fr', 40, 9), row('spanish', 'Spanish', 'es', 120, 2), row('mandarin', 'Mandarin', 'zh-Hans', 5, 30)]
 const order = () => screen.getAllByRole('row').slice(1).map(tr => within(tr).getByRole('rowheader').textContent)
 it('sorts by XP first and re-sorts by any column, toggling direction', () => {
-  render(<LanguageTable rows={rows} active="french" />)
+  render(<LanguageTable rows={rows} active="french" compact={false} onSelect={vi.fn()} />)
   expect(order()).toEqual(['ESSpanish', 'FRFrench', 'ZHMandarin'])
   fireEvent.click(screen.getByRole('button', { name: 'Practice' }))
   expect(order()).toEqual(['ZHMandarin', 'FRFrench', 'ESSpanish'])
@@ -19,13 +19,19 @@ it('sorts by XP first and re-sorts by any column, toggling direction', () => {
   expect(order()).toEqual(['FRFrench', 'ZHMandarin', 'ESSpanish'])
   expect(screen.getByRole('row', { name: /French/ })).toHaveAttribute('data-active', 'true')
 })
-it('leaves conversations out of the compact table and reports a selection', () => {
-  const select = vi.fn()
-  const view = render(<LanguageTable rows={rows} compact />)
+it('leaves conversations out of the compact table', () => {
+  render(<LanguageTable rows={rows} active={undefined} compact onSelect={vi.fn()} />)
   expect(screen.queryByRole('button', { name: 'Conversations' })).toBeNull()
-  view.rerender(<LanguageTable rows={rows} onSelect={select} />)
-  fireEvent.click(screen.getByRole('button', { name: /French/ }))
-  expect(select).toHaveBeenCalledWith('french')
+  expect(screen.getByRole('button', { name: 'Practice' })).toBeVisible()
+})
+it('reports the language of a pressed row or name', () => {
+  const select = vi.fn()
+  render(<LanguageTable rows={rows} active="french" compact={false} onSelect={select} />)
+  fireEvent.click(screen.getByRole('button', { name: /Mandarin/ }))
+  expect(select).toHaveBeenLastCalledWith('mandarin')
+  fireEvent.click(within(screen.getByRole('row', { name: /Spanish/ })).getAllByRole('cell')[0])
+  expect(select).toHaveBeenLastCalledWith('spanish')
+  expect(select).toHaveBeenCalledTimes(2)
 })
 it('takes the code from the primary subtag of the declared tag', () => {
   expect(languageCode({ languageTag: 'zh-Hans', target: 'mandarin' })).toBe('ZH')

@@ -185,6 +185,60 @@ async fn real_http_delivers_audio_while_the_terminal_is_blocked() {
 }
 
 #[test]
+fn approximate_endpoints_survive_cache_and_reference_inspection() {
+    use crate::speech::{
+        alignment::SpeechAudio, analysis::audio_inspection, recording::owner::RecordingOwner,
+    };
+    // Generated endpoints are approximate: neither roundoff, 80 ms nor a
+    // larger overrun may erase all reference labels. Original times survive.
+    for source in ["one", "café", "cafe\u{301}", "مرحبا", "你好", "नमस्ते"] {
+        for end in [0.30000000000000004, 0.38, 1.3] {
+            let mut decoder = Decoder::new(source);
+            let mut outcome = SpeechOutcome::empty();
+            let pcm = STANDARD.encode(vec![0u8; 14400]);
+            let values = [
+                records()[0].clone(),
+                json!({"version":3,"seq":1,"type":"audio","response":{"audio_base64":pcm,"alignment":{
+                    "characters":[source],"character_start_times_seconds":[0.0],"character_end_times_seconds":[end]}}}),
+                json!({"version":3,"seq":2,"type":"complete","usage":{}}),
+            ];
+            for value in values {
+                decoder
+                    .feed(format!("{value}\n").as_bytes(), &mut outcome, &|_, _, _| {
+                        Ok(())
+                    })
+                    .unwrap();
+            }
+            let wav = decoder.finish(&mut outcome, &|_, _, _| Ok(())).unwrap();
+            assert_eq!(
+                outcome.diagnostics.as_ref().unwrap()["alignmentValidation"]["original"]["status"],
+                "available"
+            );
+            let saved = SpeechAudio::new(&wav, outcome.alignment);
+            let replay = SpeechAudio::decode(&serde_json::to_vec(&saved).unwrap()).unwrap();
+            let (mut inspection, _) = audio_inspection::inspect_wav(
+                &replay.wav().unwrap(),
+                "reference",
+                &RecordingOwner::DrillItem("fixture".into()),
+            )
+            .unwrap();
+            let words = replay
+                .alignment
+                .unwrap()
+                .words(inspection.duration)
+                .unwrap();
+            audio_inspection::attach_words(&mut inspection, Some(&words));
+            assert!(!inspection.word_timing.words.is_empty());
+            for word in &inspection.word_timing.words {
+                assert_eq!(word.provider_end, end);
+                assert_eq!(word.end, 0.3);
+                assert!(word.clipped);
+            }
+        }
+    }
+}
+
+#[test]
 fn completed_stream_alignment_survives_cache_and_reference_inspection() {
     use crate::speech::{
         alignment::SpeechAudio, analysis::audio_inspection, recording::owner::RecordingOwner,

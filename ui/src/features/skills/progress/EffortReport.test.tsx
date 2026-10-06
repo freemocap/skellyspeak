@@ -8,7 +8,7 @@ it('renders translated aggregate statistics and pages through retained or delete
   const activity = [{ dimension: 'practice_attempts', total: 105, lastSevenDays: 18, activeDays: 7, firstAt: '2026-09-01T12:00:00Z', lastAt: '2026-09-29T12:00:00Z' }]
   api.getEffortReport.mockResolvedValueOnce({ target: 'spanish', activity, entries: [{ id: 'one', dimension: 'practice_attempts', createdAt: '2026-09-29T12:00:00Z', sourceText: 'Hola.' }], next: 'one' })
     .mockResolvedValueOnce({ target: 'spanish', activity, entries: [{ id: 'two', dimension: 'practice_attempts', createdAt: '2026-09-28T12:00:00Z', sourceText: null }], next: null })
-  render(<EffortReport target="spanish" revision={1} />)
+  render(<EffortReport languageName="Spanish" target="spanish" revision={1} />)
   expect(await screen.findByText('105')).toBeVisible()
   expect(screen.getByText('Hola.')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Load more' }))

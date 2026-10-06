@@ -371,7 +371,10 @@
   .topbar-actions .profile-unit { display: none; }
 }
 
-/* The progress button shows language XP only; effort sits behind its card. */
-.topbar-actions .profile-trigger.progress-trigger { padding: var(--space-2) var(--space-5); border-radius: var(--radius-pill); border-color: var(--progress-line); background: var(--progress-tint); }
-.topbar-actions .profile-trigger.progress-trigger:hover, .topbar-actions .profile-trigger.progress-trigger[aria-expanded="true"] { border-color: var(--progress-mark); }
+/* The progress pill: the skill level, then the language and all-languages XP,
+   each its own button into the Progress page. */
+.topbar-actions .progress-anchor { padding-inline-start: var(--space-2); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-pill); background: var(--progress-tint); }
+.topbar-actions .progress-anchor:hover { border-color: var(--progress-mark); }
+.topbar-actions .profile-trigger.progress-trigger { padding: var(--space-2) var(--space-5) var(--space-2) var(--space-3); border: 0; border-radius: var(--radius-pill); background: transparent; }
+.topbar-actions .profile-trigger.progress-trigger:hover { background: var(--sheet); }
 @media (max-width: 480px) { .topbar-actions .profile-trigger.progress-trigger { padding-inline: var(--space-3); } }

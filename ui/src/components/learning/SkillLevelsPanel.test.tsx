@@ -17,8 +17,8 @@ const focusHeading = () => document.querySelector('.skill-levels-focus h3')?.tex
 
 describe('SkillLevelsPanel', () => {
   it('names every arm on the chart and shows a pressed arm right under it', () => {
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
-    expect(screen.getByText('Skill level 4')).toBeTruthy()
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    expect(screen.getByText('Spanish skill level 4')).toBeTruthy()
     expect(document.querySelectorAll('.skill-radar-label')).toHaveLength(8)
     expect(screen.getByText('Lv 5 goal')).toBeTruthy()
     expect(focusHeading()).toBe('Managing conversation')
@@ -27,7 +27,7 @@ describe('SkillLevelsPanel', () => {
     expect(screen.getByText('3 more points for level 5')).toBeTruthy()
   })
   it('lists every skill holding the next level back and every skill already ready', () => {
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
     const next = screen.getByRole('heading', { name: 'To reach level 5' }).parentElement!
     expect(within(next).getAllByRole('button')).toHaveLength(4)
     const ready = screen.getByRole('heading', { name: 'Ready for level 5' }).parentElement!
@@ -37,18 +37,18 @@ describe('SkillLevelsPanel', () => {
   })
   it('opens more about the focused skill when the owner allows it', () => {
     const inspect = vi.fn()
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([1, 1, 1, 1, 1, 1, 1, 1])} conversation={null} onInspect={inspect} />)
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([1, 1, 1, 1, 1, 1, 1, 1])} conversation={null} onInspect={inspect} />)
     const next = screen.getByRole('heading', { name: 'To reach level 2' }).parentElement!
     fireEvent.click(within(next).getByRole('button', { name: /Possibilities and constraints/ }))
-    fireEvent.click(screen.getByRole('button', { name: 'More about this skill' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Possibilities and constraints in Spanish' }))
     expect(inspect).toHaveBeenCalledWith('possibilities_constraints')
   })
   it('tells a new learner how to reach level 1', () => {
-    render(<SkillLevelsPanel snapshot={skillDemo} conversation={null} onInspect={null} />)
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={skillDemo} conversation={null} onInspect={null} />)
     expect(screen.getByText('Get a skill point in each skill to reach level 1.')).toBeTruthy()
   })
   it('keeps one selected skill that hover never changes, marked on the chart, the lists and the card', () => {
-    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
     const start = focusHeading()
     const ready = screen.getByRole('heading', { name: 'Ready for level 5' }).parentElement!
     const chip = within(ready).getAllByRole('button')[0]
@@ -61,5 +61,50 @@ describe('SkillLevelsPanel', () => {
     expect(screen.getByRole('button', { name: new RegExp(`^${chosen}: skill level`) })).toHaveAttribute('aria-pressed', 'true')
     fireEvent.click(chip)
     expect(focusHeading()).toBe(chosen)
+  })
+  it('switches between radial and bars, keeps the selection, and remembers the choice', () => {
+    localStorage.clear()
+    const { unmount } = render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    const start = focusHeading()
+    fireEvent.click(screen.getByRole('button', { name: 'Bars' }))
+    expect(document.querySelector('.skill-radar')).toBeNull()
+    expect(document.querySelectorAll('.skill-bar')).toHaveLength(8)
+    expect(screen.getByRole('button', { name: new RegExp(`^${start}: skill level`) })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByRole('button', { name: /^Possibilities and constraints: skill level 4/ }))
+    expect(focusHeading()).toBe('Possibilities and constraints')
+    unmount()
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    expect(screen.getByRole('button', { name: 'Bars' })).toHaveAttribute('aria-pressed', 'true')
+    expect(document.querySelectorAll('.skill-bar')).toHaveLength(8)
+    localStorage.clear()
+  })
+  it('draws bars to scale when asked, with the goal line at the target points', () => {
+    localStorage.clear()
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Bars' }))
+    const widths = () => [...document.querySelectorAll<HTMLElement>('.skill-bar-fill')].map(bar => parseFloat(bar.style.width))
+    const normalized = widths()
+    fireEvent.click(screen.getByRole('button', { name: 'To scale' }))
+    const scaled = widths()
+    expect(scaled).not.toEqual(normalized)
+    // To scale, 13 points is the longest bar and 6 points is 6/13 of it.
+    expect(scaled[1] / scaled[6]).toBeCloseTo(6 / 13)
+    localStorage.clear()
+  })
+  it('zooms only to scale, magnifying bars and returning to fit', () => {
+    localStorage.clear()
+    render(<SkillLevelsPanel languageName="Spanish" snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Bars' }))
+    expect(document.querySelector('.skill-chart-zoombar')).toHaveAttribute('data-hidden', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'To scale' }))
+    expect(document.querySelector('.skill-chart-zoombar')).not.toHaveAttribute('data-hidden')
+    const width = (index: number) => parseFloat(document.querySelectorAll<HTMLElement>('.skill-bar-fill')[index].style.width)
+    const fitted = width(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Zoom in' }))
+    expect(width(1)).toBeCloseTo(fitted * 1.5)
+    expect(document.querySelectorAll('.skill-bar-fill')[6]).toHaveAttribute('data-over', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'Fit the whole chart' }))
+    expect(width(1)).toBeCloseTo(fitted)
+    localStorage.clear()
   })
 })

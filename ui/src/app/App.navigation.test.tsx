@@ -46,13 +46,13 @@ it('keeps navigation reachable and preserves the mounted page stub across destin
   HTMLDialogElement.prototype.close = function () { this.open = false }
   render(<App />)
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
-  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Skills'])
+  expect(within(nav).getAllByRole('button').map(button => button.textContent)).toEqual(['Practice', 'Progress'])
   expect(screen.queryByText('Guided conversation')).not.toBeInTheDocument()
   fireEvent.change(screen.getByLabelText('Draft'), { target: { value: 'Keep my words' } })
-  // Skills and back keeps the conversation mounted; the return strip leads back.
-  fireEvent.click(within(nav).getByRole('button', { name: 'Skills' }))
+  // Progress and back keeps the conversation mounted; the return strip leads back.
+  fireEvent.click(within(nav).getByRole('button', { name: 'Progress' }))
   await screen.findByRole('button', { name: 'Practice this skill' })
-  expect(within(nav).getByRole('button', { name: 'Skills' })).toHaveAttribute('aria-current', 'page')
+  expect(within(nav).getByRole('button', { name: 'Progress' })).toHaveAttribute('aria-current', 'page')
   fireEvent.click(screen.getByRole('button', { name: 'Back to conversation' }))
   expect(within(nav).queryByRole('button', { current: 'page' })).toBeNull()
   expect(screen.getByLabelText('Draft')).toHaveValue('Keep my words')
@@ -100,7 +100,7 @@ it('reaches the conversation from a skill action even when Practice was the prev
   const navigation = screen.getByRole('navigation', { name: 'Main navigation' })
   fireEvent.click(within(navigation).getByRole('button', { name: 'Practice' }))
   await screen.findByText('Drill surface')
-  fireEvent.click(within(navigation).getByRole('button', { name: 'Skills' }))
+  fireEvent.click(within(navigation).getByRole('button', { name: 'Progress' }))
   fireEvent.click(await screen.findByRole('button', { name: 'Practice this skill' }))
   await waitFor(() => expect(screen.getByLabelText('Draft').closest('.page-holder')).toHaveAttribute('aria-hidden', 'false'))
   expect(startSkill).toHaveBeenCalledWith('spanish', 'spanish-spain', 'time_events')

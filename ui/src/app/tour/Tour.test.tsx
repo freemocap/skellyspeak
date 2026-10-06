@@ -77,8 +77,7 @@ it('steps through a view with Continue and back to the map on the first stop', (
 it('each view opens on its own demo page when picked from the tabs', () => {
   render(<Tour />)
   fireEvent.click(screen.getByRole('tab', { name: 'Progress' }))
-  expect(screen.getByRole('heading', { name: 'Totals' })).toBeInTheDocument()
-  expect(screen.getByText('App activity')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Skill level' })).toBeInTheDocument()
   fireEvent.click(screen.getByRole('tab', { name: 'AI panel' }))
   expect(screen.getByRole('heading', { name: 'Activity' })).toBeInTheDocument()
   expect(screen.getByText('google/gemini-2.5-flash')).toBeInTheDocument()

@@ -11,8 +11,8 @@ import { SkillEvidenceRecord } from './SkillEvidenceRecord'
 /** One skill: its overview, then its guide beside the reviewed replies for it.
  * The columns wrap into one on narrow panes. `guideOpen` starts the guide
  * expanded where the skill has a page of its own. */
-export function SkillDetailContent({ variety, languageTag, node, snapshot, chatId, explanation, controls, recordControls, guideOpen }: {
-  variety?: string; languageTag?: string; node: TreeNode; snapshot: SkillSnapshot; chatId: string | null; explanation: ReactNode; controls: ReactNode
+export function SkillDetailContent({ variety, languageName, languageTag, node, snapshot, chatId, explanation, controls, recordControls, guideOpen }: {
+  variety?: string; languageName: string; languageTag?: string; node: TreeNode; snapshot: SkillSnapshot; chatId: string | null; explanation: ReactNode; controls: ReactNode
   onSelect: (id: string) => void; recordControls: (record: SkillRecord) => ReactNode; guideOpen: boolean
 }) {
   const active = useSettingsStore(state => state.settings?.target_language === snapshot.target ? state.settings.target_variety : undefined)
@@ -20,7 +20,7 @@ export function SkillDetailContent({ variety, languageTag, node, snapshot, chatI
   const [showAll, setShowAll] = useState(false)
   const examples = evidenceForSkill(snapshot, node.id, chatId).filter(({ record }) => variety === undefined || (record.variety ?? '') === variety)
   return <div className="skill-detail-content">
-    <SkillOverview node={node} snapshot={snapshot} variety={variety}>{explanation}{controls}</SkillOverview>
+    <SkillOverview node={node} languageName={languageName} snapshot={snapshot} variety={variety}>{explanation}{controls}</SkillOverview>
     <div className="skill-detail-columns">
       <section className="skill-detail-guide">
         <SkillGuide active={variety ?? active} snapshot={snapshot} skillId={node.id} initiallyOpen={guideOpen} />

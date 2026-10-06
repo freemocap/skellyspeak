@@ -11,7 +11,8 @@ import { create } from 'zustand'
 /// which is why `Page` and `MobileLocation` live here — every layer that needs
 /// them sits at or above this one.
 
-/// The top-level surfaces the shell switches between.
+/// The top-level surfaces the shell switches between: the guided practice
+/// surfaces, and the Progress page (`skills`).
 export type Page = 'guided' | 'skills'
 /// Which practice surface the guided page is showing: the conversation, or the
 /// drill. One replaces the other; they are never side by side.
@@ -23,8 +24,12 @@ export type WorkspaceMode = 'practice' | 'review'
 /// learning panel.
 export type MobileLocation = 'chat' | 'panel'
 
+/// The Progress page's tabs: skill points and levels, XP, and effort (the
+/// counts of Understood, Fixes, Practice, Bot and Explore).
+export type ProgressTab = 'skills' | 'xp' | 'effort'
+
 /// The dialogs that sit over a surface.
-export type Overlay = 'more' | 'profile' | 'settings' | 'activity' | 'languages'
+export type Overlay = 'more' | 'settings' | 'activity' | 'languages'
 
 interface NavigationState {
   aiInspection: AiViewSelection | null
@@ -49,10 +54,12 @@ interface NavigationState {
   overlay: Overlay | null
   languageInfo: string | null
   showLanguageInfo: (language: string) => void
-  /// Whether the skill tree has ever been opened. It is mounted lazily and then
-  /// kept mounted, so this is not the same as `page === 'skills'`.
+  /// Whether the Progress page has ever been opened. It is mounted lazily and
+  /// then kept mounted, so this is not the same as `page === 'skills'`.
   skillsOpened: boolean
-  /// Whether Practice has ever been opened. Like the skill tree it is mounted
+  /// The Progress page's open tab.
+  progressTab: ProgressTab
+  /// Whether Practice has ever been opened. Like the Progress page it is mounted
   /// lazily and then kept mounted, so this is not the same as `practiceView`.
   drillOpened: boolean
   /// The settings modal has unsaved work. The modal owns this; the shell carries
@@ -69,7 +76,9 @@ interface NavigationState {
   /// Return to the conversation, preserving its coach panel unless specified.
   /// This also clears and saves a previously selected Drill destination.
   openConversation: (surface?: MobileLocation) => void
-  openSkills: () => void
+  /// The Progress page at `tab`. Every progress counter opens it here, on the
+  /// tab that leads with the counter's number.
+  openProgress: (tab: ProgressTab) => void
   /// The wordmark: home is the guided
   /// conversation, with everything over it closed. Leaving Practice this way
   /// saves the conversation as the practice destination, as choosing it does.
@@ -104,6 +113,7 @@ const initialState = {
   overlay: null as Overlay | null,
   languageInfo: null as string | null,
   skillsOpened: false,
+  progressTab: 'skills' as ProgressTab,
   drillOpened: savedPracticeView === 'drill',
   settingsBusy: false,
   newChatAction: null as (() => void) | null,
@@ -134,16 +144,16 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   },
   setMode: (mode) => {
     if (mode === 'practice') get().openConversation('chat')
-    else { get().openSkills(); set({ mobileSurface: 'chat', overlay: null }) }
+    else { get().openProgress(get().progressTab); set({ mobileSurface: 'chat', overlay: null }) }
   },
-  showPage: (page) => page === 'skills' ? get().openSkills() : get().openConversation(),
+  showPage: (page) => page === 'skills' ? get().openProgress(get().progressTab) : get().openConversation(),
   openConversation: (surface) => {
     // Always register an explicit selection, including while startup's saved
     // destination is still loading. A late read must not reopen Practice.
     get().setPracticeView('chat')
     if (surface !== undefined) set({ mobileSurface: surface })
   },
-  openSkills: () => set({ mode: 'review', skillsOpened: true, page: 'skills' }),
+  openProgress: (progressTab) => set({ mode: 'review', skillsOpened: true, page: 'skills', progressTab, overlay: null }),
   goHome: () => {
     get().openConversation('chat')
     set({ historyOpen: false })

@@ -8,6 +8,8 @@ mod execution;
 mod skill_direction;
 #[path = "speech_default_tests.rs"]
 mod speech_default;
+#[path = "speech_fidelity_tests.rs"]
+mod speech_fidelity;
 #[path = "speech_reliability_tests.rs"]
 mod speech_reliability;
 

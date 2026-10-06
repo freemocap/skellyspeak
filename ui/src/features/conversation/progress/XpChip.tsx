@@ -2,61 +2,55 @@ import { ProgressCounters } from '../../../components/learning/ProgressCounters'
 import { ProgressCard } from '../../../components/learning/ProgressCard'
 import { useVisibleEffort } from '../../../state/learning/EffortProgressContext'
 import { useConversationEffort } from '../../../state/learning/useEffortProgress'
-import { useContext, useRef, useState, type ReactNode, type RefObject } from 'react'
+import { useContext, useRef, type ReactNode, type RefObject } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { useOverlayLayer } from '../../../components/dialogs/useOverlayLayer'
 import { useHoverCard } from '../../../components/learning/useHoverCard'
-import { DetailDialog } from '../../../components/dialogs/DetailDialog'
 import { SkillEvidenceContext } from '../../../state/learning/useSkillEvidence'
 import { conversationEvidence, type SkillSnapshot } from '../../../domain/learning/evidence/skills'
-import { XpLedger } from './XpLedger'
 import { conversationSkills } from './conversationSkills'
 import { conversationUnits } from '../../../components/learning/effort-dimensions'
 import { domainColors, skillDomain } from '../../../domain/learning/catalog/skill-domains'
-import { XpEvidenceReport, type XpMessageScope } from './XpEvidenceReport'
 import { ConversationShapeGlyph } from '../../../components/learning/SkillRadar'
 import { conversationSkillPoints } from '../../../domain/learning/statistics/skill-levels'
 
-type Report = { message: XpMessageScope } | { skillId: string }
+/** Which part of the learning panel's Progress tab a header counter opens. */
+export type ConversationProgressSection = 'skills' | 'xp'
 
-/** The conversation's XP in the header. Hovering (mouse) or a first tap shows a
- * small card with this conversation's effort units; pressing while it shows opens
- * the full ledger of saved awards. Digits are tabular, so it widens only when the total gains a digit. */
-export function XpChip({ chatId }: { chatId: string | null }) {
+/** This conversation's two counters in the header: its skill points, drawn as
+ * its own shape (a conversation has no level), and its XP. The points open the
+ * learning panel's Progress tab at Skills. Hovering the XP (or a first tap)
+ * shows a card with this conversation's effort and credited skills; pressing
+ * it opens the Progress tab at XP. Digits are tabular, so a counter widens
+ * only when its total gains a digit. */
+export function XpChip({ chatId, onOpen }: { chatId: string | null; onOpen: (section: ConversationProgressSection) => void }) {
   const tr = useI18n()
   const shell = useVisibleEffort()
   const { snapshot } = useContext(SkillEvidenceContext)
   const effort = useConversationEffort(snapshot?.target ?? '', chatId, shell.value)
-  const [ledger, setLedger] = useState(false)
-  const card = useHoverCard(() => setLedger(true))
-  const [report, setReport] = useState<Report | null>(null)
+  const card = useHoverCard(() => onOpen('xp'))
   const anchor = useRef<HTMLDivElement>(null)
   if (!snapshot || !chatId) return null
-  const conversation = conversationEvidence(snapshot, chatId)
-  const xp = conversation.profile.xp
-  // This conversation's skill points, drawn as its own shape: a conversation has no level.
+  const xp = conversationEvidence(snapshot, chatId).profile.xp
   const shape = conversationSkillPoints(snapshot, chatId)
-  const points = shape.total
-  return <div ref={anchor} className="progress-anchor" {...card.anchor}>
-    <button type="button" className="xp-chip progress-trigger" aria-label={tr('Conversation XP')} aria-haspopup="dialog" aria-expanded={card.open || ledger} onClick={card.press}>
-      <span className="skill-level-chip" title={tr('{value0} skill points in this conversation', { value0: points })}><ConversationShapeGlyph points={shape} /><strong>{tr('+{value0} pt', { value0: points })}</strong></span>
+  return <div ref={anchor} className="progress-anchor xp-chip-group">
+    <button type="button" className="skill-level-chip" aria-label={tr('{value0} skill points in this conversation', { value0: shape.total })} title={tr('{value0} skill points in this conversation', { value0: shape.total })} onClick={() => onOpen('skills')}>
+      <ConversationShapeGlyph points={shape} /><strong>{tr('+{value0} pt', { value0: shape.total })}</strong>
+    </button>
+    <button type="button" className="xp-chip progress-trigger" aria-label={tr('Conversation XP')} aria-haspopup="dialog" aria-expanded={card.open} onClick={card.press} {...card.anchor}>
       <ProgressCounters xp={xp} xpLabel="Conversation XP" scope={chatId} icon="chat" effort={effort.value} effects={shell.effects} error={effort.error} />
     </button>
     {card.open && <CardLayer anchor={anchor} onClose={card.close}>
-      <ProgressCard title={tr('This conversation')} icon="chat" tone="coach" xp={xp} effort={effort.value} units={conversationUnits} error={effort.error} expandLabel="Conversation XP" onExpand={() => { card.close(); setLedger(true) }}>
+      <div {...card.anchor}><ProgressCard title={tr('This conversation')} icon="chat" tone="coach" xp={xp} effort={effort.value} units={conversationUnits} error={effort.error} expandLabel="Conversation XP" onExpand={() => { card.close(); onOpen('xp') }}>
         <SkillList snapshot={snapshot} chatId={chatId} />
-      </ProgressCard>
+      </ProgressCard></div>
     </CardLayer>}
-    {ledger && <DetailDialog title={tr('Conversation XP')} size="wide" className="xp-ledger-dialog" onClose={() => setLedger(false)}>
-      <XpLedger snapshot={snapshot} chatId={chatId} effort={effort.value} effortError={effort.error} onInspectMessage={message => setReport({ message })} />
-    </DetailDialog>}
-    {report && <XpEvidenceReport snapshot={snapshot} {...report} onClose={() => setReport(null)} />}
   </div>
 }
 
 const SHOWN_SKILLS = 5
 
-/** The conversation's credited skills, most used first; the ledger has the rest. */
+/** The conversation's credited skills, most used first; the Progress tab has the rest. */
 function SkillList({ snapshot, chatId }: { snapshot: SkillSnapshot; chatId: string }) {
   const tr = useI18n()
   const skills = conversationSkills(snapshot, chatId)

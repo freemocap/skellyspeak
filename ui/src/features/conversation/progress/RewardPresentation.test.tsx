@@ -22,7 +22,7 @@ import { claimRewardEvents } from '../../../platform/ipc/rewards'
 function Fixture({ snapshot, enabled = true }: { snapshot: SkillSnapshot; fastMode: boolean; enabled?: boolean }) {
   return <SkillEvidenceContext value={{ snapshot, error: null }}>
     <RewardPresentationProvider enabled={enabled} chatId="chat" active>
-      <header className="chat-head"><XpChip chatId="chat" /></header>
+      <header className="chat-head"><XpChip chatId="chat" onOpen={() => {}} /></header>
       <PracticeContext value={{ chatId: "chat", selectionVersion: 0, selected: null, select: () => {} }}><MessageFeedback id={1} text="this cup" feedback={undefined} error={undefined} reviewing={false} onEdit={undefined} onAsk={() => {}}
         bubble={() => <div>this cup</div>}
         reward={<MessageXpButton messageId={1} source="this cup" />} /></PracticeContext>

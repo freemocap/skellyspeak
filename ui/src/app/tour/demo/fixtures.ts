@@ -134,10 +134,6 @@ function progressSnapshot(): SkillSnapshot {
   return snapshot
 }
 export const PROGRESS_SNAPSHOT = progressSnapshot()
-export const PROGRESS_LANGUAGES = [
-  { name: 'Spanish', snapshot: PROGRESS_SNAPSHOT },
-  { name: 'French', snapshot: { ...structuredClone(skillDemo), target: 'french' } },
-]
 
 // ── AI panel ─────────────────────────────────────────────────────────────
 const AI_PLAN: [string, string[], string][] = [
