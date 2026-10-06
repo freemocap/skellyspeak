@@ -6,6 +6,7 @@ import { nativeError, readAttemptDetail } from '../../platform/ipc/workspace'
 import { InspectionContent, InspectionModeControl, type InspectionMode } from './InspectionContent'
 import { useAttemptStream } from '../../state/session/attempt-streams'
 import { recordBotInspection } from '../../platform/ipc/effort'
+import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
 
 /// An attempt's recorded bodies. Re-read whenever the attempt's state changes,
 /// so a finishing attempt swaps its live preview for the recorded response.
@@ -36,7 +37,7 @@ export function AttemptResponse({ attempt, detail, mode = 'readable' }: { attemp
   return <div className="ai-response-block">
     <h4 className="ai-section-title">{running && live ? tr('Response · streaming') : tr('Response')}</h4>
     {text ? <div className={running ? 'ai-response is-hydrating' : 'ai-response'}><InspectionContent text={text} mode={mode} />{running && <span className="stream-caret" aria-hidden="true" />}</div>
-      : <p className="ai-muted">{running ? tr('Awaiting response…') : tr('No response text recorded.')}</p>}
+      : <p className="ai-muted">{running ? <ActivityIndicator label={tr('Awaiting response…')} /> : tr('No response text recorded.')}</p>}
   </div>
 }
 

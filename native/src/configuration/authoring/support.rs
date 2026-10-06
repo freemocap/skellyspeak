@@ -24,6 +24,7 @@ pub(super) fn require_files(files: &BTreeMap<String, String>) -> Result<()> {
         "prompts/conversation/base.md",
         "prompts/conversation/persona.md",
         "prompts/conversation/interaction.md",
+        "prompts/conversation/history-start.md",
         "prompts/conversation/examples-intro.md",
         "prompts/conversation/ceiling.md",
         "prompts/conversation/coach-focus.md",
@@ -86,6 +87,7 @@ pub(super) fn validate_file(files: &BTreeMap<String, String>, path: &str) -> Res
         | "prompts/conversation/opening.md"
         | "prompts/conversation/phrase-opening.md"
         | "prompts/conversation/response.md"
+        | "prompts/conversation/history-start.md"
         | "prompts/conversation/subject.md" => text(path, &files[path])?,
         "prompts/conversation/examples.yaml" | "prompts/conversation/difficulty.yaml" => {
             let _: BTreeMap<String, String> = parse(files, path)?;

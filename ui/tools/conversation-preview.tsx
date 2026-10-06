@@ -11,6 +11,7 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TopBar } from '../src/app/shell/TopBar'
 import { ToolbarIcon } from '../src/components/controls/ToolbarIcon'
+import { DifficultySelect } from '../src/components/controls/DifficultySelect'
 import { ConversationHeader } from '../src/features/conversation/session/ConversationHeader'
 import { ConversationSettings } from '../src/features/conversation/session/ConversationSettings'
 import { ReadingPreferencesContext } from '../src/components/reading/ReadingPreferences'
@@ -18,6 +19,7 @@ import { PersonaPicker } from '../src/features/conversation/partners/PersonaPick
 import { ConversationStart } from '../src/features/conversation/session/ConversationStart'
 import { ComposerInput } from '../src/features/conversation/composer/ComposerInput'
 import { MicrophoneSelector } from '../src/components/media/MicrophoneSelector'
+import { MicrophoneCheck } from '../src/components/media/MicrophoneCheck'
 import { LiveRecording } from '../src/components/media/LiveRecording'
 import { useRecorderLayout } from '../src/components/media/useRecorderLayout'
 import { createSpectrumFeed, mergeSpectrum } from '../src/domain/audio/spectrum-feed'
@@ -68,6 +70,10 @@ mockIPC((command, args) => {
   if (command === 'create_drill_item') return { id: 'preview-drill-copy' }
   if (command === 'get_snapshot') return { languages: previewLanguages, savedTopics: [{ id: 'preview-saved', text: 'Mi barrio' }], conversations: [AI_VIEW_CONVERSATION] } as unknown
   if (command === 'list_microphones') return { source: 'native', devices: [{ id: 'sample-microphone', label: 'Sample microphone', isDefault: true, channels: 1, sampleRate: 48000, unavailable: null }] }
+  // The local microphone check in Recording settings: a sample signal, no capture.
+  if (command === 'microphone_test_start') return { browserCapture: false, deviceLabel: 'Sample microphone' }
+  if (command === 'microphone_test_samples') return Array.from({ length: 480 }, (_, i) => 0.3 * Math.sin(i / 7) * Math.abs(Math.sin(performance.now() / 350)))
+  if (command === 'microphone_test_stop') return null
   throw new Error('This layout preview does not support native actions. Use the running app for this control.')
 })
 await loadLanguages()
@@ -158,6 +164,21 @@ function Preview() {
   const [recording, setRecording] = useState(false)
   const [voiceMode, setVoiceMode] = useState<'tap' | 'hold'>('tap')
   const [autoSend, setAutoSend] = useState(true)
+  // The recorder's microphone lamp: sound, sustained quiet or stopped samples
+  // while recording, or the saved device gone. The level swells like speech.
+  const [micScene, setMicScene] = useState<'sound' | 'quiet' | 'stalled' | 'missing'>('sound')
+  const [micLevel, setMicLevel] = useState(0)
+  useEffect(() => {
+    if (!recording) { setMicLevel(0); return }
+    const began = performance.now()
+    const timer = setInterval(() => setMicLevel(0.35 + 0.45 * Math.abs(Math.sin((performance.now() - began) / 420))), 100)
+    return () => clearInterval(timer)
+  }, [recording])
+  // A recording that never rose above the floor leaves the card over the face;
+  // stopping in the quiet scene stands in for the recorder noticing it.
+  const [silentTake, setSilentTake] = useState(false)
+  const micDevice = micScene === 'missing' ? 'Unplugged USB microphone' : null
+  const micHealth = recording ? { signal: micScene === 'missing' ? 'sound' as const : micScene, level: micScene === 'sound' || micScene === 'missing' ? micLevel : micScene === 'quiet' ? 0.03 : 0, detected: true } : null
   const wave = useMemo(() => recording ? sampleWave() : null, [recording])
   const [voiceHeight, setVoiceHeight] = useStoredSize('chat-voice')
   const [replyHelpHeight, setReplyHelpHeight] = useStoredSize('reply-help')
@@ -214,6 +235,7 @@ function Preview() {
   const stopRecording = () => {
     if (!recording) return
     setRecording(false)
+    if (micScene === 'quiet') setSilentTake(true)
     if (autoSend) setNotice('Sample recording sent')
     else { setInput('Me gusta caminar.'); setNotice('Sample transcript inserted. Review it before sending.') }
   }
@@ -241,7 +263,10 @@ function Preview() {
             mode={voiceMode} onMode={setVoiceMode} onHoldStart={() => setRecording(true)} onHoldEnd={stopRecording}
             stream={wave && <LiveRecording source={wave} spectrum={feed} time={recorder.time} />}
             prompt={opening ? <>Say <b className="target-word" lang="es">hola</b> to start</> : undefined}
-            microphoneSelector={<MicrophoneSelector value={null} onChange={() => setNotice('Microphone choice — sample only')} />}
+            microphoneSelector={<MicrophoneSelector value={micDevice} onChange={() => setNotice('Microphone choice — sample only')} />}
+            microphoneCheck={<MicrophoneCheck device={micDevice} disabled={recording} />} device={micDevice}
+            health={micHealth} deviceLabel={recording ? 'Sample microphone' : null}
+            silentTake={silentTake} onDismissSilentTake={() => setSilentTake(false)}
             targetLanguageTag="es" targetLanguageName="Español" micShortcut="ctrl+m" onSend={() => {setNotice('Sample message submitted');setInput('')}} onToggleRecording={() => recording ? stopRecording() : setRecording(true)} onDiscardRecording={() => setRecording(false)} />
         </div>
   )
@@ -253,15 +278,16 @@ function Preview() {
       </section>
   )
   return <AskCoachContext value={setNotice}><ReadingProvider settings={null}><ReadingHelp services={readingServices} languages={[]}><ReadingPreferencesProvider settings={settings}><div className="app" data-place="chat">
-    <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>AI status<select value={aiScene} onChange={event => { aiPlay.current.forEach(clearTimeout); setAiScene(event.target.value as AiScene) }}>{AI_SCENES.map(scene => <option key={scene}>{scene}</option>)}</select></label><button onClick={playAiTurn}>Play a turn</button><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>cool</option><option>warm</option></select></label><output>{notice}</output></div>
+    <div style={{display: 'flex', gap: 12, padding: 6, fontSize: 12, flexWrap: 'wrap'}}><strong>Layout fixture · feedback from existing test data · no microphone or AI</strong><button onClick={() => setOpening(!opening)}>Opening / conversation</button><button onClick={() => setDark(!dark)}>Light / dark</button><label>AI status<select value={aiScene} onChange={event => { aiPlay.current.forEach(clearTimeout); setAiScene(event.target.value as AiScene) }}>{AI_SCENES.map(scene => <option key={scene}>{scene}</option>)}</select></label><button onClick={playAiTurn}>Play a turn</button><label>Mic<select value={micScene} onChange={event => setMicScene(event.target.value as typeof micScene)}>{(['sound', 'quiet', 'stalled', 'missing'] as const).map(scene => <option key={scene}>{scene}</option>)}</select></label><label><input type="checkbox" checked={silentTake} onChange={event => setSilentTake(event.target.checked)} /> Silent take</label><label>Palette<select value={palette} onChange={event => setPalette(event.target.value as typeof palette)}><option>cool</option><option>warm</option></select></label><output>{notice}</output></div>
     <TopBar languagePicker={<select className="learning-picker" aria-label="Target language" onChange={event => setNotice(`Sample target: ${event.target.value}`)}><option>Español</option><option>Français</option><option>العربية</option></select>} />
     <div className={`split ${mobile ? 'mobile-conversation' : ''} ${mobile && surface === 'panel' ? 'mobile-coach' : ''} ${surfaceSwitched ? 'surface-switched' : ''}`} ref={workspace}>
       <section className="chat">
-        <ConversationHeader error={null} leading={<button type="button" className="chat-conversations" aria-label="Conversations" title="Conversations" onClick={() => setNotice('Conversations')}><ToolbarIcon name="menu" size={17} /></button>} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} open={partnerMenu} onOpenChange={setPartnerMenu} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}>
-          <div className="chat-heading-actions"><ConversationSettings summary={['Beginner', quick.auto_speak ? 'Reading aloud' : null].filter(Boolean).join(' · ')} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
+        <ConversationHeader error={null} leading={<button type="button" className="chat-conversations" aria-label="Conversations" title="Conversations" onClick={() => setNotice('Conversations')}><ToolbarIcon name="menu" size={17} /></button>} persona={<PersonaPicker choices={[{id:'uxia',name:'Uxía Castro',symbol:'🌺'}]} currentId="uxia" busy={false} open={partnerMenu} onOpenChange={setPartnerMenu} onSelect={() => {}} onEdit={() => setNotice('Partner profile')} onCreate={() => setNotice('New partner')} />}
+          difficulty={<DifficultySelect value={startConfig.difficulty} saving={false} onChange={async difficulty => setStartConfig(current => ({ ...current, difficulty }))} />}>
+          <div className="chat-heading-actions"><ConversationSettings summary={quick.auto_speak ? 'Reading aloud' : undefined} open={configOpen} onOpenChange={setConfigOpen} settings={quick} saving={false} showRomanization
             onToggle={async (key, value) => setQuick(current => ({ ...current, [key]: value ?? !current[key] }))}
             nativePicker={<label><span>Explanation language</span><select className="chat-language-picker"><option>English</option></select></label>}
-            difficulty={<select className="chat-language-picker"><option>Beginner</option></select>} exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button type="button" className="chat-new" aria-label="New conversation" title="New conversation" onClick={() => setOpening(true)}><ToolbarIcon name="plus" size={17} /></button></div>
+            exportDisabled={false} onExport={() => setNotice('Conversation YAML')} /><button type="button" className="chat-new" aria-label="New conversation" title="New conversation" onClick={() => setOpening(true)}><ToolbarIcon name="plus" size={17} /></button></div>
         </ConversationHeader>
         <div className="stream">{opening ? <ConversationStart partnerName="Uxía Castro" partnerSymbol="🌺" busy={false} conversationId="preview-conversation" topics={topics} targetTag="es" targetDir="ltr" recording={recording} transcribing={false} canPartnerStart={!input.trim() && !recording} onAboutPartner={() => setNotice('Partner profile')} onChangePartner={() => setPartnerMenu(true)} value={startConfig} onChange={setStartConfig} onStart={async () => setOpening(false)} /> : <>
           {/* Existing TurnView.test.tsx reply fixture, without generated feedback. */}

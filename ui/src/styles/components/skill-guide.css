@@ -1,8 +1,13 @@
 /* Authored lessons share the app's reading controls and surface tokens. */
-.skill-guide-document { color: var(--ink); font: var(--type-body)/var(--leading-normal) var(--font-sans); padding: var(--space-6); }
+.skill-guide-document { color: var(--ink); font: var(--type-body)/var(--leading-normal) var(--font-sans); padding: var(--space-6) var(--space-8) var(--space-8); }
 .skill-guide-document h3 { font-size: var(--type-title); margin-block: var(--space-4) var(--space-6); }
 .skill-guide-document h4 { font-size: var(--type-title); margin-block: var(--space-10) var(--space-4); border-bottom: var(--border-width) solid var(--line); padding-bottom: var(--space-3); }
-.skill-guide-document h5 { font-size: var(--type-body); margin-block: var(--space-8) var(--space-3); }
+/* Each subskill is a card: heading, explanation and examples, then its actions. */
+.skill-guide-section { display: flex; flex-direction: column; gap: var(--space-4); margin-block: var(--space-6); padding: var(--space-7) var(--space-8); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); }
+.skill-guide-section > * { margin-block: 0; }
+.skill-guide-document h5 { font-size: var(--type-title); margin: 0; }
+.skill-guide-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.skill-guide-section > .skill-guide-actions:last-child { margin-top: auto; padding-top: var(--space-4); border-top: var(--border-width) solid var(--line-soft); }
 .skill-guide-document blockquote { background: var(--field); border: var(--border-width) solid var(--line); border-inline-start: var(--border-width-strong) solid var(--interaction-ink); border-radius: var(--radius-md); margin: var(--space-8) 0 var(--space-3); padding: var(--space-6); font-size: var(--type-reading); }
 .skill-guide-document blockquote + .md-p { margin-top: var(--space-3); color: var(--ink-2); }
 .skill-guide-editorial { margin-top: var(--space-10); padding-top: var(--space-4); border-top: var(--border-width) solid var(--line-soft); color: var(--ink-2); font-size: var(--type-meta); }

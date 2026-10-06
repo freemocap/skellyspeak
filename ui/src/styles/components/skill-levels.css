@@ -28,13 +28,17 @@
 .skill-levels-legend-mark { flex: none; width: var(--space-8); height: var(--space-4); border: var(--border-width-strong) solid var(--ink-2); border-radius: var(--radius-xs); background: var(--chip); }
 
 /* The focused skill, right under the chart. Its border takes the skill's colour inline. */
-.skill-levels-focus { display: flex; flex-direction: column; gap: var(--space-5); padding: var(--space-7) var(--space-8); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); color: var(--ink-2); font-size: var(--type-body); line-height: var(--leading-normal); }
+.skill-levels-focus { display: flex; flex-direction: column; padding: var(--space-7) var(--space-8); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); box-shadow: var(--shadow-sm); color: var(--ink-2); font-size: var(--type-body); line-height: var(--leading-normal); transition: border-color var(--dur-base) var(--ease-out); }
+/* The card keeps one height for every skill: each line has a fixed number of
+   lines, so selecting another skill never moves what sits below the card. */
+.skill-levels-focus-body { display: flex; flex-direction: column; gap: var(--space-5); animation: skill-focus-in var(--dur-base) var(--ease-out); }
+.skill-levels-description { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; min-height: calc(var(--type-body) * var(--leading-normal) * 2); }
 .skill-levels-focus p { margin: 0; }
 .skill-levels-focus-head { display: flex; align-items: center; gap: var(--space-4); }
-.skill-levels-focus-head h3 { flex: 1; margin: 0; font-size: var(--type-title); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
-.skill-levels-focus-need { color: var(--ink); font-weight: var(--weight-semibold); }
-.skill-levels-focus-hint { color: var(--ink-2); }
-.skill-levels-criterion { padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); background: var(--chrome); font-size: var(--type-ui); line-height: var(--leading-snug); }
+.skill-levels-focus-head h3 { flex: 1; min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-title); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+.skill-levels-focus-need { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); font-weight: var(--weight-semibold); }
+.skill-levels-hint { margin: 0; color: var(--ink-3); font-size: var(--type-ui); text-align: center; }
+.skill-levels-criterion { box-sizing: border-box; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; min-height: calc(var(--type-ui) * var(--leading-snug) * 3 + var(--space-4) * 2); padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); background: var(--chrome); font-size: var(--type-ui); line-height: var(--leading-snug); }
 .skill-levels-criterion strong { color: var(--ink); font-weight: var(--weight-semibold); }
 .skill-levels-actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 .skill-levels-level { flex: none; color: var(--ink); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
@@ -57,12 +61,19 @@
 .skill-levels-next { display: flex; flex-direction: column; gap: var(--space-4); }
 .skill-levels-next h3 { margin: 0 var(--space-2); color: var(--ink-2); font-size: var(--type-meta); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-label); text-transform: uppercase; }
 .skill-levels-next ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
-.skill-levels-row { width: 100%; min-height: var(--touch-target); display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-5); padding: var(--space-4) var(--space-6); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); text-align: start; font-size: var(--type-body); cursor: pointer; }
-.skill-levels-row:hover, .skill-levels-row[data-active], .skill-levels-row[aria-pressed='true'] { border-color: currentColor; }
+.skill-levels-row { transition: border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out); width: 100%; min-height: var(--touch-target); display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-5); padding: var(--space-4) var(--space-6); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-md); background: var(--sheet); text-align: start; font-size: var(--type-body); cursor: pointer; }
+.skill-levels-row:hover { border-color: var(--line); }
+.skill-levels-row[aria-pressed='true'] { border-color: currentColor; background: color-mix(in srgb, currentColor 8%, var(--sheet)); }
 .skill-levels-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--weight-semibold); }
 .skill-levels-needed { min-width: calc(var(--space-13) + var(--space-4)); color: var(--ink); font-family: var(--font-mono); font-size: var(--type-ui); font-weight: var(--weight-semibold); text-align: end; }
 .skill-levels-next ul.skill-levels-ready { flex-direction: row; flex-wrap: wrap; }
 .skill-levels-chip { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-sm); padding: 0 var(--space-6); border: var(--border-width-strong) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); font-size: var(--type-ui); font-weight: var(--weight-semibold); cursor: pointer; }
-.skill-levels-chip:hover, .skill-levels-chip[data-active], .skill-levels-chip[aria-pressed='true'] { border-color: currentColor; }
+.skill-levels-chip:hover { border-color: var(--line); }
+.skill-levels-chip[aria-pressed='true'] { border-color: currentColor; background: color-mix(in srgb, currentColor 10%, var(--sheet)); }
 .skill-levels-chip svg { width: var(--space-8); height: var(--space-8); fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .skill-levels-chip > span:last-child { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-regular); }
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-levels-focus-body { animation: none; }
+  .skill-levels-focus, .skill-levels-row { transition: none; }
+}

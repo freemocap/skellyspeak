@@ -16,3 +16,13 @@ it('does not call ordinary pauses failures or mistake low input for no samples',
   expect(monitor.update([0.00001], 5000).signal).toBe('quiet')
   expect(monitor.update([0.2], 5100).signal).toBe('sound')
 })
+
+it('remembers whether any sound rose above the floor and how long it has run', () => {
+  const monitor = new MicrophoneMonitor(1000)
+  expect(monitor.heard).toBe(false)
+  monitor.update([0, 0], 1500)
+  expect(monitor.heard).toBe(false)
+  expect(monitor.elapsed(2500)).toBe(1500)
+  monitor.update([0.05], 2600)
+  expect(monitor.heard).toBe(true)
+})

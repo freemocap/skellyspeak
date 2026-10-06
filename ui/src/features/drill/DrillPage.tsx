@@ -1,6 +1,7 @@
 import { useWordArrival } from './useWordArrival'
 import { MobileAttemptHistory } from './MobileAttemptHistory'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
+import { MicrophoneCheck } from '../../components/media/MicrophoneCheck'
 import { useAudibleScrub } from '../../components/media/useAudibleScrub'
 import { useRecordingPlayback } from '../../components/media/useRecordingPlayback'
 import { useClipPreview } from './useClipPreview'
@@ -386,6 +387,8 @@ export function DrillPage({ active }: { active: boolean }) {
           <RecordDock microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null}
             disabled={!settings || mic.starting || phase === 'recording' || phase === 'working' || savingPreference}
             onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />}
+            microphoneCheck={<MicrophoneCheck device={settings?.microphone_device_id ?? null} disabled={!settings || mic.starting || phase === 'recording' || phase === 'working'} />}
+            device={settings ? settings.microphone_device_id : undefined} silentTake={mic.silentTake !== null} onDismissSilentTake={mic.dismissSilentTake}
             layout={recorder} health={mic.health} deviceLabel={mic.deviceLabel} starting={mic.starting} empty={empty} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
             listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} spectrum={mic.spectrum}
             onToggle={() => void mic.toggleMic()}

@@ -18,7 +18,7 @@ const decision: CoachDecision = { exposedMove: 'hint', shown: { construct: 'past
 const base = { id: 3, text: 'Yo fue ayer', feedback, decision, error: undefined, reviewing: false, onEdit: vi.fn(), onAsk: vi.fn() }
 it('shows a neutral feedback chip and the policy hint without grades or an invented answer', () => {
   render(<MessageFeedback {...frame} {...base} />)
-  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('1 error')
+  expect(screen.getByRole('button', { name: /Coach feedback for message/ })).toHaveTextContent('1 suggestion')
   expect(screen.getByRole('button', { name: /Coach feedback for message/ })).not.toHaveTextContent('Which form goes with yo?')
   fireEvent.click(screen.getByRole('button', { name: /Coach feedback for message/ }))
   expect(screen.getByRole('dialog')).toHaveTextContent('Which form goes with yo?')
@@ -122,7 +122,7 @@ it.each(feedbackStates)('keeps feedback and editing neutral when %s', (_state, c
   const edit = vi.fn()
   render(<MessageFeedback {...frame} {...base} decision={currentDecision} onEdit={edit} />)
   const chip = screen.getByRole('button', { name: 'Coach feedback for message 3' })
-  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 error' : 'Clean')
+  expect(chip).toHaveTextContent(currentDecision?.shown ? '1 suggestion' : 'Clean')
   fireEvent.click(chip)
   expect(screen.getByRole('dialog')).toBeVisible()
   fireEvent.click(screen.getByRole('button', { name: 'Edit and resend message' }))
@@ -195,7 +195,7 @@ it('leads the scored line with a verdict and rings, and Fix it opens the message
   const scores = { grammar: 6, conversation: 6, answers: {} } as never
   const view = render(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} />)
   const badge = screen.getByRole('button', { name: /Coach feedback for message/ })
-  expect(badge).toHaveTextContent('1 error')
+  expect(badge).toHaveTextContent('1 suggestion')
   fireEvent.click(screen.getByRole('button', { name: 'Fix it' }))
   expect(onEdit).toHaveBeenCalledOnce()
   view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }} />)
@@ -203,7 +203,7 @@ it('leads the scored line with a verdict and rings, and Fix it opens the message
   expect(screen.queryByRole('button', { name: 'Fix it' })).toBeNull()
   view.rerender(<MessageFeedback {...frame} {...base} onEdit={onEdit} conversationFeedback={scores} decision={{ ...decision, shown: null }}
     feedback={{ ...feedback, issues: [{ quote: 'Yo', severity: 'partial' }, { quote: 'ayer', severity: 'error' }], items: [{ construct: 'a', quote: 'Yo', outcome: 'partial', rationale: '' }, { construct: 'b', quote: 'ayer', outcome: 'not_demonstrated', rationale: '' }] }} />)
-  expect(badge).toHaveTextContent('2 errors')
+  expect(badge).toHaveTextContent('2 suggestions')
 })
 
 it('agrees with the dialog when a corrected sentence has evidence but no correction', () => {

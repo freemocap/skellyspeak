@@ -14,11 +14,12 @@ export const WAITING_REPLY: ReplyState = { state: 'pending', error: null, contro
 export function PendingLearner({ message, rtl }: { message: PendingMessage; rtl: boolean }) {
   const tr = useI18n()
   const { autoTranslate, alwaysRomanize, alwaysPronunciation } = useReadingPreferences()
+  // Shown in words where the work is happening, with the same wording as the voice control.
   const progress = message.phase === 'transcribing' ? tr("Transcribing…") : message.phase === 'sending' ? tr("Sending…") : null
   return <>
     <PendingBubble side="me" arriving={!message.editing} text={message.text} rtl={rtl}
       aids={autoTranslate || alwaysRomanize || alwaysPronunciation} translationSlot={autoTranslate}
-      activity={progress && <ActivityIndicator compact label={progress} />} />
+      activity={progress && <ActivityIndicator label={progress} />} />
     <div className="message-feedback-line" aria-hidden="true"><span className="feedback-badge pending-feedback"><ActivityIndicator label={tr("Analyzing…")} /></span></div>
   </>
 }

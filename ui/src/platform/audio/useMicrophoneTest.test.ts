@@ -77,3 +77,15 @@ it('keeps capture exclusion after a failed stop and lets the learner retry', asy
   await act(async () => { await result.current.stop() })
   expect(microphoneHeld()).toBe(false)
 })
+
+it('counts down the seconds left while testing and clears the count when it stops', async () => {
+  const { result } = renderHook(() => useMicrophoneTest(null))
+  expect(result.current.remaining).toBeNull()
+  await act(async () => { await result.current.start() })
+  expect(result.current.remaining).toBe(15)
+  await act(async () => { await vi.advanceTimersByTimeAsync(1200) })
+  expect(result.current.remaining).toBe(14)
+  await act(async () => { await vi.advanceTimersByTimeAsync(14000) })
+  expect(result.current.phase).toBe('idle')
+  expect(result.current.remaining).toBeNull()
+})

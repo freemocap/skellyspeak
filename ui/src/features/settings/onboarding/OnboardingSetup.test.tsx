@@ -101,17 +101,17 @@ it('reports save failure and keeps the current screen available for retry', asyn
 })
 
 
-it('offers a local microphone test without requiring it to finish setup', async () => {
+it('offers a local microphone check without requiring it to finish setup', async () => {
   useOnboardingStore.setState({ preferences: { ...initial, onboarding: 'in_progress' } })
   render(<OnboardingSetup />)
-  expect(await screen.findByRole('button', { name: 'Test microphone' })).toBeInTheDocument()
+  expect(await screen.findByRole('button', { name: 'Check microphone' })).toBeInTheDocument()
   expect(microphone.mock.calls.some(([command]) => command === 'microphone_test_start')).toBe(false)
   fireEvent.click(screen.getByRole('button', { name: 'Set up later' }))
   await waitFor(() => expect(finish).toHaveBeenCalledWith(true))
 })
 
 
-it('tests the selected microphone locally and stops when onboarding closes', async () => {
+it('checks the selected microphone locally and stops when onboarding closes', async () => {
   microphone.mockImplementation(async (command: string) => {
     if (command === 'get_microphone') return 'usb'
     if (command === 'list_microphones') return { source: 'native', devices: [{ id: 'usb', label: 'USB headset', isDefault: true, channels: 1, sampleRate: 48000 }] }
@@ -120,11 +120,11 @@ it('tests the selected microphone locally and stops when onboarding closes', asy
   })
   useOnboardingStore.setState({ preferences: { ...initial, onboarding: 'in_progress' } })
   const view = render(<OnboardingSetup />)
-  const test = screen.getByRole('button', { name: 'Test microphone' })
+  const test = screen.getByRole('button', { name: 'Check microphone' })
   await waitFor(() => expect(test).toBeEnabled())
   fireEvent.click(test)
   await waitFor(() => expect(microphone).toHaveBeenCalledWith('microphone_test_start', { testId: expect.any(String), device: 'usb' }))
-  expect(await screen.findByText('Using: USB headset')).toBeInTheDocument()
+  expect(await screen.findByText('USB headset')).toBeInTheDocument()
   view.unmount()
   await waitFor(() => expect(microphone).toHaveBeenCalledWith('microphone_test_stop', { testId: expect.any(String) }))
 })

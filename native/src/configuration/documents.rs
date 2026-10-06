@@ -152,7 +152,7 @@ document!(ConversationTopic {
 });
 
 document!(ConversationPromptContent {
-    base: String, persona: String, interaction: String,
+    base: String, persona: String, interaction: String, history_start: String,
     examples_intro: String, examples: BTreeMap<String, String>, opening_angles: Vec<String>,
     difficulty: BTreeMap<String,String>, ceiling: String,
     coach_focus: String, past: String, future: String, opening: String, phrase_opening: String, response: String, subject: String

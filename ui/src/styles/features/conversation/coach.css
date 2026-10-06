@@ -69,7 +69,15 @@
 .cor-replacement .reading-passage { margin: 0; }
 .cor-replacement .msg.chat-message { max-width: 100%; margin: 0; border: 0; border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); box-shadow: inset 0 calc(-1 * var(--border-width-strong)) 0 var(--success-line); }
 .cor-replacement .msg.chat-message::before, .cor-replacement .msg.chat-message::after { content: none; }
-.cor-line .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* The changed words of an explicit correction, above its explanation; the full
+   original and replacement stay under "Full original and suggestion". */
+.cor-changes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-4); font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-snug); }
+.cor-changes li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-3) var(--space-4); }
+.cor-change-removed { padding: 0 var(--space-3); border-radius: var(--radius-sm); background: var(--danger-tint); color: var(--danger-ink); text-decoration-line: line-through; }
+.cor-change-added { padding: 0 var(--space-3); border-radius: var(--radius-sm); background: var(--success-tint); color: var(--success-ink); text-decoration: none; }
+.cor-full { display: grid; gap: var(--space-4); }
+.cor-full > summary { cursor: pointer; color: var(--ink-2); font: var(--weight-medium) var(--type-ui) var(--font-sans); }
+:is(.cor-line, .cor-changes) .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .coach-card .md-p { color: var(--ink-2); line-height: var(--leading-normal); }
 
 /* Coach feed: a persistent scrollback of one entry per coached message,
@@ -142,6 +150,9 @@
 /* Coaching uses compact phrases and the conversation's interactive reading blocks. */
 .coach-card blockquote { justify-self: start; margin: 0; padding: 0 var(--space-4); border-radius: var(--radius-sm); font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); color: var(--ink); background: var(--warning-tint); }
 .coach-card-help blockquote { color: var(--warning-ink); }
+/* A suggestion card opens with a coach-coloured title band. */
+.coach-card-help { background: var(--sheet); overflow: hidden; }
+.coach-card-title { display: flex; align-items: center; gap: var(--space-3); margin: calc(-1 * var(--space-7)) calc(-1 * var(--space-8)) 0; padding: var(--space-4) var(--space-8); border-bottom: var(--border-width) solid var(--coach-line); background: var(--coach-tint); color: var(--coach-ink); font: var(--weight-semibold) var(--type-ui) var(--font-sans); }
 .coach-card-explanation blockquote { background: color-mix(in srgb, var(--interaction-ink) 10%, transparent); color: var(--interaction-ink); }
 .coach-entry { display: grid; gap: var(--space-8); }
 
@@ -161,6 +172,27 @@
 .coach-score-label { font-size: var(--type-ui); color: var(--ink-2); }
 .coach-score-row { flex: 1; display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
 .coach-score-row > strong { font-size: var(--type-ui); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; }
+/* Grammar and partner understanding as two separate tiles (ConversationFeedbackCard):
+   the choice in its status colour, the saved distribution as a bar, and what the
+   choice means in general. The colour always accompanies the word. */
+.coach-assessment-note { margin: var(--space-6) 0 0; color: var(--ink-3); font-size: var(--type-ui); }
+.coach-scores[data-layout=judgments] { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-6); }
+.coach-scores[data-layout=judgments] > .coach-score { grid-column: auto; display: flex; flex-direction: column; align-items: stretch; gap: var(--space-3); padding: var(--space-6) var(--space-7); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); }
+.coach-scores[data-layout=judgments] > .coach-score > span:first-child { color: var(--ink-2); font-size: var(--type-ui); }
+.coach-score[data-tone] > strong { font-size: var(--type-title); font-weight: var(--weight-semibold); line-height: var(--leading-snug); }
+.coach-score[data-tone=good] > strong { color: var(--success-ink); }
+.coach-score[data-tone=mixed] > strong { color: var(--warning-ink); }
+.coach-score[data-tone=poor] > strong { color: var(--danger-ink); }
+.coach-score[data-tone=none] > strong { color: var(--ink-2); }
+.coach-scores[data-layout=judgments] > .coach-score[data-tone=good] { border-color: var(--success-line); background: var(--success-tint); }
+.coach-scores[data-layout=judgments] > .coach-score[data-tone=mixed] { border-color: var(--warning-line); background: var(--warning-tint); }
+.coach-scores[data-layout=judgments] > .coach-score[data-tone=poor] { border-color: var(--danger-line); background: var(--danger-tint); }
+.coach-score-shares { display: flex; gap: var(--space-hairline); height: var(--space-3); overflow: hidden; border-radius: var(--radius-pill); background: var(--track); box-shadow: inset 0 0 0 var(--border-width) var(--line-soft); }
+.coach-score-shares > [data-tone=good] { background: var(--success-line); }
+.coach-score-shares > [data-tone=mixed] { background: var(--warning-line); }
+.coach-score-shares > [data-tone=poor] { background: var(--danger-line); }
+.coach-score-shares > [data-tone=none] { background: var(--line); }
+.coach-score-meaning { margin: 0; color: var(--ink-2); font-size: var(--type-ui); line-height: var(--leading-snug); }
 .coach-meter { flex: 1; display: flex; gap: var(--space-2); }
 .coach-meter > span { flex: 1; height: 6px; border-radius: var(--radius-pill); background: var(--line-soft); }
 .coach-meter[data-level=low] > [data-on=true] { background: var(--danger-ink); }

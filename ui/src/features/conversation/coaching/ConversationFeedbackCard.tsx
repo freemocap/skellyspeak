@@ -1,6 +1,15 @@
 import { useI18n } from '../../../components/localization/i18n'
 import type { ChoiceAssessment, ConversationFeedback } from '../../../generated/contracts'
 
+/** The tone of each assessment choice, for its colour only; the word always accompanies it. */
+const choiceTone: Record<string, 'good' | 'mixed' | 'poor' | 'none'> = {
+  acceptable: 'good', understandable: 'good', local_errors: 'mixed', needs_clarification: 'mixed',
+  major_errors: 'poor', unrecoverable: 'poor', insufficient_evidence: 'none',
+}
+
+/** One assessment: its choice, the saved probability distribution as a bar, a
+ * fixed description of what that choice means (generic, not a reason for this
+ * message) and the exact numbers under Assessment details. */
 function Judgment({ label, answer }: { label: string; answer: ChoiceAssessment }) {
   const tr = useI18n()
   const labels: Record<string, string> = {
@@ -8,8 +17,21 @@ function Judgment({ label, answer }: { label: string; answer: ChoiceAssessment }
     understandable: tr('Understood'), needs_clarification: tr('Needs clarification'),
     unrecoverable: tr('Meaning not recovered'), insufficient_evidence: tr('Insufficient evidence'),
   }
-  return <div className="coach-score">
+  const meanings: Record<string, string> = {
+    acceptable: tr('The wording is grammatically acceptable for what you meant in this context.'),
+    local_errors: tr('Some grammar errors, but the main construction can still be followed.'),
+    major_errors: tr('Grammar errors get in the way of the construction or what it connects.'),
+    understandable: tr('Your partner can follow what you meant without asking.'),
+    needs_clarification: tr('Your partner can follow part of it but would need something clarified.'),
+    unrecoverable: tr('Your partner cannot work out what you meant from the wording and context.'),
+    insufficient_evidence: tr('There was not enough wording or context to judge.'),
+  }
+  const shares = Object.entries(answer.probabilities).filter(([, probability]) => probability > 0)
+  return <div className="coach-score" data-tone={choiceTone[answer.choice] ?? 'none'}>
     <span>{label}</span><strong>{labels[answer.choice] ?? answer.choice}</strong>
+    <span className="coach-score-shares" aria-hidden="true">{shares.map(([choice, probability]) =>
+      <span key={choice} data-tone={choiceTone[choice] ?? 'none'} style={{ flexGrow: probability }} />)}</span>
+    {meanings[answer.choice] && <p className="coach-score-meaning">{meanings[answer.choice]}</p>}
     <details>
       <summary>{tr('Assessment details')}</summary>
       <p>{tr('Model confidence')}: {tr.number(answer.confidence, { style: 'percent', maximumFractionDigits: 1 })}</p>
@@ -57,9 +79,10 @@ export function ConversationFeedbackCard({ feedback }: { feedback: ConversationF
   const grammar = feedback.answers.grammar
   const understanding = feedback.answers.understandability
   return <section className="coach-assessment" aria-label={tr('Message assessment')}>
-    <div className="coach-scores">{grammar && understanding ? <>
+    {grammar && understanding && <p className="coach-assessment-note">{tr('Each check is judged on its own and can differ from the coach’s suggestion.')}</p>}
+    <div className="coach-scores" data-layout={grammar && understanding ? 'judgments' : 'meters'}>{grammar && understanding ? <>
       <Judgment label={tr('Grammar')} answer={grammar} />
-      <Judgment label={tr('Understandability')} answer={understanding} />
+      <Judgment label={tr('Partner understanding')} answer={understanding} />
     </> : <><ScoreMeter label={tr('Grammar')} value={feedback.grammar}/><ScoreMeter label={tr('Conversation fit')} value={feedback.conversation}/></>}</div>
   </section>
 }

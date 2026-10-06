@@ -8,14 +8,13 @@ import { GLYPH_FRAME, LABEL_RADIUS, PANEL_FRAME, labelSide, polar, positionRadiu
  * fading to white at the centre; the gold ring is the next language level and
  * each earned level is a dashed ring inside it, the current one tagged. Every
  * arm ends in a dot and a button naming the skill with its level and points, so
- * the chart reads without a legend. Pointing at a wedge or a name focuses that
- * skill (`pointed`); pressing pins it (`pinned`); the owner shows the focused
- * skill's details. `conversation`, when given, overlays one conversation's
+ * the chart reads without a legend. Pressing a wedge or a name selects that
+ * skill (`selected`); the owner shows the selected skill's details. Hover only
+ * styles the name under the pointer, so nothing elsewhere moves until a press. `conversation`, when given, overlays one conversation's
  * points per skill (catalog order), scaled so its busiest skill reaches the gold ring. */
-export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversation }: {
+export function SkillRadar({ levels, selected, onSelect, conversation }: {
   levels: LanguageSkillLevels
-  pinned: string | null; onPin: (id: string | null) => void
-  pointed: string | null; onPoint: (id: string | null) => void
+  selected: string; onSelect: (id: string) => void
   conversation: number[] | null
 }) {
   const tr = useI18n()
@@ -23,9 +22,7 @@ export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversati
   const count = levels.skills.length
   const tips = levels.skills.map((skill, index) => polar(frame, positionRadius(frame, skill.position, levels.level), index, count))
   const centre = frame.view / 2
-  const focus = pointed ?? pinned
-  const toggle = (id: string) => onPin(pinned === id ? null : id)
-  const leave = (id: string) => { if (pointed === id) onPoint(null) }
+  const focus = selected
   const place = (point: { x: number; y: number }) => ({ left: `${point.x / frame.view * 100}%`, top: `${point.y / frame.view * 100}%` })
   const goalTag = polar(frame, frame.ring, -0.5, count)
   const levelTag = polar(frame, ringRadius(frame, levels.level, levels.level), -0.5, count)
@@ -37,7 +34,7 @@ export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversati
         const start = polar(frame, frame.ring * LABEL_RADIUS, index - 0.5, count)
         const end = polar(frame, frame.ring * LABEL_RADIUS, index + 0.5, count)
         return <polygon key={skill.id} className="skill-radar-hit" points={`${centre},${centre} ${start.x},${start.y} ${end.x},${end.y}`}
-          onClick={() => toggle(skill.id)} onPointerEnter={() => onPoint(skill.id)} onPointerLeave={() => leave(skill.id)} />
+          onClick={() => onSelect(skill.id)} />
       })}
     </svg>
     <span className="skill-radar-ring-tag" data-goal="true" style={place(goalTag)} aria-hidden="true">{tr('Lv {value0} goal', { value0: levels.level + 1 })}</span>
@@ -45,11 +42,10 @@ export function SkillRadar({ levels, pinned, onPin, pointed, onPoint, conversati
     {levels.skills.map((skill, index) => {
       const colours = skillColors(skill.id)
       return <button type="button" key={skill.id} className="skill-radar-label" data-reward-skill={skill.id} data-side={labelSide(index, count)}
-        data-active={focus === skill.id ? 'true' : undefined} aria-pressed={pinned === skill.id}
+        data-active={focus === skill.id ? 'true' : undefined} aria-pressed={selected === skill.id}
         aria-label={tr('{value0}: skill level {value1}, {value2} points', { value0: tr(skill.label), value1: skill.level, value2: skill.points })}
         style={{ ...place(polar(frame, frame.ring * LABEL_RADIUS, index, count)), color: colours.mark }}
-        onClick={() => toggle(skill.id)} onPointerEnter={() => onPoint(skill.id)} onPointerLeave={() => leave(skill.id)}
-        onFocus={() => onPoint(skill.id)} onBlur={() => leave(skill.id)}>
+        onClick={() => onSelect(skill.id)}>
         <strong style={{ color: colours.ink }}>{tr(skillShortLabel(skill.id))}</strong>
         <span>{tr('Lv {value0} · {value1}', { value0: skill.level, value1: `${tr.number(skill.points)}/${tr.number(skill.nextThreshold)}` })}</span>
       </button>

@@ -7,6 +7,7 @@ import { useI18n } from '../../../components/localization/i18n'
 import { inspectMessageSpeech, peekMessageInspection } from '../../../platform/ipc/message-speech'
 import { TranscriptionInspector } from './TranscriptionInspector'
 import type { MessageAudio } from './useMessageSpeech'
+import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 
 export interface MessageSpeechPlayback {
   retained: MessageAudio | null
@@ -49,7 +50,7 @@ export function MessageSpeechInspection({ speech, text, open = true }: { speech:
   const playback = { time: speech.time, playing: speech.playing, preparing: speech.preparing, toggle: speech.toggle, seek: speech.seek, scrub }
   const shown = cached ?? inspection
   return <div hidden={!open}>
-    {speech.preparing && <p role="status">{tr('Preparing audio…')}</p>}
+    {speech.preparing && <p className="activity-line"><ActivityIndicator label={tr('Preparing audio…')} /></p>}
     {failure != null ? <ErrorNotice as="div" error={failure}>{tr('Audio playback failed.')}
       <button type="button" className="btn" onClick={() => setRetry(value => value + 1)}>{tr('Try again')}</button>
     </ErrorNotice> : shown ? <CompactInspection inspection={shown} playback={playback} enabled={speech.enabled}

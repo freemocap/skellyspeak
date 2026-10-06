@@ -47,4 +47,19 @@ describe('SkillLevelsPanel', () => {
     render(<SkillLevelsPanel snapshot={skillDemo} conversation={null} onInspect={null} />)
     expect(screen.getByText('Get a skill point in each skill to reach level 1.')).toBeTruthy()
   })
+  it('keeps one selected skill that hover never changes, marked on the chart, the lists and the card', () => {
+    render(<SkillLevelsPanel snapshot={snapshotWithPoints([9, 6, 11, 5, 7, 5, 13, 8])} conversation={null} onInspect={null} />)
+    const start = focusHeading()
+    const ready = screen.getByRole('heading', { name: 'Ready for level 5' }).parentElement!
+    const chip = within(ready).getAllByRole('button')[0]
+    fireEvent.pointerEnter(chip)
+    expect(focusHeading()).toBe(start)
+    fireEvent.click(chip)
+    const chosen = focusHeading()
+    expect(chosen).not.toBe(start)
+    expect(chip).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: new RegExp(`^${chosen}: skill level`) })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(chip)
+    expect(focusHeading()).toBe(chosen)
+  })
 })

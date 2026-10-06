@@ -29,6 +29,7 @@
 @import './components/panels.css';
 @import './components/buttons.css';
 @import './components/fields.css';
+@import './components/microphone.css';
 @import './components/dialogs.css';
 @import './components/popovers.css';
 @import './components/reading.css';

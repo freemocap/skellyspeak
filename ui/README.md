@@ -76,8 +76,13 @@ components is separate work. `src/vite-env.d.ts` provides frontend type declarat
 ## Reply help and reading ownership
 
 `features/conversation/composer/TurnReplyHelp.tsx` binds the automatic brief and
-explicit grammar/suggestion requests to their accepted partner message. Analysis
-uses the same grammar operation. `domain/conversation/reply-help.ts` projects
+explicit grammar/suggestion requests to their accepted partner message. The
+partner bubble's Analysis button opens `reading/PartnerMessageAnalysis.tsx`,
+which uses the shared reading inspector for that reply's text and captured
+language scope. It does not display learner assessment or consume a turn-help
+result; the native reading executor retains its explanations. The learner
+bubble's Coach button continues to open message feedback.
+`domain/conversation/reply-help.ts` projects
 native result and operation state; command acceptance is not generation completion.
 Retries target one help kind, and opening saved help does not request new work.
 

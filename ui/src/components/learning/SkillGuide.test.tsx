@@ -10,7 +10,7 @@ it('opens authored Markdown for an explicit variety and never substitutes a miss
     { id: 'one', name: 'One', skills: { quantity: '## Shared language guidance\n\nAuthored quantity guidance.' } },
     { id: 'two', name: 'Two', skills: { quantity: null } },
   ] }
-  render(<SkillGuide snapshot={snapshot} skillId="quantity" />)
+  render(<SkillGuide initiallyOpen={false} snapshot={snapshot} skillId="quantity" />)
   fireEvent.click(screen.getByText('Skill guide'))
   fireEvent.change(screen.getByRole('combobox'), { target: { value: 'one' } })
   expect(screen.getByText('Authored quantity guidance.')).toBeInTheDocument()
@@ -23,7 +23,7 @@ it('translates only on opening, exposes failures and retries explicitly', async 
   const request = vi.mocked(getSkillGuide)
   request.mockReset().mockRejectedValueOnce(new Error('Translation failed')).mockResolvedValue({ markdown: 'Translated guide.', generated: true, explanationLanguage: 'arabic', provenance: { origin: 'ai' } })
   const snapshot = { ...skillDemo, guide_explanation_language: 'arabic', guides: [{ id: 'one', name: 'One', skills: { quantity: null } }] }
-  const view = render(<SkillGuide snapshot={snapshot} skillId="quantity" active="one" />)
+  const view = render(<SkillGuide initiallyOpen={false} snapshot={snapshot} skillId="quantity" active="one" />)
   expect(request).not.toHaveBeenCalled()
   const details = view.container.querySelector('details')!
   await act(async () => { details.open = true; fireEvent(details, new Event('toggle')) })
@@ -42,7 +42,7 @@ it('does not publish a late translation into another variety', async () => {
   const request = vi.mocked(getSkillGuide)
   request.mockReset().mockImplementationOnce(() => new Promise(resolve => { finish = resolve })).mockResolvedValue({ markdown: 'Second variety.', generated: true, explanationLanguage: 'arabic', provenance: {} })
   const snapshot = { ...skillDemo, guide_explanation_language: 'arabic', guides: [{ id: 'one', name: 'One', skills: { quantity: null } }, { id: 'two', name: 'Two', skills: { quantity: null } }] }
-  const view = render(<SkillGuide snapshot={snapshot} skillId="quantity" active="one" />)
+  const view = render(<SkillGuide initiallyOpen={false} snapshot={snapshot} skillId="quantity" active="one" />)
   await act(async () => { const details = view.container.querySelector('details')!; details.open = true; fireEvent(details, new Event('toggle')) })
   await waitFor(() => expect(request).toHaveBeenCalledTimes(1))
   fireEvent.change(screen.getByRole('combobox'), { target: { value: 'two' } })
@@ -56,12 +56,12 @@ it('drops a manual guide selection when the inspected variety or language change
     { id: 'one', name: 'One', skills: { quantity: 'First guide.' } },
     { id: 'two', name: 'Two', skills: { quantity: 'Second guide.' } },
   ] }
-  const view = render(<SkillGuide snapshot={snapshot} skillId="quantity" active="one" />)
+  const view = render(<SkillGuide initiallyOpen={false} snapshot={snapshot} skillId="quantity" active="one" />)
   fireEvent.click(screen.getByText('Skill guide'))
   fireEvent.change(screen.getByRole('combobox'), { target: { value: 'two' } })
-  view.rerender(<SkillGuide snapshot={snapshot} skillId="quantity" active="two" />)
-  view.rerender(<SkillGuide snapshot={snapshot} skillId="quantity" active="one" />)
+  view.rerender(<SkillGuide initiallyOpen={false} snapshot={snapshot} skillId="quantity" active="two" />)
+  view.rerender(<SkillGuide initiallyOpen={false} snapshot={snapshot} skillId="quantity" active="one" />)
   expect(screen.getByText('First guide.')).toBeInTheDocument()
-  view.rerender(<SkillGuide snapshot={{ ...snapshot, target: 'another', guides: [] }} skillId="quantity" />)
+  view.rerender(<SkillGuide initiallyOpen={false} snapshot={{ ...snapshot, target: 'another', guides: [] }} skillId="quantity" />)
   expect(screen.queryByText('First guide.')).not.toBeInTheDocument()
 })

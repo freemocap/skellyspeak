@@ -238,6 +238,11 @@ the learner model adds its own boxed inspection variant in skills/learner-model.
 
 .xp-evidence-report h2 { font-size: var(--type-title); margin: 0; }
 .xp-evidence-report details { font-size: var(--type-meta); overflow-wrap: anywhere; }
+/* Skills a reply was credited for, in message feedback: a progress-coloured pill with its count. */
+.message-skill-credit { margin-top: var(--space-6); }
+.message-skill-credit > details > summary { display: inline-flex; align-items: center; gap: var(--space-4); min-height: var(--control-height-sm); padding: 0 var(--space-6); border: var(--border-width) solid var(--progress-line); border-radius: var(--radius-pill); background: var(--progress-tint); color: var(--progress-ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); cursor: pointer; }
+.message-skill-credit-count { min-width: var(--space-8); padding: 0 var(--space-3); border-radius: var(--radius-pill); background: var(--sheet); font-family: var(--font-mono); text-align: center; }
+.message-skill-credit > details[open] > summary { margin-bottom: var(--space-5); }
 
 /* Effort reports lead with independent summaries, then source instances. */
 .effort-report { margin-block: var(--space-5); }

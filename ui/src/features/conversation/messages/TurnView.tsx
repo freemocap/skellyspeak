@@ -290,7 +290,7 @@ function TurnContents({
             translationState={assistant.translationState}
             status={<><GlossAssistance assistant={assistant} onRetryGloss={onRetryGloss} />{partnerReading.status}</>}
             speech={ttsReady && onSpeak ? { speaking, preparing: partnerSpeech?.preparing, disabled: partnerSpeech && !partnerSpeech.enabled, onToggle: () => onSpeak(assistant.reply, turn.id), error: speechError ?? null } : null}
-            analysis={{ pending: assistant.explanationsState === 'running', onOpen: () => onBubbleTap(turn.id) }}
+            analysis={{ pending: false, onOpen: () => onBubbleTap(turn.id) }}
             inspect={partnerSpeech ? { kind: 'available', open: partnerInspectorOpen, disabled: !partnerSpeech.enabled, onToggle: () => {
               setPartnerInspectorOpen(!partnerInspectorOpen)
               if (!partnerInspectorOpen && !partnerSpeech.retained && !partnerSpeech.playing && !partnerSpeech.preparing) partnerSpeech.toggle()

@@ -1,4 +1,5 @@
 import { ExplanationCards } from './ExplanationCards'
+import { ActivityIndicator } from '../feedback/ActivityIndicator'
 import { SentenceCompletions } from './SentenceCompletions'
 import { isSentenceBlank, sentenceBlanks } from '../../domain/reading/sentence-blanks'
 import { createPortal } from 'react-dom'
@@ -112,7 +113,7 @@ export function ReadingHelp({ services, languages, children }: { services: Readi
   </ReadingCompletionsContext></ReadingLookupContext></ReadingPeekContext></ReadingActionsContext></SavedReadingContext></SavedReadingRegistryContext>
 }
 
-function ReadingInspector({ selection, languages, onClose }: { selection: ReadingSelection; languages: ReadingLanguage[]; onClose: () => void }) {
+export function ReadingInspector({ selection, languages, onClose }: { selection: ReadingSelection; languages: ReadingLanguage[]; onClose: () => void }) {
   const tr = useI18n()
   const aid = selection.aid ?? (isSentenceBlank(selection.text, selection.start, selection.end) ? 'explanations' : 'word_gloss')
   const analyzing = aid !== 'word_gloss'
@@ -154,12 +155,12 @@ function ReadingInspector({ selection, languages, onClose }: { selection: Readin
     <h2>{title}</h2>
     <ReadingScopeContext value={scope}><ReadingLanguageScope language={scope.language} variety={scope.variety}>
       {!whole && <p className="reading-selected-word" dir="auto" lang={language?.languageTag}><span>{selection.text.slice(selection.start, selection.end)}</span>{!blankSelection && <TokenAudio text={selection.text} start={selection.start} end={selection.end} />}</p>}
-      <p className={whole ? 'reading-selected-word' : undefined} dir="auto" lang={language?.languageTag}><SavedGlossText text={selection.text} segments={result?.gloss?.segments ?? []} revealAids />{whole && !blankSelection && <TokenAudio text={selection.text} />}</p>
+      <p className={whole ? 'reading-selected-word reading-inspector-source' : undefined} dir="auto" lang={language?.languageTag}><SavedGlossText text={selection.text} segments={result?.gloss?.segments ?? []} revealAids />{whole && !blankSelection && <TokenAudio text={selection.text} />}</p>
     </ReadingLanguageScope></ReadingScopeContext>
     {analyzing && result?.explanations && <ReadingScopeContext value={scope}>{aid === 'completions' || sentenceBlanks(selection.text).length
       ? <SentenceCompletions cards={result.explanations.cards} />
       : <ExplanationCards cards={result.explanations.cards} nativeLanguageName={scope.explanation} />}</ReadingScopeContext>}
-    {pending && <p role="status">{tr(analyzing ? 'Working out the grammar…' : 'Finding word meanings…')}</p>}
+    {pending && <p className="activity-line reading-progress"><ActivityIndicator label={tr(analyzing ? 'Working out the grammar…' : 'Finding word meanings…')} /></p>}
     {failure != null && <ErrorNotice error={failure}>{message(failure)}<ResponseDetails value={details(failure)} /></ErrorNotice>}
     {(failure != null || result?.gloss?.coverage === 'partial') && <button className="btn" disabled={pending} onClick={() => setAttempt(value => value + 1)}>{tr(analyzing ? 'Retry' : 'Retry word meanings')}</button>}
     <AskCoachButton question={`Help me understand “${selection.text.slice(selection.start, selection.end)}” in this ${scope.language} passage: “${selection.text}”.`} onClose={onClose} />

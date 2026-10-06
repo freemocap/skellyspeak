@@ -16,6 +16,7 @@ import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
 import { sharedScale } from '../../components/media/Spectrogram'
 import { DetectionDetails, TimeAxis } from '../../components/media/InspectionTracks'
 import type { AudioInspection } from '../../generated/contracts'
+import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
 
 /** Which way time runs across the spectrograms. Right-to-left puts the first
  * sound on the right, where a right-to-left script puts its first word. */
@@ -143,7 +144,7 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
             style={{ width: width(reference.duration) }} plotRef={undefined} attempt={false} />
         </div> : <div className="drill-track" ref={referenceTrack}>
           <div className="drill-plot-frame" data-state={referenceFailure ? 'failed' : playingReference ? 'loading' : 'empty'}>
-            {referenceFailure ?? (card && <p role="status">{playingReference ? tr("Loading reference…")
+            {referenceFailure ?? (card && <p role="status">{playingReference ? <ActivityIndicator announce={false} label={tr("Loading reference…")} />
               : attemptLabel ? tr("Play the reference to compare it with this attempt.") : tr("Play the reference once to draw it here.")}</p>)}
           </div>
         </div>}

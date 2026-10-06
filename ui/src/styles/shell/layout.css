@@ -45,7 +45,10 @@
 .destination-page > .return-strip { align-self: stretch; }
 .destination-page > .skills-page, .destination-page > .drill-page { flex: 1; height: auto; min-height: 0; }
 .return-strip { display: flex; align-items: center; gap: var(--space-6); flex: none; padding: var(--space-3) var(--space-8); border-bottom: var(--border-width) solid var(--line-soft); background: var(--chrome); }
-.return-strip .return-to-conversation { display: inline-flex; align-items: center; gap: var(--space-3); padding-inline: var(--space-5) var(--space-7); }
+/* Way-back buttons (Back to conversation, All skills) are primary navigation:
+   accent text on an accent wash, filled on hover, never a quiet grey button. */
+:is(.return-strip, .skill-detail-page) .return-to-conversation { display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height); padding-inline: var(--space-5) var(--space-7); border-color: var(--interaction-line); background: var(--interaction-tint); color: var(--interaction-ink); font-weight: var(--weight-semibold); }
+:is(.return-strip, .skill-detail-page) .return-to-conversation:hover:not(:disabled) { border-color: var(--interaction-fill); background: var(--interaction-fill); color: var(--ink-on-fill); }
 
 .wordmark { font-weight: var(--weight-semibold); font-size: var(--type-title); letter-spacing: var(--tracking-tight); }
 

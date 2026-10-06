@@ -9,11 +9,12 @@ import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
 const MAX_PIPS = 21
 
 /** A language's skill level: the badge and how many skills are ready for the
- * next level, the radar with every arm named, the focused skill's details right
- * under it, then the skills still short of the next level and those already
- * ready. Pointing at a skill focuses it; pressing pins it. The first skill
- * holding the level back starts pinned so its details and actions are always
- * one glance from the chart. `conversation`, when given, is one conversation's
+ * next level, the radar with every arm named, the selected skill's card, then
+ * the skills still short of the next level and those already ready. Exactly one
+ * skill is selected at a time; pressing an arm, row or chip selects it, and the
+ * radar, row, chip and card all mark the same skill. Hover never changes the
+ * selection, and the card keeps one size for every skill, so nothing moves
+ * under the pointer. The first skill holding the level back starts selected. `conversation`, when given, is one conversation's
  * evidence, overlaid on the radar as its own shape. */
 export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice, practiceSkill }: {
   snapshot: SkillSnapshot; conversation: ConversationSkillPoints | null; onInspect: ((id: string) => void) | null
@@ -23,17 +24,12 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
   const levels = languageSkillLevels(snapshot)
   const behind = holdingBack(levels)
   const ready = levels.skills.filter(skill => skill.points >= levels.target)
-  const [pinned, setPinned] = useState<string | null>(behind[0]?.skill.id ?? null)
-  const [pointed, setPointed] = useState<string | null>(null)
+  const [selected, setSelected] = useState<string>(behind[0]?.skill.id ?? levels.skills[0].id)
   const conversationPoints = conversation ? conversation.skills.map(skill => skill.points) : null
   const conversationTotal = conversationPoints?.reduce((sum, value) => sum + value, 0) ?? 0
-  const focused = levels.skills.find(skill => skill.id === (pointed ?? pinned))
+  const focused = levels.skills.find(skill => skill.id === selected)
+  if (!focused) throw new Error(`Selected skill is not in this language's levels: ${selected}`)
   const nextLevel = levels.level + 1
-  const pick = (id: string) => setPinned(current => current === id ? null : id)
-  const point = (id: string) => ({
-    onPointerEnter: () => setPointed(id),
-    onPointerLeave: () => setPointed(current => current === id ? null : current),
-  })
   return <section className="skill-levels" aria-label={tr('Skill levels')}>
     <header className="skill-levels-head">
       <span className="skill-level-badge" aria-hidden="true"><small>{tr('Lv')}</small>{tr.number(levels.level)}</span>
@@ -52,7 +48,7 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
       </div>
     </header>
 
-    <SkillRadar levels={levels} pinned={pinned} onPin={setPinned} pointed={pointed} onPoint={setPointed} conversation={conversationTotal > 0 ? conversationPoints : null} />
+    <SkillRadar levels={levels} selected={selected} onSelect={setSelected} conversation={conversationTotal > 0 ? conversationPoints : null} />
     <ul className="skill-levels-key" aria-label={tr('How to read the chart')}>
       <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle className="skill-levels-key-goal" cx="8" cy="8" r="6" /></svg>{tr('Level {value0} goal', { value0: nextLevel })}</li>
       {levels.level > 0 && <li><svg viewBox="0 0 16 16" aria-hidden="true"><circle className="skill-levels-key-reached" cx="8" cy="8" r="6" /></svg>{tr('Levels reached')}</li>}
@@ -65,11 +61,13 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
         : tr('No skill points in this conversation yet')}
     </p>}
 
-    <div className="skill-levels-focus" aria-live="polite" style={focused ? { borderColor: skillColors(focused.id).mark } : undefined}>
-      {focused
-        ? <SkillFocus skill={focused} target={levels.target} nextLevel={nextLevel}
-            onInspect={onInspect} onPractice={onPractice} practicing={practiceSkill === focused.id} />
-        : <p className="skill-levels-focus-hint">{tr('Point at a skill on the chart to see what it covers. Press it to keep it here.')}</p>}
+    <p className="skill-levels-hint">{tr('Each arm of the chart is one skill. Press an arm, or a skill in the lists, to show it in the card.')}</p>
+    <div className="skill-levels-focus" aria-live="polite" style={{ borderColor: skillColors(focused.id).mark }}>
+      {/* Keyed by skill, so each change of selection replays the card's entrance. */}
+      <div className="skill-levels-focus-body" key={focused.id}>
+        <SkillFocus skill={focused} target={levels.target} nextLevel={nextLevel}
+          onInspect={onInspect} onPractice={onPractice} practicing={practiceSkill === focused.id} />
+      </div>
     </div>
 
     {behind.length > 0 && <div className="skill-levels-next">
@@ -77,8 +75,8 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
       <ul>{behind.map(({ skill, needed }) => {
         const colours = skillColors(skill.id)
         return <li key={skill.id}>
-          <button type="button" className="skill-levels-row" aria-pressed={pinned === skill.id} data-active={focused?.id === skill.id ? 'true' : undefined}
-            onClick={() => pick(skill.id)} {...point(skill.id)} style={{ color: colours.mark }}>
+          <button type="button" className="skill-levels-row" aria-pressed={selected === skill.id}
+            onClick={() => setSelected(skill.id)} style={{ color: colours.mark }}>
             <span className="skill-levels-dot" aria-hidden="true" />
             <span className="skill-levels-name" style={{ color: colours.ink }}>{tr(skill.label)}</span>
             <SkillPips points={skill.points} count={levels.target} goal={null} size="small" />
@@ -93,8 +91,8 @@ export function SkillLevelsPanel({ snapshot, conversation, onInspect, onPractice
       <ul className="skill-levels-ready">{ready.map(skill => {
         const colours = skillColors(skill.id)
         return <li key={skill.id}>
-          <button type="button" className="skill-levels-chip" aria-pressed={pinned === skill.id} data-active={focused?.id === skill.id ? 'true' : undefined}
-            onClick={() => pick(skill.id)} {...point(skill.id)} style={{ color: colours.mark }}>
+          <button type="button" className="skill-levels-chip" aria-pressed={selected === skill.id}
+            onClick={() => setSelected(skill.id)} style={{ color: colours.mark }}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
             <span style={{ color: colours.ink }}>{tr(skill.label)}</span>
             <span>{tr('Lv {value0}', { value0: skill.level })}</span>
@@ -124,7 +122,7 @@ function SkillFocus({ skill, target, nextLevel, onInspect, onPractice, practicin
     <p className="skill-levels-focus-need">{needed > 0
       ? tr('{count} more points for level {value0}', { count: needed, value0: nextLevel })
       : tr('Ready for level {value0}. {value1} more for this skill’s level {value2}.', { value0: nextLevel, value1: skill.nextThreshold - skill.points, value2: skill.level + 1 })}</p>
-    <p>{tr(skill.description)}</p>
+    <p className="skill-levels-description">{tr(skill.description)}</p>
     <p className="skill-levels-criterion"><strong>{tr('Counts when')}</strong> {tr(skill.criterion)}</p>
     {(onInspect || onPractice) && <div className="skill-levels-actions">
       {onInspect && <button type="button" className="btn primary" onClick={() => onInspect(skill.id)}>{tr('More about this skill')}</button>}

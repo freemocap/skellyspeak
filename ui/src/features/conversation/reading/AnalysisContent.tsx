@@ -12,6 +12,7 @@ import { requestReplyHelp } from '../composer/TurnReplyHelp'
 import { MessageReadingScope } from './MessageReadingScope'
 import { useNavigationStore } from '../../../state/navigation/navigation'
 import type { StoredTurn } from '../../../types'
+import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 
 /// Just the parts of a turn this pane renders. Deriving from `StoredTurn` keeps
 /// this view synchronized with the canonical shape.
@@ -73,8 +74,8 @@ export const AnalysisContent = memo(function AnalysisContent({
   return (
     <MessageReadingScope scope={a.help?.scope}><SavedReadingProvider sources={sources}>
       {!a.help && ['ready', 'running', 'waiting_dependencies'].includes(a.explanationsState ?? '') && (
-        <p className="sect-k pending" data-phase={a.explanationsState === 'running' ? 'running' : 'waiting'}>
-          {tr("⟳ Analyzing grammar…")}</p>
+        <p className="sect-k pending activity-line" data-phase={a.explanationsState === 'running' ? 'running' : 'waiting'}>
+          <ActivityIndicator label={tr("Working out the grammar…")} /></p>
       )}
 
       {showMessages && !partnerOnly && turn.user && <AnalysisSentence label={tr("You said")} text={turn.user} gloss={turn.userSavedGloss} tokens={a.user_tokens} translation={turn.userTranslation ?? a.user_translation} />}

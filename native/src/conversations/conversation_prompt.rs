@@ -4,7 +4,7 @@ use crate::{
     configuration::{ConversationPromptContent, LanguageContext, Registry},
     model::*,
 };
-pub(crate) const VERSION: &str = "conversation-40-readable-single-message";
+pub(crate) const VERSION: &str = "conversation-42-initialized-partner-history";
 
 /// No database, topic selection, provider, UI state or inference.
 fn render(
@@ -205,6 +205,12 @@ mod tests {
                 settings.difficulty = level;
                 for opening in [true, false] {
                     let prompt = system(&r, &ctx, &settings, &persona, opening, "test").unwrap();
+                    assert!(prompt.contains("The app supplies pronunciation and reading assistance separately from your message."));
+                    assert!(prompt.contains("including in brackets or parentheses"));
+                    assert!(prompt.contains("without copying that annotation pattern"));
+                    assert!(prompt.contains(
+                        "Preserve legitimate names, quotations and ordinary punctuation"
+                    ));
                     assert!(prompt.contains("You are the conversation partner in an ongoing message exchange with an adult learning the indicated language."));
                     assert_eq!(
                         prompt.contains("Start directly, without a greeting or introduction."),

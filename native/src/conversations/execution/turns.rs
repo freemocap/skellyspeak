@@ -242,6 +242,20 @@ fn accept_turn(
         content: system,
     }];
     let source_ids: Vec<String> = history.iter().map(|(_, id)| id.clone()).collect();
+    // An assistant-first wire history can be interpreted as learner speech by
+    // the provider. Initialize it before capture, so inspection and transport
+    // agree. This is an application instruction, never a learner message or
+    // evidence source. It also covers a history window starting mid-exchange.
+    if !coach
+        && history
+            .first()
+            .is_some_and(|(message, _)| message.role == "assistant")
+    {
+        context.push(PromptMessage {
+            role: "user".into(),
+            content: registry.conversation_prompt().history_start.trim().into(),
+        });
+    }
     context.extend(history.into_iter().map(|(message, _)| message));
     if opening.is_none() {
         context.push(PromptMessage {

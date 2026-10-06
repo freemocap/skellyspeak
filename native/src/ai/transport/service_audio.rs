@@ -77,7 +77,10 @@ pub(in crate::ai) async fn synthesize_stream(
     let mut outcome = SpeechOutcome::empty();
     outcome.audio = async {
         validate(input)?;
-        let prepared = format!("[{} accent]\n{}", input.language, input.text);
+        // Display labels are not provider delivery instructions. The former
+        // accent prefix caused v4 Turbo to repeat speech, including in complete
+        // responses. Preserve source text for every supported model/variety.
+        let prepared = &input.text;
         let limit = if target.model == "eleven_v4_turbo" { 2_000 } else { 5_000 };
         if prepared.len() > 16_384 || prepared.chars().count() > limit {
             return Err(AppError::new(ErrorCode::Validation, "Prepared speech exceeds the provider input limit."));
@@ -226,11 +229,27 @@ mod tests {
     }
     #[tokio::test]
     async fn sends_only_internal_request_with_server_token() {
+        for model in ["eleven_v3", "eleven_v4_turbo"] {
+            for text in [
+                "Trains can be faster.",
+                "No, nunca había escuchado de ellos.",
+                "مرحبا",
+                "你好",
+                "cafe\u{301}",
+            ] {
+                assert_source_request(model, text).await;
+            }
+        }
+    }
+
+    async fn assert_source_request(model: &str, source: &str) {
         use std::io::{Read, Write};
         let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
         let mut target = target();
+        target.model = model.into();
         target.url = format!("http://{}/v1/audio/speech", listener.local_addr().unwrap());
         let body = body().to_string();
+        let expected = serde_json::json!({"model":model,"text":source,"language_code":null});
         let worker = std::thread::spawn(move || {
             let (mut socket, _) = listener.accept().unwrap();
             socket
@@ -266,10 +285,7 @@ mod tests {
             );
             let value: serde_json::Value =
                 serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
-            assert_eq!(
-                value,
-                serde_json::json!({"model":"eleven_v3","text":"[Spanish — Mexico accent]\nGracias.","language_code":null})
-            );
+            assert_eq!(value, expected);
             write!(
                 socket,
                 "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
@@ -284,7 +300,7 @@ mod tests {
             "server-token",
             &SpeechInput {
                 language_tag: "es-MX".into(),
-                text: "Gracias.".into(),
+                text: source.into(),
                 voice: "alloy".into(),
                 language: "Spanish — Mexico".into(),
             },

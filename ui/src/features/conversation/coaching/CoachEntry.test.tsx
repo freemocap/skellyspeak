@@ -40,3 +40,21 @@ it('shows every distinct disclosed correction and retains assessment notes', () 
   view.rerender(<CoachEntry source={null} decision={{ ...decision, exposedMove: null }} feedback={feedback} />)
   expect(screen.queryByText('replacement 7')).toBeNull()
 })
+
+it('narrows a sentence-length explicit correction to its changed words and keeps the full pair', () => {
+  const shown = { construct: 'negation', quote: 'Ain’t no one ever talked about a bullet bus.', text: 'No one has ever talked about a bullet bus.', move: 'explicit' as const, explanation: 'Ain’t no one is a double negative.' }
+  const view = render(<CoachEntry source={null} decision={{ exposedMove: 'explicit', shown, retryInvited: false, alsoNoticed: [], keptGoing: false }} />)
+  const changes = screen.getByRole('list', { name: 'Changed words' })
+  expect(changes.querySelector('del')).toHaveTextContent('Ain’t no one')
+  expect(changes.querySelector('ins')).toHaveTextContent('No one has')
+  expect(view.container.querySelector('details.cor-full')).toHaveAttribute('open')
+  expect(view.container.querySelector('del.cor-removed')).toHaveTextContent(shown.quote)
+  expect(view.container.querySelector('.cor-replacement')).toHaveTextContent(shown.text)
+})
+
+it('shows hints as the quote and coach text, without a replacement diff', () => {
+  const shown = { construct: 'negation', quote: 'Ain’t no one ever talked about it.', text: 'Look at how many negative words this uses.', move: 'hint' as const }
+  render(<CoachEntry source={null} decision={{ exposedMove: 'hint', shown, retryInvited: false, alsoNoticed: [], keptGoing: false }} />)
+  expect(screen.queryByRole('list', { name: 'Changed words' })).toBeNull()
+  expect(screen.getByText(shown.text)).toBeVisible()
+})

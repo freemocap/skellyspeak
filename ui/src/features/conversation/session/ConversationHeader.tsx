@@ -3,15 +3,15 @@ import { ErrorDetails } from '../../../components/feedback/ErrorDetails'
 import { useI18n } from '../../../components/localization/i18n'
 
 /** Partner identity leads; the conversation list opens from the start of the
- * header and editing controls live in the conversation popover. */
-export function ConversationHeader({ leading, persona, error, children }: {
-  leading?: ReactNode; persona: ReactNode; error: string | null; children: ReactNode
+ * header, with difficulty beside the partner and secondary settings in the panel. */
+export function ConversationHeader({ leading, persona, difficulty, error, children }: {
+  leading?: ReactNode; persona: ReactNode; difficulty?: ReactNode; error: string | null; children: ReactNode
 }) {
   const tr = useI18n()
   return <div className="chat-head">
     {leading}
     <div className="conversation-title">
-      {persona}
+      <div className="conversation-identity">{persona}{difficulty}</div>
       {error && <ErrorDetails label={tr("Conversation settings")} errorKey={error}>{error}</ErrorDetails>}
     </div>
     {children}

@@ -7,6 +7,7 @@ import { ResponseDetails } from '../../components/feedback/ResponseDetails'
 import { ExplanationCards } from '../../components/reading/ExplanationCards'
 import { useReadingLookup, type ReadingScope } from '../../components/reading/ReadingContext'
 import type { DrillItemView, ReplyExplanations } from '../../generated/contracts'
+import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
 
 /** The Analysis action on a practice phrase: the same grammar explanations Chat
  * asks for about a partner message, through the shared reading aid. The request
@@ -53,7 +54,7 @@ export function DrillAnalysis({ item, scope, nativeLanguageName, children }: {
     {children({ pending, onOpen: ask })}
     {open && <DetailDialog title={tr("Message analysis")} onClose={() => setOpen(false)}>
       <h2>{tr("Message analysis")}</h2>
-      {pending && <p role="status">{tr("⟳ Analyzing grammar…")}</p>}
+      {pending && <p className="activity-line"><ActivityIndicator label={tr("Working out the grammar…")} /></p>}
       {failure != null && <ErrorNotice error={failure}>
         <p>{errorMessage(failure)}</p>
         <ResponseDetails value={errorDetails(failure)} />

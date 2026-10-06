@@ -1,5 +1,10 @@
 # Speech variety routing — September 20, 2026
 
+The accent-prefix implementation below is superseded by the
+[October 6 repetition fix](speech-repetition-investigation-2026-10-06.md).
+Native synthesis now forwards source text without a generated accent cue.
+This note retains the earlier investigation; it is not the current prompt policy.
+
 ## Confirmed gap
 
 Conversation execution already captures the selected language and variety in

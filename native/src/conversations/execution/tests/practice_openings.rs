@@ -89,11 +89,16 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
             .any(|m| m["role"] == "assistant" && m["content"] == "¿Qué te gusta cocinar?")
     );
     let wire = captured["messages"].as_array().unwrap();
-    assert_eq!(wire.len(), 3);
-    assert_eq!(wire[1]["role"], "assistant");
-    assert_eq!(wire[1]["content"], "¿Qué te gusta cocinar?");
-    assert_eq!(wire[2]["role"], "user");
-    assert_eq!(wire[2]["content"], "Sí, me gusta cocinar en casa.");
+    assert_eq!(wire.len(), 4);
+    assert_eq!(wire[1]["role"], "user");
+    assert_eq!(
+        wire[1]["content"],
+        "Begin the conversation as the partner described in your instructions."
+    );
+    assert_eq!(wire[2]["role"], "assistant");
+    assert_eq!(wire[2]["content"], "¿Qué te gusta cocinar?");
+    assert_eq!(wire[3]["role"], "user");
+    assert_eq!(wire[3]["content"], "Sí, me gusta cocinar en casa.");
     let serialized = crate::ai::transport::provider::payload(
         "google/gemini-2.5-flash",
         &serde_json::from_value::<Vec<PromptMessage>>(captured["messages"].clone()).unwrap(),
@@ -120,10 +125,11 @@ fn wave2_partner_opening_is_real_history_without_learner_evidence() {
         .entity_id;
     let revised = wave2_context(&store, &edited);
     let revised_wire = revised["messages"].as_array().unwrap();
-    assert_eq!(revised_wire.len(), 3);
+    assert_eq!(revised_wire.len(), 4);
     assert_eq!(revised_wire[1], wire[1]);
-    assert_eq!(revised_wire[2]["role"], "user");
-    assert_eq!(revised_wire[2]["content"], "No, no me gusta cocinar.");
+    assert_eq!(revised_wire[2], wire[2]);
+    assert_eq!(revised_wire[3]["role"], "user");
+    assert_eq!(revised_wire[3]["content"], "No, no me gusta cocinar.");
     let repeated = Command {
         session_id: store.session_id.clone(),
         action_id: id(),

@@ -16,13 +16,16 @@ export function SkillEvidenceRecord({ languageTag, record, judgment, snapshot, c
   const entry = skillIndex(snapshot).entries.get(`${record.attempt_id}:${judgment.skill_id}`)
   if (!entry) throw new Error('Evidence is not in the current snapshot')
   const { xp, state } = entry
+  // Experience: the skill's first credit in a revision chain. Effort: a changed revision credited for it again.
+  const credit = snapshot.profile.credits.find(item => item.attempt_id === record.attempt_id && item.skill_id === judgment.skill_id)
+  const creditKind = credit?.effort ? tr('Effort') : credit?.experience ? tr('Experience') : null
   const assistance = [record.input.suggestion && tr('Suggested wording'), record.input.scaffold && tr('Scaffold used'), record.input.revision && tr('Revision')].filter(Boolean).join(' · ') || tr('No in-app assistance recorded')
   const label = tr(evidenceLabelKey(state === 'complete' ? (judgment.presence ?? judgment.outcome ?? 'unclear') : state))
   const wholeMessage = judgment.evidence_kind === 'whole_message'
   return <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}><article className="skill-evidence-record">
     <header className="skill-evidence-head">
       <strong>{tr(skillIndex(snapshot).catalog.node(judgment.skill_id).label)}</strong>
-      <span className="skill-evidence-xp">{tr.number(xp)} {tr(" XP credited")}</span>
+      <span className="skill-evidence-xp">{tr.number(xp)} {tr(" XP credited")}{creditKind && <> · {creditKind}</>}</span>
     </header>
     <blockquote className="skill-evidence-message" lang={languageTag}><TargetPhrase text={record.source} /></blockquote>
     <p className="skill-evidence-tags">

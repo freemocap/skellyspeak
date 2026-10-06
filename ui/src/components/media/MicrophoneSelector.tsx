@@ -1,4 +1,3 @@
-import { MicrophoneTest } from './MicrophoneTest'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useI18n } from '../localization/i18n'
 import { ActivityIndicator } from '../feedback/ActivityIndicator'
@@ -8,7 +7,8 @@ import { errorMessage } from '../../platform/diagnostics/error-details'
 import { reportFault } from '../../platform/diagnostics/faults'
 import type { MicrophoneList } from '../../generated/contracts'
 
-/** Shared device picker; owners decide whether changes save immediately or edit a draft. */
+/** Shared device picker; owners decide whether changes save immediately or edit a
+ * draft, and whether a MicrophoneCheck row follows it. */
 export function MicrophoneSelector({ value, onChange, disabled = false }: {
   value: string | null; onChange: (value: string | null) => void; disabled?: boolean
 }) {
@@ -52,7 +52,6 @@ export function MicrophoneSelector({ value, onChange, disabled = false }: {
               {loading ? <ActivityIndicator label={tr('Loading…')} compact /> : '↻'}
             </button>
           </div>
-          <MicrophoneTest device={value} disabled={disabled} />
           {micError !== null && <ErrorNotice as="p" error={micError}>{errorMessage(micError)}</ErrorNotice>}
         </div>
   )

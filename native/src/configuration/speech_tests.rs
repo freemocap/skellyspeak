@@ -217,7 +217,7 @@ fn every_offered_variety_has_listed_recognition_and_synthesis() {
                         &context.external_tags["language_tag"],
                         &context.speech_routes,
                         if task == Task::Speech {
-                            "eleven_v4_turbo"
+                            "eleven_v3"
                         } else {
                             "whisper-large-v3"
                         },
@@ -229,10 +229,10 @@ fn every_offered_variety_has_listed_recognition_and_synthesis() {
                 if task == Task::Speech {
                     assert_eq!(
                         resolution.model,
-                        if language.id == "irish" {
-                            "eleven_v3"
-                        } else {
+                        if language.id == "cantonese" {
                             "eleven_v4_turbo"
+                        } else {
+                            "eleven_v3"
                         }
                     );
                 }

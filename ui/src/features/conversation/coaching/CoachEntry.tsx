@@ -3,6 +3,8 @@ import { useI18n } from '../../../components/localization/i18n'
 import { TargetPassage } from '../../../components/reading/TargetPassage'
 import { TargetText } from '../../../components/reading/TargetText'
 import type { CoachDecision, CoachObservationView } from '../../../generated/contracts'
+import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
+import { correctionChanges } from '../../../domain/conversation/correction-diff'
 
 /** Learner-facing explanations only. Native diagnostics never substitute for help. */
 export function CoachEntry({ decision, feedback, source, error }: {
@@ -16,15 +18,8 @@ export function CoachEntry({ decision, feedback, source, error }: {
     {source && <div className="coach-entry-said"><TargetPassage side="me" text={source} /></div>}
     {error && <ErrorNotice as="p" error={error} className="turn-errors">{error}</ErrorNotice>}
     {corrections.map((shown, index) => <section key={index} className="coach-card coach-card-help" aria-label={tr("Coaching suggestion")}>
-      {shown.move === 'explicit' ? <>
-        {/* One line: your words struck out, then the replacement with its reading tools. */}
-        <div className="cor-line">
-          <del className="cor-removed"><span className="sr-only">{tr("Original")}: </span><TargetText text={shown.quote} interactive={false} /></del>
-          <span className="cor-arrow" aria-hidden="true">→</span>
-          <div className="cor-replacement"><span className="sr-only">{tr("Coaching suggestion")}: </span><TargetPassage text={shown.text} /></div>
-        </div>
-        {shown.explanation && <p className="cor-why" dir="auto">{shown.explanation}</p>}
-      </> : <>
+      <h3 className="coach-card-title" aria-hidden="true"><ToolbarIcon name="idea" size={15} />{tr("Coaching suggestion")}</h3>
+      {shown.move === 'explicit' ? <ExplicitCorrection quote={shown.quote} text={shown.text} explanation={shown.explanation} /> : <>
         <blockquote><TargetPassage side="me" text={shown.quote} /></blockquote>
         <p className="coach-remark" dir="auto">{shown.text}</p>
       </>}
@@ -36,4 +31,26 @@ export function CoachEntry({ decision, feedback, source, error }: {
     </section>)}
     {!!feedback?.notes.length && <details><summary>{tr("Details")}</summary>{feedback.notes.map(note => <p key={note}>{note}</p>)}</details>}
   </div>
+}
+
+/** An explicit correction: the changed words first, when a compact view is
+ * clear, then the explanation and the full original and replacement, which
+ * are always kept. The compact rows are presentation only. */
+function ExplicitCorrection({ quote, text, explanation }: { quote: string; text: string; explanation?: string }) {
+  const tr = useI18n()
+  const changes = correctionChanges(quote, text)
+  const full = <div className="cor-line">
+    <del className="cor-removed"><span className="sr-only">{tr("Original")}: </span><TargetText text={quote} interactive={false} /></del>
+    <span className="cor-arrow" aria-hidden="true">→</span>
+    <div className="cor-replacement"><span className="sr-only">{tr("Coaching suggestion")}: </span><TargetPassage text={text} /></div>
+  </div>
+  return <>
+    {changes && <ul className="cor-changes" aria-label={tr("Changed words")}>{changes.map((change, index) => <li key={index}>
+      {change.removed && <del className="cor-change-removed"><span className="sr-only">{tr("Original")}: </span><TargetText text={change.removed} interactive={false} /></del>}
+      <span className="cor-arrow" aria-hidden="true">→</span>
+      {change.added && <ins className="cor-change-added"><span className="sr-only">{tr("Coaching suggestion")}: </span><TargetText text={change.added} interactive={false} /></ins>}
+    </li>)}</ul>}
+    {explanation && <p className="cor-why" dir="auto">{explanation}</p>}
+    {changes ? <details className="cor-full" open><summary>{tr("Full original and suggestion")}</summary>{full}</details> : full}
+  </>
 }

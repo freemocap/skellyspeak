@@ -10,6 +10,7 @@ mod v49_execution;
 mod v50_coaching;
 mod v51_skill_direction;
 mod v52_speech_default;
+mod v53_speech_reliability;
 
 const MIN_VERSION: i32 = 45;
 const BASELINE: &str = include_str!("v45.sql");
@@ -55,6 +56,11 @@ const STEPS: &[Step] = &[
     Step {
         from: 51,
         apply: v52_speech_default::apply,
+        validate: v52_speech_default::validate,
+    },
+    Step {
+        from: 52,
+        apply: v53_speech_reliability::apply,
         validate: v52_speech_default::validate,
     },
 ];

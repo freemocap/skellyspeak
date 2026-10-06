@@ -33,6 +33,7 @@ fn conversation_prompt(files: &BTreeMap<String, String>) -> Result<ConversationP
         base: markdown("base")?,
         persona: markdown("persona")?,
         interaction: markdown("interaction")?,
+        history_start: markdown("history-start")?,
         examples_intro: markdown("examples-intro")?,
         ceiling: markdown("ceiling")?,
         coach_focus: markdown("coach-focus")?,

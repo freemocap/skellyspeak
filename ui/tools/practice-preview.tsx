@@ -57,7 +57,7 @@ function Preview() {
     <p>First message: 2 experience. Changed retry: 1 experience + 2 effort. Unchanged retry: 0. Total: 5 XP.</p>
     <label>Interface language <select value={locale} onChange={event => setLocale(event.target.value)}>{['english','spanish','arabic','mandarin','french','german','portuguese'].map(id => <option key={id}>{id}</option>)}</select></label>
     <button onClick={() => setReport(true)}>Open progress report</button>
-    <SkillListView initialVariety="spanish-spain" snapshot={snapshot} demonstration refresh={() => {}} save={async () => {}} saving={false} onPractice={() => {}} />
+    <SkillListView initialVariety="spanish-spain" snapshot={snapshot} demonstration refresh={() => {}} save={async () => {}} saving={false} onPractice={() => {}} onExplain={() => {}} />
     {report && <ProgressSummary snapshot={snapshot} onClose={() => setReport(false)} />}
   </main></I18nProvider>
 }

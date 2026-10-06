@@ -1,0 +1,25 @@
+/* microphone — the shared device picker (components/media/MicrophoneSelector.tsx)
+   and the compact local check under it (MicrophoneCheck.tsx). Settings,
+   onboarding and the recorder's Recording settings mount both; the recorder's
+   desktop footer mounts the picker alone (voice.css restyles it there) and its
+   lamp is the recorder's own (voice.css). */
+.microphone-row { display: flex; gap: var(--space-3); min-width: 0; }
+.microphone-row select { flex: 1; min-width: 0; }
+
+/* One row: the Check button, then a thin level bar that reads as part of the
+   line of words under it. The words name the state, the seconds left and the
+   input that opened; the privacy line shows only while the check runs. */
+.microphone-check { display: grid; gap: var(--space-2); min-width: 0; }
+.form-row + .microphone-check { margin-top: calc(-1 * var(--space-3)); }
+.microphone-check-row { display: flex; align-items: center; gap: var(--space-5); min-width: 0; }
+.microphone-check-row > .btn { flex: none; }
+.microphone-meter { position: relative; flex: 1 1 4rem; min-width: 3rem; height: var(--space-2); overflow: hidden; border-radius: var(--radius-pill); background: var(--track); }
+.microphone-meter-fill {
+  position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: inherit; background: var(--connected-mark);
+  transition: width var(--dur-fast) var(--ease-out);
+}
+.microphone-check-status { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); margin: 0; color: var(--ink-2); font: var(--type-meta)/var(--leading-normal) var(--font-sans); }
+.microphone-check-status:empty { display: none; }
+.microphone-check-status > span + span::before { content: '·'; margin-inline-end: var(--space-3); color: var(--ink-3); }
+.microphone-check-status .microphone-check-device { color: var(--ink-3); }
+.microphone-check > .field-note { margin: 0; font-size: var(--type-meta); }

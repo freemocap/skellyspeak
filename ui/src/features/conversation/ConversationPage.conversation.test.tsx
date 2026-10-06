@@ -33,6 +33,7 @@ vi.mock('./progress/XpChip', () => ({ XpChip: () => null }))
 vi.mock('./progress/SkillRewards', () => ({ SkillRewards: () => null }))
 
 import ConversationPage from './ConversationPage'
+import { ReadingHelp } from '../../components/reading/ReadingHelp'
 import { useConversation } from './session/useConversation'
 import { useSettingsStore } from '../../state/settings/settings'
 import { useSessionStore } from '../../state/session/session'
@@ -1082,9 +1083,15 @@ it('automatically selects the latest learner message, then its reply, without re
 
 
 it('keeps coach controls equal to chat and opens analysis and editing from the coach copy', async () => {
-  render(page())
+  const read = vi.fn().mockResolvedValue({ gloss: null, translation: null, audioBase64: null, audioAlignment: null, receipt: null,
+    explanations: { cards: [{ quote: '¿Adónde fuiste?', title: 'Past-tense question', body: 'Fuiste asks where the listener went.', example: '¿Adónde fuiste ayer?', contrast: '' }] } })
+  render(<ReadingHelp services={{ read, speak: vi.fn(), activity: vi.fn() }} languages={[]}>{page()}</ReadingHelp>)
   await waitFor(() => expect(watches).toHaveLength(1))
-  await act(async () => watches[0].resolve(exchangeSnapshot()))
+  const initial = exchangeSnapshot()
+  // Old turn help can contain a successful empty result. It is not text analysis.
+  initial.messages[1].replyExplanations = { cards: [] }
+  initial.messages[1].explanationsState = 'succeeded'
+  await act(async () => watches[0].resolve(initial))
   const stream = document.querySelector('.stream') as HTMLElement
   const panel = document.querySelector('.break') as HTMLElement
   const controls = (root: Element) => within(root as HTMLElement).getAllByRole('button').map(button => ({
@@ -1093,13 +1100,25 @@ it('keeps coach controls equal to chat and opens analysis and editing from the c
   }))
   expect(controls(panel.querySelector('.msg.bot')!)).toEqual(controls(stream.querySelector('.msg.bot')!))
   fireEvent.click(within(panel).getByRole('button', { name: 'Analysis' }))
-  expect(screen.getByRole('dialog', { name: 'Message analysis' })).toBeVisible()
+  const analysis = screen.getByRole('dialog', { name: 'Message analysis' })
+  await waitFor(() => expect(analysis).toHaveTextContent('Fuiste asks where the listener went.'))
+  expect(read).toHaveBeenCalledExactlyOnceWith({ language: 'spanish', variety: '', explanation: 'english', explanationVariety: 'english-united-states', conversationId: 'a', text: '¿Adónde fuiste?', aid: 'explanations' }, expect.any(AbortSignal))
+  expect(analysis).not.toHaveTextContent('Yo fue ayer')
+  expect(analysis).not.toHaveTextContent('Nothing to flag')
+  expect(within(analysis).queryByText('Skills')).toBeNull()
+  expect(commands()).toHaveLength(0)
   fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close Message analysis' }))
+  fireEvent.click(within(stream).getByRole('button', { name: 'Analysis' }))
+  await waitFor(() => expect(read).toHaveBeenCalledTimes(2))
+  expect(screen.getByRole('dialog', { name: 'Message analysis' })).not.toHaveTextContent('Yo fue ayer')
+  fireEvent.click(screen.getByRole('button', { name: 'Close Message analysis' }))
   fireEvent.click(within(stream).getByRole('group', { name: 'Your message' }))
   expect(controls(panel.querySelector('.msg.me')!)).toEqual(controls(stream.querySelector('.msg.me')!))
   fireEvent.click(within(panel).getByRole('button', { name: 'Coach' }))
   const feedback = screen.getByRole('dialog', { name: 'Feedback on your message' })
   expect(feedback).toBeVisible()
+  expect(feedback).toHaveTextContent('Yo fue ayer')
+  expect(read).toHaveBeenCalledTimes(2)
   fireEvent.click(within(feedback).getByRole('button', { name: 'Edit and resend message' }))
   expect(await draftField()).toHaveValue('Yo fue ayer')
 })

@@ -7,6 +7,7 @@ import { InfoTip } from '../../../components/controls/InfoTip'
 import { useEffect, useRef, useState } from 'react'
 import { invoke } from '../../../platform/ipc/native'
 import type { AccessCheck, AccessSettings, ConnectionConfig, ConnectionRoute, CustomEndpoint, HostedAccount } from '../../../generated/contracts'
+import { ActivityIndicator } from '../../../components/feedback/ActivityIndicator'
 
 
 
@@ -214,7 +215,7 @@ export function SettingsAccess({ onBusyChange, onChanged, refreshKey = 0, primar
         await read(); await onChanged()
       })}>{connection.signedIn ? tr("Sign out") : tr("Sign in with Google")}</button>
       {signingIn && <>
-        <p role="status">{tr("Waiting for sign-in to finish…")}</p>
+        <p className="activity-line"><ActivityIndicator label={tr("Waiting for sign-in to finish…")} /></p>
         <button type="button" className="btn" disabled={cancellingSignIn} onClick={() => void cancelSignIn()}>{tr("Cancel sign-in")}</button>
       </>}
       {connection.signedIn && <button className="btn" disabled={locked} onClick={() => void run(async () => setAccount(await invoke<HostedAccount>('hosted_account')))}>{tr("Refresh account")}</button>}

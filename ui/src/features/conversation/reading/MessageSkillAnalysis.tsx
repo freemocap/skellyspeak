@@ -21,8 +21,8 @@ export function MessageSkillAnalysis({ messageId, source, conversationId }: { me
   const records = (index.messages.get(JSON.stringify([chatId, messageId])) ?? []).filter(record => record.source === source && record.status === 'complete' && !index.excluded.has(record.attempt_id))
   const rows = records.flatMap(record => (record.assessment?.judgments ?? []).filter(judgment => ['direct', 'contextual'].includes(judgment.presence ?? '')).map(judgment => ({ record, judgment, skill: index.catalog.node(judgment.skill_id) })))
   if (!rows.length) return null
-  return <section className="xp-evidence-report" aria-label={tr('Skills')}>
-    <details><summary>{tr('Skills')}</summary>
+  return <section className="xp-evidence-report message-skill-credit" aria-label={tr('Skills')}>
+    <details><summary>{tr('Skills')} <span className="message-skill-credit-count">{tr.number(rows.length)}</span></summary>
     {rows.map(({ record, judgment, skill }) => <article className="practice-credit" key={`${record.attempt_id}:${skill.id}`}>
       <header><strong>{tr(skill.label)}</strong></header>
       <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}>
@@ -30,7 +30,7 @@ export function MessageSkillAnalysis({ messageId, source, conversationId }: { me
       </ReadingLanguageScope>
       <p>{tr(skill.criterion)}</p>
       {record.attribution_error && <ErrorNotice onRetry={() => retryMessageWork(record.chat_id, record.message_id)} error={record.attribution_error}>{record.attribution_error}</ErrorNotice>}
-      <SkillGuide snapshot={snapshot} skillId={skill.id} active={record.variety ?? undefined} />
+      <SkillGuide initiallyOpen={false} snapshot={snapshot} skillId={skill.id} active={record.variety ?? undefined} />
     </article>)}
     </details>
   </section>

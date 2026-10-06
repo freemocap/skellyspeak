@@ -77,6 +77,38 @@
 .voice-panel[data-pad-side='left'] .voice-discard-recording { left: var(--space-3); }
 .voice-discard-recording:hover { border-color: var(--danger-line); color: var(--danger-ink); }
 
+/* Notices over the face, where the eye is. While recording, sustained quiet is
+   a band across the stream in the lamp's amber, so it cannot be missed. After a
+   recording that never rose above the floor, a card over the face says so and
+   leads to the check; the next recording or Dismiss clears it. */
+.voice-face-notice {
+  position: absolute; inset-inline: var(--space-6); top: 50%; z-index: var(--z-raised); transform: translateY(-50%);
+  padding: var(--space-3) var(--space-6); border: var(--border-width) solid var(--warning-line); border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--warning-tint) 94%, transparent); color: var(--warning-ink);
+  font: var(--weight-medium) var(--type-ui)/var(--leading-snug) var(--font-sans); text-align: center; pointer-events: none;
+  animation: voice-soon-in var(--dur-fast) var(--ease-out);
+}
+/* The card shares the face's grid area instead of living inside it, so the
+   shallow phone face cannot clip it; it centres on the face and may stand a
+   little taller. */
+.voice-face-card {
+  grid-area: face; position: relative; z-index: var(--z-raised); align-self: center; justify-self: stretch; margin-inline: var(--space-2);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: var(--space-2) var(--space-5); padding: var(--space-3) var(--space-10) var(--space-3) var(--space-5); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  background: color-mix(in srgb, var(--sheet) 94%, transparent); color: var(--ink);
+  font: var(--type-ui)/var(--leading-snug) var(--font-sans); text-align: center;
+  animation: voice-soon-in var(--dur-fast) var(--ease-out);
+}
+.voice-face-card p { margin: 0; }
+.voice-face-card .btn { padding-block: var(--space-2); }
+.voice-face-card-close {
+  position: absolute; top: var(--space-2); inset-inline-end: var(--space-2); display: grid; place-items: center;
+  width: var(--control-height-xs); height: var(--control-height-xs); padding: 0; border: 0; border-radius: var(--radius-circle);
+  background: transparent; color: var(--ink-3); cursor: pointer;
+}
+.voice-face-card-close:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
+
 /* The microphone pad: an icon, never a word. Ready is a calm blue; recording is
    red, outlined and glowing; waiting is faded. Colour carries the state. */
 .voice-pad {
@@ -97,9 +129,10 @@
 }
 .voice-pad:disabled { opacity: 0.45; cursor: default; }
 
-/* Keep recording actions on one row; device selection uses the remaining space.
-   The row serves the pad, so it stays quiet: text and icons with no outline of
-   their own, a faint wash on hover and the interaction tint when on. */
+/* Keep recording actions on one row: the settings button, the microphone lamp,
+   device selection in the remaining space, then the owner's controls. The row
+   serves the pad, so it stays quiet: text and icons with no outline of their
+   own, a faint wash on hover and the interaction tint when on. */
 .voice-controls { grid-area: controls; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); min-width: 0; white-space: nowrap; }
 .voice-controls .drill-meter { flex: 1 1 auto; }
 .voice-controls .voice-type { margin-inline-start: auto; }
@@ -114,6 +147,33 @@
 .voice-mini[aria-pressed='true'], .voice-mini[aria-expanded='true'] { color: var(--interaction-ink); background: var(--interaction-tint); }
 .voice-switch input { accent-color: var(--interaction-fill); }
 .voice-switch:has(input:disabled) { color: var(--ink-3); cursor: default; }
+
+/* The microphone lamp (components/media/MicrophoneLamp.tsx) follows the settings
+   button: a dot and the word Mic, as quiet as the row's other controls. The dot
+   is the state: grey at rest, the connected green glowing with the level while
+   sound arrives, amber for Quiet, red for Stopped and Not connected, when the
+   pill also takes the status tint so the problem reads from across the room.
+   Its words stay in its name and tooltip; the live region announces problems. */
+.voice-lamp { position: relative; flex: none; display: inline-flex; align-items: center; min-width: 0; }
+.voice-lamp-pill {
+  display: inline-flex; align-items: center; gap: var(--space-3); min-height: var(--control-height-xs); padding: 0 var(--space-4);
+  border: 0; border-radius: var(--radius-md); background: transparent; color: var(--ink-2);
+  font: var(--weight-medium) var(--type-ui)/var(--leading-tight) var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.voice-lamp-pill::before {
+  content: ''; flex: none; width: 8px; height: 8px; border-radius: var(--radius-circle); background: var(--ink-3);
+  transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.voice-lamp-pill:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.voice-lamp[data-tone='live'] .voice-lamp-pill::before {
+  background: var(--connected-mark);
+  box-shadow: 0 0 0 calc(var(--lamp-level) * var(--space-3)) color-mix(in srgb, var(--connected-mark) 35%, transparent);
+}
+.voice-lamp[data-tone='quiet'] .voice-lamp-pill { color: var(--warning-ink); background: var(--warning-tint); }
+.voice-lamp[data-tone='quiet'] .voice-lamp-pill::before { background: var(--warning-line); }
+.voice-lamp[data-tone='stalled'] .voice-lamp-pill, .voice-lamp[data-tone='missing'] .voice-lamp-pill { color: var(--danger-ink); background: var(--danger-tint); }
+.voice-lamp[data-tone='stalled'] .voice-lamp-pill::before, .voice-lamp[data-tone='missing'] .voice-lamp-pill::before { background: var(--danger-line); }
+.voice-lamp-announce { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* Always visible, directly under the pad: a light track with the chosen mode
    as a raised chip, as the coach's tabs show theirs. It is quieter than a
@@ -158,7 +218,7 @@
 @keyframes voice-blink { 50% { opacity: 0.35; } }
 @keyframes voice-soon-in { from { opacity: 0; transform: translateY(var(--space-2)); } }
 @media (prefers-reduced-motion: reduce) {
-  .voice-pad[data-live='true'], .voice-dot, .voice-soon { animation: none; }
+  .voice-pad[data-live='true'], .voice-dot, .voice-soon, .voice-face-notice, .voice-face-card { animation: none; }
 }
 
 /* Compact and narrow: the same grid, smaller. */
@@ -179,9 +239,19 @@
   .voice-mini, .voice-switch { font-size: var(--type-meta); }
   .voice-controls .drill-meter { min-width: 3rem; }
   .voice-controls .voice-switch { flex: 0 1 auto; min-width: 0; white-space: normal; }
+  /* The lamp keeps only its dot while all is well; a problem keeps its word, and
+     the row then wraps so Type and the switch stay whole on a second line
+     instead of squeezing beside it. */
+  .voice-lamp:is([data-tone='idle'], [data-tone='live']) .voice-lamp-word { display: none; }
+  .voice-lamp:is([data-tone='idle'], [data-tone='live']) .voice-lamp-pill { padding: 0 var(--space-3); }
+  .voice-controls:has(.voice-lamp:not([data-tone='idle'], [data-tone='live'])) { flex-wrap: wrap; row-gap: var(--space-2); }
+  .voice-controls:has(.voice-lamp:not([data-tone='idle'], [data-tone='live'])) .voice-switch { flex: none; white-space: nowrap; }
+  /* The face is shallow here: the notices take the smaller type and tighter room. */
+  .voice-face-notice { font-size: var(--type-meta); }
+  .voice-face-card { gap: var(--space-2) var(--space-3); padding: var(--space-2) var(--space-9) var(--space-2) var(--space-3); font-size: var(--type-meta); }
 }
 @media (pointer: coarse) {
-  .voice-mini, .voice-switch, .voice-modes button { min-height: var(--touch-target); }
+  .voice-mini, .voice-switch, .voice-modes button, .voice-lamp-pill { min-height: var(--touch-target); }
   .voice-mini-icon { width: var(--touch-target); }
   .voice-microphone select { height: var(--touch-target); min-height: var(--touch-target); }
   .voice-microphone .microphone-row > .btn { width: var(--touch-target); min-height: var(--touch-target); }

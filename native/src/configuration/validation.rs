@@ -479,6 +479,7 @@ impl Registry {
                 &prompt.coach_focus,
                 &prompt.persona,
                 &prompt.interaction,
+                &prompt.history_start,
                 &prompt.examples_intro,
                 &prompt.ceiling,
                 &prompt.past,

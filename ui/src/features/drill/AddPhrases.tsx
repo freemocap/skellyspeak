@@ -16,6 +16,7 @@ import { messageKey } from '../../domain/localization'
 import { lengthLabel } from '../../components/reading/MessageProvenance'
 import { useDrillPreview } from './useDrillPreview'
 import { PracticeSets } from './PracticeSets'
+import { ActivityIndicator } from '../../components/feedback/ActivityIndicator'
 
 const COUNT_MIN = 1
 const COUNT_MAX = 20
@@ -136,7 +137,7 @@ export function AddPhrases({ scope, initialPreview, onAdded, onClose }: {
           </div>
 
           <div className="drill-add-results">
-            {offer.running && <p role="status">{tr("Generating practice cards…")}</p>}
+            {offer.running && <p className="activity-line"><ActivityIndicator label={tr("Generating practice cards…")} /></p>}
             {offer.failure != null && <ErrorNotice as="p" onRetry={offer.retry} error={offer.failure}>{errorMessage(offer.failure)}</ErrorNotice>}
             {offer.shortfall !== null && <p role="status">{tr("Generated {value1} of {value0} practice cards: {value2}", {
               value0: String(offer.shortfall.requested), value1: String(offer.shortfall.produced), value2: offer.shortfall.reason,

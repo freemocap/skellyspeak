@@ -6,7 +6,7 @@ import { SkillList } from '../../components/learning/SkillList'
 import { skillDemo } from '../../domain/learning/catalog/skillDemo'
 import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
 beforeAll(() => { HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', '') }; HTMLDialogElement.prototype.close = function () { this.removeAttribute('open') } })
-const handlers = () => ({ refresh: vi.fn(), save: vi.fn().mockResolvedValue(undefined), saving: false, onPractice: vi.fn() })
+const handlers = () => ({ refresh: vi.fn(), save: vi.fn().mockResolvedValue(undefined), saving: false, onPractice: vi.fn(), onExplain: vi.fn() })
 const rows = () => [...document.querySelectorAll('[data-reward-skill]')].map(n => n.getAttribute('data-reward-skill'))
 function withXp(id: string, xp: number): SkillSnapshot { return {...skillDemo, profile:{...skillDemo.profile, skills:skillDemo.profile.skills.map(s=>s.skill_id===id?{...s,xp}:s)}} }
 it('shows eight main skills with matching optional filters', () => {
@@ -40,4 +40,18 @@ it('starts the inspected skill with its language and variety and keeps admission
   expect(actions.onPractice).toHaveBeenCalledWith(skillDemo.target, 'unpractised-variety', 'people_places')
   fireEvent.click(screen.getByRole('button',{name:'Use this in a conversation'}))
   await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull())
+})
+
+it('opens a skill as its own page with the guide expanded and returns to the overview', () => {
+  render(<SkillListView snapshot={skillDemo} initialVariety="unpractised-variety" demonstration {...handlers()} />)
+  expect(screen.getByRole('heading', { level: 1, name: 'Skills' })).toBeVisible()
+  expect(screen.getByText('XP by skill: Experience and Effort').closest('details')).not.toHaveAttribute('open')
+  fireEvent.click(document.querySelector('[data-reward-skill="people_places"]')!)
+  fireEvent.click(screen.getByRole('button',{name:'More about this skill'}))
+  expect(screen.queryByRole('dialog')).toBeNull()
+  expect(screen.getByRole('region', { name: 'People, things, and places' })).toBeVisible()
+  expect(screen.getByText('Skill guide').closest('details')).toHaveAttribute('open')
+  expect(screen.queryByRole('heading', { level: 1, name: 'Skills' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: /All skills/ }))
+  expect(screen.getByRole('heading', { level: 1, name: 'Skills' })).toBeVisible()
 })

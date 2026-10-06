@@ -70,7 +70,8 @@ impl Store {
                 } else {
                     messages.last().map(|m| m.role.as_str()) != Some("user")
                 }
-                || messages.len() > 42
+                // System + optional history initialization + 40 sources + input.
+                || messages.len() > 43
                 || messages
                     .iter()
                     .skip(1)

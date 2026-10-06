@@ -11,6 +11,7 @@ mod coaching;
 mod compact_coaching;
 mod connections;
 mod grouped_transport;
+mod history_initialization;
 mod language_context;
 mod message_versions;
 mod partner_feedback;

@@ -13,7 +13,7 @@ import { useOnboardingStore } from '../src/state/settings/onboarding'
 import { useSessionStore } from '../src/state/session/session'
 import { loadLanguages } from '../src/platform/ipc/tauri'
 import { useAppearance } from '../src/platform/appearance/useAppearance'
-import { DEFAULT_APPEARANCE, type ConnectionConfig, type Preferences } from '../src/generated/contracts'
+import { DEFAULT_APPEARANCE, DEFAULT_EXECUTION, type ConnectionConfig, type Preferences } from '../src/generated/contracts'
 import { PREVIEW_SETTINGS } from './preview-settings'
 import '../src/styles/index.css'
 
@@ -67,12 +67,19 @@ const languages = CATALOG.map(([id, name, nativeName, tag, direction, fontScale,
 
 mockIPC((command) => {
   if (command === 'get_snapshot') return { languages } as unknown
+  // Step 2's optional microphone block: a sample device list and a sample check signal, no capture.
+  if (command === 'get_microphone') return null
+  if (command === 'save_microphone') return null
+  if (command === 'list_microphones') return { source: 'native', devices: [{ id: 'sample-microphone', label: 'Sample microphone', isDefault: true, channels: 1, sampleRate: 48000, unavailable: null }] }
+  if (command === 'microphone_test_start') return { browserCapture: false, deviceLabel: 'Sample microphone' }
+  if (command === 'microphone_test_samples') return Array.from({ length: 480 }, (_, i) => 0.3 * Math.sin(i / 7) * Math.abs(Math.sin(performance.now() / 350)))
+  if (command === 'microphone_test_stop') return null
   throw new Error('This onboarding preview does not support native actions.')
 })
 await loadLanguages()
 
 const preferences: Preferences = {
-  theme: 'light', appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false,
+  theme: 'light', execution: { ...DEFAULT_EXECUTION }, appearance: { ...DEFAULT_APPEARANCE }, textSize: 85, textSpacing: 0, highContrast: false,
   interfaceLocale: 'english', explanationLanguage: 'english', explanationVarietyId: 'english-united-states',
   myLanguages: [], targetVarieties: {}, onboarding: 'not_started', onboardingRequired: true,
   onboardingLanguage: null, onboardingHelp: false,

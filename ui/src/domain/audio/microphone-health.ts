@@ -4,11 +4,16 @@
 export type MicrophoneSignal = 'waiting' | 'sound' | 'quiet' | 'stalled'
 export interface MicrophoneHealth { signal: MicrophoneSignal; level: number; detected: boolean }
 export class MicrophoneMonitor {
+  private readonly began: number
   private lastSamples: number
   private lastSound: number
   private detected = false
   private level = 0
-  constructor(began: number) { this.lastSamples = began; this.lastSound = began }
+  constructor(began: number) { this.began = began; this.lastSamples = began; this.lastSound = began }
+  /** Whether any batch has carried sound above the floor since the start. */
+  get heard(): boolean { return this.detected }
+  /** Milliseconds since the monitor began. */
+  elapsed(now: number): number { return now - this.began }
   update(samples: readonly number[], now: number): MicrophoneHealth {
     if (samples.length) {
       this.lastSamples = now

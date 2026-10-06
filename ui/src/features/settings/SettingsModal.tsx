@@ -11,6 +11,7 @@ import { InfoTip } from '../../components/controls/InfoTip'
 import { configureAudioVolumes } from '../../platform/audio/audio-volume'
 import { configureRewardSounds } from '../../platform/audio/reward-sounds'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
+import { MicrophoneCheck } from '../../components/media/MicrophoneCheck'
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import type { Settings, Shortcuts } from '../../types'
 import { logInfo, languages } from '../../platform/ipc/tauri'
@@ -375,7 +376,10 @@ export function SettingsModal({
       label: tr('Microphone'),
       kw: 'microphone input device recording yeti',
       node: (
-        <MicrophoneSelector value={settings.microphone_device_id} onChange={microphone_device_id => setSettings({ ...settings, microphone_device_id })} />
+        <>
+          <MicrophoneSelector value={settings.microphone_device_id} onChange={microphone_device_id => setSettings({ ...settings, microphone_device_id })} />
+          <MicrophoneCheck device={settings.microphone_device_id} />
+        </>
       ),
     },
     tts_rate: {

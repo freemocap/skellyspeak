@@ -10,16 +10,16 @@ type QuickSetting = 'auto_speak' | 'auto_send' | 'auto_translate' | 'always_roma
 type Toggle = [QuickSetting, string, string]
 
 /// The conversation's own settings: one icon button in the chat header, whose name
-/// and tooltip say what the conversation is set to, opens every control that
-/// changes this conversation. A phone gets a bottom sheet over a scrim; a desktop
+/// and tooltip summarize secondary settings. Difficulty lives in the header.
+/// A phone gets a bottom sheet over a scrim; a desktop
 /// window gets a panel on the inline end that leaves the chat readable beside it.
 /// Both render into the body so no clipping or stacking context of the chat
 /// header can hide them.
 ///
 /// The toggles are the same Settings record the Settings modal edits — Rust owns
 /// it, and these are a second VIEW of one variable, not a copy.
-export function ConversationSettings({ summary, open, onOpenChange, settings, saving, onToggle, nativePicker, difficulty, promptControls, showRomanization, exportDisabled, onExport }: {
-  /// The current settings in a few words ("Beginner · Reading aloud"), shown on
+export function ConversationSettings({ summary, open, onOpenChange, settings, saving, onToggle, nativePicker, promptControls, showRomanization, exportDisabled, onExport }: {
+  /// The current settings in a few words ("Reading aloud"), shown on
   /// the button that changes them.
   summary?: string
   open: boolean
@@ -29,7 +29,6 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
   onToggle: (key: QuickSetting | 'tts_rate', value?: number) => Promise<void>
   nativePicker: ReactNode
   promptControls?: ReactNode
-  difficulty: ReactNode
   showRomanization: boolean
   exportDisabled: boolean
   onExport: () => void
@@ -94,7 +93,6 @@ export function ConversationSettings({ summary, open, onOpenChange, settings, sa
         <section className="conversation-settings-group" aria-label={tr("Languages")}>
           <h3>{tr("Languages")}</h3>
           <div className="conversation-settings-field">{nativePicker}</div>
-          {difficulty && <label className="conversation-settings-field"><span>{tr("Difficulty")}</span>{difficulty}</label>}
         </section>
         {promptControls}
         {groups.map(([heading, toggles]) => <section key={heading} className="conversation-settings-group" aria-label={tr(heading)}>

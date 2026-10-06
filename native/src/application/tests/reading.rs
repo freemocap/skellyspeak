@@ -55,7 +55,7 @@ async fn speech_request(reference: bool) {
             serde_json::from_str(request.split_once("\r\n\r\n").unwrap().1).unwrap();
         assert_eq!(payload.as_object().unwrap().len(), 3);
         assert!(payload["language_code"].is_null());
-        assert!(payload["text"].as_str().unwrap().ends_with("accent]\nكتاب"));
+        assert_eq!(payload["text"], "كتاب");
         write!(
             socket,
             "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",

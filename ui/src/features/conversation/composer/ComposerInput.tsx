@@ -28,6 +28,13 @@ interface ComposerInputProps {
   onHoldEnd?: () => void
   /** Shared microphone picker, shown in the footer or recording settings. */
   microphoneSelector?: ReactNode
+  /** The local check row, in recording settings under the picker. */
+  microphoneCheck?: ReactNode
+  /** The saved device choice, so the recorder's lamp can say when it is not connected. */
+  device?: string | null
+  /** The last recording never rose above the floor; the face offers the check. */
+  silentTake?: boolean
+  onDismissSilentTake?: () => void
   /** The pad's side and the stream's direction, each set in the recording settings. */
   layout?: RecorderLayout
   targetLanguageTag?: string
@@ -42,7 +49,7 @@ interface ComposerInputProps {
  * in the face as an editable draft with its own Send; Auto-send skips the draft.
  * Recording and request ownership stay with the caller. Chat's Auto (pause to
  * finish each line) needs native work, so it is shown and marked “Coming soon”. */
-export function ComposerInput({ input, available, sending, starting = false, health, deviceLabel, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, microphoneSelector, layout,
+export function ComposerInput({ input, available, sending, starting = false, health, deviceLabel, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, microphoneSelector, microphoneCheck, device, silentTake, onDismissSilentTake, layout,
   transcriptionWarning, targetLanguageTag, targetLanguageName, stream, prompt, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
@@ -94,7 +101,7 @@ export function ComposerInput({ input, available, sending, starting = false, hea
         onDiscard={onDiscardRecording}
         pad={{ label: padLabel, title: micShortcut ? `${padLabel} · ${micShortcut}` : padLabel, disabled: !available || sending || transcribing || (starting && mode !== 'hold'),
           action: mode === 'hold' && onHoldStart && onHoldEnd ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggleRecording } }}
-        microphoneSelector={microphoneSelector} layout={layout}
+        microphoneSelector={microphoneSelector} microphoneCheck={microphoneCheck} device={device} silentTake={silentTake} onDismissSilentTake={onDismissSilentTake} layout={layout}
         controls={<>
           <button type="button" className="voice-mini voice-type" aria-pressed={drafting} disabled={starting || recording || !available}
             onClick={() => setTyping(value => !value)}><ToolbarIcon name="keyboard" size={15} /><span>{tr("Type")}</span></button>

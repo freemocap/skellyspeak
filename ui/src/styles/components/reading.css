@@ -213,6 +213,10 @@
 }
 .reading-language-scope { display: contents; }
 .reading-selected-word { display: flex; align-items: center; gap: var(--space-2); }
+/* The analysed partner message, drawn as the partner's own bubble with its read-aloud control inside. */
+.reading-selected-word.reading-inspector-source { align-items: flex-start; justify-content: space-between; gap: var(--space-5); margin: 0 0 var(--space-8); padding: var(--space-5) var(--space-7); border: var(--border-width) solid var(--bubble-partner-line); border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) var(--radius-sm); background: var(--bubble-partner-bg); box-shadow: var(--shadow-sm); font-family: var(--font-serif); font-size: calc(var(--type-reading) * var(--reading-scale)); line-height: var(--leading-normal); }
+.reading-inspector-source > .token-audio { flex: none; border-color: var(--bubble-partner-line); background: var(--sheet); color: var(--partner-ink); }
+[data-reading-tools] > .reading-progress { margin: 0 0 var(--space-6); padding: var(--space-6) var(--space-7); border: var(--border-width) dashed var(--coach-line); border-radius: var(--radius-lg); background: var(--coach-tint); color: var(--coach-ink); font-size: var(--type-ui); font-weight: var(--weight-medium); }
 .reading-audio-status {
   z-index: var(--z-popover);
   position: fixed;

@@ -1,11 +1,13 @@
 import { errorMessage } from '../../../platform/diagnostics/error-details'
 import { useEffect, useRef, useState } from 'react'
 import { MicrophoneSelector } from '../../../components/media/MicrophoneSelector'
+import { MicrophoneCheck } from '../../../components/media/MicrophoneCheck'
 import { ErrorNotice } from '../../../components/feedback/ErrorNotice'
 import { useI18n } from '../../../components/localization/i18n'
 import { invoke } from '../../../platform/ipc/native'
 
-/** Optional local setup; completing onboarding never depends on microphone access. */
+/** Optional local setup: the device picker with the check row under it.
+ * Completing onboarding never depends on microphone access. */
 export function OnboardingMicrophone() {
   const tr = useI18n()
   const [device, setDevice] = useState<string | null>(null)
@@ -26,9 +28,10 @@ export function OnboardingMicrophone() {
     catch (reason) { setError(reason) }
     finally { saving.current = false; setBusy(false) }
   }
-  return <section aria-label={tr('Microphone')}>
+  return <section className="onboarding-microphone" aria-label={tr('Microphone')}>
     <p className="field-note">{tr('Optional: check your microphone before your first conversation.')}</p>
     <MicrophoneSelector value={device} disabled={busy || !loaded} onChange={value => { void change(value) }} />
+    <MicrophoneCheck device={device} disabled={busy || !loaded} />
     {error !== null && <ErrorNotice error={error}>{errorMessage(error)}</ErrorNotice>}
   </section>
 }

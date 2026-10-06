@@ -477,3 +477,55 @@ it('warns about sustained quiet input without stopping intentional silence', asy
     expect(result.current.failure).toBeNull()
   } finally { unmount(); vi.useRealTimers() }
 })
+
+it('reports a recording that never rose above the floor once it stops, until the next one starts', async () => {
+  vi.useFakeTimers()
+  const native = invoke.getMockImplementation()!
+  invoke.mockImplementation((command, args) => command === 'mic_wave' ? Promise.resolve([0, 0]) : native(command, args))
+  const { result, unmount } = setup()
+  try {
+    await act(async () => { await result.current.toggleMic() })
+    expect(result.current.silentTake).toBeNull()
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    await act(async () => { await result.current.toggleMic() })
+    expect(result.current.silentTake).toEqual({ recordingId: 'fixture-recording' })
+    // The take is still transcribed; the notice only adds the likely cause.
+    expect(invoke).toHaveBeenCalledWith('mic_transcribe', { recordingId: 'fixture-recording' })
+    await act(async () => { await result.current.toggleMic() })
+    expect(result.current.silentTake).toBeNull()
+  } finally { unmount(); vi.useRealTimers() }
+})
+
+it('does not blame the microphone for a short press or a recording with sound', async () => {
+  vi.useFakeTimers()
+  const native = invoke.getMockImplementation()!
+  let wave = [0, 0]
+  invoke.mockImplementation((command, args) => command === 'mic_wave' ? Promise.resolve(wave) : native(command, args))
+  const { result, unmount } = setup()
+  try {
+    await act(async () => { await result.current.toggleMic() })
+    await act(async () => { await vi.advanceTimersByTimeAsync(400) })
+    await act(async () => { await result.current.toggleMic() })
+    expect(result.current.silentTake).toBeNull()
+    wave = [0.2, -0.2]
+    await act(async () => { await result.current.toggleMic() })
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    await act(async () => { await result.current.toggleMic() })
+    expect(result.current.silentTake).toBeNull()
+  } finally { unmount(); vi.useRealTimers() }
+})
+
+it('lets the learner dismiss the silent-take notice', async () => {
+  vi.useFakeTimers()
+  const native = invoke.getMockImplementation()!
+  invoke.mockImplementation((command, args) => command === 'mic_wave' ? Promise.resolve([0, 0]) : native(command, args))
+  const { result, unmount } = setup()
+  try {
+    await act(async () => { await result.current.toggleMic() })
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    await act(async () => { await result.current.toggleMic() })
+    expect(result.current.silentTake).not.toBeNull()
+    act(() => result.current.dismissSilentTake())
+    expect(result.current.silentTake).toBeNull()
+  } finally { unmount(); vi.useRealTimers() }
+})

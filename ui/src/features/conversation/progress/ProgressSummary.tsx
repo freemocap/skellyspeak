@@ -64,7 +64,7 @@ function LanguageProgress({ snapshot, name, onClose }: { snapshot: SkillSnapshot
           return <details key={skill.skill_id} className="practice-skill">
             <summary><span>{tr(node.label)}{skill.star && <span className="practice-star" aria-label={tr("Skill star")}> ★</span>}</span><strong>{tr.number(skill.xp)} {tr(" XP")}</strong><small>{tr.number(skill.experience)} {tr(" experience · ")}{skill.effort} {tr(" effort")}</small></summary>
             <InfoTip>{tr("Criterion: ")}{tr(node.criterion)}</InfoTip>
-            <SkillGuide snapshot={snapshot} skillId={node.id} active={active} />
+            <SkillGuide initiallyOpen={false} snapshot={snapshot} skillId={node.id} active={active} />
             {credits.length === 0 && <p>{tr("No credited messages.")}</p>}
             {credits.map(credit => {
               const record = snapshot.records.find(item => item.attempt_id === credit.attempt_id)

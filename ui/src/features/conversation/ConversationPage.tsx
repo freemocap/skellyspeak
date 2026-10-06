@@ -16,7 +16,7 @@ import { OpeningStatus } from './session/OpeningStatus'
 import { useNavigationStore } from '../../state/navigation/navigation'
 import { ConversationStart } from './session/ConversationStart'
 import { PersonaProfileDialog } from './partners/PersonaProfileDialog'
-import { DifficultySelect, difficultyLabel } from '../../components/controls/DifficultySelect'
+import { DifficultySelect } from '../../components/controls/DifficultySelect'
 import { ConversationHeader } from './session/ConversationHeader'
 import { ConversationSettings } from './session/ConversationSettings'
 import { ToolbarIcon } from '../../components/controls/ToolbarIcon'
@@ -60,10 +60,12 @@ import { useRecorderLayout } from '../../components/media/useRecorderLayout'
 import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
 import { useUiDirection } from '../../components/localization/useUiDirection'
 import { MicrophoneSelector } from '../../components/media/MicrophoneSelector'
+import { MicrophoneCheck } from '../../components/media/MicrophoneCheck'
 import { EditFeedback } from './coaching/EditFeedback'
 import { TurnView, type TurnShape } from './messages/TurnView'
 import { DetailDialog } from '../../components/dialogs/DetailDialog'
 import { AnalysisContent } from './reading/AnalysisContent'
+import { PartnerMessageAnalysis } from './reading/PartnerMessageAnalysis'
 import { CoachAnalysisPanel } from './coaching/CoachAnalysisPanel'
 import { logInfo, logWarn } from '../../platform/diagnostics/log'
 import { ChatHistory } from './session/ChatHistory'
@@ -700,7 +702,9 @@ export default function ConversationPage({
           <ComposerInput stream={mic.recording ? <LiveRecording source={mic.waveSource} spectrum={mic.spectrum} time={recorder.time} /> : null} prompt={greetingPrompt}
             layout={recorder} mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
             microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.starting || mic.recording || mic.transcribing}
-              onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
+              onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />}
+            microphoneCheck={<MicrophoneCheck device={settings?.microphone_device_id ?? null} disabled={!settings || mic.starting || mic.recording || mic.transcribing} />}
+            device={settings ? settings.microphone_device_id : undefined} silentTake={mic.silentTake !== null} onDismissSilentTake={mic.dismissSilentTake} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
             health={mic.health} deviceLabel={mic.deviceLabel} starting={mic.starting} recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguage?.endonym ?? ''}
             onInput={setInput} onSend={text => { void send(text) }}
@@ -812,15 +816,13 @@ export default function ConversationPage({
         <ConversationHeader leading={<button type="button" className="chat-conversations" aria-label={tr("Conversations")} title={tr("Conversations")}
             aria-expanded={historyOpen} onClick={() => setHistoryOpen(!historyOpen)}><ToolbarIcon name="menu" size={17} /></button>}
           persona={<PersonaPicker choices={contactChoices} currentId={activeContactId} open={partnerMenuOpen} onOpenChange={setPartnerMenuOpen}
-          busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}>
+          busy={creatingConversation} onSelect={id => { void chooseContact(id) }} onEdit={() => setEditingPersonaId(details.persona?.id ?? null)} onCreate={() => setNewPersonaOpen(true)} />} error={details.error}
+          difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />}>
           <div className="chat-heading-actions">
           <XpChip chatId={currentChatId} />
-          {/* The settings summary rides on the button that changes them; under the
-              persona it invited a click that only offered persona choices. */}
-          <ConversationSettings summary={[details.conversation ? tr(difficultyLabel(details.conversation.settings.difficulty)) : null, settings?.auto_speak ? tr("Reading aloud") : null].filter(Boolean).join(' · ')} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
+          <ConversationSettings summary={settings?.auto_speak ? tr("Reading aloud") : undefined} open={settingsOpen} onOpenChange={setSettingsOpen} settings={settings} saving={savingReading} onToggle={toggleSetting}
             nativePicker={nativePicker} showRomanization={showRomanization} exportDisabled={!currentChatId} onExport={() => setExportOpen(true)}
-            promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />}
-            difficulty={details.conversation && <DifficultySelect value={!snapshot?.opening && startConfiguration ? startConfiguration.difficulty : details.conversation.settings.difficulty} saving={details.saving} onChange={async difficulty => { if (!snapshot?.opening && startConfiguration && currentChatId) setStartDraft({ id: currentChatId, value: { ...startConfiguration, difficulty } }); else await details.saveDifficulty(difficulty) }} />} />
+            promptControls={snapshot?.opening && details.conversation && <ConversationDirectionSettings conversationId={snapshot.conversationId} topics={snapshot.topicChoices} direction={details.conversation.settings.direction} />} />
           <button type="button" className="chat-new" aria-label={tr("New conversation")} title={tr("New conversation")} disabled={creatingConversation || !currentChatId} onClick={() => void startNewConversation()}><ToolbarIcon name="plus" size={17} /></button>
           </div>
         </ConversationHeader>
@@ -833,7 +835,7 @@ export default function ConversationPage({
             <div className="access-start">
               <p>{tr("Choose how to connect to AI.")}</p>
               <button type="button" className="btn primary" disabled={signingIn} onClick={() => void startHostedSignIn()}>
-                {signingIn ? tr("Signing in…") : tr("Sign in with Google")}
+                {signingIn && <span className="activity-spinner" aria-hidden="true" />}{signingIn ? tr("Signing in…") : tr("Sign in with Google")}
               </button>
               <button type="button" className="access-alternative" onClick={onOpenSettings ?? (() => useNavigationStore.getState().showOverlay('settings'))}>
                 {tr("Or set up AI access in another way")}
@@ -877,10 +879,10 @@ export default function ConversationPage({
         </div>
       </DetailDialog>}
       {exportOpen && currentChatId && <ConversationExport key={currentChatId} conversationId={currentChatId} onClose={() => setExportOpen(false)} />}
-      {analysisOpen && <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
+      {analysisOpen && (pinnedTurn?.assistant ? <PartnerMessageAnalysis key={pinnedTurn.turnId} assistant={pinnedTurn.assistant} conversationId={snapshot?.conversationId} onClose={() => setAnalysisOpen(false)} /> : <DetailDialog title={tr("Message analysis")} onClose={() => setAnalysisOpen(false)}>
         <h2>{tr("Message analysis")}</h2>
-        {pinnedTurn ? <ConversationErrorScope conversationId={snapshot?.conversationId} turn={pinnedTurn.execution} onInspect={() => setAnalysisOpen(false)}><AnalysisContent key={pinnedTurn.turnId} conversationId={snapshot?.conversationId} onAsk={askCoach} turn={pinnedTurn} nativeLanguageName={nativeLanguageName} showRomanization={showRomanization} rtl={rtl} /></ConversationErrorScope> : <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>}
-      </DetailDialog>}
+        <p>{tr("Select Analysis on a conversation reply to inspect that message.")}</p>
+      </DetailDialog>)}
 
     </div>
     </PracticeContext></RewardPresentationProvider></ReadingPreferencesProvider></AskCoachContext></ConversationReadingProvider>

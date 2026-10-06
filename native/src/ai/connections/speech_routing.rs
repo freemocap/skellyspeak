@@ -153,6 +153,37 @@ mod tests {
     use super::*;
     use serde_json::json;
     #[test]
+    fn fresh_workspace_prefers_v3_and_uses_capability_fallback_for_cantonese() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut store =
+            crate::storage::store::Store::open(&dir.path().join("routing.sqlite3")).unwrap();
+        store.prepare_chat().unwrap();
+        store.connection.execute("UPDATE ai_config SET route='custom',custom_config=json_set(custom_config,'$.bearerAuth',json('false'))", []).unwrap();
+        for (language, expected) in [
+            ("english", "eleven_v3"),
+            ("irish", "eleven_v3"),
+            ("cantonese", "eleven_v4_turbo"),
+        ] {
+            let context = store.config.resolve(language, None, "english").unwrap();
+            let target = resolve(&store.connection, Capability::Speech, &context).unwrap();
+            assert_eq!(target.model, expected);
+            assert_eq!(
+                target.audio_resolution.as_ref().unwrap().requested_model,
+                "eleven_v3"
+            );
+            validate_access(&store.connection, Capability::Speech, &target).unwrap();
+        }
+        // Subsequent explicit learner choices still win over the bundled defaults.
+        store.connection.execute("UPDATE ai_config SET audio_settings=json_set(audio_settings,'$.speech.model','eleven_v4_turbo')", []).unwrap();
+        let context = store.config.resolve("english", None, "english").unwrap();
+        assert_eq!(
+            resolve(&store.connection, Capability::Speech, &context)
+                .unwrap()
+                .model,
+            "eleven_v4_turbo"
+        );
+    }
+    #[test]
     fn captured_language_model_survives_global_model_difference_but_not_access_changes() {
         let dir = tempfile::tempdir().unwrap();
         let mut store =

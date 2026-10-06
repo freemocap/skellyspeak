@@ -160,3 +160,20 @@ need no backfill. Guide translation cache payloads keep their existing shape;
 source action references are derived at retrieval time. Migration tests cover
 all supported starting formats, recovery-copy reuse, populated-record preservation,
 rollback and repeated startup. No live learner workspace was migrated by the agent.
+
+## Format 53: speech reliability default
+
+Format 52 → 53 changes only `ai_config.audio_settings.speech.model` from
+`eleven_v4_turbo` to `eleven_v3`, incrementing the connection revision when changed.
+Other model selections and settings remain intact. The released format-52 step
+is preserved, so older supported formats still traverse the complete chain.
+Fresh workspaces also start with v3. Shared declared capabilities select v4 when
+v3 cannot serve the language; there is no retry after a provider failure.
+
+The existing setting has no provenance distinguishing the former default from
+an explicit v4 choice. Both switch to v3 once under the approved reliability
+policy; a subsequent explicit learner selection remains respected on reopen.
+This is a workspace format increment, not an application release version change.
+No conversation, receipt, learner evidence, audio blob, cache, or file migration
+is involved. The ordinary migration runner provides transaction rollback and a
+recovery copy. Tests use temporary workspaces only.

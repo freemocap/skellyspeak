@@ -42,12 +42,12 @@ export function XpEvidenceReport({ snapshot, skillId, message, onClose }: {
       <h2>{title}</h2>
       <p><strong>{tr.number(total)} {tr(' XP')}</strong></p>
       {skill && <p>{tr('Criterion: ')}{tr(skill.criterion)}</p>}
-      {skill && <SkillGuide snapshot={snapshot} skillId={skill.id} active={guideVariety} />}
+      {skill && <SkillGuide initiallyOpen={false} snapshot={snapshot} skillId={skill.id} active={guideVariety} />}
       {!rows.length && <p>{tr('No credited messages.')}</p>}
       {rows.map(({ credit, record, skill: node, judgment }) => <article className="practice-credit" key={`${credit.attempt_id}:${credit.skill_id}`}>
         <header><strong>{tr(node.label)} · {tr.number(credit.xp)} {tr(' XP')}</strong><time dateTime={new Date(record.at_secs * 1000).toISOString()}>{tr.date(record.at_secs * 1000)}</time></header>
         {!skill && <p>{tr('Criterion: ')}{tr(node.criterion)}</p>}
-        {!skill && <SkillGuide snapshot={snapshot} skillId={node.id} active={record.variety ?? undefined} />}
+        {!skill && <SkillGuide initiallyOpen={false} snapshot={snapshot} skillId={node.id} active={record.variety ?? undefined} />}
         <ReadingLanguageScope language={record.target} variety={record.variety} explanation={record.native}>
           <blockquote dir="auto"><TargetPhrase text={record.source} /></blockquote>
           {judgment.quotes.length > 0 && <p dir="auto"><TargetPhrase text={[...new Set(judgment.quotes)].join(' · ')} /></p>}

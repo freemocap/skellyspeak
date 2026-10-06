@@ -11,7 +11,7 @@ import type { SkillRecord } from '../../domain/learning/evidence/skills'
 
 it.each(Object.keys(LOCALES))('renders translated categories, skill labels and criteria in %s', locale => {
   const node = skillDemo.catalog.find(item => item.id === 'people_places')!
-  render(<I18nProvider locale={locale}><SkillList snapshot={skillDemo} onSelect={vi.fn()} /><SkillOverview node={node} snapshot={skillDemo} /></I18nProvider>)
+  render(<I18nProvider locale={locale}><SkillList snapshot={skillDemo} onSelect={vi.fn()} /><SkillOverview node={node} snapshot={skillDemo}>{null}</SkillOverview></I18nProvider>)
   expect(screen.getByRole('heading', { name: t(locale, node.label) })).toBeVisible()
   expect(screen.getByText(t(locale, node.criterion))).toBeVisible()
   expect(screen.getByRole('option', { name: t(locale, 'People, things, and places') })).toHaveValue('people_places')

@@ -39,8 +39,15 @@ const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR
  *
  * With no practice cards the panel keeps its place and its settings, but
  * nothing that starts capture works, and the stream says to add a card. */
-export function RecordDock({ microphoneSelector, layout, health, deviceLabel, starting = false, empty = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+export function RecordDock({ microphoneSelector, microphoneCheck, device, silentTake, onDismissSilentTake, layout, health, deviceLabel, starting = false, empty = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
   microphoneSelector?: ReactNode
+  /** The local check row, in recording settings under the picker. */
+  microphoneCheck?: ReactNode
+  /** The saved device choice, so the recorder's lamp can say when it is not connected. */
+  device?: string | null
+  /** The last attempt never rose above the floor; the face offers the check. */
+  silentTake?: boolean
+  onDismissSilentTake?: () => void
   /** The pad's side and the stream's direction, each set in the recording settings. */
   layout?: RecorderLayout
   starting?: boolean
@@ -86,7 +93,7 @@ export function RecordDock({ microphoneSelector, layout, health, deviceLabel, st
         detail: auto ? tr("Repeat the card with pauses. Stop finishes the current attempt; queued attempts keep processing.") : tr("Listening without making attempts."),
       },
     }[mode],
-    working: { headline: tr("Transcribing"), detail: tr("You can leave this card; the attempt is stored by the app.") },
+    working: { headline: tr("Transcribing…"), detail: tr("You can leave this card; the attempt is stored by the app.") },
   }[phase]
 
   const feed = spectrum ?? noSpectrum
@@ -99,7 +106,7 @@ export function RecordDock({ microphoneSelector, layout, health, deviceLabel, st
   const padLabel = mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")
 
   return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} health={health} deviceLabel={deviceLabel} starting={starting} phase={starting ? 'preparing' : phase} face={face}
-    microphoneSelector={microphoneSelector} faceTitle={copy.detail} status={copy.headline}
+    microphoneSelector={microphoneSelector} microphoneCheck={microphoneCheck} device={device} silentTake={silentTake} onDismissSilentTake={onDismissSilentTake} faceTitle={copy.detail} status={copy.headline}
     mode={live ? 'auto' : mode} onMode={next => onMode(next === 'auto' ? 'live' : next)} modesDisabled={blocked || starting || phase === 'recording'}
     pad={{ label: padLabel, disabled: blocked || (starting && mode !== 'hold'),
       action: mode === 'hold' ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggle } }}

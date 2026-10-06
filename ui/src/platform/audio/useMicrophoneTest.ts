@@ -6,6 +6,9 @@ import { reportFault } from '../diagnostics/faults'
 import { startBrowserRecording, type BrowserRecording } from './browser-recording'
 import { beginCapture, endCapture } from './speech'
 
+/** How long a check runs before stopping itself; native lets go 5 seconds later if the webview is gone. */
+export const MICROPHONE_TEST_SECONDS = 15
+
 interface TestSession { id: string; cancelled: boolean; token: object | null; capture: BrowserRecording | null; timer?: ReturnType<typeof setInterval>; end?: ReturnType<typeof setTimeout>; ready: Promise<void> }
 
 /** Explicit, local level test. No finish/transcribe call and no saved audio. */
@@ -13,6 +16,8 @@ export function useMicrophoneTest(device: string | null) {
   const [phase, setPhase] = useState<'idle' | 'starting' | 'testing' | 'stopping'>('idle')
   const [health, setHealth] = useState<MicrophoneHealth | null>(null)
   const [label, setLabel] = useState<string | null>(null)
+  /** Whole seconds left while testing; null otherwise. */
+  const [remaining, setRemaining] = useState<number | null>(null)
   const [error, setError] = useState<unknown>(null)
   const run = useRef<TestSession | null>(null)
   const stop = useCallback(async () => {
@@ -30,14 +35,14 @@ export function useMicrophoneTest(device: string | null) {
       return // Keep capture exclusion until a retry acknowledges the stop.
     }
     if (session.token) endCapture(session.token)
-    if (run.current === session) { run.current = null; setPhase('idle') }
+    if (run.current === session) { run.current = null; setPhase('idle'); setRemaining(null) }
   }, [])
   useEffect(() => () => { void stop() }, [device, stop])
   const start = async () => {
     if (run.current) return
     const session: TestSession = { id: crypto.randomUUID(), cancelled: false, token: null, capture: null, ready: Promise.resolve() }
     run.current = session
-    setPhase('starting'); setError(null); setHealth(null); setLabel(null)
+    setPhase('starting'); setError(null); setHealth(null); setLabel(null); setRemaining(null)
     session.ready = (async () => {
       session.token = beginCapture(() => { void stop() })
       const result = await invoke<MicrophoneTestStarted>('microphone_test_start', { testId: session.id, device })
@@ -46,10 +51,12 @@ export function useMicrophoneTest(device: string | null) {
       if (session.cancelled) return
       setLabel(session.capture?.deviceLabel ?? result.deviceLabel)
       const monitor = new MicrophoneMonitor(performance.now())
-      setPhase('testing')
+      const deadline = Date.now() + MICROPHONE_TEST_SECONDS * 1000
+      setPhase('testing'); setRemaining(MICROPHONE_TEST_SECONDS)
       let polling = false
       session.timer = setInterval(() => {
         if (polling || session.cancelled) return
+        setRemaining(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)))
         polling = true
         void (async () => {
           const samples = session.capture ? session.capture.wave.read() : await invoke<number[]>('microphone_test_samples', { testId: session.id })
@@ -59,11 +66,11 @@ export function useMicrophoneTest(device: string | null) {
           if (next.signal === 'stalled') void stop()
         })().catch(reason => { setError(reason); void stop() }).finally(() => { polling = false })
       }, 100)
-      session.end = setTimeout(() => { void stop() }, 15000)
+      session.end = setTimeout(() => { void stop() }, MICROPHONE_TEST_SECONDS * 1000)
     })().catch(reason => { setError(reason); reportFault('Testing microphone', reason) })
     await session.ready
     // Startup failures have no live polling timer to clean them up.
     if (!session.timer && !session.cancelled) await stop()
   }
-  return { phase, health, label, error, start, stop }
+  return { phase, health, label, error, remaining, start, stop }
 }

@@ -73,18 +73,19 @@ export function MessageFeedback({ requests, id, text, conversationFeedback, feed
   const askCoach = (question: string) => { close(); onAsk(question) }
   const shown = decision?.shown && decision.exposedMove === decision.shown.move ? decision.shown : null
   const label = decision ? tr("Feedback") : null
-  // The badge counts the phrases the coach flagged; with none, and a message it fully understood, it marks it clean.
+  // The badge counts the coach's suggestions. They are not confirmed errors: grammar and understanding are separate
+  // assessments shown inside. With no suggestion and a message the coach fully understood, it marks it clean.
   const flags = coachFlags(feedback, decision)
   const judged = Boolean(conversationFeedback || (decision && feedback))
   const clear = Boolean(feedback && decision && !flags.length && !feedback.notes.length && feedback.meaningRecovered === 'full')
-  const verdict = flags.length ? 'errors' : clear ? 'clear' : 'open'
+  const verdict = flags.length ? 'suggestions' : clear ? 'clear' : 'open'
   return <>
     {bubble(messageTools.coach({ disabled: busy, onSelect: () => void openCard() }))}
     <div className="message-feedback-line" dir={uiDirection} onDoubleClick={event => event.stopPropagation()}>
     <button type="button" data-feedback-state={error ? 'failed' : judged ? 'complete' : reviewing ? 'pending' : 'unavailable'} className={`feedback-badge${error ? ' feedback-error' : ''}`} data-verdict={judged && !error ? verdict : undefined} aria-haspopup="dialog" aria-label={tr("Coach feedback for message {value0}", { value0: String(id) })} disabled={busy} onClick={() => void openCard()}>
         {error ? tr("Feedback failed") : judged ? <>
-          {verdict !== 'open' && <ToolbarIcon name={verdict === 'errors' ? 'idea' : 'clean'} size={14} />}
-          <span className="feedback-verdict">{verdict === 'errors' ? tr("Errors found", { count: flags.length }) : verdict === 'clear' ? tr("Clean") : tr("Feedback")}</span>
+          {verdict !== 'open' && <ToolbarIcon name={verdict === 'suggestions' ? 'idea' : 'clean'} size={14} />}
+          <span className="feedback-verdict">{verdict === 'suggestions' ? tr("Suggestions found", { count: flags.length }) : verdict === 'clear' ? tr("Clean") : tr("Feedback")}</span>
         </> : label ?? (reviewing ? <ActivityIndicator label={tr("Analyzing…")} /> : requests ? tr("Not assessed") : tr("Feedback unavailable"))}<ToolbarIcon name="chevron" size={14} />
       </button>
     {flags.length > 0 && onEdit && <button type="button" className="feedback-fix" disabled={busy} onClick={onEdit}><ToolbarIcon name="edit" size={12} />{tr("Fix it")}</button>}

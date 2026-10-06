@@ -60,6 +60,3 @@ select option, select optgroup { background: var(--field); color: var(--ink); }
 /* Native select popups keep their platform behavior, with a dimmed open state. */
 select.field, .form-row select { background: var(--chrome); box-shadow: var(--shadow-sm); }
 select:open { box-shadow: 0 0 0 100vmax var(--scrim), var(--shadow-menu); }
-
-.microphone-row { display: flex; gap: var(--space-3); min-width: 0; }
-.microphone-row select { flex: 1; min-width: 0; }

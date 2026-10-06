@@ -40,6 +40,21 @@
 
 .chat-language-picker:disabled { opacity: .6; cursor: default; }
 
+/* The header difficulty uses control typography rather than reading size. The
+   identity row wraps within its own space, leaving the action buttons intact. */
+.conversation-identity { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-width: 0; }
+.conversation-identity > .persona-picker { min-width: 0; max-width: 100%; }
+.conversation-identity > .chat-language-picker {
+  max-width: 100%; min-width: 0;
+  border-radius: var(--radius-md);
+  color: var(--ink-2);
+  font: var(--weight-medium) var(--type-ui) var(--font-sans);
+}
+.conversation-identity > .chat-language-picker:hover:not(:disabled) { border-color: var(--interaction-ink); color: var(--ink); }
+@media (pointer: coarse) {
+  .conversation-identity > .chat-language-picker { min-height: var(--touch-target); }
+}
+
 .learning-picker:hover:not(:disabled) { border-color: var(--interaction-ink); }
 
 .learning-picker:disabled { opacity: .6; cursor: default; }

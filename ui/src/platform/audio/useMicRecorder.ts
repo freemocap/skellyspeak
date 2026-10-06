@@ -10,6 +10,9 @@ import type { LiveSpectrogram, ListeningMode, ListeningSettings, ListeningStatus
 import type { WaveSource } from '../../domain/audio/waveform'
 import { createSpectrumFeed, mergeSpectrum } from '../../domain/audio/spectrum-feed'
 
+/** Shorter presses count as accidental, not as a silent microphone. */
+const SILENT_TAKE_MIN_MS = 1000
+
 /** A stopped manual clip exists before capture delivery or transcription returns. */
 export interface PendingRecording {
   recordingId: string
@@ -45,6 +48,8 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
   const startingRef = useRef(false)
   const monitor = useRef<MicrophoneMonitor | null>(null)
   const [health, setHealth] = useState<MicrophoneHealth | null>(null)
+  /** The last manual recording never rose above the floor; cleared by the next recording or Dismiss. */
+  const [silentTake, setSilentTake] = useState<{ recordingId: string } | null>(null)
   const [deviceLabel, setDeviceLabel] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
   const [recording, setRecording] = useState(false)
@@ -89,7 +94,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     else if (!working.current) release()
   }, [release, stopNative])
   useEffect(() => () => cancel(), [ownerKey, cancel])
-  useEffect(() => { setRecording(false); setTranscribing(false); setWaveSource(null); setLastTranscription(null); setListeningStatus(null); setPendingRecordings([]); spectrum.set(null); setFailure(null) }, [ownerKey, spectrum])
+  useEffect(() => { setRecording(false); setTranscribing(false); setWaveSource(null); setLastTranscription(null); setListeningStatus(null); setPendingRecordings([]); spectrum.set(null); setSilentTake(null); setFailure(null) }, [ownerKey, spectrum])
 
 
   // Drain native samples once into the copied time-axis renderer.
@@ -180,6 +185,8 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     return () => clearInterval(timer)
   }, [recording, cancel])
 
+  const dismissSilentTake = useCallback(() => setSilentTake(null), [])
+
   const toggleMic = useCallback(async () => {
     const rewardOrigin = captureRewardOrigin()
     if (working.current) return
@@ -202,6 +209,10 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
         // Every owner keeps the take's identity (Practice's attempt row, the
         // conversation's pending message) until its text arrives or fails.
         setPendingRecordings(takes => [...takes, { recordingId, state: 'processing', failure: null }])
+        // A recording that never rose above the floor is still transcribed; the
+        // recorder says what likely happened and leads to the check.
+        const observed = monitor.current; monitor.current = null
+        if (observed && !observed.heard && observed.elapsed(performance.now()) >= SILENT_TAKE_MIN_MS) setSilentTake({ recordingId })
         active.current = null; setRecording(false); setWaveSource(null); setTranscribing(true)
         // Keep exclusion until native acknowledges the stop/transcription call.
         // Cancelling or changing owner must not release while hardware is live.
@@ -227,7 +238,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
       } else {
         startingRef.current = true
         setStarting(true)
-        setHealth(null); setDeviceLabel(null); monitor.current = null
+        setHealth(null); setDeviceLabel(null); monitor.current = null; setSilentTake(null)
         const owner = current.current
         if (!owner) throw new Error('Open a conversation or a drill item before recording.')
         setFailure(null); setListeningStatus(null); spectrum.set(null); publications.current = 0
@@ -342,5 +353,5 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     void invoke('mic_listen_tune', { recordingId, settings, ...(captureMode ? { captureMode } : {}) }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
   }, [])
 
-  return { health, deviceLabel, starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, retry, cancel }
+  return { health, deviceLabel, silentTake, dismissSilentTake, starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, retry, cancel }
 }

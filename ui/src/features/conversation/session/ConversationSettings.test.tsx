@@ -10,7 +10,7 @@ import { ConversationSettings } from './ConversationSettings'
 function Fixture({ settings = null, onToggle = vi.fn(), saving = false }: { settings?: Settings | null; onToggle?: (key: string) => Promise<void>; saving?: boolean }) {
   const [open, setOpen] = useState(false)
   return <ConversationSettings open={open} onOpenChange={setOpen} settings={settings} saving={saving}
-    onToggle={onToggle} nativePicker={null} difficulty={null} showRomanization
+    onToggle={onToggle} nativePicker={null} showRomanization
     exportDisabled onExport={vi.fn()} />
 }
 

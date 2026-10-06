@@ -157,3 +157,6 @@
   .ai-status-text { animation: none; }
 }
 @media (forced-colors: active) { .ai-status[data-busy] .ai-status-pill { outline: var(--border-width-strong) solid Highlight; } }
+
+/* A line of work in progress in page or panel flow: the spinner and what is happening. */
+.activity-line { display: flex; align-items: center; margin: var(--space-4) 0; color: var(--ink-2); }

@@ -49,3 +49,13 @@ it('opens saved scores without requesting more inference or revealing retired co
  const control=vi.fn();render(<MessageFeedback {...frame} id={1} text="Source" conversationFeedback={feedback} feedback={undefined} error={undefined} reviewing={false} onEdit={undefined} onAsk={vi.fn()} onControl={control}/>);
  const badge=screen.getByRole('button',{name:'Coach feedback for message 1'});fireEvent.click(badge);expect(screen.getByRole('dialog')).toBeVisible();expect(control).not.toHaveBeenCalled();
 });
+
+it('presents grammar and partner understanding as separate checks with generic meanings, not reasons', () => {
+ const view = render(<ConversationFeedbackCard feedback={{ ...categorical, answers: { ...categorical.answers, understandability: { ...categorical.answers.understandability, choice: 'needs_clarification' } } }} />)
+ expect(screen.getByText('Each check is judged on its own and can differ from the coach’s suggestion.')).toBeVisible()
+ expect(screen.getByText('Partner understanding')).toBeVisible()
+ expect(screen.getByText('Needs clarification', { selector: 'strong' })).toBeVisible()
+ expect(screen.getByText('Your partner can follow part of it but would need something clarified.')).toBeVisible()
+ expect(screen.getByText('Some grammar errors, but the main construction can still be followed.')).toBeVisible()
+ expect(view.container.querySelectorAll('.coach-score[data-tone=mixed]')).toHaveLength(2)
+})

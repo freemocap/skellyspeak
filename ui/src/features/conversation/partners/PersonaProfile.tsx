@@ -77,7 +77,7 @@ export function PersonaProfile({ persona, language, romanized, onSave, ref }: {
       <button type="button" className="btn" disabled={busy} onClick={clear}>{tr("Clear")}</button>
       <button ref={discardButton} type="button" className="btn" disabled={busy} onPointerDown={event => event.preventDefault()} onClick={restore}>{tr("Discard unsaved changes")}</button>
     </div>
-    {busy && <p className="persona-hint" role="status">{tr("Saving…")}</p>}
+    {busy && <p role="status" className="persona-hint">{tr("Saving…")}</p>}
     {error && <ErrorDetails label={tr("Saving partner")} errorKey={error}>{error}<button type="button" className="btn" disabled={busy} onClick={() => { autosave() }}>{tr("Retry save")}</button></ErrorDetails>}
   </form>
 }
