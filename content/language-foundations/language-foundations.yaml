@@ -21,6 +21,13 @@ scripts:
     has_case: false
     word_spacing: false
     font_scale: 1
+  - id: traditional-chinese
+    direction: ltr
+    cursive: false
+    shaping: false
+    has_case: false
+    word_spacing: false
+    font_scale: 1
   - id: devanagari
     direction: ltr
     cursive: false

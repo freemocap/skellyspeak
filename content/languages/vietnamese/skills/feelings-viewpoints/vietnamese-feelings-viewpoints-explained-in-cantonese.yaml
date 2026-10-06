@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: vietnamese
+skill_id: feelings_viewpoints
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 活動前面嘅muốn表示想做嗰件事。
+    examples:
+      - text: Tôi muốn học may.
+        meaning: 我想學縫紉。
+        note: Học may指出想學嘅活動，唔係承諾。
+  - subskill_id: preferences
+    explanation: Thích配合hơn，比較鍾意兩個選項嘅程度。
+    examples:
+      - text: Tôi thích trà hơn cà phê.
+        meaning: 比起咖啡，我鍾意茶多啲。
+        note: Trà係較鍾意嘅選項。
+  - subskill_id: emotions
+    explanation: Vui描述開心，唔一定要加繫詞。
+    examples:
+      - text: Tôi rất vui khi nghe tin này.
+        meaning: 聽到呢個消息，我好開心。
+        note: Khi nghe tin này交代感受由來。
+  - subskill_id: opinions
+    explanation: Tôi nghĩ將後面命題框定為個人判斷。
+    examples:
+      - text: Tôi nghĩ cách này dễ hơn.
+        meaning: 我覺得呢個方法容易啲。
+        note: 比較關乎討論緊嘅方法。
+  - subskill_id: agreement_disagreement
+    explanation: Đồng ý表示同意，không作否定。
+    examples:
+      - text: Tôi không đồng ý với đề xuất này.
+        meaning: 我唔同意呢個建議。
+        note: Với đề xuất này指出反對乜。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/vietnamese/skills/feelings-viewpoints/vietnamese-feelings-viewpoints-explained-in-english.yaml
+    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - msu_vietnamese_identity2026
+    - msu_vietnamese_suggestions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/vietnamese/skills/feelings-viewpoints/vietnamese-feelings-viewpoints-explained-in-english.yaml
+        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - msu_vietnamese_identity2026
+        - msu_vietnamese_suggestions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

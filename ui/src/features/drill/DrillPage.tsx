@@ -215,11 +215,12 @@ export function DrillPage({ active }: { active: boolean }) {
     if (Date.now() - session.began < listening.minTakeMs) {
       holdSession.current = null
       mic.cancel()
-    } else void session.ready.then(async () => {
-      if (holdSession.current !== session) return
-      await mic.stopMic()
-      holdSession.current = null
-    })
+    } else {
+      const stopped = mic.stopMic()
+      void Promise.all([session.ready, stopped]).then(() => {
+        if (holdSession.current === session) holdSession.current = null
+      })
+    }
   }
 
   // Deleting takes changes the item's counts and its history, so both are read again.
@@ -385,7 +386,7 @@ export function DrillPage({ active }: { active: boolean }) {
           <RecordDock microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null}
             disabled={!settings || mic.starting || phase === 'recording' || phase === 'working' || savingPreference}
             onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />}
-            layout={recorder} starting={mic.starting} empty={empty} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
+            layout={recorder} health={mic.health} deviceLabel={mic.deviceLabel} starting={mic.starting} empty={empty} phase={phase} mode={mode} onMode={changeMode} autoDetect={autoDetect} onAutoDetect={changeAutoDetect} settings={listening} onSettings={changeListening}
             listeningStatus={mic.listeningStatus} waveSource={mic.waveSource} spectrum={mic.spectrum}
             onToggle={() => void mic.toggleMic()}
             onHoldStart={holdStart} onHoldEnd={holdEnd} />

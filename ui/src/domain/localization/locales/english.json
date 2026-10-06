@@ -1525,5 +1525,16 @@
   "Try again.": "Try again.",
   "Something went wrong": "Something went wrong",
   "Try again, and open the details if it keeps happening.": "Try again, and open the details if it keeps happening.",
-  "Add credits": "Add credits"
+  "Add credits": "Add credits",
+  "The microphone stopped sending audio. Check its connection.": "The microphone stopped sending audio. Check its connection.",
+  "Very little sound is reaching this microphone. Check mute or move closer.": "Very little sound is reaching this microphone. Check mute or move closer.",
+  "Sound detected": "Sound detected",
+  "Say something to check the input.": "Say something to check the input.",
+  "Stop test": "Stop test",
+  "Test microphone": "Test microphone",
+  "Using: {name}": "Using: {name}",
+  "Local test only. No audio is saved or uploaded. Stops after 15 seconds.": "Local test only. No audio is saved or uploaded. Stops after 15 seconds.",
+  "Optional: check your microphone before your first conversation.": "Optional: check your microphone before your first conversation.",
+  "Cantonese": "Cantonese",
+  "Mandarin Chinese": "Mandarin Chinese"
 }

@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: greek
+skill_id: feelings_viewpoints
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: θέλω 後面可接 να 子句表達想做嘅事；後面動詞有自己嘅人稱同數。να μάθω 表示想學嘅人係講者，唔係不變不定式。
+    examples:
+      - text: Θέλω να μάθω να φτιάχνω ποδήλατα.
+        meaning: 我想學整單車。
+        note: 第一個 να 子句講想學；να φτιάχνω 講要學嘅技能。唔必須明示 εγώ。
+  - subskill_id: preferences
+    explanation: μου αρέσει、μου αρέσουν 入面，鍾意嘅事物先係語法主語；單複數跟事物走，μου 指有喜好嘅人。προτιμώ 亦可比較偏好。
+    examples:
+      - text: Μου αρέσουν οι ήσυχοι δρόμοι.
+        meaning: 我鍾意安靜嘅街道。
+        note: οι ήσυχοι δρόμοι 係複數，所以用 αρέσουν；μου 喺呢度指感受者，唔係物主代名詞。
+  - subskill_id: emotions
+    explanation: 實義動詞可以直接講情緒。φοβάμαι 意思係驚，受詞用賓格。雖然形式屬中間／被動，唔代表外人對講者作出行動。
+    examples:
+      - text: Φοβάμαι τα μεγάλα σκυλιά.
+        meaning: 我驚大隻狗。
+        note: 句子講恐懼，τα μεγάλα σκυλιά 指引起恐懼嘅對象，唔係證明啲狗危險。
+  - subskill_id: opinions
+    explanation: νομίζω ότι 引入講者認為成立嘅事；ότι 後面係觀點內容，同 σκέφτομαι 表示諗起或考慮有分別。
+    examples:
+      - text: Νομίζω ότι αυτή η διαδρομή είναι πιο ασφαλής.
+        meaning: 我覺得呢條路安全啲。
+        note: αυτή η διαδρομή 係 είναι 主語；比較對象可由上文提供，安全評價係講者觀點。
+  - subskill_id: agreement_disagreement
+    explanation: συμφωνώ、διαφωνώ 表達同意同不同意；με 可指出相關觀點、提議或人物。係贊同立場定接受安排，要睇內容。
+    examples:
+      - text: Διαφωνώ με αυτή την πρόταση.
+        meaning: 我唔同意呢個建議。
+        note: με αυτή την πρόταση 明確指出反對對象；回應行程提議時，亦可能同時協商計劃。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/greek/skills/feelings-viewpoints/greek-feelings-viewpoints-explained-in-english.yaml
+    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - triantafyllides_el_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/greek/skills/feelings-viewpoints/greek-feelings-viewpoints-explained-in-english.yaml
+        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - poulopoulou_el_grammar2015
+        - hatzisavvidis_el_school_grammar2026
+        - triantafyllides_el_agreement2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

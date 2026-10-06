@@ -1525,5 +1525,16 @@
   "Try again.": "حاول مرة أخرى.",
   "Something went wrong": "حدث خطأ ما",
   "Try again, and open the details if it keeps happening.": "حاول مرة أخرى، وافتح التفاصيل إذا استمر حدوث ذلك.",
-  "Add credits": "إضافة رصيد"
+  "Add credits": "إضافة رصيد",
+  "The microphone stopped sending audio. Check its connection.": "توقف الميكروفون عن إرسال الصوت. تحقق من اتصاله.",
+  "Very little sound is reaching this microphone. Check mute or move closer.": "يصل صوت ضعيف جدًا إلى هذا الميكروفون. تحقق من كتم الصوت أو اقترب منه.",
+  "Sound detected": "تم اكتشاف صوت",
+  "Say something to check the input.": "قل شيئًا للتحقق من الإدخال.",
+  "Stop test": "إيقاف الاختبار",
+  "Test microphone": "اختبار الميكروفون",
+  "Using: {name}": "المستخدم: {name}",
+  "Local test only. No audio is saved or uploaded. Stops after 15 seconds.": "اختبار محلي فقط. لا يُحفظ الصوت ولا يُرفع. يتوقف بعد 15 ثانية.",
+  "Optional: check your microphone before your first conversation.": "اختياري: تحقق من الميكروفون قبل محادثتك الأولى.",
+  "Cantonese": "الكانتونية",
+  "Mandarin Chinese": "الصينية المندرينية"
 }

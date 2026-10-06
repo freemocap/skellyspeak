@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: managing_conversation
+language: french
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 按互動情境用問候或道別。bonjour 同 au revoir 用喺對話唔同位置；道別亦可以提到下次見面。
+    examples:
+      - text: Je dois partir. À demain !
+        meaning: 我要走喇，聽日見！
+        note: 離開陳述為結束作準備；à demain 結束交流，同時提到再見。
+  - subskill_id: acknowledging
+    explanation: je vois、d’accord 等短回應可以表示收到或明白；係咪同時同意，要睇回應乜。
+    examples:
+      - text: Ah, je vois ce que tu veux dire.
+        meaning: 哦，我明你意思喇。
+        note: 表示明白之前嘅解釋，唔一定贊同夥伴意見。
+  - subskill_id: clarification
+    explanation: 指出要解釋嘅詞或重點。qu’est-ce que… veut dire 可以問意思；要求重複則主要處理聽唔清。
+    examples:
+      - text: Qu’est-ce que tu veux dire par « provisoire » ?
+        meaning: 你講「暫時」係咩意思？
+        note: par 引入被問嘅講法；問題釐清之前內容。
+  - subskill_id: rephrasing
+    explanation: 用 autrement dit 或 c’est-à-dire 引入另一個講法。新措辭要保留或釐清原意。
+    examples:
+      - text: Autrement dit, nous devons réserver avant de payer.
+        meaning: 即係話，我哋要先預約，之後先付款。
+        note: autrement dit 連到上文；加一個無關新事實唔算成功重述。
+  - subskill_id: correcting_misunderstanding
+    explanation: 將對方理解同原意作對比。je voulais dire 常用嚟引入修正，唔需要重講全部經過。
+    examples:
+      - text: Je voulais dire mardi, pas jeudi.
+        meaning: 我意思係星期二，唔係星期四。
+        note: voulais dire 引入修正，pas jeudi 指出錯誤選項。
+  - subskill_id: turns_topics
+    explanation: 用清楚轉接或發言請求，幫對方跟住焦點變化。au fait 常引入相關新重點。
+    examples:
+      - text: Avant de changer de sujet, puis-je poser une question sur le prix ?
+        meaning: 轉話題之前，我可唔可以問一條關於價錢嘅問題？
+        note: 開頭安排討論流程；puis-je 請求發言，唔係定位外部事件時間。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/french/skills/managing-conversation/french-managing-conversation-explained-in-english.yaml
+    at revision french-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - dingemanse2015_communication_repair
+    - oqlf_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/managing-conversation/french-managing-conversation-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - dingemanse2015_communication_repair
+        - oqlf_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/managing-conversation/french-managing-conversation-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - dingemanse2015_communication_repair
+        - oqlf_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

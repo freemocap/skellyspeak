@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: cantonese
+skill_id: feelings_viewpoints
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 想 引入願望；要判斷係咪已確定計劃，需要更多語境。
+    examples:
+      - text: 我想學整麵包。
+        meaning: 我想學整麵包。
+        note: 想學 只講願望，唔表示已經報班或答應開始學。
+  - subskill_id: preferences
+    explanation: 鍾意 配合 多過 可以比較偏好，唔係只講飲品名稱。
+    examples:
+      - text: 我鍾意飲茶多過飲咖啡。
+        meaning: 我鍾意飲茶多過飲咖啡。
+        note: 多過 呢度比較鍾意嘅程度，唔係飲咗幾多杯。
+  - subskill_id: emotions
+    explanation: 開心 交代情緒；好開心 前面唔需要加 係。
+    examples:
+      - text: 我今日好開心。
+        meaning: 我今日好開心。
+        note: 好開心 直接描述 我 嘅狀態。
+  - subskill_id: opinions
+    explanation: 我覺得 表明評價係講者嘅看法。
+    examples:
+      - text: 我覺得呢個辦法幾好。
+        meaning: 我覺得呢個方法幾好。
+        note: 幾好 係正面評價，唔係只話個方法存在。
+  - subskill_id: agreement_disagreement
+    explanation: 明白同贊同係兩回事；不過 帶出相反立場。
+    examples:
+      - text: 我明你嘅意思，不過我唔同意。
+        meaning: 我明你嘅意思，不過我唔同意。
+        note: 講者表示理解到，但冇接受對方嘅觀點。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/cantonese/skills/feelings-viewpoints/cantonese-feelings-viewpoints-explained-in-english.yaml
+    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/cantonese/skills/feelings-viewpoints/cantonese-feelings-viewpoints-explained-in-english.yaml
+        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - cuhk_cantonese_grammar20261005
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

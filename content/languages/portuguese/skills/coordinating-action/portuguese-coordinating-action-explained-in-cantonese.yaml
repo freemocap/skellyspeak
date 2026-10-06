@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: portuguese
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: Você pode加不定式問句，可以有禮貌噉請人行動；por favor喺合作情境下明確表達請求。
+    examples:
+      - text: Você pode guardar estes livros, por favor?
+        meaning: 唔該可唔可以收好呢啲書？
+        note: 交啲書畀同事時講，係請佢行動，唔係測試佢有冇能力。
+  - subskill_id: offers_invitations
+    explanation: 講者有嘢可以提供時，quer加物品可以招待人；單靠動詞分唔到係招待定純粹問意願。
+    examples:
+      - text: Quer uma fatia de pão?
+        meaning: 你想唔想食塊麵包？
+        note: 有啱啱焗好嘅麵包同人分享時講；語境令佢成為招待，quer指一個人。
+  - subskill_id: suggestions
+    explanation: Vamos加不定式可以提議共同行動，亦可以描述將會發生嘅事，所以安排事情嘅語境好重要。
+    examples:
+      - text: Vamos organizar a troca de livros no sábado?
+        meaning: 不如我哋星期六搞換書活動？
+        note: 討論換書日子時提出建議；no sábado交代建議時間。
+  - subskill_id: commitments
+    explanation: 安排事情時，現在式加將來時間可以承擔工作；承諾在於接受責任，唔係只提到將來。
+    examples:
+      - text: Eu levo as caixas amanhã.
+        meaning: 我聽日會帶啲箱嚟。
+        note: 大家問邊個負責帶箱時用；eu承擔責任，amanhã將送到時間放喺之後。
+  - subskill_id: accepting_declining
+    explanation: 拒絕可以直接講自己參與唔到；não放喺限定動詞前面否定參與，唔使重複成個邀請。
+    examples:
+      - text: Não posso ir hoje.
+        meaning: 我今日去唔到。
+        note: 回應今日換書活動嘅幫手邀請，係拒絕已知邀請，唔係報告無關能力限制。
+  - subskill_id: negotiating_plans
+    explanation: 協商時間時，先講原定日子嘅限制，再問替代時間；podemos加不定式提出可能嘅共同安排。
+    examples:
+      - text: Na sexta não posso. Podemos combinar no sábado?
+        meaning: 我星期五唔得。可唔可以約星期六？
+        note: 回應星期五見面；não posso省略嘅活動由原提議提供，講者再建議另一日。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/portuguese/skills/coordinating-action/portuguese-coordinating-action-explained-in-english.yaml
+    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_negation2026
+    - ut_pt_future_subj2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/portuguese/skills/coordinating-action/portuguese-coordinating-action-explained-in-english.yaml
+        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_negation2026
+        - ut_pt_future_subj2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

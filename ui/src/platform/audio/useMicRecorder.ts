@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { invoke } from '../ipc/native'
 import { reportFault } from '../diagnostics/faults'
 import { startBrowserRecording, type BrowserRecording } from './browser-recording'
+import { MicrophoneMonitor, type MicrophoneHealth } from '../../domain/audio/microphone-health'
 import { recordingPublished } from './recording-events'
 import { beginCapture, endCapture } from './speech'
 import type { LiveSpectrogram, ListeningMode, ListeningSettings, ListeningStatus, RecordingOwner, RecordingStarted, TranscriptionInspectionResult } from '../../generated/contracts'
@@ -41,6 +42,10 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
   const [failure, setFailure] = useState<unknown>(null)
   const continuous = useRef(false)
   const publications = useRef(0)
+  const startingRef = useRef(false)
+  const monitor = useRef<MicrophoneMonitor | null>(null)
+  const [health, setHealth] = useState<MicrophoneHealth | null>(null)
+  const [deviceLabel, setDeviceLabel] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
@@ -75,6 +80,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
   }, [release])
   const cancel = useCallback(() => {
     browser.current?.cancel(); browser.current = null
+    monitor.current = null
     generation.current++
     const recordingId = active.current
     active.current = null
@@ -125,7 +131,10 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
           }
           throw error
         })
-        if (active.current === recordingId) samples.current = [...samples.current, ...chunk].slice(-8192)
+        if (active.current === recordingId) {
+          samples.current = [...samples.current, ...chunk].slice(-8192)
+          if (monitor.current) setHealth(monitor.current.update(chunk, performance.now()))
+        }
       })().catch(error => {
         if (active.current !== recordingId) return
         setFailure(error); reportFault('Microphone', error); cancel()
@@ -156,6 +165,20 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     }, 50)
     return () => clearInterval(timer)
   }, [recording, cancel, spectrum])
+
+  useEffect(() => {
+    if (!recording) return
+    const timer = setInterval(() => {
+      if (!monitor.current) return
+      const next = monitor.current.update([], performance.now())
+      setHealth(next)
+      if (next.signal === 'stalled') {
+        const error = new Error('The microphone stopped sending audio. Check its connection.')
+        setFailure(error); reportFault('Microphone', error); cancel()
+      }
+    }, 250)
+    return () => clearInterval(timer)
+  }, [recording, cancel])
 
   const toggleMic = useCallback(async () => {
     const rewardOrigin = captureRewardOrigin()
@@ -202,7 +225,9 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
         setLastTranscription(result)
         if (result.text.trim()) callback.current(result.text, result)
       } else {
+        startingRef.current = true
         setStarting(true)
+        setHealth(null); setDeviceLabel(null); monitor.current = null
         const owner = current.current
         if (!owner) throw new Error('Open a conversation or a drill item before recording.')
         setFailure(null); setListeningStatus(null); spectrum.set(null); publications.current = 0
@@ -216,7 +241,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
           if (id) void invoke('mic_cancel', { recordingId: id }).catch(error => { setFailure(error); reportFault('Stopping listening', error) })
           else cancel()
         })
-        const { recordingId, samplesPerSecond, browserCapture, browserDeviceId } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings, ...(captureModeRef.current ? { captureMode: captureModeRef.current } : {}) } : { owner })
+        const { recordingId, samplesPerSecond, browserCapture, browserDeviceId, deviceLabel } = await invoke<RecordingStarted>(settings ? 'mic_listen_start' : 'mic_start', settings ? { owner, settings, ...(captureModeRef.current ? { captureMode: captureModeRef.current } : {}) } : { owner })
         if (generation.current !== scope) {
           await stopNative(recordingId)
           return
@@ -230,14 +255,22 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
             // A listening run hands native all of its audio; a single recording keeps its
             // WAV and sends native copies only for the live spectrogram.
             const capture = await startBrowserRecording(error => { setFailure(error); reportFault('Microphone', error); cancel() }, settings
-              ? (samples, sampleRate, sequence) => invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence }) : undefined, browserDeviceId,
-              settings ? undefined : (samples, sampleRate, sequence) => invoke('mic_push', { recordingId, samples, sampleRate, sequence }))
+              ? (samples, sampleRate, sequence) => {
+                if (monitor.current) setHealth(monitor.current.update(samples, performance.now()))
+                return invoke('mic_listen_push', { recordingId, samples, sampleRate, sequence })
+              } : undefined, browserDeviceId,
+              settings ? undefined : (samples, sampleRate, sequence) => {
+                if (monitor.current) setHealth(monitor.current.update(samples, performance.now()))
+                return invoke('mic_push', { recordingId, samples, sampleRate, sequence })
+              })
             if (generation.current !== scope) { capture.cancel(); await stopNative(recordingId); return }
             browser.current = capture
           } catch (error) { await stopNative(recordingId); throw error }
         }
         bindRewardOrigin(recordingId, rewardOrigin)
         active.current = recordingId
+        monitor.current = new MicrophoneMonitor(performance.now())
+        setDeviceLabel(browser.current?.deviceLabel ?? deviceLabel ?? null)
         samples.current = []
         setWaveSource(browser.current?.wave ?? { samplesPerSecond, read: () => samples.current.splice(0) })
         setRecording(true)
@@ -251,6 +284,7 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     }
     finally {
       working.current = false
+      startingRef.current = false
       setStarting(false)
       if (!active.current) release()
       if (!continuous.current) setTranscribing(false)
@@ -258,8 +292,10 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
   }, [ownerKey, cancel, release, stopNative, spectrum])
 
   const stopMic = useCallback(async () => {
-    if (active.current) await toggleMic()
-  }, [toggleMic])
+    // Releasing Hold during setup discards the pending capture, never an empty take.
+    if (startingRef.current) cancel()
+    else if (active.current) await toggleMic()
+  }, [toggleMic, cancel])
 
   /** Sends a failed take's audio for transcription again: native holds the audio
    * of a failed take for this. The retried attempt has its own identity; the take
@@ -306,5 +342,5 @@ export function useMicRecorder({ owner, onTranscribe, listening, captureMode }: 
     void invoke('mic_listen_tune', { recordingId, settings, ...(captureMode ? { captureMode } : {}) }).catch(error => { setFailure(error); reportFault('Tuning listening', error) })
   }, [])
 
-  return { starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, retry, cancel }
+  return { health, deviceLabel, starting, pendingRecordings, tune, spectrum, failure, listeningStatus, discardCurrent, recording, transcribing, waveSource, lastTranscription: lastTranscription && `${lastTranscription.inspection.owner.kind}:${lastTranscription.inspection.owner.id}` === ownerKey ? lastTranscription : null, toggleMic, stopMic, retry, cancel }
 }

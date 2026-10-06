@@ -187,14 +187,12 @@ mod tests {
     #[test]
     fn shared_english_behavior_composes_with_selected_language_and_variety() {
         let r = Registry::bundled().unwrap();
-        for (language, variety) in [
-            ("spanish", "spanish-spain"),
-            ("spanish", "spanish-mexico"),
-            ("arabic", "arabic-levantine"),
-            ("arabic", "arabic-modern-standard"),
-            ("mandarin", "mandarin-mainland-china"),
-            ("french", "french-france"),
-        ] {
+        for (language, variety) in r.languages.iter().flat_map(|language| {
+            language
+                .varieties
+                .iter()
+                .map(|variety| (language.id.as_str(), variety.id.as_str()))
+        }) {
             let ctx = r.resolve(language, Some(variety), "english").unwrap();
             let persona = r.starter_persona(language).unwrap();
             let mut settings = r.defaults(language, "english").unwrap();

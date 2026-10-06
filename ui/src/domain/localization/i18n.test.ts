@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { LOCALES, requireUiLocale, validateLocales, t, formatNumber, formatDate, translatedName } from './'
+import { LOCALES, UI_LOCALE_METADATA, browserLocale, requireUiLocale, validateLocales, t, formatNumber, formatDate, translatedName } from './'
 
 describe('interface locale contract', () => {
   it('validates translations independently of learning languages', () => {
     validateLocales(LOCALES)
     expect(Object.keys(LOCALES)).toContain('english')
+    expect(Object.keys(LOCALES).sort()).toEqual(Object.keys(UI_LOCALE_METADATA).sort())
   })
   it('rejects missing, blank, extra and mismatched messages', () => {
     for (const translated of ([{}, { greeting: '' }, { greeting: 'Olá {other}' }, { greeting: 'Olá {name}', extra: 'extra' }] as Record<string, string>[])) {
@@ -27,6 +28,15 @@ describe('interface locale contract', () => {
     expect(formatNumber('portuguese', 1234.5)).toBe('1.234,5')
     expect(formatDate('german', Date.UTC(2026, 8, 13), { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' })).toBe('13.09.2026')
   })
+})
+
+it('uses the Cantonese edition for interface text, interpolation and Hong Kong formatting', () => {
+  expect(requireUiLocale('cantonese')).toBe('cantonese')
+  expect(browserLocale('cantonese')).toBe('yue-Hant-HK')
+  expect(t('cantonese', 'Settings')).toBe('設定')
+  expect(t('cantonese', 'Search matches', { count: 2 })).not.toContain('{count}')
+  expect(t('cantonese', 'Write in {value0}…', { value0: 'English' })).toContain('English')
+  expect(formatNumber('cantonese', 1234.5)).toBe(new Intl.NumberFormat('yue-Hant-HK').format(1234.5))
 })
 
 it('selects locale plural categories and requires count', () => {

@@ -11,6 +11,7 @@
     italian: Cibo e bevande
     malayalam: ഭക്ഷണവും പാനീയങ്ങളും
     mandarin: 饮食
+    cantonese: 食嘢同飲嘢
     portuguese: Comida e bebida
     spanish: Comida y bebida
     korean: 음식과 음료
@@ -27,6 +28,7 @@
     hindi:ala-lc-hindi: khānā-pīnā
     malayalam:ala-lc-malayalam: bhakṣaṇavuṁ pānīyaṅṅaḷuṁ
     mandarin:pinyin: yǐnshí
+    cantonese:jyutping: sik6 je5 tung4 jam2 je5
     korean:revised-romanization: eumsikgwa eumnyo
     japanese:hepburn-reading: tabemono to nomimono
     russian:ala-lc-russian: Eda i napitki
@@ -46,6 +48,7 @@
     italian: La tua famiglia
     malayalam: നിങ്ങളുടെ കുടുംബം
     mandarin: 你的家人
+    cantonese: 你嘅屋企人
     portuguese: Sua família
     spanish: Tu familia
     korean: 가족
@@ -62,6 +65,7 @@
     hindi:ala-lc-hindi: āpkā parivār
     malayalam:ala-lc-malayalam: niṅṅaḷuṭe kuṭumbaṁ
     mandarin:pinyin: nǐ de jiārén
+    cantonese:jyutping: nei5 ge3 uk1 kei2 jan4
     korean:revised-romanization: gajok
     japanese:hepburn-reading: kazoku
     russian:ala-lc-russian: Tvoi͡a semʹi͡a
@@ -81,6 +85,7 @@
     italian: Programmi per il fine settimana
     malayalam: വാരാന്ത്യ പദ്ധതികൾ
     mandarin: 周末计划
+    cantonese: 週末計劃
     portuguese: Planos para o fim de semana
     spanish: Planes de fin de semana
     korean: 주말 계획
@@ -97,6 +102,7 @@
     hindi:ala-lc-hindi: saptāhānta kī yojanāeṁ
     malayalam:ala-lc-malayalam: vārāntya paddhatikaḷ
     mandarin:pinyin: zhōumò jìhuà
+    cantonese:jyutping: zau1 mut6 gai3 waak6
     korean:revised-romanization: jumal gyehoek
     japanese:hepburn-reading: shūmatsu no yotei
     russian:ala-lc-russian: Plany na vykhodnye
@@ -116,6 +122,7 @@
     italian: Un posto che ti piace
     malayalam: നിങ്ങൾക്ക് ഇഷ്ടമുള്ള സ്ഥലം
     mandarin: 你喜欢的地方
+    cantonese: 你鍾意嘅地方
     portuguese: Um lugar de que você gosta
     spanish: Un lugar que te gusta
     korean: 좋아하는 장소
@@ -132,6 +139,7 @@
     hindi:ala-lc-hindi: āpkī pasand kī jagah
     malayalam:ala-lc-malayalam: niṅṅaḷkk iṣṭamuḷḷa sthalaṁ
     mandarin:pinyin: nǐ xǐhuān de dìfāng
+    cantonese:jyutping: nei5 zung1 ji3 ge3 dei6 fong1
     korean:revised-romanization: joahaneun jangso
     japanese:hepburn-reading: suki na basho
     russian:ala-lc-russian: Mesto, kotoroe tebe nravit͡si͡a
@@ -151,6 +159,7 @@
     italian: La tua giornata
     malayalam: നിങ്ങളുടെ ദിവസം
     mandarin: 你的一天
+    cantonese: 你嘅一日
     portuguese: Seu dia
     spanish: Tu día
     korean: 하루
@@ -167,6 +176,7 @@
     hindi:ala-lc-hindi: āpkā din
     malayalam:ala-lc-malayalam: niṅṅaḷuṭe divasaṁ
     mandarin:pinyin: nǐ de yītiān
+    cantonese:jyutping: nei5 ge3 jat1 jat6
     korean:revised-romanization: haru
     japanese:hepburn-reading: ichinichi no koto
     russian:ala-lc-russian: Tvoĭ denʹ
@@ -186,6 +196,7 @@
     italian: Musica
     malayalam: സംഗീതം
     mandarin: 音乐
+    cantonese: 音樂
     portuguese: Música
     spanish: Música
     korean: 음악
@@ -202,6 +213,7 @@
     hindi:ala-lc-hindi: saṅgīt
     malayalam:ala-lc-malayalam: saṅgītaṁ
     mandarin:pinyin: yīnyuè
+    cantonese:jyutping: jam1 ngok6
     korean:revised-romanization: eumak
     japanese:hepburn-reading: ongaku
     russian:ala-lc-russian: Muzyka

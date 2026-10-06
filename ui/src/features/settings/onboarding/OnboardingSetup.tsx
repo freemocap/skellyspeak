@@ -6,6 +6,7 @@ import { useSessionStore } from '../../../state/session/session'
 import { nativeError } from '../../../platform/ipc/workspace'
 import { openExternalLink } from '../../../platform/ipc/external-link'
 import { SettingsAccess } from '../access/SettingsAccess'
+import { OnboardingMicrophone } from './OnboardingMicrophone'
 import { LanguageSetup } from './LanguageSetup'
 
 const FREE_SOFTWARE_URL = 'https://www.gnu.org/philosophy/free-sw.html'
@@ -56,6 +57,7 @@ export function OnboardingSetup() {
           <p className="field-note">{tr('SkellySpeak is')} <button type="button" className="md-term" onClick={() => void openExternalLink(FREE_SOFTWARE_URL)}>{tr('free software')}</button>{tr(': you can use, study, change and share it, and run your own server.')}</p>
           <p className="field-note">{tr('Voice availability depends on your AI access settings. Microphone permission is requested when you record.')}</p>
         </div>
+        <OnboardingMicrophone />
         <div className="onboarding-actions">
           <button className="btn primary" disabled={busy || !connection?.configured} onClick={() => void run(() => useOnboardingStore.getState().finish(false))}>{tr('Continue')}</button>
           <button className="btn" disabled={busy} onClick={() => void run(useOnboardingStore.getState().back)}>{tr('Back')}</button>

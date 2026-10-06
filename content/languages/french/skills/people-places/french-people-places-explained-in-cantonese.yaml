@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: people_places
+language: french
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: c’est 加名字或名詞短語可以識別人物；il est、elle est 後面無修飾嘅職業名稱通常唔加冠詞。
+    examples:
+      - text: C’est mon voisin. Il est vétérinaire.
+        meaning: 嗰位係我鄰居，佢係獸醫。
+        note: c’est 引入人物；il est vétérinaire 交代職業，唔加不定冠詞。
+  - subskill_id: qualities_states
+    explanation: 形容詞要配合所描述名詞或代名詞嘅性同數。好多描述用 être；avoir faim 等固定用語則用 avoir。
+    examples:
+      - text: La petite cuisine est lumineuse.
+        meaning: 個細廚房好光猛。
+        note: petite 同 lumineuse 配合陰性單數 cuisine。廣東話形容詞冇呢種變化，但法文要保留。
+  - subskill_id: location_movement
+    explanation: 介詞要分清位置、目的地同出發點。à、de 遇到 le、les 會縮合。
+    examples:
+      - text: Nous allons au musée près de la gare.
+        meaning: 我哋去車站附近嘅博物館。
+        note: au 係 à 同 le 嘅縮合；près de 表示博物館同車站嘅相對位置。
+  - subskill_id: possession_relations
+    explanation: 物主限定詞要配合被擁有名詞，唔係按擁有人性別決定。de 短語可以交代擁有人或關係。
+    examples:
+      - text: C’est la sœur de mon collègue.
+        meaning: 嗰位係我同事嘅姊妹。
+        note: de mon collègue 交代關係；無論同事係男定女，sœur 呢個名詞都係陰性。
+  - subskill_id: quantity_comparison
+    explanation: 數字同數量短語交代多少；plus… que、moins… que 比較特徵，形容詞仍要配合名詞。
+    examples:
+      - text: Cette valise est plus légère que mon sac.
+        meaning: 呢個行李箱比我個袋輕。
+        note: plus légère que 比較重量；légère 配合 valise，唔係另加一個比較級詞尾。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/french/skills/people-places/french-people-places-explained-in-english.yaml at revision
+    french-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - tex_identity2026
+    - tex_possessives2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/people-places/french-people-places-explained-in-english.yaml at
+        revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tex_identity2026
+        - tex_possessives2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/people-places/french-people-places-explained-in-english.yaml at
+        revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tex_identity2026
+        - tex_possessives2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

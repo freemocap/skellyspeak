@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: korean
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 向離開嘅人同留低嘅人講嘅道別語唔同，要按情境揀。
+    examples:
+      - text: 안녕히 가세요. 다음 주에 봬요.
+        meaning: 再見，下星期見。
+        note: 自己留低、訪客離開時用。봬요係呢度表示再見對方嘅禮貌縮約形式。
+  - subskill_id: acknowledging
+    explanation: 알겠어요可以表示明白解釋或指示；含有겠嘅形式唔一定描述將來先知道。
+    examples:
+      - text: 네, 이제 알겠어요.
+        meaning: 係，我而家明喇。
+        note: 解釋消除疑惑後用；確認理解唔要求同意某個觀點。
+  - subskill_id: clarification
+    explanation: 다시配合말씀해 주세요，有禮貌噉請人再講；前文提供要重複嘅內容。
+    examples:
+      - text: 죄송하지만 다시 말씀해 주세요.
+        meaning: 唔好意思，唔該再講一次。
+        note: 聽漏或聽唔明時用；말씀해尊敬噉指對方嘅發言。
+  - subskill_id: rephrasing
+    explanation: 다시 말하면引出重新表述，後句應令原意更清楚。
+    examples:
+      - text: 다시 말하면 미리 예약해야 해요.
+        meaning: 即係話，我哋要預先訂位。
+        note: 解釋即日申請安排唔到後，換句話講清楚；미리明確指出要預先。
+  - subskill_id: correcting_misunderstanding
+    explanation: 이 아니라對比錯誤名詞解讀同正確選項，應明講真正意思。
+    examples:
+      - text: 제가 말한 날은 금요일이 아니라 토요일이었어요.
+        meaning: 我講嗰日係星期六，唔係星期五。
+        note: 對方誤以為星期五時用；말한修飾날，指出更正緊之前邊句話。
+  - subskill_id: turns_topics
+    explanation: 請求許可嘅問句可以管理轉話題，新主題或想作嘅改動要清楚。
+    examples:
+      - text: 잠깐 다른 이야기를 해도 될까요?
+        meaning: 我可唔可以暫時轉吓話題？
+        note: 다른 이야기를指另一個話題；問句管理討論，唔係描述說話能力。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/korean/skills/managing-conversation/korean-managing-conversation-explained-in-english.yaml
+    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - htsk_permission2026
+    - htsk_tense2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/korean/skills/managing-conversation/korean-managing-conversation-explained-in-english.yaml
+        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - htsk_permission2026
+        - htsk_tense2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

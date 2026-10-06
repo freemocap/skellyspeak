@@ -409,3 +409,71 @@ it('publishes new take status while a spectrogram request is still outstanding',
   await act(async () => { finishSpectrum() })
   unmount()
 })
+
+
+it('acknowledges startup immediately and ignores repeat toggles until capture is ready', async () => {
+  let finish!: (value: { recordingId: string; samplesPerSecond: number }) => void
+  invoke.mockImplementation(command => command === 'mic_start' ? new Promise(resolve => { finish = resolve }) : Promise.resolve())
+  const { result } = setup()
+  let start!: Promise<void>
+  act(() => { start = result.current.toggleMic(); void result.current.toggleMic() })
+  expect(result.current.starting).toBe(true)
+  expect(result.current.recording).toBe(false)
+  expect(invoke.mock.calls.filter(([command]) => command === 'mic_start')).toHaveLength(1)
+  await act(async () => { finish({ recordingId: 'take', samplesPerSecond: 750 }); await start })
+  expect(result.current.starting).toBe(false)
+  expect(result.current.recording).toBe(true)
+})
+
+it.each(['native', 'browser'])('discards a Hold released during %s setup without transcribing', async stage => {
+  let finish!: (value: unknown) => void
+  const deferred = new Promise(resolve => { finish = resolve })
+  const capture = { wave: { samplesPerSecond: 750, read: () => [] }, cancel: vi.fn(), finish: vi.fn() }
+  invoke.mockImplementation(command => command === 'mic_start'
+    ? stage === 'native' ? deferred : Promise.resolve({ recordingId: 'take', samplesPerSecond: 750, browserCapture: true })
+    : Promise.resolve())
+  browserStart.mockReturnValue(deferred)
+  const { result, onTranscribe } = setup()
+  let start!: Promise<void>
+  await act(async () => { start = result.current.toggleMic() })
+  await act(async () => { await result.current.stopMic(); await result.current.toggleMic() })
+  await act(async () => {
+    finish(stage === 'native' ? { recordingId: 'take', samplesPerSecond: 750 } : capture)
+    await start
+  })
+  expect(result.current.starting).toBe(false)
+  expect(result.current.recording).toBe(false)
+  expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'take' })
+  expect(invoke.mock.calls.filter(([command]) => command === 'mic_start')).toHaveLength(1)
+  expect(invoke.mock.calls.some(([command]) => command === 'mic_transcribe')).toBe(false)
+  expect(onTranscribe).not.toHaveBeenCalled()
+  if (stage === 'browser') expect(capture.cancel).toHaveBeenCalledOnce()
+})
+
+
+it('stops missing audio delivery without sending an empty recording for transcription', async () => {
+  vi.useFakeTimers()
+  const { result, unmount } = setup()
+  try {
+    await act(async () => { await result.current.toggleMic() })
+    await act(async () => { await vi.advanceTimersByTimeAsync(3250) })
+    expect(result.current.health?.signal).toBe('stalled')
+    expect(result.current.recording).toBe(false)
+    expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'fixture-recording' })
+    expect(invoke.mock.calls.some(([command]) => command === 'mic_transcribe')).toBe(false)
+  } finally { unmount(); vi.useRealTimers() }
+})
+
+it('warns about sustained quiet input without stopping intentional silence', async () => {
+  vi.useFakeTimers()
+  const native = invoke.getMockImplementation()!
+  invoke.mockImplementation((command, args) => command === 'mic_wave' ? Promise.resolve([0, 0]) : native(command, args))
+  const { result, unmount } = setup()
+  try {
+    await act(async () => { await result.current.toggleMic() })
+    await act(async () => { await vi.advanceTimersByTimeAsync(4500) })
+    expect(result.current.health?.signal).toBe('quiet')
+    expect(result.current.recording).toBe(true)
+    expect(result.current.failure).toBeNull()
+  } finally { unmount(); vi.useRealTimers() }
+})

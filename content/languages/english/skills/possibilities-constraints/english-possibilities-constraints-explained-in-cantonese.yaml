@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: possibilities_constraints
+language: english
+explanation_language: cantonese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: ability
+    explanation: can 後面接動詞原形，可以表達能力。
+    examples:
+      - text: I can carry both bags.
+        meaning: 講者有能力拎嗰兩個袋。
+        note: 呢句講能力；冇其他語境支持時，唔會自動當成主動提出幫忙。
+  - subskill_id: permission
+    explanation: 討論准唔准做某件事時，用合適嘅許可問句或陳述句。
+    examples:
+      - text: May I use this chair?
+        meaning: 講者問可唔可以用張椅。
+        note: may 呢度問許可，唔係問身體能力。
+  - subskill_id: obligation
+    explanation: must、have to 同 need to 都可以表達要求；強弱同含意要睇語境。
+    examples:
+      - text: We have to leave by eight.
+        meaning: 最遲八點就要離開。
+        note: have to 標示出發安排受到限制。
+  - subskill_id: possibility
+    explanation: might 同 may 可以表示某個結果有可能出現，但未確定。
+    examples:
+      - text: The delivery might arrive today.
+        meaning: 今日有可能到達。
+        note: might 保留不確定性，唔係保證會到。
+  - subskill_id: certainty
+    explanation: 證據未足以定論時，要講清楚自己有幾肯定或唔肯定。
+    examples:
+      - text: I am not sure whether the door is locked.
+        meaning: 講者唔知道道門鎖咗未。
+        note: not sure 明確表示自己未能確定。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/possibilities-constraints/english-possibilities-constraints-explained-in-english.yaml
+        at revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_modals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/possibilities-constraints/english-possibilities-constraints-explained-in-english.yaml
+        at revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_modals2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/english/skills/possibilities-constraints/english-possibilities-constraints-explained-in-english.yaml
+    at revision english-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - bc_modals2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

@@ -482,6 +482,7 @@ pub const INTERFACE_LOCALES: &[&str] = &[
     "spanish",
     "arabic",
     "mandarin",
+    "cantonese",
     "french",
     "german",
     "portuguese",
@@ -493,6 +494,9 @@ mod practice_tests;
 
 #[cfg(test)]
 mod language_audit_tests;
+
+#[cfg(test)]
+mod variety_tests;
 
 #[cfg(test)]
 mod latin_language_tests;

@@ -94,7 +94,13 @@ pub(crate) fn messages(
     );
     let guidance = ["target_writing", "explanation_writing", "pragmatics"]
         .into_iter()
-        .flat_map(|scope| request.language_context.guidance(scope))
+        .flat_map(|scope| {
+            request
+                .language_context
+                .guidance(scope)
+                .into_iter()
+                .map(move |rule| format!("{scope}: {rule}"))
+        })
         .collect::<Vec<_>>()
         .join("\n");
     vec![

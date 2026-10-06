@@ -151,8 +151,9 @@ fn scoped_resolution_orders_traits_and_honors_leaf_scalar_overrides() {
     let ctx = r.resolve("arabic", None, "english").unwrap();
     let notes = ctx.guidance("assessment");
     assert!(notes[2].contains("Copy evidence"));
-    assert!(notes[3].contains("never add diacritics"));
-    assert_eq!(&notes[4..], &["Language rule", "Variety rule"]);
+    assert!(notes[3].contains("A valid form from another variety"));
+    assert!(notes[4].contains("never add diacritics"));
+    assert_eq!(&notes[5..], &["Language rule", "Variety rule"]);
     assert_eq!(ctx.font_scale, 1.8);
     assert_eq!(r.language("arabic").unwrap().font_scale, 1.8);
 }

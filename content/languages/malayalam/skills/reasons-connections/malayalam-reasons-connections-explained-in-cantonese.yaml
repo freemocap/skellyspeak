@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: malayalam
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 含有കാരണം嘅分句，可以交代情況原因。
+    examples:
+      - text: ഞാൻ വീട്ടിൽ നിന്നു, കാരണം മഴ പെയ്യുന്നുണ്ടായിരുന്നു.
+        meaning: 因為落雨，我留咗喺屋企。
+        note: 落雨解釋留家決定。
+  - subskill_id: consequences
+    explanation: അതുകൊണ്ട്將情況連到結果。
+    examples:
+      - text: ബസ് വന്നില്ല. അതുകൊണ്ട് ഞാൻ നടന്നു പോയി.
+        meaning: 架巴士冇嚟，所以我行咗過去。
+        note: 行路係等唔到巴士之後嘅應對。
+  - subskill_id: conditions
+    explanation: 條件動詞詞尾可以建立條件同結果嘅依存關係。
+    examples:
+      - text: നാളെ മഴ പെയ്താൽ ഞങ്ങൾ വീട്ടിലിരിക്കും.
+        meaning: 如果聽日落雨，我哋就留喺屋企。
+        note: പെയ്താൽ提出條件，計劃取決於佢。
+  - subskill_id: contrast
+    explanation: പക്ഷേ連接語境中形成對比嘅描述。
+    examples:
+      - text: ഈ വഴി ചെറുതാണ്, പക്ഷേ കുത്തനെയാണ്.
+        meaning: 呢條路短，但好斜。
+        note: 揀路線時，長度同斜度有唔同影響。
+  - subskill_id: supporting_claims
+    explanation: 理由可以提供可觀察證據，支持推論。
+    examples:
+      - text: വീട്ടിൽ ആരോ ഉണ്ടെന്ന് തോന്നുന്നു, കാരണം വിളക്ക് തെളിഞ്ഞിരിക്കുന്നു.
+        meaning: 好似有人喺屋企，因為盞燈開咗。
+        note: 開燈支持推論，唔係造成有人嘅原因。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/malayalam/skills/reasons-connections/malayalam-reasons-connections-explained-in-english.yaml
+    at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - ut_malayalam_dialogues2026
+    - ut_malayalam_time2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/malayalam/skills/reasons-connections/malayalam-reasons-connections-explained-in-english.yaml
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - ut_malayalam_dialogues2026
+        - ut_malayalam_time2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

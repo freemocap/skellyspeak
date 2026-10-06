@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: german
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: könntest du 或 könnten Sie 加不定式問句，可以有禮貌咁請人行動。熟悉關係用 du，正式稱呼用 Sie，要配合場合。
+    examples:
+      - text: Könntest du bitte die Tür zum Hof öffnen?
+        meaning: 你可唔可以幫手開通去庭院道門？
+        note: könntest 對一位熟悉對象提出柔和請求；öffnen 係不定式，唔係第二個限定動詞。
+  - subskill_id: offers_invitations
+    explanation: soll ich …? 可以主動提出幫人做事；係提議幫忙定查問分工，要睇語境。
+    examples:
+      - text: Soll ich deine Tasche zum Bahnhof tragen?
+        meaning: 要唔要我幫你拎個袋去車站？
+        note: 對帶住重袋嘅同行者講，係主動幫忙。soll 後面 tragen 保持不定式。
+  - subskill_id: suggestions
+    explanation: wir könnten 加不定式提出共同活動供考慮。könnten 係第二虛擬式，唔表示計劃已同意。
+    examples:
+      - text: Wir könnten am Sonntag am Fluss spazieren gehen.
+        meaning: 我哋星期日可以考慮去河邊散步。
+        note: 呢句提議出遊；könnten 語氣較柔和，am Sonntag 交代日期。
+  - subskill_id: commitments
+    explanation: 分工語境清楚時，德文現在式都可以作將來承諾，唔一定要將來助動詞。
+    examples:
+      - text: Ich bringe die Decke mit.
+        meaning: 由我帶張氈嚟。
+        note: 商量野餐用品分工時，呢句承擔責任。主句入面 mitbringen 分開為 bringe … mit。
+  - subskill_id: accepting_declining
+    explanation: gern 可以接受清楚嘅邀請或幫忙；leider nicht 加理由可以拒絕。淨係表示收到，未必決定咗參唔參與。
+    examples:
+      - text: Danke für die Einladung, aber ich kann am Samstag leider nicht kommen.
+        meaning: 多謝邀請，不過可惜我星期六嚟唔到。
+        note: danke 回應邀請；kann … nicht kommen 明確拒絕星期六出席。
+  - subskill_id: negotiating_plans
+    explanation: 回應原有日子、地點或限制，再提出調整。stattdessen 表示新選項取代舊選項。
+    examples:
+      - text: Am Freitag kann ich nicht. Können wir uns stattdessen am Samstag treffen?
+        meaning: 星期五我唔得。可唔可以改星期六見？
+        note: stattdessen 連到之前星期五提議；uns 係 sich treffen 嘅一部分，表示參與者互相見面。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/german/skills/coordinating-action/german-coordinating-action-explained-in-english.yaml
+    at revision german-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - umich_de_subjunctive2026
+    - umich_de_modals2026
+    - umich_de_word_order2026
+    - umich_de_reflexive2026
+    - goethe_de_discussion2026
+    - goethe_de_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/german/skills/coordinating-action/german-coordinating-action-explained-in-english.yaml
+        at revision german-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - umich_de_subjunctive2026
+        - umich_de_modals2026
+        - umich_de_word_order2026
+        - umich_de_reflexive2026
+        - goethe_de_discussion2026
+        - goethe_de_discourse2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

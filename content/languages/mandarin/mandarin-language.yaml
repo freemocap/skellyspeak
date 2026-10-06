@@ -2,8 +2,8 @@
 schema_version: 1
 identity:
   id: mandarin
-  name: Mandarin
-  native_name: 中文（简体）
+  name: Mandarin Chinese
+  native_name: 普通话
   family: sino-tibetan
   review: needs_review
 integrations:
@@ -72,11 +72,13 @@ traits:
 varieties:
   - id: mandarin-mainland-china
     name: Mainland China
-    description: Mainland China
+    description: Contemporary Mainland Mandarin, with Simplified Chinese writing and Hanyu Pinyin
+      reading support; regional accents are not inferred from written text.
     review: needs_review
     sources: []
     overrides: {}
     guidance: []
+
 guidance:
   - scope: segmentation
     text: Select linguistic words rather than assuming spaces or individual characters define word

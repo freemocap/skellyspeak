@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { useI18n } from '../../../components/localization/i18n'
 import { ToolbarIcon } from '../../../components/controls/ToolbarIcon'
+import type { MicrophoneHealth } from '../../../domain/audio/microphone-health'
 import { VoicePanel } from '../../../components/media/VoicePanel'
 import type { RecorderLayout } from '../../../components/media/useRecorderLayout'
 interface ComposerInputProps {
@@ -14,6 +15,9 @@ interface ComposerInputProps {
   input: string
   available: boolean
   sending: boolean
+  starting?: boolean
+  health?: MicrophoneHealth | null
+  deviceLabel?: string | null
   recording: boolean
   transcribing: boolean
   autoSend: boolean
@@ -38,7 +42,7 @@ interface ComposerInputProps {
  * in the face as an editable draft with its own Send; Auto-send skips the draft.
  * Recording and request ownership stay with the caller. Chat's Auto (pause to
  * finish each line) needs native work, so it is shown and marked “Coming soon”. */
-export function ComposerInput({ input, available, sending, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, microphoneSelector, layout,
+export function ComposerInput({ input, available, sending, starting = false, health, deviceLabel, recording, transcribing, autoSend, onAutoSend, mode = 'tap', onMode, onHoldStart, onHoldEnd, microphoneSelector, layout,
   transcriptionWarning, targetLanguageTag, targetLanguageName, stream, prompt, micShortcut, onInput, onSend, onDiscardRecording, onToggleRecording,
 }: ComposerInputProps) {
   const tr = useI18n()
@@ -52,7 +56,7 @@ export function ComposerInput({ input, available, sending, recording, transcribi
     if (field) { field.style.height = 'auto'; field.style.height = `${Math.min(field.scrollHeight, 160)}px` }
   }, [input, drafting])
   useEffect(() => { if (typing) inputRef.current?.focus() }, [typing])
-  const canSend = available && !sending && !recording && !transcribing && input.trim().length > 0
+  const canSend = available && !sending && !starting && !recording && !transcribing && input.trim().length > 0
   const padLabel = recording ? (autoSend ? tr("Stop and send recording") : tr("Stop and transcribe recording")) : tr("Record audio")
   const draft = <form className="voice-draft" onSubmit={event => { event.preventDefault(); if (canSend) onSend(input) }}>
     <textarea
@@ -84,15 +88,15 @@ export function ComposerInput({ input, available, sending, recording, transcribi
   </form>
   return (
     <>
-      <VoicePanel label={tr("Message")} className="composer-voice" phase={recording ? 'recording' : transcribing ? 'working' : 'ready'}
+      <VoicePanel label={tr("Message")} className="composer-voice" health={health} deviceLabel={deviceLabel} starting={starting} phase={starting ? 'preparing' : recording ? 'recording' : transcribing ? 'working' : 'ready'}
         face={recording ? stream ?? null : drafting ? draft : null} prompt={prompt}
-        mode={mode} onMode={next => { if (next !== 'auto') onMode?.(next) }} laterModes={['auto']} modesDisabled={recording || transcribing || !onMode}
+        mode={mode} onMode={next => { if (next !== 'auto') onMode?.(next) }} laterModes={['auto']} modesDisabled={starting || recording || transcribing || !onMode}
         onDiscard={onDiscardRecording}
-        pad={{ label: padLabel, title: micShortcut ? `${padLabel} · ${micShortcut}` : padLabel, disabled: !available || sending || transcribing,
+        pad={{ label: padLabel, title: micShortcut ? `${padLabel} · ${micShortcut}` : padLabel, disabled: !available || sending || transcribing || (starting && mode !== 'hold'),
           action: mode === 'hold' && onHoldStart && onHoldEnd ? { kind: 'hold', onHoldStart, onHoldEnd } : { kind: 'press', onPress: onToggleRecording } }}
         microphoneSelector={microphoneSelector} layout={layout}
         controls={<>
-          <button type="button" className="voice-mini voice-type" aria-pressed={drafting} disabled={recording || !available}
+          <button type="button" className="voice-mini voice-type" aria-pressed={drafting} disabled={starting || recording || !available}
             onClick={() => setTyping(value => !value)}><ToolbarIcon name="keyboard" size={15} /><span>{tr("Type")}</span></button>
           <label className="voice-switch"><input type="checkbox" checked={autoSend} disabled={!onAutoSend}
             onChange={event => onAutoSend?.(event.target.checked)} />{tr("Auto-send")}</label>

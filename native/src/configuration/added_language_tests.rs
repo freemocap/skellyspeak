@@ -4,6 +4,7 @@ use super::*;
 fn added_languages_resolve_through_the_standard_registry() {
     let registry = Registry::bundled().unwrap();
     for (id, tag, script, romanized) in [
+        ("cantonese", "yue-Hant-HK", "traditional-chinese", true),
         ("greek", "el", "greek", true),
         ("thai", "th", "thai", true),
         ("korean", "ko", "hangul", true),

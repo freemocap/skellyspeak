@@ -32,8 +32,8 @@ impl Outcome {
         Self::Uncertain,
     ];
 }
-pub const FEEDBACK_PROMPT_VERSION: &str = "coach-observation-12";
-pub const SUGGESTIONS_PROMPT_VERSION: &str = "coach-suggestions-3";
+pub const FEEDBACK_PROMPT_VERSION: &str = "coach-observation-13-variety-writing";
+pub const SUGGESTIONS_PROMPT_VERSION: &str = "coach-suggestions-4-scoped-writing";
 pub const FEEDBACK: &str = "coach_feedback";
 pub const SUGGESTIONS: &str = "coach_suggestions";
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -331,11 +331,20 @@ pub(crate) fn system_prompt(kind: &str, captured: &Value) -> Result<String> {
             "pragmatics",
         ]
     } else {
-        vec!["assessment", "explanation_writing", "pragmatics"]
+        vec![
+            "assessment",
+            "target_writing",
+            "explanation_writing",
+            "pragmatics",
+        ]
     };
     for scope in scopes {
         for guidance in context.guidance(scope) {
-            system.push_str(&format!("\n{guidance}"));
+            if matches!(scope, "target_writing" | "explanation_writing") {
+                system.push_str(&format!("\n{scope}: {guidance}"));
+            } else {
+                system.push_str(&format!("\n{guidance}"));
+            }
         }
     }
     if kind == SUGGESTIONS {
@@ -569,3 +578,6 @@ mod focus_tests {
 }
 
 pub(crate) mod assessment_adapter;
+
+#[cfg(test)]
+mod variety_prompt_tests;

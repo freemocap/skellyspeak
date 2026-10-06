@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: arabic
+skill_id: people_places
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: 指示詞加名詞短語，可以唔用明示現在時繫詞就識別人物。不同變體用嘅指示詞有分別。
+    examples:
+      - text: هٰذِهِ جَارَتِي.
+        meaning: 呢位係我女鄰居。
+        note: 現代標準阿拉伯語。所指人物係女性；末尾所有格後綴表示「我嘅」。
+      - text: هَايْ جَارْتِي.
+        meaning: 呢位係我女鄰居。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。所指人物係女性；末尾所有格後綴表示「我嘅」。
+  - subskill_id: qualities_states
+    explanation: 名詞句可以描述特徵。現代標準語形容詞有格標記；黎凡特語唔用呢套格尾。
+    examples:
+      - text: هٰذَا الطَّرِيقُ ضَيِّقٌ.
+        meaning: 呢條路窄。
+        note: 現代標準阿拉伯語。形容詞描述條路。
+      - text: هَادْ الطَّرِيقْ ضَيِّقْ.
+        meaning: 呢條路窄。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。形容詞描述條路。
+  - subskill_id: location_movement
+    explanation: 介詞謂語可以交代物件位置，唔需要明示現在時 be 動詞。
+    examples:
+      - text: الْمِفْتَاحُ فِي الْبَيْتِ.
+        meaning: 條鎖匙喺屋入面。
+        note: 現代標準阿拉伯語。交代鎖匙位置，唔係移動指示。
+      - text: الْمِفْتَاحْ بِالْبَيْتْ.
+        meaning: 條鎖匙喺屋入面。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。交代鎖匙位置，唔係移動指示。
+  - subskill_id: possession_relations
+    explanation: عِنْدِي 表達擁有。正式格系統同口語用法嘅雙數詞尾有分別；唔好照搬廣東話唔變名詞形式嘅習慣。
+    examples:
+      - text: عِنْدِي كُرْسِيَّانِ.
+        meaning: 我有兩張椅。
+        note: 現代標準阿拉伯語。雙數名詞形式本身交代數量係二。
+      - text: عِنْدِي كُرْسِيَّيْنْ.
+        meaning: 我有兩張椅。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。雙數名詞形式本身交代數量係二。
+  - subskill_id: quantity_comparison
+    explanation: 比較級形容詞加 مِنْ，表達比較同指出比較標準。
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ أَخَفُّ مِنْ ذٰلِكَ.
+        meaning: 呢個箱比嗰個輕。
+        note: 現代標準阿拉伯語。比較重量，唔係大小。
+      - text: هَادْ الصُّنْدُوقْ أَخَفّ مِنْ هَدَاكْ.
+        meaning: 呢個箱比嗰個輕。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。比較重量，唔係大小。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/arabic/skills/people-places/arabic-people-places-explained-in-english.yaml at revision
+    arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: 黎凡特例句用 هَادْ、هَايْ 等南部形式。其他地區亦有其他指示詞；口語名詞唔帶正式格尾。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/people-places/arabic-people-places-explained-in-english.yaml at
+        revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  arabic-modern-standard:
+    disposition: supplement
+    text: 現代標準語會喺名詞同形容詞標示格。指示詞同雙數詞尾亦有別於呢組口語例句。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/people-places/arabic-people-places-explained-in-english.yaml at
+        revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

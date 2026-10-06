@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: malayalam
+skill_id: people_places
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: ആണ്配合名詞短語識別對象，可以同最後一個詞連寫。
+    examples:
+      - text: ഇത് എന്റെ വീടാണ്.
+        meaning: 呢度係我屋企。
+        note: എന്റെ表示我嘅；വീടാണ്結合വീട്同ആണ്。
+  - subskill_id: qualities_states
+    explanation: 形容詞描述可以配合名詞性詞尾同ആണ്，組成述語。
+    examples:
+      - text: ഈ വഴി ഇടുങ്ങിയതാണ്.
+        meaning: 呢條小路好窄。
+        note: ഇടുങ്ങിയതാണ്將窄呢個性質賦予條路。
+  - subskill_id: location_movement
+    explanation: 空間表達配合ഉണ്ട്，可以交代物件位置。
+    examples:
+      - text: താക്കോൽ മേശപ്പുറത്തുണ്ട്.
+        meaning: 鎖匙喺張枱上面。
+        note: മേശപ്പുറത്ത്交代位置，並同ഉണ്ട്結合。
+  - subskill_id: possession_relations
+    explanation: 與格擁有者配合ഉണ്ട്，可以陳述擁有關係。
+    examples:
+      - text: എനിക്ക് രണ്ട് കസേരകളുണ്ട്.
+        meaning: 我有兩張凳。
+        note: എനിക്ക്指出擁有者；രണ്ട്提供數量。
+  - subskill_id: quantity_comparison
+    explanation: 用കാൾ作比較，可以對比可量度性質。
+    examples:
+      - text: ഈ പെട്ടിക്ക് അതിനെക്കാൾ ഭാരം കുറവാണ്.
+        meaning: 呢個箱比嗰個輕。
+        note: 句子比較重量；അതിനെക്കാൾ將另一個箱定為比較基準。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/malayalam/skills/people-places/malayalam-people-places-explained-in-english.yaml at
+    revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - nizar_malayalam_dative2010
+    - ut_malayalam_dialogues2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  malayalam-kerala:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/malayalam/skills/people-places/malayalam-people-places-explained-in-english.yaml
+        at revision malayalam-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - nizar_malayalam_dative2010
+        - ut_malayalam_dialogues2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

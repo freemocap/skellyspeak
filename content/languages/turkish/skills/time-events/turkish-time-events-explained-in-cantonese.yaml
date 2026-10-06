@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: turkish
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 進行形式可以將活動表達成進行中。
+    examples:
+      - text: Şimdi bisikleti tamir ediyorum.
+        meaning: 我而家整緊架單車。
+        note: Ediyorum標示第一人稱活動；şimdi定位到而家。
+  - subskill_id: past_events
+    explanation: 過去詞尾配合人稱詞尾。
+    examples:
+      - text: Dün bisikleti tamir ettim.
+        meaning: 我尋日整咗架單車。
+        note: Ettim係tamir etmek入面etmek嘅第一人稱過去式，冇性別標記。
+  - subskill_id: future_events
+    explanation: 將來詞尾加人稱詞尾，可以表達稍後計劃。
+    examples:
+      - text: Yarın parçaları alacağım.
+        meaning: 我聽日會攞零件。
+        note: Alacağım標示第一人稱將來行動；yarın交代日子。
+  - subskill_id: duration_frequency
+    explanation: 位置格時間單位配合次數，可以表達頻率。
+    examples:
+      - text: Haftada iki kez yüzüyorum.
+        meaning: 我一個星期游兩次水。
+        note: Haftada設定重複周期，iki kez數次數。
+  - subskill_id: event_sequence
+    explanation: Önce同sonra交代有次序嘅步驟。
+    examples:
+      - text: Önce ellerinizi yıkayın, sonra sebzeleri hazırlayın.
+        meaning: 先洗手，再準備啲蔬菜。
+        note: 禮貌或複數指令建立次序，唔係因果。
+  - subskill_id: event_phase
+    explanation: Bitirmek配合名詞化行動，交代活動完成。
+    examples:
+      - text: Kitabı okumayı bitirdim.
+        meaning: 我睇完本書喇。
+        note: Okumayı指出已經完結嘅閱讀活動。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/turkish/skills/time-events/turkish-time-events-explained-in-english.yaml at revision
+    turkish-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - tt_turkish_past2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/turkish/skills/time-events/turkish-time-events-explained-in-english.yaml at
+        revision turkish-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tt_turkish_past2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

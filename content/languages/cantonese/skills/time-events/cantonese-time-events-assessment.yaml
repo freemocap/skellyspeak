@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: time_events
+guidance: Assess time events from the learner’s contribution in context. 佢睇緊書。 (They are reading a
+  book.) can demonstrate present events. 緊 marks an ongoing activity; it is aspect, not an
+  English-style present-tense ending. 我噚日買咗本書。 (I bought a book yesterday.) can demonstrate past
+  events. 噚日 supplies past time; 咗 presents the purchase as a completed event, not a universal
+  past-tense suffix. 我聽日去圖書館。 (I am going to the library tomorrow.) can demonstrate future events.
+  聽日 anchors the future event without requiring a separate future auxiliary. 我每個星期去兩次。 (I go twice
+  every week.) can demonstrate duration frequency. 每個星期 and 兩次 specify frequency, not how long a
+  visit lasts. 食完飯先出門。 (Leave after finishing the meal.) can demonstrate event sequence. 完 marks
+  completion; 先 orders leaving after the meal. The exchange supplies the participants. 我仲未食飯。 (I
+  have not eaten yet.) can demonstrate event phase. 仲未 presents the expected event as not yet
+  realised, rather than denying a habit or refusing food. Credit a function only when accomplished
+  in the exchange; copied isolated forms are insufficient. Do not require Mandarin forms or infer
+  Cantonese pronunciation from written characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

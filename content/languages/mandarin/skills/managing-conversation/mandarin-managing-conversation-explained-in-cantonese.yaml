@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: mandarin
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 道別可以提到下一次見面。語境令呢句成為結束語，唔係純粹預測會見到對方。
+    examples:
+      - text: 我先走了，下次见！
+        meaning: 我行先喇，下次見！
+        note: 探訪完離開時可以用。我先走了 表示準備離開，下次见 結束交流。
+  - subskill_id: acknowledging
+    explanation: 明白了 可以表示經過解釋之後明白咗，但唔一定代表同意對方判斷。
+    examples:
+      - text: 哦，我明白了。
+        meaning: 哦，我而家明喇。
+        note: 夥伴解釋步驟後嘅回應。了 喺呢度標示達到理解嘅狀態，唔好一律解成過去式。
+  - subskill_id: clarification
+    explanation: 再说一遍 請對方再講一次。一遍 計算由頭講到尾一次。
+    examples:
+      - text: 不好意思，请再说一遍。
+        meaning: 唔好意思，唔該再講一次。
+        note: 聽唔清之後即刻用。要重複嘅內容由之前嗰句交代。
+  - subskill_id: rephrasing
+    explanation: 换句话说 引入之前意思嘅另一個講法，後面接較清楚嘅內容。
+    examples:
+      - text: 换句话说，我们得提前预约。
+        meaning: 即係話，我哋要預先預約。
+        note: 重述訪客唔可以到場先安排參觀呢點。得 喺呢度讀 děi，表示需要，唔係引入補語嘅 de。
+  - subskill_id: correcting_misunderstanding
+    explanation: 说的是 指明本來講乜；不是 排除理解錯咗嘅選項。兩者對比可以清楚糾正誤解。
+    examples:
+      - text: 我说的是周六，不是周五。
+        meaning: 我講嘅係星期六，唔係星期五。
+        note: 對方誤以為提議星期五時用，並直接補上正確日子。
+  - subskill_id: turns_topics
+    explanation: 换个话题 明確表示轉話題；之後可以用問題引入新話題。
+    examples:
+      - text: 我想换个话题，聊聊下周的安排，可以吗？
+        meaning: 我想轉個話題，傾下下星期嘅計劃，得唔得？
+        note: 講者提出轉話題並交代新內容。聊聊 令提議較有閒談感。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/mandarin/skills/managing-conversation/mandarin-managing-conversation-explained-in-english.yaml
+    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/mandarin/skills/managing-conversation/mandarin-managing-conversation-explained-in-english.yaml
+        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

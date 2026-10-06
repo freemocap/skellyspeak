@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: turkish
+skill_id: people_places
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: Bu可以引出用所有關係名詞短語識別嘅人。
+    examples:
+      - text: Bu benim komşum.
+        meaning: 呢位係我鄰居。
+        note: Benim同komşum嘅詞尾都將鄰居連到講者，冇指定性別。
+  - subskill_id: qualities_states
+    explanation: 第三人稱形容詞述語可以唔帶明示繫詞詞尾。
+    examples:
+      - text: Bu sokak dar.
+        meaning: 呢條街好窄。
+        note: Dar直接陳述性質，唔需要額外加相當於英文is嘅詞。
+  - subskill_id: location_movement
+    explanation: 位置格詞尾表達位置，喺清輔音後面會改變輔音。
+    examples:
+      - text: Anahtar rafta.
+        meaning: 鎖匙喺個架上面。
+        note: 呢個位置表達入面，raf接-ta。
+  - subskill_id: possession_relations
+    explanation: 帶所有標記嘅名詞配合var，可以陳述擁有。
+    examples:
+      - text: İki sandalyem var.
+        meaning: 我有兩張凳。
+        note: Sandalyem標示我嘅凳；iki交代數量，唔加複數詞尾。
+  - subskill_id: quantity_comparison
+    explanation: Daha加形容詞，配合離格比較基準，可以表達比較。
+    examples:
+      - text: Bu kutu ondan daha hafif.
+        meaning: 呢個箱比嗰個輕。
+        note: Ondan指出比較對象，hafif描述重量。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/turkish/skills/people-places/turkish-people-places-explained-in-english.yaml at
+    revision turkish-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - tt_turkish_possession2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  turkish-turkiye:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/turkish/skills/people-places/turkish-people-places-explained-in-english.yaml at
+        revision turkish-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tt_turkish_possession2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

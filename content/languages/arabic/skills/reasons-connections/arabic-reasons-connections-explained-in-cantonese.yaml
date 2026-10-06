@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: arabic
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 原因子句可以解釋採取行動嘅理由。
+    examples:
+      - text: بَقِيتُ فِي الْبَيْتِ لِأَنَّنِي مَرِيضَةٌ.
+        meaning: 我留喺屋企，因為我病咗。
+        note: 現代標準阿拉伯語。女性講者解釋留喺屋企嘅決定。
+      - text: ضَلِّيتْ بِالْبَيْتْ لِأَنِّي مَرِيضَة.
+        meaning: 我留喺屋企，因為我病咗。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。女性講者解釋留喺屋企嘅決定。
+  - subskill_id: consequences
+    explanation: 結果用語將一個情況同後果連起嚟。
+    examples:
+      - text: الْمَحَلُّ مُغْلَقٌ، لِذٰلِكَ سَنَعُودُ غَدًا.
+        meaning: 間舖閂咗，所以我哋聽日再嚟。
+        note: 現代標準阿拉伯語。關門係稍後再嚟嘅原因。
+      - text: الْمَحَلّ مْسَكَّرْ، عَشَانْ هَيْكْ رَحْ نِرْجَعْ بُكْرَا.
+        meaning: 間舖閂咗，所以我哋聽日再嚟。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。關門係稍後再嚟嘅原因。
+  - subskill_id: conditions
+    explanation: إِذَا 可以引入開放條件，結果取決於條件係咪成立。
+    examples:
+      - text: إِذَا وَصَلْتَ مُبَكِّرًا، فَانْتَظِرْ هُنَا.
+        meaning: 如果你早到，就喺呢度等。
+        note: 現代標準阿拉伯語。對一位男性講；到達係條件，唔係斷言已發生嘅過去事實。
+      - text: إِذَا وِصِلْتْ بَكِّيرْ، اِسْتَنَّى هُونْ.
+        meaning: 如果你早到，就喺呢度等。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對一位男性講；到達係條件，唔係斷言已發生嘅過去事實。
+  - subskill_id: contrast
+    explanation: 「但係」子句可以對比兩個特徵，而唔否定任何一個。
+    examples:
+      - text: هٰذَا الصُّنْدُوقُ صَغِيرٌ وَلٰكِنَّهُ ثَقِيلٌ.
+        meaning: 呢個箱細，但係好重。
+        note: 現代標準阿拉伯語。重量同人根據體積作出嘅預期形成對比。
+      - text: هَادْ الصُّنْدُوقْ صْغِيرْ بَسّ تْقِيلْ.
+        meaning: 呢個箱細，但係好重。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。重量同人根據體積作出嘅預期形成對比。
+  - subskill_id: supporting_claims
+    explanation: 可以用具體觀察作理由，支持一個說法。
+    examples:
+      - text: هٰذَا الطَّرِيقُ أَقْصَرُ، لِأَنَّنَا قِسْنَا الْمَسَافَةَ.
+        meaning: 呢條路較短，因為我哋量過距離。
+        note: 現代標準阿拉伯語。量度結果支持比較判斷，唔係只描述另一件事。
+      - text: هَادْ الطَّرِيقْ أَقْصَرْ، لِأَنُّه إِحْنَا قِسْنَا الْمَسَافَة.
+        meaning: 呢條路較短，因為我哋量過距離。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。量度結果支持比較判斷，唔係只描述另一件事。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/arabic/skills/reasons-connections/arabic-reasons-connections-explained-in-english.yaml
+    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: 口語連接詞包括表示「因為」嘅 لِأَنّ、「所以」嘅 عَشَانْ هَيْكْ 同「但係」嘅 بَسّ；其他地區講法亦常見。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/reasons-connections/arabic-reasons-connections-explained-in-english.yaml
+        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  arabic-modern-standard:
+    disposition: supplement
+    text: إِذَا 後面嘅完成式動詞可以描述開放嘅將來條件，唔代表事件已經發生。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/reasons-connections/arabic-reasons-connections-explained-in-english.yaml
+        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

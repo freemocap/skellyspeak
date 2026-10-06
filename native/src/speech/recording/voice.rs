@@ -123,6 +123,11 @@ pub(super) fn start_prepared_capture(
     owner: RecordingOwner,
     prepared: Option<super::preflight::Prepared>,
 ) -> Result<RecordingStarted> {
+    let test = state
+        .microphone_test
+        .lock()
+        .map_err(|_| fault("Microphone test state unavailable."))?;
+    super::microphone_test::require_idle(&test)?;
     let mut slot = state.capture.lock().map_err(|_| {
         crate::diagnostics::failures::poisoned(fault("Microphone state unavailable."))
     })?;
@@ -166,6 +171,10 @@ pub(super) fn start_prepared_capture(
         live: Default::default(),
     };
     let started = RecordingStarted {
+        #[cfg(desktop)]
+        device_label: Some(recording.capture.device_label().to_owned()),
+        #[cfg(mobile)]
+        device_label: None,
         recording_id: recording.id.clone(),
         browser_capture: cfg!(mobile),
         browser_device_id: if cfg!(mobile) { microphone } else { None },

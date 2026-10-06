@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: irish
+skill_id: information_exchange
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Cén t-am 問時間，呢度後面接關係動詞結構。
+    examples:
+      - text: Cén t-am a dhúnann an siopa?
+        meaning: 間舖頭幾點閂門？
+        note: A dhúnann 將所問嘅時間連到閂門呢件事。
+  - subskill_id: answering_information
+    explanation: 可以只用時間短語回答，唔使重複成件事。
+    examples:
+      - text: Ar a cúig a chlog.
+        meaning: 五點鐘。
+        note: 回應舖頭閂門時間嘅問題；省略咗嘅事件由上句提供。
+  - subskill_id: checking_facts
+    explanation: An 配合從屬動詞形式，可以核實提出咗嘅事實。
+    examples:
+      - text: An ndúnann an siopa ar a cúig a chlog?
+        meaning: 間舖頭係咪五點閂門？
+        note: 講者提出五點，請對方確認。
+  - subskill_id: useful_detail
+    explanation: 位置描述可以提供有用嘅地標。
+    examples:
+      - text: Tá an bealach isteach taobh leis an gclós.
+        meaning: 入口喺庭院隔籬。
+        note: 呢個資料幫緊對方搵入口。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/irish/skills/information-exchange/irish-information-exchange-explained-in-english.yaml
+    at revision irish-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - teanglann_deisigh2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/irish/skills/information-exchange/irish-information-exchange-explained-in-english.yaml
+        at revision irish-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - teanglann_deisigh2026
+        - brasicke_irish_copula2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

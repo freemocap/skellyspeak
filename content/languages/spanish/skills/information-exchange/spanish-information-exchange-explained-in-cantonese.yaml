@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: information_exchange
+language: spanish
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 揀配合資料需要嘅疑問表達；語境同語調亦可以構成是非問句。
+    examples:
+      - text: ¿Dónde está la estación?
+        meaning: 車站喺邊度？
+        note: Dónde問位置。
+  - subskill_id: answering_information
+    explanation: 相關嘅短答可以直接提供所問資料，唔使重複動詞。
+    examples:
+      - text: En casa.
+        meaning: 喺屋企。
+        note: 呢句回答¿Dónde estás?；冇呢條問題，回答作用就未清楚。
+  - subskill_id: checking_facts
+    explanation: 就心目中已有嘅命題或細節尋求確認。
+    examples:
+      - text: ¿Llegas a las ocho?
+        meaning: 你八點到？
+        note: 確認安排時，呢句核實建議到達時間。
+  - subskill_id: useful_detail
+    explanation: 補充真正回答問題嘅資料；答得長唔一定有用。
+    examples:
+      - text: Está al lado del banco, frente al parque.
+        meaning: 喺銀行隔籬，公園對面。
+        note: 問路時，兩個地標令位置更清楚。
+varieties:
+  spanish-spain:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/spanish/skills/information-exchange/spanish-information-exchange-explained-in-english.yaml
+        at revision spanish-communication-2026-10-03. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata was not
+        recorded.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  spanish-mexico:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/spanish/skills/information-exchange/spanish-information-exchange-explained-in-english.yaml
+        at revision spanish-communication-2026-10-03. Target examples and variety applicability
+        retained exactly; no independent linguistic review. Exact backend model metadata was not
+        recorded.
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/spanish/skills/information-exchange/spanish-information-exchange-explained-in-english.yaml
+    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

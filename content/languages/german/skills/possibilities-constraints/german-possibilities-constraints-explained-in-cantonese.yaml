@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: german
+skill_id: possibilities_constraints
+explanation_language: cantonese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: ability
+    explanation: können 加不定式可以講技能或實際能力。主句入面情態動詞有變位，另一個動詞用不帶 zu 嘅不定式放尾。
+    examples:
+      - text: Ich kann einen Fahrradreifen wechseln.
+        meaning: 我識換單車胎。
+        note: 討論維修技能時，kann wechseln 表達識做，唔係授予許可。
+  - subskill_id: permission
+    explanation: dürfen 表達許可。darf ich 開頭嘅問句問自己准唔准做，唔係請別人代做。
+    examples:
+      - text: Darf ich mein Fahrrad hier abstellen?
+        meaning: 我可唔可以將架單車泊喺呢度？
+        note: 向負責地方嘅人請求許可；darf 後面 abstellen 保持不定式。
+  - subskill_id: obligation
+    explanation: müssen 加不定式可以表達要求。nicht müssen 係冇必要，nicht dürfen 先係禁止，兩者唔好混淆。
+    examples:
+      - text: Wir müssen die Fahrkarten vorzeigen.
+        meaning: 我哋一定要出示車票。
+        note: müssen vorzeigen 表達要求；複合動詞喺情態動詞後面保持完整不定式。
+  - subskill_id: possibility
+    explanation: vielleicht 表示可能。放主句開頭時，限定動詞跟住佢，唔一定再加情態動詞。
+    examples:
+      - text: Vielleicht fällt der letzte Zug heute aus.
+        meaning: 今日尾班火車可能取消。
+        note: vielleicht 保留不確定性；ausfallen 喺主句分開為 fällt … aus。
+  - subskill_id: certainty
+    explanation: sicher sein, dass … 表達肯定；nicht sicher sein, ob … 表達唔肯定係咪。ob 引入嘅從屬問句，限定動詞放尾。
+    examples:
+      - text: Ich bin nicht sicher, ob der Laden noch offen ist.
+        meaning: 我唔肯定間舖仲開唔開。
+        note: nicht sicher 表明認知限制；ob 引入疑問內容，唔代表斷言間舖一定閂咗。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/german/skills/possibilities-constraints/german-possibilities-constraints-explained-in-english.yaml
+    at revision german-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - umich_de_modals2026
+    - umich_de_word_order2026
+    - ids_de_epistemic2026
+    - goethe_de_discussion2026
+    - umich_de_connectors2026
+    - leo_de_modal_negation2026
+    - leo_de_permission2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/german/skills/possibilities-constraints/german-possibilities-constraints-explained-in-english.yaml
+        at revision german-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - umich_de_modals2026
+        - umich_de_word_order2026
+        - ids_de_epistemic2026
+        - goethe_de_discussion2026
+        - umich_de_connectors2026
+        - leo_de_modal_negation2026
+        - leo_de_permission2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

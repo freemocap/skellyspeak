@@ -85,6 +85,14 @@ class ElevenLabs:
             raise AudioFailure("AUDIO_INPUT_INVALID", receipt=receipt, unknown_outcome=False)
         payload = {"model_id": request.model, "text": request.text,
                    "apply_text_normalization": "off"}
+        # [@elevenlabs_dialogue_timing20261005] Single-speaker dialogue keeps
+        # the same PCM/alignment response contract as the legacy TTS route.
+        if request.model == "eleven_v4_turbo":
+            payload.pop("text")
+            payload["inputs"] = [{"text": request.text, "voice_id": request.voice_id}]
+            path = "text-to-dialogue"
+        else:
+            path = f"text-to-speech/{request.voice_id}"
         if request.language_code is not None:
             payload["language_code"] = request.language_code
         if on_audio is not None:
@@ -92,14 +100,14 @@ class ElevenLabs:
             stream = SynthesisStream(on_audio, (self._key,))
             stream.receipt = receipt
             _, receipt = await self._post(
-                f"text-to-speech/{request.voice_id}/stream/with-timestamps", receipt,
+                f"{path}/stream/with-timestamps", receipt,
                 limit=8 * 1024 * 1024, content_types={"application/json", "application/x-ndjson"},
                 params={"output_format": "pcm_24000"}, json=payload,
                 private=(request.text,), on_chunk=stream.feed)
             await stream.finish()
             return AudioResult(None, receipt)
         body, receipt = await self._post(
-            f"text-to-speech/{request.voice_id}/with-timestamps", receipt,
+            f"{path}/with-timestamps", receipt,
             limit=8 * 1024 * 1024, content_types={"application/json"},
             params={"output_format": "pcm_24000"}, json=payload, private=(request.text,))
         return self.result(body, receipt)

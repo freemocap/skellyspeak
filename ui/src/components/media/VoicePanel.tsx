@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react'
 import { useI18n } from '../localization/i18n'
+import { MicrophoneSignal } from './MicrophoneSignal'
+import type { MicrophoneHealth } from '../../domain/audio/microphone-health'
+import { ActivityIndicator } from '../feedback/ActivityIndicator'
 import { ToolbarIcon } from '../controls/ToolbarIcon'
 import { SegmentedChoice } from '../controls/SegmentedChoice'
 import { DetailDialog } from '../dialogs/DetailDialog'
@@ -26,9 +29,12 @@ const MODES: readonly VoiceMode[] = ['tap', 'hold', 'auto']
  * the microphone: calm blue when ready, red with a red outline and a glow while
  * recording, faded while it waits. There is no standing instruction; the phase is
  * announced to screen readers instead. Recording logic stays with the caller. */
-export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterModes = [], modesDisabled = false, pad, controls, settings, microphoneSelector, status, faceTitle, onDiscard, layout, className }: {
+export function VoicePanel({ label, phase, starting = false, health, deviceLabel, face, prompt, mode, onMode, laterModes = [], modesDisabled = false, pad, controls, settings, microphoneSelector, status, faceTitle, onDiscard, layout, className }: {
   label: string
   phase: VoicePhase
+  starting?: boolean
+  health?: MicrophoneHealth | null
+  deviceLabel?: string | null
   /** The stream or a draft; null shows the prompt while the pad can start a recording. */
   face: ReactNode | null
   /** What the prompt says beside its arrow, when it has something to add, such
@@ -104,9 +110,9 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
         {recording && onDiscard && <button type="button" className="voice-discard-recording" onClick={onDiscard}
           aria-label={tr('Discard recording')} title={tr('Discard recording without transcribing')}><ToolbarIcon name="trash" size={15} /></button>}
       </div>
-      <button type="button" className="voice-pad" data-live={recording} aria-pressed={recording} aria-label={pad.label} title={pad.title ?? pad.label}
+      <button type="button" className="voice-pad" data-live={recording} aria-pressed={recording} aria-busy={phase === 'preparing' || phase === 'working'} aria-label={starting ? tr('Starting…') : pad.label} title={pad.title ?? pad.label}
         disabled={pad.disabled} {...padEvents}>
-        <ToolbarIcon name="mic" size={30} />
+        {phase === 'preparing' || phase === 'working' ? <ActivityIndicator label={phase === 'preparing' ? tr('Starting…') : tr('Transcribing')} compact announce={false} /> : <ToolbarIcon name="mic" size={30} />}
       </button>
       <div className="voice-controls">
         <button type="button" className="voice-mini voice-mini-icon" aria-label={tr('Recording settings')} title={tr('Recording settings')}
@@ -124,7 +130,11 @@ export function VoicePanel({ label, phase, face, prompt, mode, onMode, laterMode
         {soon && <span className="voice-soon" role="status">{tr('Coming soon')}</span>}
       </div>
     </div>
-    <p className="voice-status" role="status" aria-live="polite">{status}</p>
+    {recording && <>
+      {deviceLabel && <p className="field-note">{tr('Using: {name}', { name: deviceLabel })}</p>}
+      {health && <MicrophoneSignal health={health} showMeter={mode !== 'auto'} />}
+    </>}
+    <p className="voice-status" role="status" aria-live="polite">{starting ? tr('Starting…') : status}</p>
     {settingsOpen && <DetailDialog title={tr('Recording settings')} capture="preserve" onClose={() => setSettingsOpen(false)}>
       <div className="voice-settings">
         <h2>{tr('Recording settings')}</h2>

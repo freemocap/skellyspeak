@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: information_exchange
+guidance: Assess information exchange from the learner’s contribution in context. 間舖頭幾點閂門？ (What
+  time does the shop close?) can demonstrate asking information. 幾點 asks for clock time within the
+  clause; English-style auxiliary inversion is not required. 六點。 (At six.) can demonstrate answering
+  information. After a closing-time question, a short time phrase supplies the answer. Its function
+  depends on that context. 間舖頭六點閂門，係咪呀？ (The shop closes at six, right?) can demonstrate checking
+  facts. 係咪 checks a candidate answer rather than asking for entirely unknown information. 用窗口旁邊嗰張枱。
+  (Use the table beside the window.) can demonstrate useful detail. The location and 嗰張 identify
+  which table to use. Detail is useful when it resolves a relevant distinction. Credit a function
+  only when accomplished in the exchange; copied isolated forms are insufficient. Do not require
+  Mandarin forms or infer Cantonese pronunciation from written characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

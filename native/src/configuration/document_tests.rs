@@ -232,7 +232,19 @@ fn language_browser_separates_local_content_from_assembled_policy() {
     let report = registry
         .inspect_language("arabic", None, "english", None)
         .unwrap();
-    assert_eq!(report.rules.len(), 3);
+    assert_eq!(report.rules.len(), 5);
+    assert_eq!(
+        report
+            .rules
+            .iter()
+            .filter(|rule| {
+                rule.source.starts_with(
+                    "languages/arabic/arabic-language.yaml#varieties.arabic-levantine.guidance.",
+                )
+            })
+            .count(),
+        2
+    );
     let evidence = report
         .rules
         .iter()
@@ -259,13 +271,16 @@ fn language_browser_separates_local_content_from_assembled_policy() {
             .any(|rule| rule.text.contains(instructions))
     );
     let resolved: serde_json::Value = serde_json::from_str(&report.resolved_json).unwrap();
-    assert!(
-        resolved["context"]["guidance"]["assessment"]
-            .as_array()
-            .unwrap()
-            .len()
-            > report.rules.len()
-    );
+    for shared in &registry.universal {
+        assert!(
+            resolved["context"]["guidance"][shared.scope.as_str()]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|text| text == &shared.text)
+        );
+        assert!(!report.rules.iter().any(|rule| rule.text == shared.text));
+    }
     assert!(
         report
             .sources

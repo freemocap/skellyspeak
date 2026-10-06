@@ -6,7 +6,16 @@ fn inspector_composes_the_same_authored_sections_as_the_readable_report() {
     let inspection = r
         .inspect_language("spanish", Some("spanish-spain"), "english", None)
         .unwrap();
-    assert_eq!(inspection.guides.len(), 16);
+    let editions: std::collections::BTreeSet<_> = inspection
+        .guides
+        .iter()
+        .map(|item| item.guide.explanation_language.as_str())
+        .collect();
+    assert_eq!(editions, ["cantonese", "english", "spanish"].into());
+    assert_eq!(
+        inspection.guides.len(),
+        r.shared_skills().skills.len() * editions.len()
+    );
     for item in inspection.guides {
         let guides::GuideTarget::Skill { skill, .. } = &item.guide.target else {
             panic!("Expected a skill guide")

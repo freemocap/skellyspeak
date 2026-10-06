@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: japanese
+skill_id: information_exchange
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 何時問鐘點，に接喺時間表達後面；句尾か標示禮貌問句。
+    examples:
+      - text: 図書館は何時に閉まりますか。
+        meaning: 圖書館幾點閂門？
+        note: 問句想知關門時間。閉まります描述圖書館關門，唔係某個人關上一件物件。
+  - subskill_id: answering_information
+    explanation: 時間加です可以直接回答；大家已經知道講緊乜事件。
+    examples:
+      - text: 五時です。
+        meaning: 五點。
+        note: 回應圖書館關門時間；五係鐘點，唔係書本數量。
+  - subskill_id: checking_facts
+    explanation: 提出一個時間再問，可以核實事實；ですね亦可以確認啱啱得知或推斷嘅資料。
+    examples:
+      - text: 図書館は五時に閉まるんですね。
+        meaning: 即係圖書館五點閂門，係咪？
+        note: 聽完時間表解釋後用；んですね核實講者對具體時間嘅理解。
+  - subskill_id: useful_detail
+    explanation: 名詞短語加ほう，可以喺兩邊或兩個選項之間分辨。前面嘅描述交代邊一個。
+    examples:
+      - text: 入口は、公園に近いほうです。
+        meaning: 入口係近公園嗰邊。
+        note: 講完建築物位置後，再區分可用入口同另一個入口。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/japanese/skills/information-exchange/japanese-information-exchange-explained-in-english.yaml
+    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/japanese/skills/information-exchange/japanese-information-exchange-explained-in-english.yaml
+        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - jpf_irodori_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: feelings_viewpoints
+explanation_language: english
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-english.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 想 introduces a desire; a firm plan requires additional contextual evidence.
+    examples:
+      - text: 我想學整麵包。
+        meaning: I want to learn to make bread.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: preferences
+    explanation: 鍾意 with 多過 compares preferences rather than merely naming drinks.
+    examples:
+      - text: 我鍾意飲茶多過飲咖啡。
+        meaning: I prefer drinking tea to drinking coffee.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: emotions
+    explanation: 開心 names an emotional state. No copula is needed before 好開心.
+    examples:
+      - text: 我今日好開心。
+        meaning: I am happy today.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: opinions
+    explanation: 我覺得 frames the evaluation as the speaker’s view.
+    examples:
+      - text: 我覺得呢個辦法幾好。
+        meaning: I think this method is quite good.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: agreement_disagreement
+    explanation: Understanding and agreement are distinct; 不過 introduces the contrasting position.
+    examples:
+      - text: 我明你嘅意思，不過我唔同意。
+        meaning: I understand what you mean, but I disagree.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

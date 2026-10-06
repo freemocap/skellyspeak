@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: german
+skill_id: feelings_viewpoints
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: wollen 加不帶 zu 嘅不定式，可以講願望或意圖。möchte 常較柔和；兩者本身都唔保證行動會發生。
+    examples:
+      - text: Ich will im Herbst einen Sprachkurs besuchen.
+        meaning: 我想秋天去上語言班。
+        note: will besuchen 表達打算。will 係 wollen 嘅形式，唔係德文將來助動詞，唔好同英文 will 混淆。
+  - subskill_id: preferences
+    explanation: gern 表達鍾意做某活動；lieber 可以比較偏好，係同 gern 對應嘅比較級。
+    examples:
+      - text: Ich fahre lieber mit dem Zug als mit dem Bus.
+        meaning: 比起搭巴士，我更鍾意搭火車。
+        note: lieber … als 比較偏好；兩個交通短語入面 mit 都要求第三格。
+  - subskill_id: emotions
+    explanation: sich freuen über 加第四格，表示為某事開心。反身代名詞要配合有感受嘅人。
+    examples:
+      - text: Ich freue mich über deine Nachricht.
+        meaning: 收到你嘅訊息，我好開心。
+        note: ich 對應 mich；über deine Nachricht 交代開心原因。
+  - subskill_id: opinions
+    explanation: meiner Meinung nach 表明個人立場。整個短語放主句開頭時，限定動詞跟住佢，主語喺動詞後面。
+    examples:
+      - text: Meiner Meinung nach ist dieser Weg zu lang.
+        meaning: 我覺得呢條路太長。
+        note: ist 跟住整個引入短語；zu lang 係評價，唔係只報告距離。
+  - subskill_id: agreement_disagreement
+    explanation: das sehe ich auch so 或 da bin ich anderer Meinung 要連到正討論嘅主張。同意觀點同接受邀請係兩回事。
+    examples:
+      - text: "Da bin ich anderer Meinung: Die Reparatur lohnt sich noch."
+        meaning: 呢點我唔同意：維修仍然值得。
+        note: 回應夥伴話唔值得整嘅立場。da 指返嗰個觀點，後半句交代相反判斷。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/german/skills/feelings-viewpoints/german-feelings-viewpoints-explained-in-english.yaml
+    at revision german-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - umich_de_modals2026
+    - umich_de_comparison2026
+    - umich_de_prepositional2026
+    - goethe_de_discussion2026
+    - umich_de_connectors2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/german/skills/feelings-viewpoints/german-feelings-viewpoints-explained-in-english.yaml
+        at revision german-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - umich_de_modals2026
+        - umich_de_comparison2026
+        - umich_de_prepositional2026
+        - goethe_de_discussion2026
+        - umich_de_connectors2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

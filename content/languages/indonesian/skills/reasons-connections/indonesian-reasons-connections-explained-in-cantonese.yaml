@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: indonesian
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Karena 引出情況或者行動嘅原因；後面嗰個分句交代理由。
+    examples:
+      - text: Saya berhenti mencetak karena tintanya habis.
+        meaning: 因為啲墨用晒，我停咗印嘢。
+        note: 冇墨解釋咗點解停印。過去嘅意思來自語境，唔係動詞時態詞尾。
+  - subskill_id: consequences
+    explanation: 口語 jadi 可以引出前述情況嘅結果，唔係只表示下一件事。
+    examples:
+      - text: Tintanya habis, jadi saya membeli tinta baru.
+        meaning: 啲墨用晒，所以我買咗新墨。
+        note: 買墨被表達成用晒墨之後嘅應對；呢度 baru 修飾 tinta。
+  - subskill_id: conditions
+    explanation: Kalau 將一個可能情況同喺嗰種情況下嘅結果連起來。印尼文唔需要套用英文式嘅條件句時態配搭。
+    examples:
+      - text: Kalau hujan, kita bekerja di dalam.
+        meaning: 如果落雨，我哋就喺入面做嘢。
+        note: 落雨係改喺室內做嘢嘅條件，唔代表而家已經落緊雨。
+  - subskill_id: contrast
+    explanation: Tetapi 連接互相對照嘅考慮因素；兩邊都要有足夠內容，先睇得出對比。
+    examples:
+      - text: Kertas ini murah, tetapi mudah robek.
+        meaning: 呢種紙平，但好容易爛。
+        note: 價錢平同一個缺點形成對比；mudah robek 表示容易撕爛。
+  - subskill_id: supporting_claims
+    explanation: Karena 可以為判斷提供理據；理由應該支持所講嘅優點或者結論。
+    examples:
+      - text: Menurut saya, desain ini lebih baik karena tulisannya lebih jelas.
+        meaning: 我覺得呢個設計好啲，因為啲字清楚啲。
+        note: 字體較清楚係支持設計評價嘅證據，唔係加一個無關事實。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/indonesian/skills/reasons-connections/indonesian-reasons-connections-explained-in-english.yaml
+    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/indonesian/skills/reasons-connections/indonesian-reasons-connections-explained-in-english.yaml
+        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

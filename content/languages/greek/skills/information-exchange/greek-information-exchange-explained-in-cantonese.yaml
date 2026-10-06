@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: greek
+skill_id: information_exchange
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: πότε 問幾時；問句可以沿用一般動詞結構，唔需要英文式助動詞。希臘文問號寫作 ;。
+    examples:
+      - text: Πότε ανοίγει το συνεργείο αύριο;
+        meaning: 間維修舖聽日幾點開門？
+        note: πότε 問時間，αύριο 指日子；ανοίγει 係第三人稱單數，主語係 το συνεργείο。
+  - subskill_id: answering_information
+    explanation: 回答可以只提供被問資訊。鐘點用 στις 加時間；事件同日子清楚時唔使重複成句。
+    examples:
+      - text: Στις εννέα το πρωί.
+        meaning: 朝早九點。
+        note: 回答維修舖聽日幾點開；冇問題語境時，呢個短語唔會自動交代邊件事。
+  - subskill_id: checking_facts
+    explanation: 是非問句可以提出具體說法供確認。措辭似陳述句時，標點或語調標示疑問；用嚟核實候選事實。
+    examples:
+      - text: Το συνεργείο ανοίγει στις εννέα, σωστά;
+        meaning: 間維修舖九點開門，啱唔啱？
+        note: σωστά; 請對方確認時間；如果問題係聽漏詞語，就可能要改為釐清問題。
+  - subskill_id: useful_detail
+    explanation: 補充能幫對方識別地方或使用資訊嘅細節。名詞短語同位置短語已可能足夠，唔需要特定「細節時態」。
+    examples:
+      - text: Η είσοδος είναι στην πίσω πλευρά του κτιρίου.
+        meaning: 入口喺棟樓後面。
+        note: 畀咗地址之後，再精確交代入口；του κτιρίου 係屬格，指出邊棟樓。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/greek/skills/information-exchange/greek-information-exchange-explained-in-english.yaml
+    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/greek/skills/information-exchange/greek-information-exchange-explained-in-english.yaml
+        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - poulopoulou_el_grammar2015
+        - hatzisavvidis_el_school_grammar2026
+        - tsaggalidis_el_person2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

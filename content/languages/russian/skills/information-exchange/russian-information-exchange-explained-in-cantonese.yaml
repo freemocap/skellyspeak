@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: russian
+skill_id: information_exchange
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Во сколько問事件喺幾點發生。
+    examples:
+      - text: Во сколько закрывается мастерская?
+        meaning: 間工場幾點閂門？
+        note: 未知資料係關門時間，唔係有冇工場。
+  - subskill_id: answering_information
+    explanation: 介詞時間短語可以直接回答上句。
+    examples:
+      - text: В пять часов.
+        meaning: 五點鐘。
+        note: 回應關門時間問題，前文提供省略咗嘅事件。
+  - subskill_id: checking_facts
+    explanation: 命題後加верно，邀請確認所提供資料。
+    examples:
+      - text: Мастерская закрывается в пять, верно?
+        meaning: 間工場五點閂門，係咪？
+        note: 提出五點作待核實資料。
+  - subskill_id: useful_detail
+    explanation: 位置描述可以幫聽者分辨所需入口。
+    examples:
+      - text: Вход со стороны двора.
+        meaning: 入口喺庭院嗰邊。
+        note: 回應點搵入口嘅問題，提供有用地標。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/russian/skills/information-exchange/russian-information-exchange-explained-in-english.yaml
+    at revision russian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - cornell_russian_agreement2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/russian/skills/information-exchange/russian-information-exchange-explained-in-english.yaml
+        at revision russian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - cornell_russian_agreement2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

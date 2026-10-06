@@ -1,0 +1,90 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: german
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 現在式可以描述習慣或當下活動。gerade 可以表明而家做緊，唔需要英文式進行結構。
+    examples:
+      - text: Ich prüfe gerade die Reifen.
+        meaning: 我而家檢查緊啲車胎。
+        note: prüfe 係第一人稱現在式；gerade 定位當下。
+  - subskill_id: past_events
+    explanation: 完成式用 haben 或 sein 嘅限定形式，加過去分詞。口語常用完成式；簡單過去式亦可講過去，選擇取決於動詞同語體。
+    examples:
+      - text: Gestern habe ich den Fahrradkorb repariert.
+        meaning: 噚日我整咗個單車籃。
+        note: habe repariert 係用 haben 構成嘅完成式。-ieren 動詞嘅分詞 repariert 唔加 ge-。
+  - subskill_id: future_events
+    explanation: 現在式加將來時間詞可以描述之後安排。werden 加不定式亦可用，但唔係所有將來意思都必須用。
+    examples:
+      - text: Nächsten Freitag fährt unser Zug um sieben Uhr ab.
+        meaning: 下星期五，我哋班火車七點開。
+        note: nächsten Freitag 定位將來；abfahren 嘅 ab 喺主句分開放。
+  - subskill_id: duration_frequency
+    explanation: 由以前開始而延續至今嘅事，可以用 seit 加第三格同現在式。jeden Freitag 呢類表達重複，唔係已持續幾耐。
+    examples:
+      - text: Ich arbeite seit zwei Wochen in dieser Werkstatt.
+        meaning: 我喺呢間維修舖返工兩個禮拜喇。
+        note: seit zwei Wochen 計持續至今嘅時間；英文譯文用完成式，唔代表德文都要跟。
+  - subskill_id: event_sequence
+    explanation: erst 同 dann 交代連續動作。dann 可以放主句第一位，之後跟限定動詞。
+    examples:
+      - text: Erst packen wir die Taschen, dann schließen wir die Tür ab.
+        meaning: 我哋先執好啲袋，再鎖門。
+        note: 兩個副詞交代次序；schließen … ab 係 abschließen 分開嘅形式，唔表示因果。
+  - subskill_id: event_phase
+    explanation: gerade 或 noch 可以描述進行中工作；fertig sein mit 表示完成，mit 後面嘅工作用第三格。
+    examples:
+      - text: Ich bin jetzt mit dem Bericht fertig.
+        meaning: 我而家寫完份報告喇。
+        note: mit dem Bericht 指完成嘅任務；fertig 表達階段，唔係只交代過去時間。
+      - text: Ich arbeite noch am Bericht.
+        meaning: 我仲做緊份報告。
+        note: noch 表示持續；arbeiten an 用第三格，am 係 an dem。呢句同上面已完成形成對比。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/german/skills/time-events/german-time-events-explained-in-english.yaml at revision
+    german-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - umich_de_tenses2026
+    - umich_de_prepositions2026
+    - umich_de_connectors2026
+    - umich_de_adverbs2026
+    - umich_de_prepositional2026
+    - duden_de_fertig2026
+    - goethe_de_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/german/skills/time-events/german-time-events-explained-in-english.yaml at revision
+        german-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+        independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - umich_de_tenses2026
+        - umich_de_prepositions2026
+        - umich_de_connectors2026
+        - umich_de_adverbs2026
+        - umich_de_prepositional2026
+        - duden_de_fertig2026
+        - goethe_de_discourse2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

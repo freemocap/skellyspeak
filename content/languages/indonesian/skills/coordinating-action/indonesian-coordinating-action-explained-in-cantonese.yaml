@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: indonesian
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: Tolong 配合命令式，可以請人幫手做一件事。命令式動詞未必保留陳述句用嘅主動前綴。
+    examples:
+      - text: Tolong pindahkan kursi ini.
+        meaning: 唔該幫手搬開張凳。
+        note: Pindahkan 叫對方搬張凳；tolong 將呢個要求表達成請人幫忙。
+  - subskill_id: offers_invitations
+    explanation: 招待人嗰陣，可以用 mau 加提供嘅物品問對方想唔想要。語境會交代接受招待嘅人係邊個。
+    examples:
+      - text: Mau secangkir teh?
+        meaning: 你想唔想飲杯茶？
+        note: 主人招呼客人飲茶時講。Secangkir 指一杯。
+  - subskill_id: suggestions
+    explanation: Mari 可以提出一齊做嘅事。Kita 明確包括聽緊嘅對方。
+    examples:
+      - text: Mari kita periksa warnanya bersama.
+        meaning: 不如我哋一齊檢查吓隻色。
+        note: 講者提議大家一齊檢查；bersama 再強調共同參與。
+  - subskill_id: commitments
+    explanation: 安排分工時，將來嘅陳述可以表示願意負責一件事。究竟係承諾定預測，要睇成段對話。
+    examples:
+      - text: Saya akan membawa alatnya besok.
+        meaning: 聽日我會帶嗰啲器材嚟。
+        note: 約好活動後，自願負責帶器材時可以咁講。-nya 指返嗰啲器材。
+  - subskill_id: accepting_declining
+    explanation: Maaf 可以令拒絕冇咁生硬。收到邀請後，講自己做唔到，就可以婉拒邀請。
+    examples:
+      - text: Maaf, saya tidak bisa datang malam ini.
+        meaning: 唔好意思，我今晚嚟唔到。
+        note: 用嚟回應今晚嘅邀請，表示唔會出席。
+  - subskill_id: negotiating_plans
+    explanation: Bagaimana kalau 用嚟提出另一個方案。先講清楚原定安排撞咗乜嘢，對方就容易明白點解要改。
+    examples:
+      - text: Jumat saya sibuk. Bagaimana kalau kita bertemu Sabtu?
+        meaning: 我星期五冇時間。不如星期六見？
+        note: 回應星期五見面嘅建議；改另一日，正好處理頭先講嘅時間衝突。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/indonesian/skills/coordinating-action/indonesian-coordinating-action-explained-in-english.yaml
+    at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/indonesian/skills/coordinating-action/indonesian-coordinating-action-explained-in-english.yaml
+        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

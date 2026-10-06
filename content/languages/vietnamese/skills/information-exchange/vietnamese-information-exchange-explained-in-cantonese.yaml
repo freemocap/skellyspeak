@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: vietnamese
+skill_id: information_exchange
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: Mấy giờ喺正常分句次序中問鐘點。
+    examples:
+      - text: Cửa hàng đóng cửa lúc mấy giờ?
+        meaning: 間舖頭幾點閂門？
+        note: Lúc mấy giờ指出未知關門時間。
+  - subskill_id: answering_information
+    explanation: 已知問題後，可以用短時間表達回答。
+    examples:
+      - text: Lúc năm giờ.
+        meaning: 五點鐘。
+        note: 回應舖頭關門時間；giờ標示鐘點。
+  - subskill_id: checking_facts
+    explanation: 命題後面嘅đúng không問內容啱唔啱。
+    examples:
+      - text: Cửa hàng đóng cửa lúc năm giờ, đúng không?
+        meaning: 間舖頭五點閂門，係咪？
+        note: 講者核實候選鐘點。
+  - subskill_id: useful_detail
+    explanation: 位置短語提供聽者所需嘅分辨資料。
+    examples:
+      - text: Cửa vào ở phía sân.
+        meaning: 入口喺庭院嗰邊。
+        note: 聽者搵緊入口時，呢個資料有用。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/vietnamese/skills/information-exchange/vietnamese-information-exchange-explained-in-english.yaml
+    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - msu_vietnamese_identity2026
+    - msu_vietnamese_duration2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/vietnamese/skills/information-exchange/vietnamese-information-exchange-explained-in-english.yaml
+        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - msu_vietnamese_identity2026
+        - msu_vietnamese_duration2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

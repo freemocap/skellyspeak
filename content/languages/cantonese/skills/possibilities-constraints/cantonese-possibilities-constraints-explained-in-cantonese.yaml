@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: cantonese
+skill_id: possibilities_constraints
+explanation_language: cantonese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: ability
+    explanation: 識 喺呢度講學返嚟嘅能力，要同許可分開。
+    examples:
+      - text: 我識整麵包。
+        meaning: 我識整麵包。
+        note: 呢句講識做，唔係話有人批准講者整麵包。
+  - subskill_id: permission
+    explanation: 呢個情境用 可唔可以 請求許可；喺其他場合亦可以問實際可行性。
+    examples:
+      - text: 我可唔可以用呢張枱？
+        meaning: 我可唔可以用呢張枱？
+        note: 問負責地方嘅人時，重點係准唔准用。
+  - subskill_id: obligation
+    explanation: 一定要 表達要求，今日 交代期限。
+    examples:
+      - text: 我今日一定要交份功課。
+        meaning: 我今日一定要交功課。
+        note: 唔係淨係想交，而係有必須完成嘅要求。
+  - subskill_id: possibility
+    explanation: 可能 表示唔肯定，會 支持預測；兩者都冇話已經落過雨。
+    examples:
+      - text: 聽日可能會落雨。
+        meaning: 聽日可能會落雨。
+        note: 聽日 將可能事件定位喺將來，唔係而家嘅天氣記錄。
+  - subskill_id: certainty
+    explanation: 肯定 表達講者嘅把握，唔係個說法屬實嘅證明。
+    examples:
+      - text: 我肯定佢已經返咗屋企。
+        meaning: 我肯定佢已經返咗屋企。
+        note: 講者好有把握，但呢句本身唔提供核實證據。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/cantonese/skills/possibilities-constraints/cantonese-possibilities-constraints-explained-in-english.yaml
+    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/cantonese/skills/possibilities-constraints/cantonese-possibilities-constraints-explained-in-english.yaml
+        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - cuhk_cantonese_grammar20261005
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

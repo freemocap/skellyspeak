@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: italian
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Stare 加副動詞明確表示進行中活動；簡單現在式亦可按語境描述當前或習慣活動。
+    examples:
+      - text: Sto sistemando gli attrezzi.
+        meaning: 我整理緊啲工具。
+        note: Sto 係 stare 嘅第一人稱現在式；sistemando 係 sistemare 嘅副動詞。
+  - subskill_id: past_events
+    explanation: 近過去時用 avere 或 essere 嘅現在式加過去分詞。仲有其他過去時，選擇要睇事件、語境同用法。
+    examples:
+      - text: Ieri ho comprato due pennelli.
+        meaning: 我尋日買咗兩支畫筆。
+        note: Ho comprato 用 avere 加分詞 comprato；ieri 明確將購買放喺過去。
+  - subskill_id: future_events
+    explanation: 有時間詞定位時，現在式可以描述安排好嘅將來事件。將來式係另一個選擇，唔係所有稍後事件都必須用。
+    examples:
+      - text: Domani il corso comincia alle nove.
+        meaning: 聽日堂課九點開始。
+        note: Domani 指明將來；alle 引出鐘點，comincia 本身係現在式。
+  - subskill_id: duration_frequency
+    explanation: 仍然持續嘅情況，可以用現在式加 da 同時長，交代持續咗幾耐；ogni venerdì 等表達就交代頻率。
+    examples:
+      - text: Lavoro qui da sei mesi.
+        meaning: 我喺呢度做咗六個月。
+        note: 呢份工作而家仲繼續。意大利文用現在式；廣東話可以加時長表達延續至今。
+  - subskill_id: event_sequence
+    explanation: Prima 同 poi 排列先後，但時間次序本身唔表示第一件事造成第二件事。
+    examples:
+      - text: Prima prepariamo il tavolo, poi mettiamo i piatti.
+        meaning: 我哋先準備張枱，再擺碟。
+        note: Prima 同 poi 交代呢兩個活動嘅次序。
+  - subskill_id: event_phase
+    explanation: Finire di 加不定式表示做完一個過程；仲做緊或者中途停低係唔同階段。
+    examples:
+      - text: Ho finito di dipingere la porta.
+        meaning: 我已經油完道門。
+        note: Finito di dipingere 表示油門工序完成。
+      - text: Sto ancora dipingendo la porta.
+        meaning: 我仲油緊道門。
+        note: Sto dipingendo 表示進行中，ancora 表示繼續；同完成工作形成對比。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/italian/skills/time-events/italian-time-events-explained-in-english.yaml at revision
+    italian-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - treccani_it_present2026
+    - treccani_it_past2026
+    - treccani_it_periphrases2026
+    - treccani_it_connectives2026
+    - zanichelli_it_prepositions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/italian/skills/time-events/italian-time-events-explained-in-english.yaml at
+        revision italian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - treccani_it_present2026
+        - treccani_it_past2026
+        - treccani_it_periphrases2026
+        - treccani_it_connectives2026
+        - zanichelli_it_prepositions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

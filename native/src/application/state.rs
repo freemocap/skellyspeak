@@ -12,6 +12,7 @@ pub(crate) struct Application {
     pub(crate) admission: admission::Admission,
     pub(super) generations: generation::Registry,
     pub(crate) listening: Mutex<Option<Arc<crate::speech::recording::continuous::Session>>>,
+    pub(crate) microphone_test: Mutex<Option<crate::speech::recording::microphone_test::Session>>,
     pub(crate) capture: Mutex<Option<voice::Recording>>,
     /// Current manual take identity and its failed audio, if available for Retry.
     pub(crate) failed_take: Mutex<voice::RetryTake>,
@@ -70,6 +71,7 @@ impl Application {
             admission: admission::Admission::new(),
             reading: Default::default(),
             generations: generation::Registry::default(),
+            microphone_test: Mutex::new(None),
             capture: Mutex::new(None),
             failed_take: Default::default(),
             listening: Mutex::new(None),

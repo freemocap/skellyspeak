@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: people_places
+guidance: Assess people places from the learner’s contribution in context. 呢位係我朋友。 (This is my
+  friend.) can demonstrate identification. 係 links a person to a noun description; 位 is a respectful
+  classifier for people. 呢間房好靜。 (This room is quiet.) can demonstrate qualities states. 好靜
+  predicates a quality directly; an English “is” does not require inserting 係. 佢喺圖書館。 (They are at
+  the library.) can demonstrate location movement. 喺 locates the person. Singular 佢 does not encode
+  gender like English he/she. 呢本書係我嘅。 (This book is mine.) can demonstrate possession relations. 我嘅
+  identifies the possessor without repeating 書. 我有三本書。 (I have three books.) can demonstrate
+  quantity comparison. 本 is the classifier for 書 here. Quantity does not require a plural ending on
+  書. Credit a function only when accomplished in the exchange; copied isolated forms are
+  insufficient. Do not require Mandarin forms or infer Cantonese pronunciation from written
+  characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

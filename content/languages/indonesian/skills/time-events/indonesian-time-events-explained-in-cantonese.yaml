@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: indonesian
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 動詞前面加 sedang，明確表示動作進行中。動詞唔會按講者人稱變位。
+    examples:
+      - text: Saya sedang menggambar peta.
+        meaning: 我畫緊地圖。
+        note: Sedang 表示畫緊，唔係話張地圖已經畫完。
+  - subskill_id: past_events
+    explanation: Kemarin 呢類時間詞可以將事件放喺過去，動詞本身唔需要加過去式詞尾。
+    examples:
+      - text: Kemarin saya mencetak poster.
+        meaning: 我尋日印咗海報。
+        note: Kemarin 指明印海報發生喺尋日；mencetak 喺其他時間語境都可以用同一個形式。
+  - subskill_id: future_events
+    explanation: Akan 可以標示預計嘅行動，besok 就係聽日。冇 akan，都可以靠時間詞同語境表達將來。
+    examples:
+      - text: Besok kami akan memasang poster.
+        meaning: 聽日我哋會貼海報。
+        note: Kami 嘅我哋唔包括聽者；akan 同 besok 將貼海報放喺之後。
+  - subskill_id: duration_frequency
+    explanation: Selama 加時間數量表示持續幾耐；setiap Jumat 呢類表達另行交代重複頻率。
+    examples:
+      - text: Kami berlatih selama dua jam setiap Jumat.
+        meaning: 我哋逢星期五練習兩個鐘。
+        note: Dua jam 量度每次練習嘅時長，唔係鐘點；setiap Jumat 交代逢星期五。
+  - subskill_id: event_sequence
+    explanation: Pertama 同 lalu 排列步驟。每一步可以用命令式交代要做乜。
+    examples:
+      - text: Pertama, pilih warna. Lalu, campurkan cat.
+        meaning: 首先揀隻色，然後調油。
+        note: 呢啲標記交代先後，唔係話揀色導致調油。
+  - subskill_id: event_phase
+    explanation: Selesai 明確表示做完一件事；sudah 表示呢個完成狀態已經達成。
+    examples:
+      - text: Saya sudah selesai mencetak poster.
+        meaning: 我已經印完啲海報。
+        note: Selesai mencetak 指出印刷工作已經完成，比單純話尋日印過嘢提供更多資料。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/indonesian/skills/time-events/indonesian-time-events-explained-in-english.yaml at
+    revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/indonesian/skills/time-events/indonesian-time-events-explained-in-english.yaml at
+        revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

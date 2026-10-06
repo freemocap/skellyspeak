@@ -1525,5 +1525,16 @@
   "Try again.": "请再试一次。",
   "Something went wrong": "出了点问题",
   "Try again, and open the details if it keeps happening.": "请再试一次；如果问题持续出现，请打开详情。",
-  "Add credits": "添加额度"
+  "Add credits": "添加额度",
+  "The microphone stopped sending audio. Check its connection.": "麦克风已停止传输音频。请检查连接。",
+  "Very little sound is reaching this microphone. Check mute or move closer.": "此麦克风接收到的声音很小。请检查是否静音，或靠近一些。",
+  "Sound detected": "检测到声音",
+  "Say something to check the input.": "请说句话以检查输入。",
+  "Stop test": "停止测试",
+  "Test microphone": "测试麦克风",
+  "Using: {name}": "正在使用：{name}",
+  "Local test only. No audio is saved or uploaded. Stops after 15 seconds.": "仅在本地测试，不保存或上传音频。15秒后停止。",
+  "Optional: check your microphone before your first conversation.": "可选：在首次对话前检查麦克风。",
+  "Cantonese": "粤语",
+  "Mandarin Chinese": "普通话"
 }

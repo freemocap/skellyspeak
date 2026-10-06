@@ -4,7 +4,7 @@ Status: implemented; verification results below. Approved direction: preserve
 workspace history through consecutive upgrades beginning at format 45. This
 supersedes the previous development reset policy for supported workspaces.
 
-Current format: **51**, with explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
+Current format: **52**. The 51 → 52 step adopts the bundled v4 Turbo synthesis default while preserving historical receipts and custom model IDs. The preceding format 51 introduced explicit skill/subskill conversation targets. The 50 → 51 step preserves records and expands the closed direction contract. The 49 → 50 step removes only the coaching activation
 preference: coaching is required on new turns. Captured turn policy, operations,
 learner revision, evidence and awards remain unchanged. The removed preference
 is intentionally retired; the three optional-work preferences retain their values.

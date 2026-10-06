@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: reasons_connections
+guidance: Assess reasons connections from the learner’s contribution in context. 因為落雨，我哋留喺屋企。
+  (Because it is raining, we are staying home.) can demonstrate causes reasons. 因為 connects the
+  weather to the decision. Look for a causal relation, not just a connector. 間舖頭閂咗，所以我哋去第二間。 (The
+  shop has closed, so we are going to another one.) can demonstrate consequences. 所以 introduces a
+  consequence supported by the first clause. 如果你得閒，我哋就一齊去。 (If you are free, we will go together.)
+  can demonstrate conditions. 如果 establishes a condition and 就 introduces the dependent outcome; the
+  condition is not asserted as fact. 呢間舖頭細，但係啲嘢幾好食。 (This shop is small, but the food is quite
+  tasty.) can demonstrate contrast. 但係 contrasts evaluations along different dimensions; the two
+  facts are compatible. 我覺得呢度方便，因為附近有地鐵站。 (I think this place is convenient because there is an MTR
+  station nearby.) can demonstrate supporting claims. The station is evidence for the evaluation.
+  Assess relevance rather than answer length. Credit a function only when accomplished in the
+  exchange; copied isolated forms are insufficient. Do not require Mandarin forms or infer Cantonese
+  pronunciation from written characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

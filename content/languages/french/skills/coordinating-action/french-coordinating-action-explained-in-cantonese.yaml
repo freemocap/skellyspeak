@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: coordinating_action
+language: french
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: 可以用祈使句或合適問句請人行動。pourriez-vous 呢類條件式可以令請求柔和啲；tu 同 vous 要配合雙方關係。
+    examples:
+      - text: Pourriez-vous déplacer cette chaise, s’il vous plaît ?
+        meaning: 唔該，你可唔可以搬開呢張椅？
+        note: pourriez-vous 後接不定式，禮貌咁要求行動，唔係測試對方能力。
+  - subskill_id: offers_invitations
+    explanation: 提出對方可以接受或拒絕嘅幫忙或邀請。用 vouloir 嘅問句，喺合適語境可以有呢個功能。
+    examples:
+      - text: Tu veux venir au marché avec nous samedi ?
+        meaning: 你想唔想星期六同我哋去街市？
+        note: 邀請對方參與具體計劃，唔係一般喜好調查。
+  - subskill_id: suggestions
+    explanation: 提出一個未定案選項。on pourrait 加不定式，或者 si 加未完成過去式問句，都可以引入建議。
+    examples:
+      - text: On pourrait déjeuner près de la gare.
+        meaning: 我哋可以考慮喺車站附近食午飯。
+        note: pourrait 將午飯地點表達為建議；on 呢度指參與對話嘅人，唔係泛指所有人。
+  - subskill_id: commitments
+    explanation: 講清楚自己會負責乜。回應共同計劃時，將來式可以作承諾，但單靠時態唔能夠證明係承諾。
+    examples:
+      - text: D’accord, j’apporterai les assiettes.
+        meaning: 好，由我帶碟嚟。
+        note: 商量分工之後，apporterai 表示講者負責帶碟。
+  - subskill_id: accepting_declining
+    explanation: 要回應實際邀請或提議。簡短接受或有禮貌拒絕可以足夠；除非場合需要，否則理由唔係必須。
+    examples:
+      - text: Merci pour l’invitation, mais je ne pourrai pas venir.
+        meaning: 多謝邀請，不過我嚟唔到。
+        note: 道謝回應邀請，ne pourrai pas 拒絕出席，唔係否定邀請者。
+  - subskill_id: negotiating_plans
+    explanation: 就對方嘅安排提出可行替代、限制或確認問題，講清楚新舊選項嘅關係。
+    examples:
+      - text: Vendredi ne me convient pas. Est-ce que samedi vous irait ?
+        meaning: 星期五我唔方便。星期六啱唔啱你？
+        note: 第一句講限制；條件式 irait 提出替代，留待對方同意。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/french/skills/coordinating-action/french-coordinating-action-explained-in-english.yaml
+    at revision french-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - tex_conditional2026
+    - waystage_language_functions
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/coordinating-action/french-coordinating-action-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tex_conditional2026
+        - waystage_language_functions
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/coordinating-action/french-coordinating-action-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tex_conditional2026
+        - waystage_language_functions
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

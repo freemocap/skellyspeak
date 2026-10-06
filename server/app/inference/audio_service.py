@@ -37,11 +37,6 @@ def _configured(cfg, *, speech=False):
         raise AudioRejection(503, "AUDIO_NOT_CONFIGURED", "ElevenLabs audio is not configured on this server.")
 
 
-def _model(value, expected):
-    if value != expected:
-        raise AudioRejection(400, "AUDIO_MODEL_MISMATCH", f"Select {expected} for this server's audio route.")
-
-
 async def _execute(who, reserve, settle, amount, invoke, *, provider, label, create,
                    reservation=None, raise_cancelled_unknown=False, progress=None):
     cost = 0
@@ -112,7 +107,9 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
             raise HTTPException(400, "Invalid speech request JSON.") from None
         if not isinstance(value, dict) or set(value) != {"model", "text", "language_code"}:
             raise HTTPException(400, "Speech requires model, prepared text and language_code.")
-        _model(value["model"], cfg.tts_model)
+        model = value["model"]
+        if not isinstance(model, str) or model not in cfg.tts_models or model not in {"eleven_v3", "eleven_v4_turbo"}:
+            raise AudioRejection(400, "AUDIO_MODEL_MISMATCH", "Select a synthesis model offered by this server.")
         code = value["language_code"]
         if code is not None and (not isinstance(code, str) or not code.isascii() or not code.isalpha() or not 2 <= len(code) <= 3):
             raise HTTPException(400, "Invalid provider language code.")
@@ -124,10 +121,13 @@ async def synthesize(request, who, cfg, reserve, settle, read_body):
         if not valid:
             raise HTTPException(400, "Invalid speech source text.")
         # [@elevenlabs_pricing_20260918] Explicit service rate, not actual billing.
-        source = SynthesisRequest(cfg.tts_model, cfg.elevenlabs_voice_id, text, language_code=code)
-        if len(text) > 5_000:
+        source = SynthesisRequest(model, cfg.elevenlabs_voice_id, text, language_code=code)
+        limit = 2_000 if model == "eleven_v4_turbo" else 5_000
+        if len(text) > limit:
             raise HTTPException(400, "Speech exceeds provider input limit.")
-        amount = len(text) * cfg.tts_micros_per_character
+        # [@elevenlabs_api_pricing20261005] Regular rates; never assume promotional billing.
+        rate = cfg.tts_turbo_micros_per_character if model == "eleven_v4_turbo" else cfg.tts_micros_per_character
+        amount = len(text) * rate
         if request.headers.get('accept') == 'application/x-ndjson':
             from server.app.inference.speech_streaming import response
 

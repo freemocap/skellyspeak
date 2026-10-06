@@ -1,0 +1,83 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: italian
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: 用 puoi 加不定式問句，可以請人做一件事。Per favore 令要求有禮貌；亦可以用條件式 potresti。
+    examples:
+      - text: Puoi chiudere la finestra, per favore?
+        meaning: 唔該可唔可以閂埋隻窗？
+        note: 對附近幫到手嘅人講，就係請佢閂窗。Chiudere 喺 puoi 後面維持不定式。
+  - subskill_id: offers_invitations
+    explanation: Vuoi venire 問句可以邀請對方參加活動。係邀請定純粹問喜好，要睇語境。
+    examples:
+      - text: Vuoi venire al laboratorio con noi?
+        meaning: 你想唔想同我哋一齊去工作坊？
+        note: 安排出行時講，係邀請參與；vuoi 非正式噉稱呼一個人。
+  - subskill_id: suggestions
+    explanation: Potremmo 加不定式，提出可以一齊做嘅事。條件式令提議柔和啲，唔代表大家已經同意。
+    examples:
+      - text: Potremmo fare una pausa in giardino.
+        meaning: 我哋可以去花園抖吓。
+        note: Potremmo 係 potere 嘅第一人稱複數條件式；fare 引出建議活動。
+  - subskill_id: commitments
+    explanation: 分工語境下，現在式可以表示承擔將來嘅工作。承諾唔一定要用將來式。
+    examples:
+      - text: Porto i pennelli per tutti.
+        meaning: 我會幫大家帶畫筆。
+        note: 大家分配邊個帶工作坊用品時，講者負責帶畫筆。
+  - subskill_id: accepting_declining
+    explanation: 回應要交代會唔會接受具體邀請。Non posso venire 可以拒絕，grazie 就多謝對方邀請。
+    examples:
+      - text: Grazie, ma domani non posso venire.
+        meaning: 多謝你，不過我聽日嚟唔到。
+        note: 回應聽日嘅邀請；第二個分句明確拒絕，單講 grazie 未交代會唔會嚟。
+  - subskill_id: negotiating_plans
+    explanation: 針對已知安排，用問句等方式提出改動。冇先前計劃，淨係講一個日子唔算協商。
+    examples:
+      - text: Venerdì non posso. Possiamo spostare l’incontro a sabato?
+        meaning: 我星期五唔得。可唔可以改星期六見？
+        note: 回應星期五見面嘅提議；先講限制，再提出替代日子。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/italian/skills/coordinating-action/italian-coordinating-action-explained-in-english.yaml
+    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_conditional2026
+    - treccani_it_questions2026
+    - treccani_it_present2026
+    - treccani_it_discourse2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/italian/skills/coordinating-action/italian-coordinating-action-explained-in-english.yaml
+        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - zanichelli_it_modals2026
+        - treccani_it_conditional2026
+        - treccani_it_questions2026
+        - treccani_it_present2026
+        - treccani_it_discourse2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

@@ -4,6 +4,8 @@ import { PcmDelivery } from './pcm-delivery'
 import { WaveBuffer } from './wave-buffer'
 
 export interface BrowserRecording {
+  deviceLabel?: string
+
   wave: WaveSource
   cancel: () => void
   finish: () => Promise<string>
@@ -67,6 +69,9 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
     void context.close().catch(onError)
   }
   const fail = (error: unknown) => { if (stopped) return; cleanup(); rejectFinish?.(error as Error); onError(error) }
+  for (const track of stream.getAudioTracks?.() ?? []) {
+    track.addEventListener('ended', () => fail(new Error('The microphone stopped sending audio. Check its connection.')))
+  }
   if (push) delivery = new PcmDelivery(context.sampleRate, push, fail)
   else if (analyse) copies = new PcmDelivery(context.sampleRate, analyse, fail)
   const cancel = () => { cleanup(); rejectFinish?.(new Error('Recording was cancelled.')) }
@@ -96,6 +101,7 @@ export async function startBrowserRecording(onError: (error: unknown) => void, p
     }
     if (!push) timer = setTimeout(() => fail(new Error('Recording exceeded two minutes. Please record a shorter message.')), 120000)
     return {
+      deviceLabel: stream.getAudioTracks?.()[0]?.label,
       cancel,
       wave,
       finish: () => new Promise<string>((resolve, reject) => {

@@ -15,7 +15,7 @@ def test_availability_uses_configured_credentials_and_synthesis_voice():
     cfg = replace(cfg, elevenlabs_key='fixture')
     assert availability(cfg)['available_models'] == ['scribe_v2']
     cfg = replace(cfg, elevenlabs_voice_id='voice', tts_model='eleven_v3')
-    assert set(availability(cfg)['available_models']) == {'scribe_v2', 'eleven_v3'}
+    assert set(availability(cfg)['available_models']) == {'scribe_v2', 'eleven_v3', 'eleven_v4_turbo'}
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: managing_conversation
+explanation_language: english
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: This announces departure and closes the exchange; 喇 presents a change in the situation.
+    examples:
+      - text: 我走先喇，聽日見。
+        meaning: I am off now; see you tomorrow.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: acknowledging
+    explanation: This acknowledges receipt of information without necessarily agreeing with an opinion.
+    examples:
+      - text: 明白，我記低咗。
+        meaning: Understood; I have noted it down.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: clarification
+    explanation: After an unclear reference, 邊間 requests its identification. Elsewhere it could ask for
+      new information.
+    examples:
+      - text: 你講邊間舖頭呀？
+        meaning: Which shop do you mean?
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: rephrasing
+    explanation: 即係話 introduces a reformulation; check that it restates a relevant earlier meaning.
+    examples:
+      - text: 即係話，我哋要早啲出門。
+        meaning: In other words, we need to leave earlier.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: correcting_misunderstanding
+    explanation: Replacing the incorrectly understood day repairs meaning rather than merely expressing
+      disagreement.
+    examples:
+      - text: 我講星期二，唔係星期一。
+        meaning: I said Tuesday, not Monday.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: turns_topics
+    explanation: 講開 links the new question to the current topic and helps the listener follow the transition.
+    examples:
+      - text: 講開食嘢，你鍾意煮咩呀？
+        meaning: Speaking of food, what do you like cooking?
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

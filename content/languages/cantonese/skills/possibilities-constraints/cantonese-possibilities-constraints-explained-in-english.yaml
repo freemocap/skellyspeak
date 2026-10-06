@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: possibilities_constraints
+explanation_language: english
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
+sections:
+  - subskill_id: ability
+    explanation: 識 describes learned ability here; distinguish knowledge of a skill from permission.
+    examples:
+      - text: 我識整麵包。
+        meaning: I know how to make bread.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: permission
+    explanation: 可唔可以 asks permission in this setting; elsewhere it could concern practical possibility.
+    examples:
+      - text: 我可唔可以用呢張枱？
+        meaning: May I use this table?
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: obligation
+    explanation: 一定要 expresses a requirement, with 今日 specifying its deadline.
+    examples:
+      - text: 我今日一定要交份功課。
+        meaning: I must hand in the assignment today.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: possibility
+    explanation: 可能 marks uncertainty and 會 supports a prediction; neither says rain has already occurred.
+    examples:
+      - text: 聽日可能會落雨。
+        meaning: It might rain tomorrow.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: certainty
+    explanation: 肯定 presents the speaker’s confidence, not proof that the proposition is true.
+    examples:
+      - text: 我肯定佢已經返咗屋企。
+        meaning: I am certain they have already gone home.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

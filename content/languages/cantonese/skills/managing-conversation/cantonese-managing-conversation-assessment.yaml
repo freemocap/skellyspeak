@@ -1,0 +1,35 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: managing_conversation
+guidance: Assess managing conversation from the learner’s contribution in context. 我走先喇，聽日見。 (I am
+  off now; see you tomorrow.) can demonstrate opening closing. This announces departure and closes
+  the exchange; 喇 presents a change in the situation. 明白，我記低咗。 (Understood; I have noted it down.)
+  can demonstrate acknowledging. This acknowledges receipt of information without necessarily
+  agreeing with an opinion. 你講邊間舖頭呀？ (Which shop do you mean?) can demonstrate clarification. After
+  an unclear reference, 邊間 requests its identification. Elsewhere it could ask for new information.
+  即係話，我哋要早啲出門。 (In other words, we need to leave earlier.) can demonstrate rephrasing. 即係話
+  introduces a reformulation; check that it restates a relevant earlier meaning. 我講星期二，唔係星期一。 (I
+  said Tuesday, not Monday.) can demonstrate correcting misunderstanding. Replacing the incorrectly
+  understood day repairs meaning rather than merely expressing disagreement. 講開食嘢，你鍾意煮咩呀？ (Speaking
+  of food, what do you like cooking?) can demonstrate turns topics. 講開 links the new question to the
+  current topic and helps the listener follow the transition. Credit a function only when
+  accomplished in the exchange; copied isolated forms are insufficient. Do not require Mandarin
+  forms or infer Cantonese pronunciation from written characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: vietnamese
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Vì引出情況原因。
+    examples:
+      - text: Tôi ở nhà vì trời mưa.
+        meaning: 因為落緊雨，我留喺屋企。
+        note: 落雨係留家原因；語境提供當前時間。
+  - subskill_id: consequences
+    explanation: Nên引出前述情況嘅結果。
+    examples:
+      - text: Xe buýt không đến nên tôi đi bộ.
+        meaning: 架巴士冇嚟，所以我行路。
+        note: 講述過去行程時，行路係結果；動詞唔需要時態詞尾。
+  - subskill_id: conditions
+    explanation: Nếu同thì可以將條件連到相應結果。
+    examples:
+      - text: Nếu ngày mai trời mưa thì chúng ta ở nhà.
+        meaning: 如果聽日落雨，我哋就留喺屋企。
+        note: 將來時間短語定位計劃，唔一定要加sẽ。
+  - subskill_id: contrast
+    explanation: Nhưng連接語境中有對比嘅描述。
+    examples:
+      - text: Đường ngắn nhưng dốc.
+        meaning: 條路短，但好斜。
+        note: 揀路線時，兩個性質有唔同影響。
+  - subskill_id: supporting_claims
+    explanation: 理由可以提供證據，支持帶保留嘅結論。
+    examples:
+      - text: Tôi nghĩ có người ở nhà vì đèn vẫn sáng.
+        meaning: 我諗有人喺屋企，因為盞燈仲開住。
+        note: 燈光支持推論，唔係造成有人喺屋企嘅原因。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/vietnamese/skills/reasons-connections/vietnamese-reasons-connections-explained-in-english.yaml
+    at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - msu_vietnamese_purpose2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  vietnamese-vietnam:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/vietnamese/skills/reasons-connections/vietnamese-reasons-connections-explained-in-english.yaml
+        at revision vietnamese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - msu_vietnamese_purpose2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

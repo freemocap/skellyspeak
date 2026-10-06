@@ -7,7 +7,7 @@ def availability(cfg):
     for model, definition in CATALOG['models'].items():
         configured = bool(cfg.groq_key) if definition['provider'] == 'groq' else bool(cfg.elevenlabs_key)
         if definition['task'] == 'speech':
-            configured = configured and bool(cfg.elevenlabs_voice_id) and model == cfg.tts_model
+            configured = configured and bool(cfg.elevenlabs_voice_id) and model in cfg.tts_models
         if configured:
             available.append(model)
     return {'version': 1, 'available_models': available,

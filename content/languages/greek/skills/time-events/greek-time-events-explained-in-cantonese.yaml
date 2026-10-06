@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: greek
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 希臘文現在式可以直接描述此刻進行中活動，唔需要獨立進行助動詞。τώρα 定位當下，動詞詞尾已識別講者。
+    examples:
+      - text: Τώρα φτιάχνω το ποδήλατο.
+        meaning: 我而家整緊單車。
+        note: φτιάχνω 係第一人稱單數現在式；交代正進行，冇話已整好。
+  - subskill_id: past_events
+    explanation: 不定過去式將過去事件作整體呈現。不規則詞幹要連動詞學，唔好只由現在式詞尾猜。χθες 明示過去。
+    examples:
+      - text: Χθες άλλαξα το λάστιχο.
+        meaning: 噚日我換咗車胎。
+        note: άλλαξα 係 αλλάζω 第一人稱不定過去式，報告換胎事件。
+  - subskill_id: future_events
+    explanation: 將來表達用 θα 放動詞前面；呢度完成體詞幹將帶工具呈現為整體預期事件。動詞仍有人稱詞尾。
+    examples:
+      - text: Αύριο θα φέρω τα εργαλεία.
+        meaning: 聽日我會帶工具嚟。
+        note: αύριο 交代日子，θα φέρω 講將來行動；係預測定承諾要睇對話。
+  - subskill_id: duration_frequency
+    explanation: 時間數量可以直接用賓格短語；κάθε 加星期幾表示固定頻率。重複日常活動可以用現在式。
+    examples:
+      - text: Δουλεύω εδώ τρεις ώρες κάθε Παρασκευή.
+        meaning: 我每個星期五喺呢度做三個鐘。
+        note: τρεις ώρες 交代每次時長；κάθε Παρασκευή 交代頻率。
+  - subskill_id: event_sequence
+    explanation: 時間副詞可以交代次序，唔需要每一步換時態。πρώτα 指先，μετά 指之後；程序描述可以用現在式。
+    examples:
+      - text: Πρώτα ανοίγω το κουτί και μετά βγάζω τα εργαλεία.
+        meaning: 我先開個箱，之後攞啲工具出嚟。
+        note: καί 連接兩項動作，πρώτα 同 μετά 明示先後。
+  - subskill_id: event_phase
+    explanation: 用表示完成嘅動詞講清楚做完，唔好以為任何過去式都包含完成意思；ακόμα 加現在式可以講仲進行緊。
+    examples:
+      - text: Τελείωσα την επισκευή.
+        meaning: 我完成維修喇。
+        note: τελείωσα 明示指定維修已完成，唔係只話過去做過啲工夫。
+      - text: Ακόμα φτιάχνω το ποδήλατο.
+        meaning: 我仲整緊架單車。
+        note: ακόμα 表示持續；φτιάχνω 描述未完成嘅維修活動。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/greek/skills/time-events/greek-time-events-explained-in-english.yaml at revision
+    greek-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/greek/skills/time-events/greek-time-events-explained-in-english.yaml at revision
+        greek-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+        independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - poulopoulou_el_grammar2015
+        - hatzisavvidis_el_school_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

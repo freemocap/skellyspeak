@@ -1525,5 +1525,16 @@
   "Try again.": "Tente novamente.",
   "Something went wrong": "Algo deu errado",
   "Try again, and open the details if it keeps happening.": "Tente novamente e abra os detalhes se continuar acontecendo.",
-  "Add credits": "Adicionar créditos"
+  "Add credits": "Adicionar créditos",
+  "The microphone stopped sending audio. Check its connection.": "O microfone parou de enviar áudio. Verifique a conexão.",
+  "Very little sound is reaching this microphone. Check mute or move closer.": "Este microfone está recebendo muito pouco som. Verifique se está no mudo ou aproxime-se.",
+  "Sound detected": "Som detectado",
+  "Say something to check the input.": "Diga algo para verificar a entrada.",
+  "Stop test": "Parar teste",
+  "Test microphone": "Testar microfone",
+  "Using: {name}": "Em uso: {name}",
+  "Local test only. No audio is saved or uploaded. Stops after 15 seconds.": "Teste local. Nenhum áudio é salvo ou enviado. Para após 15 segundos.",
+  "Optional: check your microphone before your first conversation.": "Opcional: verifique o microfone antes da primeira conversa.",
+  "Cantonese": "Cantonês",
+  "Mandarin Chinese": "Chinês mandarim"
 }

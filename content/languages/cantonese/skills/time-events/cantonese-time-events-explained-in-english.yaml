@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: time_events
+explanation_language: english
+shared_explanation: skills/time-events/time-events-explained-in-english.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 緊 marks an ongoing activity; it is aspect, not an English-style present-tense ending.
+    examples:
+      - text: 佢睇緊書。
+        meaning: They are reading a book.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: past_events
+    explanation: 噚日 supplies past time; 咗 presents the purchase as a completed event, not a universal
+      past-tense suffix.
+    examples:
+      - text: 我噚日買咗本書。
+        meaning: I bought a book yesterday.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: future_events
+    explanation: 聽日 anchors the future event without requiring a separate future auxiliary.
+    examples:
+      - text: 我聽日去圖書館。
+        meaning: I am going to the library tomorrow.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: duration_frequency
+    explanation: 每個星期 and 兩次 specify frequency, not how long a visit lasts.
+    examples:
+      - text: 我每個星期去兩次。
+        meaning: I go twice every week.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: event_sequence
+    explanation: 完 marks completion; 先 orders leaving after the meal. The exchange supplies the participants.
+    examples:
+      - text: 食完飯先出門。
+        meaning: Leave after finishing the meal.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: event_phase
+    explanation: 仲未 presents the expected event as not yet realised, rather than denying a habit or
+      refusing food.
+    examples:
+      - text: 我仲未食飯。
+        meaning: I have not eaten yet.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

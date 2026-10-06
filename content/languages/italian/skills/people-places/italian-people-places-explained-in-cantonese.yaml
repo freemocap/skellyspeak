@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: italian
+skill_id: people_places
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: Essere 配合名詞短語可以識別一個人。Mia 等所有詞要同名詞配合；la mia collega 呢類一般短語保留冠詞。
+    examples:
+      - text: Questa è la mia collega Sara.
+        meaning: 呢位係我同事 Sara。
+        note: Questa 同 mia 指女性；呢度 collega 按陰性配合。句子介紹佢嘅身份。
+  - subskill_id: qualities_states
+    explanation: 用 essere 描述主語嘅形容詞，要配合性別同數；即使放喺動詞後面都一樣。
+    examples:
+      - text: Le finestre sono aperte.
+        meaning: 啲窗開住。
+        note: Aperte 同 finestre 一樣係陰性複數；sono 配合複數主語。
+  - subskill_id: location_movement
+    explanation: Accanto a 等位置表達交代相對位置。A 要同相應冠詞結合，例如 a 加 la 變 alla。
+    examples:
+      - text: La farmacia è accanto alla stazione.
+        meaning: 藥房喺車站隔籬。
+        note: È accanto alla 交代藥房位置，唔係描述去車站嘅路程。
+  - subskill_id: possession_relations
+    explanation: Avere 可以表示擁有。冇其他修飾語嘅單數近親稱謂，mia 等所有詞前通常唔加冠詞。
+    examples:
+      - text: Mia sorella ha una macchina da cucire.
+        meaning: 我家姐有部衣車。
+        note: Mia sorella 表達親屬關係，冇加 la。Ha 引出擁有嘅物品；macchina da cucire 係衣車。
+  - subskill_id: quantity_comparison
+    explanation: 數詞數物件；più 加形容詞表達比較，di 可以引出另一個比較名詞短語。
+    examples:
+      - text: Abbiamo quattro sedie. Questa sedia è più leggera delle altre.
+        meaning: 我哋有四張凳。呢張比其他嗰啲輕。
+        note: Quattro 數凳嘅數量。Altre 前嘅 delle 係 di 加 le；leggera 配合陰性單數 sedia。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/italian/skills/people-places/italian-people-places-explained-in-english.yaml at
+    revision italian-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - treccani_it_agreement2026
+    - treccani_it_possessives2026
+    - zanichelli_it_comparison2026
+    - zanichelli_it_prepositions2026
+    - zanichelli_it_location2026
+    - treccani_it_essere2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/italian/skills/people-places/italian-people-places-explained-in-english.yaml at
+        revision italian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - treccani_it_agreement2026
+        - treccani_it_possessives2026
+        - zanichelli_it_comparison2026
+        - zanichelli_it_prepositions2026
+        - zanichelli_it_location2026
+        - treccani_it_essere2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

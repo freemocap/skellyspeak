@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: cantonese
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: 唔該 可以用嚟提出服務請求；幫我 指出邊個受惠。請求唔一定要用問句。
+    examples:
+      - text: 唔該，幫我開門。
+        meaning: 唔該幫我開門。
+        note: 重點係請對方開門，唔係描述對方平時會做乜。
+  - subskill_id: offers_invitations
+    explanation: 一齊 提出共同行動；好唔好 請對方接受或拒絕。
+    examples:
+      - text: 一齊去食飯，好唔好？
+        meaning: 一齊去食嘢，好唔好？
+        note: 好唔好 問緊係咪接受邀請，唔係評價食物質素。
+  - subskill_id: suggestions
+    explanation: 不如 引入另一個可考慮做法；去邊度由對話交代。
+    examples:
+      - text: 不如聽日去。
+        meaning: 不如聽日先去。
+        note: 先 喺呢度將行動延後至聽日，成句係一個建議。
+  - subskill_id: commitments
+    explanation: 答應 明確作出承諾。單純預測將來會點，未必係承諾。
+    examples:
+      - text: 我答應你，聽日會帶本書嚟。
+        meaning: 我答應你，聽日會帶本書嚟。
+        note: 答應你 表明講者向對方承擔責任。
+  - subskill_id: accepting_declining
+    explanation: 收到邀請後，講自己冇空可以間接拒絕；冇邀請語境時就可能只係報告事實。
+    examples:
+      - text: 唔好意思，我聽日唔得閒。
+        meaning: 唔好意思，我聽日冇時間。
+        note: 要連住上文邀請理解；冇時間 本身唔代表唔鍾意對方。
+  - subskill_id: negotiating_plans
+    explanation: 先排除一個時間，再用 得唔得 詢問另一個時間。
+    examples:
+      - text: 三點唔得，四點得唔得？
+        meaning: 三點唔得，四點得唔得？
+        note: 四點 係針對原本三點安排提出嘅替代方案。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/cantonese/skills/coordinating-action/cantonese-coordinating-action-explained-in-english.yaml
+    at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/cantonese/skills/coordinating-action/cantonese-coordinating-action-explained-in-english.yaml
+        at revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - cuhk_cantonese_grammar20261005
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

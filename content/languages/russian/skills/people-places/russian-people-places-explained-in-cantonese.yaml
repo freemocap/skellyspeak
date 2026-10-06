@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: russian
+skill_id: people_places
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: Это引出身份識別；現在時一般唔需要繫詞。
+    examples:
+      - text: Это моя соседка.
+        meaning: 呢位係我鄰居。
+        note: Моя配合陰性名詞соседка，介紹嘅係女性鄰居。
+  - subskill_id: qualities_states
+    explanation: 可以直接用性質作述語，形容詞要同主語配合。
+    examples:
+      - text: Эта улица узкая.
+        meaning: 呢條街好窄。
+        note: Эта同узкая都係陰性單數，配合улица。
+  - subskill_id: location_movement
+    explanation: На加前置格表示鎖匙喺某個表面；動詞描述擺放狀態。
+    examples:
+      - text: Ключ лежит на полке.
+        meaning: 鎖匙喺個架上面。
+        note: Полке係полка嘅前置格；表示移動目的地就要另一種結構。
+  - subskill_id: possession_relations
+    explanation: У加屬格擁有者，再配合есть，可以表示擁有；被數嘅名詞形式隨數量而變。
+    examples:
+      - text: У меня есть две коробки.
+        meaning: 我有兩個箱。
+        note: Меня跟喺у後；две配合陰性名詞，呢度名詞形式係коробки。
+  - subskill_id: quantity_comparison
+    explanation: 比較級可以直接用屬格標示比較基準，唔用чем。
+    examples:
+      - text: Эта коробка легче той.
+        meaning: 呢個箱比嗰個輕。
+        note: Легче比較重量；той代替另一個箱，唔使重複名詞。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/russian/skills/people-places/russian-people-places-explained-in-english.yaml at
+    revision russian-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - cornell_russian_agreement2026
+    - cornell_russian_possession2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  russian-russia:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/russian/skills/people-places/russian-people-places-explained-in-english.yaml at
+        revision russian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - cornell_russian_agreement2026
+        - cornell_russian_possession2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

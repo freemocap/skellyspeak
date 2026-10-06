@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: feelings_viewpoints
+language: french
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: vouloir 同 avoir envie de 可以表達願望；avoir l’intention de 明確表達打算。呢幾種講法嘅人際語氣唔完全相同。
+    examples:
+      - text: J’ai envie de marcher un peu après le déjeuner.
+        meaning: 食完午飯，我想行一陣。
+        note: avoir envie de 後面接不定式，交代想做嘅活動，唔係承諾一定去行。
+  - subskill_id: preferences
+    explanation: préférer 可以比較或選擇；aimer mieux 亦可以表達偏好。要講清楚較鍾意乜，唔好只用一個正面形容詞。
+    examples:
+      - text: Je préfère le train à l’avion pour ce trajet.
+        meaning: 呢程我寧願搭火車，唔搭飛機。
+        note: préférer A à B 明確比較呢程旅途中嘅兩個選項。
+  - subskill_id: emotions
+    explanation: 用合適形容詞或用語講情緒。形容詞形式要配合對象；avoir peur 呢類用語則用 avoir。
+    examples:
+      - text: Cette nouvelle me fait plaisir.
+        meaning: 呢個消息令我開心。
+        note: me 指感到開心嘅人；句子表達對消息嘅反應，唔係評價消息真偽。
+  - subskill_id: opinions
+    explanation: je pense que、je trouve que 同 à mon avis 表明評價係講者觀點。表達意見唔等於聲稱肯定。
+    examples:
+      - text: À mon avis, ce chemin est trop étroit pour les vélos.
+        meaning: 我覺得呢條小路對單車嚟講太窄。
+        note: à mon avis 表明立場；trop étroit 係評價，pour les vélos 限定適用範圍。
+  - subskill_id: agreement_disagreement
+    explanation: 針對正討論嘅說法表示同意或反對。d’accord 喺另一種語境亦可能係接受實際提議。
+    examples:
+      - text: Je suis d’accord sur le prix, mais pas sur la date.
+        meaning: 價錢方面我同意，但日期就唔同意。
+        note: sur 指出各個重點；mais pas 限定同意範圍，唔係全盤否定。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/french/skills/feelings-viewpoints/french-feelings-viewpoints-explained-in-english.yaml
+    at revision french-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - tex_modals2026
+    - waystage_language_functions
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/feelings-viewpoints/french-feelings-viewpoints-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tex_modals2026
+        - waystage_language_functions
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/feelings-viewpoints/french-feelings-viewpoints-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - tex_modals2026
+        - waystage_language_functions
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

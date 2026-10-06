@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: indonesian
+skill_id: people_places
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: Ini 可以配合名詞短語介紹人。日常呢類識別句唔使明寫繫詞，表示擁有者嘅詞放喺關係名詞後面。
+    examples:
+      - text: Ini teman saya, Rina.
+        meaning: 呢位係我朋友 Rina。
+        note: Teman saya 即係我朋友。介紹 Rina 嘅身份時，呢句冇加 adalah。
+  - subskill_id: qualities_states
+    explanation: 形容詞可以直接做述語。主語短語入面，指示詞 ini 放喺名詞後面。
+    examples:
+      - text: Kamar ini terang.
+        meaning: 呢間房好光猛。
+        note: Kamar ini 係描述對象，terang 係佢嘅性質；唔需要加一個對應英文 is 嘅詞。
+  - subskill_id: location_movement
+    explanation: Di 引出位置，ke 引出目的地。呢啲介詞要同後面嘅詞分開寫。
+    examples:
+      - text: Tas saya di bawah meja.
+        meaning: 我個袋喺張枱下面。
+        note: Di bawah meja 交代袋嘅位置；呢度 di 係介詞，唔係被動前綴。
+  - subskill_id: possession_relations
+    explanation: 口語常用 punya 表示擁有。如果係組成所有關係名詞短語，就將擁有者放喺物品或者關係名詞後面。
+    examples:
+      - text: Saya punya tiga kotak.
+        meaning: 我有三個箱。
+        note: Saya 指擁有者；tiga kotak 已經交代數量，唔使靠重疊名詞表示多過一個。
+  - subskill_id: quantity_comparison
+    explanation: 形容詞前加 lebih、比較對象前加 daripada，就可以作比較。形容詞唔會好似英文咁加比較級詞尾。
+    examples:
+      - text: Kotak ini lebih ringan daripada kotak itu.
+        meaning: 呢個箱比嗰個箱輕。
+        note: Ringan 表示比較嘅尺度係重量；兩個指示詞分開呢個同嗰個箱。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/indonesian/skills/people-places/indonesian-people-places-explained-in-english.yaml at
+    revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - niu_indonesian_phrases2026
+    - niu_indonesian_questions2026
+    - niu_indonesian_verbs2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  indonesian-indonesia:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/indonesian/skills/people-places/indonesian-people-places-explained-in-english.yaml
+        at revision indonesian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - niu_indonesian_phrases2026
+        - niu_indonesian_questions2026
+        - niu_indonesian_verbs2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

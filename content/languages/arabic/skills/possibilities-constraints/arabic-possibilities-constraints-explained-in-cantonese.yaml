@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: arabic
+skill_id: possibilities_constraints
+explanation_language: cantonese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: ability
+    explanation: 能力謂語可以引入講者做得到嘅行動。
+    examples:
+      - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
+        meaning: 我識游水。
+        note: 現代標準阿拉伯語。喺討論游水技能時報告能力。
+      - text: بَقْدَرْ أَسْبَحْ.
+        meaning: 我識游水。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。喺討論游水技能時報告能力。
+  - subskill_id: permission
+    explanation: 喺合適語境，問某件事可唔可行，可以用嚟請求許可。
+    examples:
+      - text: هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَا؟
+        meaning: 我可唔可以坐呢度？
+        note: 現代標準阿拉伯語。問負責座位嘅人，重點係許可。
+      - text: مُمْكِنْ أَقْعُدْ هُونْ؟
+        meaning: 我可唔可以坐呢度？
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。問負責座位嘅人，重點係許可。
+  - subskill_id: obligation
+    explanation: 義務用語後面接行動，可以交代要求。
+    examples:
+      - text: يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ الْيَوْمَ.
+        meaning: 我今日一定要還鎖匙。
+        note: 現代標準阿拉伯語。歸還期限帶出必要性。
+      - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
+        meaning: 我今日一定要還鎖匙。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。歸還期限帶出必要性。
+  - subskill_id: possibility
+    explanation: 表示可能嘅詞可以限定一個說法，而唔肯定佢一定成立。
+    examples:
+      - text: رُبَّمَا يَتَأَخَّرُ الْقِطَارُ.
+        meaning: 架火車可能會遲到。
+        note: 現代標準阿拉伯語。講者保留結果未定嘅空間。
+      - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
+        meaning: 架火車可能會遲到。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者保留結果未定嘅空間。
+  - subskill_id: certainty
+    explanation: 否定肯定程度嘅謂語，可以限制自己對一個說法嘅把握。
+    examples:
+      - text: لَسْتُ مُتَأَكِّدَةً مِنْ ذٰلِكَ.
+        meaning: 我對呢點唔肯定。
+        note: 現代標準阿拉伯語。女性講者回應之前嘅說法。
+      - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
+        meaning: 我對呢點唔肯定。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。女性講者回應之前嘅說法。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/arabic/skills/possibilities-constraints/arabic-possibilities-constraints-explained-in-english.yaml
+    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: 例句用南部黎凡特語 بَقْدَرْ 表達能力；北部亦有 فِينِي 等講法。能力、許可同請求要按語境區分。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/possibilities-constraints/arabic-possibilities-constraints-explained-in-english.yaml
+        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  arabic-modern-standard:
+    disposition: supplement
+    text: 現代標準語有正式能力同必要性結構。لَسْتُ 可以由第一人稱講者否定名詞性謂語。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/possibilities-constraints/arabic-possibilities-constraints-explained-in-english.yaml
+        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

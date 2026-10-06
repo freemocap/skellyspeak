@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: people_places
+explanation_language: cantonese
+title: 人物、事物與地方
+introduction: 指明對象，描述特徵、位置、數量同關係。
+sections:
+  - subskill_id: identification
+    title: 識別對象
+    concept: 交代所指嘅人係邊個，或者事物係乜嘢。
+  - subskill_id: qualities_states
+    title: 特徵與狀態
+    concept: 描述對象嘅特徵或目前狀況。
+  - subskill_id: location_movement
+    title: 位置與移動
+    concept: 交代對象位置，描述空間關係或移動路線。
+  - subskill_id: possession_relations
+    title: 擁有與關係
+    concept: 表達擁有、關聯或人際關係。
+  - subskill_id: quantity_comparison
+    title: 數量與比較
+    concept: 表達數量、比例或比較關係。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    skills/people-places/people-places-explained-in-english.yaml at revision
+    spanish-communication-2026-10-03. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

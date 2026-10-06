@@ -18,9 +18,7 @@ definitions:
           text: Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at
             every difficulty level. Include short vowels, shadda, sukun and tanwin wherever
             appropriate to the selected variety and intended pronunciation; do not default to
-            unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern
-            Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
-            grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+            unvocalized text. Preserve verbatim source excerpts and learner-evidence quotes
             exactly as written; this exception does not apply to newly generated replies, examples
             or corrections.
           sources:
@@ -29,9 +27,7 @@ definitions:
           text: Write all newly generated Arabic in Arabic script with full vowel marks (tashkil/harakat) at
             every difficulty level. Include short vowels, shadda, sukun and tanwin wherever
             appropriate to the selected variety and intended pronunciation; do not default to
-            unvocalized text. For Levantine, vocalize the spoken dialect without adding Modern
-            Standard Arabic case endings. For Modern Standard Arabic, use the appropriate
-            grammatical vocalization. Preserve verbatim source excerpts and learner-evidence quotes
+            unvocalized text. Preserve verbatim source excerpts and learner-evidence quotes
             exactly as written; this exception does not apply to newly generated replies, examples
             or corrections.
           sources:
@@ -92,18 +88,59 @@ traits:
 varieties:
   - id: arabic-levantine
     name: Levantine
-    description: Conversational Levantine Arabic; regional coverage remains under review.
+    description: Conversational Levantine Arabic across the Levant; a broad spoken profile rather than
+      one city dialect or Modern Standard Arabic.
     review: needs_review
-    sources: []
+    sources:
+      - lingualism_levantine_verbs2026
+      - lingualism_levantine_writing20261005
+      - playaling_levantine_usage20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &arabic-levantine-usage Use conversational Levantine grammar and vocabulary rather than
+          recasting the exchange into Modern Standard Arabic. Common choices include شُو for what
+          and بِدّي for I want; local alternatives remain valid. Maintain a coherent local usage
+          within the exchange without treating one example as universal. Vocalize the intended
+          spoken forms under the shared writing policy, without adding Modern Standard Arabic case
+          endings. Do not replace dialect wording with formal equivalents merely because the learner
+          is a beginner.
+        sources:
+          - lingualism_levantine_verbs2026
+          - lingualism_levantine_writing20261005
+          - playaling_levantine_usage20261005
+      - scope: explanation_writing
+        text: *arabic-levantine-usage
+        sources:
+          - lingualism_levantine_verbs2026
+          - lingualism_levantine_writing20261005
+          - playaling_levantine_usage20261005
   - id: arabic-modern-standard
     name: Modern Standard
-    description: Modern Standard Arabic
+    description: Contemporary Modern Standard Arabic for formal shared communication, with accessible
+      wording rather than a regional spoken dialect.
     review: needs_review
-    sources: []
+    sources:
+      - ryding2005
+      - lingualism_levantine_verbs2026
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &arabic-modern-standard-usage Use Modern Standard Arabic grammar and vocabulary, including
+          appropriate grammatical vocalization. For example, use مَاذَا for what and أُرِيدُ for I
+          want where the construction calls for them, rather than Levantine شُو or بِدّي. Keep
+          sentences direct and suitable for the difficulty; formal language does not require ornate
+          prose. Valid dialect wording in source text is variation to explain, not text to silently
+          rewrite.
+        sources:
+          - ryding2005
+          - lingualism_levantine_verbs2026
+      - scope: explanation_writing
+        text: *arabic-modern-standard-usage
+        sources:
+          - ryding2005
+          - lingualism_levantine_verbs2026
+
 guidance:
   - scope: assessment
     text: "For Arabic learner evidence, copy quotes character-for-character: never add diacritics,

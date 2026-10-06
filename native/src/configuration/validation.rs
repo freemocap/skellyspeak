@@ -232,6 +232,24 @@ impl Registry {
             for v in &l.varieties {
                 scalars(&v.id, &v.scalars)?;
                 nonempty(&v.id, &[&v.name, &v.description])?;
+                if v.description.trim() == v.name.trim() {
+                    return Err(error(
+                        &v.id,
+                        "variety_description",
+                        "Describe the variety's coverage, not just its display name.",
+                    ));
+                }
+                if l.varieties.len() > 1 {
+                    for scope in ["target_writing", "explanation_writing"] {
+                        if !v.guidance.iter().any(|note| note.scope == scope) {
+                            return Err(error(
+                                &v.id,
+                                "variety_guidance",
+                                format!("Selectable alternatives need explicit {scope} guidance."),
+                            ));
+                        }
+                    }
+                }
                 review(&v.id, &v.review)?;
                 if v.review == "reviewed" {
                     citations(&v.id, &v.sources, &keys)?;

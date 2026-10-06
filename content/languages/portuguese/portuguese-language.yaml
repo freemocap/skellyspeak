@@ -24,11 +24,13 @@ traits: []
 varieties:
   - id: portuguese-brazil
     name: Brazil
-    description: Brazil
+    description: Contemporary Brazilian Portuguese, with standard writing and everyday Brazilian usage;
+      regional address forms and accents are not reduced to one local norm.
     review: needs_review
     sources: []
     overrides: {}
     guidance: []
+
 guidance: []
 conversation:
   greeting:

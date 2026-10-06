@@ -1,11 +1,33 @@
 # yaml-language-server: $schema=../rust-schemas/teaching-policy.yaml
 guidance:
+  - scope: target_writing
+    text: Generate target-language wording consistently in the selected variety and writing convention.
+      Match the situation and relationship without adding regional slang just to signal identity.
+      A broad regional profile does not prescribe one local accent or make other local forms wrong.
+      Partner biography and earlier messages do not override the selected variety. Apply these rules
+      to new replies, examples and corrections; preserve source quotations, existing names and identifiers.
+    sources:
+      - asha_language_variation
+  - scope: explanation_writing
+    text: Generate explanatory prose in the selected explanation variety and writing convention,
+      independently of the target variety. Use clear, context-appropriate wording without forced
+      regional slang. Target-language examples retain their target variety. Preserve verbatim
+      quotations, names and identifiers exactly.
+    sources:
+      - asha_language_variation
   - scope: assessment
     text: Copy evidence character-for-character from learner text. Never correct spelling or translate
       evidence quotes. Keep proposed corrections separate from evidence quotes and follow the task's
       response schema. Never invent errors.
     sources:
       - hattie_timperley2007
+  - scope: assessment
+    text: A valid form from another variety is not a learner error. If useful, explain how the selected
+      variety would express it as an alternative, without recording it as incorrect. Regional
+      spelling, vocabulary and register are not evidence of a pronunciation error. Uncertain usage
+      remains uncertain; do not impose a single local norm on a broad regional profile.
+    sources:
+      - asha_language_variation
   - scope: pragmatics
     text: Support the learner’s chosen purpose through dialogue. The conversation partner remains a
       partner, never an examiner; feedback concerns the work, never the person.

@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: arabic
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 兩種變體都可以用慣常問候語開始交流。
+    examples:
+      - text: صَبَاحُ الْخَيْرِ!
+        meaning: 早晨！
+        note: 現代標準阿拉伯語。呢句用嚟開場；同組黎凡特形式唔帶正式格尾。
+      - text: صَبَاحْ الْخَيْرْ!
+        meaning: 早晨！
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。開場問候語唔帶正式格尾。
+  - subskill_id: acknowledging
+    explanation: 簡短回應可以表示明白咗訊息。
+    examples:
+      - text: حَسَنًا، فَهِمْتُ.
+        meaning: 好，我明白。
+        note: 現代標準阿拉伯語。收到解釋唔一定等於同意。
+      - text: طَيِّبْ، فِهِمْتْ.
+        meaning: 好，我明白。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。收到解釋唔一定等於同意。
+  - subskill_id: clarification
+    explanation: 問句可以請對方解釋某個唔清楚講法嘅意思。
+    examples:
+      - text: مَاذَا تَقْصِدُ بِهٰذَا؟
+        meaning: 你咁講係咩意思？
+        note: 現代標準阿拉伯語。向一位男性問返佢啱啱講嘅內容。
+      - text: شُو قَصْدَكْ بِهَادْ؟
+        meaning: 你咁講係咩意思？
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。向一位男性問返佢啱啱講嘅內容。
+  - subskill_id: rephrasing
+    explanation: 用簡單啲嘅講法重述，可以釐清原有指示。
+    examples:
+      - text: بِعِبَارَةٍ أَبْسَطَ، يَجِبُ أَنْ نَحْجِزَ مُسْبَقًا.
+        meaning: 簡單啲講，我哋要預先預約。
+        note: 現代標準阿拉伯語。用嚟重述較複雜嘅預約解釋。
+      - text: بِكَلَامْ أَبْسَطْ، لَازِمْ نِحْجِزْ مِنْ قَبْلْ.
+        meaning: 簡單啲講，我哋要預先預約。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。用嚟重述較複雜嘅預約解釋。
+  - subskill_id: correcting_misunderstanding
+    explanation: 可以用正確時間取代理解錯咗嘅時間。
+    examples:
+      - text: أَقْصِدُ غَدًا، وَلَيْسَ الْيَوْمَ.
+        meaning: 我意思係聽日，唔係今日。
+        note: 現代標準阿拉伯語。對方之前理解成今日。
+      - text: قَصْدِي بُكْرَا، مِشْ الْيَوْمْ.
+        meaning: 我意思係聽日，唔係今日。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對方之前理解成今日。
+  - subskill_id: turns_topics
+    explanation: 話題標記可以引入相關嘅時間安排問題。
+    examples:
+      - text: بِخُصُوصِ الْمَوْعِدِ، هَلْ نَلْتَقِي صَبَاحًا؟
+        meaning: 講返個約會，我哋朝早見好唔好？
+        note: 現代標準阿拉伯語。開頭短語將焦點轉到見面安排。
+      - text: بِالنِّسْبِة لِلْمَوْعِدْ، نِلْتَقِي الصُّبْحْ؟
+        meaning: 講返個約會，我哋朝早見好唔好？
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。開頭短語將焦點轉到見面安排。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/arabic/skills/managing-conversation/arabic-managing-conversation-explained-in-english.yaml
+    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: 口語 طَيِّبْ 可以表示收到，قَصْدِي 可以引入本意或修正。呢啲用語唔需要正式格尾。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/managing-conversation/arabic-managing-conversation-explained-in-english.yaml
+        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  arabic-modern-standard:
+    disposition: supplement
+    text: 現代標準語有正式釐清同重述用語，但簡短慣常回應亦可以足夠。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/managing-conversation/arabic-managing-conversation-explained-in-english.yaml
+        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

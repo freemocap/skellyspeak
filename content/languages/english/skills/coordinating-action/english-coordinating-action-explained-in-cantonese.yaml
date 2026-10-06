@@ -1,0 +1,94 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: coordinating_action
+language: english
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: 想請人做嘢，可以用直接請求或有禮貌嘅問句。唔好只按問句外形判斷意思。
+    examples:
+      - text: Could you hold this box for a moment?
+        meaning: 講者請對方幫手托住個箱。
+        note: 呢句係請對方行動，唔係問佢身體上有冇能力做。
+  - subskill_id: offers_invitations
+    explanation: 可以主動提出幫忙，或者邀請對方參與。呢類話語通常等對方接受或拒絕。
+    examples:
+      - text: Would you like to join us for lunch?
+        meaning: 講者邀請對方一齊食午飯。
+        note: 呢條問題係提出邀請，唔係純粹查問對方喜好。
+  - subskill_id: suggestions
+    explanation: 將一項行動提出嚟，畀其他人考慮。
+    examples:
+      - text: We could take the quieter route.
+        meaning: 講者建議行比較靜嘅路線。
+        note: could 呢度提出一個選項。究竟係建議定講可能性，要睇語境。
+  - subskill_id: commitments
+    explanation: 講明你答應做乜。單純預測將來會發生嘅事，唔一定構成承諾。
+    examples:
+      - text: I will send you the address tonight.
+        meaning: 講者答應發送地址。
+        note: 如果上文係對方問你攞地址，呢句就係答應會採取行動。
+  - subskill_id: accepting_declining
+    explanation: 回應對方實際提出嘅建議。上文已經交代內容時，簡短回應都可以完整。
+    examples:
+      - text: Thanks, but I cannot stay for dinner.
+        meaning: 講者婉拒晚餐邀請。
+        note: 呢個拒絕係回應邀請，唔係只講時間安排。
+  - subskill_id: negotiating_plans
+    explanation: 針對原有計劃嘅限制，提出替代方案。
+    examples:
+      - text: Could we meet at six instead of five?
+        meaning: 講者建議更改見面時間。
+        note: instead of 將新建議同原本計劃連起嚟。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/coordinating-action/english-coordinating-action-explained-in-english.yaml
+        at revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/coordinating-action/english-coordinating-action-explained-in-english.yaml
+        at revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_modals2026
+        - bunt2020_dialogue_acts
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/english/skills/coordinating-action/english-coordinating-action-explained-in-english.yaml
+    at revision english-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - bc_modals2026
+    - bunt2020_dialogue_acts
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

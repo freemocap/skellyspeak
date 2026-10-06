@@ -249,6 +249,10 @@ pub fn start(device_name: Option<&str>) -> Result<Capture, String> {
 }
 
 impl Capture {
+    pub(super) fn device_label(&self) -> &str {
+        &self.device_label
+    }
+
     /// Samples the UI has not drawn yet, removed from the buffer as they are
     /// handed over.
     pub fn wave_samples_per_second(&self) -> f64 {

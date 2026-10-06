@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: possibilities_constraints
+guidance: Assess possibilities constraints from the learner’s contribution in context. 我識整麵包。 (I
+  know how to make bread.) can demonstrate ability. 識 describes learned ability here; distinguish
+  knowledge of a skill from permission. 我可唔可以用呢張枱？ (May I use this table?) can demonstrate
+  permission. 可唔可以 asks permission in this setting; elsewhere it could concern practical
+  possibility. 我今日一定要交份功課。 (I must hand in the assignment today.) can demonstrate obligation. 一定要
+  expresses a requirement, with 今日 specifying its deadline. 聽日可能會落雨。 (It might rain tomorrow.) can
+  demonstrate possibility. 可能 marks uncertainty and 會 supports a prediction; neither says rain has
+  already occurred. 我肯定佢已經返咗屋企。 (I am certain they have already gone home.) can demonstrate
+  certainty. 肯定 presents the speaker’s confidence, not proof that the proposition is true. Credit a
+  function only when accomplished in the exchange; copied isolated forms are insufficient. Do not
+  require Mandarin forms or infer Cantonese pronunciation from written characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

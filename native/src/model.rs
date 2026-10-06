@@ -564,6 +564,7 @@ pub type Result<T> = std::result::Result<T, AppError>;
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct RecordingStarted {
+    pub device_label: Option<String>,
     pub recording_id: String,
     pub samples_per_second: f64,
     pub browser_capture: bool,
@@ -607,6 +608,7 @@ pub fn bindings() -> String {
     let config = ts_rs::Config::default();
     let declarations = [
         RecordingStarted::decl(&config),
+        crate::speech::recording::microphone_test::MicrophoneTestStarted::decl(&config),
         crate::speech::recording::continuous_policy::ContinuousRecordingPolicy::decl(&config),
         crate::speech::recording::continuous_policy::ListeningSettings::decl(&config),
         crate::speech::recording::continuous_policy::ListeningMode::decl(&config),

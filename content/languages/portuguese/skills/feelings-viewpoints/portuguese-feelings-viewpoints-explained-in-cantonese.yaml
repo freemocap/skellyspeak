@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: portuguese
+skill_id: feelings_viewpoints
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: Querer加不定式表示主語想做乜；aprender a後接另一個不定式，交代要學嘅技能。
+    examples:
+      - text: Quero aprender a fazer pão.
+        meaning: 我想學整麵包。
+        note: Quero指出講者願望；aprender a fazer交代想學嘅活動。
+  - subskill_id: preferences
+    explanation: Gostar喺喜歡嘅活動或事物前用de；preferir就揀較鍾意嘅選項，prefiro係第一人稱現在式。
+    examples:
+      - text: Gosto de cozinhar, mas prefiro fazer pão.
+        meaning: 我鍾意煮飯，不過更鍾意整麵包。
+        note: Gosto配合有喜好嘅人；de引出cozinhar，prefiro指出較鍾意嘅活動。
+  - subskill_id: emotions
+    explanation: Estar加形容詞可以表達心情；com將心情連到引起感受嘅事物。
+    examples:
+      - text: Estou contente com o resultado.
+        meaning: 我對個結果好滿意。
+        note: 呢個單數例子嘅contente男女講者都適用；com o resultado交代為乜嘢開心。
+  - subskill_id: opinions
+    explanation: Acho que引出個人判斷，本身唔表示聽唔明對方。
+    examples:
+      - text: Acho que a biblioteca precisa de mais mesas.
+        meaning: 我覺得圖書館要多啲枱。
+        note: Acho引出判斷；precisa de交代需要乜嘢。
+  - subskill_id: agreement_disagreement
+    explanation: Concordar com將同意連到人、建議或想法；動詞前加não就表示唔同意。
+    examples:
+      - text: Não concordo com essa ideia.
+        meaning: 我唔同意嗰個想法。
+        note: 回應星期六關閉圖書館嘅提議，明確反對，唔係只確認收到訊息。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/portuguese/skills/feelings-viewpoints/portuguese-feelings-viewpoints-explained-in-english.yaml
+    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_gostar2026
+    - ut_pt_negation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/portuguese/skills/feelings-viewpoints/portuguese-feelings-viewpoints-explained-in-english.yaml
+        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_gostar2026
+        - ut_pt_negation2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

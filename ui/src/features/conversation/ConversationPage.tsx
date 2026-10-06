@@ -596,10 +596,9 @@ export default function ConversationPage({
     const session = holdSession.current
     if (!session || session.released) return
     session.released = true
-    void session.ready.then(async () => {
-      if (holdSession.current !== session) return
-      await mic.stopMic()
-      holdSession.current = null
+    const stopped = mic.stopMic()
+    void Promise.all([session.ready, stopped]).then(() => {
+      if (holdSession.current === session) holdSession.current = null
     })
   }
   toggleMicRef.current = toggleMic
@@ -700,9 +699,9 @@ export default function ConversationPage({
             measure={() => composer.current?.querySelector('.composer-voice')?.getBoundingClientRect().height ?? 0} onResize={setVoiceHeight} />
           <ComposerInput stream={mic.recording ? <LiveRecording source={mic.waveSource} spectrum={mic.spectrum} time={recorder.time} /> : null} prompt={greetingPrompt}
             layout={recorder} mode={voiceMode} onMode={setVoiceMode} onHoldStart={holdStart} onHoldEnd={holdEnd} onAutoSend={() => void toggleSetting('auto_send')}
-            microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.recording || mic.transcribing}
+            microphoneSelector={<MicrophoneSelector value={settings?.microphone_device_id ?? null} disabled={!settings || mic.starting || mic.recording || mic.transcribing}
               onChange={microphone_device_id => { void useSettingsStore.getState().update(current => ({ ...current, microphone_device_id }), 'Changing microphone') }} />} micShortcut={settings?.shortcuts.mic} input={input} available={isTauri && connection?.configured === true} sending={editingTurnId !== null ? acceptingSend.current || acceptedEditSource !== null : sending}
-            recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
+            health={mic.health} deviceLabel={mic.deviceLabel} starting={mic.starting} recording={mic.recording} transcribing={mic.transcribing} autoSend={settings?.auto_send ?? false}
             targetLanguageTag={targetLanguage?.languageTag} targetLanguageName={targetLanguage?.endonym ?? ''}
             onInput={setInput} onSend={text => { void send(text) }}
             onDiscardRecording={mic.cancel} onToggleRecording={toggleMic} />

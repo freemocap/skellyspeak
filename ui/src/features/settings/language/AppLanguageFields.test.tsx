@@ -6,6 +6,7 @@ import { AppLanguageFields } from './AppLanguageFields'
 vi.mock('../../../platform/ipc/tauri', () => ({ languages: () => [
   { code: 'english', base: 'english', label: 'English', name: 'English', defaultVariety: 'english-us', varieties: [{ id: 'english-us', label: 'US' }, { id: 'english-uk', label: 'UK' }] },
   { code: 'spanish', base: 'spanish', label: 'Spanish', name: 'Spanish', defaultVariety: 'spanish-mexico', varieties: [{ id: 'spanish-mexico', label: 'Mexico' }] },
+  { code: 'cantonese', base: 'cantonese', label: 'Cantonese', name: 'Cantonese', defaultVariety: 'cantonese-hong-kong', varieties: [{ id: 'cantonese-hong-kong', label: 'Hong Kong' }] },
 ] }))
 
 it('updates interface and explanation together from the primary control', () => {
@@ -13,6 +14,13 @@ it('updates interface and explanation together from the primary control', () => 
   render(<AppLanguageFields value={{ interface_locale: 'english', native_language: 'english', native_variety: 'english-uk' }} onChange={onChange} />)
   fireEvent.change(screen.getByRole('combobox', { name: 'App language' }), { target: { value: 'spanish' } })
   expect(onChange).toHaveBeenCalledExactlyOnceWith({ interface_locale: 'spanish', native_language: 'spanish', native_variety: 'spanish-mexico' })
+})
+
+it('selects Cantonese as the app and explanation language with its Hong Kong variety', () => {
+  const onChange = vi.fn()
+  render(<AppLanguageFields value={{ interface_locale: 'english', native_language: 'english', native_variety: 'english-us' }} onChange={onChange} />)
+  fireEvent.change(screen.getByRole('combobox', { name: 'App language' }), { target: { value: 'cantonese' } })
+  expect(onChange).toHaveBeenCalledExactlyOnceWith({ interface_locale: 'cantonese', native_language: 'cantonese', native_variety: 'cantonese-hong-kong' })
 })
 
 it('keeps an explicit explanation override secondary and preserves a valid variety', () => {

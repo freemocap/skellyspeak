@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: italian
+skill_id: possibilities_constraints
+explanation_language: cantonese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: ability
+    explanation: Sapere 加不定式可以表示識做某件事；potere 可以講條件容唔容許。兩個動詞都唔止一種對話作用。
+    examples:
+      - text: So riparare una ruota.
+        meaning: 我識整車轆。
+        note: So 係 sapere 嘅第一人稱現在式；riparare 維持不定式，交代技能。
+  - subskill_id: permission
+    explanation: Posso 加不定式問句可以請求許可。問自己可唔可以做，同請對方去做係兩回事。
+    examples:
+      - text: Posso lasciare la borsa qui?
+        meaning: 我可唔可以放個袋喺度？
+        note: 向管理地方嘅人詢問可唔可以放低個袋。
+  - subskill_id: obligation
+    explanation: Dovere 加不定式可以表示要求。語境要顯示必要性，唔係純粹心願。
+    examples:
+      - text: Dobbiamo mostrare i biglietti all’ingresso.
+        meaning: 我哋一定要喺入口出示門票。
+        note: Dobbiamo 係複數，mostrare 係不定式；句子陳述入場要求。
+  - subskill_id: possibility
+    explanation: Forse 唔使配合情態動詞，都可以表示可能。其餘分句交代考慮緊嘅事件或情況。
+    examples:
+      - text: Forse il negozio è ancora aperto.
+        meaning: 間舖頭可能仲開緊。
+        note: Forse 表示未能肯定；ancora 表示可能仍然營業。
+  - subskill_id: certainty
+    explanation: Non so se 表示知識有限。呢度 se 係「是否」，引出間接問句，唔係有結果分句嘅假設條件。
+    examples:
+      - text: Non so se il negozio è aperto.
+        meaning: 我唔知間舖頭開咗未。
+        note: 講者唔肯定舖頭狀態，唔係斷言佢閂咗。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/italian/skills/possibilities-constraints/italian-possibilities-constraints-explained-in-english.yaml
+    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - zanichelli_it_modals2026
+    - treccani_it_conditional2026
+    - treccani_it_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/italian/skills/possibilities-constraints/italian-possibilities-constraints-explained-in-english.yaml
+        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - zanichelli_it_modals2026
+        - treccani_it_conditional2026
+        - treccani_it_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

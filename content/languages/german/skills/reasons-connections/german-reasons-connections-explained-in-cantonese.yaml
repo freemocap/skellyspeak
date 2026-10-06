@@ -1,0 +1,80 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: german
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 呢度書面 weil 結構嘅限定動詞放從句尾。denn 亦可以畀理由，但後面保留主句語序。
+    examples:
+      - text: Ich nehme den Bus, weil mein Fahrrad kaputt ist.
+        meaning: 我搭巴士，因為架單車壞咗。
+        note: weil 連接選擇同原因；ist 喺嗰個從句尾。
+  - subskill_id: consequences
+    explanation: deshalb 可以引入結果。放主句開頭時，限定動詞喺主語之前。
+    examples:
+      - text: Die Straße ist gesperrt. Deshalb fahren wir über die Brücke.
+        meaning: 條路封咗，所以我哋經條橋行。
+        note: deshalb 將改路線呈現為結果，後接 fahren；danach 就主要講先後。
+  - subskill_id: conditions
+    explanation: falls 引入條件，限定動詞放尾。條件子句行先時，後面主句由限定動詞開始。
+    examples:
+      - text: Falls es morgen regnet, bleiben wir zu Hause.
+        meaning: 如果聽日落雨，我哋就留喺屋企。
+        note: regnet 喺條件尾，bleiben 喺主句開頭。呢種開放將來條件，用現在式就足夠。
+  - subskill_id: contrast
+    explanation: aber 連接對比並保留主句語序；obwohl 則可以用從句表達讓步。
+    examples:
+      - text: Der neue Weg ist kürzer, aber er ist viel steiler.
+        meaning: 新路線短啲，但斜好多。
+        note: aber 對比路短嘅好處同斜坡陡嘅缺點；kürzer、steiler 係比較級。
+  - subskill_id: supporting_claims
+    explanation: 用理由子句或相關陳述提供支持判斷嘅依據。觀察可以支持立場，但唔等於毫無疑問嘅證明。
+    examples:
+      - text: Ich halte die Werkstatt für zuverlässig, denn unsere Fahrräder waren jedes Mal pünktlich
+          fertig.
+        meaning: 我覺得間維修舖可靠，因為我哋啲單車每次都準時整好。
+        note: halte … für 表達評價。denn 後面保留主句語序，交代支持評價嘅經驗。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/german/skills/reasons-connections/german-reasons-connections-explained-in-english.yaml
+    at revision german-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - umich_de_connectors2026
+    - umich_de_adverbs2026
+    - umich_de_word_order2026
+    - umich_de_comparison2026
+    - goethe_de_discussion2026
+    - guenthner_spoken_grammar2000
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  german-germany:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/german/skills/reasons-connections/german-reasons-connections-explained-in-english.yaml
+        at revision german-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - umich_de_connectors2026
+        - umich_de_adverbs2026
+        - umich_de_word_order2026
+        - umich_de_comparison2026
+        - goethe_de_discussion2026
+        - guenthner_spoken_grammar2000
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

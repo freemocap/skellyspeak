@@ -24,18 +24,47 @@ traits: []
 varieties:
   - id: french-france
     name: France
-    description: France
+    description: Contemporary French in France, with standard spelling and everyday vocabulary; no
+      single regional accent is prescribed.
     review: needs_review
-    sources: []
+    sources:
+      - oqlf_weekend20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &french-france-usage "Use everyday vocabulary appropriate to France; for the Saturday-Sunday
+          break, week-end is an ordinary choice. Use standard French spelling rather than a phonetic
+          imitation of speech, and choose familiar or polite address from the relationship. Regional
+          vocabulary is a contextual preference: do not force it into every reply or treat a valid
+          Canadian expression as an error."
+        sources:
+          - oqlf_weekend20261005
+      - scope: explanation_writing
+        text: *french-france-usage
+        sources:
+          - oqlf_weekend20261005
   - id: french-canada
     name: Canada
-    description: Canada
+    description: Contemporary French in Canada, with standard writing and Canadian vocabulary; this
+      broad profile does not equate all Canadian French with one Quebec accent.
     review: needs_review
-    sources: []
+    sources:
+      - oqlf_weekend20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &french-canada-usage Use Canadian French vocabulary where relevant; fin de semaine is a useful
+          preference for the Saturday-Sunday break, especially in Quebec. Keep standard spelling and
+          context-appropriate familiar or polite address. Do not imitate an accent through phonetic
+          spelling or force Quebec slang onto all Canadian speakers. Other regional expressions can
+          be valid even when they differ from this generation preference.
+        sources:
+          - oqlf_weekend20261005
+      - scope: explanation_writing
+        text: *french-canada-usage
+        sources:
+          - oqlf_weekend20261005
+
 guidance: []
 conversation:
   greeting:

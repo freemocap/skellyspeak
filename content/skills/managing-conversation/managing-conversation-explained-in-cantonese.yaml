@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: managing_conversation
+explanation_language: cantonese
+title: 管理對話
+introduction: 建立接觸、協調發言輪次，同修補理解上嘅分歧。
+sections:
+  - subskill_id: opening_closing
+    title: 開場與結束
+    concept: 開始或結束一段對話交流。
+  - subskill_id: acknowledging
+    title: 表示收到與回應
+    concept: 表示收到、留意到對方嘅話，或者作出合乎社交情境嘅回應。
+  - subskill_id: clarification
+    title: 要求釐清
+    concept: 指出有內容聽唔清或唔明，並請對方協助釐清。
+  - subskill_id: rephrasing
+    title: 換個講法
+    concept: 用另一種方式重述之前嘅意思，幫助雙方理解。
+  - subskill_id: correcting_misunderstanding
+    title: 糾正誤解
+    concept: 用本來想表達嘅意思，取代對方理解錯咗嘅內容。
+  - subskill_id: turns_topics
+    title: 安排發言與話題
+    concept: 協調邊個發言，同埋對話講緊咩。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    skills/managing-conversation/managing-conversation-explained-in-english.yaml at revision
+    spanish-communication-2026-10-03. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

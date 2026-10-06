@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: ukrainian
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 道別可以交代預期下次接觸。
+    examples:
+      - text: До зустрічі наступного тижня!
+        meaning: 下星期見！
+        note: 呢句結束今次交談。
+  - subskill_id: acknowledging
+    explanation: Зрозуміло可以確認解釋已經清楚。
+    examples:
+      - text: А, тепер зрозуміло.
+        meaning: 哦，我而家明喇。
+        note: 解釋後用；理解唔一定表示同意。
+  - subskill_id: clarification
+    explanation: 禮貌命令式請對方重複內容。
+    examples:
+      - text: Повторіть, будь ласка.
+        meaning: 唔該再講一次。
+        note: 前面發言交代要重複乜。
+  - subskill_id: rephrasing
+    explanation: Іншими словами引出重述。
+    examples:
+      - text: Іншими словами, потрібно записатися заздалегідь.
+        meaning: 即係話，你要預先訂位。
+        note: 解釋預約程序之後用。
+  - subskill_id: correcting_misunderstanding
+    explanation: Мати на увазі指出原意，可以取代錯誤理解。
+    examples:
+      - text: Я мала на увазі суботу, не п’ятницю.
+        meaning: 我係指星期六，唔係星期五。
+        note: 女性講者更正聽者理解錯咗嘅日子。
+  - subskill_id: turns_topics
+    explanation: 許可形式問句可以要求轉話題。
+    examples:
+      - text: Можна перейти до іншого питання?
+        meaning: 我哋可唔可以轉去另一條問題？
+        note: 共同討論時，語境識別省略咗嘅行動者；要求係轉換對話內容。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/ukrainian/skills/managing-conversation/ukrainian-managing-conversation-explained-in-english.yaml
+    at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - jenkala_ukrainian_infinitives2026
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/ukrainian/skills/managing-conversation/ukrainian-managing-conversation-explained-in-english.yaml
+        at revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - jenkala_ukrainian_infinitives2026
+        - ukma_ukrainian_tenses2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

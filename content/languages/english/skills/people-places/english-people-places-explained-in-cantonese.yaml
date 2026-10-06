@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: people_places
+language: english
+explanation_language: cantonese
+shared_explanation: skills/people-places/people-places-explained-in-cantonese.yaml
+sections:
+  - subskill_id: identification
+    explanation: 用名字、代名詞或名詞短語，講清楚你指邊個或乜嘢。
+    examples:
+      - text: That is our new neighbour.
+        meaning: 所指嘅人係新鄰居。
+        note: that 指向雙方情境中可以識別嘅對象。
+  - subskill_id: qualities_states
+    explanation: 形容詞放喺 be 後面，可以描述特徵或目前狀態。英文呢類句子通常需要 be，唔好照搬廣東話省略佢。
+    examples:
+      - text: The room is quiet.
+        meaning: 間房冇乜嘈音。
+        note: is 將 quiet 呢個特徵連到間房。
+  - subskill_id: location_movement
+    explanation: 用位置詞語交代事物喺邊，或者描述移動路線。
+    examples:
+      - text: The bicycle is behind the shed.
+        meaning: 間棚喺架單車前面，即係單車喺棚後面。
+        note: behind 表達兩者嘅空間關係。
+  - subskill_id: possession_relations
+    explanation: 所有格形式可以表達擁有同人際關係。
+    examples:
+      - text: This is my brother’s bicycle.
+        meaning: 架單車屬於講者嘅兄弟。
+        note: my 交代親屬關係；brother’s 表明單車同嗰位兄弟嘅所屬關係。
+  - subskill_id: quantity_comparison
+    explanation: 數量詞交代多少；比較結構將兩個數值或特徵作比較。
+    examples:
+      - text: This bag is lighter than that one.
+        meaning: 第一個袋比第二個輕。
+        note: lighter than 構成比較句，唔可以將廣東話「輕啲」逐字搬入英文。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/people-places/english-people-places-explained-in-english.yaml at
+        revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/people-places/english-people-places-explained-in-english.yaml at
+        revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/english/skills/people-places/english-people-places-explained-in-english.yaml at
+    revision english-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - bc_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

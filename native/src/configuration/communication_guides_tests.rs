@@ -1,4 +1,5 @@
 use super::*;
+use crate::configuration::authoring;
 use serde_json::json;
 
 #[test]
@@ -13,6 +14,7 @@ fn full_request_has_ten_questions_and_no_explanation_language_dependency() {
     let body = request("english");
     assert_eq!(body, request("spanish"));
     assert_eq!(body, request("french"));
+    assert_eq!(body, request("cantonese"));
     let questions = body["questions"].as_object().unwrap();
     assert_eq!(questions.len(), 10);
     for skill in registry.shared_skills().skills.iter() {
@@ -31,11 +33,85 @@ fn full_request_has_ten_questions_and_no_explanation_language_dependency() {
 }
 
 #[test]
+fn cantonese_editions_cover_every_target_and_keep_source_examples_exact() {
+    let registry = Registry::bundled().unwrap();
+    let coverage = registry.communication_coverage();
+    let editions: Vec<_> = coverage
+        .iter()
+        .filter(|row| row.explanation_language == "cantonese")
+        .collect();
+    assert_eq!(editions.len(), registry.languages.len());
+    assert!(editions.iter().all(|row| row.missing_groups.is_empty()));
+    for language in &registry.languages {
+        for skill in &registry.shared_skills().skills {
+            let stem = skill.id.replace('_', "-");
+            let path = format!(
+                "languages/{0}/skills/{stem}/{0}-{stem}-explained-in-cantonese.yaml",
+                language.id
+            );
+            let guide = &registry.authored.guides[&path];
+            let source = registry.guide_source(&language.id, &skill.id).unwrap();
+            let shared = &registry.authored.explanations[&guide.shared_explanation];
+            assert_eq!(guide.sections.len(), source.guide.sections.len(), "{path}");
+            assert_eq!(
+                guide.varieties.len(),
+                source.guide.varieties.len(),
+                "{path}"
+            );
+            for (variety, original) in &source.guide.varieties {
+                match (&guide.varieties[variety], original) {
+                    (
+                        authoring::Disposition::UseCore { .. },
+                        authoring::Disposition::UseCore { .. },
+                    ) => {}
+                    (
+                        authoring::Disposition::Supplement { text, .. },
+                        authoring::Disposition::Supplement { text: original, .. },
+                    ) => assert_ne!(text, original, "{path}/{variety}"),
+                    _ => panic!("Changed variety applicability: {path}/{variety}"),
+                }
+            }
+            for (translated, original) in guide.sections.iter().zip(&source.guide.sections) {
+                assert_eq!(translated.subskill_id, original.subskill_id, "{path}");
+                assert_ne!(translated.explanation, original.explanation, "{path}");
+                assert_eq!(translated.examples.len(), original.examples.len(), "{path}");
+                for (translated, original) in translated.examples.iter().zip(&original.examples) {
+                    assert_eq!(translated.text, original.text, "{path}");
+                    assert_ne!(translated.meaning, original.meaning, "{path}");
+                }
+            }
+            for variety in &language.varieties {
+                let markdown = registry
+                    .skill_guide_markdown(&language.id, &variety.id, "cantonese", &skill.id)
+                    .unwrap();
+                assert!(markdown.starts_with(&format!("# {}", shared.title)));
+                for section in &guide.sections {
+                    assert!(markdown.contains(&section.explanation));
+                    for example in &section.examples {
+                        assert!(markdown.contains(&example.text));
+                        assert!(markdown.contains(&example.meaning));
+                    }
+                }
+                assert!(!markdown.contains("needs_review"));
+            }
+        }
+    }
+}
+
+#[test]
 fn completeness_is_an_authoring_gate_and_missing_guides_have_no_fallback() {
     let mut registry = Registry::bundled().unwrap();
     assert!(registry.require_complete_communication_content().is_ok());
     let report = registry.communication_coverage();
-    assert_eq!(report.len(), registry.languages.len() * 3);
+    assert_eq!(
+        report.len(),
+        registry.languages.len()
+            * registry
+                .authored
+                .guide_policy
+                .bundled_explanation_languages
+                .len()
+    );
     assert!(
         report
             .iter()

@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: arabic
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 現代標準語可以用未完成式動詞配合「而家」。黎凡特語可以用 عَمْ 加動詞表達活動進行中。
+    examples:
+      - text: أَكْتُبُ رِسَالَةً الْآنَ.
+        meaning: 我而家寫緊信。
+        note: 現代標準阿拉伯語。第一人稱動詞形式已交代寫信者，唔一定要另加代名詞。
+      - text: هَلَّقْ عَمْ بَكْتُبْ رِسَالِة.
+        meaning: 我而家寫緊信。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。第一人稱動詞形式已交代寫信者，唔一定要另加代名詞。
+  - subskill_id: past_events
+    explanation: 過去時變位加時間詞可以報告較早嘅行動。
+    examples:
+      - text: كَتَبْتُ رِسَالَةً أَمْسِ.
+        meaning: 我噚日寫咗封信。
+        note: 現代標準阿拉伯語。呢個語境下動詞係第一人稱單數。
+      - text: كَتَبْتْ رِسَالِة مْبَارِحْ.
+        meaning: 我噚日寫咗封信。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。呢個語境下動詞係第一人稱單數。
+  - subskill_id: future_events
+    explanation: 現代標準語 سَـ 同口語 رَحْ 可以將計劃中事件定位喺將來。
+    examples:
+      - text: سَأَزُورُ صَدِيقِي غَدًا.
+        meaning: 聽日我會去探朋友。
+        note: 現代標準阿拉伯語。朋友係男性；呢個係計劃，唔一定係承諾。
+      - text: رَحْ أَزُورْ صَاحْبِي بُكْرَا.
+        meaning: 聽日我會去探朋友。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。朋友係男性；呢個係計劃，唔一定係承諾。
+  - subskill_id: duration_frequency
+    explanation: 次數配合每星期時段，可以表達重複頻率。
+    examples:
+      - text: أَسْبَحُ مَرَّتَيْنِ فِي الْأُسْبُوعِ.
+        meaning: 我每個禮拜游兩次水。
+        note: 現代標準阿拉伯語。計算嘅係次數，唔係兩個游水嘅人。
+      - text: بَسْبَحْ مَرَّتَيْنْ بِالْأُسْبُوعْ.
+        meaning: 我每個禮拜游兩次水。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。計算嘅係次數，唔係兩個游水嘅人。
+  - subskill_id: event_sequence
+    explanation: 「先」同「然後」交代次序，唔一定表達因果。
+    examples:
+      - text: أَوَّلًا نَأْكُلُ، ثُمَّ نَخْرُجُ.
+        meaning: 我哋先食飯，然後出街。
+        note: 現代標準阿拉伯語。講者交代大家嘅行動次序。
+      - text: أَوَّلْ شِي بِنَاكُلْ، بَعْدَيْنْ بِنِطْلَعْ.
+        meaning: 我哋先食飯，然後出街。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者交代大家嘅行動次序。
+  - subskill_id: event_phase
+    explanation: 意思係「完成」嘅動詞，可以指明活動終點。
+    examples:
+      - text: أَنْهَيْتُ قِرَاءَةَ الْكِتَابِ.
+        meaning: 我睇完本書喇。
+        note: 現代標準阿拉伯語。句子表示閱讀完成，唔係只表示以前睇過。
+      - text: خَلَّصْتْ قِرَايِة الْكِتَابْ.
+        meaning: 我睇完本書喇。
+        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。句子表示閱讀完成，唔係只表示以前睇過。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/arabic/skills/time-events/arabic-time-events-explained-in-english.yaml at revision
+    arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - lingualism_levantine_verbs2026
+    - levantongue_b_prefix2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  arabic-levantine:
+    disposition: supplement
+    text: 黎凡特語用口語過去式、帶 b- 前綴嘅習慣式動詞、進行標記 عَمْ 同將來標記 رَحْ。前綴元音同進行式結構會因地區而異。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/time-events/arabic-time-events-explained-in-english.yaml at revision
+        arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+        independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  arabic-modern-standard:
+    disposition: supplement
+    text: 現代標準語用 سَـ 或 سَوْفَ 配合合適動詞形式講將來。語境同時間詞亦會交代事件時間。
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/arabic/skills/time-events/arabic-time-events-explained-in-english.yaml at revision
+        arabic-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+        independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

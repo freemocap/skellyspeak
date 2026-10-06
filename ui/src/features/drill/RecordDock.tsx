@@ -1,3 +1,4 @@
+import type { MicrophoneHealth } from '../../domain/audio/microphone-health'
 import { useRef, useSyncExternalStore, type ReactNode } from 'react'
 import { SegmentedChoice } from '../../components/controls/SegmentedChoice'
 import { useI18n } from '../../components/localization/i18n'
@@ -38,11 +39,13 @@ const meterPercent = (db: number) => Math.max(0, Math.min(100, (db - METER_FLOOR
  *
  * With no practice cards the panel keeps its place and its settings, but
  * nothing that starts capture works, and the stream says to add a card. */
-export function RecordDock({ microphoneSelector, layout, starting = false, empty = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
+export function RecordDock({ microphoneSelector, layout, health, deviceLabel, starting = false, empty = false, phase, mode, onMode, settings, onSettings, listeningStatus, waveSource, spectrum, onToggle, autoDetect = true, onAutoDetect, onHoldStart, onHoldEnd }: {
   microphoneSelector?: ReactNode
   /** The pad's side and the stream's direction, each set in the recording settings. */
   layout?: RecorderLayout
   starting?: boolean
+  health?: MicrophoneHealth | null
+  deviceLabel?: string | null
   /** There are no practice cards: the card list has been read and is empty. */
   empty?: boolean
   phase: DockPhase
@@ -95,7 +98,7 @@ export function RecordDock({ microphoneSelector, layout, starting = false, empty
     : null
   const padLabel = mode === 'hold' ? tr("Hold to record") : phase === 'recording' ? tr("Stop recording") : tr("Start recording")
 
-  return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} phase={phase} face={face}
+  return <VoicePanel label={tr("Record an attempt")} className="drill-voice" layout={layout} health={health} deviceLabel={deviceLabel} starting={starting} phase={starting ? 'preparing' : phase} face={face}
     microphoneSelector={microphoneSelector} faceTitle={copy.detail} status={copy.headline}
     mode={live ? 'auto' : mode} onMode={next => onMode(next === 'auto' ? 'live' : next)} modesDisabled={blocked || starting || phase === 'recording'}
     pad={{ label: padLabel, disabled: blocked || (starting && mode !== 'hold'),

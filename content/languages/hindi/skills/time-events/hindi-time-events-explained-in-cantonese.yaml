@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: hindi
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 動詞詞幹加 रहा、रही 或 रहे，再加現在時助動詞，表達活動進行中。進行形式要配合主語。
+    examples:
+      - text: मैं अभी चाय बना रही हूँ।
+        meaning: 我而家沖緊茶。
+        note: रही 表明女性講者，男性用 रहा；अभी 定位而家。
+  - subskill_id: past_events
+    explanation: 好多及物完成體句會用 ने 標示行動者，動詞配合冇其他格標記阻隔嘅受詞。要學個別動詞例外，唔好所有過去句都加 ने。
+    examples:
+      - text: मैंने कल खिचड़ी बनाई।
+        meaning: 我噚日煮咗豆米飯。
+        note: बनाई 配合陰性 खिचड़ी；完成體事件令 कल 喺呢度指噚日，唔係聽日。
+  - subskill_id: future_events
+    explanation: 將來動詞可以表明人稱同性別；कल 由將來形式同語境取得「聽日」意思。
+    examples:
+      - text: मैं कल आऊँगी।
+        meaning: 我聽日會嚟。
+        note: आऊँगी 係第一人稱女性將來式；男性講者用 आऊँगा。
+  - subskill_id: duration_frequency
+    explanation: 時長後接 से，可以交代持續咗幾耐；印地語進行結構唔需要照搬英文現在完成式。
+    examples:
+      - text: मैं दो घंटे से पढ़ रही हूँ।
+        meaning: 我睇書睇咗兩個鐘，仲睇緊。
+        note: दो घंटे से 交代已持續時間；पढ़ रही हूँ 表示女性講者仍然閱讀緊。
+  - subskill_id: event_sequence
+    explanation: पहले 同 फिर 排列步驟；尊稱祈使句可以指示對方依次做。
+    examples:
+      - text: पहले चावल धोइए, फिर पानी डालिए।
+        meaning: 先洗米，再加水。
+        note: धोइए 同 डालिए 禮貌稱呼對方，步驟次序清楚。
+  - subskill_id: event_phase
+    explanation: 動詞詞幹後用 चुकना 表示完成，配合主語；呢個結構唔會喺行動者後加 ने。
+    examples:
+      - text: मैं किताब पढ़ चुकी हूँ।
+        meaning: 我睇完本書喇。
+        note: चुकी 表示女性講者，並交代閱讀完成，唔係仲進行緊。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/hindi/skills/time-events/hindi-time-events-explained-in-english.yaml at revision
+    hindi-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - snell_hindi_skeleton2026
+    - msu_hindi_perfective2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  hindi-india:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/hindi/skills/time-events/hindi-time-events-explained-in-english.yaml at revision
+        hindi-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+        independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - snell_hindi_skeleton2026
+        - msu_hindi_perfective2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-assessment.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: feelings_viewpoints
+guidance: Assess feelings viewpoints from the learner’s contribution in context. 我想學整麵包。 (I want to
+  learn to make bread.) can demonstrate wants intentions. 想 introduces a desire; a firm plan
+  requires additional contextual evidence. 我鍾意飲茶多過飲咖啡。 (I prefer drinking tea to drinking coffee.)
+  can demonstrate preferences. 鍾意 with 多過 compares preferences rather than merely naming drinks.
+  我今日好開心。 (I am happy today.) can demonstrate emotions. 開心 names an emotional state. No copula is
+  needed before 好開心. 我覺得呢個辦法幾好。 (I think this method is quite good.) can demonstrate opinions. 我覺得
+  frames the evaluation as the speaker’s view. 我明你嘅意思，不過我唔同意。 (I understand what you mean, but I
+  disagree.) can demonstrate agreement disagreement. Understanding and agreement are distinct; 不過
+  introduces the contrasting position. Credit a function only when accomplished in the exchange;
+  copied isolated forms are insufficient. Do not require Mandarin forms or infer Cantonese
+  pronunciation from written characters.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

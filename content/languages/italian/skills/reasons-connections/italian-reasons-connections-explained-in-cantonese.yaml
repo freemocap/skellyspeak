@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: italian
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: Perché 可以引出行動或情況嘅原因；呢個用法有別於問 perché? 去查問點解。
+    examples:
+      - text: Prendo l’autobus perché piove.
+        meaning: 因為落雨，我搭巴士。
+        note: Perché 後面交代選擇交通工具嘅原因；呢度兩個動詞都係直陳式現在時。
+  - subskill_id: consequences
+    explanation: Quindi 將情況同結果連起來，唔係只交代下一件事。
+    examples:
+      - text: Il ponte è chiuso, quindi cambiamo strada.
+        meaning: 條橋封咗，所以我哋行第二條路。
+        note: Quindi 表示改路線係封橋之後嘅應對。
+  - subskill_id: conditions
+    explanation: Se 配合直陳式，可以提出尚未確定嘅條件，後句交代相應結果；唔使硬套英文 would 結構。
+    examples:
+      - text: Se domani piove, rimandiamo la passeggiata.
+        meaning: 如果聽日落雨，我哋就延遲散步。
+        note: 延遲與否取決於聽日落唔落雨；呢啲現在式表達未確定嘅將來情況。
+  - subskill_id: contrast
+    explanation: Ma 連接有分歧嘅性質或想法。兩邊內容要顯示對比，單靠 ma 唔夠。
+    examples:
+      - text: Il percorso è più breve, ma è molto ripido.
+        meaning: 條路短啲，但好斜。
+        note: 路程短嘅優點同斜度形成對比；più breve 係比較描述。
+  - subskill_id: supporting_claims
+    explanation: 相連嘅陳述可以支持判斷。可以明用 perché，亦可以用清楚嘅解釋提供理據。
+    examples:
+      - text: "Questo laboratorio è affidabile: consegna sempre i lavori in tempo."
+        meaning: 呢間工場好可靠：佢哋次次都準時交貨。
+        note: 一向準時交貨支持可靠嘅判斷，唔係無關嘅補充資料。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/italian/skills/reasons-connections/italian-reasons-connections-explained-in-english.yaml
+    at revision italian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - treccani_it_causal2026
+    - treccani_it_conditions2026
+    - treccani_it_connectives2026
+    - zanichelli_it_comparison2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  italian-italy:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/italian/skills/reasons-connections/italian-reasons-connections-explained-in-english.yaml
+        at revision italian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - treccani_it_causal2026
+        - treccani_it_conditions2026
+        - treccani_it_connectives2026
+        - zanichelli_it_comparison2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

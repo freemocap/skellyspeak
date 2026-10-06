@@ -14,7 +14,7 @@ it('sends with Enter while preserving Shift+Enter and IME composition', () => {
   fireEvent.keyDown(field, {key:'Enter'})
   expect(input.onSend).toHaveBeenCalledExactlyOnceWith('Hola')
 })
-it.each(['sending','transcribing'] as const)('blocks keyboard and form sends during %s', state => {
+it.each(['sending','starting','transcribing'] as const)('blocks keyboard and form sends during %s', state => {
   const input=props()
   render(<ComposerInput {...input} {...{[state]:true}} />)
   const field=screen.getByRole('textbox', {name:'Message'})
@@ -81,4 +81,21 @@ it('says what to say when the page offers it, where screen readers can reach it'
   expect(prompt).not.toHaveAttribute('aria-hidden')
   view.rerender(<ComposerInput {...input} />)
   expect(screen.getByText('Press the microphone to start').closest('.voice-prompt')).toHaveAttribute('aria-hidden', 'true')
+})
+
+
+it('shows startup feedback, blocks repeat taps and preserves Hold release', () => {
+  const input = props()
+  const onHoldEnd = vi.fn()
+  const { rerender } = render(<ComposerInput {...input} starting />)
+  const pad = screen.getByRole('button', { name: 'Starting…' })
+  expect(pad).toBeDisabled()
+  expect(pad).toHaveAttribute('aria-busy', 'true')
+  expect(pad.querySelector('.activity-spinner')).not.toBeNull()
+  fireEvent.click(pad)
+  expect(input.onToggleRecording).not.toHaveBeenCalled()
+  rerender(<ComposerInput {...input} starting mode="hold" onHoldStart={vi.fn()} onHoldEnd={onHoldEnd} />)
+  expect(pad).not.toBeDisabled()
+  fireEvent.pointerUp(pad)
+  expect(onHoldEnd).toHaveBeenCalledOnce()
 })

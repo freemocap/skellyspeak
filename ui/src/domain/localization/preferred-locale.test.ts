@@ -15,3 +15,12 @@ it('does not substitute Simplified Chinese for an unsupported Traditional prefer
   expect(preferredUiLocale(['zh-Hant'])).toBe('english')
   expect(preferredUiLocale(['zh-Hans-SG'])).toBe('mandarin')
 })
+
+it('matches Cantonese independently of Mandarin without guessing language from region', () => {
+  expect(preferredUiLocale(['yue-Hant-HK', 'en'])).toBe('cantonese')
+  expect(preferredUiLocale(['yue', 'zh-Hans'])).toBe('cantonese')
+  expect(preferredUiLocale(['zh-HK', 'yue-Hant-HK'])).toBe('cantonese')
+  expect(preferredUiLocale(['zh-HK'])).toBe('english')
+  expect(preferredUiLocale(['yue-Hans', 'zh-Hans'])).toBe('mandarin')
+  expect(preferredUiLocale(['en-Shaw', 'de'])).toBe('german')
+})

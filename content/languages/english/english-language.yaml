@@ -24,18 +24,47 @@ traits: []
 varieties:
   - id: english-united-states
     name: United States
-    description: United States
+    description: Contemporary US English, using standard American spelling and everyday usage; this
+      broad profile does not prescribe one regional accent.
     review: needs_review
-    sources: []
+    sources:
+      - british_council_english_variants20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &english-united-states-usage Use American spelling such as color and center, and ordinary US
+          vocabulary such as apartment when that meaning fits. Keep grammar and word choice
+          consistent with US usage; do not insert slang or respell words to imitate an accent. These
+          examples are preferences for new text, not corrections to quotations or other valid
+          English varieties.
+        sources:
+          - british_council_english_variants20261005
+      - scope: explanation_writing
+        text: *english-united-states-usage
+        sources:
+          - british_council_english_variants20261005
   - id: english-united-kingdom
     name: United Kingdom
-    description: United Kingdom
+    description: Contemporary UK English, using standard British spelling and everyday usage; this broad
+      profile does not prescribe one regional accent.
     review: needs_review
-    sources: []
+    sources:
+      - british_council_english_variants20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &english-united-kingdom-usage Use British spelling such as colour and centre, and ordinary UK
+          vocabulary such as flat when that meaning fits. Keep grammar and word choice consistent
+          with UK usage; do not insert slang or respell words to imitate an accent. These examples
+          are preferences for new text, not corrections to quotations or other valid English
+          varieties.
+        sources:
+          - british_council_english_variants20261005
+      - scope: explanation_writing
+        text: *english-united-kingdom-usage
+        sources:
+          - british_council_english_variants20261005
+
 guidance: []
 conversation:
   greeting:

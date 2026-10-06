@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: portuguese
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: Estar加副動詞明確表示進行中活動；簡單現在式亦可按語境描述習慣或當前活動。
+    examples:
+      - text: Estou preparando a massa do pão.
+        meaning: 我準備緊整麵包嘅麵糰。
+        note: Estou係第一人稱現在式；preparando係preparar嘅副動詞，表示活動進行中。
+  - subskill_id: past_events
+    explanation: 簡單完成過去時報告已完成嘅過去動作，形式按人稱同動詞類別改變，唔需要英文have類助動詞。
+    examples:
+      - text: Ontem troquei o pneu da bicicleta.
+        meaning: 我尋日換咗單車胎。
+        note: Troquei係trocar嘅第一人稱簡單過去式；qu保留ei前面嘅輔音，ontem定位到過去。
+  - subskill_id: future_events
+    explanation: Ir現在式加不定式可以表達計劃中嘅稍後行動；時間詞令將來指向明確。
+    examples:
+      - text: Amanhã vou levar os livros à biblioteca.
+        meaning: 我聽日會拎啲書去圖書館。
+        note: Vou levar結合ir第一人稱現在式同levar；biblioteca前嘅à係a加a。
+  - subskill_id: duration_frequency
+    explanation: 現在式加há同一段時長，可以量度持續到而家嘅情況；toda sexta-feira等表達就交代頻率。
+    examples:
+      - text: Trabalho aqui há seis meses.
+        meaning: 我喺呢度做咗六個月。
+        note: 工作仍然繼續，há seis meses喺度量度時長；配合已完成過去事件時，há亦可以解作之前。
+  - subskill_id: event_sequence
+    explanation: Primeiro同depois排列行動先後，本身唔斷言因果。
+    examples:
+      - text: Primeiro misturo a farinha, depois acrescento a água.
+        meaning: 我先拌麵粉，再加水。
+        note: 兩個現在式動詞描述食譜步驟；primeiro同depois明確交代次序。
+  - subskill_id: event_phase
+    explanation: Terminar等動詞表示完成；ainda配合進行式，就表示活動仍然繼續。
+    examples:
+      - text: Já terminei a leitura do livro.
+        meaning: 我已經睇完本書。
+        note: Terminei表示閱讀完成，já表示已達到呢個階段；葡文用簡單過去式表達已經做完。
+      - text: Ainda estou lendo o livro.
+        meaning: 我仲睇緊本書。
+        note: Ainda estou lendo描述持續，同已完成閱讀作對比。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/portuguese/skills/time-events/portuguese-time-events-explained-in-english.yaml at
+    revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_future_subj2026
+    - ut_pt_perfect2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/portuguese/skills/time-events/portuguese-time-events-explained-in-english.yaml at
+        revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_future_subj2026
+        - ut_pt_perfect2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

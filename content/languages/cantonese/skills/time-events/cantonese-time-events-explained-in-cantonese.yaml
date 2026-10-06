@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: cantonese
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 緊 標示進行中嘅活動，屬於體貌，唔係英文式現在時詞尾。
+    examples:
+      - text: 佢睇緊書。
+        meaning: 佢睇緊書。
+        note: 睇緊 交代活動進行中；發生喺邊個時間，仍然要配合語境。
+  - subskill_id: past_events
+    explanation: 噚日 交代過去時間；咗 將購買呈現為完成事件，唔係所有過去句都一定加嘅詞尾。
+    examples:
+      - text: 我噚日買咗本書。
+        meaning: 我噚日買咗本書。
+        note: 噚日 同 咗 分別交代時間同事件呈現方式，功能唔相同。
+  - subskill_id: future_events
+    explanation: 聽日 可以定位將來事件，唔一定要另外加將來助動詞。
+    examples:
+      - text: 我聽日去圖書館。
+        meaning: 我聽日去圖書館。
+        note: 即使冇 會，聽日 都足以交代將來安排。
+  - subskill_id: duration_frequency
+    explanation: 每個星期 同 兩次 交代頻率，唔係每次去幾耐。
+    examples:
+      - text: 我每個星期去兩次。
+        meaning: 我每個星期去兩次。
+        note: 次 計發生次數；時長就要另外講幾分鐘或幾個鐘。
+  - subskill_id: event_sequence
+    explanation: 完 標示完成，先 將離開排喺食飯之後；行動者由對話交代。
+    examples:
+      - text: 食完飯先出門。
+        meaning: 食完飯先走。
+        note: 先走 要等食飯完成，唔係先走咗再食。
+  - subskill_id: event_phase
+    explanation: 仲未 表示預期事件到目前仍然未發生，唔係否定習慣，亦唔係拒絕食物。
+    examples:
+      - text: 我仲未食飯。
+        meaning: 我仲未食飯。
+        note: 仲未食飯 講目前未完成嘅事，唔等於「我唔食飯」。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/cantonese/skills/time-events/cantonese-time-events-explained-in-english.yaml at
+    revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/cantonese/skills/time-events/cantonese-time-events-explained-in-english.yaml at
+        revision cantonese-skills-2026-10-05. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - cuhk_cantonese_grammar20261005
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

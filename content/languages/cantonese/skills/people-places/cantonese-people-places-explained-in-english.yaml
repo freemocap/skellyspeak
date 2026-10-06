@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: people_places
+explanation_language: english
+shared_explanation: skills/people-places/people-places-explained-in-english.yaml
+sections:
+  - subskill_id: identification
+    explanation: 係 links a person to a noun description; 位 is a respectful classifier for people.
+    examples:
+      - text: 呢位係我朋友。
+        meaning: This is my friend.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: qualities_states
+    explanation: 好靜 predicates a quality directly; an English “is” does not require inserting 係.
+    examples:
+      - text: 呢間房好靜。
+        meaning: This room is quiet.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: location_movement
+    explanation: 喺 locates the person. Singular 佢 does not encode gender like English he/she.
+    examples:
+      - text: 佢喺圖書館。
+        meaning: They are at the library.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: possession_relations
+    explanation: 我嘅 identifies the possessor without repeating 書.
+    examples:
+      - text: 呢本書係我嘅。
+        meaning: This book is mine.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: quantity_comparison
+    explanation: 本 is the classifier for 書 here. Quantity does not require a plural ending on 書.
+    examples:
+      - text: 我有三本書。
+        meaning: I have three books.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

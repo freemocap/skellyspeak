@@ -14,13 +14,13 @@ fn skill_direction_contract_upgrades_every_supported_format_without_rewriting_hi
         let topics = rows(&db, "saved_topics");
         drop(db);
         let store = Store::open(&path).unwrap();
-        assert_eq!(version(&store.connection), 51);
+        assert_eq!(version(&store.connection), SCHEMA_VERSION);
         assert_eq!(rows(&store.connection, "effort_awards"), awards);
         assert_eq!(rows(&store.connection, "saved_topics"), topics);
         validate_current_schema(&store.connection).unwrap();
         drop(store);
         let reopened = Store::open(&path).unwrap();
-        assert_eq!(version(&reopened.connection), 51);
+        assert_eq!(version(&reopened.connection), SCHEMA_VERSION);
         assert_eq!(
             std::fs::read_dir(dir.path().join("migration-backups"))
                 .unwrap()
@@ -52,15 +52,15 @@ fn skill_direction_step_preserves_populated_records_and_rolls_back_on_failure() 
     ];
     let before: Vec<_> = tables.iter().map(|table| rows(&db, table)).collect();
     assert!(
-        run_chain(&mut db, 50, 51, STEPS, |_| Err(AppError::new(
+        run_chain(&mut db, 50, 51, &STEPS[..6], |_| Err(AppError::new(
             ErrorCode::Storage,
             "Injected final failure"
         )))
         .is_err()
     );
     assert_eq!(version(&db), 50);
-    run_chain(&mut db, 50, 51, STEPS, validate_current_schema).unwrap();
-    run_chain(&mut db, 51, 51, STEPS, validate_current_schema).unwrap();
+    run_chain(&mut db, 50, 51, &STEPS[..6], validate_current_schema).unwrap();
+    run_chain(&mut db, 51, 51, &STEPS[..6], validate_current_schema).unwrap();
     for (table, expected) in tables.iter().zip(before) {
         assert_eq!(rows(&db, table), expected, "{table}");
     }

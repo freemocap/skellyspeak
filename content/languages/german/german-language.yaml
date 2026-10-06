@@ -24,11 +24,13 @@ traits: []
 varieties:
   - id: german-germany
     name: Germany
-    description: Germany
+    description: Contemporary standard German in Germany, with standard spelling and everyday
+      conversation; this profile does not prescribe a regional spoken dialect.
     review: needs_review
     sources: []
     overrides: {}
     guidance: []
+
 guidance: []
 conversation:
   greeting:

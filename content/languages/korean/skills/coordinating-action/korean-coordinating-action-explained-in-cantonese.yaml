@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: korean
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: 아或어 주세요請人為自己或其他受益者做一件事，形式包含禮貌嘅요。
+    examples:
+      - text: 이 상자를 문 옆으로 옮겨 주세요.
+        meaning: 唔該搬呢個箱去門邊。
+        note: 옮겨 주세요請人幫手搬箱；옆으로標示目的地。
+  - subskill_id: offers_invitations
+    explanation: 을까요可以主動提出幫忙；드리다用尊敬方式表達幫助對方。
+    examples:
+      - text: 제가 도와드릴까요?
+        meaning: 要唔要我幫你？
+        note: 제가指出幫手嘅係講者；接唔接受由聽者決定。
+  - subskill_id: suggestions
+    explanation: 을까요問句配合같이，可以提議一齊行動。係提議定猜想別人會做乜，要睇語境。
+    examples:
+      - text: 같이 잠깐 쉴까요?
+        meaning: 不如我哋一齊抖一陣？
+        note: 같이將雙方包括喺提議內；잠깐限定短時間。
+  - subskill_id: commitments
+    explanation: 을게요表達顧及聽者嘅個人意圖；安排事情時，可以用嚟承擔工作。
+    examples:
+      - text: 제가 내일 공구를 가져올게요.
+        meaning: 聽日我會帶工具嚟。
+        note: 負責幫大家帶工具時用，交代對方可以預期自己會做乜。
+  - subskill_id: accepting_declining
+    explanation: 道歉之後講自己做唔到，可以拒絕邀請；邀請本身交代出席乜活動。
+    examples:
+      - text: 미안해요. 오늘은 못 가요.
+        meaning: 唔好意思，我今日嚟唔到。
+        note: 回應今日嘅邀請。못表示冇辦法做到，兩句合起來拒絕邀請。
+  - subskill_id: negotiating_plans
+    explanation: 어때요問替代方案合唔合適；先講原先嘅衝突，改動就更清楚。
+    examples:
+      - text: 금요일은 바빠요. 토요일은 어때요?
+        meaning: 我星期五唔得閒。星期六點睇？
+        note: 回應星期五見面嘅提議；은喺協商入面對比兩個日子。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/korean/skills/coordinating-action/korean-coordinating-action-explained-in-english.yaml
+    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - htsk_permission2026
+    - htsk_desire2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/korean/skills/coordinating-action/korean-coordinating-action-explained-in-english.yaml
+        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - htsk_permission2026
+        - htsk_desire2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

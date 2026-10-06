@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: greek
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: γεια σας 係尊稱或對多人嘅日常問候。喺呢度開始交流，簡短問候本身已可構成完整社交回應。
+    examples:
+      - text: Γεια σας! Τι κάνετε;
+        meaning: 你好！近來點呀？
+        note: 初次認識時用；σας 同 κάνετε 保持尊稱，問句用希臘文 ;。
+  - subskill_id: acknowledging
+    explanation: κατάλαβα 可以表示已明白。雖然係第一人稱過去式，喺呢度用作當下回應；理解唔等於贊同。
+    examples:
+      - text: Κατάλαβα, ευχαριστώ.
+        meaning: 明白，多謝。
+        note: 對方解釋單車放邊之後用，係表示收到同理解，唔係另作新承諾。
+  - subskill_id: clarification
+    explanation: τι εννοείτε με 可以問某詞嘅意思；εννοείτε 尊稱對方，引用唔清楚部分令釐清目標更明確。
+    examples:
+      - text: Τι εννοείτε με «πίσω είσοδο»;
+        meaning: 你講「後門入口」係指邊度？
+        note: 對方提到後入口而你唔知邊個時用，係修補理解，唔係核實開門時間。
+  - subskill_id: rephrasing
+    explanation: δηλαδή 引入更清楚講法，應保留原意，唔好暗中改變意思；用作問句時亦可以要求釐清。
+    examples:
+      - text: Χρειάζεται ακόμα δουλειά. Δηλαδή, η επισκευή δεν είναι έτοιμη.
+        meaning: 仲有工夫要做，即係維修仲未完成。
+        note: 後一句清楚解釋未完成狀態；兩句都係同一講者講，唔係兩人對答。
+  - subskill_id: correcting_misunderstanding
+    explanation: εννοώ 指明原意，όχι 排除錯誤理解。有需要時兩個對象都講出嚟，唔必須靠某一過去式先做到修正。
+    examples:
+      - text: Εννοώ το Σάββατο, όχι την Παρασκευή.
+        meaning: 我意思係星期六，唔係星期五。
+        note: 對方以為星期五到訪時用，明確修正日子。
+  - subskill_id: turns_topics
+    explanation: μπορώ να 問句可以請求發言機會，σχετικά με 指出話題。重點唔係身體能力，而係協調參與。
+    examples:
+      - text: Μπορώ να πω κάτι σχετικά με τη διαδρομή;
+        meaning: 我可唔可以講少少路線方面嘅事？
+        note: 小組討論中要求發言；να πω 指行動，σχετικά με τη διαδρομή 指內容。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/greek/skills/managing-conversation/greek-managing-conversation-explained-in-english.yaml
+    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+    - tsaggalidis_el_person2026
+    - archakis_el_politeness2026
+    - triantafyllides_el_diladi2026
+    - triantafyllides_el_mean2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/greek/skills/managing-conversation/greek-managing-conversation-explained-in-english.yaml
+        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - poulopoulou_el_grammar2015
+        - hatzisavvidis_el_school_grammar2026
+        - tsaggalidis_el_person2026
+        - archakis_el_politeness2026
+        - triantafyllides_el_diladi2026
+        - triantafyllides_el_mean2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

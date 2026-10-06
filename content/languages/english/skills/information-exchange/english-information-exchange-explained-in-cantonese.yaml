@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: information_exchange
+language: english
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 好多英文問句會將助動詞放喺主語前面。一般現在式問句常用 do 或 does；如果問緊主語本身，就未必用 do。唔好直接照搬廣東話陳述句語序。
+    examples:
+      - text: Where does your sister work?
+        meaning: 講者問對方家姐或妹妹喺邊度返工。
+        note: does 負責構成問句，work 保持原形，唔加 -s。
+  - subskill_id: answering_information
+    explanation: 直接提供對方要嘅資訊就得，唔需要每次重複成個句子。
+    examples:
+      - text: At the library.
+        meaning: 回答「Where do you work?」時，呢句交代返工地點係圖書館。
+        note: 上文條問題令呢個短語成為切題而完整嘅答案。
+  - subskill_id: checking_facts
+    explanation: 問某個具體細節或說法係咪正確。
+    examples:
+      - text: Does the shop close at seven?
+        meaning: 講者核實所講嘅關門時間。
+        note: 呢條問題係確認一個具體事實。
+  - subskill_id: useful_detail
+    explanation: 加上有用資料，幫對方識別或理解講緊嘅對象。
+    examples:
+      - text: The entrance is on the left, beside the blue sign.
+        meaning: 講者清楚指出入口位置。
+        note: beside the blue sign 補充咗有助識別嘅位置細節。
+varieties:
+  english-united-states:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/information-exchange/english-information-exchange-explained-in-english.yaml
+        at revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  english-united-kingdom:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/english/skills/information-exchange/english-information-exchange-explained-in-english.yaml
+        at revision english-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - bc_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/english/skills/information-exchange/english-information-exchange-explained-in-english.yaml
+    at revision english-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - bc_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.

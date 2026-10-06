@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: ukrainian
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: 未完成體現在式可以描述當前活動。
+    examples:
+      - text: Зараз я ремонтую велосипед.
+        meaning: 我而家整緊單車。
+        note: Зараз將活動定位到目前情況。
+  - subskill_id: past_events
+    explanation: 過去形式標示性別同數；完成體動詞可以表達有界限嘅維修事件。
+    examples:
+      - text: Учора я полагодила велосипед.
+        meaning: 我尋日整好咗架單車。
+        note: Полагодила係陰性單數，男性講者會用полагодив。
+  - subskill_id: future_events
+    explanation: 完成體將來式可以唔加額外助動詞，交代稍後完成嘅行動。
+    examples:
+      - text: Завтра я заберу деталі.
+        meaning: 我聽日會攞零件。
+        note: Заберу係第一人稱單數，завтра交代日子。
+  - subskill_id: duration_frequency
+    explanation: Двічі表示兩次，на тиждень交代重複周期。
+    examples:
+      - text: Я плаваю двічі на тиждень.
+        meaning: 我一個星期游兩次水。
+        note: 呢個係頻率，唔係一次游幾耐。
+  - subskill_id: event_sequence
+    explanation: Спочатку同потім交代第一步同之後步驟。
+    examples:
+      - text: Спочатку вимийте руки, потім готуйте овочі.
+        meaning: 先洗手，再準備啲蔬菜。
+        note: 禮貌或複數命令式描述程序。
+  - subskill_id: event_phase
+    explanation: Дочитати突出一直讀到終點。
+    examples:
+      - text: Я дочитала книжку.
+        meaning: 我睇完本書喇。
+        note: 女性講者報告讀完，唔係淨係花過時間閱讀。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/ukrainian/skills/time-events/ukrainian-time-events-explained-in-english.yaml at
+    revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - ukma_ukrainian_tenses2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  ukrainian-ukraine:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/ukrainian/skills/time-events/ukrainian-time-events-explained-in-english.yaml at
+        revision ukrainian-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - ukma_ukrainian_tenses2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

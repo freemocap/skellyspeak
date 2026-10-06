@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: japanese
+skill_id: time_events
+explanation_language: cantonese
+shared_explanation: skills/time-events/time-events-explained-in-cantonese.yaml
+sections:
+  - subskill_id: present_events
+    explanation: て形加います可以描述進行中活動，但解讀取決於動詞；唔係所有ている都表示動作進行中。
+    examples:
+      - text: 今、地図を描いています。
+        meaning: 我而家畫緊地圖。
+        note: 今明確指出當前活動；語境已知講者，唔使另加私は。
+  - subskill_id: past_events
+    explanation: 禮貌過去式詞尾ました可以報告較早事件，時間詞再明確定位。
+    examples:
+      - text: 昨日、木の箱を作りました。
+        meaning: 我尋日整咗個木箱。
+        note: 昨日將事件放喺今日之前；木の描述箱嘅物料。
+  - subskill_id: future_events
+    explanation: 非過去式可以描述計劃中嘅將來行動，明日等詞交代時間；日文唔需要獨立將來時詞尾。
+    examples:
+      - text: 明日、図書館で本を返します。
+        meaning: 我聽日會喺圖書館還書。
+        note: 返します係非過去式；で指出還書活動喺邊度進行。
+  - subskill_id: duration_frequency
+    explanation: 毎週表示每星期重複；二時間等數量量度時長，唔使用相當於英文 for 嘅介詞。
+    examples:
+      - text: 毎週、二時間泳ぎます。
+        meaning: 我每星期游兩個鐘水。
+        note: 二時間係時長，唔係鐘點；毎週交代固定頻率。
+  - subskill_id: event_sequence
+    explanation: 動詞て形加から，表示做完呢件事先做下一件，可以交代程序次序。
+    examples:
+      - text: 手を洗ってから、料理を始めます。
+        meaning: 我先洗手，再開始煮飯。
+        note: 洗ってから明確將洗手放喺先；呢個から唔係分句後表示原因嘅用法。
+  - subskill_id: event_phase
+    explanation: 動詞詞幹配合終わる，明確表示完成活動，交代達到嘅階段，唔係只交代過去時間。
+    examples:
+      - text: その本を読み終わりました。
+        meaning: 我睇完嗰本書喇。
+        note: 読み係読む嘅連用詞幹；読み終わりました表示閱讀已完成。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/japanese/skills/time-events/japanese-time-events-explained-in-english.yaml at revision
+    japanese-skills-2026-10-04. Target examples and variety applicability retained exactly; no
+    independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/japanese/skills/time-events/japanese-time-events-explained-in-english.yaml at
+        revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - jpf_irodori_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

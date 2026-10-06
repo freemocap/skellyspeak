@@ -1051,7 +1051,7 @@
   "Last {value0} attempts": "{value0} dernières tentatives",
   "Latest": "Dernière",
   "Let go when you finish.": "Relâchez quand vous avez fini.",
-  "Microphone level": "Niveau du micro",
+  "Microphone level": "Niveau du microphone",
   "Most often different: {value0}, in {value1} of {value2} attempts.": "Le plus souvent différent : {value0}, dans {value1} tentatives sur {value2}.",
   "None": "Aucune",
   "One time scale and one colour scale for both": "Une même échelle de temps et de couleurs pour les deux",
@@ -1525,5 +1525,16 @@
   "Try again.": "Réessayez.",
   "Something went wrong": "Un problème est survenu",
   "Try again, and open the details if it keeps happening.": "Réessayez et ouvrez les détails si cela se reproduit.",
-  "Add credits": "Ajouter des crédits"
+  "Add credits": "Ajouter des crédits",
+  "The microphone stopped sending audio. Check its connection.": "Le microphone ne transmet plus de son. Vérifiez sa connexion.",
+  "Very little sound is reaching this microphone. Check mute or move closer.": "Ce microphone reçoit très peu de son. Vérifiez qu’il n’est pas coupé ou rapprochez-vous.",
+  "Sound detected": "Son détecté",
+  "Say something to check the input.": "Dites quelque chose pour vérifier l’entrée.",
+  "Stop test": "Arrêter le test",
+  "Test microphone": "Tester le microphone",
+  "Using: {name}": "Microphone utilisé : {name}",
+  "Local test only. No audio is saved or uploaded. Stops after 15 seconds.": "Test local uniquement. Aucun son n’est enregistré ni envoyé. Arrêt après 15 secondes.",
+  "Optional: check your microphone before your first conversation.": "Facultatif : vérifiez votre microphone avant votre première conversation.",
+  "Cantonese": "Cantonais",
+  "Mandarin Chinese": "Chinois mandarin"
 }

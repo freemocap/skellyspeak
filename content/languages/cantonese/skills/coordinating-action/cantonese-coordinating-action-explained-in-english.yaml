@@ -1,0 +1,68 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-skills-2026-10-05
+language: cantonese
+skill_id: coordinating_action
+explanation_language: english
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-english.yaml
+sections:
+  - subskill_id: requests
+    explanation: 唔該 frames a request for a service; 幫我 identifies who benefits. A request need not be a
+      question.
+    examples:
+      - text: 唔該，幫我開門。
+        meaning: Please open the door for me.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: offers_invitations
+    explanation: 一齊 proposes joint action; 好唔好 asks the other person to accept or decline.
+    examples:
+      - text: 一齊去食飯，好唔好？
+        meaning: Shall we go and eat together?
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: suggestions
+    explanation: 不如 introduces a proposed alternative; the exchange supplies the destination.
+    examples:
+      - text: 不如聽日去。
+        meaning: How about going tomorrow?
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: commitments
+    explanation: 答應 makes the commitment explicit. A future prediction alone is not necessarily a promise.
+    examples:
+      - text: 我答應你，聽日會帶本書嚟。
+        meaning: I promise you I will bring the book tomorrow.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: accepting_declining
+    explanation: After an invitation, unavailability can decline it indirectly. Without that context it
+      may only report a fact.
+    examples:
+      - text: 唔好意思，我聽日唔得閒。
+        meaning: Sorry, I am not free tomorrow.
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+  - subskill_id: negotiating_plans
+    explanation: The speaker rejects one time and checks another with 得唔得.
+    examples:
+      - text: 三點唔得，四點得唔得？
+        meaning: Three does not work; would four work?
+        note: Original teaching example; interpret its function in the conversational context described
+          above.
+provenance: &a1
+  origin: ai
+  authorship: AI-authored Cantonese guidance, original examples and English explanations informed by
+    the cited grammar; no independent linguistic review.
+  sources:
+    - cuhk_cantonese_grammar20261005
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-skills-2026-10-05
+    scope: "Entire document: constructions, examples, meanings, context and Hong Kong variety
+      applicability. Source consultation does not certify linguistic accuracy."
+varieties:
+  cantonese-hong-kong:
+    disposition: use_core
+    provenance: *a1

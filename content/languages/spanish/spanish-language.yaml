@@ -24,18 +24,52 @@ traits: []
 varieties:
   - id: spanish-mexico
     name: Mexico
-    description: Mexico
+    description: Contemporary Spanish in Mexico, with ordinary conversational usage and standard
+      spelling; regional and social variation remains valid.
     review: needs_review
-    sources: []
+    sources:
+      - aml_plural_address20261005
+      - colmex_ustedes20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &spanish-mexico-usage For plural address use ustedes with third-person plural agreement, for
+          example ustedes pueden, in both familiar and polite contexts. Choose singular address
+          according to the relationship. Do not default to vosotros forms or add slang to make every
+          sentence sound regional. Preserve contextually valid tense and vocabulary choices;
+          examples describe generation preferences, not a test that other Spanish varieties must
+          fail.
+        sources:
+          - aml_plural_address20261005
+          - colmex_ustedes20261005
+      - scope: explanation_writing
+        text: *spanish-mexico-usage
+        sources:
+          - aml_plural_address20261005
+          - colmex_ustedes20261005
   - id: spanish-spain
     name: Spain
-    description: Spain
+    description: Contemporary Spanish in Spain, with standard spelling and context-appropriate address;
+      this broad profile includes regional differences.
     review: needs_review
-    sources: []
+    sources:
+      - aml_plural_address20261005
     overrides: {}
-    guidance: []
+    guidance:
+      - scope: target_writing
+        text: &spanish-spain-usage "For familiar plural address, vosotros or vosotras with second-person
+          plural agreement is a useful default, for example podéis; use ustedes with third-person
+          plural agreement for polite plural address. This is not universal across Spain: respect
+          established regional usage, including ustedes in the Canary Islands. Choose past tenses
+          from meaning and context, not a blanket national rule. Do not force slang or treat other
+          valid Spanish forms as errors."
+        sources:
+          - aml_plural_address20261005
+      - scope: explanation_writing
+        text: *spanish-spain-usage
+        sources:
+          - aml_plural_address20261005
+
 guidance: []
 conversation:
   greeting:

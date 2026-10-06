@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: japanese
+skill_id: feelings_viewpoints
+explanation_language: cantonese
+shared_explanation: skills/feelings-viewpoints/feelings-viewpoints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: wants_intentions
+    explanation: 喺ます前面嗰個動詞詞幹加たい，表達想做嘅事，後面可加です表示禮貌。
+    examples:
+      - text: 自転車の修理を習いたいです。
+        meaning: 我想學整單車。
+        note: 習い係習う嘅詞幹；講者表達願望，唔係承諾報班。
+  - subskill_id: preferences
+    explanation: 好き表達鍾意，喜歡嘅對象常用が標示；のほうが可以喺比較入面指出較鍾意嗰個。
+    examples:
+      - text: コーヒーより、紅茶のほうが好きです。
+        meaning: 比起咖啡，我鍾意紅茶多啲。
+        note: より引出咖啡作比較基準；呢個對比關乎講者喜好。
+  - subskill_id: emotions
+    explanation: 安心する描述放心或鬆一口氣；禮貌過去式可以報告啱啱收到消息後嘅心情。
+    examples:
+      - text: 無事だと聞いて、安心しました。
+        meaning: 聽到大家都平安，我鬆咗一口氣。
+        note: 前文要交代邊啲人平安。安心しました講自己放心，唔係斷言他人內心感受。
+  - subskill_id: opinions
+    explanation: 普通體命題加と思います，表達自己嘅想法；い形容詞喺と前保留普通體形式。
+    examples:
+      - text: この案はいいと思います。
+        meaning: 我覺得呢個建議好。
+        note: いい係判斷內容一部分；一般呢個結構唔會喺と前改成いいです。
+  - subskill_id: agreement_disagreement
+    explanation: そう指返之前提出嘅立場；も表示自己同另一個人睇法一致。
+    examples:
+      - text: 私もそう思います。
+        meaning: 我都係咁諗。
+        note: 回應關於建議嘅具體意見，表示相同判斷，唔係淨係表示聽到。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/japanese/skills/feelings-viewpoints/japanese-feelings-viewpoints-explained-in-english.yaml
+    at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - jpf_irodori_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  japanese-japan:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/japanese/skills/feelings-viewpoints/japanese-feelings-viewpoints-explained-in-english.yaml
+        at revision japanese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - jpf_irodori_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

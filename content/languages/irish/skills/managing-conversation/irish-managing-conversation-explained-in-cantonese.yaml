@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: irish
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 道別可以結束今次對話，唔代表永久離開。
+    examples:
+      - text: Slán go fóill!
+        meaning: 下次見！
+        note: 結束今次交談時用。
+  - subskill_id: acknowledging
+    explanation: Tuigim 可以表示理解對方嘅解釋。
+    examples:
+      - text: Tuigim anois, go raibh maith agat.
+        meaning: 我而家明喇，唔該。
+        note: 明白一個意見，唔等於同意。
+  - subskill_id: clarification
+    explanation: 要求重複時，會指返對方之前講嘅內容。
+    examples:
+      - text: Abair é sin arís, le do thoil.
+        meaning: 唔該再講一次。
+        note: É sin 指要重複嘅內容；要求係對一位聽者講。
+  - subskill_id: rephrasing
+    explanation: Is é sin le rá 引出換句話講嘅內容。
+    examples:
+      - text: Is é sin le rá, caithfimid áit a chur in áirithe roimh ré.
+        meaning: 即係話，我哋要預先訂位。
+        note: 解釋完訂位程序後可以咁講。
+  - subskill_id: correcting_misunderstanding
+    explanation: I gceist agam 指明講者心目中嘅意思。
+    examples:
+      - text: Dé Sathairn atá i gceist agam, ní Dé hAoine.
+        meaning: 我係指星期六，唔係星期五。
+        note: 講者更正對方理解錯咗嘅日子。
+  - subskill_id: turns_topics
+    explanation: Maidir le 框定接住要講嘅話題。
+    examples:
+      - text: Maidir leis an gcéad cheist eile, cad a cheapann tú?
+        meaning: 至於下一條問題，你點睇？
+        note: 講者轉移話題，同時邀請對方接話。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/irish/skills/managing-conversation/irish-managing-conversation-explained-in-english.yaml
+    at revision irish-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - teanglann_maidir2026
+    - brasicke_irish_copula2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  irish-ireland:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/irish/skills/managing-conversation/irish-managing-conversation-explained-in-english.yaml
+        at revision irish-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - teanglann_maidir2026
+        - brasicke_irish_copula2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

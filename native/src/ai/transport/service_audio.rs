@@ -78,7 +78,8 @@ pub(in crate::ai) async fn synthesize_stream(
     outcome.audio = async {
         validate(input)?;
         let prepared = format!("[{} accent]\n{}", input.language, input.text);
-        if prepared.len() > 16_384 || prepared.chars().count() > 5_000 {
+        let limit = if target.model == "eleven_v4_turbo" { 2_000 } else { 5_000 };
+        if prepared.len() > 16_384 || prepared.chars().count() > limit {
             return Err(AppError::new(ErrorCode::Validation, "Prepared speech exceeds the provider input limit."));
         }
         let mut request = client

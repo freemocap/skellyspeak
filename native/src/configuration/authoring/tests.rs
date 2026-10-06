@@ -25,9 +25,10 @@ fn explicit_coverage_reports_exact_missing_paths_and_blocks_release() {
     let c = load(&files).unwrap();
     assert_eq!(c.definitions.len(), 8);
     assert_eq!(c.coverage().subskills, 42);
-    assert_eq!(c.languages.len(), 20);
+    assert_eq!(c.languages.len(), 21);
     let coverage = c.coverage();
-    let total = c.definitions.len() * (3 + c.languages.len() + c.languages.len() * 3);
+    let editions = c.guide_policy.bundled_explanation_languages.len();
+    let total = c.definitions.len() * (editions + c.languages.len() + c.languages.len() * editions);
     let bundled = |path: &&String| {
         c.guide_policy
             .bundled_explanation_languages

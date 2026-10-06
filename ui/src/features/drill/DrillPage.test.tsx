@@ -1084,7 +1084,7 @@ it('automatically expands a newly published take after selecting an older card',
   expect(screen.getByRole('button', { name: 'Attempt 1' })).toBeVisible()
 })
 
-it('releasing Hold before microphone startup finishes stops the capture when ready', async () => {
+it('releasing Hold before microphone startup finishes discards the pending capture', async () => {
   items = [item()]
   const native = invoke.getMockImplementation()!
   let finishStart!: () => void
@@ -1107,8 +1107,10 @@ it('releasing Hold before microphone startup finishes stops the capture when rea
     now += 500
     fireEvent.pointerUp(hold, { pointerId: 1 })
     expect(invoke.mock.calls.some(([command]) => command === 'mic_listen_stop')).toBe(false)
+    expect(hold).toHaveAttribute('aria-busy', 'true')
     await act(async () => finishStart())
-    await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_listen_stop', { recordingId: 'recording-1' }))
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('mic_cancel', { recordingId: 'recording-1' }))
+    expect(invoke.mock.calls.some(([command]) => command === 'mic_listen_stop' || command === 'mic_transcribe')).toBe(false)
     expect(invoke.mock.calls.filter(([command]) => command === 'mic_listen_start')).toHaveLength(1)
   } finally { clock.mockRestore() }
 })

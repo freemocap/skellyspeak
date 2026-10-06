@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: greek
+skill_id: possibilities_constraints
+explanation_language: cantonese
+shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
+sections:
+  - subskill_id: ability
+    explanation: 人稱用法 μπορώ 隨有能力嘅人變化，後接 να 子句；第二個動詞亦有人稱。呢句講實際能力，唔係求人幫忙。
+    examples:
+      - text: Μπορώ να αλλάξω το λάστιχο μόνος μου.
+        meaning: 我可以自己換車胎。
+        note: μπορώ 同 αλλάξω 係第一人稱單數；男性講者用 μόνος μου，女性會用 μόνη μου。
+  - subskill_id: permission
+    explanation: 第一人稱 να 問句可問許可，唔必須明示 μπορώ。對方權責同情境先能確定功能，唔係所有 να 問句都問許可。
+    examples:
+      - text: Να αφήσω το ποδήλατο εδώ;
+        meaning: 我可唔可以將單車留喺呢度？
+        note: 問負責地方嘅人；αφήσω 指自己要做嘅事，εδώ 指位置。
+  - subskill_id: obligation
+    explanation: πρέπει 係無人稱形式，唔跟有義務嘅人變化；να 子句用動詞詞尾交代行動者。某啲語境亦可以係推論，要睇整句。
+    examples:
+      - text: Πρέπει να κλείσουμε την πόρτα πριν φύγουμε.
+        meaning: 我哋離開之前一定要閂門。
+        note: κλείσουμε、φύγουμε 係第一人稱複數；喺收舖程序入面，係對大家嘅要求。
+  - subskill_id: possibility
+    explanation: 無人稱 μπορεί 保持第三人稱單數，即使可能做事嘅係講者。να 子句先帶相應人稱，同人稱用法 μπορώ 講能力不同。
+    examples:
+      - text: Μπορεί να έρθω αργότερα.
+        meaning: 我可能遲啲嚟。
+        note: μπορεί 表示可能，έρθω 係第一人稱單數；唔係承諾一定到。
+  - subskill_id: certainty
+    explanation: σίγουρα 等副詞可以表達有把握，要同足夠內容一齊用，講清楚肯定乜。呢個係講者立場，唔係客觀證明。
+    examples:
+      - text: Η συνάντηση είναι σίγουρα αύριο.
+        meaning: 個會議肯定係聽日。
+        note: σίγουρα 將日期表達為肯定；單純附和可能有唔同對話功能。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/greek/skills/possibilities-constraints/greek-possibilities-constraints-explained-in-english.yaml
+    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/greek/skills/possibilities-constraints/greek-possibilities-constraints-explained-in-english.yaml
+        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - poulopoulou_el_grammar2015
+        - hatzisavvidis_el_school_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

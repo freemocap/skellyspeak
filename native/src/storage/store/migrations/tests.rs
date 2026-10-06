@@ -6,6 +6,8 @@ mod assessment;
 mod execution;
 #[path = "skill_direction_tests.rs"]
 mod skill_direction;
+#[path = "speech_default_tests.rs"]
+mod speech_default;
 
 fn baseline(path: &Path, extras: bool) -> Connection {
     let db = Connection::open(path).unwrap();

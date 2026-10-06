@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: korean
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: 아서或어서將原因連到行動或狀態；피곤하다嘅連接形式係피곤해서。
+    examples:
+      - text: 피곤해서 일찍 잤어요.
+        meaning: 因為攰，我早咗瞓。
+        note: 攰解釋早瞓；過去式詞尾喺主句述語잤어요上。
+  - subskill_id: consequences
+    explanation: 그래서引出前述情況嘅結果，結果要有足夠內容顯示關聯。
+    examples:
+      - text: 버스가 오지 않았어요. 그래서 걸어갔어요.
+        meaning: 架巴士冇嚟，所以我行咗過去。
+        note: 그래서將行路決定連到巴士冇嚟，唔係淨係列出稍後事件。
+  - subskill_id: conditions
+    explanation: 으면或면類條件詞尾接喺述語詞幹後，具體選擇取決於詞幹形式。
+    examples:
+      - text: 비가 오면 안에서 작업할 거예요.
+        meaning: 如果落雨，我就喺入面做嘢。
+        note: 오면由오다組成；落雨係條件，唔係斷言已發生。
+  - subskill_id: contrast
+    explanation: 지만接喺述語詞幹後面，引出有對比嘅命題。
+    examples:
+      - text: 이 길은 짧지만 가팔라요.
+        meaning: 呢條路短，但好斜。
+        note: 斜度抵銷咗路短嘅優勢；가팔라요係가파르다嘅變化形式。
+  - subskill_id: supporting_claims
+    explanation: 原因分句可以支持推論；것 같아요明確令結論帶有保留。
+    examples:
+      - text: 안에서 소리가 들려서 사람이 있는 것 같아요.
+        meaning: 我諗入面有人，因為聽到入面有聲。
+        note: 聲音係有人嘅證據，唔係造成有人嘅原因；結論保留不確定性。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/korean/skills/reasons-connections/korean-reasons-connections-explained-in-english.yaml
+    at revision korean-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - htsk_cause2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  korean-south-korea:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/korean/skills/reasons-connections/korean-reasons-connections-explained-in-english.yaml
+        at revision korean-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - htsk_cause2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

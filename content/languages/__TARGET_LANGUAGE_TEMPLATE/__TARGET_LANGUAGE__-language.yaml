@@ -22,6 +22,8 @@ defaults:
   supported_romanizations: []
 traits: []
 varieties:
+  # Describe actual coverage. Multiple selectable varieties require cited guidance
+  # for both target_writing and explanation_writing; see LANGUAGES_README.md.
   - id: __VARIETY__
     name: __VARIETY_DISPLAY_NAME__
     description: __VARIETY_DESCRIPTION__

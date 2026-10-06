@@ -59,7 +59,7 @@ fn capabilities_select_without_language_specific_overrides() {
         catalog
             .resolve(
                 Task::Transcription,
-                "ast",
+                "ig",
                 &Preferences::default(),
                 "whisper-large-v3",
                 None
@@ -70,7 +70,7 @@ fn capabilities_select_without_language_specific_overrides() {
         catalog
             .resolve(
                 Task::Speech,
-                "ast",
+                "ig",
                 &Preferences::default(),
                 "eleven_v3",
                 None
@@ -202,30 +202,69 @@ fn malformed_tags_do_not_become_provider_defaults() {
 }
 
 #[test]
-fn every_offered_language_has_listed_recognition_and_synthesis() {
+fn every_offered_variety_has_listed_recognition_and_synthesis() {
     let catalog = Catalog::bundled();
     let registry = Registry::bundled().unwrap();
     for language in &registry.languages {
-        let tag = language
-            .external_tags
-            .get("language_tag")
-            .expect("language tag");
-        for task in [Task::Transcription, Task::Speech] {
-            let resolution = catalog
-                .resolve(
-                    task,
-                    tag,
-                    &Preferences::default(),
-                    if task == Task::Speech {
-                        "eleven_v3"
-                    } else {
-                        "whisper-large-v3"
-                    },
-                    None,
-                )
-                .unwrap_or_else(|error| panic!("{}: {error:?}", language.id));
-            assert_ne!(resolution.reason, "unlisted_language_attempt");
-            assert_ne!(resolution.reason, "custom_model_unverified");
+        for variety in &language.varieties {
+            let context = registry
+                .resolve(&language.id, Some(&variety.id), "english")
+                .unwrap();
+            for task in [Task::Transcription, Task::Speech] {
+                let resolution = catalog
+                    .resolve(
+                        task,
+                        &context.external_tags["language_tag"],
+                        &context.speech_routes,
+                        if task == Task::Speech {
+                            "eleven_v4_turbo"
+                        } else {
+                            "whisper-large-v3"
+                        },
+                        None,
+                    )
+                    .unwrap_or_else(|error| panic!("{} / {}: {error:?}", language.id, variety.id));
+                assert_ne!(resolution.reason, "unlisted_language_attempt");
+                assert_ne!(resolution.reason, "custom_model_unverified");
+                if task == Task::Speech {
+                    assert_eq!(
+                        resolution.model,
+                        if language.id == "irish" {
+                            "eleven_v3"
+                        } else {
+                            "eleven_v4_turbo"
+                        }
+                    );
+                }
+            }
         }
     }
+}
+
+#[test]
+fn missing_turbo_never_turns_cantonese_into_mandarin() {
+    let catalog = Catalog::bundled();
+    let models = vec!["eleven_v3".into()];
+    assert!(
+        catalog
+            .resolve(
+                Task::Speech,
+                "yue-Hant-HK",
+                &Preferences::default(),
+                "eleven_v4_turbo",
+                Some(&models)
+            )
+            .is_err()
+    );
+    let irish = catalog
+        .resolve(
+            Task::Speech,
+            "ga",
+            &Preferences::default(),
+            "eleven_v4_turbo",
+            Some(&models),
+        )
+        .unwrap();
+    assert_eq!(irish.model, "eleven_v3");
+    assert_eq!(irish.language_code, "ga");
 }

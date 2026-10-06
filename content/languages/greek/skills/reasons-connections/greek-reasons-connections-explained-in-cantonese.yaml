@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: greek
+skill_id: reasons_connections
+explanation_language: cantonese
+shared_explanation: skills/reasons-connections/reasons-connections-explained-in-cantonese.yaml
+sections:
+  - subskill_id: causes_reasons
+    explanation: επειδή 引入原因子句，可放主句前或後。γιατί 亦可引入原因，但用嚟問點解時功能唔同。
+    examples:
+      - text: Δεν παίρνω το ποδήλατο επειδή το λάστιχο είναι χαλασμένο.
+        meaning: 我唔踩單車，因為條車胎壞咗。
+        note: 車胎損壞解釋交通選擇；χαλασμένο 配合中性單數 λάστιχο。
+  - subskill_id: consequences
+    explanation: γι’ αυτό 將結果或決定連到啱啱提過嘅原因；αυτό 指返之前情況。要有實際關係，唔係任意兩句都係因果。
+    examples:
+      - text: Το συνεργείο είναι κλειστό. Γι’ αυτό θα έρθω αύριο.
+        meaning: 間維修舖閂咗，所以我聽日再嚟。
+        note: 關門促成改日到訪；γι’ αυτό 明示關係，αύριο 交代新日期。
+  - subskill_id: conditions
+    explanation: αν 引入條件；完成體依存形式可以講預期事件，結果用 θα。要按希臘文意思選形式，唔好機械照搬英文條件時態。
+    examples:
+      - text: Αν βρέξει αύριο, θα πάμε με το λεωφορείο.
+        meaning: 如果聽日落雨，我哋就搭巴士去。
+        note: βρέξει 指可能落雨；θα πάμε 交代條件成立後嘅計劃，冇肯定一定落雨。
+  - subskill_id: contrast
+    explanation: αλλά 連接意思上有對比嘅說法。相反或出乎預期關係要由內容支持，唔係單靠連接詞。
+    examples:
+      - text: Η διαδρομή είναι όμορφη, αλλά έχει πολλή κίνηση.
+        meaning: 條路好靚，但車好多。
+        note: 後半句提出缺點，同正面描述對比；πολλή 配合 κίνηση，用陰性賓格。
+  - subskill_id: supporting_claims
+    explanation: 原因子句既可解釋事件原因，亦可提供支持論點嘅觀察；νομίζω 可標示係判斷而非已證實事實。
+    examples:
+      - text: Νομίζω ότι το συνεργείο είναι ανοιχτό, γιατί έχει φως μέσα.
+        meaning: 我諗間維修舖開緊，因為入面有燈着住。
+        note: 見到燈光支持開門嘅判斷，唔係燈令間舖開門；推論仍可能錯。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/greek/skills/reasons-connections/greek-reasons-connections-explained-in-english.yaml
+    at revision greek-skills-2026-10-04. Target examples and variety applicability retained exactly;
+    no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - poulopoulou_el_grammar2015
+    - hatzisavvidis_el_school_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  greek-greece:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/greek/skills/reasons-connections/greek-reasons-connections-explained-in-english.yaml
+        at revision greek-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - poulopoulou_el_grammar2015
+        - hatzisavvidis_el_school_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

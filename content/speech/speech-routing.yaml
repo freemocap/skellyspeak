@@ -5,6 +5,7 @@ defaults:
     - whisper-large-v3
     - scribe_v2
   speech:
+    - eleven_v4_turbo
     - eleven_v3
 language_sets:
   whisper:
@@ -531,6 +532,168 @@ language_sets:
     vie: vi
     zh: zh
     zho: zh
+  eleven_v4_turbo:
+    af: af
+    afr: af
+    amh: amh
+    ar: ar
+    ara: ar
+    as: as
+    asm: as
+    ast: ast
+    az: az
+    aze: az
+    be: be
+    bel: be
+    ben: bn
+    bg: bg
+    bn: bn
+    bos: bs
+    bs: bs
+    bul: bg
+    ca: ca
+    cat: ca
+    ceb: ceb
+    ces: cs
+    ckb: ckb
+    cmn: cmn
+    cs: cs
+    cy: cy
+    cym: cy
+    da: da
+    dan: da
+    de: de
+    deu: de
+    el: el
+    ell: el
+    en: en
+    eng: en
+    es: es
+    est: et
+    et: et
+    fa: fa
+    fas: fa
+    fi: fi
+    fil: fil
+    fin: fi
+    fr: fr
+    fra: fr
+    ful: ful
+    gl: gl
+    glg: gl
+    gu: gu
+    guj: gu
+    ha: ha
+    hau: ha
+    he: he
+    heb: he
+    hi: hi
+    hin: hi
+    hr: hr
+    hrv: hr
+    hu: hu
+    hun: hu
+    hy: hy
+    hye: hy
+    id: id
+    ind: id
+    is: is
+    isl: is
+    it: it
+    ita: it
+    ja: ja
+    jav: jv
+    jpn: ja
+    jv: jv
+    ka: ka
+    kam: kam
+    kan: kn
+    kat: ka
+    kaz: kk
+    kir: ky
+    kk: kk
+    kn: kn
+    ko: ko
+    kor: ko
+    ky: ky
+    lao: lao
+    lav: lv
+    lb: lb
+    lin: ln
+    lit: lt
+    ln: ln
+    lt: lt
+    ltz: lb
+    lug: lug
+    lv: lv
+    mal: ml
+    mar: mr
+    mk: mk
+    mkd: mk
+    ml: ml
+    mlt: mlt
+    mon: mon
+    mr: mr
+    mri: mri
+    ms: ms
+    msa: ms
+    mya: mya
+    ne: ne
+    nep: ne
+    nl: nl
+    nld: nl
+    nob: nob
+    oci: oci
+    ori: ori
+    pa: pa
+    pan: pa
+    pl: pl
+    pol: pl
+    por: pt
+    ps: ps
+    pt: pt
+    pus: ps
+    ro: ro
+    ron: ro
+    ru: ru
+    rus: ru
+    sd: sd
+    sk: sk
+    sl: sl
+    slk: sk
+    slv: sl
+    sna: sna
+    snd: sd
+    so: so
+    som: so
+    spa: es
+    sr: sr
+    srp: sr
+    sv: sv
+    sw: sw
+    swa: sw
+    swe: sv
+    ta: ta
+    tam: ta
+    te: te
+    tel: te
+    tgk: tgk
+    th: th
+    tha: th
+    tr: tr
+    tur: tr
+    uk: uk
+    ukr: uk
+    ur: ur
+    urd: ur
+    uzb: uzb
+    vi: vi
+    vie: vi
+    wol: wol
+    yue: yue
+    zh: zh
+    zho: zh
+    zul: zul
 models:
   whisper-large-v3:
     provider: groq
@@ -552,7 +715,13 @@ models:
     task: speech
     languages: eleven_v3
     allow_unlisted_languages: false
+  eleven_v4_turbo:
+    provider: elevenlabs
+    task: speech
+    languages: eleven_v4_turbo
+    allow_unlisted_languages: false
 sources:
   - whisper_language_tokens
   - elevenlabs_scribe_languages_20260923
   - elevenlabs_v3_languages_20260923
+  - elevenlabs_models20261005

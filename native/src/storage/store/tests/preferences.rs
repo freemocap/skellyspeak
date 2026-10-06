@@ -1,6 +1,38 @@
 use super::*;
 
 #[test]
+fn cantonese_app_language_seeds_explanations_and_survives_reopen() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("workspace.sqlite3");
+    let mut store = Store::open(&path).unwrap();
+    let contact = contact(&mut store);
+    let learner = store.snapshot().unwrap().learner;
+    let mut preferences = learner.preferences;
+    preferences.interface_locale = "cantonese".into();
+    preferences.explanation_language = "cantonese".into();
+    preferences.explanation_variety_id = "cantonese-hong-kong".into();
+    apply(
+        &mut store,
+        Action::UpdateLearner {
+            expected_revision: learner.revision,
+            name: learner.name,
+            preferences,
+        },
+    );
+    let chat = conversation(&mut store, &contact, "Cantonese explanations");
+    assert_eq!(chat.settings.explanation_language, "cantonese");
+    assert_eq!(chat.settings.explanation_variety_id, "cantonese-hong-kong");
+    drop(store);
+    let snapshot = Store::open(&path).unwrap().snapshot().unwrap();
+    assert_eq!(snapshot.learner.preferences.interface_locale, "cantonese");
+    assert_eq!(
+        snapshot.learner.preferences.explanation_language,
+        "cantonese"
+    );
+    assert_eq!(snapshot.conversations[0].settings, chat.settings);
+}
+
+#[test]
 fn voice_defaults_are_persistent_and_opt_out_survives_restart() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("skellyspeak.sqlite3");

@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: portuguese
+skill_id: managing_conversation
+explanation_language: cantonese
+shared_explanation: skills/managing-conversation/managing-conversation-explained-in-cantonese.yaml
+sections:
+  - subskill_id: opening_closing
+    explanation: 招呼同道別語管理接觸；até加時間可以結束交談，兼交代預期下次見面。
+    examples:
+      - text: Até amanhã! Boa noite!
+        meaning: 聽日見！早唞！
+        note: 夜晚傾完偈，同預計聽日再見嘅人道別。
+  - subskill_id: acknowledging
+    explanation: Entendi等簡短動詞回應可以表示收到並明白解釋；用咗過去形式，唔代表一定另講尋日嘅故事。
+    examples:
+      - text: Entendi.
+        meaning: 我明喇。
+        note: 對方解釋完點還借書後即時用，確認理解，唔一定認同某個意見。
+  - subskill_id: clarification
+    explanation: O que você quer dizer com加某個表達，可以問對方原意；前文提供要澄清嘅詞。
+    examples:
+      - text: O que você quer dizer com provisório?
+        meaning: 你講「暫定」係咩意思？
+        note: 對方形容開放時間表係provisório後，講者問呢個詞喺度嘅意思。
+  - subskill_id: rephrasing
+    explanation: Em outras palavras引出更簡單嘅重述；重述要保留相關意思，唔係只講連接語。
+    examples:
+      - text: Em outras palavras, você pode ficar com o livro até sexta.
+        meaning: 即係話，你可以留住本書到星期五。
+        note: 將星期五到期嘅解釋重新表達；até sexta講清楚限期，保留相同許可同終點。
+  - subskill_id: correcting_misunderstanding
+    explanation: Eu quis dizer用原意取代錯誤措辭或理解；quis係呢個修正表達入面querer嘅第一人稱簡單過去式。
+    examples:
+      - text: Eu quis dizer sábado, não sexta.
+        meaning: 我係指星期六，唔係星期五。
+        note: 對方以為換書日係星期五，講者明確改正為星期六。
+  - subskill_id: turns_topics
+    explanation: Posso falar de問句可以爭取討論某話題嘅空間，唔同於純粹詢問說話能力。
+    examples:
+      - text: Posso falar dos horários agora?
+        meaning: 我而家可唔可以講吓時間安排？
+        note: 討論由揀書轉到實際安排時用；dos係de加os，問句要求就新話題發言。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/portuguese/skills/managing-conversation/portuguese-managing-conversation-explained-in-english.yaml
+    at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - uw_pt_principiantes2026
+    - ut_pt_contractions2026
+    - ut_pt_ficar2026
+    - ninin_pt_reformulation2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  portuguese-brazil:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/portuguese/skills/managing-conversation/portuguese-managing-conversation-explained-in-english.yaml
+        at revision portuguese-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - uw_pt_principiantes2026
+        - ut_pt_contractions2026
+        - ut_pt_ficar2026
+        - ninin_pt_reformulation2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

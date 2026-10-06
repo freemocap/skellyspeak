@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+skill_id: information_exchange
+language: french
+explanation_language: cantonese
+shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
+sections:
+  - subskill_id: asking_information
+    explanation: 用 où、quand、pourquoi 等疑問詞問缺少嘅資訊。est-ce que、倒裝同口語疑問語調提供不同問句形式。
+    examples:
+      - text: À quelle heure est-ce que le magasin ferme ?
+        meaning: 間舖幾點閂門？
+        note: à quelle heure 指出所問資訊；est-ce que 標示問句，唔需要主語動詞倒裝。
+  - subskill_id: answering_information
+    explanation: 回答對方實際問嘅資訊。短語喺語境中可以完整，唔需要重複成句問題。
+    examples:
+      - text: À dix-huit heures.
+        meaning: 下晝六點。
+        note: 用嚟回答關門時間。冇上文問題時，只係一個時間短語，唔足以證明回答切題。
+  - subskill_id: checking_facts
+    explanation: 用問句或確認用語，核實之前提出嘅說法；核實對象來自上文。
+    examples:
+      - text: Le rendez-vous est bien jeudi, c’est ça ?
+        meaning: 個約會係星期四，啱唔啱？
+        note: bien 同 c’est ça 請對方確認日期，唔係日期正確嘅獨立證據。
+  - subskill_id: useful_detail
+    explanation: 補充能解決資訊缺口嘅識別細節。qui、que 關係子句可以將細節連到合適對象。
+    examples:
+      - text: Le café que tu cherches est au deuxième étage, près de l’escalier.
+        meaning: 你搵緊間咖啡店喺二樓，樓梯附近。
+        note: que 將咖啡店同 tu cherches 連起嚟；樓層同地標有助定位，唔係無關描述。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/french/skills/information-exchange/french-information-exchange-explained-in-english.yaml
+    at revision french-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - oqlf_questions2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  french-france:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/information-exchange/french-information-exchange-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - oqlf_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
+  french-canada:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/french/skills/information-exchange/french-information-exchange-explained-in-english.yaml
+        at revision french-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - oqlf_questions2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.

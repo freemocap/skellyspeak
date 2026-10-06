@@ -1,0 +1,75 @@
+# yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
+schema_version: 1
+revision: cantonese-explanations-2026-10-05
+language: mandarin
+skill_id: coordinating_action
+explanation_language: cantonese
+shared_explanation: skills/coordinating-action/coordinating-action-explained-in-cantonese.yaml
+sections:
+  - subskill_id: requests
+    explanation: 请 可以引入請求。把 字句會將受影響對象放喺動詞短語前，而後面要交代對個對象做咗乜。唔好將普通話 把 當成廣東話所有句式都通用嘅「將」。
+    examples:
+      - text: 请把这个箱子搬到门口。
+        meaning: 唔該搬呢個箱去門口。
+        note: 搬到门口 交代要搬去邊。把 後面唔係淨係留一個冇其他交代嘅動詞。
+  - subskill_id: offers_invitations
+    explanation: 用 要不要，並將自己放喺行動者位置，可以主動提出幫忙。問緊嘅係對方想唔想接受協助。
+    examples:
+      - text: 要不要我帮你拿工具？
+        meaning: 要唔要我幫你搬工具？
+        note: 我 係提議幫忙嘅人，你 係接受協助嘅人。提出幫忙唔代表對方已接受，亦未等於已承擔義務。
+  - subskill_id: suggestions
+    explanation: 吧 可以令行動建議語氣柔和啲。我们 可以明確將講者包括喺共同計劃入面。
+    examples:
+      - text: 我们在这里休息一下吧。
+        meaning: 我哋喺呢度休息一陣啦。
+        note: 一下 表示短暫休息，吧 令呢句成為建議。吧 唔係所有廣東話句尾助詞嘅通用替代。
+  - subskill_id: commitments
+    explanation: 我来 可以表示講者主動接手任務。喺分工語境入面，呢個講法就係承擔責任。
+    examples:
+      - text: 明天我来带工具。
+        meaning: 聽日由我帶工具嚟。
+        note: 適合喺小組活動分工時用。我来 交代邊個負責呢項工作。
+  - subskill_id: accepting_declining
+    explanation: 道歉加上表示做唔到，可以婉拒邀請。来不了 表達冇辦法嚟，唔係「唔想嚟」嘅固定同義詞。
+    examples:
+      - text: 不好意思，我今晚来不了。
+        meaning: 唔好意思，我今晚嚟唔到。
+        note: 回應今晚嘅邀請。拒絕嘅係出席安排，唔係表示討厭對方。
+  - subskill_id: negotiating_plans
+    explanation: 不行 可以否定一個提議，怎么样 可以詢問替代方案。協商緊乜行動，要由之前嘅提議交代。
+    examples:
+      - text: 周五不行，周六怎么样？
+        meaning: 星期五唔得，星期六得唔得？
+        note: 回應星期五見面嘅建議。呢句修改見面時間，唔係只列出日期。
+provenance:
+  origin: ai
+  authorship: Directly authored by Codex in Cantonese, informed by
+    languages/mandarin/skills/coordinating-action/mandarin-coordinating-action-explained-in-english.yaml
+    at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
+    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  sources:
+    - oxford_mandarin_grammar2026
+  generation: null
+  review:
+    status: needs_review
+    revision: cantonese-explanations-2026-10-05
+    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+      claims retain their existing review limitations.
+varieties:
+  mandarin-mainland-china:
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: Directly authored by Codex in Cantonese, informed by
+        languages/mandarin/skills/coordinating-action/mandarin-coordinating-action-explained-in-english.yaml
+        at revision mandarin-skills-2026-10-04. Target examples and variety applicability retained
+        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      sources:
+        - oxford_mandarin_grammar2026
+      generation: null
+      review:
+        status: needs_review
+        revision: cantonese-explanations-2026-10-05
+        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
+          claims retain their existing review limitations.
