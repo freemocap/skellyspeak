@@ -16,7 +16,7 @@ it('moves outgoing words only when the next completed card replaces the expanded
   HTMLElement.prototype.animate = animate
   try {
     const view = render(<HistoryGrid expandedId="old" arriving={false}>
-      <div data-history-id="old"><div className="drill-word-pair"><span>word</span></div></div>
+      <div data-history-id="old"><div className="drill-word-pair"><span className="drill-word-reference">word</span></div></div>
       <div data-history-id="older" data-top="300" />
     </HistoryGrid>)
     expect(animate).not.toHaveBeenCalled()

@@ -1,17 +1,24 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-learner-first-cantonese-2026-10-07
 skill_id: information_exchange
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 揀配合資料需要嘅疑問表達；語境同語調亦可以構成是非問句。
+    explanation: 資料問句要講清楚想知啲乜。西班牙文用 `dónde` 問位置、`cuándo` 問時間、`qué` 問事物或者解釋。下面例句想知車站位置。問人或者物件喺邊度時，用
+      `estar` 嘅適當形式。
     examples:
       - text: ¿Dónde está la estación?
-        meaning: 車站喺邊度？
-        note: Dónde問位置。
+        meaning: "**拆開睇。** 「車站喺邊度？」分三部分：`dónde` 問位置，`está` 係單數動詞，`la estación` 指出要搵嘅地方。`Dónde` 同 `está`
+          嘅重音符號，同埋前後問號，都要保留。"
+        note: >-
+          **改成複數。** `¿Dónde están las llaves?` 問啲鎖匙喺邊度。`Están` 同 `las llaves` 都係複數。回答可以只講位置：`En la
+          mesa`，喺枱上。
+
+
+          **試吓。** 用 `el baño` 問洗手間喺邊度。答案：`¿Dónde está el baño?` 問一個洗手間，所以用單數 `está`。
   - subskill_id: answering_information
     explanation: 相關嘅短答可以直接提供所問資料，唔使重複動詞。
     examples:
@@ -35,11 +42,8 @@ varieties:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/information-exchange/spanish-information-exchange-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - rae_possession2026
         - rae_future2026
@@ -47,21 +51,21 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/information-exchange/spanish-information-exchange-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - rae_possession2026
         - rae_future2026
@@ -69,18 +73,19 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/information-exchange/spanish-information-exchange-explained-in-english.yaml
-    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - rae_possession2026
     - rae_future2026
@@ -88,9 +93,12 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-learner-first-cantonese-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.

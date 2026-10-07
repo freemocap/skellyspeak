@@ -39,9 +39,11 @@ export type MessageInspect = { kind: 'available'; open: boolean; disabled?: bool
 /** One row of tools, identical on every message and for both speakers: Play
  * and Inspect audio lead; then the reading tools as icons, each named by its
  * tooltip; then the message's actions as icons (Edit, Add to Practice), always
- * in view; and ⋯ last, holding only reading tools that do not fit in the
- * available width, each shown there with its name. */
-export function MessageTools({ play, inspect, tools, actions, more, pending }: {
+ * in view; and ⋯ last, holding owner menu actions and reading tools that do not
+ * fit in the available width, each shown there with its name. */
+export function MessageTools({ play, inspect, tools, actions, more, pending, menuActions }: {
+  /** Owner actions that stay in the menu at every width. */
+  menuActions?: ReactNode
   /** Admission feedback occupies the existing tools without changing their footprint. */
   pending?: ReactNode
   play: MessagePlay | null
@@ -57,13 +59,14 @@ export function MessageTools({ play, inspect, tools, actions, more, pending }: {
   const waiting = pending !== undefined
   const uiDirection = useUiDirection()
   const [open, setOpen] = useState(false)
-  const { root, measure, visible } = useToolOverflow(more.length, [...tools, ...more].map(tool => tool.key).join('|'))
+  const { root, measure, visible } = useToolOverflow(more.length, [...tools, ...more].map(tool => tool.key).join('|'), !!menuActions)
   const overflow = more.slice(visible)
   const anchorInspector = useInspectorAnchor(inspect?.open)
   const panelId = useId()
   const menuButton = useRef<HTMLButtonElement>(null)
   const closeMenu = useCallback(() => setOpen(false), [])
-  useEffect(() => { if (!overflow.length) setOpen(false) }, [overflow.length])
+  const hasMenu = overflow.length > 0 || !!menuActions
+  useEffect(() => { if (!hasMenu) setOpen(false) }, [hasMenu])
   const stop = (event: { stopPropagation: () => void }) => event.stopPropagation()
   const toolButton = (tool: MessageTool, inMenu: boolean) => <button key={tool.key} type="button"
     className={`${inMenu ? 'message-tools-item' : 'message-tools-icon'}${tool.pending ? ' is-hydrating' : ''}`}
@@ -87,11 +90,12 @@ export function MessageTools({ play, inspect, tools, actions, more, pending }: {
       <span className="message-tools-fixed">
       {actions}
       </span>
-      {overflow.length > 0 && <button ref={menuButton} type="button" className="message-tools-icon message-tools-more" aria-label={tr("More actions")} title={tr("More actions")}
+      {hasMenu && <button ref={menuButton} type="button" className="message-tools-icon message-tools-more" aria-label={tr("More actions")} title={tr("More actions")}
         aria-expanded={open} aria-controls={panelId} onClick={event => { stop(event); setOpen(!open) }}><ToolbarIcon name="more" /></button>}
     </span>
-    {overflow.length > 0 && open && !waiting && <MessageToolMenu anchor={menuButton} id={panelId} direction={uiDirection} onClose={closeMenu}>
+    {hasMenu && open && !waiting && <MessageToolMenu anchor={menuButton} id={panelId} direction={uiDirection} onClose={closeMenu}>
       {overflow.map(tool => toolButton(tool, true))}
+      {menuActions}
     </MessageToolMenu>}
     <span className="message-tools-measure" ref={measure} aria-hidden="true" inert>
       {more.map(tool => <span key={tool.key} className="message-tools-icon" data-measured-tool><ToolbarIcon name={tool.icon} /></span>)}

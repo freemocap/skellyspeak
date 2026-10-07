@@ -166,6 +166,7 @@
    recording sits on the right. Text inside is turned back to read normally. */
 .drill-timelines[data-time="rtl"] .drill-track { transform: scaleX(-1); }
 .drill-timelines[data-time="rtl"] .drill-track :is(bdi, .inspection-frequency-scale span, .inspection-segment-mark span) { display: inline-block; transform: scaleX(-1); }
+.drill-timelines[data-time="rtl"] .drill-track .drill-plot-frame { transform: scaleX(-1); }
 .drill-comparison-foot { position: absolute; inset-inline-end: var(--space-2); bottom: var(--space-2); z-index: var(--z-popover); display: grid; gap: var(--space-1); line-height: var(--leading-snug); color: var(--ink-3); font-size: var(--type-meta); }
 .drill-comparison-foot p { margin: 0; }
 
@@ -294,14 +295,33 @@
    outcome, and a word heard differently shows the heard form beneath it. */
 .drill-word-outcome { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-/* Aligned pairs wrap together so long phrases retain target/heard ownership. */
-.drill-word-pairs { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: start; }
-.drill-word-pair, .drill-word-labels { display: grid; gap: var(--space-2); max-width: 100%; min-width: 0; }
-.drill-word-labels { color: var(--ink); font-size: var(--type-ui); font-weight: var(--weight-semibold); }
-.drill-word-pair > span:not(.drill-word-outcome) { padding: 0 var(--space-2); overflow-wrap: anywhere; background: var(--success-tint); border-bottom: var(--border-width-thick) solid var(--success-line); border-radius: var(--radius-xs); font-family: var(--font-serif); font-size: calc(var(--type-body) * var(--reading-scale) * var(--script-scale)); line-height: var(--leading-snug); }
-.drill-word-pair[data-outcome="substituted"] > span { background: var(--warning-tint); border-color: var(--warning-line); }
-.drill-word-pair[data-outcome="missing"] > span { background: var(--danger-tint); border-color: var(--danger-line); }
-.drill-word-pair[data-outcome="extra"] > span { background: var(--chip); border-color: var(--ink-3); border-bottom-style: dashed; }
+/* Aligned pairs wrap together so long phrases retain reference/attempt ownership.
+   The reference row is filled and set in reading size; the attempt row is
+   outlined and smaller, so the two rows read as a comparison. Both take the
+   pair's outcome colour. */
+.drill-word-pairs { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-2); align-items: start; }
+.drill-word-pair { display: grid; gap: var(--space-2); max-width: 100%; min-width: 0; }
+/* The row labels and the first pair share two grid rows, so each label sits level with its row. */
+.drill-word-lead { display: grid; grid-template-columns: max-content minmax(0, max-content); grid-template-rows: auto auto; gap: var(--space-2) var(--space-3); max-width: 100%; min-width: 0; }
+.drill-word-lead > :is(.drill-word-labels, .drill-word-pair) { grid-row: 1 / span 2; grid-template-rows: subgrid; }
+.drill-word-labels { display: grid; padding-inline-end: var(--space-3); border-inline-end: var(--border-width) solid var(--line); color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-semibold); }
+.drill-word-labels > span { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; }
+/* Each label's swatch shows its row's treatment. */
+.drill-word-labels > span::before { content: ""; flex: none; width: var(--space-7); height: var(--space-5); box-sizing: border-box; border-radius: var(--radius-xs); }
+.drill-word-labels > .drill-word-reference::before { background: var(--chip); border-bottom: var(--border-width-thick) solid var(--ink-3); }
+.drill-word-labels > .drill-word-attempt::before { border: var(--border-width) solid var(--ink-3); }
+.drill-word-pair > span:not(.drill-word-outcome) { padding: 0 var(--space-2); overflow-wrap: anywhere; border-radius: var(--radius-xs); font-family: var(--font-serif); line-height: var(--leading-snug); }
+.drill-word-pair > .drill-word-reference { background: var(--success-tint); border-bottom: var(--border-width-thick) solid var(--success-line); font-size: calc(var(--type-body) * var(--reading-scale) * var(--script-scale)); }
+.drill-word-pair > .drill-word-attempt { justify-self: start; border: var(--border-width) solid var(--success-line); background: var(--sheet); color: var(--ink-2); font-size: calc(var(--type-ui) * var(--reading-scale) * var(--script-scale)); }
+.drill-word-pair[data-outcome="substituted"] > :is(.drill-word-reference, .drill-word-attempt) { border-color: var(--warning-line); }
+.drill-word-pair[data-outcome="substituted"] > .drill-word-reference { background: var(--warning-tint); }
+.drill-word-pair[data-outcome="substituted"] > .drill-word-attempt { color: var(--warning-ink); }
+.drill-word-pair[data-outcome="missing"] > :is(.drill-word-reference, .drill-word-attempt) { border-color: var(--danger-line); }
+.drill-word-pair[data-outcome="missing"] > .drill-word-reference { background: var(--danger-tint); }
+.drill-word-pair[data-outcome="missing"] > .drill-word-attempt { color: var(--danger-ink); }
+.drill-word-pair[data-outcome="extra"] > :is(.drill-word-reference, .drill-word-attempt) { border-color: var(--ink-3); }
+.drill-word-pair[data-outcome="extra"] > .drill-word-reference { background: var(--chip); border-bottom-style: dashed; }
+.drill-word-pair[data-outcome="extra"] > .drill-word-attempt { border-style: dashed; }
 
 /* What was measured, you against the reference, one row per measure. */
 .drill-measures { table-layout: fixed; line-height: var(--leading-snug); width: 100%; border-collapse: collapse; font-size: var(--type-meta); }
@@ -470,9 +490,6 @@
 
 .drill-dropdown-actions { padding: var(--space-2); border-top: var(--border-width) solid var(--line-soft); }
 
-
-/* The icon leads the label in playback direction; its triangle points that way. */
-.drill-play[dir="rtl"] > svg { transform: scaleX(-1); }
 
 .drill-word-preview-label { font-family: var(--font-sans); font-size: var(--type-meta); }
 .drill-word-cell:hover { outline: var(--border-width) solid currentColor; outline-offset: calc(-1 * var(--border-width)); }

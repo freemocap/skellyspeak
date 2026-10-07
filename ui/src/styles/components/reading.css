@@ -105,6 +105,15 @@
 /* Source size applies everywhere; emphasis only distinguishes target-language
    forms embedded in explanatory prose, never standalone reading bubbles. */
 .w, .target-text { font-size: calc(var(--type-reading) * var(--reading-scale) * var(--script-scale)); }
+/* Inline fragments keep normal wrapping; each wrapped line receives its own edge. */
+.target-inline {
+  border: var(--border-width) solid var(--line-soft);
+  border-radius: var(--radius-xs);
+  padding-inline: var(--space-1);
+  background: color-mix(in srgb, var(--interaction-ink) 4%, transparent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
 .target-inline .w, .target-inline .target-text { color: var(--interaction-ink); font-weight: var(--weight-bold); font-style: italic; }
 
 .w.preserve-space { white-space: pre-wrap; }

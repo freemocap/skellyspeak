@@ -1,3 +1,4 @@
+import { Markdown } from './Markdown'
 import { SavedReadingProvider } from './SavedReadingProvider'
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
@@ -416,4 +417,28 @@ it('shows word meanings in the inspector without auto-translate and carries no s
   expect(within(dialog).queryByText('Response details')).toBeNull()
   expect(within(dialog).queryByRole('button', {name:'Start a conversation from this phrase'})).toBeNull()
   expect(services.activity).not.toHaveBeenCalled()
+})
+
+
+it('opens inline target words by touch or keyboard, pins help, and dismisses outside without changing source', async () => {
+  const view = app(<Markdown text={'Use '+String.fromCharCode(96)+'Hola'+String.fromCharCode(96)+' here.'} targetCode />)
+  const word = screen.getByRole('button', { name: 'Hola' })
+  const source = view.container.querySelector('.target-inline')!
+  const touch = new MouseEvent('pointerover', { bubbles: true })
+  Object.defineProperty(touch, 'pointerType', { value: 'touch' })
+  fireEvent(word, touch)
+  expect(services.read).not.toHaveBeenCalled()
+  fireEvent.click(word)
+  expect(await screen.findByRole('group', { name: 'Word help' })).toBeVisible()
+  await waitFor(() => expect(screen.getByRole('group', { name: 'Word help' })).toHaveTextContent('hello'))
+  fireEvent.pointerOut(word)
+  expect(screen.getByRole('group', { name: 'Word help' })).toBeVisible()
+  expect(source.textContent).toBe('Hola')
+  fireEvent.pointerDown(document.body)
+  expect(screen.queryByRole('group', { name: 'Word help' })).toBeNull()
+  fireEvent.keyDown(word, { key: 'Enter' })
+  expect(screen.getByRole('group', { name: 'Word help' })).toBeVisible()
+  fireEvent.keyDown(document, { key: 'Escape' })
+  expect(screen.queryByRole('group', { name: 'Word help' })).toBeNull()
+  expect(source.textContent).toBe('Hola')
 })

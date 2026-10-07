@@ -1,74 +1,133 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-learner-first-english-2026-10-07
 language: arabic
 skill_id: information_exchange
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: An interrogative time expression asks for the hour when an event happens.
+    explanation: When you know an event happens but do not know its time, you need a question that asks
+      for that missing detail. `فِي أَيِّ سَاعَةٍ` means ‘at what time’. The example asks about a
+      shop's closing time, so a useful answer gives an hour rather than just yes or no.
     examples:
       - text: فِي أَيِّ سَاعَةٍ يُغْلِقُ الْمَحَلُّ؟
-        meaning: What time does the shop close?
-        note: Modern Standard Arabic. The question requests a closing time.
-      - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
-        meaning: What time does the shop close?
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The
-          question requests a closing time.
+        meaning: "**The example.** “What time does the shop close?” `فِي أَيِّ سَاعَةٍ` means at which hour.
+          `يُغْلِقُ` is closes and `الْمَحَلُّ` is the shop. The preposition `فِي` begins the time
+          expression; the verb precedes the shop in this example."
+        note: >-
+          **Build an answer.** `فِي السَّاعَةِ الْخَامِسَةِ` means at five o'clock. You can answer
+          with this time phrase alone because the question already supplies the shop and action.
+
+
+          **Try it.** Which phrase must the answer replace? Answer: `فِي أَيِّ سَاعَةٍ`.
   - subskill_id: answering_information
     explanation: A clock-time phrase can answer the preceding question on its own.
     examples:
       - text: فِي السَّاعَةِ الْخَامِسَةِ.
         meaning: At five o’clock.
-        note: Modern Standard Arabic. Answer to the shop closing-time question; no full sentence is
-          needed.
-      - text: عَ السَّاعَة خَمْسِة.
-        meaning: At five o’clock.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Answer to
-          the shop closing-time question; no full sentence is needed.
+        note: Modern Standard Arabic. Answer to the shop closing-time question; no full sentence is needed.
   - subskill_id: checking_facts
     explanation: A proposition followed by a confirmation question checks a candidate fact.
     examples:
       - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
         meaning: The shop is closed today, right?
         note: Modern Standard Arabic. The speaker proposes closure and asks for confirmation.
-      - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
-        meaning: The shop is closed today, right?
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
-          proposes closure and asks for confirmation.
   - subskill_id: useful_detail
     explanation: A location detail can distinguish the entrance a listener needs.
     examples:
       - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
         meaning: The entrance is beside the bakery.
         note: Modern Standard Arabic. Use when the listener is trying to find the entrance.
-      - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
-        meaning: The entrance is beside the bakery.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Use when
-          the listener is trying to find the entrance.
-provenance: &a1
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-learner-first-english-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: Conversational questions do not need an English-style auxiliary or a formal interrogative
-      particle. شُو and إِيشْ are regional options for what.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   arabic-modern-standard:
-    disposition: supplement
-    text: Modern Standard questions use formal interrogative expressions. A short relevant answer
-      can omit information already supplied by the question.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: asking_information
+      explanation: A question about time helps you plan an action, such as reaching a shop before it
+        closes. `أَيّ سَاعَة` asks ‘what time’. The rest of the question identifies the event you
+        need to plan around. In this example, you are asking when the shop closes.
+      examples:
+        - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
+          meaning: "**The example.** “What time does the shop close?” `أَيّ سَاعَة` asks which hour;
+            `بِيْسَكِّرْ` means closes in this spoken pattern; `الْمَحَلّ` names the shop. Notice
+            the b-prefix on this ordinary present-tense verb."
+          note: >-
+            **Build an answer.** `عَ السَّاعَة خَمْسِة` means at five o'clock in this spoken model.
+            The time phrase alone can answer the question.
+
+
+            **Try it.** Would a bare yes answer the question? No: give the closing time. The
+            question words tell you which information is missing.
+    - subskill_id: answering_information
+      explanation: A clock-time phrase can answer the preceding question on its own.
+      examples:
+        - text: عَ السَّاعَة خَمْسِة.
+          meaning: At five o’clock.
+          note: Levantine Arabic; conversational wording, with regional alternatives possible. Answer to the
+            shop closing-time question; no full sentence is needed.
+    - subskill_id: checking_facts
+      explanation: A proposition followed by a confirmation question checks a candidate fact.
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
+          meaning: The shop is closed today, right?
+          note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
+            proposes closure and asks for confirmation.
+    - subskill_id: useful_detail
+      explanation: A location detail can distinguish the entrance a listener needs.
+      examples:
+        - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
+          meaning: The entrance is beside the bakery.
+          note: Levantine Arabic; conversational wording, with regional alternatives possible. Use when the
+            listener is trying to find the entrance.

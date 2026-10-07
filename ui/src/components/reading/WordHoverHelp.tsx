@@ -97,7 +97,7 @@ export function WordHoverHelp({ selection, anchor, pinned, onEnter, onLeave, onC
     {blank ? result?.explanations && Completions && <Completions cards={result.explanations.cards} /> : <GlossHelpParts text={selection.text} parts={parts} showRomanization={supportsRomanization} />}
     {failure != null && <ErrorNotice error={failure}>{errorMessage(failure)}<ResponseDetails value={errorDetails(failure)} /></ErrorNotice>}
     {(failure != null || result && (blank ? !result.explanations?.cards.length : !parts.length)) && <button className="reading-help-action" onClick={() => setAttempt(value => value + 1)}>{tr(blank ? 'Retry' : 'Retry word meanings')}</button>}
-    {blank && <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr('Analysis')}</button>}
+    {actions && <button className="reading-help-action" onClick={() => { onClose(); actions?.inspect(selection) }}>{tr('Analysis')}</button>}
   </div>
   return createPortal(content, layer.host)
 }

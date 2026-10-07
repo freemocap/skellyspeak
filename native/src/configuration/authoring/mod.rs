@@ -51,13 +51,13 @@ pub struct Review {
 }
 
 macro_rules! document {
-    ($name:ident { $($field:ident: $ty:ty),* $(,)? }) => {
+    ($name:ident { $($(#[$meta:meta])* $field:ident: $ty:ty),* $(,)? }) => {
         #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
         #[serde(deny_unknown_fields)]
         pub struct $name {
             pub schema_version: u32,
             pub revision: String,
-            $(pub $field: $ty,)*
+            $($(#[$meta])* pub $field: $ty,)*
             pub provenance: Provenance,
         }
     };
@@ -81,8 +81,19 @@ document!(Assessment {
 document!(Guide {
     language: String, skill_id: String, explanation_language: String,
     shared_explanation: String, sections: Vec<Section>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    variety_sections: BTreeMap<String, Vec<Section>>,
     varieties: BTreeMap<String, Disposition>,
 });
+
+impl Guide {
+    /// Authored teaching for a declared variety; other guides keep their shared sections.
+    pub fn sections_for(&self, variety: &str) -> &[Section] {
+        self.variety_sections
+            .get(variety)
+            .map_or(&self.sections, Vec::as_slice)
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]

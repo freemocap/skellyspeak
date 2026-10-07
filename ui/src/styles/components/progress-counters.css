@@ -69,7 +69,12 @@
 .language-table { width: 100%; border-collapse: collapse; font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
 .language-table :is(th, td) { padding: var(--space-2) var(--space-3); text-align: end; white-space: nowrap; }
 .language-table tbody :is(th, td) { border-top: var(--border-width) solid var(--line-soft); }
-.language-table :is(thead th:first-child, tbody th) { text-align: start; }
+.language-table :is(thead th:first-child, tbody th, tfoot th) { text-align: start; }
+/* The Total row: each column added up over every language. */
+.language-table tfoot :is(th, td) { border-top: var(--border-width-strong) solid var(--line); font-weight: var(--weight-bold); }
+.language-table tfoot th { color: var(--ink-2); font-family: var(--font-sans); }
+/* The Effort column: the row's effort units added up, set off from the kinds it adds. */
+.language-table [data-column="effort"] { border-inline-start: var(--border-width) solid var(--line-soft); }
 .language-table thead button { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 0; padding: 0; border: 0; background: transparent; color: inherit; font: var(--weight-semibold) var(--type-meta) var(--font-sans); cursor: pointer; }
 .language-table thead th:not([data-unit]) button { color: var(--ink-2); }
 .language-table thead th[data-column="xp"] button { color: var(--progress-ink); }

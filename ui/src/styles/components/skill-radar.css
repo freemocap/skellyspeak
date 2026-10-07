@@ -3,7 +3,8 @@
    name button per arm. Arm lengths come from the chart extent and glide when
    it changes. Skill colours arrive inline: `fill` on each wedge,
    `stroke` on each axis, `color` on each arm and name button. Focusing a skill
-   (pointer or keyboard) brightens its wedge, dims the others and enlarges its dot. */
+   (pointer or keyboard) brightens its wedge, dims the others and enlarges its dot.
+   Hovering a skill lights its wedge, arm and name; hovering a ring thickens it and shows its tag. */
 .skill-radar { position: relative; width: 100%; aspect-ratio: 1; }
 .skill-radar-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
@@ -12,31 +13,38 @@
 .skill-radar-wedge { fill-opacity: 0.78; transition: fill-opacity var(--dur-fast) var(--ease-out), d var(--dur-slow) var(--ease-in-out); }
 .skill-radar-wedges[data-focus] .skill-radar-wedge { fill-opacity: 0.38; }
 .skill-radar-wedges[data-focus] .skill-radar-wedge[data-active] { fill-opacity: 0.95; }
+.skill-radar-wedges .skill-radar-wedge[data-hover] { fill-opacity: 1; }
 .skill-radar-fade-core { stop-color: var(--skill-radar-core); }
 .skill-radar-fade-mid { stop-color: var(--skill-radar-mid); }
 .skill-radar-fade-edge { stop-color: var(--skill-radar-mid); stop-opacity: 0; }
 .skill-radar-earned { fill: none; stroke: var(--ink); stroke-opacity: 0.22; stroke-width: 1.2; stroke-dasharray: 3 3; }
 .skill-radar-earned[data-current] { stroke-opacity: 0.6; stroke-width: 1.8; stroke-dasharray: 6 4; }
+.skill-radar-earned[data-hover] { stroke-opacity: 1; stroke-width: 2.6; }
 .skill-radar-edge { fill: none; stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 1.4; stroke-linejoin: round; }
 .skill-radar-target { fill: none; stroke: var(--progress-mark); stroke-width: 2.6; }
+.skill-radar-target[data-hover] { stroke-width: 4.5; }
 /* Lengths are CSS geometry; a change of scale glides them. Wedges, arms and tips add their own lists below. */
 .skill-radar-glide { transition: d var(--dur-slow) var(--ease-in-out), r var(--dur-slow) var(--ease-in-out); }
 .skill-radar-conversation { fill: var(--ink); fill-opacity: 0.05; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1.2; stroke-linejoin: round; pointer-events: none; }
 
 .skill-radar-line { stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; transition: stroke-width var(--dur-fast) var(--ease-out), d var(--dur-slow) var(--ease-in-out); }
 .skill-radar-arm[data-active] .skill-radar-line { stroke-width: 4.5; }
+.skill-radar-arm[data-hover] .skill-radar-line { stroke-width: 3.5; }
 .skill-radar-tip { fill: var(--skill-radar-tip); stroke: currentColor; stroke-width: 2.6; transition: cx var(--dur-slow) var(--ease-in-out), cy var(--dur-slow) var(--ease-in-out), r var(--dur-fast) var(--ease-out); }
 .skill-radar-hit { fill: transparent; cursor: pointer; }
+/* A wide invisible stroke on each ring, over the hit wedges, takes the pointer near the ring. */
+.skill-radar-ring-hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: help; }
 .skill-radar-line, .skill-radar-tip, .skill-radar-wedge, .skill-radar-earned, .skill-radar-edge, .skill-radar-target { pointer-events: none; }
 
-/* Ring tags name the gold goal ring and the current level's ring, between the last and first arms. */
-.skill-radar-ring-tag { position: absolute; transform: translate(-50%, -50%); padding: 0 var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-snug); white-space: nowrap; pointer-events: none; transition: left var(--dur-slow) var(--ease-in-out), top var(--dur-slow) var(--ease-in-out); }
+/* The hovered ring's tag, at the pointer's angle on that ring, just above it. */
+.skill-radar-ring-tag { position: absolute; transform: translate(-50%, calc(-100% - var(--space-3))); padding: 0 var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-snug); white-space: nowrap; pointer-events: none; animation: hydrate-arrive var(--dur-fast) var(--ease-out); }
 .skill-radar-ring-tag[data-goal] { border-color: var(--progress-line); background: var(--progress-tint); color: var(--progress-ink); }
 
 /* One name per arm, anchored at the arm's end on the side facing away from the centre. */
 .skill-radar-label { position: absolute; display: flex; flex-direction: column; gap: var(--space-hairline); padding: var(--space-1) var(--space-3); border: var(--border-width-strong) solid transparent; border-radius: var(--radius-sm); background: transparent; font-size: var(--type-ui); line-height: var(--leading-tight); white-space: nowrap; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
 .skill-radar-label strong { font-weight: var(--weight-semibold); }
 .skill-radar-label span { color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-medium); }
+.skill-radar-label[data-hover] { background: color-mix(in srgb, currentColor 8%, var(--sheet)); }
 .skill-radar-label[data-active] { border-color: currentColor; background: color-mix(in srgb, currentColor 12%, var(--sheet)); }
 .skill-radar-label[aria-pressed='true'] { border-color: currentColor; }
 .skill-radar-label[data-side='top'] { transform: translate(-50%, -100%); align-items: center; text-align: center; }
@@ -53,5 +61,6 @@
 .skill-radar-glyph .skill-radar-earned { stroke-width: 0.8; stroke-dasharray: 2 2; }
 
 @media (prefers-reduced-motion: reduce) {
-  .skill-radar-wedge, .skill-radar-line, .skill-radar-label, .skill-radar-glide, .skill-radar-tip, .skill-radar-ring-tag { transition: none; }
+  .skill-radar-wedge, .skill-radar-line, .skill-radar-label, .skill-radar-glide, .skill-radar-tip { transition: none; }
+  .skill-radar-ring-tag { animation: none; }
 }

@@ -23,6 +23,7 @@ import { ReadingLanguageScope } from '../../components/reading/ReadingLanguageSc
 import { ReadingScopeContext } from '../../components/reading/ReadingContext'
 import { ResizeHandle, useStoredSize } from '../../components/layout/ResizeHandle'
 import { useRecorderLayout } from '../../components/media/useRecorderLayout'
+import { useUiDirection } from '../../components/localization/useUiDirection'
 import { languageFor } from '../../platform/ipc/tauri'
 import { useSettingsStore } from '../../state/settings/settings'
 import { aiTraySlot } from '../../state/navigation/ai-tray'
@@ -349,8 +350,8 @@ export function DrillPage({ active }: { active: boolean }) {
     selected ? { text: selected.text, alignment: reference?.alignment } : undefined)
 
   const locale = scope ? languageFor(scope.language, scope.variety) : creating ? languageFor(creating.language, creating.variety) : null
-  // Until the learner chooses, the recorder follows the card's script direction.
-  const recorder = useRecorderLayout('practice', locale?.direction === 'rtl' ? 'rtl' : 'ltr')
+  // Until the learner chooses, the recorder follows the interface direction, as in the conversation panel; the card's script never moves it.
+  const recorder = useRecorderLayout('practice', useUiDirection())
   // Once open, the starter stays until it is closed or cards exist, even when
   // "Don't show this again" is ticked inside it.
   const [starterShown, setStarterShown] = useState(false)

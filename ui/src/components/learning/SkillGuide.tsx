@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '../localization/i18n'
-import { GuideActions } from './GuideActions'
 import { GuideDocument } from './GuideDocument'
 import { ReadingLanguageScope } from '../reading/ReadingLanguageScope'
 import type { SkillSnapshot } from '../../domain/learning/evidence/skills'
@@ -58,7 +57,6 @@ function ResolvedGuide({ open, language, variety, skill, explanation, authored }
     {!text && started && !error && <p className="activity-line"><ActivityIndicator label={tr('Translating guide…')} /></p>}
     {error != null && <ErrorNotice error={error} onRetry={() => { setAttempt(value => value + 1) }}>{nativeError(error)}<ResponseDetails value={error} /></ErrorNotice>}
     {text && <ReadingLanguageScope language={language} variety={variety} explanation={explanation}><GuideDocument text={text} context={result?.context} /></ReadingLanguageScope>}
-    {result?.context && <GuideActions guide={result.context.reference} />}
     {result?.generated && <p>{tr('AI-generated translation')}</p>}
     {result && <ResponseDetails value={result.provenance} />}
   </>

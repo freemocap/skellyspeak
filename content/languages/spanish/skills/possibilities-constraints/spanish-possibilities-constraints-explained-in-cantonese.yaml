@@ -1,51 +1,76 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-learner-first-cantonese-2026-10-07
 skill_id: possibilities_constraints
 language: spanish
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: Poder加不定式可以表達能力；saber加不定式可以表達識做某件事。
+    explanation: 西班牙文會分開講「識得點做」同「喺某個情況做得到」。游水、煮飯等學返嚟嘅技能，可以用 `saber` 加不定式，表示識得點做。不定式係動詞嘅字典形式，例如
+      `nadar`。下面例句講講者學識咗一項技能。
     examples:
       - text: Sé nadar.
-        meaning: 我識游水。
-        note: Saber描述學識嘅能力。
+        meaning: "**拆開睇。** 呢句意思係「我識游水」。`Sé` 已經指出係我，所以可以唔寫 `yo`。`Nadar` 保持不定式。`Sé` 嘅重音符號要保留；冇重音符號嘅 `se`
+          係另一個字。"
+        note: |-
+          **比較。** `Puedo nadar hoy` 係今日情況容許我游水。識游水，唔代表今日一定游到。否定時，喺第一個動詞前加 `no`：`No sé nadar`。
+
+          **試吓。** 用 `cocinar` 講佢識煮飯。答案：`Ella sabe cocinar`。第一個動詞要變，活動本身保持不定式。
   - subskill_id: permission
-    explanation: Poder問句可以問行動獲唔獲准；情境確立許可解讀。
+    explanation: 做某件事要得到對方同意時，可以用 `poder` 問許可。`¿Puedo…?` 問我可唔可以做，適合喺門口、共用地方或者借嘢之前用。後面嘅動作用不定式，例如 `entrar`（進入）。
     examples:
       - text: ¿Puedo entrar?
-        meaning: 我可唔可以入嚟？
-        note: 講者喺門口請求許可。
+        meaning: "**拆開睇。** 呢句係「我可以入嚟嗎？」`puedo` 問我可唔可以，`entrar` 係進入。喺門口問，對方可以批准或者拒絕。呢種問句唔使另外加一個相當於英文助動詞 “do”
+          嘅字。"
+        note: >-
+          **轉人物。** `¿Puedes entrar?` 問你可唔可以入去，唔再係問我可唔可以。`¿Podría entrar?`
+          係為自己問許可時較婉轉嘅講法；語氣同雙方關係仍然重要。
+
+
+          **試吓。** 用 `usar esta silla` 問可唔可以用張凳。答案：`¿Puedo usar esta silla?` 對方可以答 `Sí,
+          claro`，即係可以，當然。
   - subskill_id: obligation
-    explanation: Tener que加不定式表示個人要求；hay que可以陳述一般要求。
+    explanation: 必要性講一個人有需要或者被要求做嘅事。西班牙文常用 `tener que` 加不定式表達。下面例句講講者有需要離開；至於因為約咗人，定係就嚟閂門，就由對話語境交代。
     examples:
       - text: Tengo que salir.
-        meaning: 我要走喇。
-        note: Que要放喺tengo同不定式之間。
+        meaning: "**拆開睇。** 「我必須離開」用 `tengo` 表示我。講另一個人時，改呢個字：`Ella tiene que salir`。`Que salir`
+          保持不變。句子交代需要，點解要走就由對話語境補充。"
+        note: >-
+          **比較。** `Hay que salir` 講有需要離開，冇指明邊個。`No tengo que salir` 通常係我唔使走，唔係禁止我走。
+
+
+          **試吓。** 用 `devolver la llave` 講自己必須還鎖匙。答案：`Tengo que devolver la llave`。兩個動詞之間嘅 `que`
+          唔可以漏。
   - subskill_id: possibility
-    explanation: Puede que加虛擬式分句，將事件表達成可能。
+    explanation: 有時你想提出一個可能結果，但唔想話一定會發生。西班牙文可以用 `puede que`，後面接呢個結構要求嘅虛擬式動詞。天氣預測係一個例子：講者話可能落雨，唔係保證一定落。
     examples:
       - text: Puede que llueva.
-        meaning: 可能落雨。
-        note: 呢個可能性結構用llueva接喺puede que後面。
+        meaning: "**拆開睇。** 「可能落雨」入面嘅 `llueva` 來自 `llover`。比較 `Llueve`（落緊雨）同 `Puede que
+          llueva`（可能落雨）。西班牙文講天氣唔使另外加一個相當於英文 “it” 嘅主語。"
+        note: >-
+          **改變可能嘅情況。** 喺 `que` 後面加 `no`：`Puede que no llueva`，即係可能唔落雨，結果仍然未肯定。加 `mañana` 表示聽日：`Puede
+          que llueva mañana`。
+
+
+          **試吓。** 講聽日可能唔落雨。答案：`Puede que no llueva mañana`。呢個結構保留 `llueva`，唔好換成 `llueve`。
   - subskill_id: certainty
-    explanation: No estoy seguro等表達交代有幾肯定，唔一定預測事件。
+    explanation: 你可能知道一啲情況，但未夠把握確認。`No estoy seguro` 或 `No estoy segura`
+      可以表達呢種唔肯定，講嘅係自己有幾大把握，唔係話件事一定唔係真。`Seguro` 或 `segura` 嘅字尾跟講者配合。
     examples:
       - text: No estoy seguro.
-        meaning: 我唔肯定。
-        note: 男性講者對當前命題表示不確定。
+        meaning: "**拆開睇。** 呢句「我唔肯定」用陽性形式。用陰性配合嘅講者會講 `No estoy segura`。形容詞形容講者，唔係跟討論緊嗰樣嘢嘅文法性別。兩種講法都唔代表對方講錯。"
+        note: |-
+          **指出唔肯定啲乜。** `No estoy seguro de la hora` 係我對時間唔肯定。`No sé` 則係我唔知道，冇資料時可以直接咁答。
+
+          **試吓。** 一位女性未能確認時間。一個答案係 `No estoy segura de la hora`。保留表示我嘅 `estoy`，只改形容詞字尾。
 varieties:
   spanish-spain:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/possibilities-constraints/spanish-possibilities-constraints-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - rae_possession2026
         - rae_future2026
@@ -53,21 +78,23 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/possibilities-constraints/spanish-possibilities-constraints-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - rae_possession2026
         - rae_future2026
@@ -75,18 +102,21 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesSaberTeaching20261007
+        - raePoderTeaching20261007
+        - yepesSubjunctiveTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/possibilities-constraints/spanish-possibilities-constraints-explained-in-english.yaml
-    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - rae_possession2026
     - rae_future2026
@@ -94,9 +124,14 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesSaberTeaching20261007
+    - raePoderTeaching20261007
+    - yepesSubjunctiveTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-learner-first-cantonese-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.

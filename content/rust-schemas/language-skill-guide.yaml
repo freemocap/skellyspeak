@@ -151,6 +151,12 @@ properties:
     additionalProperties:
       $ref: '#/definitions/Disposition'
     type: object
+  variety_sections:
+    additionalProperties:
+      items:
+        $ref: '#/definitions/Section'
+      type: array
+    type: object
 required:
 - explanation_language
 - language

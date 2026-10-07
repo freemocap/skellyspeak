@@ -152,7 +152,7 @@ async fn produce(
         request.validate(&*state.lock()?)?;
         if !producer.has_subscribers() { return Err(AppError::new(ErrorCode::Conflict, "Guide closed before translation started.")); }
         let data = json!({"explanationLanguage":explanation,"sourceExplanationLanguage":edition.guide.explanation_language,
-            "fields":edition.fields(variety),"context":edition.guide.sections});
+            "fields":edition.fields(variety),"context":edition.guide.sections_for(variety)});
         let messages = vec![provider::PromptMessage { role:"system".into(), content:prompt.into() }, provider::PromptMessage { role:"user".into(), content:data.to_string() }];
         private.extend(messages.iter().map(|m| m.content.clone()));
         let dispatch = crate::ai::transport::text_request::TextRequest {

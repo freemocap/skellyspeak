@@ -1,18 +1,29 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-learner-first-english-2026-10-07
 skill_id: information_exchange
 language: spanish
 explanation_language: english
 shared_explanation: skills/information-exchange/information-exchange-explained-in-english.yaml
 sections:
   - subskill_id: asking_information
-    explanation: Use the question expression that matches the information you need. Context and
-      intonation also form yes/no questions.
+    explanation: An information question makes clear what you want to find out. Spanish uses `dónde` for
+      a location, `cuándo` for a time and `qué` for a thing or an explanation. In the example, the
+      missing information is the station's location. Questions about where a person or an object is
+      use a form of `estar`.
     examples:
       - text: ¿Dónde está la estación?
-        meaning: Where is the station?
-        note: Dónde asks for a location.
+        meaning: "**How it works.** “Where is the station?” has three parts: `dónde` asks for the location,
+          `está` is the singular verb, and `la estación` identifies the place you need. Keep the
+          accents in both `dónde` and `está`, as well as the opening and closing question marks."
+        note: >-
+          **Change the number.** `¿Dónde están las llaves?` asks where the keys are. Both `están`
+          and `las llaves` are plural. An answer can simply give the location: `En la mesa`, on the
+          table.
+
+
+          **Try it.** Ask where the bathroom is, using `el baño`. Answer: `¿Dónde está el baño?` Use
+          the singular `está` because you are asking about one bathroom.
   - subskill_id: answering_information
     explanation: A relevant short answer can supply exactly what the question asks for without repeating
       its verb.
@@ -37,37 +48,63 @@ varieties:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-learner-first-english-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.

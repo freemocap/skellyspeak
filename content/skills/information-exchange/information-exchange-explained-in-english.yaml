@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: shared-teaching-pilot-2026-10-07
 skill_id: information_exchange
 explanation_language: english
 title: Information exchange
@@ -8,7 +8,7 @@ introduction: Seek, supply and verify information relevant to the exchange.
 sections:
   - subskill_id: asking_information
     title: Asking for information
-    concept: Seek an unknown fact, description or explanation.
+    concept: Ask for information you do not yet have.
   - subskill_id: answering_information
     title: Answering relevantly
     concept: Supply information responsive to an identifiable question.
@@ -32,5 +32,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
+    revision: shared-teaching-pilot-2026-10-07
     scope: Entire document; linguistic review pending.

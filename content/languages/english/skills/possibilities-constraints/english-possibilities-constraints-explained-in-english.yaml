@@ -1,60 +1,131 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-learner-first-english-2026-10-07
 skill_id: possibilities_constraints
 language: english
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: Can followed by a base verb can express capability.
+    explanation: "Ability is what someone knows how to do or is able to do in a particular situation.
+      English often expresses it with `can` followed by an action verb. In the example, the speaker
+      is strong enough to carry two bags. After `can`, the verb stays in its base form: `carry`,
+      rather than `carries` or `to carry`."
     examples:
       - text: I can carry both bags.
-        meaning: The speaker is able to carry the two bags.
-        note: The statement concerns ability; it is not automatically an offer without
-          supporting context.
+        meaning: "**How it works.** `Can` expresses ability here; `carry` names the action. `Both bags`
+          means the two bags together. Replace the action to make another sentence: `I can lift this
+          box`."
+        note: >-
+          **Change the sentence.** Use `can't` for inability: `I can't carry both bags`. Put `can`
+          first to ask: `Can you carry both bags?` Keep `carry` unchanged.
+
+
+          **Context matters.** If a friend is struggling with luggage, the original sentence can
+          also offer help. The situation adds that purpose.
+
+
+          **Try it.** Change `She carries this box` into a statement about ability. Answer: `She can
+          carry this box`. After `can`, use `carry`, not `carries`.
   - subskill_id: permission
-    explanation: Use an appropriate permission question or statement to discuss
-      whether an action is allowed.
+    explanation: Permission is someone's agreement that an action is allowed. English questions
+      beginning `Can I`, `Could I` or `May I` can ask for that agreement before you act. `Can I` is
+      an everyday choice; `Could I` is more tentative, and `May I` sounds more formal. Each is
+      followed by the plain action verb.
     examples:
       - text: May I use this chair?
-        meaning: The speaker requests permission to use the chair.
-        note: May asks about permission rather than physical ability.
+        meaning: "**How it works.** `May I` asks for permission for the speaker. `Use this chair` names the
+          action; `use` has no `to` before it. Ask someone who can decide whether the chair is
+          available."
+        note: >-
+          **Compare.** `Can I use this chair?` also asks permission in this setting. `Can you move
+          this chair?` instead asks the other person to act. Changing `I` to `you` changes whose
+          action you are discussing.
+
+
+          **Try it.** Ask permission to open a window. One answer: `Could I open the window?` A
+          reply such as `Yes, go ahead` gives permission; `Sorry, please keep it closed` refuses it
+          and states what to do instead.
   - subskill_id: obligation
-    explanation: Must, have to and need to can express requirements. Their force
-      depends on context.
+    explanation: A requirement is something that needs to happen, perhaps because of a rule, an
+      arrangement or a practical need. English often uses `have to` for this meaning. In the
+      example, leaving is necessary and there is a latest departure time. `Have to` is followed by
+      the plain action verb.
     examples:
       - text: We have to leave by eight.
-        meaning: Leaving no later than eight is required.
-        note: Have to marks the constraint on departure.
+        meaning: "**How it works.** `Have to` makes leaving a requirement. `By eight` sets a deadline: eight
+          is the latest departure time, but leaving earlier is possible. `At eight` would specify
+          the departure time itself."
+        note: >-
+          **Watch the negative.** `We don't have to leave` means leaving is optional. `We mustn't
+          leave` means leaving is forbidden. These are different instructions, even though `must`
+          and `have to` can both express a requirement.
+
+
+          **Ask about it.** Use `Do we have to leave?` to check whether leaving is necessary.
+
+
+          **Try it.** Attendance is optional. Choose `You don't have to come` or `You mustn't come`.
+          Answer: `You don't have to come`; the person may still choose to attend.
   - subskill_id: possibility
-    explanation: Might and may can present an outcome as possible rather than certain.
+    explanation: A possible event may happen, but it is not certain. English uses `might` or `may`
+      before an action verb to leave room for another outcome. In the example, a delivery could
+      arrive today, but the speaker cannot confirm it. The verb stays unchanged after `might` or
+      `may`.
     examples:
       - text: The delivery might arrive today.
-        meaning: Arrival today is possible.
-        note: Might leaves the outcome uncertain.
+        meaning: "**How it works.** `The delivery` names what you are talking about. `Might arrive` leaves
+          its arrival uncertain, and `today` tells us when. Replacing `today` with `tomorrow`
+          changes the time without removing that uncertainty."
+        note: >-
+          **Compare.** `The delivery will arrive today` presents arrival as an expectation or
+          prediction. Adding `might` instead makes room for another outcome. Use `might not` when
+          non-arrival is possible: `The delivery might not arrive today`. That does not mean it
+          definitely will not arrive.
+
+
+          **Try it.** You have no confirmed delivery date. Make `The parcel arrives tomorrow` less
+          certain. One answer: `The parcel might arrive tomorrow`. Notice that `arrives` becomes
+          `arrive` after `might`.
   - subskill_id: certainty
-    explanation: State confidence or uncertainty explicitly when the evidence does
-      not settle the issue.
+    explanation: Certainty is how confident you are that something is true. `I'm not sure whether…` lets
+      you identify a question whose answer you cannot confirm. In the example, the unresolved
+      question is whether a door is locked. Being unsure leaves both answers open.
     examples:
       - text: I am not sure whether the door is locked.
-        meaning: The speaker does not know if the door is locked.
-        note: Not sure marks an explicit limit of knowledge.
+        meaning: "**How it works.** `Not sure` describes your confidence. `Whether the door is locked`
+          identifies the question you cannot settle: locked or not locked. Keep statement order
+          after `whether`: `the door is`, not the direct-question order `is the door`."
+        note: >-
+          **Compare.** `I'm sure the door is locked` expresses confidence that it is locked. `I'm
+          not sure whether the door is locked` leaves both answers open. Being unsure does not mean
+          you believe the opposite.
+
+
+          **Try it.** You cannot confirm the answer to `Is the shop open?` State that uncertainty.
+          One answer: `I'm not sure whether the shop is open`. The words after `whether` use
+          statement order: `the shop is open`.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-learner-first-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1

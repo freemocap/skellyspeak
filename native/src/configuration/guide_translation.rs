@@ -75,18 +75,23 @@ impl Edition {
                 section.concept.clone(),
             ));
         }
-        for (i, section) in self.guide.sections.iter().enumerate() {
+        let section_path = if self.guide.variety_sections.contains_key(variety) {
+            format!("/guide/variety_sections/{variety}")
+        } else {
+            "/guide/sections".into()
+        };
+        for (i, section) in self.guide.sections_for(variety).iter().enumerate() {
             fields.push((
-                format!("/guide/sections/{i}/explanation"),
+                format!("{section_path}/{i}/explanation"),
                 section.explanation.clone(),
             ));
             for (j, example) in section.examples.iter().enumerate() {
                 fields.push((
-                    format!("/guide/sections/{i}/examples/{j}/meaning"),
+                    format!("{section_path}/{i}/examples/{j}/meaning"),
                     example.meaning.clone(),
                 ));
                 fields.push((
-                    format!("/guide/sections/{i}/examples/{j}/note"),
+                    format!("{section_path}/{i}/examples/{j}/note"),
                     example.note.clone(),
                 ));
             }
@@ -177,13 +182,13 @@ impl Edition {
             },
             subskills: self
                 .guide
-                .sections
+                .sections_for(variety)
                 .iter()
                 .map(|s| s.subskill_id.clone())
                 .collect(),
             examples: self
                 .guide
-                .sections
+                .sections_for(variety)
                 .iter()
                 .flat_map(|s| s.examples.iter().map(|e| e.text.clone()))
                 .collect(),
@@ -217,6 +222,11 @@ impl Registry {
                 "The guide changed. Reopen it before continuing.",
             ));
         }
+        // Action indices refer to the visible variety, and focused coaching may
+        // subsequently narrow these sections. Preserve source fingerprint checking above.
+        let mut edition = edition;
+        edition.guide.sections = edition.guide.sections_for(&reference.variety).to_vec();
+        edition.guide.variety_sections.clear();
         Ok(edition)
     }
 }
@@ -224,6 +234,51 @@ impl Registry {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn selected_variety_owns_rendering_translation_and_action_indices() {
+        let registry = Registry::bundled().unwrap();
+        for explanation in ["english", "cantonese"] {
+            let edition = registry
+                .guide_edition("arabic", explanation, "possibilities_constraints")
+                .unwrap()
+                .unwrap();
+            for variety in ["arabic-modern-standard", "arabic-levantine"] {
+                let sections = edition.guide.sections_for(variety);
+                let expected: Vec<_> = sections
+                    .iter()
+                    .flat_map(|s| s.examples.iter().map(|e| e.text.clone()))
+                    .collect();
+                let context = edition.context(variety);
+                assert_eq!(context.examples, expected);
+                let resolved = registry.referenced_guide(&context.reference).unwrap();
+                assert!(resolved.guide.variety_sections.is_empty());
+                assert_eq!(resolved.context(variety).examples, expected);
+                let texts: Vec<_> = edition
+                    .fields(variety)
+                    .into_iter()
+                    .map(|(_, text)| text)
+                    .collect();
+                let translated = edition
+                    .translated(variety, &json!({"texts": texts}).to_string())
+                    .unwrap();
+                assert_eq!(translated, edition.markdown(variety));
+                for text in expected {
+                    assert!(translated.contains(&format!("> {text}")));
+                }
+                let other = if variety == "arabic-levantine" {
+                    "arabic-modern-standard"
+                } else {
+                    "arabic-levantine"
+                };
+                let other_example = &edition.guide.sections_for(other)[0].examples[0].text;
+                assert!(!translated.contains(&format!("> {other_example}")));
+                let mut stale = context.reference;
+                stale.fingerprint.push_str("-stale");
+                assert!(registry.referenced_guide(&stale).is_err());
+            }
+        }
+    }
 
     #[test]
     fn translation_preserves_examples_and_rejects_partial_or_extra_output() {

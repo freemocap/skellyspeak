@@ -1,85 +1,156 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-learner-first-cantonese-2026-10-07
 skill_id: possibilities_constraints
 language: english
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: can 後面接動詞原形，可以表達能力。
+    explanation: 能力可以係識得點做，亦可以係喺某個情況做得到。英文常用 `can` 加動詞表達。下面例句講講者夠力拎兩個袋。`Can` 後面嘅動詞保持原形：用 `carry`，唔係
+      `carries` 或 `to carry`。
     examples:
       - text: I can carry both bags.
-        meaning: 講者有能力拎嗰兩個袋。
-        note: 呢句講能力；冇其他語境支持時，唔會自動當成主動提出幫忙。
+        meaning: 我可以一次過拎嗰兩個袋。
+        note: >-
+          **拆開嚟睇。** `Can` 喺呢度表示能力；`carry` 係動作。`Both bags` 指兩個袋一齊。換個動作，就有另一句：`I can lift this
+          box`，即係我有能力抬起呢個箱。
+
+
+          **變一變。** 做唔到就用 `can't`：`I can't carry both bags`。問對方做唔做到，就將 `can` 放最前：`Can you carry both
+          bags?` 三句入面嘅 `carry` 都唔變。
+
+
+          **留意情境。** 如果朋友拎行李拎得好辛苦，原句亦可以用嚟主動幫手；呢個用途係由當時情境帶出嚟。
+
+
+          **試一試。** 將 `She carries this box` 改成講能力。答案：`She can carry this box`。`Can` 後面用 `carry`，唔用
+          `carries`。
   - subskill_id: permission
-    explanation: 討論准唔准做某件事時，用合適嘅許可問句或陳述句。
+    explanation: 許可係對方同意你可以做某件事。英文可以用 `Can I`、`Could I` 或 `May I` 開頭，做之前先問。`Can I` 係日常講法，`Could I`
+      較婉轉，`May I` 較正式。後面都接動詞原形。
     examples:
       - text: May I use this chair?
-        meaning: 講者問可唔可以用張椅。
-        note: may 呢度問許可，唔係問身體能力。
+        meaning: 我可唔可以用呢張椅？
+        note: >-
+          **拆開嚟睇。** `May I` 係為自己嘅行動徵求許可。`Use this chair` 講出想做嘅事；`use` 前面唔加 `to`。應該問可以決定張椅畀唔畀你用嘅人。
+
+
+          **比較。** 喺呢個情境，`Can I use this chair?` 一樣可以問許可。`Can you move this chair?` 就係請對方搬張椅。由 `I` 轉做
+          `you`，講緊嘅行動就由自己做變成對方做。
+
+
+          **試一試。** 問可唔可以開窗。其中一個答案係 `Could I open the window?`。對方答 `Yes, go ahead` 係批准；答 `Sorry,
+          please keep it closed` 就係拒絕，並講明要保持閂窗。
   - subskill_id: obligation
-    explanation: must、have to 同 need to 都可以表達要求；強弱同含意要睇語境。
+    explanation: 必要性講因為規則、安排或者實際需要而要做嘅事。英文常用 `have to` 表達。下面例句講有需要離開，亦交代最遲出發時間。`Have to` 後面接動詞原形。
     examples:
       - text: We have to leave by eight.
         meaning: 最遲八點就要離開。
-        note: have to 標示出發安排受到限制。
+        note: >-
+          **拆開嚟睇。** `Have to` 表示離開係必要嘅。`By eight` 係限期：最遲八點走，早啲走都得。`At eight` 就係指定八點走。
+
+
+          **留意否定。** `We don't have to leave` 係唔一定要走，可以自己揀。`We mustn't leave` 就係唔准走。雖然 `must` 同 `have
+          to` 都可以表達要求，佢哋嘅否定意思唔一樣。
+
+
+          **問清楚。** 用 `Do we have to leave?` 問係咪一定要走。
+
+
+          **試一試。** 出席係自願嘅，應該講 `You don't have to come` 定 `You mustn't come`？答案係 `You don't have to
+          come`，因為對方仍然可以揀嚟。
   - subskill_id: possibility
-    explanation: might 同 may 可以表示某個結果有可能出現，但未確定。
+    explanation: 可能發生嘅事，唔代表一定發生。英文可以喺動詞前用 `might` 或 `may`，保留其他可能。下面例句講送貨可能今日到，但講者未能確認。`Might` 或 `may` 後面動詞保持原形。
     examples:
       - text: The delivery might arrive today.
-        meaning: 今日有可能到達。
-        note: might 保留不確定性，唔係保證會到。
+        meaning: 貨件可能今日送到。
+        note: >-
+          **拆開嚟睇。** `The delivery` 係講緊嘅貨件。`Might arrive` 表示未肯定會唔會到；`today` 交代時間。將 `today` 換成
+          `tomorrow` 只係改時間，仍然未肯定會到。
+
+
+          **比較。** `The delivery will arrive today` 係對今日到貨作出預期或預測。改用 `might` 就明確保留其他結果。`The delivery
+          might not arrive today` 表示可能今日到唔到，唔係話一定到唔到。
+
+
+          **試一試。** 未確認送貨日期，點樣將 `The parcel arrives tomorrow` 改成冇咁肯定？其中一個答案係 `The parcel might arrive
+          tomorrow`。`Might` 後面，`arrives` 要變返原形 `arrive`。
   - subskill_id: certainty
-    explanation: 證據未足以定論時，要講清楚自己有幾肯定或唔肯定。
+    explanation: 肯定程度係你有幾大把握相信一件事屬實。`I'm not sure whether…` 可以指出一個未能確認答案嘅問題。下面例句未能確認道門有冇鎖；唔肯定即係兩個答案都有可能。
     examples:
       - text: I am not sure whether the door is locked.
-        meaning: 講者唔知道道門鎖咗未。
-        note: not sure 明確表示自己未能確定。
+        meaning: 我唔肯定道門鎖咗未。
+        note: >-
+          **拆開嚟睇。** `Not sure` 交代自己有幾肯定。`Whether the door is locked` 講出未能確認嘅問題：鎖咗，定未鎖？`Whether`
+          後面用陳述句語序 `the door is`，唔用直接問句嘅 `is the door`。
+
+
+          **比較。** `I'm sure the door is locked` 表示肯定道門鎖咗。`I'm not sure whether the door is locked`
+          就保留兩種答案。唔肯定唔等於相信相反嘅情況。
+
+
+          **試一試。** 你答唔到 `Is the shop open?`，點講自己唔肯定？其中一個答案係 `I'm not sure whether the shop is
+          open`。`Whether` 後面用陳述句語序 `the shop is open`。
 varieties:
   english-united-states:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/possibilities-constraints/english-possibilities-constraints-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-learner-first-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/possibilities-constraints/english-possibilities-constraints-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - bc_modals2026
+        - bcCanCouldTeaching20261007
+        - bcPermissionObligationTeaching20261007
+        - bc_questions2026
+        - cambridgeModalFormsTeaching20261007
+        - bbcWhetherTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-learner-first-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/possibilities-constraints/english-possibilities-constraints-explained-in-english.yaml
-    at revision english-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - bc_modals2026
+    - bcCanCouldTeaching20261007
+    - bcPermissionObligationTeaching20261007
+    - bc_questions2026
+    - cambridgeModalFormsTeaching20261007
+    - bbcWhetherTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-learner-first-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

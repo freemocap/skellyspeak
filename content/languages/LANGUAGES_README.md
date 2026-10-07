@@ -14,6 +14,18 @@ missing source material fails. See the
 
 ## Variety coverage
 
+Learner guides teach the selected variety directly. `sections` supplies the shared
+lesson; optional `variety_sections` maps declared variety IDs to complete replacement
+section lists, in the same subskill order. Use a replacement when examples and their
+explanations need to change together, rather than making learners read parallel
+lessons. Unlisted varieties continue to use `sections`. Both explanation editions
+must retain the same target examples for each selected variety.
+
+The existing `varieties` dispositions still declare applicability and provenance:
+`use_core` adds no appendix to the selected lesson, while `supplement` appends its
+text. Keep comparisons brief and useful to learning the selected form. Rendering,
+translation fields, inspection and guide actions all use the selected section list.
+
 Every variety needs a description of its actual coverage, not a repeated place name.
 Broad country/region profiles do not promise one local accent. Shared generation
 and assessment policy lives in `policies/teaching-policy.yaml`: keep the selected

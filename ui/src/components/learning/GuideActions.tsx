@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from 'react'
+import { createContext, useContext, useRef, useState, type ReactNode } from 'react'
 import type { Action, GuideReference } from '../../generated/contracts'
 import { useI18n } from '../localization/i18n'
 import { ErrorNotice } from '../feedback/ErrorNotice'
@@ -12,13 +12,13 @@ export type RunGuideAction = (action: GuideAction) => Promise<void>
 // Application composition supplies navigation and the selected conversation.
 export const GuideActionContext = createContext<RunGuideAction | null>(null)
 
-export function GuideActions({ guide, example, subskill }: { guide: GuideReference; example?: number; subskill?: string }) {
+export function GuideActions({ guide, example, subskill, menu = false, children }: { guide: GuideReference; example?: number; subskill?: string; menu?: boolean; children?: (actions: ReactNode) => ReactNode }) {
   const run = useContext(GuideActionContext)
   const tr = useI18n()
   const locked = useRef(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<unknown>(null)
-  if (!run) return null
+  if (!run) return children?.(null) ?? null
   async function execute(coach = false) {
     if (!run || locked.current) return
     locked.current = true; setBusy(true); setError(null)
@@ -37,9 +37,10 @@ export function GuideActions({ guide, example, subskill }: { guide: GuideReferen
     catch (error) { setError(error) }
     finally { locked.current = false; setBusy(false) }
   }
-  return <>
-    <button type="button" className="detail-action" disabled={busy} onClick={() => void execute()}>{tr(subskill ? 'Use this in a conversation' : example === undefined ? 'Ask the coach' : 'Start a conversation from this phrase')}</button>
-    {(subskill || example !== undefined) && <button type="button" className="detail-action" disabled={busy} onClick={() => void execute(true)}>{tr('Ask the coach')}</button>}
+  const actions = <>
+    <button type="button" className={menu ? "message-tools-item" : "detail-action"} disabled={busy} onClick={() => void execute()}>{tr(subskill ? 'Start conversation' : example === undefined ? 'Ask coach' : 'Start with this sentence')}</button>
+    {(subskill || example !== undefined) && <button type="button" className={menu ? "message-tools-item" : "detail-action"} disabled={busy} onClick={() => void execute(true)}>{tr(example === undefined ? 'Ask coach' : 'Explain this sentence')}</button>}
     {error != null && <ErrorNotice error={error}>{nativeError(error)}</ErrorNotice>}
   </>
+  return children ? children(actions) : actions
 }

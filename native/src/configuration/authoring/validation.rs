@@ -361,7 +361,21 @@ impl Content {
                 ));
             }
             self.varieties(path, &d.language, &d.revision, &d.varieties, citations)?;
-            for s in &d.sections {
+            for (variety, sections) in &d.variety_sections {
+                if !d.varieties.contains_key(variety) {
+                    return Err(fail(path, format!("Unknown teaching variety: {variety}")));
+                }
+                self.sections(
+                    path,
+                    &d.skill_id,
+                    sections.iter().map(|s| s.subskill_id.as_str()),
+                )?;
+            }
+            for s in d
+                .sections
+                .iter()
+                .chain(d.variety_sections.values().flatten())
+            {
                 text(path, &s.explanation)?;
                 if s.examples.is_empty() {
                     return Err(fail(path, "Every teaching section requires examples."));

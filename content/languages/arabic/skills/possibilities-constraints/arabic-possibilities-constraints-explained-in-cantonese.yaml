@@ -1,105 +1,168 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-learner-first-cantonese-2026-10-07
 language: arabic
 skill_id: possibilities_constraints
 explanation_language: cantonese
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-cantonese.yaml
 sections:
   - subskill_id: ability
-    explanation: 能力謂語可以引入講者做得到嘅行動。
+    explanation: 講能力，就係講一個人做得到啲乜。現代標準阿拉伯語嘅 `أَسْتَطِيعُ` 係我有能力，後面可以接 `أَنْ` 同表示動作嘅動詞。下面例句講講者有能力游水。
     examples:
       - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
-        meaning: 我識游水。
-        note: 現代標準阿拉伯語。喺討論游水技能時報告能力。
-      - text: بَقْدَرْ أَسْبَحْ.
-        meaning: 我識游水。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。喺討論游水技能時報告能力。
+        meaning: "**例句解說。** 「我可以游水。」`أَسْتَطِيعُ` 係我有能力；`أَنْ` 帶出動作；`أَسْبَحَ`
+          喺呢個結構表示我游水。兩個動詞都指出第一人稱，所以唔使另外加 `أَنَا`（我）。"
+        note: |-
+          **留意形式。** 喺標齊元音嘅寫法，`أَنْ` 後面呢個動詞用短 a 元音結尾：`أَسْبَحَ`。佢仍然有「我」嘅人物資訊，唔係冇變化嘅字典形式。
+
+          **試吓。** 邊個字連接能力同動作？答案：`أَنْ`。
   - subskill_id: permission
-    explanation: 喺合適語境，問某件事可唔可行，可以用嚟請求許可。
+    explanation: 用人哋嘅地方或者物品之前，可能要先問可唔可以。現代標準語可以用 `هَلْ يُمْكِنُنِي` 問我可唔可以。下面例句講講者想得到許可，坐喺某個位置。
     examples:
       - text: هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَا؟
-        meaning: 我可唔可以坐呢度？
-        note: 現代標準阿拉伯語。問負責座位嘅人，重點係許可。
-      - text: مُمْكِنْ أَقْعُدْ هُونْ؟
-        meaning: 我可唔可以坐呢度？
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。問負責座位嘅人，重點係許可。
+        meaning: "**例句解說。** 「我可以坐呢度嗎？」`هَلْ` 帶出是非問句。`يُمْكِنُنِي` 入面嘅 `نِي` 指我。`أَنْ أَجْلِسَ`
+          交代坐低呢個動作，`هُنَا` 係呢度。"
+        note: |-
+          **轉地點。** 用 `هُنَاكَ`（嗰度）換走 `هُنَا`，問許可嘅結構保持不變。
+
+          **試吓。** 問可唔可以坐嗰度。答案：`هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَاكَ؟` 動作動詞前面保留 `أَنْ`。
   - subskill_id: obligation
-    explanation: 義務用語後面接行動，可以交代要求。
+    explanation: 期限或者約定，可以令一個動作變成有需要做。現代標準語用 `يَجِبُ أَنْ` 加動詞表達必要；後面動詞指出邊個要做。呢度還鎖匙係講者嘅責任。
     examples:
       - text: يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ الْيَوْمَ.
-        meaning: 我今日一定要還鎖匙。
-        note: 現代標準阿拉伯語。歸還期限帶出必要性。
-      - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
-        meaning: 我今日一定要還鎖匙。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。歸還期限帶出必要性。
+        meaning: "**例句解說。** 「我今日必須還鎖匙。」`يَجِبُ` 表示必要，`أَنْ أُعِيدَ` 指我歸還嘅動作，`الْمِفْتَاحَ`
+          係要還嘅鎖匙，`الْيَوْمَ` 係今日。「我」嘅人物資訊喺 `أُعِيدَ`，唔係喺 `يَجِبُ`。"
+        note: |-
+          **改期限。** 聽日係 `غَدًا`。
+
+          **試吓。** 將期限改做聽日。答案：`يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ غَدًا`。動作保持不變，只換時間表達。
   - subskill_id: possibility
-    explanation: 表示可能嘅詞可以限定一個說法，而唔肯定佢一定成立。
+    explanation: 結果未肯定時，可以提出可能性，而唔當成事實講。`رُبَّمَا` 係可能，可以帶出呢種意思。下面例句話火車可能遲，但仍然可能準時。
     examples:
       - text: رُبَّمَا يَتَأَخَّرُ الْقِطَارُ.
-        meaning: 架火車可能會遲到。
-        note: 現代標準阿拉伯語。講者保留結果未定嘅空間。
-      - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
-        meaning: 架火車可能會遲到。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者保留結果未定嘅空間。
+        meaning: "**例句解說。** 「火車可能遲到。」`رُبَّمَا` 係可能，`يَتَأَخَّرُ` 講遲到，`الْقِطَارُ` 係火車。呢句動詞放喺主語前。`رُبَّمَا`
+          保留不確定，唔係話火車一定遲。"
+        note: |-
+          **比較。** 去掉 `رُبَّمَا`，`يَتَأَخَّرُ الْقِطَارُ` 就陳述火車遲到或者會延誤，具體時間意思由語境決定。
+
+          **試吓。** 原句邊個字保留不確定？答案：`رُبَّمَا`。
   - subskill_id: certainty
-    explanation: 否定肯定程度嘅謂語，可以限制自己對一個說法嘅把握。
+    explanation: 你可以話畀人知，自己未夠把握確認一個講法。`لَسْتُ مُتَأَكِّدًا` 或 `لَسْتُ مُتَأَكِّدَةً`
+      係我唔肯定。形容詞跟講者配合，下面例句用陰性。意思係未肯定，唔係唔同意。
     examples:
       - text: لَسْتُ مُتَأَكِّدَةً مِنْ ذٰلِكَ.
-        meaning: 我對呢點唔肯定。
-        note: 現代標準阿拉伯語。女性講者回應之前嘅說法。
-      - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
-        meaning: 我對呢點唔肯定。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。女性講者回應之前嘅說法。
+        meaning: "**例句解說。** `لَسْتُ` 係我唔係；`مُتَأَكِّدَةً` 係呢度所需嘅陰性「肯定」；`مِنْ ذٰلِكَ`
+          係對嗰件事。標齊元音嘅標準語入面，`لَسْتُ` 後面形容詞用賓格字尾。"
+        note: |-
+          **轉講者。** 用陽性配合就係 `لَسْتُ مُتَأَكِّدًا مِنْ ذٰلِكَ`。表示我嘅 `لَسْتُ` 唔變。
+
+          **試吓。** 邊部分指返頭先嘅主張？答案：`مِنْ ذٰلِكَ`。唔肯定，唔等於斷言嗰個主張係假。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/possibilities-constraints/arabic-possibilities-constraints-explained-in-english.yaml
-    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahNegationTeaching20261007
+    - madinahMoodsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-learner-first-cantonese-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 例句用南部黎凡特語 بَقْدَرْ 表達能力；北部亦有 فِينِي 等講法。能力、許可同請求要按語境區分。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/possibilities-constraints/arabic-possibilities-constraints-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   arabic-modern-standard:
-    disposition: supplement
-    text: 現代標準語有正式能力同必要性結構。لَسْتُ 可以由第一人稱講者否定名詞性謂語。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/possibilities-constraints/arabic-possibilities-constraints-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: ability
+      explanation: 講能力，可以交代你做得到啲乜，包括學識嘅技能或者當時情況容許嘅行動。黎凡特口語常用 `بَقْدَرْ` 表示我可以，後面接表示活動嘅動詞。呢度講者話自己可以游水。
+      examples:
+        - text: بَقْدَرْ أَسْبَحْ.
+          meaning: "**例句解說。** 「我可以游水。」`بَقْدَرْ` 係我可以。`أَسْبَحْ` 交代動作，冇加一般現在式嘅 b 前綴。兩個動詞直接連埋，講同一個人。"
+          note: |-
+            **成套結構一齊學。** `بَقْدَرْ` 有前綴，唔代表後面嘅動詞都要照加。各地亦有其他講法，例如北部用 `فِينِي` 講我可以。
+
+            **試吓。** 邊部分指出做乜？答案：`أَسْبَحْ`。淨係講有能力，對方仍然唔知你做得到啲乜。
+    - subskill_id: permission
+      explanation: 做之前想得到對方同意，可以用 `مُمْكِنْ` 引出許可問題。講到一個空位時，`مُمْكِنْ أَقْعُدْ هُونْ؟` 問我可唔可以坐呢度。應該向可以決定座位點用嘅人問。
+      examples:
+        - text: مُمْكِنْ أَقْعُدْ هُونْ؟
+          meaning: "**例句解說。** 「我可以坐呢度嗎？」`مُمْكِنْ` 引出許可問題，`أَقْعُدْ` 係我坐低，`هُونْ` 係呢度。問句語調同等待對方回答，令呢句成為一個請求。"
+          note: |-
+            **留意後面嘅動詞。** 呢個結構喺 `مُمْكِنْ` 後面用冇一般 b 前綴嘅動詞。動詞指出做乜，地點詞指出喺邊度。
+
+            **試吓。** 邊個字指出座位位置？答案：`هُونْ`。
+    - subskill_id: obligation
+      explanation: 借咗嘢，可能要按約定時間歸還。黎凡特口語用 `لَازِمْ` 加動詞，表示有需要做。動詞指出邊個要做。下面例句講講者今日要還鎖匙。
+      examples:
+        - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
+          meaning: "**例句解說。** 「我今日必須還鎖匙。」`لَازِمْ` 表示有需要，`أَرَجِّعْ` 喺呢度係我歸還一樣嘢，後面接 `الْمِفْتَاحْ`（鎖匙）同
+            `الْيَوْمْ`（今日）。`أَرَجِّعْ` 中間嘅雙輔音係呢個動詞形式嘅一部分。"
+          note: |-
+            **保留結構。** 呢度 `لَازِمْ` 後面嘅動詞冇一般 b 前綴，但仍然指出邊個做。必要性表達直接接動作。
+
+            **試吓。** 去掉期限。答案：`لَازِمْ أَرَجِّعْ الْمِفْتَاحْ`。仍然有需要還，但冇再講幾時。
+    - subskill_id: possibility
+      explanation: 延誤未確認之前，你可能已經聽到消息。呢個情況可以用 `يُمْكِنْ`（可能），提出延誤而唔話一定發生。下面例句講火車可能出現嘅情況。
+      examples:
+        - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
+          meaning: "**例句解說。** 「火車可能遲到。」`يُمْكِنْ` 喺呢度解可能。`الْقِطَارْ` 放喺動作 `يِتْأَخَّرْ`
+            前面。呢句講成件事嘅可能性，唔係講火車有冇能力。"
+          note: |-
+            **睇語境。** 未確認延誤時可以用呢句。佢本身唔係向人問許可嘅問題。
+
+            **試吓。** 對方以為延誤已經確認，你應該指出邊個字？答案：`يُمْكِنْ`，講者仍然保留其他可能。
+    - subskill_id: certainty
+      explanation: 未能確認對方嘅說話時，可以用 `أَنَا مِشْ مُتْأَكِّدِة` 表達唔肯定。呢句係我唔肯定，用陰性配合講者。問題仍然未有定論，唔係話對方錯。
+      examples:
+        - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
+          meaning: "**例句解說。** `أَنَا` 係我，`مِشْ` 否定形容詞，`مُتْأَكِّدِة` 用陰性形式講肯定。`مِنْ هَادْ`
+            指返嗰件事。呢個現在時間結構冇獨立嘅字對應英文 “am”。"
+          note: |-
+            **否定。** `مِشْ` 否定形容詞。冇咗佢，講者就話自己肯定。
+
+            **練習。** 想表達肯定，要去掉邊個字？答案：`مِشْ`。

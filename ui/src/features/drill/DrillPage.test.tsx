@@ -732,32 +732,34 @@ it('records while held, and throws away a press shorter than the shortest take',
   clock.mockRestore()
 })
 
-it('defaults the comparison and the recorder to the script direction, and sets the recorder on its own', async () => {
+it('defaults the comparison to the script direction and keeps the recorder in the interface direction', async () => {
   script.direction = 'rtl'
   items = [item({ attempts: [attempt()] })]
   app()
   const toLeft = await screen.findByRole('radio', { name: '← Time' })
   expect(toLeft).toHaveAttribute('aria-checked', 'true')
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'rtl')
-  // Until chosen, the recorder follows the script: its button sits where time arrives.
+  // The playback controls follow the interface, not the time direction.
+  expect(document.querySelector('.drill-media')).not.toHaveAttribute('dir')
+  // Until chosen, the recorder follows the interface: a right-to-left card does not move its button.
   const recorder = document.querySelector<HTMLElement>('.drill-voice')!
-  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  expect(recorder).toHaveAttribute('data-pad-side', 'right')
   // The comparison's direction does not move the recorder.
   fireEvent.click(screen.getByRole('radio', { name: 'Time →' }))
   expect(document.querySelector('.drill-timelines')).toHaveAttribute('data-time', 'ltr')
-  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  expect(recorder).toHaveAttribute('data-pad-side', 'right')
   // Recording settings set the button's side and the stream's time direction independently.
   fireEvent.click(within(recorder).getByRole('button', { name: 'Recording settings' }))
   const settings = await screen.findByRole('dialog', { name: 'Recording settings' })
-  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Microphone button' })).getByRole('radio', { name: 'Right' }))
-  expect(recorder).toHaveAttribute('data-pad-side', 'right')
+  fireEvent.click(within(within(settings).getByRole('radiogroup', { name: 'Microphone button' })).getByRole('radio', { name: 'Left' }))
+  expect(recorder).toHaveAttribute('data-pad-side', 'left')
   const time = within(within(settings).getByRole('radiogroup', { name: 'Time direction' }))
-  expect(time.getByRole('radio', { name: '← Time' })).toHaveAttribute('aria-checked', 'true')
-  fireEvent.click(time.getByRole('radio', { name: 'Time →' }))
   expect(time.getByRole('radio', { name: 'Time →' })).toHaveAttribute('aria-checked', 'true')
-  expect(recorder).toHaveAttribute('data-pad-side', 'right')
-  expect(localStorage.getItem('skellyspeak_recorder_practice_pad')).toBe('right')
-  expect(localStorage.getItem('skellyspeak_recorder_practice_time')).toBe('ltr')
+  fireEvent.click(time.getByRole('radio', { name: '← Time' }))
+  expect(time.getByRole('radio', { name: '← Time' })).toHaveAttribute('aria-checked', 'true')
+  expect(recorder).toHaveAttribute('data-pad-side', 'left')
+  expect(localStorage.getItem('skellyspeak_recorder_practice_pad')).toBe('left')
+  expect(localStorage.getItem('skellyspeak_recorder_practice_time')).toBe('rtl')
 })
 
 it('expands the selected take within its history row without reordering the list', async () => {

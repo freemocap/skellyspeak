@@ -81,11 +81,24 @@ fn cantonese_editions_cover_every_target_and_keep_source_examples_exact() {
                 }
             }
             for variety in &language.varieties {
+                let selected = guide.sections_for(&variety.id);
+                let original = source.guide.sections_for(&variety.id);
+                assert_eq!(selected.len(), original.len(), "{path}/{}", variety.id);
+                for (translated, original) in selected.iter().zip(original) {
+                    assert_eq!(translated.subskill_id, original.subskill_id);
+                    assert_ne!(translated.explanation, original.explanation);
+                    assert_eq!(translated.examples.len(), original.examples.len());
+                    for (translated, original) in translated.examples.iter().zip(&original.examples)
+                    {
+                        assert_eq!(translated.text, original.text);
+                        assert_ne!(translated.meaning, original.meaning);
+                    }
+                }
                 let markdown = registry
                     .skill_guide_markdown(&language.id, &variety.id, "cantonese", &skill.id)
                     .unwrap();
                 assert!(markdown.starts_with(&format!("# {}", shared.title)));
-                for section in &guide.sections {
+                for section in selected {
                     assert!(markdown.contains(&section.explanation));
                     for example in &section.examples {
                         assert!(markdown.contains(&example.text));

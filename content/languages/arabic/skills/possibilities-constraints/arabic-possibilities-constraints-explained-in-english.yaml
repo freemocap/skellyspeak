@@ -1,84 +1,226 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: arabic-skills-2026-10-04
+revision: arabic-learner-first-english-2026-10-07
 language: arabic
 skill_id: possibilities_constraints
 explanation_language: english
 shared_explanation: skills/possibilities-constraints/possibilities-constraints-explained-in-english.yaml
 sections:
   - subskill_id: ability
-    explanation: A capability predicate can introduce the action the speaker can perform.
+    explanation: When you describe an ability, you say what someone is capable of doing. In Modern
+      Standard Arabic, `أَسْتَطِيعُ` means ‘I am able’. It can be followed by `أَنْ` and a verb
+      naming the action. The example describes the speaker's ability to swim.
     examples:
       - text: أَسْتَطِيعُ أَنْ أَسْبَحَ.
-        meaning: I can swim.
-        note: Modern Standard Arabic. This reports ability in a discussion of swimming skills.
-      - text: بَقْدَرْ أَسْبَحْ.
-        meaning: I can swim.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. This
-          reports ability in a discussion of swimming skills.
+        meaning: "**The example.** “I can swim.” `أَسْتَطِيعُ` means I am able; `أَنْ` introduces the
+          action; `أَسْبَحَ` means that I swim in this construction. The two verbs identify the same
+          first-person subject, so a separate `أَنَا`, I, is unnecessary."
+        note: >-
+          **Notice the form.** After `أَنْ`, this verb ends in a short a-vowel in fully vocalized
+          writing: `أَسْبَحَ`. It is still marked for I; it is not an unchanged dictionary form.
+
+
+          **Try it.** Identify the word joining ability to action. Answer: `أَنْ`.
   - subskill_id: permission
-    explanation: A question about whether an action is possible can ask permission in the
-      appropriate exchange.
+    explanation: Before using someone else's space or belongings, you may need to ask whether an action
+      is allowed. `هَلْ يُمْكِنُنِي` provides a way to ask ‘May I…?’ in Modern Standard Arabic. In
+      the example, the speaker wants permission to sit in a particular place.
     examples:
       - text: هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَا؟
-        meaning: May I sit here?
-        note: Modern Standard Arabic. Ask the person responsible for the seat; the point is permission.
-      - text: مُمْكِنْ أَقْعُدْ هُونْ؟
-        meaning: May I sit here?
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. Ask the
-          person responsible for the seat; the point is permission.
+        meaning: "**The example.** “May I sit here?” `هَلْ` opens a yes/no question. In `يُمْكِنُنِي`, the
+          ending `نِي` refers to me. `أَنْ أَجْلِسَ` supplies the action, to sit, and `هُنَا` means
+          here."
+        note: >-
+          **Change the place.** Replace `هُنَا` with `هُنَاكَ` for there. The permission pattern
+          stays intact.
+
+
+          **Try it.** Ask to sit there. Answer: `هَلْ يُمْكِنُنِي أَنْ أَجْلِسَ هُنَاكَ؟` Keep
+          `أَنْ` before the action verb.
   - subskill_id: obligation
-    explanation: An obligation expression and a following action can state a requirement.
+    explanation: A deadline or an agreement can make an action necessary. Modern Standard Arabic uses
+      `يَجِبُ أَنْ` followed by a verb to express a requirement. The verb that follows identifies
+      who must act. Here, returning a key is the speaker's responsibility.
     examples:
       - text: يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ الْيَوْمَ.
-        meaning: I must return the key today.
-        note: Modern Standard Arabic. A return deadline establishes necessity.
-      - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
-        meaning: I must return the key today.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. A return
-          deadline establishes necessity.
+        meaning: "**The example.** “I must return the key today.” `يَجِبُ` states necessity. `أَنْ أُعِيدَ`
+          names my action: returning something. `الْمِفْتَاحَ` is the key being returned, and
+          `الْيَوْمَ` is today. The I-person marking is on `أُعِيدَ`, not on `يَجِبُ`."
+        note: >-
+          **Change the deadline.** Use `غَدًا` for tomorrow.
+
+
+          **Try it.** Move the deadline to tomorrow. Answer: `يَجِبُ أَنْ أُعِيدَ الْمِفْتَاحَ
+          غَدًا`. Keep the action the same and replace only the time expression.
   - subskill_id: possibility
-    explanation: A possibility word can qualify a proposition without asserting that it is certain.
+    explanation: When an outcome is uncertain, you can mention it without presenting it as a fact.
+      `رُبَّمَا` means ‘perhaps’ and can introduce that possibility. The example allows for a late
+      train while leaving open the possibility that it will be on time.
     examples:
       - text: رُبَّمَا يَتَأَخَّرُ الْقِطَارُ.
-        meaning: The train may be late.
-        note: Modern Standard Arabic. The speaker leaves the outcome open.
-      - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
-        meaning: The train may be late.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. The speaker
-          leaves the outcome open.
+        meaning: "**The example.** “The train may be late.” `رُبَّمَا` means perhaps. `يَتَأَخَّرُ` names
+          being late; `الْقِطَارُ` is the train. This example places the verb before the subject.
+          `رُبَّمَا` qualifies the statement without saying that the train definitely will be late."
+        note: >-
+          **Compare.** Without `رُبَّمَا`, `يَتَأَخَّرُ الْقِطَارُ` states that the train is late or
+          gets delayed, with the time reading supplied by context.
+
+
+          **Try it.** Which word makes the original statement tentative? Answer: `رُبَّمَا`.
   - subskill_id: certainty
-    explanation: A negative certainty predicate can limit confidence in a claim.
+    explanation: You can tell someone that you are not ready to confirm a claim. `لَسْتُ مُتَأَكِّدًا`
+      or `لَسْتُ مُتَأَكِّدَةً` means ‘I am not sure’. The adjective agrees with the speaker; the
+      example uses feminine agreement. It expresses uncertainty, not disagreement.
     examples:
       - text: لَسْتُ مُتَأَكِّدَةً مِنْ ذٰلِكَ.
-        meaning: I am not sure about that.
-        note: Modern Standard Arabic. A woman is speaking about the preceding claim.
-      - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
-        meaning: I am not sure about that.
-        note: Levantine Arabic; conversational wording, with regional alternatives possible. A woman is
-          speaking about the preceding claim.
-provenance: &a1
+        meaning: "**The example.** `لَسْتُ` means I am not. `مُتَأَكِّدَةً` is sure, in the feminine form
+          required here; `مِنْ ذٰلِكَ` means about that. The adjective has an accusative ending
+          after `لَسْتُ` in fully vocalized Standard Arabic."
+        note: >-
+          **Change the speaker.** Masculine agreement gives `لَسْتُ مُتَأَكِّدًا مِنْ ذٰلِكَ`.
+          `لَسْتُ` stays the same for I.
+
+
+          **Try it.** Which part points back to the previous claim? Answer: `مِنْ ذٰلِكَ`. Being
+          unsure does not assert that the claim is false.
+provenance:
   origin: ai
-  authorship: AI-authored language-specific guidance, English explanations and original examples,
-    informed by the cited sources; no independent linguistic review.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - madinahNegationTeaching20261007
+    - madinahMoodsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: arabic-skills-2026-10-04
-    scope: Entire document, including constructions, original examples, English meanings,
-      conversational contexts and declared variety applicability. Source-informed AI editorial
-      review does not certify linguistic correctness.
+    revision: arabic-learner-first-english-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: The examples use Southern Levantine بَقْدَرْ for capability. Northern expressions such as
-      فِينِي also occur. Context distinguishes capability, permission and requests.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   arabic-modern-standard:
-    disposition: supplement
-    text: Modern Standard has formal capability and necessity constructions. لَسْتُ negates a
-      nominal predicate for a first-person speaker.
-    provenance: *a1
+    disposition: use_core
+    provenance:
+      origin: ai
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
+        - lingualism_levantine_verbs2026
+        - levantongue_b_prefix2026
+        - madinahNegationTeaching20261007
+        - madinahMoodsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
+      generation: null
+      review:
+        status: needs_review
+        revision: arabic-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: ability
+      explanation: Talking about ability lets you explain what you can do, whether it is a learned skill
+        or something possible in the situation. A common Levantine expression for ‘I can’ is
+        `بَقْدَرْ`. It is followed by a verb naming the activity. Here, the speaker says they can
+        swim.
+      examples:
+        - text: بَقْدَرْ أَسْبَحْ.
+          meaning: "**The example.** “I can swim.” `بَقْدَرْ` means I can. `أَسْبَحْ` gives the action
+            without the ordinary present-tense b-prefix. The two verbs connect directly and
+            refer to the same person."
+          note: >-
+            **Keep the pattern together.** The prefix on `بَقْدَرْ` does not mean you should copy it
+            onto the following verb. Regional alternatives exist, including Northern `فِينِي` for I
+            can.
+
+
+            **Try it.** Which part names the activity? Answer: `أَسْبَحْ`. The ability expression
+            alone does not tell the listener what you can do.
+    - subskill_id: permission
+      explanation: When you want someone's agreement before acting, `مُمْكِنْ` can introduce a permission
+        question. In a conversation about a free seat, `مُمْكِنْ أَقْعُدْ هُونْ؟` asks whether you
+        may sit here. The person you ask should be someone who can decide about the seat.
+      examples:
+        - text: مُمْكِنْ أَقْعُدْ هُونْ؟
+          meaning: "**The example.** “May I sit here?” `مُمْكِنْ` introduces the permission question;
+            `أَقْعُدْ` identifies my action, sit; `هُونْ` means here. Question intonation and
+            waiting for the listener's answer make this a request."
+          note: >-
+            **Notice the second verb.** After `مُمْكِنْ` in this pattern, use the action without its
+            ordinary b-prefix. The verb identifies the action and the place word tells the listener
+            where.
+
+
+            **Try it.** Which word locates the seat? Answer: `هُونْ`.
+    - subskill_id: obligation
+      explanation: A borrowed item may need to be returned by an agreed time. Levantine Arabic uses
+        `لَازِمْ` followed by a verb to say that an action is necessary. The verb tells you who has
+        to do it. In the example, the speaker needs to return a key today.
+      examples:
+        - text: لَازِمْ أَرَجِّعْ الْمِفْتَاحْ الْيَوْمْ.
+          meaning: "**The example.** “I must return the key today.” `لَازِمْ` expresses the requirement.
+            `أَرَجِّعْ` means I return something here, followed by `الْمِفْتَاحْ`, the key, and
+            `الْيَوْمْ`, today. The doubled middle consonant in `أَرَجِّعْ` belongs to this verb
+            form."
+          note: >-
+            **Keep the construction.** The verb after `لَازِمْ` here has no ordinary b-prefix. It
+            still tells you who acts. The requirement expression connects directly to the action.
+
+
+            **Try it.** Remove the deadline. Answer: `لَازِمْ أَرَجِّعْ الْمِفْتَاحْ`. The
+            requirement remains, but the sentence no longer says when.
+    - subskill_id: possibility
+      explanation: You may hear about a possible delay before it is confirmed. In this situation,
+        `يُمْكِنْ` means ‘maybe’ and lets you mention the delay without claiming it is certain. The
+        example is a statement about what might happen to the train.
+      examples:
+        - text: يُمْكِنْ الْقِطَارْ يِتْأَخَّرْ.
+          meaning: "**The example.** “The train may be late.” `يُمْكِنْ` works as maybe here. `الْقِطَارْ`
+            comes before `يِتْأَخَّرْ`, the action. Read this as a possibility about the whole
+            event, not as a claim about the train's ability."
+          note: >-
+            **Use the context.** This is useful when discussing an unconfirmed delay. It is not
+            itself a question asking anyone's permission.
+
+
+            **Try it.** Someone treats the sentence as a confirmed delay. Which word should you
+            point to? Answer: `يُمْكِنْ`; the speaker left the outcome open.
+    - subskill_id: certainty
+      explanation: When you cannot confirm what someone has said, you can describe your uncertainty with
+        `أَنَا مِشْ مُتْأَكِّدِة`. This means ‘I am not sure’ with feminine agreement for the
+        speaker. It leaves the question open instead of declaring the other person wrong.
+      examples:
+        - text: أَنَا مِشْ مُتْأَكِّدِة مِنْ هَادْ.
+          meaning: "**The example.** `أَنَا` is I, `مِشْ` negates the adjective, and `مُتْأَكِّدِة` describes
+            the speaker as sure using feminine agreement. `مِنْ هَادْ` points back to that matter.
+            This present-time pattern has no separate word for English “am.”"
+          note: |-
+            **Negation.** `مِشْ` negates the adjective. Without it, the speaker says she is sure.
+
+            **Practice.** Which word would you remove to express certainty? Answer: `مِشْ`.

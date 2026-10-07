@@ -113,7 +113,7 @@ impl Registry {
                     &document.explanation_language,
                 )?;
                 let sections = document
-                    .sections
+                    .sections_for(variety)
                     .iter()
                     .map(|section| {
                         let concept = shared
@@ -128,7 +128,7 @@ impl Registry {
                     })
                     .collect();
                 let examples = document
-                    .sections
+                    .sections_for(variety)
                     .iter()
                     .flat_map(|section| {
                         section.examples.iter().map(|example| GuideExample {

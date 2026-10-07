@@ -1,96 +1,119 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: arabic-learner-first-cantonese-2026-10-07
 language: arabic
 skill_id: information_exchange
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 疑問時間短語可以問事件發生嘅鐘點。
+    explanation: 知道一件事會發生，但唔知幾點，就要問缺少嘅時間資料。`فِي أَيِّ سَاعَةٍ` 係喺幾點。下面例句問間舖幾點閂門，所以有用嘅答案要交代鐘點，唔只係係或者唔係。
     examples:
       - text: فِي أَيِّ سَاعَةٍ يُغْلِقُ الْمَحَلُّ؟
-        meaning: 間舖幾點閂門？
-        note: 現代標準阿拉伯語。問題問關門時間。
-      - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
-        meaning: 間舖幾點閂門？
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。問題問關門時間。
+        meaning: "**例句解說。** 「間舖幾點閂門？」`فِي أَيِّ سَاعَةٍ` 係喺邊個鐘點，`يُغْلِقُ` 係關門，`الْمَحَلُّ` 係間舖。時間表達由介詞
+          `فِي` 開頭；呢個例句動詞放喺間舖前。"
+        note: |-
+          **砌答案。** `فِي السَّاعَةِ الْخَامِسَةِ` 係喺五點。問題已經交代間舖同關門動作，所以可以淨係用時間短語回答。
+
+          **試吓。** 答案要補返邊個短語嘅資料？答案：`فِي أَيِّ سَاعَةٍ`。
   - subskill_id: answering_information
     explanation: 鐘點短語可以獨立回答之前條問題。
     examples:
       - text: فِي السَّاعَةِ الْخَامِسَةِ.
         meaning: 五點。
         note: 現代標準阿拉伯語。回答關門時間，唔需要完整句子。
-      - text: عَ السَّاعَة خَمْسِة.
-        meaning: 五點。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。回答關門時間，唔需要完整句子。
   - subskill_id: checking_facts
     explanation: 先提出一個說法，再加確認問題，可以核實候選事實。
     examples:
       - text: الْمَحَلُّ مُغْلَقٌ الْيَوْمَ، أَلَيْسَ كَذٰلِكَ؟
         meaning: 間舖今日冇開，係咪？
         note: 現代標準阿拉伯語。講者提出冇開門呢個可能答案，請對方確認。
-      - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
-        meaning: 間舖今日冇開，係咪？
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者提出冇開門呢個可能答案，請對方確認。
   - subskill_id: useful_detail
     explanation: 位置細節可以分清對方要搵嘅入口。
     examples:
       - text: الْمَدْخَلُ بِجَانِبِ الْمَخْبَزِ.
         meaning: 入口喺麵包舖隔籬。
         note: 現代標準阿拉伯語。對方搵緊入口時用。
-      - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
-        meaning: 入口喺麵包舖隔籬。
-        note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對方搵緊入口時用。
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/arabic/skills/information-exchange/arabic-information-exchange-explained-in-english.yaml
-    at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - lingualism_levantine_verbs2026
     - levantongue_b_prefix2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
+    - levantongueAbilityTeaching20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: arabic-learner-first-cantonese-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.
 varieties:
   arabic-levantine:
-    disposition: supplement
-    text: 口語問句唔需要英文式助動詞，亦未必需要正式疑問助詞。شُو 同 إِيشْ 都係不同地區用嚟問「乜嘢」嘅選項。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/information-exchange/arabic-information-exchange-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   arabic-modern-standard:
-    disposition: supplement
-    text: 現代標準語問句使用正式疑問用語。簡短切題答案可以省略問題已經交代嘅資訊。
+    disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/arabic/skills/information-exchange/arabic-information-exchange-explained-in-english.yaml
-        at revision arabic-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - lingualism_levantine_verbs2026
         - levantongue_b_prefix2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
+        - levantongueAbilityTeaching20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: arabic-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
+variety_sections:
+  arabic-levantine:
+    - subskill_id: asking_information
+      explanation: 問時間可以幫你安排行動，例如趕喺間舖閂門之前去到。`أَيّ سَاعَة` 問幾點，其餘部分交代你想知道邊件事嘅時間。下面例句問間舖幾點閂門。
+      examples:
+        - text: أَيّ سَاعَة بِيْسَكِّرْ الْمَحَلّ؟
+          meaning: "**例句解說。** 「間舖幾點閂門？」`أَيّ سَاعَة` 問邊個鐘點，`بِيْسَكِّرْ` 喺呢個口語結構係關門，`الْمَحَلّ` 指間舖。呢個一般現在式動詞有
+            b 前綴。"
+          note: |-
+            **砌答案。** 呢個口語示例用 `عَ السَّاعَة خَمْسِة` 講喺五點，可以淨係用時間短語回答。
+
+            **試吓。** 淨係答係，算唔算答咗？唔算，要交代閂門時間。疑問詞指出缺少邊項資料。
+    - subskill_id: answering_information
+      explanation: 鐘點短語可以獨立回答之前條問題。
+      examples:
+        - text: عَ السَّاعَة خَمْسِة.
+          meaning: 五點。
+          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。回答關門時間，唔需要完整句子。
+    - subskill_id: checking_facts
+      explanation: 先提出一個說法，再加確認問題，可以核實候選事實。
+      examples:
+        - text: الْمَحَلّ مْسَكَّرْ الْيَوْمْ، صَحّ؟
+          meaning: 間舖今日冇開，係咪？
+          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。講者提出冇開門呢個可能答案，請對方確認。
+    - subskill_id: useful_detail
+      explanation: 位置細節可以分清對方要搵嘅入口。
+      examples:
+        - text: الْمَدْخَلْ جَنْبْ الْمَخْبَزْ.
+          meaning: 入口喺麵包舖隔籬。
+          note: 黎凡特阿拉伯語口語，其他地區可能有不同講法。對方搵緊入口時用。

@@ -117,7 +117,7 @@ pub(crate) fn render_guide(
     variety: &str,
 ) -> String {
     let mut lines = vec![format!("# {}", shared.title), shared.introduction.clone()];
-    for section in &guide.sections {
+    for section in guide.sections_for(variety) {
         let concept = shared
             .sections
             .iter()

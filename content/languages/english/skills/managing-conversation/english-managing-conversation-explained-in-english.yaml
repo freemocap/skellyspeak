@@ -1,19 +1,18 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: english-skills-2026-10-04
+revision: english-learner-first-english-2026-10-07
 skill_id: managing_conversation
 language: english
 explanation_language: english
 shared_explanation: skills/managing-conversation/managing-conversation-explained-in-english.yaml
 sections:
   - subskill_id: opening_closing
-    explanation: Use a greeting or farewell appropriate to the encounter. A closing
-      can also signal that the interaction is ending.
+    explanation: Use a greeting or farewell appropriate to the encounter. A closing can also signal that
+      the interaction is ending.
     examples:
       - text: It was good to talk. See you tomorrow.
         meaning: The speaker closes the conversation and anticipates another meeting.
-        note: The farewell manages the encounter rather than just describing a future
-          event.
+        note: The farewell manages the encounter rather than just describing a future event.
   - subskill_id: acknowledging
     explanation: Show that you received or followed what the other person said.
     examples:
@@ -21,15 +20,25 @@ sections:
         meaning: The speaker acknowledges the preceding explanation.
         note: This response depends on something another participant has just said.
   - subskill_id: clarification
-    explanation: Identify what was unclear and request the information needed to repair it.
+    explanation: Clarification helps repair a gap in understanding during a conversation. You might need
+      someone to repeat what you missed, explain an unfamiliar word or say the same idea another
+      way. The wording of your question can tell the other person which kind of help you need.
     examples:
       - text: What do you mean by the second option?
-        meaning: The speaker asks the partner to explain a phrase.
-        note: The question repairs understanding of prior speech rather than introducing
-          an unrelated topic.
+        meaning: "**How it works.** `Mean by` asks how the other person is using an expression. `The second
+          option` repeats the unclear part. A useful reply could be `I mean taking the train instead
+          of the bus`, which supplies the missing detail."
+        note: >-
+          **Choose the help you need.** If you missed the sound, ask `Could you repeat the last
+          part?` If you have a possible interpretation, check it: `Do you mean taking the train?`
+          That lets your partner confirm or correct your understanding.
+
+
+          **Try it.** Someone says `Use the usual entrance`, but you do not know which entrance that
+          is. One answer: `What do you mean by the usual entrance?` Repeating the unclear phrase
+          makes the question specific.
   - subskill_id: rephrasing
-    explanation: Restate your meaning with a different formulation when the first
-      version was unclear.
+    explanation: Restate your meaning with a different formulation when the first version was unclear.
     examples:
       - text: In other words, we need to leave before lunch.
         meaning: The speaker restates the intended departure constraint.
@@ -41,28 +50,28 @@ sections:
         meaning: The intended day is Tuesday.
         note: Meant and not explicitly repair the mistaken day.
   - subskill_id: turns_topics
-    explanation: Signal a turn request or a topic change so the listener can follow
-      the conversation.
+    explanation: Signal a turn request or a topic change so the listener can follow the conversation.
     examples:
       - text: Before we move on, can I ask about the price?
         meaning: The speaker requests a turn about the price.
-        note: Before we move on manages the discussion, not the time of an external
-          event.
+        note: Before we move on manages the discussion, not the time of an external event.
 varieties:
   english-united-states:
     disposition: use_core
     provenance: &a1
       origin: ai
-      authorship: AI-authored English teaching guidance and original examples; no
-        independent linguistic review.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - dingemanse2015_communication_repair
+        - bcCheckingUnderstandingTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: english-skills-2026-10-04
-        scope: Entire document; source references inform guidance but do not validate
-          generated examples.
+        revision: english-learner-first-english-2026-10-07
+        scope: Entire document; source references inform guidance but do not validate generated examples.
   english-united-kingdom:
     disposition: use_core
     provenance: *a1

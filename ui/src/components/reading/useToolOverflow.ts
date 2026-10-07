@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 
 /** Fit tools to their container: the icons are one size, but touch targets and
  * the set of tools change, so the row is measured rather than counted. */
-export function useToolOverflow(count: number, keys: string) {
+export function useToolOverflow(count: number, keys: string, alwaysMenu = false) {
   const root = useRef<HTMLDivElement>(null)
   const measure = useRef<HTMLSpanElement>(null)
   const [visible, setVisible] = useState(count)
@@ -17,7 +17,9 @@ export function useToolOverflow(count: number, keys: string) {
       const tools = [...sizing.querySelectorAll<HTMLElement>('[data-measured-tool]')]
       // Border-box layout widths retain fractions without the entrance transform.
       const layoutWidth = (element: HTMLElement) => Number.parseFloat(getComputedStyle(element).width) || element.offsetWidth
-      const base = layoutWidth(fixed) + layoutWidth(actions) + gap
+      const actionGap = Number.parseFloat(getComputedStyle(actions.parentElement!).columnGap) || 0
+      const menuWidth = layoutWidth(more) + actionGap
+      const base = layoutWidth(fixed) + layoutWidth(actions) + gap + (alwaysMenu ? menuWidth : 0)
       const widths = tools.map(tool => layoutWidth(tool) + gap)
       // Let short bubbles grow to fit their tools before deciding what overflows.
       // The stylesheet caps this preferred width at the available content width.
@@ -26,8 +28,7 @@ export function useToolOverflow(count: number, keys: string) {
       if (!width) return
       let n = count
       if (base + widths.reduce((sum, value) => sum + value, 0) > width) {
-        const actionGap = Number.parseFloat(getComputedStyle(actions.parentElement!).columnGap) || 0
-        let available = width - base - layoutWidth(more) - actionGap
+        let available = width - base - (alwaysMenu ? 0 : menuWidth)
         n = 0
         for (const needed of widths) { if (needed > available) break; available -= needed; n++ }
       }
@@ -42,6 +43,6 @@ export function useToolOverflow(count: number, keys: string) {
     let mounted = true
     void document.fonts?.ready.then(() => { if (mounted) update() })
     return () => { mounted = false; observer.disconnect() }
-  }, [count, keys])
+  }, [count, keys, alwaysMenu])
   return { root, measure, visible: Math.min(visible, count) }
 }

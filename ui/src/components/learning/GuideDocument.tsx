@@ -42,7 +42,9 @@ export function GuideDocument({ text, context }: { text: string; context?: Guide
       const text = block.replace(/^> ?/gm, '')
       const candidate = exampleIndex++
       const example = context?.examples[candidate] === text ? candidate : -1
-      node = <Fragment key={index}><TargetPassage text={text} />{context && example >= 0 && <div className="skill-guide-actions"><GuideActions guide={context.reference} example={example} /></div>}</Fragment>
+      node = <Fragment key={index}>{context && example >= 0
+        ? <GuideActions guide={context.reference} example={example} menu>{actions => <TargetPassage text={text} menuActions={actions} />}</GuideActions>
+        : <TargetPassage text={text} />}</Fragment>
     } else node = <Fragment key={index}><Markdown text={block} targetCode /></Fragment>
     if (section) section.body.push(node)
     else top.push(node)

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../rust-schemas/skill-explanation.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: shared-teaching-pilot-2026-10-07
 skill_id: managing_conversation
 explanation_language: english
 title: Managing conversation
@@ -14,7 +14,7 @@ sections:
     concept: Register receipt, attention or a socially relevant response.
   - subskill_id: clarification
     title: Asking for clarification
-    concept: Signal trouble hearing or understanding a contribution and seek repair.
+    concept: Ask for help with something you did not hear or understand.
   - subskill_id: rephrasing
     title: Rephrasing
     concept: Express a prior meaning differently to improve mutual understanding.
@@ -38,5 +38,5 @@ provenance:
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
+    revision: shared-teaching-pilot-2026-10-07
     scope: Entire document; linguistic review pending.

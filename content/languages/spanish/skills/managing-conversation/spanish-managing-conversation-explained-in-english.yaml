@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: spanish-communication-2026-10-03
+revision: spanish-learner-first-english-2026-10-07
 skill_id: managing_conversation
 language: spanish
 explanation_language: english
@@ -20,12 +20,23 @@ sections:
         meaning: Thank you for letting me know.
         note: The response acknowledges useful information and thanks the speaker.
   - subskill_id: clarification
-    explanation: Ask for repetition or an explanation when you cannot follow the preceding contribution.
+    explanation: "A conversation can become unclear even when you hear every word. To ask what the other
+      person means, Spanish uses `querer decir`: literally ‘want to say’, but often meaning ‘mean’.
+      The example asks for an explanation of something the listener has just heard."
     examples:
       - text: ¿Qué quieres decir?
-        meaning: What do you mean?
-        note: The question asks the partner to explain an unclear contribution, not verify a fact they
-          already understood.
+        meaning: "**How it works.** “What do you mean?” asks the other person to explain an unclear
+          contribution. The subject `tú` is usually unnecessary because `quieres` already identifies
+          it. With `usted`, use `¿Qué quiere decir?`; context makes clear that you are addressing
+          the listener."
+        note: >-
+          **Choose the repair.** If you heard the words but do not understand them, ask about
+          meaning. If you missed the sound, `¿Puedes repetirlo?` asks for repetition; `lo` refers to
+          what was said. A calm tone keeps a direct question from sounding like a challenge.
+
+
+          **Try it.** Add “by that” with `con eso`. Answer: `¿Qué quieres decir con eso?` This
+          points back to the unclear expression.
   - subskill_id: rephrasing
     explanation: Quiero decir can introduce a different way to express the meaning you intended.
     examples:
@@ -49,37 +60,63 @@ varieties:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: &a1
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
         - rae_possession2026
         - rae_future2026
         - rae_gracias2026
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: AI-generated variety supplement; no independent human review.
-      sources: *a1
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
+      sources:
+        - rae_possession2026
+        - rae_future2026
+        - rae_gracias2026
+        - umass_spanish_copulas2026
+        - yepesObligation20260924
+        - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: spanish-communication-2026-10-03
-        scope: Entire document; linguistic review pending.
+        revision: spanish-learner-first-english-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
 provenance:
   origin: ai
-  authorship: AI-generated first authoring specimen. Examples and assessment rules need linguistic
-    review; automated validation checks structure only.
-  sources: *a1
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
+  sources:
+    - rae_possession2026
+    - rae_future2026
+    - rae_gracias2026
+    - umass_spanish_copulas2026
+    - yepesObligation20260924
+    - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: spanish-communication-2026-10-03
-    scope: Entire document; linguistic review pending.
+    revision: spanish-learner-first-english-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.

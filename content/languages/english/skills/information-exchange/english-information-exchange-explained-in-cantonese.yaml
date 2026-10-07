@@ -1,17 +1,26 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: english-learner-first-cantonese-2026-10-07
 skill_id: information_exchange
 language: english
 explanation_language: cantonese
 shared_explanation: skills/information-exchange/information-exchange-explained-in-cantonese.yaml
 sections:
   - subskill_id: asking_information
-    explanation: 好多英文問句會將助動詞放喺主語前面。一般現在式問句常用 do 或 does；如果問緊主語本身，就未必用 do。唔好直接照搬廣東話陳述句語序。
+    explanation: 資料問句講清楚你想知啲乜。`Where`、`when` 同 `what` 等字指出缺少邊項資料。其餘部分嘅次序要睇動詞；學成句例句，可以幫你換另一項資料嚟問。
     examples:
       - text: Where does your sister work?
-        meaning: 講者問對方家姐或妹妹喺邊度返工。
-        note: does 負責構成問句，work 保持原形，唔加 -s。
+        meaning: 你家姐或者妹妹喺邊度返工？
+        note: >-
+          **拆開嚟睇。** `Where` 問地方。`Does` 放喺 `your sister` 前面；`work` 用原形。比較陳述句 `Your sister works at
+          the library`：問句由 `does` 負責文法變化，`work` 就唔再加 `-s`。
+
+
+          **比較。** `When does your sister work?` 改為問時間。如果問做動作嘅人係邊個，就用 `Who works at the library?`。呢度
+          `who` 本身代表未知嘅人，唔需要 `do` 或 `does`。動詞係 `be` 時，用 `Where is your sister?`。
+
+
+          **試一試。** 問佢哋住邊度。答案：`Where do they live?`。`They` 配 `do`，`live` 保持原形。
   - subskill_id: answering_information
     explanation: 直接提供對方要嘅資訊就得，唔需要每次重複成個句子。
     examples:
@@ -35,45 +44,45 @@ varieties:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/information-exchange/english-information-exchange-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - bc_questions2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-learner-first-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
   english-united-kingdom:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/english/skills/information-exchange/english-information-exchange-explained-in-english.yaml
-        at revision english-skills-2026-10-04. Target examples and variety applicability retained
-        exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - bc_questions2026
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
+        revision: english-learner-first-cantonese-2026-10-07
         scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
           claims retain their existing review limitations.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/english/skills/information-exchange/english-information-exchange-explained-in-english.yaml
-    at revision english-skills-2026-10-04. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - bc_questions2026
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
+    revision: english-learner-first-cantonese-2026-10-07
     scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
       claims retain their existing review limitations.

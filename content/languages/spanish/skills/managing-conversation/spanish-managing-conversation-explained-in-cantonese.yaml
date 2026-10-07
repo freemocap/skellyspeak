@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../../../rust-schemas/language-skill-guide.yaml
 schema_version: 1
-revision: cantonese-explanations-2026-10-05
+revision: spanish-learner-first-cantonese-2026-10-07
 skill_id: managing_conversation
 language: spanish
 explanation_language: cantonese
@@ -19,11 +19,17 @@ sections:
         meaning: 多謝你話我知。
         note: 回應確認收到有用資料，同時多謝講者。
   - subskill_id: clarification
-    explanation: 跟唔上前面內容時，請人重複或者解釋。
+    explanation: 就算每個字都聽到，仍然可能唔明對方想講乜。西班牙文可以用 `querer decir` 問意思；字面係「想講」，但經常解「意思係」。下面例句請對方解釋頭先講過嘅說話。
     examples:
       - text: ¿Qué quieres decir?
-        meaning: 你係咩意思？
-        note: 請對方解釋唔清楚嘅發言，唔係核實已理解嘅事實。
+        meaning: "**拆開睇。** 「你係乜嘢意思？」請對方解釋未明嘅說話。`Quieres` 嘅人物資訊已經包含喺動詞，所以通常唔使另外寫主語 `tú`。用 `usted` 稱呼對方時，講
+          `¿Qué quiere decir?`，由語境指出係問對方。"
+        note: >-
+          **揀啱補救方法。** 聽到字句但唔明，就問意思；聽唔清楚，可以用 `¿Puedes repetirlo?` 請對方再講一次；`lo`
+          指頭先講過嘅說話。平和語氣可以減少直接問句聽落似質問。
+
+
+          **試吓。** 加 `con eso` 表示「你咁講」。答案：`¿Qué quieres decir con eso?` 指返頭先唔明嗰句。
   - subskill_id: rephrasing
     explanation: Quiero decir引出另一種講法，表達自己原意。
     examples:
@@ -47,11 +53,8 @@ varieties:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/managing-conversation/spanish-managing-conversation-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - rae_possession2026
         - rae_future2026
@@ -59,21 +62,21 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
   spanish-mexico:
     disposition: use_core
     provenance:
       origin: ai
-      authorship: Directly authored by Codex in Cantonese, informed by
-        languages/spanish/skills/managing-conversation/spanish-managing-conversation-explained-in-english.yaml
-        at revision spanish-communication-2026-10-03. Target examples and variety applicability
-        retained exactly; no independent linguistic review. Exact backend model metadata was not
-        recorded.
+      authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+        Original examples retained within their variety; independent linguistic review pending."
       sources:
         - rae_possession2026
         - rae_future2026
@@ -81,18 +84,19 @@ varieties:
         - umass_spanish_copulas2026
         - yepesObligation20260924
         - yepesConditions20260924
+        - yepesQuestionsTeaching20261007
+        - bcGuideSequence20261007
+        - yepesGuideSequence20261007
       generation: null
       review:
         status: needs_review
-        revision: cantonese-explanations-2026-10-05
-        scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-          claims retain their existing review limitations.
+        revision: spanish-learner-first-cantonese-2026-10-07
+        scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+          sections retain prior review limitations. Linguistic and translation review pending.
 provenance:
   origin: ai
-  authorship: Directly authored by Codex in Cantonese, informed by
-    languages/spanish/skills/managing-conversation/spanish-managing-conversation-explained-in-english.yaml
-    at revision spanish-communication-2026-10-03. Target examples and variety applicability retained
-    exactly; no independent linguistic review. Exact backend model metadata was not recorded.
+  authorship: "AI-authored learner-first revision: explanatory openings and selected-variety teaching.
+    Original examples retained within their variety; independent linguistic review pending."
   sources:
     - rae_possession2026
     - rae_future2026
@@ -100,9 +104,12 @@ provenance:
     - umass_spanish_copulas2026
     - yepesObligation20260924
     - yepesConditions20260924
+    - yepesQuestionsTeaching20261007
+    - bcGuideSequence20261007
+    - yepesGuideSequence20261007
   generation: null
   review:
     status: needs_review
-    revision: cantonese-explanations-2026-10-05
-    scope: Cantonese translation, terminology and preservation of source meaning; source linguistic
-      claims retain their existing review limitations.
+    revision: spanish-learner-first-cantonese-2026-10-07
+    scope: Teaching explanations, worked examples, contrasts and exercises for pilot subskills; other
+      sections retain prior review limitations. Linguistic and translation review pending.

@@ -24,7 +24,7 @@ impl Registry {
         let definition = self.skill_definition(skill_id)?;
         let edition = self.guide_source(language, skill_id)?;
         let mut sections = Vec::new();
-        for section in &edition.guide.sections {
+        for section in edition.guide.sections_for(&settings.variety_id) {
             if subskill_id
                 .as_ref()
                 .is_some_and(|id| id != &section.subskill_id)

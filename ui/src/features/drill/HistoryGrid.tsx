@@ -19,7 +19,7 @@ export class HistoryGrid extends Component<Props, Record<string, never>, Snapsho
       .map(element => [element.dataset.historyId!, element.getBoundingClientRect()]))
     const changed = previous.expandedId !== this.props.expandedId
     const card = changed ? entries.find(element => element.dataset.historyId === previous.expandedId) : null
-    const words = [...(card?.querySelectorAll<HTMLElement>('.drill-word-pair:not([data-outcome="extra"]) > span:first-child') ?? [])]
+    const words = [...(card?.querySelectorAll<HTMLElement>('.drill-word-pair:not([data-outcome="extra"]) > .drill-word-reference') ?? [])]
       .map(element => ({ rect: element.getBoundingClientRect(), color: getComputedStyle(element).color }))
     return { id: changed ? previous.expandedId : null, words, rows }
   }

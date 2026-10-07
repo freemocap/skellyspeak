@@ -36,12 +36,15 @@ function TermButton({ term, onTerm }: { term: string; onTerm: TermHandler }) {
 
 /// Split one line's inline markup into React nodes.
 function inline(text: string, keyPrefix: string, onTerm?: TermHandler, targetCode = false): ReactNode[] {
+  // Authored guides declare target text explicitly. Script guessing would turn
+  // explanation prose into target text when it uses a non-Latin script.
+  const prose = (value: string) => targetCode ? value : <MixedText text={value} />
   const out: ReactNode[] = []
   let last = 0
   let match: RegExpExecArray | null
   INLINE.lastIndex = 0
   while ((match = INLINE.exec(text)) !== null) {
-    if (match.index > last) out.push(<MixedText key={`${keyPrefix}-${last}-text`} text={text.slice(last, match.index)} />)
+    if (match.index > last) out.push(<Fragment key={`${keyPrefix}-${last}-text`}>{prose(text.slice(last, match.index))}</Fragment>)
     const key = `${keyPrefix}-${match.index}`
     const [, term, code, bold, italic] = match
     if (term !== undefined) {
@@ -53,11 +56,11 @@ function inline(text: string, keyPrefix: string, onTerm?: TermHandler, targetCod
         )
       )
     } else if (code !== undefined) out.push(targetCode ? <bdi className="target-inline" key={key}><TargetText text={code} /></bdi> : <code key={key}><MixedText text={code} /></code>)
-    else if (bold !== undefined) out.push(<strong key={key}><MixedText text={bold} /></strong>)
-    else out.push(<em key={key}><MixedText text={italic} /></em>)
+    else if (bold !== undefined) out.push(<strong key={key}>{prose(bold)}</strong>)
+    else out.push(<em key={key}>{prose(italic)}</em>)
     last = match.index + match[0].length
   }
-  if (last < text.length) out.push(<MixedText key={`${keyPrefix}-${last}-tail`} text={text.slice(last)} />)
+  if (last < text.length) out.push(<Fragment key={`${keyPrefix}-${last}-tail`}>{prose(text.slice(last))}</Fragment>)
   return out
 }
 

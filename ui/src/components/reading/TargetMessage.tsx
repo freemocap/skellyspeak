@@ -40,6 +40,7 @@ export interface TargetMessageAnalysis {
 
 export interface TargetMessageProps {
   additionalActions?: ReactNode
+  menuActions?: ReactNode
   /** Durable message owners supply requests instead of generic text lookups. */
   onRequestWords?: () => Promise<void>
   onRequestTranslation?: () => Promise<void>
@@ -101,7 +102,7 @@ export interface TargetMessageProps {
 export function TargetMessage({
   text, segments, segmentsKey, translation, romanization, pronunciation, layout, translateLabel,
   segmentsPending, lookupWords, status, translationState, annotation, speech, analysis, focused, rtl, addToDrill = true, practiceAction, provenance, readAloud = true, side = 'bot',
-  inspect = null, inspector, onSelect, sourcePresentation, bulkReading, onRequestWords, onRequestTranslation, additionalActions,
+  inspect = null, inspector, onSelect, sourcePresentation, bulkReading, onRequestWords, onRequestTranslation, additionalActions, menuActions,
 }: TargetMessageProps) {
   const tr = useI18n()
   const messageTools = useMessageToolDefinitions()
@@ -253,7 +254,7 @@ export function TargetMessage({
       onSelect: () => void showPhonetics(!soundOpen || phonetics.error != null) })] : []),
     ...(messageAnalysis ? [messageTools.analysis({ pending: messageAnalysis.pending, onSelect: messageAnalysis.onOpen })] : []),
   ]
-  const actions = <MessageTools tools={tools} inspect={inspect} more={more}
+  const actions = <MessageTools menuActions={menuActions} tools={tools} inspect={inspect} more={more}
     play={playback && { playing: playback.speaking, preparing: 'preparing' in playback && playback.preparing, disabled: playback.disabled, onToggle: playback.onToggle }}
     actions={<>{provenance && <ProvenanceTip provenance={provenance} />}{practiceAction ?? (addToDrill && <AddToDrillButton text={text} />)}{additionalActions}</>} />
   const failure = <>

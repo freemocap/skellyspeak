@@ -1,29 +1,32 @@
-/* Skill chart (components/learning/SkillChart.tsx): one card with a toolbar
-   (chart type and scale), a square stage holding the radar or the bars, a zoom
-   row (to scale), and the notes (key, conversation legend, hints) along the bottom.
+/* Skill chart (components/learning/SkillChart.tsx): one card with a square
+   stage holding the radar or the bars, a settings button and menu (chart type,
+   scale, zoom) over its corner, and the notes (key, conversation legend, hints)
+   along the bottom.
    The stage fades in when the chart type changes; marks glide when the scale or
    zoom changes. Bar colours arrive inline as `color` on each bar; names take
    the ink inline. */
 .skill-chart { display: flex; flex-direction: column; margin: 0; border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-lg); background: var(--sheet); }
-.skill-chart-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); padding: var(--space-3) var(--space-4); border-bottom: var(--border-width) solid var(--line-soft); border-start-start-radius: inherit; border-start-end-radius: inherit; background: var(--chrome); }
 .skill-chart-switch { display: inline-flex; padding: var(--space-hairline); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); }
 .skill-chart-switch button { min-height: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--ink-3); font-size: var(--type-meta); font-weight: var(--weight-medium); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
 .skill-chart-switch button:hover:not(:disabled) { color: var(--ink); }
 .skill-chart-switch button:disabled { opacity: 0.4; cursor: default; }
 .skill-chart-switch button[aria-pressed='true'] { background: var(--interaction-tint); color: var(--interaction-ink); }
-.skill-chart-stage { box-sizing: border-box; width: 100%; max-width: 440px; aspect-ratio: 1; margin-inline: auto; animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
-/* To scale, the zoom row under the chart: the Ctrl + scroll hint, then −, the zoom (press to fit), +. */
-.skill-chart-zoombar { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-4); padding: 0 var(--space-4) var(--space-3); color: var(--ink-3); font-size: var(--type-meta); }
-.skill-chart-zoombar[data-hidden] { visibility: hidden; }
-.skill-chart-zoombar button { min-width: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-3); font-family: var(--font-mono); font-size: var(--type-ui); }
-.skill-chart-zoombar .skill-chart-zoom-value { min-width: calc(var(--space-13) + var(--space-2)); font-size: var(--type-meta); }
+/* The chart and, over its top end corner, the settings button and its menu, which take no space of their own. */
+.skill-chart-view { position: relative; }
+.skill-chart-controls { position: absolute; inset-block-start: var(--space-3); inset-inline-end: var(--space-3); z-index: var(--z-dropdown); display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); }
+.skill-chart-menu-button { display: inline-flex; align-items: center; gap: var(--space-2); min-height: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-3); border: var(--border-width) solid var(--line-soft); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-3); font-family: var(--font-mono); font-size: var(--type-meta); cursor: pointer; opacity: 0.8; transition: color var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+.skill-chart-menu-button:hover, .skill-chart-menu-button[aria-expanded='true'] { border-color: var(--line); color: var(--ink); opacity: 1; }
+.skill-chart-menu { display: grid; grid-template-columns: max-content max-content; align-items: center; gap: var(--space-3) var(--space-4); padding: var(--space-4) var(--space-5); border: var(--border-width) solid var(--line); border-radius: var(--radius-md); background: var(--sheet); box-shadow: var(--shadow-menu); color: var(--ink-2); font-size: var(--type-meta); animation: hydrate-arrive var(--dur-fast) var(--ease-out); }
+.skill-chart-zoom button { min-width: calc(var(--control-height-sm) - var(--space-4)); padding: 0 var(--space-3); font-family: var(--font-mono); font-size: var(--type-ui); }
+.skill-chart-zoom .skill-chart-zoom-value { min-width: calc(var(--space-13) + var(--space-2)); font-size: var(--type-meta); }
+.skill-chart-stage { box-sizing: border-box; width: 100%; padding: var(--space-4); max-width: 440px; aspect-ratio: 1; margin-inline: auto; animation: hydrate-arrive var(--dur-slow) var(--ease-out); }
 .skill-chart-notes { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-5) var(--space-6); border-top: var(--border-width) solid var(--line-soft); }
 
 /* Bars: a name column and a track column shared by every bar (subgrid), with
    the level lines laid over the track column. Rows 1 and last hold the tags. */
 .skill-bars { height: 100%; display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--space-5); }
 .skill-bar { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; padding: 0 var(--space-3); border: var(--border-width-strong) solid transparent; border-radius: var(--radius-sm); background: transparent; text-align: start; cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
-.skill-bar:hover { background: color-mix(in srgb, currentColor 6%, var(--sheet)); }
+.skill-bar:hover { border-color: color-mix(in srgb, currentColor 45%, transparent); background: color-mix(in srgb, currentColor 10%, var(--sheet)); }
 .skill-bar[aria-pressed='true'] { border-color: currentColor; background: color-mix(in srgb, currentColor 12%, var(--sheet)); }
 .skill-bar-name { display: flex; flex-direction: column; gap: var(--space-hairline); font-size: var(--type-ui); line-height: var(--leading-tight); white-space: nowrap; }
 .skill-bar-name strong { font-weight: var(--weight-semibold); }
@@ -32,18 +35,22 @@
 /* A bar zoomed past the track's end stops there, squared off. */
 .skill-bar-fill[data-over] { border-start-end-radius: 0; border-end-end-radius: 0; }
 .skill-bar-fill { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: var(--radius-pill); background: currentColor; opacity: 0.78; transition: width var(--dur-slow) var(--ease-in-out); }
-.skill-bar[aria-pressed='true'] .skill-bar-fill { opacity: 1; }
+.skill-bar:is(:hover, [aria-pressed='true']) .skill-bar-fill { opacity: 1; }
 .skill-bar-conversation { position: absolute; inset-block: calc(-1 * var(--space-1)); inset-inline-start: 0; box-sizing: border-box; border: var(--border-width-strong) solid var(--ink); border-radius: var(--radius-pill); opacity: 0.45; transition: width var(--dur-slow) var(--ease-in-out); }
-/* The track column, less each bar's end padding and border, so lines meet the tracks. */
+/* The track column, less each bar's end padding and border, so lines meet the tracks.
+   Only the lines take the pointer: a strip either side of each shows its tag on hover. */
 .skill-bars-lines { grid-column: 2; grid-row: 1 / -1; position: relative; margin-inline-end: calc(var(--space-3) + var(--border-width-strong)); pointer-events: none; }
-.skill-bars-ring { position: absolute; inset-block: var(--space-9); width: 0; border-inline-start: var(--border-width) dashed color-mix(in srgb, var(--ink) 30%, transparent); transition: inset-inline-start var(--dur-slow) var(--ease-in-out); }
+.skill-bars-ring { position: absolute; inset-block: var(--space-9); width: 0; border-inline-start: var(--border-width) dashed color-mix(in srgb, var(--ink) 30%, transparent); pointer-events: auto; cursor: help; transition: inset-inline-start var(--dur-slow) var(--ease-in-out), border-color var(--dur-fast) var(--ease-out); }
+.skill-bars-ring::before { content: ''; position: absolute; inset-block: 0; inset-inline-start: calc(-1 * var(--space-3)); width: var(--space-5); }
+.skill-bars-ring:hover { z-index: var(--z-raised); border-inline-start-color: var(--ink); }
 .skill-bars-ring[data-current] { border-inline-start: var(--border-width-strong) dashed color-mix(in srgb, var(--ink) 60%, transparent); }
 .skill-bars-ring[data-goal] { border-inline-start: var(--border-width-thick) solid var(--progress-mark); }
-.skill-bars-tag { position: absolute; inset-inline-start: 0; top: 100%; transform: translateX(-50%); padding: 0 var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-snug); white-space: nowrap; }
+.skill-bars-tag { position: absolute; inset-inline-start: 0; top: 100%; transform: translateX(-50%); padding: 0 var(--space-3); border: var(--border-width) solid var(--line); border-radius: var(--radius-pill); background: var(--sheet); color: var(--ink-2); font-family: var(--font-mono); font-size: var(--type-meta); font-weight: var(--weight-semibold); line-height: var(--leading-snug); white-space: nowrap; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); }
+.skill-bars-ring:hover .skill-bars-tag { opacity: 1; }
 .skill-bars-tag:dir(rtl) { transform: translateX(50%); }
 .skill-bars-ring[data-goal] .skill-bars-tag { top: auto; bottom: 100%; border-color: var(--progress-line); background: var(--progress-tint); color: var(--progress-ink); }
 
 @media (prefers-reduced-motion: reduce) {
-  .skill-chart-stage { animation: none; }
-  .skill-chart-switch button, .skill-bar, .skill-bar-fill, .skill-bar-conversation, .skill-bars-ring { transition: none; }
+  .skill-chart-stage, .skill-chart-menu { animation: none; }
+  .skill-chart-switch button, .skill-bar, .skill-bar-fill, .skill-bar-conversation, .skill-bars-ring, .skill-bars-tag { transition: none; }
 }

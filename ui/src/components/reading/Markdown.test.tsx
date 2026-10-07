@@ -140,3 +140,22 @@ describe('curiosity markers', () => {
     expect(html('An empty [[]] marker')).toContain('[[]]')
   })
 })
+
+
+it.each([
+  ['用呢個動詞表示能力', '拆開睇', 'sé'],
+  ['استخدم هذا الفعل للتعبير عن القدرة', 'الشرح', 'sé'],
+  ['क्षमता बताने के लिए इस क्रिया का उपयोग करें', 'व्याख्या', 'sé'],
+  ['Use this verb for ability', 'Explanation', 'أَسْتَطِيعُ'],
+  ['用呢個動詞表示能力', '拆開睇', '識'],
+])('keeps authored explanation prose ordinary regardless of its script: %s', (prose, heading, target) => {
+  const tick = String.fromCharCode(96)
+  const { container } = render(<Markdown targetCode text={prose + ' **' + heading + '** *' + prose + '* ' + tick + target + tick} />)
+  const targets = container.querySelectorAll('.target-inline')
+  expect(targets).toHaveLength(1)
+  expect(targets[0]).toHaveTextContent(target)
+  expect(container.querySelector('strong')?.textContent).toBe(heading)
+  expect(container.querySelector('strong .target-text')).toBeNull()
+  expect(container.querySelector('em .target-text')).toBeNull()
+  expect(container.textContent).toBe(prose + ' ' + heading + ' ' + prose + ' ' + target)
+})

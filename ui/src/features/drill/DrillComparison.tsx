@@ -123,8 +123,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       <div className="drill-reference">
       <div className="drill-target-card">{target ?? <p className="drill-target-none">{tr("No card selected")}</p>}</div>
 
-      <div className="drill-media" dir={direction}>
-        <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Play reference")} disabled={holding || !card} onClick={onPlayReference} title={referenceNote}>
+      <div className="drill-media">
+        <button type="button" className="btn drill-play" aria-label={tr(playingReference ? (mobile && reference ? "Pause" : "Stop") : "Play reference")} disabled={holding || !card} onClick={onPlayReference} title={referenceNote}>
           <ToolbarIcon name={playingReference ? (mobile && reference ? "pause" : "stop") : "play"} size={14} />{tr("Reference")}
         </button>
         {!mobile && playbackSpeed}
@@ -154,8 +154,8 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
       </div>
       <div className="drill-timelines" data-time={direction}>
         <>
-          <div className="drill-media drill-media-take" dir={direction}>
-            <button type="button" className="btn drill-play" dir={direction} aria-label={tr(playingAttempt ? (mobile ? "Pause" : "Stop") : "Play yours")} disabled={!attempt || holding} onClick={onPlayAttempt}>
+          <div className="drill-media drill-media-take">
+            <button type="button" className="btn drill-play" aria-label={tr(playingAttempt ? (mobile ? "Pause" : "Stop") : "Play yours")} disabled={!attempt || holding} onClick={onPlayAttempt}>
               <ToolbarIcon name={playingAttempt ? (mobile ? "pause" : "stop") : "play"} size={14} />{tr("Attempt")}
             </button>
             <PlaybackProgress time={attemptTime} duration={attempt?.duration ?? 0} displayDuration={effectiveScale === "shared" ? span : attemptDuration} mapTime={mapTime} direction={direction}
@@ -182,7 +182,7 @@ export function DrillComparison({ target, reference, referenceTime, onSeekRefere
 
       {attemptFailure != null && <ErrorNotice as="p" error={attemptFailure}>{errorMessage(attemptFailure)}
         <button type="button" className="btn" onClick={onRetryAttempt}>{tr("Try again")}</button></ErrorNotice>}
-      <div className="drill-comparison-foot" dir={direction}>{attempt && <details className="drill-info"><summary aria-label={tr("Detection details")}><span aria-hidden="true">i</span></summary><div dir="auto">
+      <div className="drill-comparison-foot">{attempt && <details className="drill-info"><summary aria-label={tr("Detection details")}><span aria-hidden="true">i</span></summary><div dir="auto">
         {matches && <p>{aligned && <>{tr("Word-aligned display; playback uses original timing.")}{' '}</>}{tr("Alignment matching ignores case and punctuation.")}</p>}
         {attempt.activity.regions.length > 1 && <p>{tr(" · {value0} speech segments", { value0: String(attempt.activity.regions.length) })}</p>}
         <DetectionDetails activity={attempt.activity} spectrogram={attempt.spectrogram}>

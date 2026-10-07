@@ -64,3 +64,21 @@ it('keeps one playback button through preparation and playing, with cancellation
   expect(screen.getByRole('button', { name: 'Stop playback' })).toBe(button)
   expect(screen.queryByRole('status')).toBeNull()
 })
+
+
+it('keeps owner actions in a keyboard and outside-tap dismissible menu even when reading tools fit', () => {
+  vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} })
+  render(<MessageTools play={null} inspect={null} tools={[]} actions={null} more={[]}
+    menuActions={<button>Explain sentence</button>} />)
+  const trigger = screen.getByRole('button', { name: 'More actions' })
+  expect(screen.queryByRole('button', { name: 'Explain sentence' })).toBeNull()
+  fireEvent.click(trigger)
+  const item = screen.getByRole('button', { name: 'Explain sentence' })
+  expect(item).toHaveFocus()
+  fireEvent.keyDown(item, { key: 'Escape' })
+  expect(trigger).toHaveFocus()
+  expect(screen.queryByRole('button', { name: 'Explain sentence' })).toBeNull()
+  fireEvent.click(trigger)
+  fireEvent.pointerDown(document.body)
+  expect(screen.queryByRole('button', { name: 'Explain sentence' })).toBeNull()
+})

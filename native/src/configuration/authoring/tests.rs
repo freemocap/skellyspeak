@@ -106,6 +106,34 @@ fn rejects_missing_duplicate_or_reordered_sections() {
 }
 
 #[test]
+fn variety_sections_require_declared_variety_and_complete_ordered_content() {
+    let path = "languages/spanish/skills/time-events/spanish-time-events-explained-in-english.yaml";
+    let original = files();
+    for mode in 0..5 {
+        let mut files = original.clone();
+        edit(&mut files, path, |d| {
+            let mut sections = d["sections"].as_array().unwrap().clone();
+            match mode {
+                1 => {
+                    sections.pop();
+                }
+                2 => sections.push(sections[0].clone()),
+                3 => sections.swap(0, 1),
+                4 => sections[0]["explanation"] = json!(""),
+                _ => (),
+            }
+            let variety = if mode == 0 {
+                "unknown-variety"
+            } else {
+                "spanish-spain"
+            };
+            d["variety_sections"] = json!({variety: sections});
+        });
+        assert!(load(&files).is_err(), "invalid variety content mode {mode}");
+    }
+}
+
+#[test]
 fn rejects_implicit_variety_fallback_and_stale_review() {
     let path = "languages/spanish/skills/time-events/spanish-time-events-assessment.yaml";
     let mut files = files();
